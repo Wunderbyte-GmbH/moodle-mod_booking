@@ -1,0 +1,12 @@
+<?php
+
+////////////////////////////////////////////////////////////////////////////////
+//  Code fragment to define the module version etc.
+//  This fragment is called by /admin/index.php
+////////////////////////////////////////////////////////////////////////////////
+
+$module->version  = 2011020402;
+$module->requires = 2010112400;  // Requires this Moodle 2.X version
+$module->cron     = 0;
+
+?>

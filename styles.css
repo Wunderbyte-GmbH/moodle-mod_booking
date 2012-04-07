@@ -1,0 +1,31 @@
+.mod-booking .results {
+  border-collapse: separate;
+}
+
+.mod-booking .results .data {
+  border-width:1px;
+  border-style:solid;
+  border-color:#999;
+}
+.mod-booking-inlinetable {
+  display: inline;
+  background-color: none;
+  //float: left;
+}
+tr.mod-booking-booked td.cell {
+   background-color: lightgreen;
+}
+div.mod-booking-waitlist {
+  background-color: orange;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+tr.mod-booking-watinglist td.cell{
+    background-color: orange;
+}
+tr.mod-booking-invisible {
+  visibility:hidden;
+  height: 0;
+  display: none;
+}
