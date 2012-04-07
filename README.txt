@@ -1,10 +1,10 @@
 BOOKING MODULE
 ----------------
 
-This activity allows you to manage bookings for courses, either Moodle-courses or other real-live courses.
+This activity allows you to manage bookings for courses, either moodle-courses or other offline courses.
 Please contact info@edulabs.org for improvements bug reports etc.
 
-Please do not remove the link, that mentions, that the module was created by edulabs.org
+Supported languages: English and German. Please post your translations or improvements on github or send it via mail to us.
 
    Documentation:  http://docs.moodle.org/22/en/Booking_module
 
