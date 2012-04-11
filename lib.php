@@ -183,14 +183,22 @@ function booking_get_user_status($userid,$optionid,$bookingid,$cmid){
 		}
 	}
 	$useridaskey = array_flip($sortedresponses);
-	if($useridaskey[$userid] > $option->maxanswers + $option->maxoverbooking){
-		$status = "Problem, please contact the admin";
-	} elseif (($useridaskey[$userid]) > $option->maxanswers) { // waitspaceavailable
-		$status = get_string('onwaitinglist','booking');
-	} elseif ($useridaskey[$userid] <= $option->maxanswers) {
-		$status = get_string('booked','booking');
+	if($option->limitanswers){
+		if($useridaskey[$userid] > $option->maxanswers + $option->maxoverbooking){
+			$status = "Problem, please contact the admin";
+		} elseif (($useridaskey[$userid]) > $option->maxanswers) { // waitspaceavailable
+			$status = get_string('onwaitinglist','booking');
+		} elseif ($useridaskey[$userid] <= $option->maxanswers) {
+			$status = get_string('booked','booking');
+		} else {
+			$status = get_string('notbooked','booking');
+		}
 	} else {
-		$status = get_string('notbooked','booking');
+		if ($useridaskey[$userid]){
+			$status = get_string('booked','booking');
+		} else {
+			$status = get_string('notbooked','booking');
+		}
 	}
 	return $status;
 }
@@ -290,9 +298,9 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 			$stravailspaces = get_string("placesavailable", "booking").": ".$option->availspaces." / ".$option->maxanswers."<br />".get_string("waitingplacesavailable", "booking").": ".$option->availwaitspaces." / ".$option->maxoverbooking;
 		}
 		$tabledata[] = array ($bookingbutton.$optiondisplay->booked."<br />".get_string($option->status, "booking")."<br />".$optiondisplay->delete,
-			"<b>".format_text($option->text. ' ', FORMAT_MOODLE, $displayoptions)."</b>"."<p>".$option->description."</p>", 
-		$option->coursestarttime." - <br />".$option->courseendtime,
-		$stravailspaces);
+				"<b>".format_text($option->text. ' ', FORMAT_MOODLE, $displayoptions)."</b>"."<p>".$option->description."</p>",
+				$option->coursestarttime." - <br />".$option->courseendtime,
+				$stravailspaces);
 	}
 	$table = new html_table();
 	$table->attributes['class'] = 'box generalbox boxaligncenter';
@@ -321,30 +329,8 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 		return false;
 	}
 	if($booking->option[$optionid]->limitanswers) {
-		// Find out whether groups are being used and enabled
-		if (groups_get_activity_groupmode($cm) > 0) {
-			$currentgroup = groups_get_activity_group($cm);
-		} else {
-			$currentgroup = 0;
-		}
-		$answers = array();
-
-		$countanswers[$optionid]=0;
-		if($currentgroup) {
-			// If groups are being used, retrieve responses only for users in
-			// current group
-			global $CFG;
-			$answers[$optionid] = $DB->get_records_sql("SELECT ca.* FROM
-			{$CFG->prefix}booking_answers ca
-	    INNER JOIN {$CFG->prefix}groups_members gm ON ca.userid=gm.userid
-	WHERE
-	    optionid=$optionid
-	    AND gm.groupid=$currentgroup");
-		} else {
-			// Groups are not used, retrieve all answers for this option ID
-			$answers[$optionid] = $DB->get_records("booking_answers", array("optionid" => $optionid));
-		}
-
+		// retrieve all answers for this option ID
+		$answers[$optionid] = $DB->get_records("booking_answers", array("optionid" => $optionid));
 		if ($answers[$optionid]) {
 			foreach ($answers[$optionid] as $a) { //only return enrolled users.
 				if (has_capability('mod/booking:choose', $context, $a->userid, false)) {
@@ -353,11 +339,29 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 			}
 		}
 		$maxans[$optionid] = $booking->option[$optionid]->maxanswers + $booking->option[$optionid]->maxoverbooking;
+		// if answers for one option are limited and total answers are not exceeded then
+		if (!($booking->option[$optionid]->limitanswers && ($countanswers[$optionid] >= $maxans[$optionid]) )) {
+			// check if actual answer is also already made by this user
+			if(!($currentanswerid = $DB->get_field('booking_answers','id', array('userid' => $user->id, 'optionid' => $optionid)))){
+				$newanswer->bookingid = $booking->id;
+				$newanswer->userid = $user->id;
+				$newanswer->optionid = $optionid;
+				$newanswer->timemodified = time();
+				if (!$DB->insert_record("booking_answers", $newanswer)) {
+					error("Could not register your booking because of a database error");
+				}
+			}
+			add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
+			if ($booking->sendmail){
+				booking_send_confirmation_email($user, $booking, $optionid,$cm->id);
+			}
+			return true;
+		} else { //check to see if current booking already selected - if not display error
+			$optionname = $DB->get_field('booking_options', 'text', array('id' => $optionid));
+			return false;
+		}
 
-	}
-	// if answers for one option are limited and total answers are not exceeded then
-	if (!($booking->option[$optionid]->limitanswers && ($countanswers[$optionid] >= $maxans[$optionid]) )) {
-		// check if actual answer is also already made by this user
+	} else if (!($booking->option[$optionid]->limitanswers)){
 		if(!($currentanswerid = $DB->get_field('booking_answers','id', array('userid' => $user->id, 'optionid' => $optionid)))){
 			$newanswer->bookingid = $booking->id;
 			$newanswer->userid = $user->id;
@@ -372,9 +376,6 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 			booking_send_confirmation_email($user, $booking, $optionid,$cm->id);
 		}
 		return true;
-	} else { //check to see if current booking already selected - if not display error
-		$optionname = $DB->get_field('booking_options', 'text', array('id' => $optionid));
-		return false;
 	}
 }
 
@@ -565,13 +566,13 @@ function booking_get_participants($bookingid) {
 
 	//Get students
 	$students = $DB->get_records_sql("SELECT DISTINCT u.id, u.id
-                                 FROM {$CFG->prefix}user u,
-                                 {$CFG->prefix}booking_answers a
-                                 WHERE a.bookingid = '$bookingid' and
-                                       u.id = a.userid");
+			FROM {$CFG->prefix}user u,
+			{$CFG->prefix}booking_answers a
+			WHERE a.bookingid = '$bookingid' and
+			u.id = a.userid");
 
-                                 //Return students array (it contains an array of unique users)
-                                 return ($students);
+			//Return students array (it contains an array of unique users)
+			return ($students);
 }
 
 
@@ -718,8 +719,8 @@ function booking_reset_userdata($data) {
 
 	if (!empty($data->reset_booking)) {
 		$bookingssql = "SELECT ch.id
-                         FROM {$CFG->prefix}booking ch
-                        WHERE ch.course={$data->courseid}";
+		FROM {$CFG->prefix}booking ch
+		WHERE ch.course={$data->courseid}";
 
 		delete_records_select('booking_answers', "bookingid IN ($bookingssql)");
 		$status[] = array('component'=>$componentstr, 'item'=>get_string('removeresponses', 'booking'), 'error'=>false);
@@ -807,6 +808,10 @@ function booking_send_confirmation_email($user,$booking,$optionid,$cmid){
 		$subject = get_string('confirmationsubjectwaitinglist','booking', $data);
 		$subjectmanager = get_string('confirmationsubjectwaitinglistmanager','booking', $data);
 		$message     = get_string('confirmationmessagewaitinglist', 'booking', $data);
+	} else {
+		$subject ="test";
+		$subjectmanager ="tester";
+		$message = "message";
 	}
 	$messagehtml = text_to_html($message, false, false, true);
 	$errormessage = get_string('error:failedtosendconfirmation','booking', $data);
@@ -944,47 +949,47 @@ function booking_get_extra_capabilities() {
 }
 
 /**
-    * Returns a particular array value for the named variable, taken from
-    * POST or GET, otherwise returning a given default.
-    *
-    * This function should be used to initialise all optional values
-    * in a script that are based on parameters.  Usually it will be
-    * used like this:
-    *    $ids = optional_param('id', array(), PARAM_INT);
-    *
-    *  Note: arrays of arrays are not supported, only alphanumeric keys with _ and - are supported
-    *
-    * @param string $parname the name of the page parameter we want
-    * @param mixed  $default the default value to return if nothing is found
-    * @param string $type expected type of parameter
-    * @return array
-    */
-   function my_optional_param_array($parname, $default, $type) {
-       if (func_num_args() != 3 or empty($parname) or empty($type)) {
-           throw new coding_exception('optional_param_array() requires $parname, $default and $type to be specified (parameter: '.$parname.')');
-       }
-   
-       if (isset($_POST[$parname])) {       // POST has precedence
-           $param = $_POST[$parname];
-       } else if (isset($_GET[$parname])) {
-           $param = $_GET[$parname];
-       } else {
-           return $default;
-       }
-       if (!is_array($param)) {
-           debugging('optional_param_array() expects array parameters only: '.$parname);
-           return $default;
-       }
-   
-       $result = array();
-       foreach($param as $key=>$value) {
-           if (!preg_match('/^[a-z0-9_-]+$/i', $key)) {
-               debugging('Invalid key name in optional_param_array() detected: '.$key.', parameter: '.$parname);
-               continue;
-           }
-           $result[$key] = clean_param($value, $type);
-       }
-   
-       return $result;
-   }
+ * Returns a particular array value for the named variable, taken from
+ * POST or GET, otherwise returning a given default.
+ *
+ * This function should be used to initialise all optional values
+ * in a script that are based on parameters.  Usually it will be
+ * used like this:
+ *    $ids = optional_param('id', array(), PARAM_INT);
+ *
+ *  Note: arrays of arrays are not supported, only alphanumeric keys with _ and - are supported
+ *
+ * @param string $parname the name of the page parameter we want
+ * @param mixed  $default the default value to return if nothing is found
+ * @param string $type expected type of parameter
+ * @return array
+ */
+function my_optional_param_array($parname, $default, $type) {
+	if (func_num_args() != 3 or empty($parname) or empty($type)) {
+		throw new coding_exception('optional_param_array() requires $parname, $default and $type to be specified (parameter: '.$parname.')');
+	}
+
+	if (isset($_POST[$parname])) {       // POST has precedence
+		$param = $_POST[$parname];
+	} else if (isset($_GET[$parname])) {
+		$param = $_GET[$parname];
+	} else {
+		return $default;
+	}
+	if (!is_array($param)) {
+		debugging('optional_param_array() expects array parameters only: '.$parname);
+		return $default;
+	}
+
+	$result = array();
+	foreach($param as $key=>$value) {
+		if (!preg_match('/^[a-z0-9_-]+$/i', $key)) {
+			debugging('Invalid key name in optional_param_array() detected: '.$key.', parameter: '.$parname);
+			continue;
+		}
+		$result[$key] = clean_param($value, $type);
+	}
+
+	return $result;
+}
 ?>
