@@ -167,7 +167,7 @@ Link: {$a->link}
 
 ';
 //report.php
-$string[withselected] = 'With selected users:'; 
+$string['withselected'] = 'With selected users:'; 
 
 
 ?>

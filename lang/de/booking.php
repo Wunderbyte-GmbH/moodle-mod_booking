@@ -181,7 +181,7 @@ Link: {$a->link}
 ';
 
 //report.php
-$string[withselected] = 'Ausgewählte Nutzer/innen'; 
+$string['withselected'] = 'Ausgewählte Nutzer/innen'; 
 
 
 ?>
