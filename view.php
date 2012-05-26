@@ -6,16 +6,13 @@ require_once($CFG->libdir . '/completionlib.php');
 
 $id         = required_param('id', PARAM_INT);                 // Course Module ID
 $action     = optional_param('action', '', PARAM_ALPHA);
-$attemptids = my_optional_param_array('attemptid', array(), PARAM_INT); // array of attempt ids for delete action
-$optionid = optional_param('optionid', '', PARAM_INT); // array of attempt ids for delete action
-$confirm = optional_param('confirm', '',PARAM_INT); // array of attempt ids for delete action
+$optionid = optional_param('optionid', '', PARAM_INT); 
+$confirm = optional_param('confirm', '',PARAM_INT); 
 $answer = optional_param('answer', '',PARAM_ALPHANUM);
 
 $url = new moodle_url('/mod/booking/view.php', array('id'=>$id));
 
-
 $PAGE->set_url($url);
-$PAGE->requires->css('/mod/booking/styles.css');
 
 if (! $cm = get_coursemodule_from_id('booking', $id)) {
 	print_error('invalidcoursemodule');
@@ -28,11 +25,8 @@ if (! $course = $DB->get_record("course", array("id" => $cm->course))) {
 
 require_course_login($course, false, $cm);
 
-/// Check to see if groups are being used in this booking
-$groupmode = groups_get_activity_groupmode($cm);
 
-
-if (!$booking = booking_get_booking($cm, $groupmode)) {
+if (!$booking = booking_get_booking($cm)) {
 	print_error("Course module is incorrect");
 }
 
@@ -123,24 +117,39 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context)) 
 	}
 }
 // we have to refresh $booking as it is modified by submitted data;
-$booking = booking_get_booking($cm,$groupmode);
+$booking = booking_get_booking($cm);
 
 /// Display the booking and possibly results
 add_to_log($course->id, "booking", "view", "view.php?id=$cm->id", $booking->id, $cm->id);
 
-if ($groupmode) {
-	groups_get_activity_group($cm, true);
-	groups_print_activity_menu($cm, $CFG->wwwroot . '/mod/booking/view.php?id='.$id);
-}
-$bookinglist = booking_get_spreadsheet_data($booking, $cm, $groupmode);
-if (has_capability('mod/booking:readresponses', $context)) {
-	booking_show_reportlink($bookinglist, $cm);
-}
+
+$bookinglist = booking_get_spreadsheet_data($booking, $cm);
 
 echo '<div class="clearer"></div>';
 
 if ($booking->intro) {
 	echo $OUTPUT->box(format_module_intro('booking', $booking, $cm->id,true), 'generalbox', 'intro');
+}
+//download spreadsheet of all users
+if (has_capability('mod/booking:downloadresponses',$context)) {
+	/// Download spreadsheet for all booking options
+	echo $html = html_writer::tag('div', get_string('downloadallresponses', 'booking').': ', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
+	$optionstochoose = array( 'all' => get_string('allbookingoptions', 'booking'));
+	foreach ($booking->option as $option){
+		$optionstochoose[$option->id] = $option->text;
+	}
+	$options = array();
+	$options["id"] = "$cm->id";
+	$options["optionid"] = 0;
+	$options["download"] = "ods";
+	$options['action'] = "all";
+	$button =  $OUTPUT->single_button(new moodle_url("report.php", $options), get_string("downloadods"));
+	echo '<div style="width: 100%; text-align: right; display:table;">';
+	echo html_writer::tag('span', $button, array('style' => 'width: 100%; text-align: right; display:table-cell;'));
+	$options["download"] = "xls";
+	$button = $OUTPUT->single_button(new moodle_url("report.php", $options), get_string("downloadexcel"));
+	echo html_writer::tag('span', $button, array('style' => 'text-align: right; display:table-cell;'));
+	echo '</div>';
 }
 
 $current = false;  // Initialise for later
@@ -169,7 +178,7 @@ if ( !$current and $bookingopen and has_capability('mod/booking:choose', $contex
 	} else {
 		$message = "<a href=\"view.php?id=$cm->id&action=mybooking\">".get_string('showmybookings','booking')."</a>";
 		echo $OUTPUT->box($message,'box mdl-align');
-		booking_show_form($booking, $USER, $cm, $bookinglist,0,$url);
+		booking_show_form($booking, $USER, $cm, $bookinglist,0);
 	}
 
 	$bookingformshown = true;
