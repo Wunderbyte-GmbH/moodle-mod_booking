@@ -15,6 +15,10 @@
 tr.mod-booking-booked td.cell {
    background-color: lightgreen;
 }
+table.mod-booking-table td.cell {
+	border-bottom: 1px solid #cecece;
+}
+
 div.mod-booking-waitlist {
   background-color: orange;
   width: 100%;
