@@ -46,7 +46,7 @@ $string['booknow'] = 'Book now';
 $string['notbooked'] = 'Not yet booked';
 $string['available'] = 'Places available';
 $string['placesavailable'] = 'Places available';
-$string['waitingplacesavailable'] = 'Waitinglist places available';
+$string['waitingplacesavailable'] = 'Waiting list places available';
 $string['confirmbookingoffollowing'] = 'Please confirm the booking of following course';
 $string['agreetobookingpolicy'] = 'I have read and agree to the following booking policies';
 $string['bookingsaved'] = 'Your booking was successfully saved. You can now proceed to book other courses.';
@@ -62,16 +62,16 @@ $string['downloadusersforthisoptionxls'] = 'Download users as .xls';
 $string['download'] = 'Download';
 $string['userdownload'] = 'Download users';
 $string['allbookingoptions'] = 'Download users for all booking options';
-$string['subscribetocourse'] = 'Subscribe users to the course';
+$string['subscribetocourse'] = 'Enrol users in the course';
 $string['closed'] = 'Booking closed';
-$string['waitspaceavailable'] = 'Places on waitinglist available';
-$string['onwaitinglist'] = 'You are on the waitinglist';
+$string['waitspaceavailable'] = 'Places on waiting list available';
+$string['onwaitinglist'] = 'You are on the waiting list';
 $string['bookingmeanwhilefull'] = 'Meanwhile someone took already the last place';
 $string['unlimited'] = 'Unlimited';
 $string['starttimenotset'] = 'Start date not set';
 $string['endtimenotset'] = 'End date not set';
 $string['mustfilloutuserinfobeforebooking'] = 'Befor proceeding to the booking form, please fill in some personal booking information';
-$string['subscribeuser'] = 'Do you really want to subscribe the users to the course?';
+$string['subscribeuser'] = 'Do you really want to enrol the users in the following course';
 $string['deleteuserfrombooking'] = 'Do you really want to delete the users from the booking?';
 $string['showallbookings'] = 'Show booking overview for all bookings';
 $string['showmybookings'] = 'Show only my bookings';
@@ -84,7 +84,7 @@ $string['createdby'] = 'Booking module created by edulabs.org';
 // mod_form
 $string['limitanswers'] = 'Limit the number of participants';
 $string['maxparticipantsnumber'] = 'Max. number of participants';
-$string['maxoverbooking'] = 'Max. number of places on waitinglist';
+$string['maxoverbooking'] = 'Max. number of places on waiting list';
 $string['defaultbookingoption'] = 'Default booking options';
 $string['sendconfirmmail'] = 'Send confirmation email';
 $string['sendconfirmmailtobookingmanger'] = 'Send confirmation email to booking manager';
@@ -102,7 +102,7 @@ $string['coursestarttime'] = 'Start time of the course';
 $string['courseendtime'] = 'End time of the course';
 $string['addeditbooking'] = 'Edit booking';
 $string['donotselectcourse'] = 'No course selected';
-$string['waitinglisttaken'] = 'On the waitinglist';
+$string['waitinglisttaken'] = 'On the waiting list';
 $string['addnewbookingoption'] = 'Add a new booking option';
 
 
@@ -168,6 +168,10 @@ Link: {$a->link}
 ';
 //report.php
 $string['withselected'] = 'With selected users:'; 
+$string['associatedcourse'] = 'Associated course';
+$string['bookedusers'] = 'Booked users';
+$string['waitinglistusers'] = 'Users on waiting list';
+$string['downloadallresponses'] = 'Download all responses for all booking options';
 
 
 ?>
