@@ -73,7 +73,7 @@ $string['unlimited'] = 'Unbegrenzt';
 $string['starttimenotset'] = 'Kursbeginn nicht festgelegt';
 $string['endtimenotset'] = 'Kursende nicht festgelegt';
 $string['mustfilloutuserinfobeforebooking'] = 'Bevor Sie buchen, füllen Sie bitte noch Ihre persönlichen Buchungsdaten aus';
-$string['subscribeuser'] = 'Wollen Sie diese User wirklich in den Kurs einschreiben?';
+$string['subscribeuser'] = 'Wollen Sie diese User wirklich in diesen Kurs einschreiben';
 $string['deleteuserfrombooking'] = 'Buchung für Nutzer/innen wirklich stornieren?';
 $string['showallbookings'] = 'Zur Buchungsgesamtübersicht';
 $string['showmybookings'] = 'Zur Liste meiner Buchungen';
@@ -180,8 +180,12 @@ Link: {$a->link}
 
 ';
 
-//report.php
+//report.php and bookingmanagusers.class.php
 $string['withselected'] = 'Ausgewählte Nutzer/innen'; 
+$string['associatedcourse'] = 'Dazu gehörender Kurs';
+$string['bookedusers'] = 'Gebuchte Nutzer/innen';
+$string['waitinglistusers'] = 'Nutzer/innen auf der Warteliste';
+$string['downloadallresponses'] = 'Alle Buchungen herunterladen';
 
 
 ?>
