@@ -5,7 +5,6 @@ require_once("bookingform.class.php");
 
 $id         = required_param('id', PARAM_INT);                 // Course Module ID
 $optionid   = optional_param('optionid','', PARAM_ALPHANUM);
-$fromform   = my_optional_param_array('fromform', array(), PARAM_RAW);
 $sesskey    = optional_param('sesskey', '', PARAM_INT);
 
 $url = new moodle_url('/mod/booking/editoptions.php', array('id'=>$id));
@@ -68,7 +67,7 @@ if ($mform->is_cancelled()){
 } else if ($fromform=$mform->get_data()){
 	//validated data.
 	if(confirm_sesskey() && has_capability('mod/booking:updatebooking', $context)){
-		if($fromform->limitanswers != 1) {
+		if(!isset($fromform->limitanswers)) {
 		   $fromform->limitanswers = 0;
 		}
 		booking_update_options($fromform);
