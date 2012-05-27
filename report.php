@@ -67,6 +67,9 @@ $PAGE->set_title(format_string($booking->name).": $strresponses");
 $PAGE->set_heading($course->fullname);
 
 if (!$download) {
+	if(!isset($bookinglist[$optionid])){
+		$bookinglist[$optionid] = false;
+	}
 	$sortedusers = booking_user_status($booking->option[$optionid],$bookinglist[$optionid]);
 	$booking->option[$optionid]->courseurl = new moodle_url('/course/view.php', array('id'=>$booking->option[$optionid]->courseid));
 	$booking->option[$optionid]->urltitle =$DB->get_field('course', 'shortname', array('id'=>$booking->option[$optionid]->id));

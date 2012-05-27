@@ -189,6 +189,12 @@ if ( !$current and $bookingopen and has_capability('mod/booking:choose', $contex
 if (!$bookingformshown) {
 	echo $OUTPUT->box(get_string("norighttobook", "booking"));
 }
+	if (has_capability('mod/booking:updatebooking', $context)) {
+		$addoptionurl = new moodle_url('editoptions.php', array('id'=>$cm->id, 'optionid'=> 'add'));
+		echo '<div style="width: 100%; text-align: center;">';
+		echo $OUTPUT->single_button($addoptionurl,get_string('addnewbookingoption','booking'),'get');
+		echo '</div>';
+	}
 		echo $OUTPUT->box("<a href=\"http://www.edulabs.org\">".get_string('createdby','booking')."</a>",'box mdl-align');
 echo $OUTPUT->footer();
 
