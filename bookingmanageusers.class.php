@@ -13,7 +13,7 @@ class mod_booking_manageusers_form extends moodleform {
 		$mform->addElement('html','  <a href="editoptions.php?id='.$this->_customdata['bookingdata']->cmid.'&optionid='.$this->_customdata['bookingdata']->id.'">'.get_string('updatebooking','booking').'</a>');
 		$mform->addElement('html',' | <a href="report.php?id='.$this->_customdata['bookingdata']->cmid.'&optionid='.$this->_customdata['bookingdata']->id.'&action=deletebookingoption&sesskey='.sesskey().'">'.get_string('deletebookingoption','booking').'</a>');
 		
-		$downloadoptions = array('id' => $this->_customdata['bookingdata']->cmid,'action' => $this->_customdata['bookingdata']->id,'download'=>'ods');
+		$downloadoptions = array('id' => $this->_customdata['bookingdata']->cmid,'action' => $this->_customdata['bookingdata']->id,'download'=>'ods','optionid' => $this->_customdata['bookingdata']->id);
 		$odsurl = new moodle_url('report.php', $downloadoptions);
 		$mform->addElement('html',' | <a href="'.$odsurl.'">'.get_string('downloadusersforthisoptionods','booking').'</a>');
 		$downloadoptions['download'] ='xls';
