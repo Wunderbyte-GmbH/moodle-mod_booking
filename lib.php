@@ -231,11 +231,12 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 
 	$context = get_context_instance(CONTEXT_MODULE, $cm->id);
 	$table = NULL;
-
+	$displayoptions = new stdClass();
 	$displayoptions->para = false;
 	$tabledata = array();
 	$current = array();
 	foreach ($booking->option as $option) {
+		$optiondisplay = new stdClass();
 		$optiondisplay->delete = "";
 		$optiondisplay->button = "";
 		$hiddenfields = array('answer' => $option->id);
