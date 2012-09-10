@@ -42,7 +42,13 @@ require_capability('mod/booking:updatebooking', $context);
 
 $mform = new mod_booking_bookingform_form();
 
-if($default_values = $DB->get_record('booking_options', array('bookingid' => $booking->id, 'id' => $optionid))){
+if($optionid == 'add'){
+	$default_values = $booking;
+	$default_values->optionid = "add";
+	$default_values->bookingid = $booking->id;
+	$default_values->id = $cm->id;
+	$default_values->text = '';
+} else if ($default_values = $DB->get_record('booking_options', array('bookingid' => $booking->id, 'id' => $optionid))){
    $default_values->optionid = $optionid;
    $default_values->description = array('text'=>$default_values->description, 'format'=>FORMAT_HTML);
    $default_values->id = $cm->id;
@@ -54,11 +60,7 @@ if($default_values = $DB->get_record('booking_options', array('bookingid' => $bo
    }   
    
 } else {
-		$default_values = $booking;
-		$default_values->optionid = "add";
-		$default_values->bookingid = $booking->id;
-		$default_values->id = $cm->id;
-		$default_values->text = '';	
+	print_error('This booking option does not exist');
 }
 
 if ($mform->is_cancelled()){
