@@ -51,7 +51,7 @@ if (empty($records)) {      // Brand new database!
 if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capability('mod/booking:choose', $context) and ($booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
 	if ($answer = $DB->get_record('booking_answers', array('bookingid' => $booking->id, 'userid' => $USER->id, 'optionid' => $optionid))) {
 		$newbookeduser = booking_check_statuschange($optionid, $booking, $USER->id, $cm->id);
-		if(booking_delete_singlebooking($answer->id,$booking,$optionid,$newbookeduser,$cm->id)){
+		if(booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduser,$cm->id)){
 			echo $OUTPUT->header();
 			$contents = get_string('bookingdeleted','booking');
 			$contents .= $OUTPUT->single_button($url, get_string('continue'),'get');
@@ -63,7 +63,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capab
 } elseif ($action == 'delbooking'  and confirm_sesskey() and has_capability('mod/booking:choose', $context) and ($booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))){    //print confirm delete form
 	echo $OUTPUT->header();
 	$options = array('id' => $cm->id, 'action' => 'delbooking', 'confirm' => 1, 'optionid' => $optionid, 'sesskey' => $USER->sesskey);
-	$deletemessage = $booking->option[$optionid]->text."<br />".$booking->option[$optionid]->coursestarttime." - ".$booking->option[$optionid]->courseendtime;
+	$deletemessage = $booking->option[$optionid]->text."<br />".$booking->option[$optionid]->coursestarttimetext." - ".$booking->option[$optionid]->courseendtimetext;
 	echo $OUTPUT->confirm(get_string('deletebooking','booking',$deletemessage), new moodle_url('view.php',$options),$url);
 	echo $OUTPUT->footer();
 	die;

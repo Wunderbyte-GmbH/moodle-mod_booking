@@ -84,7 +84,7 @@ if (!$download) {
 		//this branch is where you process validated data.
 		if (isset($fromform->deleteusers) && has_capability('mod/booking:deleteresponses',$context) && confirm_sesskey()) {
 			$selectedusers[$optionid] = array_keys($fromform->user,1);
-			booking_delete_responses($selectedusers, $booking); //delete responses.
+			booking_delete_responses($selectedusers, $booking, $cm->id); //delete responses.
 			redirect($url);
 		} else if (isset($fromform->subscribetocourse) && confirm_sesskey()) { // subscription submitted - confirm it
 			$selectedusers = array_keys($fromform->user,1);

@@ -94,7 +94,26 @@ $string['confirmationmessagesettings'] = 'Confirmation email settings';
 $string['usernameofbookingmanager'] = 'Username of the booking manager';
 $string['autoenrol'] = 'Automatically enrol users';
 $string['autoenrol_help'] = 'If selected, users will be enroled onto the relevant course as soon as they make the booking and unenroled from that course as soon as the booking is cancelled.';
-
+$string['bookedtext'] = 'Booking confirmation';
+$string['waitingtext'] = 'Waiting list confirmation';
+$string['statuschangetext'] = 'Status change message';
+$string['deletedtext'] = 'Cancelled booking message';
+$string['bookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+</ul>';
+$string['waitingtext_help'] = $string['bookedtext_help'];
+$string['statuschangetext_help'] = $string['bookedtext_help'];
+$string['deletedtext_help'] = $string['bookedtext_help'];
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';
@@ -109,63 +128,73 @@ $string['addnewbookingoption'] = 'Add a new booking option';
 
 
 // Confirmation mail
-$string['deletedbookingsubject'] = 'Deleted booking: {$a->bookingname} by {$a->name}';
-$string['deletedbookingmessage'] = 'Booking for following course deleted: {$a->bookingname}
+$string['days'] = '{$a} days';
+$string['hours'] = '{$a} hours';
+$string['minutes'] = '{$a} minutes';
 
-User: {$a->name}
-Link: {$a->link};
+$string['deletedbookingsubject'] = 'Deleted booking: {$a->title} by {$a->participant}';
+$string['deletedbookingmessage'] = 'Booking for following course deleted: {$a->title}
+
+User: {$a->participant}
+Title: {$a->title}
+Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+Course: {$a->courselink}
+Booking link: {$a->bookinglink}
 
 ';
 
-$string['confirmationsubject'] = 'Booking confirmation for {$a->bookingname}';
-$string['confirmationsubjectbookingmanager'] = 'New booking for {$a->bookingname} by {$a->name}';
+$string['confirmationsubject'] = 'Booking confirmation for {$a->title}';
+$string['confirmationsubjectbookingmanager'] = 'New booking for {$a->title} by {$a->participant}';
 $string['confirmationmessage'] = 'Your booking has been registered
 
 
 Booking status: {$a->status}
-Participant:   {$a->name}
-Course:   {$a->bookingname}
-Date: {$a->date}
-To view all your booked courses click on the following link: {$a->link}
+Participant:   {$a->participant}
+Course:   {$a->title}
+Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+To view all your booked courses click on the following link: {$a->bookinglink}
+The associated course can be found here: {$a->courselink}
 
 ';
-$string['confirmationsubjectwaitinglist'] = 'Booking status for {$a->bookingname}';
-$string['confirmationsubjectwaitinglistmanager'] = 'Booking status for {$a->bookingname}';
-$string['confirmationmessagewaitinglist'] = 'Hello {$a->name},
+$string['confirmationsubjectwaitinglist'] = 'Booking status for {$a->title}';
+$string['confirmationsubjectwaitinglistmanager'] = 'Booking status for {$a->title}';
+$string['confirmationmessagewaitinglist'] = 'Hello {$a->participant},
 
 Your booking request has been registered
 
 Booking status: {$a->status}
-Participant:   {$a->name}
-Course:   {$a->bookingname}
-Date: {$a->date}
-To view all your booked courses click on the following link: {$a->link}
+Participant:   {$a->participant}
+Course:   {$a->title}
+Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+To view all your booked courses click on the following link: {$a->bookinglink}
+The associated course can be found here: {$a->courselink}
 
 ';
-$string['statuschangebookedsubject'] = 'Booking status changed for {$a->bookingname}';
-$string['statuschangebookedmessage'] = 'Hello {$a->name},
+$string['statuschangebookedsubject'] = 'Booking status changed for {$a->title}';
+$string['statuschangebookedmessage'] = 'Hello {$a->participant},
 
-Your booking status has changed. You are now registered in {$a->bookingname}.
+Your booking status has changed. You are now registered in {$a->title}.
 
 Booking status: {$a->status}
-Participant:   {$a->name}
-Course:   {$a->bookingname}
-Date: {$a->date}
-To view all your booked courses click on the following link: {$a->link}
+Participant:   {$a->participant}
+Course:   {$a->title}
+Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+To view all your booked courses click on the following link: {$a->bookinglink}
 ';
-$string['deletedbookingusersubject'] = 'Booking for {$a->bookingname} cancelled';
-$string['deletedbookingusermessage'] = 'Hello {$a->name},
+$string['deletedbookingusersubject'] = 'Booking for {$a->title} cancelled';
+$string['deletedbookingusermessage'] = 'Hello {$a->participant},
 
-Your booking for {$a->bookingname} was successfully cancelled.
+Your booking for {$a->title} ({$a->startdate} {$a->starttime}) has been cancelled.
 ';
 
 $string['error:failedtosendconfirmation'] = 'The following user did not receive a confirmation mail
 
 Booking status: {$a->status}
-Participant:   {$a->name}
-Course:   {$a->bookingname}
-Date: {$a->date}
-Link: {$a->link}
+Participant:   {$a->participant}
+Course:   {$a->title}
+Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+Link: {$a->bookinglink}
+Associated course: {$a->courselink}
 
 ';
 //report.php
@@ -175,5 +204,3 @@ $string['bookedusers'] = 'Booked users';
 $string['waitinglistusers'] = 'Users on waiting list';
 $string['downloadallresponses'] = 'Download all responses for all booking options';
 
-
-?>

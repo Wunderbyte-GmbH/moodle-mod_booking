@@ -16,4 +16,4 @@ Changes
 05-10-2012:
 - Extra option to allow users to be automatically enrolled / unenrolled to/from the associated courses when they make a
 booking or the booking is cancelled
-
+- Booking email messages can now be customised via the booking settings page

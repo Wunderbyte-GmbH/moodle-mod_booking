@@ -23,7 +23,11 @@
         <FIELD NAME="maxanswers" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="limitanswers" NEXT="maxoverbooking"/>
         <FIELD NAME="maxoverbooking" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="maxanswers" NEXT="timemodified"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="maxoverbooking" NEXT="autoenrol"/>
-        <FIELD NAME="autoenrol" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" COMMENT="Automatically enrol / unenrol users to/from courses as soon as booking are made / cancelled" PREVIOUS="timemodified"/>
+        <FIELD NAME="autoenrol" TYPE="int" LENGTH="4" NOTNULL="false" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" COMMENT="Automatically enrol / unenrol users to/from courses as soon as booking are made / cancelled" PREVIOUS="timemodified" NEXT="bookedtext"/>
+        <FIELD NAME="bookedtext" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a successful booking is made" PREVIOUS="autoenrol" NEXT="waitingtext"/>
+        <FIELD NAME="waitingtext" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a booking has been added to the waiting list" PREVIOUS="bookedtext" NEXT="statuschangetext"/>
+        <FIELD NAME="statuschangetext" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a booking status has changed" PREVIOUS="waitingtext" NEXT="deletedtext"/>
+        <FIELD NAME="deletedtext" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a booking has been cancelled" PREVIOUS="statuschangetext"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
