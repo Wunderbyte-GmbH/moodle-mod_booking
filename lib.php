@@ -700,12 +700,12 @@ function booking_get_booking($cm) {
 		foreach ($options as $option){
 			$booking->option[$option->id] = $option;
 			if(!$option->coursestarttime == 0){
-				$booking->option[$option->id]->coursestarttimetext = userdate($option->coursestarttime, get_string('strftimedate'));
+				$booking->option[$option->id]->coursestarttimetext = userdate($option->coursestarttime, get_string('strftimedatetime'));
 			} else {
 				$booking->option[$option->id]->coursestarttimetext = get_string("starttimenotset", 'booking');
 			}
 			if(!$option->courseendtime == 0){
-				$booking->option[$option->id]->courseendtimetext = userdate($option->courseendtime, get_string('strftimedate'),'',false);
+				$booking->option[$option->id]->courseendtimetext = userdate($option->courseendtime, get_string('strftimedatetime'),'',false);
 			} else {
 				$booking->option[$option->id]->courseendtimetext = get_string("endtimenotset", 'booking');
 			}
