@@ -374,6 +374,7 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 				if (!$DB->insert_record("booking_answers", $newanswer)) {
 					error("Could not register your booking because of a database error");
 				}
+                booking_check_enrol_user($booking->option[$optionid], $booking, $user->id);
 			}
 			add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
 			if ($booking->sendmail){
@@ -394,6 +395,7 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 			if (!$DB->insert_record("booking_answers", $newanswer)) {
 				error("Could not register your booking because of a database error");
 			}
+            booking_check_enrol_user($booking->option[$optionid], $booking, $user->id);
 		}
 		add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
 		if ($booking->sendmail){
@@ -401,6 +403,68 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 		}
 		return true;
 	}
+}
+
+/**
+ * Automatically enrol the user in the relevant course, if that setting is on and a
+ * course has been specified.
+ * @param object $option
+ * @param object $booking
+ * @param int $userid
+ */
+function booking_check_enrol_user($option, $booking, $userid) {
+    global $DB;
+
+    if (!$booking->autoenrol) {
+        return; // Autoenrol not enabled.
+    }
+    if (!$option->courseid) {
+        return; // No course specified.
+    }
+
+    if (!enrol_is_enabled('manual')) {
+        return; // Manual enrolment not enabled.
+    }
+
+    if (!$enrol = enrol_get_plugin('manual')) {
+        return; // No manual enrolment plugin
+    }
+    if (!$instances = $DB->get_records('enrol', array('enrol'=>'manual', 'courseid'=>$option->courseid, 'status'=>ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
+        return; // No manual enrolment instance on this course.
+    }
+    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
+
+    $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
+}
+
+/**
+ * Automatically unenrol the user from the relevant course, if that setting is on and a
+ * course has been specified.
+ * @param object $option
+ * @param object $booking
+ * @param int $userid
+ */
+function booking_check_unenrol_user($option, $booking, $userid) {
+    global $DB;
+
+    if (!$booking->autoenrol) {
+        return; // Autoenrol not enabled.
+    }
+    if (!$option->courseid) {
+        return; // No course specified.
+    }
+    if (!enrol_is_enabled('manual')) {
+        return; // Manual enrolment not enabled.
+    }
+    if (!$enrol = enrol_get_plugin('manual')) {
+        return; // No manual enrolment plugin
+    }
+    if (!$instances = $DB->get_records('enrol', array('enrol'=>'manual', 'courseid'=>$option->courseid, 'status'=>ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
+        return; // No manual enrolment instance on this course.
+    }
+    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
+
+    $enrol->unenrol_user($instance, $userid); // Unenrol the user.
 }
 
 
@@ -489,6 +553,7 @@ function booking_delete_singlebooking($answerid,$booking,$optionid,$newbookeduse
 	if(!$DB->delete_records('booking_answers', array('id' => $answerid))){
 		return false;
 	}
+    booking_check_unenrol_user($booking->option[$optionid], $booking, $USER->id);
 	$supportuser = generate_email_supportuser();
 	$supportuserparams = new stdClass();
 	$supportuserparams->bookingname = $booking->option[$optionid]->text;
@@ -519,7 +584,7 @@ function booking_delete_singlebooking($answerid,$booking,$optionid,$newbookeduse
 	return true;
 }
 
-function booking_delete_responses($attemptidsarray, $bookingid) {
+function booking_delete_responses($attemptidsarray, $booking) {
 	global $DB;
 	if(!is_array($attemptidsarray) || empty($attemptidsarray)) {
 		return false;
@@ -534,8 +599,9 @@ function booking_delete_responses($attemptidsarray, $bookingid) {
 			}
 		}
 		foreach($attemptids as $attemptid) {
-			if ($todelete = $DB->get_record('booking_answers', array('bookingid' => $bookingid, 'userid' => $attemptid, 'optionid' => $optionid))) {
-				$DB->delete_records('booking_answers', array('bookingid' => $bookingid, 'userid' => $attemptid, 'optionid' => $optionid));
+			if ($todelete = $DB->get_record('booking_answers', array('bookingid' => $booking->id, 'userid' => $attemptid, 'optionid' => $optionid))) {
+				$DB->delete_records('booking_answers', array('bookingid' => $booking->id, 'userid' => $attemptid, 'optionid' => $optionid));
+                booking_check_unenrol_user($booking->option[$optionid], $booking, $attemptid);
 			}
 		}
 	}
@@ -924,7 +990,7 @@ function booking_check_user_profile_fields($userid){
  * @param $optionid the booking option
  * @return false if not successful, true on success
  */
-function booking_delete_booking_option($bookingid, $optionid) {
+function booking_delete_booking_option($booking, $optionid) {
 	global $DB;
 
 	if (! $option = $DB->get_record("booking_options", array("id" => $optionid))) {
@@ -933,7 +999,12 @@ function booking_delete_booking_option($bookingid, $optionid) {
 
 	$result = true;
 
-	if (! $DB->delete_records("booking_answers", array("bookingid" => $bookingid, "optionid" => $optionid))) {
+    $params = array('bookingid' => $booking->id, 'optionid' => $optionid);
+    $userids = $DB->get_fieldset_select('booking_answers', 'userid', 'bookingid = :bookingid AND optionid = :optionid', $params);
+    foreach ($userids as $userid) {
+        booking_check_unenrol_user($option, $booking, $userid); // Unenrol any users enroled via this option.
+    }
+	if (! $DB->delete_records("booking_answers", array("bookingid" => $booking->id, "optionid" => $optionid))) {
 		$result = false;
 	}
 

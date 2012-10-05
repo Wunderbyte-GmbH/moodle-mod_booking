@@ -75,6 +75,9 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setType('bookingpolicy', PARAM_CLEANHTML);
 
         $mform->addElement('selectyesno', 'allowupdate', get_string("allowdelete", "booking"));
+
+        $mform->addElement('selectyesno', 'autoenrol', get_string('autoenrol', 'booking'));
+        $mform->addHelpButton('autoenrol', 'autoenrol', 'booking');
 		
 		//-------------------------------------------------------------------------------
         $this->standard_coursemodule_elements();

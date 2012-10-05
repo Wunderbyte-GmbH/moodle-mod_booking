@@ -92,6 +92,8 @@ $string['allowdelete'] = 'Allow users to cancel their booking themselves';
 $string['bookingpolicy'] = 'Booking policy';
 $string['confirmationmessagesettings'] = 'Confirmation email settings';
 $string['usernameofbookingmanager'] = 'Username of the booking manager';
+$string['autoenrol'] = 'Automatically enrol users';
+$string['autoenrol_help'] = 'If selected, users will be enroled onto the relevant course as soon as they make the booking and unenroled from that course as soon as the booking is cancelled.';
 
 
 // editoptions.php

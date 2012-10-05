@@ -47,8 +47,8 @@ $strresponses = get_string("responses", "booking");
 add_to_log($course->id, "booking", "report", "report.php?id=$cm->id", "$booking->id",$cm->id);
 
 if ($action == 'deletebookingoption' && $confirm == 1 && has_capability('mod/booking:updatebooking',$context) && confirm_sesskey()) {
-	booking_delete_booking_option($booking->id, $optionid); //delete booking_option
-	redirect("report.php?id=$cm->id");
+	booking_delete_booking_option($booking, $optionid); //delete booking_option
+	redirect("view.php?id=$cm->id");
 } elseif ($action == 'deletebookingoption' && has_capability('mod/booking:updatebooking',$context) && confirm_sesskey()) {
 	echo $OUTPUT->header();
 	$confirmarray['action'] = 'deletebookingoption';
@@ -72,8 +72,9 @@ if (!$download) {
 	}
 	$sortedusers = booking_user_status($booking->option[$optionid],$bookinglist[$optionid]);
 	$booking->option[$optionid]->courseurl = new moodle_url('/course/view.php', array('id'=>$booking->option[$optionid]->courseid));
-	$booking->option[$optionid]->urltitle =$DB->get_field('course', 'shortname', array('id'=>$booking->option[$optionid]->id));
+	$booking->option[$optionid]->urltitle =$DB->get_field('course', 'shortname', array('id'=>$booking->option[$optionid]->courseid));
 	$booking->option[$optionid]->cmid = $cm->id;
+    $booking->option[$optionid]->autoenrol = $booking->autoenrol;
 	$mform = new mod_booking_manageusers_form(null, array('bookingdata' => $booking->option[$optionid],'waitinglistusers' => $sortedusers['waitinglist'], 'bookedusers' => $sortedusers['booked'])); //name of the form you defined in file above.
 
 	//managing the form
@@ -83,7 +84,7 @@ if (!$download) {
 		//this branch is where you process validated data.
 		if (isset($fromform->deleteusers) && has_capability('mod/booking:deleteresponses',$context) && confirm_sesskey()) {
 			$selectedusers[$optionid] = array_keys($fromform->user,1);
-			booking_delete_responses($selectedusers, $booking->id); //delete responses.
+			booking_delete_responses($selectedusers, $booking); //delete responses.
 			redirect($url);
 		} else if (isset($fromform->subscribetocourse) && confirm_sesskey()) { // subscription submitted - confirm it
 			$selectedusers = array_keys($fromform->user,1);

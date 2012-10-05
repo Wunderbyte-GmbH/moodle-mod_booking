@@ -71,6 +71,22 @@ function xmldb_booking_upgrade($oldversion) {
         }
     	
     }
+
+    if ($oldversion < 2012091601) {
+        // Define field autoenrol to be added to booking
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('autoenrol', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'timemodified');
+
+        // Conditionally launch add field autoenrol
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // booking savepoint reached
+        upgrade_mod_savepoint(true, 2012091601, 'booking');
+    }
+
+
     return true;
 }
 
