@@ -9,14 +9,20 @@
 }
 .mod-booking-inlinetable {
   display: inline;
-  background-color: none;
-  //float: left;
+  background-color: transparent;
+  /*float: left;*/
 }
 tr.mod-booking-booked td.cell {
    background-color: lightgreen;
 }
+tr.mod-booking-booked.inpast td.cell {
+    background-color: #d6f9d9;
+}
 table.mod-booking-table td.cell {
 	border-bottom: 1px solid #cecece;
+}
+table.mod-booking-table tr.inpast td.cell {
+    color: #909090;
 }
 
 div.mod-booking-waitlist {

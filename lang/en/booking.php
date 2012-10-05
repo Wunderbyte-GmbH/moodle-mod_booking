@@ -80,6 +80,8 @@ $string['deletebookingoption'] = 'Delete this booking option';
 $string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option?';
 $string['norighttobook'] = 'Booking is not possible for your user role. Please contact the site administrator to give you the appropriate rights or sign in.';
 $string['createdby'] = 'Booking module created by edulabs.org';
+$string['maxperuserwarning'] = 'You have currently have {$a->count}/{$a->limit} maximum bookings';
+$string['bookedpast'] = 'Booked (course finished)';
 
 // mod_form
 $string['limitanswers'] = 'Limit the number of participants';
@@ -114,6 +116,8 @@ $string['bookedtext_help'] = 'Leave this blank to use the site default text. You
 $string['waitingtext_help'] = $string['bookedtext_help'];
 $string['statuschangetext_help'] = $string['bookedtext_help'];
 $string['deletedtext_help'] = $string['bookedtext_help'];
+$string['maxperuser'] = 'Max current bookings per user';
+$string['maxperuser_help'] = 'The maximum number of bookings an individual user can make in this activity at once. After an event end time has passed, it is no longer counted against this limit.';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';

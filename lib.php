@@ -212,6 +212,44 @@ function booking_get_user_status($userid,$optionid,$bookingid,$cmid){
 }
 
 /**
+ * Display a message about the maximum nubmer of bookings this user is allowed to make
+ * @param object $booking
+ * @param object $user
+ * @param object[] $bookinglist
+ * @return string
+ */
+function booking_show_maxperuser($booking, $user, $bookinglist) {
+    if (!$booking->maxperuser) {
+        return ''; // No per-user limits.
+    }
+
+    $outdata = new stdClass();
+    $outdata->limit = $booking->maxperuser;
+    $outdata->count = booking_get_user_booking_count($booking, $user, $bookinglist);
+
+    return html_writer::tag('p', get_string('maxperuserwarning', 'mod_booking', $outdata));
+}
+
+function booking_get_user_booking_count($booking, $user, $bookinglist) {
+    $count = 0;
+    $now = time();
+    foreach ($bookinglist as $optionid => $optbookings) {
+        if (!isset($booking->option[$optionid])) {
+            continue; // Booking not for one of the available options (shouldn't happen?)
+        }
+        if ($booking->option[$optionid]->courseendtime < $now) {
+            continue; // Booking is in the past - ignore it.
+        }
+        foreach ($optbookings as $optbooking) {
+            if ($optbooking->id == $user->id) {
+                $count++; // Current booking for this user.
+            }
+        }
+    }
+    return $count;
+}
+
+/**
  * Echoes HTML code for booking table with all booking options and booking status
  * @param $booking object containing complete details of the booking instance
  * @param $user object of current user
@@ -241,6 +279,10 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 	$displayoptions->para = false;
 	$tabledata = array();
 	$current = array();
+
+    $underlimit = ($booking->maxperuser == 0);
+    $underlimit = $underlimit || (booking_get_user_booking_count($booking, $user, $allresponses) < $booking->maxperuser);
+
 	foreach ($booking->option as $option) {
 		$optiondisplay = new stdClass();
 		$optiondisplay->delete = "";
@@ -255,10 +297,16 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 			}
 		}
 
+        $inpast = $option->courseendtime && ($option->courseendtime < time());
+        $extraclass = $inpast ? ' inpast' : '';
 		if (!empty($current[$option->id])) {
 			if (!$option->limitanswers){
-				$optiondisplay->booked = get_string('booked','booking');
-				$rowclasses[] = "mod-booking-booked";
+                if ($inpast) {
+                    $optiondisplay->booked = get_string('bookedpast','booking');
+                } else {
+                    $optiondisplay->booked = get_string('booked','booking');
+                }
+                $rowclasses[] = "mod-booking-booked".$extraclass;
 				if(($booking->allowupdate and $option->status != 'closed') or has_capability('mod/booking:deleteresponses', $context)){
 					$buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
 					$url = new moodle_url('view.php',$buttonoptions);
@@ -269,15 +317,19 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 				$optiondisplay->booked = "Problem, please contact the admin";
 			} elseif ($current[$option->id] > $option->maxanswers) { // waitspaceavailable
 				$optiondisplay->booked = get_string('onwaitinglist','booking');
-				$rowclasses[] = "mod-booking-watinglist";
+				$rowclasses[] = "mod-booking-watinglist".$extraclass;
 				if(($booking->allowupdate and $option->status != 'closed') or has_capability('mod/booking:deleteresponses', $context)){
 					$buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
 					$url = new moodle_url('view.php',$buttonoptions);
 					$optiondisplay->delete = $OUTPUT->single_button($url,get_string('cancelbooking','booking'),'post').'<br />';
 				}
 			} elseif ($current[$option->id] <= $option->maxanswers) {
-				$optiondisplay->booked = get_string('booked','booking');
-				$rowclasses[] = "mod-booking-booked";
+                if ($inpast) {
+                    $optiondisplay->booked = get_string('bookedpast','booking');
+                } else {
+                    $optiondisplay->booked = get_string('booked','booking');
+                }
+                $rowclasses[] = "mod-booking-booked".$extraclass;
 				if(($booking->allowupdate and $option->status != 'closed') or has_capability('mod/booking:deleteresponses', $context)){
 					$buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
 					$url = new moodle_url('view.php',$buttonoptions);
@@ -290,9 +342,9 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 		} else {
 			$optiondisplay->booked = get_string('notbooked','booking');
 			if (!$singleuser){
-				$rowclasses[] = "";
+				$rowclasses[] = $extraclass;
 			} else {
-				$rowclasses[] = "mod-booking-invisible";
+				$rowclasses[] = "mod-booking-invisible".$extraclass;
 			}
 			$buttonoptions = array('answer' => $option->id, 'id' => $cm->id,'sesskey' => $user->sesskey);
 			$url = new moodle_url('view.php',$buttonoptions);
@@ -304,6 +356,9 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 		} elseif ($booking->option[$option->id]->status == "closed") {
 			$optiondisplay->button = '';
 		}
+        if (!$underlimit) {
+            $optiondisplay->button = '';
+        }
 		// check if user ist logged in
 		if (has_capability('mod/booking:choose', $context, $user->id, false)) { //don't show booking button if the logged in user is the guest user.
 			$bookingbutton = $optiondisplay->button;

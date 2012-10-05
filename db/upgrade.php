@@ -113,6 +113,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2012091602, 'booking');
     }
 
+    if ($oldversion < 2012091603) {
+        // Define field maxperuser to be added to booking
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('maxperuser', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'deletedtext');
+
+        // Conditionally launch add field maxperuser
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // booking savepoint reached
+        upgrade_mod_savepoint(true, 2012091603, 'booking');
+    }
+
     return true;
 }
 

@@ -18,3 +18,5 @@ Changes
 booking or the booking is cancelled
 - Booking email messages can now be customised via the booking settings page
 - Booking times displayed, as well as dates
+- Can now specify a maximum number of bookings that any one user can make in one booking activity (more bookings can be
+made after the endtime has passed for those bookings).

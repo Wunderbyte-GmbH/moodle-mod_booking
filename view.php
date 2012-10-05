@@ -171,6 +171,8 @@ if ($booking->timeclose !=0) {
 
 if ( !$current and $bookingopen and has_capability('mod/booking:choose', $context) ) {
 
+    echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
+
 	if ($action=='mybooking'){
 		$message = "<a href=\"view.php?id=$cm->id\">".get_string('showallbookings','booking')."</a>";
 		echo $OUTPUT->box($message,'box mdl-align');

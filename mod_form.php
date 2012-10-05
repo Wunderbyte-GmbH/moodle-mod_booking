@@ -128,6 +128,13 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('selectyesno', 'autoenrol', get_string('autoenrol', 'booking'));
         $mform->addHelpButton('autoenrol', 'autoenrol', 'booking');
+
+        $opts = array(0 => get_string('unlimited', 'mod_booking'));
+        $extraopts = array_combine(range(1, 100), range(1, 100));
+        $opts = $opts + $extraopts;
+        $mform->addElement('select', 'maxperuser', get_string('maxperuser', 'mod_booking'), $opts);
+        $mform->setDefault('maxperuser', 0);
+        $mform->addHelpButton('maxperuser', 'maxperuser', 'mod_booking');
 		
 		//-------------------------------------------------------------------------------
         $this->standard_coursemodule_elements();
