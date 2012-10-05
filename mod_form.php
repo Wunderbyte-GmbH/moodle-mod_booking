@@ -10,7 +10,7 @@ class mod_booking_mod_form extends moodleform_mod {
 	function definition() {
 		global $CFG, $DB;
 
-		$mform    =& $this->_form;
+		$mform    = $this->_form;
 
 		//-------------------------------------------------------------------------------
 		$mform->addElement('header', 'general', get_string('general', 'form'));
@@ -60,13 +60,63 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('selectyesno', 'sendmail', get_string("sendconfirmmail", "booking"));
 		
         $mform->addElement('selectyesno', 'copymail', get_string("sendconfirmmailtobookingmanger", "booking"));
-        
-        
+
 		$mform->addElement('text', 'bookingmanager', get_string('usernameofbookingmanager', 'booking'));
         $mform->setType('bookingmanager', PARAM_TEXT);
 		$mform->setDefault('bookingmanager', 'admin');
 		$mform->disabledIf('bookingmanager', 'copymail', 0);
-		
+
+        // Add the fields to allow editing of the default text:
+        $context = get_context_instance(CONTEXT_SYSTEM);
+        $editoroptions = array('subdirs' => false, 'maxfiles' => 0, 'maxbytes' => 0, 'trusttext' => false, 'context' => $context);
+        $fieldmapping = (object)array(
+            'status' => '{status}',
+            'participant' => '{participant}',
+            'title' => '{title}',
+            'duration' => '{duration}',
+            'starttime' => '{starttime}',
+            'endtime' => '{endtime}',
+            'startdate' => '{startdate}',
+            'enddate' => '{enddate}',
+            'courselink' => '{courselink}',
+            'bookinglink' => '{bookinglink}'
+        );
+
+        $mform->addElement('editor', 'bookedtext', get_string('bookedtext', 'booking'), null, $editoroptions);
+        $default = array(
+            'text' => get_string('confirmationmessage', 'mod_booking', $fieldmapping),
+            'format' => FORMAT_HTML
+        );
+        $default['text'] = str_replace("\n", '<br/>', $default['text']);
+        $mform->setDefault('bookedtext', $default);
+        $mform->addHelpButton('bookedtext', 'bookedtext', 'mod_booking');
+
+        $mform->addElement('editor', 'waitingtext', get_string('waitingtext', 'booking'), null, $editoroptions);
+        $default = array(
+            'text' => get_string('confirmationmessagewaitinglist', 'mod_booking', $fieldmapping),
+            'format' => FORMAT_HTML
+        );
+        $default['text'] = str_replace("\n", '<br/>', $default['text']);
+        $mform->setDefault('waitingtext', $default);
+        $mform->addHelpButton('waitingtext', 'waitingtext', 'mod_booking');
+
+        $mform->addElement('editor', 'statuschangetext', get_string('statuschangetext', 'booking'), null, $editoroptions);
+        $default = array(
+            'text' => get_string('statuschangebookedmessage', 'mod_booking', $fieldmapping),
+            'format' => FORMAT_HTML
+        );
+        $default['text'] = str_replace("\n", '<br/>', $default['text']);
+        $mform->setDefault('statuschangetext', $default);
+        $mform->addHelpButton('statuschangetext', 'statuschangetext', 'mod_booking');
+
+        $mform->addElement('editor', 'deletedtext', get_string('deletedtext', 'booking'), null, $editoroptions);
+        $default = array(
+            'text' => get_string('deletedbookingusermessage', 'mod_booking', $fieldmapping),
+            'format' => FORMAT_HTML
+        );
+        $default['text'] = str_replace("\n", '<br/>', $default['text']);
+        $mform->setDefault('deletedtext', $default);
+        $mform->addHelpButton('deletedtext', 'deletedtext', 'mod_booking');
 
 		//-------------------------------------------------------------------------------
 		$mform->addElement('header', 'miscellaneoussettingshdr', get_string('miscellaneoussettings', 'form'));
@@ -75,6 +125,16 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setType('bookingpolicy', PARAM_CLEANHTML);
 
         $mform->addElement('selectyesno', 'allowupdate', get_string("allowdelete", "booking"));
+
+        $mform->addElement('selectyesno', 'autoenrol', get_string('autoenrol', 'booking'));
+        $mform->addHelpButton('autoenrol', 'autoenrol', 'booking');
+
+        $opts = array(0 => get_string('unlimited', 'mod_booking'));
+        $extraopts = array_combine(range(1, 100), range(1, 100));
+        $opts = $opts + $extraopts;
+        $mform->addElement('select', 'maxperuser', get_string('maxperuser', 'mod_booking'), $opts);
+        $mform->setDefault('maxperuser', 0);
+        $mform->addHelpButton('maxperuser', 'maxperuser', 'mod_booking');
 		
 		//-------------------------------------------------------------------------------
         $this->standard_coursemodule_elements();
@@ -95,6 +155,19 @@ class mod_booking_mod_form extends moodleform_mod {
             $default_values['bookingpolicy'] = '';
         }
         $default_values['bookingpolicy'] = array('text'=>$default_values['bookingpolicy'],'format'=>$default_values['bookingpolicyformat']);
+
+        if (isset($default_values['bookedtext'])) {
+            $default_values['bookedtext'] = array('text' => $default_values['bookedtext'], 'format' => FORMAT_HTML);
+        }
+        if (isset($default_values['waitingtext'])) {
+            $default_values['waitingtext'] = array('text' => $default_values['waitingtext'], 'format' => FORMAT_HTML);
+        }
+        if (isset($default_values['statuschangetext'])) {
+            $default_values['statuschangetext'] = array('text' => $default_values['statuschangetext'], 'format' => FORMAT_HTML);
+        }
+        if (isset($default_values['deletedtext'])) {
+            $default_values['deletedtext'] = array('text' => $default_values['deletedtext'], 'format' => FORMAT_HTML);
+        }
 	}
 
     function get_data() {
