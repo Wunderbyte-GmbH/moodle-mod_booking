@@ -173,7 +173,6 @@ Participant:   {$a->participant}
 Course:   {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 To view all your booked courses click on the following link: {$a->bookinglink}
-The associated course can be found here: {$a->courselink}
 
 ';
 $string['statuschangebookedsubject'] = 'Booking status changed for {$a->title}';
@@ -186,6 +185,7 @@ Participant:   {$a->participant}
 Course:   {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 To view all your booked courses click on the following link: {$a->bookinglink}
+The associated course can be found here: {$a->courselink}
 ';
 $string['deletedbookingusersubject'] = 'Booking for {$a->title} cancelled';
 $string['deletedbookingusermessage'] = 'Hello {$a->participant},

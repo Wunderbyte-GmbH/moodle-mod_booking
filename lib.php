@@ -104,7 +104,13 @@ function booking_update_instance($booking) {
 		$booking->timeclose = 0;
 	}
 
+    // Copy the text fields out:
+    $booking->bookedtext = $booking->bookedtext['text'];
+    $booking->waitingtext = $booking->waitingtext['text'];
+    $booking->statuschangetext = $booking->statuschangetext['text'];
+    $booking->deletedtext = $booking->deletedtext['text'];
 	//update, delete or insert answers
+	if(!empty($booking->option)){
 	foreach ($booking->option as $key => $value) {
 		$value = trim($value);
 		$option = new stdClass();
@@ -126,6 +132,7 @@ function booking_update_instance($booking) {
 				$DB->insert_record("booking_options", $option);
 			}
 		}
+	}
 	}
 
 	return $DB->update_record('booking', $booking);
@@ -431,6 +438,7 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 		if (!($booking->option[$optionid]->limitanswers && ($countanswers[$optionid] >= $maxans[$optionid]) )) {
 			// check if actual answer is also already made by this user
 			if(!($currentanswerid = $DB->get_field('booking_answers','id', array('userid' => $user->id, 'optionid' => $optionid)))){
+				$newanswer = new stdClass();
 				$newanswer->bookingid = $booking->id;
 				$newanswer->userid = $user->id;
 				$newanswer->optionid = $optionid;
