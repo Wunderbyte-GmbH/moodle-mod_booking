@@ -4,6 +4,8 @@
 $string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
 $string['answered'] = 'Answered';
+$string['attachical'] = 'Attach ical events';
+$string['attachicaldesc'] = 'Email notifications will include an attached ical event, if this is enabled';
 $string['booking'] = 'Booking';
 $string['booking:choose'] = 'Boook';
 $string['booking:deleteresponses'] = 'Delete responses';

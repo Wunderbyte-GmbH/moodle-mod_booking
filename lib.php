@@ -1,5 +1,8 @@
 <?php // $Id: lib.php,v 1.59.2.29 2011/02/01 11:09:31 dasistwas Exp $
 
+defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot.'/mod/booking/icallib.php');
+
 $COLUMN_HEIGHT = 300;
 
 
@@ -611,7 +614,7 @@ function booking_confirm_booking($optionid, $booking, $user, $cm, $url){
  * @return true if booking was deleted successfully, otherwise false
  */
 function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduserid,$cmid) {
-	global $COURSE, $USER, $CFG, $DB;
+	global $USER, $DB;
 	if(!$DB->delete_records('booking_answers', array('id' => $answer->id))){
 		return false;
 	}
@@ -627,7 +630,16 @@ function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduseri
     $deletedbookingusermessage = booking_get_email_body($booking, 'deletedtext', 'deletedbookingmessage', $params);
 	$bookingmanager = $DB->get_record('user', array('username' => $booking->bookingmanager));
 	if ($booking->sendmail){
-		email_to_user($user, $supportuser, get_string('deletedbookingusersubject','booking', $params), $deletedbookingusermessage);
+        // Generate ical attachment to go with the message.
+        $attachname = '';
+        $ical = new booking_ical($booking, $booking->option[$optionid], $user, $supportuser);
+        if ($attachment = $ical->get_attachment(true)) {
+            $attachname = $ical->get_name();
+        }
+        $messagehtml = format_text($deletedbookingusermessage, FORMAT_HTML);
+        $deletedbookingusermessage = strip_tags(str_replace(array('<br />', '</p>'), '', $messagehtml));
+        email_to_user($user, $supportuser, get_string('deletedbookingusersubject','booking', $params),
+                      $deletedbookingusermessage, $messagehtml, $attachment, $attachname);
 	}
 	if ($booking->copymail){
 		email_to_user($bookingmanager, $supportuser, get_string('deletedbookingsubject','booking', $params), $messagetext);
@@ -640,8 +652,17 @@ function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduseri
             $params = booking_generate_email_params($booking, $booking->option[$optionid], $newbookeduser, $cmid);
             $messagetextnewuser = booking_get_email_body($booking, 'statuschangetext', 'statuschangebookedmessage', $params);
             $messagehtml = format_text($messagetextnewuser, FORMAT_HTML);
-            $message = strip_tags(str_replace(array('<br />>', '</p>'), '', $messagehtml));
-            email_to_user($newbookeduser, $supportuser, get_string('statuschangebookedsubject','booking', $params), $message, $messagehtml);
+            $message = strip_tags(str_replace(array('<br />', '</p>'), '', $messagehtml));
+
+            // Generate ical attachment to go with the message.
+            $attachname = '';
+            $ical = new booking_ical($booking, $booking->option[$optionid], $newbookeduser, $supportuser);
+            if ($attachment = $ical->get_attachment()) {
+                $attachname = $ical->get_name();
+            }
+
+            email_to_user($newbookeduser, $supportuser, get_string('statuschangebookedsubject','booking', $params),
+                          $message, $messagehtml, $attachment, $attachname);
         }
     }
 	return true;
@@ -952,6 +973,10 @@ function booking_send_confirmation_email($user,$booking,$optionid,$cmid){
 
 	global $DB;
 
+    // Used to store the ical attachment (if required)
+    $attachname = '';
+    $attachment = '';
+
 	$supportuser = generate_email_supportuser();
 	$bookingmanager = $DB->get_record('user', array('username' => $booking->bookingmanager));
     $data = booking_generate_email_params($booking, $booking->option[$optionid], $user, $cmid);
@@ -960,6 +985,12 @@ function booking_send_confirmation_email($user,$booking,$optionid,$cmid){
 		$subject = get_string('confirmationsubject','booking', $data);
 		$subjectmanager = get_string('confirmationsubjectbookingmanager','booking', $data);
 		$message = booking_get_email_body($booking, 'bookedtext', 'confirmationmessage', $data);
+
+        // Generate ical attachment to go with the message.
+        $ical = new booking_ical($booking, $booking->option[$optionid], $user, $supportuser);
+        if ($attachment = $ical->get_attachment()) {
+            $attachname = $ical->get_name();
+        }
 	} elseif ($data->status == get_string('onwaitinglist', 'booking')){
 		$subject = get_string('confirmationsubjectwaitinglist','booking', $data);
 		$subjectmanager = get_string('confirmationsubjectwaitinglistmanager','booking', $data);
@@ -974,7 +1005,9 @@ function booking_send_confirmation_email($user,$booking,$optionid,$cmid){
 	$errormessagehtml =  text_to_html($errormessage, false, false, true);
 	$user->mailformat = 1;  // Always send HTML version as well
 	// send mail to user, copy to bookingmanager and if mail fails send errormessage to bookingmanager
-	if (email_to_user($user, $supportuser, $subject, $message, $messagehtml)) {
+
+
+	if (email_to_user($user, $supportuser, $subject, $message, $messagehtml, $attachment, $attachname)) {
 		if ($booking->copymail){
 			return email_to_user($bookingmanager, $supportuser, $subjectmanager, $message, $messagehtml);
 		} else {
