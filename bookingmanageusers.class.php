@@ -62,7 +62,9 @@ class mod_booking_manageusers_form extends moodleform {
 		//
 		$mform->addElement('html','<div class="clearfix" style="clear: both; width: 100%;">'.get_string('withselected', 'booking').'</div>');
 		$buttonarray=array();
-		$buttonarray[] = &$mform->createElement('submit', 'subscribetocourse', get_string('subscribetocourse','booking'));
+        if (!$this->_customdata['bookingdata']->autoenrol) {
+            $buttonarray[] = &$mform->createElement('submit', 'subscribetocourse', get_string('subscribetocourse','booking'));
+        }
 		$buttonarray[] = &$mform->createElement("submit",'deleteusers', get_string('booking:deleteresponses','booking'));
 		$buttonarray[] = &$mform->createElement('cancel');
 		$mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);

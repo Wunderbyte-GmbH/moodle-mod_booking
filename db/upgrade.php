@@ -71,6 +71,62 @@ function xmldb_booking_upgrade($oldversion) {
         }
     	
     }
+
+    if ($oldversion < 2012091601) {
+        // Define field autoenrol to be added to booking
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('autoenrol', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'timemodified');
+
+        // Conditionally launch add field autoenrol
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // booking savepoint reached
+        upgrade_mod_savepoint(true, 2012091601, 'booking');
+    }
+
+    // Add fields to store custom email message content
+    if ($oldversion < 2012091602) {
+        $table = new xmldb_table('booking');
+
+        $field = new xmldb_field('bookedtext', XMLDB_TYPE_TEXT, 'medium', null, null, null, null, 'autoenrol');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $field = new xmldb_field('waitingtext', XMLDB_TYPE_TEXT, 'medium', null, null, null, null, 'bookedtext');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('statuschangetext', XMLDB_TYPE_TEXT, 'medium', null, null, null, null, 'waitingtext');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('deletedtext', XMLDB_TYPE_TEXT, 'medium', null, null, null, null, 'statuschangetext');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // booking savepoint reached
+        upgrade_mod_savepoint(true, 2012091602, 'booking');
+    }
+
+    if ($oldversion < 2012091603) {
+        // Define field maxperuser to be added to booking
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('maxperuser', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'deletedtext');
+
+        // Conditionally launch add field maxperuser
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // booking savepoint reached
+        upgrade_mod_savepoint(true, 2012091603, 'booking');
+    }
+
     return true;
 }
 
