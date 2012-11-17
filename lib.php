@@ -62,28 +62,29 @@ function booking_add_instance($booking) {
 		$booking->timeclose = 0;
 	}
 
-    // Copy the text fields out:
-    $booking->bookedtext = $booking->bookedtext['text'];
-    $booking->waitingtext = $booking->waitingtext['text'];
-    $booking->statuschangetext = $booking->statuschangetext['text'];
-    $booking->deletedtext = $booking->deletedtext['text'];
+	// Copy the text fields out:
+	$booking->bookedtext = $booking->bookedtext['text'];
+	$booking->waitingtext = $booking->waitingtext['text'];
+	$booking->statuschangetext = $booking->statuschangetext['text'];
+	$booking->deletedtext = $booking->deletedtext['text'];
 
 	//insert answer options from mod_form
 	$booking->id = $DB->insert_record("booking", $booking);
-	foreach ($booking->option as $key => $value) {
-		$value = trim($value);
-		if (isset($value) && $value <> '') {
-			$option = new stdClass();
-			$option->text = $value;
-			$option->bookingid = $booking->id;
-			if (isset($booking->limit[$key])) {
-				$option->maxanswers = $booking->limit[$key];
+	if(!empty($booking->option)){
+		foreach ($booking->option as $key => $value) {
+			$value = trim($value);
+			if (isset($value) && $value <> '') {
+				$option = new stdClass();
+				$option->text = $value;
+				$option->bookingid = $booking->id;
+				if (isset($booking->limit[$key])) {
+					$option->maxanswers = $booking->limit[$key];
+				}
+				$option->timemodified = time();
+				$DB->insert_record("booking_options", $option);
 			}
-			$option->timemodified = time();
-			$DB->insert_record("booking_options", $option);
 		}
 	}
-
 	return $booking->id;
 }
 
@@ -104,35 +105,35 @@ function booking_update_instance($booking) {
 		$booking->timeclose = 0;
 	}
 
-    // Copy the text fields out:
-    $booking->bookedtext = $booking->bookedtext['text'];
-    $booking->waitingtext = $booking->waitingtext['text'];
-    $booking->statuschangetext = $booking->statuschangetext['text'];
-    $booking->deletedtext = $booking->deletedtext['text'];
+	// Copy the text fields out:
+	$booking->bookedtext = $booking->bookedtext['text'];
+	$booking->waitingtext = $booking->waitingtext['text'];
+	$booking->statuschangetext = $booking->statuschangetext['text'];
+	$booking->deletedtext = $booking->deletedtext['text'];
 	//update, delete or insert answers
 	if(!empty($booking->option)){
-	foreach ($booking->option as $key => $value) {
-		$value = trim($value);
-		$option = new stdClass();
-		$option->text = $value;
-		$option->bookingid = $booking->id;
-		if (isset($booking->limit[$key])) {
-			$option->maxanswers = $booking->limit[$key];
-		}
-		$option->timemodified = time();
-		if (isset($booking->optionid[$key]) && !empty($booking->optionid[$key])){//existing booking record
-			$option->id=$booking->optionid[$key];
-			if (isset($value) && $value <> '') {
-				$DB->update_record("booking_options", $option);
-			} else { //empty old option - needs to be deleted.
-				$DB->delete_records("booking_options", array("id"=>$option->id));
+		foreach ($booking->option as $key => $value) {
+			$value = trim($value);
+			$option = new stdClass();
+			$option->text = $value;
+			$option->bookingid = $booking->id;
+			if (isset($booking->limit[$key])) {
+				$option->maxanswers = $booking->limit[$key];
 			}
-		} else {
-			if (isset($value) && $value <> '') {
-				$DB->insert_record("booking_options", $option);
+			$option->timemodified = time();
+			if (isset($booking->optionid[$key]) && !empty($booking->optionid[$key])){//existing booking record
+				$option->id=$booking->optionid[$key];
+				if (isset($value) && $value <> '') {
+					$DB->update_record("booking_options", $option);
+				} else { //empty old option - needs to be deleted.
+					$DB->delete_records("booking_options", array("id"=>$option->id));
+				}
+			} else {
+				if (isset($value) && $value <> '') {
+					$DB->insert_record("booking_options", $option);
+				}
 			}
 		}
-	}
 	}
 
 	return $DB->update_record('booking', $booking);
@@ -195,30 +196,33 @@ function booking_get_user_status($userid,$optionid,$bookingid,$cmid){
 	$allresponses = $DB->get_records_select('booking_answers', "bookingid = $bookingid AND optionid = $optionid",array(), 'timemodified', 'userid');
 	$context  = get_context_instance(CONTEXT_MODULE,$cmid);
 	$i=1;
-	foreach($allresponses as $answer){
-		if (has_capability('mod/booking:choose', $context, $answer->userid)){
-			$sortedresponses[$i++] = $answer->userid;
+	if(!empty($allresponses)){
+		foreach($allresponses as $answer){
+			if (has_capability('mod/booking:choose', $context, $answer->userid)){
+				$sortedresponses[$i++] = $answer->userid;
+			}
 		}
-	}
-	$useridaskey = array_flip($sortedresponses);
-	if($option->limitanswers){
-		if($useridaskey[$userid] > $option->maxanswers + $option->maxoverbooking){
-			$status = "Problem, please contact the admin";
-		} elseif (($useridaskey[$userid]) > $option->maxanswers) { // waitspaceavailable
-			$status = get_string('onwaitinglist','booking');
-		} elseif ($useridaskey[$userid] <= $option->maxanswers) {
-			$status = get_string('booked','booking');
+		$useridaskey = array_flip($sortedresponses);
+		if($option->limitanswers){
+			if($useridaskey[$userid] > $option->maxanswers + $option->maxoverbooking){
+				$status = "Problem, please contact the admin";
+			} elseif (($useridaskey[$userid]) > $option->maxanswers) { // waitspaceavailable
+				$status = get_string('onwaitinglist','booking');
+			} elseif ($useridaskey[$userid] <= $option->maxanswers) {
+				$status = get_string('booked','booking');
+			} else {
+				$status = get_string('notbooked','booking');
+			}
 		} else {
-			$status = get_string('notbooked','booking');
+			if (!empty($useridaskey[$userid])){
+				$status = get_string('booked','booking');
+			} else {
+				$status = get_string('notbooked','booking');
+			}
 		}
-	} else {
-		if (!empty($useridaskey[$userid])){
-			$status = get_string('booked','booking');
-		} else {
-			$status = get_string('notbooked','booking');
-		}
+		return $status;
 	}
-	return $status;
+	return  get_string('notbooked','booking');
 }
 
 /**
@@ -229,34 +233,34 @@ function booking_get_user_status($userid,$optionid,$bookingid,$cmid){
  * @return string
  */
 function booking_show_maxperuser($booking, $user, $bookinglist) {
-    if (!$booking->maxperuser) {
-        return ''; // No per-user limits.
-    }
+	if (!$booking->maxperuser) {
+		return ''; // No per-user limits.
+	}
 
-    $outdata = new stdClass();
-    $outdata->limit = $booking->maxperuser;
-    $outdata->count = booking_get_user_booking_count($booking, $user, $bookinglist);
+	$outdata = new stdClass();
+	$outdata->limit = $booking->maxperuser;
+	$outdata->count = booking_get_user_booking_count($booking, $user, $bookinglist);
 
-    return html_writer::tag('p', get_string('maxperuserwarning', 'mod_booking', $outdata));
+	return html_writer::tag('p', get_string('maxperuserwarning', 'mod_booking', $outdata));
 }
 
 function booking_get_user_booking_count($booking, $user, $bookinglist) {
-    $count = 0;
-    $now = time();
-    foreach ($bookinglist as $optionid => $optbookings) {
-        if (!isset($booking->option[$optionid])) {
-            continue; // Booking not for one of the available options (shouldn't happen?)
-        }
-        if ($booking->option[$optionid]->courseendtime < $now) {
-            continue; // Booking is in the past - ignore it.
-        }
-        foreach ($optbookings as $optbooking) {
-            if ($optbooking->id == $user->id) {
-                $count++; // Current booking for this user.
-            }
-        }
-    }
-    return $count;
+	$count = 0;
+	$now = time();
+	foreach ($bookinglist as $optionid => $optbookings) {
+		if (!isset($booking->option[$optionid])) {
+			continue; // Booking not for one of the available options (shouldn't happen?)
+		}
+		if ($booking->option[$optionid]->courseendtime < $now) {
+			continue; // Booking is in the past - ignore it.
+		}
+		foreach ($optbookings as $optbooking) {
+			if ($optbooking->id == $user->id) {
+				$count++; // Current booking for this user.
+			}
+		}
+	}
+	return $count;
 }
 
 /**
@@ -290,8 +294,8 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 	$tabledata = array();
 	$current = array();
 
-    $underlimit = ($booking->maxperuser == 0);
-    $underlimit = $underlimit || (booking_get_user_booking_count($booking, $user, $allresponses) < $booking->maxperuser);
+	$underlimit = ($booking->maxperuser == 0);
+	$underlimit = $underlimit || (booking_get_user_booking_count($booking, $user, $allresponses) < $booking->maxperuser);
 
 	foreach ($booking->option as $option) {
 		$optiondisplay = new stdClass();
@@ -307,16 +311,16 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 			}
 		}
 
-        $inpast = $option->courseendtime && ($option->courseendtime < time());
-        $extraclass = $inpast ? ' inpast' : '';
+		$inpast = $option->courseendtime && ($option->courseendtime < time());
+		$extraclass = $inpast ? ' inpast' : '';
 		if (!empty($current[$option->id])) {
 			if (!$option->limitanswers){
-                if ($inpast) {
-                    $optiondisplay->booked = get_string('bookedpast','booking');
-                } else {
-                    $optiondisplay->booked = get_string('booked','booking');
-                }
-                $rowclasses[] = "mod-booking-booked".$extraclass;
+				if ($inpast) {
+					$optiondisplay->booked = get_string('bookedpast','booking');
+				} else {
+					$optiondisplay->booked = get_string('booked','booking');
+				}
+				$rowclasses[] = "mod-booking-booked".$extraclass;
 				if(($booking->allowupdate and $option->status != 'closed') or has_capability('mod/booking:deleteresponses', $context)){
 					$buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
 					$url = new moodle_url('view.php',$buttonoptions);
@@ -334,12 +338,12 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 					$optiondisplay->delete = $OUTPUT->single_button($url,get_string('cancelbooking','booking'),'post').'<br />';
 				}
 			} elseif ($current[$option->id] <= $option->maxanswers) {
-                if ($inpast) {
-                    $optiondisplay->booked = get_string('bookedpast','booking');
-                } else {
-                    $optiondisplay->booked = get_string('booked','booking');
-                }
-                $rowclasses[] = "mod-booking-booked".$extraclass;
+				if ($inpast) {
+					$optiondisplay->booked = get_string('bookedpast','booking');
+				} else {
+					$optiondisplay->booked = get_string('booked','booking');
+				}
+				$rowclasses[] = "mod-booking-booked".$extraclass;
 				if(($booking->allowupdate and $option->status != 'closed') or has_capability('mod/booking:deleteresponses', $context)){
 					$buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
 					$url = new moodle_url('view.php',$buttonoptions);
@@ -366,9 +370,9 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 		} elseif ($booking->option[$option->id]->status == "closed") {
 			$optiondisplay->button = '';
 		}
-        if (!$underlimit) {
-            $optiondisplay->button = '';
-        }
+		if (!$underlimit) {
+			$optiondisplay->button = '';
+		}
 		// check if user ist logged in
 		if (has_capability('mod/booking:choose', $context, $user->id, false)) { //don't show booking button if the logged in user is the guest user.
 			$bookingbutton = $optiondisplay->button;
@@ -383,7 +387,7 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 		if (has_capability('mod/booking:readresponses', $context)){
 			$numberofresponses = 0;
 			if(isset($allresponses[$option->id])){
-				$numberofresponses = count($allresponses[$option->id]);					
+				$numberofresponses = count($allresponses[$option->id]);
 			}
 			$optiondisplay->manage = "<a href=\"report.php?id=$cm->id&optionid=$option->id\">".get_string("viewallresponses", "booking", $numberofresponses)."</a>";
 		} else {
@@ -446,7 +450,7 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 				if (!$DB->insert_record("booking_answers", $newanswer)) {
 					error("Could not register your booking because of a database error");
 				}
-                booking_check_enrol_user($booking->option[$optionid], $booking, $user->id);
+				booking_check_enrol_user($booking->option[$optionid], $booking, $user->id);
 			}
 			add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
 			if ($booking->sendmail){
@@ -460,7 +464,7 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 
 	} else if (!($booking->option[$optionid]->limitanswers)){
 		if(!($currentanswerid = $DB->get_field('booking_answers','id', array('userid' => $user->id, 'optionid' => $optionid)))){
-            $newanswer = new stdClass();
+			$newanswer = new stdClass();
 			$newanswer->bookingid = $booking->id;
 			$newanswer->userid = $user->id;
 			$newanswer->optionid = $optionid;
@@ -468,7 +472,7 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 			if (!$DB->insert_record("booking_answers", $newanswer)) {
 				error("Could not register your booking because of a database error");
 			}
-            booking_check_enrol_user($booking->option[$optionid], $booking, $user->id);
+			booking_check_enrol_user($booking->option[$optionid], $booking, $user->id);
 		}
 		add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
 		if ($booking->sendmail){
@@ -486,28 +490,28 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
  * @param int $userid
  */
 function booking_check_enrol_user($option, $booking, $userid) {
-    global $DB;
+	global $DB;
 
-    if (!$booking->autoenrol) {
-        return; // Autoenrol not enabled.
-    }
-    if (!$option->courseid) {
-        return; // No course specified.
-    }
+	if (!$booking->autoenrol) {
+		return; // Autoenrol not enabled.
+	}
+	if (!$option->courseid) {
+		return; // No course specified.
+	}
 
-    if (!enrol_is_enabled('manual')) {
-        return; // Manual enrolment not enabled.
-    }
+	if (!enrol_is_enabled('manual')) {
+		return; // Manual enrolment not enabled.
+	}
 
-    if (!$enrol = enrol_get_plugin('manual')) {
-        return; // No manual enrolment plugin
-    }
-    if (!$instances = $DB->get_records('enrol', array('enrol'=>'manual', 'courseid'=>$option->courseid, 'status'=>ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
-        return; // No manual enrolment instance on this course.
-    }
-    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
+	if (!$enrol = enrol_get_plugin('manual')) {
+		return; // No manual enrolment plugin
+	}
+	if (!$instances = $DB->get_records('enrol', array('enrol'=>'manual', 'courseid'=>$option->courseid, 'status'=>ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
+		return; // No manual enrolment instance on this course.
+	}
+	$instance = reset($instances); // Use the first manual enrolment plugin in the course.
 
-    $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
+	$enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
 }
 
 /**
@@ -518,26 +522,26 @@ function booking_check_enrol_user($option, $booking, $userid) {
  * @param int $userid
  */
 function booking_check_unenrol_user($option, $booking, $userid) {
-    global $DB;
+	global $DB;
 
-    if (!$booking->autoenrol) {
-        return; // Autoenrol not enabled.
-    }
-    if (!$option->courseid) {
-        return; // No course specified.
-    }
-    if (!enrol_is_enabled('manual')) {
-        return; // Manual enrolment not enabled.
-    }
-    if (!$enrol = enrol_get_plugin('manual')) {
-        return; // No manual enrolment plugin
-    }
-    if (!$instances = $DB->get_records('enrol', array('enrol'=>'manual', 'courseid'=>$option->courseid, 'status'=>ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
-        return; // No manual enrolment instance on this course.
-    }
-    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
+	if (!$booking->autoenrol) {
+		return; // Autoenrol not enabled.
+	}
+	if (!$option->courseid) {
+		return; // No course specified.
+	}
+	if (!enrol_is_enabled('manual')) {
+		return; // Manual enrolment not enabled.
+	}
+	if (!$enrol = enrol_get_plugin('manual')) {
+		return; // No manual enrolment plugin
+	}
+	if (!$instances = $DB->get_records('enrol', array('enrol'=>'manual', 'courseid'=>$option->courseid, 'status'=>ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
+		return; // No manual enrolment instance on this course.
+	}
+	$instance = reset($instances); // Use the first manual enrolment plugin in the course.
 
-    $enrol->unenrol_user($instance, $userid); // Unenrol the user.
+	$enrol->unenrol_user($instance, $userid); // Unenrol the user.
 }
 
 
@@ -626,53 +630,54 @@ function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduseri
 	if(!$DB->delete_records('booking_answers', array('id' => $answer->id))){
 		return false;
 	}
-    if ($answer->userid == $USER->id) {
-        $user = $USER;
-    } else {
-        $user = $DB->get_record('user', array('id' => $answer->userid));
-    }
-    booking_check_unenrol_user($booking->option[$optionid], $booking, $user->id);
+	if ($answer->userid == $USER->id) {
+		$user = $USER;
+	} else {
+		$user = $DB->get_record('user', array('id' => $answer->userid));
+	}
+	booking_check_unenrol_user($booking->option[$optionid], $booking, $user->id);
 	$supportuser = generate_email_supportuser();
-    $params = booking_generate_email_params($booking, $booking->option[$optionid], $user, $cmid);
-    $messagetext = get_string('deletedbookingmessage', 'booking', $params);
-    $deletedbookingusermessage = booking_get_email_body($booking, 'deletedtext', 'deletedbookingmessage', $params);
+	$params = booking_generate_email_params($booking, $booking->option[$optionid], $user, $cmid);
+	$messagetext = get_string('deletedbookingmessage', 'booking', $params);
+	$deletedbookingusermessage = booking_get_email_body($booking, 'deletedtext', 'deletedbookingmessage', $params);
 	$bookingmanager = $DB->get_record('user', array('username' => $booking->bookingmanager));
+	
 	if ($booking->sendmail){
-        // Generate ical attachment to go with the message.
-        $attachname = '';
-        $ical = new booking_ical($booking, $booking->option[$optionid], $user, $supportuser);
-        if ($attachment = $ical->get_attachment(true)) {
-            $attachname = $ical->get_name();
-        }
-        $messagehtml = format_text($deletedbookingusermessage, FORMAT_HTML);
-        $deletedbookingusermessage = strip_tags(str_replace(array('<br />', '</p>'), '', $messagehtml));
-        email_to_user($user, $supportuser, get_string('deletedbookingusersubject','booking', $params),
-                      $deletedbookingusermessage, $messagehtml, $attachment, $attachname);
+		// Generate ical attachment to go with the message.
+		$attachname = '';
+		$ical = new booking_ical($booking, $booking->option[$optionid], $user, $supportuser);
+		if ($attachment = $ical->get_attachment(true)) {
+			$attachname = $ical->get_name();
+		}
+		$messagehtml = format_text($deletedbookingusermessage, FORMAT_HTML);
+		$deletedbookingusermessage = strip_tags(str_replace(array('<br />', '</p>'), '', $messagehtml));
+		email_to_user($user, $supportuser, get_string('deletedbookingusersubject','booking', $params),
+		$deletedbookingusermessage, $messagehtml, $attachment, $attachname);
 	}
 	if ($booking->copymail){
 		email_to_user($bookingmanager, $supportuser, get_string('deletedbookingsubject','booking', $params), $messagetext);
 	}
 	if ($newbookeduserid) {
-        booking_check_enrol_user($booking->option[$optionid], $booking, $newbookeduserid);
-        if ($booking->sendmail == 1) {
-            $newbookeduser = $DB->get_record('user', array('id' => $newbookeduserid));
+		booking_check_enrol_user($booking->option[$optionid], $booking, $newbookeduserid);
+		if ($booking->sendmail == 1) {
+			$newbookeduser = $DB->get_record('user', array('id' => $newbookeduserid));
 
-            $params = booking_generate_email_params($booking, $booking->option[$optionid], $newbookeduser, $cmid);
-            $messagetextnewuser = booking_get_email_body($booking, 'statuschangetext', 'statuschangebookedmessage', $params);
-            $messagehtml = format_text($messagetextnewuser, FORMAT_HTML);
-            $message = strip_tags(str_replace(array('<br />', '</p>'), '', $messagehtml));
+			$params = booking_generate_email_params($booking, $booking->option[$optionid], $newbookeduser, $cmid);
+			$messagetextnewuser = booking_get_email_body($booking, 'statuschangetext', 'statuschangebookedmessage', $params);
+			$messagehtml = format_text($messagetextnewuser, FORMAT_HTML);
+			$message = strip_tags(str_replace(array('<br />', '</p>'), '', $messagehtml));
 
-            // Generate ical attachment to go with the message.
-            $attachname = '';
-            $ical = new booking_ical($booking, $booking->option[$optionid], $newbookeduser, $supportuser);
-            if ($attachment = $ical->get_attachment()) {
-                $attachname = $ical->get_name();
-            }
+			// Generate ical attachment to go with the message.
+			$attachname = '';
+			$ical = new booking_ical($booking, $booking->option[$optionid], $newbookeduser, $supportuser);
+			if ($attachment = $ical->get_attachment()) {
+				$attachname = $ical->get_name();
+			}
 
-            email_to_user($newbookeduser, $supportuser, get_string('statuschangebookedsubject','booking', $params),
-                          $message, $messagehtml, $attachment, $attachname);
-        }
-    }
+			email_to_user($newbookeduser, $supportuser, get_string('statuschangebookedsubject','booking', $params),
+			$message, $messagehtml, $attachment, $attachname);
+		}
+	}
 	return true;
 }
 
@@ -691,11 +696,11 @@ function booking_delete_responses($attemptidsarray, $booking, $cmid) {
 			}
 		}
 		foreach($userids as $userid) {
-            $answer = $DB->get_record('booking_answers', array('bookingid' => $booking->id,
-                                                              'userid' => $userid,
-                                                              'optionid' => $optionid));
-            $newbookeduser = booking_check_statuschange($optionid, $booking, $userid, $cmid);
-            booking_delete_singlebooking($answer, $booking, $optionid, $newbookeduser, $cmid);
+			$answer = $DB->get_record('booking_answers', array('bookingid' => $booking->id,
+					'userid' => $userid,
+					'optionid' => $optionid));
+			$newbookeduser = booking_check_statuschange($optionid, $booking, $userid, $cmid);
+			booking_delete_singlebooking($answer, $booking, $optionid, $newbookeduser, $cmid);
 		}
 	}
 	return true;
@@ -741,8 +746,8 @@ function booking_get_participants($bookingid) {
 			WHERE a.bookingid = '$bookingid' and
 			u.id = a.userid");
 
-			//Return students array (it contains an array of unique users)
-			return ($students);
+	//Return students array (it contains an array of unique users)
+	return ($students);
 }
 
 
@@ -981,24 +986,24 @@ function booking_send_confirmation_email($user,$booking,$optionid,$cmid){
 
 	global $DB;
 
-    // Used to store the ical attachment (if required)
-    $attachname = '';
-    $attachment = '';
+	// Used to store the ical attachment (if required)
+	$attachname = '';
+	$attachment = '';
 
 	$supportuser = generate_email_supportuser();
 	$bookingmanager = $DB->get_record('user', array('username' => $booking->bookingmanager));
-    $data = booking_generate_email_params($booking, $booking->option[$optionid], $user, $cmid);
+	$data = booking_generate_email_params($booking, $booking->option[$optionid], $user, $cmid);
 
 	if ($data->status == get_string('booked', 'booking')){
 		$subject = get_string('confirmationsubject','booking', $data);
 		$subjectmanager = get_string('confirmationsubjectbookingmanager','booking', $data);
 		$message = booking_get_email_body($booking, 'bookedtext', 'confirmationmessage', $data);
 
-        // Generate ical attachment to go with the message.
-        $ical = new booking_ical($booking, $booking->option[$optionid], $user, $supportuser);
-        if ($attachment = $ical->get_attachment()) {
-            $attachname = $ical->get_name();
-        }
+		// Generate ical attachment to go with the message.
+		$ical = new booking_ical($booking, $booking->option[$optionid], $user, $supportuser);
+		if ($attachment = $ical->get_attachment()) {
+			$attachname = $ical->get_name();
+		}
 	} elseif ($data->status == get_string('onwaitinglist', 'booking')){
 		$subject = get_string('confirmationsubjectwaitinglist','booking', $data);
 		$subjectmanager = get_string('confirmationsubjectwaitinglistmanager','booking', $data);
@@ -1028,53 +1033,53 @@ function booking_send_confirmation_email($user,$booking,$optionid,$cmid){
 }
 
 function booking_pretty_duration($seconds) {
-    $measures = array(
-        'days' => 24*60*60,
-        'hours' => 60*60,
-        'minutes' => 60
-    );
-    $durationparts = array();
-    foreach ($measures as $label => $amount) {
-        if ($seconds >= $amount) {
-            $howmany = floor($seconds / $amount);
-            $durationparts[] = get_string($label, 'mod_booking', $howmany);
-            $seconds -= $howmany * $amount;
-        }
-    }
-    return implode(' ', $durationparts);
+	$measures = array(
+			'days' => 24*60*60,
+			'hours' => 60*60,
+			'minutes' => 60
+	);
+	$durationparts = array();
+	foreach ($measures as $label => $amount) {
+		if ($seconds >= $amount) {
+			$howmany = floor($seconds / $amount);
+			$durationparts[] = get_string($label, 'mod_booking', $howmany);
+			$seconds -= $howmany * $amount;
+		}
+	}
+	return implode(' ', $durationparts);
 }
 
 function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid) {
-    $params = new stdClass();
+	$params = new stdClass();
 
-    $timeformat = get_string('strftimetime');
-    $dateformat = get_string('strftimedate');
+	$timeformat = get_string('strftimetime');
+	$dateformat = get_string('strftimedate');
 
-    $duration = '';
-    if ($option->coursestarttime && $option->courseendtime) {
-        $seconds = $option->courseendtime - $option->coursestarttime;
-        $duration = booking_pretty_duration($seconds);
-    }
-    $courselink = '';
-    if ($option->courseid) {
-        $courselink = new moodle_url('/course/view.php', array('id' => $option->courseid));
-        $courselink = html_writer::link($courselink, $courselink->out());
-    }
-    $bookinglink = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
-    $bookinglink = html_writer::link($bookinglink, $bookinglink->out());
+	$duration = '';
+	if ($option->coursestarttime && $option->courseendtime) {
+		$seconds = $option->courseendtime - $option->coursestarttime;
+		$duration = booking_pretty_duration($seconds);
+	}
+	$courselink = '';
+	if ($option->courseid) {
+		$courselink = new moodle_url('/course/view.php', array('id' => $option->courseid));
+		$courselink = html_writer::link($courselink, $courselink->out());
+	}
+	$bookinglink = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
+	$bookinglink = html_writer::link($bookinglink, $bookinglink->out());
 
-    $params->status = booking_get_user_status($user->id, $option->id, $booking->id, $cmid);
-    $params->participant = fullname($user);
-    $params->title = s($option->text);
-    $params->duration = $duration;
-    $params->starttime = $option->coursestarttime ? userdate($option->coursestarttime, $timeformat) : '';
-    $params->endtime = $option->courseendtime ? userdate($option->courseendtime, $timeformat) : '';
-    $params->startdate = $option->coursestarttime ? userdate($option->coursestarttime, $dateformat) : '';
-    $params->enddate = $option->courseendtime ? userdate($option->courseendtime, $dateformat) : '';
-    $params->courselink = $courselink;
-    $params->bookinglink = $bookinglink;
+	$params->status = booking_get_user_status($user->id, $option->id, $booking->id, $cmid);
+	$params->participant = fullname($user);
+	$params->title = s($option->text);
+	$params->duration = $duration;
+	$params->starttime = $option->coursestarttime ? userdate($option->coursestarttime, $timeformat) : '';
+	$params->endtime = $option->courseendtime ? userdate($option->courseendtime, $timeformat) : '';
+	$params->startdate = $option->coursestarttime ? userdate($option->coursestarttime, $dateformat) : '';
+	$params->enddate = $option->courseendtime ? userdate($option->courseendtime, $dateformat) : '';
+	$params->courselink = $courselink;
+	$params->bookinglink = $bookinglink;
 
-    return $params;
+	return $params;
 }
 
 /**
@@ -1086,14 +1091,14 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
  * @return string
  */
 function booking_get_email_body($booking, $fieldname, $defaultname, $params) {
-    if (empty($booking->$fieldname)) {
-        return get_string($defaultname, 'mod_booking', $params);
-    }
-    $text = $booking->$fieldname;
-    foreach ($params as $name => $value) {
-        $text = str_replace('{'.$name.'}', $value, $text);
-    }
-    return $text;
+	if (empty($booking->$fieldname)) {
+		return get_string($defaultname, 'mod_booking', $params);
+	}
+	$text = $booking->$fieldname;
+	foreach ($params as $name => $value) {
+		$text = str_replace('{'.$name.'}', $value, $text);
+	}
+	return $text;
 }
 
 /**
@@ -1107,15 +1112,15 @@ function booking_check_statuschange($optionid,$booking,$cancelleduserid,$cmid) {
 		return false;
 	}
 	$option = $booking->option[$optionid];
-    if ($option->maxanswers == 0) {
-        return false; // No limit on bookings => no waiting list to manage
-    }
+	if ($option->maxanswers == 0) {
+		return false; // No limit on bookings => no waiting list to manage
+	}
 	$allresponses = $DB->get_records('booking_answers', array('bookingid' => $booking->id,
-                                                             'optionid' => $optionid), 'timemodified', 'userid');
+			'optionid' => $optionid), 'timemodified', 'userid');
 	$context  = get_context_instance(CONTEXT_MODULE,$cmid);
 	$firstuseronwaitinglist = $option->maxanswers + 1;
 	$i=1;
-    $sortedresponses = array();
+	$sortedresponses = array();
 	foreach($allresponses as $answer){
 		if (has_capability('mod/booking:choose', $context, $answer->userid)){
 			$sortedresponses[$i++] = $answer->userid;
@@ -1171,11 +1176,11 @@ function booking_delete_booking_option($booking, $optionid) {
 
 	$result = true;
 
-    $params = array('bookingid' => $booking->id, 'optionid' => $optionid);
-    $userids = $DB->get_fieldset_select('booking_answers', 'userid', 'bookingid = :bookingid AND optionid = :optionid', $params);
-    foreach ($userids as $userid) {
-        booking_check_unenrol_user($option, $booking, $userid); // Unenrol any users enroled via this option.
-    }
+	$params = array('bookingid' => $booking->id, 'optionid' => $optionid);
+	$userids = $DB->get_fieldset_select('booking_answers', 'userid', 'bookingid = :bookingid AND optionid = :optionid', $params);
+	foreach ($userids as $userid) {
+		booking_check_unenrol_user($option, $booking, $userid); // Unenrol any users enroled via this option.
+	}
 	if (! $DB->delete_records("booking_answers", array("bookingid" => $booking->id, "optionid" => $optionid))) {
 		$result = false;
 	}

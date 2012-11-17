@@ -4,6 +4,8 @@
 $string['addmorebookings'] = 'Buchungen hinzufügen';
 $string['allowupdate'] = 'Buchungen dürfen gelöscht werden';
 $string['answered'] = 'Beantworted';
+$string['attachical'] = 'ICAL Kalendereintrag hinzufügen';
+$string['attachicaldesc'] = 'E-Mail Benachrichtigungen im ical Kalenderformat hinzufügen, wenn diese Option aktiviert wird';
 $string['booking'] = 'Buchung';
 $string['booking:choose'] = 'Buchen';
 $string['booking:deleteresponses'] = 'Anworten löschen';

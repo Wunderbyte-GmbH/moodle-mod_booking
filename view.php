@@ -159,11 +159,11 @@ $current = false;  // Initialise for later
 $bookingopen = true;
 $timenow = time();
 if ($booking->timeclose !=0) {
-	if ($booking->timeopen > $timenow ) {
+	if ($booking->timeopen > $timenow && !has_capability('mod/booking:updatebooking', $context)) {
 		echo $OUTPUT->box(get_string("notopenyet", "booking", userdate($booking->timeopen)), "center");
 		echo $OUTPUT->footer();
 		exit;
-	} else if ($timenow > $booking->timeclose) {
+	} else if ($timenow > $booking->timeclose && !has_capability('mod/booking:updatebooking', $context)) {
 		echo $OUTPUT->box(get_string("expired", "booking", userdate($booking->timeclose)), "center");
 		$bookingopen = false;
 	}
