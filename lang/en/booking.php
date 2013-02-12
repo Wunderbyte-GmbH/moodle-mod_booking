@@ -102,8 +102,8 @@ $string['bookedtext'] = 'Booking confirmation';
 $string['waitingtext'] = 'Waiting list confirmation';
 $string['statuschangetext'] = 'Status change message';
 $string['deletedtext'] = 'Cancelled booking message';
-$string['bookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
-<ul>
+$string['waitingtext_help'] = $string['statuschangetext_help'] = $string['deletedtext_help'] = $string['bookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul =
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -115,9 +115,6 @@ $string['bookedtext_help'] = 'Leave this blank to use the site default text. You
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 </ul>';
-$string['waitingtext_help'] = $string['bookedtext_help'];
-$string['statuschangetext_help'] = $string['bookedtext_help'];
-$string['deletedtext_help'] = $string['bookedtext_help'];
 $string['maxperuser'] = 'Max current bookings per user';
 $string['maxperuser_help'] = 'The maximum number of bookings an individual user can make in this activity at once. After an event end time has passed, it is no longer counted against this limit.';
 
