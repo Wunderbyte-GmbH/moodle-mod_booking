@@ -39,8 +39,6 @@ $string['taken'] = 'gebucht';
 $string['timerestrict'] = 'Buchungsmöglichkeit auf diesen Zeitraum beschränken';
 $string['viewallresponses'] = '{$a} Antworten verwalten';
 $string['yourselection'] = 'Ihre Auswahl';
-$string['deletebookingoption'] = 'Diese Buchung löschen';
-$string['confirmdeletebookingoption'] = 'Möchten Sie diese Buchung wirklich löschen?';
 
 // view.php
 $string['coursedate'] = 'Kurstermin';
@@ -80,8 +78,12 @@ $string['deleteuserfrombooking'] = 'Buchung für Nutzer/innen wirklich storniere
 $string['showallbookings'] = 'Zur Buchungsgesamtübersicht';
 $string['showmybookings'] = 'Zur Liste meiner Buchungen';
 $string['mailconfirmationsent'] = 'Sie erhalten in Kürze ein Bestätigungsmail an die in Ihrem Profil angegebene E-Mail Adresse';
+$string['deletebookingoption'] = 'Diese Buchung löschen';
+$string['confirmdeletebookingoption'] = 'Möchten Sie diese Buchung wirklich löschen?';
 $string['norighttobook'] = 'Sie können keine Buchung durchführen. Kontaktieren Sie den Administrator der Website, oder loggen Sie sich ein.';
 $string['createdby'] = 'Dieses Buchungsmodul wurde von edulabs.org entwickelt';
+$string['maxperuserwarning'] = 'Wie haben zur Zeit ein Limit von {$a->count}/{$a->limit} Buchungen';
+$string['bookedpast'] = 'Gebucht (Kurs wurde bereits beendet)';
 
 // mod_form
 $string['limitanswers'] = 'Teilnehmeranzahl beschränken';
@@ -94,7 +96,25 @@ $string['allowdelete'] = 'Teilnehmer/innen dürfen Buchungen selbst stornieren';
 $string['bookingpolicy'] = 'Buchungsbedingungen - bookingpolicy';
 $string['confirmationmessagesettings'] = 'Buchungsbestätigungseinstellungen';
 $string['usernameofbookingmanager'] = 'Username des Buchungsverwalters';
-
+$string['autoenrol'] = 'Nutzer/innen automatisch einschreiben';
+$string['autoenrol_help'] = 'Fals ausgewählt werden Nutzter/innen automatisch in den Kurs eingeschrieben sobald sie die Buchung durchgeführt haben und wieder ausgetragen, wenn die Buchung storniert wird.';
+$string['bookedtext'] = 'Buchungsbestätigung';
+$string['waitingtext'] = 'Wartelistenbestätigung';
+$string['statuschangetext'] = 'Statusänderungsbenachrichtigung';
+$string['deletedtext'] = 'Stornierungsbenachrichtigung';
+$string['bookedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+</ul>';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Speichern und neue Buchung hinzufügen';
@@ -189,5 +209,3 @@ $string['bookedusers'] = 'Gebuchte Nutzer/innen';
 $string['waitinglistusers'] = 'Nutzer/innen auf der Warteliste';
 $string['downloadallresponses'] = 'Alle Buchungen herunterladen';
 
-
-?>
