@@ -115,6 +115,11 @@ $string['bookedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext d
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 </ul>';
+$string['waitingtext_help'] = $string['bookedtext_help'];
+$string['statuschangetext_help'] = $string['bookedtext_help'];
+$string['deletedtext_help'] = $string['bookedtext_help'];
+$string['maxperuser'] = 'Maximale Anzahl an Buchungen pro User';
+$string['maxperuser_help'] = 'Die maximale Anzahl an Buchungen, die ein/e Nutzer/in auf einmal buchen kann. Nach dem Ende des gebuchten Kurses, zählt dieser nicht mehr zum Buchungslimit.';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Speichern und neue Buchung hinzufügen';
