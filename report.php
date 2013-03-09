@@ -134,7 +134,7 @@ if (!$download) {
 		/// Send HTTP headers
 		$workbook->send($filename);
 		/// Creating the first worksheet
-		$myxls =& $workbook->add_worksheet($strresponses);
+		$myxls = $workbook->add_worksheet($strresponses);
 		if ( $download =="ods"){
 			$cellformat =& $workbook->add_format(array('bg_color' => 'white'));
 			$cellformat1 =& $workbook->add_format(array('bg_color' => 'red'));
