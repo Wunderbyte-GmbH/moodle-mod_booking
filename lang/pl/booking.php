@@ -7,6 +7,7 @@ $string['answered'] = 'Odpowiedziało';
 $string['attachical'] = 'Załącz wydarzenia ical';
 $string['attachicaldesc'] = 'Jeżeli ta opcja jest włączona, powiadomienia email będą zawierać dołączone wydarzenia iCal';
 $string['booking'] = 'Rezerwacja';
+$string['booking:addinstance'] = 'Dodaj nowej rezerwacja';
 $string['booking:choose'] = 'Rezerwuj';
 $string['booking:deleteresponses'] = 'Usuń powiadomienia';
 $string['booking:downloadresponses'] = 'Ściągnij powiadomienia';

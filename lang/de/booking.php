@@ -7,6 +7,7 @@ $string['answered'] = 'Beantworted';
 $string['attachical'] = 'ICAL Kalendereintrag hinzufügen';
 $string['attachicaldesc'] = 'E-Mail Benachrichtigungen im ical Kalenderformat hinzufügen, wenn diese Option aktiviert wird';
 $string['booking'] = 'Buchung';
+$string['booking:addinstance'] = 'Neue Buchung anlegen';
 $string['booking:choose'] = 'Buchen';
 $string['booking:deleteresponses'] = 'Anworten löschen';
 $string['booking:downloadresponses'] = 'Antworten herunterladen';

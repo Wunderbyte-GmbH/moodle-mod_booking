@@ -7,6 +7,7 @@ $string['answered'] = 'Answered';
 $string['attachical'] = 'Attach ical events';
 $string['attachicaldesc'] = 'Email notifications will include an attached ical event, if this is enabled';
 $string['booking'] = 'Booking';
+$string['booking:addinstance'] = 'Add new booking';
 $string['booking:choose'] = 'Boook';
 $string['booking:deleteresponses'] = 'Delete responses';
 $string['booking:downloadresponses'] = 'Download responses';
