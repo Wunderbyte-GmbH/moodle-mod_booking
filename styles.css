@@ -39,3 +39,7 @@ tr.mod-booking-invisible {
   height: 0;
   display: none;
 }
+.path-mod-booking .userselector div {
+    margin-top: 0.2em;
+    display: none;
+}

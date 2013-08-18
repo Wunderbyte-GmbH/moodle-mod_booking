@@ -1,4 +1,4 @@
-<?php // $Id: lib.php,v 1.59.2.29 2011/02/01 11:09:31 dasistwas Exp $
+<?php 
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/mod/booking/icallib.php');
@@ -204,7 +204,9 @@ function booking_get_user_status($userid,$optionid,$bookingid,$cmid){
 		}
 		$useridaskey = array_flip($sortedresponses);
 		if($option->limitanswers){
-			if($useridaskey[$userid] > $option->maxanswers + $option->maxoverbooking){
+			if(empty($useridaskey[$userid])){
+				$status = get_string('notbooked','booking');
+			} else if($useridaskey[$userid] > $option->maxanswers + $option->maxoverbooking){
 				$status = "Problem, please contact the admin";
 			} elseif (($useridaskey[$userid]) > $option->maxanswers) { // waitspaceavailable
 				$status = get_string('onwaitinglist','booking');
@@ -267,10 +269,10 @@ function booking_get_user_booking_count($booking, $user, $bookinglist) {
  * Echoes HTML code for booking table with all booking options and booking status
  * @param $booking object containing complete details of the booking instance
  * @param $user object of current user
- * @param $cm module object
+ * @param $cm course module object
  * @param $allresponses array of all responses
  * @param $singleuser 0 show all booking options, 1 show only my booking options
- * @return nothing
+ * @return void
  */
 function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 	global $DB, $OUTPUT;
@@ -392,8 +394,15 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 			$optiondisplay->manage = "<a href=\"report.php?id=$cm->id&optionid=$option->id\">".get_string("viewallresponses", "booking", $numberofresponses)."</a>";
 		} else {
 			$optiondisplay->manage = "";
+		} if (has_capability('mod/booking:subscribeusers', $context)){
+			$optiondisplay->bookotherusers = "<a href=\"subscribeusers.php?id=$cm->id&optionid=$option->id\">".get_string("bookotherusers", "booking")."</a>";
+		} else {
+			$optiondisplay->bookotherusers = "";
 		}
-		$tabledata[] = array ($bookingbutton.$optiondisplay->booked."<br />".get_string($option->status, "booking")."<br />".$optiondisplay->delete.$optiondisplay->manage,
+		$tabledata[] = array ($bookingbutton.$optiondisplay->booked.'
+				<br />'.get_string($option->status, "booking").'
+				<br />'.$optiondisplay->delete.$optiondisplay->manage.'
+				<br />'.$optiondisplay->bookotherusers,
 				"<b>".format_text($option->text. ' ', FORMAT_MOODLE, $displayoptions)."</b>"."<p>".$option->description."</p>",
 				$option->coursestarttimetext." - <br />".$option->courseendtimetext,
 				$stravailspaces);
@@ -427,10 +436,11 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 	}
 	if($booking->option[$optionid]->limitanswers) {
 		// retrieve all answers for this option ID
+		$countanswers = Array();
 		$answers[$optionid] = $DB->get_records("booking_answers", array("optionid" => $optionid));
 		if ($answers[$optionid]) {
 			$countanswers[$optionid] = 0;
-			foreach ($answers[$optionid] as $a) { //only return enrolled users.
+			foreach ($answers[$optionid] as $a) { 
 				if (has_capability('mod/booking:choose', $context, $a->userid, false)) {
 					$countanswers[$optionid]++;
 				}
@@ -438,7 +448,6 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 		}
 		$maxans[$optionid] = $booking->option[$optionid]->maxanswers + $booking->option[$optionid]->maxoverbooking;
 		// if answers for one option are limited and total answers are not exceeded then
-		$countanswers = 0;
 		if (!($booking->option[$optionid]->limitanswers && ($countanswers[$optionid] >= $maxans[$optionid]) )) {
 			// check if actual answer is also already made by this user
 			if(!($currentanswerid = $DB->get_field('booking_answers','id', array('userid' => $user->id, 'optionid' => $optionid)))){
@@ -623,6 +632,11 @@ function booking_confirm_booking($optionid, $booking, $user, $cm, $url){
 }
 /**
  * deletes a single booking of a user if user cancels the booking, sends mail to supportuser and newbookeduser
+ * @param $answer
+ * @param $booking
+ * @param $optionid
+ * @param $newbookeduserid
+ * @param $cmid
  * @return true if booking was deleted successfully, otherwise false
  */
 function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduserid,$cmid) {
@@ -661,7 +675,6 @@ function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduseri
 		booking_check_enrol_user($booking->option[$optionid], $booking, $newbookeduserid);
 		if ($booking->sendmail == 1) {
 			$newbookeduser = $DB->get_record('user', array('id' => $newbookeduserid));
-
 			$params = booking_generate_email_params($booking, $booking->option[$optionid], $newbookeduser, $cmid);
 			$messagetextnewuser = booking_get_email_body($booking, 'statuschangetext', 'statuschangebookedmessage', $params);
 			$messagehtml = format_text($messagetextnewuser, FORMAT_HTML);
@@ -734,18 +747,21 @@ function booking_delete_instance($id) {
 	return $result;
 }
 
+/**
+ * Returns the users with data in one booking
+ * (users with records in booking_answers, students) 
+ * 
+ * @bookingid booking id of booking instance
+ * @return array of students
+ */
 function booking_get_participants($bookingid) {
 	global $CFG, $DB;
-	//Returns the users with data in one booking
-	//(users with records in booking_responses, students)
-
 	//Get students
 	$students = $DB->get_records_sql("SELECT DISTINCT u.id, u.id
 			FROM {$CFG->prefix}user u,
 			{$CFG->prefix}booking_answers a
 			WHERE a.bookingid = '$bookingid' and
 			u.id = a.userid");
-
 	//Return students array (it contains an array of unique users)
 	return ($students);
 }
@@ -1103,8 +1119,11 @@ function booking_get_email_body($booking, $fieldname, $defaultname, $params) {
 
 /**
  * Checks if user on waitinglist gets normal place if a user is deleted
- * @param $userid of user who will be deleted
- * @return false if no user gets from waitinglist to booked list or userid of user now on booked list
+ * @param $optionid id of booking option
+ * @param $booking booking id
+ * @param $cancelleduserid user id that was deleted form booking option
+ * @param $cmid course module id
+ * @return mixed false if no user gets from waitinglist to booked list or userid of user now on booked list
  */
 function booking_check_statuschange($optionid,$booking,$cancelleduserid,$cmid) {
 	global $DB;

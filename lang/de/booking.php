@@ -1,5 +1,4 @@
-<?PHP // $Id: booking.php,v 1.6.4.5 2011-02-01 23:05:09 dasistwas Exp $
-
+<?PHP 
 
 $string['addmorebookings'] = 'Buchungen hinzufügen';
 $string['allowupdate'] = 'Buchungen dürfen gelöscht werden';
@@ -9,6 +8,7 @@ $string['attachicaldesc'] = 'E-Mail Benachrichtigungen im ical Kalenderformat hi
 $string['booking'] = 'Buchung';
 $string['booking:addinstance'] = 'Neue Buchung anlegen';
 $string['booking:choose'] = 'Buchen';
+$string['booking:subscribeusers'] = 'Für andere Teilnehmer/innen Buchungen durchführen';
 $string['booking:deleteresponses'] = 'Anworten löschen';
 $string['booking:downloadresponses'] = 'Antworten herunterladen';
 $string['booking:readresponses'] = 'Antworten lesen';
@@ -85,6 +85,7 @@ $string['norighttobook'] = 'Sie können keine Buchung durchführen. Kontaktieren
 $string['createdby'] = 'Dieses Buchungsmodul wurde von edulabs.org entwickelt';
 $string['maxperuserwarning'] = 'Wie haben zur Zeit ein Limit von {$a->count}/{$a->limit} Buchungen';
 $string['bookedpast'] = 'Gebucht (Kurs wurde bereits beendet)';
+$string['bookotherusers'] = 'Buchung für andere Nutzer/innen durchführen';
 
 // mod_form
 $string['limitanswers'] = 'Teilnehmeranzahl beschränken';

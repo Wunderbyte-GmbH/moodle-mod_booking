@@ -1,4 +1,4 @@
-<?PHP // $Id: booking.php,v 1.6.4.5 2011-02-01 23:05:09 dasistwas Exp $
+<?PHP
 
 
 $string['addmorebookings'] = 'Add more bookings';
@@ -9,6 +9,7 @@ $string['attachicaldesc'] = 'Email notifications will include an attached ical e
 $string['booking'] = 'Booking';
 $string['booking:addinstance'] = 'Add new booking';
 $string['booking:choose'] = 'Boook';
+$string['booking:subscribeusers'] = 'Make bookings for other users';
 $string['booking:deleteresponses'] = 'Delete responses';
 $string['booking:downloadresponses'] = 'Download responses';
 $string['booking:readresponses'] = 'Read responses';
@@ -85,6 +86,8 @@ $string['norighttobook'] = 'Booking is not possible for your user role. Please c
 $string['createdby'] = 'Booking module created by edulabs.org';
 $string['maxperuserwarning'] = 'You currently have {$a->count}/{$a->limit} maximum bookings';
 $string['bookedpast'] = 'Booked (course finished)';
+$string['bookotherusers'] = 'Book other users';
+
 
 // mod_form
 $string['limitanswers'] = 'Limit the number of participants';
