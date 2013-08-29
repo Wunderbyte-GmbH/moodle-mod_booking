@@ -15,7 +15,7 @@ $string['booking:readresponses'] = 'Antworten lesen';
 $string['booking:updatebooking'] = 'Buchungen verwalten';
 $string['bookingclose'] = 'Bis';
 $string['bookingfull'] = 'Ausgebucht';
-$string['bookingname'] = 'Titel';
+$string['title'] = 'Titel';
 $string['bookingopen'] = 'Offen';
 $string['bookingtext'] = 'Buchungsbeschreibung';
 $string['expired'] = 'Diese Aktivität ist geschlossen {$a} und ist nicht mehr verfügbar';
@@ -137,34 +137,34 @@ $string['addnewbookingoption'] = 'Neue Buchung hinzufügen';
 
 
 // Confirmation mail
-$string['deletedbookingsubject'] = 'Storno von {$a->bookingname}, User: {$a->name}';
-$string['deletedbookingmessage'] = 'Folgende Buchung wurde storniert: {$a->bookingname}
+$string['deletedbookingsubject'] = 'Storno von {$a->title}, User: {$a->participant}';
+$string['deletedbookingmessage'] = 'Folgende Buchung wurde storniert: {$a->title}
 
-User: {$a->name}
+User: {$a->participant}
 Link: {$a->link}
 
 ';
 
-$string['confirmationsubject'] = 'Buchungsbestätigung für {$a->bookingname}';
-$string['confirmationsubjectbookingmanager'] = 'Neue Buchung für {$a->bookingname} von {$a->name}';
-$string['confirmationmessage'] = 'Guten Tag {$a->name}
+$string['confirmationsubject'] = 'Buchungsbestätigung für {$a->title}';
+$string['confirmationsubjectbookingmanager'] = 'Neue Buchung für {$a->title} von {$a->participant}';
+$string['confirmationmessage'] = 'Guten Tag {$a->participant}
 
-vielen Dank für die Buchung von \"{$a->bookingname}\".
+vielen Dank für die Buchung von \"{$a->title}\".
 
 Termin: {$a->date}
 Ihr Buchungsstatus: {$a->status}
 Stornieren möglich bis: {$a->canceluntil}
-Name:   {$a->name}
+Name:   {$a->participant}
 
 Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf folgenden Link: 
 {$a->link}
 
 ';
-$string['confirmationsubjectwaitinglist'] = 'Buchung auf Warteliste für {$a->bookingname}';
-$string['confirmationsubjectwaitinglistmanager'] = 'Wartelistenbuchung für {$a->bookingname} von {$a->name}';
-$string['confirmationmessagewaitinglist'] = 'Guten Tag {$a->name},
+$string['confirmationsubjectwaitinglist'] = 'Buchung auf Warteliste für {$a->title}';
+$string['confirmationsubjectwaitinglistmanager'] = 'Wartelistenbuchung für {$a->title} von {$a->participant}';
+$string['confirmationmessagewaitinglist'] = 'Guten Tag {$a->participant},
 
-vielen Dank für Ihr Interesse an {$a->bookingname}. 
+vielen Dank für Ihr Interesse an {$a->title}. 
 Nachdem derzeit leider keine Plätze verfügbar sind, haben wir Sie auf der Warteliste eingetragen. 
 
 Über folgenden Link gelangen Sie in Ihren Buchungsbereich, in dem Sie jederzeit einsehen können, ob Sie einen Platz erhalten haben:
@@ -173,13 +173,13 @@ Nachdem derzeit leider keine Plätze verfügbar sind, haben wir Sie auf der Wart
 Termin: {$a->date}
 Ihr Buchungsstatus: {$a->status}
 Stornieren möglich bis: {$a->canceluntil}
-Teilnehmer/in:   {$a->name}
-Kurs:   {$a->bookingname}
+Teilnehmer/in:   {$a->participant}
+Kurs:   {$a->title}
 ';
-$string['statuschangebookedsubject'] = 'Buchungstatus für {$a->bookingname} geändert';
-$string['statuschangebookedmessage'] = 'Guten Tag {$a->name},
+$string['statuschangebookedsubject'] = 'Buchungstatus für {$a->title} geändert';
+$string['statuschangebookedmessage'] = 'Guten Tag {$a->participant},
 
-Sie sind nun fix in {$a->bookingname} als Teilnehmer/in eingetragen.
+Sie sind nun fix in {$a->title} als Teilnehmer/in eingetragen.
 
 Über folgenden Link gelangen Sie in Ihren Buchungsbereich, in dem Sie jederzeit alle Ihre Buchungen einsehen können:
 {$a->link}
@@ -187,14 +187,14 @@ Sie sind nun fix in {$a->bookingname} als Teilnehmer/in eingetragen.
 Termin: {$a->date}
 Ihr Buchungsstatus: {$a->status}
 Stornieren möglich bis: {$a->canceluntil}
-Teilnehmer/in:   {$a->name}
-Kurs:   {$a->bookingname}
+Teilnehmer/in:   {$a->participant}
+Kurs:   {$a->title}
 ';
 
-$string['deletedbookingusersubject'] = 'Stornobestätigung für {$a->bookingname}';
-$string['deletedbookingusermessage'] = 'Guten Tag {$a->name},
+$string['deletedbookingusersubject'] = 'Stornobestätigung für {$a->title}';
+$string['deletedbookingusermessage'] = 'Guten Tag {$a->participant},
 
-Die Buchung für {$a->bookingname} wurde erfolgreich storniert
+Die Buchung für {$a->title} wurde erfolgreich storniert
 ';
 
 
@@ -202,8 +202,8 @@ $string['error:failedtosendconfirmation'] = 'Folgender User hat kein Bestätigun
 Die Buchung wurde erfolgreich durchgeführt, das Senden des Bestätigungsmails ist aber fehlgeschlagen.
 
 Buchungsstatus: {$a->status}
-User:   {$a->name}
-Gebuchter Kurs:   {$a->bookingname}
+User:   {$a->participant}
+Gebuchter Kurs:   {$a->title}
 Kurstermin: {$a->date}
 Link: {$a->link}
 
