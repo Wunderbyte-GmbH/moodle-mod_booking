@@ -654,7 +654,6 @@ function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduseri
 	booking_check_unenrol_user($booking->option[$optionid], $booking, $user->id);
 	$supportuser = generate_email_supportuser();
 	$params = booking_generate_email_params($booking, $booking->option[$optionid], $user, $cmid);
-	print_object($params);
 	$messagetext = get_string('deletedbookingmessage', 'booking', $params);
 	$deletedbookingusermessage = booking_get_email_body($booking, 'deletedtext', 'deletedbookingmessage', $params);
 	$bookingmanager = $DB->get_record('user', array('username' => $booking->bookingmanager));
