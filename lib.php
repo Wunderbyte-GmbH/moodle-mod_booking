@@ -307,7 +307,6 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 
 	$underlimit = ($booking->maxperuser == 0);
 	$underlimit = $underlimit || (booking_get_user_booking_count($booking, $user, $allresponses) < $booking->maxperuser);
-	echo booking_get_user_booking_count($booking, $user, $allresponses);
 	
 	foreach ($booking->option as $option) {
 		$optiondisplay = new stdClass();
