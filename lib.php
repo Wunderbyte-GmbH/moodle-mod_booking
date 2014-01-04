@@ -246,6 +246,15 @@ function booking_show_maxperuser($booking, $user, $bookinglist) {
 	return html_writer::tag('p', get_string('maxperuserwarning', 'mod_booking', $outdata));
 }
 
+/**
+ * determins the number of bookings that a single user has already made 
+ * in all booking options
+ * 
+ * @param object $booking
+ * @param object $user
+ * @param object[] $bookinglist
+ * @return number of bookings made by user
+ */
 function booking_get_user_booking_count($booking, $user, $bookinglist) {
 	$count = 0;
 	$now = time();
@@ -253,7 +262,7 @@ function booking_get_user_booking_count($booking, $user, $bookinglist) {
 		if (!isset($booking->option[$optionid])) {
 			continue; // Booking not for one of the available options (shouldn't happen?)
 		}
-		if ($booking->option[$optionid]->courseendtime < $now) {
+		if ($booking->option[$optionid]->courseendtime < $now && $booking->option[$optionid]->courseendtimetext !== get_string('endtimenotset','booking')) {
 			continue; // Booking is in the past - ignore it.
 		}
 		foreach ($optbookings as $optbooking) {
@@ -298,7 +307,8 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 
 	$underlimit = ($booking->maxperuser == 0);
 	$underlimit = $underlimit || (booking_get_user_booking_count($booking, $user, $allresponses) < $booking->maxperuser);
-
+	echo booking_get_user_booking_count($booking, $user, $allresponses);
+	
 	foreach ($booking->option as $option) {
 		$optiondisplay = new stdClass();
 		$optiondisplay->delete = "";
@@ -615,6 +625,9 @@ function booking_show_statistic (){
 	echo "</tr></table>";
 }
 
+/**
+ * Outputs a confirm button on a separate page to confirm a booking.
+ */
 function booking_confirm_booking($optionid, $booking, $user, $cm, $url){
 	global $OUTPUT;
 	echo $OUTPUT->header();
