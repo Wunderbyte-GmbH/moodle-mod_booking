@@ -218,7 +218,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
 }
 
 /**
- * User selector control for removing subscribed users
+ * User selector control for removing booked users
  * @package mod-booking
  * @copyright 2013 David Bogner
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -226,7 +226,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
 class booking_existing_user_selector extends booking_user_selector_base {
 
 	/**
-	 * Finds all subscribed users
+	 * Finds all booked users
 	 *
 	 * @param string $search
 	 * @return array
@@ -238,18 +238,16 @@ class booking_existing_user_selector extends booking_user_selector_base {
 		$params['optionid'] = $this->optionid;
 		
 		// only active enrolled or everybody on the frontpage
-		list($esql, $eparams) = get_enrolled_sql($this->context, '', $this->currentgroup, true);
+		//list($esql, $eparams) = get_enrolled_sql($this->context, '', $this->currentgroup, true);
 		$fields = $this->required_fields_sql('u');
-		list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
-		$params = array_merge($params, $eparams, $sortparams);
+		//list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
+		//$params = array_merge($params, $eparams, $sortparams);
 
 		$subscribers = $DB->get_records_sql("SELECT $fields
 				FROM {user} u
 				JOIN {booking_answers} s ON s.userid = u.id
-				JOIN ($esql) je ON je.id = u.id
-				WHERE $wherecondition 
-				AND s.bookingid = $this->bookingid AND s.optionid = $this->optionid
-				ORDER BY $sort", $params);
+				WHERE s.bookingid = $this->bookingid AND s.optionid = $this->optionid
+				");
 
 		return array(get_string("booked", 'booking') => $subscribers);
 	}

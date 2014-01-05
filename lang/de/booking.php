@@ -83,7 +83,7 @@ $string['deletebookingoption'] = 'Diese Buchung löschen';
 $string['confirmdeletebookingoption'] = 'Möchten Sie diese Buchung wirklich löschen?';
 $string['norighttobook'] = 'Sie können keine Buchung durchführen. Kontaktieren Sie den Administrator der Website, oder loggen Sie sich ein.';
 $string['createdby'] = 'Dieses Buchungsmodul wurde von edulabs.org entwickelt';
-$string['maxperuserwarning'] = 'Wie haben zur Zeit ein Limit von {$a->count}/{$a->limit} Buchungen';
+$string['maxperuserwarning'] = 'Sie haben zur Zeit ein Limit von {$a->count}/{$a->limit} Buchungen';
 $string['bookedpast'] = 'Gebucht (Kurs wurde bereits beendet)';
 $string['bookotherusers'] = 'Buchung für andere Nutzer/innen durchführen';
 

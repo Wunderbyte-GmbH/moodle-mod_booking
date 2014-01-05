@@ -12,7 +12,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 $id = required_param('id', PARAM_INT); // course_module ID, or
-$optionid = required_param('optionid', PARAM_INT); // 
+$optionid = required_param('optionid', PARAM_INT); //
 $subscribe = optional_param('subscribe', false, PARAM_BOOL);
 $unsubscribe = optional_param('unsubscribe', false, PARAM_BOOL);
 $agree = optional_param('agree', false, PARAM_BOOL);
@@ -42,6 +42,9 @@ $PAGE->set_title(get_string('modulename', 'booking'));
 
 $bookingpage = new booking($context, $cm, $course, $booking);
 $currentgroup = groups_get_course_group($course);
+if($currentgroup){
+	$groupmembers = groups_get_members($currentgroup,'u.id');
+}
 $options = array('bookingid'=>$booking->id, 'currentgroup'=>$currentgroup, 'context'=>$context, 'optionid'=>$optionid, 'cmid' =>$cm->id, 'course' => $course);
 $potentialusers = $bookingpage->booking_potential_users($optionid);
 
@@ -59,13 +62,22 @@ if (data_submitted()) {
 	}
 	if ($subscribe) {
 		$users = $subscriberselector->get_selected_users();
-		foreach ($users as $user) {
-			if(!groups_is_member($currentgroup,$USER->id) && !groups_is_member($currentgroup,$user->id) && !has_capability('moodle/site:accessallgroups', $context)){
-				print_error('invalidaction');
+		if($currentgroup AND !has_capability('moodle/site:accessallgroups', $context)){
+			$usersofgroup = array_intersect_key($users, $groupmembers);
+			$usersallowed = (count($users) === count($usersofgroup));
+		} else {
+			$usersallowed = true;
+		}
+		// compare if selected users are members of the currentgroup if person has not the
+		// right to access all groups
+		if($usersallowed AND (groups_is_member($currentgroup,$USER->id) OR has_capability('moodle/site:accessallgroups', $context))){
+			foreach ($users as $user) {
+				if (!booking_user_submit_response($optionid, $booking, $user, $course->id, $cm)) {
+					print_error('bookingmeanwhilefull', 'booking', $errorurl->out() , $user->id);
+				}
 			}
-			if (!booking_user_submit_response($optionid, $booking, $user, $course->id, $cm)) {
-				print_error('bookingmeanwhilefull', 'booking', $errorurl->out() , $user->id);
-			}
+		} else {
+			print_error('invalidaction');
 		}
 	} else if ($unsubscribe) {
 		$users = $existingselector->get_selected_users();
