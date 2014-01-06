@@ -247,9 +247,9 @@ function booking_show_maxperuser($booking, $user, $bookinglist) {
 }
 
 /**
- * determins the number of bookings that a single user has already made 
+ * determins the number of bookings that a single user has already made
  * in all booking options
- * 
+ *
  * @param object $booking
  * @param object $user
  * @param object[] $bookinglist
@@ -307,7 +307,7 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 
 	$underlimit = ($booking->maxperuser == 0);
 	$underlimit = $underlimit || (booking_get_user_booking_count($booking, $user, $allresponses) < $booking->maxperuser);
-	
+
 	foreach ($booking->option as $option) {
 		$optiondisplay = new stdClass();
 		$optiondisplay->delete = "";
@@ -449,7 +449,7 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 		$answers[$optionid] = $DB->get_records("booking_answers", array("optionid" => $optionid));
 		if ($answers[$optionid]) {
 			$countanswers[$optionid] = 0;
-			foreach ($answers[$optionid] as $a) { 
+			foreach ($answers[$optionid] as $a) {
 				if (has_capability('mod/booking:choose', $context, $a->userid, false)) {
 					$countanswers[$optionid]++;
 				}
@@ -479,7 +479,7 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 				$eventdata->booking = $booking;
 				$eventdata->optionid = $optionid;
 				$eventdata->cmid = $cm->id;
-				events_trigger('booking_confirmed', $eventdata);
+				booking_send_confirm_message($eventdata);
 			}
 			return true;
 		} else { //check to see if current booking already selected - if not display error
@@ -501,7 +501,7 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 		}
 		add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
 		if ($booking->sendmail){
-			events_trigger('booking_confirmed', $eventdata);
+				booking_send_confirm_message($eventdata);
 		}
 		return true;
 	}
@@ -685,7 +685,7 @@ function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduseri
 		}
 		$messagehtml = format_text($deletedbookingusermessage, FORMAT_HTML);
 		$deletedbookingusermessage = strip_tags(str_replace(array('<br />', '</p>'), '', $messagehtml));
-		$eventdata->userto = $user; 
+		$eventdata->userto = $user;
 		$eventdata->userfrom  = $supportuser;
 		$eventdata->subject = get_string('deletedbookingusersubject','booking', $params);
 		$eventdata->messagetext  = $deletedbookingusermessage;
@@ -701,7 +701,7 @@ function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduseri
 		$eventdata->messagetext = $messagetext;
 		$eventdata->messagehtml = '';
 		$eventdata->attachment = '';
-		$eventdata->attachname = '';	
+		$eventdata->attachname = '';
 		events_trigger('booking_deleted', $eventdata);
 	}
 	if ($newbookeduserid) {
@@ -719,7 +719,7 @@ function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduseri
 			if ($attachment = $ical->get_attachment()) {
 				$attachname = $ical->get_name();
 			}
-			$eventdata->userto = $newbookeduser; 
+			$eventdata->userto = $newbookeduser;
 			$eventdata->userfrom  = $supportuser;
 			$eventdata->subject = get_string('statuschangebookedsubject','booking', $params);
 			$eventdata->messagetext  = $message;
@@ -787,8 +787,8 @@ function booking_delete_instance($id) {
 
 /**
  * Returns the users with data in one booking
- * (users with records in booking_answers, students) 
- * 
+ * (users with records in booking_answers, students)
+ *
  * @bookingid booking id of booking instance
  * @return array of students
  */
@@ -800,8 +800,8 @@ function booking_get_participants($bookingid) {
 			{$CFG->prefix}booking_answers a
 			WHERE a.bookingid = '$bookingid' and
 			u.id = a.userid");
-	//Return students array (it contains an array of unique users)
-	return ($students);
+			//Return students array (it contains an array of unique users)
+			return ($students);
 }
 
 
@@ -1032,11 +1032,11 @@ function booking_user_status($bookingoption,$allresponses){
 /**
  * Event that sends confirmation notification after user successfully booked
  * TODO this should be rewritten for moodle 2.6 onwards
- * 
+ *
  * @param object $eventdata data of user and users booking details
  * @return bool
  */
-function booking_booking_confirmed($eventdata){
+function booking_send_confirm_message($eventdata){
 	global $DB, $CFG;
 	$cmid = $eventdata->cmid;
 	$optionid = $eventdata->optionid;
@@ -1078,52 +1078,53 @@ function booking_booking_confirmed($eventdata){
 	$errormessage = get_string('error:failedtosendconfirmation','booking', $data);
 	$errormessagehtml =  text_to_html($errormessage, false, false, true);
 	$user->mailformat = 1;  // Always send HTML version as well
-	
+
 	//implementing message send, but prior to moodle 2.6, that function does not
 	//accept attachments, so have to call email_to_user in that case
 	$messagedata = new stdClass();
-	$messagedata->component         = 'mod_booking'; //your component name
-	$messagedata->name              = 'bookingconfirmation'; //this is the message name from messages.php
-	$messagedata->userfrom          = $bookingmanager;
+	$messagedata->userfrom          = $supportuser;
 	$messagedata->userto            = $user;
 	$messagedata->subject           = $subject;
-	$messagedata->fullmessage       = $message;
-	$messagedata->fullmessageformat = FORMAT_PLAIN;
-	$messagedata->fullmessagehtml   = $messagehtml;
-	$messagedata->smallmessage      = '';
-	$messagedata->notification      = 1; //this is only set to 0 for personal messages between users
+	$messagedata->messagetext       = $message;
+	$messagedata->messagehtml       = $messagehtml;
+	$messagedata->attachment        = $attachment;
+	$messagedata->attachname        = $attachname;
 	
-	// send mail to user, copy to bookingmanager and if mail fails send errormessage to bookingmanager
-	// can only use message_send without attachments prior to moodle 2.6
-	if(!empty($attachment)){
-		$mailsend = email_to_user($user, $supportuser, $subject, $message, $messagehtml, $attachment, $attachname);
-	} else {
-		$mailsend = message_send($messagedata);
-	}
-	
-	if ($mailsend && $eventdata->booking->copymail) {
+	events_trigger('booking_confirmed', $messagedata);
+
+	if ($eventdata->booking->copymail) {
 		$messagedata->userto = $bookingmanager;
 		$messagedata->subject = $subjectmanager;
-		message_send($messagedata);
+		events_trigger('booking_confirmed', $messagedata);
 	} else {
 		$messagedata->userto = $bookingmanager;
 		$messagedata->subject = $subjectmanager;
-		$messagedata->fullmessage       = $errormessage;
-		$messagedata->fullmessagehtml   = $errormessagehtml;
-		message_send($messagedata);
-	}	
+		$messagedata->messagetext = $errormessage;
+		$messagedata->messagehtml = $errormessagehtml;
+		events_trigger('booking_confirmed', $messagedata);
+		}
 	return true;
 }
 
 /**
  * Sends mail via cron when user is deleted from booking
- * 
+ *
  * @param object $eventdata data for email_to_user params
  */
 function booking_booking_deleted($eventdata){
 	email_to_user($eventdata->userto, $eventdata->userfrom, $eventdata->subject,
 	$eventdata->messagetext, $eventdata->messagehtml, $eventdata->attachment, $eventdata->attachname);
-	}
+}
+
+/**
+ * Sends mail via cron when booking of user is confirmed
+ *
+ * @param object $eventdata data for email_to_user params
+ */
+function booking_booking_confirmed($eventdata){
+	email_to_user($eventdata->userto, $eventdata->userfrom, $eventdata->subject,
+	$eventdata->messagetext, $eventdata->messagehtml, $eventdata->attachment, $eventdata->attachname);
+}
 
 
 function booking_pretty_duration($seconds) {
@@ -1145,7 +1146,7 @@ function booking_pretty_duration($seconds) {
 
 /**
  * Prepares the data to be sent with confirmation mail
- * 
+ *
  * @param stdClass $booking
  * @param stdClass $option
  * @param stdClass $user
