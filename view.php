@@ -80,7 +80,7 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 
 // check if custom user profile fields are required and redirect to complete them if necessary
-if (has_capability('moodle/user:editownprofile', $context, NULL, false) and booking_check_user_profile_fields($USER->id) and !has_capability('moodle/site:doanything', $context)){
+if (has_capability('moodle/user:editownprofile', $context, NULL, false) and booking_check_user_profile_fields($USER->id) and !has_capability('moodle/site:config', $context)){
 	$contents = get_string('mustfilloutuserinfobeforebooking','booking');
 	$contents .= $OUTPUT->single_button(new moodle_url("edituserprofile.php", array('cmid' => $cm->id, 'courseid' => $course->id)), get_string('continue'),'get');
 	echo $OUTPUT->box($contents, 'box generalbox', 'notice');
