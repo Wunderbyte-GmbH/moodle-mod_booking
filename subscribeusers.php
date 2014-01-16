@@ -38,21 +38,34 @@ $errorurl = new moodle_url('/mod/booking/view.php', array('id'=>$id));
 
 $PAGE->set_url($url);
 $PAGE->set_title(get_string('modulename', 'booking'));
+$PAGE->set_heading($COURSE->fullname);
 
+echo $OUTPUT->header();
 
-$bookingpage = new booking($context, $cm, $course, $booking);
+if(!$agree && (!empty($booking->bookingpolicy))){
+	$alright = false;
+	$message = "<p><b>".get_string('agreetobookingpolicy','booking').":</b></p>";
+	$message .= "<p>".$booking->bookingpolicy."<p>";
+	$continueurl = new moodle_url($PAGE->url->out(false,array('agree' => 1)));
+	$continue = new single_button($continueurl, get_string('continue'),'get');
+	$cancel = new single_button($errorurl, get_string('cancel'),'get');;
+	echo $OUTPUT->confirm($message,$continue,$cancel);
+} else {
+	$alright = true;
+}
+
+$bookingpage = new booking_option($context, $cm, $course, $booking, $optionid);
 $currentgroup = groups_get_course_group($course);
 if($currentgroup){
 	$groupmembers = groups_get_members($currentgroup,'u.id');
 }
-$options = array('bookingid'=>$booking->id, 'currentgroup'=>$currentgroup, 'context'=>$context, 'optionid'=>$optionid, 'cmid' =>$cm->id, 'course' => $course);
-$potentialusers = $bookingpage->booking_potential_users($optionid);
+$options = array('bookingid'=>$booking->id, 'currentgroup'=>$currentgroup, 'context'=>$context, 'optionid'=>$optionid, 'cmid' =>$cm->id, 'course' => $course,'potentialusers'=>$bookingpage->potentialusers);
 
 $bookingoutput = $PAGE->get_renderer('mod_booking');
 
-$existingselector = new booking_existing_user_selector('existingsubscribers', $options,$potentialusers);
-$subscriberselector = new booking_potential_user_selector('potentialsubscribers', $options,$potentialusers);
-$subscriberselector->set_existing_subscribers($existingselector->find_users(''));
+$existingselector = new booking_existing_user_selector('existingsubscribers', $options);
+
+$subscriberselector = new booking_potential_user_selector('potentialsubscribers', $options,$bookingpage->potentialusers);
 
 if (data_submitted()) {
 	require_sesskey();
@@ -87,27 +100,18 @@ if (data_submitted()) {
 			if(!booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduser,$cm->id)){
 				print_error('cannotremovesubscriber', 'forum',  $errorurl->out(), $user->id);
 			} else {
-				$bookingpage->booking_potential_users($optionid);
+				$bookingpage->potentialusers;
 			}
 		}
 	}
 	$subscriberselector->invalidate_selected_users();
 	$existingselector->invalidate_selected_users();
-	$subscriberselector->set_existing_subscribers($existingselector->find_users(''));
+	$bookingpage->update_booked_users();
+	$subscriberselector->set_potential_users($bookingpage->potentialusers);
 }
 
-$PAGE->set_heading($COURSE->fullname);
 
-echo $OUTPUT->header();
-
-if(!$agree && (!empty($booking->bookingpolicy))){
-	$message = "<p><b>".get_string('agreetobookingpolicy','booking').":</b></p>";
-	$message .= "<p>".$booking->bookingpolicy."<p>";
-	$continueurl = new moodle_url($PAGE->url->out(false,array('agree' => 1)));
-	$continue = new single_button($continueurl, get_string('continue'),'get');
-	$cancel = new single_button($errorurl, get_string('cancel'),'get');;
-	echo $OUTPUT->confirm($message,$continue,$cancel);
-} else {
+if($alright){
 	echo $bookingoutput->subscriber_selection_form($existingselector, $subscriberselector);
 }
 

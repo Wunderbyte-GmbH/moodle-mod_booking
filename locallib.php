@@ -14,20 +14,20 @@ require_once($CFG->dirroot . '/user/selector/lib.php');
 class booking {
 
 	/** @var stdClass the booking record that contains the global settings for this booking instance */
-	private $booking = null;
+	public  $booking = null;
 	
 	/** @var context the context of the course module for this booking instance (or just the course if we are
 	 creating a new one) */
-	private $context = null;
+	protected  $context = null;
 	
 	/** @var stdClass the course this booking instance belongs to */
-	private $course = null;
+	public   $course = null;
 	
 	/** @var stdClass the course module for this assign instance */
-	private $cm = null;	
+	public  $cm = null;	
 	
-	/** @var stdClass the course module for this assign instance */
-	private $canbookusers = null;
+	/** @var array users who have capability to book */
+	protected  $canbookusers = array();
 	
 	/**
 	 * Constructor for the booking class
@@ -43,15 +43,39 @@ class booking {
 		$this->booking = $booking;
 		$this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose','u.id, u.firstname, u.lastname, u.email');
 	}
+}
+
+class booking_option extends booking {
 	
- 	public function booking_potential_users($optionid){
- 		foreach ($this->canbookusers as $canbookuser){
- 			if(booking_get_user_status($canbookuser->id, $optionid, $this->booking->id, $this->cm->id) !== get_string('booked','booking')){
- 				$potentialusers[$canbookuser->id] = $canbookuser;
- 			}
- 		}
- 		return $potentialusers;
- 	}
+	/** @var array the users booked for this option */
+	public $bookedusers = array();
+	
+	/** @var array of users that can be subscribed to that booking option */
+	public $potentialusers = array();
+	
+	public $optionid = null;
+	
+	public function __construct(context $context, stdClass $cm, stdClass $course, stdClass $booking, $optionid){
+		global $DB;
+		
+		parent::__construct($context, $cm, $course, $booking);
+		$this->optionid = $optionid;
+		$select = "bookingid = $booking->id";
+		$params = array('optionid' => $optionid);
+		$this->bookedusers = $DB->get_fieldset_select('booking_answers','userid', $select,$params);
+		$bookedidsaskey = array_flip($this->bookedusers);
+		$this->potentialusers = array_diff_key($this->canbookusers, $bookedidsaskey);
+	}
+	
+	public function update_booked_users(){
+		global $DB;
+		
+		$select = "bookingid = ".$this->booking->id;
+		$params = array('optionid' => $this->optionid);
+		$this->bookedusers = $DB->get_fieldset_select('booking_answers','userid', $select,$params);
+		$bookedidsaskey = array_flip($this->bookedusers);
+		$this->potentialusers = array_diff_key($this->canbookusers, $bookedidsaskey);
+	}
 }
 /**
  * Abstract class used by booking subscriber selection controls
@@ -121,10 +145,12 @@ abstract class booking_user_selector_base extends user_selector_base {
 		if (isset($options['course'])) {
 			$this->course = $options['course'];
 		}
+		if (isset($options['potentialusers'])) {
+			$this->potentialusers = $options['potentialusers'];
+		} 
 		if (isset($options['optionid'])) {
 			$this->optionid = $options['optionid'];
-			$this->potentialusers = $this->get_potential_users($options['optionid']);
-		} 
+		}
 	}
 
 	/**
@@ -142,17 +168,6 @@ abstract class booking_user_selector_base extends user_selector_base {
 		$options['cmid'] = $this->cmid;
 		$options['course'] = $this->course;
 		return $options;
-	}
-	
-	protected function get_potential_users($optionid){
-		global $USER;
-		$canbookusers = get_users_by_capability($this->context, 'mod/booking:choose','u.id, u.firstname, u.lastname, u.email');
-		foreach ($canbookusers as $canbookuser){
-			if(booking_get_user_status($canbookuser->id, $this->optionid, $this->bookingid, $this->cmid) !== get_string('booked','booking')){
-				$potentialusers[$canbookuser->id] = $canbookuser;
-			}
-		}
-		return $potentialusers;
 	}
 }
 
@@ -207,8 +222,8 @@ class booking_potential_user_selector extends booking_user_selector_base {
 	 * Sets the existing subscribers
 	 * @param array $users
 	 */
-	public function set_existing_subscribers(array $users) {
-		$this->existingsubscribers = $users;
+	public function set_potential_users(array $users) {
+		$this->potentialusers = $users;
 	}
 	protected function get_options() {
 		$options = parent::get_options();
