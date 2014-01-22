@@ -23,8 +23,6 @@ $booking = booking_get_booking($cm);
 
 require_login($course,true,$cm);
 
-
-
 add_to_log($course->id, "booking", "subscribeusers", "subscribeusers.php?id=$cm->id", "$booking->id");
 
 /// Print the page header
@@ -51,67 +49,66 @@ if(!$agree && (!empty($booking->bookingpolicy))){
 	$cancel = new single_button($errorurl, get_string('cancel'),'get');;
 	echo $OUTPUT->confirm($message,$continue,$cancel);
 } else {
-	$alright = true;
-}
 
-$bookingpage = new booking_option($context, $cm, $course, $booking, $optionid);
-$currentgroup = groups_get_course_group($course);
-if($currentgroup){
-	$groupmembers = groups_get_members($currentgroup,'u.id');
-}
-$options = array('bookingid'=>$booking->id, 'currentgroup'=>$currentgroup, 'context'=>$context, 'optionid'=>$optionid, 'cmid' =>$cm->id, 'course' => $course,'potentialusers'=>$bookingpage->potentialusers);
 
-$bookingoutput = $PAGE->get_renderer('mod_booking');
-
-$existingselector = new booking_existing_user_selector('existingsubscribers', $options);
-
-$subscriberselector = new booking_potential_user_selector('potentialsubscribers', $options,$bookingpage->potentialusers);
-
-if (data_submitted()) {
-	require_sesskey();
-	/** It has to be one or the other, not both or neither */
-	if (!($subscribe xor $unsubscribe)) {
-		print_error('invalidaction');
+	$bookingpage = new booking_option($context, $cm, $course, $booking, $optionid);
+	$currentgroup = groups_get_course_group($course);
+	if($currentgroup){
+		$groupmembers = groups_get_members($currentgroup,'u.id');
 	}
-	if ($subscribe) {
-		$users = $subscriberselector->get_selected_users();
-		if($currentgroup AND !has_capability('moodle/site:accessallgroups', $context)){
-			$usersofgroup = array_intersect_key($users, $groupmembers);
-			$usersallowed = (count($users) === count($usersofgroup));
-		} else {
-			$usersallowed = true;
-		}
-		// compare if selected users are members of the currentgroup if person has not the
-		// right to access all groups
-		if($usersallowed AND (groups_is_member($currentgroup,$USER->id) OR has_capability('moodle/site:accessallgroups', $context))){
-			foreach ($users as $user) {
-				if (!booking_user_submit_response($optionid, $booking, $user, $course->id, $cm)) {
-					print_error('bookingmeanwhilefull', 'booking', $errorurl->out() , $user->id);
-				}
-			}
-		} else {
+	$options = array('bookingid'=>$booking->id, 'currentgroup'=>$currentgroup, 'context'=>$context, 'optionid'=>$optionid, 'cmid' =>$cm->id, 'course' => $course,'potentialusers'=>$bookingpage->potentialusers);
+
+	$bookingoutput = $PAGE->get_renderer('mod_booking');
+	
+	$existingoptions = $options;
+	$existingoptions['potentialusers'] = $bookingpage->bookedvisibleusers;
+	
+	$existingselector = new booking_existing_user_selector('existingsubscribers', $existingoptions);
+
+	$subscriberselector = new booking_potential_user_selector('potentialsubscribers', $options);
+
+	if (data_submitted()) {
+		require_sesskey();
+		/** It has to be one or the other, not both or neither */
+		if (!($subscribe xor $unsubscribe)) {
 			print_error('invalidaction');
 		}
-	} else if ($unsubscribe) {
-		$users = $existingselector->get_selected_users();
-		foreach ($users as $user) {
-			$newbookeduser = booking_check_statuschange($optionid, $booking, $user->id, $cm->id);
-			$answer = $DB->get_record('booking_answers', array('bookingid' => $booking->id, 'userid' => $user->id, 'optionid' => $optionid));
-			if(!booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduser,$cm->id)){
-				print_error('cannotremovesubscriber', 'forum',  $errorurl->out(), $user->id);
+		if ($subscribe) {
+			$users = $subscriberselector->get_selected_users();
+			if($currentgroup AND !has_capability('moodle/site:accessallgroups', $context)){
+				$usersofgroup = array_intersect_key($users, $groupmembers);
+				$usersallowed = (count($users) === count($usersofgroup));
 			} else {
-				$bookingpage->potentialusers;
+				$usersallowed = true;
+			}
+			// compare if selected users are members of the currentgroup if person has not the
+			// right to access all groups
+			if($usersallowed AND (groups_is_member($currentgroup,$USER->id) OR has_capability('moodle/site:accessallgroups', $context))){
+				foreach ($users as $user) {
+					if (!booking_user_submit_response($optionid, $booking, $user, $course->id, $cm)) {
+						print_error('bookingmeanwhilefull', 'booking', $errorurl->out() , $user->id);
+					}
+				}
+			} else {
+				print_error('invalidaction');
+			}
+		} else if ($unsubscribe) {
+			$users = $existingselector->get_selected_users();
+			foreach ($users as $user) {
+				$newbookeduser = booking_check_statuschange($optionid, $booking, $user->id, $cm->id);
+				$answer = $DB->get_record('booking_answers', array('bookingid' => $booking->id, 'userid' => $user->id, 'optionid' => $optionid));
+				if(!booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduser,$cm->id)){
+					print_error('cannotremovesubscriber', 'forum',  $errorurl->out(), $user->id);
+				} else {
+					$bookingpage->potentialusers;
+				}
 			}
 		}
+		$subscriberselector->invalidate_selected_users();
+		$existingselector->invalidate_selected_users();
+		$bookingpage->update_booked_users();
+		$subscriberselector->set_potential_users($bookingpage->potentialusers);
 	}
-	$subscriberselector->invalidate_selected_users();
-	$existingselector->invalidate_selected_users();
-	$bookingpage->update_booked_users();
-	$subscriberselector->set_potential_users($bookingpage->potentialusers);
-}
-
-
-if($alright){
 	echo $bookingoutput->subscriber_selection_form($existingselector, $subscriberselector);
 }
 

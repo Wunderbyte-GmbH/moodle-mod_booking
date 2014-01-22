@@ -29,6 +29,9 @@ class booking {
 	/** @var array users who have capability to book */
 	protected  $canbookusers = array();
 	
+	/** @var array users who are members of the current users group */
+	public $groupmembers = null;
+	
 	/**
 	 * Constructor for the booking class
 	 *
@@ -42,6 +45,12 @@ class booking {
 		$this->course = $course;
 		$this->booking = $booking;
 		$this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose','u.id, u.firstname, u.lastname, u.email');
+		$currentgroup = groups_get_course_group($course);
+		if($currentgroup){
+			$groupmembers = groups_get_members($currentgroup,'u.id');
+			$this->groupmembers = $groupmembers;
+		}
+
 	}
 }
 
@@ -49,6 +58,9 @@ class booking_option extends booking {
 	
 	/** @var array the users booked for this option */
 	public $bookedusers = array();
+	
+	/** @var array the users booked for this option */
+	public $bookedvisibleusers = array();
 	
 	/** @var array of users that can be subscribed to that booking option */
 	public $potentialusers = array();
@@ -64,6 +76,9 @@ class booking_option extends booking {
 		$params = array('optionid' => $optionid);
 		$this->bookedusers = $DB->get_fieldset_select('booking_answers','userid', $select,$params);
 		$bookedidsaskey = array_flip($this->bookedusers);
+		if(!empty($this->groupmembers)){
+			$this->bookedvisibleusers = array_flip(array_intersect_key($bookedidsaskey,$this->groupmembers));
+		}
 		$this->potentialusers = array_diff_key($this->canbookusers, $bookedidsaskey);
 	}
 	
@@ -74,6 +89,7 @@ class booking_option extends booking {
 		$params = array('optionid' => $this->optionid);
 		$this->bookedusers = $DB->get_fieldset_select('booking_answers','userid', $select,$params);
 		$bookedidsaskey = array_flip($this->bookedusers);
+		$this->bookedvisibleusers = array_intersect_key($bookedidsaskey,$this->groupmembers);
 		$this->potentialusers = array_diff_key($this->canbookusers, $bookedidsaskey);
 	}
 }
@@ -117,8 +133,8 @@ abstract class booking_user_selector_base extends user_selector_base {
 	 */
 	protected $course = null;
 	/**
-	 * The course object
-	 * @var object
+	 * The potential users array
+	 * @var array
 	 */
 	protected $potentialusers = null;
 	
@@ -175,9 +191,8 @@ abstract class booking_user_selector_base extends user_selector_base {
  * User selector for booking other users
  */
 class booking_potential_user_selector extends booking_user_selector_base {
-	public function __construct($name,$options,$potentialusers) {
+	public function __construct($name,$options) {
 		parent::__construct($name,$options);
-		$this->potentialusers = $potentialusers;
 	}
 
 	public function find_users($search) {
@@ -263,7 +278,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
 				JOIN {booking_answers} s ON s.userid = u.id
 				WHERE s.bookingid = $this->bookingid AND s.optionid = $this->optionid
 				");
-
-		return array(get_string("booked", 'booking') => $subscribers);
+		$userstoreturn = array_intersect_key($subscribers, array_flip($this->potentialusers));
+		return array(get_string("booked", 'booking') => $userstoreturn);
 	}
 }
