@@ -796,8 +796,8 @@ function booking_get_participants($bookingid) {
 	global $CFG, $DB;
 	//Get students
 	$students = $DB->get_records_sql("SELECT DISTINCT u.id, u.id
-			FROM {$CFG->prefix}user u,
-			{$CFG->prefix}booking_answers a
+			FROM {user} u,
+			{booking_answers} a
 			WHERE a.bookingid = '$bookingid' and
 			u.id = a.userid");
 			//Return students array (it contains an array of unique users)
@@ -1047,11 +1047,6 @@ function booking_send_confirm_message($eventdata){
 	$attachment = '';
 
 	$supportuser = generate_email_supportuser();
-	$supportuserid = $DB->get_field('user', 'id', array('email' => $CFG->supportemail));
-	if(!$supportuserid){
-		$admin = get_admin();
-		$supportuserid = $admin->id;
-	}
 	$bookingmanager = $DB->get_record('user', array('username' => $eventdata->booking->bookingmanager));
 	$data = booking_generate_email_params($eventdata->booking, $eventdata->booking->option[$optionid], $user, $cmid);
 
@@ -1096,13 +1091,7 @@ function booking_send_confirm_message($eventdata){
 		$messagedata->userto = $bookingmanager;
 		$messagedata->subject = $subjectmanager;
 		events_trigger('booking_confirmed', $messagedata);
-	} else {
-		$messagedata->userto = $bookingmanager;
-		$messagedata->subject = $subjectmanager;
-		$messagedata->messagetext = $errormessage;
-		$messagedata->messagehtml = $errormessagehtml;
-		events_trigger('booking_confirmed', $messagedata);
-		}
+	} 
 	return true;
 }
 

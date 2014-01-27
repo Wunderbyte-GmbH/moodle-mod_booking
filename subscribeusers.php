@@ -11,7 +11,7 @@ require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
-$id = required_param('id', PARAM_INT); // course_module ID, or
+$id = required_param('id', PARAM_INT); // course_module ID
 $optionid = required_param('optionid', PARAM_INT); //
 $subscribe = optional_param('subscribe', false, PARAM_BOOL);
 $unsubscribe = optional_param('unsubscribe', false, PARAM_BOOL);
@@ -49,20 +49,18 @@ if(!$agree && (!empty($booking->bookingpolicy))){
 	$cancel = new single_button($errorurl, get_string('cancel'),'get');;
 	echo $OUTPUT->confirm($message,$continue,$cancel);
 } else {
-
-
-	$bookingpage = new booking_option($context, $cm, $course, $booking, $optionid);
+	$bookingpage = new booking_option($id, $optionid);
 	$currentgroup = groups_get_course_group($course);
 	if($currentgroup){
 		$groupmembers = groups_get_members($currentgroup,'u.id');
 	}
-	$options = array('bookingid'=>$booking->id, 'currentgroup'=>$currentgroup, 'context'=>$context, 'optionid'=>$optionid, 'cmid' =>$cm->id, 'course' => $course,'potentialusers'=>$bookingpage->potentialusers);
+	$options = array('bookingid'=>$cm->instance, 'currentgroup'=>$currentgroup, 'context'=>$context, 'optionid'=>$optionid, 'cmid' =>$cm->id, 'course' => $course,'potentialusers'=>$bookingpage->potentialusers);
 
 	$bookingoutput = $PAGE->get_renderer('mod_booking');
 	
 	$existingoptions = $options;
 	$existingoptions['potentialusers'] = $bookingpage->bookedvisibleusers;
-	
+
 	$existingselector = new booking_existing_user_selector('existingsubscribers', $existingoptions);
 
 	$subscriberselector = new booking_potential_user_selector('potentialsubscribers', $options);
@@ -96,18 +94,17 @@ if(!$agree && (!empty($booking->bookingpolicy))){
 			$users = $existingselector->get_selected_users();
 			foreach ($users as $user) {
 				$newbookeduser = booking_check_statuschange($optionid, $booking, $user->id, $cm->id);
-				$answer = $DB->get_record('booking_answers', array('bookingid' => $booking->id, 'userid' => $user->id, 'optionid' => $optionid));
+				$answer = $DB->get_record('booking_answers', array('bookingid' => $cm->instance, 'userid' => $user->id, 'optionid' => $optionid));
 				if(!booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduser,$cm->id)){
 					print_error('cannotremovesubscriber', 'forum',  $errorurl->out(), $user->id);
-				} else {
-					$bookingpage->potentialusers;
-				}
+				} 
 			}
 		}
 		$subscriberselector->invalidate_selected_users();
 		$existingselector->invalidate_selected_users();
 		$bookingpage->update_booked_users();
 		$subscriberselector->set_potential_users($bookingpage->potentialusers);
+		$existingselector->potentialusers = $bookingpage->bookedvisibleusers;
 	}
 	echo $bookingoutput->subscriber_selection_form($existingselector, $subscriberselector);
 }

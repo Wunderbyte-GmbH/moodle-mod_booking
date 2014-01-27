@@ -12,9 +12,6 @@ require_once($CFG->dirroot . '/user/selector/lib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking {
-
-	/** @var stdClass the booking record that contains the global settings for this booking instance */
-	public  $booking = null;
 	
 	/** @var context the context of the course module for this booking instance (or just the course if we are
 	 creating a new one) */
@@ -39,13 +36,14 @@ class booking {
 	 * @param mixed $coursemodule the current course module if it was already loaded - otherwise this class will load one from the context as required
 	 * @param mixed $course the current course  if it was already loaded - otherwise this class will load one from the context as required
 	 */
-	public function __construct(context $context, stdClass $cm, stdClass $course, stdClass $booking) {
-		$this->context = $context;
-		$this->cm = $cm;
-		$this->course = $course;
-		$this->booking = $booking;
+	public function __construct($id) {
+		global $DB;
+		$this->cm = get_coursemodule_from_id('booking', $id, 0, false, MUST_EXIST);
+		$this->id = $this->cm->instance;
+		$this->context = context_module::instance($this->cm->id);
+		$this->course = $DB->get_record('course', array('id' => $this->cm->course), '*', MUST_EXIST);
 		$this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose','u.id, u.firstname, u.lastname, u.email');
-		$currentgroup = groups_get_course_group($course);
+		$currentgroup = groups_get_course_group($this->course);
 		if($currentgroup){
 			$groupmembers = groups_get_members($currentgroup,'u.id');
 			$this->groupmembers = $groupmembers;
@@ -67,30 +65,34 @@ class booking_option extends booking {
 	
 	public $optionid = null;
 	
-	public function __construct(context $context, stdClass $cm, stdClass $course, stdClass $booking, $optionid){
+	public function __construct($id, $optionid){
 		global $DB;
 		
-		parent::__construct($context, $cm, $course, $booking);
+		parent::__construct($id);
 		$this->optionid = $optionid;
-		$select = "bookingid = $booking->id";
+		$select = "bookingid = $this->id";
 		$params = array('optionid' => $optionid);
-		$this->bookedusers = $DB->get_fieldset_select('booking_answers','userid', $select,$params);
-		$bookedidsaskey = array_flip($this->bookedusers);
-		if(!empty($this->groupmembers)){
-			$this->bookedvisibleusers = array_flip(array_intersect_key($bookedidsaskey,$this->groupmembers));
+		$this->bookedusers = $DB->get_records_select('booking_answers',$select,$params,'','userid');
+		if(!empty($this->groupmembers) && !(has_capability('moodle/site:accessallgroups', $this->context))){
+			$this->bookedvisibleusers = array_intersect_key($this->bookedusers,$this->groupmembers);
+		} else if(has_capability('moodle/site:accessallgroups', $this->context)) {
+			$this->bookedvisibleusers = $this->bookedusers;
 		}
-		$this->potentialusers = array_diff_key($this->canbookusers, $bookedidsaskey);
+		$this->potentialusers = array_diff_key($this->canbookusers, $this->bookedusers);
 	}
 	
 	public function update_booked_users(){
 		global $DB;
 		
-		$select = "bookingid = ".$this->booking->id;
+		$select = "bookingid = ".$this->id;
 		$params = array('optionid' => $this->optionid);
-		$this->bookedusers = $DB->get_fieldset_select('booking_answers','userid', $select,$params);
-		$bookedidsaskey = array_flip($this->bookedusers);
-		$this->bookedvisibleusers = array_intersect_key($bookedidsaskey,$this->groupmembers);
-		$this->potentialusers = array_diff_key($this->canbookusers, $bookedidsaskey);
+		$this->bookedusers = $DB->get_records_select('booking_answers',$select,$params,'','userid');
+		if(!empty($this->groupmembers) && !(has_capability('moodle/site:accessallgroups', $this->context))){
+			$this->bookedvisibleusers = array_intersect_key($this->bookedusers,$this->groupmembers);
+		} else if(has_capability('moodle/site:accessallgroups', $this->context)) {
+			$this->bookedvisibleusers = $this->bookedusers;
+		}
+		$this->potentialusers = array_diff_key($this->canbookusers, $this->bookedusers);
 	}
 }
 /**
@@ -136,7 +138,7 @@ abstract class booking_user_selector_base extends user_selector_base {
 	 * The potential users array
 	 * @var array
 	 */
-	protected $potentialusers = null;
+	public $potentialusers = null;
 	
 	/**
 	 * Constructor method
@@ -278,7 +280,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
 				JOIN {booking_answers} s ON s.userid = u.id
 				WHERE s.bookingid = $this->bookingid AND s.optionid = $this->optionid
 				");
-		$userstoreturn = array_intersect_key($subscribers, array_flip($this->potentialusers));
+		$userstoreturn = array_intersect_key($subscribers, $this->potentialusers);
 		return array(get_string("booked", 'booking') => $userstoreturn);
 	}
 }
