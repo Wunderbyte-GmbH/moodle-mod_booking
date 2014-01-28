@@ -127,6 +127,18 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2012091603, 'booking');
     }
 
+    if ($oldversion < 2012091609) {
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('addtocalendar', XMLDB_TYPE_INTEGER, '2', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'timemodified');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // booking savepoint reached
+        upgrade_mod_savepoint(true, 2012091608, 'bookin9');
+    }
+
     return true;
 }
 

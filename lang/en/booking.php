@@ -90,6 +90,7 @@ $string['bookotherusers'] = 'Book other users';
 
 
 // mod_form
+$string['addtocalendar'] = 'Add to calendar';
 $string['limitanswers'] = 'Limit the number of participants';
 $string['maxparticipantsnumber'] = 'Max. number of participants';
 $string['maxoverbooking'] = 'Max. number of places on waiting list';
