@@ -175,34 +175,90 @@ function booking_update_options($optionvalues){
 	$option->description = $optionvalues->description;
 	$option->limitanswers = $optionvalues->limitanswers;
 	$option->timemodified = time();
-
 	if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) && $optionvalues->id != "add"){//existing booking record
 		$option->id=$optionvalues->optionid;
 		if (isset($optionvalues->text) && $optionvalues->text <> '') {
+			$event->id = $DB->get_field('booking_options', 'calendarid', array('id' => $option->id));
+
+			if ($event->id > 0) {
+				// event exist
+				if (isset($optionvalues->addtocalendar)) {
+					$event->name         = $option->text;
+					$event->description  = $option->description;
+					$event->courseid     = $option->courseid;
+					//$event->groupid      = 0;
+					//$event->userid       = 0;
+					$event->modulename   = 'booking';
+					$event->instance     = $option->bookingid;
+					$event->eventtype    = 'booking';
+					$event->timestart    = $option->coursestarttime;
+					$event->visible      = instance_is_visible('booking', $option);
+					$event->timeduration = $option->courseendtime - $option->coursestarttime;
+
+					$calendarevent = calendar_event::load($event->id);
+					$calendarevent->update($event);
+					$option->calendarid = $event->id;
+					$option->addtocalendar = $optionvalues->addtocalendar;
+				} else {
+					// Delete event if exist
+					$event = calendar_event::load($event->id);
+					$event->delete(true);
+
+					$option->addtocalendar = 0;
+					$option->calendarid = 0;
+				}
+			} else {
+				$option->addtocalendar = 0;
+				$option->calendarid = 0;
+				// Insert into calendar
+				if (isset($optionvalues->addtocalendar)) {
+					$event = new stdClass;
+					$event->name         = $option->text;
+					$event->description  = $option->description;
+					$event->courseid     = $option->courseid;
+					//$event->groupid      = 0;
+					//$event->userid       = 0;
+					$event->modulename   = 'booking';
+					$event->instance     = $option->bookingid;
+					$event->eventtype    = 'booking';
+					$event->timestart    = $option->coursestarttime;
+					$event->visible      = instance_is_visible('booking', $option);
+					$event->timeduration = $option->courseendtime - $option->coursestarttime;
+
+					$tmpEvent = calendar_event::create($event);
+					$option->calendarid = $tmpEvent->id;
+					$option->addtocalendar = $optionvalues->addtocalendar;
+				}
+			}
+
 			return $DB->update_record("booking_options", $option);
 		}
 	} elseif (isset($optionvalues->text) && $optionvalues->text <> '') {
-
+		$option->addtocalendar = 0;
+		$option->calendarid = 0;
 		// Insert into calendar
-		if (1==1) {
+		// We add a new booking_options
+		if (isset($optionvalues->addtocalendar)) {
 			$event = new stdClass;
 			$event->name         = $option->text;
 			$event->description  = $option->description;
 			$event->courseid     = $option->courseid;
-			$event->groupid      = 0;
-			$event->userid       = 0;
+			//$event->groupid      = 0;
+			//$event->userid       = 0;
 			$event->modulename   = 'booking';
 			$event->instance     = $option->bookingid;
-		$event->eventtype    = 'booking'; // For activity module's events, this can be used to set the alternative text of the event icon. Set it to 'pluginname' unless you have a better string.
-		$event->timestart    = $option->coursestarttime;
-		$event->visible      = instance_is_visible('booking', $boption);
-		$event->timeduration = $option->courseendtime;
+			$event->eventtype    = 'booking';
+			$event->timestart    = $option->coursestarttime;
+			$event->visible      = instance_is_visible('booking', $option);
+			$event->timeduration = $option->courseendtime;
 
-		calendar_event::create($event);
+			$tmpEvent = calendar_event::create($event);
+			$option->calendarid = $tmpEvent->id;
+			$option->addtocalendar = $optionvalues->addtocalendar;
+		}
+
+		return $DB->insert_record("booking_options", $option);
 	}
-
-	return $DB->insert_record("booking_options", $option);
-}
 }
 /**
  * Checks the status of the specified user
@@ -1304,9 +1360,18 @@ function booking_delete_booking_option($booking, $optionid) {
 		$result = false;
 	}
 
+	// Delete calendar entry, if any
+	$event->id = $DB->get_field('booking_options', 'calendarid', array('id' => $optionid));
+	if ($event->id > 0) {
+		// Delete event if exist
+		$event = calendar_event::load($event->id);
+		$event->delete(true);
+	}
+
 	if (! $DB->delete_records("booking_options", array("id" => $optionid))) {
 		$result = false;
 	}
+
 	return $result;
 }
 

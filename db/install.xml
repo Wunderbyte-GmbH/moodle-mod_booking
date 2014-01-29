@@ -1,8 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/booking/db" VERSION="20120926" COMMENT="XMLDB file for Moodle mod/booking"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
->
+<XMLDB xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" PATH="mod/booking/db" VERSION="20120926" COMMENT="XMLDB file for Moodle mod/booking" xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
   <TABLES>
     <TABLE NAME="booking" COMMENT="Available bookings are stored here" NEXT="booking_options">
       <FIELDS>
@@ -37,26 +33,27 @@
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="booking_options" COMMENT="available options to booking" PREVIOUS="booking" NEXT="booking_answers">
+    <TABLE NAME="booking_options" COMMENT="Added calendar...">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="bookingid"/>
-        <FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="text"/>
-        <FIELD NAME="text" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="bookingid" NEXT="maxanswers"/>
-        <FIELD NAME="maxanswers" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="text" NEXT="maxoverbooking"/>
-        <FIELD NAME="maxoverbooking" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="maxanswers" NEXT="bookingclosingtime"/>
-        <FIELD NAME="bookingclosingtime" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="maxoverbooking" NEXT="courseid"/>
-        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="bookingclosingtime" NEXT="coursestarttime"/>
-        <FIELD NAME="coursestarttime" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="courseid" NEXT="courseendtime"/>
-        <FIELD NAME="courseendtime" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="coursestarttime" NEXT="description"/>
-        <FIELD NAME="description" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" PREVIOUS="courseendtime" NEXT="descriptionformat"/>
-        <FIELD NAME="descriptionformat" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="description" NEXT="limitanswers"/>
-        <FIELD NAME="limitanswers" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="descriptionformat" NEXT="timemodified"/>
-        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="limitanswers" NEXT="addtocalendar"/>
-        <FIELD NAME="addtocalendar" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timemodified" />
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="text" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="maxanswers" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="maxoverbooking" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="bookingclosingtime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="coursestarttime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="courseendtime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="descriptionformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="limitanswers" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="addtocalendar" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Add event_option to calendar."/>
+        <FIELD NAME="calendarid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Calendar event id."/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="bookingid"/>
-        <KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id" PREVIOUS="primary"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="booking_answers" COMMENT="bookings performed by users" PREVIOUS="booking_options">
