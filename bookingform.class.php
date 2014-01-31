@@ -41,6 +41,9 @@ class mod_booking_bookingform_form extends moodleform {
 		$mform->addElement('select', 'courseid', get_string("choosecourse", "booking"), $coursearray);
 
 		$mform->addElement('checkbox', 'startendtimeknown', get_string('startendtimeknown','booking'));
+		
+		$mform->addElement('checkbox', 'addtocalendar', get_string('addtocalendar', 'booking'));
+		$mform->disabledIf('addtocalendar', 'startendtimeknown', 'notchecked');
 
 		$mform->addElement('date_time_selector', 'coursestarttime', get_string("coursestarttime", "booking"));
 		$mform->setType('coursestarttime', PARAM_INT);

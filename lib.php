@@ -2,6 +2,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/mod/booking/icallib.php');
+require_once($CFG->dirroot.'/calendar/lib.php');
 
 $COLUMN_HEIGHT = 300;
 
@@ -70,6 +71,7 @@ function booking_add_instance($booking) {
 
 	//insert answer options from mod_form
 	$booking->id = $DB->insert_record("booking", $booking);
+
 	if(!empty($booking->option)){
 		foreach ($booking->option as $key => $value) {
 			$value = trim($value);
@@ -83,6 +85,8 @@ function booking_add_instance($booking) {
 				$option->timemodified = time();
 				$DB->insert_record("booking_options", $option);
 			}
+
+
 		}
 	}
 	return $booking->id;
@@ -171,13 +175,88 @@ function booking_update_options($optionvalues){
 	$option->description = $optionvalues->description;
 	$option->limitanswers = $optionvalues->limitanswers;
 	$option->timemodified = time();
-
 	if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) && $optionvalues->id != "add"){//existing booking record
 		$option->id=$optionvalues->optionid;
 		if (isset($optionvalues->text) && $optionvalues->text <> '') {
+			$event->id = $DB->get_field('booking_options', 'calendarid', array('id' => $option->id));
+
+			if ($event->id > 0) {
+				// event exist
+				if (isset($optionvalues->addtocalendar)) {
+					$event->name         = $option->text;
+					$event->description  = $option->description;
+					$event->courseid     = $option->courseid;
+					//$event->groupid      = 0;
+					//$event->userid       = 0;
+					$event->modulename   = 'booking';
+					$event->instance     = $option->bookingid;
+					$event->eventtype    = 'booking';
+					$event->timestart    = $option->coursestarttime;
+					$event->visible      = instance_is_visible('booking', $option);
+					$event->timeduration = $option->courseendtime - $option->coursestarttime;
+
+					$calendarevent = calendar_event::load($event->id);
+					$calendarevent->update($event);
+					$option->calendarid = $event->id;
+					$option->addtocalendar = $optionvalues->addtocalendar;
+				} else {
+					// Delete event if exist
+					$event = calendar_event::load($event->id);
+					$event->delete(true);
+
+					$option->addtocalendar = 0;
+					$option->calendarid = 0;
+				}
+			} else {
+				$option->addtocalendar = 0;
+				$option->calendarid = 0;
+				// Insert into calendar
+				if (isset($optionvalues->addtocalendar)) {
+					$event = new stdClass;
+					$event->name         = $option->text;
+					$event->description  = $option->description;
+					$event->courseid     = $option->courseid;
+					//$event->groupid      = 0;
+					//$event->userid       = 0;
+					$event->modulename   = 'booking';
+					$event->instance     = $option->bookingid;
+					$event->eventtype    = 'booking';
+					$event->timestart    = $option->coursestarttime;
+					$event->visible      = instance_is_visible('booking', $option);
+					$event->timeduration = $option->courseendtime - $option->coursestarttime;
+
+					$tmpEvent = calendar_event::create($event);
+					$option->calendarid = $tmpEvent->id;
+					$option->addtocalendar = $optionvalues->addtocalendar;
+				}
+			}
+
 			return $DB->update_record("booking_options", $option);
 		}
 	} elseif (isset($optionvalues->text) && $optionvalues->text <> '') {
+		$option->addtocalendar = 0;
+		$option->calendarid = 0;
+		// Insert into calendar
+		// We add a new booking_options
+		if (isset($optionvalues->addtocalendar)) {
+			$event = new stdClass;
+			$event->name         = $option->text;
+			$event->description  = $option->description;
+			$event->courseid     = $option->courseid;
+			//$event->groupid      = 0;
+			//$event->userid       = 0;
+			$event->modulename   = 'booking';
+			$event->instance     = $option->bookingid;
+			$event->eventtype    = 'booking';
+			$event->timestart    = $option->coursestarttime;
+			$event->visible      = instance_is_visible('booking', $option);
+			$event->timeduration = $option->courseendtime;
+
+			$tmpEvent = calendar_event::create($event);
+			$option->calendarid = $tmpEvent->id;
+			$option->addtocalendar = $optionvalues->addtocalendar;
+		}
+
 		return $DB->insert_record("booking_options", $option);
 	}
 }
@@ -386,50 +465,50 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 		}
 		// check if user ist logged in
 		if (has_capability('mod/booking:choose', $context, $user->id, false)) { //don't show booking button if the logged in user is the guest user.
-			$bookingbutton = $optiondisplay->button;
-		} else {
-			$bookingbutton = get_string('havetologin', 'booking')."<br />";
-		}
-		if (!$option->limitanswers){
-			$stravailspaces = get_string("unlimited", 'booking');
-		} else {
-			$stravailspaces = get_string("placesavailable", "booking").": ".$option->availspaces." / ".$option->maxanswers."<br />".get_string("waitingplacesavailable", "booking").": ".$option->availwaitspaces." / ".$option->maxoverbooking;
-		}
-		if (has_capability('mod/booking:readresponses', $context)){
-			$numberofresponses = 0;
-			if(isset($allresponses[$option->id])){
-				$numberofresponses = count($allresponses[$option->id]);
-			}
-			$optiondisplay->manage = "<a href=\"report.php?id=$cm->id&optionid=$option->id\">".get_string("viewallresponses", "booking", $numberofresponses)."</a>";
-		} else {
-			$optiondisplay->manage = "";
-		} if (has_capability('mod/booking:subscribeusers', $context)){
-			$optiondisplay->bookotherusers = "<a href=\"subscribeusers.php?id=$cm->id&optionid=$option->id\">".get_string("bookotherusers", "booking")."</a>";
-		} else {
-			$optiondisplay->bookotherusers = "";
-		}
-		$tabledata[] = array ($bookingbutton.$optiondisplay->booked.'
-				<br />'.get_string($option->status, "booking").'
-				<br />'.$optiondisplay->delete.$optiondisplay->manage.'
-				<br />'.$optiondisplay->bookotherusers,
-				"<b>".format_text($option->text. ' ', FORMAT_MOODLE, $displayoptions)."</b>"."<p>".$option->description."</p>",
-				$option->coursestarttimetext." - <br />".$option->courseendtimetext,
-				$stravailspaces);
+		$bookingbutton = $optiondisplay->button;
+	} else {
+		$bookingbutton = get_string('havetologin', 'booking')."<br />";
 	}
-	$table = new html_table();
-	$table->attributes['class'] = 'box generalbox boxaligncenter mod-booking-table';
-	$table->attributes['style'] = 'width: auto;';
-	$table->data = array();
-	$strselect =  get_string("select", "booking");
-	$strbooking = get_string("booking", "booking");
-	$strdate = get_string("coursedate", "booking");
-	$stravailability = get_string("availability", "booking");
+	if (!$option->limitanswers){
+		$stravailspaces = get_string("unlimited", 'booking');
+	} else {
+		$stravailspaces = get_string("placesavailable", "booking").": ".$option->availspaces." / ".$option->maxanswers."<br />".get_string("waitingplacesavailable", "booking").": ".$option->availwaitspaces." / ".$option->maxoverbooking;
+	}
+	if (has_capability('mod/booking:readresponses', $context)){
+		$numberofresponses = 0;
+		if(isset($allresponses[$option->id])){
+			$numberofresponses = count($allresponses[$option->id]);
+		}
+		$optiondisplay->manage = "<a href=\"report.php?id=$cm->id&optionid=$option->id\">".get_string("viewallresponses", "booking", $numberofresponses)."</a>";
+	} else {
+		$optiondisplay->manage = "";
+	} if (has_capability('mod/booking:subscribeusers', $context)){
+		$optiondisplay->bookotherusers = "<a href=\"subscribeusers.php?id=$cm->id&optionid=$option->id\">".get_string("bookotherusers", "booking")."</a>";
+	} else {
+		$optiondisplay->bookotherusers = "";
+	}
+	$tabledata[] = array ($bookingbutton.$optiondisplay->booked.'
+		<br />'.get_string($option->status, "booking").'
+		<br />'.$optiondisplay->delete.$optiondisplay->manage.'
+		<br />'.$optiondisplay->bookotherusers,
+		"<b>".format_text($option->text. ' ', FORMAT_MOODLE, $displayoptions)."</b>"."<p>".$option->description."</p>",
+		$option->coursestarttimetext." - <br />".$option->courseendtimetext,
+		$stravailspaces);
+}
+$table = new html_table();
+$table->attributes['class'] = 'box generalbox boxaligncenter mod-booking-table';
+$table->attributes['style'] = 'width: auto;';
+$table->data = array();
+$strselect =  get_string("select", "booking");
+$strbooking = get_string("booking", "booking");
+$strdate = get_string("coursedate", "booking");
+$stravailability = get_string("availability", "booking");
 
-	$table->head = array($strselect, $strbooking, $strdate, $stravailability);
-	$table->align = array ("left", "left", "left", "left");
-	$table->rowclasses = $rowclasses;
-	$table->data = $tabledata;
-	echo (html_writer::table($table));
+$table->head = array($strselect, $strbooking, $strdate, $stravailability);
+$table->align = array ("left", "left", "left", "left");
+$table->rowclasses = $rowclasses;
+$table->data = $tabledata;
+echo (html_writer::table($table));
 }
 
 /**
@@ -501,7 +580,7 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 		}
 		add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
 		if ($booking->sendmail){
-				booking_send_confirm_message($eventdata);
+			booking_send_confirm_message($eventdata);
 		}
 		return true;
 	}
@@ -748,8 +827,8 @@ function booking_delete_responses($attemptidsarray, $booking, $cmid) {
 		}
 		foreach($userids as $userid) {
 			$answer = $DB->get_record('booking_answers', array('bookingid' => $booking->id,
-					'userid' => $userid,
-					'optionid' => $optionid));
+				'userid' => $userid,
+				'optionid' => $optionid));
 			$newbookeduser = booking_check_statuschange($optionid, $booking, $userid, $cmid);
 			booking_delete_singlebooking($answer, $booking, $optionid, $newbookeduser, $cmid);
 		}
@@ -796,12 +875,12 @@ function booking_get_participants($bookingid) {
 	global $CFG, $DB;
 	//Get students
 	$students = $DB->get_records_sql("SELECT DISTINCT u.id, u.id
-			FROM {user} u,
-			{booking_answers} a
-			WHERE a.bookingid = '$bookingid' and
-			u.id = a.userid");
+		FROM {user} u,
+		{booking_answers} a
+		WHERE a.bookingid = '$bookingid' and
+		u.id = a.userid");
 			//Return students array (it contains an array of unique users)
-			return ($students);
+	return ($students);
 }
 
 
@@ -1102,7 +1181,7 @@ function booking_send_confirm_message($eventdata){
  */
 function booking_booking_deleted($eventdata){
 	email_to_user($eventdata->userto, $eventdata->userfrom, $eventdata->subject,
-	$eventdata->messagetext, $eventdata->messagehtml, $eventdata->attachment, $eventdata->attachname);
+		$eventdata->messagetext, $eventdata->messagehtml, $eventdata->attachment, $eventdata->attachname);
 }
 
 /**
@@ -1112,16 +1191,16 @@ function booking_booking_deleted($eventdata){
  */
 function booking_booking_confirmed($eventdata){
 	email_to_user($eventdata->userto, $eventdata->userfrom, $eventdata->subject,
-	$eventdata->messagetext, $eventdata->messagehtml, $eventdata->attachment, $eventdata->attachname);
+		$eventdata->messagetext, $eventdata->messagehtml, $eventdata->attachment, $eventdata->attachname);
 }
 
 
 function booking_pretty_duration($seconds) {
 	$measures = array(
-			'days' => 24*60*60,
-			'hours' => 60*60,
-			'minutes' => 60
-	);
+		'days' => 24*60*60,
+		'hours' => 60*60,
+		'minutes' => 60
+		);
 	$durationparts = array();
 	foreach ($measures as $label => $amount) {
 		if ($seconds >= $amount) {
@@ -1212,7 +1291,7 @@ function booking_check_statuschange($optionid,$booking,$cancelleduserid,$cmid) {
 		return false; // No limit on bookings => no waiting list to manage
 	}
 	$allresponses = $DB->get_records('booking_answers', array('bookingid' => $booking->id,
-			'optionid' => $optionid), 'timemodified', 'userid');
+		'optionid' => $optionid), 'timemodified', 'userid');
 	$context  = get_context_instance(CONTEXT_MODULE,$cmid);
 	$firstuseronwaitinglist = $option->maxanswers + 1;
 	$i=1;
@@ -1281,9 +1360,18 @@ function booking_delete_booking_option($booking, $optionid) {
 		$result = false;
 	}
 
+	// Delete calendar entry, if any
+	$event->id = $DB->get_field('booking_options', 'calendarid', array('id' => $optionid));
+	if ($event->id > 0) {
+		// Delete event if exist
+		$event = calendar_event::load($event->id);
+		$event->delete(true);
+	}
+
 	if (! $DB->delete_records("booking_options", array("id" => $optionid))) {
 		$result = false;
 	}
+
 	return $result;
 }
 

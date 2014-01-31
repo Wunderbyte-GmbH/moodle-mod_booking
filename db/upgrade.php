@@ -22,7 +22,7 @@ function xmldb_booking_upgrade($oldversion) {
     global $CFG, $DB;
 
 	$dbman = $DB->get_manager(); /// loads ddl manager and xmldb classes
-    
+
     if ($oldversion < 2011020401) {
 
     /// Rename field text on table booking to text
@@ -69,7 +69,7 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-    	
+
     }
 
     if ($oldversion < 2012091601) {
@@ -125,6 +125,28 @@ function xmldb_booking_upgrade($oldversion) {
 
         // booking savepoint reached
         upgrade_mod_savepoint(true, 2012091603, 'booking');
+    }
+
+    if ($oldversion < 2014012807) {
+
+        // Define field addtocalendar to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('addtocalendar', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+
+        // Conditionally launch add field addtocalendar.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('calendarid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'addtocalendar');
+
+        // Conditionally launch add field calendarid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014012807, 'booking');
     }
 
     return true;
