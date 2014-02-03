@@ -764,7 +764,12 @@ function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduseri
 		}
 		$messagehtml = format_text($deletedbookingusermessage, FORMAT_HTML);
 		$deletedbookingusermessage = strip_tags(str_replace(array('<br />', '</p>'), '', $messagehtml));
-		$eventdata->userto = $user;
+		if($booking->sendmailtobooker){
+		 $eventdata->userto            = $USER;
+		} else {
+		 $eventdata->userto            = $user;
+		}		
+		//$eventdata->userto = $user;
 		$eventdata->userfrom  = $supportuser;
 		$eventdata->subject = get_string('deletedbookingusersubject','booking', $params);
 		$eventdata->messagetext  = $deletedbookingusermessage;
@@ -1116,7 +1121,7 @@ function booking_user_status($bookingoption,$allresponses){
  * @return bool
  */
 function booking_send_confirm_message($eventdata){
-	global $DB, $CFG;
+	global $DB, $CFG, $USER;
 	$cmid = $eventdata->cmid;
 	$optionid = $eventdata->optionid;
 	$user = $eventdata->user;
@@ -1157,7 +1162,11 @@ function booking_send_confirm_message($eventdata){
 	//accept attachments, so have to call email_to_user in that case
 	$messagedata = new stdClass();
 	$messagedata->userfrom          = $supportuser;
-	$messagedata->userto            = $user;
+	if($eventdata->booking->sendmailtobooker){
+	 $messagedata->userto            = $USER;
+	} else {
+	 $messagedata->userto            = $user;
+	}
 	$messagedata->subject           = $subject;
 	$messagedata->messagetext       = $message;
 	$messagedata->messagehtml       = $messagehtml;

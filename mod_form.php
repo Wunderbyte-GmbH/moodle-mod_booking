@@ -136,6 +136,8 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('maxperuser', 0);
         $mform->addHelpButton('maxperuser', 'maxperuser', 'mod_booking');
 		
+        $mform->addElement('selectyesno', 'sendmailtobooker', get_string('sendmailtobooker', 'booking'));
+        $mform->addHelpButton('sendmailtobooker', 'sendmailtobooker', 'booking');
 		//-------------------------------------------------------------------------------
         $this->standard_coursemodule_elements();
 		//-------------------------------------------------------------------------------

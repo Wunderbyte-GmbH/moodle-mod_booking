@@ -172,6 +172,10 @@ $string['addeditbooking'] = 'Edit booking';
 $string['donotselectcourse'] = 'No course selected';
 $string['waitinglisttaken'] = 'On the waiting list';
 $string['addnewbookingoption'] = 'Add a new booking option';
+$string['sendmailtobooker'] = 'Book other users page: Send mail to user who books instead to users who are booked';
+$string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to
+  the user who books other users instead of the users, who have been added to a booking option.
+  This is only relevant for bokkings made on the page "book other users".';
 
 
 // Confirmation mail
