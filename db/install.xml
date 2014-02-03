@@ -53,8 +53,8 @@
         <FIELD NAME="calendarid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Calendar event id." PREVIOUS="addtocalendar"/>
         </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="bookingid"/>
+        <KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id" PREVIOUS="primary"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="booking_answers" COMMENT="bookings performed by users" PREVIOUS="booking_options">
