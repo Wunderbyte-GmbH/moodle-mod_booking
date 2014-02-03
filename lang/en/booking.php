@@ -8,7 +8,7 @@ $string['attachical'] = 'Attach ical events';
 $string['attachicaldesc'] = 'Email notifications will include an attached ical event, if this is enabled';
 $string['booking'] = 'Booking';
 $string['booking:addinstance'] = 'Add new booking';
-$string['booking:choose'] = 'Boook';
+$string['booking:choose'] = 'Book';
 $string['booking:subscribeusers'] = 'Make bookings for other users';
 $string['booking:deleteresponses'] = 'Delete responses';
 $string['booking:downloadresponses'] = 'Download responses';
@@ -174,8 +174,8 @@ $string['waitinglisttaken'] = 'On the waiting list';
 $string['addnewbookingoption'] = 'Add a new booking option';
 $string['sendmailtobooker'] = 'Book other users page: Send mail to user who books instead to users who are booked';
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to
-  the user who books other users instead of the users, who have been added to a booking option.
-  This is only relevant for bokkings made on the page "book other users".';
+  the user who books other users instead to users, who have been added to a booking option.
+  This is only relevant for bookings made on the page "book other users".';
 
 
 // Confirmation mail
