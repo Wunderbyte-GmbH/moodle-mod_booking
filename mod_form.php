@@ -61,6 +61,9 @@ class mod_booking_mod_form extends moodleform_mod {
 		
         $mform->addElement('selectyesno', 'copymail', get_string("sendconfirmmailtobookingmanger", "booking"));
 
+        $mform->addElement('selectyesno', 'sendmailtobooker', get_string('sendmailtobooker', 'booking'));
+        $mform->addHelpButton('sendmailtobooker', 'sendmailtobooker', 'booking');
+        
 		$mform->addElement('text', 'bookingmanager', get_string('usernameofbookingmanager', 'booking'));
         $mform->setType('bookingmanager', PARAM_TEXT);
 		$mform->setDefault('bookingmanager', 'admin');
@@ -135,9 +138,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'maxperuser', get_string('maxperuser', 'mod_booking'), $opts);
         $mform->setDefault('maxperuser', 0);
         $mform->addHelpButton('maxperuser', 'maxperuser', 'mod_booking');
-		
-        $mform->addElement('selectyesno', 'sendmailtobooker', get_string('sendmailtobooker', 'booking'));
-        $mform->addHelpButton('sendmailtobooker', 'sendmailtobooker', 'booking');
+
 		//-------------------------------------------------------------------------------
         $this->standard_coursemodule_elements();
 		//-------------------------------------------------------------------------------
