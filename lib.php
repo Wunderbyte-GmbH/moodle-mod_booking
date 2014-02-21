@@ -72,6 +72,13 @@ function booking_add_instance($booking) {
 	//insert answer options from mod_form
 	$booking->id = $DB->insert_record("booking", $booking);
 
+	$cmid = $booking->coursemodule;
+    $context = context_module::instance($cmid);
+
+	if ($draftitemid = file_get_submitted_draft_itemid('myfilemanager')) {
+		file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanager', $booking->id, array('subdirs' => false, 'maxfiles' => 50));
+	}
+
 	if(!empty($booking->option)){
 		foreach ($booking->option as $key => $value) {
 			$value = trim($value);
@@ -89,6 +96,7 @@ function booking_add_instance($booking) {
 
 		}
 	}
+
 	return $booking->id;
 }
 
@@ -103,6 +111,10 @@ function booking_update_instance($booking) {
 	$booking->id = $booking->instance;
 	$booking->timemodified = time();
 
+	$cm = get_coursemodule_from_instance('booking', $booking->id);
+	$context = context_module::instance($cm->id);
+	file_save_draft_area_files($booking->myfilemanager, $context->id, 'mod_booking', 'myfilemanager',
+		$booking->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 50));
 
 	if (empty($booking->timerestrict)) {
 		$booking->timeopen = 0;
@@ -377,7 +389,8 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
 		$waitingfull = true;
 	}
 
-	$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+	//$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+	$context = context_module::instance($cm->id);
 	$table = NULL;
 	$displayoptions = new stdClass();
 	$displayoptions->para = false;
@@ -907,7 +920,8 @@ function booking_get_booking($cm) {
 	global $DB;
 	$bookingid = $cm->instance;
 	// Gets a full booking record
-	$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+	//$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+	$context = context_module::instance($cm->id);
 
 	/// Initialise the returned array, which is a matrix:  $allresponses[responseid][userid] = responseobject
 	$allresponses = array();
@@ -1044,7 +1058,8 @@ function booking_reset_userdata($data) {
 function booking_get_spreadsheet_data($booking, $cm) {
 	global $CFG, $USER, $DB;
 	$bookinglistsorted = array();
-	$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+//	$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+	$context = context_module::instance($cm->id);
 
 	/// Initialise the returned array, which is a matrix:  $allresponses[responseid][userid] = responseobject
 	$allresponses = array();

@@ -161,6 +161,12 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 </ul>';
 $string['maxperuser'] = 'Max current bookings per user';
 $string['maxperuser_help'] = 'The maximum number of bookings an individual user can make in this activity at once. After an event end time has passed, it is no longer counted against this limit.';
+$string['bookingduration'] = 'Duration';
+$string['bookingpoints'] = 'Course points';
+$string['bookingorganizatorname'] = 'Organizer name';
+$string['bookingpoolurl'] = 'Poll url';
+$string['bookingtags'] = 'Tags';
+$string['bookingattachment'] = 'Attachment';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';

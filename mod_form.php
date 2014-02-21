@@ -25,49 +25,68 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $this->add_intro_editor(true, get_string('bookingtext', 'booking'));
 
+        $mform->addElement('text', 'duration', get_string('bookingduration', 'booking'), array('size'=>'64'));
+        $mform->setType('duration', PARAM_TEXT);
+
+        $mform->addElement('text', 'points', get_string('bookingpoints', 'booking'), 0);
+        $mform->setType('points', PARAM_INT);
+
+        $mform->addElement('text', 'organizatorname', get_string('bookingorganizatorname', 'booking'), array('size'=>'64'));
+        $mform->setType('organizatorname', PARAM_TEXT);
+
+        $mform->addElement('text', 'poolurl', get_string('bookingpoolurl', 'booking'), array('size'=>'64'));
+        $mform->setType('poolurl', PARAM_TEXT);
+
+        $mform->addElement('filemanager', 'myfilemanager', get_string('bookingattachment', 'booking'), null,
+            array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
+              'accepted_types' => array('*')));
+
+        //$mform->addElement('tags', 'tags', get_string('bookingtags', 'booking'));
+        //$mform->setType('tags', PARAM_RAW);
 		//-------------------------------------------------------------------------------
-		$menuoptions=array();
-		$menuoptions[0] = get_string('disable');
-		$menuoptions[1] = get_string('enable');
-		
+        $menuoptions=array();
+        $menuoptions[0] = get_string('disable');
+        $menuoptions[1] = get_string('enable');
+
 		//default options for booking options
-		$mform->addElement('header', '', get_string('defaultbookingoption','booking'));
-		
-		$mform->addElement('select', 'limitanswers', get_string('limitanswers', 'booking'), $menuoptions);
-		
-		$mform->addElement('text', 'maxanswers', get_string('maxparticipantsnumber','booking'),0);
-		$mform->disabledIf('maxanswers', 'limitanswers', 0);
-		$mform->setType('maxanswers', PARAM_INT);
-		
-		$mform->addElement('text', 'maxoverbooking', get_string('maxoverbooking','booking'),0);
-		$mform->disabledIf('maxoverbooking', 'limitanswers', 0);
-		$mform->setType('maxoverbooking', PARAM_INT);
-		
+        $mform->addElement('header', '', get_string('defaultbookingoption','booking'));
+
+        $mform->addElement('select', 'limitanswers', get_string('limitanswers', 'booking'), $menuoptions);
+
+        $mform->addElement('text', 'maxanswers', get_string('maxparticipantsnumber','booking'),0);
+        $mform->disabledIf('maxanswers', 'limitanswers', 0);
+        $mform->setType('maxanswers', PARAM_INT);
+
+        $mform->addElement('text', 'maxoverbooking', get_string('maxoverbooking','booking'),0);
+        $mform->disabledIf('maxoverbooking', 'limitanswers', 0);
+        $mform->setType('maxoverbooking', PARAM_INT);
+
 		//-------------------------------------------------------------------------------
-		$mform->addElement('header', 'timerestricthdr', get_string('timerestrict', 'booking'));
-		$mform->addElement('checkbox', 'timerestrict', get_string('timerestrict', 'booking'));
+        $mform->addElement('header', 'timerestricthdr', get_string('timerestrict', 'booking'));
+        $mform->addElement('checkbox', 'timerestrict', get_string('timerestrict', 'booking'));
 
-		$mform->addElement('date_time_selector', 'timeopen', get_string("bookingopen", "booking"));
-		$mform->disabledIf('timeopen', 'timerestrict');
+        $mform->addElement('date_time_selector', 'timeopen', get_string("bookingopen", "booking"));
+        $mform->disabledIf('timeopen', 'timerestrict');
 
-		$mform->addElement('date_time_selector', 'timeclose', get_string("bookingclose", "booking"));
-		$mform->disabledIf('timeclose', 'timerestrict');
-		
+        $mform->addElement('date_time_selector', 'timeclose', get_string("bookingclose", "booking"));
+        $mform->disabledIf('timeclose', 'timerestrict');
+
 		//-------------------------------------------------------------------------------
 		// CONFIRMATION MESSAGE
         $mform->addElement('header', 'confirmation', get_string('confirmationmessagesettings', 'booking'));
-		
+
         $mform->addElement('selectyesno', 'sendmail', get_string("sendconfirmmail", "booking"));
-		
+
         $mform->addElement('selectyesno', 'copymail', get_string("sendconfirmmailtobookingmanger", "booking"));
 
-		$mform->addElement('text', 'bookingmanager', get_string('usernameofbookingmanager', 'booking'));
+        $mform->addElement('text', 'bookingmanager', get_string('usernameofbookingmanager', 'booking'));
         $mform->setType('bookingmanager', PARAM_TEXT);
-		$mform->setDefault('bookingmanager', 'admin');
-		$mform->disabledIf('bookingmanager', 'copymail', 0);
+        $mform->setDefault('bookingmanager', 'admin');
+        $mform->disabledIf('bookingmanager', 'copymail', 0);
 
         // Add the fields to allow editing of the default text:
-        $context = get_context_instance(CONTEXT_SYSTEM);
+        //$context = get_context_instance(CONTEXT_SYSTEM);
+        $context = context_system::instance();
         $editoroptions = array('subdirs' => false, 'maxfiles' => 0, 'maxbytes' => 0, 'trusttext' => false, 'context' => $context);
         $fieldmapping = (object)array(
             'status' => '{status}',
@@ -80,13 +99,13 @@ class mod_booking_mod_form extends moodleform_mod {
             'enddate' => '{enddate}',
             'courselink' => '{courselink}',
             'bookinglink' => '{bookinglink}'
-        );
+            );
 
         $mform->addElement('editor', 'bookedtext', get_string('bookedtext', 'booking'), null, $editoroptions);
         $default = array(
             'text' => get_string('confirmationmessage', 'mod_booking', $fieldmapping),
             'format' => FORMAT_HTML
-        );
+            );
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('bookedtext', $default);
         $mform->addHelpButton('bookedtext', 'bookedtext', 'mod_booking');
@@ -95,7 +114,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $default = array(
             'text' => get_string('confirmationmessagewaitinglist', 'mod_booking', $fieldmapping),
             'format' => FORMAT_HTML
-        );
+            );
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('waitingtext', $default);
         $mform->addHelpButton('waitingtext', 'waitingtext', 'mod_booking');
@@ -104,7 +123,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $default = array(
             'text' => get_string('statuschangebookedmessage', 'mod_booking', $fieldmapping),
             'format' => FORMAT_HTML
-        );
+            );
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('statuschangetext', $default);
         $mform->addHelpButton('statuschangetext', 'statuschangetext', 'mod_booking');
@@ -113,15 +132,15 @@ class mod_booking_mod_form extends moodleform_mod {
         $default = array(
             'text' => get_string('deletedbookingusermessage', 'mod_booking', $fieldmapping),
             'format' => FORMAT_HTML
-        );
+            );
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('deletedtext', $default);
         $mform->addHelpButton('deletedtext', 'deletedtext', 'mod_booking');
 
 		//-------------------------------------------------------------------------------
-		$mform->addElement('header', 'miscellaneoussettingshdr', get_string('miscellaneoussettings', 'form'));
+        $mform->addElement('header', 'miscellaneoussettingshdr', get_string('miscellaneoussettings', 'form'));
 
-		$mform->addElement('editor', 'bookingpolicy', get_string("bookingpolicy", "booking"), null, null);
+        $mform->addElement('editor', 'bookingpolicy', get_string("bookingpolicy", "booking"), null, null);
         $mform->setType('bookingpolicy', PARAM_CLEANHTML);
 
         $mform->addElement('selectyesno', 'allowupdate', get_string("allowdelete", "booking"));
@@ -135,49 +154,64 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'maxperuser', get_string('maxperuser', 'mod_booking'), $opts);
         $mform->setDefault('maxperuser', 0);
         $mform->addHelpButton('maxperuser', 'maxperuser', 'mod_booking');
-		
+
 		//-------------------------------------------------------------------------------
         $this->standard_coursemodule_elements();
 		//-------------------------------------------------------------------------------
-		$this->add_action_buttons();
-	}
-
-	function data_preprocessing(&$default_values){
-		if (empty($default_values['timeopen'])) {
-			$default_values['timerestrict'] = 0;
-		} else {
-			$default_values['timerestrict'] = 1;
-		}
-        if (!isset($default_values['bookingpolicyformat'])) {
-            $default_values['bookingpolicyformat'] = FORMAT_HTML;
-        }
-        if (!isset($default_values['bookingpolicy'])) {
-            $default_values['bookingpolicy'] = '';
-        }
-        $default_values['bookingpolicy'] = array('text'=>$default_values['bookingpolicy'],'format'=>$default_values['bookingpolicyformat']);
-
-        if (isset($default_values['bookedtext'])) {
-            $default_values['bookedtext'] = array('text' => $default_values['bookedtext'], 'format' => FORMAT_HTML);
-        }
-        if (isset($default_values['waitingtext'])) {
-            $default_values['waitingtext'] = array('text' => $default_values['waitingtext'], 'format' => FORMAT_HTML);
-        }
-        if (isset($default_values['statuschangetext'])) {
-            $default_values['statuschangetext'] = array('text' => $default_values['statuschangetext'], 'format' => FORMAT_HTML);
-        }
-        if (isset($default_values['deletedtext'])) {
-            $default_values['deletedtext'] = array('text' => $default_values['deletedtext'], 'format' => FORMAT_HTML);
-        }
-	}
-
-    function get_data() {
-        $data = parent::get_data();
-        if ($data) {
-            $data->bookingpolicyformat = $data->bookingpolicy['format'];
-            $data->bookingpolicy = $data->bookingpolicy['text'];
-        }
-        
-        return $data;
+        $this->add_action_buttons();
     }
+
+    function data_preprocessing(&$default_values){
+        $options = array('subdirs' => false, 'maxfiles' => 50, 'accepted_types' => array('*'),
+                'maxbytes' => 0);
+        
+        if ($this->current->instance) {
+            $draftitemid = file_get_submitted_draft_itemid('myfilemanager');            
+            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'myfilemanager', $this->current->id, $options);
+            $default_values['myfilemanager'] = $draftitemid;
+        } else {
+            $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
+            file_prepare_draft_area($draftitemid, null, 'mod_booking', 'myfilemanager', 0, $options);
+            $default_values['myfilemanager'] = $draftitemid;
+        }
+
+        if (empty($default_values['timeopen'])) {
+           $default_values['timerestrict'] = 0;
+       } else {
+           $default_values['timerestrict'] = 1;
+       }
+       if (!isset($default_values['bookingpolicyformat'])) {
+        $default_values['bookingpolicyformat'] = FORMAT_HTML;
+    }
+    if (!isset($default_values['bookingpolicy'])) {
+        $default_values['bookingpolicy'] = '';
+    }
+
+    $default_values['bookingpolicy'] = array('text'=>$default_values['bookingpolicy'],'format'=>$default_values['bookingpolicyformat']);
+
+    if (isset($default_values['bookedtext'])) {
+        $default_values['bookedtext'] = array('text' => $default_values['bookedtext'], 'format' => FORMAT_HTML);
+    }
+    if (isset($default_values['waitingtext'])) {
+        $default_values['waitingtext'] = array('text' => $default_values['waitingtext'], 'format' => FORMAT_HTML);
+    }
+    if (isset($default_values['statuschangetext'])) {
+        $default_values['statuschangetext'] = array('text' => $default_values['statuschangetext'], 'format' => FORMAT_HTML);
+    }
+    if (isset($default_values['deletedtext'])) {
+        $default_values['deletedtext'] = array('text' => $default_values['deletedtext'], 'format' => FORMAT_HTML);
+    }
+}
+
+function get_data() {
+    $data = parent::get_data();
+    if ($data) {
+        $data->bookingpolicyformat = $data->bookingpolicy['format'];
+        $data->bookingpolicy = $data->bookingpolicy['text'];
+    }
+
+    return $data;
+}
+
 }
 ?>

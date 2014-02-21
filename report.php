@@ -36,7 +36,8 @@ if (!$booking = booking_get_booking($cm)) {
 	print_error("Course module is incorrect");
 }
 
-$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+//$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+$context = context_module::instance($cm->id);
 require_capability('mod/booking:readresponses', $context);
 $url = new moodle_url('/mod/booking/report.php', array('id'=>$id,'optionid'=>$optionid));
 

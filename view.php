@@ -33,7 +33,8 @@ if (!$booking = booking_get_booking($cm)) {
 $strbooking = get_string('modulename', 'booking');
 $strbookings = get_string('modulenameplural', 'booking');
 
-if (!$context = get_context_instance(CONTEXT_MODULE, $cm->id)) {
+//if (!$context = get_context_instance(CONTEXT_MODULE, $cm->id)) {
+if (!$context = context_module::instance($cm->id)) {
 	print_error('badcontext');
 }
 // check if booking options have already been set or if they are still empty

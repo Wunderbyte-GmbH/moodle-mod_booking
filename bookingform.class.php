@@ -56,6 +56,9 @@ class mod_booking_bookingform_form extends moodleform {
 		$mform->addElement('editor', 'description', get_string('description'));
 		$mform->setType('description', PARAM_CLEANHTML);
 
+		$mform->addElement('text', 'poolurl', get_string('bookingpoolurl', 'booking'), array('size'=>'64'));
+        $mform->setType('poolurl', PARAM_TEXT);
+
 		//hidden elements
 		$mform->addElement('hidden', 'id');
 		$mform->setType('id', PARAM_INT);
