@@ -33,7 +33,6 @@ if (!$booking = booking_get_booking($cm)) {
 $strbooking = get_string('modulename', 'booking');
 $strbookings = get_string('modulenameplural', 'booking');
 
-//if (!$context = get_context_instance(CONTEXT_MODULE, $cm->id)) {
 if (!$context = context_module::instance($cm->id)) {
 	print_error('badcontext');
 }
@@ -130,6 +129,20 @@ echo '<div class="clearer"></div>';
 
 if ($booking->intro) {
 	echo $OUTPUT->box(format_module_intro('booking', $booking, $cm->id,true), 'generalbox', 'intro');
+
+	echo '<div style="width: 100%; text-align: center; display:table;">';
+	echo 'Write here uploaded files...<br>';
+
+	$fs = get_file_storage();
+	$files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanager', $booking->id);
+
+	foreach ($files as $file) {
+		$filename = $file->get_filename();
+		$url = "$CFG->wwwroot/pluginfile.php/" . $file->get_contextid() ."/mod_booking/myfilemanager/" . $file->get_itemid() . "/$filename";
+		echo html_writer::link($url, $filename) . "<br>";
+	}
+
+	echo '</div>';
 }
 //download spreadsheet of all users
 if (has_capability('mod/booking:downloadresponses',$context)) {
@@ -172,7 +185,7 @@ if ($booking->timeclose !=0) {
 
 if ( !$current and $bookingopen and has_capability('mod/booking:choose', $context) ) {
 
-    echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
+	echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
 
 	if ($action=='mybooking'){
 		$message = "<a href=\"view.php?id=$cm->id\">".get_string('showallbookings','booking')."</a>";
@@ -192,13 +205,13 @@ if ( !$current and $bookingopen and has_capability('mod/booking:choose', $contex
 if (!$bookingformshown) {
 	echo $OUTPUT->box(get_string("norighttobook", "booking"));
 }
-	if (has_capability('mod/booking:updatebooking', $context)) {
-		$addoptionurl = new moodle_url('editoptions.php', array('id'=>$cm->id, 'optionid'=> 'add'));
-		echo '<div style="width: 100%; text-align: center;">';
-		echo $OUTPUT->single_button($addoptionurl,get_string('addnewbookingoption','booking'),'get');
-		echo '</div>';
-	}
-		echo $OUTPUT->box("<a href=\"http://www.edulabs.org\">".get_string('createdby','booking')."</a>",'box mdl-align');
+if (has_capability('mod/booking:updatebooking', $context)) {
+	$addoptionurl = new moodle_url('editoptions.php', array('id'=>$cm->id, 'optionid'=> 'add'));
+	echo '<div style="width: 100%; text-align: center;">';
+	echo $OUTPUT->single_button($addoptionurl,get_string('addnewbookingoption','booking'),'get');
+	echo '</div>';
+}
+echo $OUTPUT->box("<a href=\"http://www.edulabs.org\">".get_string('createdby','booking')."</a>",'box mdl-align');
 echo $OUTPUT->footer();
 
 
