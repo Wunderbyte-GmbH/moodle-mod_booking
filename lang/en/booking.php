@@ -87,7 +87,11 @@ $string['createdby'] = 'Booking module created by edulabs.org';
 $string['maxperuserwarning'] = 'You currently have {$a->count}/{$a->limit} maximum bookings';
 $string['bookedpast'] = 'Booked (course finished)';
 $string['bookotherusers'] = 'Book other users';
-
+$string['attachedfiles'] = 'Attached files';
+$string['eventduration'] = 'Event duration';
+$string['eventpoints'] = 'Points';
+$string['organizatorname'] = 'Organizator name';
+$string['poolurl'] = 'Pool url';
 
 // mod_form
 $string['addtocalendar'] = 'Add to calendar';

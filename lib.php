@@ -3,11 +3,58 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/mod/booking/icallib.php');
 require_once($CFG->dirroot.'/calendar/lib.php');
+require_once($CFG->libdir.'/filelib.php');
 
 $COLUMN_HEIGHT = 300;
 
 
 /// Standard functions /////////////////////////////////////////////////////////
+
+function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
+    // Check the contextlevel is as expected - if your plugin is a block, this becomes CONTEXT_BLOCK, etc.
+	if ($context->contextlevel != CONTEXT_MODULE) {
+		return false; 
+	}
+
+    // Make sure the filearea is one of those used by the plugin.
+	if ($filearea !== 'myfilemanager') {
+		return false;
+	}
+
+    // Make sure the user is logged in and has access to the module (plugins that are not course modules should leave out the 'cm' part).
+	require_login($course, true, $cm);
+
+    // Check the relevant capabilities - these may vary depending on the filearea being accessed.
+	if (!has_capability('mod/booking:view', $context)) {
+		return false;
+	}
+
+    // Leave this line out if you set the itemid to null in make_pluginfile_url (set $itemid to 0 instead).
+    $itemid = array_shift($args); // The first item in the $args array.
+
+    // Use the itemid to retrieve any relevant data records and perform any security checks to see if the
+    // user really does have access to the file in question.
+
+    // Extract the filename / filepath from the $args array.
+    $filename = array_pop($args); // The last item in the $args array.
+    if (!$args) {
+        $filepath = '/'; // $args is empty => the path is '/'
+    } else {
+        $filepath = '/'.implode('/', $args).'/'; // $args contains elements of the filepath
+    }
+
+    // Retrieve the file from the Files API.
+    $fs = get_file_storage();
+    $file = $fs->get_file($context->id, 'mod_booking', $filearea, $itemid, $filepath, $filename);
+    if (!$file) {
+        return false; // The file does not exist.
+    }
+
+    // We can now send the file back to the browser - in this case with a cache lifetime of 1 day and no filtering. 
+    // From Moodle 2.3, use send_stored_file instead.
+    //send_file($file, 86400, 0, $forcedownload, $options);
+    send_stored_file($file, 86400, 0, $forcedownload, $options);
+}
 
 function booking_user_outline($course, $user, $mod, $booking) {
 	global $DB;
@@ -73,7 +120,7 @@ function booking_add_instance($booking) {
 	$booking->id = $DB->insert_record("booking", $booking);
 
 	$cmid = $booking->coursemodule;
-    $context = context_module::instance($cmid);
+	$context = context_module::instance($cmid);
 
 	if ($draftitemid = file_get_submitted_draft_itemid('myfilemanager')) {
 		file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanager', $booking->id, array('subdirs' => false, 'maxfiles' => 50));

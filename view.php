@@ -127,23 +127,59 @@ $bookinglist = booking_get_spreadsheet_data($booking, $cm);
 
 echo '<div class="clearer"></div>';
 
-if ($booking->intro) {
-	echo $OUTPUT->box(format_module_intro('booking', $booking, $cm->id,true), 'generalbox', 'intro');
+echo $OUTPUT->box_start('generalbox boxaligncenter boxwidthwide');
+echo html_writer::tag('div', format_module_intro('booking', $booking, $cm->id), array('class' => 'intro'));
 
-	echo '<div style="width: 100%; text-align: center; display:table;">';
-	echo 'Write here uploaded files...<br>';
+if (!empty($booking->duration)) {
+	echo html_writer::start_tag('div');
+	echo html_writer::tag('label', get_string('eventduration','booking').': ', array('class' => 'bold'));
+	echo html_writer::tag('span', $booking->duration);
+	echo html_writer::end_tag('div');
+}
 
-	$fs = get_file_storage();
-	$files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanager', $booking->id);
+if (!empty($booking->points)) {
+	echo html_writer::start_tag('div');
+	echo html_writer::tag('label', get_string('eventpoints','booking').': ', array('class' => 'bold'));
+	echo html_writer::tag('span', $booking->points);
+	echo html_writer::end_tag('div');
+}
+
+if (!empty($booking->organizatorname)) {
+	echo html_writer::start_tag('div');
+	echo html_writer::tag('label', get_string('organizatorname','booking').': ', array('class' => 'bold'));
+	echo html_writer::tag('span', $booking->organizatorname);
+	echo html_writer::end_tag('div');
+}
+
+if (!empty($booking->poolurl)) {
+	echo html_writer::start_tag('div');
+	echo html_writer::tag('label', get_string('poolurl','booking').': ', array('class' => 'bold'));
+	echo html_writer::tag('span', html_writer::link($booking->poolurl, $booking->poolurl, array()));
+	echo html_writer::end_tag('div');
+}
+
+$out = array();
+$fs = get_file_storage();
+$files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanager', $booking->id);
+
+if (count($files) > 0) {
+	echo html_writer::start_tag('div');
+	echo html_writer::tag('label', get_string("attachedfiles", "booking").': ', array('class' => 'bold'));
 
 	foreach ($files as $file) {
-		$filename = $file->get_filename();
-		$url = "$CFG->wwwroot/pluginfile.php/" . $file->get_contextid() ."/mod_booking/myfilemanager/" . $file->get_itemid() . "/$filename";
-		echo html_writer::link($url, $filename) . "<br>";
+		if ($file->get_filesize() > 0) {
+			$filename = $file->get_filename();
+			$url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename());
+			$out[] = html_writer::link($url, $filename);
+		}		
 	}
-
-	echo '</div>';
+	echo html_writer::tag('span', implode(', ', $out));
+	echo html_writer::end_tag('div');
 }
+
+echo $OUTPUT->box_end();
+
+
 //download spreadsheet of all users
 if (has_capability('mod/booking:downloadresponses',$context)) {
 	/// Download spreadsheet for all booking options
