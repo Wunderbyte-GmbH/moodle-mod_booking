@@ -20,3 +20,8 @@ Features:
 -> customise booking messages
 -> start and end time for booking periode
 -> automatic unenrolment
+
+New features added by Andraž Prinčič:
+- attachaments
+- automaticly add events to Moodle calendar
+- A few new fields (organizator, url, duration time and pointsy)
