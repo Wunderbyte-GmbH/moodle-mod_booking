@@ -203,6 +203,36 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014022500, 'booking');
     }
 
+    if ($oldversion < 2014022501) {
+
+        // Define field groupname to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('groupname', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'poolurl');
+
+        // Conditionally launch add field groupname.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014022501, 'booking');
+    }
+
+    if ($oldversion < 2014022503) {
+
+        // Define field addtogroup to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('addtogroup', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'groupname');
+
+        // Conditionally launch add field addtogroup.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014022503, 'booking');
+    }
+
     return true;
 }
 

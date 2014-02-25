@@ -10,6 +10,9 @@ class mod_booking_mod_form extends moodleform_mod {
 	function definition() {
 		global $CFG, $DB;
 
+        $context = context_system::instance();
+        //$usablecontexts = $context->having_cap('moodle/booking:useall');
+
 		$mform    = $this->_form;
 
 		//-------------------------------------------------------------------------------
@@ -41,8 +44,7 @@ class mod_booking_mod_form extends moodleform_mod {
             array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
               'accepted_types' => array('*')));
 
-        //$mform->addElement('tags', 'tags', get_string('bookingtags', 'booking'));
-        //$mform->setType('tags', PARAM_RAW);
+        //$mform->addElement('questioncategory', 'category', get_string('category'), array('contexts' => $usablecontexts, 'top' => true));
 		//-------------------------------------------------------------------------------
         $menuoptions=array();
         $menuoptions[0] = get_string('disable');
@@ -86,7 +88,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // Add the fields to allow editing of the default text:
         //$context = get_context_instance(CONTEXT_SYSTEM);
-        $context = context_system::instance();
+        
         $editoroptions = array('subdirs' => false, 'maxfiles' => 0, 'maxbytes' => 0, 'trusttext' => false, 'context' => $context);
         $fieldmapping = (object)array(
             'status' => '{status}',
@@ -147,6 +149,13 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('selectyesno', 'autoenrol', get_string('autoenrol', 'booking'));
         $mform->addHelpButton('autoenrol', 'autoenrol', 'booking');
+
+        $mform->addElement('selectyesno', 'addtogroup', get_string('addtogroup', 'booking'));
+        $mform->disabledIf('addtogroup', 'autoenrol', 0);
+
+        $mform->addElement('text', 'groupname', get_string('groupname','booking'), array('size'=>'64'));
+        $mform->setType('groupname', PARAM_TEXT);
+        $mform->disabledIf('groupname', 'addtogroup', 0);
 
         $opts = array(0 => get_string('unlimited', 'mod_booking'));
         $extraopts = array_combine(range(1, 100), range(1, 100));

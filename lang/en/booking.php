@@ -171,6 +171,8 @@ $string['bookingorganizatorname'] = 'Organizer name';
 $string['bookingpoolurl'] = 'Poll url';
 $string['bookingtags'] = 'Tags';
 $string['bookingattachment'] = 'Attachment';
+$string['groupname'] = 'Group name';
+$string['addtogroup'] = 'Automatically enrol users to group';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';
