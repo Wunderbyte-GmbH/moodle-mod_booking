@@ -177,6 +177,23 @@ if (count($files) > 0) {
 	echo html_writer::end_tag('div');
 }
 
+if (!empty($CFG->usetags)) {
+	$tags = tag_get_tags_array('booking', $booking->id);
+
+	$links = array();
+	foreach ($tags as $tagid=>$tag) {
+		$url = new moodle_url('/tag/index.php', array('tag'=>$tag));
+		$links[] = html_writer::link($url, $tag, array());
+	}
+
+	if (!empty($tags)) {
+		echo html_writer::start_tag('div');
+		echo html_writer::tag('label', get_string('tags').': ', array('class' => 'bold'));
+		echo html_writer::tag('span', implode(', ', $links));
+		echo html_writer::end_tag('div');
+	}
+}
+
 echo $OUTPUT->box_end();
 
 

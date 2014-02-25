@@ -155,6 +155,9 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('maxperuser', 0);
         $mform->addHelpButton('maxperuser', 'maxperuser', 'mod_booking');
 
+        $mform->addElement('header', 'tagsheader', get_string('tags'));
+        $mform->addElement('tags', 'tags', get_string('tags')); 
+
 		//-------------------------------------------------------------------------------
         $this->standard_coursemodule_elements();
 		//-------------------------------------------------------------------------------
@@ -169,6 +172,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $draftitemid = file_get_submitted_draft_itemid('myfilemanager');            
             file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'myfilemanager', $this->current->id, $options);
             $default_values['myfilemanager'] = $draftitemid;
+            $default_values['tags'] = tag_get_tags_array('booking', $this->current->id);
         } else {
             $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
             file_prepare_draft_area($draftitemid, null, 'mod_booking', 'myfilemanager', 0, $options);

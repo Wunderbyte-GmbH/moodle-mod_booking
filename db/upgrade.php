@@ -188,6 +188,21 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014021920, 'booking');
     }
 
+    if ($oldversion < 2014022500) {
+
+        // Define field course to be dropped from booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('tags');
+
+        // Conditionally launch drop field course.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014022500, 'booking');
+    }
+
     return true;
 }
 

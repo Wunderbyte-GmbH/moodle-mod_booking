@@ -4,6 +4,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/mod/booking/icallib.php');
 require_once($CFG->dirroot.'/calendar/lib.php');
 require_once($CFG->libdir.'/filelib.php');
+require_once($CFG->dirroot.'/tag/locallib.php');
 
 $COLUMN_HEIGHT = 300;
 
@@ -126,6 +127,8 @@ function booking_add_instance($booking) {
 		file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanager', $booking->id, array('subdirs' => false, 'maxfiles' => 50));
 	}
 
+	tag_set('booking', $booking->id, $booking->tags);
+
 	if(!empty($booking->option)){
 		foreach ($booking->option as $key => $value) {
 			$value = trim($value);
@@ -157,6 +160,8 @@ function booking_update_instance($booking) {
 	// we have to prepare the bookingclosingtimes as an $arrray, currently they are in $booking as $key (string)
 	$booking->id = $booking->instance;
 	$booking->timemodified = time();
+
+	tag_set('booking', $booking->id, $booking->tags);
 
 	$cm = get_coursemodule_from_instance('booking', $booking->id);
 	$context = context_module::instance($cm->id);
