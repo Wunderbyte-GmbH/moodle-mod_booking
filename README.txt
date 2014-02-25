@@ -25,3 +25,4 @@ New features added by Andraž Prinčič:
 - attachaments
 - automaticly add events to Moodle calendar
 - A few new fields (organizator, url, duration time and pointsy)
+- Tags
