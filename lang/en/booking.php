@@ -173,6 +173,8 @@ $string['bookingtags'] = 'Tags';
 $string['bookingattachment'] = 'Attachment';
 $string['groupname'] = 'Group name';
 $string['addtogroup'] = 'Automatically enrol users to group';
+$string['bookingcategory'] = 'Category';
+$string['entervalidurl'] = 'Please, enter a valid URL!';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';

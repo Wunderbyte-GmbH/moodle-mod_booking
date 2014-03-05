@@ -6,6 +6,8 @@ require_once($CFG->dirroot.'/calendar/lib.php');
 require_once($CFG->libdir.'/filelib.php');
 require_once($CFG->dirroot.'/tag/locallib.php');
 
+require_once($CFG->dirroot . '/question/category_class.php');
+
 $COLUMN_HEIGHT = 300;
 
 
