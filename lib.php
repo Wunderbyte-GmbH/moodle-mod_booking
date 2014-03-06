@@ -8,6 +8,8 @@ require_once($CFG->dirroot.'/tag/locallib.php');
 
 require_once($CFG->dirroot . '/question/category_class.php');
 
+require_once($CFG->dirroot.'/group/lib.php');
+
 $COLUMN_HEIGHT = 300;
 
 
@@ -212,6 +214,9 @@ function booking_update_instance($booking) {
 
 function booking_update_options($optionvalues){
 	global $DB;
+
+	$booking = $DB->get_record('booking', array('id' => $optionvalues->bookingid));
+
 	$option = new stdClass();
 	$option->bookingid = $optionvalues->bookingid;
 	$option->text = trim($optionvalues->text);
@@ -245,6 +250,19 @@ function booking_update_options($optionvalues){
 		$option->id=$optionvalues->optionid;
 		if (isset($optionvalues->text) && $optionvalues->text <> '') {
 			$event->id = $DB->get_field('booking_options', 'calendarid', array('id' => $option->id));
+			$groupid = $DB->get_field('booking_options', 'groupid', array('id' => $option->id));
+
+			// We must create new group
+			if ($booking->addtogroup == 1) {
+				$newGroupData = new stdClass();
+				$newGroupData->id = $groupid;
+				$newGroupData->courseid = $booking->course;
+				$newGroupData->name = $booking->name . ' - ' . $option->text;
+				$newGroupData->description = $booking->name . ' - ' . $option->text;
+				$newGroupData->descriptionformat = FORMAT_HTML;
+
+				$option->groupid = groups_update_group($newGroupData);
+			}
 
 			if ($event->id > 0) {
 				// event exist
@@ -323,7 +341,18 @@ function booking_update_options($optionvalues){
 			$option->addtocalendar = $optionvalues->addtocalendar;
 		}
 
-		return $DB->insert_record("booking_options", $option);
+		// We must create new group
+		if ($booking->addtogroup == 1) {
+			$newGroupData = new stdClass();
+			$newGroupData->courseid = $booking->course;
+			$newGroupData->name = $booking->name . ' - ' . $option->text;
+			$newGroupData->description = $booking->name . ' - ' . $option->text;
+			$newGroupData->descriptionformat = FORMAT_HTML;
+
+			$option->groupid = groups_create_group($newGroupData);
+
+			return $DB->insert_record("booking_options", $option);
+		}
 	}
 }
 /**

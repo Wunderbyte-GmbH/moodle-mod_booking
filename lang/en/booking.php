@@ -172,7 +172,7 @@ $string['bookingpoolurl'] = 'Poll url';
 $string['bookingtags'] = 'Tags';
 $string['bookingattachment'] = 'Attachment';
 $string['groupname'] = 'Group name';
-$string['addtogroup'] = 'Automatically enrol users to group';
+$string['addtogroup'] = 'Automatically enrol users in group';
 $string['bookingcategory'] = 'Category';
 $string['entervalidurl'] = 'Please, enter a valid URL!';
 

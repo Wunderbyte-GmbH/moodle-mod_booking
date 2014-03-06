@@ -151,11 +151,6 @@ class mod_booking_mod_form extends moodleform_mod {
        $mform->addHelpButton('autoenrol', 'autoenrol', 'booking');
 
        $mform->addElement('selectyesno', 'addtogroup', get_string('addtogroup', 'booking'));
-       $mform->disabledIf('addtogroup', 'autoenrol', 0);
-
-       $mform->addElement('text', 'groupname', get_string('groupname','booking'), array('size'=>'64'));
-       $mform->setType('groupname', PARAM_TEXT);
-       $mform->disabledIf('groupname', 'addtogroup', 0);
 
        $opts = array(0 => get_string('unlimited', 'mod_booking'));
        $extraopts = array_combine(range(1, 100), range(1, 100));
