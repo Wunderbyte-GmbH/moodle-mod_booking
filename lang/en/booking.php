@@ -101,6 +101,9 @@ $string['allowdelete'] = 'Allow users to cancel their booking themselves';
 $string['bookingpolicy'] = 'Booking policy';
 $string['confirmationmessagesettings'] = 'Confirmation email settings';
 $string['usernameofbookingmanager'] = 'Username of the booking manager';
+$string['bookingmanager_help'] = 'Username of the user who will be displayed in the "From" field of the confirmation notifications. 
+  If the option "Send confirmation email to booking manager" is enabled, this is the user who receives a copy of the confirmation notifications.';
+$string['bookingmanagererror'] = 'The username entered is not valid. Either it does not exist or there are more then one users with this username (example: if you have mnet and local authentication enabled)';
 $string['autoenrol'] = 'Automatically enrol users';
 $string['autoenrol_help'] = 'If selected, users will be enroled onto the relevant course as soon as they make the booking and unenroled from that course as soon as the booking is cancelled.';
 $string['bookedtext'] = 'Booking confirmation';
