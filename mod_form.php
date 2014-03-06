@@ -65,9 +65,10 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('sendmailtobooker', 'sendmailtobooker', 'booking');
         
 		$mform->addElement('text', 'bookingmanager', get_string('usernameofbookingmanager', 'booking'));
-        $mform->setType('bookingmanager', PARAM_TEXT);
+		$mform->addHelpButton('bookingmanager', 'bookingmanager','booking');
+		$mform->setType('bookingmanager', PARAM_TEXT);
 		$mform->setDefault('bookingmanager', 'admin');
-		$mform->disabledIf('bookingmanager', 'copymail', 0);
+		$mform->addRule('bookingmanager', null, 'required', null, 'client');
 
         // Add the fields to allow editing of the default text:
         $context = get_context_instance(CONTEXT_SYSTEM);
@@ -145,7 +146,7 @@ class mod_booking_mod_form extends moodleform_mod {
 		$this->add_action_buttons();
 	}
 
-	function data_preprocessing(&$default_values){
+	public function data_preprocessing(&$default_values){
 		if (empty($default_values['timeopen'])) {
 			$default_values['timerestrict'] = 0;
 		} else {
@@ -173,7 +174,17 @@ class mod_booking_mod_form extends moodleform_mod {
         }
 	}
 
-    function get_data() {
+	public function validation($data, $files) {
+	 global $DB;
+	 $errors = parent::validation($data, $files);
+	 if ( $DB->count_records('user', array('username' =>$data['bookingmanager'])) != 1 ) {
+	   $errors['bookingmanager'] = get_string('bookingmanagererror', 'booking');
+	 }
+	 return $errors;
+	}
+	
+	
+    public function get_data() {
         $data = parent::get_data();
         if ($data) {
             $data->bookingpolicyformat = $data->bookingpolicy['format'];
