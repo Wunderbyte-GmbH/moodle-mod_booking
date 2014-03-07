@@ -255,13 +255,21 @@ function booking_update_options($optionvalues){
 			// We must create new group
 			if ($booking->addtogroup == 1) {
 				$newGroupData = new stdClass();
-				$newGroupData->id = $groupid;
+				if (!is_null($groupid) && ($groupid > 0)) {
+					$newGroupData->id = $groupid;
+				}
 				$newGroupData->courseid = $booking->course;
 				$newGroupData->name = $booking->name . ' - ' . $option->text;
 				$newGroupData->description = $booking->name . ' - ' . $option->text;
 				$newGroupData->descriptionformat = FORMAT_HTML;
 
-				$option->groupid = groups_update_group($newGroupData);
+				if (!is_null($groupid) && ($groupid > 0)) {					
+					groups_update_group($newGroupData);
+				} else {
+					$option->groupid = groups_create_group($newGroupData);
+				}				
+			} else {
+				$option->groupid = 0;
 			}
 
 			if ($event->id > 0) {
@@ -349,10 +357,12 @@ function booking_update_options($optionvalues){
 			$newGroupData->description = $booking->name . ' - ' . $option->text;
 			$newGroupData->descriptionformat = FORMAT_HTML;
 
-			$option->groupid = groups_create_group($newGroupData);
-
-			return $DB->insert_record("booking_options", $option);
+			$option->groupid = groups_create_group($newGroupData);			
+		} else {
+			$option->groupid = 0;
 		}
+
+		return $DB->insert_record("booking_options", $option);
 	}
 }
 /**
@@ -368,7 +378,8 @@ function booking_get_user_status($userid,$optionid,$bookingid,$cmid){
 	$option = $DB->get_record('booking_options', array('id' => $optionid));
 	$current = $DB->get_record('booking_answers', array('bookingid' => $bookingid, 'userid' => $userid, 'optionid' => $optionid));
 	$allresponses = $DB->get_records_select('booking_answers', "bookingid = $bookingid AND optionid = $optionid",array(), 'timemodified', 'userid');
-	$context  = get_context_instance(CONTEXT_MODULE,$cmid);
+	//$context  = get_context_instance(CONTEXT_MODULE,$cmid);
+	$context = context_module::instance($cmid);
 	$i=1;
 	if(!empty($allresponses)){
 		foreach($allresponses as $answer){
@@ -613,7 +624,8 @@ echo (html_writer::table($table));
  */
 function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm) {
 	global $DB;
-	$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+	//$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+	$context = context_module::instance($cm->id);
 	// check if optionid exists as real option
 	if(!$DB->get_field('booking_options','id', array('id' => $optionid))){
 		return false;
@@ -708,10 +720,17 @@ function booking_check_enrol_user($option, $booking, $userid) {
 	}
 	if (!$instances = $DB->get_records('enrol', array('enrol'=>'manual', 'courseid'=>$option->courseid, 'status'=>ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
 		return; // No manual enrolment instance on this course.
+	}	
+
+	if ($booking->addtogroup == 1) {
+		if (!is_null($option->groupid) && ($option->groupid > 0)) {
+			groups_add_member($option->groupid, $userid);
+		}
 	}
+
 	$instance = reset($instances); // Use the first manual enrolment plugin in the course.
 
-	$enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
+	$enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.	
 }
 
 /**
@@ -739,6 +758,13 @@ function booking_check_unenrol_user($option, $booking, $userid) {
 	if (!$instances = $DB->get_records('enrol', array('enrol'=>'manual', 'courseid'=>$option->courseid, 'status'=>ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
 		return; // No manual enrolment instance on this course.
 	}
+
+	if ($booking->addtogroup == 1) {
+		if (!is_null($option->groupid) && ($option->groupid > 0)) {
+			groups_remove_member($option->groupid, $userid);
+		}
+	}
+
 	$instance = reset($instances); // Use the first manual enrolment plugin in the course.
 
 	$enrol->unenrol_user($instance, $userid); // Unenrol the user.
@@ -1390,7 +1416,8 @@ function booking_check_statuschange($optionid,$booking,$cancelleduserid,$cmid) {
 	}
 	$allresponses = $DB->get_records('booking_answers', array('bookingid' => $booking->id,
 		'optionid' => $optionid), 'timemodified', 'userid');
-	$context  = get_context_instance(CONTEXT_MODULE,$cmid);
+	//$context  = get_context_instance(CONTEXT_MODULE,$cmid);
+	$context = context_module::instance($cmid);
 	$firstuseronwaitinglist = $option->maxanswers + 1;
 	$i=1;
 	$sortedresponses = array();
