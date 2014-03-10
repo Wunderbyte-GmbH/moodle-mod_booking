@@ -16,6 +16,8 @@ $COLUMN_HEIGHT = 300;
 /// Standard functions /////////////////////////////////////////////////////////
 
 function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
+	global $CFG, $DB;
+
     // Check the contextlevel is as expected - if your plugin is a block, this becomes CONTEXT_BLOCK, etc.
 	if ($context->contextlevel != CONTEXT_MODULE) {
 		return false; 
@@ -28,11 +30,6 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
 
     // Make sure the user is logged in and has access to the module (plugins that are not course modules should leave out the 'cm' part).
 	require_login($course, true, $cm);
-
-    // Check the relevant capabilities - these may vary depending on the filearea being accessed.
-	if (!has_capability('mod/booking:view', $context)) {
-		return false;
-	}
 
     // Leave this line out if you set the itemid to null in make_pluginfile_url (set $itemid to 0 instead).
     $itemid = array_shift($args); // The first item in the $args array.
@@ -58,7 +55,7 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
     // We can now send the file back to the browser - in this case with a cache lifetime of 1 day and no filtering. 
     // From Moodle 2.3, use send_stored_file instead.
     //send_file($file, 86400, 0, $forcedownload, $options);
-    send_stored_file($file, 86400, 0, $forcedownload, $options);
+    send_stored_file($file, 0, 0, true, $options);
 }
 
 function booking_user_outline($course, $user, $mod, $booking) {
@@ -329,7 +326,7 @@ function booking_update_options($optionvalues){
 		$option->addtocalendar = 0;
 		$option->calendarid = 0;
 		// Insert into calendar
-		// We add a new booking_options
+		// We add a new booking_options?
 		if (isset($optionvalues->addtocalendar)) {
 			$event = new stdClass;
 			$event->name         = $option->text;

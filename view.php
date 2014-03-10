@@ -169,7 +169,8 @@ if (count($files) > 0) {
 	foreach ($files as $file) {
 		if ($file->get_filesize() > 0) {
 			$filename = $file->get_filename();
-			$url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename());
+			//$url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename());
+			$url = file_encode_url($CFG->wwwroot.'/pluginfile.php', '/'.$file->get_contextid().'/'.$file->get_component().'/'.$file->get_filearea().'/'.$file->get_itemid().'/'.$file->get_filename());
 			$out[] = html_writer::link($url, $filename);
 		}		
 	}
@@ -182,7 +183,7 @@ if (!empty($CFG->usetags)) {
 
 	$links = array();
 	foreach ($tags as $tagid=>$tag) {
-		$url = new moodle_url('/tag/index.php', array('tag'=>$tag));
+		$url = new moodle_url('tag.php', array('id' => $id, 'tag'=>$tag));
 		$links[] = html_writer::link($url, $tag, array());
 	}
 
