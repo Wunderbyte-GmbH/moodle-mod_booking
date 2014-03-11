@@ -465,7 +465,7 @@ function booking_get_user_booking_count($booking, $user, $bookinglist) {
  * @param $singleuser 0 show all booking options, 1 show only my booking options
  * @return void
  */
-function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0) {
+function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0,$sorturl='') {
 	global $DB, $OUTPUT;
 	//$optiondisplay is an array of the display info for a booking $cdisplay[$optionid]->text  - text name of option.
 	//                                                                            ->maxanswers -maxanswers for this option
@@ -605,7 +605,7 @@ $table->attributes['style'] = 'width: auto;';
 $table->data = array();
 $strselect =  get_string("select", "booking");
 $strbooking = get_string("booking", "booking");
-$strdate = get_string("coursedate", "booking");
+$strdate = '<a href="' . $sorturl . '">' .  get_string("coursedate", "booking") . '</a>';
 $stravailability = get_string("availability", "booking");
 
 $table->head = array($strselect, $strbooking, $strdate, $stravailability);
@@ -1022,8 +1022,13 @@ function booking_get_groupmodedata() {
  * @param $bookingid id of the module
  * @return object with $booking->option as an array for the booking option valus for each booking option
  */
-function booking_get_booking($cm) {
+function booking_get_booking($cm, $sort = '') {
 	global $DB;
+
+	if ($sort == '') {
+		$sort = 'id';
+	}
+
 	$bookingid = $cm->instance;
 	// Gets a full booking record
 	//$context = get_context_instance(CONTEXT_MODULE, $cm->id);
@@ -1037,7 +1042,7 @@ function booking_get_booking($cm) {
 	/// First get all the users who have access here
 	$allresponses = get_users_by_capability($context, 'mod/booking:choose', 'u.id, u.picture, u.firstname, u.lastname, u.idnumber, u.email', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
 
-	if (($options = $DB->get_records('booking_options', array('bookingid' => $bookingid), 'id')) && ($booking = $DB->get_record("booking", array("id" => $bookingid)))) {
+	if (($options = $DB->get_records('booking_options', array('bookingid' => $bookingid), $sort)) && ($booking = $DB->get_record("booking", array("id" => $bookingid)))) {
 		$answers = $DB->get_records('booking_answers', array('bookingid' => $bookingid), 'id');
 		foreach ($options as $option){
 			$booking->option[$option->id] = $option;

@@ -41,18 +41,17 @@ $records = $DB->get_records('tag_instance', array('tagid' => $tag->id, 'itemtype
 
 echo $OUTPUT->box_start('generalbox', 'tag-blogs'); //could use an id separate from tag-blogs, but would have to copy the css style to make it look the same
 
-echo '<dl>';
+echo '<ul>';
 
 foreach ($records as $record) {
 	$booking = $DB->get_record('booking', array('id' => $record->itemid, 'course' => $cm->course));
 	if ($booking) {
 		$cmc = get_coursemodule_from_instance('booking', $booking->id);
 		$url = new moodle_url('/mod/booking/view.php', array('id' => $cmc->id));
-		echo '<dt><a href="' . $url . '">' . $booking->name . '</a></dt>';
-		echo '<dd>' . $booking->intro . '</dd>';
+		echo '<li><a href="' . $url . '">' . $booking->name . '</a></li>';
 	}
 }
-echo '</dl>';
+echo '</ul>';
 
 echo $OUTPUT->box_end();
 

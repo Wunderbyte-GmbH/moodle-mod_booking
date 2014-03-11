@@ -9,6 +9,18 @@ $action     = optional_param('action', '', PARAM_ALPHA);
 $optionid = optional_param('optionid', '', PARAM_INT); 
 $confirm = optional_param('confirm', '',PARAM_INT); 
 $answer = optional_param('answer', '',PARAM_ALPHANUM);
+$sorto = optional_param('sort', '', PARAM_INT);
+
+$sort = '';
+$sorturl = new moodle_url('/mod/booking/view.php', array('id' => $id, 'sort' => 0));
+
+if ($sorto == 1) {
+	$sort = 'coursestarttime ASC';
+	$sorturl = new moodle_url('/mod/booking/view.php', array('id' => $id, 'sort' => 0));
+} else if ($sorto == 0) {
+	$sort = 'coursestarttime DESC';
+	$sorturl = new moodle_url('/mod/booking/view.php', array('id' => $id, 'sort' => 1));
+}
 
 $url = new moodle_url('/mod/booking/view.php', array('id'=>$id));
 
@@ -26,7 +38,7 @@ if (! $course = $DB->get_record("course", array("id" => $cm->course))) {
 require_course_login($course, false, $cm);
 
 
-if (!$booking = booking_get_booking($cm)) {
+if (!$booking = booking_get_booking($cm, $sort)) {
 	print_error("Course module is incorrect");
 }
 
@@ -38,6 +50,7 @@ if (!$context = context_module::instance($cm->id)) {
 }
 // check if booking options have already been set or if they are still empty
 $records = $DB->get_records('booking_options', array('bookingid' => $booking->id));
+
 if (empty($records)) {      // Brand new database!
 	if (has_capability('mod/booking:updatebooking', $context)) {
 		redirect($CFG->wwwroot.'/mod/booking/editoptions.php?id='.$cm->id.'&optionid=add');  // Redirect to field entry
@@ -117,7 +130,7 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context)) 
 	}
 }
 // we have to refresh $booking as it is modified by submitted data;
-$booking = booking_get_booking($cm);
+$booking = booking_get_booking($cm, $sort);
 
 /// Display the booking and possibly results
 add_to_log($course->id, "booking", "view", "view.php?id=$cm->id", $booking->id, $cm->id);
@@ -244,11 +257,11 @@ if ( !$current and $bookingopen and has_capability('mod/booking:choose', $contex
 	if ($action=='mybooking'){
 		$message = "<a href=\"view.php?id=$cm->id\">".get_string('showallbookings','booking')."</a>";
 		echo $OUTPUT->box($message,'box mdl-align');
-		booking_show_form($booking, $USER, $cm, $bookinglist,1);
+		booking_show_form($booking, $USER, $cm, $bookinglist,1,$sorturl);
 	} else {
 		$message = "<a href=\"view.php?id=$cm->id&action=mybooking\">".get_string('showmybookings','booking')."</a>";
 		echo $OUTPUT->box($message,'box mdl-align');
-		booking_show_form($booking, $USER, $cm, $bookinglist,0);
+		booking_show_form($booking, $USER, $cm, $bookinglist,0,$sorturl);
 	}
 
 	$bookingformshown = true;
