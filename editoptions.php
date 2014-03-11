@@ -22,7 +22,7 @@ if (! $course = $DB->get_record("course", array("id" => $cm->course))) {
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
 
-if (!$booking = booking_get_booking($cm,$groupmode)) {
+if (!$booking = booking_get_booking($cm,'')) {
 	error("Course module is incorrect");
 }
 
