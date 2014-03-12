@@ -3,7 +3,7 @@ require_once $CFG->libdir.'/formslib.php';
 
 class mod_booking_manageusers_form extends moodleform {
 	function definition() {
-		global $CFG, $DB,$OUTPUT;
+		global $CFG, $DB, $OUTPUT;
 		$mform =& $this->_form;
 
 		// visible elements

@@ -1,6 +1,5 @@
 <?PHP
 
-
 $string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
 $string['answered'] = 'Answered';
@@ -41,6 +40,16 @@ $string['taken'] = 'Taken';
 $string['timerestrict'] = 'Restrict answering to this time period';
 $string['viewallresponses'] = 'Manage {$a} responses';
 $string['yourselection'] = 'Your selection';
+
+// Categories
+$string['category'] = 'Category';
+$string['categories'] = 'Categories';
+$string['addcategory'] = 'Edit categories';
+$string['forcourse'] = 'for course';
+$string['addnewcategory'] = 'Add new category';
+$string['categoryname'] = 'Category name';
+$string['rootcategory'] = 'Root';
+$string['selectcategory'] = 'Select category';
 
 // view.php
 $string['coursedate'] = 'Date';
