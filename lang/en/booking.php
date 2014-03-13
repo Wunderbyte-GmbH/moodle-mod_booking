@@ -50,6 +50,7 @@ $string['addnewcategory'] = 'Add new category';
 $string['categoryname'] = 'Category name';
 $string['rootcategory'] = 'Root';
 $string['selectcategory'] = 'Select category';
+$string['editcategory'] = 'Edit';
 
 // view.php
 $string['coursedate'] = 'Date';

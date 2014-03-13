@@ -3,6 +3,19 @@ require_once("../../config.php");
 require_once("lib.php");
 require_once("categoriesform.class.php");
 
+function showSubCategories($cat_id, $DB, $courseid){
+	$categories = $DB->get_records('booking_category', array('cid' => $cat_id));
+	if(count((array)$categories) > 0){
+		echo '<ul>';
+		foreach ($categories as $category) {
+			$editlink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$category->id\">" . get_string('editcategory','booking') . '</a>';
+			echo "<li>$category->name - $editlink</li>";
+			showSubCategories($category->id, $DB, $courseid);
+		}
+		echo '</ul>';
+	}
+}
+
 $courseid         = required_param('courseid', PARAM_INT);    
 
 $url = new moodle_url('/mod/booking/categories.php', array('courseid' => $courseid));
@@ -39,12 +52,15 @@ echo $OUTPUT->box_start('generalbox', 'tag-blogs'); //could use an id separate f
 echo "<ul>";
 
 foreach ($categories as $category) {
-	echo "<li>$category->name</li>";
+	$editlink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$category->id\">" . get_string('editcategory','booking') . '</a>';
+	echo "<li>$category->name - $editlink</li>";
 	$subcategories = $DB->get_records('booking_category', array('course' => $courseid, 'cid' => $category->id));
 	if (count((array)$subcategories < 0)) {
 		echo "<ul>";
 		foreach ($subcategories as $subcat) {
-			echo "<li>$subcat->name</li>";
+			$editlink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$subcat->id\">" . get_string('editcategory','booking') . '</a>';
+			echo "<li>$subcat->name - $editlink</li>";
+			showSubCategories($subcat->id, $DB, $courseid);
 		}
 		echo "</ul>";
 	}
