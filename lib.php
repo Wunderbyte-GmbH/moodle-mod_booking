@@ -246,6 +246,7 @@ function booking_update_options($optionvalues){
 	if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) && $optionvalues->id != "add"){//existing booking record
 		$option->id=$optionvalues->optionid;
 		if (isset($optionvalues->text) && $optionvalues->text <> '') {
+			$event = new stdClass();
 			$event->id = $DB->get_field('booking_options', 'calendarid', array('id' => $option->id));
 			$groupid = $DB->get_field('booking_options', 'groupid', array('id' => $option->id));
 
@@ -591,6 +592,7 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0,$so
 	} else {
 		$optiondisplay->bookotherusers = "";
 	}
+
 	$tabledata[] = array ($bookingbutton.$optiondisplay->booked.'
 		<br />'.get_string($option->status, "booking").'
 		<br />'.$optiondisplay->delete.$optiondisplay->manage.'

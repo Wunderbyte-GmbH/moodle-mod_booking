@@ -209,14 +209,19 @@ if (!empty($CFG->usetags)) {
 }
 
 if ($booking->categoryid > 0) {		
-		$category = $DB->get_record('booking_category', array('id' => $booking->categoryid));
+	$category = $DB->get_record('booking_category', array('id' => $booking->categoryid));
 
-		echo html_writer::start_tag('div');
-		echo html_writer::tag('label', get_string('category', 'booking').': ', array('class' => 'bold'));
-		$url = new moodle_url('category.php', array('id' => $id, 'category'=>$category->id));		
-		echo html_writer::tag('span', html_writer::link($url, $category->name, array()));
-		echo html_writer::end_tag('div');
-	}
+	echo html_writer::start_tag('div');
+	echo html_writer::tag('label', get_string('category', 'booking').': ', array('class' => 'bold'));
+	$url = new moodle_url('category.php', array('id' => $id, 'category'=>$category->id));		
+	echo html_writer::tag('span', html_writer::link($url, $category->name, array()));
+	echo html_writer::end_tag('div');
+}
+
+if (strlen($booking->bookingpolicy) > 0) {
+	$link = new moodle_url('/mod/booking/viewpolicy.php', array('id'=>$booking->id));
+	echo $OUTPUT->action_link($link, get_string("bookingpolicy", "booking"), new popup_action ('click', $link));
+}
 
 echo $OUTPUT->box_end();
 
