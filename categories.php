@@ -9,7 +9,8 @@ function showSubCategories($cat_id, $DB, $courseid){
 		echo '<ul>';
 		foreach ($categories as $category) {
 			$editlink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$category->id\">" . get_string('editcategory','booking') . '</a>';
-			echo "<li>$category->name - $editlink</li>";
+			$deletelink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$category->id&delete=1\">" . get_string('deletecategory','booking') . '</a>';
+			echo "<li>$category->name - $editlink - $deletelink</li>";
 			showSubCategories($category->id, $DB, $courseid);
 		}
 		echo '</ul>';
@@ -53,13 +54,15 @@ echo "<ul>";
 
 foreach ($categories as $category) {
 	$editlink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$category->id\">" . get_string('editcategory','booking') . '</a>';
-	echo "<li>$category->name - $editlink</li>";
+	$deletelink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$category->id&delete=1\">" . get_string('deletecategory','booking') . '</a>';
+	echo "<li>$category->name - $editlink - $deletelink</li>";
 	$subcategories = $DB->get_records('booking_category', array('course' => $courseid, 'cid' => $category->id));
 	if (count((array)$subcategories < 0)) {
 		echo "<ul>";
 		foreach ($subcategories as $subcat) {
 			$editlink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$subcat->id\">" . get_string('editcategory','booking') . '</a>';
-			echo "<li>$subcat->name - $editlink</li>";
+			$deletelink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$subcat->id&delete=1\">" . get_string('deletecategory','booking') . '</a>';
+			echo "<li>$subcat->name - $editlink - $deletelink</li>";
 			showSubCategories($subcat->id, $DB, $courseid);
 		}
 		echo "</ul>";
