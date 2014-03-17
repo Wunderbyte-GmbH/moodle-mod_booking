@@ -301,6 +301,21 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014031200, 'booking');
     }
 
+    if ($oldversion < 2014031700) {
+
+        // Define field poolurltext to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('poolurltext', XMLDB_TYPE_TEXT, null, null, null, null, null, 'categoryid');
+
+        // Conditionally launch add field poolurltext.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014031700, 'booking');
+    }
+
 
     return true;
 }

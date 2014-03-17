@@ -31,6 +31,7 @@
         <FIELD NAME="poolurl" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Url to send in email - pool for evaluation."/>
         <FIELD NAME="addtogroup" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="categoryid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="poolurltext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

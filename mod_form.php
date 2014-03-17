@@ -115,7 +115,8 @@ class mod_booking_mod_form extends moodleform_mod {
         'startdate' => '{startdate}',
         'enddate' => '{enddate}',
         'courselink' => '{courselink}',
-        'bookinglink' => '{bookinglink}'
+        'bookinglink' => '{bookinglink}',
+        'poolurl' => '{poolurl}'
         );
 
      $mform->addElement('editor', 'bookedtext', get_string('bookedtext', 'booking'), null, $editoroptions);
@@ -153,6 +154,15 @@ class mod_booking_mod_form extends moodleform_mod {
      $default['text'] = str_replace("\n", '<br/>', $default['text']);
      $mform->setDefault('deletedtext', $default);
      $mform->addHelpButton('deletedtext', 'deletedtext', 'mod_booking');
+
+     $mform->addElement('editor', 'poolurltext', get_string('poolurltext', 'booking'), null, $editoroptions);
+     $default = array(
+        'text' => get_string('poolurltextmessage', 'mod_booking', $fieldmapping),
+        'format' => FORMAT_HTML
+        );
+     $default['text'] = str_replace("\n", '<br/>', $default['text']);
+     $mform->setDefault('poolurltext', $default);
+     $mform->addHelpButton('poolurltext', 'poolurltext', 'mod_booking');
 
 		//-------------------------------------------------------------------------------
      $mform->addElement('header', 'miscellaneoussettingshdr', get_string('miscellaneoussettings', 'form'));
