@@ -966,6 +966,35 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
 	return true;
 }
 
+// Send custom message
+function booking_sendcustommessage($optionid, $subject, $message) {
+	global $DB, $USER;
+
+	$option = $DB->get_record('booking_options', array('id' => $optionid));
+	$booking = $DB->get_record('booking', array('id' => $option->bookingid));
+	$allusers = $DB->get_records('booking_answers', array('bookingid' => $option->bookingid, 'optionid' => $optionid));
+
+	foreach ($allusers as $record) {
+		$user = $DB->get_record('user', array('id' => $record->userid));
+
+		$eventdata = new stdClass();
+		$eventdata->modulename       = 'booking';
+		$eventdata->userfrom         = $USER;
+		$eventdata->userto           = $user;
+		$eventdata->subject          = $subject;
+		$eventdata->fullmessage      = $message;
+		$eventdata->fullmessageformat = FORMAT_PLAIN;
+		$eventdata->fullmessagehtml  = '';
+		$eventdata->smallmessage     = '';
+		$eventdata->component = 'mod_booking';
+		$eventdata->name = 'bookingconfirmation';
+
+		message_send($eventdata);		
+	}
+
+	return true;
+}
+
 function booking_delete_responses($attemptidsarray, $booking, $cmid) {
 	global $DB;
 	if(!is_array($attemptidsarray) || empty($attemptidsarray)) {
@@ -1076,8 +1105,10 @@ function booking_get_booking($cm, $sort = '') {
 	$bookinglist = array();
 
 	/// First get all the users who have access here
-	$allresponses = get_users_by_capability($context, 'mod/booking:choose', 'u.id, u.picture, u.firstname, u.lastname, u.idnumber, u.email', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
-
+	//$allresponses = get_users_by_capability($context, 'mod/booking:choose', 'u.id, u.picture, u.firstname, u.lastname, u.idnumber, u.email', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
+	$mainuserfields = user_picture::fields();
+	$allresponses = get_users_by_capability($context, 'mod/booking:choose', $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
+	
 	if (($options = $DB->get_records('booking_options', array('bookingid' => $bookingid), $sort)) && ($booking = $DB->get_record("booking", array("id" => $bookingid)))) {
 		$answers = $DB->get_records('booking_answers', array('bookingid' => $bookingid), 'id');
 		foreach ($options as $option){
@@ -1214,7 +1245,9 @@ function booking_get_spreadsheet_data($booking, $cm) {
 	$bookinglist = array();
 
 	/// First get all the users who have access here
-	$allresponses = get_users_by_capability($context, 'mod/booking:choose', 'u.id, u.picture, u.firstname, u.lastname, u.idnumber, u.email', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
+	$mainuserfields = user_picture::fields();
+	$allresponses = get_users_by_capability($context, 'mod/booking:choose', $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
+	//$allresponses = get_users_by_capability($context, 'mod/booking:choose', 'u.id, u.picture, u.firstname, u.lastname, u.idnumber, u.email', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
 
 	/// Get all the recorded responses for this booking
 	$rawresponses = $DB->get_records('booking_answers', array('bookingid' => $booking->id), "optionid, timemodified ASC");

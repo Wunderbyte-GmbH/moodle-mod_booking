@@ -307,3 +307,9 @@ $string['bookedusers'] = 'Booked users';
 $string['waitinglistusers'] = 'Users on waiting list';
 $string['downloadallresponses'] = 'Download all responses for all booking options';
 $string['allmailssend'] = 'All emails to users has been sucesfully send!';
+$string['sendcustommessage'] = 'Send custom message';
+
+// Send message
+$string['messagesubject'] = 'Subject';
+$string['messagetext'] = 'Message';
+$string['messagesend'] = 'You message was sucesfully send.';

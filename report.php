@@ -75,7 +75,7 @@ if (!$download) {
 	$booking->option[$optionid]->courseurl = new moodle_url('/course/view.php', array('id'=>$booking->option[$optionid]->courseid));
 	$booking->option[$optionid]->urltitle =$DB->get_field('course', 'shortname', array('id'=>$booking->option[$optionid]->courseid));
 	$booking->option[$optionid]->cmid = $cm->id;
-    $booking->option[$optionid]->autoenrol = $booking->autoenrol;
+	$booking->option[$optionid]->autoenrol = $booking->autoenrol;
 	$mform = new mod_booking_manageusers_form(null, array('bookingdata' => $booking->option[$optionid],'waitinglistusers' => $sortedusers['waitinglist'], 'bookedusers' => $sortedusers['booked'])); //name of the form you defined in file above.
 
 	//managing the form
@@ -110,6 +110,9 @@ if (!$download) {
 			$selectedusers[$optionid] = array_keys($fromform->user,1);
 			booking_sendpollurl($selectedusers, $booking, $cm->id, $optionid);
 			redirect($url, get_string('allmailssend','booking'), 5);
+		} else if (isset($fromform->sendcustommessage)) {
+			$sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id'=>$id,'optionid'=>$optionid));
+			redirect($sendmessageurl);
 		}
 
 	} else {
