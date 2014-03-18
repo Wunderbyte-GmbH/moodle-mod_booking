@@ -26,3 +26,8 @@ New features added by Andraž Prinčič:
 - automaticly add events to Moodle calendar
 - A few new fields (organizator, url, duration time and pointsy)
 - Tags
+- Categories
+- Automaticly enrol users in groups
+- Sorting bookings by date
+- Sending polls to users
+- Sending custom messages to users
