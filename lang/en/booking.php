@@ -41,6 +41,11 @@ $string['taken'] = 'Taken';
 $string['timerestrict'] = 'Restrict answering to this time period';
 $string['viewallresponses'] = 'Manage {$a} responses';
 $string['yourselection'] = 'Your selection';
+$string['existingsubscribers'] = 'Existing subscribers';
+$string['potentialsubscribers'] = 'Potential subscribers';
+$string['nosubscribers'] = 'There are no teachers assigned!';
+$string['subscribersto'] = 'Teachers for  \'{$a}\'';
+$string['teachers'] = 'Teachers: ';
 
 // Categories
 $string['category'] = 'Category';
@@ -308,6 +313,7 @@ $string['waitinglistusers'] = 'Users on waiting list';
 $string['downloadallresponses'] = 'Download all responses for all booking options';
 $string['allmailssend'] = 'All emails to users has been sucesfully send!';
 $string['sendcustommessage'] = 'Send custom message';
+$string['addteachers'] = 'Add teachers';
 
 // Send message
 $string['messagesubject'] = 'Subject';

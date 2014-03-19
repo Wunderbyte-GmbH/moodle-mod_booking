@@ -113,6 +113,9 @@ if (!$download) {
 		} else if (isset($fromform->sendcustommessage)) {
 			$sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id'=>$id,'optionid'=>$optionid));
 			redirect($sendmessageurl);
+		} else if (isset($fromform->addteachers)) {
+			$addteachersurl = new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid));
+			redirect($addteachersurl);
 		}
 
 	} else {

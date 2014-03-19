@@ -68,6 +68,7 @@ class mod_booking_manageusers_form extends moodleform {
 		$buttonarray[] = &$mform->createElement("submit",'deleteusers', get_string('booking:deleteresponses','booking'));
 		$buttonarray[] = &$mform->createElement("submit",'sendpoolurl', get_string('booking:sendpoolurl','booking'));
 		$buttonarray[] = &$mform->createElement("submit", 'sendcustommessage', get_string('sendcustommessage', 'booking'));
+		$buttonarray[] = &$mform->createElement("submit", 'addteachers', get_string('addteachers', 'booking'));
 		$buttonarray[] = &$mform->createElement('cancel');
 		$mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
 

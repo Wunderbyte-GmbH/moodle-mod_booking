@@ -9,11 +9,16 @@ require_once($CFG->dirroot.'/tag/locallib.php');
 require_once($CFG->dirroot . '/question/category_class.php');
 
 require_once($CFG->dirroot.'/group/lib.php');
+require_once($CFG->dirroot.'/user/selector/lib.php');
 
 $COLUMN_HEIGHT = 300;
 
 
 /// Standard functions /////////////////////////////////////////////////////////
+
+function local_booking_cron() {
+	
+}
 
 function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
 	global $CFG, $DB;
@@ -595,11 +600,29 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0,$so
 		$optiondisplay->bookotherusers = "";
 	}
 
+	$cTeachers = $DB->count_records("booking_teachers", array("optionid" => $option->id, 'bookingid' => $option->bookingid));
+	$teachers = $DB->get_records("booking_teachers", array("optionid" => $option->id, 'bookingid' => $option->bookingid));
+	$niceTeachers = array();
+	$printTeachers = "";
+
+	if ($cTeachers > 0) {
+		$printTeachers = "<p>";
+		$printTeachers .= get_string('teachers', 'booking');
+
+		foreach ($teachers as $teacher) {
+			$tmpuser = $DB->get_record('user', array('id' => $teacher->userid));
+			$niceTeachers[] = fullname($tmpuser);
+		}
+
+		$printTeachers .= implode(', ', $niceTeachers);
+		$printTeachers .= "</p>";
+	}
+
 	$tabledata[] = array ($bookingbutton.$optiondisplay->booked.'
 		<br />'.get_string($option->status, "booking").'
 		<br />'.$optiondisplay->delete.$optiondisplay->manage.'
 		<br />'.$optiondisplay->bookotherusers,
-		"<b>".format_text($option->text. ' ', FORMAT_MOODLE, $displayoptions)."</b>"."<p>".$option->description."</p>",
+		"<b>".format_text($option->text. ' ', FORMAT_MOODLE, $displayoptions)."</b>"."<p>".$option->description."</p>" . $printTeachers,
 		$option->coursestarttimetext." - <br />".$option->courseendtimetext,
 		$stravailspaces);
 }
@@ -1113,6 +1136,7 @@ function booking_get_booking($cm, $sort = '') {
 		$answers = $DB->get_records('booking_answers', array('bookingid' => $bookingid), 'id');
 		foreach ($options as $option){
 			$booking->option[$option->id] = $option;
+
 			if(!$option->coursestarttime == 0){
 				$booking->option[$option->id]->coursestarttimetext = userdate($option->coursestarttime, get_string('strftimedatetime'));
 			} else {
@@ -1615,6 +1639,345 @@ function booking_profile_definition(&$mform) {
  */
 function booking_get_extra_capabilities() {
 	return array('moodle/site:accessallgroups');
+}
+
+function booking_update_subscriptions_button($id, $optionid) {
+    global $CFG, $USER;
+
+    if (!empty($USER->subscriptionsediting)) {
+        $string = get_string('turneditingoff');
+        $edit = "off";
+    } else {
+        $string = get_string('turneditingon');
+        $edit = "on";
+    }
+
+    return "<form method=\"get\" action=\"$CFG->wwwroot/mod/booking/teachers.php\">".
+           "<input type=\"hidden\" name=\"id\" value=\"$id\" />".
+           "<input type=\"hidden\" name=\"optionid\" value=\"$optionid\" />".
+           "<input type=\"hidden\" name=\"edit\" value=\"$edit\" />".
+           "<input type=\"submit\" value=\"$string\" /></form>";
+}
+
+/**
+ * Adds user to the subscriber list
+ *
+ * @global object
+ * @param int $userid
+ * @param int $optionid
+ */
+function booking_optionid_subscribe($userid, $optionid) {
+    global $DB;
+
+    if ($DB->record_exists("booking_teachers", array("userid"=>$userid, "optionid"=>$optionid))) {
+        return true;
+    }
+
+    $option = $DB->get_record("booking_options", array("id" => $optionid));
+
+    $sub = new stdClass();
+    $sub->userid  = $userid;
+    $sub->optionid = $optionid;
+    $sub->bookingid = $option->bookingid;
+
+    return $DB->insert_record("booking_teachers", $sub);
+}
+
+/**
+ * Removes user from the subscriber list
+ *
+ * @global object
+ * @param int $userid
+ * @param int $optionid
+ */
+function booking_optionid_unsubscribe($userid, $optionid) {
+    global $DB;
+    return ($DB->delete_records('booking_teachers', array('userid' => $userid, 'optionid' => $optionid)));
+}
+
+/**
+ * Abstract class used by booking subscriber selection controls
+ * @package mod-booking
+ * @copyright 2014 Andraž Prinčič
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+abstract class booking_subscriber_selector_base extends user_selector_base {
+
+    /**
+     * The id of the forum this selector is being used for
+     * @var int
+     */
+    protected $optionid = null;
+    /**
+     * The context of the forum this selector is being used for
+     * @var object
+     */
+    protected $context = null;
+    /**
+     * The id of the current group
+     * @var int
+     */
+    protected $currentgroup = null;
+
+    /**
+     * Constructor method
+     * @param string $name
+     * @param array $options
+     */
+    public function __construct($name, $options) {
+        $options['accesscontext'] = $options['context'];
+        parent::__construct($name, $options);
+        if (isset($options['context'])) {
+            $this->context = $options['context'];
+        }
+        if (isset($options['currentgroup'])) {
+            $this->currentgroup = $options['currentgroup'];
+        }
+        if (isset($options['optionid'])) {
+            $this->optionid = $options['optionid'];
+        }
+    }
+
+    /**
+     * Returns an array of options to seralise and store for searches
+     *
+     * @return array
+     */
+    protected function get_options() {
+        global $CFG;
+        $options = parent::get_options();
+        $options['file'] =  substr(__FILE__, strlen($CFG->dirroot.'/'));
+        $options['context'] = $this->context;
+        $options['currentgroup'] = $this->currentgroup;
+        $options['optionid'] = $this->optionid;
+        return $options;
+    }
+
+}
+
+/**
+ * User selector control for removing subscribed users
+ * @package mod-booking
+ * @copyright 2014 Andraž Prinčič
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class booking_existing_subscriber_selector extends booking_subscriber_selector_base {
+
+    /**
+     * Finds all subscribed users
+     *
+     * @param string $search
+     * @return array
+     */
+    public function find_users($search) {
+        global $DB;
+        list($wherecondition, $params) = $this->search_sql($search, 'u');
+        $params['optionid'] = $this->optionid;
+
+        // only active enrolled or everybody on the frontpage
+        list($esql, $eparams) = get_enrolled_sql($this->context, '', $this->currentgroup, true);
+        $fields = $this->required_fields_sql('u');
+        list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
+        $params = array_merge($params, $eparams, $sortparams);
+
+        $subscribers = $DB->get_records_sql("SELECT $fields
+                                               FROM {user} u
+                                               JOIN ($esql) je ON je.id = u.id
+                                               JOIN {booking_teachers} s ON s.userid = u.id
+                                              WHERE $wherecondition AND s.optionid = :optionid
+                                           ORDER BY $sort", $params);
+
+        return array(get_string("existingsubscribers", 'booking') => $subscribers);
+    }
+
+}
+
+/**
+ * A user selector control for potential subscribers to the selected booking
+ * @package mod-booking
+ * @copyright 2014 Andraž Prinčič
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class booking_potential_subscriber_selector extends booking_subscriber_selector_base {
+    /**
+     * If set to true EVERYONE in this course is force subscribed to this booking
+     * @var bool
+     */
+    protected $forcesubscribed = false;
+    /**
+     * Can be used to store existing subscribers so that they can be removed from
+     * the potential subscribers list
+     */
+    protected $existingsubscribers = array();
+
+    /**
+     * Constructor method
+     * @param string $name
+     * @param array $options
+     */
+    public function __construct($name, $options) {
+        parent::__construct($name, $options);
+        if (isset($options['forcesubscribed'])) {
+            $this->forcesubscribed=true;
+        }
+    }
+
+    /**
+     * Returns an arary of options for this control
+     * @return array
+     */
+    protected function get_options() {
+        $options = parent::get_options();
+        if ($this->forcesubscribed===true) {
+            $options['forcesubscribed']=1;
+        }
+        return $options;
+    }
+
+    /**
+     * Finds all potential users
+     *
+     * Potential subscribers are all enroled users who are not already subscribed.
+     *
+     * @param string $search
+     * @return array
+     */
+    public function find_users($search) {
+        global $DB;
+
+        $whereconditions = array();
+        list($wherecondition, $params) = $this->search_sql($search, 'u');
+        if ($wherecondition) {
+            $whereconditions[] = $wherecondition;
+        }
+
+        if (!$this->forcesubscribed) {
+            $existingids = array();
+            foreach ($this->existingsubscribers as $group) {
+                foreach ($group as $user) {
+                    $existingids[$user->id] = 1;
+                }
+            }
+            if ($existingids) {
+                list($usertest, $userparams) = $DB->get_in_or_equal(
+                        array_keys($existingids), SQL_PARAMS_NAMED, 'existing', false);
+                $whereconditions[] = 'u.id ' . $usertest;
+                $params = array_merge($params, $userparams);
+            }
+        }
+
+        if ($whereconditions) {
+            $wherecondition = 'WHERE ' . implode(' AND ', $whereconditions);
+        }
+
+        list($esql, $eparams) = get_enrolled_sql($this->context, '', $this->currentgroup, true);
+        $params = array_merge($params, $eparams);
+
+        $fields      = 'SELECT ' . $this->required_fields_sql('u');
+        $countfields = 'SELECT COUNT(u.id)';
+
+        $sql = " FROM {user} u
+                 JOIN ($esql) je ON je.id = u.id
+                      $wherecondition";
+
+        list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
+        $order = ' ORDER BY ' . $sort;
+
+        // Check to see if there are too many to show sensibly.
+        if (!$this->is_validating()) {
+            $potentialmemberscount = $DB->count_records_sql($countfields . $sql, $params);
+            if ($potentialmemberscount > $this->maxusersperpage) {
+                return $this->too_many_results($search, $potentialmemberscount);
+            }
+        }
+
+        // If not, show them.
+        $availableusers = $DB->get_records_sql($fields . $sql . $order, array_merge($params, $sortparams));
+
+        if (empty($availableusers)) {
+            return array();
+        }
+
+        if ($this->forcesubscribed) {
+            return array(get_string("existingsubscribers", 'booking') => $availableusers);
+        } else {
+            return array(get_string("potentialsubscribers", 'booking') => $availableusers);
+        }
+    }
+
+    /**
+     * Sets the existing subscribers
+     * @param array $users
+     */
+    public function set_existing_subscribers(array $users) {
+        $this->existingsubscribers = $users;
+    }
+
+    /**
+     * Sets this forum as force subscribed or not
+     */
+    public function set_force_subscribed($setting=true) {
+        $this->forcesubscribed = true;
+    }
+}
+
+/**
+ * Returns list of user objects that are subscribed to this forum
+ *
+ * @global object
+ * @global object
+ * @param object $course the course
+ * @param forum $forum the forum
+ * @param integer $groupid group id, or 0 for all.
+ * @param object $context the forum context, to save re-fetching it where possible.
+ * @param string $fields requested user fields (with "u." table prefix)
+ * @return array list of users.
+ */
+function booking_subscribed_teachers($course, $optionid, $id, $groupid=0, $context = null, $fields = null) {
+    global $CFG, $DB;
+
+    $allnames = get_all_user_name_fields(true, 'u');
+    if (empty($fields)) {
+        $fields ="u.id,
+                  u.username,
+                  $allnames,
+                  u.maildisplay,
+                  u.mailformat,
+                  u.maildigest,
+                  u.imagealt,
+                  u.email,
+                  u.emailstop,
+                  u.city,
+                  u.country,
+                  u.lastaccess,
+                  u.lastlogin,
+                  u.picture,
+                  u.timezone,
+                  u.theme,
+                  u.lang,
+                  u.trackforums,
+                  u.mnethostid";
+    }
+
+    if (empty($context)) {
+        $cm = get_coursemodule_from_id('booking', $id);
+        $context = context_module::instance($cm->id);
+    }
+
+        // only active enrolled users or everybody on the frontpage
+        list($esql, $params) = get_enrolled_sql($context, '', $groupid, true);
+        $params['optionid'] = $optionid;
+        $results = $DB->get_records_sql("SELECT $fields
+                                           FROM {user} u
+                                           JOIN ($esql) je ON je.id = u.id
+                                           JOIN {booking_teachers} s ON s.userid = u.id
+                                          WHERE s.optionid = :optionid
+                                       ORDER BY u.email ASC", $params);
+
+    // Guest user should never be subscribed to a forum.
+    unset($results[$CFG->siteguest]);
+
+    return $results;
 }
 
 ?>

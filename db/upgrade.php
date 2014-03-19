@@ -316,6 +316,34 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014031700, 'booking');
     }
 
+     if ($oldversion < 2014031900) {
+
+        // Define table booking_teachers to be created.
+        $table = new xmldb_table('booking_teachers');
+
+        // Adding fields to table booking_teachers.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('bookingid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+
+        // Adding keys to table booking_teachers.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('bookingid', XMLDB_KEY_FOREIGN, array('bookingid'), 'booking', array('id'));
+        $table->add_key('optionid', XMLDB_KEY_FOREIGN, array('optionid'), 'booking_options', array('id'));
+
+        // Adding indexes to table booking_teachers.
+        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, array('userid'));
+
+        // Conditionally launch create table for booking_teachers.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014031900, 'booking');
+    }
+
 
     return true;
 }

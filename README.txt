@@ -31,3 +31,4 @@ New features added by Andraž Prinčič:
 - Sorting bookings by date
 - Sending polls to users
 - Sending custom messages to users
+- Select teachers for course
