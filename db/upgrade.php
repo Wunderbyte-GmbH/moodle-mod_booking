@@ -316,7 +316,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014031700, 'booking');
     }
 
-     if ($oldversion < 2014031900) {
+    if ($oldversion < 2014031900) {
 
         // Define table booking_teachers to be created.
         $table = new xmldb_table('booking_teachers');
@@ -342,6 +342,21 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014031900, 'booking');
+    }
+
+    if ($oldversion < 2014032000) {
+
+        // Define field additionalfields to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('additionalfields', XMLDB_TYPE_TEXT, null, null, null, null, null, 'poolurltext');
+
+        // Conditionally launch add field additionalfields.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014032000, 'booking');
     }
 
 

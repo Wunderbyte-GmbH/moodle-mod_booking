@@ -9,6 +9,7 @@
 require_once("../../config.php");
 require_once("lib.php");
 require_once("bookingmanageusers.class.php");
+require_once("$CFG->dirroot/user/profile/lib.php");
 
 $id         = required_param('id', PARAM_INT);   //moduleid
 $optionid   = required_param('optionid', PARAM_INT);
@@ -147,11 +148,11 @@ if (!$download) {
 		/// Creating the first worksheet
 		$myxls = $workbook->add_worksheet($strresponses);
 		if ( $download =="ods"){
-			$cellformat =& $workbook->add_format(array('bg_color' => 'white'));
-			$cellformat1 =& $workbook->add_format(array('bg_color' => 'red'));
+			$cellformat = $workbook->add_format(array('bg_color' => 'white'));
+			$cellformat1 = $workbook->add_format(array('bg_color' => 'red'));
 		} else {
 			$cellformat = '';
-			$cellformat1 =& $workbook->add_format(array('fg_color' => 'red'));
+			$cellformat1 = $workbook->add_format(array('fg_color' => 'red'));
 		}
 		/// Print names of all the fields
 		$myxls->write_string(0,0,get_string("booking","booking"));
@@ -160,7 +161,9 @@ if (!$download) {
 		$myxls->write_string(0,3,get_string("lastname"));
 		$myxls->write_string(0,4,get_string("email"));
 		$i=5;
-		if ($userprofilefields = $DB->get_records_select('user_info_field', 'id > 0', array(), 'id', 'id, shortname, name' )){
+		$addfields = explode(',', $booking->additionalfields);
+		$addquoted =  "'" . implode("','", $addfields) . "'";
+		if ($userprofilefields = $DB->get_records_select('user_info_field', 'id > 0 AND shortname IN (' . $addquoted . ')', array(), 'id', 'id, shortname, name' )){
 			foreach ($userprofilefields as $profilefield){
 				$myxls->write_string(0,$i++,$profilefield->name);
 			}

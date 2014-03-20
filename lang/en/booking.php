@@ -215,6 +215,7 @@ $string['addtogroup'] = 'Automatically enrol users in group';
 $string['bookingcategory'] = 'Category';
 $string['entervalidurl'] = 'Please, enter a valid URL!';
 $string['poolurltext'] = 'Send pool url';
+$string['additionalfields'] = 'Additional fields';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';

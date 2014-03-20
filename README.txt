@@ -32,3 +32,4 @@ New features added by Andraž Prinčič:
 - Sending polls to users
 - Sending custom messages to users
 - Select teachers for course
+- Select which custom fields to export in excel
