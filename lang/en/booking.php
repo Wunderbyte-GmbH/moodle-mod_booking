@@ -46,6 +46,8 @@ $string['potentialsubscribers'] = 'Potential subscribers';
 $string['nosubscribers'] = 'There are no teachers assigned!';
 $string['subscribersto'] = 'Teachers for  \'{$a}\'';
 $string['teachers'] = 'Teachers: ';
+$string['daystonotify'] = 'How many days before start of event to notify participaints?';
+$string['notificationsubject'] = 'Upcoming course...';
 
 // Categories
 $string['category'] = 'Category';

@@ -16,8 +16,48 @@ $COLUMN_HEIGHT = 300;
 
 /// Standard functions /////////////////////////////////////////////////////////
 
-function local_booking_cron() {
-	
+function booking_cron() {
+	global $DB, $USER, $CFG;
+
+	mtrace('Starting cron for Booking ...');
+
+	$toProcess = $DB->count_records_select('booking_options', "sent = 0 AND daystonotify > 0 AND coursestarttime > 0");
+
+	if ($toProcess > 0) {
+		$allToSend = $DB->get_records_select('booking_options', "sent = 0 AND daystonotify > 0 AND coursestarttime > 0");
+		foreach ($allToSend as $value) {
+
+			$dateEvent = new DateTime();
+			$dateEvent->setTimestamp($value->coursestarttime);
+			$dateNow = new DateTime();
+
+			$dateEvent->modify('-' . $value->daystonotify . ' day');
+
+			if ($dateEvent < $dateNow) {
+				$booking = $DB->get_record('booking', array('id' => $value->bookingid));
+
+				$message = "$booking->name
+
+				$booking->intro 
+
+				$value->text
+
+				$value->description
+
+				Course start: " . userdate($value->coursestarttime, get_string('strftimedatetime'));
+
+				$value->sent = 1;
+
+				booking_sendcustommessage($value->id, get_string('notificationsubject', 'booking'), strip_tags($message));
+
+				$DB->update_record("booking_options", $value);
+			}			
+		}
+	}
+
+	mtrace('Ending cron for Booking ...');
+
+	return true;
 }
 
 function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
@@ -228,6 +268,8 @@ function booking_update_options($optionvalues){
 	$option = new stdClass();
 	$option->bookingid = $optionvalues->bookingid;
 	$option->text = trim($optionvalues->text);
+	$option->daystonotify = $optionvalues->daystonotify;
+	$option->poolurl = $optionvalues->poolurl;
 	if ($optionvalues->limitanswers == 0){
 		$optionvalues->limitanswers = 0;
 		$option->maxanswers = 0;
@@ -267,7 +309,7 @@ function booking_update_options($optionvalues){
 				if (!is_null($groupid) && ($groupid > 0)) {
 					$newGroupData->id = $groupid;
 				}
-				$newGroupData->courseid = $booking->course;
+				$newGroupData->courseid = $option->courseid;
 				$newGroupData->name = $booking->name . ' - ' . $option->text;
 				$newGroupData->description = $booking->name . ' - ' . $option->text;
 				$newGroupData->descriptionformat = FORMAT_HTML;
@@ -293,7 +335,7 @@ function booking_update_options($optionvalues){
 					$event->instance     = $option->bookingid;
 					$event->eventtype    = 'booking';
 					$event->timestart    = $option->coursestarttime;
-					$event->visible      = instance_is_visible('booking', $option);
+					$event->visible      = instance_is_visible('booking', $booking);
 					$event->timeduration = $option->courseendtime - $option->coursestarttime;
 
 					$calendarevent = calendar_event::load($event->id);
@@ -323,7 +365,7 @@ function booking_update_options($optionvalues){
 					$event->instance     = $option->bookingid;
 					$event->eventtype    = 'booking';
 					$event->timestart    = $option->coursestarttime;
-					$event->visible      = instance_is_visible('booking', $option);
+					$event->visible      = instance_is_visible('booking', $booking);
 					$event->timeduration = $option->courseendtime - $option->coursestarttime;
 
 					$tmpEvent = calendar_event::create($event);
@@ -350,7 +392,7 @@ function booking_update_options($optionvalues){
 			$event->instance     = $option->bookingid;
 			$event->eventtype    = 'booking';
 			$event->timestart    = $option->coursestarttime;
-			$event->visible      = instance_is_visible('booking', $option);
+			$event->visible      = instance_is_visible('booking', $booking);
 			$event->timeduration = $option->courseendtime;
 
 			$tmpEvent = calendar_event::create($event);
@@ -361,7 +403,7 @@ function booking_update_options($optionvalues){
 		// We must create new group
 		if ($booking->addtogroup == 1) {
 			$newGroupData = new stdClass();
-			$newGroupData->courseid = $booking->course;
+			$newGroupData->courseid = $option->courseid;
 			$newGroupData->name = $booking->name . ' - ' . $option->text;
 			$newGroupData->description = $booking->name . ' - ' . $option->text;
 			$newGroupData->descriptionformat = FORMAT_HTML;
@@ -997,17 +1039,19 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
 function booking_sendcustommessage($optionid, $subject, $message) {
 	global $DB, $USER;
 
+	$returnVal = true;
+
 	$option = $DB->get_record('booking_options', array('id' => $optionid));
 	$booking = $DB->get_record('booking', array('id' => $option->bookingid));
 	$allusers = $DB->get_records('booking_answers', array('bookingid' => $option->bookingid, 'optionid' => $optionid));
 
 	foreach ($allusers as $record) {
-		$user = $DB->get_record('user', array('id' => $record->userid));
+		$ruser = $DB->get_record('user', array('id' => $record->userid));
 
 		$eventdata = new stdClass();
 		$eventdata->modulename       = 'booking';
 		$eventdata->userfrom         = $USER;
-		$eventdata->userto           = $user;
+		$eventdata->userto           = $ruser;
 		$eventdata->subject          = $subject;
 		$eventdata->fullmessage      = $message;
 		$eventdata->fullmessageformat = FORMAT_PLAIN;
@@ -1016,10 +1060,10 @@ function booking_sendcustommessage($optionid, $subject, $message) {
 		$eventdata->component = 'mod_booking';
 		$eventdata->name = 'bookingconfirmation';
 
-		message_send($eventdata);		
+		$returnVal = message_send($eventdata);		
 	}
 
-	return true;
+	return $returnVal;
 }
 
 function booking_delete_responses($attemptidsarray, $booking, $cmid) {
@@ -1646,21 +1690,21 @@ function booking_get_extra_capabilities() {
 }
 
 function booking_update_subscriptions_button($id, $optionid) {
-    global $CFG, $USER;
+	global $CFG, $USER;
 
-    if (!empty($USER->subscriptionsediting)) {
-        $string = get_string('turneditingoff');
-        $edit = "off";
-    } else {
-        $string = get_string('turneditingon');
-        $edit = "on";
-    }
+	if (!empty($USER->subscriptionsediting)) {
+		$string = get_string('turneditingoff');
+		$edit = "off";
+	} else {
+		$string = get_string('turneditingon');
+		$edit = "on";
+	}
 
-    return "<form method=\"get\" action=\"$CFG->wwwroot/mod/booking/teachers.php\">".
-           "<input type=\"hidden\" name=\"id\" value=\"$id\" />".
-           "<input type=\"hidden\" name=\"optionid\" value=\"$optionid\" />".
-           "<input type=\"hidden\" name=\"edit\" value=\"$edit\" />".
-           "<input type=\"submit\" value=\"$string\" /></form>";
+	return "<form method=\"get\" action=\"$CFG->wwwroot/mod/booking/teachers.php\">".
+	"<input type=\"hidden\" name=\"id\" value=\"$id\" />".
+	"<input type=\"hidden\" name=\"optionid\" value=\"$optionid\" />".
+	"<input type=\"hidden\" name=\"edit\" value=\"$edit\" />".
+	"<input type=\"submit\" value=\"$string\" /></form>";
 }
 
 /**
@@ -1671,20 +1715,20 @@ function booking_update_subscriptions_button($id, $optionid) {
  * @param int $optionid
  */
 function booking_optionid_subscribe($userid, $optionid) {
-    global $DB;
+	global $DB;
 
-    if ($DB->record_exists("booking_teachers", array("userid"=>$userid, "optionid"=>$optionid))) {
-        return true;
-    }
+	if ($DB->record_exists("booking_teachers", array("userid"=>$userid, "optionid"=>$optionid))) {
+		return true;
+	}
 
-    $option = $DB->get_record("booking_options", array("id" => $optionid));
+	$option = $DB->get_record("booking_options", array("id" => $optionid));
 
-    $sub = new stdClass();
-    $sub->userid  = $userid;
-    $sub->optionid = $optionid;
-    $sub->bookingid = $option->bookingid;
+	$sub = new stdClass();
+	$sub->userid  = $userid;
+	$sub->optionid = $optionid;
+	$sub->bookingid = $option->bookingid;
 
-    return $DB->insert_record("booking_teachers", $sub);
+	return $DB->insert_record("booking_teachers", $sub);
 }
 
 /**
@@ -1695,8 +1739,8 @@ function booking_optionid_subscribe($userid, $optionid) {
  * @param int $optionid
  */
 function booking_optionid_unsubscribe($userid, $optionid) {
-    global $DB;
-    return ($DB->delete_records('booking_teachers', array('userid' => $userid, 'optionid' => $optionid)));
+	global $DB;
+	return ($DB->delete_records('booking_teachers', array('userid' => $userid, 'optionid' => $optionid)));
 }
 
 /**
@@ -1729,17 +1773,17 @@ abstract class booking_subscriber_selector_base extends user_selector_base {
      * @param array $options
      */
     public function __construct($name, $options) {
-        $options['accesscontext'] = $options['context'];
-        parent::__construct($name, $options);
-        if (isset($options['context'])) {
-            $this->context = $options['context'];
-        }
-        if (isset($options['currentgroup'])) {
-            $this->currentgroup = $options['currentgroup'];
-        }
-        if (isset($options['optionid'])) {
-            $this->optionid = $options['optionid'];
-        }
+    	$options['accesscontext'] = $options['context'];
+    	parent::__construct($name, $options);
+    	if (isset($options['context'])) {
+    		$this->context = $options['context'];
+    	}
+    	if (isset($options['currentgroup'])) {
+    		$this->currentgroup = $options['currentgroup'];
+    	}
+    	if (isset($options['optionid'])) {
+    		$this->optionid = $options['optionid'];
+    	}
     }
 
     /**
@@ -1748,13 +1792,13 @@ abstract class booking_subscriber_selector_base extends user_selector_base {
      * @return array
      */
     protected function get_options() {
-        global $CFG;
-        $options = parent::get_options();
-        $options['file'] =  substr(__FILE__, strlen($CFG->dirroot.'/'));
-        $options['context'] = $this->context;
-        $options['currentgroup'] = $this->currentgroup;
-        $options['optionid'] = $this->optionid;
-        return $options;
+    	global $CFG;
+    	$options = parent::get_options();
+    	$options['file'] =  substr(__FILE__, strlen($CFG->dirroot.'/'));
+    	$options['context'] = $this->context;
+    	$options['currentgroup'] = $this->currentgroup;
+    	$options['optionid'] = $this->optionid;
+    	return $options;
     }
 
 }
@@ -1774,24 +1818,24 @@ class booking_existing_subscriber_selector extends booking_subscriber_selector_b
      * @return array
      */
     public function find_users($search) {
-        global $DB;
-        list($wherecondition, $params) = $this->search_sql($search, 'u');
-        $params['optionid'] = $this->optionid;
+    	global $DB;
+    	list($wherecondition, $params) = $this->search_sql($search, 'u');
+    	$params['optionid'] = $this->optionid;
 
         // only active enrolled or everybody on the frontpage
-        list($esql, $eparams) = get_enrolled_sql($this->context, '', $this->currentgroup, true);
-        $fields = $this->required_fields_sql('u');
-        list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
-        $params = array_merge($params, $eparams, $sortparams);
+    	list($esql, $eparams) = get_enrolled_sql($this->context, '', $this->currentgroup, true);
+    	$fields = $this->required_fields_sql('u');
+    	list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
+    	$params = array_merge($params, $eparams, $sortparams);
 
-        $subscribers = $DB->get_records_sql("SELECT $fields
-                                               FROM {user} u
-                                               JOIN ($esql) je ON je.id = u.id
-                                               JOIN {booking_teachers} s ON s.userid = u.id
-                                              WHERE $wherecondition AND s.optionid = :optionid
-                                           ORDER BY $sort", $params);
+    	$subscribers = $DB->get_records_sql("SELECT $fields
+    		FROM {user} u
+    		JOIN ($esql) je ON je.id = u.id
+    		JOIN {booking_teachers} s ON s.userid = u.id
+    		WHERE $wherecondition AND s.optionid = :optionid
+    		ORDER BY $sort", $params);
 
-        return array(get_string("existingsubscribers", 'booking') => $subscribers);
+    	return array(get_string("existingsubscribers", 'booking') => $subscribers);
     }
 
 }
@@ -1820,10 +1864,10 @@ class booking_potential_subscriber_selector extends booking_subscriber_selector_
      * @param array $options
      */
     public function __construct($name, $options) {
-        parent::__construct($name, $options);
-        if (isset($options['forcesubscribed'])) {
-            $this->forcesubscribed=true;
-        }
+    	parent::__construct($name, $options);
+    	if (isset($options['forcesubscribed'])) {
+    		$this->forcesubscribed=true;
+    	}
     }
 
     /**
@@ -1831,11 +1875,11 @@ class booking_potential_subscriber_selector extends booking_subscriber_selector_
      * @return array
      */
     protected function get_options() {
-        $options = parent::get_options();
-        if ($this->forcesubscribed===true) {
-            $options['forcesubscribed']=1;
-        }
-        return $options;
+    	$options = parent::get_options();
+    	if ($this->forcesubscribed===true) {
+    		$options['forcesubscribed']=1;
+    	}
+    	return $options;
     }
 
     /**
@@ -1847,66 +1891,66 @@ class booking_potential_subscriber_selector extends booking_subscriber_selector_
      * @return array
      */
     public function find_users($search) {
-        global $DB;
+    	global $DB;
 
-        $whereconditions = array();
-        list($wherecondition, $params) = $this->search_sql($search, 'u');
-        if ($wherecondition) {
-            $whereconditions[] = $wherecondition;
-        }
+    	$whereconditions = array();
+    	list($wherecondition, $params) = $this->search_sql($search, 'u');
+    	if ($wherecondition) {
+    		$whereconditions[] = $wherecondition;
+    	}
 
-        if (!$this->forcesubscribed) {
-            $existingids = array();
-            foreach ($this->existingsubscribers as $group) {
-                foreach ($group as $user) {
-                    $existingids[$user->id] = 1;
-                }
-            }
-            if ($existingids) {
-                list($usertest, $userparams) = $DB->get_in_or_equal(
-                        array_keys($existingids), SQL_PARAMS_NAMED, 'existing', false);
-                $whereconditions[] = 'u.id ' . $usertest;
-                $params = array_merge($params, $userparams);
-            }
-        }
+    	if (!$this->forcesubscribed) {
+    		$existingids = array();
+    		foreach ($this->existingsubscribers as $group) {
+    			foreach ($group as $user) {
+    				$existingids[$user->id] = 1;
+    			}
+    		}
+    		if ($existingids) {
+    			list($usertest, $userparams) = $DB->get_in_or_equal(
+    				array_keys($existingids), SQL_PARAMS_NAMED, 'existing', false);
+    			$whereconditions[] = 'u.id ' . $usertest;
+    			$params = array_merge($params, $userparams);
+    		}
+    	}
 
-        if ($whereconditions) {
-            $wherecondition = 'WHERE ' . implode(' AND ', $whereconditions);
-        }
+    	if ($whereconditions) {
+    		$wherecondition = 'WHERE ' . implode(' AND ', $whereconditions);
+    	}
 
-        list($esql, $eparams) = get_enrolled_sql($this->context, '', $this->currentgroup, true);
-        $params = array_merge($params, $eparams);
+    	list($esql, $eparams) = get_enrolled_sql($this->context, '', $this->currentgroup, true);
+    	$params = array_merge($params, $eparams);
 
-        $fields      = 'SELECT ' . $this->required_fields_sql('u');
-        $countfields = 'SELECT COUNT(u.id)';
+    	$fields      = 'SELECT ' . $this->required_fields_sql('u');
+    	$countfields = 'SELECT COUNT(u.id)';
 
-        $sql = " FROM {user} u
-                 JOIN ($esql) je ON je.id = u.id
-                      $wherecondition";
+    	$sql = " FROM {user} u
+    	JOIN ($esql) je ON je.id = u.id
+    	$wherecondition";
 
-        list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
-        $order = ' ORDER BY ' . $sort;
+    	list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
+    	$order = ' ORDER BY ' . $sort;
 
         // Check to see if there are too many to show sensibly.
-        if (!$this->is_validating()) {
-            $potentialmemberscount = $DB->count_records_sql($countfields . $sql, $params);
-            if ($potentialmemberscount > $this->maxusersperpage) {
-                return $this->too_many_results($search, $potentialmemberscount);
-            }
-        }
+    	if (!$this->is_validating()) {
+    		$potentialmemberscount = $DB->count_records_sql($countfields . $sql, $params);
+    		if ($potentialmemberscount > $this->maxusersperpage) {
+    			return $this->too_many_results($search, $potentialmemberscount);
+    		}
+    	}
 
         // If not, show them.
-        $availableusers = $DB->get_records_sql($fields . $sql . $order, array_merge($params, $sortparams));
+    	$availableusers = $DB->get_records_sql($fields . $sql . $order, array_merge($params, $sortparams));
 
-        if (empty($availableusers)) {
-            return array();
-        }
+    	if (empty($availableusers)) {
+    		return array();
+    	}
 
-        if ($this->forcesubscribed) {
-            return array(get_string("existingsubscribers", 'booking') => $availableusers);
-        } else {
-            return array(get_string("potentialsubscribers", 'booking') => $availableusers);
-        }
+    	if ($this->forcesubscribed) {
+    		return array(get_string("existingsubscribers", 'booking') => $availableusers);
+    	} else {
+    		return array(get_string("potentialsubscribers", 'booking') => $availableusers);
+    	}
     }
 
     /**
@@ -1914,14 +1958,14 @@ class booking_potential_subscriber_selector extends booking_subscriber_selector_
      * @param array $users
      */
     public function set_existing_subscribers(array $users) {
-        $this->existingsubscribers = $users;
+    	$this->existingsubscribers = $users;
     }
 
     /**
      * Sets this forum as force subscribed or not
      */
     public function set_force_subscribed($setting=true) {
-        $this->forcesubscribed = true;
+    	$this->forcesubscribed = true;
     }
 }
 
@@ -1938,50 +1982,50 @@ class booking_potential_subscriber_selector extends booking_subscriber_selector_
  * @return array list of users.
  */
 function booking_subscribed_teachers($course, $optionid, $id, $groupid=0, $context = null, $fields = null) {
-    global $CFG, $DB;
+	global $CFG, $DB;
 
-    $allnames = get_all_user_name_fields(true, 'u');
-    if (empty($fields)) {
-        $fields ="u.id,
-                  u.username,
-                  $allnames,
-                  u.maildisplay,
-                  u.mailformat,
-                  u.maildigest,
-                  u.imagealt,
-                  u.email,
-                  u.emailstop,
-                  u.city,
-                  u.country,
-                  u.lastaccess,
-                  u.lastlogin,
-                  u.picture,
-                  u.timezone,
-                  u.theme,
-                  u.lang,
-                  u.trackforums,
-                  u.mnethostid";
-    }
+	$allnames = get_all_user_name_fields(true, 'u');
+	if (empty($fields)) {
+		$fields ="u.id,
+		u.username,
+		$allnames,
+		u.maildisplay,
+		u.mailformat,
+		u.maildigest,
+		u.imagealt,
+		u.email,
+		u.emailstop,
+		u.city,
+		u.country,
+		u.lastaccess,
+		u.lastlogin,
+		u.picture,
+		u.timezone,
+		u.theme,
+		u.lang,
+		u.trackforums,
+		u.mnethostid";
+	}
 
-    if (empty($context)) {
-        $cm = get_coursemodule_from_id('booking', $id);
-        $context = context_module::instance($cm->id);
-    }
+	if (empty($context)) {
+		$cm = get_coursemodule_from_id('booking', $id);
+		$context = context_module::instance($cm->id);
+	}
 
         // only active enrolled users or everybody on the frontpage
-        list($esql, $params) = get_enrolled_sql($context, '', $groupid, true);
-        $params['optionid'] = $optionid;
-        $results = $DB->get_records_sql("SELECT $fields
-                                           FROM {user} u
-                                           JOIN ($esql) je ON je.id = u.id
-                                           JOIN {booking_teachers} s ON s.userid = u.id
-                                          WHERE s.optionid = :optionid
-                                       ORDER BY u.email ASC", $params);
+	list($esql, $params) = get_enrolled_sql($context, '', $groupid, true);
+	$params['optionid'] = $optionid;
+	$results = $DB->get_records_sql("SELECT $fields
+		FROM {user} u
+		JOIN ($esql) je ON je.id = u.id
+		JOIN {booking_teachers} s ON s.userid = u.id
+		WHERE s.optionid = :optionid
+		ORDER BY u.email ASC", $params);
 
     // Guest user should never be subscribed to a forum.
-    unset($results[$CFG->siteguest]);
+	unset($results[$CFG->siteguest]);
 
-    return $results;
+	return $results;
 }
 
 ?>

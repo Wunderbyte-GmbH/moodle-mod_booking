@@ -70,8 +70,11 @@ if ($mform->is_cancelled()){
 } else if ($fromform=$mform->get_data()){
 	//validated data.
 	if(confirm_sesskey() && has_capability('mod/booking:updatebooking', $context)){
-		if(!isset($fromform->limitanswers)) {
+		if(!isset($fromform->limitanswers)) {			
 		   $fromform->limitanswers = 0;
+		}
+		if(!isset($fromform->daystonotify)) {
+		   $fromform->daystonotify = 0;
 		}
 		booking_update_options($fromform);
 		if(isset($fromform->submittandaddnew)){

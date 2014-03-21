@@ -359,6 +359,27 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014032000, 'booking');
     }
 
+    if ($oldversion < 2014032101) {
+
+        // Define field daystonotify to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('daystonotify', XMLDB_TYPE_INTEGER, '3', null, null, null, '0', 'groupid');
+
+        // Conditionally launch add field daystonotify.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('sent', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'daystonotify');
+
+        // Conditionally launch add field sent.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014032101, 'booking');
+    }
 
     return true;
 }
