@@ -11,11 +11,11 @@ class mod_booking_bookingform_form extends moodleform {
 
 		$mform->addElement('text', 'text', get_string('booking','booking'), array('size'=>'64'));
 		$mform->addRule('text', get_string('required'), 'required', null,'client');
-	        if (!empty($CFG->formatstringstriptags)) {
-            $mform->setType('text', PARAM_TEXT);
-        } else {
-            $mform->setType('text', PARAM_CLEANHTML);
-        }
+		if (!empty($CFG->formatstringstriptags)) {
+			$mform->setType('text', PARAM_TEXT);
+		} else {
+			$mform->setType('text', PARAM_CLEANHTML);
+		}
 
 		$mform->addElement('checkbox', 'limitanswers', get_string('limitanswers','booking'));
 
@@ -53,8 +53,15 @@ class mod_booking_bookingform_form extends moodleform {
 		$mform->setType('courseendtime', PARAM_INT);
 		$mform->disabledIf('courseendtime', 'startendtimeknown', 'notchecked');
 
+		$mform->addElement('text', 'daystonotify', get_string('daystonotify','booking'));
+		$mform->setType('daystonotify', PARAM_INT);
+		$mform->disabledIf('daystonotify', 'startendtimeknown', 'notchecked');
+
 		$mform->addElement('editor', 'description', get_string('description'));
 		$mform->setType('description', PARAM_CLEANHTML);
+
+		$mform->addElement('text', 'poolurl', get_string('bookingpoolurl', 'booking'), array('size'=>'64'));
+		$mform->setType('poolurl', PARAM_TEXT);
 
 		//hidden elements
 		$mform->addElement('hidden', 'id');
@@ -78,20 +85,34 @@ class mod_booking_bookingform_form extends moodleform {
 	}
 	
 	function data_preprocessing(&$default_values){
-        if (!isset($default_values['descriptionformat'])) {
-            $default_values['descriptionformat'] = FORMAT_HTML;
-        }
-        if (!isset($default_values['description'])) {
-            $default_values['description'] = '';
-        }
+		if (!isset($default_values['descriptionformat'])) {
+			$default_values['descriptionformat'] = FORMAT_HTML;
+		}
+		if (!isset($default_values['description'])) {
+			$default_values['description'] = '';
+		}
 	}
-    function get_data() {
-        $data = parent::get_data();
-        if ($data) {
-            $data->descriptionformat = $data->description['format'];
-            $data->description = $data->description['text'];
-        }        
-        return $data;
-    }
+
+	public function validation($data, $files) {
+
+		$errors = parent::validation($data, $files);
+
+		if (strlen($data['poolurl']) > 0) {
+			if(!filter_var($data['poolurl'], FILTER_VALIDATE_URL)) {
+				$errors['poolurl'] = get_string('entervalidurl', 'booking');
+			}
+		}
+
+		return $errors;
+	}   
+	
+	function get_data() {
+		$data = parent::get_data();
+		if ($data) {
+			$data->descriptionformat = $data->description['format'];
+			$data->description = $data->description['text'];
+		}        
+		return $data;
+	}
 }
 ?>

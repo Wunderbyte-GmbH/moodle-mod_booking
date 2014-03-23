@@ -9,6 +9,18 @@ $action     = optional_param('action', '', PARAM_ALPHA);
 $optionid = optional_param('optionid', '', PARAM_INT); 
 $confirm = optional_param('confirm', '',PARAM_INT); 
 $answer = optional_param('answer', '',PARAM_ALPHANUM);
+$sorto = optional_param('sort', '', PARAM_INT);
+
+$sort = '';
+$sorturl = new moodle_url('/mod/booking/view.php', array('id' => $id, 'sort' => 0));
+
+if ($sorto == 1) {
+	$sort = 'coursestarttime ASC';
+	$sorturl = new moodle_url('/mod/booking/view.php', array('id' => $id, 'sort' => 0));
+} else if ($sorto == 0) {
+	$sort = 'coursestarttime DESC';
+	$sorturl = new moodle_url('/mod/booking/view.php', array('id' => $id, 'sort' => 1));
+}
 
 $url = new moodle_url('/mod/booking/view.php', array('id'=>$id));
 
@@ -26,18 +38,19 @@ if (! $course = $DB->get_record("course", array("id" => $cm->course))) {
 require_course_login($course, false, $cm);
 
 
-if (!$booking = booking_get_booking($cm)) {
+if (!$booking = booking_get_booking($cm, $sort)) {
 	print_error("Course module is incorrect");
 }
 
 $strbooking = get_string('modulename', 'booking');
 $strbookings = get_string('modulenameplural', 'booking');
 
-if (!$context = get_context_instance(CONTEXT_MODULE, $cm->id)) {
+if (!$context = context_module::instance($cm->id)) {
 	print_error('badcontext');
 }
 // check if booking options have already been set or if they are still empty
 $records = $DB->get_records('booking_options', array('bookingid' => $booking->id));
+
 if (empty($records)) {      // Brand new database!
 	if (has_capability('mod/booking:updatebooking', $context)) {
 		redirect($CFG->wwwroot.'/mod/booking/editoptions.php?id='.$cm->id.'&optionid=add');  // Redirect to field entry
@@ -117,7 +130,7 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context)) 
 	}
 }
 // we have to refresh $booking as it is modified by submitted data;
-$booking = booking_get_booking($cm);
+$booking = booking_get_booking($cm, $sort);
 
 /// Display the booking and possibly results
 add_to_log($course->id, "booking", "view", "view.php?id=$cm->id", $booking->id, $cm->id);
@@ -127,9 +140,92 @@ $bookinglist = booking_get_spreadsheet_data($booking, $cm);
 
 echo '<div class="clearer"></div>';
 
-if ($booking->intro) {
-	echo $OUTPUT->box(format_module_intro('booking', $booking, $cm->id,true), 'generalbox', 'intro');
+echo $OUTPUT->box_start('generalbox boxaligncenter boxwidthwide');
+echo html_writer::tag('div', format_module_intro('booking', $booking, $cm->id), array('class' => 'intro'));
+
+if (!empty($booking->duration)) {
+	echo html_writer::start_tag('div');
+	echo html_writer::tag('label', get_string('eventduration','booking').': ', array('class' => 'bold'));
+	echo html_writer::tag('span', $booking->duration);
+	echo html_writer::end_tag('div');
 }
+
+if (!empty($booking->points)) {
+	echo html_writer::start_tag('div');
+	echo html_writer::tag('label', get_string('eventpoints','booking').': ', array('class' => 'bold'));
+	echo html_writer::tag('span', $booking->points);
+	echo html_writer::end_tag('div');
+}
+
+if (!empty($booking->organizatorname)) {
+	echo html_writer::start_tag('div');
+	echo html_writer::tag('label', get_string('organizatorname','booking').': ', array('class' => 'bold'));
+	echo html_writer::tag('span', $booking->organizatorname);
+	echo html_writer::end_tag('div');
+}
+
+if (!empty($booking->poolurl)) {
+	echo html_writer::start_tag('div');
+	echo html_writer::tag('label', get_string('poolurl','booking').': ', array('class' => 'bold'));
+	echo html_writer::tag('span', html_writer::link($booking->poolurl, $booking->poolurl, array()));
+	echo html_writer::end_tag('div');
+}
+
+$out = array();
+$fs = get_file_storage();
+$files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanager', $booking->id);
+
+if (count($files) > 0) {
+	echo html_writer::start_tag('div');
+	echo html_writer::tag('label', get_string("attachedfiles", "booking").': ', array('class' => 'bold'));
+
+	foreach ($files as $file) {
+		if ($file->get_filesize() > 0) {
+			$filename = $file->get_filename();
+			//$url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename());
+			$url = file_encode_url($CFG->wwwroot.'/pluginfile.php', '/'.$file->get_contextid().'/'.$file->get_component().'/'.$file->get_filearea().'/'.$file->get_itemid().'/'.$file->get_filename());
+			$out[] = html_writer::link($url, $filename);
+		}		
+	}
+	echo html_writer::tag('span', implode(', ', $out));
+	echo html_writer::end_tag('div');
+}
+
+if (!empty($CFG->usetags)) {
+	$tags = tag_get_tags_array('booking', $booking->id);
+
+	$links = array();
+	foreach ($tags as $tagid=>$tag) {
+		$url = new moodle_url('tag.php', array('id' => $id, 'tag'=>$tag));
+		$links[] = html_writer::link($url, $tag, array());
+	}
+
+	if (!empty($tags)) {
+		echo html_writer::start_tag('div');
+		echo html_writer::tag('label', get_string('tags').': ', array('class' => 'bold'));
+		echo html_writer::tag('span', implode(', ', $links));
+		echo html_writer::end_tag('div');
+	}
+}
+
+if ($booking->categoryid > 0) {		
+	$category = $DB->get_record('booking_category', array('id' => $booking->categoryid));
+
+	echo html_writer::start_tag('div');
+	echo html_writer::tag('label', get_string('category', 'booking').': ', array('class' => 'bold'));
+	$url = new moodle_url('category.php', array('id' => $id, 'category'=>$category->id));		
+	echo html_writer::tag('span', html_writer::link($url, $category->name, array()));
+	echo html_writer::end_tag('div');
+}
+
+if (strlen($booking->bookingpolicy) > 0) {
+	$link = new moodle_url('/mod/booking/viewpolicy.php', array('id'=>$booking->id));
+	echo $OUTPUT->action_link($link, get_string("bookingpolicy", "booking"), new popup_action ('click', $link));
+}
+
+echo $OUTPUT->box_end();
+
+
 //download spreadsheet of all users
 if (has_capability('mod/booking:downloadresponses',$context)) {
 	/// Download spreadsheet for all booking options
@@ -171,16 +267,16 @@ if ($booking->timeclose !=0) {
 
 if ( !$current and $bookingopen and has_capability('mod/booking:choose', $context) ) {
 
-    echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
+	echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
 
 	if ($action=='mybooking'){
 		$message = "<a href=\"view.php?id=$cm->id\">".get_string('showallbookings','booking')."</a>";
 		echo $OUTPUT->box($message,'box mdl-align');
-		booking_show_form($booking, $USER, $cm, $bookinglist,1);
+		booking_show_form($booking, $USER, $cm, $bookinglist,1,$sorturl);
 	} else {
 		$message = "<a href=\"view.php?id=$cm->id&action=mybooking\">".get_string('showmybookings','booking')."</a>";
 		echo $OUTPUT->box($message,'box mdl-align');
-		booking_show_form($booking, $USER, $cm, $bookinglist,0);
+		booking_show_form($booking, $USER, $cm, $bookinglist,0,$sorturl);
 	}
 
 	$bookingformshown = true;
@@ -191,13 +287,13 @@ if ( !$current and $bookingopen and has_capability('mod/booking:choose', $contex
 if (!$bookingformshown) {
 	echo $OUTPUT->box(get_string("norighttobook", "booking"));
 }
-	if (has_capability('mod/booking:updatebooking', $context)) {
-		$addoptionurl = new moodle_url('editoptions.php', array('id'=>$cm->id, 'optionid'=> 'add'));
-		echo '<div style="width: 100%; text-align: center;">';
-		echo $OUTPUT->single_button($addoptionurl,get_string('addnewbookingoption','booking'),'get');
-		echo '</div>';
-	}
-		echo $OUTPUT->box("<a href=\"http://www.edulabs.org\">".get_string('createdby','booking')."</a>",'box mdl-align');
+if (has_capability('mod/booking:updatebooking', $context)) {
+	$addoptionurl = new moodle_url('editoptions.php', array('id'=>$cm->id, 'optionid'=> 'add'));
+	echo '<div style="width: 100%; text-align: center;">';
+	echo $OUTPUT->single_button($addoptionurl,get_string('addnewbookingoption','booking'),'get');
+	echo '</div>';
+}
+echo $OUTPUT->box("<a href=\"http://www.edulabs.org\">".get_string('createdby','booking')."</a>",'box mdl-align');
 echo $OUTPUT->footer();
 
 

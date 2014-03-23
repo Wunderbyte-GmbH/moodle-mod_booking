@@ -20,3 +20,16 @@ Features:
 -> customise booking messages
 -> start and end time for booking periode
 -> automatic unenrolment
+
+New features added by Andraž Prinčič:
+- attachaments
+- automaticly add events to Moodle calendar
+- A few new fields (organizator, url, duration time and pointsy)
+- Tags
+- Categories
+- Automaticly enrol users in groups
+- Sorting bookings by date
+- Sending polls to users
+- Sending custom messages to users
+- Select teachers for course
+- Select which custom fields to export in excel

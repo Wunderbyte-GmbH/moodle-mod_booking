@@ -4,26 +4,61 @@ if (!defined('MOODLE_INTERNAL')) {
 }
 
 require_once ($CFG->dirroot.'/course/moodleform_mod.php');
+require_once($CFG->libdir.'/formslib.php');
+
 
 class mod_booking_mod_form extends moodleform_mod {
 
-	function definition() {
-		global $CFG, $DB;
+    var $options = array();
 
-		$mform    = $this->_form;
+    function showSubCategories($cat_id, $dashes = '', $DB, $options){
+        $dashes .= '&nbsp;&nbsp;';
+        $categories = $DB->get_records('booking_category', array('cid' => $cat_id));
+        if(count((array)$categories) > 0){
+            foreach ($categories as $category) {
+                $options[$category->id] = $dashes . $category->name;
+                $options = $this->showSubCategories($category->id, $dashes, $DB, $options);
+            }
+        }
+
+        return $options;
+    }
+
+    function definition() {
+      global $CFG, $DB, $COURSE;
+
+      $context = context_system::instance();
+
+      $mform    = $this->_form;
 
 		//-------------------------------------------------------------------------------
-		$mform->addElement('header', 'general', get_string('general', 'form'));
+      $mform->addElement('header', 'general', get_string('general', 'form'));
 
-		$mform->addElement('text', 'name', get_string('bookingname', 'booking'), array('size'=>'64'));
-		if (!empty($CFG->formatstringstriptags)) {
-			$mform->setType('name', PARAM_TEXT);
-		} else {
-			$mform->setType('name', PARAM_CLEANHTML);
-		}
-		$mform->addRule('name', null, 'required', null, 'client');
+      $mform->addElement('text', 'name', get_string('bookingname', 'booking'), array('size'=>'64'));
+      if (!empty($CFG->formatstringstriptags)) {
+         $mform->setType('name', PARAM_TEXT);
+     } else {
+         $mform->setType('name', PARAM_CLEANHTML);
+     }
+     $mform->addRule('name', null, 'required', null, 'client');
 
-        $this->add_intro_editor(true, get_string('bookingtext', 'booking'));
+     $this->add_intro_editor(true, get_string('bookingtext', 'booking'));
+
+     $mform->addElement('text', 'duration', get_string('bookingduration', 'booking'), array('size'=>'64'));
+     $mform->setType('duration', PARAM_TEXT);
+
+     $mform->addElement('text', 'points', get_string('bookingpoints', 'booking'), 0);
+     $mform->setType('points', PARAM_INT);
+
+     $mform->addElement('text', 'organizatorname', get_string('bookingorganizatorname', 'booking'), array('size'=>'64'));
+     $mform->setType('organizatorname', PARAM_TEXT);
+
+     $mform->addElement('text', 'poolurl', get_string('bookingpoolurl', 'booking'), array('size'=>'64'));
+     $mform->setType('poolurl', PARAM_TEXT);
+
+     $mform->addElement('filemanager', 'myfilemanager', get_string('bookingattachment', 'booking'), null,
+        array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
+          'accepted_types' => array('*')));
 
 		//-------------------------------------------------------------------------------
 		$menuoptions=array();
@@ -118,9 +153,18 @@ class mod_booking_mod_form extends moodleform_mod {
             'text' => get_string('deletedbookingusermessage', 'mod_booking', $fieldmapping),
             'format' => FORMAT_HTML
         );
-        $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        $mform->setDefault('deletedtext', $default);
-        $mform->addHelpButton('deletedtext', 'deletedtext', 'mod_booking');
+     $default['text'] = str_replace("\n", '<br/>', $default['text']);
+     $mform->setDefault('deletedtext', $default);
+     $mform->addHelpButton('deletedtext', 'deletedtext', 'mod_booking');
+
+     $mform->addElement('editor', 'poolurltext', get_string('poolurltext', 'booking'), null, $editoroptions);
+     $default = array(
+        'text' => get_string('poolurltextmessage', 'mod_booking', $fieldmapping),
+        'format' => FORMAT_HTML
+        );
+     $default['text'] = str_replace("\n", '<br/>', $default['text']);
+     $mform->setDefault('poolurltext', $default);
+     $mform->addHelpButton('poolurltext', 'poolurltext', 'mod_booking');
 
 		//-------------------------------------------------------------------------------
 		$mform->addElement('header', 'miscellaneoussettingshdr', get_string('miscellaneoussettings', 'form'));
@@ -133,12 +177,47 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('selectyesno', 'autoenrol', get_string('autoenrol', 'booking'));
         $mform->addHelpButton('autoenrol', 'autoenrol', 'booking');
 
-        $opts = array(0 => get_string('unlimited', 'mod_booking'));
-        $extraopts = array_combine(range(1, 100), range(1, 100));
-        $opts = $opts + $extraopts;
-        $mform->addElement('select', 'maxperuser', get_string('maxperuser', 'mod_booking'), $opts);
-        $mform->setDefault('maxperuser', 0);
-        $mform->addHelpButton('maxperuser', 'maxperuser', 'mod_booking');
+     $mform->addElement('selectyesno', 'addtogroup', get_string('addtogroup', 'booking'));
+
+     $opts = array(0 => get_string('unlimited', 'mod_booking'));
+     $extraopts = array_combine(range(1, 100), range(1, 100));
+     $opts = $opts + $extraopts;
+     $mform->addElement('select', 'maxperuser', get_string('maxperuser', 'mod_booking'), $opts);
+     $mform->setDefault('maxperuser', 0);
+     $mform->addHelpButton('maxperuser', 'maxperuser', 'mod_booking');
+
+     $mform->addElement('header', 'tagsheader', get_string('tags'));
+     $mform->addElement('tags', 'tags', get_string('tags')); 
+
+     $options = array();
+
+     $options[0] = "&nbsp;";
+     $categories = $DB->get_records('booking_category', array('course' => $COURSE->id, 'cid' => 0));
+
+     foreach ($categories as $category) {
+        $options[$category->id] = $category->name;
+        $subcategories = $DB->get_records('booking_category', array('course' => $COURSE->id, 'cid' => $category->id));
+        $options = $this->showSubCategories($category->id, '', $DB, $options);
+    }     
+
+    $mform->addElement('header', 'categoryheader', get_string('category', 'booking'));
+
+    $url = $CFG->wwwroot.'/mod/booking/categories.php';
+    if (isset($COURSE->id)) {
+        $url .= '?courseid='.$COURSE->id;
+    } 
+
+    $mform->addElement('selectwithlink', 'categoryid', get_string('category', 'booking'), $options, null, 
+        array('link' => $url, 'label' => get_string('addcategory', 'booking')));
+
+    $mform->addElement('header', 'categoryadditionalfields', get_string('additionalfields', 'booking'));
+    $additionalfields = array();
+    $tmpAddFields = $DB->get_records('user_info_field', array());
+    foreach ($tmpAddFields as $field) {
+        $additionalfields[$field->shortname] = $field->name;
+    }
+    $select = $mform->addElement('select', 'additionalfields', get_string('additionalfields', 'booking'), $additionalfields);    
+    $select->setMultiple(true);
 
 		//-------------------------------------------------------------------------------
         $this->standard_coursemodule_elements();
@@ -146,33 +225,48 @@ class mod_booking_mod_form extends moodleform_mod {
 		$this->add_action_buttons();
 	}
 
-	public function data_preprocessing(&$default_values){
-		if (empty($default_values['timeopen'])) {
-			$default_values['timerestrict'] = 0;
-		} else {
-			$default_values['timerestrict'] = 1;
-		}
-        if (!isset($default_values['bookingpolicyformat'])) {
-            $default_values['bookingpolicyformat'] = FORMAT_HTML;
-        }
-        if (!isset($default_values['bookingpolicy'])) {
-            $default_values['bookingpolicy'] = '';
-        }
-        $default_values['bookingpolicy'] = array('text'=>$default_values['bookingpolicy'],'format'=>$default_values['bookingpolicyformat']);
+function data_preprocessing(&$default_values){
+    $options = array('subdirs' => false, 'maxfiles' => 50, 'accepted_types' => array('*'),
+        'maxbytes' => 0);
 
-        if (isset($default_values['bookedtext'])) {
-            $default_values['bookedtext'] = array('text' => $default_values['bookedtext'], 'format' => FORMAT_HTML);
-        }
-        if (isset($default_values['waitingtext'])) {
-            $default_values['waitingtext'] = array('text' => $default_values['waitingtext'], 'format' => FORMAT_HTML);
-        }
-        if (isset($default_values['statuschangetext'])) {
-            $default_values['statuschangetext'] = array('text' => $default_values['statuschangetext'], 'format' => FORMAT_HTML);
-        }
-        if (isset($default_values['deletedtext'])) {
-            $default_values['deletedtext'] = array('text' => $default_values['deletedtext'], 'format' => FORMAT_HTML);
-        }
-	}
+    if ($this->current->instance) {
+        $draftitemid = file_get_submitted_draft_itemid('myfilemanager');            
+        file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'myfilemanager', $this->current->id, $options);
+        $default_values['myfilemanager'] = $draftitemid;
+        $default_values['tags'] = tag_get_tags_array('booking', $this->current->id);
+    } else {
+        $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
+        file_prepare_draft_area($draftitemid, null, 'mod_booking', 'myfilemanager', 0, $options);
+        $default_values['myfilemanager'] = $draftitemid;
+    }
+
+    if (empty($default_values['timeopen'])) {
+     $default_values['timerestrict'] = 0;
+ } else {
+     $default_values['timerestrict'] = 1;
+ }
+ if (!isset($default_values['bookingpolicyformat'])) {
+    $default_values['bookingpolicyformat'] = FORMAT_HTML;
+}
+if (!isset($default_values['bookingpolicy'])) {
+    $default_values['bookingpolicy'] = '';
+}
+
+$default_values['bookingpolicy'] = array('text'=>$default_values['bookingpolicy'],'format'=>$default_values['bookingpolicyformat']);
+
+if (isset($default_values['bookedtext'])) {
+    $default_values['bookedtext'] = array('text' => $default_values['bookedtext'], 'format' => FORMAT_HTML);
+}
+if (isset($default_values['waitingtext'])) {
+    $default_values['waitingtext'] = array('text' => $default_values['waitingtext'], 'format' => FORMAT_HTML);
+}
+if (isset($default_values['statuschangetext'])) {
+    $default_values['statuschangetext'] = array('text' => $default_values['statuschangetext'], 'format' => FORMAT_HTML);
+}
+if (isset($default_values['deletedtext'])) {
+    $default_values['deletedtext'] = array('text' => $default_values['deletedtext'], 'format' => FORMAT_HTML);
+}
+}
 
 	public function validation($data, $files) {
 	 global $DB;
@@ -180,6 +274,12 @@ class mod_booking_mod_form extends moodleform_mod {
 	 if ( $DB->count_records('user', array('username' =>$data['bookingmanager'])) != 1 ) {
 	   $errors['bookingmanager'] = get_string('bookingmanagererror', 'booking');
 	 }
+
+    if (strlen($data['poolurl']) > 0) {
+        if(!filter_var($data['poolurl'], FILTER_VALIDATE_URL)) {
+            $errors['poolurl'] = get_string('entervalidurl', 'booking');
+        }
+    }
 	 return $errors;
 	}
 	

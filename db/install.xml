@@ -26,7 +26,15 @@
         <FIELD NAME="deletedtext" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a booking has been cancelled" PREVIOUS="statuschangetext" NEXT="maxperuser"/>
         <FIELD NAME="maxperuser" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" COMMENT="Maximum number of bookings that each user can make (reset when an event passes)" PREVIOUS="deletedtext" NEXT="sendmailtobooker"/>
         <FIELD NAME="sendmailtobooker" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Send mails to booker instead to booked users" PREVIOUS="maxperuser"/>
-        </FIELDS>
+        <FIELD NAME="duration" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Duration - info field."/>
+        <FIELD NAME="points" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Poits, get from this course."/>
+        <FIELD NAME="organizatorname" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Name of organizator - for sending emails."/>
+        <FIELD NAME="poolurl" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Url to send in email - pool for evaluation."/>
+        <FIELD NAME="addtogroup" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="categoryid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="poolurltext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="additionalfields" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
@@ -51,7 +59,11 @@
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="limitanswers" NEXT="addtocalendar"/>
         <FIELD NAME="addtocalendar" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Add event_option to calendar." PREVIOUS="timemodified" NEXT="calendarid"/>
         <FIELD NAME="calendarid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Calendar event id." PREVIOUS="addtocalendar"/>
-        </FIELDS>
+        <FIELD NAME="poolurl" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="daystonotify" TYPE="int" LENGTH="3" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="sent" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="bookingid"/>
         <KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id" PREVIOUS="primary"/>
@@ -69,6 +81,33 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="bookingid"/>
         <KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id" PREVIOUS="primary" NEXT="optionid"/>
         <KEY NAME="optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id" PREVIOUS="bookingid"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="booking_category" COMMENT="Categories">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="cid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="name" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="booking_teachers" COMMENT="Teachers.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id"/>
+        <KEY NAME="optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
