@@ -9,6 +9,7 @@ require_once($CFG->dirroot.'/tag/locallib.php');
 require_once($CFG->dirroot . '/question/category_class.php');
 
 require_once($CFG->dirroot.'/group/lib.php');
+require_once($CFG->libdir.'/eventslib.php');
 require_once($CFG->dirroot.'/user/selector/lib.php');
 
 $COLUMN_HEIGHT = 300;
