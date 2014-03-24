@@ -1,6 +1,5 @@
 <?PHP
 
-
 $string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
 $string['answered'] = 'Answered';
@@ -14,6 +13,7 @@ $string['booking:deleteresponses'] = 'Delete responses';
 $string['booking:downloadresponses'] = 'Download responses';
 $string['booking:readresponses'] = 'Read responses';
 $string['booking:updatebooking'] = 'Manage booking options';
+$string['booking:sendpoolurl'] = 'Send pool url';
 $string['bookingclose'] = 'Until';
 $string['bookingfull'] = 'There are no available places';
 $string['bookingname'] = 'Booking name';
@@ -41,6 +41,28 @@ $string['taken'] = 'Taken';
 $string['timerestrict'] = 'Restrict answering to this time period';
 $string['viewallresponses'] = 'Manage {$a} responses';
 $string['yourselection'] = 'Your selection';
+$string['existingsubscribers'] = 'Existing subscribers';
+$string['potentialsubscribers'] = 'Potential subscribers';
+$string['nosubscribers'] = 'There are no teachers assigned!';
+$string['subscribersto'] = 'Teachers for  \'{$a}\'';
+$string['teachers'] = 'Teachers: ';
+$string['daystonotify'] = 'How many days before start of event to notify participaints?';
+$string['notificationsubject'] = 'Upcoming course...';
+
+// Categories
+$string['category'] = 'Category';
+$string['categories'] = 'Categories';
+$string['addcategory'] = 'Edit categories';
+$string['forcourse'] = 'for course';
+$string['addnewcategory'] = 'Add new category';
+$string['categoryname'] = 'Category name';
+$string['rootcategory'] = 'Root';
+$string['selectcategory'] = 'Select category';
+$string['editcategory'] = 'Edit';
+$string['deletecategory'] = 'Delete';
+$string['deletesubcategory'] = 'Please, first delete all subcategories of this category!';
+$string['usedinbooking'] = 'You can\'t delete this category, because you\'re using it in booking!';
+$string['sucesfulldeleted'] = 'Category was sucesfully deleted!';
 
 // view.php
 $string['coursedate'] = 'Date';
@@ -87,7 +109,11 @@ $string['createdby'] = 'Booking module created by edulabs.org';
 $string['maxperuserwarning'] = 'You currently have {$a->count}/{$a->limit} maximum bookings';
 $string['bookedpast'] = 'Booked (course finished)';
 $string['bookotherusers'] = 'Book other users';
-
+$string['attachedfiles'] = 'Attached files';
+$string['eventduration'] = 'Event duration';
+$string['eventpoints'] = 'Points';
+$string['organizatorname'] = 'Organizator name';
+$string['poolurl'] = 'Pool url';
 
 // mod_form
 $string['addtocalendar'] = 'Add to calendar';
@@ -101,7 +127,7 @@ $string['allowdelete'] = 'Allow users to cancel their booking themselves';
 $string['bookingpolicy'] = 'Booking policy';
 $string['confirmationmessagesettings'] = 'Confirmation email settings';
 $string['usernameofbookingmanager'] = 'Username of the booking manager';
-$string['bookingmanager_help'] = 'Username of the user who will be displayed in the "From" field of the confirmation notifications. 
+$string['usernameofbookingmanager_help'] = 'Username of the user who will be displayed in the "From" field of the confirmation notifications. 
   If the option "Send confirmation email to booking manager" is enabled, this is the user who receives a copy of the confirmation notifications.';
 $string['bookingmanagererror'] = 'The username entered is not valid. Either it does not exist or there are more then one users with this username (example: if you have mnet and local authentication enabled)';
 $string['autoenrol'] = 'Automatically enrol users';
@@ -135,6 +161,7 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{enddate}</li>
 <li>{courselink}</li>
 <li>{bookinglink}</li>
+<li>{poolurl}</li>
 </ul>';
 $string['statuschangetext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -148,6 +175,7 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 <li>{enddate}</li>
 <li>{courselink}</li>
 <li>{bookinglink}</li>
+<li>{poolurl}</li>
 </ul>';
 $string['deletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -161,9 +189,38 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{enddate}</li>
 <li>{courselink}</li>
 <li>{bookinglink}</li>
+<li>{poolurl}</li>
 </ul>';
+
+$string['poolurltext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{poolurl}</li>
+</ul>';
+
 $string['maxperuser'] = 'Max current bookings per user';
 $string['maxperuser_help'] = 'The maximum number of bookings an individual user can make in this activity at once. After an event end time has passed, it is no longer counted against this limit.';
+$string['bookingduration'] = 'Duration';
+$string['bookingpoints'] = 'Course points';
+$string['bookingorganizatorname'] = 'Organizer name';
+$string['bookingpoolurl'] = 'Poll url';
+$string['bookingtags'] = 'Tags';
+$string['bookingattachment'] = 'Attachment';
+$string['groupname'] = 'Group name';
+$string['addtogroup'] = 'Automatically enrol users in group';
+$string['bookingcategory'] = 'Category';
+$string['entervalidurl'] = 'Please, enter a valid URL!';
+$string['poolurltext'] = 'Send pool url';
+$string['additionalfields'] = 'Additional fields';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';
@@ -251,10 +308,24 @@ Link: {$a->bookinglink}
 Associated course: {$a->courselink}
 
 ';
+
+$string['poolurltextsubject'] = 'Please, take the survey';
+$string['poolurltextmessage'] = 'Please, take the survey
+
+Survey url {$a->poolurl}
+';
+
 //report.php
 $string['withselected'] = 'With selected users:'; 
 $string['associatedcourse'] = 'Associated course';
 $string['bookedusers'] = 'Booked users';
 $string['waitinglistusers'] = 'Users on waiting list';
 $string['downloadallresponses'] = 'Download all responses for all booking options';
+$string['allmailssend'] = 'All emails to users has been sucesfully send!';
+$string['sendcustommessage'] = 'Send custom message';
+$string['addteachers'] = 'Add teachers';
 
+// Send message
+$string['messagesubject'] = 'Subject';
+$string['messagetext'] = 'Message';
+$string['messagesend'] = 'You message was sucesfully send.';

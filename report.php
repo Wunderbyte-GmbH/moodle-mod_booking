@@ -9,6 +9,7 @@
 require_once("../../config.php");
 require_once("lib.php");
 require_once("bookingmanageusers.class.php");
+require_once("$CFG->dirroot/user/profile/lib.php");
 
 $id         = required_param('id', PARAM_INT);   //moduleid
 $optionid   = required_param('optionid', PARAM_INT);
@@ -36,7 +37,8 @@ if (!$booking = booking_get_booking($cm)) {
 	print_error("Course module is incorrect");
 }
 
-$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+//$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+$context = context_module::instance($cm->id);
 require_capability('mod/booking:readresponses', $context);
 $url = new moodle_url('/mod/booking/report.php', array('id'=>$id,'optionid'=>$optionid));
 
@@ -74,7 +76,7 @@ if (!$download) {
 	$booking->option[$optionid]->courseurl = new moodle_url('/course/view.php', array('id'=>$booking->option[$optionid]->courseid));
 	$booking->option[$optionid]->urltitle =$DB->get_field('course', 'shortname', array('id'=>$booking->option[$optionid]->courseid));
 	$booking->option[$optionid]->cmid = $cm->id;
-    $booking->option[$optionid]->autoenrol = $booking->autoenrol;
+	$booking->option[$optionid]->autoenrol = $booking->autoenrol;
 	$mform = new mod_booking_manageusers_form(null, array('bookingdata' => $booking->option[$optionid],'waitinglistusers' => $sortedusers['waitinglist'], 'bookedusers' => $sortedusers['booked'])); //name of the form you defined in file above.
 
 	//managing the form
@@ -105,6 +107,16 @@ if (!$download) {
 				error("No course selected for this booking option", "report.php?id=$cm->id");
 			}
 			die;
+		} else if(isset($fromform->sendpoolurl)) {
+			$selectedusers[$optionid] = array_keys($fromform->user,1);
+			booking_sendpollurl($selectedusers, $booking, $cm->id, $optionid);
+			redirect($url, get_string('allmailssend','booking'), 5);
+		} else if (isset($fromform->sendcustommessage)) {
+			$sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id'=>$id,'optionid'=>$optionid));
+			redirect($sendmessageurl);
+		} else if (isset($fromform->addteachers)) {
+			$addteachersurl = new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid));
+			redirect($addteachersurl);
 		}
 
 	} else {
@@ -136,11 +148,11 @@ if (!$download) {
 		/// Creating the first worksheet
 		$myxls = $workbook->add_worksheet($strresponses);
 		if ( $download =="ods"){
-			$cellformat =& $workbook->add_format(array('bg_color' => 'white'));
-			$cellformat1 =& $workbook->add_format(array('bg_color' => 'red'));
+			$cellformat = $workbook->add_format(array('bg_color' => 'white'));
+			$cellformat1 = $workbook->add_format(array('bg_color' => 'red'));
 		} else {
 			$cellformat = '';
-			$cellformat1 =& $workbook->add_format(array('fg_color' => 'red'));
+			$cellformat1 = $workbook->add_format(array('fg_color' => 'red'));
 		}
 		/// Print names of all the fields
 		$myxls->write_string(0,0,get_string("booking","booking"));
@@ -149,7 +161,9 @@ if (!$download) {
 		$myxls->write_string(0,3,get_string("lastname"));
 		$myxls->write_string(0,4,get_string("email"));
 		$i=5;
-		if ($userprofilefields = $DB->get_records_select('user_info_field', 'id > 0', array(), 'id', 'id, shortname, name' )){
+		$addfields = explode(',', $booking->additionalfields);
+		$addquoted =  "'" . implode("','", $addfields) . "'";
+		if ($userprofilefields = $DB->get_records_select('user_info_field', 'id > 0 AND shortname IN (' . $addquoted . ')', array(), 'id', 'id, shortname, name' )){
 			foreach ($userprofilefields as $profilefield){
 				$myxls->write_string(0,$i++,$profilefield->name);
 			}

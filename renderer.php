@@ -1,11 +1,26 @@
 <?php
 
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * A custom renderer class that extends the plugin_renderer_base and
  * is used by the booking module.
  *
  * @package mod-booking
- * @copyright 2013 David Bogner
+ * @copyright 2014 Andraž Prinčič
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  **/
 class mod_booking_renderer extends plugin_renderer_base {
@@ -17,7 +32,7 @@ class mod_booking_renderer extends plugin_renderer_base {
      * @param user_selector_base $potentialuc
      * @return string
      */
-    public function subscriber_selection_form(user_selector_base $existinguc, user_selector_base $potentialuc) {
+ 	public function subscriber_selection_form(user_selector_base $existinguc, user_selector_base $potentialuc) {
         $output = '';
         $formattributes = array();
         $formattributes['id'] = 'subscriberform';
@@ -50,6 +65,34 @@ class mod_booking_renderer extends plugin_renderer_base {
     }
 
     /**
+     * This function generates HTML to display a subscriber overview, primarily used on
+     * the subscribers page if editing was turned off
+     *
+     * @param array $users
+     * @param object $booking
+     * @param object $option
+     * @return string
+     */
+    public function subscriber_overview($users, $option , $course) {
+        $output = '';
+        if (!$users || !is_array($users) || count($users)===0) {
+            $output .= $this->output->heading(get_string("nosubscribers", "booking"));
+        } else {
+            $output .= $this->output->heading(get_string("subscribersto","booking", "'".format_string($option->text)."'"));
+            $table = new html_table();
+            $table->cellpadding = 5;
+            $table->cellspacing = 5;
+            $table->tablealign = 'center';
+            $table->data = array();
+            foreach ($users as $user) {
+                $table->data[] = array($this->output->user_picture($user, array('courseid'=>$course->id)), fullname($user), $user->email);
+            }
+            $output .= html_writer::table($table);
+        }
+        return $output;
+    }
+
+    /**
      * This is used to display a control containing all of the subscribed users so that
      * it can be searched
      *
@@ -63,4 +106,6 @@ class mod_booking_renderer extends plugin_renderer_base {
         $output .= $this->output->box_end();
         return $output;
     }
+
+
 }

@@ -99,7 +99,7 @@ $string['allowdelete'] = 'Teilnehmer/innen dürfen Buchungen selbst stornieren';
 $string['bookingpolicy'] = 'Buchungsbedingungen - bookingpolicy';
 $string['confirmationmessagesettings'] = 'Buchungsbestätigungseinstellungen';
 $string['usernameofbookingmanager'] = 'Username des Buchungsverwalters';
-$string['bookingmanager_help'] = 'Benutzername des/der Nutzer/in, der als Absender/in der Buchungsbestätigunsmitteilungen angeführt wird.
+$string['usernameofbookingmanager_help'] = 'Benutzername des/der Nutzer/in, der als Absender/in der Buchungsbestätigunsmitteilungen angeführt wird.
   Wenn die Option "Eine Kopie des Bestätigungsmail an Buchungsverwalter senden" aktiviert ist, wird die Kopie der Buchungsbestätigung an diese/n Nutzer/in gesendet.';
 $string['bookingmanagererror'] = 'Der angegebene Benutzername ist ungültig. Entweder existiert der/die Nutzer/in nicht oder es gibt mehrere Nutzer/innen mit dem selben Benutzernamen (Dies ist zum Beispiel der Fall, wenn Sie MNET und lokale Authentifizierung gleichzeitig aktiviert haben)';
 $string['autoenrol'] = 'Nutzer/innen automatisch einschreiben';
