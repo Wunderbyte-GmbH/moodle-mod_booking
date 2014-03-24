@@ -673,8 +673,8 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0,$so
 		$stravailspaces);
 }
 $table = new html_table();
-$table->attributes['class'] = 'box generalbox boxaligncenter mod-booking-table';
-$table->attributes['style'] = 'width: auto;';
+$table->attributes['class'] = 'box generalbox boxaligncenter boxwidthwide';
+$table->attributes['style'] = '';
 $table->data = array();
 $strselect =  get_string("select", "booking");
 $strbooking = get_string("booking", "booking");
