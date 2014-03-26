@@ -107,7 +107,7 @@ if (!$download) {
 				error("No course selected for this booking option", "report.php?id=$cm->id");
 			}
 			die;
-		} else if(isset($fromform->sendpoolurl)) {
+		} else if(isset($fromform->sendpollurl)) {
 			$selectedusers[$optionid] = array_keys($fromform->user,1);
 			booking_sendpollurl($selectedusers, $booking, $cm->id, $optionid);
 			redirect($url, get_string('allmailssend','booking'), 5);

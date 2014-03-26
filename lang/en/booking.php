@@ -13,7 +13,7 @@ $string['booking:deleteresponses'] = 'Delete responses';
 $string['booking:downloadresponses'] = 'Download responses';
 $string['booking:readresponses'] = 'Read responses';
 $string['booking:updatebooking'] = 'Manage booking options';
-$string['booking:sendpoolurl'] = 'Send pool url';
+$string['booking:sendpollurl'] = 'Send poll url';
 $string['bookingclose'] = 'Until';
 $string['bookingfull'] = 'There are no available places';
 $string['bookingname'] = 'Booking name';
@@ -113,7 +113,7 @@ $string['attachedfiles'] = 'Attached files';
 $string['eventduration'] = 'Event duration';
 $string['eventpoints'] = 'Points';
 $string['organizatorname'] = 'Organizator name';
-$string['poolurl'] = 'Pool url';
+$string['pollurl'] = 'Poll url';
 
 // mod_form
 $string['addtocalendar'] = 'Add to calendar';
@@ -161,7 +161,7 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{enddate}</li>
 <li>{courselink}</li>
 <li>{bookinglink}</li>
-<li>{poolurl}</li>
+<li>{pollurl}</li>
 </ul>';
 $string['statuschangetext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -175,7 +175,7 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 <li>{enddate}</li>
 <li>{courselink}</li>
 <li>{bookinglink}</li>
-<li>{poolurl}</li>
+<li>{pollurl}</li>
 </ul>';
 $string['deletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -189,10 +189,10 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{enddate}</li>
 <li>{courselink}</li>
 <li>{bookinglink}</li>
-<li>{poolurl}</li>
+<li>{pollurl}</li>
 </ul>';
 
-$string['poolurltext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+$string['pollurltext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
 <li>{status}</li>
 <li>{participant}</li>
@@ -204,7 +204,7 @@ $string['poolurltext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{enddate}</li>
 <li>{courselink}</li>
 <li>{bookinglink}</li>
-<li>{poolurl}</li>
+<li>{pollurl}</li>
 </ul>';
 
 $string['maxperuser'] = 'Max current bookings per user';
@@ -212,14 +212,14 @@ $string['maxperuser_help'] = 'The maximum number of bookings an individual user 
 $string['bookingduration'] = 'Duration';
 $string['bookingpoints'] = 'Course points';
 $string['bookingorganizatorname'] = 'Organizer name';
-$string['bookingpoolurl'] = 'Poll url';
+$string['bookingpollurl'] = 'Poll url';
 $string['bookingtags'] = 'Tags';
 $string['bookingattachment'] = 'Attachment';
 $string['groupname'] = 'Group name';
 $string['addtogroup'] = 'Automatically enrol users in group';
 $string['bookingcategory'] = 'Category';
 $string['entervalidurl'] = 'Please, enter a valid URL!';
-$string['poolurltext'] = 'Send pool url';
+$string['pollurltext'] = 'Send poll url';
 $string['additionalfields'] = 'Additional fields';
 
 // editoptions.php
@@ -309,10 +309,10 @@ Associated course: {$a->courselink}
 
 ';
 
-$string['poolurltextsubject'] = 'Please, take the survey';
-$string['poolurltextmessage'] = 'Please, take the survey
+$string['pollurltextsubject'] = 'Please, take the survey';
+$string['pollurltextmessage'] = 'Please, take the survey
 
-Survey url {$a->poolurl}
+Survey url {$a->pollurl}
 ';
 
 //report.php

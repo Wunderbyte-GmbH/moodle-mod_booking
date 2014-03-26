@@ -53,8 +53,8 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('text', 'organizatorname', get_string('bookingorganizatorname', 'booking'), array('size'=>'64'));
         $mform->setType('organizatorname', PARAM_TEXT);
 
-        $mform->addElement('text', 'poolurl', get_string('bookingpoolurl', 'booking'), array('size'=>'64'));
-        $mform->setType('poolurl', PARAM_TEXT);
+        $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'), array('size'=>'64'));
+        $mform->setType('pollurl', PARAM_TEXT);
 
         $mform->addElement('filemanager', 'myfilemanager', get_string('bookingattachment', 'booking'), null,
                 array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
@@ -157,14 +157,14 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('deletedtext', $default);
         $mform->addHelpButton('deletedtext', 'deletedtext', 'mod_booking');
 
-        $mform->addElement('editor', 'poolurltext', get_string('poolurltext', 'booking'), null, $editoroptions);
+        $mform->addElement('editor', 'pollurltext', get_string('pollurltext', 'booking'), null, $editoroptions);
         $default = array(
-                'text' => get_string('poolurltextmessage', 'mod_booking', $fieldmapping),
+                'text' => get_string('pollurltextmessage', 'mod_booking', $fieldmapping),
                 'format' => FORMAT_HTML
         );
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        $mform->setDefault('poolurltext', $default);
-        $mform->addHelpButton('poolurltext', 'poolurltext', 'mod_booking');
+        $mform->setDefault('pollurltext', $default);
+        $mform->addHelpButton('pollurltext', 'pollurltext', 'mod_booking');
 
         //-------------------------------------------------------------------------------
         $mform->addElement('header', 'miscellaneoussettingshdr', get_string('miscellaneoussettings', 'form'));
@@ -275,9 +275,9 @@ class mod_booking_mod_form extends moodleform_mod {
             $errors['bookingmanager'] = get_string('bookingmanagererror', 'booking');
         }
 
-        if (strlen($data['poolurl']) > 0) {
-            if(!filter_var($data['poolurl'], FILTER_VALIDATE_URL)) {
-                $errors['poolurl'] = get_string('entervalidurl', 'booking');
+        if (strlen($data['pollurl']) > 0) {
+            if(!filter_var($data['pollurl'], FILTER_VALIDATE_URL)) {
+                $errors['pollurl'] = get_string('entervalidurl', 'booking');
             }
         }
         return $errors;

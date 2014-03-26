@@ -60,8 +60,8 @@ class mod_booking_bookingform_form extends moodleform {
 		$mform->addElement('editor', 'description', get_string('description'));
 		$mform->setType('description', PARAM_CLEANHTML);
 
-		$mform->addElement('text', 'poolurl', get_string('bookingpoolurl', 'booking'), array('size'=>'64'));
-		$mform->setType('poolurl', PARAM_TEXT);
+		$mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'), array('size'=>'64'));
+		$mform->setType('pollurl', PARAM_TEXT);
 
 		//hidden elements
 		$mform->addElement('hidden', 'id');
@@ -97,9 +97,9 @@ class mod_booking_bookingform_form extends moodleform {
 
 		$errors = parent::validation($data, $files);
 
-		if (strlen($data['poolurl']) > 0) {
-			if(!filter_var($data['poolurl'], FILTER_VALIDATE_URL)) {
-				$errors['poolurl'] = get_string('entervalidurl', 'booking');
+		if (strlen($data['pollurl']) > 0) {
+			if(!filter_var($data['pollurl'], FILTER_VALIDATE_URL)) {
+				$errors['pollurl'] = get_string('entervalidurl', 'booking');
 			}
 		}
 

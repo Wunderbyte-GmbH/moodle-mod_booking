@@ -165,7 +165,7 @@ function booking_add_instance($booking) {
 	$booking->waitingtext = $booking->waitingtext['text'];
 	$booking->statuschangetext = $booking->statuschangetext['text'];
 	$booking->deletedtext = $booking->deletedtext['text'];
-	$booking->poolurltext = $booking->poolurltext['text'];
+	$booking->pollurltext = $booking->pollurltext['text'];
 
 	//insert answer options from mod_form
 	$booking->id = $DB->insert_record("booking", $booking);
@@ -230,7 +230,7 @@ function booking_update_instance($booking) {
 	$booking->waitingtext = $booking->waitingtext['text'];
 	$booking->statuschangetext = $booking->statuschangetext['text'];
 	$booking->deletedtext = $booking->deletedtext['text'];
-	$booking->poolurltext = $booking->poolurltext['text'];
+	$booking->pollurltext = $booking->pollurltext['text'];
 	//update, delete or insert answers
 	if(!empty($booking->option)){
 		foreach ($booking->option as $key => $value) {
@@ -270,7 +270,7 @@ function booking_update_options($optionvalues){
 	$option->bookingid = $optionvalues->bookingid;
 	$option->text = trim($optionvalues->text);
 	$option->daystonotify = $optionvalues->daystonotify;
-	$option->poolurl = $optionvalues->poolurl;
+	$option->pollurl = $optionvalues->pollurl;
 	if ($optionvalues->limitanswers == 0){
 		$optionvalues->limitanswers = 0;
 		$option->maxanswers = 0;
@@ -1006,7 +1006,7 @@ function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduseri
 	return true;
 }
 
-// Send mail to all users - poolurl
+// Send mail to all users - pollurl
 function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
 	global $DB, $USER;
 
@@ -1018,14 +1018,14 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
 
 			$params = booking_generate_email_params($booking, $booking->option[$optionid], $tuser, $cmid);
 
-			$poolurlmessage = booking_get_email_body($booking, 'poolurltext', 'poolurltextmessage', $params);
+			$pollurlmessage = booking_get_email_body($booking, 'pollurltext', 'pollurltextmessage', $params);
 
 			$eventdata = new stdClass();
 			$eventdata->modulename       = 'booking';
 			$eventdata->userfrom         = $USER;
 			$eventdata->userto           = $tuser;
-			$eventdata->subject          = get_string('poolurltextsubject','booking', $params);
-			$eventdata->fullmessage      = $poolurlmessage;
+			$eventdata->subject          = get_string('pollurltextsubject','booking', $params);
+			$eventdata->fullmessage      = $pollurlmessage;
 			$eventdata->fullmessageformat = FORMAT_PLAIN;
 			$eventdata->fullmessagehtml  = '';
 			$eventdata->smallmessage     = '';
@@ -1523,10 +1523,10 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
 	$params->enddate = $option->courseendtime ? userdate($option->courseendtime, $dateformat) : '';
 	$params->courselink = $courselink;
 	$params->bookinglink = $bookinglink;
-	if (empty($option->poolurl)) {
-		$params->poolurl = $booking->poolurl;
+	if (empty($option->pollurl)) {
+		$params->pollurl = $booking->pollurl;
 	} else {
-		$params->poolurl = $option->poolurl;
+		$params->pollurl = $option->pollurl;
 	}	
 
 	return $params;

@@ -164,10 +164,10 @@ if (!empty($booking->organizatorname)) {
 	echo html_writer::end_tag('div');
 }
 
-if (!empty($booking->poolurl)) {
+if (!empty($booking->pollurl)) {
 	echo html_writer::start_tag('div');
-	echo html_writer::tag('label', get_string('poolurl','booking').': ', array('class' => 'bold'));
-	echo html_writer::tag('span', html_writer::link($booking->poolurl, $booking->poolurl, array()));
+	echo html_writer::tag('label', get_string('pollurl','booking').': ', array('class' => 'bold'));
+	echo html_writer::tag('span', html_writer::link($booking->pollurl, $booking->pollurl, array()));
 	echo html_writer::end_tag('div');
 }
 

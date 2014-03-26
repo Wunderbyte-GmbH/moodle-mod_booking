@@ -184,12 +184,12 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
         
-        $field = new xmldb_field('poolurl', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'organizatorname');
+        $field = new xmldb_field('pollurl', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'organizatorname');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
         
-        $field = new xmldb_field('poolurl', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'calendarid');
+        $field = new xmldb_field('pollurl', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'calendarid');
         if (!$dbman->field_exists($tableoptions, $field)) {
             $dbman->add_field($tableoptions, $field);
         }
@@ -203,7 +203,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
         
         // Define field addtogroup to be added to booking.
-        $field = new xmldb_field('addtogroup', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'poolurl');
+        $field = new xmldb_field('addtogroup', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'pollurl');
         
         // Conditionally launch add field addtogroup.
         if (!$dbman->field_exists($table, $field)) {
@@ -227,7 +227,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field groupid to be added to booking_options.
         $table = new xmldb_table('booking_options');
-        $field = new xmldb_field('groupid', XMLDB_TYPE_INTEGER, '11', null, null, null, null, 'poolurl');
+        $field = new xmldb_field('groupid', XMLDB_TYPE_INTEGER, '11', null, null, null, null, 'pollurl');
 
         // Conditionally launch add field groupid.
         if (!$dbman->field_exists($table, $field)) {
@@ -278,11 +278,11 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2014031700) {
 
-        // Define field poolurltext to be added to booking.
+        // Define field pollurltext to be added to booking.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('poolurltext', XMLDB_TYPE_TEXT, null, null, null, null, null, 'categoryid');
+        $field = new xmldb_field('pollurltext', XMLDB_TYPE_TEXT, null, null, null, null, null, 'categoryid');
 
-        // Conditionally launch add field poolurltext.
+        // Conditionally launch add field pollurltext.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -323,7 +323,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field additionalfields to be added to booking.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('additionalfields', XMLDB_TYPE_TEXT, null, null, null, null, null, 'poolurltext');
+        $field = new xmldb_field('additionalfields', XMLDB_TYPE_TEXT, null, null, null, null, null, 'pollurltext');
 
         // Conditionally launch add field additionalfields.
         if (!$dbman->field_exists($table, $field)) {
@@ -355,7 +355,35 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014032101, 'booking');
     }
-
+    
+    if ($oldversion < 2014032600) {
+        
+        $table = new xmldb_table('booking');
+        $tableoptions = new xmldb_table('booking_options');
+        
+        $field = new xmldb_field('poolurl', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'organizatorname');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'pollurl');
+        }
+        
+        $field = new xmldb_field('poolurl', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'organizatorname');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'pollurl');
+        }
+        
+        $field = new xmldb_field('poolurltext', XMLDB_TYPE_TEXT, null, null, null, null, null, 'categoryid');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'pollurltext');
+        }       
+        
+        $field = new xmldb_field('poolurl', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'calendarid');
+        if ($dbman->field_exists($tableoptions, $field)) {
+            $dbman->rename_field($tableoptions, $field, 'pollurl');
+        }
+    
+        // Booking savepoint reached.
+    upgrade_mod_savepoint(true, 2014032600, 'booking');
+    }
     return true;
 }
 
