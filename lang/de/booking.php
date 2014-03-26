@@ -41,6 +41,28 @@ $string['taken'] = 'gebucht';
 $string['timerestrict'] = 'Buchungsmöglichkeit auf diesen Zeitraum beschränken';
 $string['viewallresponses'] = '{$a} Antworten verwalten';
 $string['yourselection'] = 'Ihre Auswahl';
+$string['existingsubscribers'] = 'Vorhandene Nutzer/innen';
+$string['potentialsubscribers'] = 'Mögliche Nutzer/innen';
+$string['nosubscribers'] = 'Keine Trainer/innen zugewiesen!';
+$string['subscribersto'] = 'Trainer/innen für  \'{$a}\'';
+$string['teachers'] = 'Trainer/innen: ';
+$string['daystonotify'] = 'Wie viele Tage vor Kursbeginn soll an die Teilnehmenden eine Benachrichtigung gesendet werden?';
+$string['notificationsubject'] = 'Demnächst stattfindender Kurs';
+
+// Categories
+$string['category'] = 'Kategorie';
+$string['categories'] = 'Kategnriej';
+$string['addcategory'] = 'Kategorien bearbeiten';
+$string['forcourse'] = 'für Kurs';
+$string['addnewcategory'] = 'Neue Kategorie hinzufügen';
+$string['categoryname'] = 'Kategoriename';
+$string['rootcategory'] = 'Übergeordnete Kategorie';
+$string['selectcategory'] = 'Kategorie auswählen';
+$string['editcategory'] = 'Bearbeiten';
+$string['deletecategory'] = 'Löschen';
+$string['deletesubcategory'] = 'Löschen Sie zuerst alle Unterkategorien dieser Kategorie!';
+$string['usedinbooking'] = 'Das Löschen dieser Kategorie/n ist nicht möglich, da sie verwendet werden!';
+$string['sucesfulldeleted'] = 'Kategorie wurde erfolgreich gelöscht!';
 
 // view.php
 $string['coursedate'] = 'Kurstermin';
@@ -87,6 +109,11 @@ $string['createdby'] = 'Dieses Buchungsmodul wurde von edulabs.org entwickelt';
 $string['maxperuserwarning'] = 'Sie haben zur Zeit ein Limit von {$a->count}/{$a->limit} Buchungen';
 $string['bookedpast'] = 'Gebucht (Kurs wurde bereits beendet)';
 $string['bookotherusers'] = 'Buchung für andere Nutzer/innen durchführen';
+$string['attachedfiles'] = 'Dateianhänge';
+$string['eventduration'] = 'Dauer';
+$string['eventpoints'] = 'Punkte';
+$string['organizatorname'] = 'Name des Organisators';
+$string['pollurl'] = 'Link zur Umfrage';
 
 // mod_form
 $string['addtocalendar'] = 'Zum Kalender hinzufügen';
@@ -161,8 +188,35 @@ $string['deletedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext 
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 </ul>';
+
+$string['pollurltext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+</ul>';
 $string['maxperuser'] = 'Maximale Anzahl an Buchungen pro User';
 $string['maxperuser_help'] = 'Die maximale Anzahl an Buchungen, die ein/e Nutzer/in auf einmal buchen kann. Nach dem Ende des gebuchten Kurses, zählt dieser nicht mehr zum Buchungslimit.';
+$string['bookingduration'] = 'Dauer';
+$string['bookingpoints'] = 'Kurspunkte';
+$string['bookingorganizatorname'] = 'Name des Veranstalters';
+$string['bookingpollurl'] = 'Link zur Umfrage';
+$string['bookingtags'] = 'Tags';
+$string['bookingattachment'] = 'Anhänge';
+$string['groupname'] = 'Gruppenname';
+$string['addtogroup'] = 'Nutzer/innen automatisch in Gruppe einschreiben';
+$string['bookingcategory'] = 'Kategorie';
+$string['entervalidurl'] = 'Bitte geben Sie eine gültige URL an!';
+$string['pollurltext'] = 'Umfragelink senden';
+$string['additionalfields'] = 'Zusätzliche Felder';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Speichern und neue Buchung hinzufügen';
@@ -248,6 +302,14 @@ Link: {$a->bookinglink}
 
 ';
 
+$string['pollurltextsubject'] = 'Nehmen Sie bitte an der Umfrage teil';
+$string['pollurltextmessage'] = 'Füllen Sie die Umfrage unter
+
+Survey url {$a->pollurl}
+        
+aus.
+';
+
 //report.php and bookingmanagusers.class.php
 $string['withselected'] = 'Ausgewählte Nutzer/innen'; 
 $string['associatedcourse'] = 'Dazu gehörender Kurs';
@@ -255,3 +317,7 @@ $string['bookedusers'] = 'Gebuchte Nutzer/innen';
 $string['waitinglistusers'] = 'Nutzer/innen auf der Warteliste';
 $string['downloadallresponses'] = 'Alle Buchungen herunterladen';
 
+// Send message
+$string['messagesubject'] = 'Betreff';
+$string['messagetext'] = 'Nachricht';
+$string['messagesend'] = 'Die Nachricht wurde erfolgreich versandt.';
