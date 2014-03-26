@@ -38,9 +38,9 @@ $PAGE->set_url($url);
 $PAGE->set_title(get_string('modulename', 'booking'));
 $PAGE->set_heading($COURSE->fullname);
 
-echo $OUTPUT->header();
 
 if(!$agree && (!empty($booking->bookingpolicy))){
+    echo $OUTPUT->header();
 	$alright = false;
 	$message = "<p><b>".get_string('agreetobookingpolicy','booking').":</b></p>";
 	$message .= "<p>".$booking->bookingpolicy."<p>";
@@ -48,28 +48,30 @@ if(!$agree && (!empty($booking->bookingpolicy))){
 	$continue = new single_button($continueurl, get_string('continue'),'get');
 	$cancel = new single_button($errorurl, get_string('cancel'),'get');;
 	echo $OUTPUT->confirm($message,$continue,$cancel);
+	echo $OUTPUT->footer();
+	die();
 } else {
 	$bookingpage = new booking_option($id, $optionid);
 	$currentgroup = groups_get_course_group($course);
 	if($currentgroup){
 		$groupmembers = groups_get_members($currentgroup,'u.id');
 	}
-	$options = array('bookingid'=>$cm->instance, 'currentgroup'=>$currentgroup, 'context'=>$context, 'optionid'=>$optionid, 'cmid' =>$cm->id, 'course' => $course,'potentialusers'=>$bookingpage->potentialusers);
+	$options = array('bookingid'=>$cm->instance, 'currentgroup'=>$currentgroup, 'accesscontext'=>$context, 'optionid'=>$optionid, 'cmid' =>$cm->id, 'course' => $course,'potentialusers'=>$bookingpage->potentialusers);
 
 	$bookingoutput = $PAGE->get_renderer('mod_booking');
 	
 	$existingoptions = $options;
 	$existingoptions['potentialusers'] = $bookingpage->bookedvisibleusers;
 
-	$existingselector = new booking_existing_user_selector('existingsubscribers', $existingoptions);
+	$existingselector = new booking_existing_user_selector('removeselect', $existingoptions);
 
-	$subscriberselector = new booking_potential_user_selector('potentialsubscribers', $options);
+	$subscriberselector = new booking_potential_user_selector('addselect', $options);
 
 	if (data_submitted()) {
 		require_sesskey();
 		/** It has to be one or the other, not both or neither */
 		if (!($subscribe xor $unsubscribe)) {
-			print_error('invalidaction');
+			//print_error('invalidaction');
 		}
 		if ($subscribe) {
 			$users = $subscriberselector->get_selected_users();
@@ -104,10 +106,11 @@ if(!$agree && (!empty($booking->bookingpolicy))){
 		$existingselector->invalidate_selected_users();
 		$bookingpage->update_booked_users();
 		$subscriberselector->set_potential_users($bookingpage->potentialusers);
-		$existingselector->potentialusers = $bookingpage->bookedvisibleusers;
+		$existingselector->set_potential_users($bookingpage->bookedvisibleusers);
 	}
-	echo $bookingoutput->subscriber_selection_form($existingselector, $subscriberselector);
-}
 
+}
+echo $OUTPUT->header();
+echo $bookingoutput->subscriber_selection_form($existingselector, $subscriberselector);
 echo $OUTPUT->footer();
 ?>
