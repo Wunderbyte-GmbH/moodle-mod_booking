@@ -321,7 +321,7 @@ $string['associatedcourse'] = 'Associated course';
 $string['bookedusers'] = 'Booked users';
 $string['waitinglistusers'] = 'Users on waiting list';
 $string['downloadallresponses'] = 'Download all responses for all booking options';
-$string['allmailssend'] = 'All emails to users has been sucesfully send!';
+$string['allmailssend'] = 'All emails to users have been sent sucesfully!';
 $string['sendcustommessage'] = 'Send custom message';
 $string['addteachers'] = 'Add teachers';
 

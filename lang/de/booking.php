@@ -316,6 +316,9 @@ $string['associatedcourse'] = 'Dazu gehörender Kurs';
 $string['bookedusers'] = 'Gebuchte Nutzer/innen';
 $string['waitinglistusers'] = 'Nutzer/innen auf der Warteliste';
 $string['downloadallresponses'] = 'Alle Buchungen herunterladen';
+$string['allmailssend'] = 'Alle Benachrichtigungen wurden erfolgreich versandt!';
+$string['sendcustommessage'] = 'Persönliche Nachricht senden';
+$string['addteachers'] = 'Trainer/innen hinzufügen';
 
 // Send message
 $string['messagesubject'] = 'Betreff';
