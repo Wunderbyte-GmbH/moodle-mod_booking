@@ -190,6 +190,9 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('header', 'tagsheader', get_string('tags'));
         $mform->addElement('tags', 'tags', get_string('tags'));
 
+        $taglink = new moodle_url('/tag/search.php', array());
+        $mform->addElement('html', '<a target="_blank" href="' . $taglink . '">' . get_string('searchtag', 'booking') . '</a>');
+
         $options = array();
 
         $options[0] = "&nbsp;";

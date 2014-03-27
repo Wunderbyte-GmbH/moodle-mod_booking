@@ -222,6 +222,7 @@ $string['entervalidurl'] = 'Please, enter a valid URL!';
 $string['poolurltext'] = 'Send pool url';
 $string['additionalfields'] = 'Additional fields';
 $string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name "Bookin name - Option name"';
+$string['searchtag'] = 'Search tags';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';
