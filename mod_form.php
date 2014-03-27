@@ -178,6 +178,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('autoenrol', 'autoenrol', 'booking');
 
         $mform->addElement('selectyesno', 'addtogroup', get_string('addtogroup', 'booking'));
+        $mform->addHelpButton('addtogroup', 'addtogroup', 'booking');
 
         $opts = array(0 => get_string('unlimited', 'mod_booking'));
         $extraopts = array_combine(range(1, 100), range(1, 100));
@@ -188,6 +189,9 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('header', 'tagsheader', get_string('tags'));
         $mform->addElement('tags', 'tags', get_string('tags'));
+
+        $taglink = new moodle_url('/tag/search.php', array());
+        $mform->addElement('html', '<a target="_blank" href="' . $taglink . '">' . get_string('searchtag', 'booking') . '</a>');
 
         $options = array();
 

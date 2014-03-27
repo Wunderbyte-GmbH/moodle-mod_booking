@@ -15,4 +15,4 @@ $module->version  = 2014032600;
 $module->requires = 2010112400;  // Requires this Moodle 2.X version
 $module->release = '2.5';
 $module->maturity = MATURITY_STABLE;
-$module->cron     = 1;
+$module->cron     = 5;

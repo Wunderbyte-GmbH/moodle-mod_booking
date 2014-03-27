@@ -1990,35 +1990,36 @@ class booking_potential_subscriber_selector extends booking_subscriber_selector_
 function booking_subscribed_teachers($course, $optionid, $id, $groupid=0, $context = null, $fields = null) {
 	global $CFG, $DB;
 
-	$allnames = get_all_user_name_fields(true, 'u');
-	if (empty($fields)) {
-		$fields ="u.id,
-		u.username,
-		$allnames,
-		u.maildisplay,
-		u.mailformat,
-		u.maildigest,
-		u.imagealt,
-		u.email,
-		u.emailstop,
-		u.city,
-		u.country,
-		u.lastaccess,
-		u.lastlogin,
-		u.picture,
-		u.timezone,
-		u.theme,
-		u.lang,
-		u.trackforums,
-		u.mnethostid";
-	}
-
 	if (empty($context)) {
 		$cm = get_coursemodule_from_id('booking', $id);
 		$context = context_module::instance($cm->id);
 	}
 
-        // only active enrolled users or everybody on the frontpage
+	$extrauserfields = get_extra_user_fields($context);
+    $allnames = user_picture::fields('u',$extrauserfields);
+    if (empty($fields)) {
+        $fields ="u.id,
+        u.username,
+        $allnames,
+        u.maildisplay,
+        u.mailformat,
+        u.maildigest,
+        u.imagealt,
+        u.email,
+        u.emailstop,
+        u.city,
+        u.country,
+        u.lastaccess,
+        u.lastlogin,
+        u.picture,
+        u.timezone,
+        u.theme,
+        u.lang,
+        u.trackforums,
+        u.mnethostid";
+    }
+
+    // only active enrolled users or everybody on the frontpage
 	list($esql, $params) = get_enrolled_sql($context, '', $groupid, true);
 	$params['optionid'] = $optionid;
 	$results = $DB->get_records_sql("SELECT $fields
