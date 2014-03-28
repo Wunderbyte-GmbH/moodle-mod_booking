@@ -153,7 +153,13 @@ function booking_add_instance($booking) {
 
 	$booking->timemodified = time();
 
-	$booking->additionalfields = implode(',', $booking->additionalfields);
+	if (isset($booking->additionalfields) && count($booking->additionalfields) > 0) {
+		$booking->additionalfields = implode(',', $booking->additionalfields);
+	}	
+
+	if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
+		$booking->categoryid = implode(',', $booking->categoryid);
+	}
 
 	if (empty($booking->timerestrict)) {
 		$booking->timeopen = 0;
@@ -211,7 +217,13 @@ function booking_update_instance($booking) {
 	$booking->id = $booking->instance;
 	$booking->timemodified = time();
 
-	$booking->additionalfields = implode(',', $booking->additionalfields);
+	if (isset($booking->additionalfields) && count($booking->additionalfields) > 0) {
+		$booking->additionalfields = implode(',', $booking->additionalfields);
+	}	
+
+	if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
+		$booking->categoryid = implode(',', $booking->categoryid);
+	}		
 
 	tag_set('booking', $booking->id, $booking->tags);
 

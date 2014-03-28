@@ -210,9 +210,14 @@ class mod_booking_mod_form extends moodleform_mod {
         if (isset($COURSE->id)) {
             $url .= '?courseid='.$COURSE->id;
         }
+ 
+        $select = $mform->addElement('select', 'categoryid', get_string('category', 'booking'), $options, array());
+        $select->setMultiple(true);
 
-        $mform->addElement('selectwithlink', 'categoryid', get_string('category', 'booking'), $options, null,
-                array('link' => $url, 'label' => get_string('addcategory', 'booking')));
+        $mform->addElement('html', '<a target="_blank" href="' . $url . '">' . get_string('addcategory', 'booking') . '</a>');
+
+        //$mform->addElement('selectwithlink', 'categoryid', get_string('category', 'booking'), $options, null,
+        //        array('link' => $url, 'label' => get_string('addcategory', 'booking')));
 
         $mform->addElement('header', 'categoryadditionalfields', get_string('additionalfields', 'booking'));
         $additionalfields = array();
