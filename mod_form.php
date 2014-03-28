@@ -211,7 +211,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $url .= '?courseid='.$COURSE->id;
         }
  
-        $select = $mform->addElement('select', 'categoryid', get_string('category', 'booking'), $options, array());
+        $select = $mform->addElement('select', 'categoryid', get_string('category', 'booking'), $options, array('size' => 15));
         $select->setMultiple(true);
 
         $mform->addElement('html', '<a target="_blank" href="' . $url . '">' . get_string('addcategory', 'booking') . '</a>');
