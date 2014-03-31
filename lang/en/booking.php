@@ -49,6 +49,11 @@ $string['teachers'] = 'Teachers: ';
 $string['daystonotify'] = 'How many days before start of event to notify participaints?';
 $string['notificationsubject'] = 'Upcoming course...';
 
+// Bookingform
+$string['location'] = 'Location';
+$string['institution'] = 'Institution';
+$string['address'] = 'Address';
+
 // Categories
 $string['category'] = 'Category';
 $string['categories'] = 'Categories';
@@ -148,6 +153,10 @@ $string['bookedtext_help'] = 'Leave this blank to use the site default text. You
 <li>{enddate}</li>
 <li>{courselink}</li>
 <li>{bookinglink}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
 </ul>';
 $string['waitingtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -162,6 +171,10 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
 </ul>';
 $string['statuschangetext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -176,6 +189,10 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
 </ul>';
 $string['deletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -190,6 +207,10 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
 </ul>';
 
 $string['pollurltext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -205,6 +226,10 @@ $string['pollurltext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
 </ul>';
 
 $string['maxperuser'] = 'Max current bookings per user';
@@ -223,6 +248,7 @@ $string['pollurltext'] = 'Send poll url';
 $string['additionalfields'] = 'Additional fields';
 $string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name "Bookin name - Option name"';
 $string['searchtag'] = 'Search tags';
+$string['eventtype'] = 'Event type';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';
@@ -314,7 +340,7 @@ Associated course: {$a->courselink}
 $string['pollurltextsubject'] = 'Please, take the survey';
 $string['pollurltextmessage'] = 'Please, take the survey
 
-Survey url {$a->pollurl}
+Survey url {pollurl}
 ';
 
 //report.php

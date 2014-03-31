@@ -281,6 +281,11 @@ function booking_update_options($optionvalues){
 	$option = new stdClass();
 	$option->bookingid = $optionvalues->bookingid;
 	$option->text = trim($optionvalues->text);
+
+	$option->location = trim($optionvalues->location);
+	$option->institution = trim($optionvalues->institution);
+	$option->address = trim($optionvalues->address);
+
 	$option->daystonotify = $optionvalues->daystonotify;
 	$option->pollurl = $optionvalues->pollurl;
 	if ($optionvalues->limitanswers == 0){
@@ -677,11 +682,22 @@ function booking_show_form($booking, $user, $cm, $allresponses,$singleuser=0,$so
 		$printTeachers .= "</p>";
 	}
 
+	$additionalInfo = '';
+	if (strlen($option->location) > 0) {
+		$additionalInfo .= '<p>' . get_string('location', "booking") . ': ' . $option->location . '</p>';
+	}
+	if (strlen($option->institution) > 0) {
+		$additionalInfo .= '<p>' . get_string('institution', "booking") . ': ' . $option->institution . '</p>';
+	}
+	if (strlen($option->address) > 0) {
+		$additionalInfo .= '<p>' . get_string('address', "booking") . ': ' . $option->address . '</p>';
+	}
+
 	$tabledata[] = array ($bookingbutton.$optiondisplay->booked.'
 		<br />'.get_string($option->status, "booking").'
 		<br />'.$optiondisplay->delete.$optiondisplay->manage.'
 		<br />'.$optiondisplay->bookotherusers,
-		"<b>".format_text($option->text. ' ', FORMAT_MOODLE, $displayoptions)."</b>"."<p>".$option->description."</p>" . $printTeachers,
+		"<b>".format_text($option->text. ' ', FORMAT_MOODLE, $displayoptions)."</b>"."<p>".$option->description."</p>" . $printTeachers . $additionalInfo,
 		$option->coursestarttimetext." - <br />".$option->courseendtimetext,
 		$stravailspaces);
 }
@@ -691,6 +707,9 @@ $table->attributes['style'] = '';
 $table->data = array();
 $strselect =  get_string("select", "booking");
 $strbooking = get_string("booking", "booking");
+if (strlen($booking->eventtype) > 0) {
+	$strbooking = $booking->eventtype;
+}
 $strdate = '<a href="' . $sorturl . '">' .  get_string("coursedate", "booking") . '</a>';
 $stravailability = get_string("availability", "booking");
 
@@ -1535,6 +1554,10 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
 	$params->enddate = $option->courseendtime ? userdate($option->courseendtime, $dateformat) : '';
 	$params->courselink = $courselink;
 	$params->bookinglink = $bookinglink;
+	$params->location = $option->location;
+	$params->institution = $option->institution;
+	$params->address = $option->address;
+	$params->eventtype = $bookings->eventtype;
 	if (empty($option->pollurl)) {
 		$params->pollurl = $booking->pollurl;
 	} else {

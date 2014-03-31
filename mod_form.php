@@ -42,6 +42,14 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         $mform->addRule('name', null, 'required', null, 'client');
 
+        $mform->addElement('text', 'eventtype', get_string('eventtype', 'booking'), array('size'=>'64'));
+        if (!empty($CFG->formatstringstriptags)) {
+            $mform->setType('eventtype', PARAM_TEXT);
+        } else {
+            $mform->setType('eventtype', PARAM_CLEANHTML);
+        }
+        $mform->addRule('eventtype', null, 'required', null, 'client');        
+
         $this->add_intro_editor(true, get_string('bookingtext', 'booking'));
 
         $mform->addElement('text', 'duration', get_string('bookingduration', 'booking'), array('size'=>'64'));
