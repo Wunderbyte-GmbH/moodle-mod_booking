@@ -92,6 +92,7 @@ $string['subscribetocourse'] = 'Nutzer/innen in den Kurs einschreiben';
 $string['closed'] = 'Buchung beendet';
 $string['waitspaceavailable'] = 'Wartelistenplätze verfügbar';
 $string['onwaitinglist'] = 'Sie sind auf der Warteliste';
+$string['waitinglist'] = 'Auf der Warteliste';
 $string['bookingmeanwhilefull'] = 'Leider hat inzwischen jemand anderer den letzten Platz gebucht';
 $string['unlimited'] = 'Unbegrenzt';
 $string['starttimenotset'] = 'Kursbeginn nicht festgelegt';

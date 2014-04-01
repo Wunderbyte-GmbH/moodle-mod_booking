@@ -92,6 +92,7 @@ $string['subscribetocourse'] = 'Enrol users in the course';
 $string['closed'] = 'Booking closed';
 $string['waitspaceavailable'] = 'Places on waiting list available';
 $string['onwaitinglist'] = 'You are on the waiting list';
+$string['waitinglist'] = 'On waiting list';
 $string['bookingmeanwhilefull'] = 'Meanwhile someone took already the last place';
 $string['unlimited'] = 'Unlimited';
 $string['starttimenotset'] = 'Start date not set';

@@ -49,3 +49,13 @@ tr.mod-booking-invisible {
 .subscribertable tr td.actions .actionbutton {margin:0.3em 0;padding:0.5em 0;width:100%;}
 .subscribertable tr td.existing,
 .subscribertable tr td.potential {width:42%;}
+
+/** styles for displaying all bookings */
+.mod-booking-regular {
+	display: table-cell;
+	padding: 5px;
+}
+.mod-booking-waiting {
+	display: table-cell;
+	padding: 5px;
+}

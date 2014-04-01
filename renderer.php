@@ -106,6 +106,91 @@ class mod_booking_renderer extends plugin_renderer_base {
         $output .= $this->output->box_end();
         return $output;
     }
+    
+    /**
+     * display all the bookings of the whole moodle site
+     * sorted by course
+     * @param booking_options $bookingoptions
+     * @return string rendered html
+     */
+    public function render_bookings(booking_options $bookingoptions){
+        $output = '';    
+        $output .= html_writer::start_div();
+        $header = html_writer::tag('h3', $bookingoptions->booking->name);
+        $url = new moodle_url('/mod/booking/view.php', array('id' => $bookingoptions->cm->id));
+        $output .= html_writer::link($url, $header);
+        foreach ($bookingoptions->options as $optionid => $bookingoption){
+            if(!empty($bookingoptions->allbookedusers[$optionid])){
+                $waitinglist = array();                
+                $output .= html_writer::tag('h4', $bookingoption->text);
+                $output .= html_writer::start_div('mod-booking-regular');
+                $output .= html_writer::div(get_string('bookedusers', 'booking'));
+                $table = new html_table();
+                $table->cellpadding = 1;
+                $table->cellspacing = 0;
+                $table->tablealign = 'left';
+                $table->data = array();
+                foreach($bookingoptions->allbookedusers[$optionid] as $user){
+                    if($user->bookingvisible && $user->status == 'booked'){
+                        $table->data[] = array($this->output->user_picture($user, array('courseid'=>$bookingoptions->booking->course)), fullname($user) . "<br />" . $user->email);
+                    } else if ($user->bookingvisible) {
+                        $waitinglist[] = $user;
+                    }
+                }
+                $output .= html_writer::table($table);
+                $output .= html_writer::end_div();
+            } 
+            if(!empty($waitinglist)){
+                $output .= html_writer::start_div('mod-booking-waiting');
+                $output .= html_writer::div(get_string('waitinglistusers', 'booking'));
+                $table = new html_table();
+                $table->cellpadding = 1;
+                $table->cellspacing = 0;
+                $table->tablealign = 'left';
+                $table->data = array();
+                foreach($waitinglist as $user){
+                    if($user->bookingvisible){
+                        $table->data[] = array($this->output->user_picture($user, array('courseid'=>$bookingoptions->booking->course)), fullname($user) . "<br />" . $user->email);
+                    }
+                }
+                $output .= html_writer::table($table);
+                $output .= html_writer::end_div();
+            }
+        }
+        $output .= html_writer::end_div();
+        return $output;
+    }
+    
+    /**
+     * render userbookings for the whole site sorted per user
+     * @param array $userbookings
+     * @return string rendered html
+     */
+    public function render_bookings_per_user($userbookings){
+        $output = '';
+        $items = array();
+        foreach($userbookings as $userid => $options){
+            $items = array();
+            
+            foreach($options as $optionid => $user){
+                // if the user is visible in only one booking instance, than show the user otherwise do not show
+                if($user->bookingvisible){
+                    $bookinginstanceurl = new moodle_url('/mod/booking/view.php', array('id' => $user->bookingid));
+                    $bookingcourseurl = new moodle_url('/course/view.php', array('id' => $user->courseid));
+                    $bookinglink = html_writer::link($bookinginstanceurl, $user->bookingtitle);
+                    $courselink = html_writer::link($bookingcourseurl, $user->coursename);
+                    $html = html_writer::span("$user->bookingoptiontitle $bookinglink.  $courselink ". get_string($user->status,'booking'));
+                    $items[] = $html;
+                }
+            }
+            if(!empty($items)){
+                $user = reset($options);
+                $output .= html_writer::tag('h4', $this->output->user_picture($user) . " ".  fullname($user));
+                $output .= html_writer::tag('span', $user->email);                
+                $output .= html_writer::alist($items);
+            }
+        }        
 
-
+        return $output;
+    }
 }
