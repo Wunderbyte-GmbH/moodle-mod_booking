@@ -315,7 +315,7 @@ Associated course: {$a->courselink}
 $string['pollurltextsubject'] = 'Please, take the survey';
 $string['pollurltextmessage'] = 'Please, take the survey
 
-Survey url {$a->pollurl}
+Survey url {pollurl}
 ';
 
 //report.php

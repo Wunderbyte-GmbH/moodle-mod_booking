@@ -306,7 +306,7 @@ Link: {$a->bookinglink}
 $string['pollurltextsubject'] = 'Nehmen Sie bitte an der Umfrage teil';
 $string['pollurltextmessage'] = 'Füllen Sie die Umfrage unter
 
-Survey url {$a->pollurl}
+Survey url {pollurl}
         
 aus.
 ';
