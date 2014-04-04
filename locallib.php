@@ -281,6 +281,7 @@ class booking_options extends booking {
  * Collects all booked options by a user and
  * the bookings of group members, with the right
  * to see bookings of other users for the whole moodle instance
+ * TODO: Performance of my bookings, improve overall performance without using booking object, reduce SQl queries
  */
 class booking_all_bookings {
 
@@ -427,7 +428,7 @@ class booking_all_bookings {
         $output = '';
         $renderer = $PAGE->get_renderer('mod_booking');
         $my = 0;
-        if ($sort == 'user' || $sort == 'my') {
+        if ($sort === 'user' || $sort === 'my') {
             if($sort == 'my'){
                 $my = $USER->id;
             }

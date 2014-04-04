@@ -167,7 +167,6 @@ class mod_booking_renderer extends plugin_renderer_base {
      * @return string rendered html
      */
     public function render_bookings_per_user($userbookings){
-        global $DB;
         $output = html_writer::div(' ');
         $items = array();
         
