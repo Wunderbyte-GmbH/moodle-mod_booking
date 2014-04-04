@@ -131,9 +131,9 @@ class mod_booking_renderer extends plugin_renderer_base {
                 $table->tablealign = 'left';
                 $table->data = array();
                 foreach($bookingoptions->allbookedusers[$optionid] as $user){
-                    if($user->bookingvisible && $user->status == 'booked'){
+                    if($user->status[$optionid]->bookingvisible && $user->status[$optionid]->booked == 'booked'){
                         $table->data[] = array($this->output->user_picture($user, array('courseid'=>$bookingoptions->booking->course)), fullname($user) . "<br />" . $user->email);
-                    } else if ($user->bookingvisible) {
+                    } else if ($user->status[$optionid]->bookingvisible) {
                         $waitinglist[] = $user;
                     }
                 }
@@ -149,7 +149,7 @@ class mod_booking_renderer extends plugin_renderer_base {
                 $table->tablealign = 'left';
                 $table->data = array();
                 foreach($waitinglist as $user){
-                    if($user->bookingvisible){
+                    if($user->status[$optionid]->bookingvisible){
                         $table->data[] = array($this->output->user_picture($user, array('courseid'=>$bookingoptions->booking->course)), fullname($user) . "<br />" . $user->email);
                     }
                 }
@@ -167,26 +167,28 @@ class mod_booking_renderer extends plugin_renderer_base {
      * @return string rendered html
      */
     public function render_bookings_per_user($userbookings){
-        $output = '';
+        global $DB;
+        $output = html_writer::div(' ');
         $items = array();
+        
         foreach($userbookings as $userid => $options){
             $items = array();
             
             foreach($options as $optionid => $user){
                 // if the user is visible in only one booking instance, than show the user otherwise do not show
-                if($user->bookingvisible){
-                    $bookinginstanceurl = new moodle_url('/mod/booking/view.php', array('id' => $user->bookingid));
-                    $bookingcourseurl = new moodle_url('/course/view.php', array('id' => $user->courseid));
-                    $bookinglink = html_writer::link($bookinginstanceurl, $user->bookingtitle);
-                    $courselink = html_writer::link($bookingcourseurl, $user->coursename);
-                    $html = html_writer::span("$user->bookingoptiontitle $bookinglink.  $courselink ". get_string($user->status,'booking'));
+                if($user->status[$optionid]->bookingvisible){
+                    $bookinginstanceurl = new moodle_url('/mod/booking/view.php', array('id' => $user->status[$optionid]->bookingcmid));
+                    $bookingcourseurl = new moodle_url('/course/view.php', array('id' => $user->status[$optionid]->courseid));
+                    $bookinglink = html_writer::link($bookinginstanceurl, $user->status[$optionid]->bookingtitle);
+                    $courselink = html_writer::link($bookingcourseurl, $user->status[$optionid]->coursename);
+                    $html = html_writer::span($user->status[$optionid]->bookingoptiontitle ." $bookinglink.  $courselink ". get_string($user->status[$optionid]->booked,'booking'));
                     $items[] = $html;
                 }
             }
             if(!empty($items)){
                 $user = reset($options);
-                $output .= html_writer::tag('h4', $this->output->user_picture($user) . " ".  fullname($user));
-                $output .= html_writer::tag('span', $user->email);                
+                $output .= html_writer::tag('span', $this->output->user_picture($user) . " ".  fullname($user))." ";
+                $output .= html_writer::link('mailto:'.$user->email, $user->email);                
                 $output .= html_writer::alist($items);
             }
         }        
