@@ -26,11 +26,14 @@ class booking {
     /** @var stdClass the course module for this assign instance */
     public  $cm = null;
 
-    /** @var array users who have capability to book */
+    /** @var array of user objects who have capability to book. object contains only id */
     public  $canbookusers = array();
 
     /** @var array users who are members of the current users group */
     public $groupmembers = array();
+    
+    /** @var booking booking object from booking instance settings */
+    public $booking;
 
 
     /**
@@ -47,9 +50,11 @@ class booking {
         $this->context = context_module::instance($this->cm->id);
         $this->course = $DB->get_record('course', array('id' => $this->cm->course), 'id, fullname, shortname, groupmode, groupmodeforce, visible', MUST_EXIST);
         $this->booking = $DB->get_record("booking", array("id" => $this->id));
-        //TODO: for 2.6 replace user_picture::fields(); with get_all_user_name_fields()
-        //$mainuserfields = user_picture::fields();
-        $this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose', 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
+        
+        //TODO check if course has guest access if not get all enrolled users and check with has_capability if user has right to book
+        //
+        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose',null,'u.id'); 
+        //$this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose', 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
         // if the course has groups and I do not have the capability to see all groups, show only users of my groups
         if($this->course->groupmode !== 0 && !has_capability('moodle/site:accessallgroups', $this->context)){
             $this->groupmembers = $this::booking_get_groupmembers($this->course->id);
@@ -57,20 +62,16 @@ class booking {
     }
 
     public static function booking_get_groupmembers($courseid){
-        global $USER;
+        global $USER, $DB;
         $groupmembers = array();
         $usergroups = groups_get_all_groups($courseid,$USER->id);
+        
         if(!empty($usergroups)){
-            foreach($usergroups as $usergroup){
-                $usergroupmembers[$usergroup->id] = groups_get_members($usergroup->id, 'u.id, u.firstname, u.lastname, u.email');
-            }
-            foreach ($usergroupmembers as $groups){
-                if(!empty($groups)){
-                    foreach($groups as $group){
-                        $groupmembers[$group->id] = $group;
-                    }
-                }
-            }
+            $groupsparam = implode(',', array_keys($usergroups));
+            $groupmembers = $DB->get_records_sql("SELECT u.id
+                FROM {user} u, {groups_members} gm
+                WHERE u.id = gm.userid AND gm.groupid IN (?)
+                ORDER BY lastname ASC", array($groupsparam));
         }
         return $groupmembers;
     }
@@ -172,17 +173,20 @@ class booking_options extends booking {
         $totalbookings = array();
          
         /// First get all the users who have access here
-        $allresponses = $this->canbookusers;
 
-        /// Get all the recorded responses for this booking
-        $rawresponses = $DB->get_records('booking_answers', array('bookingid' => $this->id), "optionid, timemodified ASC",'id,optionid,userid');
-        //$optionids = $DB->get_records_select('booking_options', "bookingid = $this->id",array(),'id','id');
-        /// Use the responses to move users into the correct column
-         
+        ///TODO from 2.6 on use  get_all_user_name_fields() instead of user_picture
+        $mainuserfields = user_picture::fields('u',null);
+        $sql = "SELECT ba.id AS answerid, ba.optionid, ba.bookingid, $mainuserfields
+        FROM {booking_answers} ba, {user} u
+        WHERE ba.userid = u.id AND
+        u.deleted = 0 AND 
+        ba.bookingid = ".$this->id . "
+                ORDER BY ba.optionid, ba.timemodified ASC";
+        $rawresponses = $DB->get_records_sql($sql, array());
         if ($rawresponses) {
             foreach ($rawresponses as $response) {
-                if (isset($allresponses[$response->userid])) {   // This person is enrolled and in correct group
-                    $bookinglist[$response->optionid][] = $allresponses[$response->userid];
+                if (array_key_exists($response->id,$this->canbookusers)) {   // This person is enrolled and in correct group
+                    $bookinglist[$response->optionid][] = $response;
                     $optionids[$response->optionid] = $response->optionid;
                 }
             }
@@ -190,7 +194,6 @@ class booking_options extends booking {
                 $totalbookings[$optionid] = count($bookinglist[$optionid]);
             }
         }
-        // get user profile data here TODO or later?
         $this->allbookedusers = $bookinglist;
         $this->sort_bookings();
         $this->numberofbookingsperoption = $totalbookings;
@@ -337,35 +340,18 @@ class booking_all_bookings {
      * get all booking data from booking instances where $USER has the cap mod/booking:subscribeusers
      */
     public function get_all_bookings_visible(){
-        global $DB;
         $bookinginstances = $this->subscribeprivilegeinstances;
         if(!empty($this->subscribeprivilegeinstances)){
             foreach($bookinginstances as $bookinginstance){
                 $this->allbookings[$bookinginstance->id] = new booking_options($bookinginstance->coursemodule);
-                unset($this->allbookings[$bookinginstance->id]->canbookusers); 
-                foreach($this->allbookings[$bookinginstance->id]->allbookedusers as &$users){
-                    $a = array_map(function($obj) { return array($obj->id => $obj); }, $users);
-                    foreach($users as &$userobject){
-                        $newusers[$userobject->id] = $userobject;                        
-                    }
-                }
-                $sql = "id IN (" . implode(',',array_keys($newusers)).") ";
-                $mainuserfields = user_picture::fields();
-                $userprofiledata = $DB->get_records_select('user', $sql,array(),'','id, '. $mainuserfields);
-                foreach($newusers as $userid => &$user){
-                    $user->picture = $userprofiledata[$userid]->picture;
-                    $user->firstname = $userprofiledata[$userid]->firstname;
-                    $user->lastname = $userprofiledata[$userid]->lastname;
-                    $user->imagealt = $userprofiledata[$userid]->imagealt;
-                    $user->email = $userprofiledata[$userid]->email;
-                }
+                unset($this->allbookings[$bookinginstance->id]->canbookusers);
             }
         }
     }
     
     public function get_my_bookings(){
         foreach($this->allbookings as $bookingid => $bookingoptions){
-           $mybookings = $bookingoptions->get_my_bookings;
+           $mybookings = $bookingoptions->get_my_bookings();
         }
         return $mybookings;
     }
