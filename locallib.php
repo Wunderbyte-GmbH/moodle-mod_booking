@@ -292,7 +292,7 @@ class booking_options extends booking {
 
         ///TODO from 2.6 on use  get_all_user_name_fields() instead of user_picture
         $mainuserfields = user_picture::fields('u',null);
-        $sql = "SELECT ba.id AS answerid, ba.optionid, ba.bookingid, $mainuserfields
+        $sql = "SELECT $mainuserfields, ba.optionid, ba.bookingid
         FROM {booking_answers} ba, {user} u
         WHERE ba.userid = u.id AND
         u.deleted = 0 AND
@@ -300,11 +300,10 @@ class booking_options extends booking {
                 ORDER BY ba.optionid, ba.timemodified ASC";
         $rawresponses = $DB->get_records_sql($sql, array());
         if ($rawresponses) {
-            foreach ($rawresponses as $response) {
-                if (array_key_exists($response->id,$this->canbookusers)) {   // This person is enrolled and in correct group
+            $validresponses = array_intersect_key($rawresponses, $this->canbookusers);
+            foreach ($validresponses as &$response) {
                     $bookinglist[$response->optionid][] = $response;
                     $optionids[$response->optionid] = $response->optionid;
-                }
             }
             foreach ($optionids as $optionid){
                 $totalbookings[$optionid] = count($bookinglist[$optionid]);
@@ -441,6 +440,7 @@ class booking_all_bookings {
                 $this->courseswithbookings[$instance->course] = $instance->course;
             }
         } else {
+            //enrol_get_users_courses($userid, sortorder ASC');
             $this->usercourses = enrol_get_all_users_courses($USER->id, 'sortorder ASC');
             $bookings = get_all_instances_in_courses('booking', $this->usercourses);
             foreach ($bookings as $booking){
