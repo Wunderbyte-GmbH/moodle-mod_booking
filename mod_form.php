@@ -56,7 +56,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setType('duration', PARAM_TEXT);
 
         $mform->addElement('text', 'points', get_string('bookingpoints', 'booking'), 0);
-        $mform->setType('points', PARAM_INT);
+        $mform->setType('points', PARAM_FLOAT);
 
         $mform->addElement('text', 'organizatorname', get_string('bookingorganizatorname', 'booking'), array('size'=>'64'));
         $mform->setType('organizatorname', PARAM_TEXT);
