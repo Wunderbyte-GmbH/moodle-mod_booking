@@ -702,7 +702,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
             $stravailspaces);
     }
     $table = new html_table();
-    $table->attributes['class'] = 'box generalbox boxaligncenter boxwidthwide';
+    $table->attributes['class'] = 'box generalbox boxaligncenter boxwidthwide booking';
     $table->attributes['style'] = '';
     $table->data = array();
     $strselect = get_string("select", "booking");
