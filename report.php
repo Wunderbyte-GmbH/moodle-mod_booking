@@ -193,6 +193,7 @@ if (!$download) {
 					if ($DB->get_records_select('user_info_data', 'userid = '. $user->id,array(), 'fieldid')){
 						foreach ($userprofilefields as $profilefieldid => $profilefield){
 							$myxls->write_string($row,$i++,strip_tags($DB->get_field('user_info_data', 'data', array('fieldid' => $profilefieldid, 'userid' => $user->id))),$cellform);
+                                                        $neki = strip_tags($DB->get_field('user_info_data', 'data', array('fieldid' => $profilefieldid, 'userid' => $user->id)));
 						}
 					} else {
 						$myxls->write_string($row,$i++,'');
@@ -226,7 +227,12 @@ if (!$download) {
 				$i=5;
 				if ($DB->get_records_select('user_info_data', 'userid = '. $user->id, array(), 'fieldid')){
 					foreach ($userprofilefields as $profilefieldid => $profilefield){
-						$myxls->write_string($row,$i++,strip_tags($DB->get_field('user_info_data', 'data', array('fieldid' => $profilefieldid, 'userid' => $user->id))),$cellform);
+                                                $fType = $DB->get_field('user_info_field', 'datatype', array('shortname' => $profilefield->shortname));
+                                                if ($fType == 'datetime') {
+                                                    $myxls->write_string($row,$i++,userdate($DB->get_field('user_info_data', 'data', array('fieldid' => $profilefieldid, 'userid' => $user->id)), get_string('strftimedatefullshort')),$cellform);
+                                                } else {
+                                                    $myxls->write_string($row,$i++,strip_tags($DB->get_field('user_info_data', 'data', array('fieldid' => $profilefieldid, 'userid' => $user->id))),$cellform);
+                                                }
 					}
 				} else {
 					$myxls->write_string($row,$i++,'asdf');
