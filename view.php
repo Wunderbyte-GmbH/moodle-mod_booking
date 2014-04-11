@@ -150,7 +150,7 @@ if (!empty($booking->duration)) {
 	echo html_writer::end_tag('div');
 }
 
-if (!empty($booking->points)) {
+if (!empty($booking->points) && ($booking->points != 0)) {
 	echo html_writer::start_tag('div');
 	echo html_writer::tag('label', get_string('eventpoints','booking').': ', array('class' => 'bold'));
 	echo html_writer::tag('span', $booking->points);

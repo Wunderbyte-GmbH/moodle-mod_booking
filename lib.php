@@ -331,17 +331,22 @@ function booking_update_options($optionvalues) {
                 $option->groupid = 0;
             }
 
+            $whereis = '';
+            if (strlen($option->location) > 0) {
+                $whereis = '<p>' . get_string('location', 'booking') . ': ' . $option->location . '</p>';
+            }
+            
             if ($event->id > 0) {
                 // event exist
                 if (isset($optionvalues->addtocalendar)) {
                     $event->name = $option->text;
-                    $event->description = $option->description;
+                    $event->description = $option->description . $whereis;
                     $event->courseid = $option->courseid;
                     if ($option->courseid == 0) {
                         $event->courseid = $booking->course;
-                    }                    
-                    $event->groupid      = 0;
-                    $event->userid       = 0;
+                    }
+                    $event->groupid = 0;
+                    $event->userid = 0;
                     $event->modulename = 'booking';
                     $event->instance = $option->bookingid;
                     $event->eventtype = 'booking';
@@ -368,13 +373,13 @@ function booking_update_options($optionvalues) {
                 if (isset($optionvalues->addtocalendar)) {
                     $event = new stdClass;
                     $event->name = $option->text;
-                    $event->description = $option->description;
+                    $event->description = $option->description . $whereis;
                     $event->courseid = $option->courseid;
                     if ($option->courseid == 0) {
                         $event->courseid = $booking->course;
-                    }   
-                    $event->groupid      = 0;
-                    $event->userid       = 0;
+                    }
+                    $event->groupid = 0;
+                    $event->userid = 0;
                     $event->modulename = 'booking';
                     $event->instance = $option->bookingid;
                     $event->eventtype = 'booking';
@@ -395,16 +400,22 @@ function booking_update_options($optionvalues) {
         $option->calendarid = 0;
         // Insert into calendar
         // We add a new booking_options?
+        
+        $whereis = '';
+            if (strlen($option->location) > 0) {
+                $whereis = '<p>' . get_string('location', 'booking') . ': ' . $option->location . '</p>';
+            }
+            
         if (isset($optionvalues->addtocalendar)) {
             $event = new stdClass;
             $event->name = $option->text;
-            $event->description = $option->description;
+            $event->description = $option->description . $whereis;
             $event->courseid = $option->courseid;
             if ($option->courseid == 0) {
-                        $event->courseid = $booking->course;
-                    }   
-            $event->groupid      = 0;
-            $event->userid       = 0;
+                $event->courseid = $booking->course;
+            }
+            $event->groupid = 0;
+            $event->userid = 0;
             $event->modulename = 'booking';
             $event->instance = $option->bookingid;
             $event->eventtype = 'booking';
