@@ -210,8 +210,12 @@ function booking_update_instance($booking) {
 	// we have to prepare the bookingclosingtimes as an $arrray, currently they are in $booking as $key (string)
 	$booking->id = $booking->instance;
 	$booking->timemodified = time();
-
-	$booking->additionalfields = implode(',', $booking->additionalfields);
+    
+	if(!empty($booking->additionalfields)){
+	    $booking->additionalfields = implode(',', $booking->additionalfields);
+	} else {
+	    $booking->additionalfields = '';
+	}
 
 	tag_set('booking', $booking->id, $booking->tags);
 
