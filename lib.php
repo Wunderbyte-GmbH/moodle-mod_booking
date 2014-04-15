@@ -152,8 +152,12 @@ function booking_add_instance($booking) {
 	// of the new instance.
 
 	$booking->timemodified = time();
-
-	$booking->additionalfields = implode(',', $booking->additionalfields);
+    
+	if(!empty($booking->additionalfields)){
+	    $booking->additionalfields = implode(',', $booking->additionalfields);
+	} else {
+	    $booking->additionalfields ='';
+	}
 
 	if (empty($booking->timerestrict)) {
 		$booking->timeopen = 0;

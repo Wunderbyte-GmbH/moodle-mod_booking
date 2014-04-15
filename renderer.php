@@ -20,7 +20,7 @@
  * is used by the booking module.
  *
  * @package mod-booking
- * @copyright 2014 Andraž Prinčič
+ * @copyright 2014 David Bogner, Andraž Prinčič
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  **/
 class mod_booking_renderer extends plugin_renderer_base {

@@ -50,17 +50,29 @@ class booking {
         $this->context = context_module::instance($this->cm->id);
         $this->course = $DB->get_record('course', array('id' => $this->cm->course), 'id, fullname, shortname, groupmode, groupmodeforce, visible', MUST_EXIST);
         $this->booking = $DB->get_record("booking", array("id" => $this->id));
-
-        //TODO check if course has guest access if not get all enrolled users and check with has_capability if user has right to book
-        //
-        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose',null,'u.id');
-        //$this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose', 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
         // if the course has groups and I do not have the capability to see all groups, show only users of my groups
         if($this->course->groupmode !== 0 && !has_capability('moodle/site:accessallgroups', $this->context)){
             $this->groupmembers = $this::booking_get_groupmembers($this->course->id);
         }
     }
-
+    
+    /**
+     * get all the user ids who are allowed to book
+     * capability mod/booking:choose
+     * available in $htis->canbookusers
+     */
+    public function get_canbook_userids(){
+        //TODO check if course has guest access if not get all enrolled users and check with has_capability if user has right to book
+        //$this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose', 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
+        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose',null,'u.id');
+    }
+    
+    /**
+     * get all group members of $USER (of all groups $USER belongs to)
+     * 
+     * @param int $courseid
+     * @return array: all members of all groups $USER belongs to
+     */
     public static function booking_get_groupmembers($courseid){
         global $USER, $DB;
         $groupmembers = array();
@@ -125,8 +137,10 @@ class booking_option extends booking {
      */
     public function update_booked_users(){
         global $DB;
-
         $select = "bookingid = $this->id AND optionid =  $this->optionid";
+        if(empty($this->canbookusers)){
+            $this->get_canbook_userids();
+        }
 
         $mainuserfields = user_picture::fields('u',null);
         $sql = "SELECT $mainuserfields, ba.id AS answerid, ba.optionid, ba.bookingid 
@@ -260,13 +274,17 @@ class booking_options extends booking {
     /** @var array key: optionid numberofbookingsperoption */
     public $numberofbookingsperoption;
 
-    /** @var config objects of options id as key */
+    /** @var array: config objects of options id as key */
     public $options = array();
+    
+    /** @var boolean verify booked users against canbook users yes/no */
+    protected $checkcanbookusers = true;
 
-    public function __construct($cmid){
+    public function __construct($cmid,$checkcanbookusers = true){
         global $DB;
 
         parent::__construct($cmid);
+        $this->checkcanbookusers = $checkcanbookusers;
         $this->options = $DB->get_records('booking_options',array('bookingid' => $this->id));
         $this->get_options_data();
         // call only when needed TODO
@@ -287,20 +305,30 @@ class booking_options extends booking {
         $bookinglist = array();
         $optionids = array();
         $totalbookings = array();
-         
-        /// First get all the users who have access here
-
+        
         ///TODO from 2.6 on use  get_all_user_name_fields() instead of user_picture
         $mainuserfields = user_picture::fields('u',null);
-        $sql = "SELECT $mainuserfields, ba.optionid, ba.bookingid
-        FROM {booking_answers} ba, {user} u
-        WHERE ba.userid = u.id AND
-        u.deleted = 0 AND
-        ba.bookingid = ".$this->id . "
-                ORDER BY ba.optionid, ba.timemodified ASC";
-        $rawresponses = $DB->get_records_sql($sql, array());
+        $sql = "SELECT ba.id as answerid, $mainuserfields, ba.optionid, ba.bookingid
+        FROM {booking_answers} ba
+        JOIN {user} u
+        ON ba.userid = u.id 
+        WHERE u.deleted = 0 
+        AND ba.bookingid = ?
+        ORDER BY ba.optionid, ba.timemodified ASC";
+        $rawresponses = $DB->get_records_sql($sql, array($this->id));
         if ($rawresponses) {
-            $validresponses = array_intersect_key($rawresponses, $this->canbookusers);
+            if($this->checkcanbookusers){
+                if(empty($this->canbookusers)){
+                    $this->get_canbook_userids();
+                }
+                foreach($rawresponses as $answerid => $userobject){
+                    $sortedusers[$userobject->id] = $userobject;
+                }
+               $validresponses = array_intersect_key($sortedusers, $this->canbookusers);
+               
+            } else {
+                $validresponses = $rawresponses;
+            }
             foreach ($validresponses as &$response) {
                     $bookinglist[$response->optionid][] = $response;
                     $optionids[$response->optionid] = $response->optionid;
@@ -344,16 +372,21 @@ class booking_options extends booking {
 
     /**
      * Returns all bookings of $USER with status
-     * @return array of bookings key:
+     * @return array of [bookingid][optionid] = userobjects:
      */
     public function get_my_bookings(){
+        global $USER;
         $mybookings = array();
         if(!empty($this->allbookedusers) && !empty($this->options)){
             foreach($this->options as $optionid => $option){
                 if(!empty($this->allbookedusers[$option->id])){
                     foreach($this->allbookedusers[$option->id] as $userobject){
                         if($userobject->id == $USER->id){
-                            $mybookings[$optionid] = $option;
+                            $userobject->status[$option->id]->coursename = $this->course->fullname;
+                            $userobject->status[$option->id]->courseid = $this->course->id;
+                            $userobject->status[$option->id]->bookingtitle = $this->booking->name;
+                            $userobject->status[$option->id]->bookingoptiontitle = $this->options[$option->id]->text;
+                            $mybookings[$optionid] = $userobject;
                         }
                     }
                 }
@@ -361,6 +394,11 @@ class booking_options extends booking {
         }
         return $mybookings;
     }
+    
+    public static function booking_set_visiblefalse(&$item1, $key){
+        $item1->bookingvisible = false;
+    }
+    
     /**
      * sets $user->bookingvisible to true or false dependant on group
      * member status and access all group capability
@@ -386,9 +424,7 @@ class booking_options extends booking {
             } else {
                 //empty -> all invisible
                 foreach($this->allbookedusers as $optionid => $optionusers){
-                    foreach($optionusers as $user){
-                        $user->status[$optionid]->bookingvisible = false;
-                    }
+                    array_walk($optionusers,'self::booking_set_visiblefalse');
                 }
             }
         }
@@ -406,7 +442,8 @@ class booking_all_bookings {
     /** @var courses user has access to with booking instances */
     protected $usercourses = array();
 
-    /** courses with bookings */
+    /** @var array courses with booking instances; multidimensional array 
+     * [courseid] = array(bookingid1,bookingid2) array of bookingids as values of 2nd array */
     protected $courseswithbookings = array();
 
     /** @var array of instances of the module booking where $USER has access to, key: bookingid */
@@ -414,12 +451,15 @@ class booking_all_bookings {
 
     /** @var array of booking instances with subscribe other users prvilige key: bookingid */
     protected $subscribeprivilegeinstances = array();
+    
+    /** @var array of booking ids, with a response */
+    protected $bookingidswithresponse = array();
 
     /** @var bookings of the current user (still TODO) */
     public $mybookings = array();
 
     /** @var booking instances with booking data where $USER has cap mod/booking:subscribeusers
-     * key: bookingid */
+     * [bookingid][optionid] = user */
     public $allbookings = array();
 
 
@@ -428,7 +468,7 @@ class booking_all_bookings {
         //$courseids = get_user_capability_course('moodle/course:view', $USER->id); this function apparently does not work at all
         if(has_capability('moodle/site:config', context_system::instance())){
             $sql =    "SELECT cm.instance, cm.id AS coursemodule, m.*, cw.section, cm.visible AS visible,
-                    cm.groupmode, cm.groupingid, cm.groupmembersonly
+                    cm.groupmode, cm.groupingid, cm.groupmembersonly, cm.course
                     FROM {course_modules} cm, {modules} md, {booking} m, {course_sections} cw
                     WHERE md.name = 'booking' AND
                     cm.instance = m.id AND
@@ -436,8 +476,8 @@ class booking_all_bookings {
                     md.id = cm.module";
             $this->subscribeprivilegeinstances = $DB->get_records_sql($sql);
             $this->mybookinginstances = &$this->subscribeprivilegeinstances;
-            foreach ($this->subscribeprivilegeinstances as $instance){
-                $this->courseswithbookings[$instance->course] = $instance->course;
+            foreach ($this->subscribeprivilegeinstances as $bookinginstance){
+                $this->courseswithbookings[$bookinginstance->course][] = $bookinginstance->instance;
             }
         } else {
             //enrol_get_users_courses($userid, sortorder ASC');
@@ -447,31 +487,73 @@ class booking_all_bookings {
                 $this->mybookinginstances[$booking->id] = $booking;
                 if(has_capability('mod/booking:subscribeusers', context_module::instance($booking->coursemodule))){
                     $this->subscribeprivilegeinstances[$booking->id] = $booking;
-                    $this->courseswithbookings[$booking->course] = $booking->course;
+                    $this->courseswithbookings[$booking->course][] = $booking->id;
                 }
             }
         }
     }
+    
     /**
-     * get all booking data from booking instances where $USER has the cap mod/booking:subscribeusers
+     * get all booking data from booking instances
+     * save all booking data to display in $this->allbookings
      */
-    public function get_all_bookings_visible(){
+    public function get_all_bookings_visible() {
         $bookinginstances = $this->subscribeprivilegeinstances;
-        if(!empty($this->subscribeprivilegeinstances)){
-            foreach($bookinginstances as $bookinginstance){
-                $this->allbookings[$bookinginstance->id] = new booking_options($bookinginstance->coursemodule);
-                unset($this->allbookings[$bookinginstance->id]->canbookusers);
+        if (!empty( $this->subscribeprivilegeinstances )) {
+            foreach( $bookinginstances as $bookinginstance ) {
+                $this->allbookings[$bookinginstance->id] = new booking_options($bookinginstance->coursemodule,false);
             }
         }
     }
-
-    public function get_my_bookings(){
-        foreach($this->allbookings as $bookingid => $bookingoptions){
-            $mybookings = $bookingoptions->get_my_bookings();
+    
+    
+    /**
+     * returns all bookings, where responses are present
+     * @return array [bookingid]
+     */
+    public function get_all_bookinginstances_with_responses(){
+        global $DB;
+        $bookinginstances = $this->mybookinginstances;
+        if(!empty($this->mybookinginstances)){
+            $bookingids = array_keys($bookinginstances);
+            $bookingidsstring = implode(',', $bookingids);
+            $sql = "SELECT ba.bookingid, count(ba.bookingid)
+                    FROM {booking_answers} AS ba
+                    GROUP BY ba.bookingid
+		           ";
+            $bookingresponses = $DB->get_records_sql($sql);
+            if(!empty($bookingresponses)){
+                return array_keys($bookingresponses);
+            } else {
+                return array();
+            }
+        } else {
+            return array();
         }
-        return $mybookings;
     }
-
+    
+    /**
+     * retrieves all responses of $USER and sorts them (waitinglist or booked)
+     */
+    public function get_my_responses() {
+        global $DB, $USER;
+        $sql = "SELECT ba.id baid, ba.optionid, ba.bookingid
+            FROM {booking_answers} AS ba
+            WHERE ba.userid = " . $USER->id . "
+            ";
+        $answers = $DB->get_records_sql ( $sql );
+        if (! empty ( $answers )) {
+            foreach ( $answers as $answer ) {
+                $bookingids [$answer->bookingid] = $answer->bookingid;
+            }
+            foreach ( $bookingids as $bookingid ) {
+                $cm = get_coursemodule_from_instance( 'booking', $bookingid );
+                $bookinginstances[$bookingid] = new booking_options( $cm->id, false );
+                $this->mybookings[$bookingid] = $bookinginstances[$bookingid]->get_my_bookings ();
+            }
+        }
+    }
+    
     /**
      * given the courseid, returns all elements of $this->allbookings
      * that belong to a single course
@@ -479,21 +561,45 @@ class booking_all_bookings {
      */
     protected function all_bookings_of_course($courseid){
         $allbookings = $this->allbookings;
-        foreach($this->allbookings as $bookingid => $booking){
+        foreach($allbookings as $bookingid => $booking){
             if($booking->course->id != $courseid){
                 unset($allbookings[$bookingid]);
             }
         }
         return $allbookings;
     }
+    
+    /**
+     * removes empty booking instances from $this->allbookings
+     */
+    protected function remove_empty_booking_instances(){
+        $emptybookings = array_diff(array_keys($this->allbookings),$this->bookingidswithresponse);
+        foreach($emptybookings as $bookingid){
+            unset($this->allbookings[$bookingid]);
+        }
+        foreach($this->allbookings as $bookingid => &$bookinginstance){
+            $nouservisible = true;
+            foreach($bookinginstance->allbookedusers as $optionid => $users){
+                foreach($users as $sortorder => $user){
+                    if($user->status[$optionid]->bookingvisible){
+                        $nouservisible = false;
+                    }
+                }
+            }
+            if($nouservisible){
+                unset($this->allbookings[$bookingid]);
+            }
+        }
+    }
 
     /**
-     * If $userid given only this user will be rendered, otherwise all users
+     * Prepares user object for rendering 
+     * adding course and booking information to userobject
      *
      * @param int $userid
      * @return array of user objects to be rendered
      */
-    protected function sort_bookings_per_user($userid = 0){
+    protected function sort_bookings_per_user(){
         $userstoprint = array();
         if(empty($this->allbookings)){
             $this->get_all_bookings_visible();
@@ -501,19 +607,11 @@ class booking_all_bookings {
         foreach($this->allbookings as $bookingid => $bookingoptionswithdata){
             foreach($bookingoptionswithdata->allbookedusers as $optionid => $alluserofoption){
                 foreach($alluserofoption as $rank => $user){
-                    if($userid == 0){
                         $user->status[$optionid]->courseid = $bookingoptionswithdata->course->id;
                         $user->status[$optionid]->coursename = $bookingoptionswithdata->course->fullname;
                         $user->status[$optionid]->bookingtitle = $bookingoptionswithdata->booking->name;
                         $user->status[$optionid]->bookingoptiontitle = $bookingoptionswithdata->options[$optionid]->text;
                         $userstoprint[$user->id][$optionid] = $user;
-                    } else if ($userid == $user->id) {
-                        $user->status[$optionid]->courseid = $bookingoptionswithdata->course->id;
-                        $user->status[$optionid]->coursename = $bookingoptionswithdata->course->fullname;
-                        $user->status[$optionid]->bookingtitle = $bookingoptionswithdata->booking->name;
-                        $user->status[$optionid]->bookingoptiontitle = $bookingoptionswithdata->options[$optionid]->text;
-                        $userstoprint[$user->id][$optionid] = $user;
-                    }
                 }
             }
         }
@@ -527,19 +625,51 @@ class booking_all_bookings {
      */
     public function display($sort = null){
         global $PAGE, $USER;
+        $boldtext = array('style' =>'font-weight: bold;');
+        $attributeuser = null;
+        $attributecourse = null;
+        $attributemy = null;
+        /** output sort links and heading */
+        $url = $PAGE->url;
+        switch ($sort) {
+            case null:
+                $attributecourse = $boldtext;
+                break;
+            case 'user':
+                $attributeuser = $boldtext;
+                break;
+            case 'my':
+                $attributemy = $boldtext;
+                break;
+        }
+        if(!empty($this->subscribeprivilegeinstances)){
+            $sorturl = new moodle_url($url);
+            $sorturl->param('sort','user');
+            echo html_writer::link($sorturl, get_string('sortbyuser', 'block_booking'),$attributeuser);
+            echo html_writer::span("  //  ");
+            echo html_writer::link($url,get_string('sortbycourse', 'block_booking'),$attributecourse);
+            echo html_writer::span("  //  ");
+        }
+        $sorturl->param('sort','my');
+        echo html_writer::link($sorturl,get_string('showmybookings', 'booking'),$attributemy);
+        
+        $this->get_all_bookings_visible();
         $output = '';
         $renderer = $PAGE->get_renderer('mod_booking');
-        $my = 0;
-        if ($sort === 'user' || $sort === 'my') {
-            if($sort == 'my'){
-                $my = $USER->id;
-            }
-            $userstorender = $this->sort_bookings_per_user($my);
+        if ($sort === 'user') {
+            $userstorender = $this->sort_bookings_per_user();
+            $output .= $renderer->render_bookings_per_user($userstorender);
+            return $output;
+        } else if ($sort === 'my'){
+            $this->get_my_responses();
+            $userstorender = $this->mybookings;
             $output .= $renderer->render_bookings_per_user($userstorender);
             return $output;
         }
         if(!empty($this->courseswithbookings)){
-            foreach($this->courseswithbookings as $courseid){
+            $this->bookingidswithresponse = $this->get_all_bookinginstances_with_responses();
+            $this->remove_empty_booking_instances();
+            foreach(array_keys($this->courseswithbookings) as $courseid){
                 $allcoursebookings = $this->all_bookings_of_course($courseid);
                 if(!empty($allcoursebookings)){
                     if(!$sort){
