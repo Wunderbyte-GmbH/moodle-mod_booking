@@ -1550,7 +1550,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $params->status = booking_get_user_status($user->id, $option->id, $booking->id, $cmid);
     $params->participant = fullname($user);
     $params->title = s($option->text);
-    $params->duration = $duration;
+    $params->duration = $booking->duration;
     $params->starttime = $option->coursestarttime ? userdate($option->coursestarttime, $timeformat) : '';
     $params->endtime = $option->courseendtime ? userdate($option->courseendtime, $timeformat) : '';
     $params->startdate = $option->coursestarttime ? userdate($option->coursestarttime, $dateformat) : '';
@@ -1560,7 +1560,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $params->location = $option->location;
     $params->institution = $option->institution;
     $params->address = $option->address;
-    $params->eventtype = $bookings->eventtype;
+    $params->eventtype = $booking->eventtype;
     if (empty($option->pollurl)) {
         $params->pollurl = $booking->pollurl;
     } else {
