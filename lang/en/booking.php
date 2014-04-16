@@ -232,6 +232,26 @@ $string['pollurltext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{eventtype}</li>
 </ul>';
 
+$string['notificationtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+</ul>';
+
+$string['notificationtext'] = 'Notification message';
 $string['maxperuser'] = 'Max current bookings per user';
 $string['maxperuser_help'] = 'The maximum number of bookings an individual user can make in this activity at once. After an event end time has passed, it is no longer counted against this limit.';
 $string['bookingduration'] = 'Duration';
@@ -343,8 +363,14 @@ $string['pollurltextmessage'] = 'Please, take the survey
 Survey url {pollurl}
 ';
 
+$string['notificationtextsubject'] = 'Info about course start!';
+$string['notificationtextmessage'] = 'Course will start:
+        
+Course:   {$a->title}
+Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
+
 //report.php
-$string['withselected'] = 'With selected users:'; 
+$string['withselected'] = 'With selected users:';
 $string['associatedcourse'] = 'Associated course';
 $string['bookedusers'] = 'Booked users';
 $string['waitinglistusers'] = 'Users on waiting list';

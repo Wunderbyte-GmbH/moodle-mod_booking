@@ -173,6 +173,15 @@ class mod_booking_mod_form extends moodleform_mod {
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('pollurltext', $default);
         $mform->addHelpButton('pollurltext', 'pollurltext', 'mod_booking');
+        
+        $mform->addElement('editor', 'notificationtext', get_string('notificationtext', 'booking'), null, $editoroptions);
+        $default = array(
+                'text' => get_string('notificationtextmessage', 'mod_booking', $fieldmapping),
+                'format' => FORMAT_HTML
+        );
+        $default['text'] = str_replace("\n", '<br/>', $default['text']);
+        $mform->setDefault('notificationtext', $default);
+        $mform->addHelpButton('notificationtext', 'pollurltext', 'mod_booking');
 
         //-------------------------------------------------------------------------------
         $mform->addElement('header', 'miscellaneoussettingshdr', get_string('miscellaneoussettings', 'form'));

@@ -36,19 +36,9 @@ function booking_cron() {
             if ($dateEvent < $dateNow) {
                 $booking = $DB->get_record('booking', array('id' => $value->bookingid));
 
-                $message = "$booking->name
-
-				$booking->intro 
-
-				$value->text
-
-				$value->description
-
-				Course start: " . userdate($value->coursestarttime, get_string('strftimedatetime'));
-
                 $value->sent = 1;
 
-                booking_sendcustommessage($value->id, get_string('notificationsubject', 'booking'), strip_tags($message));
+                booking_send_notification($value->id, get_string('notificationsubject', 'booking'));
 
                 $DB->update_record("booking_options", $value);
             }
@@ -335,7 +325,7 @@ function booking_update_options($optionvalues) {
             if (strlen($option->location) > 0) {
                 $whereis = '<p>' . get_string('location', 'booking') . ': ' . $option->location . '</p>';
             }
-            
+
             if ($event->id > 0) {
                 // event exist
                 if (isset($optionvalues->addtocalendar)) {
@@ -400,12 +390,12 @@ function booking_update_options($optionvalues) {
         $option->calendarid = 0;
         // Insert into calendar
         // We add a new booking_options?
-        
+
         $whereis = '';
-            if (strlen($option->location) > 0) {
-                $whereis = '<p>' . get_string('location', 'booking') . ': ' . $option->location . '</p>';
-            }
-            
+        if (strlen($option->location) > 0) {
+            $whereis = '<p>' . get_string('location', 'booking') . ': ' . $option->location . '</p>';
+        }
+
         if (isset($optionvalues->addtocalendar)) {
             $event = new stdClass;
             $event->name = $option->text;
@@ -1089,6 +1079,8 @@ function booking_sendcustommessage($optionid, $subject, $message) {
     $booking = $DB->get_record('booking', array('id' => $option->bookingid));
     $allusers = $DB->get_records('booking_answers', array('bookingid' => $option->bookingid, 'optionid' => $optionid));
 
+    $cm = get_coursemodule_from_instance('booking', $booking->id);
+
     foreach ($allusers as $record) {
         $ruser = $DB->get_record('user', array('id' => $record->userid));
 
@@ -1098,6 +1090,41 @@ function booking_sendcustommessage($optionid, $subject, $message) {
         $eventdata->userto = $ruser;
         $eventdata->subject = $subject;
         $eventdata->fullmessage = $message;
+        $eventdata->fullmessageformat = FORMAT_PLAIN;
+        $eventdata->fullmessagehtml = '';
+        $eventdata->smallmessage = '';
+        $eventdata->component = 'mod_booking';
+        $eventdata->name = 'bookingconfirmation';
+
+        $returnVal = message_send($eventdata);
+    }
+
+    return $returnVal;
+}
+
+function booking_send_notification($optionid, $subject) {
+    global $DB, $USER;
+
+    $returnVal = true;
+
+    $option = $DB->get_record('booking_options', array('id' => $optionid));
+    $booking = $DB->get_record('booking', array('id' => $option->bookingid));
+    $allusers = $DB->get_records('booking_answers', array('bookingid' => $option->bookingid, 'optionid' => $optionid));
+
+    $cm = get_coursemodule_from_instance('booking', $booking->id);
+
+    foreach ($allusers as $record) {
+        $ruser = $DB->get_record('user', array('id' => $record->userid));
+
+        $params = booking_generate_email_params($booking, $option, $ruser, $cm->id);
+        $pollurlmessage = booking_get_email_body($booking, 'notificationtext', 'notificationtextmessage', $params);
+
+        $eventdata = new stdClass();
+        $eventdata->modulename = 'booking';
+        $eventdata->userfrom = $USER;
+        $eventdata->userto = $ruser;
+        $eventdata->subject = $subject;
+        $eventdata->fullmessage = $pollurlmessage;
         $eventdata->fullmessageformat = FORMAT_PLAIN;
         $eventdata->fullmessagehtml = '';
         $eventdata->smallmessage = '';

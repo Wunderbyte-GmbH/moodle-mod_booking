@@ -10,9 +10,8 @@
  * @copyright 2012,2013 David Bogner <info@edulabs.org>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-$module->version  = 2014040700;
+$module->version = 2014041600;
 $module->requires = 2010112400;  // Requires this Moodle 2.X version
 $module->release = '2.5';
 $module->maturity = MATURITY_STABLE;
-$module->cron     = 5;
+$module->cron = 5;
