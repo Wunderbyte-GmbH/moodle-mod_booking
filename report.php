@@ -229,10 +229,15 @@ if (!$download) {
 				if ($DB->get_records_select('user_info_data', 'userid = '. $user->id, array(), 'fieldid')){
 					foreach ($userprofilefields as $profilefieldid => $profilefield){
                                                 $fType = $DB->get_field('user_info_field', 'datatype', array('shortname' => $profilefield->shortname));
+                                                $value = $DB->get_field('user_info_data', 'data', array('fieldid' => $profilefieldid, 'userid' => $user->id), NULL, IGNORE_MISSING);
                                                 if ($fType == 'datetime') {
-                                                    $myxls->write_string($row,$i++,userdate($DB->get_field('user_info_data', 'data', array('fieldid' => $profilefieldid, 'userid' => $user->id)), get_string('strftimedatefullshort')),$cellform);
+                                                    if ($value != FALSE) {
+                                                        $myxls->write_string($row,$i++,userdate($value, get_string('strftimedatefullshort')),$cellform);
+                                                    } else {
+                                                        $myxls->write_string($row,$i++,'',$cellform);
+                                                    }
                                                 } else {
-                                                    $myxls->write_string($row,$i++,strip_tags($DB->get_field('user_info_data', 'data', array('fieldid' => $profilefieldid, 'userid' => $user->id))),$cellform);
+                                                    $myxls->write_string($row,$i++,strip_tags($value),$cellform);
                                                 }
 					}
 				} else {
