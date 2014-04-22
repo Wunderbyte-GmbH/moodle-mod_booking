@@ -112,7 +112,8 @@ if (!$download) {
 			booking_sendpollurl($selectedusers, $booking, $cm->id, $optionid);
 			redirect($url, get_string('allmailssend','booking'), 5);
 		} else if (isset($fromform->sendcustommessage)) {
-			$sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id'=>$id,'optionid'=>$optionid));
+                        $selectedusers = array_keys($fromform->user,1);                        
+			$sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id'=>$id,'optionid'=>$optionid, 'uids' => serialize($selectedusers)));
 			redirect($sendmessageurl);
 		} else if (isset($fromform->addteachers)) {
 			$addteachersurl = new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid));

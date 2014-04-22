@@ -1041,6 +1041,8 @@ function booking_delete_singlebooking($answer, $booking, $optionid, $newbookedus
 function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
     global $DB, $USER;
 
+    $returnVal = true;
+    
     $sender = $DB->get_record('user', array('username' => $booking->bookingmanager));
 
     foreach ($attemptidsarray as $tuser) {
@@ -1063,26 +1065,26 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
             $eventdata->component = 'mod_booking';
             $eventdata->name = 'bookingconfirmation';
 
-            message_send($eventdata);
+            $returnVal = message_send($eventdata);
         }
     }
-    return true;
+    return $returnVal;
 }
 
 // Send custom message
-function booking_sendcustommessage($optionid, $subject, $message) {
+function booking_sendcustommessage($optionid, $subject, $message, $uids) {
     global $DB, $USER;
 
     $returnVal = true;
 
     $option = $DB->get_record('booking_options', array('id' => $optionid));
     $booking = $DB->get_record('booking', array('id' => $option->bookingid));
-    $allusers = $DB->get_records('booking_answers', array('bookingid' => $option->bookingid, 'optionid' => $optionid));
+    //$allusers = $DB->get_records('booking_answers', array('bookingid' => $option->bookingid, 'optionid' => $optionid));
 
     $cm = get_coursemodule_from_instance('booking', $booking->id);
-
-    foreach ($allusers as $record) {
-        $ruser = $DB->get_record('user', array('id' => $record->userid));
+    //foreach ($allusers as $record) {
+    foreach ($uids as $record) {
+        $ruser = $DB->get_record('user', array('id' => $record));
 
         $eventdata = new stdClass();
         $eventdata->modulename = 'booking';
@@ -1092,11 +1094,13 @@ function booking_sendcustommessage($optionid, $subject, $message) {
         $eventdata->fullmessage = $message;
         $eventdata->fullmessageformat = FORMAT_PLAIN;
         $eventdata->fullmessagehtml = '';
+        $eventdata->messagehtml = '';
+        $eventdata->messagetext = $message;
         $eventdata->smallmessage = '';
         $eventdata->component = 'mod_booking';
         $eventdata->name = 'bookingconfirmation';
-
-        $returnVal = message_send($eventdata);
+        
+        $returnVal = message_send($eventdata);        
     }
 
     return $returnVal;
