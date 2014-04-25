@@ -1061,7 +1061,7 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
             $eventdata->userto = $tuser;
             $eventdata->subject = get_string('pollurltextsubject', 'booking', $params);
             $eventdata->fullmessage = $pollurlmessage;
-            $eventdata->fullmessageformat = FORMAT_PLAIN;
+            $eventdata->fullmessageformat = FORMAT_HTML;
             $eventdata->fullmessagehtml = '';
             $eventdata->smallmessage = '';
             $eventdata->component = 'mod_booking';
