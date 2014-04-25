@@ -208,7 +208,7 @@ if (!empty($CFG->usetags)) {
 	}
 }
 
-if ($booking->categoryid != '0') {
+if ($booking->categoryid != '0' && $booking->categoryid != '') {
 	$categoryies = explode(',', $booking->categoryid);
 
 	if (count($categoryies) > 0) {	
