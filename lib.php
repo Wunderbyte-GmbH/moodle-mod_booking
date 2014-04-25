@@ -1131,7 +1131,7 @@ function booking_send_notification($optionid, $subject) {
         $eventdata->userto = $ruser;
         $eventdata->subject = $subject;
         $eventdata->fullmessage = $pollurlmessage;
-        $eventdata->fullmessageformat = FORMAT_PLAIN;
+        $eventdata->fullmessageformat = FORMAT_HTML;
         $eventdata->fullmessagehtml = '';
         $eventdata->smallmessage = '';
         $eventdata->component = 'mod_booking';
