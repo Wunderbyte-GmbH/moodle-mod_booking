@@ -1060,9 +1060,9 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
             $eventdata->userfrom = $USER;
             $eventdata->userto = $tuser;
             $eventdata->subject = get_string('pollurltextsubject', 'booking', $params);
-            $eventdata->fullmessage = $pollurlmessage;
+            $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
             $eventdata->fullmessageformat = FORMAT_HTML;
-            $eventdata->fullmessagehtml = '';
+            $eventdata->fullmessagehtml = $pollurlmessage;
             $eventdata->smallmessage = '';
             $eventdata->component = 'mod_booking';
             $eventdata->name = 'bookingconfirmation';
@@ -1130,9 +1130,9 @@ function booking_send_notification($optionid, $subject) {
         $eventdata->userfrom = $USER;
         $eventdata->userto = $ruser;
         $eventdata->subject = $subject;
-        $eventdata->fullmessage = $pollurlmessage;
+        $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
         $eventdata->fullmessageformat = FORMAT_HTML;
-        $eventdata->fullmessagehtml = '';
+        $eventdata->fullmessagehtml = $pollurlmessage;
         $eventdata->smallmessage = '';
         $eventdata->component = 'mod_booking';
         $eventdata->name = 'bookingconfirmation';
