@@ -263,6 +263,8 @@ function booking_update_options($optionvalues) {
     $option = new stdClass();
     $option->bookingid = $optionvalues->bookingid;
     $option->text = trim($optionvalues->text);
+    
+    $option->sent = 0;
 
     $option->location = trim($optionvalues->location);
     $option->institution = trim($optionvalues->institution);
