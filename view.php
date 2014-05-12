@@ -256,7 +256,7 @@ $bookingopen = true;
 $timenow = time();
 if ($booking->timeclose !=0) {
 	if ($booking->timeopen > $timenow && !has_capability('mod/booking:updatebooking', $context)) {
-		echo $OUTPUT->box(get_string("notopenyet", "booking", userdate($booking->timeopen)), "center");
+		echo $OUTPUT->box(get_string("notopenyet", "booking", userdate($booking->timeopen, get_string('strftimedate'))), "center");
 		echo $OUTPUT->footer();
 		exit;
 	} else if ($timenow > $booking->timeclose && !has_capability('mod/booking:updatebooking', $context)) {
