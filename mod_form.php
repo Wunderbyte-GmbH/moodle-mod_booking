@@ -48,7 +48,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setType('duration', PARAM_TEXT);
 
         $mform->addElement('text', 'points', get_string('bookingpoints', 'booking'), 0);
-        $mform->setType('points', PARAM_INT);
+        $mform->setType('points', PARAM_FLOAT);
 
         $mform->addElement('text', 'organizatorname', get_string('bookingorganizatorname', 'booking'), array('size'=>'64'));
         $mform->setType('organizatorname', PARAM_TEXT);
@@ -188,11 +188,10 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('maxperuser', 'maxperuser', 'mod_booking');
 
         $mform->addElement('header', 'tagsheader', get_string('tags'));
-        $mform->addElement('tags', 'tags', get_string('tags'));
-
         $taglink = new moodle_url('/tag/search.php', array());
         $mform->addElement('html', '<a target="_blank" href="' . $taglink . '">' . get_string('searchtag', 'booking') . '</a>');
-
+        $mform->addElement('static', 'searchtag', '', '<a target="_blank" href="' . $taglink . '">' . get_string('searchtag', 'booking') . '</a>');        
+        $mform->addElement('tags', 'tags', get_string('tags'));
         $options = array();
 
         $options[0] = "&nbsp;";

@@ -174,7 +174,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
         
-        $field = new xmldb_field('points', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'duration');
+        $field = new xmldb_field('points', XMLDB_TYPE_INTEGER, '10, 2', null, null, null, null, 'duration');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -383,6 +383,17 @@ function xmldb_booking_upgrade($oldversion) {
     
         // Booking savepoint reached.
     upgrade_mod_savepoint(true, 2014032600, 'booking');
+    }
+    
+    if ($oldversion < 2014051200) {
+
+        // Changing type of field points on table booking to number.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('points', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, null, 'duration');
+        // Launch change of type for field points.
+        $dbman->change_field_type($table, $field);
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014051200, 'booking');
     }
     return true;
 }

@@ -279,6 +279,8 @@ function booking_update_options($optionvalues){
 	$option->text = trim($optionvalues->text);
 	$option->daystonotify = $optionvalues->daystonotify;
 	$option->pollurl = $optionvalues->pollurl;
+	$option->sent = 0;
+	
 	if ($optionvalues->limitanswers == 0){
 		$optionvalues->limitanswers = 0;
 		$option->maxanswers = 0;
@@ -1033,9 +1035,9 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
 			$eventdata->userfrom         = $USER;
 			$eventdata->userto           = $tuser;
 			$eventdata->subject          = get_string('pollurltextsubject','booking', $params);
-			$eventdata->fullmessage      = $pollurlmessage;
-			$eventdata->fullmessageformat = FORMAT_PLAIN;
-			$eventdata->fullmessagehtml  = '';
+			$eventdata->fullmessage      = $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));;
+			$eventdata->fullmessageformat = FORMAT_HTML;
+			$eventdata->fullmessagehtml  = $pollurlmessage;
 			$eventdata->smallmessage     = '';
 			$eventdata->component = 'mod_booking';
 			$eventdata->name = 'bookingconfirmation';
