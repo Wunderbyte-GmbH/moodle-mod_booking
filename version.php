@@ -12,7 +12,7 @@
  */
 
 $module->version  = 2014051200;
-$module->requires = 2010112400;  // Requires this Moodle 2.X version
+$module->requires = 2013040500;  // Requires this Moodle 2.X version
 $module->release = '2.5';
 $module->maturity = MATURITY_STABLE;
 $module->cron     = 5;
