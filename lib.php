@@ -446,6 +446,7 @@ function booking_update_options($optionvalues){
  */
 function booking_get_user_status($userid,$optionid,$bookingid,$cmid){
 	global $DB;
+	$sortedresponses = array();
 	$option = $DB->get_record('booking_options', array('id' => $optionid));
 	$current = $DB->get_record('booking_answers', array('bookingid' => $bookingid, 'userid' => $userid, 'optionid' => $optionid));
 	$allresponses = $DB->get_records_select('booking_answers', "bookingid = $bookingid AND optionid = $optionid",array(), 'timemodified', 'userid');
@@ -1076,7 +1077,7 @@ function booking_sendcustommessage($optionid, $subject, $message, $uids) {
 		$eventdata->userto           = $ruser;
 		$eventdata->subject          = $subject;
 		$eventdata->fullmessage      = $message;
-		$eventdata->fullmessageformat = FORMAT_PLAIN;
+		$eventdata->fullmessageformat = FORMAT_HTML;
 		$eventdata->fullmessagehtml  = '';
 		$eventdata->messagehtml = '';
 		$eventdata->messagetext = $message;
