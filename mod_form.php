@@ -268,6 +268,9 @@ class mod_booking_mod_form extends moodleform_mod {
         if (isset($default_values['deletedtext'])) {
             $default_values['deletedtext'] = array('text' => $default_values['deletedtext'], 'format' => FORMAT_HTML);
         }
+        if (isset($default_values['pollurltext'])) {
+            $default_values['pollurltext'] = array('text' => $default_values['pollurltext'], 'format' => FORMAT_HTML);
+        }
     }
 
     public function validation($data, $files) {
