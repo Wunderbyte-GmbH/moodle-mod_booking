@@ -6,7 +6,7 @@ require_once("sendmessageform.class.php");
 $id         = required_param('id', PARAM_INT);
 $optionid   = optional_param('optionid','', PARAM_INT);
 
-$url = new moodle_url('/mod/booking/sendmessage.php', array('id'=>$id));
+$url = new moodle_url('/mod/booking/sendmessage.php', array('id'=>$id, 'optionid' => $optionid, 'uids' => $uids));
 $PAGE->set_url($url);
 
 
@@ -53,7 +53,7 @@ $PAGE->set_title(get_string('sendcustommessage','booking'));
 if($mform->is_cancelled()) {	
 	redirect($redirecturl,'',0);
 } else if($data = $mform->get_data(true)) {
-	booking_sendcustommessage($optionid, $data->subject, $data->message);
+	booking_sendcustommessage($optionid, $data->subject, $data->message, unserialize($uids));
 
     redirect($redirecturl, get_string('messagesend', 'booking'), 5);
 } 
