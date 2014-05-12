@@ -60,8 +60,8 @@ class mod_booking_manageusers_form extends moodleform {
 		//-------------------------------------------------------------------------------
 		// buttons
 		//
-		$mform->addElement('html','<div class="clearfix" style="clear: both; width: 100%;">'.get_string('withselected', 'booking').'</div>');
 		$buttonarray=array();
+		$buttonarray[] = &$mform->createElement('static', 'onlylabel', '', '<span class="bookinglabelname">' . get_string('withselected', 'booking') . '</span>');
         if (!$this->_customdata['bookingdata']->autoenrol) {
             $buttonarray[] = &$mform->createElement('submit', 'subscribetocourse', get_string('subscribetocourse','booking'));
         }

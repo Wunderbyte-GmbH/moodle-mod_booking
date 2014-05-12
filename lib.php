@@ -338,7 +338,7 @@ function booking_update_options($optionvalues){
 				// event exist
 				if (isset($optionvalues->addtocalendar)) {
 					$event->name         = $option->text;
-					$event->description  = $option->description;
+					$event->description = $option->description;
 					$event->courseid     = $option->courseid;
 					if($option->courseid == 0) {
 					    $event->courseid = $booking->course;
@@ -371,7 +371,7 @@ function booking_update_options($optionvalues){
 				if (isset($optionvalues->addtocalendar)) {
 					$event = new stdClass;
 					$event->name         = $option->text;
-					$event->description  = $option->description;
+					$event->description = $option->description;
 					$event->courseid     = $option->courseid;
 					if($option->courseid == 0) {
 					    $event->courseid = $booking->course;
@@ -401,7 +401,7 @@ function booking_update_options($optionvalues){
 		if (isset($optionvalues->addtocalendar)) {
 			$event = new stdClass;
 			$event->name         = $option->text;
-			$event->description  = $option->description;
+			$event->description = $option->description;
 			$event->courseid     = $option->courseid;
 			if($option->courseid == 0) {
 			    $event->courseid = $booking->course;
