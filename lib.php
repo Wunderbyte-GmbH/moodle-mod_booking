@@ -340,8 +340,11 @@ function booking_update_options($optionvalues){
 					$event->name         = $option->text;
 					$event->description  = $option->description;
 					$event->courseid     = $option->courseid;
-					//$event->groupid      = 0;
-					//$event->userid       = 0;
+					if($option->courseid == 0) {
+					    $event->courseid = $booking->course;
+					}
+					$event->groupid      = 0;
+					$event->userid       = 0;
 					$event->modulename   = 'booking';
 					$event->instance     = $option->bookingid;
 					$event->eventtype    = 'booking';
@@ -370,8 +373,11 @@ function booking_update_options($optionvalues){
 					$event->name         = $option->text;
 					$event->description  = $option->description;
 					$event->courseid     = $option->courseid;
-					//$event->groupid      = 0;
-					//$event->userid       = 0;
+					if($option->courseid == 0) {
+					    $event->courseid = $booking->course;
+					}
+					$event->groupid      = 0;
+					$event->userid       = 0;
 					$event->modulename   = 'booking';
 					$event->instance     = $option->bookingid;
 					$event->eventtype    = 'booking';
@@ -397,8 +403,11 @@ function booking_update_options($optionvalues){
 			$event->name         = $option->text;
 			$event->description  = $option->description;
 			$event->courseid     = $option->courseid;
-			//$event->groupid      = 0;
-			//$event->userid       = 0;
+			if($option->courseid == 0) {
+			    $event->courseid = $booking->course;
+			}
+			$event->groupid      = 0;
+			$event->userid       = 0;
 			$event->modulename   = 'booking';
 			$event->instance     = $option->bookingid;
 			$event->eventtype    = 'booking';
