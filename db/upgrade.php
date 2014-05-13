@@ -174,7 +174,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
         
-        $field = new xmldb_field('points', XMLDB_TYPE_INTEGER, '10, 2', null, null, null, null, 'duration');
+        $field = new xmldb_field('points', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, null, 'duration');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }

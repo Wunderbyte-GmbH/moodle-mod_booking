@@ -27,7 +27,7 @@
         <FIELD NAME="maxperuser" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" COMMENT="Maximum number of bookings that each user can make (reset when an event passes)" PREVIOUS="deletedtext" NEXT="sendmailtobooker"/>
         <FIELD NAME="sendmailtobooker" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Send mails to booker instead to booked users" PREVIOUS="maxperuser" NEXT="duration"/>
         <FIELD NAME="duration" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Duration - info field." PREVIOUS="sendmailtobooker" NEXT="points"/>
-        <FIELD NAME="points" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" DECIMALS="2" COMMENT="Points, get from this course." PREVIOUS="duration" NEXT="organizatorname"/>
+        <FIELD NAME="points" TYPE="number" LENGTH="10" NOTNULL="false" SEQUENCE="false" DECIMALS="2" COMMENT="Points, get from this course." PREVIOUS="duration" NEXT="organizatorname"/>
         <FIELD NAME="organizatorname" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Name of organizator - for sending emails." PREVIOUS="points" NEXT="pollurl"/>
         <FIELD NAME="pollurl" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Url to send in email - poll for evaluation." PREVIOUS="organizatorname" NEXT="addtogroup"/>
         <FIELD NAME="addtogroup" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" PREVIOUS="pollurl" NEXT="categoryid"/>
