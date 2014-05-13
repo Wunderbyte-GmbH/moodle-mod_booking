@@ -106,6 +106,7 @@ $string['subscribeuser'] = 'Do you really want to enrol the users in the followi
 $string['deleteuserfrombooking'] = 'Do you really want to delete the users from the booking?';
 $string['showallbookings'] = 'Show booking overview for all bookings';
 $string['showmybookings'] = 'Show only my bookings';
+$string['showactive'] = 'Show only active bookings';
 $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
 $string['deletebookingoption'] = 'Delete this booking option';
 $string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option?';
