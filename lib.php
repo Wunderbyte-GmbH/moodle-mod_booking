@@ -984,8 +984,8 @@ function booking_delete_singlebooking($answer, $booking, $optionid, $newbookedus
     }
     booking_check_unenrol_user($booking->option[$optionid], $booking, $user->id);
     $params = booking_generate_email_params($booking, $booking->option[$optionid], $user, $cmid);
-    $messagetext = get_string('deletedbookingmessage', 'booking', $params);
-    $deletedbookingusermessage = booking_get_email_body($booking, 'deletedtext', 'deletedbookingmessage', $params);
+    $messagetext = get_string('userleavebookedmessage', 'booking', $params);
+    $deletedbookingusermessage = booking_get_email_body($booking, 'userleave', 'userleavebookedmessage', $params);
     $bookingmanager = $DB->get_record('user', array('username' => $booking->bookingmanager));
     $eventdata = new stdClass();
 
@@ -1004,7 +1004,7 @@ function booking_delete_singlebooking($answer, $booking, $optionid, $newbookedus
         }
         //$eventdata->userto = $user;
         $eventdata->userfrom = $bookingmanager;
-        $eventdata->subject = get_string('deletedbookingusersubject', 'booking', $params);
+        $eventdata->subject = get_string('userleavebookedsubject', 'booking', $params);
         $eventdata->messagetext = $deletedbookingusermessage;
         $eventdata->messagehtml = $messagehtml;
         $eventdata->attachment = $attachment;
@@ -1014,7 +1014,7 @@ function booking_delete_singlebooking($answer, $booking, $optionid, $newbookedus
     if ($booking->copymail) {
         $eventdata->userto = $bookingmanager;
         $eventdata->userfrom = $bookingmanager;
-        $eventdata->subject = get_string('deletedbookingusersubject', 'booking', $params);
+        $eventdata->subject = get_string('userleavebookedsubject', 'booking', $params);
         $eventdata->messagetext = $messagetext;
         $eventdata->messagehtml = '';
         $eventdata->attachment = '';

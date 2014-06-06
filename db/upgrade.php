@@ -475,6 +475,21 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014041600, 'booking');
     }
 
+    if ($oldversion < 2014060600) {
+
+        // Define field userleave to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('userleave', XMLDB_TYPE_TEXT, null, null, null, null, null, 'notificationtext');
+
+        // Conditionally launch add field userleave.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014060600, 'booking');
+    }
+
 
     return true;
 }

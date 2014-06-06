@@ -139,6 +139,7 @@ $string['bookingmanagererror'] = 'The username entered is not valid. Either it d
 $string['autoenrol'] = 'Automatically enrol users';
 $string['autoenrol_help'] = 'If selected, users will be enroled onto the relevant course as soon as they make the booking and unenroled from that course as soon as the booking is cancelled.';
 $string['bookedtext'] = 'Booking confirmation';
+$string['userleave'] = 'User leave booking';
 $string['waitingtext'] = 'Waiting list confirmation';
 $string['statuschangetext'] = 'Status change message';
 $string['deletedtext'] = 'Cancelled booking message';
@@ -159,6 +160,26 @@ $string['bookedtext_help'] = 'Leave this blank to use the site default text. You
 <li>{address}</li>
 <li>{eventtype}</li>
 </ul>';
+
+$string['userleave_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+</ul>';
+
 $string['waitingtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
 <li>{status}</li>
@@ -329,6 +350,13 @@ Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 To view all your booked courses click on the following link: {$a->bookinglink}
 
 ';
+
+$string['userleavebookedsubject'] = "You have sucesfully unsubscribed from {$a->title}";
+$string['userleavebookedmessage'] = 'Hello {$a->participant},
+
+You have sucesfully unsubscribed from {$a->title}.
+';
+
 $string['statuschangebookedsubject'] = 'Booking status changed for {$a->title}';
 $string['statuschangebookedmessage'] = 'Hello {$a->participant},
 

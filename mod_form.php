@@ -156,6 +156,15 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('statuschangetext', $default);
         $mform->addHelpButton('statuschangetext', 'statuschangetext', 'mod_booking');
 
+        $mform->addElement('editor', 'userleave', get_string('userleave', 'booking'), null, $editoroptions);
+        $default = array(
+                'text' => get_string('userleavebookedmessage', 'mod_booking', $fieldmapping),
+                'format' => FORMAT_HTML
+        );
+        $default['text'] = str_replace("\n", '<br/>', $default['text']);
+        $mform->setDefault('userleave', $default);
+        $mform->addHelpButton('userleave', 'userleave', 'mod_booking');
+        
         $mform->addElement('editor', 'deletedtext', get_string('deletedtext', 'booking'), null, $editoroptions);
         $default = array(
                 'text' => get_string('deletedbookingusermessage', 'mod_booking', $fieldmapping),

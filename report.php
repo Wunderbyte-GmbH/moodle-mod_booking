@@ -77,7 +77,7 @@ if (!$download) {
 	$booking->option[$optionid]->urltitle =$DB->get_field('course', 'shortname', array('id'=>$booking->option[$optionid]->courseid));
 	$booking->option[$optionid]->cmid = $cm->id;
 	$booking->option[$optionid]->autoenrol = $booking->autoenrol;
-	$mform = new mod_booking_manageusers_form(null, array('bookingdata' => $booking->option[$optionid],'waitinglistusers' => $sortedusers['waitinglist'], 'bookedusers' => $sortedusers['booked'])); //name of the form you defined in file above.
+	$mform = new mod_booking_manageusers_form(null, array('cm' => $cm, 'bookingdata' => $booking->option[$optionid],'waitinglistusers' => $sortedusers['waitinglist'], 'bookedusers' => $sortedusers['booked'])); //name of the form you defined in file above.
 
 	//managing the form
 	if ($mform->is_cancelled()){

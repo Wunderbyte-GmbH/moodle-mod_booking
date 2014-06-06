@@ -40,6 +40,7 @@
                 <FIELD NAME="additionalfields" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
                 <FIELD NAME="eventtype" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="Booking" SEQUENCE="false"/>
                 <FIELD NAME="notificationtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+                <FIELD NAME="userleave" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

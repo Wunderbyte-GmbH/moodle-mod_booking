@@ -7,7 +7,9 @@ class mod_booking_manageusers_form extends moodleform {
     function definition() {
         global $CFG, $DB, $OUTPUT;
         $mform = & $this->_form;
-
+        
+        $cm = $this->_customdata['cm'];
+        
         // visible elements
         $mform->addElement('header', '', $this->_customdata['bookingdata']->text);
         //display booking option name and the link to the associated course if there is one
@@ -68,7 +70,9 @@ class mod_booking_manageusers_form extends moodleform {
             $buttonarray[] = &$mform->createElement('submit', 'subscribetocourse', get_string('subscribetocourse', 'booking'));
         }
 
-        $buttonarray[] = &$mform->createElement("submit", 'deleteusers', get_string('booking:deleteresponses', 'booking'));
+        if (has_capability('mod/booking:deleteresponses', context_module::instance($cm->id))) {
+            $buttonarray[] = &$mform->createElement("submit", 'deleteusers', get_string('booking:deleteresponses', 'booking'));
+        }
         $buttonarray[] = &$mform->createElement("submit", 'sendpollurl', get_string('booking:sendpollurl', 'booking'));
         $buttonarray[] = &$mform->createElement("submit", 'sendcustommessage', get_string('sendcustommessage', 'booking'));
         $buttonarray[] = &$mform->createElement("submit", 'addteachers', get_string('addteachers', 'booking'));
