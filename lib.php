@@ -159,7 +159,8 @@ function booking_add_instance($booking) {
     $booking->deletedtext = $booking->deletedtext['text'];
     $booking->pollurltext = $booking->pollurltext['text'];
     $booking->notificationtext = $booking->notificationtext['text'];
-
+    $booking->userleave = $booking->userleave['text'];
+    
     //insert answer options from mod_form
     $booking->id = $DB->insert_record("booking", $booking);
 
@@ -226,6 +227,8 @@ function booking_update_instance($booking) {
     $booking->deletedtext = $booking->deletedtext['text'];
     $booking->pollurltext = $booking->pollurltext['text'];
     $booking->notificationtext = $booking->notificationtext['text'];
+    $booking->userleave = $booking->userleave['text'];
+    
     //update, delete or insert answers
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {

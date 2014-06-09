@@ -307,6 +307,9 @@ class mod_booking_mod_form extends moodleform_mod {
         if (isset($default_values['notificationtext'])) {
             $default_values['notificationtext'] = array('text' => $default_values['notificationtext'], 'format' => FORMAT_HTML);
         }
+        if (isset($default_values['userleave'])) {
+            $default_values['userleave'] = array('text' => $default_values['userleave'], 'format' => FORMAT_HTML);
+        }
     }
 
     public function validation($data, $files) {
