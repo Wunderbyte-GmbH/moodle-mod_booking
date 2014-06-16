@@ -241,14 +241,14 @@ if (!$download) {
                                                 }
 					}
 				} else {
-					$myxls->write_string($row,$i++,'asdf');
+					$myxls->write_string($row,$i++,'');
 				}
 				$studentid=(!empty($user->idnumber) ? $user->idnumber : " ");
 				$ug2 = '';
 				if ($usergrps = groups_get_all_groups($course->id, $user->id)) {
 					foreach ($usergrps as $ug) {
 						$ug2 = $ug2. $ug->name;
-					}
+					} 
 				}
 				//$myxls->write_string($row,12,$ug2);
 				$row++;
@@ -256,7 +256,7 @@ if (!$download) {
 			}
 		}
 		/// Close the workbook
-		$workbook->close();
+		$workbook->close(); 
 		exit;
 	}
 }
