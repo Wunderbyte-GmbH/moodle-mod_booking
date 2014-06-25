@@ -423,11 +423,13 @@ function booking_update_options($optionvalues){
 		// We must create new group
 		if ($booking->addtogroup == 1) {
 			$newGroupData = new stdClass();
+			if($option->courseid == 0) {
+			    $option->courseid = $booking->course;
+			}
 			$newGroupData->courseid = $option->courseid;
 			$newGroupData->name = $booking->name . ' - ' . $option->text;
 			$newGroupData->description = $booking->name . ' - ' . $option->text;
 			$newGroupData->descriptionformat = FORMAT_HTML;
-
 			$option->groupid = groups_create_group($newGroupData);			
 		} else {
 			$option->groupid = 0;
@@ -779,6 +781,11 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 		}
 		add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
 		if ($booking->sendmail){
+		    $eventdata = new stdClass();
+		    $eventdata->user = $user;
+		    $eventdata->booking = $booking;
+		    $eventdata->optionid = $optionid;
+		    $eventdata->cmid = $cm->id;
 			booking_send_confirm_message($eventdata);
 		}
 		return true;
