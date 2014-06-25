@@ -3,7 +3,7 @@ require_once $CFG->libdir.'/formslib.php';
 
 class mod_booking_manageusers_form extends moodleform {
 	function definition() {
-		global $CFG, $DB,$OUTPUT;
+		global $CFG, $DB, $OUTPUT;
 		$mform =& $this->_form;
 
 		// visible elements
@@ -60,12 +60,15 @@ class mod_booking_manageusers_form extends moodleform {
 		//-------------------------------------------------------------------------------
 		// buttons
 		//
-		$mform->addElement('html','<div class="clearfix" style="clear: both; width: 100%;">'.get_string('withselected', 'booking').'</div>');
 		$buttonarray=array();
+		$buttonarray[] = &$mform->createElement('static', 'onlylabel', '', '<span class="bookinglabelname">' . get_string('withselected', 'booking') . '</span>');
         if (!$this->_customdata['bookingdata']->autoenrol) {
             $buttonarray[] = &$mform->createElement('submit', 'subscribetocourse', get_string('subscribetocourse','booking'));
         }
 		$buttonarray[] = &$mform->createElement("submit",'deleteusers', get_string('booking:deleteresponses','booking'));
+		$buttonarray[] = &$mform->createElement("submit",'sendpollurl', get_string('booking:sendpollurl','booking'));
+		$buttonarray[] = &$mform->createElement("submit", 'sendcustommessage', get_string('sendcustommessage', 'booking'));
+		$buttonarray[] = &$mform->createElement("submit", 'addteachers', get_string('addteachers', 'booking'));
 		$buttonarray[] = &$mform->createElement('cancel');
 		$mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
 

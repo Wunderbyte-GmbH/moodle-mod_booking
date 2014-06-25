@@ -22,14 +22,15 @@ if (! $course = $DB->get_record("course", array("id" => $cm->course))) {
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
 
-if (!$booking = booking_get_booking($cm,$groupmode)) {
+if (!$booking = booking_get_booking($cm,'')) {
 	error("Course module is incorrect");
 }
 
 $strbooking = get_string('modulename', 'booking');
 $strbookings = get_string('modulenameplural', 'booking');
 
-if (!$context = get_context_instance(CONTEXT_MODULE, $cm->id)) {
+//if (!$context = get_context_instance(CONTEXT_MODULE, $cm->id)) {
+if (!$context = context_module::instance($cm->id)) {
 	print_error('badcontext');
 }
 
@@ -69,8 +70,11 @@ if ($mform->is_cancelled()){
 } else if ($fromform=$mform->get_data()){
 	//validated data.
 	if(confirm_sesskey() && has_capability('mod/booking:updatebooking', $context)){
-		if(!isset($fromform->limitanswers)) {
+		if(!isset($fromform->limitanswers)) {			
 		   $fromform->limitanswers = 0;
+		}
+		if(!isset($fromform->daystonotify)) {
+		   $fromform->daystonotify = 0;
 		}
 		booking_update_options($fromform);
 		if(isset($fromform->submittandaddnew)){
