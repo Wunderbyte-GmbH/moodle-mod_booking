@@ -413,7 +413,7 @@ function booking_update_options($optionvalues){
 			$event->eventtype    = 'booking';
 			$event->timestart    = $option->coursestarttime;
 			$event->visible      = instance_is_visible('booking', $booking);
-			$event->timeduration = $option->courseendtime;
+			$event->timeduration = $option->courseendtime - $option->coursestarttime;
 
 			$tmpEvent = calendar_event::create($event);
 			$option->calendarid = $tmpEvent->id;
