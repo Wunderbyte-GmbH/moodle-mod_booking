@@ -307,6 +307,13 @@ function booking_update_options($optionvalues) {
             $event = new stdClass();
             $event->id = $DB->get_field('booking_options', 'calendarid', array('id' => $option->id));
             $groupid = $DB->get_field('booking_options', 'groupid', array('id' => $option->id));
+            $coursestarttime = $DB->get_field('booking_options', 'coursestarttime', array('id' => $option->id));
+            
+            if ($coursestarttime != $optionvalues->coursestarttime) {
+                $option->sent = 0;
+            } else {
+                $option->sent = $DB->get_field('booking_options', 'sent', array('id' => $option->id));
+            }
 
             // We must create new group
             if ($booking->addtogroup == 1) {
