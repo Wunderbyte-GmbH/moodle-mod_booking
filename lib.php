@@ -1134,12 +1134,16 @@ function booking_send_notification($optionid, $subject) {
 
     $option = $DB->get_record('booking_options', array('id' => $optionid));
     $booking = $DB->get_record('booking', array('id' => $option->bookingid));
-    $allusers = $DB->get_records('booking_answers', array('bookingid' => $option->bookingid, 'optionid' => $optionid));
+    //$allusers = $DB->get_records('booking_answers', array('bookingid' => $option->bookingid, 'optionid' => $optionid));
 
     $cm = get_coursemodule_from_instance('booking', $booking->id);
-
+    
+    $bookinglist = booking_get_spreadsheet_data($booking, $cm);
+    $sortedusers = booking_user_status($option, $bookinglist[$optionid]);
+    $allusers = $sortedusers['booked'];
+    
     foreach ($allusers as $record) {
-        $ruser = $DB->get_record('user', array('id' => $record->userid));
+        $ruser = $DB->get_record('user', array('id' => $record->id));
 
         $params = booking_generate_email_params($booking, $option, $ruser, $cm->id);
         $pollurlmessage = booking_get_email_body($booking, 'notificationtext', 'notificationtextmessage', $params);
