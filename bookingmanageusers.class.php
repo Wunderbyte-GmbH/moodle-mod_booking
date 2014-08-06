@@ -1,6 +1,5 @@
 <?php
-
-require_once $CFG->libdir . '/formslib.php';
+require_once $CFG->libdir.'/formslib.php';
 
 class mod_booking_manageusers_form extends moodleform {
 

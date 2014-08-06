@@ -69,6 +69,7 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
+
     }
 
     if ($oldversion < 2012091601) {

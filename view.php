@@ -258,6 +258,7 @@ if (has_capability('mod/booking:downloadresponses', $context)) {
 
 $current = false;  // Initialise for later
 //if user has already made a selection, show their selected answer.
+
 /// Print the form
 $bookingopen = true;
 $timenow = time();
@@ -306,4 +307,6 @@ if (has_capability('mod/booking:updatebooking', $context)) {
 }
 echo $OUTPUT->box("<a href=\"http://www.edulabs.org\">" . get_string('createdby', 'booking') . "</a>", 'box mdl-align');
 echo $OUTPUT->footer();
+
+
 ?>

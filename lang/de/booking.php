@@ -92,6 +92,7 @@ $string['subscribetocourse'] = 'Nutzer/innen in den Kurs einschreiben';
 $string['closed'] = 'Buchung beendet';
 $string['waitspaceavailable'] = 'Wartelistenplätze verfügbar';
 $string['onwaitinglist'] = 'Sie sind auf der Warteliste';
+$string['waitinglist'] = 'Auf der Warteliste';
 $string['bookingmeanwhilefull'] = 'Leider hat inzwischen jemand anderer den letzten Platz gebucht';
 $string['unlimited'] = 'Unbegrenzt';
 $string['starttimenotset'] = 'Kursbeginn nicht festgelegt';
@@ -305,7 +306,7 @@ Link: {$a->bookinglink}
 $string['pollurltextsubject'] = 'Nehmen Sie bitte an der Umfrage teil';
 $string['pollurltextmessage'] = 'Füllen Sie die Umfrage unter
 
-Survey url {$a->pollurl}
+Survey url {pollurl}
         
 aus.
 ';

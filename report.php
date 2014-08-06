@@ -17,7 +17,7 @@ $download   = optional_param('download', '', PARAM_ALPHA);
 $action     = optional_param('action', '', PARAM_ALPHANUM);
 $confirm    = optional_param('confirm', '', PARAM_INT);
 
-$url = new moodle_url('/mod/booking/report.php', array('id'=>$id));
+$url = new moodle_url('/mod/booking/report.php', array('id'=>$id, 'optionid' => $optionid));
 
 if ($action !== '') {
 	$url->param('action', $action);
