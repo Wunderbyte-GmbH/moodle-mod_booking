@@ -86,9 +86,11 @@ if(!$agree && (!empty($bookingoption->booking->bookingpolicy))){
 			}
 			// compare if selected users are members of the currentgroup if person has not the
 			// right to access all groups
+			$subsribesuccess = true;
 			if($usersallowed AND (groups_is_member($currentgroup,$USER->id) OR has_capability('moodle/site:accessallgroups', $context))){
 				foreach ($users as $user) {
 					if (!$bookingoption->user_submit_response($user)) {
+					    $subsribesuccess = false;
 						print_error('bookingmeanwhilefull', 'booking', $errorurl->out() , $user->id);
 					}
 				}
@@ -97,10 +99,12 @@ if(!$agree && (!empty($bookingoption->booking->bookingpolicy))){
 			}
 		} else if ($unsubscribe) {
 			$users = $existingselector->get_selected_users();
+			$unsubscribesuccess = true;
 			foreach ($users as $user) {
 				$newbookeduser = booking_check_statuschange($optionid, $bookingoption->booking, $user->id, $cm->id);
 				$answer = $DB->get_record('booking_answers', array('bookingid' => $cm->instance, 'userid' => $user->id, 'optionid' => $optionid));
 				if(!booking_delete_singlebooking($answer,$bookingoption->booking,$optionid,$newbookeduser,$cm->id)){
+				    $unsubscribesuccess = false;
 					print_error('cannotremovesubscriber', 'forum',  $errorurl->out(), $user->id);
 				} 
 			}
@@ -114,6 +118,18 @@ if(!$agree && (!empty($bookingoption->booking->bookingpolicy))){
 
 }
 echo $OUTPUT->header();
+if($subsribesuccess || $unsubscribesuccess){
+    if($subsribesuccess){
+        echo $OUTPUT->notification("<h2>".get_string('bookingsaved','booking')."</h2>", " loginbox notifysuccess");
+    }
+    if ($unsubscribesuccess) {
+        echo $OUTPUT->notification("<h2>".get_string('bookingdeleted','booking')."</h2>", " loginbox notifysuccess");
+    }
+    echo $OUTPUT->continue_button($url);
+    echo $OUTPUT->footer();
+    die();
+}
+
 echo $bookingoutput->subscriber_selection_form($existingselector, $subscriberselector);
 echo $OUTPUT->footer();
 ?>

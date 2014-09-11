@@ -968,6 +968,11 @@ function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduseri
 		$user = $DB->get_record('user', array('id' => $answer->userid));
 	}
 	booking_check_unenrol_user($booking->option[$optionid], $booking, $user->id);
+	/** backward compatibility hack, if called from subscribeusers.php other booking object is used **/
+	if(!$booking->option[$optionid]){
+	    $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
+	    $booking = booking_get_booking($cm);
+	}
 	$params = booking_generate_email_params($booking, $booking->option[$optionid], $user, $cmid);
 	$messagetext = get_string('deletedbookingmessage', 'booking', $params);
 	$deletedbookingusermessage = booking_get_email_body($booking, 'deletedtext', 'deletedbookingmessage', $params);
