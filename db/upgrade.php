@@ -69,7 +69,6 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
     }
 
     if ($oldversion < 2012091601) {
@@ -491,6 +490,29 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014060600, 'booking');
     }
 
+    if ($oldversion < 2014091100) {
+
+        // Define field completed to be added to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('completed', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'timemodified');
+
+        // Conditionally launch add field completed.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field enablecompletion to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('enablecompletion', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'userleave');
+
+        // Conditionally launch add field enablecompletion.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014091100, 'booking');
+    }
 
     return true;
 }

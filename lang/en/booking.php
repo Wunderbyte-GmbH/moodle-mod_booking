@@ -1,4 +1,4 @@
-<?PHP
+<?php
 
 $string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
@@ -97,7 +97,6 @@ $string['subscribetocourse'] = 'Enrol users in the course';
 $string['closed'] = 'Booking closed';
 $string['waitspaceavailable'] = 'Places on waiting list available';
 $string['onwaitinglist'] = 'You are on the waiting list';
-$string['waitinglist'] = 'On waiting list';
 $string['bookingmeanwhilefull'] = 'Meanwhile someone took already the last place';
 $string['unlimited'] = 'Unlimited';
 $string['starttimenotset'] = 'Start date not set';
@@ -352,7 +351,7 @@ To view all your booked courses click on the following link: {$a->bookinglink}
 
 ';
 
-$string['userleavebookedsubject'] = "You have sucesfully unsubscribed from {$a->title}";
+$string['userleavebookedsubject'] = 'You have sucesfully unsubscribed from {$a->title}';
 $string['userleavebookedmessage'] = 'Hello {$a->participant},
 
 You have sucesfully unsubscribed from {$a->title}.
@@ -413,3 +412,9 @@ $string['addteachers'] = 'Add teachers';
 $string['messagesubject'] = 'Subject';
 $string['messagetext'] = 'Message';
 $string['messagesend'] = 'You message was sucesfully send.';
+$string['booking:communicate'] = 'Can communicate';
+
+$string['enablecompletion'] = 'Enable activity completion.';
+$string['enablecompletiongroup'] = 'Activity completion';
+$string['confirmactivitycompletion'] = 'Confirm activity completion';
+$string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';

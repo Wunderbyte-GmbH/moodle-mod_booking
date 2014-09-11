@@ -121,12 +121,34 @@ function booking_supports($feature) {
         case FEATURE_GROUPMEMBERSONLY: return false;
         case FEATURE_MOD_INTRO: return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS: return false;
-        case FEATURE_COMPLETION_HAS_RULES: return false;
+        case FEATURE_COMPLETION_HAS_RULES: return true;
         case FEATURE_GRADE_HAS_GRADE: return false;
         case FEATURE_GRADE_OUTCOMES: return false;
         case FEATURE_BACKUP_MOODLE2: return true;
 
         default: return null;
+    }
+}
+
+function booking_get_completion_state($course, $cm, $userid, $type) {
+    global $CFG, $DB;
+
+    // Get forum details
+    if (!($booking = $DB->get_record('booking', array('id' => $cm->instance)))) {
+        throw new Exception("Can't find booking {$cm->instance}");
+    }
+
+    if ($booking->enablecompletion) {
+
+        $user = $DB->get_record('booking_answers', array('bookingid' => $booking->id, 'userid' => $userid, 'completed' => '1'));
+        var_dump($userid);
+        if ($user === FALSE) {
+            return FALSE;
+        } else {
+            return TRUE;
+        }
+    } else {
+        return $type;
     }
 }
 
@@ -160,7 +182,7 @@ function booking_add_instance($booking) {
     $booking->pollurltext = $booking->pollurltext['text'];
     $booking->notificationtext = $booking->notificationtext['text'];
     $booking->userleave = $booking->userleave['text'];
-    
+
     //insert answer options from mod_form
     $booking->id = $DB->insert_record("booking", $booking);
 
@@ -228,7 +250,7 @@ function booking_update_instance($booking) {
     $booking->pollurltext = $booking->pollurltext['text'];
     $booking->notificationtext = $booking->notificationtext['text'];
     $booking->userleave = $booking->userleave['text'];
-    
+
     //update, delete or insert answers
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {
@@ -308,7 +330,7 @@ function booking_update_options($optionvalues) {
             $event->id = $DB->get_field('booking_options', 'calendarid', array('id' => $option->id));
             $groupid = $DB->get_field('booking_options', 'groupid', array('id' => $option->id));
             $coursestarttime = $DB->get_field('booking_options', 'coursestarttime', array('id' => $option->id));
-            
+
             if ($coursestarttime != $optionvalues->coursestarttime) {
                 $option->sent = 0;
             } else {
@@ -574,6 +596,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
     $displayoptions->para = false;
     $tabledata = array();
     $current = array();
+    $rowclasses = array();
 
     $underlimit = ($booking->maxperuser == 0);
     $underlimit = $underlimit || (booking_get_user_booking_count($booking, $user, $allresponses) < $booking->maxperuser);
@@ -606,7 +629,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
                         $optiondisplay->booked = get_string('booked', 'booking');
                     }
                     $rowclasses[] = "mod-booking-booked" . $extraclass;
-                    if (($booking->allowupdate and $option->status != 'closed') or has_capability('mod/booking:deleteresponses', $context)) {
+                    if (has_capability('mod/booking:deleteresponses', $context) and $booking->allowupdate and $option->status != 'closed') {
                         $buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
                         $url = new moodle_url('view.php', $buttonoptions);
                         $url->params($buttonoptions);
@@ -617,7 +640,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
                 } elseif ($current[$option->id] > $option->maxanswers) { // waitspaceavailable
                     $optiondisplay->booked = get_string('onwaitinglist', 'booking');
                     $rowclasses[] = "mod-booking-watinglist" . $extraclass;
-                    if (($booking->allowupdate and $option->status != 'closed') or has_capability('mod/booking:deleteresponses', $context)) {
+                    if (has_capability('mod/booking:deleteresponses', $context) and $booking->allowupdate and $option->status != 'closed') {
                         $buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
                         $url = new moodle_url('view.php', $buttonoptions);
                         $optiondisplay->delete = $OUTPUT->single_button($url, get_string('cancelbooking', 'booking'), 'post') . '<br />';
@@ -629,7 +652,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
                         $optiondisplay->booked = get_string('booked', 'booking');
                     }
                     $rowclasses[] = "mod-booking-booked" . $extraclass;
-                    if (($booking->allowupdate and $option->status != 'closed') or has_capability('mod/booking:deleteresponses', $context)) {
+                    if (has_capability('mod/booking:deleteresponses', $context) and $booking->allowupdate and $option->status != 'closed') {
                         $buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
                         $url = new moodle_url('view.php', $buttonoptions);
                         $optiondisplay->delete = $OUTPUT->single_button($url, get_string('cancelbooking', 'booking'), 'post') . '<br />';
@@ -1058,6 +1081,30 @@ function booking_delete_singlebooking($answer, $booking, $optionid, $newbookedus
     return true;
 }
 
+// Add activity completion to user.
+function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) {
+    global $DB;
+
+    foreach ($selectedusers as $uid) {
+        foreach ($uid as $ui) {
+            $userData = $DB->get_record('booking_answers', array('optionid' => $optionid, 'userid' => $ui));
+
+            $userData->completed = '1';
+
+            $DB->update_record('booking_answers', $userData);
+        }
+    }
+
+    $course = $DB->get_record('course', array('id' => $booking->course));
+    $completion = new completion_info($course);
+
+    $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
+
+    if ($completion->is_enabled($cm) && $booking->enablecompletion) {
+        $completion->update_state($cm, COMPLETION_COMPLETE);
+    }
+}
+
 // Send mail to all users - pollurl
 function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
     global $DB, $USER;
@@ -1137,11 +1184,11 @@ function booking_send_notification($optionid, $subject) {
     //$allusers = $DB->get_records('booking_answers', array('bookingid' => $option->bookingid, 'optionid' => $optionid));
 
     $cm = get_coursemodule_from_instance('booking', $booking->id);
-    
+
     $bookinglist = booking_get_spreadsheet_data($booking, $cm);
     $sortedusers = booking_user_status($option, $bookinglist[$optionid]);
     $allusers = $sortedusers['booked'];
-    
+
     foreach ($allusers as $record) {
         $ruser = $DB->get_record('user', array('id' => $record->id));
 

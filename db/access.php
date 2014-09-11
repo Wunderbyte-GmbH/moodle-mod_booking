@@ -1,4 +1,5 @@
 <?php
+
 //
 // Capability definitions for the booking module.
 //
@@ -32,9 +33,7 @@
 
 
 $capabilities = array(
-
     'mod/booking:choose' => array(
-
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
@@ -43,9 +42,7 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
         )
     ),
-
     'mod/booking:readresponses' => array(
-
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
@@ -53,9 +50,7 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
         )
     ),
-
     'mod/booking:deleteresponses' => array(
-
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
@@ -63,9 +58,7 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
         )
     ),
-    
     'mod/booking:updatebooking' => array(
-
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
@@ -73,39 +66,39 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
         )
     ),
-    
-
     'mod/booking:downloadresponses' => array(
-    
-    		'captype' => 'read',
-    		'contextlevel' => CONTEXT_MODULE,
-    		'archetypes' => array(
-    				'teacher' => CAP_ALLOW,
-    				'editingteacher' => CAP_ALLOW,
-    		)
-    ),
-    
-    'mod/booking:subscribeusers' => array(
-
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
         )
-    ),		
-
-		'mod/booking:addinstance' => array(
-				'riskbitmask' => RISK_XSS,
-		
-				'captype' => 'write',
-				'contextlevel' => CONTEXT_COURSE,
-				'archetypes' => array(
-						'editingteacher' => CAP_ALLOW,
-						'manager' => CAP_ALLOW
-				),
-				'clonepermissionsfrom' => 'moodle/course:manageactivities'
-		),
+    ),
+    'mod/booking:subscribeusers' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+        )
+    ),
+    'mod/booking:addinstance' => array(
+        'riskbitmask' => RISK_XSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ),
+        'clonepermissionsfrom' => 'moodle/course:manageactivities'
+    ),
+    'mod/booking:communicate' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+        )
+    )
 );
-
 ?>
