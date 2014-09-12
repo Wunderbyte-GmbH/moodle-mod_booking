@@ -38,9 +38,14 @@ if (!$booking = booking_get_booking($cm)) {
     print_error("Course module is incorrect");
 }
 
-//$context = get_context_instance(CONTEXT_MODULE, $cm->id);
 $context = context_module::instance($cm->id);
-require_capability('mod/booking:readresponses', $context);
+
+$option = $DB->get_record('booking_options', array('id' => $optionid));
+
+if (!(booking_check_if_teacher($option, $USER) || has_capability('mod/booking:readresponses', $context))) {
+    require_capability('mod/booking:readresponses', $context);
+}
+
 $url = new moodle_url('/mod/booking/report.php', array('id' => $id, 'optionid' => $optionid));
 
 $strbooking = get_string("modulename", "booking");
@@ -119,7 +124,7 @@ if (!$download) {
         } else if (isset($fromform->addteachers) && has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
             $addteachersurl = new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid));
             redirect($addteachersurl);
-        } else if (isset($fromform->activitycompletion) && has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
+        } else if (isset($fromform->activitycompletion) && (booking_check_if_teacher($option, $USER) || has_capability('mod/booking:readresponses', $context)) && confirm_sesskey()) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
             booking_activitycompletion($selectedusers, $booking, $cm->id, $optionid);
             redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);

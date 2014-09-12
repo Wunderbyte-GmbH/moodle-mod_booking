@@ -5,7 +5,7 @@ require_once $CFG->libdir . '/formslib.php';
 class mod_booking_manageusers_form extends moodleform {
 
     function definition() {
-        global $CFG, $DB, $OUTPUT;
+        global $CFG, $DB, $OUTPUT, $USER;
         $mform = & $this->_form;
         
         $cm = $this->_customdata['cm'];
@@ -80,9 +80,12 @@ class mod_booking_manageusers_form extends moodleform {
         }
         
         if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-            $buttonarray[] = &$mform->createElement("submit", 'addteachers', get_string('addteachers', 'booking'));
+            $buttonarray[] = &$mform->createElement("submit", 'addteachers', get_string('addteachers', 'booking'));            
+        }   
+        
+        if (booking_check_if_teacher($this->_customdata['bookingdata'], $USER) || has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
             $buttonarray[] = &$mform->createElement("submit", 'activitycompletion', get_string('confirmactivitycompletion', 'booking'));
-        }       
+        }
         
         $buttonarray[] = &$mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);

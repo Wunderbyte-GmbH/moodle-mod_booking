@@ -139,9 +139,8 @@ function booking_get_completion_state($course, $cm, $userid, $type) {
     }
 
     if ($booking->enablecompletion) {
-
         $user = $DB->get_record('booking_answers', array('bookingid' => $booking->id, 'userid' => $userid, 'completed' => '1'));
-        var_dump($userid);
+
         if ($user === FALSE) {
             return FALSE;
         } else {
@@ -694,7 +693,8 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
             } else {
                 $stravailspaces = get_string("placesavailable", "booking") . ": " . $option->availspaces . " / " . $option->maxanswers . "<br />" . get_string("waitingplacesavailable", "booking") . ": " . $option->availwaitspaces . " / " . $option->maxoverbooking;
             }
-            if (has_capability('mod/booking:readresponses', $context)) {
+            
+            if (has_capability('mod/booking:readresponses', $context) || booking_check_if_teacher($option, $user)) {
                 $numberofresponses = 0;
                 if (isset($allresponses[$option->id])) {
                     $numberofresponses = count($allresponses[$option->id]);
@@ -763,6 +763,22 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
     $table->rowclasses = $rowclasses;
     $table->data = $tabledata;
     echo (html_writer::table($table));
+}
+
+/**
+ * Check if logged in user is in teachers db.
+ * @return true if is assigned as teacher otherwise return false
+ */
+function booking_check_if_teacher($option, $user) {
+    global $DB;
+    
+     $user = $DB->get_record('booking_teachers', array('bookingid' => $option->bookingid, 'userid' => $user->id, 'optionid' => $option->id));
+
+        if ($user === FALSE) {
+            return FALSE;
+        } else {
+            return TRUE;
+        }
 }
 
 /**
