@@ -423,14 +423,6 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        $table = new xmldb_table('booking');
-        $field = new xmldb_field('eventtype', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'additionalfields');
-
-        // Conditionally launch add field eventtype.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014033100, 'booking');
     }
@@ -461,43 +453,38 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014040700, 'booking');
     }
 
-    if ($oldversion < 2014041600) {
-
+    if ($oldversion < 2014091100) {
+        
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('eventtype', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'additionalfields');
+        
+        // Conditionally launch add field eventtype.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
         // Define field notificationtext to be added to booking.
         $table = new xmldb_table('booking');
         $field = new xmldb_field('notificationtext', XMLDB_TYPE_TEXT, null, null, null, null, null, 'eventtype');
-
+        
         // Conditionally launch add field notificationtext.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2014041600, 'booking');
-    }
-
-    if ($oldversion < 2014060600) {
-
-        // Define field userleave to be added to booking.
-        $table = new xmldb_table('booking');
-        $field = new xmldb_field('userleave', XMLDB_TYPE_TEXT, null, null, null, null, null, 'notificationtext');
-
-        // Conditionally launch add field userleave.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2014060600, 'booking');
-    }
-
-    if ($oldversion < 2014091100) {
-
         // Define field completed to be added to booking_answers.
         $table = new xmldb_table('booking_answers');
         $field = new xmldb_field('completed', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'timemodified');
 
         // Conditionally launch add field completed.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        // Define field userleave to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('userleave', XMLDB_TYPE_TEXT, null, null, null, null, null, 'notificationtext');
+    
+        // Conditionally launch add field userleave.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
