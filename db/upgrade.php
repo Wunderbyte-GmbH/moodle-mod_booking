@@ -21,33 +21,33 @@ function xmldb_booking_upgrade($oldversion) {
 
     global $CFG, $DB;
 
-    $dbman = $DB->get_manager(); /// loads ddl manager and xmldb classes
+	$dbman = $DB->get_manager(); /// loads ddl manager and xmldb classes
 
     if ($oldversion < 2011020401) {
 
-        /// Rename field text on table booking to text
+    /// Rename field text on table booking to text
         $table = new xmldb_table('booking');
         $field = new xmldb_field('text', XMLDB_TYPE_TEXT, 'small', null, XMLDB_NOTNULL, null, null, 'name');
 
-        /// Launch rename field text
+    /// Launch rename field text
         $dbman->rename_field($table, $field, 'intro');
 
-        /// booking savepoint reached
+    /// booking savepoint reached
         upgrade_mod_savepoint(true, 2009042000, 'booking');
     }
 
     if ($oldversion < 2011020401) {
 
-        /// Rename field format on table booking to format
+    /// Rename field format on table booking to format
         $table = new xmldb_table('booking');
         $field = new xmldb_field('format', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'intro');
 
-        /// Launch rename field format
+    /// Launch rename field format
         $dbman->rename_field($table, $field, 'introformat');
 
-        /// booking savepoint reached
+    /// booking savepoint reached
         upgrade_mod_savepoint(true, 2009042001, 'booking');
-
+        
         // Define field bookingpolicyformat to be added to choice
         $table = new xmldb_table('booking');
         $field = new xmldb_field('bookingpolicyformat', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'bookingpolicy');
@@ -61,7 +61,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2010101300, 'booking');
     }
     if ($oldversion < 2011020403) {
-        // Define field bookingpolicyformat to be added to choice
+       // Define field bookingpolicyformat to be added to choice
         $table = new xmldb_table('booking_options');
         $field = new xmldb_field('descriptionformat', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'description');
 
@@ -69,6 +69,7 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
+
     }
 
     if ($oldversion < 2012091601) {
@@ -147,63 +148,63 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014012807, 'booking');
     }
-
+    
     if ($oldversion < 2014020200) {
-
-        // Define field addtocalendar to be added to booking_options.
-        $table = new xmldb_table('booking');
-        $field = new xmldb_field('sendmailtobooker', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'maxperuser');
-
-        // Conditionally launch add field sendmailtobooker.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2014020200, 'booking');
+    
+     // Define field addtocalendar to be added to booking_options.
+     $table = new xmldb_table('booking');
+     $field = new xmldb_field('sendmailtobooker', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'maxperuser');
+    
+     // Conditionally launch add field sendmailtobooker.
+     if (!$dbman->field_exists($table, $field)) {
+      $dbman->add_field($table, $field);
+     }
+    
+     // Booking savepoint reached.
+     upgrade_mod_savepoint(true, 2014020200, 'booking');
     }
 
     if ($oldversion < 2014030600) {
-
+        
         $table = new xmldb_table('booking');
         $tableoptions = new xmldb_table('booking_options');
-
+        
         $field = new xmldb_field('duration', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'maxperuser');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
+        
         $field = new xmldb_field('points', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'duration');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
+        
         $field = new xmldb_field('organizatorname', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'points');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
+        
         $field = new xmldb_field('pollurl', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'organizatorname');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
+        
         $field = new xmldb_field('pollurl', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'calendarid');
         if (!$dbman->field_exists($tableoptions, $field)) {
             $dbman->add_field($tableoptions, $field);
         }
-
+        
         // Define field course to be dropped from booking.
         $field = new xmldb_field('tags');
-
+        
         // Conditionally launch drop field course.
         if ($dbman->field_exists($table, $field)) {
             $dbman->drop_field($table, $field);
         }
-
+        
         // Define field addtogroup to be added to booking.
         $field = new xmldb_field('addtogroup', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'pollurl');
-
+        
         // Conditionally launch add field addtogroup.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
@@ -354,34 +355,34 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014032101, 'booking');
     }
-
+    
     if ($oldversion < 2014032600) {
-
+        
         $table = new xmldb_table('booking');
         $tableoptions = new xmldb_table('booking_options');
-
+        
         $field = new xmldb_field('poolurl', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'organizatorname');
         if ($dbman->field_exists($table, $field)) {
             $dbman->rename_field($table, $field, 'pollurl');
         }
-
+        
         $field = new xmldb_field('poolurl', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'organizatorname');
         if ($dbman->field_exists($table, $field)) {
             $dbman->rename_field($table, $field, 'pollurl');
         }
-
+        
         $field = new xmldb_field('poolurltext', XMLDB_TYPE_TEXT, null, null, null, null, null, 'categoryid');
         if ($dbman->field_exists($table, $field)) {
             $dbman->rename_field($table, $field, 'pollurltext');
-        }
-
+        }       
+        
         $field = new xmldb_field('poolurl', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'calendarid');
         if ($dbman->field_exists($tableoptions, $field)) {
             $dbman->rename_field($tableoptions, $field, 'pollurl');
         }
-
+    
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2014032600, 'booking');
+    upgrade_mod_savepoint(true, 2014032600, 'booking');
     }
 
     if ($oldversion < 2014032800) {
