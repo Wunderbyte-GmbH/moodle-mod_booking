@@ -125,7 +125,7 @@ if($subsribesuccess || $unsubscribesuccess){
     if ($unsubscribesuccess) {
         echo $OUTPUT->notification("<h2>".get_string('bookingdeleted','booking')."</h2>", " loginbox notifysuccess");
     }
-    echo $OUTPUT->continue_button($url);
+    echo $OUTPUT->continue_button(new moodle_url($PAGE->url->out(false,array('agree' => 1))));
     echo $OUTPUT->footer();
     die();
 }
