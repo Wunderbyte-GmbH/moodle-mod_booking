@@ -22,7 +22,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(__FILE__).'/../../config.php');
 
 if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox('booking/attachical', get_string('attachical', 'mod_booking'),

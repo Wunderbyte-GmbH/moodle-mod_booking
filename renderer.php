@@ -20,7 +20,7 @@
  * is used by the booking module.
  *
  * @package mod-booking
- * @copyright 2014 Andraž Prinčič
+ * @copyright 2014 David Bogner, Andraž Prinčič
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  **/
 class mod_booking_renderer extends plugin_renderer_base {
@@ -106,6 +106,92 @@ class mod_booking_renderer extends plugin_renderer_base {
         $output .= $this->output->box_end();
         return $output;
     }
+    
+    /**
+     * display all the bookings of the whole moodle site
+     * sorted by course
+     * @param booking_options $bookingoptions
+     * @return string rendered html
+     */
+    public function render_bookings(booking_options $bookingoptions){
+        $output = '';    
+        $output .= html_writer::start_div();
+        $header = html_writer::tag('h3', $bookingoptions->booking->name);
+        $url = new moodle_url('/mod/booking/view.php', array('id' => $bookingoptions->cm->id));
+        $output .= html_writer::link($url, $header);
+        foreach ($bookingoptions->options as $optionid => $bookingoption){
+            if(!empty($bookingoptions->allbookedusers[$optionid])){
+                $waitinglist = array();                
+                $output .= html_writer::tag('h4', $bookingoption->text);
+                $output .= html_writer::start_div('mod-booking-regular');
+                $output .= html_writer::div(get_string('bookedusers', 'booking'));
+                $table = new html_table();
+                $table->cellpadding = 1;
+                $table->cellspacing = 0;
+                $table->tablealign = 'left';
+                $table->data = array();
+                foreach($bookingoptions->allbookedusers[$optionid] as $user){
+                    if($user->status[$optionid]->bookingvisible && $user->status[$optionid]->booked == 'booked'){
+                        $table->data[] = array($this->output->user_picture($user, array('courseid'=>$bookingoptions->booking->course)), fullname($user) . "<br />" . $user->email);
+                    } else if ($user->status[$optionid]->bookingvisible) {
+                        $waitinglist[] = $user;
+                    }
+                }
+                $output .= html_writer::table($table);
+                $output .= html_writer::end_div();
+            } 
+            if(!empty($waitinglist)){
+                $output .= html_writer::start_div('mod-booking-waiting');
+                $output .= html_writer::div(get_string('waitinglistusers', 'booking'));
+                $table = new html_table();
+                $table->cellpadding = 1;
+                $table->cellspacing = 0;
+                $table->tablealign = 'left';
+                $table->data = array();
+                foreach($waitinglist as $user){
+                    if($user->status[$optionid]->bookingvisible){
+                        $table->data[] = array($this->output->user_picture($user, array('courseid'=>$bookingoptions->booking->course)), fullname($user) . "<br />" . $user->email);
+                    }
+                }
+                $output .= html_writer::table($table);
+                $output .= html_writer::end_div();
+            }
+        }
+        $output .= html_writer::end_div();
+        return $output;
+    }
+    
+    /**
+     * render userbookings for the whole site sorted per user
+     * @param array $userbookings
+     * @return string rendered html
+     */
+    public function render_bookings_per_user($userbookings){
+        $output = html_writer::div(' ');
+        $items = array();
+        
+        foreach($userbookings as $userid => $options){
+            $items = array();
+            
+            foreach($options as $optionid => $user){
+                // if the user is visible in only one booking instance, than show the user otherwise do not show
+                if($user->status[$optionid]->bookingvisible){
+                    $bookinginstanceurl = new moodle_url('/mod/booking/view.php', array('id' => $user->status[$optionid]->bookingcmid));
+                    $bookingcourseurl = new moodle_url('/course/view.php', array('id' => $user->status[$optionid]->courseid));
+                    $bookinglink = html_writer::link($bookinginstanceurl, $user->status[$optionid]->bookingtitle);
+                    $courselink = html_writer::link($bookingcourseurl, $user->status[$optionid]->coursename);
+                    $html = html_writer::span($user->status[$optionid]->bookingoptiontitle ." $bookinglink.  $courselink ". get_string($user->status[$optionid]->booked,'booking'));
+                    $items[] = $html;
+                }
+            }
+            if(!empty($items)){
+                $user = reset($options);
+                $output .= html_writer::tag('span', $this->output->user_picture($user) . " ".  fullname($user))." ";
+                $output .= html_writer::link('mailto:'.$user->email, $user->email);                
+                $output .= html_writer::alist($items);
+            }
+        }        
 
-
+        return $output;
+    }
 }

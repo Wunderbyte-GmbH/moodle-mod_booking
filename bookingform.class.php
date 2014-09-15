@@ -17,6 +17,27 @@ class mod_booking_bookingform_form extends moodleform {
 			$mform->setType('text', PARAM_CLEANHTML);
 		}
 
+		$mform->addElement('text', 'location', get_string('location','booking'), array('size'=>'64'));
+		if (!empty($CFG->formatstringstriptags)) {
+			$mform->setType('location', PARAM_TEXT);
+		} else {
+			$mform->setType('location', PARAM_CLEANHTML);
+		}		
+
+		$mform->addElement('text', 'institution', get_string('institution','booking'), array('size'=>'64'));
+		if (!empty($CFG->formatstringstriptags)) {
+			$mform->setType('institution', PARAM_TEXT);
+		} else {
+			$mform->setType('institution', PARAM_CLEANHTML);
+		}	
+
+		$mform->addElement('text', 'address', get_string('address','booking'), array('size'=>'64'));
+		if (!empty($CFG->formatstringstriptags)) {
+			$mform->setType('address', PARAM_TEXT);
+		} else {
+			$mform->setType('address', PARAM_CLEANHTML);
+		}
+
 		$mform->addElement('checkbox', 'limitanswers', get_string('limitanswers','booking'));
 
 		$mform->addElement('text', 'maxanswers', get_string('maxparticipantsnumber','booking'));
@@ -60,8 +81,8 @@ class mod_booking_bookingform_form extends moodleform {
 		$mform->addElement('editor', 'description', get_string('description'));
 		$mform->setType('description', PARAM_CLEANHTML);
 
-		$mform->addElement('text', 'poolurl', get_string('bookingpoolurl', 'booking'), array('size'=>'64'));
-		$mform->setType('poolurl', PARAM_TEXT);
+		$mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'), array('size'=>'64'));
+		$mform->setType('pollurl', PARAM_TEXT);
 
 		//hidden elements
 		$mform->addElement('hidden', 'id');
@@ -97,9 +118,9 @@ class mod_booking_bookingform_form extends moodleform {
 
 		$errors = parent::validation($data, $files);
 
-		if (strlen($data['poolurl']) > 0) {
-			if(!filter_var($data['poolurl'], FILTER_VALIDATE_URL)) {
-				$errors['poolurl'] = get_string('entervalidurl', 'booking');
+		if (strlen($data['pollurl']) > 0) {
+			if(!filter_var($data['pollurl'], FILTER_VALIDATE_URL)) {
+				$errors['pollurl'] = get_string('entervalidurl', 'booking');
 			}
 		}
 

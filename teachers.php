@@ -91,7 +91,6 @@ if (empty($USER->subscriptionsediting)) {
 } else {
     echo $output->subscriber_selection_form($existingselector, $subscriberselector);
 }
-
 echo $output->footer();
 
 ?>
