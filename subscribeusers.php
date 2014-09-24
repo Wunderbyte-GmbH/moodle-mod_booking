@@ -97,7 +97,7 @@ if(!$agree && (!empty($bookingoption->booking->bookingpolicy))){
 			} else {
 				print_error('invalidaction');
 			}
-		} else if ($unsubscribe) {
+		} else if ($unsubscribe && has_capability('mod/booking:deleteresponses', $context)) {
 			$users = $existingselector->get_selected_users();
 			$unsubscribesuccess = true;
 			foreach ($users as $user) {
@@ -108,6 +108,8 @@ if(!$agree && (!empty($bookingoption->booking->bookingpolicy))){
 					print_error('cannotremovesubscriber', 'forum',  $errorurl->out(), $user->id);
 				} 
 			}
+		} else if ($unsubscribe && !has_capability('mod/booking:deleteresponses', $context)){
+		    print_error('nopermission',null,$errorurl->out());
 		}
 		$subscriberselector->invalidate_selected_users();
 		$existingselector->invalidate_selected_users();
@@ -122,7 +124,7 @@ if($subsribesuccess || $unsubscribesuccess){
     if($subsribesuccess){
         echo $OUTPUT->notification("<h2>".get_string('bookingsaved','booking')."</h2>", " loginbox notifysuccess");
     }
-    if ($unsubscribesuccess) {
+    if ($unsubscribesuccess && has_capability('mod/booking:deleteresponses', $context)) {
         echo $OUTPUT->notification("<h2>".get_string('bookingdeleted','booking')."</h2>", " loginbox notifysuccess");
     }
     echo $OUTPUT->continue_button(new moodle_url($PAGE->url->out(false,array('agree' => 1))));

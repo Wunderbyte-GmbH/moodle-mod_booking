@@ -1,5 +1,4 @@
-<?php
-
+<?php 
 /**
  * Manage bookings
  *
@@ -18,7 +17,7 @@ $download = optional_param('download', '', PARAM_ALPHA);
 $action = optional_param('action', '', PARAM_ALPHANUM);
 $confirm = optional_param('confirm', '', PARAM_INT);
 
-$url = new moodle_url('/mod/booking/report.php', array('id' => $id));
+$url = new moodle_url('/mod/booking/report.php', array('id'=>$id, 'optionid' => $optionid));
 
 if ($action !== '') {
 	$url->param('action', $action);
@@ -54,21 +53,20 @@ $strresponses = get_string("responses", "booking");
 
 add_to_log($course->id, "booking", "report", "report.php?id=$cm->id", "$booking->id",$cm->id);
 
-if ($action == 'deletebookingoption' && $confirm == 1 && has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
-    booking_delete_booking_option($booking, $optionid); //delete booking_option
-    redirect("view.php?id=$cm->id");
-} elseif ($action == 'deletebookingoption' && has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
-    echo $OUTPUT->header();
-    $confirmarray['action'] = 'deletebookingoption';
-    $confirmarray['confirm'] = 1;
-    $confirmarray['optionid'] = $optionid;
-    $continue = $url;
-    $cancel = new moodle_url('/mod/booking/report.php', array('id' => $id));
-    ;
-    $continue->params($confirmarray);
-    echo $OUTPUT->confirm(get_string('confirmdeletebookingoption', 'booking'), $continue, $cancel);
-    echo $OUTPUT->footer();
-    die;
+if ($action == 'deletebookingoption' && $confirm == 1 && has_capability('mod/booking:updatebooking',$context) && confirm_sesskey()) {
+	booking_delete_booking_option($booking, $optionid); //delete booking_option
+	redirect("view.php?id=$cm->id");
+} elseif ($action == 'deletebookingoption' && has_capability('mod/booking:updatebooking',$context) && confirm_sesskey()) {
+	echo $OUTPUT->header();
+	$confirmarray['action'] = 'deletebookingoption';
+	$confirmarray['confirm'] = 1;
+	$confirmarray['optionid'] = $optionid;
+	$continue = $url;
+	$cancel = new moodle_url('/mod/booking/report.php', array('id'=>$id));;
+	$continue->params($confirmarray);
+	echo $OUTPUT->confirm(get_string('confirmdeletebookingoption','booking'), $continue,$cancel);
+	echo $OUTPUT->footer();
+	die;
 }
 $bookinglist = booking_get_spreadsheet_data($booking, $cm);
 $PAGE->navbar->add($strresponses);
