@@ -453,7 +453,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014040700, 'booking');
     }
 
-    if ($oldversion < 2014091100) {
+    if ($oldversion < 2014091600) {
         
         $table = new xmldb_table('booking');
         $field = new xmldb_field('eventtype', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'additionalfields');
@@ -499,7 +499,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2014091100, 'booking');
+        upgrade_mod_savepoint(true, 2014091600, 'booking');
     }
 
     return true;

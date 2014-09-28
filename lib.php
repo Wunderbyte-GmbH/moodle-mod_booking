@@ -1106,6 +1106,11 @@ function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduseri
 function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) {
     global $DB;
 
+    $course = $DB->get_record('course', array('id' => $booking->course));
+    $completion = new completion_info($course);
+
+    $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
+    
     foreach ($selectedusers as $uid) {
         foreach ($uid as $ui) {
             $userData = $DB->get_record('booking_answers', array('optionid' => $optionid, 'userid' => $ui));
@@ -1113,17 +1118,12 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             $userData->completed = '1';
 
             $DB->update_record('booking_answers', $userData);
+            
+            if ($completion->is_enabled($cm) && $booking->enablecompletion) {
+                $completion->update_state($cm, COMPLETION_COMPLETE, $ui);
+            }
         }
-    }
-
-    $course = $DB->get_record('course', array('id' => $booking->course));
-    $completion = new completion_info($course);
-
-    $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
-
-    if ($completion->is_enabled($cm) && $booking->enablecompletion) {
-        $completion->update_state($cm, COMPLETION_COMPLETE);
-    }
+    }       
 }
 
 // Send mail to all users - pollurl
