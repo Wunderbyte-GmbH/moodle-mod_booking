@@ -1,0 +1,6 @@
+Web service for booking plugin for Moodle 2.X
+------------------------------------------
+
+Returns all bookings for course.
+
+install the plugin in moodle/local/bookingapi/

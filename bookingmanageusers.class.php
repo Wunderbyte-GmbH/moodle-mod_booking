@@ -76,6 +76,7 @@ class mod_booking_manageusers_form extends moodleform {
         
         if (has_capability('mod/booking:communicate', context_module::instance($cm->id))) {
             $buttonarray[] = &$mform->createElement("submit", 'sendpollurl', get_string('booking:sendpollurl', 'booking'));
+            $buttonarray[] = &$mform->createElement("submit", 'sendpollurlteachers', get_string('booking:sendpollurltoteachers', 'booking'));
             $buttonarray[] = &$mform->createElement("submit", 'sendcustommessage', get_string('sendcustommessage', 'booking'));
         }
         

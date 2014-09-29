@@ -78,6 +78,9 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'), array('size' => '64'));
         $mform->setType('pollurl', PARAM_TEXT);
 
+        $mform->addElement('text', 'pollurlteachers', get_string('bookingpollurlteachers', 'booking'), array('size' => '64'));
+        $mform->setType('pollurlteachers', PARAM_TEXT);
+        
         $mform->addElement('filemanager', 'myfilemanager', get_string('bookingattachment', 'booking'), null, array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
             'accepted_types' => array('*')));
 
@@ -196,6 +199,15 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('pollurltext', $default);
         $mform->addHelpButton('pollurltext', 'pollurltext', 'mod_booking');
 
+        $mform->addElement('editor', 'pollurlteacherstext', get_string('pollurlteacherstext', 'booking'), null, $editoroptions);
+        $default = array(
+            'text' => get_string('pollurlteacherstextmessage', 'mod_booking', $fieldmapping),
+            'format' => FORMAT_HTML
+        );
+        $default['text'] = str_replace("\n", '<br/>', $default['text']);
+        $mform->setDefault('pollurlteacherstext', $default);
+        $mform->addHelpButton('pollurlteacherstext', 'pollurlteacherstext', 'mod_booking');
+        
         $mform->addElement('editor', 'notificationtext', get_string('notificationtext', 'booking'), null, $editoroptions);
         $default = array(
             'text' => get_string('notificationtextmessage', 'mod_booking', $fieldmapping),
@@ -317,6 +329,9 @@ class mod_booking_mod_form extends moodleform_mod {
         if (isset($default_values['pollurltext'])) {
             $default_values['pollurltext'] = array('text' => $default_values['pollurltext'], 'format' => FORMAT_HTML);
         }
+        if (isset($default_values['pollurlteacherstext'])) {
+            $default_values['pollurlteacherstext'] = array('text' => $default_values['pollurlteacherstext'], 'format' => FORMAT_HTML);
+        }
         if (isset($default_values['notificationtext'])) {
             $default_values['notificationtext'] = array('text' => $default_values['notificationtext'], 'format' => FORMAT_HTML);
         }
@@ -337,6 +352,13 @@ class mod_booking_mod_form extends moodleform_mod {
                 $errors['pollurl'] = get_string('entervalidurl', 'booking');
             }
         }
+        
+        if (strlen($data['pollurlteachers']) > 0) {
+            if (!filter_var($data['pollurlteachers'], FILTER_VALIDATE_URL)) {
+                $errors['pollurlteachers'] = get_string('entervalidurl', 'booking');
+            }
+        }
+        
         return $errors;
     }
 

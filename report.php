@@ -52,7 +52,7 @@ $strbooking = get_string("modulename", "booking");
 $strbookings = get_string("modulenameplural", "booking");
 $strresponses = get_string("responses", "booking");
 
-add_to_log($course->id, "booking", "report", "report.php?id=$cm->id", "$booking->id",$cm->id);
+//add_to_log($course->id, "booking", "report", "report.php?id=$cm->id", "$booking->id",$cm->id);
 
 if ($action == 'deletebookingoption' && $confirm == 1 && has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
     booking_delete_booking_option($booking, $optionid); //delete booking_option
@@ -117,6 +117,9 @@ if (!$download) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
             booking_sendpollurl($selectedusers, $booking, $cm->id, $optionid);
             redirect($url, get_string('allmailssend', 'booking'), 5);
+        } else if(isset($fromform->sendpollurlteachers) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()){
+            booking_sendpollurlteachers($booking, $cm->id, $optionid);
+            redirect($url, get_string('allmailssend', 'booking'), 5);            
         } else if (isset($fromform->sendcustommessage) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
             $selectedusers = array_keys($fromform->user, 1);
             $sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id' => $id, 'optionid' => $optionid, 'uids' => serialize($selectedusers)));
@@ -199,7 +202,8 @@ if (!$download) {
                     $myxls->write_string($row, 2, $user->firstname, $cellform);
                     $myxls->write_string($row, 3, $user->lastname, $cellform);
                     $myxls->write_string($row, 4, $user->email, $cellform);
-                    $i = 5;
+                    $i = 5;                    
+                    
                     if ($DB->get_records_select('user_info_data', 'userid = ' . $user->id, array(), 'fieldid')) {
                         foreach ($userprofilefields as $profilefieldid => $profilefield) {
                             $myxls->write_string($row, $i++, strip_tags($DB->get_field('user_info_data', 'data', array('fieldid' => $profilefieldid, 'userid' => $user->id))), $cellform);

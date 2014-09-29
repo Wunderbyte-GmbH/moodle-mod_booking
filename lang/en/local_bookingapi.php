@@ -15,26 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Meta course enrolment plugin event handler definition.
- *
- * @package mod_booking
- * @category event
- * @copyright 2014 David Bogner
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Web service template plugin related strings
+ * @package   localwstemplate
+ * @copyright 2014 Andraž Prinčič (http://www.princic.net)
+ * @author    Andraž Prinčič
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/* List of handlers */
-$handlers = array (
-    'booking_confirmed' => array (
-        'handlerfile'      => '/mod/booking/lib.php',
-        'handlerfunction'  => 'booking_booking_confirmed',
-        'schedule'         => 'cron',
-        'internal'         => 1,
-    ),
-    'booking_deleted' => array (
-    		'handlerfile'      => '/mod/booking/lib.php',
-    		'handlerfunction'  => 'booking_booking_deleted',
-    		'schedule'         => 'cron',
-    		'internal'         => 1,
-    ),
-);
+$string['pluginname'] = 'API for Booking plugin';

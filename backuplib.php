@@ -72,9 +72,23 @@ function booking_backup_one_mod($bf,$preferences,$booking) {
 	fwrite ($bf,full_tag("LIMITANSWERS",4,false,$booking->limitanswers));
 	fwrite ($bf,full_tag("MAXANSWERS",4,false,$booking->maxanswers));
 	fwrite ($bf,full_tag("MAXOVERBOOKING",4,false,$booking->maxoverbooking));
-	fwrite ($bf,full_tag("TIMEMODIFIED",4,false,$booking->timemodified));
+	fwrite ($bf,full_tag("TIMEMODIFIED",4,false,$booking->timemodified));                
+        fwrite ($bf,full_tag("DURATION",4,false,$booking->duration));
+        fwrite ($bf,full_tag("POINTS",4,false,$booking->points));
+        fwrite ($bf,full_tag("ORGANIZATORNAME",4,false,$booking->organizatorname));
+        fwrite ($bf,full_tag("POLLURL",4,false,$booking->pollurl));
+        fwrite ($bf,full_tag("ADDTOGROUP",4,false,$booking->addtogroup));
+        fwrite ($bf,full_tag("CATEGORYID",4,false,$booking->categoryid));
+        fwrite ($bf,full_tag("POLLURLTEXT",4,false,$booking->pollurltext));
+        fwrite ($bf,full_tag("ADDITIONALFIELDS",4,false,$booking->additionalfields));
+        fwrite ($bf,full_tag("EVENTTYPE",4,false,$booking->eventtype));
+        fwrite ($bf,full_tag("NOTIFICATIONTEXT",4,false,$booking->notificationtext));
+        fwrite ($bf,full_tag("USERLEAVE",4,false,$booking->userleave));
+        fwrite ($bf,full_tag("ENABLECOMPLETION",4,false,$booking->enablecompletion));        
+        fwrite ($bf,full_tag("POLLURLTEACHERS",4,false,$booking->pollurlteachers));
+        fwrite ($bf,full_tag("POLLURLTEACHERSTEXT",4,false,$booking->pollurlteacherstext));
 
-	//Now backup booking_options
+        //Now backup booking_options
 	$status = backup_booking_options($bf,$preferences,$booking->id);
 
 	//if we've selected to backup users info, then execute backup_booking_answers
@@ -147,7 +161,16 @@ function backup_booking_options ($bf,$preferences,$booking) {
 			fwrite ($bf,full_tag("COURSEENDTIME",6,false,$cho_opt->courseendtime));
 			fwrite ($bf,full_tag("DESCRIPTION",6,false,$cho_opt->description));
 			fwrite ($bf,full_tag("LIMITANSWERS",6,false,$cho_opt->limitanswers));
-			fwrite ($bf,full_tag("TIMEMODIFIED",6,false,$cho_opt->timemodified));
+			fwrite ($bf,full_tag("TIMEMODIFIED",6,false,$cho_opt->timemodified));                        
+                        fwrite ($bf,full_tag("ADDTOCALENDAR",6,false,$cho_opt->addtocalendar));
+                        fwrite ($bf,full_tag("CALENDARID",6,false,$cho_opt->calendarid));
+                        fwrite ($bf,full_tag("POLLURL",6,false,$cho_opt->pollurl));
+                        fwrite ($bf,full_tag("GROUPID",6,false,$cho_opt->groupid));
+                        fwrite ($bf,full_tag("DAYSTONOTIFY",6,false,$cho_opt->daystonotify));
+                        fwrite ($bf,full_tag("SENT",6,false,$cho_opt->sent));
+                        fwrite ($bf,full_tag("LOCATION",6,false,$cho_opt->location));
+                        fwrite ($bf,full_tag("INSTITUTION",6,false,$cho_opt->institution));
+                        fwrite ($bf,full_tag("ADDRESS",6,false,$cho_opt->address));
 			//End answer
 			$status =fwrite ($bf,end_tag("OPTION",5,true));
 		}

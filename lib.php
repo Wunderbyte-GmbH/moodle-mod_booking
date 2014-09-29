@@ -180,6 +180,7 @@ function booking_add_instance($booking) {
     $booking->statuschangetext = $booking->statuschangetext['text'];
     $booking->deletedtext = $booking->deletedtext['text'];
     $booking->pollurltext = $booking->pollurltext['text'];
+    $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'];
     $booking->notificationtext = $booking->notificationtext['text'];
     $booking->userleave = $booking->userleave['text'];
 
@@ -248,6 +249,7 @@ function booking_update_instance($booking) {
     $booking->statuschangetext = $booking->statuschangetext['text'];
     $booking->deletedtext = $booking->deletedtext['text'];
     $booking->pollurltext = $booking->pollurltext['text'];
+    $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'];
     $booking->notificationtext = $booking->notificationtext['text'];
     $booking->userleave = $booking->userleave['text'];
 
@@ -297,6 +299,7 @@ function booking_update_options($optionvalues) {
 
     $option->daystonotify = $optionvalues->daystonotify;
     $option->pollurl = $optionvalues->pollurl;
+    $option->pollurlteachers = $optionvalues->pollurlteachers;    
     if ($optionvalues->limitanswers == 0) {
         $optionvalues->limitanswers = 0;
         $option->maxanswers = 0;
@@ -1126,6 +1129,38 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
     }       
 }
 
+// Send mail to all teachers - pollurlteachers
+function booking_sendpollurlteachers($booking, $cmid, $optionid) {
+    global $DB, $USER;
+
+    $returnVal = true;
+
+    $teachers = $DB->get_records("booking_teachers", array("optionid" => $optionid, 'bookingid' => $booking->id));
+    
+    foreach ($teachers as $tuser) {
+            $userdata = $DB->get_record('user', array('id' => $tuser->userid));
+
+            $params = booking_generate_email_params($booking, $booking->option[$optionid], $userdata, $cmid);
+
+            $pollurlmessage = booking_get_email_body($booking, 'pollurlteacherstext', 'pollurlteacherstextmessage', $params);
+
+            $eventdata = new stdClass();
+            $eventdata->modulename = 'booking';
+            $eventdata->userfrom = $USER;
+            $eventdata->userto = $userdata;
+            $eventdata->subject = get_string('pollurlteacherstextsubject', 'booking', $params);
+            $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
+            $eventdata->fullmessageformat = FORMAT_HTML;
+            $eventdata->fullmessagehtml = $pollurlmessage;
+            $eventdata->smallmessage = '';
+            $eventdata->component = 'mod_booking';
+            $eventdata->name = 'bookingconfirmation';
+
+            $returnVal = message_send($eventdata);
+    }
+    return $returnVal;
+}
+
 // Send mail to all users - pollurl
 function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
     global $DB, $USER;
@@ -1690,7 +1725,12 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     } else {
         $params->pollurl = $option->pollurl;
     }
-
+    if (empty($option->pollurlteachers)) {
+        $params->pollurlteachers = $booking->pollurlteachers;
+    } else {
+        $params->pollurlteachers = $option->pollurlteachers;
+    }
+    
     return $params;
 }
 

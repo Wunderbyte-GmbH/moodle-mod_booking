@@ -14,6 +14,7 @@ $string['booking:downloadresponses'] = 'Download responses';
 $string['booking:readresponses'] = 'Read responses';
 $string['booking:updatebooking'] = 'Manage booking options';
 $string['booking:sendpollurl'] = 'Send poll url';
+$string['booking:sendpollurltoteachers'] = 'Send poll url to teachers';
 $string['bookingclose'] = 'Until';
 $string['bookingfull'] = 'There are no available places';
 $string['bookingname'] = 'Booking name';
@@ -121,6 +122,7 @@ $string['eventduration'] = 'Event duration';
 $string['eventpoints'] = 'Points';
 $string['organizatorname'] = 'Organizator name';
 $string['pollurl'] = 'Poll url';
+$string['pollurlteachers'] = 'Teachers poll url';
 
 // mod_form
 $string['addtocalendar'] = 'Add to calendar';
@@ -175,6 +177,7 @@ $string['userleave_help'] = 'Leave this blank to use the site default text. You 
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
 <li>{location}</li>
 <li>{institution}</li>
 <li>{address}</li>
@@ -194,6 +197,7 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
 <li>{location}</li>
 <li>{institution}</li>
 <li>{address}</li>
@@ -212,6 +216,7 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
 <li>{location}</li>
 <li>{institution}</li>
 <li>{address}</li>
@@ -230,6 +235,7 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
 <li>{location}</li>
 <li>{institution}</li>
 <li>{address}</li>
@@ -249,6 +255,27 @@ $string['pollurltext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+</ul>';
+
+$string['pollurlteacherstext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
 <li>{location}</li>
 <li>{institution}</li>
 <li>{address}</li>
@@ -268,6 +295,7 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
 <li>{location}</li>
 <li>{institution}</li>
 <li>{address}</li>
@@ -281,6 +309,7 @@ $string['bookingduration'] = 'Duration';
 $string['bookingpoints'] = 'Course points';
 $string['bookingorganizatorname'] = 'Organizer name';
 $string['bookingpollurl'] = 'Poll url';
+$string['bookingpollurlteachers'] = 'Teachers poll url';
 $string['bookingtags'] = 'Tags';
 $string['bookingattachment'] = 'Attachment';
 $string['groupname'] = 'Group name';
@@ -288,6 +317,7 @@ $string['addtogroup'] = 'Automatically enrol users in group';
 $string['bookingcategory'] = 'Category';
 $string['entervalidurl'] = 'Please, enter a valid URL!';
 $string['pollurltext'] = 'Send poll url';
+$string['pollurlteacherstext'] = 'Teachers send poll url';
 $string['additionalfields'] = 'Additional fields';
 $string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name "Bookin name - Option name"';
 $string['searchtag'] = 'Search tags';
@@ -391,6 +421,12 @@ $string['pollurltextsubject'] = 'Please, take the survey';
 $string['pollurltextmessage'] = 'Please, take the survey
 
 Survey url {pollurl}
+';
+
+$string['pollurlteacherstextsubject'] = 'Please, take the survey';
+$string['pollurlteacherstextmessage'] = 'Please, take the survey
+
+Survey url {pollurlteachers}
 ';
 
 $string['notificationtextsubject'] = 'Info about course start!';

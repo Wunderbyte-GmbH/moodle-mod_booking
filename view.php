@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 require_once("../../config.php");
 require_once("lib.php");
@@ -133,8 +133,7 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context)) 
 $booking = booking_get_booking($cm, $sort);
 
 /// Display the booking and possibly results
-add_to_log($course->id, "booking", "view", "view.php?id=$cm->id", $booking->id, $cm->id);
-
+//add_to_log($course->id, "booking", "view", "view.php?id=$cm->id", $booking->id, $cm->id);
 
 $bookinglist = booking_get_spreadsheet_data($booking, $cm);
 
