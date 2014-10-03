@@ -823,7 +823,12 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
                 }
                 booking_check_enrol_user($booking->option[$optionid], $booking, $user->id);
             }
-            add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
+            //add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
+            $event = \mod_booking\event\bookingoption_booked::create(array(
+                    'objectid' => $optionid,
+                    'context' => context_module::instance($cm->id)
+            ));
+            $event->trigger();
             if ($booking->sendmail) {
                 $eventdata = new stdClass();
                 $eventdata->user = $user;
@@ -849,7 +854,12 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
             }
             booking_check_enrol_user($booking->option[$optionid], $booking, $user->id);
         }
-        add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
+        //add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
+        $event = \mod_booking\event\bookingoption_booked::create(array(
+                'objectid' => $optionid,
+                'context' => context_module::instance($cm->id)
+        ));
+        $event->trigger();
         if ($booking->sendmail) {
             booking_send_confirm_message($eventdata);
         }

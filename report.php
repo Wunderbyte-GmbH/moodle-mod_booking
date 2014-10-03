@@ -51,7 +51,11 @@ $strbooking = get_string("modulename", "booking");
 $strbookings = get_string("modulenameplural", "booking");
 $strresponses = get_string("responses", "booking");
 
-add_to_log($course->id, "booking", "report", "report.php?id=$cm->id", "$booking->id",$cm->id);
+$event = \mod_booking\event\report_viewed::create(array(
+        'objectid' => $optionid,
+        'context' => context_module::instance($cm->id)
+));
+$event->trigger();
 
 if ($action == 'deletebookingoption' && $confirm == 1 && has_capability('mod/booking:updatebooking',$context) && confirm_sesskey()) {
 	booking_delete_booking_option($booking, $optionid); //delete booking_option

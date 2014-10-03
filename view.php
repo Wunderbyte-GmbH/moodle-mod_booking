@@ -132,9 +132,14 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context)) 
 // we have to refresh $booking as it is modified by submitted data;
 $booking = booking_get_booking($cm, $sort);
 
-/// Display the booking and possibly results
-add_to_log($course->id, "booking", "view", "view.php?id=$cm->id", $booking->id, $cm->id);
+$event = \mod_booking\event\course_module_viewed::create(array(
+        'objectid' => $PAGE->cm->instance,
+        'context' => $PAGE->context,
+));
+$event->add_record_snapshot('course', $PAGE->course);
+$event->trigger();
 
+/// Display the booking and possibly results
 
 $bookinglist = booking_get_spreadsheet_data($booking, $cm);
 
