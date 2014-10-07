@@ -140,6 +140,7 @@ $bookinglist = booking_get_spreadsheet_data($booking, $cm);
 echo '<div class="clearer"></div>';
 
 echo $OUTPUT->box_start('generalbox boxaligncenter boxwidthwide');
+echo $html = html_writer::tag('div', '<a id="gotop" href="#goenrol">' . get_string('goenrol', 'booking') . '</a>', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
 echo html_writer::tag('div', format_module_intro('booking', $booking, $cm->id), array('class' => 'intro'));
 
 if (!empty($booking->duration)) {
@@ -229,6 +230,8 @@ if (strlen($booking->bookingpolicy) > 0) {
     $link = new moodle_url('/mod/booking/viewpolicy.php', array('id' => $booking->id));
     echo $OUTPUT->action_link($link, get_string("bookingpolicy", "booking"), new popup_action('click', $link));
 }
+
+echo $html = html_writer::tag('div', '<a id="goenrol" href="#gotop">' . get_string('gotop', 'booking') . '</a>', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
 
 echo $OUTPUT->box_end();
 

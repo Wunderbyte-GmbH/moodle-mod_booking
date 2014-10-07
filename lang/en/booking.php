@@ -50,6 +50,9 @@ $string['teachers'] = 'Teachers: ';
 $string['daystonotify'] = 'How many days before start of event to notify participaints?';
 $string['notificationsubject'] = 'Upcoming course...';
 
+$string['gotop'] = 'Go to top';
+$string['goenrol'] = 'Go to registration';
+
 // Bookingform
 $string['location'] = 'Location';
 $string['institution'] = 'Institution';
