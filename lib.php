@@ -1834,6 +1834,8 @@ function booking_check_user_profile_fields($userid) {
 function booking_delete_booking_option($booking, $optionid) {
     global $DB;
 
+    $event = new stdClass();
+    
     if (!$option = $DB->get_record("booking_options", array("id" => $optionid))) {
         return false;
     }
