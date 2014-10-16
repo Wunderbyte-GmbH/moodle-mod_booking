@@ -603,6 +603,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
     $underlimit = ($booking->maxperuser == 0);
     $underlimit = $underlimit || (booking_get_user_booking_count($booking, $user, $allresponses) < $booking->maxperuser);
 
+    if (isset($booking->option)) {
     foreach ($booking->option as $option) {
         $optiondisplay = new stdClass();
         $optiondisplay->delete = "";
@@ -749,6 +750,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
                 $stravailspaces);
         }
     }
+}
     $table = new html_table();
     $table->attributes['class'] = 'box generalbox boxaligncenter boxwidthwide booking';
     $table->attributes['style'] = '';

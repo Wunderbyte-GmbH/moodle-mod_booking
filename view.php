@@ -51,14 +51,15 @@ if (!$context = context_module::instance($cm->id)) {
 // check if booking options have already been set or if they are still empty
 $records = $DB->get_records('booking_options', array('bookingid' => $booking->id));
 
-if (empty($records)) {      // Brand new database!
-    if (has_capability('mod/booking:updatebooking', $context)) {
-        redirect($CFG->wwwroot . '/mod/booking/editoptions.php?id=' . $cm->id . '&optionid=add');  // Redirect to field entry
-    } else {
-        print_error("There are no booking options available yet");
-    }
-}
-
+/*
+  if (empty($records)) {      // Brand new database!
+  if (has_capability('mod/booking:updatebooking', $context)) {
+  redirect($CFG->wwwroot . '/mod/booking/editoptions.php?id=' . $cm->id . '&optionid=add');  // Redirect to field entry
+  } else {
+  print_error("There are no booking options available yet");
+  }
+  }
+ */
 
 // check if data has been submitted to be processed
 if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capability('mod/booking:choose', $context) and ( $booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
@@ -241,8 +242,10 @@ if (has_capability('mod/booking:downloadresponses', $context)) {
     /// Download spreadsheet for all booking options
     echo $html = html_writer::tag('div', get_string('downloadallresponses', 'booking') . ': ', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
     $optionstochoose = array('all' => get_string('allbookingoptions', 'booking'));
-    foreach ($booking->option as $option) {
-        $optionstochoose[$option->id] = $option->text;
+    if (isset($booking->option)) {
+        foreach ($booking->option as $option) {
+            $optionstochoose[$option->id] = $option->text;
+        }
     }
     $options = array();
     $options["id"] = "$cm->id";
