@@ -21,21 +21,21 @@ $confirm = optional_param('confirm', '', PARAM_INT);
 $url = new moodle_url('/mod/booking/report.php', array('id' => $id));
 
 if ($action !== '') {
-	$url->param('action', $action);
+    $url->param('action', $action);
 }
 $PAGE->set_url($url);
 
-if (! $cm = get_coursemodule_from_id('booking', $id)) {
-	error("Course Module ID was incorrect");
+if (!$cm = get_coursemodule_from_id('booking', $id)) {
+    error("Course Module ID was incorrect");
 }
-if (! $course = $DB->get_record("course", array("id" => $cm->course))) {
-	print_error('coursemisconf');
+if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
+    print_error('coursemisconf');
 }
 
 require_course_login($course, false, $cm);
 
 if (!$booking = booking_get_booking($cm)) {
-	print_error("Course module is incorrect");
+    print_error("Course module is incorrect");
 }
 
 $context = context_module::instance($cm->id);
@@ -117,9 +117,9 @@ if (!$download) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
             booking_sendpollurl($selectedusers, $booking, $cm->id, $optionid);
             redirect($url, get_string('allmailssend', 'booking'), 5);
-        } else if(isset($fromform->sendpollurlteachers) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()){
+        } else if (isset($fromform->sendpollurlteachers) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
             booking_sendpollurlteachers($booking, $cm->id, $optionid);
-            redirect($url, get_string('allmailssend', 'booking'), 5);            
+            redirect($url, get_string('allmailssend', 'booking'), 5);
         } else if (isset($fromform->sendcustommessage) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
             $selectedusers = array_keys($fromform->user, 1);
             $sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id' => $id, 'optionid' => $optionid, 'uids' => serialize($selectedusers)));
@@ -156,37 +156,37 @@ if (!$download) {
         }
 
 
-		/// Send HTTP headers
-		$workbook->send($filename);
-		/// Creating the first worksheet
-		$myxls = $workbook->add_worksheet($strresponses);
-		if ( $download =="ods"){
-			$cellformat = $workbook->add_format(array('bg_color' => 'white'));
-			$cellformat1 = $workbook->add_format(array('bg_color' => 'red'));
-		} else {
-			$cellformat = '';
-			$cellformat1 = $workbook->add_format(array('fg_color' => 'red'));
-		}
-		/// Print names of all the fields
-		$myxls->write_string(0,0,get_string("booking","booking"));
-		$myxls->write_string(0,1,get_string("user")." ".get_string("idnumber"));
-		$myxls->write_string(0,2,get_string("firstname"));
-		$myxls->write_string(0,3,get_string("lastname"));
-		$myxls->write_string(0,4,get_string("email"));
-		$i=5;
-		$addfields = explode(',', $booking->additionalfields);
-		$addquoted =  "'" . implode("','", $addfields) . "'";
-		if ($userprofilefields = $DB->get_records_select('user_info_field', 'id > 0 AND shortname IN (' . $addquoted . ')', array(), 'id', 'id, shortname, name' )){
-			foreach ($userprofilefields as $profilefield){
-				$myxls->write_string(0,$i++,$profilefield->name);
-			}
-		}
-		$myxls->write_string(0,$i++,get_string("group"));
-		/// generate the data for the body of the spreadsheet
-		$row=1;
+        /// Send HTTP headers
+        $workbook->send($filename);
+        /// Creating the first worksheet
+        $myxls = $workbook->add_worksheet($strresponses);
+        if ($download == "ods") {
+            $cellformat = $workbook->add_format(array('bg_color' => 'white'));
+            $cellformat1 = $workbook->add_format(array('bg_color' => 'red'));
+        } else {
+            $cellformat = '';
+            $cellformat1 = $workbook->add_format(array('fg_color' => 'red'));
+        }
+        /// Print names of all the fields
+        $myxls->write_string(0, 0, get_string("booking", "booking"));
+        $myxls->write_string(0, 1, get_string("user") . " " . get_string("idnumber"));
+        $myxls->write_string(0, 2, get_string("firstname"));
+        $myxls->write_string(0, 3, get_string("lastname"));
+        $myxls->write_string(0, 4, get_string("email"));
+        $i = 5;
+        $addfields = explode(',', $booking->additionalfields);
+        $addquoted = "'" . implode("','", $addfields) . "'";
+        if ($userprofilefields = $DB->get_records_select('user_info_field', 'id > 0 AND shortname IN (' . $addquoted . ')', array(), 'id', 'id, shortname, name')) {
+            foreach ($userprofilefields as $profilefield) {
+                $myxls->write_string(0, $i++, $profilefield->name);
+            }
+        }
+        $myxls->write_string(0, $i++, get_string("group"));
+        /// generate the data for the body of the spreadsheet
+        $row = 1;
 
-		if ($bookinglist && ($action == "all")) { // get list of all booking options
-			foreach ($bookinglist as $optionid => $optionvalue) {
+        if ($bookinglist && ($action == "all")) { // get list of all booking options
+            foreach ($bookinglist as $optionid => $optionvalue) {
 
                 $option_text = booking_get_option_text($booking, $optionid);
                 foreach ($bookinglist[$optionid] as $usernumber => $user) {
@@ -202,8 +202,8 @@ if (!$download) {
                     $myxls->write_string($row, 2, $user->firstname, $cellform);
                     $myxls->write_string($row, 3, $user->lastname, $cellform);
                     $myxls->write_string($row, 4, $user->email, $cellform);
-                    $i = 5;                    
-                    
+                    $i = 5;
+
                     if ($DB->get_records_select('user_info_data', 'userid = ' . $user->id, array(), 'fieldid')) {
                         foreach ($userprofilefields as $profilefieldid => $profilefield) {
                             $myxls->write_string($row, $i++, strip_tags($DB->get_field('user_info_data', 'data', array('fieldid' => $profilefieldid, 'userid' => $user->id))), $cellform);
