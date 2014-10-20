@@ -1,6 +1,7 @@
 <?php  
 /**
- * This page prints a particular instance of booking
+ * This page allows a user to subscribe/unsubscribe other users from a booking option
+ * TODO: upgrade logging, add logging for added/deleted users
  *
  * @author  David Bogner davidbogner@gmail.com
  * @package mod/booking
@@ -17,15 +18,16 @@ $subscribe = optional_param('subscribe', false, PARAM_BOOL);
 $unsubscribe = optional_param('unsubscribe', false, PARAM_BOOL);
 $agree = optional_param('agree', false, PARAM_BOOL);
 
+
 $cm = get_coursemodule_from_id('booking', $id, 0, false, MUST_EXIST);
 $course = get_course($cm->course);
+(boolean)$subscribesuccess = false;
+(boolean)$unsubscribesuccess = false;
 
 $bookingoption = new booking_option($id, $optionid);
 //$booking = booking_get_booking($cm);
 
 require_login($course,true,$cm);
-
-add_to_log($course->id, "booking", "subscribeusers", "subscribeusers.php?id=$cm->id", "$bookingoption->id");
 
 /// Print the page header
 $context = context_module::instance($cm->id);
@@ -86,16 +88,25 @@ if(!$agree && (!empty($bookingoption->booking->bookingpolicy))){
 			}
 			// compare if selected users are members of the currentgroup if person has not the
 			// right to access all groups
-			$subsribesuccess = true;
+			$subscribesuccess = true;
+			$subscribedusers = array();
 			if($usersallowed AND (groups_is_member($currentgroup,$USER->id) OR has_capability('moodle/site:accessallgroups', $context))){
 				foreach ($users as $user) {
 					if (!$bookingoption->user_submit_response($user)) {
-					    $subsribesuccess = false;
+					    $subscribesuccess = false;
 						print_error('bookingmeanwhilefull', 'booking', $errorurl->out() , $user->id);
 					}
+					$subscribedusers[] = $user->id;
 				}
 			} else {
 				print_error('invalidaction');
+			}
+			if(count($subscribedusers) >= 1){
+			    $event = \mod_booking\event\otherusers_booked::create(array(
+			            'objectid' => $optionid,
+			            'context' => context_module::instance($cm->id),
+			            'subscribedusers' => $subscribedusers
+			    ));
 			}
 		} else if ($unsubscribe && has_capability('mod/booking:deleteresponses', $context)) {
 			$users = $existingselector->get_selected_users();
@@ -120,8 +131,8 @@ if(!$agree && (!empty($bookingoption->booking->bookingpolicy))){
 
 }
 echo $OUTPUT->header();
-if($subsribesuccess || $unsubscribesuccess){
-    if($subsribesuccess){
+if($subscribesuccess || $unsubscribesuccess){
+    if($subscribesuccess){
         echo $OUTPUT->notification("<h2>".get_string('bookingsaved','booking')."</h2>", " loginbox notifysuccess");
     }
     if ($unsubscribesuccess && has_capability('mod/booking:deleteresponses', $context)) {

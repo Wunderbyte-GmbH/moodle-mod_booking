@@ -826,7 +826,8 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
             //add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
             $event = \mod_booking\event\bookingoption_booked::create(array(
                     'objectid' => $optionid,
-                    'context' => context_module::instance($cm->id)
+                    'context' => context_module::instance($cm->id),
+                    'relateduserid' => $user->id
             ));
             $event->trigger();
             if ($booking->sendmail) {
@@ -855,10 +856,11 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
             booking_check_enrol_user($booking->option[$optionid], $booking, $user->id);
         }
         //add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
-        $event = \mod_booking\event\bookingoption_booked::create(array(
-                'objectid' => $optionid,
-                'context' => context_module::instance($cm->id)
-        ));
+            $event = \mod_booking\event\bookingoption_booked::create(array(
+                    'objectid' => $optionid,
+                    'context' => context_module::instance($cm->id),
+                    'relateduserid' => $user->id
+            ));
         $event->trigger();
         if ($booking->sendmail) {
             booking_send_confirm_message($eventdata);
@@ -1041,12 +1043,13 @@ function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduseri
 	} else {
 		$user = $DB->get_record('user', array('id' => $answer->userid));
 	}
-	booking_check_unenrol_user($booking->option[$optionid], $booking, $user->id);
 	/** backward compatibility hack, if called from subscribeusers.php other booking object is used **/
 	if(!$booking->option[$optionid]){
 	    $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
 	    $booking = booking_get_booking($cm);
 	}
+	booking_check_unenrol_user($booking->option[$optionid], $booking, $user->id);
+	
 	$params = booking_generate_email_params($booking, $booking->option[$optionid], $user, $cmid);
 	$messagetext = get_string('deletedbookingmessage', 'booking', $params);
 	$deletedbookingusermessage = booking_get_email_body($booking, 'deletedtext', 'deletedbookingmessage', $params);
@@ -1736,7 +1739,13 @@ function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid
     if (booking_get_user_status($cancelleduserid, $optionid, $booking->id, $cmid) !== get_string('booked', 'booking')) {
         return false;
     }
-    $option = $booking->option[$optionid];
+    //backward compatibility hack TODO: remove
+    if(!$booking->option[$optionid]){
+        $option = $DB->get_record('booking_option', array('bookingid' => $booking->id,
+        'optionid' => $optionid));
+    } else {
+        $option = $booking->option[$optionid];
+    }
     if ($option->maxanswers == 0) {
         return false; // No limit on bookings => no waiting list to manage
     }
@@ -1831,7 +1840,7 @@ function booking_profile_definition(&$mform) {
 	global $CFG, $DB;
 
 	// if user is "admin" fields are displayed regardless
-	$update = has_capability('moodle/user:update', get_context_instance(CONTEXT_SYSTEM));
+	$update = has_capability('moodle/user:update', context_system::instance());
 
 	if ($categories = $DB->get_records('user_info_category', array(), 'sortorder ASC')) {
 		foreach ($categories as $category) {

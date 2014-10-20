@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
  
 /**
- * The bookingoption_booked event.
+ * The userprofilefields_updated event.
  *
  * @package    mod_booking
  * @copyright  2014 David Bogner, http://www.edulabs.org
@@ -24,7 +24,7 @@
 namespace mod_booking\event;
 defined('MOODLE_INTERNAL') || die();
 /**
- * The bookingoption_booked event class.
+ * The userprofilefields_updated event class.
  *
  * @property-read array $other {
  *      Extra information about event.
@@ -36,33 +36,28 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2014 David Bogner
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  **/
-class bookingoption_booked extends \core\event\base {
+class userprofilefields_updated extends \core\event\base {
     protected function init() {
-        $this->data['crud'] = 'c'; // c(reate), r(ead), u(pdate), d(elete)
+        $this->data['crud'] = 'u'; // c(reate), r(ead), u(pdate), d(elete)
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'booking_options';
-        $this->data['relateduserid'] = $this->relateduserid;
+        $this->data['objecttable'] = 'user_info_data';
     }
  
     public static function get_name() {
-        return get_string('eventbookingoption_booked', 'booking');
+        return get_string('eventuserprofilefields_updated', 'booking');
     }
  
     public function get_description() {
-        if($this->userid != $this->relateduserid) {
-            return "The user with id {$this->userid} booked the user with id {$this->relateduserid} to the option with id  {$this->objectid}."; 
-        } else {
-            return "The user with id {$this->userid} booked the booking option with id {$this->objectid}.";
-        }
+        return "The user with id {$this->userid} updated his/her user profile with userid {$this->objectid}.";
     }
  
     public function get_url() {
-        return new \moodle_url('/mod/booking/view.php', array('id' => $this->contextinstanceid));
+        return new \moodle_url('/mod/booking/edituserprofile.php', array('cmid' => $this->contextinstanceid,'courseid'=> $this->courseid));
     }
  
     public function get_legacy_logdata() {
         // Override if you are migrating an add_to_log() call.
-        return array($this->courseid, 'booking', 'book','choose','view.php?id=' . $this->contextinstanceid,
+        return array($this->courseid, 'booking', 'user','update','view.php?id=' . $this->contextinstanceid,
             $this->objectid, $this->contextinstanceid);
     }
  

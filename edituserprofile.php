@@ -24,11 +24,11 @@ if (! $cm = get_coursemodule_from_id('booking', $cmid)) {
 require_course_login($course, false, $cm);
 
 if ($course->id == SITEID) {
-	$coursecontext = get_context_instance(CONTEXT_SYSTEM);   // SYSTEM context
+	$coursecontext = context_course::instance(SITEID);   // SYSTEM context
 } else {
-	$coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);   // Course context
+	$coursecontext = context_course::instance($course->id); // Course context
 }
-$systemcontext = get_context_instance(CONTEXT_SYSTEM);
+$systemcontext = context_system::instance();
 
 // editing existing user
 require_capability('moodle/user:editownprofile', $systemcontext);
@@ -64,7 +64,6 @@ $user->cmid = $cmid;
 $userform->set_data($user);
 
 if ($usernew = $userform->get_data()) {
-	add_to_log($course->id, 'user', 'update', "view.php?id=$user->id&course=$course->id", '');
 
 	// use all the profile settings from $user and only replace user_profile_fields;
 	$usernew->timemodified = time();
@@ -74,7 +73,13 @@ if ($usernew = $userform->get_data()) {
 
 	// reload from db
 	$usernew = $DB->get_record('user', array('id' => $usernew->id));
-
+	
+	//add_to_log($course->id, 'user', 'update', "view.php?id=$user->id&course=$course->id", '');
+	$event = \mod_booking\event\userprofilefields_updated::create(array(
+	        'objectid' => $usernew->id,
+	        'context' => context_module::instance($cmid)
+	));
+	$event->trigger();
 	events_trigger('user_updated', $usernew);
 
 	redirect("$CFG->wwwroot/mod/booking/view.php?id=$cmid");

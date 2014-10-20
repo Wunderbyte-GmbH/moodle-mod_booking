@@ -63,7 +63,7 @@ if (empty($records)) {      // Brand new database!
 // check if data has been submitted to be processed
 if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capability('mod/booking:choose', $context) and ( $booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
     if ($answer = $DB->get_record('booking_answers', array('bookingid' => $booking->id, 'userid' => $USER->id, 'optionid' => $optionid))) {
-        $newbookeduser = booking_check_statuschange($optionid, $booking, $USER->id, $cm->id);
+        $newbookeduser = booking_check_statuschange($optionid, $booking->id, $USER->id, $cm->id);
         if (booking_delete_singlebooking($answer, $booking, $optionid, $newbookeduser, $cm->id)) {
             echo $OUTPUT->header();
             $contents = get_string('bookingdeleted', 'booking');
