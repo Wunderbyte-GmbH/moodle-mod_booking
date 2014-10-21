@@ -130,7 +130,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addRule('bookingmanager', null, 'required', null, 'client');
 
         // Add the fields to allow editing of the default text:
-        $context = get_context_instance(CONTEXT_SYSTEM);
+        $context = context_system::instance();
         $editoroptions = array('subdirs' => false, 'maxfiles' => 0, 'maxbytes' => 0, 'trusttext' => false, 'context' => $context);
         $fieldmapping = (object) array(
                     'status' => '{status}',
