@@ -336,11 +336,21 @@ $string['addeditbooking'] = 'Edit booking';
 $string['donotselectcourse'] = 'No course selected';
 $string['waitinglisttaken'] = 'On the waiting list';
 $string['addnewbookingoption'] = 'Add a new booking option';
+$string['importcsvbookingoption'] = 'Import CSV with booking options';
 $string['sendmailtobooker'] = 'Book other users page: Send mail to user who books instead to users who are booked';
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to
   the user who books other users instead to users, who have been added to a booking option.
   This is only relevant for bookings made on the page "book other users".';
 
+// importoptions.php
+$string['importcsvtitle'] = 'Import CSV';
+$string['csvfile'] = 'CSV file';
+$string['defaultdateformat'] = 'j.n.Y H:i:s';
+$string['dateparseformat'] = 'Date parse format';
+$string['wrongfile'] = 'Wrong file!';
+$string['nouserfound'] = 'No user found: ';
+$string['noteacherfound'] = 'No teacher found: ';
+$string['importfinished'] = 'Importing finished!';
 
 // Confirmation mail
 $string['days'] = '{$a} days';

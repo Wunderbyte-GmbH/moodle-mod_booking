@@ -305,8 +305,13 @@ if (!$bookingformshown) {
 }
 if (has_capability('mod/booking:updatebooking', $context)) {
     $addoptionurl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add'));
-    echo '<div style="width: 100%; text-align: center;">';
-    echo $OUTPUT->single_button($addoptionurl, get_string('addnewbookingoption', 'booking'), 'get');
+    $importoptionurl = new moodle_url('importoptions.php', array('id' => $cm->id));
+    
+    echo '<div style="width: 100%; text-align: center; display:table;">';
+    $button = $OUTPUT->single_button($addoptionurl, get_string('addnewbookingoption', 'booking'), 'get');
+    echo html_writer::tag('span', $button, array('style' => 'text-align: right; display:table-cell;'));
+    $button = $OUTPUT->single_button($importoptionurl, get_string('importcsvbookingoption', 'booking'), 'get');
+    echo html_writer::tag('span', $button, array('style' => 'text-align: left; display:table-cell;'));
     echo '</div>';
 }
 echo $OUTPUT->box("<a href=\"http://www.edulabs.org\">" . get_string('createdby', 'booking') . "</a>", 'box mdl-align');
