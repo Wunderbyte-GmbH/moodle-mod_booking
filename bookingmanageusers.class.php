@@ -122,9 +122,11 @@ class mod_booking_manageusers_form extends moodleform {
 
     function get_data() {
         $data = parent::get_data();
+        
         if (isset($data->subscribetocourse) && !array_keys($data->user, 1)) {
             $data = false;
         }
+        
         return $data;
     }
 

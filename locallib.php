@@ -27,7 +27,7 @@ function booking_getbookingoptions($bookingid = NULL, $optionid = NULL) {
     if (is_null($optionid) || is_null($bookingid)) {
         return FALSE;
     }
-    
+
     $bo = $DB->get_record('booking_options', array('id' => $optionid));
     $booking = $DB->get_record('booking', array('id' => $bookingid));
 
@@ -235,9 +235,12 @@ class booking_option extends booking {
         global $DB;
         $context = $this->context;
         $option = $this->option;
+        $booking = $this->booking;
+
         if (null == $option) {
             return false;
         }
+
         if ($option->limitanswers) {
             $maxplacesavailable = $this->option->maxanswers + $this->option->maxoverbooking;
 
@@ -258,7 +261,9 @@ class booking_option extends booking {
                     //TODO replace
                     booking_check_enrol_user($this->option, $this->booking, $user->id);
                 }
+                
                 add_to_log($this->cm->course, "booking", "choose", "view.php?id=" . $this->cm->id, $this->id, $this->cm->id);
+                
                 if ($this->booking->sendmail) {
                     $eventdata = new stdClass();
                     $eventdata->user = $user;
@@ -270,6 +275,7 @@ class booking_option extends booking {
                     //TODO replace
                     booking_send_confirm_message($eventdata);
                 }
+                
                 return true;
             } else {
                 return false;
@@ -281,15 +287,29 @@ class booking_option extends booking {
                 $newanswer->userid = $user->id;
                 $newanswer->optionid = $this->optionid;
                 $newanswer->timemodified = time();
+
                 if (!$DB->insert_record("booking_answers", $newanswer)) {
                     error("Could not register your booking because of a database error");
                 }
+
                 booking_check_enrol_user($this->option, $this->booking, $user->id);
             }
+
             add_to_log($this->cm->course, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
+
             if ($this->booking->sendmail) {
+
+                $eventdata = new stdClass();
+                $eventdata->user = $user;
+                $eventdata->booking = $this->booking;
+                // TODO the next line is for backward compatibility only, delete when finished refurbishing the module ;-)
+                $eventdata->booking->option[$this->optionid] = $this->option;
+                $eventdata->optionid = $this->optionid;
+                $eventdata->cmid = $this->cm->id;
+
                 booking_send_confirm_message($eventdata);
             }
+
             return true;
         }
     }
