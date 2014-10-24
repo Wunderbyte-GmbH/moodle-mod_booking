@@ -63,7 +63,21 @@ function booking_restore_mods($mod,$restore) {
 		$booking->maxanswers = backup_todb($info['MOD']['#']['MAXANSWERS']['0']['#']);
 		$booking->maxoverbooking = backup_todb($info['MOD']['#']['MAXOVERBOOKING']['0']['#']);
 		$booking->timemodified = backup_todb($info['MOD']['#']['TIMEMODIFIED']['0']['#']);
-
+                $booking->duration = backup_todb($info['MOD']['#']['DURATION']['0']['#']);
+                $booking->points = backup_todb($info['MOD']['#']['POINTS']['0']['#']);
+                $booking->organizatorname = backup_todb($info['MOD']['#']['ORGANIZATORNAME']['0']['#']);
+                $booking->pollurl = backup_todb($info['MOD']['#']['POLLURL']['0']['#']);
+                $booking->addtogroup = backup_todb($info['MOD']['#']['ADDTOGROUP']['0']['#']);
+                $booking->categoryid = backup_todb($info['MOD']['#']['CATEGORYID']['0']['#']);
+                $booking->pollurltext = backup_todb($info['MOD']['#']['POLLURLTEXT']['0']['#']);
+                $booking->additionalfields = backup_todb($info['MOD']['#']['ADDITIONALFIELDS']['0']['#']);
+                $booking->eventtype = backup_todb($info['MOD']['#']['EVENTTYPE']['0']['#']);
+                $booking->notificationtext = backup_todb($info['MOD']['#']['NOTIFICATIONTEXT']['0']['#']);
+                $booking->userleave = backup_todb($info['MOD']['#']['USERLEAVE']['0']['#']);
+                $booking->enablecompletion = backup_todb($info['MOD']['#']['ENABLECOMPLETION']['0']['#']);
+                $booking->pollurlteachers = backup_todb($info['MOD']['#']['POLLURLTEACHERS']['0']['#']);
+                $booking->pollurlteacherstext = backup_todb($info['MOD']['#']['POLLURLTEACHERSTEXT']['0']['#']);
+                
 		//The structure is equal to the db, so insert the booking
 		$newid = insert_record ("booking",$booking);
 
@@ -155,8 +169,16 @@ function booking_options_restore_mods($bookingid,$info,$restore) {
 		$option->courseendtime = backup_todb($opt_info['#']['COURSEENDTIME']['0']['#']);
 		$option->description = backup_todb($opt_info['#']['DESCRIPTION']['0']['#']);
 		$option->limitanswers = backup_todb($opt_info['#']['LIMITANSWERS']['0']['#']);
-		$option->timemodified = backup_todb($opt_info['#']['TIMEMODIFIED']['0']['#']);
-
+		$option->timemodified = backup_todb($opt_info['#']['TIMEMODIFIED']['0']['#']);                
+                $option->addtocalendar = backup_todb($opt_info['#']['ADDTOCALENDAR']['0']['#']);
+                $option->calendarid = backup_todb($opt_info['#']['CALENDARID']['0']['#']);
+                $option->pollurl = backup_todb($opt_info['#']['POLLURL']['0']['#']);
+                $option->groupid = backup_todb($opt_info['#']['GROUPID']['0']['#']);
+                $option->daystonotify = backup_todb($opt_info['#']['DAYSTONOTIFY']['0']['#']);
+                $option->sent = backup_todb($opt_info['#']['SENT']['0']['#']);
+                $option->location = backup_todb($opt_info['#']['LOCATION']['0']['#']);
+                $option->institution = backup_todb($opt_info['#']['INSTITUTION']['0']['#']);
+                $option->address = backup_todb($opt_info['#']['ADDRESS']['0']['#']);
 		//The structure is equal to the db, so insert the booking_options
 		$newid = insert_record ("booking_options",$option);
 

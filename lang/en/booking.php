@@ -1,4 +1,4 @@
-<?PHP
+<?php
 
 $string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
@@ -14,6 +14,7 @@ $string['booking:downloadresponses'] = 'Download responses';
 $string['booking:readresponses'] = 'Read responses';
 $string['booking:updatebooking'] = 'Manage booking options';
 $string['booking:sendpollurl'] = 'Send poll url';
+$string['booking:sendpollurltoteachers'] = 'Send poll url to teachers';
 $string['bookingclose'] = 'Until';
 $string['bookingfull'] = 'There are no available places';
 $string['bookingname'] = 'Booking name';
@@ -48,6 +49,14 @@ $string['subscribersto'] = 'Teachers for  \'{$a}\'';
 $string['teachers'] = 'Teachers: ';
 $string['daystonotify'] = 'How many days before start of event to notify participaints?';
 $string['notificationsubject'] = 'Upcoming course...';
+
+$string['gotop'] = 'Go to top';
+$string['goenrol'] = 'Go to registration';
+
+// Bookingform
+$string['location'] = 'Location';
+$string['institution'] = 'Institution';
+$string['address'] = 'Address';
 
 // Categories
 $string['category'] = 'Category';
@@ -102,6 +111,7 @@ $string['subscribeuser'] = 'Do you really want to enrol the users in the followi
 $string['deleteuserfrombooking'] = 'Do you really want to delete the users from the booking?';
 $string['showallbookings'] = 'Show booking overview for all bookings';
 $string['showmybookings'] = 'Show only my bookings';
+$string['showactive'] = 'Show only active bookings';
 $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
 $string['deletebookingoption'] = 'Delete this booking option';
 $string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option?';
@@ -115,6 +125,7 @@ $string['eventduration'] = 'Event duration';
 $string['eventpoints'] = 'Points';
 $string['organizatorname'] = 'Organizator name';
 $string['pollurl'] = 'Poll url';
+$string['pollurlteachers'] = 'Teachers poll url';
 
 // mod_form
 $string['addtocalendar'] = 'Add to calendar';
@@ -134,6 +145,7 @@ $string['bookingmanagererror'] = 'The username entered is not valid. Either it d
 $string['autoenrol'] = 'Automatically enrol users';
 $string['autoenrol_help'] = 'If selected, users will be enroled onto the relevant course as soon as they make the booking and unenroled from that course as soon as the booking is cancelled.';
 $string['bookedtext'] = 'Booking confirmation';
+$string['userleave'] = 'User leave booking';
 $string['waitingtext'] = 'Waiting list confirmation';
 $string['statuschangetext'] = 'Status change message';
 $string['deletedtext'] = 'Cancelled booking message';
@@ -149,7 +161,32 @@ $string['bookedtext_help'] = 'Leave this blank to use the site default text. You
 <li>{enddate}</li>
 <li>{courselink}</li>
 <li>{bookinglink}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
 </ul>';
+
+$string['userleave_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+</ul>';
+
 $string['waitingtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
 <li>{status}</li>
@@ -163,6 +200,11 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
 </ul>';
 $string['statuschangetext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -177,6 +219,11 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
 </ul>';
 $string['deletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -191,6 +238,11 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
 </ul>';
 
 $string['pollurltext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -206,14 +258,61 @@ $string['pollurltext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
 </ul>';
 
+$string['pollurlteacherstext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+</ul>';
+
+$string['notificationtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+</ul>';
+
+$string['notificationtext'] = 'Notification message';
 $string['maxperuser'] = 'Max current bookings per user';
 $string['maxperuser_help'] = 'The maximum number of bookings an individual user can make in this activity at once. After an event end time has passed, it is no longer counted against this limit.';
 $string['bookingduration'] = 'Duration';
 $string['bookingpoints'] = 'Course points';
 $string['bookingorganizatorname'] = 'Organizer name';
 $string['bookingpollurl'] = 'Poll url';
+$string['bookingpollurlteachers'] = 'Teachers poll url';
 $string['bookingtags'] = 'Tags';
 $string['bookingattachment'] = 'Attachment';
 $string['groupname'] = 'Group name';
@@ -221,9 +320,11 @@ $string['addtogroup'] = 'Automatically enrol users in group';
 $string['bookingcategory'] = 'Category';
 $string['entervalidurl'] = 'Please, enter a valid URL!';
 $string['pollurltext'] = 'Send poll url';
+$string['pollurlteacherstext'] = 'Teachers send poll url';
 $string['additionalfields'] = 'Additional fields';
 $string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name "Bookin name - Option name"';
 $string['searchtag'] = 'Search tags';
+$string['eventtype'] = 'Event type';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';
@@ -235,11 +336,21 @@ $string['addeditbooking'] = 'Edit booking';
 $string['donotselectcourse'] = 'No course selected';
 $string['waitinglisttaken'] = 'On the waiting list';
 $string['addnewbookingoption'] = 'Add a new booking option';
+$string['importcsvbookingoption'] = 'Import CSV with booking options';
 $string['sendmailtobooker'] = 'Book other users page: Send mail to user who books instead to users who are booked';
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to
   the user who books other users instead to users, who have been added to a booking option.
   This is only relevant for bookings made on the page "book other users".';
 
+// importoptions.php
+$string['importcsvtitle'] = 'Import CSV';
+$string['csvfile'] = 'CSV file';
+$string['defaultdateformat'] = 'j.n.Y H:i:s';
+$string['dateparseformat'] = 'Date parse format';
+$string['wrongfile'] = 'Wrong file!';
+$string['nouserfound'] = 'No user found: ';
+$string['noteacherfound'] = 'No teacher found: ';
+$string['importfinished'] = 'Importing finished!';
 
 // Confirmation mail
 $string['days'] = '{$a} days';
@@ -283,6 +394,13 @@ Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 To view all your booked courses click on the following link: {$a->bookinglink}
 
 ';
+
+$string['userleavebookedsubject'] = 'You have sucesfully unsubscribed from {$a->title}';
+$string['userleavebookedmessage'] = 'Hello {$a->participant},
+
+You have sucesfully unsubscribed from {$a->title}.
+';
+
 $string['statuschangebookedsubject'] = 'Booking status changed for {$a->title}';
 $string['statuschangebookedmessage'] = 'Hello {$a->participant},
 
@@ -318,8 +436,20 @@ $string['pollurltextmessage'] = 'Please, take the survey
 Survey url {pollurl}
 ';
 
+$string['pollurlteacherstextsubject'] = 'Please, take the survey';
+$string['pollurlteacherstextmessage'] = 'Please, take the survey
+
+Survey url {pollurlteachers}
+';
+
+$string['notificationtextsubject'] = 'Info about course start!';
+$string['notificationtextmessage'] = 'Course will start:
+        
+Course:   {$a->title}
+Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
+
 //report.php
-$string['withselected'] = 'With selected users:'; 
+$string['withselected'] = 'With selected users:';
 $string['associatedcourse'] = 'Associated course';
 $string['bookedusers'] = 'Booked users';
 $string['waitinglistusers'] = 'Users on waiting list';
@@ -332,3 +462,9 @@ $string['addteachers'] = 'Add teachers';
 $string['messagesubject'] = 'Subject';
 $string['messagetext'] = 'Message';
 $string['messagesend'] = 'You message was sucesfully send.';
+$string['booking:communicate'] = 'Can communicate';
+
+$string['enablecompletion'] = 'Enable activity completion.';
+$string['enablecompletiongroup'] = 'Activity completion';
+$string['confirmactivitycompletion'] = 'Confirm activity completion';
+$string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';
