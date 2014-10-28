@@ -40,8 +40,7 @@ class bookingoption_booked extends \core\event\base {
     protected function init() {
         $this->data['crud'] = 'c'; // c(reate), r(ead), u(pdate), d(elete)
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'booking_options';
-        $this->data['relateduserid'] = $this->relateduserid;
+        $this->data['objecttable'] = 'booking_answers';
     }
  
     public static function get_name() {
@@ -49,8 +48,8 @@ class bookingoption_booked extends \core\event\base {
     }
  
     public function get_description() {
-        if($this->userid != $this->relateduserid) {
-            return "The user with id {$this->userid} booked the user with id {$this->relateduserid} to the option with id  {$this->objectid}."; 
+        if($this->userid != $this->data['relateduserid']) {
+            return "The user with id {$this->userid} booked the user with id {$this->data['other']['userid']} to the option with id  {$this->objectid}."; 
         } else {
             return "The user with id {$this->userid} booked the booking option with id {$this->objectid}.";
         }
@@ -77,5 +76,18 @@ class bookingoption_booked extends \core\event\base {
         $data->id = $this->objectid;
         $data->userid = $this->relateduserid;
         return $data;
+    }
+    
+    /**
+     * Custom validation.
+     *
+     * @throws \coding_exception
+     * @return void
+     */
+    protected function validate_data() {    
+        parent::validate_data();
+        if (!isset($this->relateduserid)) {
+            throw new \coding_exception('The \'relateduserid\' must be set.');
+        }
     }
 }

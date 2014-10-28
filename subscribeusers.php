@@ -101,13 +101,6 @@ if(!$agree && (!empty($bookingoption->booking->bookingpolicy))){
 			} else {
 				print_error('invalidaction');
 			}
-			if(count($subscribedusers) >= 1){
-			    $event = \mod_booking\event\otherusers_booked::create(array(
-			            'objectid' => $optionid,
-			            'context' => context_module::instance($cm->id),
-			            'subscribedusers' => $subscribedusers
-			    ));
-			}
 		} else if ($unsubscribe && has_capability('mod/booking:deleteresponses', $context)) {
 			$users = $existingselector->get_selected_users();
 			$unsubscribesuccess = true;

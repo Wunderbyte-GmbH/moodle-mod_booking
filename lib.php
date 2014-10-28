@@ -827,7 +827,8 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
             $event = \mod_booking\event\bookingoption_booked::create(array(
                     'objectid' => $optionid,
                     'context' => context_module::instance($cm->id),
-                    'relateduserid' => $user->id
+                    'relateduserid' => $user->id,
+                    'other' => array('userid' => $user->id)
             ));
             $event->trigger();
             if ($booking->sendmail) {
@@ -1043,8 +1044,16 @@ function booking_delete_singlebooking($answer,$booking,$optionid,$newbookeduseri
 	} else {
 		$user = $DB->get_record('user', array('id' => $answer->userid));
 	}
+	/** log deletion of user **/
+	$event = \mod_booking\event\booking_cancelled::create(array(
+	        'objectid' => $optionid,
+	        'context' => context_module::instance($cmid),
+	        'relateduserid' => $user->id,
+	        'other' => array('userid' => $user->id)
+	));
+	$event->trigger();
 	/** backward compatibility hack, if called from subscribeusers.php other booking object is used **/
-	if(!$booking->option[$optionid]){
+	if(!isset($booking->option[$optionid])){
 	    $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
 	    $booking = booking_get_booking($cm);
 	}
@@ -1740,9 +1749,9 @@ function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid
         return false;
     }
     //backward compatibility hack TODO: remove
-    if(!$booking->option[$optionid]){
-        $option = $DB->get_record('booking_option', array('bookingid' => $booking->id,
-        'optionid' => $optionid));
+    if(!isset($booking->option[$optionid])){
+        $option = $DB->get_record('booking_options', array('bookingid' => $booking->id,
+        'id' => $optionid));
     } else {
         $option = $booking->option[$optionid];
     }

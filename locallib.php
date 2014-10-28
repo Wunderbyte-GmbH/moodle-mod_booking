@@ -225,7 +225,9 @@ class booking_option extends booking {
                 //add_to_log($this->cm->course, "booking", "choose", "view.php?id=".$this->cm->id, $this->id, $this->cm->id);
                 $event = \mod_booking\event\bookingoption_booked::create(array(
                         'objectid' => $this->optionid,
-                        'context' => context_module::instance($this->cm->id)
+                        'context' => context_module::instance($this->cm->id),
+                        'relateduserid' => $user->id,
+                        'other' => array('userid' => $user->id)
                 ));
                 $event->trigger();
                 
@@ -259,7 +261,9 @@ class booking_option extends booking {
             //add_to_log($this->cm->course, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
             $event = \mod_booking\event\bookingoption_booked::create(array(
                     'objectid' => $this->optionid,
-                    'context' => context_module::instance($this->cm->id)
+                    'context' => context_module::instance($this->cm->id),
+                    'relateduserid' => $user->id,
+                    'other' => array('userid' => $user->id)
             ));
             $event->trigger();
             if ($this->booking->sendmail){
