@@ -7,9 +7,9 @@ class mod_booking_manageusers_form extends moodleform {
     function definition() {
         global $CFG, $DB, $OUTPUT, $USER;
         $mform = & $this->_form;
-        
+
         $cm = $this->_customdata['cm'];
-        
+
         // visible elements
         $mform->addElement('header', '', $this->_customdata['bookingdata']->text);
         //display booking option name and the link to the associated course if there is one
@@ -31,14 +31,23 @@ class mod_booking_manageusers_form extends moodleform {
 
         //add all booked users to form
         $mform->addElement('html', '<div>' . get_string('bookedusers', 'booking') . ':</div><div style="background-color: lightgreen;">');
+
         if ($this->_customdata['bookedusers']) {
             foreach ($this->_customdata['bookedusers'] as $user) {
                 if (empty($user->imagealt)) {
                     $user->imagealt = '';
                 }
+                
+                $userData = $DB->get_record('booking_answers', array('optionid' => $this->_customdata['bookingdata']->id, 'userid' => $user->id));
+                
+                $checkMark = "&nbsp;";
+                if ($userData->completed == '1') {
+                    $checkMark = "&#x2713;";
+                }
+                
                 $mform->addElement('html', '<table class="mod-booking-inlinetable"><tr><td class="attemptcell">');
                 $mform->addElement('advcheckbox', "user[$user->id]", '', null, array('group' => $this->_customdata['bookingdata']->id + 1));
-                $mform->addElement('html', '</td><td class="picture">' . $OUTPUT->user_picture($user, array()) . '</td><td class="fullname">' . "<a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . '</a></td></tr></table>');
+                $mform->addElement('html', '</td><td class="picture">' . $OUTPUT->user_picture($user, array()) . '</td><td>' . $checkMark . '</td><td class="fullname">' . "<a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . '</a></td></tr></table>');
             }
             $this->add_checkbox_controller($this->_customdata['bookingdata']->id + 1);
         }
@@ -73,20 +82,21 @@ class mod_booking_manageusers_form extends moodleform {
         if (has_capability('mod/booking:deleteresponses', context_module::instance($cm->id))) {
             $buttonarray[] = &$mform->createElement("submit", 'deleteusers', get_string('booking:deleteresponses', 'booking'));
         }
-        
+
         if (has_capability('mod/booking:communicate', context_module::instance($cm->id))) {
             $buttonarray[] = &$mform->createElement("submit", 'sendpollurl', get_string('booking:sendpollurl', 'booking'));
+            $buttonarray[] = &$mform->createElement("submit", 'sendpollurlteachers', get_string('booking:sendpollurltoteachers', 'booking'));
             $buttonarray[] = &$mform->createElement("submit", 'sendcustommessage', get_string('sendcustommessage', 'booking'));
         }
-        
+
         if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-            $buttonarray[] = &$mform->createElement("submit", 'addteachers', get_string('addteachers', 'booking'));            
-        }   
-        
+            $buttonarray[] = &$mform->createElement("submit", 'addteachers', get_string('addteachers', 'booking'));
+        }
+
         if (booking_check_if_teacher($this->_customdata['bookingdata'], $USER) || has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
             $buttonarray[] = &$mform->createElement("submit", 'activitycompletion', get_string('confirmactivitycompletion', 'booking'));
         }
-        
+
         $buttonarray[] = &$mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
 
@@ -112,9 +122,11 @@ class mod_booking_manageusers_form extends moodleform {
 
     function get_data() {
         $data = parent::get_data();
+        
         if (isset($data->subscribetocourse) && !array_keys($data->user, 1)) {
             $data = false;
         }
+        
         return $data;
     }
 

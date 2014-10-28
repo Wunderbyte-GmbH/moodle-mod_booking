@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /**
  * Manage bookings
  *
@@ -66,7 +67,7 @@ if ($action == 'deletebookingoption' && $confirm == 1 && has_capability('mod/boo
 	$confirmarray['confirm'] = 1;
 	$confirmarray['optionid'] = $optionid;
 	$continue = $url;
-	$cancel = new moodle_url('/mod/booking/report.php', array('id'=>$id));;
+	$cancel = new moodle_url('/mod/booking/report.php', array('id'=>$id));
 	$continue->params($confirmarray);
 	echo $OUTPUT->confirm(get_string('confirmdeletebookingoption','booking'), $continue,$cancel);
 	echo $OUTPUT->footer();

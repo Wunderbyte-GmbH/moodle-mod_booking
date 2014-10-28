@@ -8,50 +8,50 @@ $string['attachicaldesc'] = 'Email notifications will include an attached ical e
 $string['booking'] = 'Booking';
 $string['booking:addinstance'] = 'Add new booking';
 $string['booking:choose'] = 'Book';
+$string['booking:subscribeusers'] = 'Make bookings for other users';
 $string['booking:deleteresponses'] = 'Delete responses';
 $string['booking:downloadresponses'] = 'Download responses';
 $string['booking:readresponses'] = 'Read responses';
-$string['booking:sendpollurl'] = 'Send poll url';
-$string['booking:subscribeusers'] = 'Make bookings for other users';
 $string['booking:updatebooking'] = 'Manage booking options';
+$string['booking:sendpollurl'] = 'Send poll url';
+$string['booking:sendpollurltoteachers'] = 'Send poll url to teachers';
 $string['bookingclose'] = 'Until';
 $string['bookingfull'] = 'There are no available places';
 $string['bookingname'] = 'Booking name';
 $string['bookingopen'] = 'Open';
 $string['bookingtext'] = 'Booking text';
-$string['daystonotify'] = 'How many days before start of event to notify participaints?';
-$string['eventbookingoption_booked'] = 'Booking successfully completed';
-$string['eventbooking_cancelled'] = 'Booking was cancelled';
-$string['eventreport_viewed'] = 'Detailed report of booked users for a booking option viewed';
-$string['eventuserprofilefields_updated'] = 'Userprofile updated';
-$string['existingsubscribers'] = 'Existing subscribers';
 $string['expired'] = 'Sorry, this activity closed on {$a} and is no longer available';
 $string['fillinatleastoneoption'] = 'You need to provide at least two possible answers.';
 $string['full'] = 'Full';
 $string['havetologin'] = 'You have to log in before you can submit your booking';
 $string['limit'] = 'Limit';
 $string['modulename'] = 'Booking';
+$string['pluginname'] = 'Booking';
+$string['pluginadministration'] = 'Booking administration';
 $string['modulenameplural'] = 'Bookings';
 $string['mustchooseone'] = 'You must choose an option before saving.  Nothing was saved.';
 $string['noguestchoose'] = 'Sorry, guests are not allowed to enter data';
 $string['noresultsviewable'] = 'The results are not currently viewable.';
-$string['nosubscribers'] = 'There are no teachers assigned!';
-$string['notificationsubject'] = 'Upcoming course...';
 $string['notopenyet'] = 'Sorry, this activity is not available until {$a} ';
-$string['pluginadministration'] = 'Booking administration';
-$string['pluginname'] = 'Booking';
-$string['potentialsubscribers'] = 'Potential subscribers';
 $string['removeresponses'] = 'Remove all responses';
 $string['responses'] = 'Responses';
 $string['responsesto'] = 'Responses to {$a} ';
 $string['spaceleft'] = 'space available';
 $string['spacesleft'] = 'spaces available';
-$string['subscribersto'] = 'Teachers for  \'{$a}\'';
 $string['taken'] = 'Taken';
-$string['teachers'] = 'Teachers: ';
 $string['timerestrict'] = 'Restrict answering to this time period';
 $string['viewallresponses'] = 'Manage {$a} responses';
 $string['yourselection'] = 'Your selection';
+$string['existingsubscribers'] = 'Existing subscribers';
+$string['potentialsubscribers'] = 'Potential subscribers';
+$string['nosubscribers'] = 'There are no teachers assigned!';
+$string['subscribersto'] = 'Teachers for  \'{$a}\'';
+$string['teachers'] = 'Teachers: ';
+$string['daystonotify'] = 'How many days before start of event to notify participaints?';
+$string['notificationsubject'] = 'Upcoming course...';
+
+$string['gotop'] = 'Go to top';
+$string['goenrol'] = 'Go to registration';
 
 // Bookingform
 $string['location'] = 'Location';
@@ -125,6 +125,7 @@ $string['eventduration'] = 'Event duration';
 $string['eventpoints'] = 'Points';
 $string['organizatorname'] = 'Organizator name';
 $string['pollurl'] = 'Poll url';
+$string['pollurlteachers'] = 'Teachers poll url';
 
 // mod_form
 $string['addtocalendar'] = 'Add to calendar';
@@ -179,6 +180,7 @@ $string['userleave_help'] = 'Leave this blank to use the site default text. You 
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
 <li>{location}</li>
 <li>{institution}</li>
 <li>{address}</li>
@@ -198,6 +200,7 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
 <li>{location}</li>
 <li>{institution}</li>
 <li>{address}</li>
@@ -216,6 +219,7 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
 <li>{location}</li>
 <li>{institution}</li>
 <li>{address}</li>
@@ -234,6 +238,7 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
 <li>{location}</li>
 <li>{institution}</li>
 <li>{address}</li>
@@ -253,6 +258,27 @@ $string['pollurltext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+</ul>';
+
+$string['pollurlteacherstext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
 <li>{location}</li>
 <li>{institution}</li>
 <li>{address}</li>
@@ -272,6 +298,7 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 <li>{courselink}</li>
 <li>{bookinglink}</li>
 <li>{pollurl}</li>
+<li>{pollurlteachers}</li>
 <li>{location}</li>
 <li>{institution}</li>
 <li>{address}</li>
@@ -285,6 +312,7 @@ $string['bookingduration'] = 'Duration';
 $string['bookingpoints'] = 'Course points';
 $string['bookingorganizatorname'] = 'Organizer name';
 $string['bookingpollurl'] = 'Poll url';
+$string['bookingpollurlteachers'] = 'Teachers poll url';
 $string['bookingtags'] = 'Tags';
 $string['bookingattachment'] = 'Attachment';
 $string['groupname'] = 'Group name';
@@ -292,6 +320,7 @@ $string['addtogroup'] = 'Automatically enrol users in group';
 $string['bookingcategory'] = 'Category';
 $string['entervalidurl'] = 'Please, enter a valid URL!';
 $string['pollurltext'] = 'Send poll url';
+$string['pollurlteacherstext'] = 'Teachers send poll url';
 $string['additionalfields'] = 'Additional fields';
 $string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name "Bookin name - Option name"';
 $string['searchtag'] = 'Search tags';
@@ -307,11 +336,21 @@ $string['addeditbooking'] = 'Edit booking';
 $string['donotselectcourse'] = 'No course selected';
 $string['waitinglisttaken'] = 'On the waiting list';
 $string['addnewbookingoption'] = 'Add a new booking option';
+$string['importcsvbookingoption'] = 'Import CSV with booking options';
 $string['sendmailtobooker'] = 'Book other users page: Send mail to user who books instead to users who are booked';
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to
   the user who books other users instead to users, who have been added to a booking option.
   This is only relevant for bookings made on the page "book other users".';
 
+// importoptions.php
+$string['importcsvtitle'] = 'Import CSV';
+$string['csvfile'] = 'CSV file';
+$string['defaultdateformat'] = 'j.n.Y H:i:s';
+$string['dateparseformat'] = 'Date parse format';
+$string['wrongfile'] = 'Wrong file!';
+$string['nouserfound'] = 'No user found: ';
+$string['noteacherfound'] = 'No teacher found: ';
+$string['importfinished'] = 'Importing finished!';
 
 // Confirmation mail
 $string['days'] = '{$a} days';
@@ -395,6 +434,12 @@ $string['pollurltextsubject'] = 'Please, take the survey';
 $string['pollurltextmessage'] = 'Please, take the survey
 
 Survey url {pollurl}
+';
+
+$string['pollurlteacherstextsubject'] = 'Please, take the survey';
+$string['pollurlteacherstextmessage'] = 'Please, take the survey
+
+Survey url {pollurlteachers}
 ';
 
 $string['notificationtextsubject'] = 'Info about course start!';

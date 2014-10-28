@@ -51,19 +51,20 @@ if (!$context = context_module::instance($cm->id)) {
 // check if booking options have already been set or if they are still empty
 $records = $DB->get_records('booking_options', array('bookingid' => $booking->id));
 
-if (empty($records)) {      // Brand new database!
-    if (has_capability('mod/booking:updatebooking', $context)) {
-        redirect($CFG->wwwroot . '/mod/booking/editoptions.php?id=' . $cm->id . '&optionid=add');  // Redirect to field entry
-    } else {
-        print_error("There are no booking options available yet");
-    }
-}
-
+/*
+  if (empty($records)) {      // Brand new database!
+  if (has_capability('mod/booking:updatebooking', $context)) {
+  redirect($CFG->wwwroot . '/mod/booking/editoptions.php?id=' . $cm->id . '&optionid=add');  // Redirect to field entry
+  } else {
+  print_error("There are no booking options available yet");
+  }
+  }
+ */
 
 // check if data has been submitted to be processed
 if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capability('mod/booking:choose', $context) and ( $booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
     if ($answer = $DB->get_record('booking_answers', array('bookingid' => $booking->id, 'userid' => $USER->id, 'optionid' => $optionid))) {
-        $newbookeduser = booking_check_statuschange($optionid, $booking->id, $USER->id, $cm->id);
+        $newbookeduser = booking_check_statuschange($optionid, $booking, $USER->id, $cm->id);
         if (booking_delete_singlebooking($answer, $booking, $optionid, $newbookeduser, $cm->id)) {
             echo $OUTPUT->header();
             $contents = get_string('bookingdeleted', 'booking');
@@ -146,6 +147,7 @@ $bookinglist = booking_get_spreadsheet_data($booking, $cm);
 echo '<div class="clearer"></div>';
 
 echo $OUTPUT->box_start('generalbox boxaligncenter boxwidthwide');
+echo $html = html_writer::tag('div', '<a id="gotop" href="#goenrol">' . get_string('goenrol', 'booking') . '</a>', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
 echo html_writer::tag('div', format_module_intro('booking', $booking, $cm->id), array('class' => 'intro'));
 
 if (!empty($booking->duration)) {
@@ -236,6 +238,8 @@ if (strlen($booking->bookingpolicy) > 0) {
     echo $OUTPUT->action_link($link, get_string("bookingpolicy", "booking"), new popup_action('click', $link));
 }
 
+echo $html = html_writer::tag('div', '<a id="goenrol" href="#gotop">' . get_string('gotop', 'booking') . '</a>', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
+
 echo $OUTPUT->box_end();
 
 
@@ -244,8 +248,10 @@ if (has_capability('mod/booking:downloadresponses', $context)) {
     /// Download spreadsheet for all booking options
     echo $html = html_writer::tag('div', get_string('downloadallresponses', 'booking') . ': ', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
     $optionstochoose = array('all' => get_string('allbookingoptions', 'booking'));
-    foreach ($booking->option as $option) {
-        $optionstochoose[$option->id] = $option->text;
+    if (isset($booking->option)) {
+        foreach ($booking->option as $option) {
+            $optionstochoose[$option->id] = $option->text;
+        }
     }
     $options = array();
     $options["id"] = "$cm->id";
@@ -305,8 +311,13 @@ if (!$bookingformshown) {
 }
 if (has_capability('mod/booking:updatebooking', $context)) {
     $addoptionurl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add'));
-    echo '<div style="width: 100%; text-align: center;">';
-    echo $OUTPUT->single_button($addoptionurl, get_string('addnewbookingoption', 'booking'), 'get');
+    $importoptionurl = new moodle_url('importoptions.php', array('id' => $cm->id));
+    
+    echo '<div style="width: 100%; text-align: center; display:table;">';
+    $button = $OUTPUT->single_button($addoptionurl, get_string('addnewbookingoption', 'booking'), 'get');
+    echo html_writer::tag('span', $button, array('style' => 'text-align: right; display:table-cell;'));
+    $button = $OUTPUT->single_button($importoptionurl, get_string('importcsvbookingoption', 'booking'), 'get');
+    echo html_writer::tag('span', $button, array('style' => 'text-align: left; display:table-cell;'));
     echo '</div>';
 }
 echo $OUTPUT->box("<a href=\"http://www.edulabs.org\">" . get_string('createdby', 'booking') . "</a>", 'box mdl-align');
