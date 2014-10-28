@@ -632,7 +632,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
                         $optiondisplay->booked = get_string('booked', 'booking');
                     }
                     $rowclasses[] = "mod-booking-booked" . $extraclass;
-                    if (has_capability('mod/booking:deleteresponses', $context) and $booking->allowupdate and $option->status != 'closed') {
+                    if ($booking->allowupdate and $option->status != 'closed') {
                         $buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
                         $url = new moodle_url('view.php', $buttonoptions);
                         $url->params($buttonoptions);
@@ -643,7 +643,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
                 } elseif ($current[$option->id] > $option->maxanswers) { // waitspaceavailable
                     $optiondisplay->booked = get_string('onwaitinglist', 'booking');
                     $rowclasses[] = "mod-booking-watinglist" . $extraclass;
-                    if (has_capability('mod/booking:deleteresponses', $context) and $booking->allowupdate and $option->status != 'closed') {
+                    if ($booking->allowupdate and $option->status != 'closed') {
                         $buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
                         $url = new moodle_url('view.php', $buttonoptions);
                         $optiondisplay->delete = $OUTPUT->single_button($url, get_string('cancelbooking', 'booking'), 'post') . '<br />';
@@ -655,7 +655,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
                         $optiondisplay->booked = get_string('booked', 'booking');
                     }
                     $rowclasses[] = "mod-booking-booked" . $extraclass;
-                    if (has_capability('mod/booking:deleteresponses', $context) and $booking->allowupdate and $option->status != 'closed') {
+                    if ($booking->allowupdate and $option->status != 'closed') {
                         $buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
                         $url = new moodle_url('view.php', $buttonoptions);
                         $optiondisplay->delete = $OUTPUT->single_button($url, get_string('cancelbooking', 'booking'), 'post') . '<br />';
