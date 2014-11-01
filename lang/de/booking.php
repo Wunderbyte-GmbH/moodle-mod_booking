@@ -28,6 +28,8 @@ $string['existingsubscribers'] = 'Vorhandene Nutzer/innen';
 $string['expired'] = 'Diese Aktivität ist geschlossen {$a} und ist nicht mehr verfügbar';
 $string['fillinatleastoneoption'] = 'Wählen Sie zumindest eine Buchungsmöglichkeit aus';
 $string['full'] = 'Ausgebucht';
+$string['goenrol'] = 'Gehe zu "Buchung abschließen"';
+$string['gotop'] = 'Nach oben';
 $string['havetologin'] = 'Sie müssen sich einloggen, um eine Buchung vorzunehmen';
 $string['limit'] = 'Maximale Anzahl';
 $string['modulename'] = 'Buchung';
@@ -239,13 +241,27 @@ $string['addeditbooking'] = 'Buchung bearbeiten';
 $string['donotselectcourse'] = 'Kein Kurs ausgewählt';
 $string['waitinglisttaken'] = 'Auf der Warteliste';
 $string['addnewbookingoption'] = 'Neue Buchung hinzufügen';
+$string['importcsvbookingoption'] = 'Buchungsoptionen via CSV-Datei importieren';
 $string['sendmailtobooker'] = 'Buchung für andere User durchführen: Mail an User, der Buchung durchführt, anstatt an gebuchte User senden';
 $string['sendmailtobooker_help'] = 'Diese Option aktivieren, um Buchungsbestätigungsmails
   anstatt an die gebuchten Nutzer/innen zu senden an den/die Nutzer/in senden, die die Buchung durchgeführt hat.
   Dies betrifft nur Buchungen, die auf der Seite "Buchung für andere Nutzer/innen durchführen" getätigt wurden';
 
+// importoptions.php
+$string['importcsvtitle'] = 'CSV-Datei importieren';
+$string['csvfile'] = 'CSV Datei';
+$string['defaultdateformat'] = 'j.n.Y H:i:s';
+$string['dateparseformat'] = 'Datumsformat';
+$string['wrongfile'] = 'Falsche Datei!';
+$string['nouserfound'] = 'Kein/e User/in gefunden: ';
+$string['noteacherfound'] = 'Kein/e Trainer/in gefunden: ';
+$string['importfinished'] = 'Importieren beendet!';
 
 // Confirmation mail
+$string['days'] = '{$a} Tage';
+$string['hours'] = '{$a} Stunden';
+$string['minutes'] = '{$a} Minuten';
+
 $string['deletedbookingsubject'] = 'Storno von {$a->title}, User: {$a->participant}';
 $string['deletedbookingmessage'] = 'Folgende Buchung wurde storniert: {$a->title}
 

@@ -23,6 +23,8 @@ $string['bookingtext'] = 'Booking text';
 $string['expired'] = 'Sorry, this activity closed on {$a} and is no longer available';
 $string['fillinatleastoneoption'] = 'You need to provide at least two possible answers.';
 $string['full'] = 'Full';
+$string['goenrol'] = 'Go to registration';
+$string['gotop'] = 'Go to top';
 $string['havetologin'] = 'You have to log in before you can submit your booking';
 $string['limit'] = 'Limit';
 $string['modulename'] = 'Booking';
@@ -49,9 +51,6 @@ $string['subscribersto'] = 'Teachers for  \'{$a}\'';
 $string['teachers'] = 'Teachers: ';
 $string['daystonotify'] = 'How many days before start of event to notify participaints?';
 $string['notificationsubject'] = 'Upcoming course...';
-
-$string['gotop'] = 'Go to top';
-$string['goenrol'] = 'Go to registration';
 
 // Bookingform
 $string['location'] = 'Location';
