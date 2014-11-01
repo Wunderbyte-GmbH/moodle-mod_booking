@@ -748,6 +748,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
                 "<b>" . format_text($option->text . ' ', FORMAT_MOODLE, $displayoptions) . "</b>" . "<p>" . $option->description . "</p>" . $printTeachers . $additionalInfo,
                 $option->coursestarttimetext . " - <br />" . $option->courseendtimetext,
                 $stravailspaces);
+            }
         }
     }
     $table = new html_table();
