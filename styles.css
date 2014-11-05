@@ -1,43 +1,43 @@
 .mod-booking .results {
-  border-collapse: separate;
+    border-collapse: separate;
 }
 
 .mod-booking .results .data {
-  border-width:1px;
-  border-style:solid;
-  border-color:#999;
+    border-width:1px;
+    border-style:solid;
+    border-color:#999;
 }
 .mod-booking-inlinetable {
-  display: inline;
-  background-color: transparent;
-  /*float: left;*/
+    display: inline;
+    background-color: transparent;
+    /*float: left;*/
 }
 tr.mod-booking-booked td.cell {
-   background-color: lightgreen;
+    background-color: lightgreen;
 }
 tr.mod-booking-booked.inpast td.cell {
     background-color: #d6f9d9;
 }
 table.mod-booking-table td.cell {
-	border-bottom: 1px solid #cecece;
+    border-bottom: 1px solid #cecece;
 }
 table.mod-booking-table tr.inpast td.cell {
     color: #909090;
 }
 
 div.mod-booking-waitlist {
-  background-color: orange;
-  width: 100%;
-  height: auto;
-  display: block;
+    background-color: orange;
+    width: 100%;
+    height: auto;
+    display: block;
 }
 tr.mod-booking-watinglist td.cell{
     background-color: orange;
 }
 tr.mod-booking-invisible {
-  visibility:hidden;
-  height: 0;
-  display: none;
+    visibility:hidden;
+    height: 0;
+    display: none;
 }
 
 
@@ -52,10 +52,10 @@ tr.mod-booking-invisible {
 
 /** styles for displaying all bookings */
 .mod-booking-regular {
-	display: table-cell;
-	padding: 5px;
+    display: table-cell;
+    padding: 5px;
 }
 .mod-booking-waiting {
-	display: table-cell;
-	padding: 5px;
+    display: table-cell;
+    padding: 5px;
 }

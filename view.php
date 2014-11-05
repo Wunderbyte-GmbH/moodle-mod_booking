@@ -306,7 +306,7 @@ if (!$bookingformshown) {
 if (has_capability('mod/booking:updatebooking', $context)) {
     $addoptionurl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add'));
     $importoptionurl = new moodle_url('importoptions.php', array('id' => $cm->id));
-    
+
     echo '<div style="width: 100%; text-align: center; display:table;">';
     $button = $OUTPUT->single_button($addoptionurl, get_string('addnewbookingoption', 'booking'), 'get');
     echo html_writer::tag('span', $button, array('style' => 'text-align: right; display:table-cell;'));

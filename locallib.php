@@ -261,9 +261,9 @@ class booking_option extends booking {
                     //TODO replace
                     booking_check_enrol_user($this->option, $this->booking, $user->id);
                 }
-                
+
                 add_to_log($this->cm->course, "booking", "choose", "view.php?id=" . $this->cm->id, $this->id, $this->cm->id);
-                
+
                 if ($this->booking->sendmail) {
                     $eventdata = new stdClass();
                     $eventdata->user = $user;
@@ -275,7 +275,7 @@ class booking_option extends booking {
                     //TODO replace
                     booking_send_confirm_message($eventdata);
                 }
-                
+
                 return true;
             } else {
                 return false;

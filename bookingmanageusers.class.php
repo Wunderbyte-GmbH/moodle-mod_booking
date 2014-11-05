@@ -37,14 +37,14 @@ class mod_booking_manageusers_form extends moodleform {
                 if (empty($user->imagealt)) {
                     $user->imagealt = '';
                 }
-                
+
                 $userData = $DB->get_record('booking_answers', array('optionid' => $this->_customdata['bookingdata']->id, 'userid' => $user->id));
-                
+
                 $checkMark = "&nbsp;";
                 if ($userData->completed == '1') {
                     $checkMark = "&#x2713;";
                 }
-                
+
                 $mform->addElement('html', '<table class="mod-booking-inlinetable"><tr><td class="attemptcell">');
                 $mform->addElement('advcheckbox', "user[$user->id]", '', null, array('group' => $this->_customdata['bookingdata']->id + 1));
                 $mform->addElement('html', '</td><td class="picture">' . $OUTPUT->user_picture($user, array()) . '</td><td>' . $checkMark . '</td><td class="fullname">' . "<a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . '</a></td></tr></table>');
@@ -122,11 +122,11 @@ class mod_booking_manageusers_form extends moodleform {
 
     function get_data() {
         $data = parent::get_data();
-        
+
         if (isset($data->subscribetocourse) && !array_keys($data->user, 1)) {
             $data = false;
         }
-        
+
         return $data;
     }
 
