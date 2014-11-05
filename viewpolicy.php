@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 require_once('../../config.php');
 $id = required_param('id', PARAM_INT);
 
@@ -6,8 +7,8 @@ $booking = $DB->get_record("booking", array("id" => $id));
 
 $context = context_course::instance($booking->course);
 
-if (! $course = $DB->get_record("course", array("id" => $booking->course))) {
-	print_error('coursemisconf');
+if (!$course = $DB->get_record("course", array("id" => $booking->course))) {
+    print_error('coursemisconf');
 }
 
 require_login($course->id, false);
@@ -27,5 +28,4 @@ echo $booking->bookingpolicy;
 echo $OUTPUT->box_end();
 
 echo $OUTPUT->footer();
-
 ?>

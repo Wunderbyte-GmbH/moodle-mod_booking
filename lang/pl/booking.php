@@ -1,4 +1,6 @@
-<?PHP // $Id: booking.php,v 1.6.4.5 2011-02-01 23:05:09 dasistwas Exp $
+<?PHP
+
+// $Id: booking.php,v 1.6.4.5 2011-02-01 23:05:09 dasistwas Exp $
 
 
 $string['addmorebookings'] = 'Dodaj więcej rezerwacji';
@@ -205,7 +207,7 @@ Associated course: {$a->courselink}
 
 ';
 //report.php
-$string['withselected'] = 'Z zaznaczonymi użytjownikami:'; 
+$string['withselected'] = 'Z zaznaczonymi użytjownikami:';
 $string['associatedcourse'] = 'Powiązany kurs';
 $string['bookedusers'] = 'Zarezerwowani użytkownicy';
 $string['waitinglistusers'] = 'Użytkownicy na liście oczekujących';

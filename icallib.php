@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of the booking module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -22,7 +23,6 @@
  * @copyright 2012 Davo Smith, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
 
 class booking_ical {
@@ -52,7 +52,7 @@ class booking_ical {
     public function __destruct() {
         global $CFG;
         if ($this->tempfilename) {
-            @unlink($CFG->dataroot.'/'.$this->tempfilename);
+            @unlink($CFG->dataroot . '/' . $this->tempfilename);
         }
     }
 
@@ -82,17 +82,17 @@ class booking_ical {
 
         // UIDs should be globally unique
         $urlbits = parse_url($CFG->wwwroot);
-        $UID = md5($CFG->siteidentifier . $this->option->id . 'mod_booking_option') .   // Unique identifier, salted with site identifier
+        $UID = md5($CFG->siteidentifier . $this->option->id . 'mod_booking_option') . // Unique identifier, salted with site identifier
                 '@' . $urlbits['host'];                                                    // Hostname for this moodle installation
 
         $DTSTART = $this->generate_timestamp($this->option->coursestarttime);
-        $DTEND   = $this->generate_timestamp($this->option->courseendtime);
+        $DTEND = $this->generate_timestamp($this->option->courseendtime);
 
         // FIXME: currently we are not sending updates if the times of the
         // sesion are changed. This is not ideal!
         $SEQUENCE = 0;
 
-        $SUMMARY     = $this->escape($this->booking->name);
+        $SUMMARY = $this->escape($this->booking->name);
         $DESCRIPTION = $this->escape($this->option->text, true);
 
         // NOTE: Newlines are meant to be encoded with the literal sequence
@@ -120,7 +120,7 @@ class booking_ical {
         // FIXME: if the user has input their name in another language, we need
         // to set the LANGUAGE property parameter here
         $USERNAME = fullname($this->user);
-        $MAILTO   = $this->user->email;
+        $MAILTO = $this->user->email;
 
         $VEVENTS .= <<<EOF
 BEGIN:VEVENT
@@ -188,7 +188,7 @@ EOF;
         return gmdate('Ymd', $timestamp) . 'T' . gmdate('His', $timestamp) . 'Z';
     }
 
-    protected function escape($text, $converthtml=false) {
+    protected function escape($text, $converthtml = false) {
         if (empty($text)) {
             return '';
         }
@@ -198,9 +198,7 @@ EOF;
         }
 
         $text = str_replace(
-            array('\\',   "\n", ';',  ','),
-            array('\\\\', '\n', '\;', '\,'),
-            $text
+                array('\\', "\n", ';', ','), array('\\\\', '\n', '\;', '\,'), $text
         );
 
         // Text should be wordwrapped at 75 octets, and there should be one
