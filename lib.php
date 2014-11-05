@@ -382,10 +382,16 @@ function booking_update_options($optionvalues) {
                     $event->visible = instance_is_visible('booking', $booking);
                     $event->timeduration = $option->courseendtime - $option->coursestarttime;
 
-                    $calendarevent = calendar_event::load($event->id);
-                    $calendarevent->update($event);
-                    $option->calendarid = $event->id;
-                    $option->addtocalendar = $optionvalues->addtocalendar;
+                    if ($DB->record_exists("event", array('id' => $event->id))) {
+                        $calendarevent = calendar_event::load($event->id);
+                        $calendarevent->update($event);
+                        $option->calendarid = $event->id;
+                        $option->addtocalendar = $optionvalues->addtocalendar;
+                    } else {
+                        unset($event->id);
+                        $tmpEvent = calendar_event::create($event);
+                        $option->calendarid = $tmpEvent->id;
+                    }
                 } else {
                     // Delete event if exist
                     $event = calendar_event::load($event->id);
