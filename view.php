@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 require_once("../../config.php");
 require_once("lib.php");
@@ -105,26 +105,31 @@ if (has_capability('moodle/user:editownprofile', $context, NULL, false) and book
 /// Submit any new data if there is any
 if ($form = data_submitted() && has_capability('mod/booking:choose', $context)) {
     $timenow = time();
+
+    $url = new moodle_url("view.php", array('id' => $cm->id));
+    $url->set_anchor("option" . $booking->option[$answer]->id);
+
+
     if (!empty($answer)) {
         if (booking_user_submit_response($answer, $booking, $USER, $course->id, $cm)) {
             $contents = get_string('bookingsaved', 'booking');
             if ($booking->sendmail) {
                 $contents .= "<br />" . get_string('mailconfirmationsent', 'booking') . ".";
             }
-            $contents .= $OUTPUT->single_button(new moodle_url("view.php", array('id' => $cm->id)), get_string('continue'), 'get');
+            $contents .= $OUTPUT->single_button($url, get_string('continue'), 'get');
             echo $OUTPUT->box($contents, 'box generalbox', 'notice');
             echo $OUTPUT->footer();
             die;
         } elseif (is_int($answer)) {
             $contents = get_string('bookingmeanwhilefull', 'booking') . " " . $booking->option[$answer]->text;
-            $contents .= $OUTPUT->single_button(new moodle_url("view.php", array('id' => $cm->id)), 'get');
+            $contents .= $OUTPUT->single_button($url, 'get');
             echo $OUTPUT->box($contents, 'box generalbox', 'notice');
             echo $OUTPUT->footer();
             die;
         }
     } else {
         $contents = get_string('nobookingselected', 'booking');
-        $contents .= $OUTPUT->single_button(new moodle_url("view.php", array('id' => $cm->id)), 'get');
+        $contents .= $OUTPUT->single_button($url, 'get');
         echo $OUTPUT->box($contents, 'box generalbox', 'notice');
         echo $OUTPUT->footer();
         die;
@@ -134,9 +139,9 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context)) 
 $booking = booking_get_booking($cm, $sort);
 
 $event = \mod_booking\event\course_module_viewed::create(array(
-        'objectid' => $PAGE->cm->instance,
-        'context' => $PAGE->context,
-));
+            'objectid' => $PAGE->cm->instance,
+            'context' => $PAGE->context,
+        ));
 $event->add_record_snapshot('course', $PAGE->course);
 $event->trigger();
 

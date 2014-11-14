@@ -747,13 +747,15 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
                 $additionalInfo .= '<p>' . get_string('address', "booking") . ': ' . $option->address . '</p>';
             }
 
-            $tabledata[] = array($bookingbutton . $optiondisplay->booked . '
+            $row = new html_table_row(array("<span id=\"option{$option->id}\"></span>" . $bookingbutton . $optiondisplay->booked . '
 		<br />' . get_string($option->status, "booking") . '
 		<br />' . $optiondisplay->delete . $optiondisplay->manage . '
 		<br />' . $optiondisplay->bookotherusers,
                 "<b>" . format_text($option->text . ' ', FORMAT_MOODLE, $displayoptions) . "</b>" . "<p>" . $option->description . "</p>" . $printTeachers . $additionalInfo,
                 $option->coursestarttimetext . " - <br />" . $option->courseendtimetext,
-                $stravailspaces);
+                $stravailspaces));
+            
+            $tabledata[] = $row;
             }
         }
     }
