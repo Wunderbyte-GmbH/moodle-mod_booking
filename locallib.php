@@ -216,6 +216,7 @@ class booking_option extends booking {
                     $newanswer->userid = $user->id;
                     $newanswer->optionid = $this->optionid;
                     $newanswer->timemodified = time();
+                    $newanswer->timecreated = time();
                     if (!$DB->insert_record("booking_answers", $newanswer)) {
                         error("Could not register your booking because of a database error");
                     }
@@ -253,6 +254,7 @@ class booking_option extends booking {
                 $newanswer->userid = $user->id;
                 $newanswer->optionid = $this->optionid;
                 $newanswer->timemodified = time();
+                $newanswer->timecreated = time();
                 if (!$DB->insert_record("booking_answers", $newanswer)) {
                     error("Could not register your booking because of a database error");
                 }

@@ -33,6 +33,9 @@ class mod_booking_manageusers_form extends moodleform {
         $mform->addElement('html', '<div>' . get_string('bookedusers', 'booking') . ':</div><div style="background-color: lightgreen;">');
 
         if ($this->_customdata['bookedusers']) {
+            
+            $mform->addElement('html', '<table class="mod-booking-inlinetable">');
+            
             foreach ($this->_customdata['bookedusers'] as $user) {
                 if (empty($user->imagealt)) {
                     $user->imagealt = '';
@@ -45,11 +48,15 @@ class mod_booking_manageusers_form extends moodleform {
                     $checkMark = "&#x2713;";
                 }
 
-                $mform->addElement('html', '<table class="mod-booking-inlinetable"><tr><td class="attemptcell">');
+                $mform->addElement('html', '<tr><td class="attemptcell">');
                 $mform->addElement('advcheckbox', "user[$user->id]", '', null, array('group' => $this->_customdata['bookingdata']->id + 1));
-                $mform->addElement('html', '</td><td class="picture">' . $OUTPUT->user_picture($user, array()) . '</td><td>' . $checkMark . '</td><td class="fullname">' . "<a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . '</a></td></tr></table>');
+                $mform->addElement('html', '</td><td class="picture">' . $OUTPUT->user_picture($user, array()) . '</td><td>' . $checkMark . '</td><td class="fullname">' . "<a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . '</a></td><td class="datecreated">' . ($userData->timecreated > 0 ? userdate($userData->timecreated, get_string('strftimedatefullshort')) : '') . '</td></tr>');
             }
+                        
+            $mform->addElement('html', '</table>');
+
             $this->add_checkbox_controller($this->_customdata['bookingdata']->id + 1);
+            
         }
         $mform->addElement('html', '</div>');
 

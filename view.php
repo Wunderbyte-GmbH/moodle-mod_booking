@@ -67,8 +67,6 @@ $strbookings = get_string('modulenameplural', 'booking');
 if (!$context = context_module::instance($cm->id)) {
     print_error('badcontext');
 }
-// check if booking options have already been set or if they are still empty
-$records = $DB->get_records('booking_options', array('bookingid' => $booking->id));
 
 // check if data has been submitted to be processed
 if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capability('mod/booking:choose', $context) and ( $booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
@@ -301,9 +299,7 @@ if ($booking->timeclose != 0) {
 if (!$current and $bookingopen and has_capability('mod/booking:choose', $context)) {
 
     echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
-
-    echo html_writer::start_tag('form');
-    
+   
     if ($action == 'mybooking') {
         $message = "<a href=\"view.php?id=$cm->id&action=showall\">" . get_string('showallbookings', 'booking') . "</a> | <a href=\"view.php?id=$cm->id\">" . get_string('showactive', 'booking') . "</a>";
         echo $OUTPUT->box($message, 'box mdl-align');
@@ -317,8 +313,6 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         echo $OUTPUT->box($message, 'box mdl-align');
         booking_show_form($booking, $USER, $cm, $bookinglist, 2, $url, $urlParams);
     }
-
-    echo html_writer::start_tag('end');
     
     $bookingformshown = true;
 } else {

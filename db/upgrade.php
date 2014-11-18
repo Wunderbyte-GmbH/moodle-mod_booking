@@ -531,6 +531,22 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014092901, 'booking');
     }
+    
+        if ($oldversion < 2014111800) {
+
+        // Define field timecreated to be added to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'completed');
+
+        // Conditionally launch add field timecreated.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014111800, 'booking');
+    }
+
 
 
     return true;

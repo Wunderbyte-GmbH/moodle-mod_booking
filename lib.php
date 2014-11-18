@@ -615,13 +615,13 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
         }
     }
     
-    $row = new html_table_row(array(get_string('booking', "booking"), $hidden . '<input value="' . $urlParams['searchText'] . '" type="text" name="searchText">', "", ""));
+    $row = new html_table_row(array(get_string('booking', "booking"), $hidden . '<form><input value="' . $urlParams['searchText'] . '" type="text" name="searchText">', "", ""));
     $tabledata[] = $row;
     $row = new html_table_row(array(get_string('location', "booking"), $hidden . '<input value="' . $urlParams['searchLocation'] . '" type="text" name="searchLocation">', "", ""));
     $tabledata[] = $row;
     $row = new html_table_row(array(get_string('institution', "booking"), $hidden . '<input value="' . $urlParams['searchInstitution'] . '" type="text" name="searchInstitution">', "", ""));
     $tabledata[] = $row;
-    $row = new html_table_row(array("", '<input type="submit" value="Search">', "", ""));
+    $row = new html_table_row(array("", '<input type="submit" value="' . get_string('search') . '"></form>', "", ""));
     $tabledata[] = $row;
 
     $underlimit = ($booking->maxperuser == 0);
@@ -850,6 +850,7 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
                 $newanswer->userid = $user->id;
                 $newanswer->optionid = $optionid;
                 $newanswer->timemodified = time();
+                $newanswer->timecreated = time();
                 if (!$DB->insert_record("booking_answers", $newanswer)) {
                     error("Could not register your booking because of a database error");
                 }
@@ -883,6 +884,7 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
             $newanswer->userid = $user->id;
             $newanswer->optionid = $optionid;
             $newanswer->timemodified = time();
+            $newanswer->timecreated = time();
             if (!$DB->insert_record("booking_answers", $newanswer)) {
                 error("Could not register your booking because of a database error");
             }
