@@ -10,19 +10,40 @@ $optionid = optional_param('optionid', '', PARAM_INT);
 $confirm = optional_param('confirm', '', PARAM_INT);
 $answer = optional_param('answer', '', PARAM_ALPHANUM);
 $sorto = optional_param('sort', '', PARAM_INT);
+$searchText = optional_param('searchText', '', PARAM_TEXT);
+$searchLocation = optional_param('searchLocation', '', PARAM_TEXT);
+$searchInstitution = optional_param('searchInstitution', '', PARAM_TEXT);
+
+$urlParams = array();
+$urlParams['id'] = $id;
 
 $sort = '';
 $sorturl = new moodle_url('/mod/booking/view.php', array('id' => $id, 'sort' => 0));
 
 if ($sorto == 1) {
     $sort = 'coursestarttime ASC';
-    $sorturl = new moodle_url('/mod/booking/view.php', array('id' => $id, 'sort' => 0));
+    $urlParams['sort'] = 0;
 } else if ($sorto == 0) {
     $sort = 'coursestarttime DESC';
-    $sorturl = new moodle_url('/mod/booking/view.php', array('id' => $id, 'sort' => 1));
+    $urlParams['sort'] = 1;
 }
 
-$url = new moodle_url('/mod/booking/view.php', array('id' => $id));
+$urlParams['searchText'] = "";
+if (strlen($searchText) > 0) {
+    $urlParams['searchText'] = $searchText;
+}
+
+$urlParams['searchLocation'] = "";
+if (strlen($searchLocation) > 0) {
+    $urlParams['searchLocation'] = $searchLocation;
+}
+
+$urlParams['searchInstitution'] = "";
+if (strlen($searchInstitution) > 0) {
+    $urlParams['searchInstitution'] = $searchInstitution;
+}
+
+$url = new moodle_url('/mod/booking/view.php', $urlParams);
 
 $PAGE->set_url($url);
 
@@ -34,11 +55,9 @@ if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
     print_error('coursemisconf');
 }
 
-
 require_course_login($course, false, $cm);
 
-
-if (!$booking = booking_get_booking($cm, $sort)) {
+if (!$booking = booking_get_booking($cm, $sort, $urlParams)) {
     print_error("Course module is incorrect");
 }
 
@@ -50,16 +69,6 @@ if (!$context = context_module::instance($cm->id)) {
 }
 // check if booking options have already been set or if they are still empty
 $records = $DB->get_records('booking_options', array('bookingid' => $booking->id));
-
-/*
-  if (empty($records)) {      // Brand new database!
-  if (has_capability('mod/booking:updatebooking', $context)) {
-  redirect($CFG->wwwroot . '/mod/booking/editoptions.php?id=' . $cm->id . '&optionid=add');  // Redirect to field entry
-  } else {
-  print_error("There are no booking options available yet");
-  }
-  }
- */
 
 // check if data has been submitted to be processed
 if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capability('mod/booking:choose', $context) and ( $booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
@@ -91,6 +100,7 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context) &
 
 $PAGE->set_title(format_string($booking->name));
 $PAGE->set_heading($course->fullname);
+
 echo $OUTPUT->header();
 
 // check if custom user profile fields are required and redirect to complete them if necessary
@@ -136,7 +146,7 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context)) 
     }
 }
 // we have to refresh $booking as it is modified by submitted data;
-$booking = booking_get_booking($cm, $sort);
+$booking = booking_get_booking($cm, $sort, $urlParams);
 
 $event = \mod_booking\event\course_module_viewed::create(array(
             'objectid' => $PAGE->cm->instance,
@@ -292,20 +302,24 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
     echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
 
+    echo html_writer::start_tag('form');
+    
     if ($action == 'mybooking') {
         $message = "<a href=\"view.php?id=$cm->id&action=showall\">" . get_string('showallbookings', 'booking') . "</a> | <a href=\"view.php?id=$cm->id\">" . get_string('showactive', 'booking') . "</a>";
         echo $OUTPUT->box($message, 'box mdl-align');
-        booking_show_form($booking, $USER, $cm, $bookinglist, 1, $sorturl);
+        booking_show_form($booking, $USER, $cm, $bookinglist, 1, $url, $urlParams);
     } else if ($action == 'showall') {
         $message = "<a href=\"view.php?id=$cm->id&action=mybooking\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"view.php?id=$cm->id\">" . get_string('showactive', 'booking') . "</a>";
         echo $OUTPUT->box($message, 'box mdl-align');
-        booking_show_form($booking, $USER, $cm, $bookinglist, 0, $sorturl);
+        booking_show_form($booking, $USER, $cm, $bookinglist, 0, $url, $urlParams);
     } else {
         $message = "<a href=\"view.php?id=$cm->id&action=mybooking\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"view.php?id=$cm->id&action=showall\">" . get_string('showallbookings', 'booking') . "</a>";
         echo $OUTPUT->box($message, 'box mdl-align');
-        booking_show_form($booking, $USER, $cm, $bookinglist, 2, $sorturl);
+        booking_show_form($booking, $USER, $cm, $bookinglist, 2, $url, $urlParams);
     }
 
+    echo html_writer::start_tag('end');
+    
     $bookingformshown = true;
 } else {
     $bookingformshown = false;
