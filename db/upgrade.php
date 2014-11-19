@@ -531,8 +531,8 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014092901, 'booking');
     }
-    
-        if ($oldversion < 2014111800) {
+
+    if ($oldversion < 2014111800) {
 
         // Define field timecreated to be added to booking_answers.
         $table = new xmldb_table('booking_answers');
@@ -547,6 +547,28 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014111800, 'booking');
     }
 
+    if ($oldversion < 2014111900) {
+
+        // Define table booking_tags to be created.
+        $table = new xmldb_table('booking_tags');
+
+        // Adding fields to table booking_tags.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('tag', XMLDB_TYPE_CHAR, '64', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('text', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table booking_tags.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table for booking_tags.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014111900, 'booking');
+    }
 
 
     return true;

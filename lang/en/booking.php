@@ -125,6 +125,18 @@ $string['eventpoints'] = 'Points';
 $string['organizatorname'] = 'Organizator name';
 $string['pollurl'] = 'Poll url';
 $string['pollurlteachers'] = 'Teachers poll url';
+$string['tagtemplates'] = 'Tag templates';
+
+// tag templates
+$string['cancel'] = 'Cancel';
+$string['addnewtagtemplate'] = 'Add new';
+$string['addnewtagtemplate'] = 'Add new tag template';
+$string['savenewtagtemplate'] = 'Save';
+$string['tagtag'] = 'Tag';
+$string['tagtext'] = 'Text';
+$string['wrongdataallfields'] = 'Please, fill all fields!';
+$string['tagsucesfullysaved'] = 'Tag was sucesfully saved.';
+$string['edittag'] = 'Edit';
 
 // mod_form
 $string['addtocalendar'] = 'Add to calendar';

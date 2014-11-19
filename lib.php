@@ -12,6 +12,8 @@ require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->libdir . '/eventslib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 
+require_once('locallib.php');
+
 $COLUMN_HEIGHT = 300;
 
 /// Standard functions /////////////////////////////////////////////////////////
@@ -608,13 +610,13 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
     $rowclasses = array();
 
     $hidden = "";
-    
+
     foreach ($urlParams as $key => $value) {
         if (!in_array($key, array('searchText', 'searchLocation', 'searchInstitution'))) {
             $hidden .= '<input value="' . $value . '" type="hidden" name="' . $key . '">';
         }
     }
-    
+
     $row = new html_table_row(array(get_string('booking', "booking"), $hidden . '<form><input value="' . $urlParams['searchText'] . '" type="text" name="searchText">', "", ""));
     $tabledata[] = $row;
     $row = new html_table_row(array(get_string('location', "booking"), $hidden . '<input value="' . $urlParams['searchLocation'] . '" type="text" name="searchLocation">', "", ""));
@@ -1433,11 +1435,16 @@ function booking_get_groupmodedata() {
  * to be used by other functions
  * @param $bookingid id of the module
  * @param $sort which field use to sort options
- * @param $search thought options by name
+ * @param $urlParams parameters for searching
+ * @param $view if we need it for editing or viewing
  * @return object with $booking->option as an array for the booking option valus for each booking option
  */
-function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => '')) {
+function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), $view = TRUE) {
     global $DB;
+
+    $tags = new booking_tags($cm);
+
+    $optionsChangeText = array('text', 'description', 'location', 'institution', 'address');
 
     if ($sort == '') {
         $sort = 'id';
@@ -1457,20 +1464,22 @@ function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' =>
     $allresponses = get_users_by_capability($context, 'mod/booking:choose', $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
 
     $booking = $DB->get_record("booking", array("id" => $bookingid));
-    
-    /*
-    if (strlen($search) > 0) {
-        $options = $DB->get_records_sql('SELECT * FROM {booking_options} WHERE text LIKE :text AND bookingid = :bookingid', array( 'text' => '%' . $search . '%', 'bookingid' => $bookingid));
-    } else {
-        $options = $DB->get_records('booking_options', array('bookingid' => $bookingid), $sort);
-    }*/
-    
-    $options = $DB->get_records_sql('SELECT * FROM {booking_options} WHERE text LIKE :text AND location LIKE :location AND institution LIKE :institution AND bookingid = :bookingid', array( 'institution' => '%' . $urlParams['searchInstitution'] . '%',  'location' => '%' . $urlParams['searchLocation'] . '%', 'text' => '%' . $urlParams['searchText'] . '%', 'bookingid' => $bookingid));
-    
+
+    $options = $DB->get_records_sql('SELECT * FROM {booking_options} WHERE text LIKE :text AND location LIKE :location AND institution LIKE :institution AND bookingid = :bookingid', array('institution' => '%' . $urlParams['searchInstitution'] . '%', 'location' => '%' . $urlParams['searchLocation'] . '%', 'text' => '%' . $urlParams['searchText'] . '%', 'bookingid' => $bookingid));
+
     if ($options) {
         $answers = $DB->get_records('booking_answers', array('bookingid' => $bookingid), 'id');
 
         foreach ($options as $option) {
+
+            if ($view) {
+                foreach ($option as $key => $value) {
+                    if (in_array($key, $optionsChangeText)) {
+                        $option->{$key} = $tags->tag_replaces($option->{$key});
+                    }
+                }
+            }
+
             $booking->option[$option->id] = $option;
 
             if (!$option->coursestarttime == 0) {
