@@ -1194,12 +1194,22 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
         foreach ($uid as $ui) {
             $userData = $DB->get_record('booking_answers', array('optionid' => $optionid, 'userid' => $ui));
 
-            $userData->completed = '1';
+            if ($userData->completed == '1') {
+                $userData->completed = '0';
 
-            $DB->update_record('booking_answers', $userData);
+                $DB->update_record('booking_answers', $userData);
 
-            if ($completion->is_enabled($cm) && $booking->enablecompletion) {
-                $completion->update_state($cm, COMPLETION_COMPLETE, $ui);
+                if ($completion->is_enabled($cm) && $booking->enablecompletion) {
+                    $completion->update_state($cm, COMPLETION_INCOMPLETE, $ui);
+                }
+            } else {
+                $userData->completed = '1';
+
+                $DB->update_record('booking_answers', $userData);
+
+                if ($completion->is_enabled($cm) && $booking->enablecompletion) {
+                    $completion->update_state($cm, COMPLETION_COMPLETE, $ui);
+                }
             }
         }
     }
