@@ -1323,36 +1323,42 @@ function booking_send_notification($optionid, $subject) {
 
     $option = $DB->get_record('booking_options', array('id' => $optionid));
     $booking = $DB->get_record('booking', array('id' => $option->bookingid));
-    //$allusers = $DB->get_records('booking_answers', array('bookingid' => $option->bookingid, 'optionid' => $optionid));
 
     $cm = get_coursemodule_from_instance('booking', $booking->id);
 
     $bookinglist = booking_get_spreadsheet_data($booking, $cm);
-    $sortedusers = booking_user_status($option, $bookinglist[$optionid]);
-    $allusers = $sortedusers['booked'];
+    if (isset($bookinglist[$optionid])) {
+        $sortedusers = booking_user_status($option, $bookinglist[$optionid]);
+        $allusers = $sortedusers['booked'];
 
-    foreach ($allusers as $record) {
-        $ruser = $DB->get_record('user', array('id' => $record->id));
+        $tags = new booking_tags($cm);
+        $option = $tags->optionReplace($option);
 
-        $params = booking_generate_email_params($booking, $option, $ruser, $cm->id);
-        $pollurlmessage = booking_get_email_body($booking, 'notificationtext', 'notificationtextmessage', $params);
+        foreach ($allusers as $record) {
+            $ruser = $DB->get_record('user', array('id' => $record->id));
 
-        $eventdata = new stdClass();
-        $eventdata->modulename = 'booking';
-        $eventdata->userfrom = $USER;
-        $eventdata->userto = $ruser;
-        $eventdata->subject = $subject;
-        $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
-        $eventdata->fullmessageformat = FORMAT_HTML;
-        $eventdata->fullmessagehtml = $pollurlmessage;
-        $eventdata->smallmessage = '';
-        $eventdata->component = 'mod_booking';
-        $eventdata->name = 'bookingconfirmation';
+            $params = booking_generate_email_params($booking, $option, $ruser, $cm->id);
+            $pollurlmessage = booking_get_email_body($booking, 'notificationtext', 'notificationtextmessage', $params);
 
-        $returnVal = message_send($eventdata);
+            $eventdata = new stdClass();
+            $eventdata->modulename = 'booking';
+            $eventdata->userfrom = $USER;
+            $eventdata->userto = $ruser;
+            $eventdata->subject = $subject;
+            $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
+            $eventdata->fullmessageformat = FORMAT_HTML;
+            $eventdata->fullmessagehtml = $pollurlmessage;
+            $eventdata->smallmessage = '';
+            $eventdata->component = 'mod_booking';
+            $eventdata->name = 'bookingconfirmation';
+
+            $returnVal = message_send($eventdata);
+        }
+
+        return $returnVal;
+    } else {
+        return FALSE;
     }
-
-    return $returnVal;
 }
 
 function booking_delete_responses($attemptidsarray, $booking, $cmid) {
@@ -1454,8 +1460,6 @@ function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' =>
 
     $tags = new booking_tags($cm);
 
-    $optionsChangeText = array('text', 'description', 'location', 'institution', 'address');
-
     if ($sort == '') {
         $sort = 'id';
     }
@@ -1483,8 +1487,11 @@ function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' =>
         foreach ($options as $option) {
 
             if ($view) {
+                
+                $booking = $tags->bookingReplace($booking);
+                
                 foreach ($option as $key => $value) {
-                    if (in_array($key, $optionsChangeText)) {
+                    if (in_array($key, $tags->optionsChangeText)) {
                         $option->{$key} = $tags->tag_replaces($option->{$key});
                     }
                 }

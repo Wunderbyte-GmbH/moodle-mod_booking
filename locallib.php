@@ -897,38 +897,60 @@ class booking_tags {
     public $cm;
     public $tags;
     public $replaces;
+    public $optionsChangeText = array('text', 'description', 'location', 'institution', 'address');
+    public $bookingChangeText = array('name', 'intro', 'bookingpolicy', 'bookedtext', 'waitingtext', 'statuschangetext', 'deletedtext', 'duration', 'organizatorname', 'pollurltext', 'eventtype', 'notificationtext', 'userleave', 'pollurlteacherstext');
 
     public function __construct($cm) {
         global $DB;
-        
+
         $this->cm = $cm;
         $this->tags = $DB->get_records('booking_tags', array('courseid' => $this->cm->course));
         $this->replaces = $this->prepare_replaces();
     }
-    
+
     public function get_all_tags() {
         return $this->tags;
     }
-    
+
     private function prepare_replaces() {
-        
+
         $keys = array();
         $values = array();
-        
+
         foreach ($this->tags as $tag) {
             $keys[] = "[{$tag->tag}]";
             $values[] = $tag->text;
         }
-        
+
         return array('keys' => $keys, 'values' => $values);
     }
-    
+
     public function getReplaces() {
         return $this->replaces;
     }
-    
-    public function tag_replaces($text) {        
+
+    public function tag_replaces($text) {
         return str_replace($this->replaces['keys'], $this->replaces['values'], $text);
+    }
+
+    public function bookingReplace($booking) {
+       foreach ($booking as $key => $value) {
+            if (in_array($key, $this->bookingChangeText)) {
+                $booking->{$key} = $this->tag_replaces($booking->{$key});
+            }
+        }
+        
+        return $booking; 
+    }
+    
+    public function optionReplace($option) {
+        foreach ($option as $key => $value) {
+            if (in_array($key, $this->optionsChangeText)) {
+                $option->{$key} = $this->tag_replaces($option->{$key});
+            }
+        }
+        
+        return $option;
     }
 
 }
