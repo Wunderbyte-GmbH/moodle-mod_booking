@@ -120,6 +120,9 @@ if (!$download) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
             booking_sendpollurl($selectedusers, $booking, $cm->id, $optionid);
             redirect($url, get_string('allmailssend', 'booking'), 5);
+        } else if (isset($fromform->sendpollurlteachers) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
+            booking_sendpollurlteachers($booking, $cm->id, $optionid);
+            redirect($url, get_string('allmailssend', 'booking'), 5);            
         } else if (isset($fromform->sendcustommessage) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
             $selectedusers = array_keys($fromform->user, 1);
             $sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id' => $id, 'optionid' => $optionid, 'uids' => serialize($selectedusers)));
