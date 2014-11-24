@@ -66,13 +66,6 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $this->add_intro_editor(true, get_string('bookingtext', 'booking'));
 
-        // booking manager
-        $mform->addElement('text', 'bookingmanager', get_string('usernameofbookingmanager', 'booking'));
-        $mform->addHelpButton('bookingmanager', 'usernameofbookingmanager', 'booking');
-        $mform->setType('bookingmanager', PARAM_TEXT);
-        $mform->setDefault('bookingmanager', 'admin');
-        $mform->addRule('bookingmanager', null, 'required', null, 'client');
-        
         $mform->addElement('text', 'duration', get_string('bookingduration', 'booking'), array('size' => '64'));
         $mform->setType('duration', PARAM_TEXT);
 
@@ -97,7 +90,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $menuoptions[1] = get_string('enable');
 
         //default options for booking options
-        //$mform->addElement('header', '', get_string('defaultbookingoption', 'booking'));
+        $mform->addElement('header', 'limitanswer', get_string('defaultbookingoption', 'booking'));
 
         $mform->addElement('select', 'limitanswers', get_string('limitanswers', 'booking'), $menuoptions);
 
@@ -131,6 +124,11 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('sendmailtobooker', 'sendmailtobooker', 'booking');
 
         // booking manager
+        $mform->addElement('text', 'bookingmanager', get_string('usernameofbookingmanager', 'booking'));
+        $mform->addHelpButton('bookingmanager', 'usernameofbookingmanager', 'booking');
+        $mform->setType('bookingmanager', PARAM_TEXT);
+        $mform->setDefault('bookingmanager', 'admin');
+        $mform->addRule('bookingmanager', null, 'required', null, 'client');
 
         // Add the fields to allow editing of the default text:
         $context = context_system::instance();
