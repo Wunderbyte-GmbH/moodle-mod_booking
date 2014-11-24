@@ -38,7 +38,8 @@ if (!$context = context_module::instance($cm->id)) {
 if (!isset($optionid) or empty($optionid)) {
     print_error("Optionid is not correct or not set");
 }
-require_capability('mod/booking:updatebooking', $context);
+
+require_capability('mod/booking:communicate', $context);
 
 $default_values = new stdClass();
 $default_values->optionid = $optionid;
