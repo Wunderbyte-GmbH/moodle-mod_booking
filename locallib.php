@@ -1,6 +1,7 @@
 <?php
 
 require_once($CFG->dirroot . '/user/selector/lib.php');
+require_once("$CFG->dirroot/mod/newmodule/lib.php");
 
 /**
  * Standard base class for mod_booking
@@ -54,6 +55,12 @@ class booking {
         if ($this->course->groupmode !== 0 && !has_capability('moodle/site:accessallgroups', $this->context)) {
             $this->groupmembers = $this::booking_get_groupmembers($this->course->id);
         }
+    }
+
+    public function apply_tags() {
+        $tags = new booking_tags($this->cm);
+
+        $this->booking = $tags->bookingReplace($this->booking);
     }
 
     /**
@@ -298,15 +305,25 @@ class booking_options extends booking {
     /** @var boolean verify booked users against canbook users yes/no */
     protected $checkcanbookusers = true;
 
-    public function __construct($cmid, $checkcanbookusers = true) {
+    public function __construct($cmid, $checkcanbookusers = true, $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => '')) {
         global $DB;
 
         parent::__construct($cmid);
         $this->checkcanbookusers = $checkcanbookusers;
-        $this->options = $DB->get_records('booking_options', array('bookingid' => $this->id));
+        $this->options = $DB->get_records_sql('SELECT * FROM {booking_options} WHERE text LIKE :text AND location LIKE :location AND institution LIKE :institution AND bookingid = :bookingid', array('institution' => '%' . $urlParams['searchInstitution'] . '%', 'location' => '%' . $urlParams['searchLocation'] . '%', 'text' => '%' . $urlParams['searchText'] . '%', 'bookingid' => $this->id));
         $this->get_options_data();
         // call only when needed TODO
         $this->set_booked_visible_users();
+    }
+
+    public function apply_tags() {
+        parent::apply_tags();
+
+        $tags = new booking_tags($this->cm);
+
+        foreach ($this->options as $key => $value) {
+            $this->options[$key] = $tags->optionReplace($this->options[$key]);
+        }
     }
 
     /**
@@ -424,8 +441,10 @@ class booking_options extends booking {
         if (!empty($this->allbookedusers)) {
             if ($this->course->groupmode == 0 || has_capability('moodle/site:accessallgroups', $this->context)) {
                 foreach ($this->allbookedusers as $optionid => $optionusers) {
-                    foreach ($optionusers as $user) {
-                        $user->status[$optionid]->bookingvisible = true;
+                    if (isset($user->status[$optionid])) {
+                        foreach ($optionusers as $user) {
+                            $user->status[$optionid]->bookingvisible = true;
+                        }
                     }
                 }
             } else if (!empty($this->groupmembers)) {
@@ -934,22 +953,22 @@ class booking_tags {
     }
 
     public function bookingReplace($booking) {
-       foreach ($booking as $key => $value) {
+        foreach ($booking as $key => $value) {
             if (in_array($key, $this->bookingChangeText)) {
                 $booking->{$key} = $this->tag_replaces($booking->{$key});
             }
         }
-        
-        return $booking; 
+
+        return $booking;
     }
-    
+
     public function optionReplace($option) {
         foreach ($option as $key => $value) {
             if (in_array($key, $this->optionsChangeText)) {
                 $option->{$key} = $this->tag_replaces($option->{$key});
             }
         }
-        
+
         return $option;
     }
 

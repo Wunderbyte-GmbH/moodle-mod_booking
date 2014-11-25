@@ -12,7 +12,7 @@ require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->libdir . '/eventslib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 
-require_once('locallib.php');
+//require_once('locallib.php');
 
 $COLUMN_HEIGHT = 300;
 
@@ -50,6 +50,22 @@ function booking_cron() {
     mtrace('Ending cron for Booking ...');
 
     return true;
+}
+
+function booking_get_coursemodule_info($cm) {
+
+    global $CFG, $DB;   
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
+    
+    $tags = new booking_tags($cm);
+    $info = new cached_cm_info();
+
+    $booking = new booking($cm->id);
+    $booking->apply_tags();    
+    
+    $info->name = $booking->booking->name;
+    
+    return $info;
 }
 
 function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
@@ -619,12 +635,16 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
 
     $row = new html_table_row(array(get_string('booking', "booking"), $hidden . '<form><input value="' . $urlParams['searchText'] . '" type="text" name="searchText">', "", ""));
     $tabledata[] = $row;
+    $rowclasses[] = "";
     $row = new html_table_row(array(get_string('location', "booking"), $hidden . '<input value="' . $urlParams['searchLocation'] . '" type="text" name="searchLocation">', "", ""));
     $tabledata[] = $row;
+    $rowclasses[] = "";
     $row = new html_table_row(array(get_string('institution', "booking"), $hidden . '<input value="' . $urlParams['searchInstitution'] . '" type="text" name="searchInstitution">', "", ""));
     $tabledata[] = $row;
+    $rowclasses[] = "";
     $row = new html_table_row(array("", '<input type="submit" value="' . get_string('search') . '"></form>', "", ""));
     $tabledata[] = $row;
+    $rowclasses[] = "";
 
     $underlimit = ($booking->maxperuser == 0);
     $underlimit = $underlimit || (booking_get_user_booking_count($booking, $user, $allresponses) < $booking->maxperuser);
@@ -1456,10 +1476,9 @@ function booking_get_groupmodedata() {
  * @return object with $booking->option as an array for the booking option valus for each booking option
  */
 function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), $view = TRUE) {
-    global $DB;
-
-    $tags = new booking_tags($cm);
-
+    global $CFG, $DB;
+    require_once("$CFG->dirroot/mod/booking/locallib.php");    
+    
     if ($sort == '') {
         $sort = 'id';
     }
@@ -1477,25 +1496,18 @@ function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' =>
     $mainuserfields = user_picture::fields();
     $allresponses = get_users_by_capability($context, 'mod/booking:choose', $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
 
-    $booking = $DB->get_record("booking", array("id" => $bookingid));
+    $bookingObject = new booking_options($cm->id, TRUE, $urlParams);
 
-    $options = $DB->get_records_sql('SELECT * FROM {booking_options} WHERE text LIKE :text AND location LIKE :location AND institution LIKE :institution AND bookingid = :bookingid', array('institution' => '%' . $urlParams['searchInstitution'] . '%', 'location' => '%' . $urlParams['searchLocation'] . '%', 'text' => '%' . $urlParams['searchText'] . '%', 'bookingid' => $bookingid));
-
+    if ($view) {
+        $bookingObject->apply_tags();
+    }
+    
+    $booking = $bookingObject->booking;    
+    $options = $bookingObject->options;
     if ($options) {
         $answers = $DB->get_records('booking_answers', array('bookingid' => $bookingid), 'id');
 
         foreach ($options as $option) {
-
-            if ($view) {
-                
-                $booking = $tags->bookingReplace($booking);
-                
-                foreach ($option as $key => $value) {
-                    if (in_array($key, $tags->optionsChangeText)) {
-                        $option->{$key} = $tags->tag_replaces($option->{$key});
-                    }
-                }
-            }
 
             $booking->option[$option->id] = $option;
 

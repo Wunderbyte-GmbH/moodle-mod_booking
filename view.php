@@ -301,15 +301,31 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
     echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
    
     if ($action == 'mybooking') {
-        $message = "<a href=\"view.php?id=$cm->id&action=showall\">" . get_string('showallbookings', 'booking') . "</a> | <a href=\"view.php?id=$cm->id\">" . get_string('showactive', 'booking') . "</a>";
+        
+        $url = new moodle_url('/mod/booking/view.php', $urlParams);
+        $urlParams['action'] = 'showall';
+        $urlAll = new moodle_url('/mod/booking/view.php', $urlParams);
+        
+        $message = "<a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a> | <a href=\"$url\">" . get_string('showactive', 'booking') . "</a>";
         echo $OUTPUT->box($message, 'box mdl-align');
         booking_show_form($booking, $USER, $cm, $bookinglist, 1, $url, $urlParams);
     } else if ($action == 'showall') {
-        $message = "<a href=\"view.php?id=$cm->id&action=mybooking\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"view.php?id=$cm->id\">" . get_string('showactive', 'booking') . "</a>";
+        
+        $url = new moodle_url('/mod/booking/view.php', $urlParams);
+        $urlParams['action'] = 'mybooking';
+        $urlMy = new moodle_url('/mod/booking/view.php', $urlParams);
+        
+        $message = "<a href=\"$urlMy\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"$url\">" . get_string('showactive', 'booking') . "</a>";
         echo $OUTPUT->box($message, 'box mdl-align');
         booking_show_form($booking, $USER, $cm, $bookinglist, 0, $url, $urlParams);
     } else {
-        $message = "<a href=\"view.php?id=$cm->id&action=mybooking\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"view.php?id=$cm->id&action=showall\">" . get_string('showallbookings', 'booking') . "</a>";
+        
+        $urlParams['action'] = 'showall';
+        $urlAll = new moodle_url('/mod/booking/view.php', $urlParams);
+        $urlParams['action'] = 'mybooking';
+        $urlMy = new moodle_url('/mod/booking/view.php', $urlParams);
+        
+        $message = "<a href=\"$urlMy\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a>";
         echo $OUTPUT->box($message, 'box mdl-align');
         booking_show_form($booking, $USER, $cm, $bookinglist, 2, $url, $urlParams);
     }

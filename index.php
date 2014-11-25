@@ -91,6 +91,7 @@ foreach ($bookings as $booking) {
         //Show normal if the mod is visible
         $tt_href = "<a href=\"view.php?id=$booking->coursemodule\">" . format_string($booking->name, true) . "</a>";
     }
+
     if ($course->format == "weeks" || $course->format == "topics") {
         $table->data[] = array($printsection, $tt_href, $aa);
     } else {
