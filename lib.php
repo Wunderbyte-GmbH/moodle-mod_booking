@@ -1337,8 +1337,9 @@ function booking_sendcustommessage($optionid, $subject, $message, $uids) {
 }
 
 function booking_send_notification($optionid, $subject) {
-    global $DB, $USER;
-
+    global $DB, $USER, $CFG;
+    require_once("$CFG->dirroot/mod/booking/locallib.php");     
+    
     $returnVal = true;
 
     $option = $DB->get_record('booking_options', array('id' => $optionid));
@@ -1353,6 +1354,7 @@ function booking_send_notification($optionid, $subject) {
 
         $tags = new booking_tags($cm);
         $option = $tags->optionReplace($option);
+        $booking = $tags->bookingReplace($booking);        
 
         foreach ($allusers as $record) {
             $ruser = $DB->get_record('user', array('id' => $record->id));

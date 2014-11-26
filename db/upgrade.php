@@ -146,22 +146,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014012807, 'booking');
-    }
-
-    if ($oldversion < 2014020200) {
-
-        // Define field addtocalendar to be added to booking_options.
-        $table = new xmldb_table('booking');
-        $field = new xmldb_field('sendmailtobooker', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'maxperuser');
-
-        // Conditionally launch add field sendmailtobooker.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2014020200, 'booking');
-    }
+    }  
 
     if ($oldversion < 2014030600) {
 
@@ -570,6 +555,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014111900, 'booking');
     }
 
+    if ($oldversion < 2014112600) {
+
+        // Define field addtocalendar to be added to booking_options.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('sendmailtobooker', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'maxperuser');
+
+        // Conditionally launch add field sendmailtobooker.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014112600, 'booking');
+    }
 
     return true;
 }
