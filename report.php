@@ -18,24 +18,24 @@ $download = optional_param('download', '', PARAM_ALPHA);
 $action = optional_param('action', '', PARAM_ALPHANUM);
 $confirm = optional_param('confirm', '', PARAM_INT);
 
-$url = new moodle_url('/mod/booking/report.php', array('id'=>$id, 'optionid' => $optionid));
+$url = new moodle_url('/mod/booking/report.php', array('id' => $id, 'optionid' => $optionid));
 
 if ($action !== '') {
-	$url->param('action', $action);
+    $url->param('action', $action);
 }
 $PAGE->set_url($url);
 
-if (! $cm = get_coursemodule_from_id('booking', $id)) {
-	error("Course Module ID was incorrect");
+if (!$cm = get_coursemodule_from_id('booking', $id)) {
+    error("Course Module ID was incorrect");
 }
-if (! $course = $DB->get_record("course", array("id" => $cm->course))) {
-	print_error('coursemisconf');
+if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
+    print_error('coursemisconf');
 }
 
 require_course_login($course, false, $cm);
 
 if (!$booking = booking_get_booking($cm)) {
-	print_error("Course module is incorrect");
+    print_error("Course module is incorrect");
 }
 
 $context = context_module::instance($cm->id);
@@ -53,25 +53,25 @@ $strbookings = get_string("modulenameplural", "booking");
 $strresponses = get_string("responses", "booking");
 
 $event = \mod_booking\event\report_viewed::create(array(
-        'objectid' => $optionid,
-        'context' => context_module::instance($cm->id)
-));
+            'objectid' => $optionid,
+            'context' => context_module::instance($cm->id)
+        ));
 $event->trigger();
 
-if ($action == 'deletebookingoption' && $confirm == 1 && has_capability('mod/booking:updatebooking',$context) && confirm_sesskey()) {
-	booking_delete_booking_option($booking, $optionid); //delete booking_option
-	redirect("view.php?id=$cm->id");
-} elseif ($action == 'deletebookingoption' && has_capability('mod/booking:updatebooking',$context) && confirm_sesskey()) {
-	echo $OUTPUT->header();
-	$confirmarray['action'] = 'deletebookingoption';
-	$confirmarray['confirm'] = 1;
-	$confirmarray['optionid'] = $optionid;
-	$continue = $url;
-	$cancel = new moodle_url('/mod/booking/report.php', array('id'=>$id));
-	$continue->params($confirmarray);
-	echo $OUTPUT->confirm(get_string('confirmdeletebookingoption','booking'), $continue,$cancel);
-	echo $OUTPUT->footer();
-	die;
+if ($action == 'deletebookingoption' && $confirm == 1 && has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
+    booking_delete_booking_option($booking, $optionid); //delete booking_option
+    redirect("view.php?id=$cm->id");
+} elseif ($action == 'deletebookingoption' && has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
+    echo $OUTPUT->header();
+    $confirmarray['action'] = 'deletebookingoption';
+    $confirmarray['confirm'] = 1;
+    $confirmarray['optionid'] = $optionid;
+    $continue = $url;
+    $cancel = new moodle_url('/mod/booking/report.php', array('id' => $id));
+    $continue->params($confirmarray);
+    echo $OUTPUT->confirm(get_string('confirmdeletebookingoption', 'booking'), $continue, $cancel);
+    echo $OUTPUT->footer();
+    die;
 }
 $bookinglist = booking_get_spreadsheet_data($booking, $cm);
 $PAGE->navbar->add($strresponses);
@@ -97,23 +97,14 @@ if (!$download) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
             booking_delete_responses($selectedusers, $booking, $cm->id); //delete responses.
             redirect($url);
-        } else if (isset($fromform->subscribetocourse) && confirm_sesskey()) { // subscription submitted - confirm it
-            $selectedusers = array_keys($fromform->user, 1);
-            foreach ($selectedusers as $selecteduserid) {
-                $straddselect = "addselect[$selecteduserid]";
-                $confirmarray[$straddselect] = $selecteduserid;
-            }
-            $courseid = $DB->get_field('booking_options', 'courseid', array('id' => $optionid));
-            $enrolid = $DB->get_field('enrol', 'id', array('courseid' => $courseid, 'enrol' => 'manual'));
-            $courseshortname = $DB->get_field('course', 'shortname', array('id' => $courseid));
-            if ($courseid != 0) {
-                echo $OUTPUT->header();
-                $continue = new moodle_url($CFG->wwwroot . '/enrol/manual/manage.php', array('id' => $courseid, 'enrolid' => $enrolid, 'add' => 1, 'sesskey' => $USER->sesskey));
-                $continue->params($confirmarray);
-                $cancel = new moodle_url($url);
-                echo $OUTPUT->confirm(get_string('subscribeuser', 'booking') . ": " . $courseshortname . "?", $continue, $cancel);
+        } else if (isset($fromform->subscribetocourse) && confirm_sesskey()) { // subscription submitted            
+            if ($option->courseid != 0) {
+                foreach (array_keys($fromform->user, 1) as $selecteduserid) {
+                    booking_enrol_user($booking->option[$optionid], $booking, $selecteduserid);
+                }
+                redirect($url, get_string('userrssucesfullenroled', 'booking'), 5);
             } else {
-                error("No course selected for this booking option", "report.php?id=$cm->id");
+                redirect($url, get_string('nocourse', 'booking'), 5);
             }
             die;
         } else if (isset($fromform->sendpollurl) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
@@ -122,7 +113,7 @@ if (!$download) {
             redirect($url, get_string('allmailssend', 'booking'), 5);
         } else if (isset($fromform->sendpollurlteachers) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
             booking_sendpollurlteachers($booking, $cm->id, $optionid);
-            redirect($url, get_string('allmailssend', 'booking'), 5);            
+            redirect($url, get_string('allmailssend', 'booking'), 5);
         } else if (isset($fromform->sendcustommessage) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
             $selectedusers = array_keys($fromform->user, 1);
             $sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id' => $id, 'optionid' => $optionid, 'uids' => serialize($selectedusers)));
@@ -159,37 +150,37 @@ if (!$download) {
         }
 
 
-		/// Send HTTP headers
-		$workbook->send($filename);
-		/// Creating the first worksheet
-		$myxls = $workbook->add_worksheet($strresponses);
-		if ( $download =="ods"){
-			$cellformat = $workbook->add_format(array('bg_color' => 'white'));
-			$cellformat1 = $workbook->add_format(array('bg_color' => 'red'));
-		} else {
-			$cellformat = '';
-			$cellformat1 = $workbook->add_format(array('fg_color' => 'red'));
-		}
-		/// Print names of all the fields
-		$myxls->write_string(0,0,get_string("booking","booking"));
-		$myxls->write_string(0,1,get_string("user")." ".get_string("idnumber"));
-		$myxls->write_string(0,2,get_string("firstname"));
-		$myxls->write_string(0,3,get_string("lastname"));
-		$myxls->write_string(0,4,get_string("email"));
-		$i=5;
-		$addfields = explode(',', $booking->additionalfields);
-		$addquoted =  "'" . implode("','", $addfields) . "'";
-		if ($userprofilefields = $DB->get_records_select('user_info_field', 'id > 0 AND shortname IN (' . $addquoted . ')', array(), 'id', 'id, shortname, name' )){
-			foreach ($userprofilefields as $profilefield){
-				$myxls->write_string(0,$i++,$profilefield->name);
-			}
-		}
-		$myxls->write_string(0,$i++,get_string("group"));
-		/// generate the data for the body of the spreadsheet
-		$row=1;
+        /// Send HTTP headers
+        $workbook->send($filename);
+        /// Creating the first worksheet
+        $myxls = $workbook->add_worksheet($strresponses);
+        if ($download == "ods") {
+            $cellformat = $workbook->add_format(array('bg_color' => 'white'));
+            $cellformat1 = $workbook->add_format(array('bg_color' => 'red'));
+        } else {
+            $cellformat = '';
+            $cellformat1 = $workbook->add_format(array('fg_color' => 'red'));
+        }
+        /// Print names of all the fields
+        $myxls->write_string(0, 0, get_string("booking", "booking"));
+        $myxls->write_string(0, 1, get_string("user") . " " . get_string("idnumber"));
+        $myxls->write_string(0, 2, get_string("firstname"));
+        $myxls->write_string(0, 3, get_string("lastname"));
+        $myxls->write_string(0, 4, get_string("email"));
+        $i = 5;
+        $addfields = explode(',', $booking->additionalfields);
+        $addquoted = "'" . implode("','", $addfields) . "'";
+        if ($userprofilefields = $DB->get_records_select('user_info_field', 'id > 0 AND shortname IN (' . $addquoted . ')', array(), 'id', 'id, shortname, name')) {
+            foreach ($userprofilefields as $profilefield) {
+                $myxls->write_string(0, $i++, $profilefield->name);
+            }
+        }
+        $myxls->write_string(0, $i++, get_string("group"));
+        /// generate the data for the body of the spreadsheet
+        $row = 1;
 
-		if ($bookinglist && ($action == "all")) { // get list of all booking options
-			foreach ($bookinglist as $optionid => $optionvalue) {
+        if ($bookinglist && ($action == "all")) { // get list of all booking options
+            foreach ($bookinglist as $optionid => $optionvalue) {
 
                 $option_text = booking_get_option_text($booking, $optionid);
                 foreach ($bookinglist[$optionid] as $usernumber => $user) {

@@ -468,6 +468,8 @@ $string['downloadallresponses'] = 'Download all responses for all booking option
 $string['allmailssend'] = 'All emails to users have been sent sucesfully!';
 $string['sendcustommessage'] = 'Send custom message';
 $string['addteachers'] = 'Add teachers';
+$string['nocourse'] = 'No course selected for this booking option';
+$string['userrssucesfullenroled'] = 'All users has been sucesfully enroled!';
 
 // Send message
 $string['messagesubject'] = 'Subject';

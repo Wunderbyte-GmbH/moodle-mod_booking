@@ -137,6 +137,13 @@ class booking_option extends booking {
         $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', 'MUST_EXIST');
     }
 
+    public function apply_tags() {
+        parent::apply_tags();
+
+        $tags = new booking_tags($this->cm);
+        $this->option = $tags->optionReplace($this->option);
+    }
+
     /**
      * Updates canbookusers and bookedusers does not check the status (booked or waitinglist)
      * Just gets the registered booking from database
@@ -906,11 +913,66 @@ class booking_existing_user_selector extends booking_user_selector_base {
 }
 
 /**
+ * Utils
+ * @package mod-booking
+ * @copyright 2014 Andraž Prinčič
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * */
+class booking_utils {
+
+    /**
+     * Create or update new group and return id of group.
+     *
+     * @param object $booking
+     * @param object $option
+     * @return int
+     */
+    public function group($booking, $option) {
+
+        global $DB;
+        
+        if ($booking->addtogroup == 1 && $option->courseid > 0) {
+
+            $cm = get_coursemodule_from_instance('booking', $booking->id);
+
+            $tags = new booking_tags($cm);
+            $booking = $tags->bookingReplace($booking);
+            $option = $tags->optionReplace($option);
+
+            $newGroupData = new stdClass();
+
+            if (isset($option->id)) {
+                $groupid = $DB->get_field('booking_options', 'groupid', array('id' => $option->id));
+
+                if (!is_null($groupid) && ($groupid > 0)) {
+                    $newGroupData->id = $groupid;
+                }
+
+                $newGroupData->courseid = $option->courseid;
+                $newGroupData->name = $booking->name . ' - ' . $option->text . ' - ' . $option->id;
+                $newGroupData->description = $booking->name . ' - ' . $option->text;
+                $newGroupData->descriptionformat = FORMAT_HTML;
+
+                if (isset($newGroupData->id)) {
+                    groups_update_group($newGroupData);
+                    return $newGroupData->id;
+                } else {
+                    return groups_create_group($newGroupData);
+                }
+            }
+        } else {
+            return 0;
+        }
+    }
+
+}
+
+/**
  * Tags templates
  * @package mod-booking
  * @copyright 2014 Andraž Prinčič
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+ * */
 class booking_tags {
 
     public $cm;

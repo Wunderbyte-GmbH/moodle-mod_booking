@@ -54,17 +54,17 @@ function booking_cron() {
 
 function booking_get_coursemodule_info($cm) {
 
-    global $CFG, $DB;   
+    global $CFG, $DB;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
-    
+
     $tags = new booking_tags($cm);
     $info = new cached_cm_info();
 
     $booking = new booking($cm->id);
-    $booking->apply_tags();    
-    
+    $booking->apply_tags();
+
     $info->name = $booking->booking->name;
-    
+
     return $info;
 }
 
@@ -300,8 +300,11 @@ function booking_update_instance($booking) {
 }
 
 function booking_update_options($optionvalues) {
-    global $DB;
+    global $DB, $CFG;
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
 
+    $bokingUtils = new booking_utils();
+    
     $booking = $DB->get_record('booking', array('id' => $optionvalues->bookingid));
 
     $option = new stdClass();
@@ -318,7 +321,7 @@ function booking_update_options($optionvalues) {
     $option->pollurl = $optionvalues->pollurl;
     $option->pollurlteachers = $optionvalues->pollurlteachers;
     if ($optionvalues->limitanswers == 0) {
-        $optionvalues->limitanswers = 0;
+        $option->limitanswers = 0;
         $option->maxanswers = 0;
         $option->maxoverbooking = 0;
     } else {
@@ -357,25 +360,7 @@ function booking_update_options($optionvalues) {
                 $option->sent = $DB->get_field('booking_options', 'sent', array('id' => $option->id));
             }
 
-            // We must create new group
-            if ($booking->addtogroup == 1) {
-                $newGroupData = new stdClass();
-                if (!is_null($groupid) && ($groupid > 0)) {
-                    $newGroupData->id = $groupid;
-                }
-                $newGroupData->courseid = $option->courseid;
-                $newGroupData->name = $booking->name . ' - ' . $option->text;
-                $newGroupData->description = $booking->name . ' - ' . $option->text;
-                $newGroupData->descriptionformat = FORMAT_HTML;
-
-                if (!is_null($groupid) && ($groupid > 0)) {
-                    groups_update_group($newGroupData);
-                } else {
-                    $option->groupid = groups_create_group($newGroupData);
-                }
-            } else {
-                $option->groupid = 0;
-            }
+            $option->groupid = $bokingUtils->group($booking, $option);
 
             $whereis = '';
             if (strlen($option->location) > 0) {
@@ -480,18 +465,7 @@ function booking_update_options($optionvalues) {
             $option->addtocalendar = $optionvalues->addtocalendar;
         }
 
-        // We must create new group
-        if ($booking->addtogroup == 1) {
-            $newGroupData = new stdClass();
-            $newGroupData->courseid = $option->courseid;
-            $newGroupData->name = $booking->name . ' - ' . $option->text;
-            $newGroupData->description = $booking->name . ' - ' . $option->text;
-            $newGroupData->descriptionformat = FORMAT_HTML;
-
-            $option->groupid = groups_create_group($newGroupData);
-        } else {
-            $option->groupid = 0;
-        }
+        $option->groupid = $bokingUtils->group($booking, $option);
 
         return $DB->insert_record("booking_options", $option);
     }
@@ -932,6 +906,42 @@ function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm
 }
 
 /**
+ * Manualy enrol the user in the relevant course, if that setting is on and a
+ * course has been specified.
+ * @param object $option
+ * @param object $booking
+ * @param int $userid
+ */
+function booking_enrol_user($option, $booking, $userid) {
+    global $DB;
+
+    if (!$option->courseid) {
+        return; // No course specified.
+    }
+
+    if (!enrol_is_enabled('manual')) {
+        return; // Manual enrolment not enabled.
+    }
+
+    if (!$enrol = enrol_get_plugin('manual')) {
+        return; // No manual enrolment plugin
+    }
+    if (!$instances = $DB->get_records('enrol', array('enrol' => 'manual', 'courseid' => $option->courseid, 'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
+        return; // No manual enrolment instance on this course.
+    }
+
+    if ($booking->addtogroup == 1) {
+        if (!is_null($option->groupid) && ($option->groupid > 0)) {
+            groups_add_member($option->groupid, $userid);
+        }
+    }
+
+    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
+
+    $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.	
+}
+
+/**
  * Automatically enrol the user in the relevant course, if that setting is on and a
  * course has been specified.
  * @param object $option
@@ -1338,8 +1348,8 @@ function booking_sendcustommessage($optionid, $subject, $message, $uids) {
 
 function booking_send_notification($optionid, $subject) {
     global $DB, $USER, $CFG;
-    require_once("$CFG->dirroot/mod/booking/locallib.php");     
-    
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
+
     $returnVal = true;
 
     $option = $DB->get_record('booking_options', array('id' => $optionid));
@@ -1354,7 +1364,7 @@ function booking_send_notification($optionid, $subject) {
 
         $tags = new booking_tags($cm);
         $option = $tags->optionReplace($option);
-        $booking = $tags->bookingReplace($booking);        
+        $booking = $tags->bookingReplace($booking);
 
         foreach ($allusers as $record) {
             $ruser = $DB->get_record('user', array('id' => $record->id));
@@ -1479,8 +1489,8 @@ function booking_get_groupmodedata() {
  */
 function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), $view = TRUE) {
     global $CFG, $DB;
-    require_once("$CFG->dirroot/mod/booking/locallib.php");    
-    
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
+
     if ($sort == '') {
         $sort = 'id';
     }
@@ -1503,8 +1513,8 @@ function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' =>
     if ($view) {
         $bookingObject->apply_tags();
     }
-    
-    $booking = $bookingObject->booking;    
+
+    $booking = $bookingObject->booking;
     $options = $bookingObject->options;
     if ($options) {
         $answers = $DB->get_records('booking_answers', array('bookingid' => $bookingid), 'id');
