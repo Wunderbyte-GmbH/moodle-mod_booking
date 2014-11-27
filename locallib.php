@@ -370,7 +370,7 @@ class booking_options extends booking {
             } else {
                 $validresponses = $rawresponses;
             }
-            foreach ($validresponses as &$response) {
+            foreach ($validresponses as $response) {
                 $bookinglist[$response->optionid][] = $response;
                 $optionids[$response->optionid] = $response->optionid;
             }
@@ -436,7 +436,7 @@ class booking_options extends booking {
         return $mybookings;
     }
 
-    public static function booking_set_visiblefalse(&$item1, $key) {
+    public static function booking_set_visiblefalse($item1, $key) {
         $item1->bookingvisible = false;
     }
 
@@ -518,7 +518,7 @@ class booking_all_bookings {
                     cm.section = cw.id AND
                     md.id = cm.module";
             $this->subscribeprivilegeinstances = $DB->get_records_sql($sql);
-            $this->mybookinginstances = &$this->subscribeprivilegeinstances;
+            $this->mybookinginstances = $this->subscribeprivilegeinstances;
             foreach ($this->subscribeprivilegeinstances as $bookinginstance) {
                 $this->courseswithbookings[$bookinginstance->course][] = $bookinginstance->instance;
             }
@@ -619,7 +619,7 @@ class booking_all_bookings {
         foreach ($emptybookings as $bookingid) {
             unset($this->allbookings[$bookingid]);
         }
-        foreach ($this->allbookings as $bookingid => &$bookinginstance) {
+        foreach ($this->allbookings as $bookingid => $bookinginstance) {
             $nouservisible = true;
             foreach ($bookinginstance->allbookedusers as $optionid => $users) {
                 foreach ($users as $sortorder => $user) {
@@ -927,9 +927,11 @@ class booking_utils {
      * @param object $option
      * @return int
      */
-    public function group($booking, $option) {
-
+    public function group($bookingtmp = NULL, $optiontmp = NULL) {        
         global $DB;
+                        
+        $booking = clone $bookingtmp;
+        $option = clone $optiontmp;
         
         if ($booking->addtogroup == 1 && $option->courseid > 0) {
 
@@ -938,7 +940,6 @@ class booking_utils {
             $tags = new booking_tags($cm);
             $booking = $tags->bookingReplace($booking);
             $option = $tags->optionReplace($option);
-
             $newGroupData = new stdClass();
 
             if (isset($option->id)) {
@@ -974,13 +975,15 @@ class booking_utils {
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * */
 class booking_tags {
-
+    
     public $cm;
     public $tags;
     public $replaces;
     public $optionsChangeText = array('text', 'description', 'location', 'institution', 'address');
     public $bookingChangeText = array('name', 'intro', 'bookingpolicy', 'bookedtext', 'waitingtext', 'statuschangetext', 'deletedtext', 'duration', 'organizatorname', 'pollurltext', 'eventtype', 'notificationtext', 'userleave', 'pollurlteacherstext');
 
+    private $option;
+    
     public function __construct($cm) {
         global $DB;
 
@@ -1014,7 +1017,8 @@ class booking_tags {
         return str_replace($this->replaces['keys'], $this->replaces['values'], $text);
     }
 
-    public function bookingReplace($booking) {
+    public function bookingReplace($bookingtmp = NULL) {
+        $booking = clone $bookingtmp;
         foreach ($booking as $key => $value) {
             if (in_array($key, $this->bookingChangeText)) {
                 $booking->{$key} = $this->tag_replaces($booking->{$key});
@@ -1024,14 +1028,15 @@ class booking_tags {
         return $booking;
     }
 
-    public function optionReplace($option) {
-        foreach ($option as $key => $value) {
+    public function optionReplace($option = NULL) {  
+        $this->option = clone $option;
+        foreach ($this->option as $key => $value) {
             if (in_array($key, $this->optionsChangeText)) {
-                $option->{$key} = $this->tag_replaces($option->{$key});
+                $this->option->{$key} = $this->tag_replaces($this->option->{$key});
             }
         }
-
-        return $option;
+        
+        return $this->option;
     }
 
 }

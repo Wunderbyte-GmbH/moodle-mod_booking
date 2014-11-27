@@ -46,8 +46,6 @@ if (!(booking_check_if_teacher($option, $USER) || has_capability('mod/booking:re
     require_capability('mod/booking:readresponses', $context);
 }
 
-$url = new moodle_url('/mod/booking/report.php', array('id' => $id, 'optionid' => $optionid));
-
 $strbooking = get_string("modulename", "booking");
 $strbookings = get_string("modulenameplural", "booking");
 $strresponses = get_string("responses", "booking");
@@ -129,6 +127,7 @@ if (!$download) {
     } else {
         echo $OUTPUT->header();
     }
+
     $mform->display();
     echo $OUTPUT->footer();
 } else {

@@ -22,7 +22,7 @@ if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
-
+                
 if (!$booking = booking_get_booking($cm, '', array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), FALSE)) {
     error("Course module is incorrect");
 }
@@ -39,8 +39,6 @@ if (!isset($optionid) or empty($optionid)) {
     print_error("Optionid is not correct or not set");
 }
 require_capability('mod/booking:updatebooking', $context);
-
-
 
 $mform = new mod_booking_bookingform_form();
 
@@ -76,7 +74,9 @@ if ($mform->is_cancelled()) {
         if (!isset($fromform->daystonotify)) {
             $fromform->daystonotify = 0;
         }
+
         booking_update_options($fromform);
+
         if (isset($fromform->submittandaddnew)) {
             $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add'));
             redirect($redirecturl, get_string('changessaved'), 0);
