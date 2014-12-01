@@ -11,24 +11,7 @@ class mod_booking_manageusers_form extends moodleform {
         $cm = $this->_customdata['cm'];
 
         // visible elements
-        $mform->addElement('header', '', $this->_customdata['bookingdata']->text);
-        //display booking option name and the link to the associated course if there is one
-
-        $mform->addElement('html', '  <a href="editoptions.php?id=' . $this->_customdata['bookingdata']->cmid . '&optionid=' . $this->_customdata['bookingdata']->id . '">' . get_string('updatebooking', 'booking') . '</a>');
-        $mform->addElement('html', ' | <a href="report.php?id=' . $this->_customdata['bookingdata']->cmid . '&optionid=' . $this->_customdata['bookingdata']->id . '&action=deletebookingoption&sesskey=' . sesskey() . '">' . get_string('deletebookingoption', 'booking') . '</a>');
-
-        $downloadoptions = array('id' => $this->_customdata['bookingdata']->cmid, 'action' => $this->_customdata['bookingdata']->id, 'download' => 'ods', 'optionid' => $this->_customdata['bookingdata']->id);
-        $odsurl = new moodle_url('report.php', $downloadoptions);
-        $mform->addElement('html', ' | <a href="' . $odsurl . '">' . get_string('downloadusersforthisoptionods', 'booking') . '</a>');
-        $downloadoptions['download'] = 'xls';
-        $xlsurl = new moodle_url('report.php', $downloadoptions);
-        $mform->addElement('html', ' | <a href="' . $xlsurl . '">' . get_string('downloadusersforthisoptionxls', 'booking') . '</a><br />');
-
-        if ($this->_customdata['bookingdata']->courseid != 0) {
-            $mform->addElement('html', '<span>' . get_string('associatedcourse', 'booking') . ': <a href="' . $this->_customdata['bookingdata']->courseurl . '">' . $this->_customdata['bookingdata']->urltitle . '</a></span><br /><br />');
-        }
-
-
+        // 
         //add all booked users to form
         $mform->addElement('html', '<div>' . get_string('bookedusers', 'booking') . ':</div><div style="background-color: lightgreen;">');
 

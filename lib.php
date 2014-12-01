@@ -1640,11 +1640,20 @@ function booking_reset_userdata($data) {
  * @param $booking booking object
  * @return array sorted list by booking date of all users, booking option as key
  */
-function booking_get_spreadsheet_data($booking, $cm) {
+function booking_get_spreadsheet_data($booking, $cm, $filters = array('searchName' => '', 'searchSurname' => '', 'searchDate' => '', 'searchFinished' => '')) {
     global $CFG, $USER, $DB;
     $bookinglistsorted = array();
-//	$context = get_context_instance(CONTEXT_MODULE, $cm->id);
     $context = context_module::instance($cm->id);
+
+    $options = "bookingid = {$booking->id}";
+    
+    if (strlen($filters['searchFinished']) > 0) {
+        $options .= " AND completed = {$filters['searchFinished']}";
+    }    
+    
+    if (isset($filters['searchDate']) && $filters['searchDate'] == 1) {
+        $options .= " AND FROM_UNIXTIME(timecreated, '%Y') = '{$filters['searchDateYear']}' AND FROM_UNIXTIME(timecreated, '%m') = '{$filters['searchDateMonth']}' AND FROM_UNIXTIME(timecreated, '%d') = '{$filters['searchDateDay']}'";
+    }    
 
     /// Initialise the returned array, which is a matrix:  $allresponses[responseid][userid] = responseobject
     $allresponses = array();
@@ -1653,17 +1662,33 @@ function booking_get_spreadsheet_data($booking, $cm) {
 
     /// First get all the users who have access here
     $mainuserfields = user_picture::fields();
-    $allresponses = get_users_by_capability($context, 'mod/booking:choose', $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
-    //$allresponses = get_users_by_capability($context, 'mod/booking:choose', 'u.id, u.picture, u.firstname, u.lastname, u.idnumber, u.email', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
+    $allresponses = get_users_by_capability($context, 'mod/booking:choose', $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);    
     /// Get all the recorded responses for this booking
-    $rawresponses = $DB->get_records('booking_answers', array('bookingid' => $booking->id), "optionid, timemodified ASC");
+    $rawresponses = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE ' . $options . ' ORDER BY optionid, timemodified ASC', array());
     $optionids = $DB->get_records_select('booking_options', "bookingid = $booking->id", array(), 'id', 'id');
     /// Use the responses to move users into the correct column
     $sortnumber = 1;
     if ($rawresponses) {
         foreach ($rawresponses as $response) {
             if (isset($allresponses[$response->userid])) {   // This person is enrolled and in correct group
-                $bookinglist[$response->optionid][$sortnumber++] = $allresponses[$response->userid];
+                
+                $add = TRUE;
+                
+                if (strlen($filters['searchName']) > 0) {
+                    if (stripos($allresponses[$response->userid]->firstname, $filters['searchName']) === FALSE) {
+                        $add = FALSE;
+                    }
+                }
+                
+                if (strlen($filters['searchSurname']) > 0) {
+                    if (stripos($allresponses[$response->userid]->lastname, $filters['searchSurname']) === FALSE) {
+                        $add = FALSE;
+                    }
+                }
+                
+                if ($add) {
+                    $bookinglist[$response->optionid][$sortnumber++] = $allresponses[$response->userid];
+                }
             }
         }
     }

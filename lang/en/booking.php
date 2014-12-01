@@ -470,6 +470,12 @@ $string['sendcustommessage'] = 'Send custom message';
 $string['addteachers'] = 'Add teachers';
 $string['nocourse'] = 'No course selected for this booking option';
 $string['userrssucesfullenroled'] = 'All users has been sucesfully enroled!';
+$string['searchName'] = 'Name';
+$string['searchSurname'] = 'Surname';
+$string['searchDate'] = 'Date';
+$string['searchFinished'] = 'Course completed';
+$string['yes'] = 'Yes';
+$string['no'] = 'No';
 
 // Send message
 $string['messagesubject'] = 'Subject';

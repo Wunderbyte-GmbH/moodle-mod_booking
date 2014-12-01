@@ -18,10 +18,64 @@ $download = optional_param('download', '', PARAM_ALPHA);
 $action = optional_param('action', '', PARAM_ALPHANUM);
 $confirm = optional_param('confirm', '', PARAM_INT);
 
+// Search 
+$searchName = optional_param('searchName', '', PARAM_TEXT);
+$searchSurname = optional_param('searchSurname', '', PARAM_TEXT);
+$searchDate = optional_param('searchDate', '', PARAM_TEXT);
+$searchDateDay = optional_param('searchDateDay', '', PARAM_TEXT);
+$searchDateMonth = optional_param('searchDateMonth', '', PARAM_TEXT);
+$searchDateYear = optional_param('searchDateYear', '', PARAM_TEXT);
+$searchFinished = optional_param('searchFinished', '', PARAM_TEXT);
+
+$urlParams = array();
+$urlParams['id'] = $id;
+$urlParams['optionid'] = $optionid;
+
+$urlParams['searchName'] = "";
+if (strlen($searchName) > 0) {
+    $urlParams['searchName'] = $searchName;
+}
+
+$urlParams['searchSurname'] = "";
+if (strlen($searchSurname) > 0) {
+    $urlParams['searchSurname'] = $searchSurname;
+}
+
+$timestamp = time();
+
+$urlParams['searchDateDay'] = "";
+if (strlen($searchDateDay) > 0) {
+    $urlParams['searchDateDay'] = $searchDateDay;
+}
+
+$urlParams['searchDateMonth'] = "";
+if (strlen($searchDateMonth) > 0) {
+    $urlParams['searchDateMonth'] = $searchDateMonth;
+}
+
+$urlParams['searchDateYear'] = "";
+if (strlen($searchDateYear) > 0) {
+    $urlParams['searchDateYear'] = $searchDateYear;
+}
+
+$checked = FALSE;
+$urlParams['searchDate'] = "";
+if ($searchDate == 1) {
+    $urlParams['searchDate'] = $searchDate;
+    $checked = TRUE;
+    $timestamp = strtotime("{$urlParams['searchDateDay']}-{$urlParams['searchDateMonth']}-{$urlParams['searchDateYear']}");
+}
+
+$urlParams['searchFinished'] = "";
+if (strlen($searchFinished) > 0) {
+    $urlParams['searchFinished'] = $searchFinished;
+}
+
 $url = new moodle_url('/mod/booking/report.php', array('id' => $id, 'optionid' => $optionid));
 
 if ($action !== '') {
     $url->param('action', $action);
+    $urlParams['action'] = $action;
 }
 $PAGE->set_url($url);
 
@@ -71,7 +125,7 @@ if ($action == 'deletebookingoption' && $confirm == 1 && has_capability('mod/boo
     echo $OUTPUT->footer();
     die;
 }
-$bookinglist = booking_get_spreadsheet_data($booking, $cm);
+$bookinglist = booking_get_spreadsheet_data($booking, $cm, $urlParams);
 $PAGE->navbar->add($strresponses);
 $PAGE->set_title(format_string($booking->name) . ": $strresponses");
 $PAGE->set_heading($course->fullname);
@@ -127,6 +181,51 @@ if (!$download) {
     } else {
         echo $OUTPUT->header();
     }
+
+    echo $OUTPUT->heading($booking->option[$optionid]->text, 4, '', '');
+
+    echo html_writer::link(new moodle_url('/mod/booking/editoptions.php', array('id' => $booking->option[$optionid]->cmid, 'optionid' => $booking->option[$optionid]->id)), get_string('updatebooking', 'booking'), array()) .
+    ' | ' .
+    html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $booking->option[$optionid]->cmid, 'optionid' => $booking->option[$optionid]->id, 'action' => 'deletebookingoption', 'sesskey' => sesskey())), get_string('deletebookingoption', 'booking'), array()) .
+    ' | ' .
+    html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $booking->option[$optionid]->cmid, 'action' => $booking->option[$optionid]->id, 'download' => 'ods', 'optionid' => $booking->option[$optionid]->id)), get_string('downloadusersforthisoptionods', 'booking'), array()) .
+    ' | ' .
+    html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $booking->option[$optionid]->cmid, 'action' => $booking->option[$optionid]->id, 'download' => 'xls', 'optionid' => $booking->option[$optionid]->id)), get_string('downloadusersforthisoptionods', 'booking'), array());
+
+    if ($booking->option[$optionid]->courseid != 0) {
+        echo '<br>' . html_writer::start_span('') . get_string('associatedcourse', 'booking') . ': ' . html_writer::link(new moodle_url($booking->option[$optionid]->courseurl, array()), $booking->option[$optionid]->urltitle, array()) . html_writer::end_span() . '<br><br>';
+    }
+
+    $hidden = "";
+
+    foreach ($urlParams as $key => $value) {
+        if (!in_array($key, array('searchName', 'searchSurname', 'searchDate', 'searchFinished'))) {
+            $hidden .= '<input value="' . $value . '" type="hidden" name="' . $key . '">';
+        }
+    }
+
+    $row = new html_table_row(array(get_string('searchName', "booking"), '<form>' . $hidden . '<input value="' . $urlParams['searchName'] . '" type="text" name="searchName">', "", ""));
+    $tabledata[] = $row;
+    $rowclasses[] = "";
+    $row = new html_table_row(array(get_string('searchSurname', "booking"), '<input value="' . $urlParams['searchSurname'] . '" type="text" name="searchSurname">', "", ""));
+    $tabledata[] = $row;
+    $rowclasses[] = "";
+    $row = new html_table_row(array(get_string('searchDate', "booking"), html_writer::checkbox('searchDate', '1', $checked) . html_writer::select_time('days', 'searchDateDay', $timestamp, 5) . ' ' . html_writer::select_time('months', 'searchDateMonth', $timestamp, 5) . ' ' . html_writer::select_time('years', 'searchDateYear', $timestamp, 5), "", ""));
+    $tabledata[] = $row;
+    $rowclasses[] = "";    
+
+    $row = new html_table_row(array(get_string('searchFinished', "booking"), html_writer::select(array('0' => get_string('no', "booking"), '1' => get_string('yes', "booking")), 'searchFinished', $urlParams['searchFinished']), "", ""));
+    $tabledata[] = $row;
+    $rowclasses[] = "";
+
+    $row = new html_table_row(array("", '<input type="submit" value="' . get_string('search') . '"></form>', "", ""));
+    $tabledata[] = $row;
+    $rowclasses[] = "";
+
+    $table = new html_table();
+    $table->head = array('', '', '');
+    $table->data = $tabledata;
+    echo html_writer::table($table);
 
     $mform->display();
     echo $OUTPUT->footer();
@@ -211,7 +310,6 @@ if (!$download) {
                             $ug2 = $ug2 . $ug->name;
                         }
                     }
-                    //$myxls->write_string($row,12,$ug2);
                     $row++;
                     $pos = 4;
                 }
