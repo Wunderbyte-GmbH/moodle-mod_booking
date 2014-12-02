@@ -306,7 +306,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $urlParams['action'] = 'showall';
         $urlAll = new moodle_url('/mod/booking/view.php', $urlParams);
         
-        $message = "<a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a> | <a href=\"$url\">" . get_string('showactive', 'booking') . "</a>";
+        $message = "<a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a> | <a href=\"$url\">" . get_string('showactive', 'booking') . "</a> | " . '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
         echo $OUTPUT->box($message, 'box mdl-align');
         booking_show_form($booking, $USER, $cm, $bookinglist, 1, $url, $urlParams);
     } else if ($action == 'showall') {
@@ -315,7 +315,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $urlParams['action'] = 'mybooking';
         $urlMy = new moodle_url('/mod/booking/view.php', $urlParams);
         
-        $message = "<a href=\"$urlMy\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"$url\">" . get_string('showactive', 'booking') . "</a>";
+        $message = "<a href=\"$urlMy\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"$url\">" . get_string('showactive', 'booking') . "</a> | " . '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
         echo $OUTPUT->box($message, 'box mdl-align');
         booking_show_form($booking, $USER, $cm, $bookinglist, 0, $url, $urlParams);
     } else {
@@ -325,7 +325,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $urlParams['action'] = 'mybooking';
         $urlMy = new moodle_url('/mod/booking/view.php', $urlParams);
         
-        $message = "<a href=\"$urlMy\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a>";
+        $message = "<a href=\"$urlMy\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a> | " . '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
         echo $OUTPUT->box($message, 'box mdl-align');
         booking_show_form($booking, $USER, $cm, $bookinglist, 2, $url, $urlParams);
     }
@@ -355,3 +355,18 @@ if (has_capability('mod/booking:updatebooking', $context)) {
 echo $OUTPUT->box("<a href=\"http://www.edulabs.org\">" . get_string('createdby', 'booking') . "</a>", 'box mdl-align');
 echo $OUTPUT->footer();
 ?>
+
+<script type="text/javascript">
+YUI().use('node', function(Y) {
+    Y.delegate('click', function(e) {
+        var buttonID = e.currentTarget.get('id'),
+            node = Y.one('#tableSearch');
+
+        if (buttonID === 'showHideSearch') {
+            node.toggleView();
+            e.preventDefault();
+        }
+
+    }, document, 'a');
+});
+</script>

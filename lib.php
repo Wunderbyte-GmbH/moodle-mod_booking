@@ -590,7 +590,6 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
         $waitingfull = true;
     }
 
-    //$context = get_context_instance(CONTEXT_MODULE, $cm->id);
     $context = context_module::instance($cm->id);
     $table = NULL;
     $displayoptions = new stdClass();
@@ -606,7 +605,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
             $hidden .= '<input value="' . $value . '" type="hidden" name="' . $key . '">';
         }
     }
-
+       
     $row = new html_table_row(array(get_string('booking', "booking"), $hidden . '<form><input value="' . $urlParams['searchText'] . '" type="text" name="searchText">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
@@ -620,6 +619,20 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
     $tabledata[] = $row;
     $rowclasses[] = "";
 
+    $table = new html_table();
+    $table->head = array('', '', '');
+    $table->data = $tabledata;
+    $table->id = "tableSearch";
+    $table->attributes = array('style' => "display: none;");
+    echo html_writer::table($table);
+    
+    $table = NULL;
+    $displayoptions = new stdClass();
+    $displayoptions->para = false;
+    $tabledata = array();
+    $current = array();
+    $rowclasses = array();
+    
     $underlimit = ($booking->maxperuser == 0);
     $underlimit = $underlimit || (booking_get_user_booking_count($booking, $user, $allresponses) < $booking->maxperuser);
 
@@ -726,11 +739,9 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
                     $optiondisplay->manage = "<a href=\"report.php?id=$cm->id&optionid=$option->id\">" . get_string("viewallresponses", "booking", $numberofresponses) . "</a>";
                 } else {
                     $optiondisplay->manage = "";
-                } if (has_capability('mod/booking:subscribeusers', $context)) {
-                    $optiondisplay->bookotherusers = "<a href=\"subscribeusers.php?id=$cm->id&optionid=$option->id\">" . get_string("bookotherusers", "booking") . "</a>";
-                } else {
-                    $optiondisplay->bookotherusers = "";
-                }
+                } 
+                
+                $optiondisplay->bookotherusers = "";                
 
                 $cTeachers = $DB->count_records("booking_teachers", array("optionid" => $option->id, 'bookingid' => $option->bookingid));
                 $teachers = $DB->get_records("booking_teachers", array("optionid" => $option->id, 'bookingid' => $option->bookingid));

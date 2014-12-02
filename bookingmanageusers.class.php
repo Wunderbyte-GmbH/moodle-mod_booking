@@ -32,7 +32,7 @@ class mod_booking_manageusers_form extends moodleform {
                 }
 
                 $mform->addElement('html', '<tr><td class="attemptcell">');
-                $mform->addElement('advcheckbox', "user[$user->id]", '', null, array('group' => $this->_customdata['bookingdata']->id + 1));
+                $mform->addElement('advcheckbox', "user[{$user->id}]", '', '', array('group' => $this->_customdata['bookingdata']->id + 1));
                 $mform->addElement('html', '</td><td class="picture">' . $OUTPUT->user_picture($user, array()) . '</td><td>' . $checkMark . '</td><td class="fullname">' . "<a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . '</a></td><td class="datecreated">' . ($userData->timecreated > 0 ? userdate($userData->timecreated, get_string('strftimedatefullshort')) : '') . '</td></tr>');
             }
                         
@@ -61,8 +61,7 @@ class mod_booking_manageusers_form extends moodleform {
         }
         //-------------------------------------------------------------------------------
         // buttons
-        //
-		//$mform->addElement('html', '<div class="clearfix" style="clear: both; width: 100%;">' . get_string('withselected', 'booking') . '</div>');
+        	
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('static', 'onlylabel', '', '<span class="bookinglabelname">' . get_string('withselected', 'booking') . '</span>');
         if (!$this->_customdata['bookingdata']->autoenrol && has_capability('mod/booking:communicate', context_module::instance($cm->id))) {
@@ -75,19 +74,13 @@ class mod_booking_manageusers_form extends moodleform {
 
         if (has_capability('mod/booking:communicate', context_module::instance($cm->id))) {
             $buttonarray[] = &$mform->createElement("submit", 'sendpollurl', get_string('booking:sendpollurl', 'booking'));
-            $buttonarray[] = &$mform->createElement("submit", 'sendpollurlteachers', get_string('booking:sendpollurltoteachers', 'booking'));
             $buttonarray[] = &$mform->createElement("submit", 'sendcustommessage', get_string('sendcustommessage', 'booking'));
-        }
-
-        if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-            $buttonarray[] = &$mform->createElement("submit", 'addteachers', get_string('addteachers', 'booking'));
         }
 
         if (booking_check_if_teacher($this->_customdata['bookingdata'], $USER) || has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
             $buttonarray[] = &$mform->createElement("submit", 'activitycompletion', get_string('confirmactivitycompletion', 'booking'));
         }
 
-        $buttonarray[] = &$mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
 
         //hidden elements

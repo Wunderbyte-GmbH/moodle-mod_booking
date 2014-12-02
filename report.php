@@ -130,6 +130,12 @@ $PAGE->navbar->add($strresponses);
 $PAGE->set_title(format_string($booking->name) . ": $strresponses");
 $PAGE->set_heading($course->fullname);
 
+if (isset($action) && $action == 'sendpollurlteachers' && has_capability('mod/booking:communicate', $context)) {
+    booking_sendpollurlteachers($booking, $cm->id, $optionid);
+    $url->remove_params('action');
+    redirect($url, get_string('allmailssend', 'booking'), 5);
+}
+
 if (!$download) {
     if (!isset($bookinglist[$optionid])) {
         $bookinglist[$optionid] = false;
@@ -140,11 +146,11 @@ if (!$download) {
     $booking->option[$optionid]->cmid = $cm->id;
     $booking->option[$optionid]->autoenrol = $booking->autoenrol;
     $mform = new mod_booking_manageusers_form(null, array('cm' => $cm, 'bookingdata' => $booking->option[$optionid], 'waitinglistusers' => $sortedusers['waitinglist'], 'bookedusers' => $sortedusers['booked'])); //name of the form you defined in file above.
-    //managing the form
+//managing the form
     if ($mform->is_cancelled()) {
         redirect("view.php?id=$cm->id");
     } else if ($fromform = $mform->get_data()) {
-        //this branch is where you process validated data.
+//this branch is where you process validated data.
         if (isset($fromform->deleteusers) && has_capability('mod/booking:deleteresponses', $context) && confirm_sesskey()) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
             booking_delete_responses($selectedusers, $booking, $cm->id); //delete responses.
@@ -163,16 +169,10 @@ if (!$download) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
             booking_sendpollurl($selectedusers, $booking, $cm->id, $optionid);
             redirect($url, get_string('allmailssend', 'booking'), 5);
-        } else if (isset($fromform->sendpollurlteachers) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
-            booking_sendpollurlteachers($booking, $cm->id, $optionid);
-            redirect($url, get_string('allmailssend', 'booking'), 5);
         } else if (isset($fromform->sendcustommessage) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
             $selectedusers = array_keys($fromform->user, 1);
             $sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id' => $id, 'optionid' => $optionid, 'uids' => serialize($selectedusers)));
             redirect($sendmessageurl);
-        } else if (isset($fromform->addteachers) && has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
-            $addteachersurl = new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid));
-            redirect($addteachersurl);
         } else if (isset($fromform->activitycompletion) && (booking_check_if_teacher($option, $USER) || has_capability('mod/booking:readresponses', $context)) && confirm_sesskey()) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
             booking_activitycompletion($selectedusers, $booking, $cm->id, $optionid);
@@ -191,6 +191,28 @@ if (!$download) {
     html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $booking->option[$optionid]->cmid, 'action' => $booking->option[$optionid]->id, 'download' => 'ods', 'optionid' => $booking->option[$optionid]->id)), get_string('downloadusersforthisoptionods', 'booking'), array()) .
     ' | ' .
     html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $booking->option[$optionid]->cmid, 'action' => $booking->option[$optionid]->id, 'download' => 'xls', 'optionid' => $booking->option[$optionid]->id)), get_string('downloadusersforthisoptionods', 'booking'), array());
+    
+    echo html_writer::link(new moodle_url('/mod/booking/view.php', array('id' => $cm->id)), get_string('cancel'), array('style' => 'float:right;'));
+
+    echo "<br>";
+
+    $links = array();
+
+    if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
+        $links[] = html_writer::link(new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid)), get_string('addteachers', 'booking'), array());
+    }
+
+    if (has_capability('mod/booking:subscribeusers', $context)) {
+        $links[] = html_writer::link(new moodle_url('/mod/booking/subscribeusers.php', array('id' => $cm->id, 'optionid' => $optionid)), get_string('bookotherusers', 'booking'), array());
+    }
+    
+    $links[] = '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
+
+    if (has_capability('mod/booking:communicate', context_module::instance($cm->id))) {
+        $links[] = html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid, 'action' => 'sendpollurlteachers')), get_string('booking:sendpollurltoteachers', 'booking'), array());
+    }
+
+    echo implode(" | ", $links);
 
     if ($booking->option[$optionid]->courseid != 0) {
         echo '<br>' . html_writer::start_span('') . get_string('associatedcourse', 'booking') . ': ' . html_writer::link(new moodle_url($booking->option[$optionid]->courseurl, array()), $booking->option[$optionid]->urltitle, array()) . html_writer::end_span() . '<br><br>';
@@ -212,7 +234,7 @@ if (!$download) {
     $rowclasses[] = "";
     $row = new html_table_row(array(get_string('searchDate', "booking"), html_writer::checkbox('searchDate', '1', $checked) . html_writer::select_time('days', 'searchDateDay', $timestamp, 5) . ' ' . html_writer::select_time('months', 'searchDateMonth', $timestamp, 5) . ' ' . html_writer::select_time('years', 'searchDateYear', $timestamp, 5), "", ""));
     $tabledata[] = $row;
-    $rowclasses[] = "";    
+    $rowclasses[] = "";
 
     $row = new html_table_row(array(get_string('searchFinished', "booking"), html_writer::select(array('0' => get_string('no', "booking"), '1' => get_string('yes', "booking")), 'searchFinished', $urlParams['searchFinished']), "", ""));
     $tabledata[] = $row;
@@ -225,6 +247,8 @@ if (!$download) {
     $table = new html_table();
     $table->head = array('', '', '');
     $table->data = $tabledata;
+    $table->id = "tableSearch";
+    $table->attributes = array('style' => "display: none;");
     echo html_writer::table($table);
 
     $mform->display();
@@ -248,9 +272,9 @@ if (!$download) {
         }
 
 
-        /// Send HTTP headers
+/// Send HTTP headers
         $workbook->send($filename);
-        /// Creating the first worksheet
+/// Creating the first worksheet
         $myxls = $workbook->add_worksheet($strresponses);
         if ($download == "ods") {
             $cellformat = $workbook->add_format(array('bg_color' => 'white'));
@@ -259,7 +283,7 @@ if (!$download) {
             $cellformat = '';
             $cellformat1 = $workbook->add_format(array('fg_color' => 'red'));
         }
-        /// Print names of all the fields
+/// Print names of all the fields
         $myxls->write_string(0, 0, get_string("booking", "booking"));
         $myxls->write_string(0, 1, get_string("user") . " " . get_string("idnumber"));
         $myxls->write_string(0, 2, get_string("firstname"));
@@ -274,7 +298,7 @@ if (!$download) {
             }
         }
         $myxls->write_string(0, $i++, get_string("group"));
-        /// generate the data for the body of the spreadsheet
+/// generate the data for the body of the spreadsheet
         $row = 1;
 
         if ($bookinglist && ($action == "all")) { // get list of all booking options
@@ -353,14 +377,29 @@ if (!$download) {
                         $ug2 = $ug2 . $ug->name;
                     }
                 }
-                //$myxls->write_string($row,12,$ug2);
+//$myxls->write_string($row,12,$ug2);
                 $row++;
                 $pos = 4;
             }
         }
-        /// Close the workbook
+/// Close the workbook
         $workbook->close();
         exit;
     }
 }
 ?>
+
+<script type="text/javascript">
+YUI().use('node', function(Y) {
+    Y.delegate('click', function(e) {
+        var buttonID = e.currentTarget.get('id'),
+            node = Y.one('#tableSearch');
+
+        if (buttonID === 'showHideSearch') {
+            node.toggleView();
+            e.preventDefault();
+        }
+
+    }, document, 'a');
+});
+</script>
