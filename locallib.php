@@ -1,7 +1,6 @@
 <?php
 
 require_once($CFG->dirroot . '/user/selector/lib.php');
-require_once("$CFG->dirroot/mod/newmodule/lib.php");
 
 /**
  * Standard base class for mod_booking
@@ -370,7 +369,7 @@ class booking_options extends booking {
             } else {
                 $validresponses = $rawresponses;
             }
-            foreach ($validresponses as $response) {
+            foreach ($validresponses as &$response) {
                 $bookinglist[$response->optionid][] = $response;
                 $optionids[$response->optionid] = $response->optionid;
             }
@@ -436,7 +435,7 @@ class booking_options extends booking {
         return $mybookings;
     }
 
-    public static function booking_set_visiblefalse($item1, $key) {
+    public static function booking_set_visiblefalse(&$item1, $key) {
         $item1->bookingvisible = false;
     }
 
@@ -518,7 +517,7 @@ class booking_all_bookings {
                     cm.section = cw.id AND
                     md.id = cm.module";
             $this->subscribeprivilegeinstances = $DB->get_records_sql($sql);
-            $this->mybookinginstances = $this->subscribeprivilegeinstances;
+            $this->mybookinginstances = &$this->subscribeprivilegeinstances;
             foreach ($this->subscribeprivilegeinstances as $bookinginstance) {
                 $this->courseswithbookings[$bookinginstance->course][] = $bookinginstance->instance;
             }
@@ -619,7 +618,7 @@ class booking_all_bookings {
         foreach ($emptybookings as $bookingid) {
             unset($this->allbookings[$bookingid]);
         }
-        foreach ($this->allbookings as $bookingid => $bookinginstance) {
+        foreach ($this->allbookings as $bookingid => &$bookinginstance) {
             $nouservisible = true;
             foreach ($bookinginstance->allbookedusers as $optionid => $users) {
                 foreach ($users as $sortorder => $user) {

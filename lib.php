@@ -1593,7 +1593,7 @@ function booking_get_post_actions() {
  * whether the course reset functionality affects the booking.
  * @param $mform form passed by reference
  */
-function booking_reset_course_form_definition($mform) {
+function booking_reset_course_form_definition(&$mform) {
     $mform->addElement('header', 'bookingheader', get_string('modulenameplural', 'booking'));
     $mform->addElement('advcheckbox', 'reset_booking', get_string('removeresponses', 'booking'));
 }

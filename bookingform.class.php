@@ -6,7 +6,7 @@ class mod_booking_bookingform_form extends moodleform {
 
     function definition() {
         global $CFG, $DB;
-        $mform = $this->_form;
+        $mform = & $this->_form;
 
         // visible elements
         $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
@@ -102,15 +102,15 @@ class mod_booking_bookingform_form extends moodleform {
         // buttons
         //
 		$buttonarray = array();
-        $buttonarray[] = $mform->createElement('submit', 'submitbutton', get_string('savechangesanddisplay'));
-        $buttonarray[] = $mform->createElement("submit", 'submittandaddnew', get_string('submitandaddnew', 'booking'));
-        $buttonarray[] = $mform->createElement('cancel');
+        $buttonarray[] = &$mform->createElement('submit', 'submitbutton', get_string('savechangesanddisplay'));
+        $buttonarray[] = &$mform->createElement("submit", 'submittandaddnew', get_string('submitandaddnew', 'booking'));
+        $buttonarray[] = &$mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
         $mform->closeHeaderBefore('buttonar');
         //$this->add_action_buttons();
     }
 
-    function data_preprocessing($default_values) {
+    function data_preprocessing(&$default_values) {
         if (!isset($default_values['descriptionformat'])) {
             $default_values['descriptionformat'] = FORMAT_HTML;
         }
