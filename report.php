@@ -27,6 +27,8 @@ $searchDateMonth = optional_param('searchDateMonth', '', PARAM_TEXT);
 $searchDateYear = optional_param('searchDateYear', '', PARAM_TEXT);
 $searchFinished = optional_param('searchFinished', '', PARAM_TEXT);
 
+$searching = FALSE;
+
 $urlParams = array();
 $urlParams['id'] = $id;
 $urlParams['optionid'] = $optionid;
@@ -34,11 +36,13 @@ $urlParams['optionid'] = $optionid;
 $urlParams['searchName'] = "";
 if (strlen($searchName) > 0) {
     $urlParams['searchName'] = $searchName;
+    $searching = TRUE;
 }
 
 $urlParams['searchSurname'] = "";
 if (strlen($searchSurname) > 0) {
     $urlParams['searchSurname'] = $searchSurname;
+    $searching = TRUE;
 }
 
 $timestamp = time();
@@ -46,16 +50,19 @@ $timestamp = time();
 $urlParams['searchDateDay'] = "";
 if (strlen($searchDateDay) > 0) {
     $urlParams['searchDateDay'] = $searchDateDay;
+    $searching = TRUE;
 }
 
 $urlParams['searchDateMonth'] = "";
 if (strlen($searchDateMonth) > 0) {
     $urlParams['searchDateMonth'] = $searchDateMonth;
+    $searching = TRUE;
 }
 
 $urlParams['searchDateYear'] = "";
 if (strlen($searchDateYear) > 0) {
     $urlParams['searchDateYear'] = $searchDateYear;
+    $searching = TRUE;
 }
 
 $checked = FALSE;
@@ -250,7 +257,9 @@ if (!$download) {
     $table->head = array('', '', '');
     $table->data = $tabledata;
     $table->id = "tableSearch";
-    $table->attributes = array('style' => "display: none;");
+    if (!$searching) {
+        $table->attributes = array('style' => "display: none;");
+    }
     echo html_writer::table($table);
 
     $mform->display();

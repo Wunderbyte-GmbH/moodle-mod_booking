@@ -482,6 +482,7 @@ $string['yes'] = 'Yes';
 $string['no'] = 'No';
 $string['onlythisbookingurl'] = 'Only this booking URL';
 $string['gotobooking'] = '<< Bookings';
+$string['nousers'] = 'No users!';
 
 // Send message
 $string['messagesubject'] = 'Subject';

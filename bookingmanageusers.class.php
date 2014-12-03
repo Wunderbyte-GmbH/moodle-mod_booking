@@ -40,7 +40,13 @@ class mod_booking_manageusers_form extends moodleform {
 
             $this->add_checkbox_controller($this->_customdata['bookingdata']->id + 1);
             
+        } else {
+            $mform->addElement('html', '<table class="mod-booking-inlinetable">');
+            $mform->addElement('html', '<tr><td class="attemptcell">' . get_string('nousers', 'booking') . '</td></tr>');
+            $mform->addElement('html', '</table>');
         }
+        
+        
         $mform->addElement('html', '</div>');
 
         //add all waiting list users to form
