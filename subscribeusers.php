@@ -126,14 +126,11 @@ echo  html_writer::tag('div', html_writer::link(new moodle_url('/mod/booking/rep
 
 if ($subscribesuccess || $unsubscribesuccess) {
     if ($subscribesuccess) {
-        echo $OUTPUT->notification("<h2>" . get_string('bookingsaved', 'booking') . "</h2>", " loginbox notifysuccess");
+        echo $OUTPUT->container(get_string('allchangessave', 'booking'), 'important', 'notice');
     }
     if ($unsubscribesuccess && has_capability('mod/booking:deleteresponses', $context)) {
-        echo $OUTPUT->notification("<h2>" . get_string('bookingdeleted', 'booking') . "</h2>", " loginbox notifysuccess");
-    }
-    echo $OUTPUT->continue_button(new moodle_url($PAGE->url->out(false, array('agree' => 1))));
-    echo $OUTPUT->footer();
-    die();
+        echo $OUTPUT->container(get_string('allchangessave', 'booking'), 'important', 'notice');
+    };
 }
 
 echo $bookingoutput->subscriber_selection_form($existingselector, $subscriberselector);

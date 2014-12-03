@@ -54,6 +54,7 @@ $string['notificationsubject'] = 'Upcoming course...';
 
 // subscribeusers.php
 $string['backtoresponses'] = '<< Back to responses';
+$string['allchangessave'] = 'All changes have been saved.';
 
 // Bookingform
 $string['location'] = 'Location';

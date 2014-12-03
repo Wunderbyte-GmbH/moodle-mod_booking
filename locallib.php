@@ -282,6 +282,13 @@ class booking_option extends booking {
             ));
             $event->trigger();
             if ($this->booking->sendmail) {
+                $eventdata = new stdClass();
+                $eventdata->user = $user;
+                $eventdata->booking = $this->booking;
+                // TODO the next line is for backward compatibility only, delete when finished refurbishing the module ;-)
+                $eventdata->booking->option[$this->optionid] = $this->option;
+                $eventdata->optionid = $this->optionid;
+                $eventdata->cmid = $this->cm->id;
                 booking_send_confirm_message($eventdata);
             }
             return true;
@@ -926,12 +933,12 @@ class booking_utils {
      * @param object $option
      * @return int
      */
-    public function group($bookingtmp = NULL, $optiontmp = NULL) {        
+    public function group($bookingtmp = NULL, $optiontmp = NULL) {
         global $DB;
-                        
+
         $booking = clone $bookingtmp;
         $option = clone $optiontmp;
-        
+
         if ($booking->addtogroup == 1 && $option->courseid > 0) {
 
             $cm = get_coursemodule_from_instance('booking', $booking->id);
@@ -974,15 +981,14 @@ class booking_utils {
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * */
 class booking_tags {
-    
+
     public $cm;
     public $tags;
     public $replaces;
     public $optionsChangeText = array('text', 'description', 'location', 'institution', 'address');
     public $bookingChangeText = array('name', 'intro', 'bookingpolicy', 'bookedtext', 'waitingtext', 'statuschangetext', 'deletedtext', 'duration', 'organizatorname', 'pollurltext', 'eventtype', 'notificationtext', 'userleave', 'pollurlteacherstext');
-
     private $option;
-    
+
     public function __construct($cm) {
         global $DB;
 
@@ -1027,14 +1033,14 @@ class booking_tags {
         return $booking;
     }
 
-    public function optionReplace($option = NULL) {  
+    public function optionReplace($option = NULL) {
         $this->option = clone $option;
         foreach ($this->option as $key => $value) {
             if (in_array($key, $this->optionsChangeText)) {
                 $this->option->{$key} = $this->tag_replaces($this->option->{$key});
             }
         }
-        
+
         return $this->option;
     }
 
