@@ -52,6 +52,9 @@ $string['teachers'] = 'Teachers: ';
 $string['daystonotify'] = 'How many days before start of event to notify participaints?';
 $string['notificationsubject'] = 'Upcoming course...';
 
+// subscribeusers.php
+$string['backtoresponses'] = '<< Back to responses';
+
 // Bookingform
 $string['location'] = 'Location';
 $string['institution'] = 'Institution';

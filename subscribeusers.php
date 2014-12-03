@@ -42,7 +42,6 @@ $PAGE->set_heading($COURSE->fullname);
 $PAGE->navbar->add(get_string('booking:subscribeusers', 'booking'), $url);
 
 
-
 if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
     echo $OUTPUT->header();
     $alright = false;
@@ -122,6 +121,9 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
     }
 }
 echo $OUTPUT->header();
+
+echo  html_writer::tag('div', html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)), get_string('backtoresponses', 'booking') ), array('style' => 'width:100%; font-weight: bold; text-align: right;'));
+
 if ($subscribesuccess || $unsubscribesuccess) {
     if ($subscribesuccess) {
         echo $OUTPUT->notification("<h2>" . get_string('bookingsaved', 'booking') . "</h2>", " loginbox notifysuccess");
