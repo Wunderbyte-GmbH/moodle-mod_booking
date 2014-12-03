@@ -190,9 +190,9 @@ if (!$download) {
     ' | ' .
     html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $booking->option[$optionid]->cmid, 'action' => $booking->option[$optionid]->id, 'download' => 'ods', 'optionid' => $booking->option[$optionid]->id)), get_string('downloadusersforthisoptionods', 'booking'), array()) .
     ' | ' .
-    html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $booking->option[$optionid]->cmid, 'action' => $booking->option[$optionid]->id, 'download' => 'xls', 'optionid' => $booking->option[$optionid]->id)), get_string('downloadusersforthisoptionods', 'booking'), array());
+    html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $booking->option[$optionid]->cmid, 'action' => $booking->option[$optionid]->id, 'download' => 'xls', 'optionid' => $booking->option[$optionid]->id)), get_string('downloadusersforthisoptionxls', 'booking'), array());
     
-    echo html_writer::link(new moodle_url('/mod/booking/view.php', array('id' => $cm->id)), get_string('cancel'), array('style' => 'float:right;'));
+    echo html_writer::link(new moodle_url('/mod/booking/view.php', array('id' => $cm->id)), get_string('gotobooking', 'booking'), array('style' => 'float:right;'));
 
     echo "<br>";
 

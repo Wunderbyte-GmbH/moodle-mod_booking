@@ -477,6 +477,7 @@ $string['searchFinished'] = 'Course completed';
 $string['yes'] = 'Yes';
 $string['no'] = 'No';
 $string['onlythisbookingurl'] = 'Only this booking URL';
+$string['gotobooking'] = '<< Bookings';
 
 // Send message
 $string['messagesubject'] = 'Subject';
