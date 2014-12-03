@@ -247,7 +247,7 @@ if ($booking->categoryid != '0' && $booking->categoryid != '') {
 }
 
 if (strlen($booking->bookingpolicy) > 0) {
-    $link = new moodle_url('/mod/booking/viewpolicy.php', array('id' => $booking->id));
+    $link = new moodle_url('/mod/booking/viewpolicy.php', array('id' => $booking->id, 'cmid' => $cm->id));
     echo $OUTPUT->action_link($link, get_string("bookingpolicy", "booking"), new popup_action('click', $link));
 }
 
