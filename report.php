@@ -215,9 +215,11 @@ if (!$download) {
     echo implode(" | ", $links);
 
     if ($booking->option[$optionid]->courseid != 0) {
-        echo '<br>' . html_writer::start_span('') . get_string('associatedcourse', 'booking') . ': ' . html_writer::link(new moodle_url($booking->option[$optionid]->courseurl, array()), $booking->option[$optionid]->urltitle, array()) . html_writer::end_span() . '<br><br>';
+        echo '<br>' . html_writer::start_span('') . get_string('associatedcourse', 'booking') . ': ' . html_writer::link(new moodle_url($booking->option[$optionid]->courseurl, array()), $booking->option[$optionid]->urltitle, array()) . html_writer::end_span() . '<br>';
     }
 
+    echo '<br>' . html_writer::start_span('') . get_string('onlythisbookingurl', 'booking') . ': ' . html_writer::link(new moodle_url('/mod/booking/view.php', array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone')), new moodle_url('/mod/booking/view.php', array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone')), array()) . html_writer::end_span() . '<br><br>';
+    
     $hidden = "";
 
     foreach ($urlParams as $key => $value) {
