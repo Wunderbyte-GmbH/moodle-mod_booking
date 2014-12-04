@@ -84,7 +84,8 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capab
         if (booking_delete_singlebooking($answer, $booking, $optionid, $newbookeduser, $cm->id)) {
             echo $OUTPUT->header();
             $contents = get_string('bookingdeleted', 'booking');
-            $contents .= $OUTPUT->single_button($url, get_string('continue'), 'get');
+            $options = array('id' => $cm->id);
+            $contents .= $OUTPUT->single_button(new moodle_url('view.php', $options), get_string('continue'), 'get');
             echo $OUTPUT->box($contents, 'box generalbox', 'notice');
             echo $OUTPUT->footer();
             die;
