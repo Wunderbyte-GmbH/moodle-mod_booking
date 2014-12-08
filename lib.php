@@ -832,101 +832,6 @@ function booking_check_if_teacher($option, $user) {
 }
 
 /**
- * Saves the booking for the user
- * @return true if booking was possible, false if meanwhile the booking got full
- */
-function booking_user_submit_response($optionid, $booking, $user, $courseid, $cm) {
-    global $DB;
-//$context = get_context_instance(CONTEXT_MODULE, $cm->id);
-    $context = context_module::instance($cm->id);
-// check if optionid exists as real option
-    if (!$DB->get_field('booking_options', 'id', array('id' => $optionid))) {
-        return false;
-    }
-    if ($booking->option[$optionid]->limitanswers) {
-// retrieve all answers for this option ID
-        $countanswers = Array();
-        $answers[$optionid] = $DB->get_records("booking_answers", array("optionid" => $optionid));
-        if ($answers[$optionid]) {
-            $countanswers[$optionid] = 0;
-            foreach ($answers[$optionid] as $a) {
-                if (has_capability('mod/booking:choose', $context, $a->userid, false)) {
-                    $countanswers[$optionid] ++;
-                }
-            }
-        } else {
-            $countanswers[$optionid] = 0;
-        }
-        $maxans[$optionid] = $booking->option[$optionid]->maxanswers + $booking->option[$optionid]->maxoverbooking;
-// if answers for one option are limited and total answers are not exceeded then
-        if (!($booking->option[$optionid]->limitanswers && ($countanswers[$optionid] >= $maxans[$optionid]) )) {
-// check if actual answer is also already made by this user
-            if (!($currentanswerid = $DB->get_field('booking_answers', 'id', array('userid' => $user->id, 'optionid' => $optionid)))) {
-                $newanswer = new stdClass();
-                $newanswer->bookingid = $booking->id;
-                $newanswer->userid = $user->id;
-                $newanswer->optionid = $optionid;
-                $newanswer->timemodified = time();
-                $newanswer->timecreated = time();
-                if (!$DB->insert_record("booking_answers", $newanswer)) {
-                    error("Could not register your booking because of a database error");
-                }
-                booking_check_enrol_user($booking->option[$optionid], $booking, $user->id);
-            }
-//add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
-            $event = \mod_booking\event\bookingoption_booked::create(array(
-                        'objectid' => $optionid,
-                        'context' => context_module::instance($cm->id),
-                        'relateduserid' => $user->id,
-                        'other' => array('userid' => $user->id)
-            ));
-            $event->trigger();
-            if ($booking->sendmail) {
-                $eventdata = new stdClass();
-                $eventdata->user = $user;
-                $eventdata->booking = $booking;
-                $eventdata->optionid = $optionid;
-                $eventdata->cmid = $cm->id;
-                booking_send_confirm_message($eventdata);
-            }
-            return true;
-        } else { //check to see if current booking already selected - if not display error
-            $optionname = $DB->get_field('booking_options', 'text', array('id' => $optionid));
-            return false;
-        }
-    } else if (!($booking->option[$optionid]->limitanswers)) {
-        if (!($currentanswerid = $DB->get_field('booking_answers', 'id', array('userid' => $user->id, 'optionid' => $optionid)))) {
-            $newanswer = new stdClass();
-            $newanswer->bookingid = $booking->id;
-            $newanswer->userid = $user->id;
-            $newanswer->optionid = $optionid;
-            $newanswer->timemodified = time();
-            $newanswer->timecreated = time();
-            if (!$DB->insert_record("booking_answers", $newanswer)) {
-                error("Could not register your booking because of a database error");
-            }
-            booking_check_enrol_user($booking->option[$optionid], $booking, $user->id);
-        }
-//add_to_log($courseid, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
-        $event = \mod_booking\event\bookingoption_booked::create(array(
-                    'objectid' => $optionid,
-                    'context' => context_module::instance($cm->id),
-                    'relateduserid' => $user->id
-        ));
-        $event->trigger();
-        if ($booking->sendmail) {
-            $eventdata = new stdClass();
-            $eventdata->user = $user;
-            $eventdata->booking = $booking;
-            $eventdata->optionid = $optionid;
-            $eventdata->cmid = $cm->id;
-            booking_send_confirm_message($eventdata);
-        }
-        return true;
-    }
-}
-
-/**
  * Manualy enrol the user in the relevant course, if that setting is on and a
  * course has been specified.
  * @param object $option
@@ -1118,120 +1023,6 @@ function booking_confirm_booking($optionid, $booking, $user, $cm, $url) {
     echo $OUTPUT->footer();
 }
 
-/**
- * deletes a single booking of a user if user cancels the booking, sends mail to bookingmanager and newbookeduser
- * @param $answer
- * @param $booking
- * @param $optionid
- * @param $newbookeduserid
- * @param $cmid
- * @return true if booking was deleted successfully, otherwise false
- */
-function booking_delete_singlebooking($answer, $booking, $optionid, $newbookeduserid, $cmid) {
-    global $USER, $DB;
-    if (!$DB->delete_records('booking_answers', array('id' => $answer->id))) {
-        return false;
-    }
-    if ($answer->userid == $USER->id) {
-        $user = $USER;
-    } else {
-        $user = $DB->get_record('user', array('id' => $answer->userid));
-    }
-    /** log deletion of user * */
-    $event = \mod_booking\event\booking_cancelled::create(array(
-                'objectid' => $optionid,
-                'context' => context_module::instance($cmid),
-                'relateduserid' => $user->id,
-                'other' => array('userid' => $user->id)
-    ));
-    $event->trigger();
-    /** backward compatibility hack, if called from subscribeusers.php other booking object is used * */
-    if (!isset($booking->option[$optionid])) {
-        $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
-        $booking = booking_get_booking($cm);
-    }
-    booking_check_unenrol_user($booking->option[$optionid], $booking, $user->id);
-
-    $params = booking_generate_email_params($booking, $booking->option[$optionid], $user, $cmid);
-    $messagetext = get_string('deletedbookingmessage', 'booking', $params);
-    if ($answer->userid == $USER->id) {
-// I canceled the booking
-        $deletedbookingusermessage = booking_get_email_body($booking, 'userleave', 'userleavebookedmessage', $params);
-        $subject = get_string('userleavebookedsubject', 'booking', $params);
-    } else {
-// Booking manager canceled the booking
-        $deletedbookingusermessage = booking_get_email_body($booking, 'deletedtext', 'deletedbookingmessage', $params);
-        $subject = get_string('deletedbookingsubject', 'booking', $params);
-    }
-    $bookingmanager = $DB->get_record('user', array('username' => $booking->bookingmanager));
-    $eventdata = new stdClass();
-
-    if ($booking->sendmail) {
-// Generate ical attachment to go with the message.
-        $attachname = '';
-        $ical = new booking_ical($booking, $booking->option[$optionid], $user, $bookingmanager);
-        if ($attachment = $ical->get_attachment(true)) {
-            $attachname = $ical->get_name();
-        }
-
-        $messagehtml = text_to_html($deletedbookingusermessage, false, false, true);
-
-        if (isset($booking->sendmailtobooker) && $booking->sendmailtobooker) {
-            $eventdata->userto = $USER;
-        } else {
-            $eventdata->userto = $user;
-        }
-
-        $eventdata->userfrom = $bookingmanager;
-        $eventdata->subject = $subject;
-        $eventdata->messagetext = $deletedbookingusermessage;
-        $eventdata->messagehtml = $messagehtml;
-        $eventdata->attachment = $attachment;
-        $eventdata->attachname = $attachname;
-        events_trigger('booking_deleted', $eventdata);
-
-        if ($booking->copymail) {
-            $eventdata->userto = $bookingmanager;
-            events_trigger('booking_deleted', $eventdata);
-        }
-    }
-
-    if ($newbookeduserid) {
-
-        $eventdata = new stdClass();
-
-        booking_check_enrol_user($booking->option[$optionid], $booking, $newbookeduserid);
-        if ($booking->sendmail == 1 || $booking->copymail) {
-            $newbookeduser = $DB->get_record('user', array('id' => $newbookeduserid));
-            $params = booking_generate_email_params($booking, $booking->option[$optionid], $newbookeduser, $cmid);
-            $messagetextnewuser = booking_get_email_body($booking, 'statuschangetext', 'statuschangebookedmessage', $params);
-            $messagehtml = text_to_html($messagetextnewuser, false, false, true);
-
-// Generate ical attachment to go with the message.
-            $attachname = '';
-            $ical = new booking_ical($booking, $booking->option[$optionid], $newbookeduser, $bookingmanager);
-            if ($attachment = $ical->get_attachment()) {
-                $attachname = $ical->get_name();
-            }
-            $eventdata->userto = $newbookeduser;
-            $eventdata->userfrom = $bookingmanager;
-            $eventdata->subject = get_string('statuschangebookedsubject', 'booking', $params);
-            $eventdata->messagetext = $messagetextnewuser;
-            $eventdata->messagehtml = $messagehtml;
-            $eventdata->attachment = $attachment;
-            $eventdata->attachname = $attachname;
-            if ($booking->sendmail == 1) {
-                events_trigger('booking_deleted', $eventdata);
-            }
-            if ($booking->copymail) {
-                $eventdata->userto = $bookingmanager;
-                events_trigger('booking_deleted', $eventdata);
-            }
-        }
-    }
-    return true;
-}
-
 // Add activity completion to user.
 function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) {
     global $DB;
@@ -1378,20 +1169,17 @@ function booking_send_notification($optionid, $subject) {
 
     $cm = get_coursemodule_from_instance('booking', $booking->id);
 
-    $bookinglist = booking_get_spreadsheet_data($booking, $cm);
-    if (isset($bookinglist[$optionid])) {
-        $sortedusers = booking_user_status($option, $bookinglist[$optionid]);
-        $allusers = $sortedusers['booked'];
-
-        $tags = new booking_tags($cm);
-        $option = $tags->optionReplace($option);
-        $booking = $tags->bookingReplace($booking);
+    $bookingData = new booking_option($cm->id, $booking->id);
+    $bookingData->apply_tags();
+    
+    if (isset($bookingData->usersOnList)) {
+        $allusers = $bookingData->usersOnList;
 
         foreach ($allusers as $record) {
             $ruser = $DB->get_record('user', array('id' => $record->id));
 
-            $params = booking_generate_email_params($booking, $option, $ruser, $cm->id);
-            $pollurlmessage = booking_get_email_body($booking, 'notificationtext', 'notificationtextmessage', $params);
+            $params = booking_generate_email_params($bookingData->booking, $bookingData->option, $ruser, $cm->id);
+            $pollurlmessage = booking_get_email_body($bookingData->booking, 'notificationtext', 'notificationtextmessage', $params);
 
             $eventdata = new stdClass();
             $eventdata->modulename = 'booking';
@@ -1412,31 +1200,6 @@ function booking_send_notification($optionid, $subject) {
     } else {
         return FALSE;
     }
-}
-
-function booking_delete_responses($attemptidsarray, $booking, $cmid) {
-    global $DB;
-    if (!is_array($attemptidsarray) || empty($attemptidsarray)) {
-        return false;
-    }
-    foreach ($attemptidsarray as $optionid => $userids) {
-        if (!is_array($userids) || empty($userids)) {
-            return false;
-        }
-        foreach ($userids as $num => $userid) {
-            if (empty($userid)) {
-                unset($userids[$num]);
-            }
-        }
-        foreach ($userids as $userid) {
-            $answer = $DB->get_record('booking_answers', array('bookingid' => $booking->id,
-                'userid' => $userid,
-                'optionid' => $optionid));
-            $newbookeduser = booking_check_statuschange($optionid, $booking, $userid, $cmid);
-            booking_delete_singlebooking($answer, $booking, $optionid, $newbookeduser, $cmid);
-        }
-    }
-    return true;
 }
 
 function booking_delete_instance($id) {
@@ -1665,51 +1428,51 @@ function booking_get_spreadsheet_data($booking, $cm, $filters = array('searchNam
     global $CFG, $USER, $DB;
     $bookinglistsorted = array();
     $context = context_module::instance($cm->id);
-
-    $options = "bookingid = {$booking->id}";
+    $params = array();
+    
+    $options = "{booking_answers}.bookingid = :bookingid";
+    $params['bookingid'] = $booking->id;
 
     if (strlen($filters['searchFinished']) > 0) {
-        $options .= " AND completed = {$filters['searchFinished']}";
+        $options .= " AND {booking_answers}.completed = :completed";
+        $params['completed'] = $filters['searchFinished'];
     }
 
     if (isset($filters['searchDate']) && $filters['searchDate'] == 1) {
-        $options .= " AND FROM_UNIXTIME(timecreated, '%Y') = '{$filters['searchDateYear']}' AND FROM_UNIXTIME(timecreated, '%m') = '{$filters['searchDateMonth']}' AND FROM_UNIXTIME(timecreated, '%d') = '{$filters['searchDateDay']}'";
+        $options .= " AND FROM_UNIXTIME({booking_answers}.timecreated, '%Y') = :searchdateyear AND FROM_UNIXTIME({booking_answers}.timecreated, '%m') = :searchdatemonth AND FROM_UNIXTIME({booking_answers}.timecreated, '%d') = :searchdateday";
+        $params['searchdateyear'] = $filters['searchDateYear'];
+        $params['searchdatemonth'] = $filters['searchDateMonth'];
+        $params['searchdateday'] = $filters['searchDateDay'];
     }
 
-/// Initialise the returned array, which is a matrix:  $allresponses[responseid][userid] = responseobject
-    $allresponses = array();
+    if (isset($filters['searchName']) && strlen($filters['searchName']) > 0) {
+        $options .= " AND {user}.firstname LIKE :searchname";
+        $params['searchname'] = '%' . $filters['searchName'] . '%';
+    }
+
+    if (isset($filters['searchSurname']) && strlen($filters['searchSurname']) > 0) {
+        $options .= " AND {user}.lastname LIKE :searchsurname";
+        $params['searchsurname'] = '%' . $filters['searchSurname'] . '%';
+    }
+
 /// bookinglist $bookinglist[optionid][sortnumber] = userobject;
     $bookinglist = array();
 
 /// First get all the users who have access here
-    $mainuserfields = user_picture::fields();
-    $allresponses = get_users_by_capability($context, 'mod/booking:choose', $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
-/// Get all the recorded responses for this booking
-    $rawresponses = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE ' . $options . ' ORDER BY optionid, timemodified ASC', array());
+    $mainuserfields = explode(',', user_picture::fields());
+    foreach ($mainuserfields as $key => $value) {
+        $mainuserfields[$key] = '{user}.' . $value;
+    }
+    $mainuserfields = implode(', ', $mainuserfields);
+
+    $rawresponses = $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated , ' . $mainuserfields . ' FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC', $params);
+    
     $optionids = $DB->get_records_select('booking_options', "bookingid = $booking->id", array(), 'id', 'id');
 /// Use the responses to move users into the correct column
     $sortnumber = 1;
     if ($rawresponses) {
         foreach ($rawresponses as $response) {
-            if (isset($allresponses[$response->userid])) {   // This person is enrolled and in correct group
-                $add = TRUE;
-
-                if (strlen($filters['searchName']) > 0) {
-                    if (stripos($allresponses[$response->userid]->firstname, $filters['searchName']) === FALSE) {
-                        $add = FALSE;
-                    }
-                }
-
-                if (strlen($filters['searchSurname']) > 0) {
-                    if (stripos($allresponses[$response->userid]->lastname, $filters['searchSurname']) === FALSE) {
-                        $add = FALSE;
-                    }
-                }
-
-                if ($add) {
-                    $bookinglist[$response->optionid][$sortnumber++] = $allresponses[$response->userid];
-                }
-            }
+            $bookinglist[$response->optionid][$sortnumber++] = $response;
         }
     }
     if (empty($bookinglist)) {
@@ -1729,29 +1492,6 @@ function booking_get_spreadsheet_data($booking, $cm, $filters = array('searchNam
         }
     }
     return $bookinglistsorted;
-}
-
-/**
- * Divides all users in booked and waiting list users
- * @param $bookingoption bookingoption object
- * @param $allresponses all responses for that bookingoption
- * @return array of arrays with keys waitinglist and booked
- */
-function booking_user_status($bookingoption, $allresponses) {
-    $userarray['waitinglist'] = false;
-    $userarray['booked'] = false;
-    $i = 1;
-    if (is_array($allresponses)) {
-        foreach ($allresponses as $user) {
-            if ($i <= $bookingoption->maxanswers || !$bookingoption->limitanswers) { //booked user
-                $userarray['booked'][] = $user;
-            } else if ($i <= $bookingoption->maxoverbooking + $bookingoption->maxanswers) { //waitlistusers;
-                $userarray['waitinglist'][] = $user;
-            }
-            $i++;
-        }
-    }
-    return $userarray;
 }
 
 /**

@@ -1,6 +1,6 @@
 <?php
 require_once("../../config.php");
-require_once("lib.php");
+require_once("locallib.php");
 require_once($CFG->libdir . '/completionlib.php');
 
 $id = required_param('id', PARAM_INT);                 // Course Module ID
@@ -23,7 +23,6 @@ if (strlen($action) > 0) {
 if (strlen($optionid) > 0) {
     $urlParams['optionid'] = $optionid;
 }
-// http://www.moodle.dev/mod/booking/view.php?id=289549&optionid=1029&action=showonlyone
 
 
 $sort = '';
@@ -79,17 +78,16 @@ if (!$context = context_module::instance($cm->id)) {
 
 // check if data has been submitted to be processed
 if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capability('mod/booking:choose', $context) and ( $booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
-    if ($answer = $DB->get_record('booking_answers', array('bookingid' => $booking->id, 'userid' => $USER->id, 'optionid' => $optionid))) {
-        $newbookeduser = booking_check_statuschange($optionid, $booking, $USER->id, $cm->id);
-        if (booking_delete_singlebooking($answer, $booking, $optionid, $newbookeduser, $cm->id)) {
-            echo $OUTPUT->header();
-            $contents = get_string('bookingdeleted', 'booking');
-            $options = array('id' => $cm->id);
-            $contents .= $OUTPUT->single_button(new moodle_url('view.php', $options), get_string('continue'), 'get');
-            echo $OUTPUT->box($contents, 'box generalbox', 'notice');
-            echo $OUTPUT->footer();
-            die;
-        }
+    $bookingData = new booking_option($cm->id, $optionid);
+
+    if ($bookingData->user_delete_response($USER->id)) {
+        echo $OUTPUT->header();
+        $contents = get_string('bookingdeleted', 'booking');
+        $options = array('id' => $cm->id);
+        $contents .= $OUTPUT->single_button(new moodle_url('view.php', $options), get_string('continue'), 'get');
+        echo $OUTPUT->box($contents, 'box generalbox', 'notice');
+        echo $OUTPUT->footer();
+        die;
     }
 } elseif ($action == 'delbooking' and confirm_sesskey() and has_capability('mod/booking:choose', $context) and ( $booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {    //print confirm delete form
     echo $OUTPUT->header();
@@ -129,7 +127,8 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context)) 
 
 
     if (!empty($answer)) {
-        if (booking_user_submit_response($answer, $booking, $USER, $course->id, $cm)) {
+        $bookingData = new booking_option($cm->id, $answer);
+        if ($bookingData->user_submit_response($USER)) {
             $contents = get_string('bookingsaved', 'booking');
             if ($booking->sendmail) {
                 $contents .= "<br />" . get_string('mailconfirmationsent', 'booking') . ".";
@@ -329,10 +328,10 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             booking_show_form($booking, $USER, $cm, $bookinglist, 0, $url, $urlParams);
             break;
 
-        case 'showonlyone':            
+        case 'showonlyone':
             booking_show_form($booking, $USER, $cm, $bookinglist, 0, $url, $urlParams, $optionid);
             break;
-        
+
         default:
             $message = "<a href=\"$urlMy\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a> | " . '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
             echo $OUTPUT->box($message, 'box mdl-align');

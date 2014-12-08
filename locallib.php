@@ -120,6 +120,18 @@ class booking_option extends booking {
     /** @var number of answers */
     public $numberofanswers = null;
 
+    /** @var array of users filters */
+    public $filters = array();
+
+    /** @var array of users objects - filtered */
+    public $users = array();
+    public $usersOnList = array();
+    public $usersOnWaitingList = array();
+    
+    // Pagination
+    public $page = 0;
+    public $perpage = 0;
+
     /**
      * Creates basic booking option
      *
@@ -127,13 +139,17 @@ class booking_option extends booking {
      * @param int $optionid
      * @param object $option option object
      */
-    public function __construct($id, $optionid) {
+    public function __construct($id, $optionid, $filters = array(), $page = 0, $perpage = 0) {
         global $DB;
 
         parent::__construct($id);
         $this->optionid = $optionid;
         $this->update_booked_users();
         $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', 'MUST_EXIST');
+        $this->filters = $filters;
+        $this->page = $page;
+        $this->perpage = $perpage;
+        $this->get_users();        
     }
 
     public function apply_tags() {
@@ -143,6 +159,94 @@ class booking_option extends booking {
         $this->option = $tags->optionReplace($this->option);
     }
 
+    // Get all users with filters
+    private function get_users() {
+        global $DB;
+        $params = array();
+
+        $options = "{booking_answers}.optionid = :optionid";
+        $params['optionid'] = $this->optionid;
+
+        if (isset($this->filters['searchFinished']) && strlen($this->filters['searchFinished']) > 0) {
+            $options .= " AND {booking_answers}.completed = :completed";
+            $params['completed'] = $this->filters['searchFinished'];
+        }
+
+        if (isset($this->filters['searchDate']) && $this->filters['searchDate'] == 1) {
+            $options .= " AND FROM_UNIXTIME({booking_answers}.timecreated, '%Y') = :searchdateyear AND FROM_UNIXTIME({booking_answers}.timecreated, '%m') = :searchdatemonth AND FROM_UNIXTIME({booking_answers}.timecreated, '%d') = :searchdateday";
+            $params['searchdateyear'] = $this->filters['searchDateYear'];
+            $params['searchdatemonth'] = $this->filters['searchDateMonth'];
+            $params['searchdateday'] = $this->filters['searchDateDay'];
+        }
+
+        if (isset($this->filters['searchName']) && strlen($this->filters['searchName']) > 0) {
+            $options .= " AND {user}.firstname LIKE :searchname";
+            $params['searchname'] = '%' . $this->filters['searchName'] . '%';
+        }
+
+        if (isset($this->filters['searchSurname']) && strlen($this->filters['searchSurname']) > 0) {
+            $options .= " AND {user}.lastname LIKE :searchsurname";
+            $params['searchsurname'] = '%' . $this->filters['searchSurname'] . '%';
+        }
+
+        $mainuserfields = explode(',', user_picture::fields());
+        foreach ($mainuserfields as $key => $value) {
+            $mainuserfields[$key] = '{user}.' . $value;
+        }
+        $mainuserfields = implode(', ', $mainuserfields);
+        
+        $this->users = $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated, {booking_answers}.waitinglist, ' . $mainuserfields . ' FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC', $params, $this->perpage, $this->page);
+        
+        foreach ($this->users as $user) {
+            if ($user->waitinglist == 1) {
+                $this->usersOnWaitingList[] = $user;
+            } else {
+                $this->usersOnList[] = $user;
+            }
+        }
+    }
+
+    // Count, how man users...for pagination.
+    public function count_users() {
+        global $DB;
+        $params = array();
+
+        $options = "{booking_answers}.optionid = :optionid";
+        $params['optionid'] = $this->optionid;
+
+        if (isset($this->filters['searchFinished']) && strlen($this->filters['searchFinished']) > 0) {
+            $options .= " AND {booking_answers}.completed = :completed";
+            $params['completed'] = $this->filters['searchFinished'];
+        }
+
+        if (isset($this->filters['searchDate']) && $this->filters['searchDate'] == 1) {
+            $options .= " AND FROM_UNIXTIME({booking_answers}.timecreated, '%Y') = :searchdateyear AND FROM_UNIXTIME({booking_answers}.timecreated, '%m') = :searchdatemonth AND FROM_UNIXTIME({booking_answers}.timecreated, '%d') = :searchdateday";
+            $params['searchdateyear'] = $this->filters['searchDateYear'];
+            $params['searchdatemonth'] = $this->filters['searchDateMonth'];
+            $params['searchdateday'] = $this->filters['searchDateDay'];
+        }
+
+        if (isset($this->filters['searchName']) && strlen($this->filters['searchName']) > 0) {
+            $options .= " AND {user}.firstname LIKE :searchname";
+            $params['searchname'] = '%' . $this->filters['searchName'] . '%';
+        }
+
+        if (isset($this->filters['searchSurname']) && strlen($this->filters['searchSurname']) > 0) {
+            $options .= " AND {user}.lastname LIKE :searchsurname";
+            $params['searchsurname'] = '%' . $this->filters['searchSurname'] . '%';
+        }
+
+        $mainuserfields = explode(',', user_picture::fields());
+        foreach ($mainuserfields as $key => $value) {
+            $mainuserfields[$key] = '{user}.' . $value;
+        }
+        $mainuserfields = implode(', ', $mainuserfields);
+        
+        $count = $DB->get_record_sql('SELECT COUNT(*) AS count FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC', $params);        
+        var_dump($count);
+        return (int)$count->count;
+    }
+    
     /**
      * Updates canbookusers and bookedusers does not check the status (booked or waitinglist)
      * Just gets the registered booking from database
@@ -205,93 +309,226 @@ class booking_option extends booking {
     }
 
     /**
+     * Mass delete all responses
+     * @param $users Array of users
+     * @return void
+     */
+    public function delete_responses($users = array()) {
+        global $DB;
+        if (!is_array($users) || empty($users)) {
+            return false;
+        }
+
+        foreach ($users as $userid) {
+            $this->user_delete_response($userid);
+        }
+
+        return TRUE;
+    }
+
+    /**
+     * Deletes a single booking of a user if user cancels the booking, sends mail to bookingmanager. If there is a limit
+     * book other user ans send mail to him.
+     * @param $userid
+     * @return true if booking was deleted successfully, otherwise false
+     */
+    public function user_delete_response($userid) {
+        global $USER, $DB;
+
+        if (!$DB->delete_records('booking_answers', array('userid' => $userid, 'optionid' => $this->optionid))) {
+            return false;
+        }
+
+        if ($userid == $USER->id) {
+            $user = $USER;
+        } else {
+            $user = $DB->get_record('user', array('id' => $userid));
+        }
+
+        /** log deletion of user * */
+        $event = \mod_booking\event\booking_cancelled::create(array(
+                    'objectid' => $this->optionid,
+                    'context' => context_module::instance($this->cm->id),
+                    'relateduserid' => $user->id,
+                    'other' => array('userid' => $user->id)
+        ));
+        $event->trigger();
+
+        booking_check_unenrol_user($this->option, $this->booking, $user->id);
+
+        $params = booking_generate_email_params($this->booking, $this->option, $user, $this->cm->id);
+        $messagetext = get_string('deletedbookingmessage', 'booking', $params);
+        if ($userid == $USER->id) {
+            // I canceled the booking
+            $deletedbookingusermessage = booking_get_email_body($this->booking, 'userleave', 'userleavebookedmessage', $params);
+            $subject = get_string('userleavebookedsubject', 'booking', $params);
+        } else {
+            // Booking manager canceled the booking
+            $deletedbookingusermessage = booking_get_email_body($this->booking, 'deletedtext', 'deletedbookingmessage', $params);
+            $subject = get_string('deletedbookingsubject', 'booking', $params);
+        }
+
+        $bookingmanager = $DB->get_record('user', array('username' => $this->booking->bookingmanager));
+
+        $eventdata = new stdClass();
+
+        if ($this->booking->sendmail) {
+            // Generate ical attachment to go with the message.
+            $attachname = '';
+            $ical = new booking_ical($this->booking, $this->option, $user, $bookingmanager);
+            if ($attachment = $ical->get_attachment(true)) {
+                $attachname = $ical->get_name();
+            }
+
+            $messagehtml = text_to_html($deletedbookingusermessage, false, false, true);
+
+            if (isset($this->booking->sendmailtobooker) && $this->booking->sendmailtobooker) {
+                $eventdata->userto = $USER;
+            } else {
+                $eventdata->userto = $user;
+            }
+
+            $eventdata->userfrom = $bookingmanager;
+            $eventdata->subject = $subject;
+            $eventdata->messagetext = $deletedbookingusermessage;
+            $eventdata->messagehtml = $messagehtml;
+            $eventdata->attachment = $attachment;
+            $eventdata->attachname = $attachname;
+            events_trigger('booking_deleted', $eventdata);
+
+            if ($this->booking->copymail) {
+                $eventdata->userto = $bookingmanager;
+                events_trigger('booking_deleted', $eventdata);
+            }
+        }
+
+        if ($this->option->limitanswers) {
+            $maxplacesavailable = $this->option->maxanswers + $this->option->maxoverbooking;
+            $bookedUsers = $DB->count_records("booking_answers", array('optionid' => $this->optionid, 'waitinglist' => 0));
+            $waitingUsers = $DB->count_records("booking_answers", array('optionid' => $this->optionid, 'waitinglist' => 1));
+            $allUsersCount = $bookedUsers + $waitingUsers;
+
+            if ($waitingUsers > 0 && $this->option->maxanswers > $bookedUsers) {
+                $newUser = $DB->get_record_sql('SELECT * FROM {booking_answers} WHERE optionid = ? AND waitinglist = 1 ORDER BY timemodified ASC', array($this->optionid), IGNORE_MULTIPLE);
+
+                $newUser->waitinglist = 0;
+
+                $DB->update_record("booking_answers", $newUser);
+
+                booking_check_enrol_user($this->option, $this->booking, $newUser->userid);
+
+                if ($this->booking->sendmail == 1 || $this->booking->copymail) {
+                    $newbookeduser = $DB->get_record('user', array('id' => $newUser->userid));
+                    $params = booking_generate_email_params($this->booking, $this->option, $newbookeduser, $this->cm->id);
+                    $messagetextnewuser = booking_get_email_body($this->booking, 'statuschangetext', 'statuschangebookedmessage', $params);
+                    $messagehtml = text_to_html($messagetextnewuser, false, false, true);
+
+                    // Generate ical attachment to go with the message.
+                    $attachname = '';
+                    $ical = new booking_ical($this->booking, $this->option, $newbookeduser, $bookingmanager);
+                    if ($attachment = $ical->get_attachment()) {
+                        $attachname = $ical->get_name();
+                    }
+                    $eventdata->userto = $newbookeduser;
+                    $eventdata->userfrom = $bookingmanager;
+                    $eventdata->subject = get_string('statuschangebookedsubject', 'booking', $params);
+                    $eventdata->messagetext = $messagetextnewuser;
+                    $eventdata->messagehtml = $messagehtml;
+                    $eventdata->attachment = $attachment;
+                    $eventdata->attachname = $attachname;
+                    if ($this->booking->sendmail == 1) {
+                        events_trigger('booking_deleted', $eventdata);
+                    }
+                    if ($this->booking->copymail) {
+                        $eventdata->userto = $bookingmanager;
+                        events_trigger('booking_deleted', $eventdata);
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Saves the booking for the user
      * @return boolean true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response($user) {
         global $DB;
-        $context = $this->context;
-        $option = $this->option;
-        if (null == $option) {
+
+        if (null == $this->option) {
             return false;
         }
-        if ($option->limitanswers) {
+
+        $waitingList = $this->check_if_limit();
+
+        if ($waitingList === FALSE) {
+            return FALSE;
+        }
+
+        if (!($currentanswerid = $DB->get_field('booking_answers', 'id', array('userid' => $user->id, 'optionid' => $this->optionid)))) {
+            $newanswer = new stdClass();
+            $newanswer->bookingid = $this->id;
+            $newanswer->userid = $user->id;
+            $newanswer->optionid = $this->optionid;
+            $newanswer->timemodified = time();
+            $newanswer->timecreated = time();
+            $newanswer->waitinglist = $waitingList;
+
+            if (!$DB->insert_record("booking_answers", $newanswer)) {
+                error("Could not register your booking because of a database error");
+            }
+            //TODO replace
+            booking_check_enrol_user($this->option, $this->booking, $user->id);
+        }
+
+        $event = \mod_booking\event\bookingoption_booked::create(array(
+                    'objectid' => $this->optionid,
+                    'context' => context_module::instance($this->cm->id),
+                    'relateduserid' => $user->id,
+                    'other' => array('userid' => $user->id)
+        ));
+        $event->trigger();
+
+        if ($this->booking->sendmail) {
+            $eventdata = new stdClass();
+            $eventdata->user = $user;
+            $eventdata->booking = $this->booking;
+            // TODO the next line is for backward compatibility only, delete when finished refurbishing the module ;-)
+            $eventdata->booking->option[$this->optionid] = $this->option;
+            $eventdata->optionid = $this->optionid;
+            $eventdata->cmid = $this->cm->id;
+            //TODO replace
+            booking_send_confirm_message($eventdata);
+        }
+        return true;
+    }
+
+    /**
+     * Check if user can enrol 
+     * @return mixed false on full, or if can enrol or 1 for waiting list.
+     */
+    private function check_if_limit() {
+        global $DB;
+        
+        if ($this->option->limitanswers) {
             $maxplacesavailable = $this->option->maxanswers + $this->option->maxoverbooking;
+            $bookedUsers = $DB->count_records("booking_answers", array('optionid' => $this->optionid, 'waitinglist' => 0));
+            $waitingUsers = $DB->count_records("booking_answers", array('optionid' => $this->optionid, 'waitinglist' => 1));
+            $allUsersCount = $bookedUsers + $waitingUsers;
 
-            // retrieve all answers for this option ID
-            // if answers for one option are limited and total answers are not exceeded then
-            if (!($this->numberofanswers >= $maxplacesavailable)) {
-                // check if actual answer is also already made by this user
-                //check directly in database, as some time may have passed since array of booked users was created
-                if (!($currentanswerid = $DB->get_field('booking_answers', 'id', array('userid' => $user->id, 'optionid' => $this->optionid)))) {
-                    $newanswer = new stdClass();
-                    $newanswer->bookingid = $this->id;
-                    $newanswer->userid = $user->id;
-                    $newanswer->optionid = $this->optionid;
-                    $newanswer->timemodified = time();
-                    $newanswer->timecreated = time();
-                    if (!$DB->insert_record("booking_answers", $newanswer)) {
-                        error("Could not register your booking because of a database error");
-                    }
-                    //TODO replace
-                    booking_check_enrol_user($this->option, $this->booking, $user->id);
+            if ($maxplacesavailable > $allUsersCount) {
+                if ($this->option->maxanswers > $bookedUsers) {
+                    return 0;
+                } else {
+                    return 1;
                 }
-                //add_to_log($this->cm->course, "booking", "choose", "view.php?id=".$this->cm->id, $this->id, $this->cm->id);
-                $event = \mod_booking\event\bookingoption_booked::create(array(
-                            'objectid' => $this->optionid,
-                            'context' => context_module::instance($this->cm->id),
-                            'relateduserid' => $user->id,
-                            'other' => array('userid' => $user->id)
-                ));
-                $event->trigger();
-
-                if ($this->booking->sendmail) {
-                    $eventdata = new stdClass();
-                    $eventdata->user = $user;
-                    $eventdata->booking = $this->booking;
-                    // TODO the next line is for backward compatibility only, delete when finished refurbishing the module ;-)
-                    $eventdata->booking->option[$this->optionid] = $this->option;
-                    $eventdata->optionid = $this->optionid;
-                    $eventdata->cmid = $this->cm->id;
-                    //TODO replace
-                    booking_send_confirm_message($eventdata);
-                }
-                return true;
             } else {
-                return false;
+                return FALSE;
             }
         } else {
-            if (!($currentanswerid = $DB->get_field('booking_answers', 'id', array('userid' => $user->id, 'optionid' => $this->optionid)))) {
-                $newanswer = new stdClass();
-                $newanswer->bookingid = $this->id;
-                $newanswer->userid = $user->id;
-                $newanswer->optionid = $this->optionid;
-                $newanswer->timemodified = time();
-                $newanswer->timecreated = time();
-                if (!$DB->insert_record("booking_answers", $newanswer)) {
-                    error("Could not register your booking because of a database error");
-                }
-                booking_check_enrol_user($this->option, $this->booking, $user->id);
-            }
-            //add_to_log($this->cm->course, "booking", "choose", "view.php?id=$cm->id", $booking->id, $cm->id);
-            $event = \mod_booking\event\bookingoption_booked::create(array(
-                        'objectid' => $this->optionid,
-                        'context' => context_module::instance($this->cm->id),
-                        'relateduserid' => $user->id,
-                        'other' => array('userid' => $user->id)
-            ));
-            $event->trigger();
-            if ($this->booking->sendmail) {
-                $eventdata = new stdClass();
-                $eventdata->user = $user;
-                $eventdata->booking = $this->booking;
-                // TODO the next line is for backward compatibility only, delete when finished refurbishing the module ;-)
-                $eventdata->booking->option[$this->optionid] = $this->option;
-                $eventdata->optionid = $this->optionid;
-                $eventdata->cmid = $this->cm->id;
-                booking_send_confirm_message($eventdata);
-            }
-            return true;
+            return 0;
         }
     }
 

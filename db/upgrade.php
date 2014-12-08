@@ -569,6 +569,21 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014112600, 'booking');
     }
+    
+      if ($oldversion < 2014120800) {
+
+        // Define field waitinglist to be added to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('waitinglist', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'timecreated');
+
+        // Conditionally launch add field waitinglist.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014120800, 'booking');
+    }
 
     return true;
 }

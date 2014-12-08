@@ -102,10 +102,8 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
         } else if ($unsubscribe && has_capability('mod/booking:deleteresponses', $context)) {
             $users = $existingselector->get_selected_users();
             $unsubscribesuccess = true;
-            foreach ($users as $user) {
-                $newbookeduser = booking_check_statuschange($optionid, $bookingoption->booking, $user->id, $cm->id);
-                $answer = $DB->get_record('booking_answers', array('bookingid' => $cm->instance, 'userid' => $user->id, 'optionid' => $optionid));
-                if (!booking_delete_singlebooking($answer, $bookingoption->booking, $optionid, $newbookeduser, $cm->id)) {
+            foreach ($users as $user) {                
+                if (!$bookingoption->user_delete_response($user->id)) {
                     $unsubscribesuccess = false;
                     print_error('cannotremovesubscriber', 'forum', $errorurl->out(), $user->id);
                 }
