@@ -526,12 +526,12 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
  * @return string
  */
 function booking_show_maxperuser($booking, $user, $bookinglist) {
-    if (!$booking->maxperuser) {
+    if (!$booking->booking->maxperuser) {
         return ''; // No per-user limits.
     }
 
     $outdata = new stdClass();
-    $outdata->limit = $booking->maxperuser;
+    $outdata->limit = $booking->booking->maxperuser;
     $outdata->count = booking_get_user_booking_count($booking, $user, $bookinglist);
 
     return html_writer::tag('p', get_string('maxperuserwarning', 'mod_booking', $outdata));
@@ -550,10 +550,10 @@ function booking_get_user_booking_count($booking, $user, $bookinglist) {
     $count = 0;
     $now = time();
     foreach ($bookinglist as $optionid => $optbookings) {
-        if (!isset($booking->option[$optionid])) {
+        if (!isset($booking->options[$optionid])) {
             continue; // Booking not for one of the available options (shouldn't happen?)
         }
-        if ($booking->option[$optionid]->courseendtime < $now && $booking->option[$optionid]->courseendtimetext !== get_string('endtimenotset', 'booking')) {
+        if ($booking->options[$optionid]->courseendtime < $now && $booking->options[$optionid]->courseendtimetext !== get_string('endtimenotset', 'booking')) {
             continue; // Booking is in the past - ignore it.
         }
         foreach ($optbookings as $optbooking) {
@@ -587,7 +587,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
     $bookingfull = false;
     $cdisplay = new stdClass();
 
-    if ($booking->limitanswers) { //set bookingfull to true by default if limitanswers.
+    if ($booking->booking->limitanswers) { //set bookingfull to true by default if limitanswers.
         $bookingfull = true;
         $waitingfull = true;
     }
@@ -624,184 +624,149 @@ function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0,
     $table = new html_table();
     $table->head = array('', '', '');
     $table->data = $tabledata;
-    $table->id = "tableSearch";
-    $table->attributes = array('style' => "display: none;");
+    $table->id = "tableSearch";    
+    if (empty($urlParams['searchText']) && empty($urlParams['searchLocation']) && empty($urlParams['searchInstitution'])) {
+        $table->attributes = array('style' => "display: none;");
+    }
     echo html_writer::table($table);
 
     $table = NULL;
     $displayoptions = new stdClass();
     $displayoptions->para = false;
     $tabledata = array();
-    $current = array();
     $rowclasses = array();
 
-    $underlimit = ($booking->maxperuser == 0);
-    $underlimit = $underlimit || (booking_get_user_booking_count($booking, $user, $allresponses) < $booking->maxperuser);
+    $underlimit = ($booking->booking->maxperuser == 0);
+    $underlimit = $underlimit || (booking_get_user_booking_count($booking, $user, $allresponses) < $booking->booking->maxperuser);
 
+    // Show only one option
     if (isset($optionid)) {
-        foreach ($booking->option as $option) {
+        foreach ($booking->options as $option) {
             if ($optionid != $option->id) {
-                unset($booking->option[$option->id]);
+                unset($booking->options[$option->id]);
             }
         }
     }
 
-    if (isset($booking->option)) {
-        foreach ($booking->option as $option) {
+    if (isset($booking->options)) {
+        foreach ($booking->options as $option) {
+            $current = array();
+
             $optiondisplay = new stdClass();
             $optiondisplay->delete = "";
             $optiondisplay->button = "";
             $hiddenfields = array('answer' => $option->id);
-// determine the ranking in order of booking time. necessary to decide whether user is on waitinglist or in regular booking
-            if (@$allresponses[$option->id]) {
-                foreach ($allresponses[$option->id] as $rank => $userobject) {
-                    if ($user->id == $userobject->id) {
-                        $current[$option->id] = $rank; //ranking of the user in order of subscription time
-                    }
-                }
-            }
+
+            $myBooking = $DB->get_record('booking_answers', array('userid' => $user->id, 'optionid' => $option->id));
 
             $inpast = $option->courseendtime && ($option->courseendtime < time());
             $extraclass = $inpast ? ' inpast' : '';
 
-            if ($singleuser == 2 && $inpast) {
-// Nothing
-            } else {
-                if (!empty($current[$option->id])) {
-                    if (!$option->limitanswers) {
-                        if ($inpast) {
-                            $optiondisplay->booked = get_string('bookedpast', 'booking');
-                        } else {
-                            $optiondisplay->booked = get_string('booked', 'booking');
-                        }
-                        $rowclasses[] = "mod-booking-booked" . $extraclass;
-                        if ($booking->allowupdate and $option->status != 'closed') {
-                            $buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
-                            $url = new moodle_url('view.php', $buttonoptions);
-                            $url->params($buttonoptions);
-                            $optiondisplay->delete = $OUTPUT->single_button($url, get_string('cancelbooking', 'booking'), 'post') . '<br />';
-                        }
-                    } elseif ($current[$option->id] > $option->maxanswers + $option->maxoverbooking) {
-                        $optiondisplay->booked = "Problem, please contact the admin";
-                    } elseif ($current[$option->id] > $option->maxanswers) { // waitspaceavailable
-                        $optiondisplay->booked = get_string('onwaitinglist', 'booking');
-                        $rowclasses[] = "mod-booking-watinglist" . $extraclass;
-                        if ($booking->allowupdate and $option->status != 'closed') {
-                            $buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
-                            $url = new moodle_url('view.php', $buttonoptions);
-                            $optiondisplay->delete = $OUTPUT->single_button($url, get_string('cancelbooking', 'booking'), 'post') . '<br />';
-                        }
-                    } elseif ($current[$option->id] <= $option->maxanswers) {
-                        if ($inpast) {
-                            $optiondisplay->booked = get_string('bookedpast', 'booking');
-                        } else {
-                            $optiondisplay->booked = get_string('booked', 'booking');
-                        }
-                        $rowclasses[] = "mod-booking-booked" . $extraclass;
-                        if ($booking->allowupdate and $option->status != 'closed') {
-                            $buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
-                            $url = new moodle_url('view.php', $buttonoptions);
-                            $optiondisplay->delete = $OUTPUT->single_button($url, get_string('cancelbooking', 'booking'), 'post') . '<br />';
-                        }
-                    }
-                    if (!$booking->allowupdate) {
-                        $optiondisplay->button = "";
-                    }
-                } else {
-                    $optiondisplay->booked = get_string('notbooked', 'booking');
-                    if ($singleuser == 0) {
-                        $rowclasses[] = $extraclass;
-                    } else if ($singleuser == 1) {
-                        $rowclasses[] = "mod-booking-invisible" . $extraclass;
-                    } else {
-                        $rowclasses[] = $extraclass;
-                    }
-                    $buttonoptions = array('answer' => $option->id, 'id' => $cm->id, 'sesskey' => $user->sesskey);
+            if ($myBooking) {
+                // If I'm booked
+                if ($booking->booking->allowupdate and $option->status != 'closed') {
+                    $buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
                     $url = new moodle_url('view.php', $buttonoptions);
-                    $url->params($hiddenfields);
-                    $optiondisplay->button = $OUTPUT->single_button($url, get_string('booknow', 'booking'), 'post');
-                }
-                if ($booking->option[$option->id]->limitanswers && ($booking->option[$option->id]->status == "full")) {
-                    $optiondisplay->button = '';
-                } elseif ($booking->option[$option->id]->status == "closed") {
-                    $optiondisplay->button = '';
-                }
-                if (!$underlimit) {
-                    $optiondisplay->button = '';
-                }
-// check if user ist logged in
-                if (has_capability('mod/booking:choose', $context, $user->id, false)) { //don't show booking button if the logged in user is the guest user.
-                    $bookingbutton = $optiondisplay->button;
+                    $optiondisplay->delete = $OUTPUT->single_button($url, get_string('cancelbooking', 'booking'), 'post') . '<br />';
                 } else {
-                    $bookingbutton = get_string('havetologin', 'booking') . "<br />";
-                }
-                if (!$option->limitanswers) {
-                    $stravailspaces = get_string("unlimited", 'booking');
-                } else {
-                    $stravailspaces = get_string("placesavailable", "booking") . ": " . $option->availspaces . " / " . $option->maxanswers . "<br />" . get_string("waitingplacesavailable", "booking") . ": " . $option->availwaitspaces . " / " . $option->maxoverbooking;
+                    $optiondisplay->button = "";
                 }
 
-                if (has_capability('mod/booking:readresponses', $context) || booking_check_if_teacher($option, $user)) {
-                    $numberofresponses = 0;
-                    if (isset($allresponses[$option->id])) {
-                        $numberofresponses = count($allresponses[$option->id]);
+                if ($myBooking->waitinglist) {
+                    $rowclasses[] = "mod-booking-watinglist" . $extraclass;
+                    $optiondisplay->booked = get_string('onwaitinglist', 'booking');
+                } else {
+                    $rowclasses[] = "mod-booking-booked" . $extraclass;
+                    if ($inpast) {
+                        $optiondisplay->booked = get_string('bookedpast', 'booking');
+                    } else {
+                        $optiondisplay->booked = get_string('booked', 'booking');
                     }
-                    $optiondisplay->manage = "<a href=\"report.php?id=$cm->id&optionid=$option->id\">" . get_string("viewallresponses", "booking", $numberofresponses) . "</a>";
-                } else {
-                    $optiondisplay->manage = "";
+                }
+            } else {
+                $optiondisplay->booked = get_string('notbooked', 'booking');                
+                $rowclasses[] = $extraclass;
+                $buttonoptions = array('answer' => $option->id, 'id' => $cm->id, 'sesskey' => $user->sesskey);
+                $url = new moodle_url('view.php', $buttonoptions);
+                $url->params($hiddenfields);
+                $optiondisplay->button = $OUTPUT->single_button($url, get_string('booknow', 'booking'), 'post');
+            }
+
+            if (($option->limitanswers && ($option->status == "full")) || ($option->status == "closed") || !$underlimit) {
+                $optiondisplay->button = '';
+            }
+            
+            // check if user ist logged in
+            if (has_capability('mod/booking:choose', $context, $user->id, false)) { //don't show booking button if the logged in user is the guest user.
+                $bookingbutton = $optiondisplay->button;
+            } else {
+                $bookingbutton = get_string('havetologin', 'booking') . "<br />";
+            }
+            
+            if (!$option->limitanswers) {
+                $stravailspaces = get_string("unlimited", 'booking');
+            } else {
+                $stravailspaces = get_string("placesavailable", "booking") . ": " . $option->availspaces . " / " . $option->maxanswers . "<br />" . get_string("waitingplacesavailable", "booking") . ": " . $option->availwaitspaces . " / " . $option->maxoverbooking;
+            }
+
+            if (has_capability('mod/booking:readresponses', $context) || booking_check_if_teacher($option, $user)) {
+                $numberofresponses = $option->count;
+                $optiondisplay->manage = "<a href=\"report.php?id=$cm->id&optionid=$option->id\">" . get_string("viewallresponses", "booking", $numberofresponses) . "</a>";
+            } else {
+                $optiondisplay->manage = "";
+            }
+
+            $optiondisplay->bookotherusers = "";
+
+            $cTeachers = $DB->count_records("booking_teachers", array("optionid" => $option->id, 'bookingid' => $option->bookingid));
+            $teachers = $DB->get_records("booking_teachers", array("optionid" => $option->id, 'bookingid' => $option->bookingid));
+            $niceTeachers = array();
+            $printTeachers = "";
+
+            if ($cTeachers > 0) {
+                $printTeachers = "<p>";
+                $printTeachers .= get_string('teachers', 'booking');
+
+                foreach ($teachers as $teacher) {
+                    $tmpuser = $DB->get_record('user', array('id' => $teacher->userid));
+                    $niceTeachers[] = fullname($tmpuser);
                 }
 
-                $optiondisplay->bookotherusers = "";
+                $printTeachers .= implode(', ', $niceTeachers);
+                $printTeachers .= "</p>";
+            }
 
-                $cTeachers = $DB->count_records("booking_teachers", array("optionid" => $option->id, 'bookingid' => $option->bookingid));
-                $teachers = $DB->get_records("booking_teachers", array("optionid" => $option->id, 'bookingid' => $option->bookingid));
-                $niceTeachers = array();
-                $printTeachers = "";
+            $additionalInfo = '';
+            if (strlen($option->location) > 0) {
+                $additionalInfo .= '<p>' . get_string('location', "booking") . ': ' . $option->location . '</p>';
+            }
+            if (strlen($option->institution) > 0) {
+                $additionalInfo .= '<p>' . get_string('institution', "booking") . ': ' . $option->institution . '</p>';
+            }
+            if (strlen($option->address) > 0) {
+                $additionalInfo .= '<p>' . get_string('address', "booking") . ': ' . $option->address . '</p>';
+            }
 
-                if ($cTeachers > 0) {
-                    $printTeachers = "<p>";
-                    $printTeachers .= get_string('teachers', 'booking');
-
-                    foreach ($teachers as $teacher) {
-                        $tmpuser = $DB->get_record('user', array('id' => $teacher->userid));
-                        $niceTeachers[] = fullname($tmpuser);
-                    }
-
-                    $printTeachers .= implode(', ', $niceTeachers);
-                    $printTeachers .= "</p>";
-                }
-
-                $additionalInfo = '';
-                if (strlen($option->location) > 0) {
-                    $additionalInfo .= '<p>' . get_string('location', "booking") . ': ' . $option->location . '</p>';
-                }
-                if (strlen($option->institution) > 0) {
-                    $additionalInfo .= '<p>' . get_string('institution', "booking") . ': ' . $option->institution . '</p>';
-                }
-                if (strlen($option->address) > 0) {
-                    $additionalInfo .= '<p>' . get_string('address', "booking") . ': ' . $option->address . '</p>';
-                }
-
-                $row = new html_table_row(array("<span id=\"option{$option->id}\"></span>" . $bookingbutton . $optiondisplay->booked . '
+            $row = new html_table_row(array("<span id=\"option{$option->id}\"></span>" . $bookingbutton . $optiondisplay->booked . '
 		<br />' . get_string($option->status, "booking") . '
 		<br />' . $optiondisplay->delete . $optiondisplay->manage . '
 		<br />' . $optiondisplay->bookotherusers,
-                    "<b>" . format_text($option->text . ' ', FORMAT_MOODLE, $displayoptions) . "</b>" . "<p>" . $option->description . "</p>" . $printTeachers . $additionalInfo,
-                    $option->coursestarttimetext . " - <br />" . $option->courseendtimetext,
-                    $stravailspaces));
+                "<b>" . format_text($option->text . ' ', FORMAT_MOODLE, $displayoptions) . "</b>" . "<p>" . $option->description . "</p>" . $printTeachers . $additionalInfo,
+                $option->coursestarttimetext . " - <br />" . $option->courseendtimetext,
+                $stravailspaces));
 
-                $tabledata[] = $row;
-            }
+            $tabledata[] = $row;
         }
     }
+    
     $table = new html_table();
     $table->attributes['class'] = 'box generalbox boxaligncenter boxwidthwide booking';
     $table->attributes['style'] = '';
     $table->data = array();
     $strselect = get_string("select", "booking");
     $strbooking = get_string("booking", "booking");
-    if (strlen($booking->eventtype) > 0) {
-        $strbooking = $booking->eventtype;
+    if (strlen($booking->booking->eventtype) > 0) {
+        $strbooking = $booking->booking->eventtype;
     }
 
     $strdate = '<a href="' . $sorturl . '">' . get_string("coursedate", "booking") . '</a>';
@@ -859,7 +824,7 @@ function booking_enrol_user($option, $booking, $userid) {
     $instance = reset($instances); // Use the first manual enrolment plugin in the course.
 
     $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.	
-    
+
     if ($booking->addtogroup == 1) {
         if (!is_null($option->groupid) && ($option->groupid > 0)) {
             groups_add_member($option->groupid, $userid);
@@ -1012,13 +977,13 @@ function booking_confirm_booking($optionid, $booking, $user, $cm, $url) {
     $optionidarray['confirm'] = 1;
     $optionidarray['sesskey'] = $user->sesskey;
     $optionidarray['id'] = $cm->id;
-    $requestedcourse = "<br />" . $booking->option[$optionid]->text;
-    if ($booking->option[$optionid]->coursestarttime != 0) {
-        $requestedcourse .= "<br />" . $booking->option[$optionid]->coursestarttimetext . " - " . $booking->option[$optionid]->courseendtimetext;
+    $requestedcourse = "<br />" . $booking->options[$optionid]->text;
+    if ($booking->options[$optionid]->coursestarttime != 0) {
+        $requestedcourse .= "<br />" . $booking->options[$optionid]->coursestarttimetext . " - " . $booking->options[$optionid]->courseendtimetext;
     }
     $message = "<h2>" . get_string('confirmbookingoffollowing', 'booking') . "</h2>" . $requestedcourse;
     $message .= "<p><b>" . get_string('agreetobookingpolicy', 'booking') . ":</b></p>";
-    $message .= "<p>" . $booking->bookingpolicy . "<p>";
+    $message .= "<p>" . $booking->booking->bookingpolicy . "<p>";
     echo $OUTPUT->confirm($message, new moodle_url('/mod/booking/view.php', $optionidarray), $url);
     echo $OUTPUT->footer();
 }
@@ -1171,7 +1136,7 @@ function booking_send_notification($optionid, $subject) {
 
     $bookingData = new booking_option($cm->id, $booking->id);
     $bookingData->apply_tags();
-    
+
     if (isset($bookingData->usersOnList)) {
         $allusers = $bookingData->usersOnList;
 
@@ -1429,7 +1394,7 @@ function booking_get_spreadsheet_data($booking, $cm, $filters = array('searchNam
     $bookinglistsorted = array();
     $context = context_module::instance($cm->id);
     $params = array();
-    
+
     $options = "{booking_answers}.bookingid = :bookingid";
     $params['bookingid'] = $booking->id;
 
@@ -1466,7 +1431,7 @@ function booking_get_spreadsheet_data($booking, $cm, $filters = array('searchNam
     $mainuserfields = implode(', ', $mainuserfields);
 
     $rawresponses = $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated , ' . $mainuserfields . ' FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC', $params);
-    
+
     $optionids = $DB->get_records_select('booking_options', "bookingid = $booking->id", array(), 'id', 'id');
 /// Use the responses to move users into the correct column
     $sortnumber = 1;
