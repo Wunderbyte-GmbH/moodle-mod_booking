@@ -195,7 +195,7 @@ class booking_option extends booking {
         }
         $mainuserfields = implode(', ', $mainuserfields);
         
-        $this->users = $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated, {booking_answers}.waitinglist, ' . $mainuserfields . ' FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC', $params, $this->perpage, $this->page);
+        $this->users = $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated, {booking_answers}.waitinglist, ' . $mainuserfields . ' FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC', $params, $this->perpage * $this->page, $this->perpage);
         
         foreach ($this->users as $user) {
             if ($user->waitinglist == 1) {
@@ -206,6 +206,41 @@ class booking_option extends booking {
         }
     }
 
+    // Get all users...filtered!
+    public function get_all_users() {
+        global $DB;
+        $params = array();
+
+        $options = "{booking_answers}.optionid = :optionid";
+        $params['optionid'] = $this->optionid;
+
+        if (isset($this->filters['searchFinished']) && strlen($this->filters['searchFinished']) > 0) {
+            $options .= " AND {booking_answers}.completed = :completed";
+            $params['completed'] = $this->filters['searchFinished'];
+        }
+
+        if (isset($this->filters['searchDate']) && $this->filters['searchDate'] == 1) {
+            $options .= " AND FROM_UNIXTIME({booking_answers}.timecreated, '%Y') = :searchdateyear AND FROM_UNIXTIME({booking_answers}.timecreated, '%m') = :searchdatemonth AND FROM_UNIXTIME({booking_answers}.timecreated, '%d') = :searchdateday";
+            $params['searchdateyear'] = $this->filters['searchDateYear'];
+            $params['searchdatemonth'] = $this->filters['searchDateMonth'];
+            $params['searchdateday'] = $this->filters['searchDateDay'];
+        }
+
+        if (isset($this->filters['searchName']) && strlen($this->filters['searchName']) > 0) {
+            $options .= " AND {user}.firstname LIKE :searchname";
+            $params['searchname'] = '%' . $this->filters['searchName'] . '%';
+        }
+
+        if (isset($this->filters['searchSurname']) && strlen($this->filters['searchSurname']) > 0) {
+            $options .= " AND {user}.lastname LIKE :searchsurname";
+            $params['searchsurname'] = '%' . $this->filters['searchSurname'] . '%';
+        }
+
+        $mainuserfields = user_picture::fields('{user}', NULL);
+        
+        return $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated, {booking_answers}.waitinglist, ' . $mainuserfields . ' FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC', $params);
+    }
+    
     // Count, how man users...for pagination.
     public function count_users() {
         global $DB;
@@ -236,14 +271,8 @@ class booking_option extends booking {
             $params['searchsurname'] = '%' . $this->filters['searchSurname'] . '%';
         }
 
-        $mainuserfields = explode(',', user_picture::fields());
-        foreach ($mainuserfields as $key => $value) {
-            $mainuserfields[$key] = '{user}.' . $value;
-        }
-        $mainuserfields = implode(', ', $mainuserfields);
-        
         $count = $DB->get_record_sql('SELECT COUNT(*) AS count FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC', $params);        
-        var_dump($count);
+
         return (int)$count->count;
     }
     

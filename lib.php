@@ -856,15 +856,15 @@ function booking_enrol_user($option, $booking, $userid) {
         return; // No manual enrolment instance on this course.
     }
 
+    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
+
+    $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.	
+    
     if ($booking->addtogroup == 1) {
         if (!is_null($option->groupid) && ($option->groupid > 0)) {
             groups_add_member($option->groupid, $userid);
         }
     }
-
-    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-
-    $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.	
 }
 
 /**
