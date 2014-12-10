@@ -5,6 +5,7 @@ require_once($CFG->libdir . '/completionlib.php');
 
 $id = required_param('id', PARAM_INT);                 // Course Module ID
 $action = optional_param('action', '', PARAM_ALPHA);
+$whichview = optional_param('whichview', '', PARAM_ALPHA);
 $optionid = optional_param('optionid', '', PARAM_INT);
 $confirm = optional_param('confirm', '', PARAM_INT);
 $answer = optional_param('answer', '', PARAM_ALPHANUM);
@@ -14,15 +15,19 @@ $searchLocation = optional_param('searchLocation', '', PARAM_TEXT);
 $searchInstitution = optional_param('searchInstitution', '', PARAM_TEXT);
 $page = optional_param('page', '0', PARAM_INT);
 
-$perPage = 25;
+$perPage = 10;
 
 $urlParams = array();
 $urlParams['id'] = $id;
 
 if (!empty($action)) {
     $urlParams['action'] = $action;
+}
+
+if (!empty($whichview)) {
+    $urlParams['whichview'] = $whichview;
 } else {
-    $urlParams['action'] = 'showactive';    
+    $urlParams['whichview'] = 'showactive';    
 }
 
 if ($optionid > 0) {
@@ -278,7 +283,7 @@ if (has_capability('mod/booking:downloadresponses', $context)) {
             $optionstochoose[$option->id] = $option->text;
         }
     }
-    $options = array();
+    $options = $urlParams;
     $options["id"] = "$cm->id";
     $options["optionid"] = 0;
     $options["download"] = "ods";
@@ -313,14 +318,14 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
     echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
     
     unset($urlParams['sort']);
-    $urlParams['action'] = 'showactive';
+    $urlParams['whichview'] = 'showactive';
     $urlActive = new moodle_url('/mod/booking/view.php', $urlParams);
-    $urlParams['action'] = 'showall';
+    $urlParams['whichview'] = 'showall';
     $urlAll = new moodle_url('/mod/booking/view.php', $urlParams);
-    $urlParams['action'] = 'mybooking';
+    $urlParams['whichview'] = 'mybooking';
     $urlMy = new moodle_url('/mod/booking/view.php', $urlParams);
 
-    switch ($action) {
+    switch ($whichview) {
         case 'mybooking':
             $message = "<a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a> | <a href=\"$urlActive\">" . get_string('showactive', 'booking') . "</a> | " . '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
             echo $OUTPUT->box($message, 'box mdl-align');

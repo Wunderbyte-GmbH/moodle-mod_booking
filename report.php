@@ -26,6 +26,11 @@ $searchDateDay = optional_param('searchDateDay', '', PARAM_TEXT);
 $searchDateMonth = optional_param('searchDateMonth', '', PARAM_TEXT);
 $searchDateYear = optional_param('searchDateYear', '', PARAM_TEXT);
 $searchFinished = optional_param('searchFinished', '', PARAM_TEXT);
+// from view.php
+$searchText = optional_param('searchText', '', PARAM_TEXT);
+$searchLocation = optional_param('searchLocation', '', PARAM_TEXT);
+$searchInstitution = optional_param('searchInstitution', '', PARAM_TEXT);
+$whichview = optional_param('whichview', '', PARAM_ALPHA);
 
 $perPage = 25;
 
@@ -83,12 +88,32 @@ if (strlen($searchFinished) > 0) {
     $urlParams['searchFinished'] = $searchFinished;
 }
 
-$url = new moodle_url('/mod/booking/report.php', $urlParams);
+$urlParams['searchText'] = "";
+if (strlen($searchText) > 0) {
+    $urlParams['searchText'] = $searchText;
+}
+
+$urlParams['searchLocation'] = "";
+if (strlen($searchLocation) > 0) {
+    $urlParams['searchLocation'] = $searchLocation;
+}
+
+$urlParams['searchInstitution'] = "";
+if (strlen($searchInstitution) > 0) {
+    $urlParams['searchInstitution'] = $searchInstitution;
+}
+
+if (!empty($whichview)) {
+    $urlParams['whichview'] = $whichview;
+} else {
+    $urlParams['whichview'] = 'showactive';    
+}
 
 if ($action !== '') {
-    $url->param('action', $action);
     $urlParams['action'] = $action;
 }
+
+$url = new moodle_url('/mod/booking/report.php', $urlParams);
 
 $PAGE->set_url($url);
 
@@ -105,8 +130,9 @@ require_course_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 
 if ($optionid == 0) {
-    $bookingData = new booking($cm->id);
-    $bookinglist = booking_get_spreadsheet_data($bookingData->booking, $cm, $urlParams);
+    $bookingData = new booking_options($cm->id, FALSE, $urlParams);
+    $bookingData->apply_tags();
+    $bookinglist = $bookingData->allbookedusers;
     
     if (has_capability('mod/booking:readresponses', $context)) {
         require_capability('mod/booking:readresponses', $context);

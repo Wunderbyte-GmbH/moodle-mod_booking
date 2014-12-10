@@ -631,8 +631,8 @@ class booking_options extends booking {
 
         $left = " FROM {booking_options} AS bo WHERE ";
         
-        if (isset($this->filters['action'])) {
-            switch ($this->filters['action']) {
+        if (isset($this->filters['whichview'])) {
+            switch ($this->filters['whichview']) {
                 case 'mybooking':
                     $left = " FROM {booking_options} AS bo LEFT JOIN {booking_answers} AS ba ON bo.id = ba.optionid WHERE ";
                     $conditions .= " AND ba.userid = " . $USER->id . " ";
@@ -792,10 +792,12 @@ class booking_options extends booking {
                 $validresponses = array_intersect_key($sortedusers, $this->canbookusers);
             } else {
                 $validresponses = $rawresponses;
-            }
+            }            
             foreach ($validresponses as $response) {
+                if (isset($this->options[$response->optionid])) {
                 $bookinglist[$response->optionid][] = $response;
                 $optionids[$response->optionid] = $response->optionid;
+                }
             }
             foreach ($optionids as $optionid) {
                 $totalbookings[$optionid] = count($bookinglist[$optionid]);
