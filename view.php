@@ -79,6 +79,7 @@ if (!$context = context_module::instance($cm->id)) {
 // check if data has been submitted to be processed
 if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capability('mod/booking:choose', $context) and ( $booking->booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
     $bookingData = new booking_option($cm->id, $optionid);
+    $bookingData->apply_tags();
 
     if ($bookingData->user_delete_response($USER->id)) {
         echo $OUTPUT->header();
@@ -128,6 +129,7 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context)) 
 
     if (!empty($answer)) {
         $bookingData = new booking_option($cm->id, $answer);
+        $bookingData->apply_tags();
         if ($bookingData->user_submit_response($USER)) {
             $contents = get_string('bookingsaved', 'booking');
             if ($booking->booking->sendmail) {
