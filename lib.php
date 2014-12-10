@@ -571,13 +571,12 @@ function booking_get_user_booking_count($booking, $user, $bookinglist) {
  * @param $user object of current user
  * @param $cm course module object
  * @param $allresponses array of all responses
- * @param $singleuser 0 show all booking options, 1 show only my booking options, 2 show only active
  * @param $sorturl
  * @param $urlParams - fparameters of url
  * @param $optionid - if is set, show only this option
  * @return void
  */
-function booking_show_form($booking, $user, $cm, $allresponses, $singleuser = 0, $sorturl = '', $urlParams = array(), $optionid = NULL) {
+function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $urlParams = array(), $optionid = NULL) {
     global $DB, $OUTPUT;
 //$optiondisplay is an array of the display info for a booking $cdisplay[$optionid]->text  - text name of option.
 //                                                                            ->maxanswers -maxanswers for this option

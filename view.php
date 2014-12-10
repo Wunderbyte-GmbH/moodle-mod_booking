@@ -12,20 +12,22 @@ $sorto = optional_param('sort', '', PARAM_INT);
 $searchText = optional_param('searchText', '', PARAM_TEXT);
 $searchLocation = optional_param('searchLocation', '', PARAM_TEXT);
 $searchInstitution = optional_param('searchInstitution', '', PARAM_TEXT);
+$page = optional_param('page', '0', PARAM_INT);
+
+$perPage = 25;
 
 $urlParams = array();
 $urlParams['id'] = $id;
 
 if (!empty($action)) {
     $urlParams['action'] = $action;
+} else {
+    $urlParams['action'] = 'showactive';    
 }
 
 if ($optionid > 0) {
     $urlParams['optionid'] = $optionid;
 }
-
-$sort = '';
-$sorturl = new moodle_url('/mod/booking/view.php', array('id' => $id, 'sort' => 0));
 
 if ($sorto == 1) {
     $sort = 'coursestarttime ASC';
@@ -64,7 +66,7 @@ if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
 
 require_course_login($course, false, $cm);
 
-$booking = new booking_options($cm->id, TRUE, $urlParams);
+$booking = new booking_options($cm->id, TRUE, $urlParams, $page, $perPage);
 $booking->apply_tags();
 
 $strbooking = get_string('modulename', 'booking');
@@ -152,7 +154,7 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context)) 
     }
 }
 // we have to refresh $booking as it is modified by submitted data;
-$booking = new booking_options($cm->id, TRUE, $urlParams);
+$booking = new booking_options($cm->id, TRUE, $urlParams, $page, $perPage);
 $booking->apply_tags();
 
 $event = \mod_booking\event\course_module_viewed::create(array(
@@ -307,8 +309,10 @@ if ($booking->booking->timeclose != 0) {
 if (!$current and $bookingopen and has_capability('mod/booking:choose', $context)) {
 
     echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
-
-    $url = new moodle_url('/mod/booking/view.php', $urlParams);
+    
+    unset($urlParams['sort']);
+    $urlParams['action'] = 'showactive';
+    $urlActive = new moodle_url('/mod/booking/view.php', $urlParams);
     $urlParams['action'] = 'showall';
     $urlAll = new moodle_url('/mod/booking/view.php', $urlParams);
     $urlParams['action'] = 'mybooking';
@@ -316,36 +320,31 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
     switch ($action) {
         case 'mybooking':
-            $message = "<a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a> | <a href=\"$url\">" . get_string('showactive', 'booking') . "</a> | " . '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
+            $message = "<a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a> | <a href=\"$urlActive\">" . get_string('showactive', 'booking') . "</a> | " . '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
             echo $OUTPUT->box($message, 'box mdl-align');
-            booking_show_form($booking, $USER, $cm, $bookinglist, 1, $url, $urlParams);
             break;
 
         case 'showall':
-            $message = "<a href=\"$urlMy\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"$url\">" . get_string('showactive', 'booking') . "</a> | " . '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
+            $message = "<a href=\"$urlMy\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"$urlActive\">" . get_string('showactive', 'booking') . "</a> | " . '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
             echo $OUTPUT->box($message, 'box mdl-align');
-            booking_show_form($booking, $USER, $cm, $bookinglist, 0, $url, $urlParams);
             break;
 
         case 'showonlyone':
-            booking_show_form($booking, $USER, $cm, $bookinglist, 0, $url, $urlParams, $optionid);
             break;
 
         default:
             $message = "<a href=\"$urlMy\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a> | " . '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
-            echo $OUTPUT->box($message, 'box mdl-align');
-            booking_show_form($booking, $USER, $cm, $bookinglist, 2, $url, $urlParams);
+            echo $OUTPUT->box($message, 'box mdl-align');            
             break;
     }
+    
+    booking_show_form($booking, $USER, $cm, $bookinglist, $url, $urlParams);
+    echo $OUTPUT->paging_bar($booking->count(), $page, $perPage, $url);
 
-    $bookingformshown = true;
 } else {
-    $bookingformshown = false;
-}
-
-if (!$bookingformshown) {
     echo $OUTPUT->box(get_string("norighttobook", "booking"));
 }
+
 if (has_capability('mod/booking:updatebooking', $context)) {
     $addoptionurl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add'));
     $importoptionurl = new moodle_url('importoptions.php', array('id' => $cm->id));

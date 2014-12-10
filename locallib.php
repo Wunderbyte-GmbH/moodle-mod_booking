@@ -582,17 +582,89 @@ class booking_options extends booking {
 
     /** @var boolean verify booked users against canbook users yes/no */
     protected $checkcanbookusers = true;
+    private $action = "showonlyactive";
 
-    public function __construct($cmid, $checkcanbookusers = true, $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => '')) {
-        global $DB;
+    /** @var array of users filters */
+    public $filters = array();
+    // Pagination
+    public $page = 0;
+    public $perpage = 0;
+    public $sort = ' ORDER BY bo.coursestarttime ASC';
 
+    public function __construct($cmid, $checkcanbookusers = true, $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), $page = 0, $perpage = 0) {
         parent::__construct($cmid);
         $this->checkcanbookusers = $checkcanbookusers;
-        $this->options = $DB->get_records_sql('SELECT * FROM {booking_options} WHERE text LIKE :text AND location LIKE :location AND institution LIKE :institution AND bookingid = :bookingid', array('institution' => '%' . $urlParams['searchInstitution'] . '%', 'location' => '%' . $urlParams['searchLocation'] . '%', 'text' => '%' . $urlParams['searchText'] . '%', 'bookingid' => $this->id));
+        $this->filters = $urlParams;
+        $this->page = $page;
+        $this->perpage = $perpage;
+        if (isset($this->filters['sort']) && $this->filters['sort'] === 1) {
+            $this->sort = ' ORDER BY bo.coursestarttime DESC';
+        }
+        $this->fill_options();
         $this->get_options_data();
         // call only when needed TODO
         $this->set_booked_visible_users();
         $this->add_additional_info();
+    }
+
+    private function q_params() {
+        global $USER;
+        $args = array();
+
+        $conditions = " bo.bookingid = :bookingid ";
+        $args['bookingid'] = $this->id;
+
+        if (!empty($this->filters['searchText'])) {
+            $conditions .= " AND bo.text LIKE :text ";
+            $args['text'] = '%' . $this->filters['searchText'] . '%';
+        }
+
+        if (!empty($this->filters['searchLocation'])) {
+            $conditions .= " AND bo.location LIKE :location ";
+            $args['location'] = '%' . $this->filters['searchLocation'] . '%';
+        }
+
+        if (!empty($this->filters['searchInstitution'])) {
+            $conditions .= " AND bo.institution LIKE :institution ";
+            $args['institution'] = '%' . $this->filters['searchInstitution'] . '%';
+        }
+
+        $left = " FROM {booking_options} AS bo WHERE ";
+        
+        if (isset($this->filters['action'])) {
+            switch ($this->filters['action']) {
+                case 'mybooking':
+                    $left = " FROM {booking_options} AS bo LEFT JOIN {booking_answers} AS ba ON bo.id = ba.optionid WHERE ";
+                    $conditions .= " AND ba.userid = " . $USER->id . " ";
+                    break;
+
+                case 'showall':
+                    break;
+
+                case 'showonlyone':
+                    $conditions .= " AND bo.id = :optionid ";
+                    $args['optionid'] = $this->filters['optionid'];
+                    break;
+
+                case 'showactive':
+                    $conditions .= " AND (bo.coursestarttime > " . time() . " OR bo.coursestarttime = 0) ";
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        $sql = $left . " {$conditions} {$this->sort}";
+        
+        return array('sql' => $sql, 'args' => $args);
+    }
+
+    private function fill_options() {
+        global $DB;
+
+        $options = $this->q_params();
+        $this->options = $DB->get_records_sql('SELECT bo.* ' . $options['sql'], $options['args'], $this->perpage * $this->page, $this->perpage);
     }
 
     public function apply_tags() {
@@ -605,32 +677,42 @@ class booking_options extends booking {
         }
     }
 
+    // Count, how man options...for pagination.
+    public function count() {
+        global $DB;
+
+        $options = $this->q_params();
+        $count = $DB->get_record_sql('SELECT COUNT(*) AS count ' . $options['sql'], $options['args']);
+
+        return (int) $count->count;
+    }
+
     // Add additional info to options (status, availspaces, taken, ...)
     private function add_additional_info() {
         global $DB;
-        
+
         $answers = $DB->get_records('booking_answers', array('bookingid' => $this->id), 'id');
         $allresponses = array();
         $mainuserfields = user_picture::fields('u', NULL);
         $allresponses = get_users_by_capability($this->context, 'mod/booking:choose', $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
 
         foreach ($this->options as $option) {
-            
+
             $count = $DB->get_record_sql('SELECT COUNT(*) AS count FROM {booking_answers} WHERE optionid = :optionid', array('optionid' => $option->id));
             $option->count = (int) $count->count;
-            
+
             if (!$option->coursestarttime == 0) {
                 $option->coursestarttimetext = userdate($option->coursestarttime, get_string('strftimedatetime'));
             } else {
                 $option->coursestarttimetext = get_string("starttimenotset", 'booking');
             }
-            
+
             if (!$option->courseendtime == 0) {
                 $option->courseendtimetext = userdate($option->courseendtime, get_string('strftimedatetime'), '', false);
             } else {
                 $option->courseendtimetext = get_string("endtimenotset", 'booking');
             }
-            
+
             // we have to change $taken is different from booking_show_results
             $answerstocount = array();
             if ($answers) {
