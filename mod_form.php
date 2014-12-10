@@ -224,6 +224,8 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('editor', 'bookingpolicy', get_string("bookingpolicy", "booking"), null, null);
         $mform->setType('bookingpolicy', PARAM_CLEANHTML);
 
+        $mform->addElement('selectyesno', 'cancancelbook', get_string("cancancelbook", "booking"));
+        
         $mform->addElement('selectyesno', 'allowupdate', get_string("allowdelete", "booking"));
 
         $mform->addElement('selectyesno', 'autoenrol', get_string('autoenrol', 'booking'));

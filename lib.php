@@ -623,7 +623,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
     $table = new html_table();
     $table->head = array('', '', '');
     $table->data = $tabledata;
-    $table->id = "tableSearch";    
+    $table->id = "tableSearch";
     if (empty($urlParams['searchText']) && empty($urlParams['searchLocation']) && empty($urlParams['searchInstitution'])) {
         $table->attributes = array('style' => "display: none;");
     }
@@ -683,7 +683,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
                     }
                 }
             } else {
-                $optiondisplay->booked = get_string('notbooked', 'booking');                
+                $optiondisplay->booked = get_string('notbooked', 'booking');
                 $rowclasses[] = $extraclass;
                 $buttonoptions = array('answer' => $option->id, 'id' => $cm->id, 'sesskey' => $user->sesskey);
                 $url = new moodle_url('view.php', $buttonoptions);
@@ -694,14 +694,20 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
             if (($option->limitanswers && ($option->status == "full")) || ($option->status == "closed") || !$underlimit) {
                 $optiondisplay->button = '';
             }
-            
+
+            if ($booking->booking->cancancelbook == 0 && $option->coursestarttime > 0 && $option->coursestarttime < time()) {
+                $optiondisplay->button = '';
+                $optiondisplay->delete = '';
+            }
+
+
             // check if user ist logged in
             if (has_capability('mod/booking:choose', $context, $user->id, false)) { //don't show booking button if the logged in user is the guest user.
                 $bookingbutton = $optiondisplay->button;
             } else {
                 $bookingbutton = get_string('havetologin', 'booking') . "<br />";
             }
-            
+
             if (!$option->limitanswers) {
                 $stravailspaces = get_string("unlimited", 'booking');
             } else {
@@ -757,7 +763,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
             $tabledata[] = $row;
         }
     }
-    
+
     $table = new html_table();
     $table->attributes['class'] = 'box generalbox boxaligncenter boxwidthwide booking';
     $table->attributes['style'] = '';

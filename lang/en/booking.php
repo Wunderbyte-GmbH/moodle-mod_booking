@@ -143,6 +143,7 @@ $string['tagsucesfullysaved'] = 'Tag was sucesfully saved.';
 $string['edittag'] = 'Edit';
 
 // mod_form
+$string['cancancelbook'] = 'Allow user to cancel or book their booking when it is started?';
 $string['addtocalendar'] = 'Add to calendar';
 $string['limitanswers'] = 'Limit the number of participants';
 $string['maxparticipantsnumber'] = 'Max. number of participants';

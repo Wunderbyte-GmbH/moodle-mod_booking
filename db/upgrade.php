@@ -584,6 +584,22 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014120800, 'booking');
     }
+    
+        if ($oldversion < 2014121000) {
+
+        // Define field cancancelbook to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('cancancelbook', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'pollurlteacherstext');
+
+        // Conditionally launch add field cancancelbook.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014121000, 'booking');
+    }
+
 
     return true;
 }
