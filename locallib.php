@@ -158,6 +158,13 @@ class booking_option extends booking {
         $this->option = $tags->optionReplace($this->option);
     }
 
+     public function get_url_params() {
+        $bu = new booking_utils();
+        $params = $bu->generate_params($this->booking, $this->option);
+        $this->option->pollurl = $bu->get_body($this->booking, 'pollurl', $params);
+        $this->option->pollurlteachers = $bu->get_body($this->booking, 'pollurlteachers', $params);
+    }
+    
     // Get all users with filters
     private function get_users() {
         global $DB;
@@ -607,6 +614,13 @@ class booking_options extends booking {
         $this->add_additional_info();
     }
 
+    public function get_url_params() {
+        $bu = new booking_utils();
+        $params = $bu->generate_params($this->booking);
+        $this->booking->pollurl = $bu->get_body($this->booking, 'pollurl', $params);
+        $this->booking->pollurlteachers = $bu->get_body($this->booking, 'pollurlteachers', $params);
+    }
+
     private function q_params() {
         global $USER;
         $args = array();
@@ -630,7 +644,7 @@ class booking_options extends booking {
         }
 
         $left = " FROM {booking_options} AS bo WHERE ";
-        
+
         if (isset($this->filters['whichview'])) {
             switch ($this->filters['whichview']) {
                 case 'mybooking':
@@ -656,7 +670,7 @@ class booking_options extends booking {
         }
 
         $sql = $left . " {$conditions} {$this->sort}";
-        
+
         return array('sql' => $sql, 'args' => $args);
     }
 
@@ -792,11 +806,11 @@ class booking_options extends booking {
                 $validresponses = array_intersect_key($sortedusers, $this->canbookusers);
             } else {
                 $validresponses = $rawresponses;
-            }            
+            }
             foreach ($validresponses as $response) {
                 if (isset($this->options[$response->optionid])) {
-                $bookinglist[$response->optionid][] = $response;
-                $optionids[$response->optionid] = $response->optionid;
+                    $bookinglist[$response->optionid][] = $response;
+                    $optionids[$response->optionid] = $response->optionid;
                 }
             }
             foreach ($optionids as $optionid) {
@@ -1091,6 +1105,89 @@ class booking_existing_user_selector extends booking_user_selector_base {
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * */
 class booking_utils {
+
+    private function pretty_duration($seconds) {
+        $measures = array(
+            'days' => 24 * 60 * 60,
+            'hours' => 60 * 60,
+            'minutes' => 60
+        );
+        $durationparts = array();
+        foreach ($measures as $label => $amount) {
+            if ($seconds >= $amount) {
+                $howmany = floor($seconds / $amount);
+                $durationparts[] = get_string($label, 'mod_booking', $howmany);
+                $seconds -= $howmany * $amount;
+            }
+        }
+        return implode(' ', $durationparts);
+    }
+
+    /**
+     * Prepares the data to be sent with confirmation mail
+     *
+     * @param stdClass $booking
+     * @return stdClass data to be sent via mail
+     */
+    public function generate_params(stdClass $booking, stdClass $option = NULL) {
+        $params = new stdClass();
+
+        $params->duration = $booking->duration;
+        $params->eventtype = $booking->eventtype;
+        
+        if (!is_null($option)) {
+            $timeformat = get_string('strftimetime');
+            $dateformat = get_string('strftimedate');
+
+            $duration = '';
+            if ($option->coursestarttime && $option->courseendtime) {
+                $seconds = $option->courseendtime - $option->coursestarttime;
+                $duration = $this->pretty_duration($seconds);
+            }
+            $courselink = '';
+            if ($option->courseid) {
+                $courselink = new moodle_url('/course/view.php', array('id' => $option->courseid));
+                $courselink = html_writer::link($courselink, $courselink->out());
+            }
+
+            $params->title = s($option->text);
+            $params->starttime = $option->coursestarttime ? userdate($option->coursestarttime, $timeformat) : '';
+            $params->endtime = $option->courseendtime ? userdate($option->courseendtime, $timeformat) : '';
+            $params->startdate = $option->coursestarttime ? userdate($option->coursestarttime, $dateformat) : '';
+            $params->enddate = $option->courseendtime ? userdate($option->courseendtime, $dateformat) : '';
+            $params->courselink = $courselink;
+            $params->location = $option->location;
+            $params->institution = $option->institution;
+            $params->address = $option->address;
+            if (empty($option->pollurl)) {
+                $params->pollurl = $booking->pollurl;
+            } else {
+                $params->pollurl = $option->pollurl;
+            }
+            if (empty($option->pollurlteachers)) {
+                $params->pollurlteachers = $booking->pollurlteachers;
+            } else {
+                $params->pollurlteachers = $option->pollurlteachers;
+            }
+        }        
+
+        return $params;
+    }
+
+    /**
+     * Generate the email body based on the activity settings and the booking parameters
+     * @param object $booking the booking activity object
+     * @param string $fieldname the name of the field that contains the custom text
+     * @param object $params the booking details
+     * @return string
+     */
+    function get_body($booking, $fieldname, $params) {
+        $text = $booking->$fieldname;
+        foreach ($params as $name => $value) {
+            $text = str_replace('{' . $name . '}', $value, $text);
+        }
+        return $text;
+    }
 
     /**
      * Create or update new group and return id of group.

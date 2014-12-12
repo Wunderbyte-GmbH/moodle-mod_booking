@@ -1033,14 +1033,14 @@ function booking_sendpollurlteachers($booking, $cmid, $optionid) {
 
     $returnVal = true;
 
-    $teachers = $DB->get_records("booking_teachers", array("optionid" => $optionid, 'bookingid' => $booking->id));
+    $teachers = $DB->get_records("booking_teachers", array("optionid" => $optionid, 'bookingid' => $booking->booking->id));
 
     foreach ($teachers as $tuser) {
         $userdata = $DB->get_record('user', array('id' => $tuser->userid));
 
-        $params = booking_generate_email_params($booking, $booking->option[$optionid], $userdata, $cmid);
+        $params = booking_generate_email_params($booking->booking, $booking->option, $userdata, $cmid);
 
-        $pollurlmessage = booking_get_email_body($booking, 'pollurlteacherstext', 'pollurlteacherstextmessage', $params);
+        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurlteacherstext', 'pollurlteacherstextmessage', $params);
 
         $eventdata = new stdClass();
         $eventdata->modulename = 'booking';
@@ -1065,15 +1065,15 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
 
     $returnVal = true;
 
-    $sender = $DB->get_record('user', array('username' => $booking->bookingmanager));
+    $sender = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));
 
     foreach ($attemptidsarray as $tuser) {
         foreach ($tuser as $suser) {
             $tuser = $DB->get_record('user', array('id' => $suser));
 
-            $params = booking_generate_email_params($booking, $booking->option[$optionid], $tuser, $cmid);
+            $params = booking_generate_email_params($booking->booking, $booking->option, $tuser, $cmid);
 
-            $pollurlmessage = booking_get_email_body($booking, 'pollurltext', 'pollurltextmessage', $params);
+            $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext', 'pollurltextmessage', $params);
 
             $eventdata = new stdClass();
             $eventdata->modulename = 'booking';
@@ -1386,82 +1386,6 @@ function booking_reset_userdata($data) {
         $status[] = array('component' => $componentstr, 'item' => get_string('datechanged'), 'error' => false);
     }
     return $status;
-}
-
-/**
- * Gives a list of booked users sorted in an array by booking option
- * @param $cm module id
- * @param $booking booking object
- * @return array sorted list by booking date of all users, booking option as key
- */
-function booking_get_spreadsheet_data($booking, $cm, $filters = array('searchName' => '', 'searchSurname' => '', 'searchDate' => '', 'searchFinished' => '')) {
-    global $CFG, $USER, $DB;
-    $bookinglistsorted = array();
-    $context = context_module::instance($cm->id);
-    $params = array();
-
-    $options = "{booking_answers}.bookingid = :bookingid";
-    $params['bookingid'] = $booking->id;
-
-    if (strlen($filters['searchFinished']) > 0) {
-        $options .= " AND {booking_answers}.completed = :completed";
-        $params['completed'] = $filters['searchFinished'];
-    }
-
-    if (isset($filters['searchDate']) && $filters['searchDate'] == 1) {
-        $options .= " AND FROM_UNIXTIME({booking_answers}.timecreated, '%Y') = :searchdateyear AND FROM_UNIXTIME({booking_answers}.timecreated, '%m') = :searchdatemonth AND FROM_UNIXTIME({booking_answers}.timecreated, '%d') = :searchdateday";
-        $params['searchdateyear'] = $filters['searchDateYear'];
-        $params['searchdatemonth'] = $filters['searchDateMonth'];
-        $params['searchdateday'] = $filters['searchDateDay'];
-    }
-
-    if (isset($filters['searchName']) && strlen($filters['searchName']) > 0) {
-        $options .= " AND {user}.firstname LIKE :searchname";
-        $params['searchname'] = '%' . $filters['searchName'] . '%';
-    }
-
-    if (isset($filters['searchSurname']) && strlen($filters['searchSurname']) > 0) {
-        $options .= " AND {user}.lastname LIKE :searchsurname";
-        $params['searchsurname'] = '%' . $filters['searchSurname'] . '%';
-    }
-
-/// bookinglist $bookinglist[optionid][sortnumber] = userobject;
-    $bookinglist = array();
-
-/// First get all the users who have access here
-    $mainuserfields = explode(',', user_picture::fields());
-    foreach ($mainuserfields as $key => $value) {
-        $mainuserfields[$key] = '{user}.' . $value;
-    }
-    $mainuserfields = implode(', ', $mainuserfields);
-
-    $rawresponses = $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated , ' . $mainuserfields . ' FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC', $params);
-
-    $optionids = $DB->get_records_select('booking_options', "bookingid = $booking->id", array(), 'id', 'id');
-/// Use the responses to move users into the correct column
-    $sortnumber = 1;
-    if ($rawresponses) {
-        foreach ($rawresponses as $response) {
-            $bookinglist[$response->optionid][$sortnumber++] = $response;
-        }
-    }
-    if (empty($bookinglist)) {
-        unset($bookinglist);
-    } else {
-        foreach ($optionids as $optionid => $optionobject) {
-            if (!empty($bookinglist[$optionid])) {
-                $userperbookingoption = count($bookinglist[$optionid]);
-                $i = 1;
-                foreach ($bookinglist[$optionid] as $key => $value) {
-                    unset($bookinglist[$optionid][$key]);
-                    $bookinglistsorted[$optionid][$i++] = $value;
-                }
-            } else {
-                unset($bookinglist[$optionid]);
-            }
-        }
-    }
-    return $bookinglistsorted;
 }
 
 /**

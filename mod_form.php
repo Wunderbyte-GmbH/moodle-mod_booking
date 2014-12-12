@@ -77,9 +77,11 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'), array('size' => '64'));
         $mform->setType('pollurl', PARAM_TEXT);
+        $mform->addHelpButton('pollurl', 'pollurl', 'mod_booking');
 
         $mform->addElement('text', 'pollurlteachers', get_string('bookingpollurlteachers', 'booking'), array('size' => '64'));
         $mform->setType('pollurlteachers', PARAM_TEXT);
+        $mform->addHelpButton('pollurlteachers', 'pollurlteachers', 'mod_booking');
 
         $mform->addElement('filemanager', 'myfilemanager', get_string('bookingattachment', 'booking'), null, array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
             'accepted_types' => array('*')));
@@ -143,7 +145,11 @@ class mod_booking_mod_form extends moodleform_mod {
                     'startdate' => '{startdate}',
                     'enddate' => '{enddate}',
                     'courselink' => '{courselink}',
-                    'bookinglink' => '{bookinglink}'
+                    'bookinglink' => '{bookinglink}',
+                    'location' => '{location}',
+                    'institution' => '{institution}',
+                    'address' => '{address}',
+                    'eventtype' => '{evventtype}'
         );
 
         $mform->addElement('editor', 'bookedtext', get_string('bookedtext', 'booking'), null, $editoroptions);

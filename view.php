@@ -73,6 +73,7 @@ require_course_login($course, false, $cm);
 
 $booking = new booking_options($cm->id, TRUE, $urlParams, $page, $perPage);
 $booking->apply_tags();
+$booking->get_url_params();
 
 $strbooking = get_string('modulename', 'booking');
 $strbookings = get_string('modulenameplural', 'booking');
@@ -163,6 +164,7 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context)) 
 // we have to refresh $booking as it is modified by submitted data;
 $booking = new booking_options($cm->id, TRUE, $urlParams, $page, $perPage);
 $booking->apply_tags();
+$booking->get_url_params();
 
 $event = \mod_booking\event\course_module_viewed::create(array(
             'objectid' => $PAGE->cm->instance,

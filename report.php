@@ -140,6 +140,7 @@ if ($optionid == 0) {
 } else {
     $bookingData = new booking_option($cm->id, $optionid, $urlParams, $page, $perPage);
     $bookingData->apply_tags();
+    $bookingData->get_url_params();
 
     if (!(booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
         require_capability('mod/booking:readresponses', $context);
@@ -177,7 +178,7 @@ $PAGE->set_title(format_string($bookingData->booking->name) . ": $strresponses")
 $PAGE->set_heading($course->fullname);
 
 if (isset($action) && $action == 'sendpollurlteachers' && has_capability('mod/booking:communicate', $context)) {
-    booking_sendpollurlteachers($booking, $cm->id, $optionid);
+    booking_sendpollurlteachers($bookingData, $cm->id, $optionid);
     $url->remove_params('action');
     redirect($url, get_string('allmailssend', 'booking'), 5);
 }
@@ -208,7 +209,7 @@ if (!$download) {
             die;
         } else if (isset($fromform->sendpollurl) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
-            booking_sendpollurl($selectedusers, $booking, $cm->id, $optionid);
+            booking_sendpollurl($selectedusers, $bookingData, $cm->id, $optionid);
             redirect($url, get_string('allmailssend', 'booking'), 5);
         } else if (isset($fromform->sendcustommessage) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
             $selectedusers = array_keys($fromform->user, 1);
@@ -216,7 +217,7 @@ if (!$download) {
             redirect($sendmessageurl);
         } else if (isset($fromform->activitycompletion) && (booking_check_if_teacher($option, $USER) || has_capability('mod/booking:readresponses', $context)) && confirm_sesskey()) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
-            booking_activitycompletion($selectedusers, $booking, $cm->id, $optionid);
+            booking_activitycompletion($selectedusers, $bookingData->booking, $cm->id, $optionid);
             redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);
         }
     } else {
