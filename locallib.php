@@ -161,8 +161,8 @@ class booking_option extends booking {
     public function get_url_params() {
         $bu = new booking_utils();
         $params = $bu->generate_params($this->booking, $this->option);
-        $this->option->pollurl = $bu->get_body($this->booking, 'pollurl', $params);
-        $this->option->pollurlteachers = $bu->get_body($this->booking, 'pollurlteachers', $params);
+        $this->option->pollurl = $bu->get_body($this->booking, 'pollurl', $params, TRUE);
+        $this->option->pollurlteachers = $bu->get_body($this->booking, 'pollurlteachers', $params, TRUE);
     }
 
     // Get all users with filters
@@ -1204,10 +1204,14 @@ class booking_utils {
      * @param object $params the booking details
      * @return string
      */
-    function get_body($booking, $fieldname, $params) {
+    function get_body($booking, $fieldname, $params, $urlEncode = FALSE) {
         $text = $booking->$fieldname;
         foreach ($params as $name => $value) {
-            $text = str_replace('{' . $name . '}', $value, $text);
+            if ($urlEncode) {
+                $text = str_replace('{' . $name . '}', urlencode($value), $text);
+            } else {
+                $text = str_replace('{' . $name . '}', $value, $text);
+            }
         }
         return $text;
     }
