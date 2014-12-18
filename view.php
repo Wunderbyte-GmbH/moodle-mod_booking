@@ -322,10 +322,13 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
     unset($urlParams['sort']);
     $urlParams['whichview'] = 'showactive';
     $urlActive = new moodle_url('/mod/booking/view.php', $urlParams);
+    $urlActive->set_anchor('goenrol');
     $urlParams['whichview'] = 'showall';
     $urlAll = new moodle_url('/mod/booking/view.php', $urlParams);
+    $urlAll->set_anchor('goenrol');
     $urlParams['whichview'] = 'mybooking';
     $urlMy = new moodle_url('/mod/booking/view.php', $urlParams);
+    $urlMy->set_anchor('goenrol');
 
     switch ($whichview) {
         case 'mybooking':
@@ -380,6 +383,7 @@ echo $OUTPUT->footer();
 
             if (buttonID === 'showHideSearch') {
                 node.toggleView();
+                location.hash = "#goenrol";
                 e.preventDefault();
             }
 

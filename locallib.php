@@ -643,6 +643,16 @@ class booking_options extends booking {
             $args['institution'] = '%' . $this->filters['searchInstitution'] . '%';
         }
 
+        if (!empty($this->filters['searchInstitution'])) {
+            $conditions .= " AND bo.institution LIKE :institution ";
+            $args['institution'] = '%' . $this->filters['searchInstitution'] . '%';
+        }
+        
+        if (!empty($this->filters['coursestarttime'])) {
+            $conditions .= ' AND (coursestarttime = 0 OR coursestarttime  > :coursestarttime)';
+            $args['coursestarttime'] = $this->filters['coursestarttime'];
+        }
+        
         $left = " FROM {booking_options} AS bo WHERE ";
 
         if (isset($this->filters['whichview'])) {
