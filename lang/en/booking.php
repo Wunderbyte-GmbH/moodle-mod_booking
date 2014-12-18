@@ -182,6 +182,7 @@ $string['pollurlteachers_help'] = 'You can use any of the following placeholders
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 
 $string['pollurl_help'] = 'You can use any of the following placeholders in the text:
@@ -200,6 +201,7 @@ $string['pollurl_help'] = 'You can use any of the following placeholders in the 
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 
 $string['bookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -218,6 +220,7 @@ $string['bookedtext_help'] = 'Leave this blank to use the site default text. You
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 
 $string['userleave_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -238,6 +241,7 @@ $string['userleave_help'] = 'Leave this blank to use the site default text. You 
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 
 $string['waitingtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -258,6 +262,7 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 $string['statuschangetext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -277,6 +282,7 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 $string['deletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -296,6 +302,7 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 
 $string['pollurltext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -316,6 +323,7 @@ $string['pollurltext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 
 $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -336,6 +344,7 @@ $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default 
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 
 $string['notificationtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -356,6 +365,7 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 
 $string['notificationtext'] = 'Notification message';

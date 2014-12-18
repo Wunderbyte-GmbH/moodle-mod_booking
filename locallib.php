@@ -158,13 +158,13 @@ class booking_option extends booking {
         $this->option = $tags->optionReplace($this->option);
     }
 
-     public function get_url_params() {
+    public function get_url_params() {
         $bu = new booking_utils();
         $params = $bu->generate_params($this->booking, $this->option);
         $this->option->pollurl = $bu->get_body($this->booking, 'pollurl', $params);
         $this->option->pollurlteachers = $bu->get_body($this->booking, 'pollurlteachers', $params);
     }
-    
+
     // Get all users with filters
     private function get_users() {
         global $DB;
@@ -647,12 +647,12 @@ class booking_options extends booking {
             $conditions .= " AND bo.institution LIKE :institution ";
             $args['institution'] = '%' . $this->filters['searchInstitution'] . '%';
         }
-        
+
         if (!empty($this->filters['coursestarttime'])) {
             $conditions .= ' AND (coursestarttime = 0 OR coursestarttime  > :coursestarttime)';
             $args['coursestarttime'] = $this->filters['coursestarttime'];
         }
-        
+
         $left = " FROM {booking_options} AS bo WHERE ";
 
         if (isset($this->filters['whichview'])) {
@@ -1140,12 +1140,25 @@ class booking_utils {
      * @return stdClass data to be sent via mail
      */
     public function generate_params(stdClass $booking, stdClass $option = NULL) {
+
+        global $DB;
+
         $params = new stdClass();
 
         $params->duration = $booking->duration;
         $params->eventtype = $booking->eventtype;
-        
+
         if (!is_null($option)) {
+
+            $teacher = $DB->get_record('booking_teachers', array('optionid' => $option->id), '*', IGNORE_MULTIPLE);
+
+            if ($teacher) {
+                $user = $DB->get_record('user', array('id' => $teacher->userid), 'firstname, lastname', IGNORE_MULTIPLE);
+                $params->teacher = $user->firstname . ' ' . $user->lastname;
+            } else {
+                $params->teacher = '';
+            }
+
             $timeformat = get_string('strftimetime');
             $dateformat = get_string('strftimedate');
 
@@ -1179,7 +1192,7 @@ class booking_utils {
             } else {
                 $params->pollurlteachers = $option->pollurlteachers;
             }
-        }        
+        }
 
         return $params;
     }
