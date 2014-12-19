@@ -622,25 +622,36 @@ class booking_options extends booking {
     }
 
     private function q_params() {
-        global $USER;
-        $args = array();
+        global $USER, $DB;
+        $args = array();        
 
         $conditions = " bo.bookingid = :bookingid ";
         $args['bookingid'] = $this->id;
 
         if (!empty($this->filters['searchText'])) {
-            $conditions .= " AND bo.text LIKE :text ";
-            $args['text'] = '%' . $this->filters['searchText'] . '%';
+            
+            $tags = $DB->get_records_sql('SELECT * FROM {booking_tags} WHERE text LIKE :text', array('text' => '%' . $this->filters['searchText'] . '%'));
+
+            if (!empty($tags)) {
+                $conditions .= " AND (bo.text LIKE :text ";
+                $args['text'] = '%' . $this->filters['searchText'] . '%';
+                
+                foreach ($tags as $tag) {
+                    $conditions .= " OR bo.text LIKE :tag{$tag->id} ";
+                    $args["tag{$tag->id}"] = '%[' . $tag->tag . ']%';
+                }
+                
+                $conditions .= " ) ";
+                
+            } else {            
+                $conditions .= " AND bo.text LIKE :text ";
+                $args['text'] = '%' . $this->filters['searchText'] . '%';
+            }
         }
 
         if (!empty($this->filters['searchLocation'])) {
             $conditions .= " AND bo.location LIKE :location ";
             $args['location'] = '%' . $this->filters['searchLocation'] . '%';
-        }
-
-        if (!empty($this->filters['searchInstitution'])) {
-            $conditions .= " AND bo.institution LIKE :institution ";
-            $args['institution'] = '%' . $this->filters['searchInstitution'] . '%';
         }
 
         if (!empty($this->filters['searchInstitution'])) {

@@ -320,14 +320,15 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
     echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
     
     unset($urlParams['sort']);
-    $urlParams['whichview'] = 'showactive';
-    $urlActive = new moodle_url('/mod/booking/view.php', $urlParams);
+    $tmpUrlParams = $urlParams;    
+    $tmpUrlParams['whichview'] = 'showactive';
+    $urlActive = new moodle_url('/mod/booking/view.php', $tmpUrlParams);
     $urlActive->set_anchor('goenrol');
-    $urlParams['whichview'] = 'showall';
-    $urlAll = new moodle_url('/mod/booking/view.php', $urlParams);
+    $tmpUrlParams['whichview'] = 'showall';
+    $urlAll = new moodle_url('/mod/booking/view.php', $tmpUrlParams);
     $urlAll->set_anchor('goenrol');
-    $urlParams['whichview'] = 'mybooking';
-    $urlMy = new moodle_url('/mod/booking/view.php', $urlParams);
+    $tmpUrlParams['whichview'] = 'mybooking';
+    $urlMy = new moodle_url('/mod/booking/view.php', $tmpUrlParams);
     $urlMy->set_anchor('goenrol');
 
     switch ($whichview) {
