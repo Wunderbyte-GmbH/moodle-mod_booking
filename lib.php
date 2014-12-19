@@ -1057,7 +1057,7 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
 			$eventdata->userfrom         = $USER;
 			$eventdata->userto           = $tuser;
 			$eventdata->subject          = get_string('pollurltextsubject','booking', $params);
-			$eventdata->fullmessage      = $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));;
+			$eventdata->fullmessage      = $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
 			$eventdata->fullmessageformat = FORMAT_HTML;
 			$eventdata->fullmessagehtml  = $pollurlmessage;
 			$eventdata->smallmessage     = '';
@@ -1355,8 +1355,8 @@ function booking_get_spreadsheet_data($booking, $cm) {
 
 	/// First get all the users who have access here
 	$mainuserfields = user_picture::fields();
-	$allresponses = get_users_by_capability($context, 'mod/booking:choose', $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
-	//$allresponses = get_users_by_capability($context, 'mod/booking:choose', 'u.id, u.picture, u.firstname, u.lastname, u.idnumber, u.email', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
+	$allresponses = get_users_by_capability($context, 'mod/booking:choose', $mainuserfields . ', u.id,u.idnumber', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
+	//$allresponses = get_users_by_capability($context, 'mod/booking:choose', 'u.id, u.lastname ASC, u.firstname ASC, u.idnumber, u.email', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
 
 	/// Get all the recorded responses for this booking
 	$rawresponses = $DB->get_records('booking_answers', array('bookingid' => $booking->id), "optionid, timemodified ASC");
