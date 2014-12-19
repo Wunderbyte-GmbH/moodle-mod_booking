@@ -201,7 +201,7 @@ if (!$download) {
 					} else {
 						$myxls->write_string($row,$i++,'');
 					}
-					$studentid=(!empty($user->idnumber) ? $user->idnumber : " ");
+					$studentid=(!empty($user->id) ? $user->id : " ");
 					$ug2 = '';
 					if ($usergrps = groups_get_all_groups($course->id, $user->id)) {
 						foreach ($usergrps as $ug) {
@@ -245,7 +245,7 @@ if (!$download) {
 				} else {
 					$myxls->write_string($row,$i++,'asdf');
 				}
-				$studentid=(!empty($user->idnumber) ? $user->idnumber : " ");
+				$studentid=(!empty($user->id) ? $user->id : " ");
 				$ug2 = '';
 				if ($usergrps = groups_get_all_groups($course->id, $user->id)) {
 					foreach ($usergrps as $ug) {
