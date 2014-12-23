@@ -13,12 +13,10 @@ class mod_booking_manageusers_form extends moodleform {
         // visible elements
         // 
         //add all booked users to form
-        $mform->addElement('html', '<div>' . get_string('bookedusers', 'booking') . ':</div><div style="background-color: lightgreen;">');
+        $mform->addElement('html', '<h5>' . get_string('bookedusers', 'booking') . ':</h5>');
 
         if ($this->_customdata['bookedusers']) {
-            
-            $mform->addElement('html', '<table class="mod-booking-inlinetable">');
-            
+
             foreach ($this->_customdata['bookedusers'] as $user) {
                 if (empty($user->imagealt)) {
                     $user->imagealt = '';
@@ -31,43 +29,33 @@ class mod_booking_manageusers_form extends moodleform {
                     $checkMark = "&#x2713;";
                 }
 
-                $mform->addElement('html', '<tr><td class="attemptcell">');
-                $mform->addElement('advcheckbox', "user[{$user->id}]", '', '', array('group' => $this->_customdata['bookingdata']->id + 1));
-                $mform->addElement('html', '</td><td class="picture">' . $OUTPUT->user_picture($user, array()) . '</td><td>' . $checkMark . '</td><td class="fullname">' . "<a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . '</a></td><td class="datecreated">' . ($userData->timecreated > 0 ? userdate($userData->timecreated, get_string('strftimedatefullshort')) : '') . '</td></tr>');
+                $mform->addElement('advcheckbox', "user[{$user->id}]", NULL, $OUTPUT->user_picture($user, array()) . ' ' . $checkMark . " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . "</a>" . ($userData->timecreated > 0 ? ' ' . userdate($userData->timecreated, get_string('strftimedatefullshort')) : ''), array('group' => $this->_customdata['bookingdata']->id + 1));                              
             }
-                        
-            $mform->addElement('html', '</table>');
 
             $this->add_checkbox_controller($this->_customdata['bookingdata']->id + 1);
-            
         } else {
-            $mform->addElement('html', '<table class="mod-booking-inlinetable">');
-            $mform->addElement('html', '<tr><td class="attemptcell">' . get_string('nousers', 'booking') . '</td></tr>');
-            $mform->addElement('html', '</table>');
+            $mform->addElement('html', '<p>' . get_string('nousers', 'booking') . '</p>');
         }
-        
-        
-        $mform->addElement('html', '</div>');
 
         //add all waiting list users to form
         if (!empty($this->_customdata['waitinglistusers'])) {
-            $mform->addElement('html', '<div>' . get_string('waitinglistusers', 'booking') . ':</div><div style="background-color: orange;">');
+            $mform->addElement('html', '<h5>' . get_string('waitinglistusers', 'booking') . ':</h5>');
             if ($this->_customdata['waitinglistusers']) {
                 foreach ($this->_customdata['waitinglistusers'] as $user) {
                     if (empty($user->imagealt)) {
                         $user->imagealt = '';
                     }
-                    $mform->addElement('html', '<table class="mod-booking-inlinetable"><tr><td class="attemptcell">');
-                    $mform->addElement('advcheckbox', "user[$user->id]", '', null, array('group' => $this->_customdata['bookingdata']->id));
-                    $mform->addElement('html', '</td><td class="picture">' . $OUTPUT->user_picture($user, array()) . '</td><td class="fullname">' . "<a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . '</a></td></tr></table>');
+
+                    $mform->addElement('advcheckbox', "user[$user->id]", NULL, $OUTPUT->user_picture($user, array()) . " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . "</a>", array('id' => 'budala', 'group' => $this->_customdata['bookingdata']->id));
                 }
+
                 $this->add_checkbox_controller($this->_customdata['bookingdata']->id);
             }
-            $mform->addElement('html', '</div>');
+
         }
         //-------------------------------------------------------------------------------
         // buttons
-        	
+
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('static', 'onlylabel', '', '<span class="bookinglabelname">' . get_string('withselected', 'booking') . '</span>');
         if (!$this->_customdata['bookingdata']->autoenrol && has_capability('mod/booking:communicate', context_module::instance($cm->id))) {
