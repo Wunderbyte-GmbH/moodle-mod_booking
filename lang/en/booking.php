@@ -410,6 +410,7 @@ $string['importcsvtitle'] = 'Import CSV';
 $string['csvfile'] = 'CSV file';
 $string['defaultdateformat'] = 'j.n.Y H:i:s';
 $string['dateparseformat'] = 'Date parse format';
+$string['dateparseformat_help'] = 'Please, use date format like specified in CSV file. Help with <a href="http://php.net/manual/en/function.date.php">this</a> resource for options.';
 $string['wrongfile'] = 'Wrong file!';
 $string['nouserfound'] = 'No user found: ';
 $string['noteacherfound'] = 'No teacher found: ';

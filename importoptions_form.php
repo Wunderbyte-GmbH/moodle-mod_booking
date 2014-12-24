@@ -17,6 +17,7 @@ class importoptions_form extends moodleform {
         $mform->setType('dateparseformat', PARAM_NOTAGS);                   //Set type of element
         $mform->setDefault('dateparseformat', get_string('defaultdateformat', 'booking'));
         $mform->addRule('dateparseformat', null, 'required', null, 'client');
+        $mform->addHelpButton('dateparseformat', 'dateparseformat', 'mod_booking');
 
 
         $this->add_action_buttons(TRUE, get_string('importcsvtitle', 'booking'));
