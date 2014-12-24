@@ -29,7 +29,7 @@ class mod_booking_manageusers_form extends moodleform {
                     $checkMark = "&#x2713;";
                 }
 
-                $mform->addElement('advcheckbox', "user[{$user->id}]", NULL, $OUTPUT->user_picture($user, array()) . ' ' . $checkMark . " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . "</a>" . ($userData->timecreated > 0 ? ' ' . userdate($userData->timecreated, get_string('strftimedatefullshort')) : ''), array('group' => $this->_customdata['bookingdata']->id + 1));                              
+                $mform->addElement('advcheckbox', "user[{$user->id}]", $checkMark . " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . "</a>",  ($userData->timecreated > 0 ? ' ' . userdate($userData->timecreated, get_string('strftimedatefullshort')) : ''), array('group' => $this->_customdata['bookingdata']->id + 1));
             }
 
             $this->add_checkbox_controller($this->_customdata['bookingdata']->id + 1);
@@ -46,7 +46,7 @@ class mod_booking_manageusers_form extends moodleform {
                         $user->imagealt = '';
                     }
 
-                    $mform->addElement('advcheckbox', "user[$user->id]", NULL, $OUTPUT->user_picture($user, array()) . " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . "</a>", array('id' => 'budala', 'group' => $this->_customdata['bookingdata']->id));
+                    $mform->addElement('advcheckbox', "user[$user->id]", "<a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . "</a>", '',  array('id' => 'budala', 'group' => $this->_customdata['bookingdata']->id));
                 }
 
                 $this->add_checkbox_controller($this->_customdata['bookingdata']->id);
