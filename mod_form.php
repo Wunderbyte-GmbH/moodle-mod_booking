@@ -287,6 +287,20 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         $select = $mform->addElement('select', 'additionalfields', get_string('additionalfields', 'booking'), $additionalfields);
         $select->setMultiple(true);
+        
+        $mform->addElement('header', 'conectedbookingheader', get_string('conectedbooking', 'booking'));
+        
+        $bookings = $DB->get_records('booking', array('course' => $COURSE->id));
+        
+        $opts = array(0 => get_string('notconectedbooking', 'mod_booking'));
+
+        foreach ($bookings as $key => $value) {
+            $opts[$value->id] = $value->name;
+        }
+        
+        $mform->addElement('select', 'conectedbooking', get_string('conectedbooking', 'mod_booking'), $opts);
+        $mform->setDefault('conectedbooking', 0);
+        $mform->addHelpButton('conectedbooking', 'conectedbooking', 'mod_booking');
 
         //-------------------------------------------------------------------------------
         $this->standard_coursemodule_elements();

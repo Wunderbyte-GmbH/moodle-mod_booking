@@ -143,6 +143,9 @@ $string['tagsucesfullysaved'] = 'Tag was sucesfully saved.';
 $string['edittag'] = 'Edit';
 
 // mod_form
+$string['conectedbooking'] = 'Connected booking';
+$string['notconectedbooking'] = 'Not connected';
+$string['conectedbooking_help'] = '';
 $string['cancancelbook'] = 'Allow user to cancel or book their booking when it is started?';
 $string['addtocalendar'] = 'Add to calendar';
 $string['limitanswers'] = 'Limit the number of participants';
