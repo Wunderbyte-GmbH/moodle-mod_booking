@@ -73,6 +73,9 @@ class mod_booking_manageusers_form extends moodleform {
 
         if (booking_check_if_teacher($this->_customdata['bookingdata'], $USER) || has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
             $buttonarray[] = &$mform->createElement("submit", 'activitycompletion', get_string('confirmactivitycompletion', 'booking'));
+            if ($this->_customdata['bookingdata']->conectedoption > 0) {
+                $buttonarray[] = &$mform->createElement("submit", 'booktootherbooking', get_string('booktootherbooking', 'booking'));
+            }
         }
 
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);

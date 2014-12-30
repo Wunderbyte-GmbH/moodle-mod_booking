@@ -60,6 +60,10 @@ $string['allchangessave'] = 'All changes have been saved.';
 $string['location'] = 'Location';
 $string['institution'] = 'Institution';
 $string['address'] = 'Address';
+$string['conectedoption'] = 'Connected option';
+$string['conectedoption_help'] = '';
+$string['howmanyusers'] = 'How many users you can book?';
+$string['howmanyusers_help'] = '';
 
 // Categories
 $string['category'] = 'Category';
@@ -535,6 +539,8 @@ $string['no'] = 'No';
 $string['onlythisbookingurl'] = 'Only this booking URL';
 $string['gotobooking'] = '<< Bookings';
 $string['nousers'] = 'No users!';
+$string['booktootherbooking'] = 'Book users to other booking';
+$string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
 
 // Send message
 $string['messagesubject'] = 'Subject';

@@ -40,7 +40,7 @@ if (!isset($optionid) or empty($optionid)) {
 }
 require_capability('mod/booking:updatebooking', $context);
 
-$mform = new mod_booking_bookingform_form();
+$mform = new mod_booking_bookingform_form(null, array('bookingid' => $booking->id));
 
 if ($optionid == 'add') {
     $default_values = $booking;

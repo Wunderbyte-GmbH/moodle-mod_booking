@@ -146,7 +146,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014012807, 'booking');
-    }  
+    }
 
     if ($oldversion < 2014030600) {
 
@@ -569,8 +569,8 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014112600, 'booking');
     }
-    
-      if ($oldversion < 2014120800) {
+
+    if ($oldversion < 2014120800) {
 
         // Define field waitinglist to be added to booking_answers.
         $table = new xmldb_table('booking_answers');
@@ -584,8 +584,8 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014120800, 'booking');
     }
-    
-        if ($oldversion < 2014121000) {
+
+    if ($oldversion < 2014121000) {
 
         // Define field cancancelbook to be added to booking.
         $table = new xmldb_table('booking');
@@ -600,7 +600,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014121000, 'booking');
     }
 
-        if ($oldversion < 2014122900) {
+    if ($oldversion < 2014122900) {
 
         // Define field conectedbooking to be added to booking.
         $table = new xmldb_table('booking');
@@ -615,6 +615,35 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014122900, 'booking');
     }
 
+    if ($oldversion < 2014123000) {
+
+        // Define field conectedoption to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('conectedoption', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'pollurlteachers');
+
+        // Conditionally launch add field conectedoption.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014123000, 'booking');
+    }
+
+    if ($oldversion < 2014123001) {
+
+        // Define field howmanyusers to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('howmanyusers', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'conectedoption');
+
+        // Conditionally launch add field howmanyusers.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2014123001, 'booking');
+    }
 
     return true;
 }

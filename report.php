@@ -11,6 +11,8 @@ require_once("locallib.php");
 require_once("bookingmanageusers.class.php");
 require_once("$CFG->dirroot/user/profile/lib.php");
 
+// Find only matched... http://blog.codinghorror.com/a-visual-explanation-of-sql-joins/
+
 $id = required_param('id', PARAM_INT);   //moduleid
 $optionid = optional_param('optionid', 0, PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
@@ -215,10 +217,16 @@ if (!$download) {
             $selectedusers = array_keys($fromform->user, 1);
             $sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id' => $id, 'optionid' => $optionid, 'uids' => serialize($selectedusers)));
             redirect($sendmessageurl);
-        } else if (isset($fromform->activitycompletion) && (booking_check_if_teacher($option, $USER) || has_capability('mod/booking:readresponses', $context)) && confirm_sesskey()) {
+        } else if (isset($fromform->activitycompletion) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context)) && confirm_sesskey()) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
             booking_activitycompletion($selectedusers, $bookingData->booking, $cm->id, $optionid);
             redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);
+        } else if (isset ($fromform->booktootherbooking) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context)) && confirm_sesskey()) {
+            $selectedusers[$optionid] = array_keys($fromform->user, 1);
+            
+            if (count($selectedusers[$optionid]) > $bookingData->option->howmanyusers) {
+                redirect($url, get_string('toomuchusersbooked', 'booking', $bookingData->option->howmanyusers), 5);
+            }
         }
     } else {
         echo $OUTPUT->header();
