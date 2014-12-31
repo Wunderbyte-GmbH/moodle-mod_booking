@@ -108,7 +108,7 @@ if (strlen($searchInstitution) > 0) {
 if (!empty($whichview)) {
     $urlParams['whichview'] = $whichview;
 } else {
-    $urlParams['whichview'] = 'showactive';    
+    $urlParams['whichview'] = 'showactive';
 }
 
 if ($action !== '') {
@@ -135,7 +135,7 @@ if ($optionid == 0) {
     $bookingData = new booking_options($cm->id, FALSE, $urlParams);
     $bookingData->apply_tags();
     $bookinglist = $bookingData->allbookedusers;
-    
+
     if (has_capability('mod/booking:readresponses', $context)) {
         require_capability('mod/booking:readresponses', $context);
     }
@@ -211,22 +211,53 @@ if (!$download) {
             die;
         } else if (isset($fromform->sendpollurl) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
+
+            if (empty($selectedusers[$optionid])) {
+                redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
+            }
+
             booking_sendpollurl($selectedusers, $bookingData, $cm->id, $optionid);
             redirect($url, get_string('allmailssend', 'booking'), 5);
         } else if (isset($fromform->sendcustommessage) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
             $selectedusers = array_keys($fromform->user, 1);
+
+            if (empty($selectedusers[$optionid])) {
+                redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
+            }
+
             $sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id' => $id, 'optionid' => $optionid, 'uids' => serialize($selectedusers)));
             redirect($sendmessageurl);
         } else if (isset($fromform->activitycompletion) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context)) && confirm_sesskey()) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
+
+            if (empty($selectedusers[$optionid])) {
+                redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
+            }
+
             booking_activitycompletion($selectedusers, $bookingData->booking, $cm->id, $optionid);
             redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);
-        } else if (isset ($fromform->booktootherbooking) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context)) && confirm_sesskey()) {
+        } else if (isset($fromform->booktootherbooking) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context)) && confirm_sesskey()) {
+
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
-            
-            if (count($selectedusers[$optionid]) > $bookingData->option->howmanyusers) {
-                redirect($url, get_string('toomuchusersbooked', 'booking', $bookingData->option->howmanyusers), 5);
+
+            if (empty($selectedusers[$optionid])) {
+                redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
             }
+
+            if (count($selectedusers[$optionid]) > $bookingData->canBookToOtherBooking) {
+                redirect($url, get_string('toomuchusersbooked', 'booking', $bookingData->canBookToOtherBooking), 5);
+            }
+
+            $tmpcmid = $DB->get_record_sql("SELECT cm.id FROM {course_modules} cm JOIN {modules} md ON md.id = cm.module JOIN {booking} m ON m.id = cm.instance WHERE md.name = 'booking' AND cm.instance = ?", array($bookingData->booking->conectedbooking));
+            $tmpBooking = new booking_option($tmpcmid->id, $bookingData->option->conectedoption);
+
+            foreach ($selectedusers[$optionid] as $value) {
+                $user = new stdClass();
+                $user->id = $value;
+                $tmpBooking->user_submit_response($user);
+            }
+            
+            redirect($url, get_string('userssucesfullybooked', 'booking', $bookingData->canBookToOtherBooking), 5);
         }
     } else {
         echo $OUTPUT->header();

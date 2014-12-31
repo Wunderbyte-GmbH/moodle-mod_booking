@@ -130,6 +130,8 @@ class booking_option extends booking {
     // Pagination
     public $page = 0;
     public $perpage = 0;
+    
+    public $canBookToOtherBooking = 0;
 
     /**
      * Creates basic booking option
@@ -144,13 +146,52 @@ class booking_option extends booking {
         parent::__construct($id);
         $this->optionid = $optionid;
         $this->update_booked_users();
-        $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', 'MUST_EXIST');
+        $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', 'MUST_EXIST');        
         $this->filters = $filters;
         $this->page = $page;
         $this->perpage = $perpage;
         $this->get_users();
+        $this->calculateHowManyCanBookToOther();
     }
 
+    public function calculateHowManyCanBookToOther() {
+        global $DB;
+        
+        if ($this->option->conectedoption > 0) {
+            $alredyBooked = 0;            
+            
+            $result = $DB->get_records_sql('SELECT answers.userid FROM {booking_answers} AS answers INNER JOIN {booking_answers} AS parent on parent.userid = answers.userid WHERE answers.optionid = ? AND parent.optionid = ?', array( $this->optionid , $this->option->conectedoption ));
+            
+            $alredyBooked = count($result);
+            
+            $keys = array();
+
+            foreach ($result as $value) {
+                $keys[] = $value->userid;
+            }            
+            
+            foreach ($this->usersOnWaitingList as $user) {
+                if (in_array($user->userid, $keys)) {
+                    $user->bookedToOtherBooking = 1;
+                } else {
+                    $user->bookedToOtherBooking = 0;
+                }
+            }
+            
+            foreach ($this->usersOnList as $user) {
+                if (in_array($user->userid, $keys)) {
+                    $user->usersOnList = 1;
+                } else {
+                    $user->usersOnList = 0;
+                }
+            }
+            
+            $this->canBookToOtherBooking = (int)$this->option->howmanyusers - (int)$alredyBooked;            
+        } else {
+            $this->canBookToOtherBooking = 0;
+        }
+    }
+    
     public function apply_tags() {
         parent::apply_tags();
 

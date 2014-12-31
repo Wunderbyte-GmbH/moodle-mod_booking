@@ -541,6 +541,8 @@ $string['gotobooking'] = '<< Bookings';
 $string['nousers'] = 'No users!';
 $string['booktootherbooking'] = 'Book users to other booking';
 $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
+$string['selectatleastoneuser'] = 'Please, select at least 1 user!';
+$string['userssucesfullybooked'] = 'All users have been sucesfully booked to other booking.';
 
 // Send message
 $string['messagesubject'] = 'Subject';
