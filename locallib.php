@@ -130,7 +130,6 @@ class booking_option extends booking {
     // Pagination
     public $page = 0;
     public $perpage = 0;
-    
     public $canBookToOtherBooking = 0;
 
     /**
@@ -146,7 +145,7 @@ class booking_option extends booking {
         parent::__construct($id);
         $this->optionid = $optionid;
         $this->update_booked_users();
-        $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', 'MUST_EXIST');        
+        $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', 'MUST_EXIST');
         $this->filters = $filters;
         $this->page = $page;
         $this->perpage = $perpage;
@@ -156,20 +155,20 @@ class booking_option extends booking {
 
     public function calculateHowManyCanBookToOther() {
         global $DB;
-        
+
         if ($this->option->conectedoption > 0) {
-            $alredyBooked = 0;            
-            
-            $result = $DB->get_records_sql('SELECT answers.userid FROM {booking_answers} AS answers INNER JOIN {booking_answers} AS parent on parent.userid = answers.userid WHERE answers.optionid = ? AND parent.optionid = ?', array( $this->optionid , $this->option->conectedoption ));
-            
+            $alredyBooked = 0;
+
+            $result = $DB->get_records_sql('SELECT answers.userid FROM {booking_answers} AS answers INNER JOIN {booking_answers} AS parent on parent.userid = answers.userid WHERE answers.optionid = ? AND parent.optionid = ?', array($this->optionid, $this->option->conectedoption));
+
             $alredyBooked = count($result);
-            
+
             $keys = array();
 
             foreach ($result as $value) {
                 $keys[] = $value->userid;
-            }            
-            
+            }
+
             foreach ($this->usersOnWaitingList as $user) {
                 if (in_array($user->userid, $keys)) {
                     $user->bookedToOtherBooking = 1;
@@ -177,7 +176,7 @@ class booking_option extends booking {
                     $user->bookedToOtherBooking = 0;
                 }
             }
-            
+
             foreach ($this->usersOnList as $user) {
                 if (in_array($user->userid, $keys)) {
                     $user->usersOnList = 1;
@@ -185,13 +184,13 @@ class booking_option extends booking {
                     $user->usersOnList = 0;
                 }
             }
-            
-            $this->canBookToOtherBooking = (int)$this->option->howmanyusers - (int)$alredyBooked;            
+
+            $this->canBookToOtherBooking = (int) $this->option->howmanyusers - (int) $alredyBooked;
         } else {
             $this->canBookToOtherBooking = 0;
         }
     }
-    
+
     public function apply_tags() {
         parent::apply_tags();
 
@@ -639,7 +638,7 @@ class booking_options extends booking {
     public $perpage = 0;
     public $sort = ' ORDER BY bo.coursestarttime ASC';
 
-    public function __construct($cmid, $checkcanbookusers = true, $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), $page = 0, $perpage = 0) {
+    public function __construct($cmid, $checkcanbookusers = true, $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => '', 'searchName' => '', 'searchSurname' => ''), $page = 0, $perpage = 0) {
         parent::__construct($cmid);
         $this->checkcanbookusers = $checkcanbookusers;
         $this->filters = $urlParams;
@@ -664,27 +663,26 @@ class booking_options extends booking {
 
     private function q_params() {
         global $USER, $DB;
-        $args = array();        
+        $args = array();
 
         $conditions = " bo.bookingid = :bookingid ";
         $args['bookingid'] = $this->id;
 
         if (!empty($this->filters['searchText'])) {
-            
+
             $tags = $DB->get_records_sql('SELECT * FROM {booking_tags} WHERE text LIKE :text', array('text' => '%' . $this->filters['searchText'] . '%'));
 
             if (!empty($tags)) {
                 $conditions .= " AND (bo.text LIKE :text ";
                 $args['text'] = '%' . $this->filters['searchText'] . '%';
-                
+
                 foreach ($tags as $tag) {
                     $conditions .= " OR bo.text LIKE :tag{$tag->id} ";
                     $args["tag{$tag->id}"] = '%[' . $tag->tag . ']%';
                 }
-                
+
                 $conditions .= " ) ";
-                
-            } else {            
+            } else {
                 $conditions .= " AND bo.text LIKE :text ";
                 $args['text'] = '%' . $this->filters['searchText'] . '%';
             }
@@ -705,12 +703,21 @@ class booking_options extends booking {
             $args['coursestarttime'] = $this->filters['coursestarttime'];
         }
 
-        $left = " FROM {booking_options} AS bo WHERE ";
+        if (!empty($this->filters['searchName'])) {
+            $conditions .= " AND u.firstname LIKE :searchname ";
+            $args['searchname'] = '%' . $this->filters['searchName'] . '%';
+        }
+
+        if (!empty($this->filters['searchSurname'])) {
+            $conditions .= " AND u.lastname LIKE :searchsurname ";
+            $args['searchsurname'] = '%' . $this->filters['searchSurname'] . '%';
+        }
+
+
 
         if (isset($this->filters['whichview'])) {
             switch ($this->filters['whichview']) {
                 case 'mybooking':
-                    $left = " FROM {booking_options} AS bo LEFT JOIN {booking_answers} AS ba ON bo.id = ba.optionid WHERE ";
                     $conditions .= " AND ba.userid = " . $USER->id . " ";
                     break;
 
@@ -731,7 +738,7 @@ class booking_options extends booking {
             }
         }
 
-        $sql = $left . " {$conditions} {$this->sort}";
+        $sql = " FROM {booking_options} AS bo LEFT JOIN {booking_answers} AS ba ON bo.id = ba.optionid LEFT JOIN {user} AS u ON ba.userid = u.id WHERE {$conditions} {$this->sort}";
 
         return array('sql' => $sql, 'args' => $args);
     }
@@ -740,7 +747,7 @@ class booking_options extends booking {
         global $DB;
 
         $options = $this->q_params();
-        $this->options = $DB->get_records_sql('SELECT bo.* ' . $options['sql'], $options['args'], $this->perpage * $this->page, $this->perpage);
+        $this->options = $DB->get_records_sql('SELECT DISTINCT bo.* ' . $options['sql'], $options['args'], $this->perpage * $this->page, $this->perpage);
     }
 
     public function apply_tags() {

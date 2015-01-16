@@ -52,6 +52,10 @@ $string['teachers'] = 'Teachers: ';
 $string['daystonotify'] = 'How many days before start of event to notify participaints?';
 $string['notificationsubject'] = 'Upcoming course...';
 
+$string['eventreport_viewed'] = 'Report viewed';
+$string['eventbookingoption_booked'] = 'Booking option booked';
+$string['eventbooking_cancelled'] = 'Booking canceled'; 
+
 // subscribeusers.php
 $string['backtoresponses'] = '<< Back to responses';
 $string['allchangessave'] = 'All changes have been saved.';

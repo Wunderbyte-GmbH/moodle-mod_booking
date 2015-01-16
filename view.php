@@ -13,6 +13,8 @@ $sorto = optional_param('sort', '', PARAM_INT);
 $searchText = optional_param('searchText', '', PARAM_TEXT);
 $searchLocation = optional_param('searchLocation', '', PARAM_TEXT);
 $searchInstitution = optional_param('searchInstitution', '', PARAM_TEXT);
+$searchName = optional_param('searchName', '', PARAM_TEXT);
+$searchSurname = optional_param('searchSurname', '', PARAM_TEXT);
 $page = optional_param('page', '0', PARAM_INT);
 
 $perPage = 10;
@@ -55,6 +57,16 @@ if (strlen($searchLocation) > 0) {
 $urlParams['searchInstitution'] = "";
 if (strlen($searchInstitution) > 0) {
     $urlParams['searchInstitution'] = $searchInstitution;
+}
+
+$urlParams['searchName'] = "";
+if (strlen($searchName) > 0) {
+    $urlParams['searchName'] = $searchName;
+}
+
+$urlParams['searchSurname'] = "";
+if (strlen($searchSurname) > 0) {
+    $urlParams['searchSurname'] = $searchSurname;
 }
 
 $url = new moodle_url('/mod/booking/view.php', $urlParams);

@@ -618,6 +618,12 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
     $row = new html_table_row(array(get_string('institution', "booking"), $hidden . '<input value="' . $urlParams['searchInstitution'] . '" type="text" name="searchInstitution">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
+    $row = new html_table_row(array(get_string('searchName', "booking"), '<form>' . $hidden . '<input value="' . $urlParams['searchName'] . '" type="text" name="searchName">', "", ""));
+    $tabledata[] = $row;
+    $rowclasses[] = "";
+    $row = new html_table_row(array(get_string('searchSurname', "booking"), '<input value="' . $urlParams['searchSurname'] . '" type="text" name="searchSurname">', "", ""));
+    $tabledata[] = $row;
+    $rowclasses[] = "";
     $row = new html_table_row(array("", '<input type="submit" value="' . get_string('search') . '"></form>', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
@@ -626,7 +632,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
     $table->head = array('', '', '');
     $table->data = $tabledata;
     $table->id = "tableSearch";
-    if (empty($urlParams['searchText']) && empty($urlParams['searchLocation']) && empty($urlParams['searchInstitution'])) {
+    if (empty($urlParams['searchText']) && empty($urlParams['searchLocation']) && empty($urlParams['searchName']) && empty($urlParams['searchInstitution']) && empty($urlParams['searchSurname'])) {
         $table->attributes = array('style' => "display: none;");
     }
     echo html_writer::table($table);
