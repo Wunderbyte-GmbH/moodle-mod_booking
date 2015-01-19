@@ -256,7 +256,7 @@ if (!$download) {
                 $user->id = $value;
                 $tmpBooking->user_submit_response($user);
             }
-            
+
             redirect($url, get_string('userssucesfullybooked', 'booking', $bookingData->canBookToOtherBooking), 5);
         }
     } else {
@@ -320,13 +320,13 @@ if (!$download) {
         }
     }
 
-    $row = new html_table_row(array(get_string('searchName', "booking"), '<form>' . $hidden . '<input value="' . $urlParams['searchName'] . '" type="text" name="searchName">', "", ""));
+    $row = new html_table_row(array(get_string('searchName', "booking"), '<form>' . $hidden . '<input value="' . $urlParams['searchName'] . '" id="searchName" type="text" name="searchName">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('searchSurname', "booking"), '<input value="' . $urlParams['searchSurname'] . '" type="text" name="searchSurname">', "", ""));
+    $row = new html_table_row(array(get_string('searchSurname', "booking"), '<input value="' . $urlParams['searchSurname'] . '" id="searchSurname" type="text" name="searchSurname">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('searchDate', "booking"), html_writer::checkbox('searchDate', '1', $checked) . html_writer::select_time('days', 'searchDateDay', $timestamp, 5) . ' ' . html_writer::select_time('months', 'searchDateMonth', $timestamp, 5) . ' ' . html_writer::select_time('years', 'searchDateYear', $timestamp, 5), "", ""));
+    $row = new html_table_row(array(get_string('searchDate', "booking"), html_writer::checkbox('searchDate', '1', $checked, '', array('id' => 'searchDate')) . html_writer::select_time('days', 'searchDateDay', $timestamp, 5) . ' ' . html_writer::select_time('months', 'searchDateMonth', $timestamp, 5) . ' ' . html_writer::select_time('years', 'searchDateYear', $timestamp, 5), "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 
@@ -334,7 +334,7 @@ if (!$download) {
     $tabledata[] = $row;
     $rowclasses[] = "";
 
-    $row = new html_table_row(array("", '<input type="submit" value="' . get_string('search') . '"></form>', "", ""));
+    $row = new html_table_row(array("", '<input type="submit" id="searchButton" value="' . get_string('search') . '"><input id="buttonclear" type="button" value="' . get_string('reset', 'booking') . '"></form>', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 
@@ -400,7 +400,7 @@ if (!$download) {
 /// generate the data for the body of the spreadsheet
         $row = 1;
 
-        if ($bookinglist && ($action == "all")) { // get list of all booking options
+        if (isset($bookinglist) && ($action == "all")) { // get list of all booking options
             foreach ($bookinglist as $optionid => $optionvalue) {
                 $bookingData = new booking_option($cm->id, $optionid);
                 $bookingData->apply_tags();
@@ -490,6 +490,18 @@ if (!$download) {
 ?>
 
 <script type="text/javascript">
+
+    YUI().use('node-event-simulate', function (Y) {
+
+        Y.one('#buttonclear').on('click', function () {
+            Y.one('#menusearchFinished').set('value', '');
+            Y.one('#searchName').set('value', '');
+            Y.one('#searchSurname').set('value', '');
+            Y.one('#searchDate').set('value', '');            
+            Y.one('#searchButton').simulate('click');
+        });
+    });
+
     YUI().use('node', function (Y) {
         Y.delegate('click', function (e) {
             var buttonID = e.currentTarget.get('id'),

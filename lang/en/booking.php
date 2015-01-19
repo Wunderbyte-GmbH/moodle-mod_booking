@@ -399,6 +399,7 @@ $string['additionalfields'] = 'Additional fields';
 $string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name "Bookin name - Option name"';
 $string['searchtag'] = 'Search tags';
 $string['eventtype'] = 'Event type';
+$string['reset'] = 'Reset';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';

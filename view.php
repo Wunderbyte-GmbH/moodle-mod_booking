@@ -29,7 +29,7 @@ if (!empty($action)) {
 if (!empty($whichview)) {
     $urlParams['whichview'] = $whichview;
 } else {
-    $urlParams['whichview'] = 'showactive';    
+    $urlParams['whichview'] = 'showactive';
 }
 
 if ($optionid > 0) {
@@ -151,7 +151,7 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context)) 
         if ($bookingData->user_submit_response($USER)) {
             $contents = get_string('bookingsaved', 'booking');
             if ($booking->booking->sendmail) {
-                
+
                 $contents .= "<br />" . get_string('mailconfirmationsent', 'booking') . ".";
             }
             $contents .= $OUTPUT->single_button($url, get_string('continue'), 'get');
@@ -330,9 +330,9 @@ if ($booking->booking->timeclose != 0) {
 if (!$current and $bookingopen and has_capability('mod/booking:choose', $context)) {
 
     echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
-    
+
     unset($urlParams['sort']);
-    $tmpUrlParams = $urlParams;    
+    $tmpUrlParams = $urlParams;
     $tmpUrlParams['whichview'] = 'showactive';
     $urlActive = new moodle_url('/mod/booking/view.php', $tmpUrlParams);
     $urlActive->set_anchor('goenrol');
@@ -343,29 +343,35 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
     $urlMy = new moodle_url('/mod/booking/view.php', $tmpUrlParams);
     $urlMy->set_anchor('goenrol');
 
+    $showAll = "<a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a>";
+    $mybooking = "<a href=\"$urlMy\">" . get_string('showmybookings', 'booking') . "</a>";
+    $showactive = "<a href=\"$urlActive\">" . get_string('showactive', 'booking') . "</a>";
+    $search = '<a href="#" id="showHideSearch">' . get_string('search') . "</a>";
+            
     switch ($whichview) {
         case 'mybooking':
-            $message = "<a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a> | <a href=\"$urlActive\">" . get_string('showactive', 'booking') . "</a> | " . '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
-            echo $OUTPUT->box($message, 'box mdl-align');
+            $mybooking = "<a href=\"$urlMy\"><b>" . get_string('showmybookings', 'booking') . "</b></a>";
             break;
 
         case 'showall':
-            $message = "<a href=\"$urlMy\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"$urlActive\">" . get_string('showactive', 'booking') . "</a> | " . '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
-            echo $OUTPUT->box($message, 'box mdl-align');
+            $showAll = "<a href=\"$urlAll\"><b>" . get_string('showallbookings', 'booking') . "</b></a>";
             break;
 
-        case 'showonlyone':
+        case 'showactive':
+            $showactive = "<a href=\"$urlActive\"><b>" . get_string('showactive', 'booking') . "</b></a>";
             break;
-
+        
         default:
-            $message = "<a href=\"$urlMy\">" . get_string('showmybookings', 'booking') . "</a> | <a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a> | " . '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
-            echo $OUTPUT->box($message, 'box mdl-align');            
+            $showactive = "<a href=\"$urlActive\"><b>" . get_string('showactive', 'booking') . "</b></a>";
             break;
     }
     
+    if ($whichview != 'showonlyone') {
+        echo $OUTPUT->box("{$showAll} | {$mybooking} | {$showactive} | {$search}", 'box mdl-align');
+    }
+
     booking_show_form($booking, $USER, $cm, $bookinglist, $url, $urlParams);
     echo $OUTPUT->paging_bar($booking->count(), $page, $perPage, $url);
-
 } else {
     echo $OUTPUT->box(get_string("norighttobook", "booking"));
 }
@@ -389,6 +395,18 @@ echo $OUTPUT->footer();
 ?>
 
 <script type="text/javascript">
+    YUI().use('node-event-simulate', function (Y) {
+
+        Y.one('#buttonclear').on('click', function () {
+            Y.one('#searchText').set('value', '');
+            Y.one('#searchLocation').set('value', '');
+            Y.one('#searchInstitution').set('value', '');
+            Y.one('#searchName').set('value', '');
+            Y.one('#searchSurname').set('value', '');          
+            Y.one('#searchButton').simulate('click');
+        });
+    });
+    
     YUI().use('node', function (Y) {
         Y.delegate('click', function (e) {
             var buttonID = e.currentTarget.get('id'),

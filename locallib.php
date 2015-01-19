@@ -469,11 +469,11 @@ class booking_option extends booking {
             $eventdata->messagehtml = $messagehtml;
             $eventdata->attachment = $attachment;
             $eventdata->attachname = $attachname;
-            events_trigger('booking_deleted', $eventdata);
+            booking_booking_deleted($eventdata);
 
             if ($this->booking->copymail) {
                 $eventdata->userto = $bookingmanager;
-                events_trigger('booking_deleted', $eventdata);
+                booking_booking_deleted($eventdata);
             }
         }
 
@@ -512,11 +512,11 @@ class booking_option extends booking {
                     $eventdata->attachment = $attachment;
                     $eventdata->attachname = $attachname;
                     if ($this->booking->sendmail == 1) {
-                        events_trigger('booking_deleted', $eventdata);
+                        booking_booking_deleted($eventdata);
                     }
                     if ($this->booking->copymail) {
                         $eventdata->userto = $bookingmanager;
-                        events_trigger('booking_deleted', $eventdata);
+                        booking_booking_deleted($eventdata);
                     }
                 }
             }

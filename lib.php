@@ -609,22 +609,22 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
         }
     }
 
-    $row = new html_table_row(array(get_string('booking', "booking"), $hidden . '<form><input value="' . $urlParams['searchText'] . '" type="text" name="searchText">', "", ""));
+    $row = new html_table_row(array(get_string('booking', "booking"), $hidden . '<form><input value="' . $urlParams['searchText'] . '" type="text" id="searchText" name="searchText">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('location', "booking"), $hidden . '<input value="' . $urlParams['searchLocation'] . '" type="text" name="searchLocation">', "", ""));
+    $row = new html_table_row(array(get_string('location', "booking"), $hidden . '<input value="' . $urlParams['searchLocation'] . '" type="text" id="searchLocation" name="searchLocation">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('institution', "booking"), $hidden . '<input value="' . $urlParams['searchInstitution'] . '" type="text" name="searchInstitution">', "", ""));
+    $row = new html_table_row(array(get_string('institution', "booking"), $hidden . '<input value="' . $urlParams['searchInstitution'] . '" type="text" id="searchInstitution" name="searchInstitution">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('searchName', "booking"), '<form>' . $hidden . '<input value="' . $urlParams['searchName'] . '" type="text" name="searchName">', "", ""));
+    $row = new html_table_row(array(get_string('searchName', "booking"), '<form>' . $hidden . '<input value="' . $urlParams['searchName'] . '" type="text" id="searchName" name="searchName">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('searchSurname', "booking"), '<input value="' . $urlParams['searchSurname'] . '" type="text" name="searchSurname">', "", ""));
+    $row = new html_table_row(array(get_string('searchSurname', "booking"), '<input value="' . $urlParams['searchSurname'] . '" type="text" id="searchSurname" name="searchSurname">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array("", '<input type="submit" value="' . get_string('search') . '"></form>', "", ""));
+    $row = new html_table_row(array("", '<input id="searchButton" type="submit" value="' . get_string('search') . '"><input id="buttonclear" type="button" value="' . get_string('reset', 'booking') . '"></form>', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 
