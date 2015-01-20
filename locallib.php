@@ -765,7 +765,7 @@ class booking_options extends booking {
         global $DB;
 
         $options = $this->q_params();
-        $count = $DB->get_record_sql('SELECT COUNT(*) AS count ' . $options['sql'], $options['args']);
+        $count = $DB->get_record_sql('SELECT COUNT(DISTINCT bo.id) AS count ' . $options['sql'], $options['args']);
 
         return (int) $count->count;
     }
