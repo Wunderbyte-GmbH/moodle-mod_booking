@@ -1001,6 +1001,40 @@ function booking_confirm_booking($optionid, $booking, $user, $cm, $url) {
     echo $OUTPUT->footer();
 }
 
+// Add activity completion for teachers.
+function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $optionid) {
+    global $DB;
+
+    $course = $DB->get_record('course', array('id' => $booking->course));
+    $completion = new completion_info($course);
+
+    $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
+
+    foreach ($selectedusers as $uid) {
+        foreach ($uid as $ui) {
+            $userData = $DB->get_record('booking_teachers', array('optionid' => $optionid, 'userid' => $ui));
+
+            if ($userData->completed == '1') {
+                $userData->completed = '0';
+
+                $DB->update_record('booking_teachers', $userData);
+
+                if ($completion->is_enabled($cm) && $booking->enablecompletion) {
+                    $completion->update_state($cm, COMPLETION_INCOMPLETE, $ui);
+                }
+            } else {
+                $userData->completed = '1';
+
+                $DB->update_record('booking_teachers', $userData);
+
+                if ($completion->is_enabled($cm) && $booking->enablecompletion) {
+                    $completion->update_state($cm, COMPLETION_COMPLETE, $ui);
+                }
+            }
+        }
+    }
+}
+
 // Add activity completion to user.
 function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) {
     global $DB;
@@ -1731,10 +1765,10 @@ function booking_update_subscriptions_button($id, $optionid) {
 
     if (!empty($USER->subscriptionsediting)) {
         $string = get_string('turneditingoff');
-        $edit = "off";
+        $edit = "0";
     } else {
         $string = get_string('turneditingon');
-        $edit = "on";
+        $edit = "1";
     }
 
     return "<form method=\"get\" action=\"$CFG->wwwroot/mod/booking/teachers.php\">" .
@@ -1823,8 +1857,8 @@ abstract class booking_subscriber_selector_base extends user_selector_base {
         if (isset($options['optionid'])) {
             $this->optionid = $options['optionid'];
         }
-    }
-
+    }    
+    
     /**
      * Returns an array of options to seralise and store for searches
      *
@@ -1839,7 +1873,6 @@ abstract class booking_subscriber_selector_base extends user_selector_base {
         $options['optionid'] = $this->optionid;
         return $options;
     }
-
 }
 
 /**
@@ -1849,7 +1882,7 @@ abstract class booking_subscriber_selector_base extends user_selector_base {
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_existing_subscriber_selector extends booking_subscriber_selector_base {
-
+    
     /**
      * Finds all subscribed users
      *
@@ -1875,8 +1908,7 @@ class booking_existing_subscriber_selector extends booking_subscriber_selector_b
     		ORDER BY $sort", $params);
 
         return array(get_string("existingsubscribers", 'booking') => $subscribers);
-    }
-
+    } 
 }
 
 /**
@@ -1922,7 +1954,7 @@ class booking_potential_subscriber_selector extends booking_subscriber_selector_
         }
         return $options;
     }
-
+    
     /**
      * Finds all potential users
      *

@@ -644,6 +644,22 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014123001, 'booking');
     }
+    
+        if ($oldversion < 2015012000) {
+
+        // Define field completed to be added to booking_teachers.
+        $table = new xmldb_table('booking_teachers');
+        $field = new xmldb_field('completed', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'optionid');
+
+        // Conditionally launch add field completed.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015012000, 'booking');
+    }
+
 
     return true;
 }

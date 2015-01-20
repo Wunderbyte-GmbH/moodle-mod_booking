@@ -559,3 +559,6 @@ $string['enablecompletion'] = 'Enable activity completion.';
 $string['enablecompletiongroup'] = 'Activity completion';
 $string['confirmactivitycompletion'] = 'Confirm activity completion';
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';
+
+// teachers.php
+$string['teachers'] = 'Teachers';

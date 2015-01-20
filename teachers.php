@@ -1,17 +1,15 @@
 <?php
 
 require_once("../../config.php");
-require_once("lib.php");
+require_once("locallib.php");
+require_once("teachers_form.php");
 
 $id = required_param('id', PARAM_INT);
 $optionid = required_param('optionid', PARAM_INT);
-$edit = optional_param('edit', -1, PARAM_BOOL);
+$edit = optional_param('edit', 0, PARAM_INT);
 
-$url = new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid));
+$url = new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid, 'edit' => $edit));
 
-if ($edit !== 0) {
-    $url->param('edit', $edit);
-}
 $PAGE->set_url($url);
 
 if (!$cm = get_coursemodule_from_id('booking', $id)) {
@@ -33,17 +31,38 @@ if (!has_capability('mod/booking:updatebooking', $context)) {
     print_error('nopermissiontupdatebooking', 'booking');
 }
 
-add_to_log($course->id, "booking", "view teachers", "teachers.php?id=$id", $booking->id, $cm->id);
-
 $output = $PAGE->get_renderer('mod_booking');
 
 $currentgroup = groups_get_activity_group($cm);
 $options = array('optionid' => $optionid, 'currentgroup' => $currentgroup, 'context' => $context);
 $existingselector = new booking_existing_subscriber_selector('existingsubscribers', $options);
+$existingselector->set_extra_fields(array('email'));
 $subscriberselector = new booking_potential_subscriber_selector('potentialsubscribers', $options);
 $subscriberselector->set_existing_subscribers($existingselector->find_users(''));
+$subscriberselector->set_extra_fields(array('email'));
 
-if (data_submitted()) {
+if ($edit === 0) {
+    $option = $DB->get_record("booking_options", array("id" => $optionid));
+    $allSubscribedTeachers = booking_subscribed_teachers($course, $optionid, $id, $currentgroup, $context);
+    $mform = new mod_booking_teachers_form(null, array('teachers' => $allSubscribedTeachers, 'option' => $option, 'cm' => $cm, 'id' => $id, 'optionid' => $optionid, 'edit' => $edit));
+
+    if ($mform->is_cancelled()) {
+        redirect("report.php?id=$cm->id&optionid={$optionid}");
+    } else if ($fromform = $mform->get_data()) {
+        if (isset($fromform->activitycompletion) && has_capability('mod/booking:readresponses', $context) && confirm_sesskey()) {
+            $selectedusers[$optionid] = array_keys($fromform->user, 1);
+
+            if (empty($selectedusers[$optionid])) {
+                redirect($url, get_string('selectatleastoneuser', 'booking'), 5);
+            }
+
+            $bookingData = new booking_options($cm->id, FALSE);
+            
+            booking_activitycompletion_teachers($selectedusers, $bookingData->booking, $cm->id, $optionid);
+            redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);
+        }
+    }
+} else if (data_submitted()) {
     require_sesskey();
     $subscribe = (bool) optional_param('subscribe', false, PARAM_RAW);
     $unsubscribe = (bool) optional_param('unsubscribe', false, PARAM_RAW);
@@ -71,23 +90,31 @@ if (data_submitted()) {
     $subscriberselector->set_existing_subscribers($existingselector->find_users(''));
 }
 
-$PAGE->navbar->add(get_string('addteachers', 'booking'));
+if ($edit === 1) {
+    $PAGE->navbar->add(get_string('addteachers', 'booking'));
+} else {
+    $PAGE->navbar->add(get_string('teachers', 'booking'));
+}
+
+
+
 $PAGE->set_title(get_string('addteachers', 'booking'));
 $PAGE->set_heading($COURSE->fullname);
 if (has_capability('mod/booking:updatebooking', $context)) {
+    $USER->subscriptionsediting = $edit;
     $PAGE->set_button(booking_update_subscriptions_button($id, $optionid));
-    if ($edit != -1) {
-        $USER->subscriptionsediting = $edit;
-    }
 } else {
     unset($USER->subscriptionsediting);
 }
 echo $output->header();
-echo $output->heading(get_string('addteachers', 'booking'));
+if ($edit === 1) {
+    echo $output->heading(get_string('addteachers', 'booking'));
+} else {
+    echo $output->heading(get_string('teachers', 'booking'));
+}
 
 if (empty($USER->subscriptionsediting)) {
-    $option = $DB->get_record("booking_options", array("id" => $optionid));
-    echo $output->subscriber_overview(booking_subscribed_teachers($course, $optionid, $id, $currentgroup, $context), $option, $course);
+    $mform->display();
 } else {
     echo $output->subscriber_selection_form($existingselector, $subscriberselector);
 }
