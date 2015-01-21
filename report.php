@@ -437,11 +437,11 @@ if (!$download) {
                     }
 
                     if (isset($coursestarttime) && $coursestarttime > 0) {
-                        $myxls->write_string($row, 3, userdate($coursestarttime, get_string('strftimedatefullshort')));
+                        $myxls->write_string($row, 3, userdate($coursestarttime, get_string('strftimedatetime')));
                     }
 
                     if (isset($courseendtime) && $courseendtime > 0) {
-                        $myxls->write_string($row, 4, userdate($courseendtime, get_string('strftimedatefullshort')));
+                        $myxls->write_string($row, 4, userdate($courseendtime, get_string('strftimedatetime')));
                     }
 
                     $myxls->write_string($row, 5, $user->id, $cellform);
@@ -456,7 +456,7 @@ if (!$download) {
                             $value = $DB->get_field('user_info_data', 'data', array('fieldid' => $profilefieldid, 'userid' => $user->id), NULL, IGNORE_MISSING);
                             if ($fType == 'datetime') {
                                 if ($value != FALSE) {
-                                    $myxls->write_string($row, $i++, userdate($value, get_string('strftimedatefullshort')), $cellform);
+                                    $myxls->write_string($row, $i++, userdate($value, get_string('strftimedate')), $cellform);
                                 } else {
                                     $myxls->write_string($row, $i++, '', $cellform);
                                 }
@@ -503,7 +503,7 @@ if (!$download) {
                         $value = $DB->get_field('user_info_data', 'data', array('fieldid' => $profilefieldid, 'userid' => $user->id), NULL, IGNORE_MISSING);
                         if ($fType == 'datetime') {
                             if ($value != FALSE) {
-                                $myxls->write_string($row, $i++, userdate($value, get_string('strftimedatefullshort')), $cellform);
+                                $myxls->write_string($row, $i++, userdate($value, get_string('strftimedate')), $cellform);
                             } else {
                                 $myxls->write_string($row, $i++, '', $cellform);
                             }
