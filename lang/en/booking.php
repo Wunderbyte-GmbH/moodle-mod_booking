@@ -400,6 +400,7 @@ $string['addtogroup_help'] = 'Automatically enrol users in group - group will be
 $string['searchtag'] = 'Search tags';
 $string['eventtype'] = 'Event type';
 $string['reset'] = 'Reset';
+$string['showinapi'] = 'Show in API?';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';

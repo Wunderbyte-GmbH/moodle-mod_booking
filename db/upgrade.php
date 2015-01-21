@@ -644,8 +644,8 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014123001, 'booking');
     }
-    
-        if ($oldversion < 2015012000) {
+
+    if ($oldversion < 2015012000) {
 
         // Define field completed to be added to booking_teachers.
         $table = new xmldb_table('booking_teachers');
@@ -658,6 +658,21 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2015012000, 'booking');
+    }
+
+    if ($oldversion < 2015012100) {
+
+        // Define field showinapi to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('showinapi', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'conectedbooking');
+
+        // Conditionally launch add field showinapi.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015012100, 'booking');
     }
 
 
