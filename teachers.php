@@ -100,6 +100,9 @@ if ($edit === 1) {
 
 $PAGE->set_title(get_string('addteachers', 'booking'));
 $PAGE->set_heading($COURSE->fullname);
+
+
+
 if (has_capability('mod/booking:updatebooking', $context)) {
     $USER->subscriptionsediting = $edit;
     $PAGE->set_button(booking_update_subscriptions_button($id, $optionid));
@@ -113,7 +116,10 @@ if ($edit === 1) {
     echo $output->heading(get_string('teachers', 'booking'));
 }
 
-if (empty($USER->subscriptionsediting)) {
+echo html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)), get_string('users', 'booking'), array('style' => 'float:right;'));
+echo '<br>';
+
+if (empty($USER->subscriptionsediting)) {    
     $mform->display();
 } else {
     echo $output->subscriber_selection_form($existingselector, $subscriberselector);

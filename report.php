@@ -291,7 +291,7 @@ if (!$download) {
     $links = array();
 
     if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-        $links[] = html_writer::link(new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid)), get_string('addteachers', 'booking'), array());
+        $links[] = html_writer::link(new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid)), get_string('teachers', 'booking'), array());
     }
 
     if (has_capability('mod/booking:subscribeusers', $context)) {

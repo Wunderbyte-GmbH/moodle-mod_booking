@@ -562,3 +562,4 @@ $string['activitycompletionsuccess'] = 'All selected users have been marked for 
 
 // teachers.php
 $string['teachers'] = 'Teachers';
+$string['users'] = '<< Manage responses';
