@@ -234,8 +234,8 @@ if (count($files) > 0) {
     foreach ($files as $file) {
         if ($file->get_filesize() > 0) {
             $filename = $file->get_filename();
-            $url = file_encode_url($CFG->wwwroot . '/pluginfile.php', '/' . $file->get_contextid() . '/' . $file->get_component() . '/' . $file->get_filearea() . '/' . $file->get_itemid() . '/' . $file->get_filename());
-            $out[] = html_writer::link($url, $filename);
+            $furl = file_encode_url($CFG->wwwroot . '/pluginfile.php', '/' . $file->get_contextid() . '/' . $file->get_component() . '/' . $file->get_filearea() . '/' . $file->get_itemid() . '/' . $file->get_filename());
+            $out[] = html_writer::link($furl, $filename);
         }
     }
     echo html_writer::tag('span', implode(', ', $out));
@@ -247,8 +247,8 @@ if (!empty($CFG->usetags)) {
 
     $links = array();
     foreach ($tags as $tagid => $tag) {
-        $url = new moodle_url('tag.php', array('id' => $id, 'tag' => $tag));
-        $links[] = html_writer::link($url, $tag, array());
+        $turl = new moodle_url('tag.php', array('id' => $id, 'tag' => $tag));
+        $links[] = html_writer::link($turl, $tag, array());
     }
 
     if (!empty($tags)) {
@@ -266,8 +266,8 @@ if ($booking->booking->categoryid != '0' && $booking->booking->categoryid != '')
         $links = array();
         foreach ($categoryies as $category) {
             $tmpCat = $DB->get_record('booking_category', array('id' => $category));
-            $url = new moodle_url('category.php', array('id' => $id, 'category' => $tmpCat->id));
-            $links[] = html_writer::link($url, $tmpCat->name, array());
+            $surl = new moodle_url('category.php', array('id' => $id, 'category' => $tmpCat->id));
+            $links[] = html_writer::link($surl, $tmpCat->name, array());
         }
 
         echo html_writer::start_tag('div');
