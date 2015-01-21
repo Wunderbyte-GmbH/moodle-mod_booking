@@ -35,7 +35,7 @@ class mod_booking_manageusers_form extends moodleform {
                     $arrow = "&#11014;";
                 }                
                 
-                $mform->addElement('advcheckbox', "user[{$user->id}]", $arrow . $checkMark . " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . "</a>",  ($userData->timecreated > 0 ? ' ' . userdate($userData->timecreated, get_string('strftimedatefullshort')) : ''), array('group' => $this->_customdata['bookingdata']->id + 1));
+                $mform->addElement('advcheckbox', "user[{$user->id}]", $arrow . $checkMark . " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" . fullname($user) . "</a>",  ($userData->timecreated > 0 ? ' ' . userdate($userData->timecreated, get_string('strftimedatefullshort')) : ''), array('class' => 'modbooking', 'group' => $this->_customdata['bookingdata']->id + 1));
             }
 
             $this->add_checkbox_controller($this->_customdata['bookingdata']->id + 1);
