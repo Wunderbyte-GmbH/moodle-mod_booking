@@ -369,7 +369,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
     if ($whichview != 'showonlyone') {
         echo $OUTPUT->box("{$showAll} | {$mybooking} | {$showactive} | {$search}", 'box mdl-align');
     }
-
+    
+    $url->set_anchor('goenrol');
     booking_show_form($booking, $USER, $cm, $bookinglist, $url, $urlParams);
     echo $OUTPUT->paging_bar($booking->count(), $page, $perPage, $url);
 } else {
