@@ -765,7 +765,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
 		<br />' . $optiondisplay->delete . $optiondisplay->manage . '
 		<br />' . $optiondisplay->bookotherusers,
                 "<b>" . format_text($option->text . ' ', FORMAT_MOODLE, $displayoptions) . "</b>" . "<p>" . $option->description . "</p>" . $printTeachers . $additionalInfo,
-                $option->coursestarttimetext . " - <br />" . $option->courseendtimetext,
+                $option->coursestarttimetext . " " . get_string('to', "booking") . " <br />" . $option->courseendtimetext,
                 $stravailspaces));
 
             $tabledata[] = $row;

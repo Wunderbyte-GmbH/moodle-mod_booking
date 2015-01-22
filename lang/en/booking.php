@@ -55,6 +55,7 @@ $string['notificationsubject'] = 'Upcoming course...';
 $string['eventreport_viewed'] = 'Report viewed';
 $string['eventbookingoption_booked'] = 'Booking option booked';
 $string['eventbooking_cancelled'] = 'Booking canceled'; 
+$string['to'] = 'to';
 
 // subscribeusers.php
 $string['backtoresponses'] = '<< Back to responses';
