@@ -383,17 +383,27 @@ if (!$download) {
             $cellformat1 = $workbook->add_format(array('bg_color' => 'red'));
         }
 /// Print names of all the fields
-        $myxls->write_string(0, 0, get_string("booking", "booking"));
-        $myxls->write_string(0, 1, get_string("institution", "booking"));
-        $myxls->write_string(0, 2, get_string("location", "booking"));
-        $myxls->write_string(0, 3, get_string("coursestarttime", "booking"));
-        $myxls->write_string(0, 4, get_string("courseendtime", "booking"));
-        $myxls->write_string(0, 5, get_string("user") . " " . get_string("idnumber"));
-        $myxls->write_string(0, 6, get_string("firstname"));
-        $myxls->write_string(0, 7, get_string("lastname"));
-        $myxls->write_string(0, 8, get_string("email"));
-        $myxls->write_string(0, 9, get_string("searchFinished", "booking"));
-        $i = 10;
+
+        if ($action == "all") {
+            $myxls->write_string(0, 0, get_string("booking", "booking"));
+            $myxls->write_string(0, 1, get_string("institution", "booking"));
+            $myxls->write_string(0, 2, get_string("location", "booking"));
+            $myxls->write_string(0, 3, get_string("coursestarttime", "booking"));
+            $myxls->write_string(0, 4, get_string("courseendtime", "booking"));
+            $myxls->write_string(0, 5, get_string("user") . " " . get_string("idnumber"));
+            $myxls->write_string(0, 6, get_string("firstname"));
+            $myxls->write_string(0, 7, get_string("lastname"));
+            $myxls->write_string(0, 8, get_string("email"));
+            $myxls->write_string(0, 9, get_string("searchFinished", "booking"));
+            $i = 10;
+        } else {
+            $myxls->write_string(0, 0, get_string("booking", "booking"));
+            $myxls->write_string(0, 1, get_string("user") . " " . get_string("idnumber"));
+            $myxls->write_string(0, 2, get_string("firstname"));
+            $myxls->write_string(0, 3, get_string("lastname"));
+            $myxls->write_string(0, 4, get_string("email"));
+            $i = 5;
+        }
         $addfields = explode(',', $bookingData->booking->additionalfields);
         $addquoted = "'" . implode("','", $addfields) . "'";
         if ($userprofilefields = $DB->get_records_select('user_info_field', 'id > 0 AND shortname IN (' . $addquoted . ')', array(), 'id', 'id, shortname, name')) {
