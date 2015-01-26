@@ -294,7 +294,7 @@ if (!$download) {
         $links[] = html_writer::link(new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid)), get_string('teachers', 'booking'), array());
     }
 
-    if (has_capability('mod/booking:subscribeusers', $context)) {
+    if (has_capability('mod/booking:subscribeusers', $context)) {        
         $links[] = html_writer::link(new moodle_url('/mod/booking/subscribeusers.php', array('id' => $cm->id, 'optionid' => $optionid)), get_string('bookotherusers', 'booking'), array());
     }
 
@@ -310,7 +310,9 @@ if (!$download) {
         echo '<br>' . html_writer::start_span('') . get_string('associatedcourse', 'booking') . ': ' . html_writer::link(new moodle_url($bookingData->option->courseurl, array()), $bookingData->option->urltitle, array()) . html_writer::end_span() . '<br>';
     }
 
-    echo '<br>' . html_writer::start_span('') . get_string('onlythisbookingurl', 'booking') . ': ' . html_writer::link(new moodle_url('/mod/booking/view.php', array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone')), new moodle_url('/mod/booking/view.php', array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone')), array()) . html_writer::end_span() . '<br><br>';
+    $onlyOneURL = new moodle_url('/mod/booking/view.php', array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone', 'whichview' => 'showonlyone'));
+    $onlyOneURL->set_anchor('goenrol');    
+    echo '<br>' . html_writer::start_span('') . get_string('onlythisbookingurl', 'booking') . ': ' . html_writer::link($onlyOneURL, $onlyOneURL, array()) . html_writer::end_span() . '<br><br>';
 
     $hidden = "";
 
