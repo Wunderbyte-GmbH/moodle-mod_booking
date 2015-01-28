@@ -9,7 +9,7 @@ $whichview = optional_param('whichview', '', PARAM_ALPHA);
 $optionid = optional_param('optionid', '', PARAM_INT);
 $confirm = optional_param('confirm', '', PARAM_INT);
 $answer = optional_param('answer', '', PARAM_ALPHANUM);
-$sorto = optional_param('sort', '', PARAM_INT);
+$sorto = optional_param('sort', '1', PARAM_INT);
 $searchText = optional_param('searchText', '', PARAM_TEXT);
 $searchLocation = optional_param('searchLocation', '', PARAM_TEXT);
 $searchInstitution = optional_param('searchInstitution', '', PARAM_TEXT);
@@ -17,9 +17,10 @@ $searchName = optional_param('searchName', '', PARAM_TEXT);
 $searchSurname = optional_param('searchSurname', '', PARAM_TEXT);
 $page = optional_param('page', '0', PARAM_INT);
 
-$perPage = 10;
+$perPage = 3;
 
 $urlParams = array();
+$urlParamsSort = array();
 $urlParams['id'] = $id;
 
 if (!empty($action)) {
@@ -34,14 +35,6 @@ if (!empty($whichview)) {
 
 if ($optionid > 0) {
     $urlParams['optionid'] = $optionid;
-}
-
-if ($sorto == 1) {
-    $sort = 'coursestarttime ASC';
-    $urlParams['sort'] = 0;
-} else if ($sorto == 0) {
-    $sort = 'coursestarttime DESC';
-    $urlParams['sort'] = 1;
 }
 
 $urlParams['searchText'] = "";
@@ -69,7 +62,18 @@ if (strlen($searchSurname) > 0) {
     $urlParams['searchSurname'] = $searchSurname;
 }
 
+$urlParamsSort = $urlParams;
+        
+if ($sorto == 1) {
+    $urlParams['sort'] = 1;
+    $urlParamsSort['sort'] = 0;
+} else if ($sorto == 0) {
+    $urlParams['sort'] = 0;
+    $urlParamsSort['sort'] = 1;
+}
+
 $url = new moodle_url('/mod/booking/view.php', $urlParams);
+$sortUrl = new moodle_url('/mod/booking/view.php', $urlParamsSort);
 
 $PAGE->set_url($url);
 
@@ -370,8 +374,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         echo $OUTPUT->box("{$showAll} | {$mybooking} | {$showactive} | {$search}", 'box mdl-align');
     }
     
-    $url->set_anchor('goenrol');
-    booking_show_form($booking, $USER, $cm, $bookinglist, $url, $urlParams);
+    $sortUrl->set_anchor('goenrol');
+    booking_show_form($booking, $USER, $cm, $bookinglist, $sortUrl, $urlParams);
     echo $OUTPUT->paging_bar($booking->count(), $page, $perPage, $url);
 } else {
     echo $OUTPUT->box(get_string("norighttobook", "booking"));

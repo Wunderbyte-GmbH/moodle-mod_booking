@@ -781,7 +781,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
     if (strlen($booking->booking->eventtype) > 0) {
         $strbooking = $booking->booking->eventtype;
     }
-
+    
     $strdate = '<a href="' . $sorturl . '">' . get_string("coursedate", "booking") . '</a>';
     $stravailability = get_string("availability", "booking");
 
