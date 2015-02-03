@@ -75,13 +75,13 @@ if ($mform->is_cancelled()) {
             $fromform->daystonotify = 0;
         }
 
-        booking_update_options($fromform);
+        $nBooking = booking_update_options($fromform);
 
         if (isset($fromform->submittandaddnew)) {
             $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add'));
             redirect($redirecturl, get_string('changessaved'), 0);
         } else {
-            $redirecturl = new moodle_url('report.php', array('id' => $cm->id, 'optionid' => $optionid));
+            $redirecturl = new moodle_url('report.php', array('id' => $cm->id, 'optionid' => $nBooking));
             redirect($redirecturl, get_string('changessaved'), 0);
         }
     }
