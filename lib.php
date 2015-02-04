@@ -312,7 +312,7 @@ function booking_update_options($optionvalues) {
     $option->text = trim($optionvalues->text);
     $option->conectedoption = $optionvalues->conectedoption;
     $option->howmanyusers = $optionvalues->howmanyusers;
-    
+
     $option->sent = 0;
 
     $option->location = trim($optionvalues->location);
@@ -781,7 +781,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
     if (strlen($booking->booking->eventtype) > 0) {
         $strbooking = $booking->booking->eventtype;
     }
-    
+
     $strdate = '<a href="' . $sorturl . '">' . get_string("coursedate", "booking") . '</a>';
     $stravailability = get_string("availability", "booking");
 
@@ -1044,26 +1044,24 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
 
     $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
 
-    foreach ($selectedusers as $uid) {
-        foreach ($uid as $ui) {
-            $userData = $DB->get_record('booking_answers', array('optionid' => $optionid, 'userid' => $ui));
+    foreach ($selectedusers as $ui) {
+        $userData = $DB->get_record('booking_answers', array('optionid' => $optionid, 'userid' => $ui));
 
-            if ($userData->completed == '1') {
-                $userData->completed = '0';
+        if ($userData->completed == '1') {
+            $userData->completed = '0';
 
-                $DB->update_record('booking_answers', $userData);
+            $DB->update_record('booking_answers', $userData);
 
-                if ($completion->is_enabled($cm) && $booking->enablecompletion) {
-                    $completion->update_state($cm, COMPLETION_INCOMPLETE, $ui);
-                }
-            } else {
-                $userData->completed = '1';
+            if ($completion->is_enabled($cm) && $booking->enablecompletion) {
+                $completion->update_state($cm, COMPLETION_INCOMPLETE, $ui);
+            }
+        } else {
+            $userData->completed = '1';
 
-                $DB->update_record('booking_answers', $userData);
+            $DB->update_record('booking_answers', $userData);
 
-                if ($completion->is_enabled($cm) && $booking->enablecompletion) {
-                    $completion->update_state($cm, COMPLETION_COMPLETE, $ui);
-                }
+            if ($completion->is_enabled($cm) && $booking->enablecompletion) {
+                $completion->update_state($cm, COMPLETION_COMPLETE, $ui);
             }
         }
     }
@@ -1109,28 +1107,26 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
 
     $sender = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));
 
-    foreach ($attemptidsarray as $tuser) {
-        foreach ($tuser as $suser) {
-            $tuser = $DB->get_record('user', array('id' => $suser));
+    foreach ($attemptidsarray as $suser) {
+        $tuser = $DB->get_record('user', array('id' => $suser));
 
-            $params = booking_generate_email_params($booking->booking, $booking->option, $tuser, $cmid);
+        $params = booking_generate_email_params($booking->booking, $booking->option, $tuser, $cmid);
 
-            $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext', 'pollurltextmessage', $params);
+        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext', 'pollurltextmessage', $params);
 
-            $eventdata = new stdClass();
-            $eventdata->modulename = 'booking';
-            $eventdata->userfrom = $USER;
-            $eventdata->userto = $tuser;
-            $eventdata->subject = get_string('pollurltextsubject', 'booking', $params);
-            $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
-            $eventdata->fullmessageformat = FORMAT_HTML;
-            $eventdata->fullmessagehtml = $pollurlmessage;
-            $eventdata->smallmessage = '';
-            $eventdata->component = 'mod_booking';
-            $eventdata->name = 'bookingconfirmation';
+        $eventdata = new stdClass();
+        $eventdata->modulename = 'booking';
+        $eventdata->userfrom = $USER;
+        $eventdata->userto = $tuser;
+        $eventdata->subject = get_string('pollurltextsubject', 'booking', $params);
+        $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
+        $eventdata->fullmessageformat = FORMAT_HTML;
+        $eventdata->fullmessagehtml = $pollurlmessage;
+        $eventdata->smallmessage = '';
+        $eventdata->component = 'mod_booking';
+        $eventdata->name = 'bookingconfirmation';
 
-            $returnVal = message_send($eventdata);
-        }
+        $returnVal = message_send($eventdata);
     }
     return $returnVal;
 }
@@ -1857,8 +1853,8 @@ abstract class booking_subscriber_selector_base extends user_selector_base {
         if (isset($options['optionid'])) {
             $this->optionid = $options['optionid'];
         }
-    }    
-    
+    }
+
     /**
      * Returns an array of options to seralise and store for searches
      *
@@ -1873,6 +1869,7 @@ abstract class booking_subscriber_selector_base extends user_selector_base {
         $options['optionid'] = $this->optionid;
         return $options;
     }
+
 }
 
 /**
@@ -1882,7 +1879,7 @@ abstract class booking_subscriber_selector_base extends user_selector_base {
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_existing_subscriber_selector extends booking_subscriber_selector_base {
-    
+
     /**
      * Finds all subscribed users
      *
@@ -1908,7 +1905,8 @@ class booking_existing_subscriber_selector extends booking_subscriber_selector_b
     		ORDER BY $sort", $params);
 
         return array(get_string("existingsubscribers", 'booking') => $subscribers);
-    } 
+    }
+
 }
 
 /**
@@ -1954,7 +1952,7 @@ class booking_potential_subscriber_selector extends booking_subscriber_selector_
         }
         return $options;
     }
-    
+
     /**
      * Finds all potential users
      *

@@ -210,9 +210,9 @@ if (!$download) {
             }
             die;
         } else if (isset($fromform->sendpollurl) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
-            $selectedusers[$optionid] = array_keys($fromform->user, 1);
+            $selectedusers = array_keys($fromform->user, 1);
 
-            if (empty($selectedusers[$optionid])) {
+            if (empty($selectedusers)) {
                 redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
             }
 
@@ -221,16 +221,16 @@ if (!$download) {
         } else if (isset($fromform->sendcustommessage) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
             $selectedusers = array_keys($fromform->user, 1);
 
-            if (empty($selectedusers[$optionid])) {
+            if (empty($selectedusers)) {
                 redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
             }
 
             $sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id' => $id, 'optionid' => $optionid, 'uids' => serialize($selectedusers)));
             redirect($sendmessageurl);
         } else if (isset($fromform->activitycompletion) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context)) && confirm_sesskey()) {
-            $selectedusers[$optionid] = array_keys($fromform->user, 1);
+            $selectedusers = array_keys($fromform->user, 1);
 
-            if (empty($selectedusers[$optionid])) {
+            if (empty($selectedusers)) {
                 redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
             }
 
@@ -238,20 +238,20 @@ if (!$download) {
             redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);
         } else if (isset($fromform->booktootherbooking) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context)) && confirm_sesskey()) {
 
-            $selectedusers[$optionid] = array_keys($fromform->user, 1);
+            $selectedusers = array_keys($fromform->user, 1);
 
-            if (empty($selectedusers[$optionid])) {
+            if (empty($selectedusers)) {
                 redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
             }
 
-            if (count($selectedusers[$optionid]) > $bookingData->canBookToOtherBooking) {
+            if (count($selectedusers) > $bookingData->canBookToOtherBooking) {
                 redirect($url, get_string('toomuchusersbooked', 'booking', $bookingData->canBookToOtherBooking), 5);
             }
 
             $tmpcmid = $DB->get_record_sql("SELECT cm.id FROM {course_modules} cm JOIN {modules} md ON md.id = cm.module JOIN {booking} m ON m.id = cm.instance WHERE md.name = 'booking' AND cm.instance = ?", array($bookingData->booking->conectedbooking));
             $tmpBooking = new booking_option($tmpcmid->id, $bookingData->option->conectedoption);
 
-            foreach ($selectedusers[$optionid] as $value) {
+            foreach ($selectedusers as $value) {
                 $user = new stdClass();
                 $user->id = $value;
                 $tmpBooking->user_submit_response($user);
