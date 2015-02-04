@@ -1,4 +1,4 @@
-<?PHP 
+<?PHP
 
 $string['addmorebookings'] = 'Buchungen hinzufügen';
 $string['allowupdate'] = 'Buchungen dürfen gelöscht werden';
@@ -338,7 +338,7 @@ aus.
 ';
 
 //report.php and bookingmanagusers.class.php
-$string['withselected'] = 'Ausgewählte Nutzer/innen'; 
+$string['withselected'] = 'Ausgewählte Nutzer/innen';
 $string['associatedcourse'] = 'Dazu gehörender Kurs';
 $string['bookedusers'] = 'Gebuchte Nutzer/innen';
 $string['waitinglistusers'] = 'Nutzer/innen auf der Warteliste';

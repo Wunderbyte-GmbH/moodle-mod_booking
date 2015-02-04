@@ -52,10 +52,23 @@ $string['teachers'] = 'Teachers: ';
 $string['daystonotify'] = 'How many days before start of event to notify participaints?';
 $string['notificationsubject'] = 'Upcoming course...';
 
+$string['eventreport_viewed'] = 'Report viewed';
+$string['eventbookingoption_booked'] = 'Booking option booked';
+$string['eventbooking_cancelled'] = 'Booking canceled'; 
+$string['to'] = 'to';
+
+// subscribeusers.php
+$string['backtoresponses'] = '<< Back to responses';
+$string['allchangessave'] = 'All changes have been saved.';
+
 // Bookingform
 $string['location'] = 'Location';
 $string['institution'] = 'Institution';
 $string['address'] = 'Address';
+$string['conectedoption'] = 'Connected option';
+$string['conectedoption_help'] = '';
+$string['howmanyusers'] = 'How many users you can book?';
+$string['howmanyusers_help'] = '';
 
 // Categories
 $string['category'] = 'Category';
@@ -125,8 +138,24 @@ $string['eventpoints'] = 'Points';
 $string['organizatorname'] = 'Organizator name';
 $string['pollurl'] = 'Poll url';
 $string['pollurlteachers'] = 'Teachers poll url';
+$string['tagtemplates'] = 'Tag templates';
+
+// tag templates
+$string['cancel'] = 'Cancel';
+$string['addnewtagtemplate'] = 'Add new';
+$string['addnewtagtemplate'] = 'Add new tag template';
+$string['savenewtagtemplate'] = 'Save';
+$string['tagtag'] = 'Tag';
+$string['tagtext'] = 'Text';
+$string['wrongdataallfields'] = 'Please, fill all fields!';
+$string['tagsucesfullysaved'] = 'Tag was sucesfully saved.';
+$string['edittag'] = 'Edit';
 
 // mod_form
+$string['conectedbooking'] = 'Connected booking';
+$string['notconectedbooking'] = 'Not connected';
+$string['conectedbooking_help'] = '';
+$string['cancancelbook'] = 'Allow user to cancel or book their booking when it is started?';
 $string['addtocalendar'] = 'Add to calendar';
 $string['limitanswers'] = 'Limit the number of participants';
 $string['maxparticipantsnumber'] = 'Max. number of participants';
@@ -148,6 +177,45 @@ $string['userleave'] = 'User leave booking';
 $string['waitingtext'] = 'Waiting list confirmation';
 $string['statuschangetext'] = 'Status change message';
 $string['deletedtext'] = 'Cancelled booking message';
+
+$string['pollurlteachers_help'] = 'You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+<li>{teacher}</li>
+</ul>';
+
+$string['pollurl_help'] = 'You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+<li>{teacher}</li>
+</ul>';
+
 $string['bookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
 <li>{status}</li>
@@ -164,6 +232,7 @@ $string['bookedtext_help'] = 'Leave this blank to use the site default text. You
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 
 $string['userleave_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -184,6 +253,7 @@ $string['userleave_help'] = 'Leave this blank to use the site default text. You 
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 
 $string['waitingtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -204,6 +274,7 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 $string['statuschangetext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -223,6 +294,7 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 $string['deletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -242,6 +314,7 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 
 $string['pollurltext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -262,6 +335,7 @@ $string['pollurltext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 
 $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -282,6 +356,7 @@ $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default 
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 
 $string['notificationtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -302,6 +377,7 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 <li>{institution}</li>
 <li>{address}</li>
 <li>{eventtype}</li>
+<li>{teacher}</li>
 </ul>';
 
 $string['notificationtext'] = 'Notification message';
@@ -324,6 +400,8 @@ $string['additionalfields'] = 'Additional fields';
 $string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name "Bookin name - Option name"';
 $string['searchtag'] = 'Search tags';
 $string['eventtype'] = 'Event type';
+$string['reset'] = 'Reset';
+$string['showinapi'] = 'Show in API?';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';
@@ -346,6 +424,7 @@ $string['importcsvtitle'] = 'Import CSV';
 $string['csvfile'] = 'CSV file';
 $string['defaultdateformat'] = 'j.n.Y H:i:s';
 $string['dateparseformat'] = 'Date parse format';
+$string['dateparseformat_help'] = 'Please, use date format like specified in CSV file. Help with <a href="http://php.net/manual/en/function.date.php">this</a> resource for options.';
 $string['wrongfile'] = 'Wrong file!';
 $string['nouserfound'] = 'No user found: ';
 $string['noteacherfound'] = 'No teacher found: ';
@@ -456,6 +535,21 @@ $string['downloadallresponses'] = 'Download all responses for all booking option
 $string['allmailssend'] = 'All emails to users have been sent sucesfully!';
 $string['sendcustommessage'] = 'Send custom message';
 $string['addteachers'] = 'Add teachers';
+$string['nocourse'] = 'No course selected for this booking option';
+$string['userrssucesfullenroled'] = 'All users has been sucesfully enroled!';
+$string['searchName'] = 'Name';
+$string['searchSurname'] = 'Surname';
+$string['searchDate'] = 'Date';
+$string['searchFinished'] = 'Course completed';
+$string['yes'] = 'Yes';
+$string['no'] = 'No';
+$string['onlythisbookingurl'] = 'Only this booking URL';
+$string['gotobooking'] = '<< Bookings';
+$string['nousers'] = 'No users!';
+$string['booktootherbooking'] = 'Book users to other booking';
+$string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
+$string['selectatleastoneuser'] = 'Please, select at least 1 user!';
+$string['userssucesfullybooked'] = 'All users have been sucesfully booked to other booking.';
 
 // Send message
 $string['messagesubject'] = 'Subject';
@@ -467,3 +561,7 @@ $string['enablecompletion'] = 'Enable activity completion.';
 $string['enablecompletiongroup'] = 'Activity completion';
 $string['confirmactivitycompletion'] = 'Confirm activity completion';
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';
+
+// teachers.php
+$string['teachers'] = 'Teachers';
+$string['users'] = '<< Manage responses';
