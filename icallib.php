@@ -40,9 +40,11 @@ class booking_ical {
      * @param object $user the user the booking is for
      */
     public function __construct($booking, $option, $user, $fromuser) {
+        global $DB;
+        
         $this->booking = $booking;
         $this->option = $option;
-        $this->user = $user;
+        $this->user = $DB->get_record('user', array('id'=>$user->id));
         $this->fromuser = $fromuser;
     }
 

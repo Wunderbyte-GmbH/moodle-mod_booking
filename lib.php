@@ -432,7 +432,9 @@ function booking_update_options($optionvalues) {
                 }
             }
 
-            return $DB->update_record("booking_options", $option);
+            $DB->update_record("booking_options", $option);
+            
+            return $option->id;
         }
     } elseif (isset($optionvalues->text) && $optionvalues->text <> '') {
         $option->addtocalendar = 0;
@@ -1474,9 +1476,9 @@ function booking_send_confirm_message($eventdata) {
     $messagedata = new stdClass();
     $messagedata->userfrom = $bookingmanager;
     if ($eventdata->booking->sendmailtobooker) {
-        $messagedata->userto = $USER;
+        $messagedata->userto = $DB->get_record('user', array('id'=>$USER->id));
     } else {
-        $messagedata->userto = $user;
+        $messagedata->userto = $DB->get_record('user', array('id'=>$user->id));
     }
     $messagedata->subject = $subject;
     $messagedata->messagetext = $message;
@@ -1484,12 +1486,12 @@ function booking_send_confirm_message($eventdata) {
     $messagedata->attachment = $attachment;
     $messagedata->attachname = $attachname;
 
-    events_trigger('booking_confirmed', $messagedata);
+    booking_booking_confirmed($messagedata);
 
     if ($eventdata->booking->copymail) {
         $messagedata->userto = $bookingmanager;
         $messagedata->subject = $subjectmanager;
-        events_trigger('booking_confirmed', $messagedata);
+        
     }
     return true;
 }
