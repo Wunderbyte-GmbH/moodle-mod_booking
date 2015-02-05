@@ -705,7 +705,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
                 $optiondisplay->button = '';
             }
 
-            if ($booking->booking->cancancelbook == 0 && $option->coursestarttime > 0 && $option->coursestarttime < time()) {
+            if ($booking->booking->cancancelbook == 0 && $option->courseendtime > 0 && $option->courseendtime < time()) {
                 $optiondisplay->button = '';
                 $optiondisplay->delete = '';
             }

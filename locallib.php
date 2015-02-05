@@ -730,7 +730,7 @@ class booking_options extends booking {
                     break;
 
                 case 'showactive':
-                    $conditions .= " AND (bo.coursestarttime > " . time() . " OR bo.coursestarttime = 0) ";
+                    $conditions .= " AND (bo.courseendtime > " . time() . " OR bo.courseendtime = 0) ";
                     break;
 
                 default:
