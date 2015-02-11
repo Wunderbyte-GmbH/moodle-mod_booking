@@ -6,7 +6,7 @@ class mod_booking_manageusers_form extends moodleform {
 
     function definition() {
         global $CFG, $DB, $OUTPUT, $USER;
-        $mform = & $this->_form;
+        $mform = $this->_form;
 
         $cm = $this->_customdata['cm'];
 
@@ -63,24 +63,24 @@ class mod_booking_manageusers_form extends moodleform {
         // buttons
 
         $buttonarray = array();
-        $buttonarray[] = &$mform->createElement('static', 'onlylabel', '', '<span class="bookinglabelname">' . get_string('withselected', 'booking') . '</span>');
+        $buttonarray[] = $mform->createElement('static', 'onlylabel', '', '<span class="bookinglabelname">' . get_string('withselected', 'booking') . '</span>');
         if (!$this->_customdata['bookingdata']->autoenrol && has_capability('mod/booking:communicate', context_module::instance($cm->id))) {
-            $buttonarray[] = &$mform->createElement('submit', 'subscribetocourse', get_string('subscribetocourse', 'booking'));
+            $buttonarray[] = $mform->createElement('submit', 'subscribetocourse', get_string('subscribetocourse', 'booking'));
         }
 
         if (has_capability('mod/booking:deleteresponses', context_module::instance($cm->id))) {
-            $buttonarray[] = &$mform->createElement("submit", 'deleteusers', get_string('booking:deleteresponses', 'booking'));
+            $buttonarray[] = $mform->createElement("submit", 'deleteusers', get_string('booking:deleteresponses', 'booking'));
         }
 
         if (has_capability('mod/booking:communicate', context_module::instance($cm->id))) {
-            $buttonarray[] = &$mform->createElement("submit", 'sendpollurl', get_string('booking:sendpollurl', 'booking'));
-            $buttonarray[] = &$mform->createElement("submit", 'sendcustommessage', get_string('sendcustommessage', 'booking'));
+            $buttonarray[] = $mform->createElement("submit", 'sendpollurl', get_string('booking:sendpollurl', 'booking'));
+            $buttonarray[] = $mform->createElement("submit", 'sendcustommessage', get_string('sendcustommessage', 'booking'));
         }
 
         if (booking_check_if_teacher($this->_customdata['bookingdata'], $USER) || has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-            $buttonarray[] = &$mform->createElement("submit", 'activitycompletion', get_string('confirmactivitycompletion', 'booking'));
+            $buttonarray[] = $mform->createElement("submit", 'activitycompletion', get_string('confirmactivitycompletion', 'booking'));
             if ($this->_customdata['bookingdata']->conectedoption > 0) {
-                $buttonarray[] = &$mform->createElement("submit", 'booktootherbooking', get_string('booktootherbooking', 'booking'));
+                $buttonarray[] = $mform->createElement("submit", 'booktootherbooking', get_string('booktootherbooking', 'booking'));
             }
         }
 
@@ -97,7 +97,7 @@ class mod_booking_manageusers_form extends moodleform {
         $mform->setType('optionid', PARAM_INT);
     }
 
-    function data_preprocessing(&$default_values) {
+    function data_preprocessing($default_values) {
         if (!isset($default_values['descriptionformat'])) {
             $default_values['descriptionformat'] = FORMAT_HTML;
         }

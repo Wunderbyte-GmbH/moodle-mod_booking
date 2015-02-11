@@ -40,6 +40,7 @@ $searching = FALSE;
 
 $urlParams = array();
 $urlParams['id'] = $id;
+$urlParams['page'] = $page;
 
 if ($optionid > 0) {
     $urlParams['optionid'] = $optionid;
@@ -190,7 +191,8 @@ if (!$download) {
     $bookingData->option->urltitle = $DB->get_field('course', 'shortname', array('id' => $bookingData->option->courseid));
     $bookingData->option->cmid = $cm->id;
     $bookingData->option->autoenrol = $bookingData->booking->autoenrol;
-    $mform = new mod_booking_manageusers_form(null, array('cm' => $cm, 'bookingdata' => $bookingData->option, 'waitinglistusers' => $bookingData->usersOnWaitingList, 'bookedusers' => $bookingData->usersOnList)); //name of the form you defined in file above.
+
+    $mform = new mod_booking_manageusers_form($url->out(false), array('cm' => $cm, 'bookingdata' => $bookingData->option, 'waitinglistusers' => $bookingData->usersOnWaitingList, 'bookedusers' => $bookingData->usersOnList)); //name of the form you defined in file above.
 //managing the form
     if ($mform->is_cancelled()) {
         redirect("view.php?id=$cm->id");
