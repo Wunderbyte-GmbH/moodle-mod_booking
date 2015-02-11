@@ -41,6 +41,7 @@ class mod_booking_bookingform_form extends moodleform {
         }
 
         $mform->addElement('checkbox', 'limitanswers', get_string('limitanswers', 'booking'));
+        $mform->addHelpButton('limitanswers', 'limitanswers', 'mod_booking');
 
         $mform->addElement('text', 'maxanswers', get_string('maxparticipantsnumber', 'booking'));
         $mform->setType('maxanswers', PARAM_INT);

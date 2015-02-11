@@ -1,7 +1,7 @@
 <?php
 
 require_once("../../config.php");
-require_once("lib.php");
+require_once("locallib.php");
 require_once("bookingform.class.php");
 
 $id = required_param('id', PARAM_INT);                 // Course Module ID
@@ -76,6 +76,9 @@ if ($mform->is_cancelled()) {
         }
 
         $nBooking = booking_update_options($fromform);
+        
+        $bookingData = new booking_option($cm->id, $nBooking);
+        $bookingData->sync_waiting_list();
 
         if (isset($fromform->submittandaddnew)) {
             $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add'));

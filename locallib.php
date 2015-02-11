@@ -381,7 +381,7 @@ class booking_option extends booking {
                 }
             }
         }
-    }
+    }    
 
     /**
      * Mass delete all responses
@@ -525,6 +525,40 @@ class booking_option extends booking {
         return true;
     }
 
+    /**
+     * "Sync" users on waiting list, based on edited option - if has limit or not.
+     */
+    public function sync_waiting_list() {
+        global $DB;
+        
+        if ($this->option->limitanswers) {
+            
+            $nBooking = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC', array($this->optionid), 0, $this->option->maxanswers);
+            
+            foreach ($nBooking as $value) {
+                $value->waitinglist = 0;
+                $DB->update_record("booking_answers", $value);
+            }
+            
+            $nOverBooking = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC', array($this->optionid), $this->option->maxanswers, $this->option->maxoverbooking);
+            
+            foreach ($nOverBooking as $value) {
+                $value->waitinglist = 1;
+                $DB->update_record("booking_answers", $value);
+            }
+            
+            $nOver = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC', array($this->optionid), $this->option->maxoverbooking + $this->option->maxanswers);
+            
+            foreach ($nOver as $value) {
+               $DB->delete_records('booking_answers', array('id' => $value->id)); 
+            }
+            
+            
+        } else {
+            $DB->execute("UPDATE {booking_answers} SET waitinglist = 0 WHERE optionid = :optionid", array('optionid' => $this->optionid));
+        }
+    }
+    
     /**
      * Saves the booking for the user
      * @return boolean true if booking was possible, false if meanwhile the booking got full
