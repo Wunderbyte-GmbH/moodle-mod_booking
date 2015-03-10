@@ -675,6 +675,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015012100, 'booking');
     }
 
+    if ($oldversion < 2015031000) {
+
+        // Define field pollsend to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('pollsend', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'howmanyusers');
+
+        // Conditionally launch add field pollsend.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015031000, 'booking');
+    }
 
     return true;
 }

@@ -1130,6 +1130,13 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
 
         $returnVal = message_send($eventdata);
     }
+    
+    $dataobject = new stdClass();
+    $dataobject->id = $booking->option->id;
+    $dataobject->pollsend = 1;
+    
+    $DB->update_record('booking_options', $dataobject);
+    
     return $returnVal;
 }
 

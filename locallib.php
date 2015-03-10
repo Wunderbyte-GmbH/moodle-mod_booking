@@ -201,8 +201,8 @@ class booking_option extends booking {
     public function get_url_params() {
         $bu = new booking_utils();
         $params = $bu->generate_params($this->booking, $this->option);
-        $this->option->pollurl = $bu->get_body($this->booking, 'pollurl', $params, TRUE);
-        $this->option->pollurlteachers = $bu->get_body($this->booking, 'pollurlteachers', $params, TRUE);
+        $this->option->pollurl = $bu->get_body($params, 'pollurl', $params, TRUE);
+        $this->option->pollurlteachers = $bu->get_body($params, 'pollurlteachers', $params, TRUE);
     }
 
     // Get all users with filters

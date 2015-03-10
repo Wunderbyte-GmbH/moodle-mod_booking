@@ -220,13 +220,6 @@ if (!empty($booking->booking->organizatorname)) {
     echo html_writer::end_tag('div');
 }
 
-if (!empty($booking->booking->pollurl)) {
-    echo html_writer::start_tag('div');
-    echo html_writer::tag('label', get_string('pollurl', 'booking') . ': ', array('class' => 'bold'));
-    echo html_writer::tag('span', html_writer::link($booking->booking->pollurl, $booking->booking->pollurl, array()));
-    echo html_writer::end_tag('div');
-}
-
 $out = array();
 $fs = get_file_storage();
 $files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanager', $booking->booking->id);

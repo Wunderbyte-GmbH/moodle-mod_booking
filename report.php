@@ -311,11 +311,7 @@ if (!$download) {
     if ($bookingData->option->courseid != 0) {
         echo '<br>' . html_writer::start_span('') . get_string('associatedcourse', 'booking') . ': ' . html_writer::link(new moodle_url($bookingData->option->courseurl, array()), $bookingData->option->urltitle, array()) . html_writer::end_span() . '<br>';
     }
-
-    $onlyOneURL = new moodle_url('/mod/booking/view.php', array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone', 'whichview' => 'showonlyone'));
-    $onlyOneURL->set_anchor('goenrol');    
-    echo '<br>' . html_writer::start_span('') . get_string('onlythisbookingurl', 'booking') . ': ' . html_writer::link($onlyOneURL, $onlyOneURL, array()) . html_writer::end_span() . '<br><br>';
-
+   
     $hidden = "";
 
     foreach ($urlParams as $key => $value) {
@@ -354,7 +350,14 @@ if (!$download) {
     $mform->display();
 
     echo $OUTPUT->paging_bar($bookingData->count_users(), $page, $perPage, $url);
+    
+    $onlyOneURL = new moodle_url('/mod/booking/view.php', array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone', 'whichview' => 'showonlyone'));
+    $onlyOneURL->set_anchor('goenrol');    
+    echo '<br>' . html_writer::start_span('') . get_string('onlythisbookingurl', 'booking') . ': ' . html_writer::link($onlyOneURL, $onlyOneURL, array()) . html_writer::end_span();
+    echo '<br>' . html_writer::start_span('') . get_string('pollurl', 'booking') . ': ' . html_writer::link($bookingData->option->pollurl, $bookingData->option->pollurl, array())  . ($bookingData->option->pollsend ? ' &#x2713;' : '') . html_writer::end_span();
 
+    
+    
     echo $OUTPUT->footer();
 } else {
     if ($download == "ods" OR $download == "xls" && has_capability('mod/booking:downloadresponses', $context)) {
