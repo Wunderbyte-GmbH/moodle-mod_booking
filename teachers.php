@@ -49,6 +49,12 @@ if ($edit === 0) {
     if ($mform->is_cancelled()) {
         redirect("report.php?id=$cm->id&optionid={$optionid}");
     } else if ($fromform = $mform->get_data()) {
+        
+        if (isset($fromform->turneditingon) && has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
+            $urlR = new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid, 'edit' => 1));
+            redirect($urlR, '', 0);
+        }
+        
         if (isset($fromform->activitycompletion) && has_capability('mod/booking:readresponses', $context) && confirm_sesskey()) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
 
