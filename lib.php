@@ -1083,6 +1083,8 @@ function booking_sendpollurlteachers($booking, $cmid, $optionid) {
         $params = booking_generate_email_params($booking->booking, $booking->option, $userdata, $cmid);
 
         $pollurlmessage = booking_get_email_body($booking->booking, 'pollurlteacherstext', 'pollurlteacherstextmessage', $params);
+        $booking->booking->pollurlteacherstext = $pollurlmessage;
+        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurlteacherstext', 'pollurlteacherstextmessage', $params);
 
         $eventdata = new stdClass();
         $eventdata->modulename = 'booking';
@@ -1107,13 +1109,15 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
 
     $returnVal = true;
 
-    $sender = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));
-
+    $sender = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));    
+    
     foreach ($attemptidsarray as $suser) {
-        $tuser = $DB->get_record('user', array('id' => $suser));
+        $tuser = $DB->get_record('user', array('id' => $suser));       
 
         $params = booking_generate_email_params($booking->booking, $booking->option, $tuser, $cmid);
-
+        
+        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext', 'pollurltextmessage', $params);   
+        $booking->booking->pollurltext = $pollurlmessage;
         $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext', 'pollurltextmessage', $params);
 
         $eventdata = new stdClass();
@@ -1580,6 +1584,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $params->institution = $option->institution;
     $params->address = $option->address;
     $params->eventtype = $booking->eventtype;
+    $params->pollstartdate = $option->coursestarttime ? userdate((int)$option->coursestarttime, get_string('pollstrftimedate', 'booking')) : '';
     if (empty($option->pollurl)) {
         $params->pollurl = $booking->pollurl;
     } else {
