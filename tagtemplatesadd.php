@@ -59,6 +59,7 @@ if ($mform->is_cancelled()) {
     $tag->courseid = $cm->course;
     $tag->tag = $data->tag;
     $tag->text = $data->text;
+    $tag->textformat = FORMAT_HTML;
 
     if ($tag->id != '') {
         $DB->update_record("booking_tags", $tag);
@@ -74,6 +75,7 @@ if ($mform->is_cancelled()) {
     $default_values = new stdClass();
     if ($tid != '') {
         $default_values = $DB->get_record('booking_tags', array('id' => $tid));
+        $default_values->text = array('text' => $default_values->text, 'format' => FORMAT_HTML);
     }
 
     // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
