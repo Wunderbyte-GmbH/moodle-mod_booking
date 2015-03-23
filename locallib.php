@@ -1275,7 +1275,7 @@ class booking_utils {
             $params->location = $option->location;
             $params->institution = $option->institution;
             $params->address = $option->address;
-            $params->pollstartdate = $option->coursestarttime ? userdate((int)$option->coursestarttime, get_string('pollstrftimedate', 'booking')) : '';
+            $params->pollstartdate = $option->coursestarttime ? userdate((int)$option->coursestarttime, get_string('pollstrftimedate', 'booking'), '', false) : '';
             if (empty($option->pollurl)) {
                 $params->pollurl = $booking->pollurl;
             } else {
