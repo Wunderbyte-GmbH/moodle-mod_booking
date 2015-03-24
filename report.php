@@ -409,7 +409,8 @@ if (!$download) {
             $myxls->write_string(0, 2, get_string("firstname"));
             $myxls->write_string(0, 3, get_string("lastname"));
             $myxls->write_string(0, 4, get_string("email"));
-            $i = 5;
+            $myxls->write_string(0, 5, get_string("searchFinished", "booking"));
+            $i = 6;
         }
         $addfields = explode(',', $bookingData->booking->additionalfields);
         $addquoted = "'" . implode("','", $addfields) . "'";
@@ -513,7 +514,8 @@ if (!$download) {
                 $myxls->write_string($row, 2, $user->firstname, $cellform);
                 $myxls->write_string($row, 3, $user->lastname, $cellform);
                 $myxls->write_string($row, 4, $user->email, $cellform);
-                $i = 5;
+                $myxls->write_string($row, 5, $user->completed, $cellform);
+                $i = 6;
                 if ($DB->get_records_select('user_info_data', 'userid = ' . $user->id, array(), 'fieldid')) {
                     foreach ($userprofilefields as $profilefieldid => $profilefield) {
                         $fType = $DB->get_field('user_info_field', 'datatype', array('shortname' => $profilefield->shortname));
