@@ -705,6 +705,22 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015031700, 'booking');
     }
 
+    if ($oldversion < 2015032400) {
+
+        // Define field removeafterminutes to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('removeafterminutes', XMLDB_TYPE_INTEGER, '5', null, XMLDB_NOTNULL, null, '0', 'pollsend');
+
+        // Conditionally launch add field removeafterminutes.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015032400, 'booking');
+    }
+
+
     return true;
 }
 

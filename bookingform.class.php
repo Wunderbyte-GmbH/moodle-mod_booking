@@ -110,6 +110,9 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->addElement('text', 'howmanyusers', get_string('howmanyusers', 'booking'), 0);
         $mform->setType('howmanyusers', PARAM_INT);        
         
+        $mform->addElement('text', 'removeafterminutes', get_string('removeafterminutes', 'booking'), 0);
+        $mform->setType('removeafterminutes', PARAM_INT); 
+        
         //hidden elements
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);

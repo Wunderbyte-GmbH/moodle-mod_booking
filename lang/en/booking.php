@@ -70,6 +70,7 @@ $string['conectedoption_help'] = '';
 $string['howmanyusers'] = 'How many users you can book?';
 $string['howmanyusers_help'] = '';
 $string['limitanswers_help'] = 'If you change this option and you have booked people, you can remove them without notification!';
+$string['removeafterminutes'] = 'Remove activity completion after N minutes';
 
 // Categories
 $string['category'] = 'Category';

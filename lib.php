@@ -312,6 +312,7 @@ function booking_update_options($optionvalues) {
     $option->text = trim($optionvalues->text);
     $option->conectedoption = $optionvalues->conectedoption;
     $option->howmanyusers = $optionvalues->howmanyusers;
+    $option->removeafterminutes = $optionvalues->removeafterminutes;
 
     $option->sent = 0;
 
@@ -1051,6 +1052,7 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
 
         if ($userData->completed == '1') {
             $userData->completed = '0';
+            $userData->timemodified = time();
 
             $DB->update_record('booking_answers', $userData);
 
@@ -1059,6 +1061,7 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             }
         } else {
             $userData->completed = '1';
+            $userData->timemodified = time();
 
             $DB->update_record('booking_answers', $userData);
 
@@ -1190,7 +1193,7 @@ function booking_send_notification($optionid, $subject) {
 
     $cm = get_coursemodule_from_instance('booking', $booking->id);
 
-    $bookingData = new booking_option($cm->id, $booking->id);
+    $bookingData = new booking_option($cm->id, $option->id);
     $bookingData->apply_tags();
 
     if (isset($bookingData->usersOnList)) {

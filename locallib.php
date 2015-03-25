@@ -156,7 +156,7 @@ class booking_option extends booking {
     public function calculateHowManyCanBookToOther() {
         global $DB;
 
-        if ($this->option->conectedoption > 0) {
+        if (isset($this->option->conectedoption) && $this->option->conectedoption > 0) {
             $alredyBooked = 0;
 
             $result = $DB->get_records_sql('SELECT answers.userid FROM {booking_answers} AS answers INNER JOIN {booking_answers} AS parent on parent.userid = answers.userid WHERE answers.optionid = ? AND parent.optionid = ?', array($this->optionid, $this->option->conectedoption));
