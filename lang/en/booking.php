@@ -197,6 +197,7 @@ $string['pollurlteachers_help'] = 'You can use any of the following placeholders
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
 <li>{pollstartdate}</li>
 </ul>';
 
@@ -217,6 +218,7 @@ $string['pollurl_help'] = 'You can use any of the following placeholders in the 
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
 <li>{pollstartdate}</li>
 </ul>';
 
@@ -237,6 +239,7 @@ $string['bookedtext_help'] = 'Leave this blank to use the site default text. You
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
 <li>{pollstartdate}</li>
 </ul>';
 
@@ -259,6 +262,7 @@ $string['userleave_help'] = 'Leave this blank to use the site default text. You 
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
 <li>{pollstartdate}</li>
 </ul>';
 
@@ -281,6 +285,7 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
 <li>{pollstartdate}</li>
 </ul>';
 $string['statuschangetext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -302,6 +307,7 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
 <li>{pollstartdate}</li>
 </ul>';
 $string['deletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -323,6 +329,7 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
 <li>{pollstartdate}</li>
 </ul>';
 
@@ -345,6 +352,7 @@ $string['pollurltext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
 <li>{pollstartdate}</li>
 </ul>';
 
@@ -367,6 +375,7 @@ $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default 
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
 <li>{pollstartdate}</li>
 </ul>';
 
@@ -389,6 +398,7 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
 <li>{pollstartdate}</li>
 </ul>';
 

@@ -381,7 +381,7 @@ class booking_option extends booking {
                 }
             }
         }
-    }    
+    }
 
     /**
      * Mass delete all responses
@@ -530,35 +530,33 @@ class booking_option extends booking {
      */
     public function sync_waiting_list() {
         global $DB;
-        
+
         if ($this->option->limitanswers) {
-            
+
             $nBooking = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC', array($this->optionid), 0, $this->option->maxanswers);
-            
+
             foreach ($nBooking as $value) {
                 $value->waitinglist = 0;
                 $DB->update_record("booking_answers", $value);
             }
-            
+
             $nOverBooking = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC', array($this->optionid), $this->option->maxanswers, $this->option->maxoverbooking);
-            
+
             foreach ($nOverBooking as $value) {
                 $value->waitinglist = 1;
                 $DB->update_record("booking_answers", $value);
             }
-            
+
             $nOver = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC', array($this->optionid), $this->option->maxoverbooking + $this->option->maxanswers);
-            
+
             foreach ($nOver as $value) {
-               $DB->delete_records('booking_answers', array('id' => $value->id)); 
+                $DB->delete_records('booking_answers', array('id' => $value->id));
             }
-            
-            
         } else {
             $DB->execute("UPDATE {booking_answers} SET waitinglist = 0 WHERE optionid = :optionid", array('optionid' => $this->optionid));
         }
     }
-    
+
     /**
      * Saves the booking for the user
      * @return boolean true if booking was possible, false if meanwhile the booking got full
@@ -1243,11 +1241,20 @@ class booking_utils {
 
         if (!is_null($option)) {
 
-            $teacher = $DB->get_record('booking_teachers', array('optionid' => $option->id), '*', IGNORE_MULTIPLE);
+            $teacher = $DB->get_records('booking_teachers', array('optionid' => $option->id));
 
-            if ($teacher) {
-                $user = $DB->get_record('user', array('id' => $teacher->userid), 'firstname, lastname', IGNORE_MULTIPLE);
-                $params->teacher = $user->firstname . ' ' . $user->lastname;
+            $i = 1;
+
+            foreach ($teacher as $value) {
+
+                $user = $DB->get_record('user', array('id' => $value->userid), 'firstname, lastname', IGNORE_MULTIPLE);
+                $params->{"teacher" . $i} = $user->firstname . ' ' . $user->lastname;
+
+                $i++;
+            }
+
+            if (isset($params->teacher1)) {
+                $params->teacher = $params->teacher1;
             } else {
                 $params->teacher = '';
             }
@@ -1275,7 +1282,7 @@ class booking_utils {
             $params->location = $option->location;
             $params->institution = $option->institution;
             $params->address = $option->address;
-            $params->pollstartdate = $option->coursestarttime ? userdate((int)$option->coursestarttime, get_string('pollstrftimedate', 'booking'), '', false) : '';
+            $params->pollstartdate = $option->coursestarttime ? userdate((int) $option->coursestarttime, get_string('pollstrftimedate', 'booking'), '', false) : '';
             if (empty($option->pollurl)) {
                 $params->pollurl = $booking->pollurl;
             } else {
