@@ -8,7 +8,9 @@
  * */
 require_once("../../config.php");
 require_once("locallib.php");
-require_once("bookingmanageusers.class.php");
+require_once("{$CFG->libdir}/tablelib.php");
+require_once("{$CFG->dirroot}/mod/booking/classes/all_users.php");
+require_once("{$CFG->dirroot}/mod/booking/classes/unbooked_users.php");
 require_once("$CFG->dirroot/user/profile/lib.php");
 
 // Find only matched... http://blog.codinghorror.com/a-visual-explanation-of-sql-joins/
@@ -21,8 +23,6 @@ $confirm = optional_param('confirm', '', PARAM_INT);
 $page = optional_param('page', '0', PARAM_INT);
 
 // Search 
-$searchName = optional_param('searchName', '', PARAM_TEXT);
-$searchSurname = optional_param('searchSurname', '', PARAM_TEXT);
 $searchDate = optional_param('searchDate', '', PARAM_TEXT);
 $searchDateDay = optional_param('searchDateDay', '', PARAM_TEXT);
 $searchDateMonth = optional_param('searchDateMonth', '', PARAM_TEXT);
@@ -42,20 +42,12 @@ $urlParams = array();
 $urlParams['id'] = $id;
 $urlParams['page'] = $page;
 
+$sqlValues = array();
+$addSQLWhere = '';
+
 if ($optionid > 0) {
     $urlParams['optionid'] = $optionid;
-}
-
-$urlParams['searchName'] = "";
-if (strlen($searchName) > 0) {
-    $urlParams['searchName'] = $searchName;
-    $searching = TRUE;
-}
-
-$urlParams['searchSurname'] = "";
-if (strlen($searchSurname) > 0) {
-    $urlParams['searchSurname'] = $searchSurname;
-    $searching = TRUE;
+    $sqlValues['optionid'] = $optionid;
 }
 
 $timestamp = time();
@@ -63,19 +55,16 @@ $timestamp = time();
 $urlParams['searchDateDay'] = "";
 if (strlen($searchDateDay) > 0) {
     $urlParams['searchDateDay'] = $searchDateDay;
-    $searching = TRUE;
 }
 
 $urlParams['searchDateMonth'] = "";
 if (strlen($searchDateMonth) > 0) {
     $urlParams['searchDateMonth'] = $searchDateMonth;
-    $searching = TRUE;
 }
 
 $urlParams['searchDateYear'] = "";
 if (strlen($searchDateYear) > 0) {
     $urlParams['searchDateYear'] = $searchDateYear;
-    $searching = TRUE;
 }
 
 $checked = FALSE;
@@ -84,11 +73,19 @@ if ($searchDate == 1) {
     $urlParams['searchDate'] = $searchDate;
     $checked = TRUE;
     $timestamp = strtotime("{$urlParams['searchDateDay']}-{$urlParams['searchDateMonth']}-{$urlParams['searchDateYear']}");
+    $addSQLWhere .= " AND FROM_UNIXTIME(ba.timecreated, '%Y') = :searchdateyear AND FROM_UNIXTIME(ba.timecreated, '%c') = :searchdatemonth AND FROM_UNIXTIME(ba.timecreated, '%e') = :searchdateday";
+    $sqlValues['searchdateyear'] = $urlParams['searchDateYear'];
+    $sqlValues['searchdatemonth'] = $urlParams['searchDateMonth'];
+    $sqlValues['searchdateday'] = $urlParams['searchDateDay'];
+    $searching = TRUE;
 }
 
 $urlParams['searchFinished'] = "";
 if (strlen($searchFinished) > 0) {
     $urlParams['searchFinished'] = $searchFinished;
+    $sqlValues['completed'] = $searchFinished;
+    $addSQLWhere .= ' AND ba.completed = :completed ';
+    $searching = TRUE;
 }
 
 $urlParams['searchText'] = "";
@@ -192,18 +189,27 @@ if (!$download) {
     $bookingData->option->cmid = $cm->id;
     $bookingData->option->autoenrol = $bookingData->booking->autoenrol;
 
-    $mform = new mod_booking_manageusers_form($url->out(false), array('cm' => $cm, 'bookingdata' => $bookingData->option, 'waitinglistusers' => $bookingData->usersOnWaitingList, 'bookedusers' => $bookingData->usersOnList)); //name of the form you defined in file above.
-//managing the form
-    if ($mform->is_cancelled()) {
-        redirect("view.php?id=$cm->id");
-    } else if ($fromform = $mform->get_data()) {
-//this branch is where you process validated data.
-        if (isset($fromform->deleteusers) && has_capability('mod/booking:deleteresponses', $context) && confirm_sesskey()) {
-            $bookingData->delete_responses(array_keys($fromform->user, 1));
+    $currenturl = new moodle_url('/mod/booking/report.php', $urlParams);
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        $allSelectedUsers = array();
+
+        if (isset($_POST['user'])) {
+            foreach ($_POST['user'] as $value) {
+                $allSelectedUsers[] = array_keys($value)[0];
+            }
+        } else {
+            redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
+        }
+
+
+        if (isset($_POST['deleteusers']) && has_capability('mod/booking:deleteresponses', $context)) {
+            $bookingData->delete_responses($allSelectedUsers);
             redirect($url);
-        } else if (isset($fromform->subscribetocourse) && confirm_sesskey()) { // subscription submitted            
+        } else if (isset($_POST['subscribetocourse'])) { // subscription submitted            
             if ($bookingData->option->courseid != 0) {
-                foreach (array_keys($fromform->user, 1) as $selecteduserid) {
+                foreach ($allSelectedUsers as $selecteduserid) {
                     booking_enrol_user($bookingData->option, $bookingData->booking, $selecteduserid);
                 }
                 redirect($url, get_string('userrssucesfullenroled', 'booking'), 5);
@@ -211,49 +217,40 @@ if (!$download) {
                 redirect($url, get_string('nocourse', 'booking'), 5);
             }
             die;
-        } else if (isset($fromform->sendpollurl) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
-            $selectedusers = array_keys($fromform->user, 1);
-
-            if (empty($selectedusers)) {
+        } else if (isset($_POST['sendpollurl']) && has_capability('mod/booking:communicate', $context)) {
+            if (empty($allSelectedUsers)) {
                 redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
             }
 
-            booking_sendpollurl($selectedusers, $bookingData, $cm->id, $optionid);
+            booking_sendpollurl($allSelectedUsers, $bookingData, $cm->id, $optionid);
             redirect($url, get_string('allmailssend', 'booking'), 5);
-        } else if (isset($fromform->sendcustommessage) && has_capability('mod/booking:communicate', $context) && confirm_sesskey()) {
-            $selectedusers = array_keys($fromform->user, 1);
-
-            if (empty($selectedusers)) {
+        } else if (isset($_POST['sendcustommessage']) && has_capability('mod/booking:communicate', $context)) {
+            if (empty($allSelectedUsers)) {
                 redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
             }
 
-            $sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id' => $id, 'optionid' => $optionid, 'uids' => serialize($selectedusers)));
+            $sendmessageurl = new moodle_url('/mod/booking/sendmessage.php', array('id' => $id, 'optionid' => $optionid, 'uids' => serialize($allSelectedUsers)));
             redirect($sendmessageurl);
-        } else if (isset($fromform->activitycompletion) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context)) && confirm_sesskey()) {
-            $selectedusers = array_keys($fromform->user, 1);
-
-            if (empty($selectedusers)) {
+        } else if (isset($_POST['activitycompletion']) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
+            if (empty($allSelectedUsers)) {
                 redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
             }
 
-            booking_activitycompletion($selectedusers, $bookingData->booking, $cm->id, $optionid);
+            booking_activitycompletion($allSelectedUsers, $bookingData->booking, $cm->id, $optionid);
             redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);
-        } else if (isset($fromform->booktootherbooking) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context)) && confirm_sesskey()) {
-
-            $selectedusers = array_keys($fromform->user, 1);
-
-            if (empty($selectedusers)) {
+        } else if (isset($_POST['booktootherbooking']) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
+            if (empty($allSelectedUsers)) {
                 redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
             }
 
-            if (count($selectedusers) > $bookingData->canBookToOtherBooking) {
+            if (count($allSelectedUsers) > $bookingData->canBookToOtherBooking) {
                 redirect($url, get_string('toomuchusersbooked', 'booking', $bookingData->canBookToOtherBooking), 5);
             }
 
             $tmpcmid = $DB->get_record_sql("SELECT cm.id FROM {course_modules} cm JOIN {modules} md ON md.id = cm.module JOIN {booking} m ON m.id = cm.instance WHERE md.name = 'booking' AND cm.instance = ?", array($bookingData->booking->conectedbooking));
             $tmpBooking = new booking_option($tmpcmid->id, $bookingData->option->conectedoption);
 
-            foreach ($selectedusers as $value) {
+            foreach ($allSelectedUsers as $value) {
                 $user = new stdClass();
                 $user->id = $value;
                 $tmpBooking->user_submit_response($user);
@@ -261,9 +258,41 @@ if (!$download) {
 
             redirect($url, get_string('userssucesfullybooked', 'booking', $bookingData->canBookToOtherBooking), 5);
         }
-    } else {
-        echo $OUTPUT->header();
     }
+
+    // ALL USERS - START    
+    $tableAllUsers = new all_users('all_users');
+    $tableAllUsers->is_downloading($download, 'all_users', 'testing123');
+
+    $fields = 'u.id, ' . get_all_user_name_fields(true, 'u') . ', u.username, u.firstname, u.lastname, ba.completed, ba.timecreated, ba.id, ba.userid, IF(bo.conectedoption > 0, IF((SELECT COUNT(*) FROM {booking_answers} AS tba WHERE tba.optionid = bo.conectedoption AND tba.userid = ba.userid) = 1, 1, 0), 0) AS connected';
+    $from = ' {booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
+    $where = ' ba.optionid = :optionid AND ba.waitinglist = 0 ' . $addSQLWhere;
+
+    $tableAllUsers->set_sql(
+            $fields, $from, $where, $sqlValues);
+
+    $tableAllUsers->define_baseurl($currenturl);
+    $tableAllUsers->is_downloadable(false);
+    $tableAllUsers->show_download_buttons_at(array(TABLE_P_BOTTOM));
+    // ALL USERS - STOP
+    // ALL USERS - START    
+    $tableUnbookedUsers = new all_users('unbooked_users');
+    $tableUnbookedUsers->is_downloading($download, 'all_users', 'testing123');
+
+    $fields = 'u.id, ' . get_all_user_name_fields(true, 'u') . ', u.username, u.firstname, u.lastname, ba.completed, ba.timecreated, ba.id, ba.userid, IF(bo.conectedoption > 0, IF((SELECT COUNT(*) FROM {booking_answers} AS tba WHERE tba.optionid = bo.conectedoption AND tba.userid = ba.userid) = 1, 1, 0), 0) AS connected';
+    $from = ' {booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
+
+    $where = ' ba.optionid = :optionid AND ba.waitinglist = 1 ' . $addSQLWhere;
+
+    $tableUnbookedUsers->set_sql(
+            $fields, $from, $where, $sqlValues);
+
+    $tableUnbookedUsers->define_baseurl($currenturl);
+    $tableUnbookedUsers->is_downloadable(false);
+    $tableUnbookedUsers->show_download_buttons_at(array(TABLE_P_BOTTOM));
+    // ALL USERS - STOP
+
+    echo $OUTPUT->header();
 
     echo $OUTPUT->heading($bookingData->option->text, 4, '', '');
 
@@ -296,7 +325,7 @@ if (!$download) {
         $links[] = html_writer::link(new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid)), get_string('teachers', 'booking'), array());
     }
 
-    if (has_capability('mod/booking:subscribeusers', $context)) {        
+    if (has_capability('mod/booking:subscribeusers', $context)) {
         $links[] = html_writer::link(new moodle_url('/mod/booking/subscribeusers.php', array('id' => $cm->id, 'optionid' => $optionid)), get_string('bookotherusers', 'booking'), array());
     }
 
@@ -311,22 +340,16 @@ if (!$download) {
     if ($bookingData->option->courseid != 0) {
         echo '<br>' . html_writer::start_span('') . get_string('associatedcourse', 'booking') . ': ' . html_writer::link(new moodle_url($bookingData->option->courseurl, array()), $bookingData->option->urltitle, array()) . html_writer::end_span() . '<br>';
     }
-   
+
     $hidden = "";
 
     foreach ($urlParams as $key => $value) {
-        if (!in_array($key, array('searchName', 'searchSurname', 'searchDate', 'searchFinished'))) {
+        if (!in_array($key, array('searchDate', 'searchFinished'))) {
             $hidden .= '<input value="' . $value . '" type="hidden" name="' . $key . '">';
         }
     }
 
-    $row = new html_table_row(array(get_string('searchName', "booking"), '<form>' . $hidden . '<input value="' . $urlParams['searchName'] . '" id="searchName" type="text" name="searchName">', "", ""));
-    $tabledata[] = $row;
-    $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('searchSurname', "booking"), '<input value="' . $urlParams['searchSurname'] . '" id="searchSurname" type="text" name="searchSurname">', "", ""));
-    $tabledata[] = $row;
-    $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('searchDate', "booking"), html_writer::checkbox('searchDate', '1', $checked, '', array('id' => 'searchDate')) . html_writer::select_time('days', 'searchDateDay', $timestamp, 5) . ' ' . html_writer::select_time('months', 'searchDateMonth', $timestamp, 5) . ' ' . html_writer::select_time('years', 'searchDateYear', $timestamp, 5), "", ""));
+    $row = new html_table_row(array(get_string('searchDate', "booking"), '<form>' . $hidden . html_writer::checkbox('searchDate', '1', $checked, '', array('id' => 'searchDate')) . html_writer::select_time('days', 'searchDateDay', $timestamp, 5) . ' ' . html_writer::select_time('months', 'searchDateMonth', $timestamp, 5) . ' ' . html_writer::select_time('years', 'searchDateYear', $timestamp, 5), "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 
@@ -347,17 +370,54 @@ if (!$download) {
     }
     echo html_writer::table($table);
 
-    $mform->display();
+    echo '<form action="' . $currenturl . '" method="post" id="studentsform">' . "\n";
 
-    echo $OUTPUT->paging_bar($bookingData->count_users(), $page, $perPage, $url);
-    
+    echo '<h5>' . get_string('bookedusers', 'booking') . '</h5>';
+    $tableAllUsers->out(25, true);
+
+    echo '<h5>' . get_string('waitinglistusers', 'booking') . '</h5>';
+    $tableUnbookedUsers->out(25, true);
+
+
+    echo '<div class="selectbuttons">';
+    echo '<input type="button" id="checkall" value="' . get_string('selectall') . '" /> ';
+    echo '<input type="button" id="checknone" value="' . get_string('deselectall') . '" /> ';
+
+    echo '</div>';
+    echo '<div>';
+    if (!$bookingData->booking->autoenrol && has_capability('mod/booking:communicate', context_module::instance($cm->id))) {
+        if ($bookingData->option->courseid > 0) {
+            echo '<input type="submit" name="subscribetocourse" value="' . get_string('subscribetocourse', 'booking') . '" />';
+        }
+    }
+
+    if (has_capability('mod/booking:deleteresponses', context_module::instance($cm->id))) {
+        echo '<input type="submit" name="deleteusers" value="' . get_string('booking:deleteresponses', 'booking') . '" />';
+    }
+
+    if (has_capability('mod/booking:communicate', context_module::instance($cm->id))) {
+        echo '<input type="submit" name="sendpollurl" value="' . get_string('booking:sendpollurl', 'booking') . '" />';
+        echo '<input type="submit" name="sendcustommessage" value="' . get_string('sendcustommessage', 'booking') . '" />';
+    }
+
+    if (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
+        echo '<input type="submit" name="activitycompletion" value="' . get_string('confirmactivitycompletion', 'booking') . '" />';
+        if ($bookingData->option->conectedoption > 0) {
+            echo '<input type="submit" name="booktootherbooking" value="' . get_string('booktootherbooking', 'booking') . '" />';
+        }
+    }
+
+    echo '</div>';
+    echo '</form>';
+
+
     $onlyOneURL = new moodle_url('/mod/booking/view.php', array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone', 'whichview' => 'showonlyone'));
-    $onlyOneURL->set_anchor('goenrol');    
+    $onlyOneURL->set_anchor('goenrol');
     echo '<br>' . html_writer::start_span('') . get_string('onlythisbookingurl', 'booking') . ': ' . html_writer::link($onlyOneURL, $onlyOneURL, array()) . html_writer::end_span();
-    echo '<br>' . html_writer::start_span('') . get_string('pollurl', 'booking') . ': ' . html_writer::link($bookingData->option->pollurl, $bookingData->option->pollurl, array())  . ($bookingData->option->pollsend ? ' &#x2713;' : '') . html_writer::end_span();
+    echo '<br>' . html_writer::start_span('') . get_string('pollurl', 'booking') . ': ' . html_writer::link($bookingData->option->pollurl, $bookingData->option->pollurl, array()) . ($bookingData->option->pollsend ? ' &#x2713;' : '') . html_writer::end_span();
 
-    
-    
+    $PAGE->requires->js_init_call('M.mod_booking.init');
+
     echo $OUTPUT->footer();
 } else {
     if ($download == "ods" OR $download == "xls" && has_capability('mod/booking:downloadresponses', $context)) {
@@ -558,8 +618,6 @@ if (!$download) {
 
         Y.one('#buttonclear').on('click', function () {
             Y.one('#menusearchFinished').set('value', '');
-            Y.one('#searchName').set('value', '');
-            Y.one('#searchSurname').set('value', '');
             Y.one('#searchDate').set('value', '');
             Y.one('#searchButton').simulate('click');
         });

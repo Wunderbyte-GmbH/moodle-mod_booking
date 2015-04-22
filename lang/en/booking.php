@@ -590,3 +590,10 @@ $string['users'] = '<< Manage responses';
 
 // lib.php
 $string['pollstrftimedate'] = '%Y-%m-%d';
+
+// all_users.php
+$string['completed'] = 'Completed';
+$string['usersOnList'] = 'User on list';
+$string['fullname'] = 'Full name';
+$string['timecreated'] = 'Time created';
+
