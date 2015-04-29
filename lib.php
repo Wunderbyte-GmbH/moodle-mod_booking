@@ -1554,7 +1554,10 @@ function booking_pretty_duration($seconds) {
  * @param int $cmid
  * @return stdClass data to be sent via mail
  */
-function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid) {
+function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid) {    
+    global $CFG;
+    require_once($CFG->libdir . '/tcpdf/tcpdf_barcodes_2d.php');
+    
     $params = new stdClass();
 
     $timeformat = get_string('strftimetime');
@@ -1573,6 +1576,12 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $bookinglink = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
     $bookinglink = $bookinglink->out();
 
+    $barcodeobj = new TCPDF2DBarcode($user->id, 'QRCODE,H');            
+    $params->qr_id = $barcodeobj->getBarcodeHTML(4, 4);
+    
+    $barcodeobj->setBarcode($user->username, 'QRCODE,H');            
+    $params->qr_username = $barcodeobj->getBarcodeHTML(4, 4);
+    
     $params->status = booking_get_user_status($user->id, $option->id, $booking->id, $cmid);
     $params->participant = fullname($user);
     $params->title = s($option->text);

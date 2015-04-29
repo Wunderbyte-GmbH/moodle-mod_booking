@@ -1231,7 +1231,6 @@ class booking_utils {
      * @return stdClass data to be sent via mail
      */
     public function generate_params(stdClass $booking, stdClass $option = NULL) {
-
         global $DB;
 
         $params = new stdClass();
@@ -1271,8 +1270,8 @@ class booking_utils {
             if ($option->courseid) {
                 $courselink = new moodle_url('/course/view.php', array('id' => $option->courseid));
                 $courselink = html_writer::link($courselink, $courselink->out());
-            }
-
+            }            
+            
             $params->title = s($option->text);
             $params->starttime = $option->coursestarttime ? userdate($option->coursestarttime, $timeformat) : '';
             $params->endtime = $option->courseendtime ? userdate($option->courseendtime, $timeformat) : '';
