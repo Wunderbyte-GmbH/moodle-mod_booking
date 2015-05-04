@@ -451,26 +451,28 @@ if (!$download) {
         }
 /// Print names of all the fields
 
-        if ($action == "all") {
-            $myxls->write_string(0, 0, get_string("booking", "booking"));
-            $myxls->write_string(0, 1, get_string("institution", "booking"));
-            $myxls->write_string(0, 2, get_string("location", "booking"));
-            $myxls->write_string(0, 3, get_string("coursestarttime", "booking"));
-            $myxls->write_string(0, 4, get_string("courseendtime", "booking"));
-            $myxls->write_string(0, 5, get_string("user") . " " . get_string("idnumber"));
-            $myxls->write_string(0, 6, get_string("firstname"));
-            $myxls->write_string(0, 7, get_string("lastname"));
-            $myxls->write_string(0, 8, get_string("email"));
-            $myxls->write_string(0, 9, get_string("searchFinished", "booking"));
-            $i = 10;
+        if ($action == "all") {            
+            $myxls->write_string(0, 0, get_string("optionid", "booking"));
+            $myxls->write_string(0, 1, get_string("booking", "booking"));
+            $myxls->write_string(0, 2, get_string("institution", "booking"));
+            $myxls->write_string(0, 3, get_string("location", "booking"));
+            $myxls->write_string(0, 4, get_string("coursestarttime", "booking"));
+            $myxls->write_string(0, 5, get_string("courseendtime", "booking"));
+            $myxls->write_string(0, 6, get_string("user") . " " . get_string("idnumber"));
+            $myxls->write_string(0, 7, get_string("firstname"));
+            $myxls->write_string(0, 8, get_string("lastname"));
+            $myxls->write_string(0, 9, get_string("email"));
+            $myxls->write_string(0, 10, get_string("searchFinished", "booking"));
+            $i = 11;
         } else {
-            $myxls->write_string(0, 0, get_string("booking", "booking"));
-            $myxls->write_string(0, 1, get_string("user") . " " . get_string("idnumber"));
-            $myxls->write_string(0, 2, get_string("firstname"));
-            $myxls->write_string(0, 3, get_string("lastname"));
-            $myxls->write_string(0, 4, get_string("email"));
-            $myxls->write_string(0, 5, get_string("searchFinished", "booking"));
-            $i = 6;
+            $myxls->write_string(0, 0, get_string("optionid", "booking"));
+            $myxls->write_string(0, 1, get_string("booking", "booking"));
+            $myxls->write_string(0, 2, get_string("user") . " " . get_string("idnumber"));
+            $myxls->write_string(0, 3, get_string("firstname"));
+            $myxls->write_string(0, 4, get_string("lastname"));
+            $myxls->write_string(0, 5, get_string("email"));
+            $myxls->write_string(0, 6, get_string("searchFinished", "booking"));
+            $i = 7;
         }
         $addfields = explode(',', $bookingData->booking->additionalfields);
         $addquoted = "'" . implode("','", $addfields) . "'";
@@ -502,32 +504,34 @@ if (!$download) {
                         $cellform = $cellformat;
                     }
 
+                    $myxls->write_string($row, 0, format_string($bookingData->option->id, true));
+                    
                     if (isset($option_text)) {
-                        $myxls->write_string($row, 0, format_string($option_text, true));
+                        $myxls->write_string($row, 1, format_string($option_text, true));
                     }
 
                     if (isset($institution)) {
-                        $myxls->write_string($row, 1, format_string($institution, true));
+                        $myxls->write_string($row, 2, format_string($institution, true));
                     }
 
                     if (isset($location)) {
-                        $myxls->write_string($row, 2, format_string($location, true));
+                        $myxls->write_string($row, 3, format_string($location, true));
                     }
 
                     if (isset($coursestarttime) && $coursestarttime > 0) {
-                        $myxls->write_string($row, 3, userdate($coursestarttime, get_string('strftimedatetime')));
+                        $myxls->write_string($row, 4, userdate($coursestarttime, get_string('strftimedatetime')));
                     }
 
                     if (isset($courseendtime) && $courseendtime > 0) {
-                        $myxls->write_string($row, 4, userdate($courseendtime, get_string('strftimedatetime')));
+                        $myxls->write_string($row, 5, userdate($courseendtime, get_string('strftimedatetime')));
                     }
 
-                    $myxls->write_string($row, 5, $user->id, $cellform);
-                    $myxls->write_string($row, 6, $user->firstname, $cellform);
-                    $myxls->write_string($row, 7, $user->lastname, $cellform);
-                    $myxls->write_string($row, 8, $user->email, $cellform);
-                    $myxls->write_string($row, 9, $user->completed, $cellform);
-                    $i = 10;
+                    $myxls->write_string($row, 6, $user->id, $cellform);
+                    $myxls->write_string($row, 7, $user->firstname, $cellform);
+                    $myxls->write_string($row, 8, $user->lastname, $cellform);
+                    $myxls->write_string($row, 9, $user->email, $cellform);
+                    $myxls->write_string($row, 10, $user->completed, $cellform);
+                    $i = 11;
                     if ($DB->get_records_select('user_info_data', 'userid = ' . $user->id, array(), 'fieldid')) {
                         foreach ($userprofilefields as $profilefieldid => $profilefield) {
                             $fType = $DB->get_field('user_info_field', 'datatype', array('shortname' => $profilefield->shortname));
@@ -567,15 +571,17 @@ if (!$download) {
                 } else {
                     $cellform = $cellformat;
                 }
+                $myxls->write_string($row, 0, format_string($bookingData->option->id, true));              
+                
                 if (isset($option_text)) {
-                    $myxls->write_string($row, 0, format_string($option_text, true));
+                    $myxls->write_string($row, 1, format_string($option_text, true));
                 }
-                $myxls->write_string($row, 1, $user->id, $cellform);
-                $myxls->write_string($row, 2, $user->firstname, $cellform);
-                $myxls->write_string($row, 3, $user->lastname, $cellform);
-                $myxls->write_string($row, 4, $user->email, $cellform);
-                $myxls->write_string($row, 5, $user->completed, $cellform);
-                $i = 6;
+                $myxls->write_string($row, 2, $user->id, $cellform);
+                $myxls->write_string($row, 3, $user->firstname, $cellform);
+                $myxls->write_string($row, 4, $user->lastname, $cellform);
+                $myxls->write_string($row, 5, $user->email, $cellform);
+                $myxls->write_string($row, 6, $user->completed, $cellform);
+                $i = 7;
                 if ($DB->get_records_select('user_info_data', 'userid = ' . $user->id, array(), 'fieldid')) {
                     foreach ($userprofilefields as $profilefieldid => $profilefield) {
                         $fType = $DB->get_field('user_info_field', 'datatype', array('shortname' => $profilefield->shortname));

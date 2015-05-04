@@ -12,8 +12,6 @@ require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->libdir . '/eventslib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 
-//require_once('locallib.php');
-
 $COLUMN_HEIGHT = 300;
 
 /// Standard functions /////////////////////////////////////////////////////////
@@ -36,7 +34,7 @@ function booking_cron() {
             $dateEvent->modify('-' . $value->daystonotify . ' day');
 
             if ($dateEvent < $dateNow) {
-                $booking = $DB->get_record('booking', array('id' => $value->bookingid));
+                //$booking = $DB->get_record('booking', array('id' => $value->bookingid));
 
                 $value->sent = 1;
 
