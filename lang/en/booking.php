@@ -456,6 +456,7 @@ $string['donotselectcourse'] = 'No course selected';
 $string['waitinglisttaken'] = 'On the waiting list';
 $string['addnewbookingoption'] = 'Add a new booking option';
 $string['importcsvbookingoption'] = 'Import CSV with booking options';
+$string['importexcelbutton'] = 'Import activity completion';
 $string['sendmailtobooker'] = 'Book other users page: Send mail to user who books instead to users who are booked';
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to
   the user who books other users instead to users, who have been added to a booking option.
@@ -618,3 +619,8 @@ $string['usersOnList'] = 'User on list';
 $string['fullname'] = 'Full name';
 $string['timecreated'] = 'Time created';
 
+// importexcel.php
+$string['importexceltitle'] = 'Import activity completion';
+
+// importexcel_file.php
+$string['excelfile'] = 'CSV file with activity completion';
