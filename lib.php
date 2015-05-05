@@ -1457,6 +1457,7 @@ function booking_send_confirm_message($eventdata) {
     $attachname = '';
     $attachment = '';
 
+    $user = $DB->get_record('user', array('id' => $user->id));
     $bookingmanager = $DB->get_record('user', array('username' => $eventdata->booking->bookingmanager));
     $data = booking_generate_email_params($eventdata->booking, $eventdata->booking->option[$optionid], $user, $cmid);
 
