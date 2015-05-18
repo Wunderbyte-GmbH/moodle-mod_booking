@@ -98,12 +98,8 @@ if ($mform->is_cancelled()) {
                 if (strlen(trim($line[0])) > 0) {
                     $booking_option_name = $line[0];
                 }
-
-                $strTimestamp = $startDate->getTimestamp();
-                $nameText = mysql_real_escape_string($booking_option_name);
-                $addressText = mysql_real_escape_string($line[4]);
-
-                $booking_option = $DB->get_record_select('booking_options', "address LIKE '$addressText' AND text LIKE '$nameText' AND bookingid = $booking->id AND coursestarttime = $strTimestamp");
+                
+                $booking_option = $DB->get_record_sql('SELECT * FROM {booking_options} WHERE address LIKE :address AND text LIKE :text AND bookingid = :bookingid AND coursestarttime = :coursestarttime', array('address' => $line[4], 'text' => $booking_option_name, 'bookingid' => $booking->id, 'coursestarttime' => $startDate->getTimestamp()));
 
                 if (empty($booking_option)) {
                     $bookingObject = new stdClass();
