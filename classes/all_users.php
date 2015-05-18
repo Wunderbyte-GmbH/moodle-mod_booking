@@ -21,7 +21,8 @@ class all_users extends table_sql {
         // Define the list of columns to show.
         $columns = array(
             'selected',
-            'info',           
+            'info',   
+            'institution',
             'fullname',
             'timecreated'            
         );
@@ -31,6 +32,7 @@ class all_users extends table_sql {
         $headers = array(
             '',
             '',
+            get_string('institution', 'mod_booking'),
             get_string('fullname', 'mod_booking'),
             get_string('timecreated', 'mod_booking')
         );

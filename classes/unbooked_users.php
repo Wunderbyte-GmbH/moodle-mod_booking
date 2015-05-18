@@ -22,6 +22,7 @@ class unbooked_users extends table_sql {
         $columns = array(
             'selected',
             'completed',
+            'institution',
             'fullname',
             'timecreated'            
         );
@@ -31,6 +32,7 @@ class unbooked_users extends table_sql {
         $headers = array(
             '',
             get_string('completed', 'mod_booking'),
+            get_string('institution', 'mod_booking'),
             get_string('fullname', 'mod_booking'),
             get_string('timecreated', 'mod_booking')
         );
