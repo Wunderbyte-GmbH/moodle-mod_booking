@@ -311,6 +311,7 @@ function booking_update_options($optionvalues) {
     $option->conectedoption = $optionvalues->conectedoption;
     $option->howmanyusers = $optionvalues->howmanyusers;
     $option->removeafterminutes = $optionvalues->removeafterminutes;
+    $option->btncacname = $optionvalues->btncacname;
 
     $option->sent = 0;
 

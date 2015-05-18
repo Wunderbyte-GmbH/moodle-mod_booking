@@ -720,6 +720,22 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015032400, 'booking');
     }
 
+    if ($oldversion < 2015051800) {
+
+        // Define field btncacname to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('btncacname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null, 'removeafterminutes');
+
+        // Conditionally launch add field btncacname.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015051800, 'booking');
+    }
+
+
 
     return true;
 }

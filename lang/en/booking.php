@@ -71,6 +71,8 @@ $string['howmanyusers'] = 'How many users you can book?';
 $string['howmanyusers_help'] = '';
 $string['limitanswers_help'] = 'If you change this option and you have booked people, you can remove them without notification!';
 $string['removeafterminutes'] = 'Remove activity completion after N minutes';
+$string['advancedoptions'] = 'Advanced options';
+$string['btncacname'] = 'Name of button "Confirm activity completion"';
 
 // Categories
 $string['category'] = 'Category';

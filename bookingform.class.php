@@ -108,11 +108,16 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->addHelpButton('conectedoption', 'conectedoption', 'mod_booking');
 
         $mform->addElement('text', 'howmanyusers', get_string('howmanyusers', 'booking'), 0);
-        $mform->setType('howmanyusers', PARAM_INT);        
-        
+        $mform->setType('howmanyusers', PARAM_INT);
+
         $mform->addElement('text', 'removeafterminutes', get_string('removeafterminutes', 'booking'), 0);
-        $mform->setType('removeafterminutes', PARAM_INT); 
-        
+        $mform->setType('removeafterminutes', PARAM_INT);
+
+        // --- Advanced options ------------------------------------------------------------
+        $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));
+        $mform->addElement('text', 'btncacname', get_string('btncacname', 'booking'), array('size' => '64'));
+        $mform->setType('btncacname', PARAM_TEXT);
+
         //hidden elements
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);

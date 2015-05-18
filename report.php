@@ -401,7 +401,7 @@ if (!$download) {
     }
 
     if (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-        echo '<input type="submit" name="activitycompletion" value="' . get_string('confirmactivitycompletion', 'booking') . '" />';
+        echo '<input type="submit" name="activitycompletion" value="' . (empty($bookingData->option->btncacname) ? get_string('confirmactivitycompletion', 'booking') : $bookingData->option->btncacname) . '" />';
         if ($bookingData->option->conectedoption > 0) {
             echo '<input type="submit" name="booktootherbooking" value="' . get_string('booktootherbooking', 'booking') . '" />';
         }
