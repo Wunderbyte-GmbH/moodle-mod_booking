@@ -757,6 +757,36 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015051900, 'booking');
     }
 
+    if ($oldversion < 2015051901) {
+
+        // Define field notificationtext to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('notificationtext', XMLDB_TYPE_TEXT, null, null, null, null, null, 'lblsputtname');
+
+        // Conditionally launch add field notificationtext.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015051901, 'booking');
+    }
+    
+        if ($oldversion < 2015051902) {
+
+        // Define field notificationtextformat to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('notificationtextformat', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'notificationtext');
+
+        // Conditionally launch add field notificationtextformat.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015051902, 'booking');
+    }
+
     return true;
 }
 

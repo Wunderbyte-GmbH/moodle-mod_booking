@@ -125,6 +125,9 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->addElement('text', 'lblsputtname', get_string('lblsputtname', 'booking'), array('size' => '64'));
         $mform->setType('lblsputtname', PARAM_TEXT);
         
+        $mform->addElement('editor', 'notificationtext', get_string('notificationtext', 'booking'));
+        $mform->setType('notificationtext', PARAM_CLEANHTML);
+        
         //hidden elements
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
@@ -150,8 +153,17 @@ class mod_booking_bookingform_form extends moodleform {
         if (!isset($default_values['descriptionformat'])) {
             $default_values['descriptionformat'] = FORMAT_HTML;
         }
+        
         if (!isset($default_values['description'])) {
             $default_values['description'] = '';
+        }
+        
+        if (!isset($default_values['notificationtextformat'])) {
+            $default_values['notificationtextformat'] = FORMAT_HTML;
+        }
+        
+        if (!isset($default_values['notificationtext'])) {
+            $default_values['notificationtext'] = '';
         }
     }
 
@@ -179,6 +191,9 @@ class mod_booking_bookingform_form extends moodleform {
         if ($data) {
             $data->descriptionformat = $data->description['format'];
             $data->description = $data->description['text'];
+            
+            $data->notificationtextformat = $data->notificationtext['format'];
+            $data->notificationtext = $data->notificationtext['text'];
         }
         return $data;
     }

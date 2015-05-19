@@ -315,7 +315,8 @@ function booking_update_options($optionvalues) {
     $option->btncacname = $optionvalues->btncacname;
     $option->lblteachname = $optionvalues->lblteachname;
     $option->lblsputtname = $optionvalues->lblsputtname;
-
+    $option->notificationtext = $optionvalues->notificationtext;
+    
     $option->sent = 0;
 
     $option->location = trim($optionvalues->location);

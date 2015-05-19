@@ -465,6 +465,7 @@ $string['sendmailtobooker'] = 'Book other users page: Send mail to user who book
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to
   the user who books other users instead to users, who have been added to a booking option.
   This is only relevant for bookings made on the page "book other users".';
+$string['notificationtext'] = 'Notification text shown on activity completion.';
 
 // importoptions.php
 $string['importcsvtitle'] = 'Import CSV';

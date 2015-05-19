@@ -87,6 +87,8 @@
         <FIELD NAME="btncacname" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="lblteachname" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="lblsputtname" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="notificationtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="notificationtextformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
