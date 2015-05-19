@@ -99,7 +99,7 @@ if ($mform->is_cancelled()) {
                     $booking_option_name = $line[0];
                 }
                 
-                $booking_option = $DB->get_record_sql('SELECT * FROM {booking_options} WHERE address LIKE :address AND text LIKE :text AND bookingid = :bookingid AND coursestarttime = :coursestarttime', array('address' => $line[4], 'text' => $booking_option_name, 'bookingid' => $booking->id, 'coursestarttime' => $startDate->getTimestamp()));
+                $booking_option = $DB->get_record_sql('SELECT * FROM {booking_options} WHERE institution LIKE :institution AND text LIKE :text AND bookingid = :bookingid AND coursestarttime = :coursestarttime', array('institution' => $line[3], 'text' => $booking_option_name, 'bookingid' => $booking->id, 'coursestarttime' => $startDate->getTimestamp()));
 
                 if (empty($booking_option)) {
                     $bookingObject = new stdClass();
