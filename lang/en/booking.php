@@ -73,6 +73,8 @@ $string['limitanswers_help'] = 'If you change this option and you have booked pe
 $string['removeafterminutes'] = 'Remove activity completion after N minutes';
 $string['advancedoptions'] = 'Advanced options';
 $string['btncacname'] = 'Name of button "Confirm activity completion"';
+$string['lblteachname'] = 'Name of label "Teachers"';
+$string['lblsputtname'] = 'Name of label "Send poll url to teachers"';
 
 // Categories
 $string['category'] = 'Category';

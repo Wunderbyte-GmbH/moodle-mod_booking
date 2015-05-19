@@ -735,7 +735,27 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015051800, 'booking');
     }
 
+    if ($oldversion < 2015051900) {
 
+        // Define field lblteachname to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('lblteachname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null, 'btncacname');
+
+        // Conditionally launch add field lblteachname.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lblsputtname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null, 'lblteachname');
+
+        // Conditionally launch add field lblsputtname.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015051900, 'booking');
+    }
 
     return true;
 }

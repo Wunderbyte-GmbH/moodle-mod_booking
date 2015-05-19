@@ -115,9 +115,16 @@ class mod_booking_bookingform_form extends moodleform {
 
         // --- Advanced options ------------------------------------------------------------
         $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));
+        
         $mform->addElement('text', 'btncacname', get_string('btncacname', 'booking'), array('size' => '64'));
         $mform->setType('btncacname', PARAM_TEXT);
 
+        $mform->addElement('text', 'lblteachname', get_string('lblteachname', 'booking'), array('size' => '64'));
+        $mform->setType('lblteachname', PARAM_TEXT);
+        
+        $mform->addElement('text', 'lblsputtname', get_string('lblsputtname', 'booking'), array('size' => '64'));
+        $mform->setType('lblsputtname', PARAM_TEXT);
+        
         //hidden elements
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
