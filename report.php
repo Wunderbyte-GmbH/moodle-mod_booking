@@ -264,7 +264,7 @@ if (!$download) {
     $tableAllUsers = new all_users('all_users');
     $tableAllUsers->is_downloading($download, 'all_users', 'testing123');
 
-    $fields = 'u.id, ' . get_all_user_name_fields(true, 'u') . ', u.username, u.firstname, u.lastname, u.institution, ba.completed, ba.timecreated, ba.id, ba.userid, IF(bo.conectedoption > 0, IF((SELECT COUNT(*) FROM {booking_answers} AS tba WHERE tba.optionid = bo.conectedoption AND tba.userid = ba.userid) = 1, 1, 0), 0) AS connected';
+    $fields = 'u.id, ' . get_all_user_name_fields(true, 'u') . ', u.username, u.firstname, u.lastname, u.institution, ba.completed, ba.timecreated, ba.userid, IF(bo.conectedoption > 0, IF((SELECT COUNT(*) FROM {booking_answers} AS tba WHERE tba.optionid = bo.conectedoption AND tba.userid = ba.userid) = 1, 1, 0), 0) AS connected';
     $from = ' {booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
     $where = ' ba.optionid = :optionid AND ba.waitinglist = 0 ' . $addSQLWhere;
 
@@ -279,7 +279,7 @@ if (!$download) {
     $tableUnbookedUsers = new all_users('unbooked_users');
     $tableUnbookedUsers->is_downloading($download, 'all_users', 'testing123');
 
-    $fields = 'u.id, ' . get_all_user_name_fields(true, 'u') . ', u.username, u.firstname, u.lastname, u.institution, ba.completed, ba.timecreated, ba.id, ba.userid, IF(bo.conectedoption > 0, IF((SELECT COUNT(*) FROM {booking_answers} AS tba WHERE tba.optionid = bo.conectedoption AND tba.userid = ba.userid) = 1, 1, 0), 0) AS connected';
+    $fields = 'u.id, ' . get_all_user_name_fields(true, 'u') . ', u.username, u.firstname, u.lastname, u.institution, ba.completed, ba.timecreated, ba.userid, IF(bo.conectedoption > 0, IF((SELECT COUNT(*) FROM {booking_answers} AS tba WHERE tba.optionid = bo.conectedoption AND tba.userid = ba.userid) = 1, 1, 0), 0) AS connected';
     $from = ' {booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
 
     $where = ' ba.optionid = :optionid AND ba.waitinglist = 1 ' . $addSQLWhere;

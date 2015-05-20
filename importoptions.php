@@ -115,6 +115,8 @@ if ($mform->is_cancelled()) {
                 if (strlen(trim($line[6])) > 0) {
                     $user = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1, 'email' => $line[6]), '*', IGNORE_MULTIPLE);
                 }
+                
+                var_dump($user);
 
                 if (strlen(trim($line[0])) > 0) {
                     $booking_option_name = $line[0];
@@ -158,7 +160,7 @@ if ($mform->is_cancelled()) {
 
                 if ($user) {
                     $getUser = $DB->get_record('booking_answers', array('bookingid' => $booking->id, 'userid' => $user->id, 'optionid' => $booking_option->id));
-
+                    var_dump($getUser);
                     if ($getUser === FALSE) {
                         $newUser = new stdClass();
                         $newUser->bookingid = $booking->id;
