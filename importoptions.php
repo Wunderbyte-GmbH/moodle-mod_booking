@@ -111,7 +111,7 @@ if ($mform->is_cancelled()) {
                 }
 
                 if (strlen(trim($line[6])) > 0) {
-                    $user = $DB->get_record('user', array('active' => 1, 'email' => $line[6]), '*', IGNORE_MULTIPLE);
+                    $user = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1, 'email' => $line[6]), '*', IGNORE_MULTIPLE);
                 }
 
                 if (strlen(trim($line[0])) > 0) {
