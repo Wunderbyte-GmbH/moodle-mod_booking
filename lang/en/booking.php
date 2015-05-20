@@ -75,6 +75,8 @@ $string['advancedoptions'] = 'Advanced options';
 $string['btncacname'] = 'Name of button "Confirm activity completion"';
 $string['lblteachname'] = 'Name of label "Teachers"';
 $string['lblsputtname'] = 'Name of label "Send poll url to teachers"';
+$string['btnbooknowname'] = 'Name of button "Book now"';
+$string['btncancelname'] = 'Name of button "Cancel booking"';
 
 // Categories
 $string['category'] = 'Category';
@@ -475,8 +477,9 @@ $string['dateparseformat'] = 'Date parse format';
 $string['dateparseformat_help'] = 'Please, use date format like specified in CSV file. Help with <a href="http://php.net/manual/en/function.date.php">this</a> resource for options.';
 $string['wrongfile'] = 'Wrong file!';
 $string['nouserfound'] = 'No user found: ';
-$string['noteacherfound'] = 'No teacher found: ';
+$string['noteacherfound'] = 'No teacher found in line {$a}: ';
 $string['importfinished'] = 'Importing finished!';
+$string['dateerror'] = 'Wrong date in line {$a}: ';
 
 // Confirmation mail
 $string['days'] = '{$a} days';

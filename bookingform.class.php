@@ -128,6 +128,12 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->addElement('editor', 'notificationtext', get_string('notificationtext', 'booking'));
         $mform->setType('notificationtext', PARAM_CLEANHTML);
         
+        $mform->addElement('text', 'btnbooknowname', get_string('btnbooknowname', 'booking'), array('size' => '64'));
+        $mform->setType('btnbooknowname', PARAM_TEXT);
+        
+        $mform->addElement('text', 'btncancelname', get_string('btncancelname', 'booking'), array('size' => '64'));
+        $mform->setType('btncancelname', PARAM_TEXT);
+        
         //hidden elements
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
