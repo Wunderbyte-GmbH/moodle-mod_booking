@@ -45,6 +45,8 @@ $PAGE->set_pagelayout('standard');
 
 $mform = new importoptions_form($url);
 
+$completion = new completion_info($course);
+
 //Form processing and displaying is done here
 if ($mform->is_cancelled()) {
     //Handle form cancel operation, if cancel button is present on form
@@ -165,6 +167,14 @@ if ($mform->is_cancelled()) {
                         $newUser->completed = $line[7];
 
                         $DB->insert_record('booking_answers', $newUser, TRUE);
+
+                        if ($completion->is_enabled($cm) && $booking->enablecompletion && $newUser->completed == 0) {
+                            $completion->update_state($cm, COMPLETION_INCOMPLETE, $newUser->userid);
+                        }
+
+                        if ($completion->is_enabled($cm) && $booking->enablecompletion && $newUser->completed == 1) {
+                            $completion->update_state($cm, COMPLETION_COMPLETE, $newUser->userid);
+                        }
                     }
                 } else {
                     echo $OUTPUT->notification(get_string('nouserfound', 'booking') . $line[6]);
