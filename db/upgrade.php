@@ -809,6 +809,28 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015052000, 'booking');
     }
 
+        if ($oldversion < 2015062200) {
+
+        // Define table booking_institutions to be created.
+        $table = new xmldb_table('booking_institutions');
+
+        // Adding fields to table booking_institutions.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('name', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table booking_institutions.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table for booking_institutions.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015062200, 'booking');
+    }
+
 
     return true;
 }

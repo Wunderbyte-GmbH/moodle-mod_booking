@@ -450,6 +450,7 @@ $string['searchtag'] = 'Search tags';
 $string['eventtype'] = 'Event type';
 $string['reset'] = 'Reset';
 $string['showinapi'] = 'Show in API?';
+$string['editinstitutions'] = 'Edit institutions';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';
@@ -632,3 +633,13 @@ $string['importexceltitle'] = 'Import activity completion';
 
 // importexcel_file.php
 $string['excelfile'] = 'CSV file with activity completion';
+
+// institutions.php
+$string['institutions'] = 'Institutions';
+$string['addnewinstitution'] = 'Add new institution';
+
+// institutionform.class.php
+$string['institutionname'] = 'Institution name';
+$string['addnewinstitution'] = 'Add new institution';
+$string['sucesfulldeletedinstitution'] = 'Institution was sucesfully deleted';
+$string['csvfile_help'] = 'CSV file must contain only one column named Institution.';

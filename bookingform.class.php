@@ -5,7 +5,7 @@ require_once $CFG->libdir . '/formslib.php';
 class mod_booking_bookingform_form extends moodleform {
 
     function definition() {
-        global $CFG, $DB;
+        global $CFG, $DB, $COURSE;
         $mform = & $this->_form;
 
         // visible elements
@@ -26,12 +26,42 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('location', PARAM_CLEANHTML);
         }
 
-        $mform->addElement('text', 'institution', get_string('institution', 'booking'), array('size' => '64'));
+        $mform->addElement('text', 'institution', get_string('institution', 'booking'), array('size' => '64', 'id' => 'institutionid'));
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('institution', PARAM_TEXT);
         } else {
             $mform->setType('institution', PARAM_CLEANHTML);
         }
+
+        $url = $CFG->wwwroot . '/mod/booking/institutions.php';
+        if (isset($COURSE->id)) {
+            $url .= '?courseid=' . $COURSE->id;
+        }
+        
+        $mform->addElement('html', '<a target="_blank" href="' . $url . '">' . get_string('editinstitutions', 'booking') . '</a>');
+        
+        $institutions = $DB->get_records('booking_institutions', array('course' => $COURSE->id));
+        
+        $tmpSearchInstitutions = array();
+        
+        foreach ($institutions as $institution) {
+            $tmpSearchInstitutions[] = "'" . $institution->name . "'";
+        }
+        
+        $tmpSearchInstitutions = implode(',', $tmpSearchInstitutions);
+        
+        
+        $mform->addElement('static', null, '', "<script type=\"text/javascript\">
+            //<![CDATA[
+            YUI().use('autocomplete', 'autocomplete-filters', 'autocomplete-highlighters', function (Y) {
+  Y.one('#institutionid').plug(Y.Plugin.AutoComplete, {
+    resultFilters    : 'phraseMatch',
+    resultHighlighter: 'phraseMatch',
+    source           : [{$tmpSearchInstitutions}]
+  });
+});
+            //]]>
+            </script>");
 
         $mform->addElement('text', 'address', get_string('address', 'booking'), array('size' => '64'));
         if (!empty($CFG->formatstringstriptags)) {
@@ -115,25 +145,25 @@ class mod_booking_bookingform_form extends moodleform {
 
         // --- Advanced options ------------------------------------------------------------
         $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));
-        
+
         $mform->addElement('text', 'btncacname', get_string('btncacname', 'booking'), array('size' => '64'));
         $mform->setType('btncacname', PARAM_TEXT);
 
         $mform->addElement('text', 'lblteachname', get_string('lblteachname', 'booking'), array('size' => '64'));
         $mform->setType('lblteachname', PARAM_TEXT);
-        
+
         $mform->addElement('text', 'lblsputtname', get_string('lblsputtname', 'booking'), array('size' => '64'));
         $mform->setType('lblsputtname', PARAM_TEXT);
-        
+
         $mform->addElement('editor', 'notificationtext', get_string('notificationtext', 'booking'));
         $mform->setType('notificationtext', PARAM_CLEANHTML);
-        
+
         $mform->addElement('text', 'btnbooknowname', get_string('btnbooknowname', 'booking'), array('size' => '64'));
         $mform->setType('btnbooknowname', PARAM_TEXT);
-        
+
         $mform->addElement('text', 'btncancelname', get_string('btncancelname', 'booking'), array('size' => '64'));
         $mform->setType('btncancelname', PARAM_TEXT);
-        
+
         //hidden elements
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
@@ -159,15 +189,15 @@ class mod_booking_bookingform_form extends moodleform {
         if (!isset($default_values['descriptionformat'])) {
             $default_values['descriptionformat'] = FORMAT_HTML;
         }
-        
+
         if (!isset($default_values['description'])) {
             $default_values['description'] = '';
         }
-        
+
         if (!isset($default_values['notificationtextformat'])) {
             $default_values['notificationtextformat'] = FORMAT_HTML;
         }
-        
+
         if (!isset($default_values['notificationtext'])) {
             $default_values['notificationtext'] = '';
         }
@@ -197,7 +227,7 @@ class mod_booking_bookingform_form extends moodleform {
         if ($data) {
             $data->descriptionformat = $data->description['format'];
             $data->description = $data->description['text'];
-            
+
             $data->notificationtextformat = $data->notificationtext['format'];
             $data->notificationtext = $data->notificationtext['text'];
         }

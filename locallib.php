@@ -70,7 +70,7 @@ class booking {
     public function get_canbook_userids() {
         //TODO check if course has guest access if not get all enrolled users and check with has_capability if user has right to book
         //$this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose', 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
-        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id');
+        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id');        
     }
 
     /**
@@ -329,7 +329,7 @@ class booking_option extends booking {
      */
     public function update_booked_users() {
         global $DB;
-        $select = "bookingid = $this->id AND optionid =  $this->optionid";
+
         if (empty($this->canbookusers)) {
             $this->get_canbook_userids();
         }
@@ -1050,7 +1050,7 @@ abstract class booking_user_selector_base extends user_selector_base {
      */
     public function __construct($name, $options) {
 
-        $this->maxusersperpage = 200;
+        $this->maxusersperpage = 50;
         parent::__construct($name, $options);
 
         if (isset($options['bookingid'])) {
@@ -1098,25 +1098,13 @@ class booking_potential_user_selector extends booking_user_selector_base {
 
     public function find_users($search) {
         global $DB, $USER;
-        // remove booked users and current user from available users
-
-        $bookedusers = $DB->get_fieldset_select('booking_answers', 'userid', "optionid = $this->optionid AND bookingid = $this->bookingid");
-        $bookedusers[] = $USER->id;
-        $this->exclude($bookedusers);
-
+        
         $fields = "SELECT " . $this->required_fields_sql("u");
         $countfields = 'SELECT COUNT(1)';
         list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
 
-
-        if (!empty($this->potentialusers)) {
-            $availableuserssql = implode(',', array_keys($this->potentialusers));
-        } else {
-            return array();
-        }
-
         $sql = " FROM {user} u
-        WHERE u.id IN ($availableuserssql) AND
+        WHERE u.id NOT IN (SELECT ba.id FROM {booking_answers} AS ba WHERE ba.optionid = {$this->bookingid}) AND
         $searchcondition";
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
