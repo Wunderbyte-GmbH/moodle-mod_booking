@@ -38,3 +38,11 @@ $handlers = array(
         'internal' => 1,
     ),
 );
+
+$observers = array(
+    array(
+        'eventname' => '\core\event\course_module_updated',
+        'callback' => 'mod_booking_observer::course_module_updated',
+    )
+);
+
