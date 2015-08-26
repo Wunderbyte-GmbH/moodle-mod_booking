@@ -40,7 +40,8 @@ class mod_booking_teachers_form extends moodleform {
 
         if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
             $buttonarray[] = &$mform->createElement("submit", 'activitycompletion', get_string('confirmactivitycompletion', 'booking'));
-        }
+            $buttonarray[] = &$mform->createElement("submit", 'turneditingon', get_string('turneditingon'));
+        }        
         
         $buttonarray[] = &$mform->createElement('cancel');
 

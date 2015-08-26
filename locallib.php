@@ -70,7 +70,7 @@ class booking {
     public function get_canbook_userids() {
         //TODO check if course has guest access if not get all enrolled users and check with has_capability if user has right to book
         //$this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose', 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
-        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id');
+        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id');        
     }
 
     /**
@@ -156,7 +156,7 @@ class booking_option extends booking {
     public function calculateHowManyCanBookToOther() {
         global $DB;
 
-        if ($this->option->conectedoption > 0) {
+        if (isset($this->option->conectedoption) && $this->option->conectedoption > 0) {
             $alredyBooked = 0;
 
             $result = $DB->get_records_sql('SELECT answers.userid FROM {booking_answers} AS answers INNER JOIN {booking_answers} AS parent on parent.userid = answers.userid WHERE answers.optionid = ? AND parent.optionid = ?', array($this->optionid, $this->option->conectedoption));
@@ -201,8 +201,8 @@ class booking_option extends booking {
     public function get_url_params() {
         $bu = new booking_utils();
         $params = $bu->generate_params($this->booking, $this->option);
-        $this->option->pollurl = $bu->get_body($this->booking, 'pollurl', $params, TRUE);
-        $this->option->pollurlteachers = $bu->get_body($this->booking, 'pollurlteachers', $params, TRUE);
+        $this->option->pollurl = $bu->get_body($params, 'pollurl', $params, TRUE);
+        $this->option->pollurlteachers = $bu->get_body($params, 'pollurlteachers', $params, TRUE);
     }
 
     // Get all users with filters
@@ -241,7 +241,7 @@ class booking_option extends booking {
         }
         $mainuserfields = implode(', ', $mainuserfields);
 
-        $this->users = $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated, {booking_answers}.waitinglist, ' . $mainuserfields . ' FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified DESC', $params, $this->perpage * $this->page, $this->perpage);
+        $this->users = $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated, {booking_answers}.waitinglist, ' . $mainuserfields . ', CONCAT({user}.firstname, \' \', {user}.lastname) AS fullname FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified DESC', $params, $this->perpage * $this->page, $this->perpage);
 
         foreach ($this->users as $user) {
             if ($user->waitinglist == 1) {
@@ -329,7 +329,7 @@ class booking_option extends booking {
      */
     public function update_booked_users() {
         global $DB;
-        $select = "bookingid = $this->id AND optionid =  $this->optionid";
+
         if (empty($this->canbookusers)) {
             $this->get_canbook_userids();
         }
@@ -523,6 +523,38 @@ class booking_option extends booking {
         }
 
         return true;
+    }
+
+    /**
+     * "Sync" users on waiting list, based on edited option - if has limit or not.
+     */
+    public function sync_waiting_list() {
+        global $DB;
+
+        if ($this->option->limitanswers) {
+
+            $nBooking = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC', array($this->optionid), 0, $this->option->maxanswers);
+
+            foreach ($nBooking as $value) {
+                $value->waitinglist = 0;
+                $DB->update_record("booking_answers", $value);
+            }
+
+            $nOverBooking = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC', array($this->optionid), $this->option->maxanswers, $this->option->maxoverbooking);
+
+            foreach ($nOverBooking as $value) {
+                $value->waitinglist = 1;
+                $DB->update_record("booking_answers", $value);
+            }
+
+            $nOver = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC', array($this->optionid), $this->option->maxoverbooking + $this->option->maxanswers);
+
+            foreach ($nOver as $value) {
+                $DB->delete_records('booking_answers', array('id' => $value->id));
+            }
+        } else {
+            $DB->execute("UPDATE {booking_answers} SET waitinglist = 0 WHERE optionid = :optionid", array('optionid' => $this->optionid));
+        }
     }
 
     /**
@@ -730,7 +762,7 @@ class booking_options extends booking {
                     break;
 
                 case 'showactive':
-                    $conditions .= " AND (bo.coursestarttime > " . time() . " OR bo.coursestarttime = 0) ";
+                    $conditions .= " AND (bo.courseendtime > " . time() . " OR bo.courseendtime = 0) ";
                     break;
 
                 default:
@@ -1018,7 +1050,7 @@ abstract class booking_user_selector_base extends user_selector_base {
      */
     public function __construct($name, $options) {
 
-        $this->maxusersperpage = 200;
+        $this->maxusersperpage = 50;
         parent::__construct($name, $options);
 
         if (isset($options['bookingid'])) {
@@ -1066,25 +1098,13 @@ class booking_potential_user_selector extends booking_user_selector_base {
 
     public function find_users($search) {
         global $DB, $USER;
-        // remove booked users and current user from available users
-
-        $bookedusers = $DB->get_fieldset_select('booking_answers', 'userid', "optionid = $this->optionid AND bookingid = $this->bookingid");
-        $bookedusers[] = $USER->id;
-        $this->exclude($bookedusers);
-
+        
         $fields = "SELECT " . $this->required_fields_sql("u");
         $countfields = 'SELECT COUNT(1)';
         list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
 
-
-        if (!empty($this->potentialusers)) {
-            $availableuserssql = implode(',', array_keys($this->potentialusers));
-        } else {
-            return array();
-        }
-
         $sql = " FROM {user} u
-        WHERE u.id IN ($availableuserssql) AND
+        WHERE u.id NOT IN (SELECT ba.id FROM {booking_answers} AS ba WHERE ba.optionid = {$this->bookingid}) AND
         $searchcondition";
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
@@ -1199,7 +1219,6 @@ class booking_utils {
      * @return stdClass data to be sent via mail
      */
     public function generate_params(stdClass $booking, stdClass $option = NULL) {
-
         global $DB;
 
         $params = new stdClass();
@@ -1209,11 +1228,20 @@ class booking_utils {
 
         if (!is_null($option)) {
 
-            $teacher = $DB->get_record('booking_teachers', array('optionid' => $option->id), '*', IGNORE_MULTIPLE);
+            $teacher = $DB->get_records('booking_teachers', array('optionid' => $option->id));
 
-            if ($teacher) {
-                $user = $DB->get_record('user', array('id' => $teacher->userid), 'firstname, lastname', IGNORE_MULTIPLE);
-                $params->teacher = $user->firstname . ' ' . $user->lastname;
+            $i = 1;
+
+            foreach ($teacher as $value) {
+
+                $user = $DB->get_record('user', array('id' => $value->userid), 'firstname, lastname', IGNORE_MULTIPLE);
+                $params->{"teacher" . $i} = $user->firstname . ' ' . $user->lastname;
+
+                $i++;
+            }
+
+            if (isset($params->teacher1)) {
+                $params->teacher = $params->teacher1;
             } else {
                 $params->teacher = '';
             }
@@ -1230,8 +1258,8 @@ class booking_utils {
             if ($option->courseid) {
                 $courselink = new moodle_url('/course/view.php', array('id' => $option->courseid));
                 $courselink = html_writer::link($courselink, $courselink->out());
-            }
-
+            }            
+            
             $params->title = s($option->text);
             $params->starttime = $option->coursestarttime ? userdate($option->coursestarttime, $timeformat) : '';
             $params->endtime = $option->courseendtime ? userdate($option->courseendtime, $timeformat) : '';
@@ -1241,6 +1269,7 @@ class booking_utils {
             $params->location = $option->location;
             $params->institution = $option->institution;
             $params->address = $option->address;
+            $params->pollstartdate = $option->coursestarttime ? userdate((int) $option->coursestarttime, get_string('pollstrftimedate', 'booking'), '', false) : '';
             if (empty($option->pollurl)) {
                 $params->pollurl = $booking->pollurl;
             } else {

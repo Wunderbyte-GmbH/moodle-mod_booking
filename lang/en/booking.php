@@ -69,6 +69,14 @@ $string['conectedoption'] = 'Connected option';
 $string['conectedoption_help'] = '';
 $string['howmanyusers'] = 'How many users you can book?';
 $string['howmanyusers_help'] = '';
+$string['limitanswers_help'] = 'If you change this option and you have booked people, you can remove them without notification!';
+$string['removeafterminutes'] = 'Remove activity completion after N minutes';
+$string['advancedoptions'] = 'Advanced options';
+$string['btncacname'] = 'Name of button "Confirm activity completion"';
+$string['lblteachname'] = 'Name of label "Teachers"';
+$string['lblsputtname'] = 'Name of label "Send poll url to teachers"';
+$string['btnbooknowname'] = 'Name of button "Book now"';
+$string['btncancelname'] = 'Name of button "Cancel booking"';
 
 // Categories
 $string['category'] = 'Category';
@@ -195,6 +203,10 @@ $string['pollurlteachers_help'] = 'You can use any of the following placeholders
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 
 $string['pollurl_help'] = 'You can use any of the following placeholders in the text:
@@ -214,6 +226,10 @@ $string['pollurl_help'] = 'You can use any of the following placeholders in the 
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 
 $string['bookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -233,6 +249,10 @@ $string['bookedtext_help'] = 'Leave this blank to use the site default text. You
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 
 $string['userleave_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -254,6 +274,10 @@ $string['userleave_help'] = 'Leave this blank to use the site default text. You 
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 
 $string['waitingtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -275,6 +299,10 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 $string['statuschangetext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -295,6 +323,10 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 $string['deletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
@@ -315,6 +347,10 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 
 $string['pollurltext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -336,6 +372,10 @@ $string['pollurltext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 
 $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -357,6 +397,10 @@ $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default 
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 
 $string['notificationtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -378,6 +422,10 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 
 $string['notificationtext'] = 'Notification message';
@@ -402,6 +450,7 @@ $string['searchtag'] = 'Search tags';
 $string['eventtype'] = 'Event type';
 $string['reset'] = 'Reset';
 $string['showinapi'] = 'Show in API?';
+$string['editinstitutions'] = 'Edit institutions';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';
@@ -414,10 +463,12 @@ $string['donotselectcourse'] = 'No course selected';
 $string['waitinglisttaken'] = 'On the waiting list';
 $string['addnewbookingoption'] = 'Add a new booking option';
 $string['importcsvbookingoption'] = 'Import CSV with booking options';
+$string['importexcelbutton'] = 'Import activity completion';
 $string['sendmailtobooker'] = 'Book other users page: Send mail to user who books instead to users who are booked';
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to
   the user who books other users instead to users, who have been added to a booking option.
   This is only relevant for bookings made on the page "book other users".';
+$string['notificationtext'] = 'Notification text shown on activity completion.';
 
 // importoptions.php
 $string['importcsvtitle'] = 'Import CSV';
@@ -427,8 +478,9 @@ $string['dateparseformat'] = 'Date parse format';
 $string['dateparseformat_help'] = 'Please, use date format like specified in CSV file. Help with <a href="http://php.net/manual/en/function.date.php">this</a> resource for options.';
 $string['wrongfile'] = 'Wrong file!';
 $string['nouserfound'] = 'No user found: ';
-$string['noteacherfound'] = 'No teacher found: ';
+$string['noteacherfound'] = 'No teacher found in line {$a}: ';
 $string['importfinished'] = 'Importing finished!';
+$string['dateerror'] = 'Wrong date in line {$a}: ';
 
 // Confirmation mail
 $string['days'] = '{$a} days';
@@ -550,6 +602,7 @@ $string['booktootherbooking'] = 'Book users to other booking';
 $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
 $string['selectatleastoneuser'] = 'Please, select at least 1 user!';
 $string['userssucesfullybooked'] = 'All users have been sucesfully booked to other booking.';
+$string['optionid'] = 'Option ID';
 
 // Send message
 $string['messagesubject'] = 'Subject';
@@ -565,3 +618,28 @@ $string['activitycompletionsuccess'] = 'All selected users have been marked for 
 // teachers.php
 $string['teachers'] = 'Teachers';
 $string['users'] = '<< Manage responses';
+
+// lib.php
+$string['pollstrftimedate'] = '%Y-%m-%d';
+
+// all_users.php
+$string['completed'] = 'Completed';
+$string['usersOnList'] = 'User on list';
+$string['fullname'] = 'Full name';
+$string['timecreated'] = 'Time created';
+
+// importexcel.php
+$string['importexceltitle'] = 'Import activity completion';
+
+// importexcel_file.php
+$string['excelfile'] = 'CSV file with activity completion';
+
+// institutions.php
+$string['institutions'] = 'Institutions';
+$string['addnewinstitution'] = 'Add new institution';
+
+// institutionform.class.php
+$string['institutionname'] = 'Institution name';
+$string['addnewinstitution'] = 'Add new institution';
+$string['sucesfulldeletedinstitution'] = 'Institution was sucesfully deleted';
+$string['csvfile_help'] = 'CSV file must contain only one column named Institution.';

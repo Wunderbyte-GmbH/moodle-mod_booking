@@ -45,6 +45,8 @@ $PAGE->set_pagelayout('standard');
 
 $mform = new importoptions_form($url);
 
+$completion = new completion_info($course);
+
 //Form processing and displaying is done here
 if ($mform->is_cancelled()) {
     //Handle form cancel operation, if cancel button is present on form
@@ -67,8 +69,11 @@ if ($mform->is_cancelled()) {
 
     if ($csvArr[0][0] == 'name' && $csvArr[0][1] == 'startdate' && $csvArr[0][2] == 'enddate' && $csvArr[0][3] == 'institution' && $csvArr[0][4] == 'institutionaddress' && $csvArr[0][5] == 'teacheremail' && $csvArr[0][6] == 'useremail' && $csvArr[0][7] == 'finished') {
         array_shift($csvArr);
-
+        $i = 0;
         foreach ($csvArr as $line) {
+
+            $i++;
+
             if (count($line) == 8) {
 
                 $user = FALSE;
@@ -80,11 +85,27 @@ if ($mform->is_cancelled()) {
                 $booking_option_name = $booking->name;
 
                 if (strlen(trim($line[1])) > 0) {
-                    $startDate = date_create_from_format($fromform->dateparseformat, $line[1]);
+                    $startDate = date_create_from_format("!" . $fromform->dateparseformat, $line[1]);
+                }
+
+                $dErors = DateTime::getLastErrors();
+                if ($dErors['error_count'] > 0) {
+
+                    echo $OUTPUT->notification(get_string('dateerror', 'booking', $i) . implode(', ', $line));
+
+                    continue;
                 }
 
                 if (strlen(trim($line[2])) > 0) {
-                    $endDate = date_create_from_format($fromform->dateparseformat, $line[2]);
+                    $endDate = date_create_from_format("!" . $fromform->dateparseformat, $line[2]);
+                }
+
+                $dErors = DateTime::getLastErrors();
+                if ($dErors['error_count'] > 0) {
+
+                    echo $OUTPUT->notification(get_string('dateerror', 'booking', $i) . implode(', ', $line));
+
+                    continue;
                 }
 
                 if (strlen(trim($line[5])) > 0) {
@@ -92,18 +113,14 @@ if ($mform->is_cancelled()) {
                 }
 
                 if (strlen(trim($line[6])) > 0) {
-                    $user = $DB->get_record('user', array('email' => $line[6]));
+                    $user = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1, 'email' => $line[6]), '*', IGNORE_MULTIPLE);
                 }
-
+                
                 if (strlen(trim($line[0])) > 0) {
                     $booking_option_name = $line[0];
                 }
 
-                $strTimestamp = $startDate->getTimestamp();
-                $nameText = mysql_real_escape_string($booking_option_name);
-                $addressText = mysql_real_escape_string($line[4]);
-
-                $booking_option = $DB->get_record_select('booking_options', "address LIKE '$addressText' AND text LIKE '$nameText' AND bookingid = $booking->id AND coursestarttime = $strTimestamp");
+                $booking_option = $DB->get_record_sql('SELECT * FROM {booking_options} WHERE institution LIKE :institution AND text LIKE :text AND bookingid = :bookingid AND coursestarttime = :coursestarttime', array('institution' => $line[3], 'text' => $booking_option_name, 'bookingid' => $booking->id, 'coursestarttime' => $startDate->getTimestamp()));
 
                 if (empty($booking_option)) {
                     $bookingObject = new stdClass();
@@ -136,7 +153,7 @@ if ($mform->is_cancelled()) {
                         $DB->insert_record('booking_teachers', $newTeacher, TRUE);
                     }
                 } else {
-                    echo $OUTPUT->notification(get_string('noteacherfound', 'booking') . $line[5]);
+                    echo $OUTPUT->notification(get_string('noteacherfound', 'booking', $i) . $line[5]);
                 }
 
                 if ($user) {
@@ -150,6 +167,14 @@ if ($mform->is_cancelled()) {
                         $newUser->completed = $line[7];
 
                         $DB->insert_record('booking_answers', $newUser, TRUE);
+
+                        if ($completion->is_enabled($cm) && $booking->enablecompletion && $newUser->completed == 0) {
+                            $completion->update_state($cm, COMPLETION_INCOMPLETE, $newUser->userid);
+                        }
+
+                        if ($completion->is_enabled($cm) && $booking->enablecompletion && $newUser->completed == 1) {
+                            $completion->update_state($cm, COMPLETION_COMPLETE, $newUser->userid);
+                        }
                     }
                 } else {
                     echo $OUTPUT->notification(get_string('nouserfound', 'booking') . $line[6]);

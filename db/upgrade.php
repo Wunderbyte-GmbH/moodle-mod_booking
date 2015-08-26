@@ -675,6 +675,162 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015012100, 'booking');
     }
 
+    if ($oldversion < 2015031000) {
+
+        // Define field pollsend to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('pollsend', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'howmanyusers');
+
+        // Conditionally launch add field pollsend.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015031000, 'booking');
+    }
+
+    if ($oldversion < 2015031700) {
+
+        // Define field id to be added to booking_tags.
+        $table = new xmldb_table('booking_tags');
+        $field = new xmldb_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
+
+        // Conditionally launch add field id.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015031700, 'booking');
+    }
+
+    if ($oldversion < 2015032400) {
+
+        // Define field removeafterminutes to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('removeafterminutes', XMLDB_TYPE_INTEGER, '5', null, XMLDB_NOTNULL, null, '0', 'pollsend');
+
+        // Conditionally launch add field removeafterminutes.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015032400, 'booking');
+    }
+
+    if ($oldversion < 2015051800) {
+
+        // Define field btncacname to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('btncacname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null, 'removeafterminutes');
+
+        // Conditionally launch add field btncacname.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015051800, 'booking');
+    }
+
+    if ($oldversion < 2015051900) {
+
+        // Define field lblteachname to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('lblteachname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null, 'btncacname');
+
+        // Conditionally launch add field lblteachname.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lblsputtname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null, 'lblteachname');
+
+        // Conditionally launch add field lblsputtname.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015051900, 'booking');
+    }
+
+    if ($oldversion < 2015051901) {
+
+        // Define field notificationtext to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('notificationtext', XMLDB_TYPE_TEXT, null, null, null, null, null, 'lblsputtname');
+
+        // Conditionally launch add field notificationtext.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015051901, 'booking');
+    }
+
+    if ($oldversion < 2015051902) {
+
+        // Define field notificationtextformat to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('notificationtextformat', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'notificationtext');
+
+        // Conditionally launch add field notificationtextformat.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015051902, 'booking');
+    }
+
+    if ($oldversion < 2015052000) {
+
+        // Define field btnbooknowname to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('btnbooknowname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null, 'notificationtextformat');
+
+        // Conditionally launch add field btnbooknowname.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('btncancelname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null, 'btnbooknowname');
+
+        // Conditionally launch add field btncancelname.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015052000, 'booking');
+    }
+
+        if ($oldversion < 2015062200) {
+
+        // Define table booking_institutions to be created.
+        $table = new xmldb_table('booking_institutions');
+
+        // Adding fields to table booking_institutions.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('name', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table booking_institutions.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table for booking_institutions.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015062200, 'booking');
+    }
+
 
     return true;
 }

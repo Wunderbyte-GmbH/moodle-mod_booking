@@ -41,7 +41,6 @@ $PAGE->set_title(get_string('modulename', 'booking'));
 $PAGE->set_heading($COURSE->fullname);
 $PAGE->navbar->add(get_string('booking:subscribeusers', 'booking'), $url);
 
-
 if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
     echo $OUTPUT->header();
     $alright = false;
@@ -50,7 +49,6 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
     $continueurl = new moodle_url($PAGE->url->out(false, array('agree' => 1)));
     $continue = new single_button($continueurl, get_string('continue'), 'get');
     $cancel = new single_button($errorurl, get_string('cancel'), 'get');
-    ;
     echo $OUTPUT->confirm($message, $continue, $cancel);
     echo $OUTPUT->footer();
     die();
@@ -132,5 +130,6 @@ if ($subscribesuccess || $unsubscribesuccess) {
 }
 
 echo $bookingoutput->subscriber_selection_form($existingselector, $subscriberselector);
+
 echo $OUTPUT->footer();
 ?>

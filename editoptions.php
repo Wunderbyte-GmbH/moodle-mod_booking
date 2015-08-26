@@ -1,7 +1,7 @@
 <?php
 
 require_once("../../config.php");
-require_once("lib.php");
+require_once("locallib.php");
 require_once("bookingform.class.php");
 
 $id = required_param('id', PARAM_INT);                 // Course Module ID
@@ -51,6 +51,7 @@ if ($optionid == 'add') {
 } else if ($default_values = $DB->get_record('booking_options', array('bookingid' => $booking->id, 'id' => $optionid))) {
     $default_values->optionid = $optionid;
     $default_values->description = array('text' => $default_values->description, 'format' => FORMAT_HTML);
+    $default_values->notificationtext = array('text' => $default_values->notificationtext, 'format' => FORMAT_HTML);
     $default_values->id = $cm->id;
     if ($default_values->bookingclosingtime) {
         $default_values->restrictanswerperiod = "checked";
@@ -76,6 +77,9 @@ if ($mform->is_cancelled()) {
         }
 
         $nBooking = booking_update_options($fromform);
+        
+        $bookingData = new booking_option($cm->id, $nBooking);
+        $bookingData->sync_waiting_list();
 
         if (isset($fromform->submittandaddnew)) {
             $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add'));

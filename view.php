@@ -220,13 +220,6 @@ if (!empty($booking->booking->organizatorname)) {
     echo html_writer::end_tag('div');
 }
 
-if (!empty($booking->booking->pollurl)) {
-    echo html_writer::start_tag('div');
-    echo html_writer::tag('label', get_string('pollurl', 'booking') . ': ', array('class' => 'bold'));
-    echo html_writer::tag('span', html_writer::link($booking->booking->pollurl, $booking->booking->pollurl, array()));
-    echo html_writer::end_tag('div');
-}
-
 $out = array();
 $fs = get_file_storage();
 $files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanager', $booking->booking->id);
@@ -384,12 +377,15 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 if (has_capability('mod/booking:updatebooking', $context)) {
     $addoptionurl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add'));
     $importoptionurl = new moodle_url('importoptions.php', array('id' => $cm->id));
+    $importexcelurl = new moodle_url('importexcel.php', array('id' => $cm->id));
     $tagtemplates = new moodle_url('tagtemplates.php', array('cmid' => $cm->id));
 
     echo '<div style="width: 100%; text-align: center; display:table;">';
     $button = $OUTPUT->single_button($addoptionurl, get_string('addnewbookingoption', 'booking'), 'get');
     echo html_writer::tag('span', $button, array('style' => 'text-align: right; display:table-cell;'));
     $button = $OUTPUT->single_button($importoptionurl, get_string('importcsvbookingoption', 'booking'), 'get');
+    echo html_writer::tag('span', $button, array('style' => 'text-align: center; display:table-cell;'));
+    $button = $OUTPUT->single_button($importexcelurl, get_string('importexcelbutton', 'booking'), 'get');
     echo html_writer::tag('span', $button, array('style' => 'text-align: center; display:table-cell;'));
     $button = $OUTPUT->single_button($tagtemplates, get_string('tagtemplates', 'booking'), 'get');
     echo html_writer::tag('span', $button, array('style' => 'text-align: left; display:table-cell;'));
