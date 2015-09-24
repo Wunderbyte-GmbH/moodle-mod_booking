@@ -318,6 +318,7 @@ function booking_update_options($optionvalues) {
     $option->notificationtext = $optionvalues->notificationtext;    
     $option->btnbooknowname = $optionvalues->btnbooknowname;
     $option->btncancelname = $optionvalues->btncancelname;
+    $option->disablebookingusers = $optionvalues->disablebookingusers;
     
     $option->sent = 0;
 
@@ -714,6 +715,11 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
             if ($booking->booking->cancancelbook == 0 && $option->courseendtime > 0 && $option->courseendtime < time()) {
                 $optiondisplay->button = '';
                 $optiondisplay->delete = '';
+            }
+            
+            // Dont display button Book now if it's disabled
+            if ($option->disablebookingusers) {
+                $optiondisplay->button = '';
             }
 
 

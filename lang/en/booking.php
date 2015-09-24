@@ -77,6 +77,7 @@ $string['lblteachname'] = 'Name of label "Teachers"';
 $string['lblsputtname'] = 'Name of label "Send poll url to teachers"';
 $string['btnbooknowname'] = 'Name of button "Book now"';
 $string['btncancelname'] = 'Name of button "Cancel booking"';
+$string['disablebookingusers'] = 'Disable booking of users - hide Book now button.';
 
 // Categories
 $string['category'] = 'Category';

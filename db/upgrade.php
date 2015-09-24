@@ -809,7 +809,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015052000, 'booking');
     }
 
-        if ($oldversion < 2015062200) {
+    if ($oldversion < 2015062200) {
 
         // Define table booking_institutions to be created.
         $table = new xmldb_table('booking_institutions');
@@ -831,6 +831,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015062200, 'booking');
     }
 
+    if ($oldversion < 2015092400) {
+
+        // Define field disablebookingusers to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('disablebookingusers', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'btncancelname');
+
+        // Conditionally launch add field disablebookingusers.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015092400, 'booking');
+    }
 
     return true;
 }

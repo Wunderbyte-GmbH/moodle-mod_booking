@@ -163,6 +163,8 @@ class mod_booking_bookingform_form extends moodleform {
 
         $mform->addElement('text', 'btncancelname', get_string('btncancelname', 'booking'), array('size' => '64'));
         $mform->setType('btncancelname', PARAM_TEXT);
+        
+        $mform->addElement('selectyesno', 'disablebookingusers', get_string("disablebookingusers", "booking"));
 
         //hidden elements
         $mform->addElement('hidden', 'id');
