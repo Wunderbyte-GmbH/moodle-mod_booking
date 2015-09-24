@@ -82,7 +82,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('text', 'pollurlteachers', get_string('bookingpollurlteachers', 'booking'), array('size' => '64'));
         $mform->setType('pollurlteachers', PARAM_TEXT);
         $mform->addHelpButton('pollurlteachers', 'pollurlteachers', 'mod_booking');
-        
+
         $mform->addElement('filemanager', 'myfilemanager', get_string('bookingattachment', 'booking'), null, array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
             'accepted_types' => array('*')));
 
@@ -231,7 +231,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setType('bookingpolicy', PARAM_CLEANHTML);
 
         $mform->addElement('selectyesno', 'cancancelbook', get_string("cancancelbook", "booking"));
-        
+
         $mform->addElement('selectyesno', 'allowupdate', get_string("allowdelete", "booking"));
 
         $mform->addElement('selectyesno', 'autoenrol', get_string('autoenrol', 'booking'));
@@ -246,9 +246,9 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'maxperuser', get_string('maxperuser', 'mod_booking'), $opts);
         $mform->setDefault('maxperuser', 0);
         $mform->addHelpButton('maxperuser', 'maxperuser', 'mod_booking');
-        
+
         $mform->addElement('selectyesno', 'showinapi', get_string("showinapi", "booking"));
-        
+
         // ----TAGS---------------------------------------------------
 
         $mform->addElement('header', 'tagsheader', get_string('tags'));
@@ -291,17 +291,17 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         $select = $mform->addElement('select', 'additionalfields', get_string('additionalfields', 'booking'), $additionalfields);
         $select->setMultiple(true);
-        
+
         $mform->addElement('header', 'conectedbookingheader', get_string('conectedbooking', 'booking'));
-        
+
         $bookings = $DB->get_records('booking', array('course' => $COURSE->id));
-        
+
         $opts = array(0 => get_string('notconectedbooking', 'mod_booking'));
 
         foreach ($bookings as $key => $value) {
             $opts[$value->id] = $value->name;
         }
-        
+
         $mform->addElement('select', 'conectedbooking', get_string('conectedbooking', 'mod_booking'), $opts);
         $mform->setDefault('conectedbooking', 0);
         $mform->addHelpButton('conectedbooking', 'conectedbooking', 'mod_booking');
@@ -337,6 +337,10 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         if (!isset($default_values['bookingpolicy'])) {
             $default_values['bookingpolicy'] = '';
+        }
+
+        if (!isset($default_values['showinapi'])) {
+            $default_values['showinapi'] = 1;
         }
 
         $default_values['bookingpolicy'] = array('text' => $default_values['bookingpolicy'], 'format' => $default_values['bookingpolicyformat']);
