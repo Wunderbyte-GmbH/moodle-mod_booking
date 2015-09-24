@@ -11,6 +11,15 @@ require_once("../../config.php");
 require_once("lib.php");
 require_once('importoptions_form.php');
 
+function fixEncoding($in_str) {
+    $cur_encoding = mb_detect_encoding($in_str);
+    if ($cur_encoding == "UTF-8" && mb_check_encoding($in_str, "UTF-8")) {
+        return $in_str;
+    } else {
+        return utf8_encode($in_str);
+    }
+}
+
 $id = required_param('id', PARAM_INT);                 // Course Module ID
 
 $url = new moodle_url('/mod/booking/importoptions.php', array('id' => $id));
@@ -115,7 +124,7 @@ if ($mform->is_cancelled()) {
                 if (strlen(trim($line[6])) > 0) {
                     $user = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1, 'email' => $line[6]), '*', IGNORE_MULTIPLE);
                 }
-                
+
                 if (strlen(trim($line[0])) > 0) {
                     $booking_option_name = $line[0];
                 }
@@ -125,15 +134,15 @@ if ($mform->is_cancelled()) {
                 if (empty($booking_option)) {
                     $bookingObject = new stdClass();
                     $bookingObject->bookingid = $booking->id;
-                    $bookingObject->text = $booking_option_name;
+                    $bookingObject->text = fixEncoding($booking_option_name);
                     $bookingObject->description = '';
                     $bookingObject->maxanswers = 0;
                     $bookingObject->maxoverbooking = 0;
                     $bookingObject->courseid = $booking->course;
                     $bookingObject->coursestarttime = $startDate->getTimestamp();
                     $bookingObject->courseendtime = $endDate->getTimestamp();
-                    $bookingObject->institution = $line[3];
-                    $bookingObject->address = $line[4];
+                    $bookingObject->institution = fixEncoding($line[3]);
+                    $bookingObject->address = fixEncoding($line[4]);
 
                     $bid = $DB->insert_record('booking_options', $bookingObject, TRUE);
 
