@@ -1090,9 +1090,11 @@ abstract class booking_user_selector_base extends user_selector_base {
 class booking_potential_user_selector extends booking_user_selector_base {
 
     public $potentialusers;
+    public $options;
 
     public function __construct($name, $options) {
         $this->potentialusers = $options['potentialusers'];
+        $this->options = $options;
         parent::__construct($name, $options);
     }
 
@@ -1102,21 +1104,22 @@ class booking_potential_user_selector extends booking_user_selector_base {
         $fields = "SELECT " . $this->required_fields_sql("u");
         $countfields = 'SELECT COUNT(1)';
         list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
+        list($esql, $params) = get_enrolled_sql($this->options['accesscontext'], NULL, NULL, true);
 
         $sql = " FROM {user} u
         WHERE u.id NOT IN (SELECT ba.id FROM {booking_answers} AS ba WHERE ba.optionid = {$this->bookingid}) AND
-        $searchcondition";
+        $searchcondition AND u.id IN ($esql)";
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
 
         if (!$this->is_validating()) {
-            $potentialmemberscount = $DB->count_records_sql($countfields . $sql, $searchparams);
+            $potentialmemberscount = $DB->count_records_sql($countfields . $sql, array_merge($searchparams, $params));
             if ($potentialmemberscount > $this->maxusersperpage) {
                 return $this->too_many_results($search, $potentialmemberscount);
             }
         }
 
-        $availableusers = $DB->get_records_sql($fields . $sql . $order, array_merge($searchparams, $sortparams));
+        $availableusers = $DB->get_records_sql($fields . $sql . $order, array_merge($searchparams, $params, $sortparams));
 
         if (empty($availableusers)) {
             return array();
