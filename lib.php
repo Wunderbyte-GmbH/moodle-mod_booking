@@ -311,15 +311,15 @@ function booking_update_options($optionvalues) {
     $option->conectedoption = $optionvalues->conectedoption;
     $option->howmanyusers = $optionvalues->howmanyusers;
     $option->removeafterminutes = $optionvalues->removeafterminutes;
-    
+
     $option->btncacname = $optionvalues->btncacname;
     $option->lblteachname = $optionvalues->lblteachname;
     $option->lblsputtname = $optionvalues->lblsputtname;
-    $option->notificationtext = $optionvalues->notificationtext;    
+    $option->notificationtext = $optionvalues->notificationtext;
     $option->btnbooknowname = $optionvalues->btnbooknowname;
     $option->btncancelname = $optionvalues->btncancelname;
     $option->disablebookingusers = $optionvalues->disablebookingusers;
-    
+
     $option->sent = 0;
 
     $option->location = trim($optionvalues->location);
@@ -440,7 +440,7 @@ function booking_update_options($optionvalues) {
             }
 
             $DB->update_record("booking_options", $option);
-            
+
             return $option->id;
         }
     } elseif (isset($optionvalues->text) && $optionvalues->text <> '') {
@@ -497,12 +497,10 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
     $allresponses = $DB->get_records_select('booking_answers', "bookingid = $bookingid AND optionid = $optionid", array(), 'timemodified', 'userid');
 //$context  = get_context_instance(CONTEXT_MODULE,$cmid);
     $context = context_module::instance($cmid);
-    $i = 1;
+    
     if (!empty($allresponses)) {
         foreach ($allresponses as $answer) {
-            if (has_capability('mod/booking:choose', $context, $answer->userid)) {
-                $sortedresponses[$i++] = $answer->userid;
-            }
+            $sortedresponses[] = $answer->userid;
         }
         $useridaskey = array_flip($sortedresponses);
         if ($option->limitanswers) {
@@ -716,7 +714,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
                 $optiondisplay->button = '';
                 $optiondisplay->delete = '';
             }
-            
+
             // Dont display button Book now if it's disabled
             if ($option->disablebookingusers) {
                 $optiondisplay->button = '';
@@ -1123,14 +1121,14 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
 
     $returnVal = true;
 
-    $sender = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));    
-    
+    $sender = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));
+
     foreach ($attemptidsarray as $suser) {
-        $tuser = $DB->get_record('user', array('id' => $suser));       
+        $tuser = $DB->get_record('user', array('id' => $suser));
 
         $params = booking_generate_email_params($booking->booking, $booking->option, $tuser, $cmid);
-        
-        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext', 'pollurltextmessage', $params);   
+
+        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext', 'pollurltextmessage', $params);
         $booking->booking->pollurltext = $pollurlmessage;
         $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext', 'pollurltextmessage', $params);
 
@@ -1148,13 +1146,13 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
 
         $returnVal = message_send($eventdata);
     }
-    
+
     $dataobject = new stdClass();
     $dataobject->id = $booking->option->id;
     $dataobject->pollsend = 1;
-    
+
     $DB->update_record('booking_options', $dataobject);
-    
+
     return $returnVal;
 }
 
@@ -1502,9 +1500,9 @@ function booking_send_confirm_message($eventdata) {
     $messagedata = new stdClass();
     $messagedata->userfrom = $bookingmanager;
     if ($eventdata->booking->sendmailtobooker) {
-        $messagedata->userto = $DB->get_record('user', array('id'=>$USER->id));
+        $messagedata->userto = $DB->get_record('user', array('id' => $USER->id));
     } else {
-        $messagedata->userto = $DB->get_record('user', array('id'=>$user->id));
+        $messagedata->userto = $DB->get_record('user', array('id' => $user->id));
     }
     $messagedata->subject = $subject;
     $messagedata->messagetext = $message;
@@ -1517,7 +1515,6 @@ function booking_send_confirm_message($eventdata) {
     if ($eventdata->booking->copymail) {
         $messagedata->userto = $bookingmanager;
         $messagedata->subject = $subjectmanager;
-        
     }
     return true;
 }
@@ -1566,10 +1563,10 @@ function booking_pretty_duration($seconds) {
  * @param int $cmid
  * @return stdClass data to be sent via mail
  */
-function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid) {    
+function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid) {
     global $CFG;
     require_once($CFG->libdir . '/tcpdf/tcpdf_barcodes_2d.php');
-    
+
     $params = new stdClass();
 
     $timeformat = get_string('strftimetime');
@@ -1588,12 +1585,12 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $bookinglink = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
     $bookinglink = $bookinglink->out();
 
-    $barcodeobj = new TCPDF2DBarcode($user->id, 'QRCODE,H');            
+    $barcodeobj = new TCPDF2DBarcode($user->id, 'QRCODE,H');
     $params->qr_id = $barcodeobj->getBarcodeHTML(4, 4);
-    
-    $barcodeobj->setBarcode($user->username, 'QRCODE,H');            
+
+    $barcodeobj->setBarcode($user->username, 'QRCODE,H');
     $params->qr_username = $barcodeobj->getBarcodeHTML(4, 4);
-    
+
     $params->status = booking_get_user_status($user->id, $option->id, $booking->id, $cmid);
     $params->participant = fullname($user);
     $params->title = s($option->text);
@@ -1608,7 +1605,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $params->institution = $option->institution;
     $params->address = $option->address;
     $params->eventtype = $booking->eventtype;
-    $params->pollstartdate = $option->coursestarttime ? userdate((int)$option->coursestarttime, get_string('pollstrftimedate', 'booking')) : '';
+    $params->pollstartdate = $option->coursestarttime ? userdate((int) $option->coursestarttime, get_string('pollstrftimedate', 'booking')) : '';
     if (empty($option->pollurl)) {
         $params->pollurl = $booking->pollurl;
     } else {
