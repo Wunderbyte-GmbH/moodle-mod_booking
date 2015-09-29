@@ -736,13 +736,15 @@ class booking_options extends booking {
         }
 
         if (!empty($this->filters['searchName'])) {
-            $conditions .= " AND u.firstname LIKE :searchname ";
+            $conditions .= " AND (u.firstname LIKE :searchname OR ut.firstname LIKE :searchnamet) ";
             $args['searchname'] = '%' . $this->filters['searchName'] . '%';
+            $args['searchnamet'] = '%' . $this->filters['searchName'] . '%';
         }
 
         if (!empty($this->filters['searchSurname'])) {
-            $conditions .= " AND u.lastname LIKE :searchsurname ";
+            $conditions .= " AND (u.lastname LIKE :searchsurname OR ut.lastname LIKE :searchsurnamet) ";
             $args['searchsurname'] = '%' . $this->filters['searchSurname'] . '%';
+            $args['searchsurnamet'] = '%' . $this->filters['searchSurname'] . '%';
         }
 
 
@@ -770,7 +772,7 @@ class booking_options extends booking {
             }
         }
 
-        $sql = " FROM {booking_options} AS bo LEFT JOIN {booking_answers} AS ba ON bo.id = ba.optionid LEFT JOIN {user} AS u ON ba.userid = u.id WHERE {$conditions} {$this->sort}";
+        $sql = " FROM {booking_options} AS bo LEFT JOIN {booking_teachers} AS bt ON bt.optionid = bo.id LEFT JOIN {user} AS ut ON bt.userid = ut.id LEFT JOIN {booking_answers} AS ba ON bo.id = ba.optionid LEFT JOIN {user} AS u ON ba.userid = u.id WHERE {$conditions} {$this->sort}";
 
         return array('sql' => $sql, 'args' => $args);
     }
