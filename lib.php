@@ -1585,11 +1585,13 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $bookinglink = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
     $bookinglink = $bookinglink->out();
 
-    $barcodeobj = new TCPDF2DBarcode($user->id, 'QRCODE,H');
-    $params->qr_id = $barcodeobj->getBarcodeHTML(4, 4);
+    //$barcodeobj = new TCPDF2DBarcode($user->id, 'QRCODE,H');
+    //$params->qr_id = $barcodeobj->getBarcodePng(4, 4);
+    $params->qr_id = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' . rawurlencode($user->id) . '&choe=UTF-8" title="Link to Google.com" />';
 
-    $barcodeobj->setBarcode($user->username, 'QRCODE,H');
-    $params->qr_username = $barcodeobj->getBarcodeHTML(4, 4);
+    //$barcodeobj->setBarcode($user->username, 'QRCODE,H');
+    //$params->qr_username = $barcodeobj->getBarcodeHTML(4, 4);
+    $params->qr_username = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' . rawurlencode($user->username) . '&choe=UTF-8" title="Link to Google.com" />';
 
     $params->status = booking_get_user_status($user->id, $option->id, $booking->id, $cmid);
     $params->participant = fullname($user);
