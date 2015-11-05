@@ -86,7 +86,7 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
             // right to access all groups
             $subscribesuccess = true;
             $subscribedusers = array();
-            if ($usersallowed AND ( groups_is_member($currentgroup, $USER->id) OR has_capability('moodle/site:accessallgroups', $context))) {
+            if ($usersallowed AND ( groups_is_member($currentgroup, $USER->id) OR has_capability('moodle/site:accessallgroups', $context) OR (booking_check_if_teacher($bookingoption->option, $USER)))) {
                 foreach ($users as $user) {
                     if (!$bookingoption->user_submit_response($user)) {
                         $subscribesuccess = false;
@@ -97,7 +97,7 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
             } else {
                 print_error('invalidaction');
             }
-        } else if ($unsubscribe && has_capability('mod/booking:deleteresponses', $context)) {
+        } else if ($unsubscribe && (has_capability('mod/booking:deleteresponses', $context) || (booking_check_if_teacher($bookingoption->option, $USER)))) {
             $users = $existingselector->get_selected_users();
             $unsubscribesuccess = true;
             foreach ($users as $user) {                
@@ -106,7 +106,7 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
                     print_error('cannotremovesubscriber', 'forum', $errorurl->out(), $user->id);
                 }
             }
-        } else if ($unsubscribe && !has_capability('mod/booking:deleteresponses', $context)) {
+        } else if ($unsubscribe && (!has_capability('mod/booking:deleteresponses', $context) || (booking_check_if_teacher($bookingoption->option, $USER)))) {
             print_error('nopermission', null, $errorurl->out());
         }
         $subscriberselector->invalidate_selected_users();
@@ -124,7 +124,7 @@ if ($subscribesuccess || $unsubscribesuccess) {
     if ($subscribesuccess) {
         echo $OUTPUT->container(get_string('allchangessave', 'booking'), 'important', 'notice');
     }
-    if ($unsubscribesuccess && has_capability('mod/booking:deleteresponses', $context)) {
+    if ($unsubscribesuccess && (has_capability('mod/booking:deleteresponses', $context) || (booking_check_if_teacher($bookingoption->option, $USER)))) {
         echo $OUTPUT->container(get_string('allchangessave', 'booking'), 'important', 'notice');
     };
 }
