@@ -574,6 +574,13 @@ class booking_option extends booking {
             return FALSE;
         }
 
+        $underlimit = ($this->booking->maxperuser == 0);
+        $underlimit = $underlimit || (booking_get_user_booking_count($this, $user, NULL) < $this->booking->maxperuser);
+        
+        if (!$underlimit) {
+            return FALSE;
+        }
+        
         if (!($currentanswerid = $DB->get_field('booking_answers', 'id', array('userid' => $user->id, 'optionid' => $this->optionid)))) {
             $newanswer = new stdClass();
             $newanswer->bookingid = $this->id;

@@ -556,22 +556,11 @@ function booking_show_maxperuser($booking, $user, $bookinglist) {
  * @return number of bookings made by user
  */
 function booking_get_user_booking_count($booking, $user, $bookinglist) {
-    $count = 0;
-    $now = time();
-    foreach ($bookinglist as $optionid => $optbookings) {
-        if (!isset($booking->options[$optionid])) {
-            continue; // Booking not for one of the available options (shouldn't happen?)
-        }
-        if ($booking->options[$optionid]->courseendtime < $now && $booking->options[$optionid]->courseendtimetext !== get_string('endtimenotset', 'booking')) {
-            continue; // Booking is in the past - ignore it.
-        }
-        foreach ($optbookings as $optbooking) {
-            if ($optbooking->id == $user->id) {
-                $count++; // Current booking for this user.
-            }
-        }
-    }
-    return $count;
+    global $DB;
+    
+    $result = $DB->get_records('booking_answers', array('bookingid' => $booking->id, 'userid' => $user->id));
+    
+    return count($result);    
 }
 
 /**
