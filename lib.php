@@ -497,7 +497,7 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
     $allresponses = $DB->get_records_select('booking_answers', "bookingid = $bookingid AND optionid = $optionid", array(), 'timemodified', 'userid');
 //$context  = get_context_instance(CONTEXT_MODULE,$cmid);
     $context = context_module::instance($cmid);
-    
+
     if (!empty($allresponses)) {
         foreach ($allresponses as $answer) {
             $sortedresponses[] = $answer->userid;
@@ -616,19 +616,25 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
         }
     }
 
-    $row = new html_table_row(array(get_string('booking', "booking"), $hidden . '<form><input value="' . $urlParams['searchText'] . '" type="text" id="searchText" name="searchText">', "", ""));
+    $labelBooking = (empty($booking->booking->lblbooking) ? get_string('booking', 'booking') : $booking->booking->lblbooking);
+    $labelLocation = (empty($booking->booking->lbllocation) ? get_string('location', 'booking') : $booking->booking->lbllocation);
+    $labelInstitution = (empty($booking->booking->lblinstitution) ? get_string('institution', 'booking') : $booking->booking->lblinstitution);
+    $labelSearchName = (empty($booking->booking->lblname) ? get_string('searchName', 'booking') : $booking->booking->lblname);
+    $labelSearchSurname = (empty($booking->booking->lblsurname) ? get_string('searchSurname', 'booking') : $booking->booking->lblsurname);
+
+    $row = new html_table_row(array($labelBooking, $hidden . '<form><input value="' . $urlParams['searchText'] . '" type="text" id="searchText" name="searchText">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('location', "booking"), $hidden . '<input value="' . $urlParams['searchLocation'] . '" type="text" id="searchLocation" name="searchLocation">', "", ""));
+    $row = new html_table_row(array($labelLocation, $hidden . '<input value="' . $urlParams['searchLocation'] . '" type="text" id="searchLocation" name="searchLocation">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('institution', "booking"), $hidden . '<input value="' . $urlParams['searchInstitution'] . '" type="text" id="searchInstitution" name="searchInstitution">', "", ""));
+    $row = new html_table_row(array($labelInstitution, $hidden . '<input value="' . $urlParams['searchInstitution'] . '" type="text" id="searchInstitution" name="searchInstitution">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('searchName', "booking"), '<form>' . $hidden . '<input value="' . $urlParams['searchName'] . '" type="text" id="searchName" name="searchName">', "", ""));
+    $row = new html_table_row(array($labelSearchName, '<form>' . $hidden . '<input value="' . $urlParams['searchName'] . '" type="text" id="searchName" name="searchName">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('searchSurname', "booking"), '<input value="' . $urlParams['searchSurname'] . '" type="text" id="searchSurname" name="searchSurname">', "", ""));
+    $row = new html_table_row(array($labelSearchSurname, '<input value="' . $urlParams['searchSurname'] . '" type="text" id="searchSurname" name="searchSurname">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
     $row = new html_table_row(array("", '<input id="searchButton" type="submit" value="' . get_string('search') . '"><input id="buttonclear" type="button" value="' . get_string('reset', 'booking') . '"></form>', "", ""));

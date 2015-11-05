@@ -846,6 +846,49 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015092400, 'booking');
     }
 
+    if ($oldversion < 2015110500) {
+        // Define field lblbooking to be added to booking.
+        $table = new xmldb_table('booking');
+        
+        $field = new xmldb_field('lblbooking', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'showinapi');
+
+        // Conditionally launch add field lblbooking.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lbllocation', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'lblbooking');
+
+        // Conditionally launch add field lbllocation.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lblinstitution', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'lbllocation');
+
+        // Conditionally launch add field lblinstitution.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lblname', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'lblinstitution');
+
+        // Conditionally launch add field lblname.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lblsurname', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'lblname');
+
+        // Conditionally launch add field lblsurname.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015110500, 'booking');
+    }
+
     return true;
 }
 

@@ -224,6 +224,24 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('notificationtext', $default);
         $mform->addHelpButton('notificationtext', 'notificationtext', 'mod_booking');
 
+        // Custom labels
+        $mform->addElement('header', 'customlabels', get_string('customlabels', 'mod_booking'));
+        
+        $mform->addElement('text', 'lblbooking', get_string('lblbooking', 'booking'), array('size' => '64'));
+        $mform->setType('lblbooking', PARAM_TEXT);
+        
+        $mform->addElement('text', 'lbllocation', get_string('lbllocation', 'booking'), array('size' => '64'));
+        $mform->setType('lbllocation', PARAM_TEXT);
+        
+        $mform->addElement('text', 'lblinstitution', get_string('lblinstitution', 'booking'), array('size' => '64'));
+        $mform->setType('lblinstitution', PARAM_TEXT);
+        
+        $mform->addElement('text', 'lblname', get_string('lblname', 'booking'), array('size' => '64'));
+        $mform->setType('lblname', PARAM_TEXT);
+        
+        $mform->addElement('text', 'lblsurname', get_string('lblsurname', 'booking'), array('size' => '64'));
+        $mform->setType('lblsurname', PARAM_TEXT);
+        
         //-------------------------------------------------------------------------------
         $mform->addElement('header', 'miscellaneoussettingshdr', get_string('miscellaneoussettings', 'form'));
 
