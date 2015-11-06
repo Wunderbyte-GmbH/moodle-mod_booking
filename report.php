@@ -322,7 +322,7 @@ if (!$download) {
     $links = array();
 
     if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-        $links[] = html_writer::link(new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid)), (empty($bookingData->option->lblteachname) ? get_string('teachers', 'booking') : $bookingData->option->lblteachname), array());
+        $links[] = html_writer::link(new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid)), (empty($bookingData->booking->lblteachname) ? get_string('teachers', 'booking') : $bookingData->booking->lblteachname), array());
     }
 
     if (has_capability('mod/booking:subscribeusers', $context)) {
@@ -332,7 +332,7 @@ if (!$download) {
     $links[] = '<a href="#" id="showHideSearch">' . get_string('search') . '</a>';
 
     if (has_capability('mod/booking:communicate', context_module::instance($cm->id))) {
-        $links[] = html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid, 'action' => 'sendpollurlteachers')), (empty($bookingData->option->lblsputtname) ? get_string('booking:sendpollurltoteachers', 'booking') : $bookingData->option->lblsputtname), array());
+        $links[] = html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid, 'action' => 'sendpollurlteachers')), (empty($bookingData->booking->lblsputtname) ? get_string('booking:sendpollurltoteachers', 'booking') : $bookingData->booking->lblsputtname), array());
     }
 
     echo implode(" | ", $links);
@@ -401,7 +401,7 @@ if (!$download) {
     }
 
     if (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-        echo '<input type="submit" name="activitycompletion" value="' . (empty($bookingData->option->btncacname) ? get_string('confirmactivitycompletion', 'booking') : $bookingData->option->btncacname) . '" />';
+        echo '<input type="submit" name="activitycompletion" value="' . (empty($bookingData->booking->btncacname) ? get_string('confirmactivitycompletion', 'booking') : $bookingData->booking->btncacname) . '" />';
         if ($bookingData->option->conectedoption > 0) {
             echo '<input type="submit" name="booktootherbooking" value="' . get_string('booktootherbooking', 'booking') . '" />';
         }

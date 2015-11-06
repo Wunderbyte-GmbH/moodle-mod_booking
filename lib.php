@@ -312,12 +312,7 @@ function booking_update_options($optionvalues) {
     $option->howmanyusers = $optionvalues->howmanyusers;
     $option->removeafterminutes = $optionvalues->removeafterminutes;
 
-    $option->btncacname = $optionvalues->btncacname;
-    $option->lblteachname = $optionvalues->lblteachname;
-    $option->lblsputtname = $optionvalues->lblsputtname;
     $option->notificationtext = $optionvalues->notificationtext;
-    $option->btnbooknowname = $optionvalues->btnbooknowname;
-    $option->btncancelname = $optionvalues->btncancelname;
     $option->disablebookingusers = $optionvalues->disablebookingusers;
 
     $option->sent = 0;
@@ -676,7 +671,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
                 if ($booking->booking->allowupdate and $option->status != 'closed') {
                     $buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
                     $url = new moodle_url('view.php', $buttonoptions);
-                    $optiondisplay->delete = $OUTPUT->single_button($url, (empty($option->btncancelname) ? get_string('cancelbooking', 'booking') : $option->btncancelname), 'post') . '<br />';
+                    $optiondisplay->delete = $OUTPUT->single_button($url, (empty($booking->booking->btncancelname) ? get_string('cancelbooking', 'booking') : $booking->booking->btncancelname), 'post') . '<br />';
                 } else {
                     $optiondisplay->button = "";
                 }
@@ -698,7 +693,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
                 $buttonoptions = array('answer' => $option->id, 'id' => $cm->id, 'sesskey' => $user->sesskey);
                 $url = new moodle_url('view.php', $buttonoptions);
                 $url->params($hiddenfields);
-                $optiondisplay->button = $OUTPUT->single_button($url, (empty($option->btnbooknowname) ? get_string('booknow', 'booking') : $option->btnbooknowname), 'post');
+                $optiondisplay->button = $OUTPUT->single_button($url, (empty($booking->booking->btnbooknowname) ? get_string('booknow', 'booking') : $booking->booking->btnbooknowname), 'post');
             }
 
             if (($option->limitanswers && ($option->status == "full")) || ($option->status == "closed") || !$underlimit) {
@@ -745,7 +740,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
 
             if ($cTeachers > 0) {
                 $printTeachers = "<p>";
-                $printTeachers .= (empty($option->lblteachname) ? get_string('teachers', 'booking') : $option->lblteachname) . ': ';
+                $printTeachers .= (empty($booking->booking->lblteachname) ? get_string('teachers', 'booking') : $booking->booking->lblteachname) . ': ';
 
                 foreach ($teachers as $teacher) {
                     $tmpuser = $DB->get_record('user', array('id' => $teacher->userid));

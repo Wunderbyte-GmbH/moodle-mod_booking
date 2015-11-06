@@ -227,6 +227,21 @@ class mod_booking_mod_form extends moodleform_mod {
         // Custom labels
         $mform->addElement('header', 'customlabels', get_string('customlabels', 'mod_booking'));
         
+        $mform->addElement('text', 'btncacname', get_string('btncacname', 'booking'), array('size' => '64'));
+        $mform->setType('btncacname', PARAM_TEXT);
+
+        $mform->addElement('text', 'lblteachname', get_string('lblteachname', 'booking'), array('size' => '64'));
+        $mform->setType('lblteachname', PARAM_TEXT);
+
+        $mform->addElement('text', 'lblsputtname', get_string('lblsputtname', 'booking'), array('size' => '64'));
+        $mform->setType('lblsputtname', PARAM_TEXT);
+        
+        $mform->addElement('text', 'btnbooknowname', get_string('btnbooknowname', 'booking'), array('size' => '64'));
+        $mform->setType('btnbooknowname', PARAM_TEXT);
+
+        $mform->addElement('text', 'btncancelname', get_string('btncancelname', 'booking'), array('size' => '64'));
+        $mform->setType('btncancelname', PARAM_TEXT);
+        
         $mform->addElement('text', 'lblbooking', get_string('lblbooking', 'booking'), array('size' => '64'));
         $mform->setType('lblbooking', PARAM_TEXT);
         

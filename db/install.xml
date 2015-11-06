@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/booking/db" VERSION="20151105" COMMENT="XMLDB file for Moodle mod/booking"
+<XMLDB PATH="mod/booking/db" VERSION="20151106" COMMENT="XMLDB file for Moodle mod/booking"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -52,6 +52,11 @@
         <FIELD NAME="lblinstitution" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="lblname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="lblsurname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="btncacname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="lblteachname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="lblsputtname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="btnbooknowname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="btncancelname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -89,13 +94,8 @@
         <FIELD NAME="howmanyusers" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="pollsend" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="removeafterminutes" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="btncacname" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="lblteachname" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="lblsputtname" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="notificationtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="notificationtextformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="btnbooknowname" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="btncancelname" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="disablebookingusers" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
