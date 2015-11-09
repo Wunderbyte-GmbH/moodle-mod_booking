@@ -53,11 +53,7 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
     echo $OUTPUT->footer();
     die();
 } else {
-    $currentgroup = groups_get_course_group($course);
-    if ($currentgroup) {
-        $groupmembers = groups_get_members($currentgroup, 'u.id');
-    }
-    $options = array('bookingid' => $cm->instance, 'currentgroup' => $currentgroup, 'accesscontext' => $context, 'optionid' => $optionid, 'cmid' => $cm->id, 'course' => $course, 'potentialusers' => $bookingoption->potentialusers);
+    $options = array('bookingid' => $cm->instance, 'currentgroup' => array(), 'accesscontext' => $context, 'optionid' => $optionid, 'cmid' => $cm->id, 'course' => $course, 'potentialusers' => $bookingoption->potentialusers);
 
     $bookingoutput = $PAGE->get_renderer('mod_booking');
 
@@ -76,17 +72,12 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
         }
         if ($subscribe) {
             $users = $subscriberselector->get_selected_users();
-            if ($currentgroup AND ! has_capability('moodle/site:accessallgroups', $context)) {
-                $usersofgroup = array_intersect_key($users, $groupmembers);
-                $usersallowed = (count($users) === count($usersofgroup));
-            } else {
-                $usersallowed = true;
-            }
             // compare if selected users are members of the currentgroup if person has not the
             // right to access all groups
             $subscribesuccess = true;
             $subscribedusers = array();
-            if ($usersallowed AND ( groups_is_member($currentgroup, $USER->id) OR has_capability('moodle/site:accessallgroups', $context) OR (booking_check_if_teacher($bookingoption->option, $USER)))) {
+
+            if (has_capability('moodle/site:accessallgroups', $context) OR (booking_check_if_teacher($bookingoption->option, $USER))) {
                 foreach ($users as $user) {
                     if (!$bookingoption->user_submit_response($user)) {
                         $subscribesuccess = false;
