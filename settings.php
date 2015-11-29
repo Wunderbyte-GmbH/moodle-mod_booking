@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of the bookings module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -21,9 +22,6 @@
  * @copyright 2012 Davo Smith, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-
 if ($ADMIN->fulltree) {
-    $settings->add(new admin_setting_configcheckbox('booking/attachical', get_string('attachical', 'mod_booking'),
-                                                    get_string('attachicaldesc', 'mod_booking'), 0));
+    $settings->add(new admin_setting_configcheckbox('booking/attachical', get_string('attachical', 'mod_booking'), get_string('attachicaldesc', 'mod_booking'), 0));
 }

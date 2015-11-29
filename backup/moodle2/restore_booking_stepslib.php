@@ -21,7 +21,6 @@
  * @copyright 2010 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 /**
  * Define all the restore steps that will be used by the restore_booking_activity_task
  */
@@ -49,7 +48,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
     protected function process_booking($data) {
         global $DB;
 
-        $data = (object)$data;
+        $data = (object) $data;
         $oldid = $data->id;
         $data->course = $this->get_courseid();
 
@@ -66,7 +65,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
     protected function process_booking_option($data) {
         global $DB;
 
-        $data = (object)$data;
+        $data = (object) $data;
         $oldid = $data->id;
 
         $data->bookingid = $this->get_new_parentid('booking');
@@ -79,14 +78,14 @@ class restore_booking_activity_structure_step extends restore_activity_structure
     protected function process_booking_answer($data) {
         global $DB;
 
-        $data = (object)$data;
+        $data = (object) $data;
         $oldid = $data->id;
-		
+
         $data->bookingid = $this->get_new_parentid('booking');
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
-		print_r($data);
+        print_r($data);
         $newitemid = $DB->insert_record('booking_answers', $data);
         // No need to save this mapping as far as nothing depend on it
         // (child paths, file areas nor links decoder)
@@ -98,4 +97,5 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $this->add_related_files('mod_booking', 'bookingpolicy', null);
         $this->add_related_files('mod_booking', 'description', 'booking_option');
     }
+
 }

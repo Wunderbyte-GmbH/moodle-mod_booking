@@ -21,7 +21,6 @@
  * @copyright 2010 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 /**
  * Define all the backup steps that will be used by the backup_booking_activity_task
  */
@@ -41,21 +40,24 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
             'name', 'intro', 'introformat', 'bookingmanager',
             'sendmail', 'copymail', 'allowupdate', 'bookingpolicy',
             'bookingpolicyformat', 'timeopen', 'timeclose', 'limitanswers',
-            'maxanswers','maxoverbooking','timemodified','autoenrol','bookedtext',
-            'waitingtext','statuschangetext','deletedtext','maxperuser','sendmailtobooker'
-            ));
+            'maxanswers', 'maxoverbooking', 'timemodified', 'autoenrol', 'bookedtext',
+            'waitingtext', 'statuschangetext', 'deletedtext', 'maxperuser', 'sendmailtobooker',
+            'duration', 'points', 'organizatorname', 'pollurl', 'addtogroup', 'categoryid',
+            'pollurltext', 'additionalfields', 'eventtype', 'notificationtext', 'userleave',
+            'enablecompletion', 'pollurlteachers', 'pollurlteacherstext'));
 
         $options = new backup_nested_element('options');
 
         $option = new backup_nested_element('option', array('id'), array(
-            'text', 'maxanswers', 'maxoverbooking','bookingclosingtime','courseid','coursestarttime',
-            'courseendtime','description','descriptionformat','limitanswers','timemodified',
-            'addtocalendar','calendarid'));
+            'text', 'maxanswers', 'maxoverbooking', 'bookingclosingtime', 'courseid', 'coursestarttime',
+            'courseendtime', 'description', 'descriptionformat', 'limitanswers', 'timemodified',
+            'addtocalendar', 'calendarid', 'pollurl', 'groupid', 'daystonotify', 'sent',
+            'location', 'institution', 'address'));
 
         $answers = new backup_nested_element('answers');
 
         $answer = new backup_nested_element('answer', array('id'), array(
-            'bookingid','userid','optionid','timemodified'));
+            'bookingid', 'userid', 'optionid', 'timemodified'));
 
         // Build the tree
         $booking->add_child($options);
@@ -70,8 +72,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $option->set_source_sql('
             SELECT *
               FROM {booking_options}
-             WHERE bookingid = ?',
-            array(backup::VAR_PARENTID));
+             WHERE bookingid = ?', array(backup::VAR_PARENTID));
 
         // All the rest of elements only happen if we are including user info
         if ($userinfo) {
@@ -85,8 +86,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $booking->annotate_files('mod_booking', 'intro', null); // This file area hasn't itemid
         $booking->annotate_files('mod_booking', 'bookingpolicy', null); // This file area hasn't itemid
         $booking->annotate_files('mod_booking', 'description', 'id'); // This file area hasn't itemid
-        
         // Return the root element (booking), wrapped into standard activity structure
         return $this->prepare_activity_structure($booking);
     }
+
 }
