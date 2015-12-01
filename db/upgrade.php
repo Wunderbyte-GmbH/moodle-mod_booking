@@ -407,6 +407,14 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('eventtype', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'additionalfields');
+
+        // Conditionally launch add field eventtype.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014033100, 'booking');
     }
@@ -438,14 +446,6 @@ function xmldb_booking_upgrade($oldversion) {
     }
 
     if ($oldversion < 2014091600) {
-
-        $table = new xmldb_table('booking');
-        $field = new xmldb_field('eventtype', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'additionalfields');
-
-        // Conditionally launch add field eventtype.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
 
         // Define field notificationtext to be added to booking.
         $table = new xmldb_table('booking');
