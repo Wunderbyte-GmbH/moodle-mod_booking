@@ -73,6 +73,7 @@ if ($sorto == 1) {
 }
 
 $url = new moodle_url('/mod/booking/view.php', $urlParams);
+$urlCancel = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $sortUrl = new moodle_url('/mod/booking/view.php', $urlParamsSort);
 
 $PAGE->set_url($url);
@@ -116,7 +117,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capab
     echo $OUTPUT->header();
     $options = array('id' => $cm->id, 'action' => 'delbooking', 'confirm' => 1, 'optionid' => $optionid, 'sesskey' => $USER->sesskey);
     $deletemessage = $booking->options[$optionid]->text . "<br />" . $booking->options[$optionid]->coursestarttimetext . " - " . $booking->options[$optionid]->courseendtimetext;
-    echo $OUTPUT->confirm(get_string('deletebooking', 'booking', $deletemessage), new moodle_url('view.php', $options), $url);
+    echo $OUTPUT->confirm(get_string('deletebooking', 'booking', $deletemessage), new moodle_url('view.php', $options), $urlCancel);
     echo $OUTPUT->footer();
     die;
 }

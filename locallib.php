@@ -574,6 +574,13 @@ class booking_option extends booking {
             return FALSE;
         }
 
+        $underlimit = ($this->booking->maxperuser == 0);
+        $underlimit = $underlimit || (booking_get_user_booking_count($this, $user, NULL) < $this->booking->maxperuser);
+        
+        if (!$underlimit) {
+            return FALSE;
+        }
+        
         if (!($currentanswerid = $DB->get_field('booking_answers', 'id', array('userid' => $user->id, 'optionid' => $this->optionid)))) {
             $newanswer = new stdClass();
             $newanswer->bookingid = $this->id;
@@ -736,13 +743,15 @@ class booking_options extends booking {
         }
 
         if (!empty($this->filters['searchName'])) {
-            $conditions .= " AND u.firstname LIKE :searchname ";
+            $conditions .= " AND (u.firstname LIKE :searchname OR ut.firstname LIKE :searchnamet) ";
             $args['searchname'] = '%' . $this->filters['searchName'] . '%';
+            $args['searchnamet'] = '%' . $this->filters['searchName'] . '%';
         }
 
         if (!empty($this->filters['searchSurname'])) {
-            $conditions .= " AND u.lastname LIKE :searchsurname ";
+            $conditions .= " AND (u.lastname LIKE :searchsurname OR ut.lastname LIKE :searchsurnamet) ";
             $args['searchsurname'] = '%' . $this->filters['searchSurname'] . '%';
+            $args['searchsurnamet'] = '%' . $this->filters['searchSurname'] . '%';
         }
 
 
@@ -770,7 +779,7 @@ class booking_options extends booking {
             }
         }
 
-        $sql = " FROM {booking_options} AS bo LEFT JOIN {booking_answers} AS ba ON bo.id = ba.optionid LEFT JOIN {user} AS u ON ba.userid = u.id WHERE {$conditions} {$this->sort}";
+        $sql = " FROM {booking_options} AS bo LEFT JOIN {booking_teachers} AS bt ON bt.optionid = bo.id LEFT JOIN {user} AS ut ON bt.userid = ut.id LEFT JOIN {booking_answers} AS ba ON bo.id = ba.optionid LEFT JOIN {user} AS u ON ba.userid = u.id WHERE {$conditions} {$this->sort}";
 
         return array('sql' => $sql, 'args' => $args);
     }
@@ -1090,9 +1099,11 @@ abstract class booking_user_selector_base extends user_selector_base {
 class booking_potential_user_selector extends booking_user_selector_base {
 
     public $potentialusers;
+    public $options;
 
     public function __construct($name, $options) {
         $this->potentialusers = $options['potentialusers'];
+        $this->options = $options;
         parent::__construct($name, $options);
     }
 
@@ -1102,21 +1113,22 @@ class booking_potential_user_selector extends booking_user_selector_base {
         $fields = "SELECT " . $this->required_fields_sql("u");
         $countfields = 'SELECT COUNT(1)';
         list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
+        list($esql, $params) = get_enrolled_sql($this->options['accesscontext'], NULL, NULL, true);
 
         $sql = " FROM {user} u
         WHERE u.id NOT IN (SELECT ba.id FROM {booking_answers} AS ba WHERE ba.optionid = {$this->bookingid}) AND
-        $searchcondition";
+        $searchcondition AND u.id IN ($esql)";
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
 
         if (!$this->is_validating()) {
-            $potentialmemberscount = $DB->count_records_sql($countfields . $sql, $searchparams);
+            $potentialmemberscount = $DB->count_records_sql($countfields . $sql, array_merge($searchparams, $params));
             if ($potentialmemberscount > $this->maxusersperpage) {
                 return $this->too_many_results($search, $potentialmemberscount);
             }
         }
 
-        $availableusers = $DB->get_records_sql($fields . $sql . $order, array_merge($searchparams, $sortparams));
+        $availableusers = $DB->get_records_sql($fields . $sql . $order, array_merge($searchparams, $params, $sortparams));
 
         if (empty($availableusers)) {
             return array();

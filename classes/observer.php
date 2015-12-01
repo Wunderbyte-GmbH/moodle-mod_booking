@@ -23,8 +23,6 @@ class mod_booking_observer {
     public static function course_module_updated(\core\event\course_module_updated $event) {
         global $CFG, $DB;
 
-        //error_log("Event ID: {$event->contextinstanceid} Module ID: {$event->other['instanceid']}");
-
         $visible = $DB->get_record('course_modules', array('id' => $event->contextinstanceid), 'visible');
         
         $showHide = new stdClass();

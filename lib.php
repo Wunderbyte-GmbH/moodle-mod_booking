@@ -311,14 +311,10 @@ function booking_update_options($optionvalues) {
     $option->conectedoption = $optionvalues->conectedoption;
     $option->howmanyusers = $optionvalues->howmanyusers;
     $option->removeafterminutes = $optionvalues->removeafterminutes;
-    
-    $option->btncacname = $optionvalues->btncacname;
-    $option->lblteachname = $optionvalues->lblteachname;
-    $option->lblsputtname = $optionvalues->lblsputtname;
-    $option->notificationtext = $optionvalues->notificationtext;    
-    $option->btnbooknowname = $optionvalues->btnbooknowname;
-    $option->btncancelname = $optionvalues->btncancelname;
-    
+
+    $option->notificationtext = $optionvalues->notificationtext;
+    $option->disablebookingusers = $optionvalues->disablebookingusers;
+
     $option->sent = 0;
 
     $option->location = trim($optionvalues->location);
@@ -439,7 +435,7 @@ function booking_update_options($optionvalues) {
             }
 
             $DB->update_record("booking_options", $option);
-            
+
             return $option->id;
         }
     } elseif (isset($optionvalues->text) && $optionvalues->text <> '') {
@@ -496,12 +492,10 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
     $allresponses = $DB->get_records_select('booking_answers', "bookingid = $bookingid AND optionid = $optionid", array(), 'timemodified', 'userid');
 //$context  = get_context_instance(CONTEXT_MODULE,$cmid);
     $context = context_module::instance($cmid);
-    $i = 1;
+
     if (!empty($allresponses)) {
         foreach ($allresponses as $answer) {
-            if (has_capability('mod/booking:choose', $context, $answer->userid)) {
-                $sortedresponses[$i++] = $answer->userid;
-            }
+            $sortedresponses[] = $answer->userid;
         }
         $useridaskey = array_flip($sortedresponses);
         if ($option->limitanswers) {
@@ -557,22 +551,11 @@ function booking_show_maxperuser($booking, $user, $bookinglist) {
  * @return number of bookings made by user
  */
 function booking_get_user_booking_count($booking, $user, $bookinglist) {
-    $count = 0;
-    $now = time();
-    foreach ($bookinglist as $optionid => $optbookings) {
-        if (!isset($booking->options[$optionid])) {
-            continue; // Booking not for one of the available options (shouldn't happen?)
-        }
-        if ($booking->options[$optionid]->courseendtime < $now && $booking->options[$optionid]->courseendtimetext !== get_string('endtimenotset', 'booking')) {
-            continue; // Booking is in the past - ignore it.
-        }
-        foreach ($optbookings as $optbooking) {
-            if ($optbooking->id == $user->id) {
-                $count++; // Current booking for this user.
-            }
-        }
-    }
-    return $count;
+    global $DB;
+    
+    $result = $DB->get_records('booking_answers', array('bookingid' => $booking->id, 'userid' => $user->id));
+    
+    return count($result);    
 }
 
 /**
@@ -617,19 +600,25 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
         }
     }
 
-    $row = new html_table_row(array(get_string('booking', "booking"), $hidden . '<form><input value="' . $urlParams['searchText'] . '" type="text" id="searchText" name="searchText">', "", ""));
+    $labelBooking = (empty($booking->booking->lblbooking) ? get_string('booking', 'booking') : $booking->booking->lblbooking);
+    $labelLocation = (empty($booking->booking->lbllocation) ? get_string('location', 'booking') : $booking->booking->lbllocation);
+    $labelInstitution = (empty($booking->booking->lblinstitution) ? get_string('institution', 'booking') : $booking->booking->lblinstitution);
+    $labelSearchName = (empty($booking->booking->lblname) ? get_string('searchName', 'booking') : $booking->booking->lblname);
+    $labelSearchSurname = (empty($booking->booking->lblsurname) ? get_string('searchSurname', 'booking') : $booking->booking->lblsurname);
+
+    $row = new html_table_row(array($labelBooking, $hidden . '<form><input value="' . $urlParams['searchText'] . '" type="text" id="searchText" name="searchText">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('location', "booking"), $hidden . '<input value="' . $urlParams['searchLocation'] . '" type="text" id="searchLocation" name="searchLocation">', "", ""));
+    $row = new html_table_row(array($labelLocation, $hidden . '<input value="' . $urlParams['searchLocation'] . '" type="text" id="searchLocation" name="searchLocation">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('institution', "booking"), $hidden . '<input value="' . $urlParams['searchInstitution'] . '" type="text" id="searchInstitution" name="searchInstitution">', "", ""));
+    $row = new html_table_row(array($labelInstitution, $hidden . '<input value="' . $urlParams['searchInstitution'] . '" type="text" id="searchInstitution" name="searchInstitution">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('searchName', "booking"), '<form>' . $hidden . '<input value="' . $urlParams['searchName'] . '" type="text" id="searchName" name="searchName">', "", ""));
+    $row = new html_table_row(array($labelSearchName, '<form>' . $hidden . '<input value="' . $urlParams['searchName'] . '" type="text" id="searchName" name="searchName">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
-    $row = new html_table_row(array(get_string('searchSurname', "booking"), '<input value="' . $urlParams['searchSurname'] . '" type="text" id="searchSurname" name="searchSurname">', "", ""));
+    $row = new html_table_row(array($labelSearchSurname, '<input value="' . $urlParams['searchSurname'] . '" type="text" id="searchSurname" name="searchSurname">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
     $row = new html_table_row(array("", '<input id="searchButton" type="submit" value="' . get_string('search') . '"><input id="buttonclear" type="button" value="' . get_string('reset', 'booking') . '"></form>', "", ""));
@@ -682,7 +671,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
                 if ($booking->booking->allowupdate and $option->status != 'closed') {
                     $buttonoptions = array('id' => $cm->id, 'action' => 'delbooking', 'optionid' => $option->id, 'sesskey' => $user->sesskey);
                     $url = new moodle_url('view.php', $buttonoptions);
-                    $optiondisplay->delete = $OUTPUT->single_button($url, (empty($option->btncancelname) ? get_string('cancelbooking', 'booking') : $option->btncancelname), 'post') . '<br />';
+                    $optiondisplay->delete = $OUTPUT->single_button($url, (empty($booking->booking->btncancelname) ? get_string('cancelbooking', 'booking') : $booking->booking->btncancelname), 'post') . '<br />';
                 } else {
                     $optiondisplay->button = "";
                 }
@@ -704,7 +693,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
                 $buttonoptions = array('answer' => $option->id, 'id' => $cm->id, 'sesskey' => $user->sesskey);
                 $url = new moodle_url('view.php', $buttonoptions);
                 $url->params($hiddenfields);
-                $optiondisplay->button = $OUTPUT->single_button($url, (empty($option->btnbooknowname) ? get_string('booknow', 'booking') : $option->btnbooknowname), 'post');
+                $optiondisplay->button = $OUTPUT->single_button($url, (empty($booking->booking->btnbooknowname) ? get_string('booknow', 'booking') : $booking->booking->btnbooknowname), 'post');
             }
 
             if (($option->limitanswers && ($option->status == "full")) || ($option->status == "closed") || !$underlimit) {
@@ -714,6 +703,11 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
             if ($booking->booking->cancancelbook == 0 && $option->courseendtime > 0 && $option->courseendtime < time()) {
                 $optiondisplay->button = '';
                 $optiondisplay->delete = '';
+            }
+
+            // Dont display button Book now if it's disabled
+            if ($option->disablebookingusers) {
+                $optiondisplay->button = '';
             }
 
 
@@ -746,7 +740,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
 
             if ($cTeachers > 0) {
                 $printTeachers = "<p>";
-                $printTeachers .= get_string('teachers', 'booking') . ': ';
+                $printTeachers .= (empty($booking->booking->lblteachname) ? get_string('teachers', 'booking') : $booking->booking->lblteachname) . ': ';
 
                 foreach ($teachers as $teacher) {
                     $tmpuser = $DB->get_record('user', array('id' => $teacher->userid));
@@ -1117,14 +1111,14 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
 
     $returnVal = true;
 
-    $sender = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));    
-    
+    $sender = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));
+
     foreach ($attemptidsarray as $suser) {
-        $tuser = $DB->get_record('user', array('id' => $suser));       
+        $tuser = $DB->get_record('user', array('id' => $suser));
 
         $params = booking_generate_email_params($booking->booking, $booking->option, $tuser, $cmid);
-        
-        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext', 'pollurltextmessage', $params);   
+
+        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext', 'pollurltextmessage', $params);
         $booking->booking->pollurltext = $pollurlmessage;
         $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext', 'pollurltextmessage', $params);
 
@@ -1142,13 +1136,13 @@ function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
 
         $returnVal = message_send($eventdata);
     }
-    
+
     $dataobject = new stdClass();
     $dataobject->id = $booking->option->id;
     $dataobject->pollsend = 1;
-    
+
     $DB->update_record('booking_options', $dataobject);
-    
+
     return $returnVal;
 }
 
@@ -1496,9 +1490,9 @@ function booking_send_confirm_message($eventdata) {
     $messagedata = new stdClass();
     $messagedata->userfrom = $bookingmanager;
     if ($eventdata->booking->sendmailtobooker) {
-        $messagedata->userto = $DB->get_record('user', array('id'=>$USER->id));
+        $messagedata->userto = $DB->get_record('user', array('id' => $USER->id));
     } else {
-        $messagedata->userto = $DB->get_record('user', array('id'=>$user->id));
+        $messagedata->userto = $DB->get_record('user', array('id' => $user->id));
     }
     $messagedata->subject = $subject;
     $messagedata->messagetext = $message;
@@ -1511,7 +1505,6 @@ function booking_send_confirm_message($eventdata) {
     if ($eventdata->booking->copymail) {
         $messagedata->userto = $bookingmanager;
         $messagedata->subject = $subjectmanager;
-        
     }
     return true;
 }
@@ -1560,10 +1553,10 @@ function booking_pretty_duration($seconds) {
  * @param int $cmid
  * @return stdClass data to be sent via mail
  */
-function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid) {    
+function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid) {
     global $CFG;
     require_once($CFG->libdir . '/tcpdf/tcpdf_barcodes_2d.php');
-    
+
     $params = new stdClass();
 
     $timeformat = get_string('strftimetime');
@@ -1582,12 +1575,14 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $bookinglink = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
     $bookinglink = $bookinglink->out();
 
-    $barcodeobj = new TCPDF2DBarcode($user->id, 'QRCODE,H');            
-    $params->qr_id = $barcodeobj->getBarcodeHTML(4, 4);
-    
-    $barcodeobj->setBarcode($user->username, 'QRCODE,H');            
-    $params->qr_username = $barcodeobj->getBarcodeHTML(4, 4);
-    
+    //$barcodeobj = new TCPDF2DBarcode($user->id, 'QRCODE,H');
+    //$params->qr_id = $barcodeobj->getBarcodePng(4, 4);
+    $params->qr_id = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' . rawurlencode($user->id) . '&choe=UTF-8" title="Link to Google.com" />';
+
+    //$barcodeobj->setBarcode($user->username, 'QRCODE,H');
+    //$params->qr_username = $barcodeobj->getBarcodeHTML(4, 4);
+    $params->qr_username = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' . rawurlencode($user->username) . '&choe=UTF-8" title="Link to Google.com" />';
+
     $params->status = booking_get_user_status($user->id, $option->id, $booking->id, $cmid);
     $params->participant = fullname($user);
     $params->title = s($option->text);
@@ -1602,7 +1597,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $params->institution = $option->institution;
     $params->address = $option->address;
     $params->eventtype = $booking->eventtype;
-    $params->pollstartdate = $option->coursestarttime ? userdate((int)$option->coursestarttime, get_string('pollstrftimedate', 'booking')) : '';
+    $params->pollstartdate = $option->coursestarttime ? userdate((int) $option->coursestarttime, get_string('pollstrftimedate', 'booking')) : '';
     if (empty($option->pollurl)) {
         $params->pollurl = $booking->pollurl;
     } else {

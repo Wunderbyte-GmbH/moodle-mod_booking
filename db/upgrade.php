@@ -809,7 +809,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015052000, 'booking');
     }
 
-        if ($oldversion < 2015062200) {
+    if ($oldversion < 2015062200) {
 
         // Define table booking_institutions to be created.
         $table = new xmldb_table('booking_institutions');
@@ -831,6 +831,124 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015062200, 'booking');
     }
 
+    if ($oldversion < 2015092400) {
+
+        // Define field disablebookingusers to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('disablebookingusers', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'btncancelname');
+
+        // Conditionally launch add field disablebookingusers.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015092400, 'booking');
+    }
+
+    if ($oldversion < 2015110500) {
+        // Define field lblbooking to be added to booking.
+        $table = new xmldb_table('booking');
+
+        $field = new xmldb_field('lblbooking', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'showinapi');
+
+        // Conditionally launch add field lblbooking.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lbllocation', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'lblbooking');
+
+        // Conditionally launch add field lbllocation.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lblinstitution', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'lbllocation');
+
+        // Conditionally launch add field lblinstitution.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lblname', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'lblinstitution');
+
+        // Conditionally launch add field lblname.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lblsurname', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'lblname');
+
+        // Conditionally launch add field lblsurname.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015110500, 'booking');
+    }
+
+    if ($oldversion < 2015110600) {
+
+        // Define field btncancelname to be dropped from booking_options.
+        $table = new xmldb_table('booking_options');
+
+        $field = new xmldb_field('btncacname');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        $field = new xmldb_field('lblteachname');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        $field = new xmldb_field('lblsputtname');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        $field = new xmldb_field('btnbooknowname');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        $field = new xmldb_field('btncancelname');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        $table = new xmldb_table('booking');
+
+        $field = new xmldb_field('btncacname', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'lblsurname');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lblteachname', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'btncacname');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lblsputtname', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'lblteachname');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('btnbooknowname', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'lblsputtname');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('btncancelname', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'btnbooknowname');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015110600, 'booking');
+    }
 
     return true;
 }

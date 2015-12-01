@@ -77,6 +77,7 @@ $string['lblteachname'] = 'Name of label "Teachers"';
 $string['lblsputtname'] = 'Name of label "Send poll url to teachers"';
 $string['btnbooknowname'] = 'Name of button "Book now"';
 $string['btncancelname'] = 'Name of button "Cancel booking"';
+$string['disablebookingusers'] = 'Disable booking of users - hide Book now button.';
 
 // Categories
 $string['category'] = 'Category';
@@ -451,6 +452,12 @@ $string['eventtype'] = 'Event type';
 $string['reset'] = 'Reset';
 $string['showinapi'] = 'Show in API?';
 $string['editinstitutions'] = 'Edit institutions';
+$string['customlabels'] = 'Custom labels';
+$string['lblbooking'] = 'Name of label "Booking"';
+$string['lbllocation'] = 'Name of label "Location"';
+$string['lblinstitution'] = 'Name of label "Institution"';
+$string['lblname'] = 'Name of label "Name"';
+$string['lblsurname'] = 'Name of label "Surname"';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';

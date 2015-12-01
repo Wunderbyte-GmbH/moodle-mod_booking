@@ -144,25 +144,12 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->setType('removeafterminutes', PARAM_INT);
 
         // --- Advanced options ------------------------------------------------------------
-        $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));
-
-        $mform->addElement('text', 'btncacname', get_string('btncacname', 'booking'), array('size' => '64'));
-        $mform->setType('btncacname', PARAM_TEXT);
-
-        $mform->addElement('text', 'lblteachname', get_string('lblteachname', 'booking'), array('size' => '64'));
-        $mform->setType('lblteachname', PARAM_TEXT);
-
-        $mform->addElement('text', 'lblsputtname', get_string('lblsputtname', 'booking'), array('size' => '64'));
-        $mform->setType('lblsputtname', PARAM_TEXT);
+        $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));        
 
         $mform->addElement('editor', 'notificationtext', get_string('notificationtext', 'booking'));
-        $mform->setType('notificationtext', PARAM_CLEANHTML);
-
-        $mform->addElement('text', 'btnbooknowname', get_string('btnbooknowname', 'booking'), array('size' => '64'));
-        $mform->setType('btnbooknowname', PARAM_TEXT);
-
-        $mform->addElement('text', 'btncancelname', get_string('btncancelname', 'booking'), array('size' => '64'));
-        $mform->setType('btncancelname', PARAM_TEXT);
+        $mform->setType('notificationtext', PARAM_CLEANHTML);        
+        
+        $mform->addElement('selectyesno', 'disablebookingusers', get_string("disablebookingusers", "booking"));
 
         //hidden elements
         $mform->addElement('hidden', 'id');
