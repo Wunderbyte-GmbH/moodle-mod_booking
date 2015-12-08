@@ -700,11 +700,22 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
                 $optiondisplay->button = '';
             }
 
-            if ($booking->booking->cancancelbook == 0 && $option->courseendtime > 0 && $option->courseendtime < time()) {
-                $optiondisplay->button = '';
+           // If the setting “cancancelbook” is set to No and already started the course, then the user can no longer book.
+            if ($booking->booking->cancancelbook == 0 && $option->coursestarttime > 0 && $option->coursestarttime < time()) {
+                $optiondisplay->button =  get_string('nobookingforstarttime', booking);
                 $optiondisplay->delete = '';
+                $optiondisplay->booked = '';
+                $printstatus = 'no';
             }
 
+            // If the setting “cancancelbook” is set to Yes, then the user can still book within the course time.
+            if ($booking->booking->cancancelbook == 1 && $option->courseendtime > 0 && $option->courseendtime < time()) {
+                $optiondisplay->button =  get_string('nobookingforendtime', booking);
+                $optiondisplay->delete = '';
+                $optiondisplay->booked = '';
+                $printstatus = 'no';
+            }
+            
             // Dont display button Book now if it's disabled
             if ($option->disablebookingusers) {
                 $optiondisplay->button = '';
@@ -721,7 +732,13 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
             if (!$option->limitanswers) {
                 $stravailspaces = get_string("unlimited", 'booking');
             } else {
-                $stravailspaces = get_string("placesavailable", "booking") . ": " . $option->availspaces . " / " . $option->maxanswers . "<br />" . get_string("waitingplacesavailable", "booking") . ": " . $option->availwaitspaces . " / " . $option->maxoverbooking;
+                // Display avialable places/maximal places
+                $stravailspaces = get_string("placesavailable", "booking") . ": " . $option->availspaces . " / " . $option->maxanswers . "<br />";
+                
+                // Display avialable waitinglist places / maximal watinglist places
+                if($option->maxoverbooking > 0) {
+                    $stravailspaces .= get_string("waitingplacesavailable", "booking") . ": " . $option->availwaitspaces . " / " . $option->maxoverbooking;
+                }
             }
 
             if (has_capability('mod/booking:readresponses', $context) || booking_check_if_teacher($option, $user)) {
@@ -762,8 +779,16 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
                 $additionalInfo .= '<p>' . get_string('address', "booking") . ': ' . $option->address . '</p>';
             }
 
+            // Query whether (print)status is No
+            if($printstatus == 'no') {
+                $status = '';
+            }
+            else {
+                $status = get_string($option->status, "booking");
+            }
+            
             $row = new html_table_row(array("<span id=\"option{$option->id}\"></span>" . $bookingbutton . $optiondisplay->booked . '
-		<br />' . get_string($option->status, "booking") . '
+		<br />' . $status . '
 		<br />' . $optiondisplay->delete . $optiondisplay->manage . '
 		<br />' . $optiondisplay->bookotherusers,
                 "<b>" . format_text($option->text . ' ', FORMAT_MOODLE, $displayoptions) . "</b>" . "<p>" . $option->description . "</p>" . $printTeachers . $additionalInfo,
