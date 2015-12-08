@@ -316,7 +316,9 @@ $bookingopen = true;
 $timenow = time();
 if ($booking->booking->timeclose != 0) {
     if ($booking->booking->timeopen > $timenow && !has_capability('mod/booking:updatebooking', $context)) {
-        echo $OUTPUT->box(get_string("notopenyet", "booking", userdate($booking->booking->timeopen, get_string('strftimedate'))), "center");
+        // If you want to haye only the date without time then you add "get_string('strftimedate')" 
+        // to "userdate($booking->booking->timeopen, get_string('strftimedate'))"
+        echo $OUTPUT->box(get_string("notopenyet", "booking", userdate($booking->booking->timeopen)), "center");
         echo $OUTPUT->footer();
         exit;
     } else if ($booking->booking->timeclose < $timenow && !has_capability('mod/booking:updatebooking', $context)) { // bugfix added "< $timenow"
