@@ -64,7 +64,12 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         $mform->addRule('eventtype', null, 'required', null, 'client');
 
-        $this->add_intro_editor(true, get_string('bookingtext', 'booking'));
+        // Update for moodle version 2.9
+        if ($CFG->branch < 29) {
+            $this->add_intro_editor(true, get_string('bookingtext', 'booking'));
+        } else {
+            $this->standard_intro_elements();
+        }
 
         $mform->addElement('text', 'duration', get_string('bookingduration', 'booking'), array('size' => '64'));
         $mform->setType('duration', PARAM_TEXT);
