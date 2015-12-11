@@ -11,7 +11,7 @@ require_once("../../config.php");
 require_once("lib.php");
 require_once('importoptions_form.php');
 
-function fixEncoding($in_str) {
+function modbooking_fixEncoding($in_str) {
     $cur_encoding = mb_detect_encoding($in_str);
     if ($cur_encoding == "UTF-8" && mb_check_encoding($in_str, "UTF-8")) {
         return $in_str;
@@ -134,15 +134,15 @@ if ($mform->is_cancelled()) {
                 if (empty($booking_option)) {
                     $bookingObject = new stdClass();
                     $bookingObject->bookingid = $booking->id;
-                    $bookingObject->text = fixEncoding($booking_option_name);
+                    $bookingObject->text = modbooking_fixEncoding($booking_option_name);
                     $bookingObject->description = '';
                     $bookingObject->maxanswers = 0;
                     $bookingObject->maxoverbooking = 0;
                     $bookingObject->courseid = $booking->course;
                     $bookingObject->coursestarttime = $startDate->getTimestamp();
                     $bookingObject->courseendtime = $endDate->getTimestamp();
-                    $bookingObject->institution = fixEncoding($line[3]);
-                    $bookingObject->address = fixEncoding($line[4]);
+                    $bookingObject->institution = modbooking_fixEncoding($line[3]);
+                    $bookingObject->address = modbooking_fixEncoding($line[4]);
 
                     $bid = $DB->insert_record('booking_options', $bookingObject, TRUE);
 
