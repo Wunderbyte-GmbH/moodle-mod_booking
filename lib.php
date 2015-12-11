@@ -703,7 +703,12 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
            // If the setting “cancancelbook” is set to No and already started the course, then the user can no longer book.
             $printstatus = '';
             if ($booking->booking->cancancelbook == 0 && $option->coursestarttime > 0 && $option->coursestarttime < time()) {
-                $optiondisplay->button =  get_string('nobookingforstarttime', booking);
+                if($option->courseendtime > time ()) {
+                    $optiondisplay->button =  get_string('nobookingforstarttime', booking);
+                }
+                else {
+                    $optiondisplay->button =  get_string('nobookingforendtime', booking);
+                }
                 $optiondisplay->delete = '';
                 $optiondisplay->booked = '';
                 $printstatus = 'no';
