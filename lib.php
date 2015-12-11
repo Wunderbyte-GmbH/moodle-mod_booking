@@ -333,6 +333,7 @@ function booking_update_options($optionvalues) {
         $option->maxoverbooking = $optionvalues->maxoverbooking;
         $option->limitanswers = 1;
     }
+    
     if (isset($optionvalues->restrictanswerperiod)) {
         $option->bookingclosingtime = $optionvalues->bookingclosingtime;
     } else {
@@ -730,7 +731,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
             } else {
                 $optiondisplay->manage = "";
             }
-
+            
             $optiondisplay->bookotherusers = "";
 
             $cTeachers = $DB->count_records("booking_teachers", array("optionid" => $option->id, 'bookingid' => $option->bookingid));
