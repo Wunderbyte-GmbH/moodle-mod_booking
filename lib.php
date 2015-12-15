@@ -333,7 +333,7 @@ function booking_update_options($optionvalues) {
         $option->maxoverbooking = $optionvalues->maxoverbooking;
         $option->limitanswers = 1;
     }
-    
+
     if (isset($optionvalues->restrictanswerperiod)) {
         $option->bookingclosingtime = $optionvalues->bookingclosingtime;
     } else {
@@ -553,10 +553,10 @@ function booking_show_maxperuser($booking, $user, $bookinglist) {
  */
 function booking_get_user_booking_count($booking, $user, $bookinglist) {
     global $DB;
-    
+
     $result = $DB->get_records('booking_answers', array('bookingid' => $booking->id, 'userid' => $user->id));
-    
-    return count($result);    
+
+    return count($result);
 }
 
 /**
@@ -731,7 +731,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
             } else {
                 $optiondisplay->manage = "";
             }
-            
+
             $optiondisplay->bookotherusers = "";
 
             $cTeachers = $DB->count_records("booking_teachers", array("optionid" => $option->id, 'bookingid' => $option->bookingid));
@@ -1463,6 +1463,8 @@ function booking_send_confirm_message($eventdata) {
     $bookingmanager = $DB->get_record('user', array('username' => $eventdata->booking->bookingmanager));
     $data = booking_generate_email_params($eventdata->booking, $eventdata->booking->option[$optionid], $user, $cmid);
 
+    $cansend = TRUE;
+
     if ($data->status == get_string('booked', 'booking')) {
         $subject = get_string('confirmationsubject', 'booking', $data);
         $subjectmanager = get_string('confirmationsubjectbookingmanager', 'booking', $data);
@@ -1481,6 +1483,8 @@ function booking_send_confirm_message($eventdata) {
         $subject = "test";
         $subjectmanager = "tester";
         $message = "message";
+
+        $cansend = FALSE;
     }
     $messagehtml = text_to_html($message, false, false, true);
     $errormessage = get_string('error:failedtosendconfirmation', 'booking', $data);
@@ -1501,7 +1505,9 @@ function booking_send_confirm_message($eventdata) {
     $messagedata->attachment = $attachment;
     $messagedata->attachname = $attachname;
 
-    booking_booking_confirmed($messagedata);
+    if ($cansend) {
+        booking_booking_confirmed($messagedata);
+    }
 
     if ($eventdata->booking->copymail) {
         $messagedata->userto = $bookingmanager;
