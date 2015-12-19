@@ -9,7 +9,7 @@ class mod_booking_bookingform_form extends moodleform {
         $mform = & $this->_form;
 
         // visible elements
-        $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
+        $mform->addElement('header', 'general', get_string('addeditbooking', 'booking'));
 
         $mform->addElement('text', 'text', get_string('booking', 'booking'), array('size' => '64'));
         $mform->addRule('text', get_string('required'), 'required', null, 'client');
@@ -18,6 +18,9 @@ class mod_booking_bookingform_form extends moodleform {
         } else {
             $mform->setType('text', PARAM_CLEANHTML);
         }
+
+        $mform->addElement('editor', 'description', get_string('description'));
+        $mform->setType('description', PARAM_CLEANHTML);
 
         $mform->addElement('text', 'location', get_string('location', 'booking'), array('size' => '64'));
         if (!empty($CFG->formatstringstriptags)) {
@@ -70,6 +73,10 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('address', PARAM_CLEANHTML);
         }
 
+        // --- Limits for the answers ------------------------
+        
+        $mform->addElement('header', 'limitanswer', get_string('limitanswer', 'booking')); 
+        
         $mform->addElement('checkbox', 'limitanswers', get_string('limitanswers', 'booking'));
         $mform->addHelpButton('limitanswers', 'limitanswers', 'mod_booking');
 
@@ -81,19 +88,35 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->setType('maxoverbooking', PARAM_INT);
         $mform->disabledIf('maxoverbooking', 'limitanswers', 'notchecked');
 
-        $mform->addElement('checkbox', 'restrictanswerperiod', get_string('timerestrict', 'booking'));
+        $mform->addElement('text', 'howmanyusers', get_string('howmanyusers', 'booking'), 0);
+        $mform->setType('howmanyusers', PARAM_INT);
+
+        // --- booking time ------
+
+        $mform->addElement('header', 'answerperiod', get_string('timerestrict', 'booking')); 
+        
+        $mform->addElement('checkbox', 'restrictanswerperiodstart', get_string('timerestrictstart', 'booking'));
+        
+        $mform->addElement('date_time_selector', 'bookingopeningtime', get_string("bookingopen", "booking"));
+        $mform->disabledIf('bookingopeningtime', 'restrictanswerperiodstart', 'notchecked');
+        
+         $mform->addElement('checkbox', 'restrictanswerperiodend', get_string('timerestrictend', 'booking'));
 
         $mform->addElement('date_time_selector', 'bookingclosingtime', get_string("bookingclose", "booking"));
-        $mform->disabledIf('bookingclosingtime', 'restrictanswerperiod', 'notchecked');
+        $mform->disabledIf('bookingclosingtime', 'restrictanswerperiodend', 'notchecked');
+        
+        $timeoptions = array(0 => get_string('showdateandtime', 'booking'),
+                             1 => get_string('showonlydate', 'booking'));
+        $mform->addElement('select', 'showdatetime', get_string('showdatetime', 'booking'), $timeoptions);
+        $mform->setDefault('showdatetime', 0);
+        $mform->addHelpButton('showdatetime', 'showdatetime', 'booking');
 
-        $coursearray = array();
-        $coursearray[0] = get_string('donotselectcourse', 'booking');
-        $allcourses = $DB->get_records_select('course', 'id > 0', array(), 'id', 'id, shortname');
-        foreach ($allcourses as $id => $courseobject) {
-            $coursearray[$id] = $courseobject->shortname;
-        }
-        $mform->addElement('select', 'courseid', get_string("choosecourse", "booking"), $coursearray);
-
+        $mform->addElement('selectyesno', 'disablebookingusers', get_string("disablebookingusers", "booking"));
+        
+        // --- duration of booking course -----
+        
+        $mform->addElement('header', 'answerperiod', get_string('coursestart', 'booking'));
+        
         $mform->addElement('checkbox', 'startendtimeknown', get_string('startendtimeknown', 'booking'));
 
         $mform->addElement('checkbox', 'addtocalendar', get_string('addtocalendar', 'booking'));
@@ -111,19 +134,22 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->setType('daystonotify', PARAM_INT);
         $mform->disabledIf('daystonotify', 'startendtimeknown', 'notchecked');
 
-        $mform->addElement('editor', 'description', get_string('description'));
-        $mform->setType('description', PARAM_CLEANHTML);
-
-        $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'), array('size' => '64'));
-        $mform->setType('pollurl', PARAM_TEXT);
-        $mform->addHelpButton('pollurl', 'pollurl', 'mod_booking');
-
-        $mform->addElement('text', 'pollurlteachers', get_string('bookingpollurlteachers', 'booking'), array('size' => '64'));
-        $mform->setType('pollurlteachers', PARAM_TEXT);
-        $mform->addHelpButton('pollurlteachers', 'pollurlteachers', 'mod_booking');
+        $mform->addElement('editor', 'notificationtext', get_string('notificationtext', 'booking'));
+        $mform->setType('notificationtext', PARAM_CLEANHTML);   
 
 
+        // --- conections ----------------
 
+        $mform->addElement('header', 'connections', get_string('connections', 'booking'));
+
+        $coursearray = array();
+        $coursearray[0] = get_string('donotselectcourse', 'booking');
+        $allcourses = $DB->get_records_select('course', 'id > 0', array(), 'id', 'id, shortname');
+        foreach ($allcourses as $id => $courseobject) {
+            $coursearray[$id] = $courseobject->shortname;
+        }
+        $mform->addElement('select', 'courseid', get_string("choosecourse", "booking"), $coursearray);
+        
         $booking = $DB->get_record('booking', array('id' => $this->_customdata['bookingid']));
         $opts = array(0 => get_string('notconectedbooking', 'mod_booking'));
 
@@ -133,24 +159,26 @@ class mod_booking_bookingform_form extends moodleform {
             $opts[$value->id] = $value->text;
         }
 
-        $mform->addElement('select', 'conectedoption', get_string('conectedoption', 'mod_booking'), $opts);
+        $mform->addElement('select', 'conectedoption', get_string('connectedoption', 'mod_booking'), $opts);
         $mform->setDefault('conectedoption', 0);
-        $mform->addHelpButton('conectedoption', 'conectedoption', 'mod_booking');
+        $mform->addHelpButton('conectedoption', 'connectedoption', 'mod_booking');
 
-        $mform->addElement('text', 'howmanyusers', get_string('howmanyusers', 'booking'), 0);
-        $mform->setType('howmanyusers', PARAM_INT);
+        // --- URLs to polls ------------------
 
-        $mform->addElement('text', 'removeafterminutes', get_string('removeafterminutes', 'booking'), 0);
-        $mform->setType('removeafterminutes', PARAM_INT);
+        $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'), array('size' => '64'));
+        $mform->setType('pollurl', PARAM_TEXT);
+        $mform->addHelpButton('pollurl', 'pollurl', 'mod_booking');
+
+        $mform->addElement('text', 'pollurlteachers', get_string('bookingpollurlteachers', 'booking'), array('size' => '64'));
+        $mform->setType('pollurlteachers', PARAM_TEXT);
+        $mform->addHelpButton('pollurlteachers', 'pollurlteachers', 'mod_booking');
 
         // --- Advanced options ------------------------------------------------------------
         $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));        
 
-        $mform->addElement('editor', 'notificationtext', get_string('notificationtext', 'booking'));
-        $mform->setType('notificationtext', PARAM_CLEANHTML);        
+        $mform->addElement('text', 'removeafterminutes', get_string('removeafterminutes', 'booking'), 0);
+        $mform->setType('removeafterminutes', PARAM_INT);   
         
-        $mform->addElement('selectyesno', 'disablebookingusers', get_string("disablebookingusers", "booking"));
-
         //hidden elements
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
@@ -194,6 +222,12 @@ class mod_booking_bookingform_form extends moodleform {
 
         $errors = parent::validation($data, $files);
 
+        if ((array_key_exists('restrictanswerperiodstart', $data) && $data['restrictanswerperiodstart'] == 1) && (array_key_exists('restrictanswerperiodend', $data) && $data['restrictanswerperiodend'] == 1)) {
+            if ($data['bookingopeningtime'] > $data['bookingclosingtime']) {
+                $errors['bookingclosingtime'] = get_string('cutoffdatevalidation', 'booking');
+            }
+        }
+        
         if (strlen($data['pollurl']) > 0) {
             if (!filter_var($data['pollurl'], FILTER_VALIDATE_URL)) {
                 $errors['pollurl'] = get_string('entervalidurl', 'booking');

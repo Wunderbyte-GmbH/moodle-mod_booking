@@ -184,8 +184,11 @@ function booking_add_instance($booking) {
         $booking->categoryid = implode(',', $booking->categoryid);
     }
 
-    if (empty($booking->timerestrict)) {
+    if (empty($booking->timerestrictstart)) {
         $booking->timeopen = 0;
+    }
+    
+    if (empty($booking->timerestrictend)) {
         $booking->timeclose = 0;
     }
 
@@ -253,8 +256,11 @@ function booking_update_instance($booking) {
     $context = context_module::instance($cm->id);
     file_save_draft_area_files($booking->myfilemanager, $context->id, 'mod_booking', 'myfilemanager', $booking->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 50));
 
-    if (empty($booking->timerestrict)) {
+    if (empty($booking->timerestrictstart)) {
         $booking->timeopen = 0;
+    }
+    
+    if (empty($booking->timerestrictend)) {
         $booking->timeclose = 0;
     }
 
@@ -333,11 +339,17 @@ function booking_update_options($optionvalues) {
         $option->maxoverbooking = $optionvalues->maxoverbooking;
         $option->limitanswers = 1;
     }
-    if (isset($optionvalues->restrictanswerperiod)) {
+     if (isset($optionvalues->restrictanswerperiodstart)) {
+        $option->bookingopeningtime = $optionvalues->bookingopeningtime;
+    } else {
+        $option->bookingopeningtime = 0;
+    }    
+    if (isset($optionvalues->restrictanswerperiodend)) {
         $option->bookingclosingtime = $optionvalues->bookingclosingtime;
     } else {
         $option->bookingclosingtime = 0;
     }
+    $option ->showdatetime = $optionvalues->showdatetime;
     $option->courseid = $optionvalues->courseid;
     if (isset($optionvalues->startendtimeknown)) {
         $option->coursestarttime = $optionvalues->coursestarttime;
@@ -696,7 +708,8 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
                 $optiondisplay->button = $OUTPUT->single_button($url, (empty($booking->booking->btnbooknowname) ? get_string('booknow', 'booking') : $booking->booking->btnbooknowname), 'post');
             }
 
-            if (($option->limitanswers && ($option->status == "full")) || ($option->status == "closed") || !$underlimit) {
+            if (($option->limitanswers && ($option->status == "full")) || ($option->status == "closed") || 
+                 ($option->status == "closedforbookingstart") || ($option->status == "closedforbookingend")|| !$underlimit) {
                 $optiondisplay->button = '';
             }
 
@@ -763,7 +776,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
 
             if ($cTeachers > 0) {
                 $printTeachers = "<p>";
-                $printTeachers .= (empty($booking->booking->lblteachname) ? get_string('teachers', 'booking') : $booking->booking->lblteachname) . ': ';
+                $printTeachers .= (empty($booking->booking->lblteachname) ? get_string('teachers_constant', 'booking') : $booking->booking->lblteachname) . ': ';
 
                 foreach ($teachers as $teacher) {
                     $tmpuser = $DB->get_record('user', array('id' => $teacher->userid));
@@ -790,7 +803,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
                 $status = '';
             }
             else {
-                $status = get_string($option->status, "booking");
+                $status = get_string($option->status, "booking", $option);
             }
             
             $row = new html_table_row(array("<span id=\"option{$option->id}\"></span>" . $bookingbutton . $optiondisplay->booked . '
@@ -1408,7 +1421,12 @@ function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' =>
                 $booking->option[$option->id]->status = "closed";
             }
             if ($option->bookingclosingtime) {
+                if ($booking->option[$option->id]->showdatetime == 0) {
+                    $booking->option[$option->id]->bookingclosingtime = userdate($option->bookingclosingtime, '', false);
+                }
+                else if ($booking->option[$option->id]->showdatetime == 1) {
                 $booking->option[$option->id]->bookingclosingtime = userdate($option->bookingclosingtime, get_string('strftimedate'), '', false);
+                }
             } else {
                 $booking->option[$option->id]->bookingclosingtime = false;
             }

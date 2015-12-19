@@ -870,11 +870,31 @@ class booking_options extends booking {
                     $option->availwaitspaces = 0;
                 }
             }
+
+            if (time() < $option->bookingopeningtime and $option->bookingopeningtime != 0) {
+                $option->status = "closedforbookingstart";
+            }
+            if ($option->bookingopeningtime) {
+                if ($option->showdatetime == 0) {
+                    $option->bookingopeningtime = userdate($option->bookingopeningtime, '', false);
+                }
+                else if ($option->showdatetime == 1) {
+                    $option->bookingopeningtime = userdate($option->bookingopeningtime, get_string('strftimedate'), '', false);
+                }
+            } else {
+                $option->bookingopeningtime = false;
+            }
+
             if (time() > $option->bookingclosingtime and $option->bookingclosingtime != 0) {
-                $option->status = "closed";
+                $option->status = "closedforbookingend";
             }
             if ($option->bookingclosingtime) {
+                if ($option->showdatetime == 0) {
+                    $option->bookingclosingtime = userdate($option->bookingclosingtime, '', false);
+                }
+                else if ($option->showdatetime == 1) {
                 $option->bookingclosingtime = userdate($option->bookingclosingtime, get_string('strftimedate'), '', false);
+                }
             } else {
                 $option->bookingclosingtime = false;
             }

@@ -316,13 +316,21 @@ $bookingopen = true;
 $timenow = time();
 if ($booking->booking->timeclose != 0) {
     if ($booking->booking->timeopen > $timenow && !has_capability('mod/booking:updatebooking', $context)) {
-        // If you want to haye only the date without time then you add "get_string('strftimedate')" 
-        // to "userdate($booking->booking->timeopen, get_string('strftimedate'))"
+        if ($booking->booking->showdatetime == 0) {
         echo $OUTPUT->box(get_string("notopenyet", "booking", userdate($booking->booking->timeopen)), "center");
+        }
+        elseif ($booking->booking->showdatetime == 1) {
+            echo $OUTPUT->box(get_string("notopenyet", "booking", userdate($booking->booking->timeopen, get_string('strftimedate'))), "center");
+        }
         echo $OUTPUT->footer();
         exit;
     } else if ($booking->booking->timeclose < $timenow && !has_capability('mod/booking:updatebooking', $context)) { // bugfix added "< $timenow"
+      if ($booking->booking->showdatetime == 0) {
         echo $OUTPUT->box(get_string("expired", "booking", userdate($booking->booking->timeclose)), "center");
+      }
+      elseif ($booking->booking->showdatetime == 1) {
+        echo $OUTPUT->box(get_string("expired", "booking", userdate($booking->booking->timeclose, get_string('strftimedate'))), "center");  
+      }
         $bookingopen = false;
     }
 }

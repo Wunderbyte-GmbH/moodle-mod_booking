@@ -92,7 +92,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $menuoptions[1] = get_string('enable');
 
         //default options for booking options
-        $mform->addElement('header', 'limitanswer', get_string('defaultbookingoption', 'booking'));
+        $mform->addElement('header', 'limitanswer', get_string('limitanswer', 'booking'));
 
         $mform->addElement('select', 'limitanswers', get_string('limitanswers', 'booking'), $menuoptions);
 
@@ -106,14 +106,22 @@ class mod_booking_mod_form extends moodleform_mod {
 
         //-------------------------------------------------------------------------------
         $mform->addElement('header', 'timerestricthdr', get_string('timerestrict', 'booking'));
-        $mform->addElement('checkbox', 'timerestrict', get_string('timerestrict', 'booking'));
+        $mform->addElement('checkbox', 'timerestrictstart', get_string('timerestrictstart', 'booking'));
 
         $mform->addElement('date_time_selector', 'timeopen', get_string("bookingopen", "booking"));
-        $mform->disabledIf('timeopen', 'timerestrict');
+        $mform->disabledIf('timeopen', 'timerestrictstart', 'notchecked');
 
+        $mform->addElement('checkbox', 'timerestrictend', get_string('timerestrictend', 'booking'));
+        
         $mform->addElement('date_time_selector', 'timeclose', get_string("bookingclose", "booking"));
-        $mform->disabledIf('timeclose', 'timerestrict');
+        $mform->disabledIf('timeclose', 'timerestrictend', 'notchecked');
 
+        $timeoptions = array(0 => get_string('showdateandtime', 'booking'),
+                             1 => get_string('showonlydate', 'booking'));
+        $mform->addElement('select', 'showdatetime', get_string('showdatetime', 'booking'), $timeoptions);
+        $mform->setDefault('showdatetime', 0);
+        $mform->addHelpButton('showdatetime', 'showdatetime', 'booking');
+        
         //-------------------------------------------------------------------------------
         // CONFIRMATION MESSAGE
         $mform->addElement('header', 'confirmation', get_string('confirmationmessagesettings', 'booking'));
@@ -361,10 +369,17 @@ class mod_booking_mod_form extends moodleform_mod {
         }
 
         if (empty($default_values['timeopen'])) {
-            $default_values['timerestrict'] = 0;
+            $default_values['timerestrictstart'] = 0;
         } else {
-            $default_values['timerestrict'] = 1;
+            $default_values['timerestrictstart'] = 1;
         }
+        
+        if (empty($default_values['timeclose'])) {
+            $default_values['timerestrictend'] = 0;
+        } else {
+            $default_values['timerestrictend'] = 1;
+        }
+        
         if (!isset($default_values['bookingpolicyformat'])) {
             $default_values['bookingpolicyformat'] = FORMAT_HTML;
         }
@@ -407,6 +422,13 @@ class mod_booking_mod_form extends moodleform_mod {
     public function validation($data, $files) {
         global $DB;
         $errors = parent::validation($data, $files);
+
+        if ((array_key_exists('timerestrictstart', $data) && $data['timerestrictstart'] == 1) && (array_key_exists('timerestrictend', $data) && $data['timerestrictend'] == 1)) {
+            if ($data['timeopen'] > $data['timeclose']) {
+                $errors['timeclose'] = get_string('cutoffdatevalidation', 'booking');
+            }
+        }
+        
         if ($DB->count_records('user', array('username' => $data['bookingmanager'])) != 1) {
             $errors['bookingmanager'] = get_string('bookingmanagererror', 'booking');
         }

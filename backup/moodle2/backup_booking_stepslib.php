@@ -39,7 +39,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $booking = new backup_nested_element('booking', array('id'), array(
             'name', 'intro', 'introformat', 'bookingmanager',
             'sendmail', 'copymail', 'allowupdate', 'bookingpolicy',
-            'bookingpolicyformat', 'timeopen', 'timeclose', 'limitanswers',
+            'bookingpolicyformat', 'timeopen', 'timeclose', 'showdatetime', 'limitanswers',
             'maxanswers', 'maxoverbooking', 'timemodified', 'autoenrol', 'bookedtext',
             'waitingtext', 'statuschangetext', 'deletedtext', 'maxperuser', 'sendmailtobooker',
             'duration', 'points', 'organizatorname', 'pollurl', 'addtogroup', 'categoryid',
@@ -49,7 +49,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $options = new backup_nested_element('options');
 
         $option = new backup_nested_element('option', array('id'), array(
-            'text', 'maxanswers', 'maxoverbooking', 'bookingclosingtime', 'courseid', 'coursestarttime',
+            'text', 'maxanswers', 'maxoverbooking','bookingopeningtime', 'bookingclosingtime', 'showdatetime', 'courseid', 'coursestarttime',
             'courseendtime', 'description', 'descriptionformat', 'limitanswers', 'timemodified',
             'addtocalendar', 'calendarid', 'pollurl', 'groupid', 'daystonotify', 'sent',
             'location', 'institution', 'address'));

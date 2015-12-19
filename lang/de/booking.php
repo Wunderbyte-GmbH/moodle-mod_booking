@@ -2,7 +2,7 @@
 
 $string['addmorebookings'] = 'Buchungen hinzufügen';
 $string['allowupdate'] = 'Buchungen dürfen gelöscht werden';
-$string['answered'] = 'Beantworted';
+$string['answered'] = 'Beantwortet';
 $string['attachical'] = 'ICAL Kalendereintrag hinzufügen';
 $string['attachicaldesc'] = 'E-Mail Benachrichtigungen im ical Kalenderformat hinzufügen, wenn diese Option aktiviert wird';
 $string['booking'] = 'Buchung';
@@ -12,6 +12,7 @@ $string['booking:deleteresponses'] = 'Anworten löschen';
 $string['booking:downloadresponses'] = 'Antworten herunterladen';
 $string['booking:readresponses'] = 'Antworten lesen';
 $string['booking:sendpollurl'] = 'Umfragelink senden';
+$string['booking:sendpollurltoteachers'] = 'Sende Umfragelink zu den teachers';
 $string['booking:subscribeusers'] = 'Für andere Teilnehmer/innen Buchungen durchführen';
 $string['booking:updatebooking'] = 'Buchungen verwalten';
 $string['bookingclose'] = 'Bis';
@@ -20,16 +21,10 @@ $string['bookingname'] = 'Buchungsbezeichnung';
 $string['bookingopen'] = 'Offen';
 $string['bookingtext'] = 'Buchungsbeschreibung';
 $string['daystonotify'] = 'Wie viele Tage vor Kursbeginn soll an die Teilnehmenden eine Benachrichtigung gesendet werden?';
-$string['eventbookingoption_booked'] = 'Buchung durchgeführt';
-$string['eventbooking_cancelled'] = 'Buchung wurde storniert';
-$string['eventreport_viewed'] = 'Übersicht über Buchungen für eine Buchungsoption angesehen';
-$string['eventuserprofilefields_updated'] = 'Nutzerprofil aktualisiert';
 $string['existingsubscribers'] = 'Vorhandene Nutzer/innen';
-$string['expired'] = 'Diese Aktivität ist geschlossen {$a} und ist nicht mehr verfügbar';
+$string['expired'] = 'Diese Aktivität ist geschlossen seit {$a} und steht nicht mehr zur Verfügung.';
 $string['fillinatleastoneoption'] = 'Wählen Sie zumindest eine Buchungsmöglichkeit aus';
 $string['full'] = 'Ausgebucht';
-$string['nobookingforstarttime'] = 'Diese Aktivtät begann bereits.<br />Eine Buchung ist nicht mehr möglich.';
-$string['nobookingforendtime'] = 'Diese Aktivtät endete bereits.<br />Eine Buchung ist nicht mehr möglich.';
 $string['goenrol'] = 'Gehe zu "Buchung abschließen"';
 $string['gotop'] = 'Nach oben';
 $string['havetologin'] = 'Sie müssen sich einloggen, um eine Buchung vorzunehmen';
@@ -37,11 +32,13 @@ $string['limit'] = 'Maximale Anzahl';
 $string['modulename'] = 'Buchung';
 $string['modulenameplural'] = 'Buchungen';
 $string['mustchooseone'] = 'Sie müssen eine Option auswählen';
+$string['nobookingforstarttime'] = 'Diese Aktivtät begann bereits.<br />Eine Buchung ist nicht mehr möglich.';
+$string['nobookingforendtime'] = 'Diese Aktivtät endete bereits.<br />Eine Buchung ist nicht mehr möglich.';
 $string['noguestchoose'] = 'Gäste dürfen keine Buchungen vornehmen';
 $string['noresultsviewable'] = 'Die Ergebnisse sind momentan nicht einsehbar';
 $string['nosubscribers'] = 'Keine Trainer/innen zugewiesen!';
 $string['notificationsubject'] = 'Demnächst stattfindender Kurs';
-$string['notopenyet'] = 'Diese Aktivität ist bis {$a} nicht verfügbar';
+$string['notopenyet'] = 'Diese Aktivität steht erst ab {$a} zur Verfügung.';
 $string['pluginadministration'] = 'Buchung bearbeiten';
 $string['pluginname'] = 'Buchung';
 $string['potentialsubscribers'] = 'Mögliche Nutzer/innen';
@@ -52,20 +49,28 @@ $string['spaceleft'] = 'Platz verfügbar';
 $string['spacesleft'] = 'Plätze verfügbar';
 $string['subscribersto'] = 'Trainer/innen für  \'{$a}\'';
 $string['taken'] = 'gebucht';
-$string['teachers'] = 'Trainer/innen: ';
-$string['timerestrict'] = 'Buchungsmöglichkeit auf diesen Zeitraum beschränken';
-$string['viewallresponses'] = '{$a} Antworten verwalten';
+$string['teachers'] = '{$a->lblteachname}';
+$string['teachers_constant'] = 'Teachers';
+$string['timerestrict'] = 'Buchungszeitraum';
+$string['timerestrictstart'] = 'Buchungstartzeit festlegen';
+$string['timerestrictend'] = 'Buchungsende festlegen';
+$string['viewallresponses'] = '{$a} Buchung/en verwalten';
 $string['yourselection'] = 'Ihre Auswahl';
 
-// Bookingform
-$string['location'] = 'Ort';
-$string['institution'] = 'Institution';
-$string['address'] = 'Adresse';
 
+// Log
+$string['eventreport_viewed'] = 'Übersicht über Buchungen für eine Buchungsoption angesehen';
+$string['eventbookingoption_booked'] = 'Buchung durchgeführt';
+$string['eventbooking_cancelled'] = 'Buchung wurde storniert';
+$string['eventuserprofilefields_updated'] = 'Nutzerprofil aktualisiert';
+
+// subscribeusers.php
+$string['backtoresponses'] = '<< Zurück zu den Buchungen';
+$string['allchangessave'] = 'Alle Änderungen wurden gespeichert.';
 
 // Categories
 $string['category'] = 'Kategorie';
-$string['categories'] = 'Kategnriej';
+$string['categories'] = 'Kategorien';
 $string['addcategory'] = 'Kategorien bearbeiten';
 $string['forcourse'] = 'für Kurs';
 $string['addnewcategory'] = 'Neue Kategorie hinzufügen';
@@ -93,6 +98,8 @@ $string['booknow'] = 'Jetzt buchen';
 $string['bookotherusers'] = 'Buchung für andere Nutzer/innen durchführen';
 $string['cancelbooking'] = 'Buchung stornieren';
 $string['closed'] = 'Buchung beendet';
+$string['closedforbookingend'] = 'Buchung seit<br />{$a->bookingclosingtime}<br />geschlossen.';
+$string['closedforbookingstart'] = 'Buchung noch bis<br />{$a->bookingopeningtime}<br />geschlossen.';
 $string['confirmbookingoffollowing'] = 'Bitte bestätigen Sie folgende Buchung';
 $string['confirmdeletebookingoption'] = 'Möchten Sie diese Buchung wirklich löschen?';
 $string['coursedate'] = 'Kurstermin';
@@ -123,6 +130,7 @@ $string['showmybookings'] = 'Zur Liste meiner Buchungen';
 $string['starttimenotset'] = 'Kursbeginn nicht festgelegt';
 $string['subscribetocourse'] = 'Nutzer/innen in den Kurs einschreiben';
 $string['subscribeuser'] = 'Wollen Sie diese User wirklich in diesen Kurs einschreiben';
+$string['to'] = 'bis';
 $string['unlimited'] = 'Unbegrenzt';
 $string['updatebooking'] = 'Diese Buchung bearbeiten';
 $string['userdownload'] = 'Nutzer/innenliste herunterladen';
@@ -130,12 +138,45 @@ $string['waitinglist'] = 'Auf der Warteliste';
 $string['waitingplacesavailable'] = 'Wartelistenplätze';
 $string['waitspaceavailable'] = 'Wartelistenplätze verfügbar';
 
+// Bookingform
+$string['location'] = 'Ort';
+$string['institution'] = 'Institution';
+$string['address'] = 'Adresse';
+$string['connections'] = 'Verknüpfungen';
+$string['connectedoption'] = 'Verbindungsoption zu anderen Buchungsaktivitäten';
+$string['connectedoption_help'] = 'Sie können diese Aktivität mit einer anderen Buchungsaktivität verbinden,soweit in diesem Kurs weitere Buchungsaktivitäten existieren.';
+$string['howmanyusers'] = 'Wie viele Teilnehmer können von jemand anderem gebucht werden?';
+$string['howmanyusers_help'] = '';
+$string['removeafterminutes'] = 'Aktivitätsabschluss entfernen nach N Minuten';
+$string['coursestart'] = 'Kursdauer, Kalendereintrag und Kursbenachrichtigung';
+$string['startendtimeknown'] = 'Kursbeginn und Kursende sind bekannt';
+$string['advancedoptions'] = 'Erweiterte Optionen';
+$string['btncacname'] = 'Name des Button "Aktivitätsabschluss bestätigen"';
+$string['lblteachname'] = 'Name für die Bezeichnung "Teachers"';
+$string['lblsputtname'] = 'Name für die Bezeichnung "Umfragelink zu Trainer/innen senden"';
+$string['btnbooknowname'] = 'Name des Buttons "Jetzt buchen"';
+$string['btncancelname'] = 'Name des Button "Buchung stornieren"';
+$string['disablebookingusers'] = 'Buchung für Nutzer deaktiviert - verstecke Button "Jetzt buchen"';
+
+// bookingform.php and mod_form.php
+$string['cutoffdatevalidation'] = 'Der Termin für das Buchungsende muss später sein als der Buchungsbeginn.';
+$string['limitanswer'] = 'Teilnehmerbegrenzung'; 
+$string['limitanswers'] = 'Teilnehmerzahlbeschränkung aktivieren';
+$string['limitanswers_help'] = 'Wenn diese Option geändert wird, wenn schon Personen gebucht haben, werden diese ohne Benachrichtigung gelöscht!';
+$string['showdatetime'] = 'Anzeige Datum und/oder Zeit';
+$string['showdatetime_help'] = 'Wenn die Zeit außerhalb der aktuellen Buchungsdauer liegt, dann soll folgendes angezeigt werden:<br />
+- Datum und Zeit<br />oder<br />
+- nur Datum<br /><br />
+WICHTIG: Bei dieser Einstellung handelt es sich um eine reine Anzeigeneinstellung,
+d.h. die Uhrzeit muss auch bei der Einstellung "nur Datum" berücksichtigt werden!';
+$string['showdateandtime'] = 'Datum und Zeit';
+$string['showdefaultfromactivitysetting'] = 'Einstellung aus der Aktivität übernehmen.';
+$string['showonlydate'] = 'nur Datum';
+
 // mod_form
 $string['addtocalendar'] = 'Zum Kalender hinzufügen';
-$string['limitanswers'] = 'Teilnehmeranzahl beschränken';
 $string['maxparticipantsnumber'] = 'Maximale Teilnehmeranzahl';
 $string['maxoverbooking'] = 'Maximale Anzahl der Wartelistenplätze';
-$string['defaultbookingoption'] = 'Standardeinstellungen für Buchungen';
 $string['sendconfirmmail'] = 'Bestätigungsmail versenden';
 $string['sendconfirmmailtobookingmanger'] = 'Eine Kopie des Bestätigungsmail an Buchungsverwalter senden';
 $string['allowdelete'] = 'Teilnehmer/innen dürfen Buchungen selbst stornieren';
@@ -146,7 +187,7 @@ $string['usernameofbookingmanager_help'] = 'Benutzername des/der Nutzer/in, der 
   Wenn die Option "Eine Kopie des Bestätigungsmail an Buchungsverwalter senden" aktiviert ist, wird die Kopie der Buchungsbestätigung an diese/n Nutzer/in gesendet.';
 $string['bookingmanagererror'] = 'Der angegebene Benutzername ist ungültig. Entweder existiert der/die Nutzer/in nicht oder es gibt mehrere Nutzer/innen mit dem selben Benutzernamen (Dies ist zum Beispiel der Fall, wenn Sie MNET und lokale Authentifizierung gleichzeitig aktiviert haben)';
 $string['autoenrol'] = 'Nutzer/innen automatisch einschreiben';
-$string['autoenrol_help'] = 'Fals ausgewählt werden Nutzter/innen automatisch in den Kurs eingeschrieben sobald sie die Buchung durchgeführt haben und wieder ausgetragen, wenn die Buchung storniert wird.';
+$string['autoenrol_help'] = 'Falls ausgewählt werden Nutzter/innen automatisch in den Kurs eingeschrieben sobald sie die Buchung durchgeführt haben und wieder ausgetragen, wenn die Buchung storniert wird.';
 $string['bookedtext'] = 'Buchungsbestätigung';
 $string['waitingtext'] = 'Wartelistenbestätigung';
 $string['statuschangetext'] = 'Statusänderungsbenachrichtigung';
@@ -233,10 +274,17 @@ $string['entervalidurl'] = 'Bitte geben Sie eine gültige URL an!';
 $string['pollurltext'] = 'Umfragelink senden';
 $string['additionalfields'] = 'Zusätzliche Felder';
 
+$string['editinstitutions'] = 'Bearbeiten der Institutionen';
+$string['customlabels'] = 'Benutzerdefinierte Bezeichungen';
+$string['lblbooking'] = 'Eigener Name für "Buchung"';
+$string['lbllocation'] = 'Eigener Name für "Örtlichkeit"';
+$string['lblinstitution'] = 'Eigener Name für "Institution"';
+$string['lblname'] = 'Eigener Name für  "Vorname"';
+$string['lblsurname'] = 'Eigener Name für "Nachname"';
+
 // editoptions.php
 $string['submitandaddnew'] = 'Speichern und neue Buchung hinzufügen';
 $string['choosecourse'] = 'Einen Kurs auswählen';
-$string['startendtimeknown'] = 'Kursbeginn und Kursende sind bekannt';
 $string['coursestarttime'] = 'Kursbeginn';
 $string['courseendtime'] = 'Kursende';
 $string['addeditbooking'] = 'Buchung bearbeiten';
@@ -313,10 +361,16 @@ Teilnehmer/in:   {$a->participant}
 Kurs:   {$a->title}
 ';
 
+
+$string['userleavebookedmessage'] = 'Guten Tag {$a->participant},
+
+Sie haben sich erfolgreich von {$a->title} abgemeldet.
+';
+
 $string['deletedbookingusersubject'] = 'Stornobestätigung für {$a->title}';
 $string['deletedbookingusermessage'] = 'Guten Tag {$a->participant},
 
-Die Buchung für {$a->title} wurde erfolgreich storniert
+Die Buchung für {$a->title} wurde erfolgreich storniert.
 ';
 
 
@@ -331,13 +385,29 @@ Link: {$a->bookinglink}
 
 ';
 
-$string['pollurltextsubject'] = 'Nehmen Sie bitte an der Umfrage teil';
+$string['pollurltextsubject'] = 'Nehmen Sie bitte an der Umfrage teil.';
 $string['pollurltextmessage'] = 'Füllen Sie die Umfrage unter
 
-Survey url {pollurl}
+der Umfrage-URL {pollurl}
         
 aus.
 ';
+
+$string['pollurlteacherstextsubject'] = 'Nehmen Sie bitte an der Umfrage teil.';
+$string['pollurlteacherstextmessage'] = 'Füllen Sie die Umfrage unter
+
+der Umfrage-URL {pollurlteachers}
+
+aus.
+';
+
+$string['notificationtextsubject'] = 'Info über den Kursstart!';
+$string['notificationtextmessage'] = 'Kurs läuft über folgenden Zeitraum:
+        
+Kurs:   {$a->title}
+Datum: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
+
+$string['cancancelbook'] = 'Den Nutzern erlauben eine Auswahl zu canceln oder zu buchen, wenn der Kurs schon gestartet ist?';
 
 //report.php and bookingmanagusers.class.php
 $string['withselected'] = 'Ausgewählte Nutzer/innen';
@@ -347,9 +417,30 @@ $string['waitinglistusers'] = 'Nutzer/innen auf der Warteliste';
 $string['downloadallresponses'] = 'Alle Buchungen herunterladen';
 $string['allmailssend'] = 'Alle Benachrichtigungen wurden erfolgreich versandt!';
 $string['sendcustommessage'] = 'Persönliche Nachricht senden';
-$string['addteachers'] = 'Trainer/innen hinzufügen';
+
+//teachers.php
+$string['users'] = '<< Buchungen verwalten';
+$string['addteachers'] = '{$a->lblteachname} hinzufügen';
 
 // Send message
 $string['messagesubject'] = 'Betreff';
 $string['messagetext'] = 'Nachricht';
 $string['messagesend'] = 'Die Nachricht wurde erfolgreich versandt.';
+
+// institutions.php
+$string['institutions'] = 'Institutionen';
+$string['addnewinstitution'] = 'Neue Institution hinzufügen';
+
+// tag templates
+$string['cancel'] = 'Abbrechen';
+$string['addnewtagtemplate'] = 'Neue hinzufügen';
+$string['addnewtagtemplate'] = 'Neue Textbausteine hinzufügen';
+$string['savenewtagtemplate'] = 'Speichern';
+$string['tagtag'] = 'Stichwort';
+$string['tagtext'] = 'Textbaustein';
+$string['wrongdataallfields'] = 'Bitte, alle Felder ausfüllen!';
+$string['tagsucesfullysaved'] = 'Textbaustein wurde erfolgreich gespeichert.';
+$string['edittag'] = 'Bearbeiten';
+$string['tagtag_help'] = 'Dieses Stichwort vom Textbaustein kann in den E-Mail-Text eingebunden werden: [name_of_the_tag]<br />
+        Das Stichwort wird beim Versand der Mail durch den Textbaustein ersetzt.';
+                          
