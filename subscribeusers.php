@@ -23,6 +23,7 @@ $course = get_course($cm->course);
 (boolean) $unsubscribesuccess = false;
 
 $bookingoption = new booking_option($id, $optionid);
+$bookingoption->update_booked_users();
 $bookingoption->apply_tags();
 
 require_login($course, true, $cm);

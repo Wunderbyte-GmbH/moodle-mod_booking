@@ -243,20 +243,24 @@ if (!$download) {
                 redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
             }
 
-            if (count($allSelectedUsers) > $bookingData->canBookToOtherBooking) {
-                redirect($url, get_string('toomuchusersbooked', 'booking', $bookingData->canBookToOtherBooking), 5);
+            if (!isset($_POST['selectoptionid']) || empty($_POST['selectoptionid'])) {
+                redirect($url, get_string('selectoptionid', 'booking'), 5);
             }
+            
+            if (count($allSelectedUsers) > $bookingData->calculateHowManyCanBookToOther($_POST['selectoptionid'])) {
+                redirect($url, get_string('toomuchusersbooked', 'booking', $bookingData->calculateHowManyCanBookToOther($_POST['selectoptionid'])), 5);
+            }                    
 
             $tmpcmid = $DB->get_record_sql("SELECT cm.id FROM {course_modules} cm JOIN {modules} md ON md.id = cm.module JOIN {booking} m ON m.id = cm.instance WHERE md.name = 'booking' AND cm.instance = ?", array($bookingData->booking->conectedbooking));
-            $tmpBooking = new booking_option($tmpcmid->id, $bookingData->option->conectedoption);
+            $tmpBooking = new booking_option($tmpcmid->id, $_POST['selectoptionid']);
 
             foreach ($allSelectedUsers as $value) {
                 $user = new stdClass();
                 $user->id = $value;
-                $tmpBooking->user_submit_response($user);
+                $tmpBooking->user_submit_response($user, $optionid);
             }
 
-            redirect($url, get_string('userssucesfullybooked', 'booking', $bookingData->canBookToOtherBooking), 5);
+            redirect($url, get_string('userssucesfullybooked', 'booking', $bookingData->calculateHowManyCanBookToOther($_POST['selectoptionid'])), 5);
         }
     }
 
@@ -264,7 +268,14 @@ if (!$download) {
     $tableAllUsers = new all_users('all_users');
     $tableAllUsers->is_downloading($download, 'all_users', 'testing123');
 
-    $fields = 'u.id, ' . get_all_user_name_fields(true, 'u') . ', u.username, u.firstname, u.lastname, u.institution, ba.completed, ba.timecreated, ba.userid, IF(bo.conectedoption > 0, IF((SELECT COUNT(*) FROM {booking_answers} AS tba WHERE tba.optionid = bo.conectedoption AND tba.userid = ba.userid) = 1, 1, 0), 0) AS connected';
+    $fields = 'u.id, ' . get_all_user_name_fields(true, 'u') . ', u.username, u.firstname, u.lastname, u.institution, ba.completed, ba.timecreated, ba.userid, (SELECT 
+            GROUP_CONCAT(obo.text SEPARATOR \', \')
+        FROM
+            mdl_booking_answers AS oba
+            LEFT JOIN mdl_booking_options AS obo ON obo.id = oba.optionid
+        WHERE
+            oba.frombookingid = ba.optionid
+                AND oba.userid = ba.userid) AS otheroptions';
     $from = ' {booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
     $where = ' ba.optionid = :optionid AND ba.waitinglist = 0 ' . $addSQLWhere;
 
@@ -279,7 +290,7 @@ if (!$download) {
     $tableUnbookedUsers = new all_users('unbooked_users');
     $tableUnbookedUsers->is_downloading($download, 'all_users', 'testing123');
 
-    $fields = 'u.id, ' . get_all_user_name_fields(true, 'u') . ', u.username, u.firstname, u.lastname, u.institution, ba.completed, ba.timecreated, ba.userid, IF(bo.conectedoption > 0, IF((SELECT COUNT(*) FROM {booking_answers} AS tba WHERE tba.optionid = bo.conectedoption AND tba.userid = ba.userid) = 1, 1, 0), 0) AS connected';
+    $fields = 'u.id, ' . get_all_user_name_fields(true, 'u') . ', u.username, u.firstname, u.lastname, u.institution, ba.completed, ba.timecreated, ba.userid';
     $from = ' {booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
 
     $where = ' ba.optionid = :optionid AND ba.waitinglist = 1 ' . $addSQLWhere;
@@ -402,7 +413,19 @@ if (!$download) {
 
     if (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
         echo '<input type="submit" name="activitycompletion" value="' . (empty($bookingData->booking->btncacname) ? get_string('confirmactivitycompletion', 'booking') : $bookingData->booking->btncacname) . '" />';
-        if ($bookingData->option->conectedoption > 0) {
+        if ($bookingData->booking->conectedbooking > 0) {
+            $result = $DB->get_records_select("booking_options", "bookingid = {$bookingData->booking->conectedbooking} AND id <> {$optionid}", null, 'id, text');
+            
+            $options = array();
+            
+            foreach ($result as $value) {
+                $options[$value->id] = $value->text;
+            }
+            
+            echo "<br>";
+            
+            echo html_writer::select($options, 'selectoptionid', '');
+
             echo '<input type="submit" name="booktootherbooking" value="' . get_string('booktootherbooking', 'booking') . '" />';
         }
     }
@@ -451,7 +474,7 @@ if (!$download) {
         }
 /// Print names of all the fields
 
-        if ($action == "all") {            
+        if ($action == "all") {
             $myxls->write_string(0, 0, get_string("optionid", "booking"));
             $myxls->write_string(0, 1, get_string("booking", "booking"));
             $myxls->write_string(0, 2, get_string("institution", "booking"));
@@ -505,7 +528,7 @@ if (!$download) {
                     }
 
                     $myxls->write_string($row, 0, format_string($bookingData->option->id, true));
-                    
+
                     if (isset($option_text)) {
                         $myxls->write_string($row, 1, format_string($option_text, true));
                     }
@@ -571,8 +594,8 @@ if (!$download) {
                 } else {
                     $cellform = $cellformat;
                 }
-                $myxls->write_string($row, 0, format_string($bookingData->option->id, true));              
-                
+                $myxls->write_string($row, 0, format_string($bookingData->option->id, true));
+
                 if (isset($option_text)) {
                     $myxls->write_string($row, 1, format_string($option_text, true));
                 }

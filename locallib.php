@@ -144,22 +144,21 @@ class booking_option extends booking {
 
         parent::__construct($id);
         $this->optionid = $optionid;
-        $this->update_booked_users();
+        //$this->update_booked_users();
         $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', 'MUST_EXIST');
         $this->filters = $filters;
         $this->page = $page;
         $this->perpage = $perpage;
         $this->get_users();
-        $this->calculateHowManyCanBookToOther();
     }
 
-    public function calculateHowManyCanBookToOther() {
+    public function calculateHowManyCanBookToOther($optionid) {
         global $DB;
 
-        if (isset($this->option->conectedoption) && $this->option->conectedoption > 0) {
+        if (isset($optionid) && $optionid > 0) {
             $alredyBooked = 0;
 
-            $result = $DB->get_records_sql('SELECT answers.userid FROM {booking_answers} AS answers INNER JOIN {booking_answers} AS parent on parent.userid = answers.userid WHERE answers.optionid = ? AND parent.optionid = ?', array($this->optionid, $this->option->conectedoption));
+            $result = $DB->get_records_sql('SELECT answers.userid FROM {booking_answers} AS answers INNER JOIN {booking_answers} AS parent on parent.userid = answers.userid WHERE answers.optionid = ? AND parent.optionid = ?', array($this->optionid, $optionid));
 
             $alredyBooked = count($result);
 
@@ -185,9 +184,9 @@ class booking_option extends booking {
                 }
             }
 
-            $this->canBookToOtherBooking = (int) $this->option->howmanyusers - (int) $alredyBooked;
+            return (int) $this->option->howmanyusers - (int) $alredyBooked;
         } else {
-            $this->canBookToOtherBooking = 0;
+            return 0;
         }
     }
 
@@ -561,7 +560,7 @@ class booking_option extends booking {
      * Saves the booking for the user
      * @return boolean true if booking was possible, false if meanwhile the booking got full
      */
-    public function user_submit_response($user) {
+    public function user_submit_response($user, $frombookingid = 0) {
         global $DB;
 
         if (null == $this->option) {
@@ -584,6 +583,7 @@ class booking_option extends booking {
         if (!($currentanswerid = $DB->get_field('booking_answers', 'id', array('userid' => $user->id, 'optionid' => $this->optionid)))) {
             $newanswer = new stdClass();
             $newanswer->bookingid = $this->id;
+            $newanswer->frombookingid = $frombookingid;
             $newanswer->userid = $user->id;
             $newanswer->optionid = $this->optionid;
             $newanswer->timemodified = time();

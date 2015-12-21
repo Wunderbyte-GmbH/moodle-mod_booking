@@ -65,8 +65,6 @@ $string['allchangessave'] = 'All changes have been saved.';
 $string['location'] = 'Location';
 $string['institution'] = 'Institution';
 $string['address'] = 'Address';
-$string['conectedoption'] = 'Connected option';
-$string['conectedoption_help'] = '';
 $string['howmanyusers'] = 'How many users you can book?';
 $string['howmanyusers_help'] = '';
 $string['limitanswers_help'] = 'If you change this option and you have booked people, you can remove them without notification!';
@@ -610,6 +608,7 @@ $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
 $string['selectatleastoneuser'] = 'Please, select at least 1 user!';
 $string['userssucesfullybooked'] = 'All users have been sucesfully booked to other booking.';
 $string['optionid'] = 'Option ID';
+$string['selectoptionid'] = 'Please, select option!';
 
 // Send message
 $string['messagesubject'] = 'Subject';

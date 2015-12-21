@@ -59,20 +59,23 @@ class all_users extends table_sql {
         return '';
     }
 
+    function col_fullname($values) {
+        if (empty($values->otheroptions)) {
+            return "{$values->firstname} {$values->lastname}";
+        } else {
+            return "{$values->firstname} {$values->lastname} ({$values->otheroptions})";
+        }
+    }
+    
     function col_info($values) {
         
         $completed = '&nbsp;';
-        $connected = '&nbsp;';
         
         if ($values->completed) {
             $completed = '&#x2713;';
         } 
         
-        if ($values->connected) {
-            $connected = '&#11014;';
-        } 
-        
-        return $completed . $connected;
+        return $completed;
     }    
 
     function col_selected($values) {
