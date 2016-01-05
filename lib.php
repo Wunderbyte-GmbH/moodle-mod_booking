@@ -1285,6 +1285,10 @@ function booking_delete_instance($id) {
         $result = false;
     }
 
+    if (!$DB->delete_records("booking_teachers", array("bookingid" => "$booking->id"))) {
+        $result = false;
+    }
+
     if (!$DB->delete_records("booking_options", array("bookingid" => "$booking->id"))) {
         $result = false;
     }
@@ -1293,6 +1297,24 @@ function booking_delete_instance($id) {
         $result = false;
     }
 
+    // Delete if there aren't any booking activities in the course
+    if(!$bookingexist = $DB->get_records("booking", array("course" => $booking->course))) {
+        // Delete categories
+        if(!$DB->delete_records("booking_category", array("course" => $booking->course))) {
+            $result = false;
+        }
+        
+        // Delete institutions
+        if(!$DB->delete_records("booking_institutions", array("course" => $booking->course))) {
+            $result = false;
+        }
+        
+        // Delete TAGS
+        if(!$DB->delete_records("booking_tags", array("courseid" => $booking->course))) {
+            $result = false;
+        }
+    }
+    
     return $result;
 }
 
