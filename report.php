@@ -322,7 +322,7 @@ if (!$download) {
     $links = array();
 
     if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-        $links[] = html_writer::link(new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid)), (empty($bookingData->booking->lblteachname) ? get_string('teachers', 'booking') : $bookingData->booking->lblteachname), array());
+        $links[] = html_writer::link(new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid)), (empty($bookingData->booking->lblteachname) ? get_string('teachers_constant', 'booking') : $bookingData->booking->lblteachname), array());
     }
 
     if (has_capability('mod/booking:subscribeusers', $context)) {

@@ -37,8 +37,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
         $paths[] = new restore_path_element('booking', '/activity/booking');
         $paths[] = new restore_path_element('booking_option', '/activity/booking/options/option');
+        $paths[] = new restore_path_element('booking_category', '/activity/booking/categories/category');        
+        $paths[] = new restore_path_element('booking_institution', '/activity/booking/institutions/institution');
+        $paths[] = new restore_path_element('booking_tag', '/activity/booking/tags/tag');
         if ($userinfo) {
             $paths[] = new restore_path_element('booking_answer', '/activity/booking/answers/answer');
+            $paths[] = new restore_path_element('booking_teacher', '/activity/booking/teachers/teacher');
         }
 
         // Return the paths wrapped into standard activity structure
@@ -85,8 +89,116 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
-        print_r($data);
+        $data->timecreated = $this->apply_date_offset($data->timecreated);
+        
         $newitemid = $DB->insert_record('booking_answers', $data);
+        // No need to save this mapping as far as nothing depend on it
+        // (child paths, file areas nor links decoder)
+    }
+
+    protected function process_booking_category($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $oldid = $data->id;
+        $data->course = $this->get_courseid();
+
+        // insert the booking_institutions record
+        $oldcategories = $DB->get_records('booking_category', array('course' => $data->course));
+        $countsamename = 0;
+        $countdiffcid = 0;
+        foreach ($oldcategories as $oldcategory) {
+            $namecompare =  strcmp($data->name, $oldcategory->name);
+            if($namecompare == 0) {
+                   $countsamename = 1;
+                   $newitemid = $oldcategory->id;
+            }
+        }
+        if(count($oldcategories)== 0 || $countsamename == 0) {
+            if ($data->cid > 0) {
+                $diffcategories = $oldid - $data->cid;
+            }
+            $newitemid = $DB->insert_record('booking_category', $data);
+            if($data->cid > 0) {
+                $newdata = $DB->get_record('booking_category', array('id' => $newitemid));
+                $newdata->cid= $newdata->id - $diffcategories;
+                $newitemcid = $DB->update_record('booking_category', $newdata);
+            }
+        }
+        // Update the categories number in table booking
+        $newdata = $DB->get_record('booking_category', array('id' => $newitemid));
+        $bookingid = $this->get_new_parentid('booking');
+        $booking = $DB->get_record('booking', array('id' => $bookingid));
+        if(!$booking->categoryid == NULL) {
+            $oldcategoryids = explode(',', $booking->categoryid);
+            
+            foreach($oldcategoryids as $oldcategoryid) {
+                if($oldcategoryid == $data->id) {
+                    $newbooking->categoryid = str_replace($oldcategoryid, $newdata->id, $booking->categoryid);
+                    $newbooking->id = $bookingid;
+                    $newitemid = $DB->update_record('booking', $newbooking);  
+                }
+            }                     
+            
+        }
+    }
+    
+    protected function process_booking_institution($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $oldid = $data->id;
+        $data->course = $this->get_courseid();
+
+        // insert the booking_institutions record
+        $oldinstitutions = $DB->get_records('booking_institutions', array('course' => $data->course));
+        $countsamename = 0;
+        foreach ($oldinstitutions as $oldinstitution) {
+            $namecompare =  strcmp($data->name, $oldinstitution->name);#
+            if($namecompare == 0) {
+                $countsamename = $countsamename + 1;
+            }
+        }
+        if(count($oldinstitutions)== 0 || $countsamename == 0) {
+            $newitemid = $DB->insert_record('booking_institutions', $data);
+        }
+    }
+    
+     protected function process_booking_tag($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $oldid = $data->id;
+        $data->courseid = $this->get_courseid();
+
+        // insert the booking_tags record
+        $oldtags = $DB->get_records('booking_tags', array('courseid' => $data->courseid, 'tag' => $data->tag));
+        if(count($oldtags) == 0) {
+            $newitemid = $DB->insert_record('booking_tags', $data);
+        }
+        
+        // If you want to update the field text with the values of the backup
+        //foreach ($oldtags as $oldtag) {
+        //    $textcompare =  strcmp($data->text, $oldtag->text);
+        //}
+        //if (!$textcompare == 0) {
+        //    $data->id = $oldtag->id;
+        //    $newitemid = $DB->update_record('booking_tags', $data);
+        //} 
+    }
+    
+    protected function process_booking_teacher($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $oldid = $data->id;
+
+        $data->bookingid = $this->get_new_parentid('booking');
+        $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        
+        // insert booking_teachers record
+        $newitemid = $DB->insert_record('booking_teachers', $data);
         // No need to save this mapping as far as nothing depend on it
         // (child paths, file areas nor links decoder)
     }
@@ -94,8 +206,6 @@ class restore_booking_activity_structure_step extends restore_activity_structure
     protected function after_execute() {
         // Add booking related files, no need to match by itemname (just internally handled context)
         $this->add_related_files('mod_booking', 'intro', null);
-        $this->add_related_files('mod_booking', 'bookingpolicy', null);
-        $this->add_related_files('mod_booking', 'description', 'booking_option');
     }
 
 }
