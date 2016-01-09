@@ -51,10 +51,15 @@ if ($optionid == 'add') {
 } else if ($default_values = $DB->get_record('booking_options', array('bookingid' => $booking->id, 'id' => $optionid))) {
     $default_values->optionid = $optionid;
     $default_values->description = array('text' => $default_values->description, 'format' => FORMAT_HTML);
+    $default_values->completiontext = array('text' => $default_values->completiontext, 'format' => FORMAT_HTML);
     $default_values->notificationtext = array('text' => $default_values->notificationtext, 'format' => FORMAT_HTML);
     $default_values->id = $cm->id;
+
+    if ($default_values->bookingopeningtime) {
+        $default_values->restrictanswerperiodstart = "checked";
+    }
     if ($default_values->bookingclosingtime) {
-        $default_values->restrictanswerperiod = "checked";
+        $default_values->restrictanswerperiodend = "checked";
     }
     if ($default_values->coursestarttime) {
         $default_values->startendtimeknown = "checked";

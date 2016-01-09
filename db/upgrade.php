@@ -950,6 +950,69 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015110600, 'booking');
     }
 
+    if ($oldversion < 2015120102) {
+        // Setting for show date and time or only date if the time ist out of the booking time in booking and booking_option.         
+        $table = new xmldb_table('booking');
+
+        $field = new xmldb_field('showdatetime', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'timeclose');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        
+        $table = new xmldb_table('booking_options');
+        
+        $field = new xmldb_field('bookingopeningtime', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'maxoverbooking');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        $field = new xmldb_field('showdatetime', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'bookingclosingtime');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+         // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2015120102, 'booking');
+    }
+    
+     if ($oldversion < 2016010500) {
+
+        $table = new xmldb_table('booking_options');
+        
+        $field = new xmldb_field('notificationtext', XMLDB_TYPE_TEXT, null, null, null, null, null, 'removeafterminutes');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'completiontext');
+        }
+        
+        // Rename notifcationtextformat to completiontextformat
+        $field = new xmldb_field('notificationtextformat', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'notificationtext');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'completiontextformat');
+        }
+                
+        // Add field notificationoption
+        $field = new xmldb_field('notificationoption', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'daystonotify');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    
+        // Add field notificationtext
+        $field = new xmldb_field('notificationtext', XMLDB_TYPE_TEXT, 'medium', null, null, null, null, 'notificationoption');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        // Add field notificationtextformat.
+        $field = new xmldb_field('notificationtextformat', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'notificationtext');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);  
+        }
+        
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2016011600, 'booking');
+    }
+    
     return true;
 }
 

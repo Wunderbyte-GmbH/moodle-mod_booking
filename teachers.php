@@ -41,8 +41,11 @@ $subscriberselector = new booking_potential_subscriber_selector('potentialsubscr
 $subscriberselector->set_existing_subscribers($existingselector->find_users(''));
 $subscriberselector->set_extra_fields(array('email'));
 
+$option = $DB->get_record("booking_options", array("id" => $optionid)); 
+$booking = $DB->get_record("booking", array("id" => $option->bookingid));
+$booking->lblteachname = (empty($booking->lblteachname) ? get_string('teachers_constant', 'booking') : $booking->lblteachname);
+
 if ($edit === 0) {
-    $option = $DB->get_record("booking_options", array("id" => $optionid));
     $allSubscribedTeachers = booking_subscribed_teachers($course, $optionid, $id, $currentgroup, $context);
     $mform = new mod_booking_teachers_form(null, array('teachers' => $allSubscribedTeachers, 'option' => $option, 'cm' => $cm, 'id' => $id, 'optionid' => $optionid, 'edit' => $edit));
 
@@ -97,14 +100,14 @@ if ($edit === 0) {
 }
 
 if ($edit === 1) {
-    $PAGE->navbar->add(get_string('addteachers', 'booking'));
+    $PAGE->navbar->add(get_string('addteachers', 'booking', $booking));
 } else {
-    $PAGE->navbar->add(get_string('teachers', 'booking'));
+    $PAGE->navbar->add(get_string('teachers', 'booking', $booking));
 }
 
 
 
-$PAGE->set_title(get_string('addteachers', 'booking'));
+$PAGE->set_title(get_string('addteachers', 'booking', $booking));
 $PAGE->set_heading($COURSE->fullname);
 
 
@@ -117,9 +120,9 @@ if (has_capability('mod/booking:updatebooking', $context)) {
 }
 echo $output->header();
 if ($edit === 1) {
-    echo $output->heading(get_string('addteachers', 'booking'));
+    echo $output->heading(get_string('addteachers', 'booking', $booking)); // MV added $booking
 } else {
-    echo $output->heading(get_string('teachers', 'booking'));
+    echo $output->heading(get_string('teachers', 'booking', $booking)); // MV added $booking
 }
 
 echo html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)), get_string('users', 'booking'), array('style' => 'float:right;'));

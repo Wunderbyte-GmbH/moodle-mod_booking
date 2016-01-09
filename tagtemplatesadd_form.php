@@ -17,6 +17,7 @@ class tagtemplatesadd_form extends moodleform {
         $mform->addElement('text', 'tag', get_string('tagtag', 'booking')); // Add elements to your form
         $mform->setType('tag', PARAM_NOTAGS);                   //Set type of element
         $mform->addRule('tag', null, 'required', null, 'client');
+        $mform->addHelpButton('tag', 'tagtag', 'mod_booking');
         
         $mform->addElement('editor', 'text', get_string('tagtext', 'booking'), null, null); // Add elements to your form
         $mform->setType('text', PARAM_CLEANHTML);

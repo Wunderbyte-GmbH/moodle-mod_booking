@@ -38,7 +38,7 @@ function booking_cron() {
 
                 $value->sent = 1;
 
-                booking_send_notification($value->id, get_string('notificationsubject', 'booking'));
+                booking_send_notification($value->id, get_string('notificationtextsubject', 'booking'));
 
                 $DB->update_record("booking_options", $value);
             }
@@ -184,8 +184,11 @@ function booking_add_instance($booking) {
         $booking->categoryid = implode(',', $booking->categoryid);
     }
 
-    if (empty($booking->timerestrict)) {
+    if (empty($booking->timerestrictstart)) {
         $booking->timeopen = 0;
+    }
+    
+    if (empty($booking->timerestrictend)) {
         $booking->timeclose = 0;
     }
 
@@ -253,8 +256,11 @@ function booking_update_instance($booking) {
     $context = context_module::instance($cm->id);
     file_save_draft_area_files($booking->myfilemanager, $context->id, 'mod_booking', 'myfilemanager', $booking->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 50));
 
-    if (empty($booking->timerestrict)) {
+    if (empty($booking->timerestrictstart)) {
         $booking->timeopen = 0;
+    }
+    
+    if (empty($booking->timerestrictend)) {
         $booking->timeclose = 0;
     }
 
@@ -312,7 +318,7 @@ function booking_update_options($optionvalues) {
     $option->howmanyusers = $optionvalues->howmanyusers;
     $option->removeafterminutes = $optionvalues->removeafterminutes;
 
-    $option->notificationtext = $optionvalues->notificationtext;
+    $option->completiontext = $optionvalues->completiontext;
     $option->disablebookingusers = $optionvalues->disablebookingusers;
 
     $option->sent = 0;
@@ -322,6 +328,8 @@ function booking_update_options($optionvalues) {
     $option->address = trim($optionvalues->address);
 
     $option->daystonotify = $optionvalues->daystonotify;
+    $option->notificationoption = $optionvalues->notificationoption;
+    $option->notificationtext = $optionvalues->notificationtext;
     $option->pollurl = $optionvalues->pollurl;
     $option->pollurlteachers = $optionvalues->pollurlteachers;
     if ($optionvalues->limitanswers == 0) {
@@ -333,11 +341,17 @@ function booking_update_options($optionvalues) {
         $option->maxoverbooking = $optionvalues->maxoverbooking;
         $option->limitanswers = 1;
     }
-    if (isset($optionvalues->restrictanswerperiod)) {
+     if (isset($optionvalues->restrictanswerperiodstart)) {
+        $option->bookingopeningtime = $optionvalues->bookingopeningtime;
+    } else {
+        $option->bookingopeningtime = 0;
+    }    
+    if (isset($optionvalues->restrictanswerperiodend)) {
         $option->bookingclosingtime = $optionvalues->bookingclosingtime;
     } else {
         $option->bookingclosingtime = 0;
     }
+    $option ->showdatetime = $optionvalues->showdatetime;
     $option->courseid = $optionvalues->courseid;
     if (isset($optionvalues->startendtimeknown)) {
         $option->coursestarttime = $optionvalues->coursestarttime;
@@ -696,15 +710,33 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
                 $optiondisplay->button = $OUTPUT->single_button($url, (empty($booking->booking->btnbooknowname) ? get_string('booknow', 'booking') : $booking->booking->btnbooknowname), 'post');
             }
 
-            if (($option->limitanswers && ($option->status == "full")) || ($option->status == "closed") || !$underlimit) {
+            if (($option->limitanswers && ($option->status == "full")) || ($option->status == "closed") || 
+                 ($option->status == "closedforbookingstart") || ($option->status == "closedforbookingend")|| !$underlimit) {
                 $optiondisplay->button = '';
             }
 
-            if ($booking->booking->cancancelbook == 0 && $option->courseendtime > 0 && $option->courseendtime < time()) {
-                $optiondisplay->button = '';
+           // If the setting “cancancelbook” is set to No and already started the course, then the user can no longer book.
+            $printstatus = '';
+            if ($booking->booking->cancancelbook == 0 && $option->coursestarttime > 0 && $option->coursestarttime < time()) {
+                if($option->courseendtime > time ()) {
+                    $optiondisplay->button =  get_string('nobookingforstarttime', booking);
+                }
+                else {
+                    $optiondisplay->button =  get_string('nobookingforendtime', booking);
+                }
                 $optiondisplay->delete = '';
+                $optiondisplay->booked = '';
+                $printstatus = 'no';
             }
 
+            // If the setting “cancancelbook” is set to Yes, then the user can still book within the course time.
+            if ($booking->booking->cancancelbook == 1 && $option->courseendtime > 0 && $option->courseendtime < time()) {
+                $optiondisplay->button =  get_string('nobookingforendtime', booking);
+                $optiondisplay->delete = '';
+                $optiondisplay->booked = '';
+                $printstatus = 'no';
+            }
+            
             // Dont display button Book now if it's disabled
             if ($option->disablebookingusers) {
                 $optiondisplay->button = '';
@@ -721,7 +753,13 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
             if (!$option->limitanswers) {
                 $stravailspaces = get_string("unlimited", 'booking');
             } else {
-                $stravailspaces = get_string("placesavailable", "booking") . ": " . $option->availspaces . " / " . $option->maxanswers . "<br />" . get_string("waitingplacesavailable", "booking") . ": " . $option->availwaitspaces . " / " . $option->maxoverbooking;
+                // Display avialable places/maximal places
+                $stravailspaces = get_string("placesavailable", "booking") . ": " . $option->availspaces . " / " . $option->maxanswers . "<br />";
+                
+                // Display avialable waitinglist places / maximal watinglist places
+                if($option->maxoverbooking > 0) {
+                    $stravailspaces .= get_string("waitingplacesavailable", "booking") . ": " . $option->availwaitspaces . " / " . $option->maxoverbooking;
+                }
             }
 
             if (has_capability('mod/booking:readresponses', $context) || booking_check_if_teacher($option, $user)) {
@@ -740,7 +778,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
 
             if ($cTeachers > 0) {
                 $printTeachers = "<p>";
-                $printTeachers .= (empty($booking->booking->lblteachname) ? get_string('teachers', 'booking') : $booking->booking->lblteachname) . ': ';
+                $printTeachers .= (empty($booking->booking->lblteachname) ? get_string('teachers_constant', 'booking') : $booking->booking->lblteachname) . ': ';
 
                 foreach ($teachers as $teacher) {
                     $tmpuser = $DB->get_record('user', array('id' => $teacher->userid));
@@ -762,8 +800,16 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
                 $additionalInfo .= '<p>' . get_string('address', "booking") . ': ' . $option->address . '</p>';
             }
 
+            // Query whether (print)status is No
+            if($printstatus == 'no') {
+                $status = '';
+            }
+            else {
+                $status = get_string($option->status, "booking", $option);
+            }
+            
             $row = new html_table_row(array("<span id=\"option{$option->id}\"></span>" . $bookingbutton . $optiondisplay->booked . '
-		<br />' . get_string($option->status, "booking") . '
+		<br />' . $status . '
 		<br />' . $optiondisplay->delete . $optiondisplay->manage . '
 		<br />' . $optiondisplay->bookotherusers,
                 "<b>" . format_text($option->text . ' ', FORMAT_MOODLE, $displayoptions) . "</b>" . "<p>" . $option->description . "</p>" . $printTeachers . $additionalInfo,
@@ -1202,7 +1248,12 @@ function booking_send_notification($optionid, $subject) {
             $ruser = $DB->get_record('user', array('id' => $record->id));
 
             $params = booking_generate_email_params($bookingData->booking, $bookingData->option, $ruser, $cm->id);
+            if ($bookingData->option->notificationoption == 0) {
             $pollurlmessage = booking_get_email_body($bookingData->booking, 'notificationtext', 'notificationtextmessage', $params);
+            }
+            else if ($bookingData->option->notificationoption == 1) {
+                $pollurlmessage = booking_get_email_body($option, 'notificationtext', 'notificationtextmessage', $params);
+            }
 
             $eventdata = new stdClass();
             $eventdata->modulename = 'booking';
@@ -1241,6 +1292,10 @@ function booking_delete_instance($id) {
         $result = false;
     }
 
+    if (!$DB->delete_records("booking_teachers", array("bookingid" => "$booking->id"))) {
+        $result = false;
+    }
+
     if (!$DB->delete_records("booking_options", array("bookingid" => "$booking->id"))) {
         $result = false;
     }
@@ -1249,6 +1304,24 @@ function booking_delete_instance($id) {
         $result = false;
     }
 
+    // Delete if there aren't any booking activities in the course
+    if(!$bookingexist = $DB->get_records("booking", array("course" => $booking->course))) {
+        // Delete categories
+        if(!$DB->delete_records("booking_category", array("course" => $booking->course))) {
+            $result = false;
+        }
+        
+        // Delete institutions
+        if(!$DB->delete_records("booking_institutions", array("course" => $booking->course))) {
+            $result = false;
+        }
+        
+        // Delete TAGS
+        if(!$DB->delete_records("booking_tags", array("courseid" => $booking->course))) {
+            $result = false;
+        }
+    }
+    
     return $result;
 }
 
@@ -1377,7 +1450,12 @@ function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' =>
                 $booking->option[$option->id]->status = "closed";
             }
             if ($option->bookingclosingtime) {
+                if ($booking->option[$option->id]->showdatetime == 0) {
+                    $booking->option[$option->id]->bookingclosingtime = userdate($option->bookingclosingtime, '', false);
+                }
+                else if ($booking->option[$option->id]->showdatetime == 1) {
                 $booking->option[$option->id]->bookingclosingtime = userdate($option->bookingclosingtime, get_string('strftimedate'), '', false);
+                }
             } else {
                 $booking->option[$option->id]->bookingclosingtime = false;
             }
@@ -1593,6 +1671,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $params->enddate = $option->courseendtime ? userdate($option->courseendtime, $dateformat) : '';
     $params->courselink = $courselink;
     $params->bookinglink = $bookinglink;
+    $params->notificationtext = $option->notificationtext;
     $params->location = $option->location;
     $params->institution = $option->institution;
     $params->address = $option->address;

@@ -23,6 +23,8 @@ $string['bookingtext'] = 'Booking text';
 $string['expired'] = 'Sorry, this activity closed on {$a} and is no longer available';
 $string['fillinatleastoneoption'] = 'You need to provide at least two possible answers.';
 $string['full'] = 'Full';
+$string['nobookingforstarttime'] = 'This activity started already.<br />Booking not available anymore.';
+$string['nobookingforendtime'] = 'This activity ended already.<br />Booking not available anymore.';
 $string['goenrol'] = 'Go to registration';
 $string['gotop'] = 'Go to top';
 $string['havetologin'] = 'You have to log in before you can submit your booking';
@@ -42,42 +44,27 @@ $string['spaceleft'] = 'space available';
 $string['spacesleft'] = 'spaces available';
 $string['taken'] = 'Taken';
 $string['timerestrict'] = 'Restrict answering to this time period';
+$string['timerestrictstart'] = 'Specify booking start time';
+$string['timerestrictend'] = 'Specify booking end time';
+$string['to'] = 'to';
 $string['viewallresponses'] = 'Manage {$a} responses';
 $string['yourselection'] = 'Your selection';
 $string['existingsubscribers'] = 'Existing subscribers';
 $string['potentialsubscribers'] = 'Potential subscribers';
 $string['nosubscribers'] = 'There are no teachers assigned!';
 $string['subscribersto'] = 'Teachers for  \'{$a}\'';
-$string['teachers'] = 'Teachers: ';
-$string['daystonotify'] = 'How many days before start of event to notify participaints?';
-$string['notificationsubject'] = 'Upcoming course...';
+$string['teachers'] = '{$a->lblteachname}';
+$string['teachers_constant'] = 'Teachers';
 
 $string['eventreport_viewed'] = 'Report viewed';
 $string['eventbookingoption_booked'] = 'Booking option booked';
-$string['eventbooking_cancelled'] = 'Booking canceled'; 
-$string['to'] = 'to';
+$string['eventbooking_cancelled'] = 'Booking canceled';
+$string['eventuserprofilefields_updated'] = 'Nutzerprofil aktualisiert';
 
 // subscribeusers.php
 $string['backtoresponses'] = '<< Back to responses';
 $string['allchangessave'] = 'All changes have been saved.';
 
-// Bookingform
-$string['location'] = 'Location';
-$string['institution'] = 'Institution';
-$string['address'] = 'Address';
-$string['conectedoption'] = 'Connected option';
-$string['conectedoption_help'] = '';
-$string['howmanyusers'] = 'How many users you can book?';
-$string['howmanyusers_help'] = '';
-$string['limitanswers_help'] = 'If you change this option and you have booked people, you can remove them without notification!';
-$string['removeafterminutes'] = 'Remove activity completion after N minutes';
-$string['advancedoptions'] = 'Advanced options';
-$string['btncacname'] = 'Name of button "Confirm activity completion"';
-$string['lblteachname'] = 'Name of label "Teachers"';
-$string['lblsputtname'] = 'Name of label "Send poll url to teachers"';
-$string['btnbooknowname'] = 'Name of button "Book now"';
-$string['btncancelname'] = 'Name of button "Cancel booking"';
-$string['disablebookingusers'] = 'Disable booking of users - hide Book now button.';
 
 // Categories
 $string['category'] = 'Category';
@@ -120,6 +107,8 @@ $string['userdownload'] = 'Download users';
 $string['allbookingoptions'] = 'Download users for all booking options';
 $string['subscribetocourse'] = 'Enrol users in the course';
 $string['closed'] = 'Booking closed';
+$string['closedforbookingend'] = 'Booking closed on<br />{$a->bookingclosingtime}.';
+$string['closedforbookingstart'] = 'Booking closed until<br />{$a->bookingopeningtime}.';
 $string['waitspaceavailable'] = 'Places on waiting list available';
 $string['onwaitinglist'] = 'You are on the waiting list';
 $string['waitinglist'] = 'On waiting list';
@@ -155,10 +144,53 @@ $string['addnewtagtemplate'] = 'Add new';
 $string['addnewtagtemplate'] = 'Add new tag template';
 $string['savenewtagtemplate'] = 'Save';
 $string['tagtag'] = 'Tag';
+$string['tagtag_help'] = 'This tag can be added in mail text: [name_of_the_tag]';
 $string['tagtext'] = 'Text';
 $string['wrongdataallfields'] = 'Please, fill all fields!';
 $string['tagsucesfullysaved'] = 'Tag was sucesfully saved.';
 $string['edittag'] = 'Edit';
+
+// Bookingform
+$string['address'] = 'Address';
+$string['answerperiod'] = 'Booking duration';
+$string['completion'] = 'Completion settings';
+$string['completiontext'] = 'Text shown on activity completion.';
+$string['completiontext_help'] = 'This text is displayed to the booking teacher (or other persons which have the capability \'mod/booking:readresponses\') if these confirm the participants the completion.';
+$string['connections'] = 'Connections';
+$string['connectedoption'] = 'Connected option';
+$string['connectedoption_help'] = 'You can connect this activity with another booking activities, condition that in this course there are other booking activities';
+$string['coursestart'] = 'Course duration, calendar entry and course notification';
+$string['daystonotify'] = 'How many days before start of event to notify participaints?';
+$string['howmanyusers'] = 'How many users you can book?';
+$string['howmanyusers_help'] = '';
+$string['institution'] = 'Institution';
+$string['location'] = 'Location';
+$string['removeafterminutes'] = 'Remove activity completion after N minutes';
+$string['startendtimeknown'] = 'Start and end time of course are known';
+$string['disablebookingusers'] = 'Disable booking of users - hide Book now button.';
+$string['notificationoption'] = 'Options for notification text';
+$string['notificationoption_help'] = 'You can send specific information via email.<br />
+There are two possibilities:<br />
+- Option 1: Adding this text by inserting {notificationtext} in notification text of the activity \'booking\'.<br />
+- Option 2: Send this text instead of the notification text of the activity \'booking\'.';
+$string['notificationoptionadd'] = 'Add text to the notification text of the activity';
+$string['notificationoptionextra'] = 'Only use this notification text';
+
+// bookingform.class.php and mod_form.php
+$string['cutoffdatevalidation'] = 'The time for the booking must be later than the end of the booking start.';
+$string['limitanswer'] = 'Limit the number of participants';
+$string['limitanswers'] = 'Activate participant limit';
+$string['limitanswers_help'] = 'If you change this option and you have booked people, you can remove them without notification!';
+$string['notificationtext'] = 'Notification message';
+$string['showdatetime'] = 'Show date and/or time';
+$string['showdatetime_help'] = 'If the time out of the booking time then should be showed:<br />
+- date and time<br />or<br />
+- only date<br /><br />
+IMPORTANT: This setting is only a display setting,
+which means the time must also be considered in the setting \'only date\'!';
+$string['showdateandtime'] = 'date and time';
+$string['showdefaultfromactivitysetting'] = 'Accept setting of activity.';
+$string['showonlydate'] = 'only date';
 
 // mod_form
 $string['conectedbooking'] = 'Connected booking';
@@ -166,10 +198,8 @@ $string['notconectedbooking'] = 'Not connected';
 $string['conectedbooking_help'] = '';
 $string['cancancelbook'] = 'Allow user to cancel or book their booking when it is started?';
 $string['addtocalendar'] = 'Add to calendar';
-$string['limitanswers'] = 'Limit the number of participants';
 $string['maxparticipantsnumber'] = 'Max. number of participants';
 $string['maxoverbooking'] = 'Max. number of places on waiting list';
-$string['defaultbookingoption'] = 'Default booking options';
 $string['sendconfirmmail'] = 'Send confirmation email';
 $string['sendconfirmmailtobookingmanger'] = 'Send confirmation email to booking manager';
 $string['allowdelete'] = 'Allow users to cancel their booking themselves';
@@ -429,7 +459,6 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 <li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 
-$string['notificationtext'] = 'Notification message';
 $string['maxperuser'] = 'Max current bookings per user';
 $string['maxperuser_help'] = 'The maximum number of bookings an individual user can make in this activity at once. After an event end time has passed, it is no longer counted against this limit.';
 $string['bookingduration'] = 'Duration';
@@ -452,17 +481,22 @@ $string['eventtype'] = 'Event type';
 $string['reset'] = 'Reset';
 $string['showinapi'] = 'Show in API?';
 $string['editinstitutions'] = 'Edit institutions';
+
 $string['customlabels'] = 'Custom labels';
 $string['lblbooking'] = 'Name of label "Booking"';
 $string['lbllocation'] = 'Name of label "Location"';
 $string['lblinstitution'] = 'Name of label "Institution"';
 $string['lblname'] = 'Name of label "Name"';
 $string['lblsurname'] = 'Name of label "Surname"';
+$string['btncacname'] = 'Name of button "Confirm activity completion"';
+$string['lblteachname'] = 'Name of label "Teachers"';
+$string['lblsputtname'] = 'Name of label "Send poll url to teachers"';
+$string['btnbooknowname'] = 'Name of button "Book now"';
+$string['btncancelname'] = 'Name of button "Cancel booking"';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';
 $string['choosecourse'] = 'Choose a course';
-$string['startendtimeknown'] = 'Start and end time of course are known';
 $string['coursestarttime'] = 'Start time of the course';
 $string['courseendtime'] = 'End time of the course';
 $string['addeditbooking'] = 'Edit booking';
@@ -475,7 +509,6 @@ $string['sendmailtobooker'] = 'Book other users page: Send mail to user who book
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to
   the user who books other users instead to users, who have been added to a booking option.
   This is only relevant for bookings made on the page "book other users".';
-$string['notificationtext'] = 'Notification text shown on activity completion.';
 
 // importoptions.php
 $string['importcsvtitle'] = 'Import CSV';
@@ -593,7 +626,7 @@ $string['waitinglistusers'] = 'Users on waiting list';
 $string['downloadallresponses'] = 'Download all responses for all booking options';
 $string['allmailssend'] = 'All emails to users have been sent sucesfully!';
 $string['sendcustommessage'] = 'Send custom message';
-$string['addteachers'] = 'Add teachers';
+$string['addteachers'] = 'Add {$a->lblteachname}';
 $string['nocourse'] = 'No course selected for this booking option';
 $string['userrssucesfullenroled'] = 'All users has been sucesfully enroled!';
 $string['searchName'] = 'Name';
@@ -623,7 +656,6 @@ $string['confirmactivitycompletion'] = 'Confirm activity completion';
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';
 
 // teachers.php
-$string['teachers'] = 'Teachers';
 $string['users'] = '<< Manage responses';
 
 // lib.php
