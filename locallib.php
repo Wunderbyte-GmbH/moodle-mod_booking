@@ -1298,6 +1298,7 @@ class booking_utils {
             $params->startdate = $option->coursestarttime ? userdate($option->coursestarttime, $dateformat) : '';
             $params->enddate = $option->courseendtime ? userdate($option->courseendtime, $dateformat) : '';
             $params->courselink = $courselink;
+            $params->notificationtext = $option->notificationtext;
             $params->location = $option->location;
             $params->institution = $option->institution;
             $params->address = $option->address;

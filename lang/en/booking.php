@@ -55,8 +55,6 @@ $string['nosubscribers'] = 'There are no teachers assigned!';
 $string['subscribersto'] = 'Teachers for  \'{$a}\'';
 $string['teachers'] = '{$a->lblteachname}';
 $string['teachers_constant'] = 'Teachers';
-$string['daystonotify'] = 'How many days before start of event to notify participaints?';
-$string['notificationsubject'] = 'Upcoming course...';
 
 $string['eventreport_viewed'] = 'Report viewed';
 $string['eventbookingoption_booked'] = 'Booking option booked';
@@ -153,31 +151,37 @@ $string['tagsucesfullysaved'] = 'Tag was sucesfully saved.';
 $string['edittag'] = 'Edit';
 
 // Bookingform
-$string['location'] = 'Location';
-$string['institution'] = 'Institution';
 $string['address'] = 'Address';
 $string['answerperiod'] = 'Booking duration';
+$string['completion'] = 'Completion settings';
+$string['completiontext'] = 'Text shown on activity completion.';
+$string['completiontext_help'] = 'This text is displayed to the booking teacher (or other persons which have the capability \'mod/booking:readresponses\') if these confirm the participants the completion.';
 $string['connections'] = 'Connections';
 $string['connectedoption'] = 'Connected option';
 $string['connectedoption_help'] = 'You can connect this activity with another booking activities, condition that in this course there are other booking activities';
+$string['coursestart'] = 'Course duration, calendar entry and course notification';
+$string['daystonotify'] = 'How many days before start of event to notify participaints?';
 $string['howmanyusers'] = 'How many users you can book?';
 $string['howmanyusers_help'] = '';
+$string['institution'] = 'Institution';
+$string['location'] = 'Location';
 $string['removeafterminutes'] = 'Remove activity completion after N minutes';
-$string['coursestart'] = 'Course duration, calendar entry and course notification';
 $string['startendtimeknown'] = 'Start and end time of course are known';
-$string['advancedoptions'] = 'Advanced options';
-$string['btncacname'] = 'Name of button "Confirm activity completion"';
-$string['lblteachname'] = 'Name of label "Teachers"';
-$string['lblsputtname'] = 'Name of label "Send poll url to teachers"';
-$string['btnbooknowname'] = 'Name of button "Book now"';
-$string['btncancelname'] = 'Name of button "Cancel booking"';
 $string['disablebookingusers'] = 'Disable booking of users - hide Book now button.';
+$string['notificationoption'] = 'Options for notification text';
+$string['notificationoption_help'] = 'You can send specific information via email.<br />
+There are two possibilities:<br />
+- Option 1: Adding this text by inserting {notificationtext} in notification text of the activity \'booking\'.<br />
+- Option 2: Send this text instead of the notification text of the activity \'booking\'.';
+$string['notificationoptionadd'] = 'Add text to the notification text of the activity';
+$string['notificationoptionextra'] = 'Only use this notification text';
 
 // bookingform.class.php and mod_form.php
 $string['cutoffdatevalidation'] = 'The time for the booking must be later than the end of the booking start.';
 $string['limitanswer'] = 'Limit the number of participants';
 $string['limitanswers'] = 'Activate participant limit';
 $string['limitanswers_help'] = 'If you change this option and you have booked people, you can remove them without notification!';
+$string['notificationtext'] = 'Notification message';
 $string['showdatetime'] = 'Show date and/or time';
 $string['showdatetime_help'] = 'If the time out of the booking time then should be showed:<br />
 - date and time<br />or<br />
@@ -455,7 +459,6 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 <li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 
-$string['notificationtext'] = 'Notification message';
 $string['maxperuser'] = 'Max current bookings per user';
 $string['maxperuser_help'] = 'The maximum number of bookings an individual user can make in this activity at once. After an event end time has passed, it is no longer counted against this limit.';
 $string['bookingduration'] = 'Duration';
@@ -478,12 +481,18 @@ $string['eventtype'] = 'Event type';
 $string['reset'] = 'Reset';
 $string['showinapi'] = 'Show in API?';
 $string['editinstitutions'] = 'Edit institutions';
+
 $string['customlabels'] = 'Custom labels';
 $string['lblbooking'] = 'Name of label "Booking"';
 $string['lbllocation'] = 'Name of label "Location"';
 $string['lblinstitution'] = 'Name of label "Institution"';
 $string['lblname'] = 'Name of label "Name"';
 $string['lblsurname'] = 'Name of label "Surname"';
+$string['btncacname'] = 'Name of button "Confirm activity completion"';
+$string['lblteachname'] = 'Name of label "Teachers"';
+$string['lblsputtname'] = 'Name of label "Send poll url to teachers"';
+$string['btnbooknowname'] = 'Name of button "Book now"';
+$string['btncancelname'] = 'Name of button "Cancel booking"';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';
@@ -500,7 +509,6 @@ $string['sendmailtobooker'] = 'Book other users page: Send mail to user who book
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to
   the user who books other users instead to users, who have been added to a booking option.
   This is only relevant for bookings made on the page "book other users".';
-$string['notificationtext'] = 'Notification text shown on activity completion.';
 
 // importoptions.php
 $string['importcsvtitle'] = 'Import CSV';

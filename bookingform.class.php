@@ -134,11 +134,18 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->setType('daystonotify', PARAM_INT);
         $mform->disabledIf('daystonotify', 'startendtimeknown', 'notchecked');
 
+        // MV START
+        $notificationoptions = array(0 => get_string('notificationoptionadd', 'booking'),
+                                     1 => get_string('notificationoptionextra', 'booking'));
+        $mform->addElement('select', 'notificationoption', get_string('notificationoption', 'booking'), $notificationoptions);
+        $mform->setDefault('notificationoption', 0);
+        $mform->addHelpButton('notificationoption', 'notificationoption', 'booking');
+        // MV END
+        
         $mform->addElement('editor', 'notificationtext', get_string('notificationtext', 'booking'));
         $mform->setType('notificationtext', PARAM_CLEANHTML);   
 
-
-        // --- conections ----------------
+        // --- connections ----------------
 
         $mform->addElement('header', 'connections', get_string('connections', 'booking'));
 
@@ -173,12 +180,16 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->setType('pollurlteachers', PARAM_TEXT);
         $mform->addHelpButton('pollurlteachers', 'pollurlteachers', 'mod_booking');
 
-        // --- Advanced options ------------------------------------------------------------
-        $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));        
+        // --- Completion options ------------------------------------------------------------
+        $mform->addElement('header', 'completion', get_string('completion', 'booking'));        
 
         $mform->addElement('text', 'removeafterminutes', get_string('removeafterminutes', 'booking'), 0);
         $mform->setType('removeafterminutes', PARAM_INT);   
         
+        $mform->addElement('editor', 'completiontext', get_string('completiontext', 'booking'));
+        $mform->setType('completiontext', PARAM_CLEANHTML);
+        $mform->addHelpButton('completiontext', 'completiontext', 'mod_booking');
+       
         //hidden elements
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
@@ -216,6 +227,13 @@ class mod_booking_bookingform_form extends moodleform {
         if (!isset($default_values['notificationtext'])) {
             $default_values['notificationtext'] = '';
         }
+         if (!isset($default_values['notificationtextformat'])) {
+            $default_values['notificationtext'] = FORMAT_HTML;
+    }
+
+        if (!isset($default_values['notificationtext'])) {
+            $default_values['notificationtext'] = '';
+        }      
     }
 
     public function validation($data, $files) {
@@ -251,6 +269,9 @@ class mod_booking_bookingform_form extends moodleform {
 
             $data->notificationtextformat = $data->notificationtext['format'];
             $data->notificationtext = $data->notificationtext['text'];
+            
+            $data->completiontextformat = $data->completiontext['format'];
+            $data->completiontext = $data->completiontext['text'];
         }
         return $data;
     }

@@ -38,7 +38,7 @@ function booking_cron() {
 
                 $value->sent = 1;
 
-                booking_send_notification($value->id, get_string('notificationsubject', 'booking'));
+                booking_send_notification($value->id, get_string('notificationtextsubject', 'booking'));
 
                 $DB->update_record("booking_options", $value);
             }
@@ -318,7 +318,7 @@ function booking_update_options($optionvalues) {
     $option->howmanyusers = $optionvalues->howmanyusers;
     $option->removeafterminutes = $optionvalues->removeafterminutes;
 
-    $option->notificationtext = $optionvalues->notificationtext;
+    $option->completiontext = $optionvalues->completiontext;
     $option->disablebookingusers = $optionvalues->disablebookingusers;
 
     $option->sent = 0;
@@ -328,6 +328,8 @@ function booking_update_options($optionvalues) {
     $option->address = trim($optionvalues->address);
 
     $option->daystonotify = $optionvalues->daystonotify;
+    $option->notificationoption = $optionvalues->notificationoption;
+    $option->notificationtext = $optionvalues->notificationtext;
     $option->pollurl = $optionvalues->pollurl;
     $option->pollurlteachers = $optionvalues->pollurlteachers;
     if ($optionvalues->limitanswers == 0) {
@@ -1246,7 +1248,12 @@ function booking_send_notification($optionid, $subject) {
             $ruser = $DB->get_record('user', array('id' => $record->id));
 
             $params = booking_generate_email_params($bookingData->booking, $bookingData->option, $ruser, $cm->id);
+            if ($bookingData->option->notificationoption == 0) {
             $pollurlmessage = booking_get_email_body($bookingData->booking, 'notificationtext', 'notificationtextmessage', $params);
+            }
+            else if ($bookingData->option->notificationoption == 1) {
+                $pollurlmessage = booking_get_email_body($option, 'notificationtext', 'notificationtextmessage', $params);
+            }
 
             $eventdata = new stdClass();
             $eventdata->modulename = 'booking';
@@ -1664,6 +1671,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $params->enddate = $option->courseendtime ? userdate($option->courseendtime, $dateformat) : '';
     $params->courselink = $courselink;
     $params->bookinglink = $bookinglink;
+    $params->notificationtext = $option->notificationtext;
     $params->location = $option->location;
     $params->institution = $option->institution;
     $params->address = $option->address;

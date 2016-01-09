@@ -56,7 +56,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
             'coursestarttime', 'courseendtime', 'description', 'descriptionformat', 'limitanswers', 'timemodified',
             'addtocalendar', 'calendarid', 'pollurl', 'groupid', 'daystonotify', 'notificationtext', 'notificationtextformat', 
             'sent', 'location', 'institution', 'address', 'pollurlteachers', 'conectedoption', 'howmanyusers', 'pollsend', 
-            'removeafterminutes', 'disablebookingusers'));
+            'removeafterminutes', 'completiontext', 'completiontextformat', 'disablebookingusers'));
 
         $answers = new backup_nested_element('answers');
 

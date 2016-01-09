@@ -159,6 +159,7 @@ class mod_booking_mod_form extends moodleform_mod {
                     'enddate' => '{enddate}',
                     'courselink' => '{courselink}',
                     'bookinglink' => '{bookinglink}',
+                    'notificationtext' => '{notificationtext}',
                     'location' => '{location}',
                     'institution' => '{institution}',
                     'address' => '{address}',

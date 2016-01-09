@@ -237,7 +237,7 @@ if (!$download) {
             }
 
             booking_activitycompletion($allSelectedUsers, $bookingData->booking, $cm->id, $optionid);
-            redirect($url, (empty($bookingData->option->notificationtext) ? get_string('activitycompletionsuccess', 'booking') : $bookingData->option->notificationtext), 5);
+            redirect($url, (empty($bookingData->option->completiontext) ? get_string('activitycompletionsuccess', 'booking') : $bookingData->option->completiontext), 5);
         } else if (isset($_POST['booktootherbooking']) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
             if (empty($allSelectedUsers)) {
                 redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
