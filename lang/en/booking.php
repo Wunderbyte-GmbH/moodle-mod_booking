@@ -604,6 +604,7 @@ $string['onlythisbookingurl'] = 'Only this booking URL';
 $string['gotobooking'] = '<< Bookings';
 $string['nousers'] = 'No users!';
 $string['booktootherbooking'] = 'Book users to other booking';
+$string['lblbooktootherbooking'] = 'Name of button "Book users to other booking"';
 $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
 $string['selectatleastoneuser'] = 'Please, select at least 1 user!';
 $string['userssucesfullybooked'] = 'All users have been sucesfully booked to other booking.';

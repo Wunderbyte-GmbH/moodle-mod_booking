@@ -980,6 +980,21 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015122101, 'booking');
     }
 
+    if ($oldversion < 2016011200) {
+
+        // Define field booktootherbooking to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('booktootherbooking', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'btncancelname');
+
+        // Conditionally launch add field booktootherbooking.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2016011200, 'booking');
+    }
+
     return true;
 }
 

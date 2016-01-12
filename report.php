@@ -425,8 +425,10 @@ if (!$download) {
             echo "<br>";
             
             echo html_writer::select($options, 'selectoptionid', '');
+            
+            $labelBooktootherbooking = (empty($bookingData->booking->booktootherbooking) ? get_string('booktootherbooking', 'booking') : $bookingData->booking->booktootherbooking);
 
-            echo '<input type="submit" name="booktootherbooking" value="' . get_string('booktootherbooking', 'booking') . '" />';
+            echo '<input type="submit" name="booktootherbooking" value="' . $labelBooktootherbooking . '" />';
         }
     }
 

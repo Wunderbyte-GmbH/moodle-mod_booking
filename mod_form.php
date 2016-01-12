@@ -257,6 +257,9 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('text', 'lblsurname', get_string('lblsurname', 'booking'), array('size' => '64'));
         $mform->setType('lblsurname', PARAM_TEXT);
         
+        $mform->addElement('text', 'booktootherbooking', get_string('lblbooktootherbooking', 'booking'), array('size' => '64'));
+        $mform->setType('booktootherbooking', PARAM_TEXT);
+        
         //-------------------------------------------------------------------------------
         $mform->addElement('header', 'miscellaneoussettingshdr', get_string('miscellaneoussettings', 'form'));
 
