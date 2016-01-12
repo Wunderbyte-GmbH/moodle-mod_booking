@@ -414,7 +414,7 @@ if (!$download) {
     if (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
         echo '<input type="submit" name="activitycompletion" value="' . (empty($bookingData->booking->btncacname) ? get_string('confirmactivitycompletion', 'booking') : $bookingData->booking->btncacname) . '" />';
         if ($bookingData->booking->conectedbooking > 0) {
-            $result = $DB->get_records_select("booking_options", "bookingid = {$bookingData->booking->conectedbooking} AND id <> {$optionid}", null, 'id, text');
+            $result = $DB->get_records_select("booking_options", "bookingid = {$bookingData->booking->conectedbooking} AND id <> {$optionid}", null, 'text ASC', 'id, text');
             
             $options = array();
             
