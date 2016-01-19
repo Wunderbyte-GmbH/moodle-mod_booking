@@ -610,6 +610,7 @@ $string['selectatleastoneuser'] = 'Please, select at least 1 user!';
 $string['userssucesfullybooked'] = 'All users have been sucesfully booked to other booking.';
 $string['optionid'] = 'Option ID';
 $string['selectoptionid'] = 'Please, select option!';
+$string['editotherbooking'] = 'Other booking rules';
 
 // Send message
 $string['messagesubject'] = 'Subject';
@@ -650,3 +651,14 @@ $string['institutionname'] = 'Institution name';
 $string['addnewinstitution'] = 'Add new institution';
 $string['sucesfulldeletedinstitution'] = 'Institution was sucesfully deleted';
 $string['csvfile_help'] = 'CSV file must contain only one column named Institution.';
+
+// otherbooking.php
+$string['otherbookingoptions'] = 'Booking option';
+$string['otherbookingnumber'] = 'Num. of users';
+$string['otherbookingaddrule'] = 'Add new rule';
+$string['editrule'] = "Edit";
+
+// otherbookingaddrule_form.php
+$string['selectoptioninotherbooking'] = "Option";
+$string['otherbookinglimit'] = "Limit";
+$string['otherbookingsucesfullysaved'] = 'Rule sucesfully saved!';

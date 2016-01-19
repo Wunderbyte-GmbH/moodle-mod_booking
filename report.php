@@ -246,12 +246,14 @@ if (!$download) {
             if (!isset($_POST['selectoptionid']) || empty($_POST['selectoptionid'])) {
                 redirect($url, get_string('selectoptionid', 'booking'), 5);
             }
-            
+
             if (count($allSelectedUsers) > $bookingData->calculateHowManyCanBookToOther($_POST['selectoptionid'])) {
                 redirect($url, get_string('toomuchusersbooked', 'booking', $bookingData->calculateHowManyCanBookToOther($_POST['selectoptionid'])), 5);
-            }                    
+            }
+            
+            $connectedBooking = $DB->get_record("booking", array('conectedbooking' => $bookingData->booking->id), 'id', IGNORE_MULTIPLE);
 
-            $tmpcmid = $DB->get_record_sql("SELECT cm.id FROM {course_modules} cm JOIN {modules} md ON md.id = cm.module JOIN {booking} m ON m.id = cm.instance WHERE md.name = 'booking' AND cm.instance = ?", array($bookingData->booking->conectedbooking));
+            $tmpcmid = $DB->get_record_sql("SELECT cm.id FROM {course_modules} cm JOIN {modules} md ON md.id = cm.module JOIN {booking} m ON m.id = cm.instance WHERE md.name = 'booking' AND cm.instance = ?", array($connectedBooking->id));
             $tmpBooking = new booking_option($tmpcmid->id, $_POST['selectoptionid']);
 
             foreach ($allSelectedUsers as $value) {
@@ -346,6 +348,10 @@ if (!$download) {
         $links[] = html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid, 'action' => 'sendpollurlteachers')), (empty($bookingData->booking->lblsputtname) ? get_string('booking:sendpollurltoteachers', 'booking') : $bookingData->booking->lblsputtname), array());
     }
 
+    if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) && $bookingData->booking->conectedbooking > 0) {
+        $links[] = html_writer::link(new moodle_url('/mod/booking/otherbooking.php', array('cmid' => $id, 'optionid' => $optionid)), get_string('editotherbooking', 'booking'), array());
+    }
+
     echo implode(" | ", $links);
 
     if ($bookingData->option->courseid != 0) {
@@ -413,22 +419,30 @@ if (!$download) {
 
     if (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
         echo '<input type="submit" name="activitycompletion" value="' . (empty($bookingData->booking->btncacname) ? get_string('confirmactivitycompletion', 'booking') : $bookingData->booking->btncacname) . '" />';
-        if ($bookingData->booking->conectedbooking > 0) {
-            $result = $DB->get_records_select("booking_options", "bookingid = {$bookingData->booking->conectedbooking} AND id <> {$optionid}", null, 'text ASC', 'id, text');
-            
-            $options = array();
-            
-            foreach ($result as $value) {
-                $options[$value->id] = $value->text;
-            }
-            
-            echo "<br>";
-            
-            echo html_writer::select($options, 'selectoptionid', '');
-            
-            $labelBooktootherbooking = (empty($bookingData->booking->booktootherbooking) ? get_string('booktootherbooking', 'booking') : $bookingData->booking->booktootherbooking);
 
-            echo '<input type="submit" name="booktootherbooking" value="' . $labelBooktootherbooking . '" />';
+        $connectedBooking = $DB->get_record("booking", array('conectedbooking' => $bookingData->booking->id), 'id', IGNORE_MULTIPLE);
+
+        if ($connectedBooking) {
+            $allLimits = $DB->get_records_sql("SELECT bo.*, b.text
+                        FROM mdl_booking_other AS bo
+                        LEFT JOIN mdl_booking_options AS b ON b.id = bo.optionid
+                        WHERE b.bookingid = ? AND bo.otheroptionid = ?", array($connectedBooking->id, $optionid));
+
+            if ($allLimits) {
+                $options = array();
+
+                foreach ($allLimits as $value) {
+                    $options[$value->optionid] = $value->text;
+                }
+
+                echo "<br>";
+
+                echo html_writer::select($options, 'selectoptionid', '');
+
+                $labelBooktootherbooking = (empty($bookingData->booking->booktootherbooking) ? get_string('booktootherbooking', 'booking') : $bookingData->booking->booktootherbooking);
+
+                echo '<input type="submit" name="booktootherbooking" value="' . $labelBooktootherbooking . '" />';
+            }
         }
     }
 

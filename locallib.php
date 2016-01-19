@@ -184,7 +184,14 @@ class booking_option extends booking {
                 }
             }
 
-            return (int) $this->option->howmanyusers - (int) $alredyBooked;
+            $howMany = $DB->get_record_sql("SELECT userslimit FROM {booking_other} WHERE optionid = ? AND otheroptionid = ?", array($optionid, $this->optionid));
+            
+            $howManyNum = 0;
+            if ($howMany) {
+                $howManyNum = $howMany->userslimit;
+            }
+            
+            return (int) $howManyNum - (int) $alredyBooked;
         } else {
             return 0;
         }
