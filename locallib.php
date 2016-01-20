@@ -70,7 +70,7 @@ class booking {
     public function get_canbook_userids() {
         //TODO check if course has guest access if not get all enrolled users and check with has_capability if user has right to book
         //$this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose', 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
-        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id');        
+        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id');
     }
 
     /**
@@ -184,13 +184,31 @@ class booking_option extends booking {
                 }
             }
 
-            $howMany = $DB->get_record_sql("SELECT userslimit FROM {booking_other} WHERE optionid = ? AND otheroptionid = ?", array($optionid, $this->optionid));
-            
-            $howManyNum = 0;
-            if ($howMany) {
-                $howManyNum = $howMany->userslimit;
+            $connectedBooking = $DB->get_record("booking", array('conectedbooking' => $this->booking->id), 'id', IGNORE_MULTIPLE);
+
+            if ($connectedBooking) {
+
+                $noLimits = $DB->get_records_sql("SELECT bo.*, b.text
+                        FROM mdl_booking_other AS bo
+                        LEFT JOIN mdl_booking_options AS b ON b.id = bo.optionid
+                        WHERE b.bookingid = ?", array($connectedBooking->id));
+
+                if (!$noLimits) {
+                    $howManyNum = $this->option->howmanyusers;
+                } else {
+                    $howMany = $DB->get_record_sql("SELECT userslimit FROM {booking_other} WHERE optionid = ? AND otheroptionid = ?", array($optionid, $this->optionid));
+
+                    $howManyNum = 0;
+                    if ($howMany) {
+                        $howManyNum = $howMany->userslimit;
+                    }
+                }
             }
-            
+
+            if ($howManyNum == 0) {
+                $howManyNum = 999999;
+            }
+
             return (int) $howManyNum - (int) $alredyBooked;
         } else {
             return 0;
@@ -582,11 +600,11 @@ class booking_option extends booking {
 
         $underlimit = ($this->booking->maxperuser == 0);
         $underlimit = $underlimit || (booking_get_user_booking_count($this, $user, NULL) < $this->booking->maxperuser);
-        
+
         if (!$underlimit) {
             return FALSE;
         }
-        
+
         if (!($currentanswerid = $DB->get_field('booking_answers', 'id', array('userid' => $user->id, 'optionid' => $this->optionid)))) {
             $newanswer = new stdClass();
             $newanswer->bookingid = $this->id;
@@ -1116,7 +1134,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
 
     public function find_users($search) {
         global $DB, $USER;
-        
+
         $fields = "SELECT " . $this->required_fields_sql("u");
         $countfields = 'SELECT COUNT(1)';
         list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
@@ -1277,8 +1295,8 @@ class booking_utils {
             if ($option->courseid) {
                 $courselink = new moodle_url('/course/view.php', array('id' => $option->courseid));
                 $courselink = html_writer::link($courselink, $courselink->out());
-            }            
-            
+            }
+
             $params->title = s($option->text);
             $params->starttime = $option->coursestarttime ? userdate($option->coursestarttime, $timeformat) : '';
             $params->endtime = $option->courseendtime ? userdate($option->courseendtime, $timeformat) : '';

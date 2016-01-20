@@ -14,6 +14,7 @@ require_once('otherbookingaddrule_form.php');
 $cmid = required_param('cmid', PARAM_INT);                 // Course Module ID
 $optionid = required_param('optionid', PARAM_INT);     // Option ID
 $obid = optional_param('obid', 0, PARAM_INT);
+$delete = optional_param('delete', 0, PARAM_INT);
 
 $url = new moodle_url('/mod/booking/otherbookingaddrule.php', array('cmid' => $cmid, 'optionid' => $optionid, 'obid' => $obid));
 $urlRedirect = new moodle_url('/mod/booking/otherbooking.php', array('cmid' => $cmid, 'optionid' => $optionid));
@@ -40,6 +41,12 @@ if (!$context = context_module::instance($cm->id)) {
 
 require_capability('mod/booking:updatebooking', $context);
 
+if ($delete == 1) {
+    $DB->delete_records("booking_other", array("id" => $obid));
+
+    redirect($urlRedirect, get_string("deletedrule", "booking"), 5);
+}
+
 $PAGE->navbar->add(get_string("otherbookingaddrule", "booking"));
 $PAGE->set_title(format_string(get_string("otherbookingaddrule", "booking")));
 $PAGE->set_heading(get_string("otherbookingaddrule", "booking"));
@@ -57,7 +64,7 @@ if ($mform->is_cancelled()) {
     $rule = new stdClass();
     $rule->id = $data->id;
     $rule->optionid = $optionid;
-    $rule->otheroptionid = (int)$data->otheroptionid;
+    $rule->otheroptionid = (int) $data->otheroptionid;
     $rule->userslimit = $data->userslimit;
 
     if ($rule->id > 0) {

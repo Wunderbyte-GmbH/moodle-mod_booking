@@ -250,7 +250,7 @@ if (!$download) {
             if (count($allSelectedUsers) > $bookingData->calculateHowManyCanBookToOther($_POST['selectoptionid'])) {
                 redirect($url, get_string('toomuchusersbooked', 'booking', $bookingData->calculateHowManyCanBookToOther($_POST['selectoptionid'])), 5);
             }
-            
+
             $connectedBooking = $DB->get_record("booking", array('conectedbooking' => $bookingData->booking->id), 'id', IGNORE_MULTIPLE);
 
             $tmpcmid = $DB->get_record_sql("SELECT cm.id FROM {course_modules} cm JOIN {modules} md ON md.id = cm.module JOIN {booking} m ON m.id = cm.instance WHERE md.name = 'booking' AND cm.instance = ?", array($connectedBooking->id));
@@ -423,16 +423,19 @@ if (!$download) {
         $connectedBooking = $DB->get_record("booking", array('conectedbooking' => $bookingData->booking->id), 'id', IGNORE_MULTIPLE);
 
         if ($connectedBooking) {
-            $allLimits = $DB->get_records_sql("SELECT bo.*, b.text
+
+            $noLimits = $DB->get_records_sql("SELECT bo.*, b.text
                         FROM mdl_booking_other AS bo
                         LEFT JOIN mdl_booking_options AS b ON b.id = bo.optionid
-                        WHERE b.bookingid = ? AND bo.otheroptionid = ?", array($connectedBooking->id, $optionid));
+                        WHERE b.bookingid = ?", array($connectedBooking->id));
 
-            if ($allLimits) {
+            if (!$noLimits) {
+                $result = $DB->get_records_select("booking_options", "bookingid = {$connectedBooking->id} AND id <> {$optionid}", null, 'text ASC', 'id, text');
+
                 $options = array();
 
-                foreach ($allLimits as $value) {
-                    $options[$value->optionid] = $value->text;
+                foreach ($result as $value) {
+                    $options[$value->id] = $value->text;
                 }
 
                 echo "<br>";
@@ -442,6 +445,27 @@ if (!$download) {
                 $labelBooktootherbooking = (empty($bookingData->booking->booktootherbooking) ? get_string('booktootherbooking', 'booking') : $bookingData->booking->booktootherbooking);
 
                 echo '<input type="submit" name="booktootherbooking" value="' . $labelBooktootherbooking . '" />';
+            } else {
+                $allLimits = $DB->get_records_sql("SELECT bo.*, b.text
+                        FROM mdl_booking_other AS bo
+                        LEFT JOIN mdl_booking_options AS b ON b.id = bo.optionid
+                        WHERE b.bookingid = ? AND bo.otheroptionid = ?", array($connectedBooking->id, $optionid));
+
+                if ($allLimits) {
+                    $options = array();
+
+                    foreach ($allLimits as $value) {
+                        $options[$value->optionid] = $value->text;
+                    }
+
+                    echo "<br>";
+
+                    echo html_writer::select($options, 'selectoptionid', '');
+
+                    $labelBooktootherbooking = (empty($bookingData->booking->booktootherbooking) ? get_string('booktootherbooking', 'booking') : $bookingData->booking->booktootherbooking);
+
+                    echo '<input type="submit" name="booktootherbooking" value="' . $labelBooktootherbooking . '" />';
+                }
             }
         }
     }

@@ -657,6 +657,8 @@ $string['otherbookingoptions'] = 'Booking option';
 $string['otherbookingnumber'] = 'Num. of users';
 $string['otherbookingaddrule'] = 'Add new rule';
 $string['editrule'] = "Edit";
+$string['deleterule'] = 'Delete';
+$string['deletedrule'] = 'Rule sucesfully deleted.';
 
 // otherbookingaddrule_form.php
 $string['selectoptioninotherbooking'] = "Option";
