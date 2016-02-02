@@ -161,7 +161,7 @@ $string['edittag'] = 'Edit';
 // mod_form
 $string['conectedbooking'] = 'Connected booking';
 $string['notconectedbooking'] = 'Not connected';
-$string['conectedbooking_help'] = '';
+$string['conectedbooking_help'] = 'From which booking you accept users. You can define from which option and how many users you will accept.';
 $string['cancancelbook'] = 'Allow user to cancel or book their booking when it is started?';
 $string['addtocalendar'] = 'Add to calendar';
 $string['limitanswers'] = 'Limit the number of participants';
@@ -663,4 +663,5 @@ $string['deletedrule'] = 'Rule sucesfully deleted.';
 // otherbookingaddrule_form.php
 $string['selectoptioninotherbooking'] = "Option";
 $string['otherbookinglimit'] = "Limit";
+$string['otherbookinglimit_help'] = "How many users you accept from option. If 0, you can accept unlimited users.";
 $string['otherbookingsucesfullysaved'] = 'Rule sucesfully saved!';

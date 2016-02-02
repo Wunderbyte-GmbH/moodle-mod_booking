@@ -41,7 +41,8 @@ WHERE
         $mform->addElement('text', 'userslimit', get_string('otherbookinglimit', 'booking'), null, null); // Add elements to your form
         $mform->setType('userslimit', PARAM_INT);
         $mform->addRule('userslimit', null, 'numeric', null, 'client');
-
+        $mform->addHelpButton('userslimit', 'otherbookinglimit', 'mod_booking');
+        
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 

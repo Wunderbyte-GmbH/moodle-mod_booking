@@ -37,13 +37,15 @@ if (!$context = context_module::instance($cm->id)) {
 
 require_capability('mod/booking:updatebooking', $context);
 
+$option = new booking_option($cmid, $optionid);
+
 $PAGE->navbar->add(get_string("editotherbooking", "booking"));
 $PAGE->set_title(format_string(get_string("editotherbooking", "booking")));
 $PAGE->set_heading(get_string("editotherbooking", "booking"));
 $PAGE->set_pagelayout('standard');
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string("editotherbooking", "booking"), 3, 'helptitle', 'uniqueid');
+echo $OUTPUT->heading(get_string("editotherbooking", "booking") . " [{$option->option->text}]", 3, 'helptitle', 'uniqueid');
 
 $table = new html_table();
 $table->head = array(get_string('otherbookingoptions', 'booking'), get_string('otherbookingnumber', 'booking'));
@@ -62,7 +64,13 @@ foreach ($rules as $rule) {
     
     $edit = new moodle_url('otherbookingaddrule.php', array('cmid' => $cm->id, 'optionid' => $optionid, 'obid' => $rule->id));
     $delete = new moodle_url('otherbookingaddrule.php', array('cmid' => $cm->id, 'optionid' => $optionid, 'obid' => $rule->id, 'delete' => 1));
-    $button = $OUTPUT->single_button($edit, get_string('editrule', 'booking'), 'get') . $OUTPUT->single_button($delete, get_string('deleterule', 'booking'), 'get');    
+        
+    $button = '<div style="width: 100%; text-align: right; display:table;">';
+    $buttone = $OUTPUT->single_button($edit, get_string('editrule', 'booking'), 'get');
+    $button .= html_writer::tag('span', $buttone, array('style' => 'text-align: right; display:table-cell;'));
+    $buttond = $OUTPUT->single_button($delete, get_string('deleterule', 'booking'), 'get');    
+    $button .= html_writer::tag('span', $buttond, array('style' => 'text-align: left; display:table-cell;'));
+    $button .= '</div>';
     
     $rulesTable[] = array("{$rule->text}", $rule->userslimit, html_writer::tag('span', $button, array('style' => 'text-align: right; display:table-cell;')));
 }
