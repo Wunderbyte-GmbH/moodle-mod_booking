@@ -654,7 +654,7 @@ $string['sucesfulldeletedinstitution'] = 'Institution was sucesfully deleted';
 $string['csvfile_help'] = 'CSV file must contain only one column named Institution.';
 
 // otherbooking.php
-$string['otherbookingoptions'] = 'Booking option';
+$string['otherbookingoptions'] = 'Accepting from';
 $string['otherbookingnumber'] = 'Num. of users';
 $string['otherbookingaddrule'] = 'Add new rule';
 $string['editrule'] = "Edit";
