@@ -611,6 +611,7 @@ $string['userssucesfullybooked'] = 'All users have been sucesfully booked to oth
 $string['optionid'] = 'Option ID';
 $string['selectoptionid'] = 'Please, select option!';
 $string['editotherbooking'] = 'Other booking rules';
+$string['bookingfulldidntregister'] = 'Option is full, so I didn\'t transfer all users!';
 
 // Send message
 $string['messagesubject'] = 'Subject';

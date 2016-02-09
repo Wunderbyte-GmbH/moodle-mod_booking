@@ -259,10 +259,12 @@ if (!$download) {
             foreach ($allSelectedUsers as $value) {
                 $user = new stdClass();
                 $user->id = $value;
-                $tmpBooking->user_submit_response($user, $optionid);
+                if (!$tmpBooking->user_submit_response($user, $optionid)) {
+                    redirect($url, get_string('bookingfulldidntregister', 'booking'), 5);
+                }
             }
 
-            redirect($url, get_string('userssucesfullybooked', 'booking', $bookingData->calculateHowManyCanBookToOther($_POST['selectoptionid'])), 5);
+            redirect($url, get_string('userssucesfullybooked', 'booking'), 5);
         }
     }
 
