@@ -226,7 +226,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // Custom labels
         $mform->addElement('header', 'customlabels', get_string('customlabels', 'mod_booking'));
-        
+
         $mform->addElement('text', 'btncacname', get_string('btncacname', 'booking'), array('size' => '64'));
         $mform->setType('btncacname', PARAM_TEXT);
 
@@ -235,31 +235,37 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('text', 'lblsputtname', get_string('lblsputtname', 'booking'), array('size' => '64'));
         $mform->setType('lblsputtname', PARAM_TEXT);
-        
+
         $mform->addElement('text', 'btnbooknowname', get_string('btnbooknowname', 'booking'), array('size' => '64'));
         $mform->setType('btnbooknowname', PARAM_TEXT);
 
         $mform->addElement('text', 'btncancelname', get_string('btncancelname', 'booking'), array('size' => '64'));
         $mform->setType('btncancelname', PARAM_TEXT);
-        
+
         $mform->addElement('text', 'lblbooking', get_string('lblbooking', 'booking'), array('size' => '64'));
         $mform->setType('lblbooking', PARAM_TEXT);
-        
+
         $mform->addElement('text', 'lbllocation', get_string('lbllocation', 'booking'), array('size' => '64'));
         $mform->setType('lbllocation', PARAM_TEXT);
-        
+
         $mform->addElement('text', 'lblinstitution', get_string('lblinstitution', 'booking'), array('size' => '64'));
         $mform->setType('lblinstitution', PARAM_TEXT);
-        
+
         $mform->addElement('text', 'lblname', get_string('lblname', 'booking'), array('size' => '64'));
         $mform->setType('lblname', PARAM_TEXT);
-        
+
         $mform->addElement('text', 'lblsurname', get_string('lblsurname', 'booking'), array('size' => '64'));
         $mform->setType('lblsurname', PARAM_TEXT);
-        
+
         $mform->addElement('text', 'booktootherbooking', get_string('lblbooktootherbooking', 'booking'), array('size' => '64'));
         $mform->setType('booktootherbooking', PARAM_TEXT);
-        
+
+        $mform->addElement('text', 'lblacceptingfrom', get_string('lblacceptingfrom', 'booking'), array('size' => '64'));
+        $mform->setType('lblacceptingfrom', PARAM_TEXT);
+
+        $mform->addElement('text', 'lblnumofusers', get_string('lblnumofusers', 'booking'), array('size' => '64'));
+        $mform->setType('lblnumofusers', PARAM_TEXT);
+
         //-------------------------------------------------------------------------------
         $mform->addElement('header', 'miscellaneoussettingshdr', get_string('miscellaneoussettings', 'form'));
 

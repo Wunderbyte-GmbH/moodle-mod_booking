@@ -48,7 +48,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("editotherbooking", "booking") . " [{$option->option->text}]", 3, 'helptitle', 'uniqueid');
 
 $table = new html_table();
-$table->head = array(get_string('otherbookingoptions', 'booking'), get_string('otherbookingnumber', 'booking'));
+$table->head = array((empty($option->booking->lblacceptingfrom) ? get_string('otherbookingoptions', 'booking') : $option->booking->lblacceptingfrom), (empty($option->booking->lblnumofusers) ? get_string('otherbookingnumber', 'booking') : $option->booking->lblnumofusers));
 
 $rules = $DB->get_records_sql("SELECT 
     bo.id, bo.otheroptionid, bo.userslimit, b.text

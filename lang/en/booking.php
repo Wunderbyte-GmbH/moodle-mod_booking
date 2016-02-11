@@ -456,6 +456,8 @@ $string['lbllocation'] = 'Name of label "Location"';
 $string['lblinstitution'] = 'Name of label "Institution"';
 $string['lblname'] = 'Name of label "Name"';
 $string['lblsurname'] = 'Name of label "Surname"';
+$string['lblacceptingfrom'] = 'Name of label "Accepting from"';
+$string['lblnumofusers'] = 'Name of label "Num. of users"';
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';

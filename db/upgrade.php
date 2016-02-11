@@ -1055,6 +1055,28 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016011901, 'booking');
     }
 
+    if ($oldversion < 2016021100) {
+
+        // Define field lblacceptingfrom to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('lblacceptingfrom', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'booktootherbooking');
+
+        // Conditionally launch add field lblacceptingfrom.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lblnumofusers', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'lblacceptingfrom');
+
+        // Conditionally launch add field lblnumofusers.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2016021100, 'booking');
+    }
 
     return true;
 }
