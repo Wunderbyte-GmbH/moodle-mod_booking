@@ -24,7 +24,7 @@ WHERE
                 LEFT JOIN
             {booking} AS b ON bo.bookingid = b.id
         WHERE
-            bo.id = ?)", array($this->_customdata['optionid']));
+            bo.id = ?) ORDER BY text ASC", array($this->_customdata['optionid']));
 
         $bookingoptionsarray = array();
 
