@@ -206,8 +206,16 @@ if (!$download) {
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+        $allSelectedUsers = array();
+
         if (isset($_POST['generaterecnum']) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:updatebooking', $context))) {
-            booking_generatenewnumners($bookingData->booking, $cm->id, $optionid);
+            if (isset($_POST['user'])) {
+                foreach($_POST['user'] as $value) {
+                    $allSelectedUsers[] = array_keys($value)[0];
+                }
+            }
+
+            booking_generatenewnumners($bookingData->booking, $cm->id, $optionid, $allSelectedUsers);
 
             redirect($url, get_string('generaterecnumnotification', 'booking'), 5);
         }
@@ -542,28 +550,38 @@ if (!$download) {
         }
         /// Print names of all the fields
 
+        $i = 0;
+
         if ($action == "all") {
-            $myxls->write_string(0, 0, get_string("optionid", "booking"));
-            $myxls->write_string(0, 1, get_string("booking", "booking"));
-            $myxls->write_string(0, 2, get_string("institution", "booking"));
-            $myxls->write_string(0, 3, get_string("location", "booking"));
-            $myxls->write_string(0, 4, get_string("coursestarttime", "booking"));
-            $myxls->write_string(0, 5, get_string("courseendtime", "booking"));
-            $myxls->write_string(0, 6, get_string("user")." ".get_string("idnumber"));
-            $myxls->write_string(0, 7, get_string("firstname"));
-            $myxls->write_string(0, 8, get_string("lastname"));
-            $myxls->write_string(0, 9, get_string("email"));
-            $myxls->write_string(0, 10, get_string("searchFinished", "booking"));
-            $i = 11;
+            $myxls->write_string(0, $i++, get_string("optionid", "booking"));
+            $myxls->write_string(0, $i++, get_string("booking", "booking"));
+            $myxls->write_string(0, $i++, get_string("institution", "booking"));
+            $myxls->write_string(0, $i++, get_string("location", "booking"));
+            $myxls->write_string(0, $i++, get_string("coursestarttime", "booking"));
+            $myxls->write_string(0, $i++, get_string("courseendtime", "booking"));
+            if ($bookingData->booking->numgenerator) {
+                $myxls->write_string(0, $i++, get_string("numrec", "booking"));
+            }
+            $myxls->write_string(0, $i++, get_string("user")." ".get_string("idnumber"));
+            $myxls->write_string(0, $i++, get_string("firstname"));
+            $myxls->write_string(0, $i++, get_string("lastname"));
+            $myxls->write_string(0, $i++, get_string("email"));
+            $myxls->write_string(0, $i++, get_string("searchFinished", "booking"));
         } else {
-            $myxls->write_string(0, 0, get_string("optionid", "booking"));
-            $myxls->write_string(0, 1, get_string("booking", "booking"));
-            $myxls->write_string(0, 2, get_string("user")." ".get_string("idnumber"));
-            $myxls->write_string(0, 3, get_string("firstname"));
-            $myxls->write_string(0, 4, get_string("lastname"));
-            $myxls->write_string(0, 5, get_string("email"));
-            $myxls->write_string(0, 6, get_string("searchFinished", "booking"));
-            $i = 7;
+            $myxls->write_string(0, $i++, get_string("optionid", "booking"));
+            $myxls->write_string(0, $i++, get_string("booking", "booking"));
+            $myxls->write_string(0, $i++, get_string("institution", "booking"));
+            $myxls->write_string(0, $i++, get_string("location", "booking"));
+            $myxls->write_string(0, $i++, get_string("coursestarttime", "booking"));
+            $myxls->write_string(0, $i++, get_string("courseendtime", "booking"));
+            if ($bookingData->booking->numgenerator) {
+                $myxls->write_string(0, $i++, get_string("numrec", "booking"));
+            }
+            $myxls->write_string(0, $i++, get_string("user")." ".get_string("idnumber"));
+            $myxls->write_string(0, $i++, get_string("firstname"));
+            $myxls->write_string(0, $i++, get_string("lastname"));
+            $myxls->write_string(0, $i++, get_string("email"));
+            $myxls->write_string(0, $i++, get_string("searchFinished", "booking"));
         }
         $addfields = explode(',', $bookingData->booking->additionalfields);
         $addquoted = "'".implode("','", $addfields)."'";
@@ -587,43 +605,52 @@ if (!$download) {
                 $coursestarttime = $bookingData->option->coursestarttime;
                 $courseendtime = $bookingData->option->courseendtime;
 
-
                 foreach($bookingData->users as $usernumber => $user) {
+
+                    $i = 0;
+
                     if ($user->waitinglist) {
                         $cellform = $cellformat1;
                     } else {
                         $cellform = $cellformat;
                     }
 
-                    $myxls->write_string($row, 0, format_string($bookingData->option->id, true));
+                    $myxls->write_string($row, $i++, format_string($bookingData->option->id, true));
 
                     if (isset($option_text)) {
-                        $myxls->write_string($row, 1, format_string($option_text, true));
+                        $myxls->write_string($row, $i++, format_string($option_text, true));
                     }
 
                     if (isset($institution)) {
-                        $myxls->write_string($row, 2, format_string($institution, true));
+                        $myxls->write_string($row, $i++, format_string($institution, true));
                     }
 
                     if (isset($location)) {
-                        $myxls->write_string($row, 3, format_string($location, true));
+                        $myxls->write_string($row, $i++, format_string($location, true));
                     }
 
                     if (isset($coursestarttime) && $coursestarttime > 0) {
-                        $myxls->write_string($row, 4, userdate($coursestarttime, get_string('strftimedatetime')));
+                        $myxls->write_string($row, $i++, userdate($coursestarttime, get_string('strftimedatetime')));
+                    } else {
+                        $myxls->write_string($row, $i++, '');
                     }
 
                     if (isset($courseendtime) && $courseendtime > 0) {
-                        $myxls->write_string($row, 5, userdate($courseendtime, get_string('strftimedatetime')));
+                        $myxls->write_string($row, $i++, userdate($courseendtime, get_string('strftimedatetime')));
+                    } else {
+                        $myxls->write_string($row, $i++, '');
                     }
 
-                    $myxls->write_string($row, 6, $user->id, $cellform);
-                    $myxls->write_string($row, 7, $user->firstname, $cellform);
-                    $myxls->write_string($row, 8, $user->lastname, $cellform);
-                    $myxls->write_string($row, 9, $user->email, $cellform);
-                    $myxls->write_string($row, 10, $user->completed, $cellform);
-                    $i = 11;
-                    if ($DB->get_records_select('user_info_data', 'userid = '.$user->id, array(), 'fieldid')) {
+                    if ($bookingData->booking->numgenerator) {
+                        $myxls->write_string($row, $i++, $user->numrec, $cellform);
+                    }
+
+                    $myxls->write_string($row, $i++, $user->userid, $cellform);
+                    $myxls->write_string($row, $i++, $user->firstname, $cellform);
+                    $myxls->write_string($row, $i++, $user->lastname, $cellform);
+                    $myxls->write_string($row, $i++, $user->email, $cellform);
+                    $myxls->write_string($row, $i++, $user->completed, $cellform);
+                    if ($DB->get_records_select('user_info_data', 'userid = '.$user->userid, array(), 'fieldid')) {
                         foreach($userprofilefields as $profilefieldid => $profilefield) {
                             $fType = $DB->get_field('user_info_field', 'datatype', array('shortname' => $profilefield->shortname));
                             $value = $DB->get_field('user_info_data', 'data', array('fieldid' => $profilefieldid, 'userid' => $user->id), NULL, IGNORE_MISSING);
@@ -653,26 +680,57 @@ if (!$download) {
             }
         } else { // get list of one specified booking option: $action is $optionid
             foreach($bookingData->get_all_users() as $usernumber => $user) {
+
+                $i = 0;
+
                 $bookingData = new booking_option($cm->id, $optionid);
                 $bookingData->apply_tags();
                 $option_text = $bookingData->option->text;
+                $institution = $bookingData->option->institution;
+                $location = $bookingData->option->location;
+                $coursestarttime = $bookingData->option->coursestarttime;
+                $courseendtime = $bookingData->option->courseendtime;
 
                 if ($user->waitinglist) {
                     $cellform = $cellformat1;
                 } else {
                     $cellform = $cellformat;
                 }
-                $myxls->write_string($row, 0, format_string($bookingData->option->id, true));
+                $myxls->write_string($row, $i++, format_string($bookingData->option->id, true));
 
                 if (isset($option_text)) {
-                    $myxls->write_string($row, 1, format_string($option_text, true));
+                    $myxls->write_string($row, $i++, format_string($option_text, true));
                 }
-                $myxls->write_string($row, 2, $user->id, $cellform);
-                $myxls->write_string($row, 3, $user->firstname, $cellform);
-                $myxls->write_string($row, 4, $user->lastname, $cellform);
-                $myxls->write_string($row, 5, $user->email, $cellform);
-                $myxls->write_string($row, 6, $user->completed, $cellform);
-                $i = 7;
+
+                if (isset($institution)) {
+                    $myxls->write_string($row, $i++, format_string($institution, true));
+                }
+
+                if (isset($location)) {
+                    $myxls->write_string($row, $i++, format_string($location, true));
+                }
+
+                if (isset($coursestarttime) && $coursestarttime > 0) {
+                    $myxls->write_string($row, $i++, userdate($coursestarttime, get_string('strftimedatetime')));
+                } else {
+                    $myxls->write_string($row, $i++, '');
+                }
+
+                if (isset($courseendtime) && $courseendtime > 0) {
+                    $myxls->write_string($row, $i++, userdate($courseendtime, get_string('strftimedatetime')));
+                } else {
+                    $myxls->write_string($row, $i++, '');
+                }
+
+                if ($bookingData->booking->numgenerator) {
+                    $myxls->write_string($row, $i++, $user->numrec, $cellform);
+                }
+
+                $myxls->write_string($row, $i++, $user->id, $cellform);
+                $myxls->write_string($row, $i++, $user->firstname, $cellform);
+                $myxls->write_string($row, $i++, $user->lastname, $cellform);
+                $myxls->write_string($row, $i++, $user->email, $cellform);
+                $myxls->write_string($row, $i++, $user->completed, $cellform);
                 if ($DB->get_records_select('user_info_data', 'userid = '.$user->id, array(), 'fieldid')) {
                     foreach($userprofilefields as $profilefieldid => $profilefield) {
                         $fType = $DB->get_field('user_info_field', 'datatype', array('shortname' => $profilefield->shortname));

@@ -1038,17 +1038,33 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
 }
 
 // Generate new numbers for users
-function booking_generatenewnumners($bookingDataBooking, $cmid, $optionid) {
+function booking_generatenewnumners($bookingDataBooking, $cmid, $optionid, $allSelectedUsers) {
     global $DB;
-    
-    $allUsers = $DB->get_records('booking_answers', array('optionid' => $optionid));
-    
-    $recnum = 1;
-    
-    foreach ($allUsers as $user) {
-        $user->numrec = $recnum;
-        $DB->update_record('booking_answers', $user);
-        $recnum++;
+
+    if (!empty($allSelectedUsers)) {
+        $tmpRecNum = $DB->get_record_sql('SELECT numrec FROM {booking_answers} WHERE optionid = ? ORDER BY numrec DESC LIMIT 1', array($optionid));
+
+        if ($tmpRecNum->numrec == 0) {
+            $recnum = 1;
+        } else {
+            $recnum = $tmpRecNum->numrec + 1;
+        }
+
+        foreach($allSelectedUsers as $ui) {
+            $userData = $DB->get_record('booking_answers', array('optionid' => $optionid, 'userid' => $ui));
+            $userData->numrec = $recnum++;
+            $DB->update_record('booking_answers', $userData);
+        }
+
+    } else {
+        $allUsers = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY RAND()', array($optionid));
+
+        $recnum = 1;
+
+        foreach($allUsers as $user) {
+            $user->numrec = $recnum++;
+            $DB->update_record('booking_answers', $user);
+        }
     }
 }
 
