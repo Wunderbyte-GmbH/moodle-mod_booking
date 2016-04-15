@@ -458,6 +458,8 @@ $string['lblname'] = 'Name of label "Name"';
 $string['lblsurname'] = 'Name of label "Surname"';
 $string['lblacceptingfrom'] = 'Name of label "Accepting from"';
 $string['lblnumofusers'] = 'Name of label "Num. of users"';
+$string['numgenerator'] = 'Enable rec. number generation?';
+$string['paginationnum'] = "N. of records - pagination";
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';
@@ -614,6 +616,10 @@ $string['optionid'] = 'Option ID';
 $string['selectoptionid'] = 'Please, select option!';
 $string['editotherbooking'] = 'Other booking rules';
 $string['bookingfulldidntregister'] = 'Option is full, so I didn\'t transfer all users!';
+$string['numrec'] = "Rec. num.";
+$string['generaterecnum'] = "Generate numbers";
+$string['generaterecnumareyousure'] = "This will generate new numbers and permanently delete the old one!";
+$string['generaterecnumnotification'] = "New numbers where sucesfully generated.";
 
 // Send message
 $string['messagesubject'] = 'Subject';
@@ -667,4 +673,4 @@ $string['deletedrule'] = 'Rule sucesfully deleted.';
 $string['selectoptioninotherbooking'] = "Option";
 $string['otherbookinglimit'] = "Limit";
 $string['otherbookinglimit_help'] = "How many users you accept from option. If 0, you can accept unlimited users.";
-$string['otherbookingsucesfullysaved'] = 'Rule sucesfully saved!';
+$string['otherbookingsucesfullysaved'] = 'Rule sucesfully saved!'; 

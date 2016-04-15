@@ -1037,6 +1037,21 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
     }
 }
 
+// Generate new numbers for users
+function booking_generatenewnumners($bookingDataBooking, $cmid, $optionid) {
+    global $DB;
+    
+    $allUsers = $DB->get_records('booking_answers', array('optionid' => $optionid));
+    
+    $recnum = 1;
+    
+    foreach ($allUsers as $user) {
+        $user->numrec = $recnum;
+        $DB->update_record('booking_answers', $user);
+        $recnum++;
+    }
+}
+
 // Add activity completion to user.
 function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) {
     global $DB;

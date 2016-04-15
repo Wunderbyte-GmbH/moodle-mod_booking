@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 // This file keeps track of upgrades to 
 // the booking module
@@ -1076,6 +1076,51 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2016021100, 'booking');
+    }
+
+    if ($oldversion < 2016041500) {
+
+        // Define field numgenerator to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('numgenerator', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'lblnumofusers');
+
+        // Conditionally launch add field numgenerator.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2016041500, 'booking');
+    }
+
+    if ($oldversion < 2016041501) {
+
+        // Define field numrec to be added to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('numrec', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0', 'frombookingid');
+
+        // Conditionally launch add field numrec.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2016041501, 'booking');
+    }
+
+    if ($oldversion < 2016041502) {
+
+        // Define field paginationnum to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('paginationnum', XMLDB_TYPE_INTEGER, '5', null, XMLDB_NOTNULL, null, '25', 'numgenerator');
+
+        // Conditionally launch add field paginationnum.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2016041502, 'booking');
     }
 
     return true;
