@@ -1325,7 +1325,7 @@ function booking_get_groupmodedata() {
  * @param $view if we need it for editing or viewing
  * @return object with $booking->option as an array for the booking option valus for each booking option
  */
-function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), $view = TRUE) {
+function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), $view = TRUE, $optionid = null) {
     global $CFG, $DB;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
 
@@ -1346,14 +1346,21 @@ function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' =>
     $mainuserfields = user_picture::fields();
     $allresponses = get_users_by_capability($context, 'mod/booking:choose', $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
 
-    $bookingObject = new booking_options($cm->id, TRUE, $urlParams);
+    if (is_null($optionid)) {
+        $bookingObject = new booking_options($cm->id, TRUE, $urlParams);
+        $booking = $bookingObject->booking;
+        $options = $bookingObject->options;
+    } else {
+        $bookingObject = new booking_option($cm->id, $optionid);
+        $booking = $bookingObject->booking;
+        $options[$optionid] = $bookingObject->option;
+    }
 
     if ($view) {
         $bookingObject->apply_tags();
     }
 
-    $booking = $bookingObject->booking;
-    $options = $bookingObject->options;
+    
     if ($options) {
         $answers = $DB->get_records('booking_answers', array('bookingid' => $bookingid), 'id');
 
