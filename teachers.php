@@ -22,7 +22,7 @@ if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
 
 require_course_login($course, false, $cm);
 
-if (!$booking = booking_get_booking($cm, 'coursestarttime ASC')) {
+if (!$booking = booking_get_booking($cm, 'coursestarttime ASC', array(), true, $optionid)) {
     print_error("Course module is incorrect");
 }
 
@@ -117,9 +117,9 @@ if (has_capability('mod/booking:updatebooking', $context)) {
 }
 echo $output->header();
 if ($edit === 1) {
-    echo $output->heading(get_string('addteachers', 'booking'));
+    echo $output->heading(get_string('addteachers', 'booking') . " [{$booking->option[$optionid]->text}]");
 } else {
-    echo $output->heading(get_string('teachers', 'booking'));
+    echo $output->heading(get_string('teachers', 'booking') . " [{$booking->option[$optionid]->text}]");
 }
 
 echo html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)), get_string('users', 'booking'), array('style' => 'float:right;'));

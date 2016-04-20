@@ -70,7 +70,7 @@ class booking {
     public function get_canbook_userids() {
         //TODO check if course has guest access if not get all enrolled users and check with has_capability if user has right to book
         //$this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose', 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
-        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id');        
+        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id');
     }
 
     /**
@@ -144,22 +144,21 @@ class booking_option extends booking {
 
         parent::__construct($id);
         $this->optionid = $optionid;
-        $this->update_booked_users();
+        //$this->update_booked_users();
         $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', 'MUST_EXIST');
         $this->filters = $filters;
         $this->page = $page;
         $this->perpage = $perpage;
         $this->get_users();
-        $this->calculateHowManyCanBookToOther();
     }
 
-    public function calculateHowManyCanBookToOther() {
+    public function calculateHowManyCanBookToOther($optionid) {
         global $DB;
 
-        if (isset($this->option->conectedoption) && $this->option->conectedoption > 0) {
+        if (isset($optionid) && $optionid > 0) {
             $alredyBooked = 0;
 
-            $result = $DB->get_records_sql('SELECT answers.userid FROM {booking_answers} AS answers INNER JOIN {booking_answers} AS parent on parent.userid = answers.userid WHERE answers.optionid = ? AND parent.optionid = ?', array($this->optionid, $this->option->conectedoption));
+            $result = $DB->get_records_sql('SELECT answers.userid FROM {booking_answers} AS answers INNER JOIN {booking_answers} AS parent on parent.userid = answers.userid WHERE answers.optionid = ? AND parent.optionid = ?', array($this->optionid, $optionid));
 
             $alredyBooked = count($result);
 
@@ -185,9 +184,34 @@ class booking_option extends booking {
                 }
             }
 
-            $this->canBookToOtherBooking = (int) $this->option->howmanyusers - (int) $alredyBooked;
+            $connectedBooking = $DB->get_record("booking", array('conectedbooking' => $this->booking->id), 'id', IGNORE_MULTIPLE);
+
+            if ($connectedBooking) {
+
+                $noLimits = $DB->get_records_sql("SELECT bo.*, b.text
+                        FROM mdl_booking_other AS bo
+                        LEFT JOIN mdl_booking_options AS b ON b.id = bo.optionid
+                        WHERE b.bookingid = ?", array($connectedBooking->id));
+
+                if (!$noLimits) {
+                    $howManyNum = $this->option->howmanyusers;
+                } else {
+                    $howMany = $DB->get_record_sql("SELECT userslimit FROM {booking_other} WHERE optionid = ? AND otheroptionid = ?", array($optionid, $this->optionid));
+
+                    $howManyNum = 0;
+                    if ($howMany) {
+                        $howManyNum = $howMany->userslimit;
+                    }
+                }
+            }
+
+            if ($howManyNum == 0) {
+                $howManyNum = 999999;
+            }
+
+            return (int) $howManyNum - (int) $alredyBooked;
         } else {
-            $this->canBookToOtherBooking = 0;
+            return 0;
         }
     }
 
@@ -241,7 +265,7 @@ class booking_option extends booking {
         }
         $mainuserfields = implode(', ', $mainuserfields);
 
-        $this->users = $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated, {booking_answers}.waitinglist, ' . $mainuserfields . ', CONCAT({user}.firstname, \' \', {user}.lastname) AS fullname FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified DESC', $params, $this->perpage * $this->page, $this->perpage);
+        $this->users = $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.numrec, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated, {booking_answers}.waitinglist, ' . $mainuserfields . ', CONCAT({user}.firstname, \' \', {user}.lastname) AS fullname FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified DESC', $params, $this->perpage * $this->page, $this->perpage);
 
         foreach ($this->users as $user) {
             if ($user->waitinglist == 1) {
@@ -284,7 +308,7 @@ class booking_option extends booking {
 
         $mainuserfields = user_picture::fields('{user}', NULL);
 
-        return $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated, {booking_answers}.waitinglist, ' . $mainuserfields . ' FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC', $params);
+        return $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated, {booking_answers}.waitinglist, {booking_answers}.numrec, ' . $mainuserfields . ' FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC', $params);
     }
 
     // Count, how man users...for pagination.
@@ -561,7 +585,7 @@ class booking_option extends booking {
      * Saves the booking for the user
      * @return boolean true if booking was possible, false if meanwhile the booking got full
      */
-    public function user_submit_response($user) {
+    public function user_submit_response($user, $frombookingid = 0) {
         global $DB;
 
         if (null == $this->option) {
@@ -576,14 +600,15 @@ class booking_option extends booking {
 
         $underlimit = ($this->booking->maxperuser == 0);
         $underlimit = $underlimit || (booking_get_user_booking_count($this, $user, NULL) < $this->booking->maxperuser);
-        
+
         if (!$underlimit) {
             return FALSE;
         }
-        
+
         if (!($currentanswerid = $DB->get_field('booking_answers', 'id', array('userid' => $user->id, 'optionid' => $this->optionid)))) {
             $newanswer = new stdClass();
             $newanswer->bookingid = $this->id;
+            $newanswer->frombookingid = $frombookingid;
             $newanswer->userid = $user->id;
             $newanswer->optionid = $this->optionid;
             $newanswer->timemodified = time();
@@ -1109,7 +1134,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
 
     public function find_users($search) {
         global $DB, $USER;
-        
+
         $fields = "SELECT " . $this->required_fields_sql("u");
         $countfields = 'SELECT COUNT(1)';
         list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
@@ -1270,8 +1295,8 @@ class booking_utils {
             if ($option->courseid) {
                 $courselink = new moodle_url('/course/view.php', array('id' => $option->courseid));
                 $courselink = html_writer::link($courselink, $courselink->out());
-            }            
-            
+            }
+
             $params->title = s($option->text);
             $params->starttime = $option->coursestarttime ? userdate($option->coursestarttime, $timeformat) : '';
             $params->endtime = $option->courseendtime ? userdate($option->courseendtime, $timeformat) : '';

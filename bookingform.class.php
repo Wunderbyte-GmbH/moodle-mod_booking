@@ -122,21 +122,6 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->setType('pollurlteachers', PARAM_TEXT);
         $mform->addHelpButton('pollurlteachers', 'pollurlteachers', 'mod_booking');
 
-
-
-        $booking = $DB->get_record('booking', array('id' => $this->_customdata['bookingid']));
-        $opts = array(0 => get_string('notconectedbooking', 'mod_booking'));
-
-        $bookingoptions = $DB->get_records('booking_options', array('bookingid' => $booking->conectedbooking));
-
-        foreach ($bookingoptions as $key => $value) {
-            $opts[$value->id] = $value->text;
-        }
-
-        $mform->addElement('select', 'conectedoption', get_string('conectedoption', 'mod_booking'), $opts);
-        $mform->setDefault('conectedoption', 0);
-        $mform->addHelpButton('conectedoption', 'conectedoption', 'mod_booking');
-
         $mform->addElement('text', 'howmanyusers', get_string('howmanyusers', 'booking'), 0);
         $mform->setType('howmanyusers', PARAM_INT);
 

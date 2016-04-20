@@ -65,8 +65,6 @@ $string['allchangessave'] = 'All changes have been saved.';
 $string['location'] = 'Location';
 $string['institution'] = 'Institution';
 $string['address'] = 'Address';
-$string['conectedoption'] = 'Connected option';
-$string['conectedoption_help'] = '';
 $string['howmanyusers'] = 'How many users you can book?';
 $string['howmanyusers_help'] = '';
 $string['limitanswers_help'] = 'If you change this option and you have booked people, you can remove them without notification!';
@@ -163,7 +161,7 @@ $string['edittag'] = 'Edit';
 // mod_form
 $string['conectedbooking'] = 'Connected booking';
 $string['notconectedbooking'] = 'Not connected';
-$string['conectedbooking_help'] = '';
+$string['conectedbooking_help'] = 'From which booking you accept users. You can define from which option and how many users you will accept.';
 $string['cancancelbook'] = 'Allow user to cancel or book their booking when it is started?';
 $string['addtocalendar'] = 'Add to calendar';
 $string['limitanswers'] = 'Limit the number of participants';
@@ -458,6 +456,10 @@ $string['lbllocation'] = 'Name of label "Location"';
 $string['lblinstitution'] = 'Name of label "Institution"';
 $string['lblname'] = 'Name of label "Name"';
 $string['lblsurname'] = 'Name of label "Surname"';
+$string['lblacceptingfrom'] = 'Name of label "Accepting from"';
+$string['lblnumofusers'] = 'Name of label "Num. of users"';
+$string['numgenerator'] = 'Enable rec. number generation?';
+$string['paginationnum'] = "N. of records - pagination";
 
 // editoptions.php
 $string['submitandaddnew'] = 'Save and add new';
@@ -606,10 +608,18 @@ $string['onlythisbookingurl'] = 'Only this booking URL';
 $string['gotobooking'] = '<< Bookings';
 $string['nousers'] = 'No users!';
 $string['booktootherbooking'] = 'Book users to other booking';
+$string['lblbooktootherbooking'] = 'Name of button "Book users to other booking"';
 $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
 $string['selectatleastoneuser'] = 'Please, select at least 1 user!';
 $string['userssucesfullybooked'] = 'All users have been sucesfully booked to other booking.';
 $string['optionid'] = 'Option ID';
+$string['selectoptionid'] = 'Please, select option!';
+$string['editotherbooking'] = 'Other booking rules';
+$string['bookingfulldidntregister'] = 'Option is full, so I didn\'t transfer all users!';
+$string['numrec'] = "Rec. num.";
+$string['generaterecnum'] = "Generate numbers";
+$string['generaterecnumareyousure'] = "This will generate new numbers and permanently delete the old one!";
+$string['generaterecnumnotification'] = "New numbers where sucesfully generated.";
 
 // Send message
 $string['messagesubject'] = 'Subject';
@@ -650,3 +660,17 @@ $string['institutionname'] = 'Institution name';
 $string['addnewinstitution'] = 'Add new institution';
 $string['sucesfulldeletedinstitution'] = 'Institution was sucesfully deleted';
 $string['csvfile_help'] = 'CSV file must contain only one column named Institution.';
+
+// otherbooking.php
+$string['otherbookingoptions'] = 'Accepting from';
+$string['otherbookingnumber'] = 'Num. of users';
+$string['otherbookingaddrule'] = 'Add new rule';
+$string['editrule'] = "Edit";
+$string['deleterule'] = 'Delete';
+$string['deletedrule'] = 'Rule sucesfully deleted.';
+
+// otherbookingaddrule_form.php
+$string['selectoptioninotherbooking'] = "Option";
+$string['otherbookinglimit'] = "Limit";
+$string['otherbookinglimit_help'] = "How many users you accept from option. If 0, you can accept unlimited users.";
+$string['otherbookingsucesfullysaved'] = 'Rule sucesfully saved!'; 

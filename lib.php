@@ -308,7 +308,6 @@ function booking_update_options($optionvalues) {
     $option = new stdClass();
     $option->bookingid = $optionvalues->bookingid;
     $option->text = trim($optionvalues->text);
-    $option->conectedoption = $optionvalues->conectedoption;
     $option->howmanyusers = $optionvalues->howmanyusers;
     $option->removeafterminutes = $optionvalues->removeafterminutes;
 
@@ -333,6 +332,7 @@ function booking_update_options($optionvalues) {
         $option->maxoverbooking = $optionvalues->maxoverbooking;
         $option->limitanswers = 1;
     }
+
     if (isset($optionvalues->restrictanswerperiod)) {
         $option->bookingclosingtime = $optionvalues->bookingclosingtime;
     } else {
@@ -552,10 +552,10 @@ function booking_show_maxperuser($booking, $user, $bookinglist) {
  */
 function booking_get_user_booking_count($booking, $user, $bookinglist) {
     global $DB;
-    
+
     $result = $DB->get_records('booking_answers', array('bookingid' => $booking->id, 'userid' => $user->id));
-    
-    return count($result);    
+
+    return count($result);
 }
 
 /**
@@ -1037,6 +1037,37 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
     }
 }
 
+// Generate new numbers for users
+function booking_generatenewnumners($bookingDataBooking, $cmid, $optionid, $allSelectedUsers) {
+    global $DB;
+
+    if (!empty($allSelectedUsers)) {
+        $tmpRecNum = $DB->get_record_sql('SELECT numrec FROM {booking_answers} WHERE optionid = ? ORDER BY numrec DESC LIMIT 1', array($optionid));
+
+        if ($tmpRecNum->numrec == 0) {
+            $recnum = 1;
+        } else {
+            $recnum = $tmpRecNum->numrec + 1;
+        }
+
+        foreach($allSelectedUsers as $ui) {
+            $userData = $DB->get_record('booking_answers', array('optionid' => $optionid, 'userid' => $ui));
+            $userData->numrec = $recnum++;
+            $DB->update_record('booking_answers', $userData);
+        }
+
+    } else {
+        $allUsers = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY RAND()', array($optionid));
+
+        $recnum = 1;
+
+        foreach($allUsers as $user) {
+            $user->numrec = $recnum++;
+            $DB->update_record('booking_answers', $user);
+        }
+    }
+}
+
 // Add activity completion to user.
 function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) {
     global $DB;
@@ -1294,7 +1325,7 @@ function booking_get_groupmodedata() {
  * @param $view if we need it for editing or viewing
  * @return object with $booking->option as an array for the booking option valus for each booking option
  */
-function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), $view = TRUE) {
+function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), $view = TRUE, $optionid = null) {
     global $CFG, $DB;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
 
@@ -1315,14 +1346,21 @@ function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' =>
     $mainuserfields = user_picture::fields();
     $allresponses = get_users_by_capability($context, 'mod/booking:choose', $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
 
-    $bookingObject = new booking_options($cm->id, TRUE, $urlParams);
+    if (is_null($optionid)) {
+        $bookingObject = new booking_options($cm->id, TRUE, $urlParams);
+        $booking = $bookingObject->booking;
+        $options = $bookingObject->options;
+    } else {
+        $bookingObject = new booking_option($cm->id, $optionid);
+        $booking = $bookingObject->booking;
+        $options[$optionid] = $bookingObject->option;
+    }
 
     if ($view) {
         $bookingObject->apply_tags();
     }
 
-    $booking = $bookingObject->booking;
-    $options = $bookingObject->options;
+    
     if ($options) {
         $answers = $DB->get_records('booking_answers', array('bookingid' => $bookingid), 'id');
 
@@ -1462,6 +1500,8 @@ function booking_send_confirm_message($eventdata) {
     $bookingmanager = $DB->get_record('user', array('username' => $eventdata->booking->bookingmanager));
     $data = booking_generate_email_params($eventdata->booking, $eventdata->booking->option[$optionid], $user, $cmid);
 
+    $cansend = TRUE;
+
     if ($data->status == get_string('booked', 'booking')) {
         $subject = get_string('confirmationsubject', 'booking', $data);
         $subjectmanager = get_string('confirmationsubjectbookingmanager', 'booking', $data);
@@ -1480,6 +1520,8 @@ function booking_send_confirm_message($eventdata) {
         $subject = "test";
         $subjectmanager = "tester";
         $message = "message";
+
+        $cansend = FALSE;
     }
     $messagehtml = text_to_html($message, false, false, true);
     $errormessage = get_string('error:failedtosendconfirmation', 'booking', $data);
@@ -1500,7 +1542,9 @@ function booking_send_confirm_message($eventdata) {
     $messagedata->attachment = $attachment;
     $messagedata->attachname = $attachname;
 
-    booking_booking_confirmed($messagedata);
+    if ($cansend) {
+        booking_booking_confirmed($messagedata);
+    }
 
     if ($eventdata->booking->copymail) {
         $messagedata->userto = $bookingmanager;

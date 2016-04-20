@@ -23,6 +23,7 @@ $course = get_course($cm->course);
 (boolean) $unsubscribesuccess = false;
 
 $bookingoption = new booking_option($id, $optionid);
+$bookingoption->update_booked_users();
 $bookingoption->apply_tags();
 
 require_login($course, true, $cm);
@@ -108,6 +109,7 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
     }
 }
 echo $OUTPUT->header();
+echo $OUTPUT->heading("{$bookingoption->option->text}", 3, 'helptitle', 'uniqueid');
 
 echo  html_writer::tag('div', html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)), get_string('backtoresponses', 'booking') ), array('style' => 'width:100%; font-weight: bold; text-align: right;'));
 

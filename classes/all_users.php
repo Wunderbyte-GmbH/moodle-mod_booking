@@ -17,26 +17,7 @@ class all_users extends table_sql {
      *      as a key when storing table properties like sort order in the session.
      */
     function __construct($uniqueid) {
-        parent::__construct($uniqueid);
-        // Define the list of columns to show.
-        $columns = array(
-            'selected',
-            'info',   
-            'institution',
-            'fullname',
-            'timecreated'            
-        );
-        $this->define_columns($columns);
-
-        // Define the titles of columns to show in header.
-        $headers = array(
-            '',
-            '',
-            get_string('institution', 'mod_booking'),
-            get_string('fullname', 'mod_booking'),
-            get_string('timecreated', 'mod_booking')
-        );
-        $this->define_headers($headers);
+        parent::__construct($uniqueid);       
 
         $this->collapsible(false);
         $this->sortable(true);
@@ -59,20 +40,31 @@ class all_users extends table_sql {
         return '';
     }
 
+    function col_fullname($values) {
+        if (empty($values->otheroptions)) {
+            return html_writer::link(new moodle_url('/user/profile.php', array('id' => $values->id)), "{$values->firstname} {$values->lastname}", array());
+        } else {
+            return html_writer::link(new moodle_url('/user/profile.php', array('id' => $values->id)), "{$values->firstname} {$values->lastname}", array()) . "({$values->otheroptions})";
+        }
+    }
+    
+    function col_numrec($values) {        
+        if ($values->numrec == 0) {
+            return '';
+        } else {
+            return $values->numrec;
+        }
+    }
+    
     function col_info($values) {
         
         $completed = '&nbsp;';
-        $connected = '&nbsp;';
         
         if ($values->completed) {
             $completed = '&#x2713;';
         } 
         
-        if ($values->connected) {
-            $connected = '&#11014;';
-        } 
-        
-        return $completed . $connected;
+        return $completed;
     }    
 
     function col_selected($values) {
