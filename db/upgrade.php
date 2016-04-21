@@ -503,15 +503,22 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
+        
         $table = new xmldb_table('booking_options');
+        
+        $field = new xmldb_field('address', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'institution');
+        
+        // Conditionally launch add field address.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
         $field = new xmldb_field('pollurlteachers', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'address');
 
         // Conditionally launch add field pollurlteachers.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014092901, 'booking');
