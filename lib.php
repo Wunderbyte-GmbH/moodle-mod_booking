@@ -2172,4 +2172,11 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
     return $results;
 }
 
+function booking_get_moodle_version_major() {
+    global $CFG;
+
+    $version_array = explode('.', $CFG->version);
+    return $version_array[0];
+}
+
 ?>
