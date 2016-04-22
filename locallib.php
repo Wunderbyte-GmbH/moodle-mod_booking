@@ -702,7 +702,7 @@ class booking_options extends booking {
     public $perpage = 0;
     public $sort = ' ORDER BY bo.coursestarttime ASC';
 
-    public function __construct($cmid, $checkcanbookusers = true, $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => '', 'searchName' => '', 'searchSurname' => ''), $page = 0, $perpage = 0) {
+    public function __construct($cmid, $checkcanbookusers = true, $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => '', 'searchName' => '', 'searchSurname' => ''), $page = 0, $perpage = 0, $fetchOptions = true) {
         parent::__construct($cmid);
         $this->checkcanbookusers = $checkcanbookusers;
         $this->filters = $urlParams;
@@ -711,8 +711,11 @@ class booking_options extends booking {
         if (isset($this->filters['sort']) && $this->filters['sort'] === 1) {
             $this->sort = ' ORDER BY bo.coursestarttime DESC';
         }
-        $this->fill_options();
-        $this->get_options_data();
+
+        if ($fetchOptions) {
+            $this->fill_options();
+            $this->get_options_data();
+        }
         // call only when needed TODO
         $this->set_booked_visible_users();
         $this->add_additional_info();
