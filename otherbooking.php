@@ -47,6 +47,9 @@ $PAGE->set_pagelayout('standard');
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("editotherbooking", "booking") . " [{$option->option->text}]", 3, 'helptitle', 'uniqueid');
 
+echo html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)), get_string('users', 'booking'), array('style' => 'float:right;'));
+echo '<br>';
+
 $table = new html_table();
 $table->head = array((empty($option->booking->lblacceptingfrom) ? get_string('otherbookingoptions', 'booking') : $option->booking->lblacceptingfrom), (empty($option->booking->lblnumofusers) ? get_string('otherbookingnumber', 'booking') : $option->booking->lblnumofusers));
 
