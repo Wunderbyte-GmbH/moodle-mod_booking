@@ -10,18 +10,29 @@
 defined('MOODLE_INTERNAL') || die;
 
 class all_users extends table_sql {
+    
+    var $bookingData = null;
+    var $cm = null;
+    var $user = null;
+    var $db = null;
+    var $optionid = null;
 
     /**
      * Constructor
      * @param int $uniqueid all tables have to have a unique id, this is used
      *      as a key when storing table properties like sort order in the session.
      */
-    function __construct($uniqueid) {
-        parent::__construct($uniqueid);       
+    function __construct($uniqueid, $bookingData, $cm, $user, $db, $optionid) {
+        parent::__construct($uniqueid);
 
-        $this->collapsible(false);
+        $this->collapsible(true);
         $this->sortable(true);
         $this->pageable(true);
+        $this->bookingData = $bookingData;
+        $this->cm = $cm;
+        $this->user = $user;
+        $this->db = $db;
+        $this->optionid = $optionid;
     }
 
     /**
@@ -35,8 +46,8 @@ class all_users extends table_sql {
     function col_timecreated($values) {
         if ($values->timecreated > 0) {
             return userdate($values->timecreated);
-        } 
-        
+        }
+
         return '';
     }
 
@@ -47,25 +58,36 @@ class all_users extends table_sql {
             return html_writer::link(new moodle_url('/user/profile.php', array('id' => $values->id)), "{$values->firstname} {$values->lastname}", array()) . "({$values->otheroptions})";
         }
     }
-    
-    function col_numrec($values) {        
+
+    function col_numrec($values) {
         if ($values->numrec == 0) {
             return '';
         } else {
             return $values->numrec;
         }
     }
-    
+
     function col_info($values) {
-        
+
         $completed = '&nbsp;';
-        
+
         if ($values->completed) {
             $completed = '&#x2713;';
-        } 
-        
+        }
+
         return $completed;
-    }    
+    }
+
+    function col_waitinglist($values) {
+
+        $completed = '&nbsp;';
+
+        if ($values->waitinglist) {
+            $completed = '&#x2713;';
+        }
+
+        return $completed;
+    }
 
     function col_selected($values) {
         if (!$this->is_downloading()) {
@@ -83,6 +105,88 @@ class all_users extends table_sql {
      */
     function other_cols($colname, $value) {
         
+    }
+    
+    function wrap_html_start() {
+        echo '<form method="post" id="studentsform">'."\n";
+    }
+
+    function wrap_html_finish() {
+        if (!$this->bookingData->booking->autoenrol && has_capability('mod/booking:communicate', context_module::instance($this->cm->id))) {
+            if ($this->bookingData->option->courseid > 0) {
+                echo '<input type="submit" name="subscribetocourse" value="' . get_string('subscribetocourse', 'booking') . '" />';
+            }
+        }
+
+        if (has_capability('mod/booking:deleteresponses', context_module::instance($this->cm->id))) {
+            echo '<input type="submit" name="deleteusers" value="' . get_string('booking:deleteresponses', 'booking') . '" />';
+        }
+
+        if (has_capability('mod/booking:communicate', context_module::instance($this->cm->id))) {
+            if (!empty(trim($this->bookingData->option->pollurl))) {
+                echo '<input type="submit" name="sendpollurl" value="' . get_string('booking:sendpollurl', 'booking') . '" />';
+            }
+            echo '<input type="submit" name="sendcustommessage" value="' . get_string('sendcustommessage', 'booking') . '" />';
+        }
+
+        if (booking_check_if_teacher($this->bookingData->option, $this->user) || has_capability('mod/booking:updatebooking', context_module::instance($this->cm->id))) {
+            echo '<input type="submit" name="activitycompletion" value="' . (empty($this->bookingData->booking->btncacname) ? get_string('confirmactivitycompletion', 'booking') : $this->bookingData->booking->btncacname) . '" />';
+
+            if ($this->bookingData->booking->numgenerator) {
+                echo '<input type="submit" name="generaterecnum" value="' . get_string('generaterecnum', 'booking') . '" onclick="return confirm(\'' . get_string('generaterecnumareyousure', 'booking') . '\')"/>';
+            }
+
+            $connectedBooking = $this->db->get_record("booking", array('conectedbooking' => $this->bookingData->booking->id), 'id', IGNORE_MULTIPLE);
+
+            if ($connectedBooking) {
+
+                $noLimits = $this->db->get_records_sql("SELECT bo.*, b.text
+                        FROM {booking_other} AS bo
+                        LEFT JOIN {booking_options} AS b ON b.id = bo.optionid
+                        WHERE b.bookingid = ?", array($connectedBooking->id));
+
+                if (!$noLimits) {
+                    $result = $this->db->get_records_select("booking_options", "bookingid = {$connectedBooking->id} AND id <> {$this->optionid}", null, 'text ASC', 'id, text');
+
+                    $options = array();
+
+                    foreach ($result as $value) {
+                        $options[$value->id] = $value->text;
+                    }
+
+                    echo "<br>";
+
+                    echo html_writer::select($options, 'selectoptionid', '');
+
+                    $labelBooktootherbooking = (empty($this->bookingData->booking->booktootherbooking) ? get_string('booktootherbooking', 'booking') : $this->bookingData->booking->booktootherbooking);
+
+                    echo '<input type="submit" name="booktootherbooking" value="' . $labelBooktootherbooking . '" />';
+                } else {
+                    $allLimits = $this->db->get_records_sql("SELECT bo.*, b.text
+                        FROM {booking_other} AS bo
+                        LEFT JOIN {booking_options} AS b ON b.id = bo.optionid
+                        WHERE b.bookingid = ? AND bo.otheroptionid = ?", array($connectedBooking->id, $this->optionid));
+
+                    if ($allLimits) {
+                        $options = array();
+
+                        foreach ($allLimits as $value) {
+                            $options[$value->optionid] = $value->text;
+                        }
+
+                        echo "<br>";
+
+                        echo html_writer::select($options, 'selectoptionid', '');
+
+                        $labelBooktootherbooking = (empty($this->bookingData->booking->booktootherbooking) ? get_string('booktootherbooking', 'booking') : $this->bookingData->booking->booktootherbooking);
+
+                        echo '<input type="submit" name="booktootherbooking" value="' . $labelBooktootherbooking . '" />';
+                    }
+                }
+            }
+        }
+        
+        echo '</form>';
     }
 
 }

@@ -620,6 +620,9 @@ $string['numrec'] = "Rec. num.";
 $string['generaterecnum'] = "Generate numbers";
 $string['generaterecnumareyousure'] = "This will generate new numbers and permanently delete the old one!";
 $string['generaterecnumnotification'] = "New numbers where sucesfully generated.";
+$string['activitycompleted'] = 'Activity completed';
+$string['waitinglist'] = 'Waiting list';
+$string['searchWaitingList'] = 'On waiting list';
 
 // Send message
 $string['messagesubject'] = 'Subject';
