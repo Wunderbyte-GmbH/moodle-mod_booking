@@ -78,6 +78,22 @@ class all_users extends table_sql {
         return $completed;
     }
 
+    function col_coursestarttime($values) {
+        if ($values->coursestarttime == 0) {
+            return '';
+        } else {
+            return userdate($values->coursestarttime, get_string('strftimedatetime'));
+        }
+    }
+    
+    function col_courseendtime($values) {
+        if ($values->courseendtime == 0) {
+            return '';
+        } else {
+            return userdate($values->courseendtime, get_string('strftimedatetime'));
+        }
+    }    
+        
     function col_waitinglist($values) {
 
         if ($this->is_downloading()) {
@@ -108,7 +124,23 @@ class all_users extends table_sql {
      *     been made.
      */
     function other_cols($colname, $value) {
-        
+        if (substr( $colname, 0, 4 ) === "cust") {
+            $tmp = explode('|', $value->{$colname});
+            
+            if(!$tmp) {
+                return '';
+            }
+            
+            if(count($tmp) == 2) {
+                if($tmp[0] == 'datetime') {
+                    return userdate($tmp[1], get_string('strftimedate'));
+                } else {
+                    return $tmp[1];
+                }
+            } else {
+                return '';
+            }
+        }
     }
     
     function wrap_html_start() {

@@ -183,7 +183,7 @@ $bookingData->option->cmid = $cm->id;
 $bookingData->option->autoenrol = $bookingData->booking->autoenrol;
 
 $tableAllUsers = new all_users('mod_booking_all_users_sort_new', $bookingData, $cm, $USER, $DB, $optionid);
-$tableAllUsers->is_downloading($download, $bookingData->option->text, 'all_users');
+$tableAllUsers->is_downloading($download, $bookingData->option->text, $bookingData->option->text);
 
 $tableAllUsers->define_baseurl($currenturl);
 $tableAllUsers->defaultdownloadformat = 'ods';
@@ -416,6 +416,8 @@ if (!$tableAllUsers->is_downloading()) {
 } else {
     $columns = array();
     $headers = array();
+    
+    $customfields = '';
 
     $columns[] = 'optionid';
     $headers[] = get_string("optionid", "booking");
@@ -452,8 +454,9 @@ if (!$tableAllUsers->is_downloading()) {
     $addquoted = "'" . implode("','", $addfields) . "'";
     if ($userprofilefields = $DB->get_records_select('user_info_field', 'id > 0 AND shortname IN (' . $addquoted . ')', array(), 'id', 'id, shortname, name')) {
         foreach ($userprofilefields as $profilefield) {
-            $columns[] = $profilefield->name;
+            $columns[] = "cust" . strtolower($profilefield->shortname);
             $headers[] = $profilefield->name;
+            $customfields .= ", (SELECT concat(uif.datatype,'|',uid.data) as custom FROM mdl_user_info_data AS uid LEFT JOIN mdl_user_info_field AS uif ON uid.fieldid = uif.id WHERE userid = ba.userid AND uif.shortname = '{$profilefield->shortname}') AS cust" . strtolower($profilefield->shortname);
         }
     }
 
@@ -493,7 +496,7 @@ if (!$tableAllUsers->is_downloading()) {
                     WHERE
                         gm.userid = u.id AND g.courseid = {$course->id}) AS groups,
                 ba.numrec,
-                        ba.waitinglist AS waitinglist";
+                        ba.waitinglist AS waitinglist {$customfields}";
     $from = '{booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
     $where = 'ba.optionid = :optionid ' . $addSQLWhere;
 
@@ -505,24 +508,6 @@ if (!$tableAllUsers->is_downloading()) {
 
     $tableAllUsers->out(10, true);
     exit;
-
-    if ($DB->get_records_select('user_info_data', 'userid = ' . $user->id, array(), 'fieldid')) {
-        foreach ($userprofilefields as $profilefieldid => $profilefield) {
-            $fType = $DB->get_field('user_info_field', 'datatype', array('shortname' => $profilefield->shortname));
-            $value = $DB->get_field('user_info_data', 'data', array('fieldid' => $profilefieldid, 'userid' => $user->id), NULL, IGNORE_MISSING);
-            if ($fType == 'datetime') {
-                if ($value != FALSE) {
-                    $myxls->write_string($row, $i++, userdate($value, get_string('strftimedate')), $cellform);
-                } else {
-                    $myxls->write_string($row, $i++, '', $cellform);
-                }
-            } else {
-                $myxls->write_string($row, $i++, strip_tags($value), $cellform);
-            }
-        }
-    } else {
-        $myxls->write_string($row, $i++, '', $cellform);
-    }
 }
 ?>
 
