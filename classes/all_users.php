@@ -80,6 +80,10 @@ class all_users extends table_sql {
 
     function col_waitinglist($values) {
 
+        if ($this->is_downloading()) {
+            return $values->waitinglist;
+        }
+        
         $completed = '&nbsp;';
 
         if ($values->waitinglist) {

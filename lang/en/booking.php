@@ -623,6 +623,8 @@ $string['generaterecnumnotification'] = "New numbers where sucesfully generated.
 $string['activitycompleted'] = 'Activity completed';
 $string['waitinglist'] = 'Waiting list';
 $string['searchWaitingList'] = 'On waiting list';
+$string['optionmenu'] = 'This booking options';
+$string['userid'] = 'UserID';
 
 // Send message
 $string['messagesubject'] = 'Subject';
