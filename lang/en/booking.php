@@ -604,7 +604,9 @@ $string['searchDate'] = 'Date';
 $string['searchFinished'] = 'Course completed';
 $string['yes'] = 'Yes';
 $string['no'] = 'No';
-$string['onlythisbookingurl'] = 'Only this booking URL';
+$string['onlythisbookingurl'] = 'Link to this booking URL';
+$string['copyonlythisbookingurl'] = 'Copy this booking URL';
+$string['copypollurl'] = 'Copy poll URL';
 $string['gotobooking'] = '<< Bookings';
 $string['nousers'] = 'No users!';
 $string['booktootherbooking'] = 'Book users to other booking';
@@ -625,6 +627,10 @@ $string['waitinglist'] = 'Waiting list';
 $string['searchWaitingList'] = 'On waiting list';
 $string['optionmenu'] = 'This booking options';
 $string['userid'] = 'UserID';
+$string['nodateset'] = 'Course date not set';
+$string['editteachers'] = 'Edit';
+$string['sendpollurltoteachers'] = 'Send poll url';
+$string['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
 
 // Send message
 $string['messagesubject'] = 'Subject';

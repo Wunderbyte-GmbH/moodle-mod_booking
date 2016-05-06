@@ -143,6 +143,7 @@ $context = context_module::instance($cm->id);
 $bookingData = new booking_option($cm->id, $optionid, $urlParams, $page, $perPage);
 $bookingData->apply_tags();
 $bookingData->get_url_params();
+$bookingData->get_teachers();
 
 if (!(booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
     require_capability('mod/booking:readresponses', $context);
@@ -344,19 +345,35 @@ if (!$tableAllUsers->is_downloading()) {
 
     echo $OUTPUT->heading(html_writer::link(new moodle_url('/mod/booking/view.php', array('id' => $cm->id)), $bookingData->booking->name) . ' > ' . $bookingData->option->text, 4, '', '');
 
+    $teachers = array();
+
+    foreach ($bookingData->option->teachers as $value) {
+        $teachers[] = "{$value->firstname} {$value->lastname}";
+    }
+
+    $linkst = '';
+    if (has_capability('mod/booking:communicate', context_module::instance($cm->id)) || has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
+        $linkst = array();
+
+        if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
+            $linkst[] = html_writer::link(new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid)), get_string('editteachers', 'booking'), array());
+        }
+
+        if (has_capability('mod/booking:communicate', context_module::instance($cm->id))) {
+            $linkst[] = html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid, 'action' => 'sendpollurlteachers')), (empty($bookingData->booking->lblsputtname) ? get_string('sendpollurltoteachers', 'booking') : $bookingData->booking->lblsputtname), array());
+        }
+
+        $linkst = "(" . implode(", ", $linkst) . ")";
+    }
+
+    echo "<p>" . ($bookingData->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate($bookingData->option->coursestarttime, get_string('strftimedatetime')) . " - " . userdate($bookingData->option->courseendtime, get_string('strftimedatetime'))) . " | " . (empty($bookingData->booking->lblteachname) ? get_string('teachers', 'booking') : $bookingData->booking->lblteachname) . ': ' . implode(', ', $teachers) . " {$linkst}</p>";
+
     $links = array();
 
     if (has_capability('mod/booking:subscribeusers', $context)) {
         $links[] = html_writer::link(new moodle_url('/mod/booking/subscribeusers.php', array('id' => $cm->id, 'optionid' => $optionid)), get_string('bookotherusers', 'booking'), array('style' => 'float:right;'));
     }
 
-    if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-        $links[] = html_writer::link(new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid)), (empty($bookingData->booking->lblteachname) ? get_string('teachers', 'booking') : $bookingData->booking->lblteachname), array('style' => 'float:right;'));
-    }
-
-    if (has_capability('mod/booking:communicate', context_module::instance($cm->id))) {
-        $links[] = html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid, 'action' => 'sendpollurlteachers')), (empty($bookingData->booking->lblsputtname) ? get_string('booking:sendpollurltoteachers', 'booking') : $bookingData->booking->lblsputtname), array('style' => 'float:right;'));
-    }
 
     $links[] = '<a href="#" style="float:right;" id="showHideSearch">' . get_string('search') . '</a>';
 
@@ -404,11 +421,22 @@ if (!$tableAllUsers->is_downloading()) {
 
     $onlyOneURL = new moodle_url('/mod/booking/view.php', array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone', 'whichview' => 'showonlyone'));
     $onlyOneURL->set_anchor('goenrol');
-    echo '<br>' . html_writer::start_span('') . get_string('onlythisbookingurl', 'booking') . ': ' . html_writer::link($onlyOneURL, $onlyOneURL, array()) . html_writer::end_span();
-
+    
+    
     if (!empty(trim($bookingData->option->pollurl))) {
-        echo '<br>' . html_writer::start_span('') . get_string('pollurl', 'booking') . ': ' . html_writer::link($bookingData->option->pollurl, $bookingData->option->pollurl, array()) . ($bookingData->option->pollsend ? ' &#x2713;' : '') . html_writer::end_span();
-    }
+        echo html_writer::link($bookingData->option->pollurl, get_string('copypollurl', 'booking') , array('onclick' => 'copyToClipboard("' . $bookingData->option->pollurl . '"); return false;')) . ($bookingData->option->pollsend ? ' &#x2713;' : '') . ' | ';
+    }    
+    
+    echo html_writer::link($onlyOneURL, get_string('onlythisbookingurl', 'booking'), array());
+    echo ' | ' . html_writer::link($onlyOneURL, get_string('copyonlythisbookingurl', 'booking'), array('onclick' => 'copyToClipboard("' . $onlyOneURL . '"); return false;'));
+    
+    echo "<script>
+  function copyToClipboard(text) {
+    window.prompt('" . get_string('copytoclipboard', 'booking') . "', text);
+  }
+</script>";
+
+    
 
     $PAGE->requires->js_init_call('M.mod_booking.init');
 
@@ -416,7 +444,7 @@ if (!$tableAllUsers->is_downloading()) {
 } else {
     $columns = array();
     $headers = array();
-    
+
     $customfields = '';
 
     $columns[] = 'optionid';
@@ -448,7 +476,7 @@ if (!$tableAllUsers->is_downloading()) {
     $columns[] = 'completed';
     $headers[] = get_string("searchFinished", "booking");
     $columns[] = 'waitinglist';
-    $headers[] = get_string("waitinglist", "booking");    
+    $headers[] = get_string("waitinglist", "booking");
 
     $addfields = explode(',', $bookingData->booking->additionalfields);
     $addquoted = "'" . implode("','", $addfields) . "'";

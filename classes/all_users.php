@@ -223,6 +223,8 @@ class all_users extends table_sql {
         }
         
         echo '</form>';
+        
+        echo '<hr>';
     }
 
 }

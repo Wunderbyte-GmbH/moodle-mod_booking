@@ -229,6 +229,12 @@ class booking_option extends booking {
         $this->option->pollurlteachers = $bu->get_body($params, 'pollurlteachers', $params, TRUE);
     }
 
+    public function get_teachers() {
+        global $DB;
+
+        $this->option->teachers = $DB->get_records_sql('SELECT DISTINCT t.userid, u.firstname, u.lastname FROM {booking_teachers} AS t LEFT JOIN {user} AS u ON t.userid = u.id WHERE t.optionid = ' . $this->optionid . '');
+    }
+
     // Get all users with filters
     private function get_users() {
         global $DB;
