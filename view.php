@@ -2,9 +2,12 @@
 require_once("../../config.php");
 require_once("locallib.php");
 require_once($CFG->libdir . '/completionlib.php');
+require_once("{$CFG->libdir}/tablelib.php");
+require_once("{$CFG->dirroot}/mod/booking/classes/all_options.php");
 
 $id = required_param('id', PARAM_INT);                 // Course Module ID
 $action = optional_param('action', '', PARAM_ALPHA);
+$download = optional_param('download', '', PARAM_ALPHA);
 $whichview = optional_param('whichview', '', PARAM_ALPHA);
 $optionid = optional_param('optionid', '', PARAM_INT);
 $confirm = optional_param('confirm', '', PARAM_INT);
@@ -63,7 +66,7 @@ if (strlen($searchSurname) > 0) {
 }
 
 $urlParamsSort = $urlParams;
-        
+
 if ($sorto == 1) {
     $urlParams['sort'] = 1;
     $urlParamsSort['sort'] = 0;
@@ -99,29 +102,6 @@ if (!$context = context_module::instance($cm->id)) {
     print_error('badcontext');
 }
 
-// check if data has been submitted to be processed
-if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capability('mod/booking:choose', $context) and ( $booking->booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
-    $bookingData = new booking_option($cm->id, $optionid);
-    $bookingData->apply_tags();
-
-    if ($bookingData->user_delete_response($USER->id)) {
-        echo $OUTPUT->header();
-        $contents = get_string('bookingdeleted', 'booking');
-        $options = array('id' => $cm->id);
-        $contents .= $OUTPUT->single_button(new moodle_url('view.php', $options), get_string('continue'), 'get');
-        echo $OUTPUT->box($contents, 'box generalbox', 'notice');
-        echo $OUTPUT->footer();
-        die;
-    }
-} elseif ($action == 'delbooking' and confirm_sesskey() and has_capability('mod/booking:choose', $context) and ( $booking->booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {    //print confirm delete form
-    echo $OUTPUT->header();
-    $options = array('id' => $cm->id, 'action' => 'delbooking', 'confirm' => 1, 'optionid' => $optionid, 'sesskey' => $USER->sesskey);
-    $deletemessage = $booking->options[$optionid]->text . "<br />" . $booking->options[$optionid]->coursestarttimetext . " - " . $booking->options[$optionid]->courseendtimetext;
-    echo $OUTPUT->confirm(get_string('deletebooking', 'booking', $deletemessage), new moodle_url('view.php', $options), $urlCancel);
-    echo $OUTPUT->footer();
-    die;
-}
-
 // before processing data user has to agree to booking policy and confirm booking
 if ($form = data_submitted() && has_capability('mod/booking:choose', $context) && confirm_sesskey() && $confirm != 1 && $answer) {
     booking_confirm_booking($answer, $booking, $USER, $cm, $url);
@@ -129,7 +109,16 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context) &
 }
 
 $PAGE->set_title(format_string($booking->booking->name));
-$PAGE->set_heading($course->fullname);
+$PAGE->set_heading($booking->booking->name);
+
+if (has_capability('mod/booking:updatebooking', $context)) {
+    $settingnode = $PAGE->settingsnav->add(get_string("bookingoptionsmenu", "booking"), null, navigation_node::TYPE_CONTAINER);
+
+    $settingnode->add(get_string('addnewbookingoption', 'booking'), new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add')));
+    $settingnode->add(get_string('importcsvbookingoption', 'booking'), new moodle_url('importoptions.php', array('id' => $cm->id)));
+    $settingnode->add(get_string('importexcelbutton', 'booking'), new moodle_url('importexcel.php', array('id' => $cm->id)));
+    $settingnode->add(get_string('tagtemplates', 'booking'), new moodle_url('tagtemplates.php', array('cmid' => $cm->id)));
+}
 
 echo $OUTPUT->header();
 
@@ -196,7 +185,6 @@ $bookinglist = $booking->allbookedusers;
 
 echo '<div class="clearer"></div>';
 
-echo $OUTPUT->box_start('generalbox boxaligncenter boxwidthwide');
 echo $html = html_writer::tag('div', '<a id="gotop" href="#goenrol">' . get_string('goenrol', 'booking') . '</a>', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
 echo html_writer::tag('div', format_module_intro('booking', $booking->booking, $cm->id), array('class' => 'intro'));
 
@@ -282,32 +270,36 @@ if (strlen($booking->booking->bookingpolicy) > 0) {
 
 echo $html = html_writer::tag('div', '<a id="goenrol" href="#gotop">' . get_string('gotop', 'booking') . '</a>', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
 
-echo $OUTPUT->box_end();
+$output = $PAGE->get_renderer('mod_booking');
+$output->print_booking_tabs($urlParams, $whichview);
 
 
-//download spreadsheet of all users
-if (has_capability('mod/booking:downloadresponses', $context)) {
-    /// Download spreadsheet for all booking options
-    echo $html = html_writer::tag('div', get_string('downloadallresponses', 'booking') . ': ', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
-    $optionstochoose = array('all' => get_string('allbookingoptions', 'booking'));
-    if (isset($booking->options)) {
-        foreach ($booking->options as $option) {
-            $optionstochoose[$option->id] = $option->text;
-        }
-    }
-    $options = $urlParams;
-    $options["id"] = "$cm->id";
-    $options["optionid"] = 0;
-    $options["download"] = "ods";
-    $options['action'] = "all";
-    $button = $OUTPUT->single_button(new moodle_url("report.php", $options), get_string("downloadods"));
-    echo '<div style="width: 100%; text-align: right; display:table;">';
-    echo html_writer::tag('span', $button, array('style' => 'width: 100%; text-align: right; display:table-cell;'));
-    $options["download"] = "xls";
-    $button = $OUTPUT->single_button(new moodle_url("report.php", $options), get_string("downloadexcel"));
-    echo html_writer::tag('span', $button, array('style' => 'text-align: right; display:table-cell;'));
-    echo '</div>';
-}
+/*
+  //download spreadsheet of all users
+  if (has_capability('mod/booking:downloadresponses', $context)) {
+  /// Download spreadsheet for all booking options
+  echo $html = html_writer::tag('div', get_string('downloadallresponses', 'booking') . ': ', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
+  $optionstochoose = array('all' => get_string('allbookingoptions', 'booking'));
+  if (isset($booking->options)) {
+  foreach ($booking->options as $option) {
+  $optionstochoose[$option->id] = $option->text;
+  }
+  }
+  $options = $urlParams;
+  $options["id"] = "$cm->id";
+  $options["optionid"] = 0;
+  $options["download"] = "ods";
+  $options['action'] = "all";
+  $button = $OUTPUT->single_button(new moodle_url("report.php", $options), get_string("downloadods"));
+  echo '<div style="width: 100%; text-align: right; display:table;">';
+  echo html_writer::tag('span', $button, array('style' => 'width: 100%; text-align: right; display:table-cell;'));
+  $options["download"] = "xls";
+  $button = $OUTPUT->single_button(new moodle_url("report.php", $options), get_string("downloadexcel"));
+  echo html_writer::tag('span', $button, array('style' => 'text-align: right; display:table-cell;'));
+  echo '</div>';
+  }
+ * 
+ */
 
 $current = false;  // Initialise for later
 //if user has already made a selection, show their selected answer.
@@ -329,69 +321,53 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
     echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
 
-    unset($urlParams['sort']);
-    $tmpUrlParams = $urlParams;
-    $tmpUrlParams['whichview'] = 'showactive';
-    $urlActive = new moodle_url('/mod/booking/view.php', $tmpUrlParams);
-    $urlActive->set_anchor('goenrol');
-    $tmpUrlParams['whichview'] = 'showall';
-    $urlAll = new moodle_url('/mod/booking/view.php', $tmpUrlParams);
-    $urlAll->set_anchor('goenrol');
-    $tmpUrlParams['whichview'] = 'mybooking';
-    $urlMy = new moodle_url('/mod/booking/view.php', $tmpUrlParams);
-    $urlMy->set_anchor('goenrol');
-
-    $showAll = "<a href=\"$urlAll\">" . get_string('showallbookings', 'booking') . "</a>";
-    $mybooking = "<a href=\"$urlMy\">" . get_string('showmybookings', 'booking') . "</a>";
-    $showactive = "<a href=\"$urlActive\">" . get_string('showactive', 'booking') . "</a>";
     $search = '<a href="#" id="showHideSearch">' . get_string('search') . "</a>";
-            
-    switch ($whichview) {
-        case 'mybooking':
-            $mybooking = "<a href=\"$urlMy\"><b>" . get_string('showmybookings', 'booking') . "</b></a>";
-            break;
 
-        case 'showall':
-            $showAll = "<a href=\"$urlAll\"><b>" . get_string('showallbookings', 'booking') . "</b></a>";
-            break;
-
-        case 'showactive':
-            $showactive = "<a href=\"$urlActive\"><b>" . get_string('showactive', 'booking') . "</b></a>";
-            break;
-        
-        default:
-            $showactive = "<a href=\"$urlActive\"><b>" . get_string('showactive', 'booking') . "</b></a>";
-            break;
-    }
-    
     if ($whichview != 'showonlyone') {
-        echo $OUTPUT->box("{$showAll} | {$mybooking} | {$showactive} | {$search}", 'box mdl-align');
+        echo $OUTPUT->box("{$search}", 'box mdl-align');
     }
-    
+
     $sortUrl->set_anchor('goenrol');
+
+    $tableAllOtions = new all_options('mod_booking_all_options', $booking);
+    $tableAllOtions->is_downloading($download, $booking->booking->name, $booking->booking->name);
+
+    $tableAllOtions->define_baseurl($url);
+    $tableAllOtions->defaultdownloadformat = 'ods';
+    $tableAllOtions->is_downloadable(true);
+    $tableAllOtions->show_download_buttons_at(array(TABLE_P_BOTTOM));
+
+    $columns = array();
+    $headers = array();
+
+    if (!$tableAllOtions->is_downloading()) {
+        $columns[] = 'id';
+        $headers[] = get_string("select", "booking");
+        $columns[] = 'coursestarttime';
+        $headers[] = get_string("coursedate", "booking");
+        $columns[] = 'address';
+        $headers[] = get_string("availability", "booking");
+
+        $fields = 'bo.id, bo.text, bo.address, bo.coursestarttime, bo.courseendtime';
+        $from = '{booking} AS b LEFT JOIN {booking_options} AS bo ON bo.bookingid = b.id';
+        $where = "b.id = :bookingid";
+
+        $tableAllOtions->set_sql(
+                $fields, $from, $where, array('bookingid' => $booking->booking->id));
+
+        $tableAllOtions->define_columns($columns);
+        $tableAllOtions->define_headers($headers);
+        
+        $tableAllOtions->out($booking->booking->paginationnum, true);
+    }
+
+
     booking_show_form($booking, $USER, $cm, $bookinglist, $sortUrl, $urlParams);
     echo $OUTPUT->paging_bar($booking->count(), $page, $perPage, $url);
 } else {
     echo $OUTPUT->box(get_string("norighttobook", "booking"));
 }
 
-if (has_capability('mod/booking:updatebooking', $context)) {
-    $addoptionurl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add'));
-    $importoptionurl = new moodle_url('importoptions.php', array('id' => $cm->id));
-    $importexcelurl = new moodle_url('importexcel.php', array('id' => $cm->id));
-    $tagtemplates = new moodle_url('tagtemplates.php', array('cmid' => $cm->id));
-
-    echo '<div style="width: 100%; text-align: center; display:table;">';
-    $button = $OUTPUT->single_button($addoptionurl, get_string('addnewbookingoption', 'booking'), 'get');
-    echo html_writer::tag('span', $button, array('style' => 'text-align: right; display:table-cell;'));
-    $button = $OUTPUT->single_button($importoptionurl, get_string('importcsvbookingoption', 'booking'), 'get');
-    echo html_writer::tag('span', $button, array('style' => 'text-align: center; display:table-cell;'));
-    $button = $OUTPUT->single_button($importexcelurl, get_string('importexcelbutton', 'booking'), 'get');
-    echo html_writer::tag('span', $button, array('style' => 'text-align: center; display:table-cell;'));
-    $button = $OUTPUT->single_button($tagtemplates, get_string('tagtemplates', 'booking'), 'get');
-    echo html_writer::tag('span', $button, array('style' => 'text-align: left; display:table-cell;'));
-    echo '</div>';
-}
 echo $OUTPUT->box("<a href=\"http://www.edulabs.org\">" . get_string('createdby', 'booking') . "</a>", 'box mdl-align');
 echo $OUTPUT->footer();
 ?>
@@ -404,11 +380,11 @@ echo $OUTPUT->footer();
             Y.one('#searchLocation').set('value', '');
             Y.one('#searchInstitution').set('value', '');
             Y.one('#searchName').set('value', '');
-            Y.one('#searchSurname').set('value', '');          
+            Y.one('#searchSurname').set('value', '');
             Y.one('#searchButton').simulate('click');
         });
     });
-    
+
     YUI().use('node', function (Y) {
         Y.delegate('click', function (e) {
             var buttonID = e.currentTarget.get('id'),

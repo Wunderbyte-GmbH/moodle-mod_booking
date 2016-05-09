@@ -25,6 +25,24 @@
  * */
 class mod_booking_renderer extends plugin_renderer_base {
 
+    // Prints tabs for options.
+    public function print_booking_tabs($urlParams, $current = 'showactive') {
+
+        // Output tabs
+        $row = array();
+
+        unset($urlParams['sort']);
+        $tmpUrlParams = $urlParams;
+        $tmpUrlParams['whichview'] = 'showactive';
+        $row[] = new tabobject('showactive', new moodle_url('/mod/booking/view.php', $tmpUrlParams), get_string('showactive', 'booking'));
+        $tmpUrlParams['whichview'] = 'showall';
+        $row[] = new tabobject('showall', new moodle_url('/mod/booking/view.php', $tmpUrlParams), get_string('showallbookings', 'booking'));
+        $tmpUrlParams['whichview'] = 'mybooking';
+        $row[] = new tabobject('mybooking', new moodle_url('/mod/booking/view.php', $tmpUrlParams), get_string('showmybookings', 'booking'));
+
+        echo $this->tabtree($row, $current);
+    }
+
     /**
      * This method is used to generate HTML for a subscriber selection form that
      * uses two user_selector controls
@@ -85,7 +103,7 @@ class mod_booking_renderer extends plugin_renderer_base {
             $table->cellspacing = 5;
             $table->tablealign = 'center';
             $table->data = array();
-            foreach ($users as $user) {                
+            foreach ($users as $user) {
                 $table->data[] = array($this->output->user_picture($user, array('courseid' => $course->id)), fullname($user), $user->email);
             }
             $output .= html_writer::table($table);

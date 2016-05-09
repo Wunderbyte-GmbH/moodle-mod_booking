@@ -1,5 +1,9 @@
 <?php
 
+// view.php
+$string['bookingoptionsmenu'] = 'Booking options';
+$string['datenotset'] = 'Date not set';
+
 $string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
 $string['answered'] = 'Answered';
