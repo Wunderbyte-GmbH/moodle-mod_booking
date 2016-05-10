@@ -91,15 +91,38 @@ if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
 
 require_course_login($course, false, $cm);
 
-$booking = new booking_options($cm->id, TRUE, $urlParams, $page, $perPage);
+if (!$context = context_module::instance($cm->id)) {
+    print_error('badcontext');
+}
+
+$booking = new booking_options($cm->id, TRUE, $urlParams, $page, $perPage, false);
 $booking->apply_tags();
 $booking->get_url_params();
 
 $strbooking = get_string('modulename', 'booking');
 $strbookings = get_string('modulenameplural', 'booking');
 
-if (!$context = context_module::instance($cm->id)) {
-    print_error('badcontext');
+// check if data has been submitted to be processed
+if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capability('mod/booking:choose', $context) and ( $booking->booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
+    $bookingData = new booking_option($cm->id, $optionid);
+    $bookingData->apply_tags();
+
+    if ($bookingData->user_delete_response($USER->id)) {
+        echo $OUTPUT->header();
+        $contents = get_string('bookingdeleted', 'booking');
+        $options = array('id' => $cm->id);
+        $contents .= $OUTPUT->single_button(new moodle_url('view.php', $options), get_string('continue'), 'get');
+        echo $OUTPUT->box($contents, 'box generalbox', 'notice');
+        echo $OUTPUT->footer();
+        die;
+    }
+} elseif ($action == 'delbooking' and confirm_sesskey() and has_capability('mod/booking:choose', $context) and ( $booking->booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {    //print confirm delete form
+    echo $OUTPUT->header();
+    $options = array('id' => $cm->id, 'action' => 'delbooking', 'confirm' => 1, 'optionid' => $optionid, 'sesskey' => $USER->sesskey);
+    $deletemessage = $booking->options[$optionid]->text . "<br />" . $booking->options[$optionid]->coursestarttimetext . " - " . $booking->options[$optionid]->courseendtimetext;
+    echo $OUTPUT->confirm(get_string('deletebooking', 'booking', $deletemessage), new moodle_url('view.php', $options), $urlCancel);
+    echo $OUTPUT->footer();
+    die;
 }
 
 // before processing data user has to agree to booking policy and confirm booking
@@ -168,7 +191,7 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context)) 
     }
 }
 // we have to refresh $booking as it is modified by submitted data;
-$booking = new booking_options($cm->id, TRUE, $urlParams, $page, $perPage);
+$booking = new booking_options($cm->id, TRUE, $urlParams, $page, $perPage, false);
 $booking->apply_tags();
 $booking->get_url_params();
 
@@ -270,36 +293,10 @@ if (strlen($booking->booking->bookingpolicy) > 0) {
 
 echo $html = html_writer::tag('div', '<a id="goenrol" href="#gotop">' . get_string('gotop', 'booking') . '</a>', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
 
+$mybookings = $DB->get_record_sql("SELECT COUNT(*) AS mybookings FROM {booking_answers} WHERE userid = :userid AND bookingid = :bookingid", array('userid' => $USER->id, 'bookingid' => $booking->id));
+
 $output = $PAGE->get_renderer('mod_booking');
-$output->print_booking_tabs($urlParams, $whichview);
-
-
-/*
-  //download spreadsheet of all users
-  if (has_capability('mod/booking:downloadresponses', $context)) {
-  /// Download spreadsheet for all booking options
-  echo $html = html_writer::tag('div', get_string('downloadallresponses', 'booking') . ': ', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
-  $optionstochoose = array('all' => get_string('allbookingoptions', 'booking'));
-  if (isset($booking->options)) {
-  foreach ($booking->options as $option) {
-  $optionstochoose[$option->id] = $option->text;
-  }
-  }
-  $options = $urlParams;
-  $options["id"] = "$cm->id";
-  $options["optionid"] = 0;
-  $options["download"] = "ods";
-  $options['action'] = "all";
-  $button = $OUTPUT->single_button(new moodle_url("report.php", $options), get_string("downloadods"));
-  echo '<div style="width: 100%; text-align: right; display:table;">';
-  echo html_writer::tag('span', $button, array('style' => 'width: 100%; text-align: right; display:table-cell;'));
-  $options["download"] = "xls";
-  $button = $OUTPUT->single_button(new moodle_url("report.php", $options), get_string("downloadexcel"));
-  echo html_writer::tag('span', $button, array('style' => 'text-align: right; display:table-cell;'));
-  echo '</div>';
-  }
- * 
- */
+$output->print_booking_tabs($urlParams, $whichview, $mybookings->mybookings);
 
 $current = false;  // Initialise for later
 //if user has already made a selection, show their selected answer.
@@ -319,6 +316,29 @@ if ($booking->booking->timeclose != 0) {
 
 if (!$current and $bookingopen and has_capability('mod/booking:choose', $context)) {
 
+    $conditions = '';
+
+    switch ($whichview) {
+        case 'mybooking':
+            $conditions = " AND bo.id IN (SELECT optionid FROM {booking_answers} WHERE userid =" . $USER->id . " AND bookingid = {$booking->id}) ";
+            break;
+
+        case 'showall':
+            break;
+
+        case 'showonlyone':
+            $conditions = " AND bo.id = {$optionid}";
+            break;
+
+        case 'showactive':
+            $conditions = " AND (bo.courseendtime > " . time() . " OR bo.courseendtime = 0) ";
+            break;
+
+        default:
+            break;
+    }
+
+
     echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
 
     $search = '<a href="#" id="showHideSearch">' . get_string('search') . "</a>";
@@ -329,41 +349,39 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
     $sortUrl->set_anchor('goenrol');
 
-    $tableAllOtions = new all_options('mod_booking_all_options', $booking);
+    $tableAllOtions = new all_options('mod_booking_all_options', $booking, $cm, $context);
     $tableAllOtions->is_downloading($download, $booking->booking->name, $booking->booking->name);
 
     $tableAllOtions->define_baseurl($url);
     $tableAllOtions->defaultdownloadformat = 'ods';
-    $tableAllOtions->is_downloadable(true);
+    $tableAllOtions->is_downloadable(false);
     $tableAllOtions->show_download_buttons_at(array(TABLE_P_BOTTOM));
 
     $columns = array();
     $headers = array();
 
     if (!$tableAllOtions->is_downloading()) {
-        $columns[] = 'id';
+        $columns[] = 'text';
         $headers[] = get_string("select", "booking");
         $columns[] = 'coursestarttime';
         $headers[] = get_string("coursedate", "booking");
-        $columns[] = 'address';
+        $columns[] = 'maxanswers';
         $headers[] = get_string("availability", "booking");
 
-        $fields = 'bo.id, bo.text, bo.address, bo.coursestarttime, bo.courseendtime';
-        $from = '{booking} AS b LEFT JOIN {booking_options} AS bo ON bo.bookingid = b.id';
+        $fields = "bo.id, bo.text, bo.address, bo.coursestarttime, bo.courseendtime, (SELECT GROUP_CONCAT(CONCAT(CONCAT(u.firstname, ' '), u.lastname) SEPARATOR ', ') AS teachers FROM {booking_teachers} AS t LEFT JOIN {user} AS u ON u.id = t.userid WHERE t.optionid = bo.id) AS teachers, bo.limitanswers, bo.maxanswers, bo.maxoverbooking, (SELECT  COUNT(*) FROM {booking_answers} AS ba WHERE ba.optionid = bo.id AND ba.waitinglist = 0) AS booked, (SELECT COUNT(*) FROM {booking_answers} AS ba WHERE ba.optionid = bo.id AND ba.waitinglist = 1) AS waiting, bo.location, bo.institution, (SELECT COUNT(*) FROM {booking_answers} AS ba WHERE ba.optionid = bo.id AND ba.userid = :userid) AS iambooked, b.allowupdate, bo.bookingclosingtime, b.btncancelname, (SELECT ba.waitinglist FROM {booking_answers} AS ba WHERE ba.optionid = bo.id AND ba.userid = :userid1) AS waitinglist, b.btnbooknowname, b.maxperuser, (SELECT 
+            COUNT(*) FROM {booking_answers} AS ba WHERE ba.bookingid = b.id AND ba.userid = :userid2) AS bookinggetuserbookingcount, b.cancancelbook, bo.disablebookingusers,
+            (SELECT COUNT(*) FROM {booking_teachers} AS ba WHERE ba.optionid = bo.id AND ba.userid = :userid3) AS isteacher";
+        $from = '{booking} AS b LEFT JOIN {booking_options} AS bo ON bo.bookingid = b.id ' . $conditions;
         $where = "b.id = :bookingid";
 
         $tableAllOtions->set_sql(
-                $fields, $from, $where, array('bookingid' => $booking->booking->id));
+                $fields, $from, $where, array('userid' => $USER->id, 'userid1' => $USER->id, 'userid2' => $USER->id, 'userid3' => $USER->id, 'bookingid' => $booking->booking->id));
 
         $tableAllOtions->define_columns($columns);
         $tableAllOtions->define_headers($headers);
-        
+
         $tableAllOtions->out($booking->booking->paginationnum, true);
     }
-
-
-    booking_show_form($booking, $USER, $cm, $bookinglist, $sortUrl, $urlParams);
-    echo $OUTPUT->paging_bar($booking->count(), $page, $perPage, $url);
 } else {
     echo $OUTPUT->box(get_string("norighttobook", "booking"));
 }
