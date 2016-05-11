@@ -33,13 +33,16 @@ class mod_booking_renderer extends plugin_renderer_base {
 
         unset($urlParams['sort']);
         $tmpUrlParams = $urlParams;
+        
+        $tmpUrlParams['whichview'] = 'myinstitution';
+        $row[] = new tabobject('myinstitution', new moodle_url('/mod/booking/view.php', $tmpUrlParams), get_string('showonlymyinstitutions', 'booking'));        
         $tmpUrlParams['whichview'] = 'showactive';
         $row[] = new tabobject('showactive', new moodle_url('/mod/booking/view.php', $tmpUrlParams), get_string('showactive', 'booking'));
         $tmpUrlParams['whichview'] = 'showall';
         $row[] = new tabobject('showall', new moodle_url('/mod/booking/view.php', $tmpUrlParams), get_string('showallbookings', 'booking'));
         $tmpUrlParams['whichview'] = 'mybooking';
         $row[] = new tabobject('mybooking', new moodle_url('/mod/booking/view.php', $tmpUrlParams), get_string('showmybookings', 'booking') . " ({$mybookings})");
-
+                
         echo $this->tabtree($row, $current);
     }
 

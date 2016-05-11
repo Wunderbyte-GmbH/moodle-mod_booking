@@ -44,7 +44,7 @@ class booking {
      * @param mixed $course the current course  if it was already loaded - otherwise this class will load one from the context as required
      */
     public function __construct($cmid) {
-        global $DB, $USER;
+        global $DB;
         $this->cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
         $this->id = $this->cm->instance;
         $this->context = context_module::instance($this->cm->id);
@@ -139,7 +139,7 @@ class booking_option extends booking {
      * @param int $optionid
      * @param object $option option object
      */
-    public function __construct($id, $optionid, $filters = array(), $page = 0, $perpage = 0) {
+    public function __construct($id, $optionid, $filters = array(), $page = 0, $perpage = 0, $getusers = true) {
         global $DB;
 
         parent::__construct($id);
@@ -149,7 +149,9 @@ class booking_option extends booking {
         $this->filters = $filters;
         $this->page = $page;
         $this->perpage = $perpage;
-        $this->get_users();
+        if ($getusers) {
+            $this->get_users();
+        }
     }
 
     public function calculateHowManyCanBookToOther($optionid) {
@@ -1468,4 +1470,28 @@ class booking_tags {
         return $this->option;
     }
 
+}
+
+/**
+ * Outputs a confirm button on a separate page to confirm a booking.
+ */
+function booking_confirm_booking($optionid, $booking, $user, $cm, $url) {
+    global $OUTPUT;
+    echo $OUTPUT->header();
+
+    $option = new booking_option($cm->id, $optionid, array(), 0, 0, false);
+
+    $optionidarray['answer'] = $optionid;
+    $optionidarray['confirm'] = 1;
+    $optionidarray['sesskey'] = $user->sesskey;
+    $optionidarray['id'] = $cm->id;
+    $requestedcourse = "<br />" . $option->option->text;
+    if ($option->option->coursestarttime != 0) {
+        $requestedcourse .= "<br />" . userdate($option->option->coursestarttime, get_string('strftimedatetime')) . " - " . userdate($option->option->courseendtime, get_string('strftimedatetime'));
+    }
+    $message = "<h2>" . get_string('confirmbookingoffollowing', 'booking') . "</h2>" . $requestedcourse;
+    $message .= "<p><b>" . get_string('agreetobookingpolicy', 'booking') . ":</b></p>";
+    $message .= "<p>" . $option->booking->bookingpolicy . "<p>";
+    echo $OUTPUT->confirm($message, new moodle_url('/mod/booking/view.php', $optionidarray), $url);
+    echo $OUTPUT->footer();
 }

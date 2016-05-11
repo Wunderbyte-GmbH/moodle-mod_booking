@@ -1,5 +1,8 @@
 <?php
 
+// renderer.php
+$string['showonlymyinstitutions'] = "My institution";
+
 // view.php
 $string['bookingoptionsmenu'] = 'Booking options';
 $string['datenotset'] = 'Date not set';

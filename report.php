@@ -140,7 +140,7 @@ require_course_login($course, false, $cm);
 
 $context = context_module::instance($cm->id);
 
-$bookingData = new booking_option($cm->id, $optionid, $urlParams, $page, $perPage);
+$bookingData = new booking_option($cm->id, $optionid, $urlParams, $page, $perPage, false);
 $bookingData->apply_tags();
 $bookingData->get_url_params();
 $bookingData->get_teachers();
@@ -189,7 +189,11 @@ $tableAllUsers->is_downloading($download, $bookingData->option->text, $bookingDa
 $tableAllUsers->define_baseurl($currenturl);
 $tableAllUsers->defaultdownloadformat = 'ods';
 $tableAllUsers->sortable(true, 'firstname');
-$tableAllUsers->is_downloadable(true);
+if (has_capability('mod/booking:downloadresponses', $context)) {
+    $tableAllUsers->is_downloadable(true);
+} else {
+    $tableAllUsers->is_downloadable(dalse);
+}
 $tableAllUsers->show_download_buttons_at(array(TABLE_P_BOTTOM));
 $tableAllUsers->no_sorting('selected');
 
@@ -306,18 +310,21 @@ if (!$tableAllUsers->is_downloading()) {
     $columns[] = 'institution';
     $headers[] = get_string('institution', 'mod_booking');
     $columns[] = 'waitinglist';
-    $headers[] = get_string('waitinglist', 'mod_booking');
+    $headers[] = get_string('searchWaitingList', 'mod_booking');
+
 
     $strbooking = get_string("modulename", "booking");
     $strbookings = get_string("modulenameplural", "booking");
     $strresponses = get_string("responses", "booking");
 
-    $settingnode = $PAGE->settingsnav->add(get_string("optionmenu", "booking"), null, navigation_node::TYPE_CONTAINER);
-    $thingnode = $settingnode->add(get_string('updatebooking', 'booking'), new moodle_url('/mod/booking/editoptions.php', array('id' => $bookingData->option->cmid, 'optionid' => $bookingData->option->id)));
-    $thingnode = $settingnode->add(get_string('deletebookingoption', 'booking'), new moodle_url('/mod/booking/report.php', array('id' => $bookingData->option->cmid, 'optionid' => $bookingData->option->id, 'action' => 'deletebookingoption', 'sesskey' => sesskey())));
+    if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
+        $settingnode = $PAGE->settingsnav->add(get_string("optionmenu", "booking"), null, navigation_node::TYPE_CONTAINER);
+        $settingnode->add(get_string('updatebooking', 'booking'), new moodle_url('/mod/booking/editoptions.php', array('id' => $bookingData->option->cmid, 'optionid' => $bookingData->option->id)));
+        $settingnode->add(get_string('deletebookingoption', 'booking'), new moodle_url('/mod/booking/report.php', array('id' => $bookingData->option->cmid, 'optionid' => $bookingData->option->id, 'action' => 'deletebookingoption', 'sesskey' => sesskey())));
+    }
 
     if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) && $bookingData->booking->conectedbooking > 0) {
-        $thingnode = $settingnode->add(get_string('editotherbooking', 'booking'), new moodle_url('/mod/booking/otherbooking.php', array('cmid' => $id, 'optionid' => $optionid)));
+        $settingnode->add(get_string('editotherbooking', 'booking'), new moodle_url('/mod/booking/otherbooking.php', array('cmid' => $id, 'optionid' => $optionid)));
     }
 
 // ALL USERS - START        
@@ -421,22 +428,22 @@ if (!$tableAllUsers->is_downloading()) {
 
     $onlyOneURL = new moodle_url('/mod/booking/view.php', array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone', 'whichview' => 'showonlyone'));
     $onlyOneURL->set_anchor('goenrol');
-    
-    
+
+
     if (!empty(trim($bookingData->option->pollurl))) {
-        echo html_writer::link($bookingData->option->pollurl, get_string('copypollurl', 'booking') , array('onclick' => 'copyToClipboard("' . $bookingData->option->pollurl . '"); return false;')) . ($bookingData->option->pollsend ? ' &#x2713;' : '') . ' | ';
-    }    
-    
+        echo html_writer::link($bookingData->option->pollurl, get_string('copypollurl', 'booking'), array('onclick' => 'copyToClipboard("' . $bookingData->option->pollurl . '"); return false;')) . ($bookingData->option->pollsend ? ' &#x2713;' : '') . ' | ';
+    }
+
     echo html_writer::link($onlyOneURL, get_string('onlythisbookingurl', 'booking'), array());
     echo ' | ' . html_writer::link($onlyOneURL, get_string('copyonlythisbookingurl', 'booking'), array('onclick' => 'copyToClipboard("' . $onlyOneURL . '"); return false;'));
-    
+
     echo "<script>
   function copyToClipboard(text) {
     window.prompt('" . get_string('copytoclipboard', 'booking') . "', text);
   }
 </script>";
 
-    
+
 
     $PAGE->requires->js_init_call('M.mod_booking.init');
 
@@ -484,7 +491,7 @@ if (!$tableAllUsers->is_downloading()) {
         foreach ($userprofilefields as $profilefield) {
             $columns[] = "cust" . strtolower($profilefield->shortname);
             $headers[] = $profilefield->name;
-            $customfields .= ", (SELECT concat(uif.datatype,'|',uid.data) as custom FROM mdl_user_info_data AS uid LEFT JOIN mdl_user_info_field AS uif ON uid.fieldid = uif.id WHERE userid = ba.userid AND uif.shortname = '{$profilefield->shortname}') AS cust" . strtolower($profilefield->shortname);
+            $customfields .= ", (SELECT concat(uif.datatype,'|',uid.data) as custom FROM {user_info_data} AS uid LEFT JOIN {user_info_field} AS uif ON uid.fieldid = uif.id WHERE userid = ba.userid AND uif.shortname = '{$profilefield->shortname}') AS cust" . strtolower($profilefield->shortname);
         }
     }
 

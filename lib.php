@@ -982,27 +982,6 @@ function booking_show_statistic() {
     echo "</tr></table>";
 }
 
-/**
- * Outputs a confirm button on a separate page to confirm a booking.
- */
-function booking_confirm_booking($optionid, $booking, $user, $cm, $url) {
-    global $OUTPUT;
-    echo $OUTPUT->header();
-    $optionidarray['answer'] = $optionid;
-    $optionidarray['confirm'] = 1;
-    $optionidarray['sesskey'] = $user->sesskey;
-    $optionidarray['id'] = $cm->id;
-    $requestedcourse = "<br />" . $booking->options[$optionid]->text;
-    if ($booking->options[$optionid]->coursestarttime != 0) {
-        $requestedcourse .= "<br />" . $booking->options[$optionid]->coursestarttimetext . " - " . $booking->options[$optionid]->courseendtimetext;
-    }
-    $message = "<h2>" . get_string('confirmbookingoffollowing', 'booking') . "</h2>" . $requestedcourse;
-    $message .= "<p><b>" . get_string('agreetobookingpolicy', 'booking') . ":</b></p>";
-    $message .= "<p>" . $booking->booking->bookingpolicy . "<p>";
-    echo $OUTPUT->confirm($message, new moodle_url('/mod/booking/view.php', $optionidarray), $url);
-    echo $OUTPUT->footer();
-}
-
 // Add activity completion for teachers.
 function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $optionid) {
     global $DB;

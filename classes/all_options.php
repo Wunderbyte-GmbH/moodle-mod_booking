@@ -28,10 +28,26 @@ class all_options extends table_sql {
     }
 
     function col_coursestarttime($values) {
+        if ($this->is_downloading()) {
+            if ($values->coursestarttime == 0) {
+                return '';
+            } else {
+                return userdate($values->coursestarttime, get_string('strftimedatetime'));
+            }
+        }
+
         if ($values->coursestarttime == 0) {
             return get_string('datenotset', 'booking');
         } else {
             return userdate($values->coursestarttime) . " -<br>" . userdate($values->courseendtime);
+        }
+    }
+
+    function col_courseendtime($values) {
+        if ($values->courseendtime == 0) {
+            return '';
+        } else {
+            return userdate($values->courseendtime, get_string('strftimedatetime'));
         }
     }
 
@@ -126,12 +142,12 @@ class all_options extends table_sql {
         }
 
         if (has_capability('mod/booking:readresponses', $this->context) || $values->isteacher) {
-                $numberofresponses = $values->waiting + $values->booked;
-                $manage = "<br><a href=\"report.php?id={$this->cm->id}&optionid={$values->id}\">" . get_string("viewallresponses", "booking", $numberofresponses) . "</a>";
-            } else {
-                $manage = "";
-            }
-        
+            $numberofresponses = $values->waiting + $values->booked;
+            $manage = "<br><a href=\"report.php?id={$this->cm->id}&optionid={$values->id}\">" . get_string("viewallresponses", "booking", $numberofresponses) . "</a>";
+        } else {
+            $manage = "";
+        }
+
         if (!$values->limitanswers) {
             return $button . $delete . $booked . get_string("unlimited", 'booking') . $manage;
         } else {
@@ -146,7 +162,23 @@ class all_options extends table_sql {
      *     been made.
      */
     function other_cols($colname, $value) {
-        
+        if (substr($colname, 0, 4) === "cust") {
+            $tmp = explode('|', $value->{$colname});
+
+            if (!$tmp) {
+                return '';
+            }
+
+            if (count($tmp) == 2) {
+                if ($tmp[0] == 'datetime') {
+                    return userdate($tmp[1], get_string('strftimedate'));
+                } else {
+                    return $tmp[1];
+                }
+            } else {
+                return '';
+            }
+        }
     }
 
     function wrap_html_start() {
