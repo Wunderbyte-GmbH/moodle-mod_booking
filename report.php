@@ -149,6 +149,11 @@ if (!(booking_check_if_teacher($bookingData->option, $USER) || has_capability('m
     require_capability('mod/booking:readresponses', $context);
 }
 
+if(booking_check_if_teacher($bookingData->option, $USER) && !has_capability('mod/booking:readresponses', $context)) {
+    $sqlValues['onlyinstitution'] = $USER->institution;
+    $addSQLWhere .= ' AND u.institution= :onlyinstitution';
+} 
+
 $event = \mod_booking\event\report_viewed::create(array('objectid' => $optionid, 'context' => context_module::instance($cm->id)));
 $event->trigger();
 
@@ -387,7 +392,7 @@ if (!$tableAllUsers->is_downloading()) {
     echo implode("<br>", $links);
 
     if ($bookingData->option->courseid != 0) {
-        echo '<br>' . html_writer::start_span('') . get_string('associatedcourse', 'booking') . ': ' . html_writer::link(new moodle_url($bookingData->option->courseurl, array()), $bookingData->option->urltitle, array('style' => 'float:right;')) . html_writer::end_span();
+        echo '<br>' . html_writer::start_span('') . get_string('associatedcourse', 'booking') . ': ' . html_writer::link(new moodle_url($bookingData->option->courseurl, array()), $bookingData->option->urltitle, array()) . html_writer::end_span();
     }
 
     $hidden = "";

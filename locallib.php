@@ -1,6 +1,7 @@
 <?php
 
 require_once($CFG->dirroot . '/user/selector/lib.php');
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Standard base class for mod_booking
@@ -386,6 +387,7 @@ class booking_option extends booking {
         $this->numberofanswers = count($this->bookedusers);
         if (!empty($this->groupmembers) && !(has_capability('moodle/site:accessallgroups', $this->context))) {
             $this->bookedvisibleusers = array_intersect_key($this->bookedusers, $this->groupmembers);
+            //$this->bookedvisibleusers = $this->bookedusers; // for testing only!!!
             $canbookgroupmembers = array_intersect_key($this->canbookusers, $this->groupmembers);
             $this->potentialusers = array_diff_key($canbookgroupmembers, $this->bookedusers);
         } else if (has_capability('moodle/site:accessallgroups', $this->context)) {
@@ -1053,7 +1055,9 @@ class booking_options extends booking {
             } else {
                 //empty -> all invisible
                 foreach ($this->allbookedusers as $optionid => $optionusers) {
-                    array_walk($optionusers, 'self::booking_set_visiblefalse');
+                    foreach ($optionusers as $user) {
+                        $user->status[$optionid]->bookingvisible = false;
+                    }
                 }
             }
         }
@@ -1140,20 +1144,30 @@ class booking_potential_user_selector extends booking_user_selector_base {
     public function __construct($name, $options) {
         $this->potentialusers = $options['potentialusers'];
         $this->options = $options;
+
         parent::__construct($name, $options);
     }
 
     public function find_users($search) {
-        global $DB, $USER;
-
+        global $DB, $USER;        
+        
         $fields = "SELECT " . $this->required_fields_sql("u");
+        
         $countfields = 'SELECT COUNT(1)';
         list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
-        list($esql, $params) = get_enrolled_sql($this->options['accesscontext'], NULL, NULL, true);
-
-        $sql = " FROM {user} u
-        WHERE u.id NOT IN (SELECT ba.id FROM {booking_answers} AS ba WHERE ba.optionid = {$this->bookingid}) AND
-        $searchcondition AND u.id IN ($esql)";
+        list($esql, $params) = get_enrolled_sql($this->options['accesscontext'], NULL, NULL, true); 
+        
+        $option = new stdClass();
+        $option->id = $this->options['optionid'];
+        $option->bookingid = $this->options['bookingid'];
+        
+        if(booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readresponses', $this->options['accesscontext'])) {
+            $searchparams['onlyinstitution'] = $USER->institution;
+            $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
+        } 
+        
+        $sql = " FROM {user} u WHERE $searchcondition AND u.id IN (SELECT nnn.id FROM ($esql) AS nnn WHERE nnn.id) AND u.id NOT IN (SELECT ba.userid FROM {booking_answers} AS ba WHERE ba.optionid = {$this->options['optionid']})";
+        
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
 
@@ -1189,6 +1203,16 @@ class booking_potential_user_selector extends booking_user_selector_base {
  */
 class booking_existing_user_selector extends booking_user_selector_base {
 
+    public $potentialusers;
+    public $options;
+
+    public function __construct($name, $options) {
+        $this->potentialusers = $options['potentialusers'];
+        $this->options = $options;
+
+        parent::__construct($name, $options);
+    }
+    
     /**
      * Finds all booked users
      *
@@ -1196,7 +1220,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
      * @return array
      */
     public function find_users($search) {
-        global $DB;
+        global $DB, $USER;
 
         // only active enrolled or everybody on the frontpage
         $fields = "SELECT " . $this->required_fields_sql("u");
@@ -1205,12 +1229,21 @@ class booking_existing_user_selector extends booking_user_selector_base {
 
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
+
         if (!empty($this->potentialusers)) {
             $subscriberssql = implode(',', array_keys($this->potentialusers));
         } else {
             return array();
         }
 
+        $option = new stdClass();
+        $option->id = $this->options['optionid'];
+        $option->bookingid = $this->options['bookingid'];        
+        
+        if(booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readresponses', $this->options['accesscontext'])) {
+            $searchparams['onlyinstitution'] = $USER->institution;
+            $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
+        } 
 
         $sql = " FROM {user} u
         WHERE u.id IN ($subscriberssql) AND

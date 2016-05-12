@@ -62,7 +62,6 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
     $existingoptions['potentialusers'] = $bookingoption->bookedvisibleusers;
 
     $existingselector = new booking_existing_user_selector('removeselect', $existingoptions);
-
     $subscriberselector = new booking_potential_user_selector('addselect', $options);
 
     if (data_submitted()) {

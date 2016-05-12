@@ -802,9 +802,9 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
 function booking_check_if_teacher($option, $user) {
     global $DB;
 
-    $user = $DB->get_record('booking_teachers', array('bookingid' => $option->bookingid, 'userid' => $user->id, 'optionid' => $option->id));
+    $userr = $DB->get_record('booking_teachers', array('bookingid' => $option->bookingid, 'userid' => $user->id, 'optionid' => $option->id));
 
-    if ($user === FALSE) {
+    if ($userr === FALSE) {
         return FALSE;
     } else {
         return TRUE;

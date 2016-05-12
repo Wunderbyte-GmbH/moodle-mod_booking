@@ -245,7 +245,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             $conditionsParams['myuserid'] = $USER->id;
             $conditionsParams['mybookingid'] = $booking->id;
             break;
-        
+
         case 'myoptions':
             $conditions[] = "bo.id IN (SELECT optionid FROM {booking_teachers} WHERE userid = :myuserid AND bookingid = :mybookingid)";
             $conditionsParams['myuserid'] = $USER->id;
@@ -521,6 +521,11 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         $columns[] = 'groups';
         $headers[] = get_string("group");
+
+        if ($myoptions->myoptions > 0 && !has_capability('mod/booking:readresponses', $context)) {
+            $conditionsParams['onlyinstitution1'] = $USER->institution;
+            $conditions[] = 'tu.institution LIKE :onlyinstitution1';
+        }
 
         $fields = "tba.id,
             tu.id AS userid,
