@@ -6,6 +6,7 @@ $string['showonlymyinstitutions'] = "My institution";
 // view.php
 $string['bookingoptionsmenu'] = 'Booking options';
 $string['datenotset'] = 'Date not set';
+$string['myoptions'] = 'My options ({$a})';
 
 $string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
@@ -136,7 +137,7 @@ $string['mustfilloutuserinfobeforebooking'] = 'Befor proceeding to the booking f
 $string['subscribeuser'] = 'Do you really want to enrol the users in the following course';
 $string['deleteuserfrombooking'] = 'Do you really want to delete the users from the booking?';
 $string['showallbookings'] = 'All bookings';
-$string['showmybookings'] = 'My bookings';
+$string['showmybookings'] = 'My bookings ({$a})';
 $string['showactive'] = 'Active bookings';
 $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
 $string['deletebookingoption'] = 'Delete this booking option';

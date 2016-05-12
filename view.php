@@ -229,6 +229,7 @@ $event->trigger();
 $bookinglist = $booking->allbookedusers;
 
 $mybookings = $DB->get_record_sql("SELECT COUNT(*) AS mybookings FROM {booking_answers} WHERE userid = :userid AND bookingid = :bookingid", array('userid' => $USER->id, 'bookingid' => $booking->id));
+$myoptions = $DB->get_record_sql("SELECT COUNT(*) AS myoptions FROM {booking_teachers} WHERE userid = :userid AND bookingid = :bookingid", array('userid' => $USER->id, 'bookingid' => $booking->id));
 
 $current = false;  // Initialise for later
 //if user has already made a selection, show their selected answer.
@@ -241,6 +242,12 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
     switch ($whichview) {
         case 'mybooking':
             $conditions[] = "bo.id IN (SELECT optionid FROM {booking_answers} WHERE userid = :myuserid AND bookingid = :mybookingid)";
+            $conditionsParams['myuserid'] = $USER->id;
+            $conditionsParams['mybookingid'] = $booking->id;
+            break;
+        
+        case 'myoptions':
+            $conditions[] = "bo.id IN (SELECT optionid FROM {booking_teachers} WHERE userid = :myuserid AND bookingid = :mybookingid)";
             $conditionsParams['myuserid'] = $USER->id;
             $conditionsParams['mybookingid'] = $booking->id;
             break;
@@ -386,7 +393,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
 
         $output = $PAGE->get_renderer('mod_booking');
-        $output->print_booking_tabs($urlParams, $whichview, $mybookings->mybookings);
+        $output->print_booking_tabs($urlParams, $whichview, $mybookings->mybookings, $myoptions->myoptions);
 
         $search = '<a href="#" id="showHideSearch">' . get_string('search') . "</a>";
 

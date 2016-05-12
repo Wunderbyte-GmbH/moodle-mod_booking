@@ -1122,6 +1122,22 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2016041502, 'booking');
     }
+    
+        if ($oldversion < 2016051201) {
+
+        // Define index courseid (not unique) to be added to booking_tags.
+        $table = new xmldb_table('booking_tags');
+        $index = new xmldb_index('courseid', XMLDB_INDEX_NOTUNIQUE, array('courseid'));
+
+        // Conditionally launch add index courseid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2016051201, 'booking');
+    }
+
 
     return true;
 }
