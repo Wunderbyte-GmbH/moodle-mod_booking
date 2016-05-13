@@ -37,8 +37,13 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
         $paths[] = new restore_path_element('booking', '/activity/booking');
         $paths[] = new restore_path_element('booking_option', '/activity/booking/options/option');
+        $paths[] = new restore_path_element('booking_category', '/activity/booking/categories/caegory');
+        $paths[] = new restore_path_element('booking_tag', '/activity/booking/tags/tag');
+        $paths[] = new restore_path_element('booking_institution', '/activity/booking/institutions/institution');
+        $paths[] = new restore_path_element('booking_other', '/activity/booking/options/option/others/other');
         if ($userinfo) {
             $paths[] = new restore_path_element('booking_answer', '/activity/booking/answers/answer');
+            $paths[] = new restore_path_element('booking_teacher', '/activity/booking/teachers/teacher');
         }
 
         // Return the paths wrapped into standard activity structure
@@ -67,7 +72,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
         $data = (object) $data;
         $oldid = $data->id;
-
+        
         $data->bookingid = $this->get_new_parentid('booking');
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
@@ -78,15 +83,81 @@ class restore_booking_activity_structure_step extends restore_activity_structure
     protected function process_booking_answer($data) {
         global $DB;
 
-        $data = (object) $data;
+        $data = (object) $data;        
         $oldid = $data->id;
 
         $data->bookingid = $this->get_new_parentid('booking');
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
-        print_r($data);
+        
         $newitemid = $DB->insert_record('booking_answers', $data);
+        // No need to save this mapping as far as nothing depend on it
+        // (child paths, file areas nor links decoder)
+    }
+    
+    protected function process_booking_teacher($data) {
+        global $DB;
+
+        $data = (object) $data;     
+        $oldid = $data->id;
+
+        $data->bookingid = $this->get_new_parentid('booking');
+        $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        $newitemid = $DB->insert_record('booking_teachers', $data);
+        // No need to save this mapping as far as nothing depend on it
+        // (child paths, file areas nor links decoder)
+    }
+    
+    protected function process_booking_category($data) {
+        global $DB;
+
+        $data = (object) $data;        
+        $oldid = $data->id;
+
+        $data->course = $this->get_courseid();
+        
+        $newitemid = $DB->insert_record('booking_category', $data);
+        // No need to save this mapping as far as nothing depend on it
+        // (child paths, file areas nor links decoder)
+    }
+    
+    protected function process_booking_tag($data) {
+        global $DB;
+
+        $data = (object) $data;        
+        $oldid = $data->id;
+
+        $data->courseid = $this->get_courseid();
+        
+        $newitemid = $DB->insert_record('booking_tags', $data);
+        // No need to save this mapping as far as nothing depend on it
+        // (child paths, file areas nor links decoder)
+    }
+    
+    protected function process_booking_institution($data) {
+        global $DB;
+
+        $data = (object) $data;        
+        $oldid = $data->id;
+
+        $data->course = $this->get_courseid();
+        
+        $newitemid = $DB->insert_record('booking_institutions', $data);
+        // No need to save this mapping as far as nothing depend on it
+        // (child paths, file areas nor links decoder)
+    }
+    
+    protected function process_booking_other($data) {
+        global $DB;
+
+        $data = (object) $data;        
+        $oldid = $data->id;
+
+        $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
+        
+        $newitemid = $DB->insert_record('booking_other', $data);
         // No need to save this mapping as far as nothing depend on it
         // (child paths, file areas nor links decoder)
     }
