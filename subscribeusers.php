@@ -41,7 +41,6 @@ $PAGE->set_url($url);
 $PAGE->set_title(get_string('modulename', 'booking'));
 $PAGE->set_heading($COURSE->fullname);
 $PAGE->navbar->add(get_string('booking:subscribeusers', 'booking'), $url);
-
 if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
     echo $OUTPUT->header();
     $alright = false;

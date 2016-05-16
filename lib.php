@@ -130,7 +130,7 @@ function booking_user_complete($course, $user, $mod, $booking) {
     }
 }
 
-function booking_supports($feature) {
+function booking_supports($feature) {    
     switch ($feature) {
         case FEATURE_GROUPS: return false;
         case FEATURE_GROUPINGS: return false;
@@ -1942,7 +1942,8 @@ class booking_existing_subscriber_selector extends booking_subscriber_selector_b
         $params['optionid'] = $this->optionid;
 
 // only active enrolled or everybody on the frontpage
-        list($esql, $eparams) = get_enrolled_sql($this->context, '', $this->currentgroup, true);
+
+        list($esql, $eparams) = get_enrolled_sql($this->context, '', 0, true);
         $fields = $this->required_fields_sql('u');
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $params = array_merge($params, $eparams, $sortparams);
