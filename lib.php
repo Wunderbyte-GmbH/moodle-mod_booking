@@ -130,7 +130,7 @@ function booking_user_complete($course, $user, $mod, $booking) {
     }
 }
 
-function booking_supports($feature) {    
+function booking_supports($feature) {
     switch ($feature) {
         case FEATURE_GROUPS: return false;
         case FEATURE_GROUPINGS: return false;
@@ -246,7 +246,7 @@ function booking_update_instance($booking) {
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
         $booking->categoryid = implode(',', $booking->categoryid);
     }
-    
+
     $arr = array();
 
     tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $booking->id);
@@ -1031,18 +1031,17 @@ function booking_generatenewnumners($bookingDataBooking, $cmid, $optionid, $allS
             $recnum = $tmpRecNum->numrec + 1;
         }
 
-        foreach($allSelectedUsers as $ui) {
+        foreach ($allSelectedUsers as $ui) {
             $userData = $DB->get_record('booking_answers', array('optionid' => $optionid, 'userid' => $ui));
             $userData->numrec = $recnum++;
             $DB->update_record('booking_answers', $userData);
         }
-
     } else {
         $allUsers = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY RAND()', array($optionid));
 
         $recnum = 1;
 
-        foreach($allUsers as $user) {
+        foreach ($allUsers as $user) {
             $user->numrec = $recnum++;
             $DB->update_record('booking_answers', $user);
         }
@@ -1341,7 +1340,7 @@ function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' =>
         $bookingObject->apply_tags();
     }
 
-    
+
     if ($options) {
         $answers = $DB->get_records('booking_answers', array('bookingid' => $bookingid), 'id');
 
@@ -2152,6 +2151,14 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
     unset($results[$CFG->siteguest]);
 
     return $results;
+}
+
+function booking_user_unenrolled($eventdata) {
+    GLOBAL $DB;
+
+    $DB->execute('DELETE ba FROM {booking_answers} AS ba LEFT JOIN {booking} AS b ON b.id = ba.bookingid WHERE ba.userid = :userid AND b.course = :course', array('userid' => $eventdata->userid, 'course' => $eventdata->courseid));
+
+    return true;
 }
 
 ?>
