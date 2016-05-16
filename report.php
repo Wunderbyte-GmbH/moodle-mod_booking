@@ -360,7 +360,7 @@ if (!$tableAllUsers->is_downloading()) {
     $teachers = array();
 
     foreach ($bookingData->option->teachers as $value) {
-        $teachers[] = "{$value->firstname} {$value->lastname}";
+        $teachers[] = html_writer::link(new moodle_url('/user/profile.php', array('id' => $value->userid)), "{$value->firstname} {$value->lastname}", array());        
     }
 
     $linkst = '';
