@@ -293,7 +293,8 @@ class mod_booking_mod_form extends moodleform_mod {
         
         $mform->addElement('selectyesno', 'numgenerator', get_string("numgenerator", "booking"));
         
-        $mform->addElement('text', 'paginationnum', get_string('paginationnum', 'booking'), 0);        
+        $mform->addElement('text', 'paginationnum', get_string('paginationnum', 'booking'), 0);  
+        $mform->setDefault('paginationnum', 25);
         $mform->setType('paginationnum', PARAM_INT);
         
         // ----TAGS---------------------------------------------------

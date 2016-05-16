@@ -253,6 +253,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             break;
 
         case 'showall':
+            $conditions[] = "bo.bookingid = :bookingid1";
+            $conditionsParams['bookingid1'] = $booking->id;
             break;
 
         case 'showonlyone':
@@ -471,7 +473,11 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $tableAllOtions->define_columns($columns);
         $tableAllOtions->define_headers($headers);
 
-        $tableAllOtions->out($booking->booking->paginationnum, true);
+        $pagging = $booking->booking->paginationnum;
+        if ($pagging == 0) {
+            $pagging = 25;
+        }
+        $tableAllOtions->out($pagging, true);
     } else {
         $columns = array();
         $headers = array();
