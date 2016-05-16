@@ -246,8 +246,10 @@ function booking_update_instance($booking) {
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
         $booking->categoryid = implode(',', $booking->categoryid);
     }
+    
+    $arr = array();
 
-    tag_set('booking', $booking->id, $booking->tags);
+    tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $booking->id);
 
     $cm = get_coursemodule_from_instance('booking', $booking->id);
     $context = context_module::instance($cm->id);
