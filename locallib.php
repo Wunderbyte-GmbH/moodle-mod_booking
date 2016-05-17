@@ -385,15 +385,10 @@ class booking_option extends booking {
         // TODO offer users with according caps to delete excluded users from booking option
         //$excludedusers =  array_diff_key($allanswers, $this->canbookusers);
         $this->numberofanswers = count($this->bookedusers);
-        if (!empty($this->groupmembers) && !(has_capability('moodle/site:accessallgroups', $this->context))) {
-            $this->bookedvisibleusers = array_intersect_key($this->bookedusers, $this->groupmembers);
-            //$this->bookedvisibleusers = $this->bookedusers; // for testing only!!!
-            $canbookgroupmembers = array_intersect_key($this->canbookusers, $this->groupmembers);
-            $this->potentialusers = array_diff_key($canbookgroupmembers, $this->bookedusers);
-        } else if (has_capability('moodle/site:accessallgroups', $this->context)) {
-            $this->bookedvisibleusers = $this->bookedusers;
-            $this->potentialusers = array_diff_key($this->canbookusers, $this->bookedusers);
-        }
+        
+        $this->bookedvisibleusers = $this->bookedusers;
+        $this->potentialusers = array_diff_key($this->canbookusers, $this->bookedusers);
+
         $this->sort_answers();
     }
 
