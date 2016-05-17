@@ -1529,6 +1529,10 @@ function booking_send_confirm_message($eventdata) {
     if ($eventdata->booking->copymail) {
         $messagedata->userto = $bookingmanager;
         $messagedata->subject = $subjectmanager;
+
+        if ($cansend) {
+            booking_booking_confirmed($messagedata);
+        }
     }
     return true;
 }
