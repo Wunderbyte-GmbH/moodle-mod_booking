@@ -197,7 +197,7 @@ $tableAllUsers->sortable(true, 'firstname');
 if (has_capability('mod/booking:downloadresponses', $context)) {
     $tableAllUsers->is_downloadable(true);
 } else {
-    $tableAllUsers->is_downloadable(dalse);
+    $tableAllUsers->is_downloadable(false);
 }
 $tableAllUsers->show_download_buttons_at(array(TABLE_P_BOTTOM));
 $tableAllUsers->no_sorting('selected');
