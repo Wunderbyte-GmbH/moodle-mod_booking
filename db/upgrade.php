@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 // This file keeps track of upgrades to 
 // the booking module
@@ -1122,8 +1122,8 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2016041502, 'booking');
     }
-    
-        if ($oldversion < 2016051201) {
+
+    if ($oldversion < 2016051201) {
 
         // Define index courseid (not unique) to be added to booking_tags.
         $table = new xmldb_table('booking_tags');
@@ -1138,6 +1138,38 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016051201, 'booking');
     }
 
+    if ($oldversion < 2016051703) {
+
+        $allCourses = $DB->get_records_sql('SELECT DISTINCT course FROM {booking}', array());
+
+        foreach ($allCourses as $course) {
+            $DB->execute('DELETE ba FROM {booking_answers} AS ba LEFT JOIN {booking} AS b ON b.id = ba.bookingid WHERE b.course = :course1 AND ba.userid NOT IN (SELECT DISTINCT
+            eu1_u.id
+        FROM
+            mdl_user eu1_u
+                JOIN
+            mdl_user_enrolments eu1_ue ON eu1_ue.userid = eu1_u.id
+                JOIN
+            mdl_enrol eu1_e ON (eu1_e.id = eu1_ue.enrolid
+                AND eu1_e.courseid = :course2)
+        WHERE
+            eu1_u.deleted = 0 AND eu1_u.id <> 1)', array('course1' => $course->course, 'course2' => $course->course));
+
+            $DB->execute('DELETE ba FROM {booking_teachers} AS ba LEFT JOIN {booking} AS b ON b.id = ba.bookingid WHERE b.course = :course1 AND ba.userid NOT IN (SELECT DISTINCT
+            eu1_u.id
+        FROM
+            mdl_user eu1_u
+                JOIN
+            mdl_user_enrolments eu1_ue ON eu1_ue.userid = eu1_u.id
+                JOIN
+            mdl_enrol eu1_e ON (eu1_e.id = eu1_ue.enrolid
+                AND eu1_e.courseid = :course2)
+        WHERE
+            eu1_u.deleted = 0 AND eu1_u.id <> 1)', array('course1' => $course->course, 'course2' => $course->course));
+        }
+
+        upgrade_mod_savepoint(true, 2016051703, 'booking');
+    }
 
     return true;
 }
