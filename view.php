@@ -269,7 +269,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         case 'myinstitution':
             $conditions[] = "bo.institution LIKE :institution";
-            $conditionsParams['institution'] = $USER->institution;
+            $conditionsParams['institution'] = "%{$USER->institution}%";
             break;
 
         default:
