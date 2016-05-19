@@ -1,6 +1,7 @@
 <?php
 
 require_once($CFG->dirroot . '/user/selector/lib.php');
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Standard base class for mod_booking
@@ -44,7 +45,7 @@ class booking {
      * @param mixed $course the current course  if it was already loaded - otherwise this class will load one from the context as required
      */
     public function __construct($cmid) {
-        global $DB, $USER;
+        global $DB;
         $this->cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
         $this->id = $this->cm->instance;
         $this->context = context_module::instance($this->cm->id);
@@ -139,7 +140,7 @@ class booking_option extends booking {
      * @param int $optionid
      * @param object $option option object
      */
-    public function __construct($id, $optionid, $filters = array(), $page = 0, $perpage = 0) {
+    public function __construct($id, $optionid, $filters = array(), $page = 0, $perpage = 0, $getusers = true) {
         global $DB;
 
         parent::__construct($id);
@@ -149,7 +150,9 @@ class booking_option extends booking {
         $this->filters = $filters;
         $this->page = $page;
         $this->perpage = $perpage;
-        $this->get_users();
+        if ($getusers) {
+            $this->get_users();
+        }
     }
 
     public function calculateHowManyCanBookToOther($optionid) {
@@ -227,6 +230,12 @@ class booking_option extends booking {
         $params = $bu->generate_params($this->booking, $this->option);
         $this->option->pollurl = $bu->get_body($params, 'pollurl', $params, TRUE);
         $this->option->pollurlteachers = $bu->get_body($params, 'pollurlteachers', $params, TRUE);
+    }
+
+    public function get_teachers() {
+        global $DB;
+
+        $this->option->teachers = $DB->get_records_sql('SELECT DISTINCT t.userid, u.firstname, u.lastname FROM {booking_teachers} AS t LEFT JOIN {user} AS u ON t.userid = u.id WHERE t.optionid = ' . $this->optionid . '');
     }
 
     // Get all users with filters
@@ -376,14 +385,10 @@ class booking_option extends booking {
         // TODO offer users with according caps to delete excluded users from booking option
         //$excludedusers =  array_diff_key($allanswers, $this->canbookusers);
         $this->numberofanswers = count($this->bookedusers);
-        if (!empty($this->groupmembers) && !(has_capability('moodle/site:accessallgroups', $this->context))) {
-            $this->bookedvisibleusers = array_intersect_key($this->bookedusers, $this->groupmembers);
-            $canbookgroupmembers = array_intersect_key($this->canbookusers, $this->groupmembers);
-            $this->potentialusers = array_diff_key($canbookgroupmembers, $this->bookedusers);
-        } else if (has_capability('moodle/site:accessallgroups', $this->context)) {
-            $this->bookedvisibleusers = $this->bookedusers;
-            $this->potentialusers = array_diff_key($this->canbookusers, $this->bookedusers);
-        }
+        
+        $this->bookedvisibleusers = $this->bookedusers;
+        $this->potentialusers = array_diff_key($this->canbookusers, $this->bookedusers);
+
         $this->sort_answers();
     }
 
@@ -434,7 +439,7 @@ class booking_option extends booking {
     public function user_delete_response($userid) {
         global $USER, $DB;
 
-        if (!$DB->delete_records('booking_answers', array('userid' => $userid, 'optionid' => $this->optionid))) {
+        if (!$DB->delete_records('booking_answers', array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0))) {
             return false;
         }
 
@@ -1045,7 +1050,9 @@ class booking_options extends booking {
             } else {
                 //empty -> all invisible
                 foreach ($this->allbookedusers as $optionid => $optionusers) {
-                    array_walk($optionusers, 'self::booking_set_visiblefalse');
+                    foreach ($optionusers as $user) {
+                        $user->status[$optionid]->bookingvisible = false;
+                    }
                 }
             }
         }
@@ -1132,20 +1139,30 @@ class booking_potential_user_selector extends booking_user_selector_base {
     public function __construct($name, $options) {
         $this->potentialusers = $options['potentialusers'];
         $this->options = $options;
+
         parent::__construct($name, $options);
     }
 
     public function find_users($search) {
-        global $DB, $USER;
-
+        global $DB, $USER;        
+        
         $fields = "SELECT " . $this->required_fields_sql("u");
+        
         $countfields = 'SELECT COUNT(1)';
         list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
-        list($esql, $params) = get_enrolled_sql($this->options['accesscontext'], NULL, NULL, true);
-
-        $sql = " FROM {user} u
-        WHERE u.id NOT IN (SELECT ba.id FROM {booking_answers} AS ba WHERE ba.optionid = {$this->bookingid}) AND
-        $searchcondition AND u.id IN ($esql)";
+        list($esql, $params) = get_enrolled_sql($this->options['accesscontext'], NULL, NULL, true); 
+        
+        $option = new stdClass();
+        $option->id = $this->options['optionid'];
+        $option->bookingid = $this->options['bookingid'];
+        
+        if(booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readresponses', $this->options['accesscontext'])) {
+            $searchparams['onlyinstitution'] = $USER->institution;
+            $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
+        } 
+        
+        $sql = " FROM {user} u WHERE $searchcondition AND u.id IN (SELECT nnn.id FROM ($esql) AS nnn WHERE nnn.id) AND u.id NOT IN (SELECT ba.userid FROM {booking_answers} AS ba WHERE ba.optionid = {$this->options['optionid']})";
+        
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
 
@@ -1181,6 +1198,16 @@ class booking_potential_user_selector extends booking_user_selector_base {
  */
 class booking_existing_user_selector extends booking_user_selector_base {
 
+    public $potentialusers;
+    public $options;
+
+    public function __construct($name, $options) {
+        $this->potentialusers = $options['potentialusers'];
+        $this->options = $options;
+
+        parent::__construct($name, $options);
+    }
+    
     /**
      * Finds all booked users
      *
@@ -1188,7 +1215,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
      * @return array
      */
     public function find_users($search) {
-        global $DB;
+        global $DB, $USER;
 
         // only active enrolled or everybody on the frontpage
         $fields = "SELECT " . $this->required_fields_sql("u");
@@ -1197,12 +1224,21 @@ class booking_existing_user_selector extends booking_user_selector_base {
 
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
+
         if (!empty($this->potentialusers)) {
             $subscriberssql = implode(',', array_keys($this->potentialusers));
         } else {
             return array();
         }
 
+        $option = new stdClass();
+        $option->id = $this->options['optionid'];
+        $option->bookingid = $this->options['bookingid'];        
+        
+        if(booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readresponses', $this->options['accesscontext'])) {
+            $searchparams['onlyinstitution'] = $USER->institution;
+            $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
+        } 
 
         $sql = " FROM {user} u
         WHERE u.id IN ($subscriberssql) AND
@@ -1462,4 +1498,28 @@ class booking_tags {
         return $this->option;
     }
 
+}
+
+/**
+ * Outputs a confirm button on a separate page to confirm a booking.
+ */
+function booking_confirm_booking($optionid, $booking, $user, $cm, $url) {
+    global $OUTPUT;
+    echo $OUTPUT->header();
+
+    $option = new booking_option($cm->id, $optionid, array(), 0, 0, false);
+
+    $optionidarray['answer'] = $optionid;
+    $optionidarray['confirm'] = 1;
+    $optionidarray['sesskey'] = $user->sesskey;
+    $optionidarray['id'] = $cm->id;
+    $requestedcourse = "<br />" . $option->option->text;
+    if ($option->option->coursestarttime != 0) {
+        $requestedcourse .= "<br />" . userdate($option->option->coursestarttime, get_string('strftimedatetime')) . " - " . userdate($option->option->courseendtime, get_string('strftimedatetime'));
+    }
+    $message = "<h2>" . get_string('confirmbookingoffollowing', 'booking') . "</h2>" . $requestedcourse;
+    $message .= "<p><b>" . get_string('agreetobookingpolicy', 'booking') . ":</b></p>";
+    $message .= "<p>" . $option->booking->bookingpolicy . "<p>";
+    echo $OUTPUT->confirm($message, new moodle_url('/mod/booking/view.php', $optionidarray), $url);
+    echo $OUTPUT->footer();
 }

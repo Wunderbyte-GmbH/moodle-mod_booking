@@ -247,7 +247,9 @@ function booking_update_instance($booking) {
         $booking->categoryid = implode(',', $booking->categoryid);
     }
 
-    tag_set('booking', $booking->id, $booking->tags);
+    $arr = array();
+
+    tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $booking->id);
 
     $cm = get_coursemodule_from_instance('booking', $booking->id);
     $context = context_module::instance($cm->id);
@@ -802,9 +804,9 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
 function booking_check_if_teacher($option, $user) {
     global $DB;
 
-    $user = $DB->get_record('booking_teachers', array('bookingid' => $option->bookingid, 'userid' => $user->id, 'optionid' => $option->id));
+    $userr = $DB->get_record('booking_teachers', array('bookingid' => $option->bookingid, 'userid' => $user->id, 'optionid' => $option->id));
 
-    if ($user === FALSE) {
+    if ($userr === FALSE) {
         return FALSE;
     } else {
         return TRUE;
@@ -982,27 +984,6 @@ function booking_show_statistic() {
     echo "</tr></table>";
 }
 
-/**
- * Outputs a confirm button on a separate page to confirm a booking.
- */
-function booking_confirm_booking($optionid, $booking, $user, $cm, $url) {
-    global $OUTPUT;
-    echo $OUTPUT->header();
-    $optionidarray['answer'] = $optionid;
-    $optionidarray['confirm'] = 1;
-    $optionidarray['sesskey'] = $user->sesskey;
-    $optionidarray['id'] = $cm->id;
-    $requestedcourse = "<br />" . $booking->options[$optionid]->text;
-    if ($booking->options[$optionid]->coursestarttime != 0) {
-        $requestedcourse .= "<br />" . $booking->options[$optionid]->coursestarttimetext . " - " . $booking->options[$optionid]->courseendtimetext;
-    }
-    $message = "<h2>" . get_string('confirmbookingoffollowing', 'booking') . "</h2>" . $requestedcourse;
-    $message .= "<p><b>" . get_string('agreetobookingpolicy', 'booking') . ":</b></p>";
-    $message .= "<p>" . $booking->booking->bookingpolicy . "<p>";
-    echo $OUTPUT->confirm($message, new moodle_url('/mod/booking/view.php', $optionidarray), $url);
-    echo $OUTPUT->footer();
-}
-
 // Add activity completion for teachers.
 function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $optionid) {
     global $DB;
@@ -1050,18 +1031,17 @@ function booking_generatenewnumners($bookingDataBooking, $cmid, $optionid, $allS
             $recnum = $tmpRecNum->numrec + 1;
         }
 
-        foreach($allSelectedUsers as $ui) {
+        foreach ($allSelectedUsers as $ui) {
             $userData = $DB->get_record('booking_answers', array('optionid' => $optionid, 'userid' => $ui));
             $userData->numrec = $recnum++;
             $DB->update_record('booking_answers', $userData);
         }
-
     } else {
         $allUsers = $DB->get_records_sql('SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY RAND()', array($optionid));
 
         $recnum = 1;
 
-        foreach($allUsers as $user) {
+        foreach ($allUsers as $user) {
             $user->numrec = $recnum++;
             $DB->update_record('booking_answers', $user);
         }
@@ -1360,7 +1340,7 @@ function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' =>
         $bookingObject->apply_tags();
     }
 
-    
+
     if ($options) {
         $answers = $DB->get_records('booking_answers', array('bookingid' => $bookingid), 'id');
 
@@ -1549,6 +1529,10 @@ function booking_send_confirm_message($eventdata) {
     if ($eventdata->booking->copymail) {
         $messagedata->userto = $bookingmanager;
         $messagedata->subject = $subjectmanager;
+
+        if ($cansend) {
+            booking_booking_confirmed($messagedata);
+        }
     }
     return true;
 }
@@ -1963,7 +1947,8 @@ class booking_existing_subscriber_selector extends booking_subscriber_selector_b
         $params['optionid'] = $this->optionid;
 
 // only active enrolled or everybody on the frontpage
-        list($esql, $eparams) = get_enrolled_sql($this->context, '', $this->currentgroup, true);
+
+        list($esql, $eparams) = get_enrolled_sql($this->context, '', 0, true);
         $fields = $this->required_fields_sql('u');
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $params = array_merge($params, $eparams, $sortparams);
@@ -2172,9 +2157,25 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
     return $results;
 }
 
+/**
+ * delete user from booking when user is deleted
+ * @param unknown $eventdata
+ */
+function booking_user_unenrolled($eventdata) {
+    GLOBAL $DB;
+
+    $DB->execute('DELETE ba FROM {booking_answers} AS ba LEFT JOIN {booking} AS b ON b.id = ba.bookingid WHERE ba.userid = :userid AND b.course = :course', array('userid' => $eventdata->userid, 'course' => $eventdata->courseid));
+    $DB->execute('DELETE ba FROM {booking_teachers} AS ba LEFT JOIN {booking} AS b ON b.id = ba.bookingid WHERE ba.userid = :userid AND b.course = :course', array('userid' => $eventdata->userid, 'course' => $eventdata->courseid));
+
+    return true;
+}
+
+/**
+ * get moodle major version
+ * @return string moodle version
+ */
 function booking_get_moodle_version_major() {
     global $CFG;
-
     $version_array = explode('.', $CFG->version);
     return $version_array[0];
 }
