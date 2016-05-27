@@ -37,27 +37,139 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         // Define each element separated
         $booking = new backup_nested_element('booking', array('id'), array(
-            'name', 'intro', 'introformat', 'bookingmanager',
-            'sendmail', 'copymail', 'allowupdate', 'bookingpolicy',
-            'bookingpolicyformat', 'timeopen', 'timeclose', 'limitanswers',
-            'maxanswers', 'maxoverbooking', 'timemodified', 'autoenrol', 'bookedtext',
-            'waitingtext', 'statuschangetext', 'deletedtext', 'maxperuser', 'sendmailtobooker',
-            'duration', 'points', 'organizatorname', 'pollurl', 'addtogroup', 'categoryid',
-            'pollurltext', 'additionalfields', 'eventtype', 'notificationtext', 'userleave',
-            'enablecompletion', 'pollurlteachers', 'pollurlteacherstext'));
+            'course',
+            'name',
+            'intro',
+            'introformat',
+            'bookingmanager',
+            'sendmail',
+            'copymail',
+            'allowupdate',
+            'bookingpolicy',
+            'bookingpolicyformat',
+            'timeopen',
+            'timeclose',
+            'limitanswers',
+            'maxanswers',
+            'maxoverbooking',
+            'timemodified',
+            'autoenrol',
+            'bookedtext',
+            'waitingtext',
+            'statuschangetext',
+            'deletedtext',
+            'maxperuser',
+            'sendmailtobooker',
+            'duration',
+            'points',
+            'organizatorname',
+            'pollurl',
+            'addtogroup',
+            'categoryid',
+            'pollurltext',
+            'additionalfields',
+            'eventtype',
+            'notificationtext',
+            'userleave',
+            'enablecompletion',
+            'pollurlteachers',
+            'pollurlteacherstext',
+            'cancancelbook',
+            'conectedbooking',
+            'showinapi',
+            'lblbooking',
+            'lbllocation',
+            'lblinstitution',
+            'lblname',
+            'lblsurname',
+            'btncacname',
+            'lblteachname',
+            'lblsputtname',
+            'btnbooknowname',
+            'btncancelname',
+            'booktootherbooking',
+            'lblacceptingfrom',
+            'lblnumofusers',
+            'numgenerator',
+            'paginationnum')
+        );
 
         $options = new backup_nested_element('options');
-
         $option = new backup_nested_element('option', array('id'), array(
-            'text', 'maxanswers', 'maxoverbooking', 'bookingclosingtime', 'courseid', 'coursestarttime',
-            'courseendtime', 'description', 'descriptionformat', 'limitanswers', 'timemodified',
-            'addtocalendar', 'calendarid', 'pollurl', 'groupid', 'daystonotify', 'sent',
-            'location', 'institution', 'address'));
+            'text',
+            'maxanswers',
+            'maxoverbooking',
+            'bookingclosingtime',
+            'courseid',
+            'coursestarttime',
+            'courseendtime',
+            'description',
+            'descriptionformat',
+            'limitanswers',
+            'timemodified',
+            'addtocalendar',
+            'calendarid',
+            'pollurl',
+            'groupid',
+            'daystonotify',
+            'sent',
+            'location',
+            'institution',
+            'address',
+            'pollurlteachers',
+            'howmanyusers',
+            'pollsend',
+            'removeafterminutes',
+            'notificationtext',
+            'notificationtextformat',
+            'disablebookingusers')
+        );
 
         $answers = new backup_nested_element('answers');
-
         $answer = new backup_nested_element('answer', array('id'), array(
-            'bookingid', 'userid', 'optionid', 'timemodified'));
+            'bookingid',
+            'optionid',
+            'userid',            
+            'timemodified',
+            'completed',
+            'timecreated',
+            'waitinglist',
+            'frombookingid',
+            'numrec')
+        );
+
+        $categories = new backup_nested_element('categories');
+        $category = new backup_nested_element('category', array('id'), array(
+            'cid',
+            'name')
+        );
+
+        $teachers = new backup_nested_element('teachers');
+        $teacher = new backup_nested_element('teacher', array('id'), array(            
+            'bookingid',
+            'optionid',
+            'userid',
+            'completed')
+        );
+
+        $tags = new backup_nested_element('tags');
+        $tag = new backup_nested_element('tag', array('id'), array(            
+            'tag',
+            'text',
+            'textformat')
+        );
+
+        $institutions = new backup_nested_element('institutions');
+        $institution = new backup_nested_element('institution', array('id'), array(            
+            'name')
+        );
+
+        $others = new backup_nested_element('others');
+        $other = new backup_nested_element('other', array('id'), array(            
+            'optionid',
+            'otheroptionid',
+            'userslimit')
+        );
 
         // Build the tree
         $booking->add_child($options);
@@ -66,6 +178,21 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $booking->add_child($answers);
         $answers->add_child($answer);
 
+        $booking->add_child($categories);
+        $categories->add_child($category);
+
+        $booking->add_child($teachers);
+        $teachers->add_child($teacher);
+
+        $booking->add_child($tags);
+        $tags->add_child($tag);
+
+        $booking->add_child($institutions);
+        $institutions->add_child($institution);
+
+        $option->add_child($others);
+        $others->add_child($other);
+
         // Define sources
         $booking->set_source_table('booking', array('id' => backup::VAR_ACTIVITYID));
 
@@ -73,10 +200,16 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
             SELECT *
               FROM {booking_options}
              WHERE bookingid = ?', array(backup::VAR_PARENTID));
+        
+        $category->set_source_table('booking_category', array('course' => '../../course'));
+        $tag->set_source_table('booking_tags', array('courseid' => '../../course'));
+        $institution->set_source_table('booking_institutions', array('course' => '../../course'));
+        $other->set_source_table('booking_other', array('optionid' => '../../id'));
 
         // All the rest of elements only happen if we are including user info
         if ($userinfo) {
             $answer->set_source_table('booking_answers', array('bookingid' => '../../id'));
+            $teacher->set_source_table('booking_teachers', array('bookingid' => '../../id'));
         }
 
         // Define id annotations

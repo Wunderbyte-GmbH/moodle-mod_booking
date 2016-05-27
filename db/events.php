@@ -37,6 +37,12 @@ $handlers = array(
         'schedule' => 'cron',
         'internal' => 1,
     ),
+    'user_unenrolled' => array (
+        'handlerfile'      => '/mod/booking/lib.php',
+        'handlerfunction'  => 'booking_user_unenrolled',
+        'schedule'         => 'instant',
+        'internal'         => 1,
+    )
 );
 
 $observers = array(

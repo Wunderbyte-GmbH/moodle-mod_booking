@@ -41,7 +41,6 @@ $PAGE->set_url($url);
 $PAGE->set_title(get_string('modulename', 'booking'));
 $PAGE->set_heading($COURSE->fullname);
 $PAGE->navbar->add(get_string('booking:subscribeusers', 'booking'), $url);
-
 if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
     echo $OUTPUT->header();
     $alright = false;
@@ -62,7 +61,6 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
     $existingoptions['potentialusers'] = $bookingoption->bookedvisibleusers;
 
     $existingselector = new booking_existing_user_selector('removeselect', $existingoptions);
-
     $subscriberselector = new booking_potential_user_selector('addselect', $options);
 
     if (data_submitted()) {

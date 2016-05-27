@@ -1,5 +1,13 @@
 <?php
 
+// renderer.php
+$string['showonlymyinstitutions'] = "My institution";
+
+// view.php
+$string['bookingoptionsmenu'] = 'Booking options';
+$string['datenotset'] = 'Date not set';
+$string['myoptions'] = 'My options ({$a})';
+
 $string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
 $string['answered'] = 'Answered';
@@ -118,6 +126,21 @@ $string['download'] = 'Download';
 $string['downloadusersforthisoptionods'] = 'Download users as .ods';
 $string['downloadusersforthisoptionxls'] = 'Download users as .xls';
 $string['endtimenotset'] = 'End date not set';
+$string['mustfilloutuserinfobeforebooking'] = 'Befor proceeding to the booking form, please fill in some personal booking information';
+$string['subscribeuser'] = 'Do you really want to enrol the users in the following course';
+$string['deleteuserfrombooking'] = 'Do you really want to delete the users from the booking?';
+$string['showallbookings'] = 'All bookings';
+$string['showmybookings'] = 'My bookings ({$a})';
+$string['showactive'] = 'Active bookings';
+$string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
+$string['deletebookingoption'] = 'Delete this booking option';
+$string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option?';
+$string['norighttobook'] = 'Booking is not possible for your user role. Please contact the site administrator to give you the appropriate rights or sign in.';
+$string['createdby'] = 'Booking module created by edulabs.org';
+$string['maxperuserwarning'] = 'You currently have {$a->count}/{$a->limit} maximum bookings';
+$string['bookedpast'] = 'Booked (course finished)';
+$string['bookotherusers'] = 'Book other users';
+$string['attachedfiles'] = 'Attached files';
 $string['eventduration'] = 'Event duration';
 $string['eventpoints'] = 'Points';
 $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
@@ -611,6 +634,16 @@ $string['searchDate'] = 'Date';
 $string['searchFinished'] = 'Course completed';
 $string['searchName'] = 'Name';
 $string['searchSurname'] = 'Surname';
+$string['yes'] = 'Yes';
+$string['no'] = 'No';
+$string['onlythisbookingurl'] = 'Link to this booking URL';
+$string['copyonlythisbookingurl'] = 'Copy this booking URL';
+$string['copypollurl'] = 'Copy poll URL';
+$string['gotobooking'] = '<< Bookings';
+$string['nousers'] = 'No users!';
+$string['booktootherbooking'] = 'Book users to other booking';
+$string['lblbooktootherbooking'] = 'Name of button "Book users to other booking"';
+$string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
 $string['selectatleastoneuser'] = 'Please, select at least 1 user!';
 $string['selectoptionid'] = 'Please, select option!';
 $string['sendcustommessage'] = 'Send custom message';
@@ -619,7 +652,21 @@ $string['userrssucesfullenroled'] = 'All users has been sucesfully enroled!';
 $string['userssucesfullybooked'] = 'All users have been sucesfully booked to other booking.';
 $string['waitinglistusers'] = 'Users on waiting list';
 $string['withselected'] = 'With selected users:';
-$string['yes'] = 'Yes';
+$string['editotherbooking'] = 'Other booking rules';
+$string['bookingfulldidntregister'] = 'Option is full, so I didn\'t transfer all users!';
+$string['numrec'] = "Rec. num.";
+$string['generaterecnum'] = "Generate numbers";
+$string['generaterecnumareyousure'] = "This will generate new numbers and permanently delete the old one!";
+$string['generaterecnumnotification'] = "New numbers where sucesfully generated.";
+$string['activitycompleted'] = 'Activity completed';
+$string['waitinglist'] = 'Waiting list';
+$string['searchWaitingList'] = 'On waiting list';
+$string['optionmenu'] = 'This booking options';
+$string['userid'] = 'UserID';
+$string['nodateset'] = 'Course date not set';
+$string['editteachers'] = 'Edit';
+$string['sendpollurltoteachers'] = 'Send poll url';
+$string['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
 
 // Send message
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';

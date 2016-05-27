@@ -6,6 +6,7 @@ if (!defined('MOODLE_INTERNAL')) {
 
 require_once ($CFG->dirroot . '/course/moodleform_mod.php');
 require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->dirroot.'/mod/booking/lib.php');
 
 class mod_booking_mod_form extends moodleform_mod {
 
@@ -25,7 +26,7 @@ class mod_booking_mod_form extends moodleform_mod {
     }
 
     function add_completion_rules() {
-        $mform = & $this->_form;
+        $mform =& $this->_form;
 
         $group = array();
         $group[] = & $mform->createElement('checkbox', 'enablecompletion', ' ', get_string('enablecompletion', 'booking'));
@@ -43,7 +44,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $context = context_system::instance();
 
-        $mform = $this->_form;
+        $mform = &$this->_form;
 
         //-------------------------------------------------------------------------------
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -297,12 +298,13 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('maxperuser', 'maxperuser', 'mod_booking');
 
         $mform->addElement('selectyesno', 'showinapi', get_string("showinapi", "booking"));
-        
+
         $mform->addElement('selectyesno', 'numgenerator', get_string("numgenerator", "booking"));
-        
-        $mform->addElement('text', 'paginationnum', get_string('paginationnum', 'booking'), 0);        
+
+        $mform->addElement('text', 'paginationnum', get_string('paginationnum', 'booking'), 0);
+        $mform->setDefault('paginationnum', 25);
         $mform->setType('paginationnum', PARAM_INT);
-        
+
         // ----TAGS---------------------------------------------------
 
         $mform->addElement('header', 'tagsheader', get_string('tags'));
