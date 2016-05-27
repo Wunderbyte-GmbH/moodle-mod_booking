@@ -1,13 +1,9 @@
 <?php
 
-// renderer.php
+//renderer.php
 $string['showonlymyinstitutions'] = "My institution";
 
-// view.php
-$string['bookingoptionsmenu'] = 'Booking options';
-$string['datenotset'] = 'Date not set';
-$string['myoptions'] = 'My options ({$a})';
-
+//view.php
 $string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
 $string['answered'] = 'Answered';
@@ -26,8 +22,10 @@ $string['booking:updatebooking'] = 'Manage booking options';
 $string['bookingclose'] = 'Until';
 $string['bookingfull'] = 'There are no available places';
 $string['bookingname'] = 'Booking name';
+$string['bookingoptionsmenu'] = 'Booking options';
 $string['bookingopen'] = 'Open';
 $string['bookingtext'] = 'Booking text';
+$string['datenotset'] = 'Date not set';
 $string['daystonotify'] = 'How many days before start of event to notify participaints?';
 $string['eventbooking_cancelled'] = 'Booking canceled'; 
 $string['eventbookingoption_booked'] = 'Booking option booked';
@@ -44,6 +42,7 @@ $string['limit'] = 'Limit';
 $string['modulename'] = 'Booking';
 $string['modulenameplural'] = 'Bookings';
 $string['mustchooseone'] = 'You must choose an option before saving. Nothing was saved.';
+$string['myoptions'] = 'My options ({$a})';
 $string['noguestchoose'] = 'Sorry, guests are not allowed to enter data';
 $string['noresultsviewable'] = 'The results are not currently viewable.';
 $string['nosubscribers'] = 'There are no teachers assigned!';
@@ -156,9 +155,9 @@ $string['placesavailable'] = 'Places available';
 $string['pollurl'] = 'Poll url';
 $string['pollurlteachers'] = 'Teachers poll url';
 $string['select'] = 'Selection';
-$string['showactive'] = 'Show only active bookings';
-$string['showallbookings'] = 'Show booking overview for all bookings';
-$string['showmybookings'] = 'Show only my bookings';
+$string['showactive'] = 'Active bookings';
+$string['showallbookings'] = 'All bookings';
+$string['showmybookings'] = 'My bookings ({$a})';
 $string['starttimenotset'] = 'Start date not set';
 $string['subscribetocourse'] = 'Enrol users in the course';
 $string['subscribeuser'] = 'Do you really want to enrol the users in the following course';
@@ -166,7 +165,7 @@ $string['tagtemplates'] = 'Tag templates';
 $string['unlimited'] = 'Unlimited';
 $string['updatebooking'] = 'Edit this booking option';
 $string['userdownload'] = 'Download users';
-$string['waitinglist'] = 'On waiting list';
+$string['waitinglist'] = 'Waiting list';
 $string['waitingplacesavailable'] = 'Waiting list places available';
 $string['waitspaceavailable'] = 'Places on waiting list available';
 
@@ -611,6 +610,7 @@ Course:   {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
 
 //report.php
+$string['activitycompleted'] = 'Activity completed';
 $string['addteachers'] = 'Add teachers';
 $string['allmailssend'] = 'All emails to users have been sent sucesfully!';
 $string['associatedcourse'] = 'Associated course';
@@ -618,7 +618,11 @@ $string['bookedusers'] = 'Booked users';
 $string['bookingfulldidntregister'] = 'Option is full, so I didn\'t transfer all users!';
 $string['booktootherbooking'] = 'Book users to other booking';
 $string['downloadallresponses'] = 'Download all responses for all booking options';
+$string['copyonlythisbookingurl'] = 'Copy this booking URL';
+$string['copypollurl'] = 'Copy poll URL';
+$string['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
 $string['editotherbooking'] = 'Other booking rules';
+$string['editteachers'] = 'Edit';
 $string['generaterecnum'] = "Generate numbers";
 $string['generaterecnumareyousure'] = "This will generate new numbers and permanently delete the old one!";
 $string['generaterecnumnotification'] = "New numbers where sucesfully generated.";
@@ -626,10 +630,12 @@ $string['gotobooking'] = '<< Bookings';
 $string['lblbooktootherbooking'] = 'Name of button "Book users to other booking"';
 $string['no'] = 'No';
 $string['nocourse'] = 'No course selected for this booking option';
+$string['nodateset'] = 'Course date not set';
 $string['nousers'] = 'No users!';
 $string['numrec'] = "Rec. num.";
-$string['onlythisbookingurl'] = 'Only this booking URL';
+$string['onlythisbookingurl'] = 'Link to this booking URL';
 $string['optionid'] = 'Option ID';
+$string['optionmenu'] = 'This booking options';
 $string['searchDate'] = 'Date';
 $string['searchFinished'] = 'Course completed';
 $string['searchName'] = 'Name';
@@ -644,10 +650,13 @@ $string['nousers'] = 'No users!';
 $string['booktootherbooking'] = 'Book users to other booking';
 $string['lblbooktootherbooking'] = 'Name of button "Book users to other booking"';
 $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
+$string['searchWaitingList'] = 'On waiting list';
 $string['selectatleastoneuser'] = 'Please, select at least 1 user!';
 $string['selectoptionid'] = 'Please, select option!';
 $string['sendcustommessage'] = 'Send custom message';
+$string['sendpollurltoteachers'] = 'Send poll url';
 $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
+$string['userid'] = 'UserID';
 $string['userrssucesfullenroled'] = 'All users has been sucesfully enroled!';
 $string['userssucesfullybooked'] = 'All users have been sucesfully booked to other booking.';
 $string['waitinglistusers'] = 'Users on waiting list';
@@ -667,6 +676,7 @@ $string['nodateset'] = 'Course date not set';
 $string['editteachers'] = 'Edit';
 $string['sendpollurltoteachers'] = 'Send poll url';
 $string['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
+$string['yes'] = 'Yes';
 
 // Send message
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';

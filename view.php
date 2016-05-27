@@ -386,7 +386,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                 echo $OUTPUT->box(get_string("notopenyet", "booking", userdate($booking->booking->timeopen, get_string('strftimedate'))), "center");
                 echo $OUTPUT->footer();
                 exit;
-            } else if ($booking->booking->timeclose && !has_capability('mod/booking:updatebooking', $context)) {
+            } else if ($booking->booking->timeclose  < $timenow && !has_capability('mod/booking:updatebooking', $context)) {
                 echo $OUTPUT->box(get_string("expired", "booking", userdate($booking->booking->timeclose)), "center");
                 $bookingopen = false;
             }

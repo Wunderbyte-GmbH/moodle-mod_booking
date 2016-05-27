@@ -1,5 +1,8 @@
 <?PHP
+//renderer.php
+$string['showonlymyinstitutions'] = "Meine Institution";
 
+//view.php
 $string['addmorebookings'] = 'Buchungen hinzufügen';
 $string['allowupdate'] = 'Buchungen dürfen gelöscht/aktualisiert werden';
 $string['answered'] = 'Beantwortet';
@@ -19,7 +22,9 @@ $string['bookingclose'] = 'Bis';
 $string['bookingfull'] = 'Ausgebucht';
 $string['bookingname'] = 'Buchungsbezeichnung';
 $string['bookingopen'] = 'Offen';
+$string['bookingoptionsmenu'] = 'Buchungsoptionen';
 $string['bookingtext'] = 'Buchungsbeschreibung';
+$string['datenotset'] = 'Datum nicht angegeben';
 $string['daystonotify'] = 'Wie viele Tage vor Kursbeginn soll an die Teilnehmenden eine Benachrichtigung gesendet werden?';
 $string['eventbooking_cancelled'] = 'Buchung wurde storniert';
 $string['eventbookingoption_booked'] = 'Buchung durchgeführt';
@@ -36,6 +41,7 @@ $string['limit'] = 'Maximale Anzahl';
 $string['modulename'] = 'Buchung';
 $string['modulenameplural'] = 'Buchungen';
 $string['mustchooseone'] = 'Sie müssen eine Option auswählen';
+$string['myoptions'] = 'Meine Buchungsoptionen ({$a})';
 $string['noguestchoose'] = 'Gäste dürfen keine Buchungen vornehmen';
 $string['noresultsviewable'] = 'Die Ergebnisse sind momentan nicht einsehbar';
 $string['nosubscribers'] = 'Keine Trainer/innen zugewiesen!';
