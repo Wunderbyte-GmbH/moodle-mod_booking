@@ -83,6 +83,8 @@ $string['lblteachname'] = 'Name of label "Teachers"';
 $string['limitanswers_help'] = 'If you change this option and you have booked people, you can remove them without notification!';
 $string['location'] = 'Location';
 $string['removeafterminutes'] = 'Remove activity completion after N minutes';
+$string['banusernames'] = "Ban usernames";
+$string['banusernames_help'] = "To limit which usernames with email domain name can't apply just write in this field, and separate with coma. To ban gmail and yahoo users just write: gmail.com, yahoo.com";
 
 // Categories
 $string['category'] = 'Category';

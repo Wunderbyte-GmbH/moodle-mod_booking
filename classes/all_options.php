@@ -138,7 +138,16 @@ class all_options extends table_sql {
         if ($values->disablebookingusers) {
             $button = '';
         }
+        
+        if (!empty($this->booking->booking->banusernames)) {
+            $disabledusernames = explode(',', $this->booking->booking->banusernames);
 
+            foreach ($disabledusernames as $value) {
+                if (strpos($USER->username, trim($value)) !== false) {
+                    $button = '';
+                }
+            }
+        }
 
         // check if user ist logged in
         if (!has_capability('mod/booking:choose', $this->context, $USER->id, false)) { //don't show booking button if the logged in user is the guest user.            

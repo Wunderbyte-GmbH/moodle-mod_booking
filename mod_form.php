@@ -304,6 +304,10 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('text', 'paginationnum', get_string('paginationnum', 'booking'), 0);
         $mform->setDefault('paginationnum', 25);
         $mform->setType('paginationnum', PARAM_INT);
+        
+        $mform->addElement('text', 'banusernames', get_string('banusernames', 'booking'), 0);
+        $mform->setType('banusernames', PARAM_TEXT);
+        $mform->addHelpButton('banusernames', 'banusernames', 'mod_booking');
 
         // ----TAGS---------------------------------------------------
 
