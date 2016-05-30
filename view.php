@@ -453,6 +453,10 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $headers[] = get_string("coursedate", "booking");
         $columns[] = 'maxanswers';
         $headers[] = get_string("availability", "booking");
+        if (has_capability('mod/booking:updatebooking', $context)) {
+            $columns[] = 'id';
+            $headers[] = "";
+        }
 
         $fields = "DISTINCT bo.id, bo.text, bo.address, bo.coursestarttime, bo.courseendtime, (SELECT GROUP_CONCAT(CONCAT(CONCAT(u.firstname, ' '), u.lastname) SEPARATOR ', ') AS teachers FROM {booking_teachers} AS t LEFT JOIN {user} AS u ON u.id = t.userid WHERE t.optionid = bo.id) AS teachers, bo.limitanswers, bo.maxanswers, bo.maxoverbooking, (SELECT  COUNT(*) FROM {booking_answers} AS ba WHERE ba.optionid = bo.id AND ba.waitinglist = 0) AS booked, (SELECT COUNT(*) FROM {booking_answers} AS ba WHERE ba.optionid = bo.id AND ba.waitinglist = 1) AS waiting, bo.location, bo.institution, (SELECT COUNT(*) FROM {booking_answers} AS ba WHERE ba.optionid = bo.id AND ba.userid = :userid) AS iambooked, b.allowupdate, bo.bookingclosingtime, b.btncancelname, (SELECT ba.waitinglist FROM {booking_answers} AS ba WHERE ba.optionid = bo.id AND ba.userid = :userid1) AS waitinglist, b.btnbooknowname, b.maxperuser, (SELECT 
             COUNT(*) FROM {booking_answers} AS ba WHERE ba.bookingid = b.id AND ba.userid = :userid2) AS bookinggetuserbookingcount, b.cancancelbook, bo.disablebookingusers,

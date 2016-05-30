@@ -27,6 +27,10 @@ class all_options extends table_sql {
         $this->context = $context;
     }
 
+    function col_id($values) {
+        return html_writer::link(new moodle_url('/mod/booking/editoptions.php', array('id' => $this->cm->id, 'optionid' => $values->id)), '<i class="fa fa-cog icon" title="' . get_string('updatebooking', 'booking') . '">', array());
+    }
+
     function col_coursestarttime($values) {
         if ($this->is_downloading()) {
             if ($values->coursestarttime == 0) {

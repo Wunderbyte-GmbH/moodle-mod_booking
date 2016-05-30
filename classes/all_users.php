@@ -50,7 +50,7 @@ class all_users extends table_sql {
 
         return '';
     }
-
+    
     function col_fullname($values) {
         if (empty($values->otheroptions)) {
             return html_writer::link(new moodle_url('/user/profile.php', array('id' => $values->id)), "{$values->firstname} {$values->lastname}", array());
