@@ -308,7 +308,10 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('text', 'banusernames', get_string('banusernames', 'booking'), 0);
         $mform->setType('banusernames', PARAM_TEXT);
         $mform->addHelpButton('banusernames', 'banusernames', 'mod_booking');
-
+        
+        $mform->addElement('selectyesno', 'showhelpfullnavigationlinks', get_string('showhelpfullnavigationlinks', 'booking'), 0);
+        $mform->setDefault('showhelpfullnavigationlinks', 1);
+        $mform->setType('showhelpfullnavigationlinks', PARAM_INT);
         // ----TAGS---------------------------------------------------
 
         $mform->addElement('header', 'tagsheader', get_string('tags'));

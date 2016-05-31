@@ -1203,6 +1203,21 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016053000, 'booking');
     }
 
+    if ($oldversion < 2016053100) {
+
+        // Define field showhelpfullnavigationlinks to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('showhelpfullnavigationlinks', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'banusernames');
+
+        // Conditionally launch add field showhelpfullnavigationlinks.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2016053100, 'booking');
+    }
+
 
     return true;
 }

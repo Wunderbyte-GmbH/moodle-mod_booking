@@ -532,15 +532,30 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
  * @return string
  */
 function booking_show_maxperuser($booking, $user, $bookinglist) {
+    GLOBAL $USER;
+
+    $warning = '';
+    
+    if (!empty($booking->booking->banusernames)) {
+        $disabledusernames = explode(',', $booking->booking->banusernames);
+
+        foreach ($disabledusernames as $value) {
+            if (strpos($USER->username, trim($value)) !== false) {
+                $warning = html_writer::tag('p', get_string('banusernameswarning', 'mod_booking'));
+            }
+        }
+    }
+
     if (!$booking->booking->maxperuser) {
-        return ''; // No per-user limits.
+        return $warning; // No per-user limits.
     }
 
     $outdata = new stdClass();
     $outdata->limit = $booking->booking->maxperuser;
     $outdata->count = booking_get_user_booking_count($booking, $user, $bookinglist);
 
-    return html_writer::tag('p', get_string('maxperuserwarning', 'mod_booking', $outdata));
+    $warning .= html_writer::tag('p', get_string('maxperuserwarning', 'mod_booking', $outdata));
+    return $warning;
 }
 
 /**

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/booking/db" VERSION="20160530" COMMENT="XMLDB file for Moodle mod/booking"
+<XMLDB PATH="mod/booking/db" VERSION="20160531" COMMENT="XMLDB file for Moodle mod/booking"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -63,6 +63,7 @@
         <FIELD NAME="numgenerator" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="paginationnum" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="25" SEQUENCE="false"/>
         <FIELD NAME="banusernames" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="showhelpfullnavigationlinks" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

@@ -296,8 +296,10 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         echo '<div class="clearer"></div>';
 
-        echo $html = html_writer::tag('div', '<a id="gotop" href="#goenrol">' . get_string('goenrol', 'booking') . '</a>', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
-        echo html_writer::tag('div', format_module_intro('booking', $booking->booking, $cm->id), array('class' => 'intro'));
+        if ($booking->booking->showhelpfullnavigationlinks) {
+            echo $html = html_writer::tag('div', '<a id="gotop" href="#goenrol">' . get_string('goenrol', 'booking') . '</a>', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
+            echo html_writer::tag('div', format_module_intro('booking', $booking->booking, $cm->id), array('class' => 'intro'));
+        }
 
         if (!empty($booking->booking->duration)) {
             echo html_writer::start_tag('div');
@@ -379,7 +381,9 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             echo $OUTPUT->action_link($link, get_string("bookingpolicy", "booking"), new popup_action('click', $link));
         }
 
-        echo $html = html_writer::tag('div', '<a id="goenrol" href="#gotop">' . get_string('gotop', 'booking') . '</a>', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
+        if ($booking->booking->showhelpfullnavigationlinks) {
+            echo $html = html_writer::tag('div', '<a id="goenrol" href="#gotop">' . get_string('gotop', 'booking') . '</a>', array('style' => 'width:100%; font-weight: bold; text-align: right;'));
+        }
 
         if ($booking->booking->timeclose != 0) {
             if ($booking->booking->timeopen > $timenow && !has_capability('mod/booking:updatebooking', $context)) {

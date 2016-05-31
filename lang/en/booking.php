@@ -85,6 +85,8 @@ $string['location'] = 'Location';
 $string['removeafterminutes'] = 'Remove activity completion after N minutes';
 $string['banusernames'] = "Ban usernames";
 $string['banusernames_help'] = "To limit which usernames with email domain name can't apply just write in this field, and separate with coma. To ban gmail and yahoo users just write: gmail.com, yahoo.com";
+$string['showhelpfullnavigationlinks'] = 'Show navigation links.';
+$string['showhelpfullnavigationlinks_helt'] = 'Show "Go to registration" and "Go to top" links.';
 
 // Categories
 $string['category'] = 'Category';
@@ -170,6 +172,7 @@ $string['userdownload'] = 'Download users';
 $string['waitinglist'] = 'Waiting list';
 $string['waitingplacesavailable'] = 'Waiting list places available';
 $string['waitspaceavailable'] = 'Places on waiting list available';
+$string['banusernameswarning'] = "Your username is banned so you can't book.";
 
 // tag templates
 $string['cancel'] = 'Cancel';
