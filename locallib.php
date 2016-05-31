@@ -385,7 +385,7 @@ class booking_option extends booking {
         // TODO offer users with according caps to delete excluded users from booking option
         //$excludedusers =  array_diff_key($allanswers, $this->canbookusers);
         $this->numberofanswers = count($this->bookedusers);
-        
+
         $this->bookedvisibleusers = $this->bookedusers;
         $this->potentialusers = array_diff_key($this->canbookusers, $this->bookedusers);
 
@@ -549,6 +549,15 @@ class booking_option extends booking {
                     }
                 }
             }
+        }
+
+        // Remove activity completion
+        $course = $DB->get_record('course', array('id' => $this->booking->course));
+        $completion = new \completion_info($course);
+        $cm = get_coursemodule_from_instance('booking', $this->cm->id);
+
+        if ($completion->is_enabled($this->cm) && $this->booking->enablecompletion) {
+            $completion->update_state($this->cm, COMPLETION_INCOMPLETE, $userid);
         }
 
         return true;
@@ -1144,25 +1153,25 @@ class booking_potential_user_selector extends booking_user_selector_base {
     }
 
     public function find_users($search) {
-        global $DB, $USER;        
-        
+        global $DB, $USER;
+
         $fields = "SELECT " . $this->required_fields_sql("u");
-        
+
         $countfields = 'SELECT COUNT(1)';
         list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
-        list($esql, $params) = get_enrolled_sql($this->options['accesscontext'], NULL, NULL, true); 
-        
+        list($esql, $params) = get_enrolled_sql($this->options['accesscontext'], NULL, NULL, true);
+
         $option = new stdClass();
         $option->id = $this->options['optionid'];
         $option->bookingid = $this->options['bookingid'];
-        
-        if(booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readresponses', $this->options['accesscontext'])) {
+
+        if (booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readresponses', $this->options['accesscontext'])) {
             $searchparams['onlyinstitution'] = $USER->institution;
             $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
-        } 
-        
+        }
+
         $sql = " FROM {user} u WHERE $searchcondition AND u.id IN (SELECT nnn.id FROM ($esql) AS nnn WHERE nnn.id) AND u.id NOT IN (SELECT ba.userid FROM {booking_answers} AS ba WHERE ba.optionid = {$this->options['optionid']})";
-        
+
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
 
@@ -1207,7 +1216,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
 
         parent::__construct($name, $options);
     }
-    
+
     /**
      * Finds all booked users
      *
@@ -1233,12 +1242,12 @@ class booking_existing_user_selector extends booking_user_selector_base {
 
         $option = new stdClass();
         $option->id = $this->options['optionid'];
-        $option->bookingid = $this->options['bookingid'];        
-        
-        if(booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readresponses', $this->options['accesscontext'])) {
+        $option->bookingid = $this->options['bookingid'];
+
+        if (booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readresponses', $this->options['accesscontext'])) {
             $searchparams['onlyinstitution'] = $USER->institution;
             $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
-        } 
+        }
 
         $sql = " FROM {user} u
         WHERE u.id IN ($subscriberssql) AND
