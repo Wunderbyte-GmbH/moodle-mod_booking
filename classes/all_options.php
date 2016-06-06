@@ -28,7 +28,18 @@ class all_options extends table_sql {
     }
 
     function col_id($values) {
-        return html_writer::link(new moodle_url('/mod/booking/editoptions.php', array('id' => $this->cm->id, 'optionid' => $values->id)), '<i class="fa fa-cog icon" title="' . get_string('updatebooking', 'booking') . '">', array());
+        
+        $ret = "";
+        
+        if (has_capability('mod/booking:updatebooking', $this->context)) {
+            $ret .= html_writer::link(new moodle_url('/mod/booking/editoptions.php', array('id' => $this->cm->id, 'optionid' => $values->id)), '<i class="fa fa-cog icon" title="' . get_string('updatebooking', 'booking') . '"></i>', array());
+        }
+        
+        if ($values->iambooked) {
+            $ret .= html_writer::link(new moodle_url('/mod/booking/viewconfirmation.php', array('id' => $this->cm->id, 'optionid' => $values->id)), '<i class="fa fa-file icon" title="' . get_string('bookedtext', 'booking') . '"></i>', array('style' => 'display: block', 'target' => '_blank'));
+        }
+        
+        return $ret;
     }
 
     function col_coursestarttime($values) {
