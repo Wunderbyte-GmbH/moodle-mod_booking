@@ -492,16 +492,17 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
     $option = $DB->get_record('booking_options', array('id' => $optionid));
     $current = $DB->get_record('booking_answers', array('bookingid' => $bookingid, 'userid' => $userid, 'optionid' => $optionid));
     $allresponses = $DB->get_records_select('booking_answers', "bookingid = $bookingid AND optionid = $optionid", array(), 'timemodified', 'userid');
-//$context  = get_context_instance(CONTEXT_MODULE,$cmid);
-    $context = context_module::instance($cmid);
 
+    $context = context_module::instance($cmid);
+    $sortedresponses = array();
     if (!empty($allresponses)) {
         foreach ($allresponses as $answer) {
             $sortedresponses[] = $answer->userid;
         }
         $useridaskey = array_flip($sortedresponses);
+
         if ($option->limitanswers) {
-            if (empty($useridaskey[$userid])) {
+            if (!isset($useridaskey[$userid])) {
                 $status = get_string('notbooked', 'booking');
             } else if ($useridaskey[$userid] > $option->maxanswers + $option->maxoverbooking) {
                 $status = "Problem, please contact the admin";
@@ -513,7 +514,7 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
                 $status = get_string('notbooked', 'booking');
             }
         } else {
-            if (!empty($useridaskey[$userid])) {
+            if (isset($useridaskey[$userid])) {
                 $status = get_string('booked', 'booking');
             } else {
                 $status = get_string('notbooked', 'booking');
@@ -1566,7 +1567,7 @@ function booking_booking_deleted($eventdata) {
  *
  * @param object $eventdata data for email_to_user params
  */
-function booking_booking_confirmed($eventdata) {
+function booking_booking_confirmed($eventdata) {    
     email_to_user($eventdata->userto, $eventdata->userfrom, $eventdata->subject, $eventdata->messagetext, $eventdata->messagehtml, $eventdata->attachment, $eventdata->attachname);
 }
 
