@@ -76,14 +76,14 @@ if ($mform->is_cancelled()) {
 
     // Check if CSV is ok
 
-    if ($csvArr[0][0] == 'name' && $csvArr[0][1] == 'startdate' && $csvArr[0][2] == 'enddate' && $csvArr[0][3] == 'institution' && $csvArr[0][4] == 'institutionaddress' && $csvArr[0][5] == 'teacheremail' && $csvArr[0][6] == 'useremail' && $csvArr[0][7] == 'finished') {
+    if ($csvArr[0][0] == 'name' && $csvArr[0][1] == 'startdate' && $csvArr[0][2] == 'enddate' && $csvArr[0][3] == 'institution' && $csvArr[0][4] == 'institutionaddress' && $csvArr[0][5] == 'teacheremail' && $csvArr[0][6] == 'useremail' && $csvArr[0][7] == 'finished' && $csvArr[0][8] == 'maxanswers' && $csvArr[0][9] == 'maxoverbooking' && $csvArr[0][10] == 'limitanswers') {
         array_shift($csvArr);
         $i = 0;
         foreach ($csvArr as $line) {
 
             $i++;
 
-            if (count($line) == 8) {
+            if (count($line) == 11) {
 
                 $user = FALSE;
                 $teacher = FALSE;
@@ -93,8 +93,9 @@ if ($mform->is_cancelled()) {
 
                 $booking_option_name = $booking->name;
 
-                if (strlen(trim($line[1])) > 0) {
+                if (trim($line[1]) != 0) {
                     $startDate = date_create_from_format("!" . $fromform->dateparseformat, $line[1]);
+                    $startDate = $startDate->getTimestamp();
                 }
 
                 $dErors = DateTime::getLastErrors();
@@ -105,8 +106,9 @@ if ($mform->is_cancelled()) {
                     continue;
                 }
 
-                if (strlen(trim($line[2])) > 0) {
+                if (trim($line[2]) != 0) {
                     $endDate = date_create_from_format("!" . $fromform->dateparseformat, $line[2]);
+                    $endDate = $startDate->getTimestamp();
                 }
 
                 $dErors = DateTime::getLastErrors();
@@ -129,20 +131,21 @@ if ($mform->is_cancelled()) {
                     $booking_option_name = $line[0];
                 }
 
-                $booking_option = $DB->get_record_sql('SELECT * FROM {booking_options} WHERE institution LIKE :institution AND text LIKE :text AND bookingid = :bookingid AND coursestarttime = :coursestarttime', array('institution' => $line[3], 'text' => $booking_option_name, 'bookingid' => $booking->id, 'coursestarttime' => $startDate->getTimestamp()));
+                $booking_option = $DB->get_record_sql('SELECT * FROM {booking_options} WHERE institution LIKE :institution AND text LIKE :text AND bookingid = :bookingid AND coursestarttime = :coursestarttime', array('institution' => $line[3], 'text' => $booking_option_name, 'bookingid' => $booking->id, 'coursestarttime' => $startDate));
 
                 if (empty($booking_option)) {
                     $bookingObject = new stdClass();
                     $bookingObject->bookingid = $booking->id;
                     $bookingObject->text = modbooking_fixEncoding($booking_option_name);
                     $bookingObject->description = '';
-                    $bookingObject->maxanswers = 0;
-                    $bookingObject->maxoverbooking = 0;
                     $bookingObject->courseid = $booking->course;
-                    $bookingObject->coursestarttime = $startDate->getTimestamp();
-                    $bookingObject->courseendtime = $endDate->getTimestamp();
+                    $bookingObject->coursestarttime = $startDate;
+                    $bookingObject->courseendtime = $endDate;
                     $bookingObject->institution = modbooking_fixEncoding($line[3]);
                     $bookingObject->address = modbooking_fixEncoding($line[4]);
+                    $bookingObject->maxanswers = $line[8];
+                    $bookingObject->maxoverbooking = $line[9];
+                    $bookingObject->limitanswers = $line[10];
 
                     $bid = $DB->insert_record('booking_options', $bookingObject, TRUE);
 
