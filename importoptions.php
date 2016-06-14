@@ -108,7 +108,7 @@ if ($mform->is_cancelled()) {
 
                 if (trim($line[2]) != 0) {
                     $endDate = date_create_from_format("!" . $fromform->dateparseformat, $line[2]);
-                    $endDate = $startDate->getTimestamp();
+                    $endDate = $endDate->getTimestamp();
                 }
 
                 $dErors = DateTime::getLastErrors();
