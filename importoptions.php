@@ -171,21 +171,16 @@ if ($mform->is_cancelled()) {
                 if ($user) {
                     $getUser = $DB->get_record('booking_answers', array('bookingid' => $booking->id, 'userid' => $user->id, 'optionid' => $booking_option->id));
 
-                    if ($getUser === FALSE) {
-                        $newUser = new stdClass();
-                        $newUser->bookingid = $booking->id;
-                        $newUser->userid = $user->id;
-                        $newUser->optionid = $booking_option->id;
-                        $newUser->completed = $line[7];
+                    if ($getUser === FALSE) {                        
+                        $bookingData = new booking_option($cm->id, $booking_option->id, array(), 0, 0, false);
+                        $bookingData->user_submit_response($user);
 
-                        $DB->insert_record('booking_answers', $newUser, TRUE);
-
-                        if ($completion->is_enabled($cm) && $booking->enablecompletion && $newUser->completed == 0) {
-                            $completion->update_state($cm, COMPLETION_INCOMPLETE, $newUser->userid);
+                        if ($completion->is_enabled($cm) && $bookingData->booking->enablecompletion && $line[7] == 0) {
+                            $completion->update_state($cm, COMPLETION_INCOMPLETE, $user->id);
                         }
 
-                        if ($completion->is_enabled($cm) && $booking->enablecompletion && $newUser->completed == 1) {
-                            $completion->update_state($cm, COMPLETION_COMPLETE, $newUser->userid);
+                        if ($completion->is_enabled($cm) && $bookingData->booking->enablecompletion && $line[7] == 1) {
+                            $completion->update_state($cm, COMPLETION_COMPLETE, $user->id);
                         }
                     }
                 } else {

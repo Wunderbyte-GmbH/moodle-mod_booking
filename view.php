@@ -194,7 +194,6 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
         if ($bookingData->user_submit_response($USER)) {
             $contents = get_string('bookingsaved', 'booking');
             if ($booking->booking->sendmail) {
-
                 $contents .= "<br />" . get_string('mailconfirmationsent', 'booking') . ".";
             }
             $contents .= $OUTPUT->single_button($url, get_string('continue'), 'get');
