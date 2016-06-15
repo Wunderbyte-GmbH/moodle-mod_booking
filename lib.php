@@ -21,33 +21,39 @@ function booking_cron() {
 
     mtrace('Starting cron for Booking ...');
 
-    $toProcess = $DB->count_records_select('booking_options', "sent = 0 AND daystonotify > 0 AND coursestarttime > 0");
+    $toProcess = $DB->get_records_sql('SELECT 
+    bo.id, bo.coursestarttime, b.daystonotify
+FROM
+    {booking_options} AS bo
+        LEFT JOIN
+    {booking} AS b ON b.id = bo.bookingid
+WHERE
+    b.daystonotify > 0
+        AND bo.coursestarttime > 0
+        AND bo.sent = 0');
 
-    if ($toProcess > 0) {
-        $allToSend = $DB->get_records_select('booking_options', "sent = 0 AND daystonotify > 0 AND coursestarttime > 0");
-        foreach ($allToSend as $value) {
+    foreach ($toProcess as $value) {
+        $dateEvent = new DateTime();
+        $dateEvent->setTimestamp($value->coursestarttime);
+        $dateNow = new DateTime();
 
-            $dateEvent = new DateTime();
-            $dateEvent->setTimestamp($value->coursestarttime);
-            $dateNow = new DateTime();
+        $dateEvent->modify('-' . $value->daystonotify . ' day');
 
-            $dateEvent->modify('-' . $value->daystonotify . ' day');
+        if ($dateEvent < $dateNow) {
 
-            if ($dateEvent < $dateNow) {
-                //$booking = $DB->get_record('booking', array('id' => $value->bookingid));
+            $save = new stdClass();
+            $save->id = $value->id;
+            $save->sent = 1;
 
-                $value->sent = 1;
+            booking_send_notification($save->id, get_string('notificationsubject', 'booking'));
 
-                booking_send_notification($value->id, get_string('notificationsubject', 'booking'));
-
-                $DB->update_record("booking_options", $value);
-            }
+            $DB->update_record("booking_options", $save);
         }
+
+        mtrace('Ending cron for Booking ...');
+
+        return true;
     }
-
-    mtrace('Ending cron for Booking ...');
-
-    return true;
 }
 
 function booking_get_coursemodule_info($cm) {
@@ -192,6 +198,7 @@ function booking_add_instance($booking) {
 // Copy the text fields out:
     $booking->bookedtext = $booking->bookedtext['text'];
     $booking->waitingtext = $booking->waitingtext['text'];
+    $booking->notifyemail = $booking->notifyemail['text'];
     $booking->statuschangetext = $booking->statuschangetext['text'];
     $booking->deletedtext = $booking->deletedtext['text'];
     $booking->pollurltext = $booking->pollurltext['text'];
@@ -263,6 +270,7 @@ function booking_update_instance($booking) {
 // Copy the text fields out:
     $booking->bookedtext = $booking->bookedtext['text'];
     $booking->waitingtext = $booking->waitingtext['text'];
+    $booking->notifyemail = $booking->notifyemail['text'];
     $booking->statuschangetext = $booking->statuschangetext['text'];
     $booking->deletedtext = $booking->deletedtext['text'];
     $booking->pollurltext = $booking->pollurltext['text'];
@@ -322,7 +330,6 @@ function booking_update_options($optionvalues) {
     $option->institution = trim($optionvalues->institution);
     $option->address = trim($optionvalues->address);
 
-    $option->daystonotify = $optionvalues->daystonotify;
     $option->pollurl = $optionvalues->pollurl;
     $option->pollurlteachers = $optionvalues->pollurlteachers;
     if ($optionvalues->limitanswers == 0) {
@@ -536,7 +543,7 @@ function booking_show_maxperuser($booking, $user, $bookinglist) {
     GLOBAL $USER;
 
     $warning = '';
-    
+
     if (!empty($booking->booking->banusernames)) {
         $disabledusernames = explode(',', $booking->booking->banusernames);
 
@@ -1229,7 +1236,7 @@ function booking_send_notification($optionid, $subject) {
             $ruser = $DB->get_record('user', array('id' => $record->id));
 
             $params = booking_generate_email_params($bookingData->booking, $bookingData->option, $ruser, $cm->id);
-            $pollurlmessage = booking_get_email_body($bookingData->booking, 'notificationtext', 'notificationtextmessage', $params);
+            $pollurlmessage = booking_get_email_body($bookingData->booking, 'notifyemail', 'notifyemaildefaultmessage', $params);
 
             $eventdata = new stdClass();
             $eventdata->modulename = 'booking';
@@ -1567,7 +1574,7 @@ function booking_booking_deleted($eventdata) {
  *
  * @param object $eventdata data for email_to_user params
  */
-function booking_booking_confirmed($eventdata) {    
+function booking_booking_confirmed($eventdata) {
     email_to_user($eventdata->userto, $eventdata->userfrom, $eventdata->subject, $eventdata->messagetext, $eventdata->messagehtml, $eventdata->attachment, $eventdata->attachname);
 }
 
@@ -1666,7 +1673,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
  */
 function booking_get_email_body($booking, $fieldname, $defaultname, $params) {
     if (empty($booking->$fieldname)) {
-        return get_string($defaultname, 'mod_booking', $params);
+        return get_string($defaultname, 'booking', $params);
     }
     $text = $booking->$fieldname;
     foreach ($params as $name => $value) {

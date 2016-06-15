@@ -88,6 +88,8 @@ function booking_backup_one_mod($bf, $preferences, $booking) {
     fwrite($bf, full_tag("ENABLECOMPLETION", 4, false, $booking->enablecompletion));
     fwrite($bf, full_tag("POLLURLTEACHERS", 4, false, $booking->pollurlteachers));
     fwrite($bf, full_tag("POLLURLTEACHERSTEXT", 4, false, $booking->pollurlteacherstext));
+    fwrite($bf, full_tag("DAYSTONOTIFY", 4, false, $booking->daystonotify));
+    fwrite($bf, full_tag("NOTIFYEMAIL", 4, false, $booking->notifyemail));
 
     //Now backup booking_options
     $status = backup_booking_options($bf, $preferences, $booking->id);
@@ -165,8 +167,7 @@ function backup_booking_options($bf, $preferences, $booking) {
             fwrite($bf, full_tag("ADDTOCALENDAR", 6, false, $cho_opt->addtocalendar));
             fwrite($bf, full_tag("CALENDARID", 6, false, $cho_opt->calendarid));
             fwrite($bf, full_tag("POLLURL", 6, false, $cho_opt->pollurl));
-            fwrite($bf, full_tag("GROUPID", 6, false, $cho_opt->groupid));
-            fwrite($bf, full_tag("DAYSTONOTIFY", 6, false, $cho_opt->daystonotify));
+            fwrite($bf, full_tag("GROUPID", 6, false, $cho_opt->groupid));            
             fwrite($bf, full_tag("SENT", 6, false, $cho_opt->sent));
             fwrite($bf, full_tag("LOCATION", 6, false, $cho_opt->location));
             fwrite($bf, full_tag("INSTITUTION", 6, false, $cho_opt->institution));

@@ -132,6 +132,11 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('selectyesno', 'sendmailtobooker', get_string('sendmailtobooker', 'booking'));
         $mform->addHelpButton('sendmailtobooker', 'sendmailtobooker', 'booking');
+        
+        $mform->addElement('text', 'daystonotify', get_string('daystonotify', 'booking'));
+        $mform->setType('daystonotify', PARAM_INT);
+        $mform->setDefault('daystonotify', 0);
+        $mform->addHelpButton('daystonotify', 'daystonotify', 'booking');
 
         // booking manager
         $mform->addElement('text', 'bookingmanager', get_string('usernameofbookingmanager', 'booking'));
@@ -177,6 +182,20 @@ class mod_booking_mod_form extends moodleform_mod {
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('waitingtext', $default);
         $mform->addHelpButton('waitingtext', 'waitingtext', 'mod_booking');
+        
+        
+        
+        $mform->addElement('editor', 'notifyemail', get_string('notifyemail', 'booking'), null, $editoroptions);
+        $default = array(
+            'text' => get_string('notifyemaildefaultmessage', 'booking', $fieldmapping),
+            'format' => FORMAT_HTML
+        );
+        $default['text'] = str_replace("\n", '<br/>', $default['text']);
+        $mform->setDefault('notifyemail', $default);
+        $mform->addHelpButton('notifyemail', 'notifyemail', 'booking');
+        
+        
+        
 
         $mform->addElement('editor', 'statuschangetext', get_string('statuschangetext', 'booking'), null, $editoroptions);
         $default = array(
@@ -413,6 +432,9 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         if (isset($default_values['waitingtext'])) {
             $default_values['waitingtext'] = array('text' => $default_values['waitingtext'], 'format' => FORMAT_HTML);
+        }
+        if (isset($default_values['notifyemail'])) {
+            $default_values['notifyemail'] = array('text' => $default_values['notifyemail'], 'format' => FORMAT_HTML);
         }
         if (isset($default_values['statuschangetext'])) {
             $default_values['statuschangetext'] = array('text' => $default_values['statuschangetext'], 'format' => FORMAT_HTML);

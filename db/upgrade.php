@@ -1218,6 +1218,38 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016053100, 'booking');
     }
 
+    if ($oldversion < 2016061500) {
+
+        // Define field daystonotify to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('daystonotify', XMLDB_TYPE_INTEGER, '3', null, null, null, '0', 'showhelpfullnavigationlinks');
+
+        // Conditionally launch add field daystonotify.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field daystonotify to be dropped from booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('daystonotify');
+
+        // Conditionally launch drop field daystonotify.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Define field notifyemail to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('notifyemail', XMLDB_TYPE_TEXT, null, null, null, null, null, 'daystonotify');
+
+        // Conditionally launch add field notifyemail.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2016061500, 'booking');
+    }
 
     return true;
 }

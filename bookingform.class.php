@@ -105,11 +105,7 @@ class mod_booking_bookingform_form extends moodleform {
 
         $mform->addElement('date_time_selector', 'courseendtime', get_string("courseendtime", "booking"));
         $mform->setType('courseendtime', PARAM_INT);
-        $mform->disabledIf('courseendtime', 'startendtimeknown', 'notchecked');
-
-        $mform->addElement('text', 'daystonotify', get_string('daystonotify', 'booking'));
-        $mform->setType('daystonotify', PARAM_INT);
-        $mform->disabledIf('daystonotify', 'startendtimeknown', 'notchecked');
+        $mform->disabledIf('courseendtime', 'startendtimeknown', 'notchecked');        
 
         $mform->addElement('editor', 'description', get_string('description'));
         $mform->setType('description', PARAM_CLEANHTML);

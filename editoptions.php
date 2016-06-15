@@ -72,9 +72,6 @@ if ($mform->is_cancelled()) {
         if (!isset($fromform->limitanswers)) {
             $fromform->limitanswers = 0;
         }
-        if (!isset($fromform->daystonotify)) {
-            $fromform->daystonotify = 0;
-        }
 
         $nBooking = booking_update_options($fromform);
         

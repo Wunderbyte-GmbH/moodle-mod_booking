@@ -76,6 +76,8 @@ function booking_restore_mods($mod, $restore) {
         $booking->enablecompletion = backup_todb($info['MOD']['#']['ENABLECOMPLETION']['0']['#']);
         $booking->pollurlteachers = backup_todb($info['MOD']['#']['POLLURLTEACHERS']['0']['#']);
         $booking->pollurlteacherstext = backup_todb($info['MOD']['#']['POLLURLTEACHERSTEXT']['0']['#']);
+        $booking->daystonotify = backup_todb($info['#']['DAYSTONOTIFY']['0']['#']);
+        $booking->notifyemail = backup_todb($info['#']['NOTIFYEMAIL']['0']['#']);
 
         //The structure is equal to the db, so insert the booking
         $newid = insert_record("booking", $booking);
@@ -169,8 +171,7 @@ function booking_options_restore_mods($bookingid, $info, $restore) {
         $option->addtocalendar = backup_todb($opt_info['#']['ADDTOCALENDAR']['0']['#']);
         $option->calendarid = backup_todb($opt_info['#']['CALENDARID']['0']['#']);
         $option->pollurl = backup_todb($opt_info['#']['POLLURL']['0']['#']);
-        $option->groupid = backup_todb($opt_info['#']['GROUPID']['0']['#']);
-        $option->daystonotify = backup_todb($opt_info['#']['DAYSTONOTIFY']['0']['#']);
+        $option->groupid = backup_todb($opt_info['#']['GROUPID']['0']['#']);        
         $option->sent = backup_todb($opt_info['#']['SENT']['0']['#']);
         $option->location = backup_todb($opt_info['#']['LOCATION']['0']['#']);
         $option->institution = backup_todb($opt_info['#']['INSTITUTION']['0']['#']);

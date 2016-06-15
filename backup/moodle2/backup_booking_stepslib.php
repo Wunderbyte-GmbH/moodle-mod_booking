@@ -91,7 +91,9 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
             'lblacceptingfrom',
             'lblnumofusers',
             'numgenerator',
-            'paginationnum')
+            'paginationnum',
+            'daystonotify',
+            'notifyemail')
         );
 
         $options = new backup_nested_element('options');
@@ -110,8 +112,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
             'addtocalendar',
             'calendarid',
             'pollurl',
-            'groupid',
-            'daystonotify',
+            'groupid',            
             'sent',
             'location',
             'institution',

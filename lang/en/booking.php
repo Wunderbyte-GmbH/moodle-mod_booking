@@ -330,6 +330,31 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 
+$string['notifyemail_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+<li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
+</ul>';
+
 $string['statuschangetext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
 <li>{status}</li>
@@ -455,6 +480,7 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 <li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 
+$string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
 
 $string['additionalfields'] = 'Additional fields';
 $string['addtogroup'] = 'Automatically enrol users in group';
@@ -560,6 +586,19 @@ Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 To view all your booked courses click on the following link: {$a->bookinglink}
 
 ';
+
+$string['notifyemaildefaultmessage'] = 'Your booking has been registered
+
+
+Booking status: {$a->status}
+Participant:   {$a->participant}
+Course:   {$a->title}
+Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+To view all your booked courses click on the following link: {$a->bookinglink}
+The associated course can be found here: {$a->courselink}
+
+';
+$string['notifyemail'] = 'Notification before start';
 
 $string['userleavebookedsubject'] = 'You have sucesfully unsubscribed from {$a->title}';
 $string['userleavebookedmessage'] = 'Hello {$a->participant},

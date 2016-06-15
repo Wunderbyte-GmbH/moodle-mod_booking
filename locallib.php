@@ -1449,7 +1449,7 @@ class booking_tags {
     public $tags;
     public $replaces;
     public $optionsChangeText = array('text', 'description', 'location', 'institution', 'address');
-    public $bookingChangeText = array('name', 'intro', 'bookingpolicy', 'bookedtext', 'waitingtext', 'statuschangetext', 'deletedtext', 'duration', 'organizatorname', 'pollurltext', 'eventtype', 'notificationtext', 'userleave', 'pollurlteacherstext');
+    public $bookingChangeText = array('name', 'intro', 'bookingpolicy', 'bookedtext', 'notifyemail', 'waitingtext', 'statuschangetext', 'deletedtext', 'duration', 'organizatorname', 'pollurltext', 'eventtype', 'notificationtext', 'userleave', 'pollurlteacherstext');
     private $option;
 
     public function __construct($cm) {
