@@ -733,6 +733,7 @@ $string['sendpollurltoteachers'] = 'Send poll url';
 $string['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
 $string['yes'] = 'Yes';
 $string['optiondates'] = 'Option dates';
+$string['sendreminderemailsuccess'] = 'Notification email was sucesfully send!';
 
 // Send message
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';
@@ -756,6 +757,7 @@ $string['completed'] = 'Completed';
 $string['usersOnList'] = 'User on list';
 $string['fullname'] = 'Full name';
 $string['timecreated'] = 'Time created';
+$string['sendreminderemail'] = "Send Reminder Email";
 
 // importexcel.php
 $string['importexceltitle'] = 'Import activity completion';

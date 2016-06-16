@@ -1105,6 +1105,11 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
     }
 }
 
+// Send reminder email
+function booking_sendreminderemail($selectedusers, $booking, $cmid, $optionid) {
+    booking_send_notification($optionid, get_string('notificationsubject', 'booking'), $selectedusers);
+}
+
 // Send mail to all teachers - pollurlteachers
 function booking_sendpollurlteachers($booking, $cmid, $optionid) {
     global $DB, $USER;
@@ -1215,7 +1220,7 @@ function booking_sendcustommessage($optionid, $subject, $message, $uids) {
     return $returnVal;
 }
 
-function booking_send_notification($optionid, $subject) {
+function booking_send_notification($optionid, $subject, $toUsers = array()) {
     global $DB, $USER, $CFG;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
 
@@ -1229,9 +1234,21 @@ function booking_send_notification($optionid, $subject) {
     $bookingData = new booking_option($cm->id, $option->id);
     $bookingData->apply_tags();
 
-    if (isset($bookingData->usersOnList)) {
-        $allusers = $bookingData->usersOnList;
+    if (!empty($toUsers)) {        
+        foreach ($toUsers as $value) {
+            $tmpUser = new stdClass();
+            $tmpUser->id = $value;
+            $allusers[] = $tmpUser;
+        }
+    } else {
+        if (isset($bookingData->usersOnList)) {
+            $allusers = $bookingData->usersOnList;
+        } else {
+            $allusers = array();
+        }
+    }
 
+    if (!empty($allusers)) {
         foreach ($allusers as $record) {
             $ruser = $DB->get_record('user', array('id' => $record->id));
 

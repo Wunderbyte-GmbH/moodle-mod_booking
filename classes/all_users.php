@@ -150,7 +150,7 @@ class all_users extends table_sql {
     function wrap_html_finish() {
         if (!$this->bookingData->booking->autoenrol && has_capability('mod/booking:communicate', context_module::instance($this->cm->id))) {
             if ($this->bookingData->option->courseid > 0) {
-                echo '<input type="submit" name="subscribetocourse" value="' . get_string('subscribetocourse', 'booking') . '" />';
+                echo '<input type="submit" name="subscribetocourse" value="' . get_string('subscribetocourse', 'booking') . '" />';                
             }
         }
 
@@ -159,9 +159,10 @@ class all_users extends table_sql {
         }
 
         if (has_capability('mod/booking:communicate', context_module::instance($this->cm->id))) {
-            if (!empty(trim($this->bookingData->option->pollurl))) {
+            if (!empty(trim($this->bookingData->option->pollurl))) {                
                 echo '<input type="submit" name="sendpollurl" value="' . get_string('booking:sendpollurl', 'booking') . '" />';
             }
+            echo '<input type="submit" name="sendreminderemail" value="' . get_string('sendreminderemail', 'booking') . '" />';
             echo '<input type="submit" name="sendcustommessage" value="' . get_string('sendcustommessage', 'booking') . '" />';
         }
 

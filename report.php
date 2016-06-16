@@ -149,10 +149,10 @@ if (!(booking_check_if_teacher($bookingData->option, $USER) || has_capability('m
     require_capability('mod/booking:readresponses', $context);
 }
 
-if(booking_check_if_teacher($bookingData->option, $USER) && !has_capability('mod/booking:readresponses', $context)) {
+if (booking_check_if_teacher($bookingData->option, $USER) && !has_capability('mod/booking:readresponses', $context)) {
     $sqlValues['onlyinstitution'] = $USER->institution;
     $addSQLWhere .= ' AND u.institution= :onlyinstitution';
-} 
+}
 
 $event = \mod_booking\event\report_viewed::create(array('objectid' => $optionid, 'context' => context_module::instance($cm->id)));
 $event->trigger();
@@ -265,6 +265,13 @@ if (!$tableAllUsers->is_downloading()) {
 
             booking_activitycompletion($allSelectedUsers, $bookingData->booking, $cm->id, $optionid);
             redirect($url, (empty($bookingData->option->notificationtext) ? get_string('activitycompletionsuccess', 'booking') : $bookingData->option->notificationtext), 5);
+        } else if (isset($_POST['sendreminderemail']) && has_capability('mod/booking:communicate', $context)) {
+            if (empty($allSelectedUsers)) {
+                redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
+            }
+
+            booking_sendreminderemail($allSelectedUsers, $bookingData->booking, $cm->id, $optionid);
+            redirect($url, get_string('sendreminderemailsuccess', 'booking'), 5);
         } else if (isset($_POST['booktootherbooking']) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
             if (empty($allSelectedUsers)) {
                 redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
@@ -361,7 +368,7 @@ if (!$tableAllUsers->is_downloading()) {
     $teachers = array();
 
     foreach ($bookingData->option->teachers as $value) {
-        $teachers[] = html_writer::link(new moodle_url('/user/profile.php', array('id' => $value->userid)), "{$value->firstname} {$value->lastname}", array());        
+        $teachers[] = html_writer::link(new moodle_url('/user/profile.php', array('id' => $value->userid)), "{$value->firstname} {$value->lastname}", array());
     }
 
     $linkst = '';
