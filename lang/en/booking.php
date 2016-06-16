@@ -232,6 +232,7 @@ $string['pollurlteachers_help'] = 'You can use any of the following placeholders
 <li>{pollstartdate}</li>
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
 </ul>';
 
 $string['pollurl_help'] = 'You can use any of the following placeholders in the text:
@@ -255,6 +256,7 @@ $string['pollurl_help'] = 'You can use any of the following placeholders in the 
 <li>{pollstartdate}</li>
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
 </ul>';
 
 $string['bookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -278,6 +280,7 @@ $string['bookedtext_help'] = 'Leave this blank to use the site default text. You
 <li>{pollstartdate}</li>
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
 </ul>';
 
 $string['userleave_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -303,6 +306,7 @@ $string['userleave_help'] = 'Leave this blank to use the site default text. You 
 <li>{pollstartdate}</li>
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
 </ul>';
 
 $string['waitingtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -328,6 +332,7 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{pollstartdate}</li>
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
 </ul>';
 
 $string['notifyemail_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -353,6 +358,7 @@ $string['notifyemail_help'] = 'Leave this blank to use the site default text. Yo
 <li>{pollstartdate}</li>
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
 </ul>';
 
 $string['statuschangetext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -378,6 +384,7 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 <li>{pollstartdate}</li>
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
 </ul>';
 
 $string['deletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -403,6 +410,7 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{pollstartdate}</li>
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
 </ul>';
 
 $string['pollurltext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -428,6 +436,7 @@ $string['pollurltext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{pollstartdate}</li>
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
 </ul>';
 
 $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -453,6 +462,7 @@ $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default 
 <li>{pollstartdate}</li>
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
 </ul>';
 
 $string['notificationtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -478,6 +488,7 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 <li>{pollstartdate}</li>
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
 </ul>';
 
 $string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
@@ -721,6 +732,7 @@ $string['editteachers'] = 'Edit';
 $string['sendpollurltoteachers'] = 'Send poll url';
 $string['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
 $string['yes'] = 'Yes';
+$string['optiondates'] = 'Option dates';
 
 // Send message
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';
@@ -774,3 +786,11 @@ $string['selectoptioninotherbooking'] = "Option";
 $string['otherbookinglimit'] = "Limit";
 $string['otherbookinglimit_help'] = "How many users you accept from option. If 0, you can accept unlimited users.";
 $string['otherbookingsucesfullysaved'] = 'Rule sucesfully saved!'; 
+
+// optiondates.php
+$string['addnewoptiondates'] = 'Add new option date';
+$string['savenewoptiondates'] = 'Save';
+$string['optiondatestime'] = 'Session time';
+$string['optiondatessucesfullysaved'] = "Session time was sucesfully saved.";
+$string['optiondatessucesfullydelete'] = "Session time was sucesfully deleted.";
+$string['delete'] = "Delete";

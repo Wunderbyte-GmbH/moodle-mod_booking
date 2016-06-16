@@ -147,6 +147,8 @@ class booking_option extends booking {
         $this->optionid = $optionid;
         //$this->update_booked_users();
         $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', 'MUST_EXIST');
+        $times = $DB->get_record_sql("SELECT GROUP_CONCAT(CONCAT(coursestarttime, '-', courseendtime)  ORDER BY coursestarttime ASC) AS times FROM {booking_optiondates} WHERE optionid = ?", array($optionid));
+        $this->option->times = $times->times;
         $this->filters = $filters;
         $this->page = $page;
         $this->perpage = $perpage;
@@ -459,8 +461,9 @@ class booking_option extends booking {
         $event->trigger();
 
         booking_check_unenrol_user($this->option, $this->booking, $user->id);
-
+        
         $params = booking_generate_email_params($this->booking, $this->option, $user, $this->cm->id);
+
         $messagetext = get_string('deletedbookingmessage', 'booking', $params);
         if ($userid == $USER->id) {
             // I canceled the booking
@@ -830,7 +833,7 @@ class booking_options extends booking {
         global $DB;
 
         $options = $this->q_params();
-        $this->options = $DB->get_records_sql('SELECT DISTINCT bo.* ' . $options['sql'], $options['args'], $this->perpage * $this->page, $this->perpage);
+        $this->options = $DB->get_records_sql('SELECT DISTINCT bo.*, (SELECT GROUP_CONCAT(CONCAT(coursestarttime, ' - ', courseendtime)  ORDER BY coursestarttime ASC) AS times FROM {booking_optiondates} WHERE optionid = bo.id) AS times ' . $options['sql'], $options['args'], $this->perpage * $this->page, $this->perpage);
     }
 
     public function apply_tags() {
@@ -1365,6 +1368,15 @@ class booking_utils {
             } else {
                 $params->pollurlteachers = $option->pollurlteachers;
             }
+
+            $val = '';
+            $times = explode(',', $option->times);
+            foreach ($times as $time) {
+                $slot = explode('-', $time);
+                $val .= userdate($slot[0], get_string('strftimedatefullshort')) . " " . userdate($slot[0], get_string('strftimetime')) . " - " . userdate($slot[1], get_string('strftimetime')) . '<br>';
+            }
+
+            $params->times = $val;
         }
 
         return $params;
@@ -1531,4 +1543,24 @@ function booking_confirm_booking($optionid, $booking, $user, $cm, $url) {
     $message .= "<p>" . $option->booking->bookingpolicy . "<p>";
     echo $OUTPUT->confirm($message, new moodle_url('/mod/booking/view.php', $optionidarray), $url);
     echo $OUTPUT->footer();
+}
+
+// Update option start and end datetime - when you add session time
+function booking_updatestartenddate($optionid) {
+    GLOBAL $DB;
+
+    $result = $DB->get_record_sql('SELECT MIN(coursestarttime) AS coursestarttime, MAX(courseendtime) AS courseendtime FROM {booking_optiondates} WHERE optionid = ?', array($optionid));
+
+    $save = new stdClass();
+    $save->id = $optionid;
+
+    if (is_null($result->coursestarttime)) {
+        $save->coursestarttime = 0;
+        $save->courseendtime = 0;
+    } else {
+        $save->coursestarttime = $result->coursestarttime;
+        $save->courseendtime = $result->courseendtime;
+    }
+
+    $DB->update_record("booking_options", $save);
 }

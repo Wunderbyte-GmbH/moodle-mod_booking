@@ -41,6 +41,8 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $paths[] = new restore_path_element('booking_tag', '/activity/booking/tags/tag');
         $paths[] = new restore_path_element('booking_institution', '/activity/booking/institutions/institution');
         $paths[] = new restore_path_element('booking_other', '/activity/booking/options/option/others/other');
+        $paths[] = new restore_path_element('booking_optiondate', '/activity/booking/optiondates/optiondate');
+        
         if ($userinfo) {
             $paths[] = new restore_path_element('booking_answer', '/activity/booking/answers/answer');
             $paths[] = new restore_path_element('booking_teacher', '/activity/booking/teachers/teacher');
@@ -92,6 +94,20 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->timemodified = $this->apply_date_offset($data->timemodified);
         
         $newitemid = $DB->insert_record('booking_answers', $data);
+        // No need to save this mapping as far as nothing depend on it
+        // (child paths, file areas nor links decoder)
+    }
+    
+    protected function process_booking_optiondate($data) {
+        global $DB;
+
+        $data = (object) $data;        
+        $oldid = $data->id;
+
+        $data->bookingid = $this->get_new_parentid('booking');
+        $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
+        
+        $newitemid = $DB->insert_record('booking_optiondates', $data);
         // No need to save this mapping as far as nothing depend on it
         // (child paths, file areas nor links decoder)
     }

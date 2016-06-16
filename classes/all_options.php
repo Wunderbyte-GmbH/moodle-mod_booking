@@ -46,7 +46,7 @@ class all_options extends table_sql {
         if ($this->is_downloading()) {
             if ($values->coursestarttime == 0) {
                 return '';
-            } else {
+            } else {                
                 return userdate($values->coursestarttime, get_string('strftimedatetime'));
             }
         }
@@ -54,7 +54,18 @@ class all_options extends table_sql {
         if ($values->coursestarttime == 0) {
             return get_string('datenotset', 'booking');
         } else {
-            return userdate($values->coursestarttime) . " -<br>" . userdate($values->courseendtime);
+            if (is_null($values->times)) {
+                return userdate($values->coursestarttime) . " -<br>" . userdate($values->courseendtime);
+            } else {
+                $val = '';
+                $times = explode(',', $values->times);
+                foreach ($times as $time) {
+                    $slot = explode('-', $time);
+                    $val .= userdate($slot[0], get_string('strftimedatefullshort')) . " " . userdate($slot[0], get_string('strftimetime')) . " - " . userdate($slot[1], get_string('strftimetime')) . '<br>';
+                }
+                
+                return $val;
+            }            
         }
     }
 

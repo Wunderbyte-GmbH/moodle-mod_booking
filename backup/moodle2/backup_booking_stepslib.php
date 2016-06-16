@@ -138,6 +138,14 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
             'frombookingid',
             'numrec')
         );
+        
+        $optiondates = new backup_nested_element('optiondates');
+        $optiondate = new backup_nested_element('optiondate', array('id'), array(
+            'bookingid',
+            'optionid',
+            'coursestarttime',
+            'courseendtime')
+        );
 
         $categories = new backup_nested_element('categories');
         $category = new backup_nested_element('category', array('id'), array(
@@ -178,6 +186,9 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         $booking->add_child($answers);
         $answers->add_child($answer);
+        
+        $booking->add_child($optiondates);
+        $optiondates->add_child($optiondate);
 
         $booking->add_child($categories);
         $categories->add_child($category);
@@ -206,7 +217,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $tag->set_source_table('booking_tags', array('courseid' => '../../course'));
         $institution->set_source_table('booking_institutions', array('course' => '../../course'));
         $other->set_source_table('booking_other', array('optionid' => '../../id'));
-
+        $optiondate->set_source_table('booking_optiondates', array('bookingid' => '../../id'));
+        
         // All the rest of elements only happen if we are including user info
         if ($userinfo) {
             $answer->set_source_table('booking_answers', array('bookingid' => '../../id'));

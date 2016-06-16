@@ -1606,7 +1606,6 @@ function booking_pretty_duration($seconds) {
  */
 function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid) {
     global $CFG;
-    require_once($CFG->libdir . '/tcpdf/tcpdf_barcodes_2d.php');
 
     $params = new stdClass();
 
@@ -1626,12 +1625,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $bookinglink = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
     $bookinglink = $bookinglink->out();
 
-    //$barcodeobj = new TCPDF2DBarcode($user->id, 'QRCODE,H');
-    //$params->qr_id = $barcodeobj->getBarcodePng(4, 4);
     $params->qr_id = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' . rawurlencode($user->id) . '&choe=UTF-8" title="Link to Google.com" />';
-
-    //$barcodeobj->setBarcode($user->username, 'QRCODE,H');
-    //$params->qr_username = $barcodeobj->getBarcodeHTML(4, 4);
     $params->qr_username = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' . rawurlencode($user->username) . '&choe=UTF-8" title="Link to Google.com" />';
 
     $params->status = booking_get_user_status($user->id, $option->id, $booking->id, $cmid);
@@ -1660,6 +1654,15 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
         $params->pollurlteachers = $option->pollurlteachers;
     }
 
+    $val = '';
+    $times = explode(',', $option->times);
+    foreach ($times as $time) {
+        $slot = explode('-', $time);
+        $val .= userdate($slot[0], get_string('strftimedatefullshort')) . " " . userdate($slot[0], get_string('strftimetime')) . " - " . userdate($slot[1], get_string('strftimetime')) . '<br>';
+    }
+
+    $params->times = $val;
+    
     return $params;
 }
 
@@ -1675,7 +1678,8 @@ function booking_get_email_body($booking, $fieldname, $defaultname, $params) {
     if (empty($booking->$fieldname)) {
         return get_string($defaultname, 'booking', $params);
     }
-    $text = $booking->$fieldname;
+
+    $text = $booking->$fieldname;        
     foreach ($params as $name => $value) {
         $text = str_replace('{' . $name . '}', $value, $text);
     }
