@@ -332,6 +332,7 @@ if (!$tableAllUsers->is_downloading()) {
     if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
         $settingnode = $PAGE->settingsnav->add(get_string("optionmenu", "booking"), null, navigation_node::TYPE_CONTAINER);
         $settingnode->add(get_string('updatebooking', 'booking'), new moodle_url('/mod/booking/editoptions.php', array('id' => $bookingData->option->cmid, 'optionid' => $bookingData->option->id)));
+        $settingnode->add(get_string('duplicatebooking', 'booking'), new moodle_url('/mod/booking/editoptions.php', array('id' => $bookingData->option->cmid, 'optionid' => 'add', 'copyoptionid' => $bookingData->option->id)));
         $settingnode->add(get_string('deletebookingoption', 'booking'), new moodle_url('/mod/booking/report.php', array('id' => $bookingData->option->cmid, 'optionid' => $bookingData->option->id, 'action' => 'deletebookingoption', 'sesskey' => sesskey())));
         $settingnode->add(get_string('optiondates', 'booking'), new moodle_url('/mod/booking/optiondates.php', array('id' => $bookingData->option->cmid, 'optionid' => $bookingData->option->id)));
     }

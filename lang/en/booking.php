@@ -173,6 +173,7 @@ $string['waitinglist'] = 'Waiting list';
 $string['waitingplacesavailable'] = 'Waiting list places available';
 $string['waitspaceavailable'] = 'Places on waiting list available';
 $string['banusernameswarning'] = "Your username is banned so you can't book.";
+$string['duplicatebooking'] = 'Duplicate this booking option';
 
 // tag templates
 $string['cancel'] = 'Cancel';

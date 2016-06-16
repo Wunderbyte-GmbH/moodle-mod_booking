@@ -6,6 +6,7 @@ require_once("bookingform.class.php");
 
 $id = required_param('id', PARAM_INT);                 // Course Module ID
 $optionid = optional_param('optionid', '', PARAM_ALPHANUM);
+$copyoptionid = optional_param('copyoptionid', '', PARAM_ALPHANUM);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
 
 $url = new moodle_url('/mod/booking/editoptions.php', array('id' => $id));
@@ -22,7 +23,7 @@ if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
-                
+
 if (!$booking = booking_get_booking($cm, '', array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), FALSE, null, false)) {
     error("Course module is incorrect");
 }
@@ -44,6 +45,22 @@ $mform = new mod_booking_bookingform_form(null, array('bookingid' => $booking->i
 
 if ($optionid == 'add') {
     $default_values = $booking;
+    if ($copyoptionid != '') {
+        if ($default_values = $DB->get_record('booking_options', array('id' => $copyoptionid))) {            
+            $default_values->optionid = "add";
+            $default_values->bookingid = $booking->id;
+            $default_values->id = $cm->id;
+            $default_values->description = array('text' => $default_values->description, 'format' => FORMAT_HTML);
+            $default_values->notificationtext = array('text' => $default_values->notificationtext, 'format' => FORMAT_HTML);
+            if ($default_values->bookingclosingtime) {
+                $default_values->restrictanswerperiod = "checked";
+            }
+            if ($default_values->coursestarttime) {
+                $default_values->startendtimeknown = "checked";
+            }
+        }
+    }
+    
     $default_values->optionid = "add";
     $default_values->bookingid = $booking->id;
     $default_values->id = $cm->id;
@@ -74,7 +91,7 @@ if ($mform->is_cancelled()) {
         }
 
         $nBooking = booking_update_options($fromform);
-        
+
         $bookingData = new booking_option($cm->id, $nBooking);
         $bookingData->sync_waiting_list();
 
