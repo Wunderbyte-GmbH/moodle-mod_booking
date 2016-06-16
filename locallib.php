@@ -461,7 +461,7 @@ class booking_option extends booking {
         $event->trigger();
 
         booking_check_unenrol_user($this->option, $this->booking, $user->id);
-        
+
         $params = booking_generate_email_params($this->booking, $this->option, $user, $this->cm->id);
 
         $messagetext = get_string('deletedbookingmessage', 'booking', $params);
@@ -1370,10 +1370,12 @@ class booking_utils {
             }
 
             $val = '';
-            $times = explode(',', $option->times);
-            foreach ($times as $time) {
-                $slot = explode('-', $time);
-                $val .= userdate($slot[0], get_string('strftimedatefullshort')) . " " . userdate($slot[0], get_string('strftimetime')) . " - " . userdate($slot[1], get_string('strftimetime')) . '<br>';
+            if (!is_null($option->times)) {
+                $times = explode(',', $option->times);
+                foreach ($times as $time) {
+                    $slot = explode('-', $time);
+                    $val .= userdate($slot[0], get_string('strftimedatefullshort')) . " " . userdate($slot[0], get_string('strftimetime')) . " - " . userdate($slot[1], get_string('strftimetime')) . '<br>';
+                }
             }
 
             $params->times = $val;

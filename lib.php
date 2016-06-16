@@ -1655,14 +1655,17 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     }
 
     $val = '';
-    $times = explode(',', $option->times);
-    foreach ($times as $time) {
-        $slot = explode('-', $time);
-        $val .= userdate($slot[0], get_string('strftimedatefullshort')) . " " . userdate($slot[0], get_string('strftimetime')) . " - " . userdate($slot[1], get_string('strftimetime')) . '<br>';
+
+    if (!is_null($option->times)) {
+        $times = explode(',', $option->times);
+        foreach ($times as $time) {
+            $slot = explode('-', $time);
+            $val .= userdate($slot[0], get_string('strftimedatefullshort')) . " " . userdate($slot[0], get_string('strftimetime')) . " - " . userdate($slot[1], get_string('strftimetime')) . '<br>';
+        }
     }
 
     $params->times = $val;
-    
+
     return $params;
 }
 
@@ -1679,7 +1682,7 @@ function booking_get_email_body($booking, $fieldname, $defaultname, $params) {
         return get_string($defaultname, 'booking', $params);
     }
 
-    $text = $booking->$fieldname;        
+    $text = $booking->$fieldname;
     foreach ($params as $name => $value) {
         $text = str_replace('{' . $name . '}', $value, $text);
     }

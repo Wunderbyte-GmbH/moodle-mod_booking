@@ -76,14 +76,14 @@ if ($mform->is_cancelled()) {
 
     // Check if CSV is ok
 
-    if ($csvArr[0][0] == 'name' && $csvArr[0][1] == 'startdate' && $csvArr[0][2] == 'enddate' && $csvArr[0][3] == 'institution' && $csvArr[0][4] == 'institutionaddress' && $csvArr[0][5] == 'teacheremail' && $csvArr[0][6] == 'useremail' && $csvArr[0][7] == 'finished' && $csvArr[0][8] == 'maxanswers' && $csvArr[0][9] == 'maxoverbooking' && $csvArr[0][10] == 'limitanswers') {
+    if ($csvArr[0][0] == 'name' && $csvArr[0][1] == 'startdate' && $csvArr[0][2] == 'enddate' && $csvArr[0][3] == 'institution' && $csvArr[0][4] == 'institutionaddress' && $csvArr[0][5] == 'teacheremail' && $csvArr[0][6] == 'useremail' && $csvArr[0][7] == 'finished' && $csvArr[0][8] == 'maxanswers' && $csvArr[0][9] == 'maxoverbooking' && $csvArr[0][10] == 'limitanswers' && $csvArr[0][11] == 'location') {
         array_shift($csvArr);
         $i = 0;
         foreach ($csvArr as $line) {
 
             $i++;
 
-            if (count($line) == 11) {
+            if (count($line) == 12) {
 
                 $user = FALSE;
                 $teacher = FALSE;
@@ -146,6 +146,7 @@ if ($mform->is_cancelled()) {
                     $bookingObject->maxanswers = $line[8];
                     $bookingObject->maxoverbooking = $line[9];
                     $bookingObject->limitanswers = $line[10];
+                    $bookingObject->location = modbooking_fixEncoding($line[11]);
 
                     $bid = $DB->insert_record('booking_options', $bookingObject, TRUE);
 
