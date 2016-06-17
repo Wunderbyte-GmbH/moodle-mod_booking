@@ -513,7 +513,7 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
                 $status = get_string('notbooked', 'booking');
             } else if ($useridaskey[$userid] > $option->maxanswers + $option->maxoverbooking) {
                 $status = "Problem, please contact the admin";
-            } elseif (($useridaskey[$userid]) > $option->maxanswers) { // waitspaceavailable
+            } elseif (($useridaskey[$userid]) >= $option->maxanswers) { // waitspaceavailable
                 $status = get_string('onwaitinglist', 'booking');
             } elseif ($useridaskey[$userid] <= $option->maxanswers) {
                 $status = get_string('booked', 'booking');
