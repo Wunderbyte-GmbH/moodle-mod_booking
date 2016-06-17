@@ -675,7 +675,7 @@ class booking_option extends booking {
             $allUsersCount = $bookedUsers + $waitingUsers;
 
             if ($maxplacesavailable > $allUsersCount) {
-                if ($bookedUsers > $this->option->maxanswers) {
+                if ($this->option->maxanswers > $bookedUsers) {
                     return 0;
                 } else {
                     return 1;
