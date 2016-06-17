@@ -733,7 +733,7 @@ $string['editteachers'] = 'Edit';
 $string['sendpollurltoteachers'] = 'Send poll url';
 $string['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
 $string['yes'] = 'Yes';
-$string['optiondates'] = 'Option dates';
+$string['optiondates'] = 'Multiple Dates Session';
 $string['sendreminderemailsuccess'] = 'Notification email was sucesfully send!';
 
 // Send message
@@ -791,7 +791,7 @@ $string['otherbookinglimit_help'] = "How many users you accept from option. If 0
 $string['otherbookingsucesfullysaved'] = 'Rule sucesfully saved!'; 
 
 // optiondates.php
-$string['addnewoptiondates'] = 'Add new option date';
+$string['addnewoptiondates'] = 'Add new session';
 $string['savenewoptiondates'] = 'Save';
 $string['optiondatestime'] = 'Session time';
 $string['optiondatessucesfullysaved'] = "Session time was sucesfully saved.";
