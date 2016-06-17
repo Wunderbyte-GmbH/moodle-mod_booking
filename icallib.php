@@ -32,6 +32,7 @@ class booking_ical {
     protected $user;
     protected $fromuser;
     protected $tempfilename = '';
+    protected $times = '';
 
     /**
      * Create a new booking_ical instance
@@ -41,11 +42,12 @@ class booking_ical {
      */
     public function __construct($booking, $option, $user, $fromuser) {
         global $DB;
-        
+
         $this->booking = $booking;
         $this->option = $option;
-        $this->user = $DB->get_record('user', array('id'=>$user->id));
+        $this->user = $DB->get_record('user', array('id' => $user->id));
         $this->fromuser = $fromuser;
+        $this->times = $DB->get_records('booking_optiondates', array('optionid' => $option->id), 'coursestarttime ASC');
     }
 
     /**
@@ -74,15 +76,15 @@ class booking_ical {
             return ''; // missing start or end time for course.
         }
 
-        // First, generate the VEVENT block
+// First, generate the VEVENT block
         $VEVENTS = '';
 
-        // Date that this representation of the calendar information was created -
-        // we use the time the option was last modified
-        // http://www.kanzaki.com/docs/ical/dtstamp.html
+// Date that this representation of the calendar information was created -
+// we use the time the option was last modified
+// http://www.kanzaki.com/docs/ical/dtstamp.html
         $DTSTAMP = $this->generate_timestamp($this->option->timemodified);
 
-        // UIDs should be globally unique
+// UIDs should be globally unique
         $urlbits = parse_url($CFG->wwwroot);
         $UID = md5($CFG->siteidentifier . $this->option->id . 'mod_booking_option') . // Unique identifier, salted with site identifier
                 '@' . $urlbits['host'];                                                    // Hostname for this moodle installation
@@ -90,17 +92,17 @@ class booking_ical {
         $DTSTART = $this->generate_timestamp($this->option->coursestarttime);
         $DTEND = $this->generate_timestamp($this->option->courseendtime);
 
-        // FIXME: currently we are not sending updates if the times of the
-        // sesion are changed. This is not ideal!
+// FIXME: currently we are not sending updates if the times of the
+// sesion are changed. This is not ideal!
         $SEQUENCE = 0;
 
         $SUMMARY = $this->escape($this->booking->name);
         $DESCRIPTION = $this->escape($this->option->text, true);
 
-        // NOTE: Newlines are meant to be encoded with the literal sequence
-        // '\n'. But evolution presents a single line text field for location,
-        // and shows the newlines as [0x0A] junk. So we switch it for commas
-        // here. Remember commas need to be escaped too.
+// NOTE: Newlines are meant to be encoded with the literal sequence
+// '\n'. But evolution presents a single line text field for location,
+// and shows the newlines as [0x0A] junk. So we switch it for commas
+// here. Remember commas need to be escaped too.
         if ($this->option->courseid) {
             $url = new moodle_url('/course/view.php', array('id' => $this->option->courseid));
             $LOCATION = $this->escape($url->out());
@@ -119,12 +121,18 @@ class booking_ical {
 
         $icalmethod = ($cancel) ? 'CANCEL' : 'REQUEST';
 
-        // FIXME: if the user has input their name in another language, we need
-        // to set the LANGUAGE property parameter here
+// FIXME: if the user has input their name in another language, we need
+// to set the LANGUAGE property parameter here
         $USERNAME = fullname($this->user);
         $MAILTO = $this->user->email;
 
-        $VEVENTS .= <<<EOF
+        if (!empty($this->times)) {
+
+            foreach ($this->times as $time) {
+                $DTSTART = $this->generate_timestamp($time->coursestarttime);
+                $DTEND = $this->generate_timestamp($time->courseendtime);
+
+$VEVENTS .= <<<EOF
 BEGIN:VEVENT
 UID:{$UID}
 DTSTAMP:{$DTSTAMP}
@@ -141,10 +149,30 @@ ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$ROLE};PARTSTAT=NEEDS-ACTION;RSVP=FALSE;CN={$US
 END:VEVENT
 
 EOF;
+            }
+        } else {
+            $VEVENTS .= <<<EOF
+BEGIN:VEVENT
+UID:{$UID}
+DTSTAMP:{$DTSTAMP}
+DTSTART:{$DTSTART}
+DTEND:{$DTEND}
+SEQUENCE:{$SEQUENCE}
+SUMMARY:{$SUMMARY}
+LOCATION:{$LOCATION}
+DESCRIPTION:{$DESCRIPTION}
+CLASS:PRIVATE
+TRANSP:OPAQUE{$CANCELSTATUS}
+ORGANIZER;CN={$ORGANISEREMAIL}:MAILTO:{$ORGANISEREMAIL}
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$ROLE};PARTSTAT=NEEDS-ACTION;RSVP=FALSE;CN={$USERNAME};LANGUAGE=en:MAILTO:{$MAILTO}
+END:VEVENT
+
+EOF;
+        }
 
         $VEVENTS = trim($VEVENTS);
 
-        // TODO: remove the hard-coded timezone!
+// TODO: remove the hard-coded timezone!
         $template = <<<EOF
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -203,8 +231,8 @@ EOF;
                 array('\\', "\n", ';', ','), array('\\\\', '\n', '\;', '\,'), $text
         );
 
-        // Text should be wordwrapped at 75 octets, and there should be one
-        // whitespace after the newline that does the wrapping
+// Text should be wordwrapped at 75 octets, and there should be one
+// whitespace after the newline that does the wrapping
         $text = wordwrap($text, 75, "\n ", true);
 
         return $text;
