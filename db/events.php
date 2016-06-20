@@ -36,12 +36,6 @@ $handlers = array(
         'handlerfunction' => 'booking_booking_deleted',
         'schedule' => 'cron',
         'internal' => 1,
-    ),
-    'user_unenrolled' => array (
-        'handlerfile'      => '/mod/booking/lib.php',
-        'handlerfunction'  => 'booking_user_unenrolled',
-        'schedule'         => 'instant',
-        'internal'         => 1,
     )
 );
 
@@ -49,6 +43,14 @@ $observers = array(
     array(
         'eventname' => '\core\event\course_module_updated',
         'callback' => 'mod_booking_observer::course_module_updated',
+    ),
+    array(
+        'eventname' => '\core\event\user_deleted',
+        'callback' => 'mod_booking_observer::user_deleted'
+    ),
+    array(
+        'eventname' => '\core\event\user_enrolment_deleted',
+        'callback' => 'mod_booking_observer::user_enrolment_deleted'
     )
 );
 

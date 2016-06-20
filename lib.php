@@ -2205,19 +2205,6 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
 }
 
 /**
- * delete user from booking when user is deleted
- * @param unknown $eventdata
- */
-function booking_user_unenrolled($eventdata) {
-    GLOBAL $DB;
-
-    $DB->execute('DELETE ba FROM {booking_answers} AS ba LEFT JOIN {booking} AS b ON b.id = ba.bookingid WHERE ba.userid = :userid AND b.course = :course', array('userid' => $eventdata->userid, 'course' => $eventdata->courseid));
-    $DB->execute('DELETE ba FROM {booking_teachers} AS ba LEFT JOIN {booking} AS b ON b.id = ba.bookingid WHERE ba.userid = :userid AND b.course = :course', array('userid' => $eventdata->userid, 'course' => $eventdata->courseid));
-
-    return true;
-}
-
-/**
  * get moodle major version
  * @return string moodle version
  */
