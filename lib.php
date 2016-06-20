@@ -1234,7 +1234,7 @@ function booking_send_notification($optionid, $subject, $toUsers = array()) {
     $bookingData = new booking_option($cm->id, $option->id);
     $bookingData->apply_tags();
 
-    if (!empty($toUsers)) {        
+    if (!empty($toUsers)) {
         foreach ($toUsers as $value) {
             $tmpUser = new stdClass();
             $tmpUser->id = $value;
@@ -1677,7 +1677,11 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
         $times = explode(',', $option->times);
         foreach ($times as $time) {
             $slot = explode('-', $time);
-            $val .= userdate($slot[0], get_string('strftimedatefullshort')) . " " . userdate($slot[0], get_string('strftimetime')) . " - " . userdate($slot[1], get_string('strftimetime')) . '<br>';
+            $tmpDate = new stdClass();
+            $tmpDate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
+            $tmpDate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
+
+            $val .= get_string('leftandrightdate', 'booking', $tmpDate) . '<br>';
         }
     }
 

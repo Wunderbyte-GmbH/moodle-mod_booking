@@ -46,7 +46,7 @@ class all_options extends table_sql {
         if ($this->is_downloading()) {
             if ($values->coursestarttime == 0) {
                 return '';
-            } else {                
+            } else {                                 
                 return userdate($values->coursestarttime, get_string('strftimedatetime'));
             }
         }
@@ -61,9 +61,13 @@ class all_options extends table_sql {
                 $times = explode(',', $values->times);
                 foreach ($times as $time) {
                     $slot = explode('-', $time);
-                    $val .= userdate($slot[0], get_string('strftimedatefullshort')) . " " . userdate($slot[0], get_string('strftimetime')) . " - " . userdate($slot[1], get_string('strftimetime')) . '<br>';
+                    $tmpDate = new stdClass();
+                    $tmpDate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
+                    $tmpDate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
+
+                    $val .= get_string('leftandrightdate', 'booking', $tmpDate) . '<br>';
                 }
-                
+                                
                 return $val;
             }            
         }

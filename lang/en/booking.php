@@ -797,3 +797,7 @@ $string['optiondatestime'] = 'Session time';
 $string['optiondatessucesfullysaved'] = "Session time was sucesfully saved.";
 $string['optiondatessucesfullydelete'] = "Session time was sucesfully deleted.";
 $string['delete'] = "Delete";
+
+$string['leftdate'] = "%d %B %Y, %I:%M %p";
+$string['righttdate'] = "%I:%M %p";
+$string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';

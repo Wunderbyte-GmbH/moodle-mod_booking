@@ -1374,7 +1374,11 @@ class booking_utils {
                 $times = explode(',', $option->times);
                 foreach ($times as $time) {
                     $slot = explode('-', $time);
-                    $val .= userdate($slot[0], get_string('strftimedatefullshort')) . " " . userdate($slot[0], get_string('strftimetime')) . " - " . userdate($slot[1], get_string('strftimetime')) . '<br>';
+                    $tmpDate = new stdClass();
+                    $tmpDate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
+                    $tmpDate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
+
+                    $val .= get_string('leftandrightdate', 'booking', $tmpDate) . '<br>';
                 }
             }
 

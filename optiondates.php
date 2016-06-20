@@ -39,9 +39,9 @@ require_capability('mod/booking:updatebooking', $context);
 
 if ($delete != '') {
     $DB->delete_records("booking_optiondates", array('optionid' => $optionid, 'id' => $delete));
-    
+
     booking_updatestartenddate($optionid);
-    
+
     redirect($url, get_string('optiondatessucesfullydelete', 'booking'), 5);
 }
 
@@ -66,7 +66,11 @@ foreach ($times as $time) {
     $delete = new moodle_url('optiondates.php', array('id' => $id, 'optionid' => $optionid, 'delete' => $time->id));
     $buttonDelete = $OUTPUT->single_button($delete, get_string('delete', 'booking'), 'get');
 
-    $timesTable[] = array(userdate($time->coursestarttime, get_string('strftimedatefullshort')) . " " . userdate($time->coursestarttime, get_string('strftimetime')) . " - " . userdate($time->courseendtime, get_string('strftimetime')), html_writer::tag('span', $button . $buttonDelete, array('style' => 'text-align: right; display:table-cell;')));
+    $tmpDate = new stdClass();
+    $tmpDate->leftdate = userdate($time->coursestarttime, get_string('leftdate', 'booking'));
+    $tmpDate->righttdate = userdate($time->courseendtime, get_string('righttdate', 'booking'));
+
+    $timesTable[] = array(get_string('leftandrightdate', 'booking', $tmpDate), html_writer::tag('span', $button . $buttonDelete, array('style' => 'text-align: right; display:table-cell;')));
 }
 
 $table->data = $timesTable;
