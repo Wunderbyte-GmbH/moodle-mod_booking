@@ -190,7 +190,14 @@ class all_options extends table_sql {
         if (!$values->limitanswers) {
             return $button . $delete . $booked . get_string("unlimited", 'booking') . $manage;
         } else {
-            return $button . $delete . $booked . get_string("placesavailable", "booking") . ": " . ($values->maxanswers - $values->booked) . " / " . $values->maxanswers . "<br />" . get_string("waitingplacesavailable", "booking") . ": " . ($values->maxoverbooking - $values->waiting) . " / " . $values->maxoverbooking . $manage;
+            
+            $places = new stdClass();
+            $places->maxanswers = $values->maxanswers;
+            $places->available = $values->maxanswers - $values->booked;
+            $places->maxoverbooking = $values->maxoverbooking;
+            $places->overbookingavailable = $values->maxoverbooking - $values->waiting;
+            
+            return $button . $delete . $booked . get_string("placesavailable", "booking", $places) . "<br />" . get_string("waitingplacesavailable", "booking", $places) . $manage;
         }
     }
 
