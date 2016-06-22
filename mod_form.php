@@ -387,7 +387,8 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'conectedbooking', get_string('conectedbooking', 'mod_booking'), $opts);
         $mform->setDefault('conectedbooking', 0);
         $mform->addHelpButton('conectedbooking', 'conectedbooking', 'mod_booking');
-
+		//-------------------------------------------------------------------------------
+        $this->standard_grading_coursemodule_elements();
         //-------------------------------------------------------------------------------
         $this->standard_coursemodule_elements();
         //-------------------------------------------------------------------------------
