@@ -64,8 +64,6 @@ $user->cmid = $cmid;
 $userform->set_data($user);
 
 if ($usernew = $userform->get_data()) {
-    add_to_log($course->id, 'user', 'update', "view.php?id=$user->id&course=$course->id", '');
-
     // use all the profile settings from $user and only replace user_profile_fields;
     $usernew->timemodified = time();
 
@@ -75,14 +73,11 @@ if ($usernew = $userform->get_data()) {
 	// reload from db
 	$usernew = $DB->get_record('user', array('id' => $usernew->id));
 	
-	//add_to_log($course->id, 'user', 'update', "view.php?id=$user->id&course=$course->id", '');
 	$event = \mod_booking\event\userprofilefields_updated::create(array(
 	        'objectid' => $usernew->id,
 	        'context' => context_module::instance($cmid)
 	));
 	$event->trigger();
-	events_trigger('user_updated', $usernew);
-
 	redirect("$CFG->wwwroot/mod/booking/view.php?id=$cmid");
 }
 

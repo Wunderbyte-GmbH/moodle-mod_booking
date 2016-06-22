@@ -1,7 +1,5 @@
 <?php
 
-// $Id: index.php,v 1.32.2.6 2008/02/26 23:19:05 skodak Exp $
-
 require_once("../../config.php");
 require_once("lib.php");
 
@@ -14,8 +12,6 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 
 require_course_login($course);
 $PAGE->set_pagelayout('incourse');
-
-add_to_log($course->id, "booking", "view all", "index?id=$course->id", "");
 
 $strbooking = get_string("modulename", "booking");
 $strbookings = get_string("modulenameplural", "booking");
