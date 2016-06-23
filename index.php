@@ -26,21 +26,22 @@ if (!$bookings = get_all_instances_in_course("booking", $course)) {
 
 $usesections = course_format_uses_sections($course->format);
 if ($usesections) {
-    $sections = get_all_sections($course->id);
+    $sections = get_fast_modinfo($course->id)->get_section_info_all();
 }
 $sql = "SELECT cha.*
-              FROM {$CFG->prefix}booking ch, {$CFG->prefix}booking_answers cha
+              FROM {booking} AS ch, {booking_answers} AS cha
              WHERE cha.bookingid = ch.id AND
                    ch.course = $course->id AND cha.userid = $USER->id";
 
 $answers = array();
-if (isloggedin() and ! isguestuser() and $allanswers = get_records_sql($sql)) {
+if (isloggedin() and ! isguestuser() and $allanswers = $DB->get_records_sql($sql)) {
     foreach ($allanswers as $aa) {
         $answers[$aa->bookingid] = $aa;
     }
     unset($allanswers);
 }
 
+$table = new html_table();
 
 $timenow = time();
 
