@@ -1324,10 +1324,17 @@ function booking_get_participants($bookingid) {
 }
 
 function booking_get_option_text($booking, $id) {
-    global $DB;
+    global $DB, $USER;
 // Returns text string which is the answer that matches the id
-    if ($result = $DB->get_record("booking_options", array("id" => $id))) {
-        return $result->text;
+    if ($result = $DB->get_records_sql("SELECT bo.text FROM {booking_options} AS bo LEFT JOIN {booking_answers} AS ba ON ba.optionid = bo.id WHERE bo.bookingid = :bookingid AND ba.userid = :userid;", array("bookingid" => $booking->id, "userid" => $USER->id))) {
+        
+        $tmpTxt = array();
+        
+        foreach ($result as $value) {
+            $tmpTxt[] = $value->text;
+        }
+        
+        return implode(', ', $tmpTxt);
     } else {
         return get_string("notanswered", "booking");
     }
