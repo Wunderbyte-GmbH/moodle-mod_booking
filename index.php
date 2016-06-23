@@ -47,13 +47,13 @@ $table = new html_table();
 $timenow = time();
 
 if ($course->format == "weeks") {
-    $table->head = array(get_string("week"), get_string("question"), get_string("answer"));
+    $table->head = array(get_string("week", "booking"), get_string("question", "booking"), get_string("answer", "booking"));
     $table->align = array("center", "left", "left");
 } else if ($course->format == "topics") {
-    $table->head = array(get_string("topic"), get_string("question"), get_string("answer"));
+    $table->head = array(get_string("topic", "booking"), get_string("question", "booking"), get_string("answer", "booking"));
     $table->align = array("center", "left", "left");
 } else {
-    $table->head = array(get_string("question"), get_string("answer"));
+    $table->head = array(get_string("question", "booking"), get_string("answer", "booking"));
     $table->align = array("left", "left");
 }
 
