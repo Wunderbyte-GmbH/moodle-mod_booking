@@ -30,6 +30,7 @@ $usesections = course_format_uses_sections($course->format);
 if ($usesections) {
     $sections = get_fast_modinfo($course->id)->get_section_info_all();
 }
+
 $sql = "SELECT cha.*
               FROM {booking} AS ch, {booking_answers} AS cha
              WHERE cha.bookingid = ch.id AND
@@ -74,7 +75,7 @@ foreach ($bookings as $booking) {
     $printsection = "";
     if ($booking->section !== $currentsection) {
         if ($booking->section) {
-            $printsection = $booking->section;
+            $printsection = $sections[$booking->section]->name;
         }
         if ($currentsection !== "") {
             $table->data[] = 'hr';
