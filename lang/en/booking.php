@@ -1,5 +1,11 @@
 <?php
 
+// index.php
+$string['week'] = "Week";
+$string['question'] = "Question";
+$string['answer'] = "Answer";
+$string['topic'] = "Topic";
+
 //renderer.php
 $string['showonlymyinstitutions'] = "My institution";
 
