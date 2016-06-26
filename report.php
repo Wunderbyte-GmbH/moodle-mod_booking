@@ -12,6 +12,7 @@ require_once("{$CFG->libdir}/tablelib.php");
 require_once("{$CFG->dirroot}/mod/booking/classes/all_users.php");
 require_once("{$CFG->dirroot}/mod/booking/classes/unbooked_users.php");
 require_once("{$CFG->dirroot}/user/profile/lib.php");
+require_once($CFG->dirroot.'/rating/lib.php');
 
 // Find only matched... http://blog.codinghorror.com/a-visual-explanation-of-sql-joins/
 
@@ -309,6 +310,9 @@ if (!$tableAllUsers->is_downloading()) {
     $headers[] = '<input type="checkbox" id="usercheckboxall" name="selectall" value="0" />';
     $columns[] = 'info';
     $headers[] = get_string('activitycompleted', 'mod_booking');
+    
+    $columns[] = 'rating';
+    $headers[] = get_string('rating');
 
     if ($bookingData->booking->numgenerator) {
         $columns[] = 'numrec';
@@ -438,7 +442,38 @@ if (!$tableAllUsers->is_downloading()) {
     echo html_writer::table($table);
 
     echo '<h5>' . get_string('bookedusers', 'booking') . '</h5>';
-    $tableAllUsers->out($bookingData->booking->paginationnum, true);
+    
+    $tableAllUsers->setup();
+    $tableAllUsers->query_db($bookingData->booking->paginationnum, true);
+    
+    
+    if ($bookingData->booking->assessed != RATING_AGGREGATE_NONE) {
+    	$ratingoptions = new stdClass;
+    	$ratingoptions->context = $bookingData->get_context();
+    	$ratingoptions->component = 'mod_booking';
+    	$ratingoptions->ratingarea = 'bookingoption';
+    	$ratingoptions->items = $tableAllUsers->rawdata;
+    	$ratingoptions->aggregate = $bookingData->booking->assessed;//the aggregation method
+    	$ratingoptions->scaleid = $bookingData->booking->scale;
+    	$ratingoptions->userid = $USER->id;
+    	$ratingoptions->itemtable = 'booking_answers';
+    	$ratingoptions->itemtableusercolumn = 'userid';
+    	$ratingoptions->returnurl = "$CFG->wwwroot/mod/booking/report.php?id=$cm->id";
+    	$ratingoptions->assesstimestart = $bookingData->booking->assesstimestart;
+    	$ratingoptions->assesstimefinish = $bookingData->booking->assesstimefinish;
+    
+    	$rm = new rating_manager();
+    	$tableAllUsers->rawdata = $rm->get_ratings($ratingoptions);
+    	$answers = $DB->get_records_select('booking_answers', 'optionid = :optionid AND bookingid = :bookingid', array( 'bookingid' => $bookingData->id, 'optionid' => $bookingData->optionid),'', 'id,userid');
+    	foreach ($answers as $answer) {
+    		if(array_key_exists($answer->userid, $tableAllUsers->rawdata)){
+    			$tableAllUsers->rawdata[$answer->userid]->rating->itemid = $answer->id;
+    		}
+    	}
+    }
+    
+    $tableAllUsers->build_table();
+    $tableAllUsers->finish_output();
 
     $onlyOneURL = new moodle_url('/mod/booking/view.php', array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone', 'whichview' => 'showonlyone'));
     $onlyOneURL->set_anchor('goenrol');

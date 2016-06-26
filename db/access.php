@@ -22,7 +22,7 @@
 // Core moodle capabilities are defined thus:
 //    moodle/<capabilityclass>:<capabilityname>
 //
-// Examples: mod/forum:viewpost
+// Examples: mod/booking:viewpost
 //           block/recent_activity:view
 //           moodle/site:deleteuser
 //
@@ -98,6 +98,53 @@ $capabilities = array(
         'archetypes' => array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+        )
+    ),
+	'mod/booking:viewrating' => array(
+	
+			'captype' => 'read',
+			'contextlevel' => CONTEXT_MODULE,
+			'archetypes' => array(
+					'student' => CAP_ALLOW,
+					'teacher' => CAP_ALLOW,
+					'editingteacher' => CAP_ALLOW,
+					'manager' => CAP_ALLOW
+			)
+	),
+
+    'mod/booking:viewanyrating' => array(
+
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
+
+    'mod/booking:viewallratings' => array(
+
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ),
+        'clonepermissionsfrom' =>  'mod/booking:viewanyrating'
+    ),
+
+    'mod/booking:rate' => array(
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
         )
     )
 );

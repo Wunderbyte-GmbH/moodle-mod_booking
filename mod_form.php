@@ -396,6 +396,7 @@ class mod_booking_mod_form extends moodleform_mod {
     }
 
     function data_preprocessing(&$default_values) {
+    	parent::data_preprocessing($default_values);
         $options = array('subdirs' => false, 'maxfiles' => 50, 'accepted_types' => array('*'),
             'maxbytes' => 0);
 
@@ -478,6 +479,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         return $errors;
     }
+
 
     public function get_data() {
         $data = parent::get_data();

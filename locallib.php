@@ -56,6 +56,14 @@ class booking {
             $this->groupmembers = $this::booking_get_groupmembers($this->course->id);
         }
     }
+    
+    /**
+     * 
+     * @return context
+     */
+    public function get_context () {
+    	return $this->context;
+    }
 
     public function apply_tags() {
         $tags = new booking_tags($this->cm);
@@ -94,6 +102,7 @@ class booking {
         }
         return $groupmembers;
     }
+    
 
 }
 
@@ -157,6 +166,12 @@ class booking_option extends booking {
         }
     }
 
+    /**
+     * TODO: What is that for? Documentation missing!
+     * 
+     * @param number $optionid
+     * @return number
+     */
     public function calculateHowManyCanBookToOther($optionid) {
         global $DB;
 
@@ -220,6 +235,11 @@ class booking_option extends booking {
         }
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     * @see booking::apply_tags()
+     */
     public function apply_tags() {
         parent::apply_tags();
 
@@ -322,7 +342,11 @@ class booking_option extends booking {
         return $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated, {booking_answers}.waitinglist, {booking_answers}.numrec, ' . $mainuserfields . ' FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC', $params);
     }
 
-    // Count, how man users...for pagination.
+    
+	/**
+	 * Count, how man users...for pagination.
+	 * @return number
+	 */
     public function count_users() {
         global $DB;
         $params = array();
@@ -687,6 +711,8 @@ class booking_option extends booking {
             return 0;
         }
     }
+    
+    
 
 }
 

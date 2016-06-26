@@ -68,14 +68,20 @@ class all_users extends table_sql {
     }
 
     function col_info($values) {
-
-        $completed = '&nbsp;';
-
-        if ($values->completed) {
-            $completed = '&#x2713;';
-        }
-
-        return $completed;
+    	if ($values->completed) {
+    		$completed = '&#x2713;';
+    	}
+    	
+    	return $completed;
+    }
+    
+    function col_rating($values) {
+    	global $OUTPUT;
+    	$output = '';
+    	if (!empty($values->rating)) {
+    		$output .= html_writer::tag('div', $OUTPUT->render($values->rating), array('class'=>'booking-option-rating'));
+    	}
+    	return $output;
     }
 
     function col_coursestarttime($values) {
