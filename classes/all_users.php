@@ -68,10 +68,10 @@ class all_users extends table_sql {
     }
 
     function col_info($values) {
+    	$completed = '';
     	if ($values->completed) {
     		$completed = '&#x2713;';
     	}
-    	
     	return $completed;
     }
     
