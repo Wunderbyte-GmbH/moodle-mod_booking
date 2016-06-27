@@ -446,6 +446,14 @@ if (!$tableAllUsers->is_downloading()) {
     $tableAllUsers->setup();
     $tableAllUsers->query_db($bookingData->booking->paginationnum, true);
     
+    //TODO: Remove this hack and fix it in the appropriate place
+    $answers = $DB->get_records_select('booking_answers', 'optionid = :optionid AND bookingid = :bookingid', array( 'bookingid' => $bookingData->id, 'optionid' => $bookingData->optionid),'', 'id,userid');
+    foreach ($answers as $answer) {
+    	if(array_key_exists($answer->userid, $tableAllUsers->rawdata)){
+    		$tableAllUsers->rawdata[$answer->userid]->id = $answer->id;
+    	}
+    }
+    
     if ($bookingData->booking->assessed != RATING_AGGREGATE_NONE) {
     	$ratingoptions = new stdClass;
     	$ratingoptions->context = $bookingData->get_context();
@@ -462,12 +470,6 @@ if (!$tableAllUsers->is_downloading()) {
     	$rm = new rating_manager();
     	$tableAllUsers->rawdata = $rm->get_ratings($ratingoptions);
     	
-    	$answers = $DB->get_records_select('booking_answers', 'optionid = :optionid AND bookingid = :bookingid', array( 'bookingid' => $bookingData->id, 'optionid' => $bookingData->optionid),'', 'id,userid');
-    	foreach ($answers as $answer) {
-    		if(array_key_exists($answer->userid, $tableAllUsers->rawdata)){
-    			$tableAllUsers->rawdata[$answer->userid]->rating->itemid = $answer->id;
-    		}
-    	}
     }
     
     $tableAllUsers->build_table();
