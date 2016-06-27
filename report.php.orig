@@ -9,7 +9,12 @@
 require_once("../../config.php");
 require_once("locallib.php");
 require_once("{$CFG->libdir}/tablelib.php");
+<<<<<<< HEAD
 require_once("{$CFG->dirroot}/mod/booking/classes/all_userbookings.php");
+require_once("{$CFG->dirroot}/mod/booking/classes/unbooked_users.php");
+=======
+require_once("{$CFG->dirroot}/mod/booking/classes/all_users.php");
+>>>>>>> 731603a... Added username to manage responses form.
 require_once("{$CFG->dirroot}/user/profile/lib.php");
 require_once($CFG->dirroot.'/rating/lib.php');
 
