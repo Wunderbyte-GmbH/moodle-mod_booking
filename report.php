@@ -10,7 +10,6 @@ require_once("../../config.php");
 require_once("locallib.php");
 require_once("{$CFG->libdir}/tablelib.php");
 require_once("{$CFG->dirroot}/mod/booking/classes/all_users.php");
-require_once("{$CFG->dirroot}/mod/booking/classes/unbooked_users.php");
 require_once("{$CFG->dirroot}/user/profile/lib.php");
 
 // Find only matched... http://blog.codinghorror.com/a-visual-explanation-of-sql-joins/
