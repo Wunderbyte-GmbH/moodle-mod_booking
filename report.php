@@ -486,10 +486,6 @@ if (!$tableAllBookings->is_downloading()) {
   }
 </script>";
 
-
-
-    $PAGE->requires->js_init_call('M.mod_booking.init');
-
     echo $OUTPUT->footer();
 } else {
     $columns = array();
@@ -587,31 +583,4 @@ if (!$tableAllBookings->is_downloading()) {
     $tableAllBookings->out(10, true);
     exit;
 }
-
-/**
-<script type="text/javascript">
-    YUI().use('node-event-simulate', function (Y) {
-
-        Y.one('#buttonclear').on('click', function () {
-            Y.one('#menusearchWaitingList').set('value', '');
-            Y.one('#menusearchFinished').set('value', '');
-            Y.one('#searchDate').set('value', '');
-            Y.one('#searchButton').simulate('click');
-        });
-    });
-
-    YUI().use('node', function (Y) {
-        Y.delegate('click', function (e) {
-            var buttonID = e.currentTarget.get('id'),
-                    node = Y.one('#tableSearch');
-
-            if (buttonID === 'showHideSearch') {
-                node.toggleView();
-                e.preventDefault();
-            }
-
-        }, document, 'a');
-    });
-</script>
-*/
 ?>
