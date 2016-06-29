@@ -234,6 +234,8 @@ function booking_add_instance($booking) {
             }
         }
     }
+    
+    booking_grade_item_update($booking);
 
     return $booking->id;
 }
@@ -315,6 +317,8 @@ function booking_update_instance($booking) {
         }
     }
 
+    booking_grade_item_update($booking);
+    
     return $DB->update_record('booking', $booking);
 }
 
