@@ -9,7 +9,7 @@
 require_once("../../config.php");
 require_once("locallib.php");
 require_once("{$CFG->libdir}/tablelib.php");
-require_once("{$CFG->dirroot}/mod/booking/classes/all_users.php");
+require_once("{$CFG->dirroot}/mod/booking/classes/all_userbookings.php");
 require_once("{$CFG->dirroot}/mod/booking/classes/unbooked_users.php");
 require_once("{$CFG->dirroot}/user/profile/lib.php");
 require_once($CFG->dirroot.'/rating/lib.php');
@@ -128,6 +128,7 @@ $url = new moodle_url('/mod/booking/report.php', $urlParams);
 $currenturl = new moodle_url('/mod/booking/report.php', $urlParams);
 
 $PAGE->set_url($url);
+$PAGE->requires->yui_module('moodle-mod_booking-utility', 'M.mod_booking.utility.init');
 
 if (!$cm = get_coursemodule_from_id('booking', $id)) {
     error("Course Module ID was incorrect");
@@ -189,21 +190,21 @@ $bookingData->option->urltitle = $DB->get_field('course', 'shortname', array('id
 $bookingData->option->cmid = $cm->id;
 $bookingData->option->autoenrol = $bookingData->booking->autoenrol;
 
-$tableAllUsers = new all_users('mod_booking_all_users_sort_new', $bookingData, $cm, $USER, $DB, $optionid);
-$tableAllUsers->is_downloading($download, $bookingData->option->text, $bookingData->option->text);
+$tableAllBookings = new all_userbookings('mod_booking_all_users_sort_new', $bookingData, $cm, $USER, $DB, $optionid);
+$tableAllBookings->is_downloading($download, $bookingData->option->text, $bookingData->option->text);
 
-$tableAllUsers->define_baseurl($currenturl);
-$tableAllUsers->defaultdownloadformat = 'ods';
-$tableAllUsers->sortable(true, 'firstname');
+$tableAllBookings->define_baseurl($currenturl);
+$tableAllBookings->defaultdownloadformat = 'ods';
+$tableAllBookings->sortable(true, 'firstname');
 if (has_capability('mod/booking:downloadresponses', $context)) {
-    $tableAllUsers->is_downloadable(true);
+    $tableAllBookings->is_downloadable(true);
 } else {
-    $tableAllUsers->is_downloadable(false);
+    $tableAllBookings->is_downloadable(false);
 }
-$tableAllUsers->show_download_buttons_at(array(TABLE_P_BOTTOM));
-$tableAllUsers->no_sorting('selected');
+$tableAllBookings->show_download_buttons_at(array(TABLE_P_BOTTOM));
+$tableAllBookings->no_sorting('selected');
 
-if (!$tableAllUsers->is_downloading()) {
+if (!$tableAllBookings->is_downloading()) {
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -344,25 +345,26 @@ if (!$tableAllUsers->is_downloading()) {
     if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) && $bookingData->booking->conectedbooking > 0) {
         $settingnode->add(get_string('editotherbooking', 'booking'), new moodle_url('/mod/booking/otherbooking.php', array('cmid' => $id, 'optionid' => $optionid)));
     }
-
-// ALL USERS - START        
-
-    $fields = 'u.id, ' . get_all_user_name_fields(true, 'u') . ', u.username, u.firstname, u.lastname, u.institution, ba.completed, ba.timecreated, ba.userid, ba.waitinglist, (SELECT 
-            GROUP_CONCAT(obo.text SEPARATOR \', \')
+        
+        // ALL USERS - START
+    $fields = 'ba.id, ' . get_all_user_name_fields(true, 'u') . ', u.username, u.institution, ba.completed, ba.timecreated, ba.userid, ba.waitinglist, 
+            (
+            SELECT GROUP_CONCAT(obo.text SEPARATOR \', \')
         FROM
             {booking_answers} AS oba
             LEFT JOIN {booking_options} AS obo ON obo.id = oba.optionid
         WHERE
             oba.frombookingid = ba.optionid
-                AND oba.userid = ba.userid) AS otheroptions , ba.numrec';
+                AND oba.userid = ba.userid
+            ) AS otheroptions , ba.numrec';
     $from = ' {booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
     $where = ' ba.optionid = :optionid ' . $addSQLWhere;
 
-    $tableAllUsers->set_sql(
+    $tableAllBookings->set_sql(
             $fields, $from, $where, $sqlValues);
 
-    $tableAllUsers->define_columns($columns);
-    $tableAllUsers->define_headers($headers);
+    $tableAllBookings->define_columns($columns);
+    $tableAllBookings->define_headers($headers);
 
 // ALL USERS - STOP
 
@@ -443,23 +445,15 @@ if (!$tableAllUsers->is_downloading()) {
 
     echo '<h5>' . get_string('bookedusers', 'booking') . '</h5>';
     
-    $tableAllUsers->setup();
-    $tableAllUsers->query_db($bookingData->booking->paginationnum, true);
-    
-    //TODO: Remove this hack and fix it in the appropriate place
-    $answers = $DB->get_records_select('booking_answers', 'optionid = :optionid AND bookingid = :bookingid', array( 'bookingid' => $bookingData->id, 'optionid' => $bookingData->optionid),'', 'id,userid');
-    foreach ($answers as $answer) {
-    	if(array_key_exists($answer->userid, $tableAllUsers->rawdata)){
-    		$tableAllUsers->rawdata[$answer->userid]->id = $answer->id;
-    	}
-    }
-    
+    $tableAllBookings->setup();
+    $tableAllBookings->query_db($bookingData->booking->paginationnum, true);
+        
     if ($bookingData->booking->assessed != RATING_AGGREGATE_NONE) {
     	$ratingoptions = new stdClass;
     	$ratingoptions->context = $bookingData->get_context();
     	$ratingoptions->component = 'mod_booking';
     	$ratingoptions->ratingarea = 'bookingoption';
-    	$ratingoptions->items = $tableAllUsers->rawdata;
+    	$ratingoptions->items = $tableAllBookings->rawdata;
     	$ratingoptions->aggregate = $bookingData->booking->assessed;//the aggregation method
     	$ratingoptions->scaleid = $bookingData->booking->scale;
     	$ratingoptions->userid = $USER->id;
@@ -468,12 +462,12 @@ if (!$tableAllUsers->is_downloading()) {
     	$ratingoptions->assesstimefinish = $bookingData->booking->assesstimefinish;
     
     	$rm = new rating_manager();
-    	$tableAllUsers->rawdata = $rm->get_ratings($ratingoptions);
+    	$tableAllBookings->rawdata = $rm->get_ratings($ratingoptions);
     	
     }
     
-    $tableAllUsers->build_table();
-    $tableAllUsers->finish_output();
+    $tableAllBookings->build_table();
+    $tableAllBookings->finish_output();
 
     $onlyOneURL = new moodle_url('/mod/booking/view.php', array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone', 'whichview' => 'showonlyone'));
     $onlyOneURL->set_anchor('goenrol');
@@ -584,17 +578,17 @@ if (!$tableAllUsers->is_downloading()) {
     $from = '{booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
     $where = 'ba.optionid = :optionid ' . $addSQLWhere;
 
-    $tableAllUsers->set_sql(
+    $tableAllBookings->set_sql(
             $fields, $from, $where, $sqlValues);
 
-    $tableAllUsers->define_columns($columns);
-    $tableAllUsers->define_headers($headers);
+    $tableAllBookings->define_columns($columns);
+    $tableAllBookings->define_headers($headers);
 
-    $tableAllUsers->out(10, true);
+    $tableAllBookings->out(10, true);
     exit;
 }
-?>
 
+/**
 <script type="text/javascript">
     YUI().use('node-event-simulate', function (Y) {
 
@@ -619,3 +613,5 @@ if (!$tableAllUsers->is_downloading()) {
         }, document, 'a');
     });
 </script>
+*/
+?>

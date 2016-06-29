@@ -3,13 +3,13 @@
 /**
  * BadgeCerts table for displaying list of users with certificate.
  *
- * @package    report_reportbadges
+ * @package    mod_booking
  * @copyright  2014 Andraž Prinčič <atletek@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die;
 
-class all_users extends table_sql {
+class all_userbookings extends table_sql {
     
     var $bookingData = null;
     var $cm = null;
@@ -53,9 +53,9 @@ class all_users extends table_sql {
     
     function col_fullname($values) {
         if (empty($values->otheroptions)) {
-            return html_writer::link(new moodle_url('/user/profile.php', array('id' => $values->id)), "{$values->firstname} {$values->lastname}", array());
+            return html_writer::link(new moodle_url('/user/profile.php', array('id' => $values->userid)), "{$values->firstname} {$values->lastname}", array());
         } else {
-            return html_writer::link(new moodle_url('/user/profile.php', array('id' => $values->id)), "{$values->firstname} {$values->lastname}", array()) . "({$values->otheroptions})";
+            return html_writer::link(new moodle_url('/user/profile.php', array('id' => $values->userid)), "{$values->firstname} {$values->lastname}", array()) . "({$values->otheroptions})";
         }
     }
 
