@@ -44,6 +44,7 @@ class all_userbookings extends table_sql {
         $this->user = $user;
         $this->db = $db;
         $this->optionid = $optionid;
+        unset ($this->attributes['cellspacing']);
     }
     
     /**
