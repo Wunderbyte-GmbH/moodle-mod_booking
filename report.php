@@ -488,7 +488,7 @@ if (!$tableAllBookings->is_downloading()) {
     $tableAllBookings->setup();
     $tableAllBookings->query_db($bookingData->booking->paginationnum, true);
         
-    if ($bookingData->booking->assessed != RATING_AGGREGATE_NONE) {
+    if ($bookingData->booking->assessed != RATING_AGGREGATE_NONE && !empty($allSelectedUsers->rawdata)) {
         // get all bookings from all booking options: only that guarantees correct use of rating
         
     	/**
