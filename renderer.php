@@ -313,7 +313,6 @@ class mod_booking_renderer extends plugin_renderer_base {
                 }
                 $ratinghtml .= $this->help_icon_scale($courseid, $rating->settings->scale);
             }
-            $ratinghtml .= html_writer::end_tag('span');
             $ratinghtml .= html_writer::end_tag('div');
         }
     

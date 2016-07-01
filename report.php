@@ -475,7 +475,7 @@ if (!$tableAllBookings->is_downloading()) {
     $rowclasses[] = "";
 
     $table = new html_table();
-    $table->head = array('', '', '');
+    $table->head = array('', '', '','');
     $table->data = $tabledata;
     $table->id = "tableSearch";
     if (!$searching) {
