@@ -261,7 +261,7 @@ class booking_option extends booking {
     }
 
     // Get all users with filters
-    private function get_users() {
+    public function get_users() {
         global $DB;
         $params = array();
 

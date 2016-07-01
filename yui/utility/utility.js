@@ -49,6 +49,21 @@ M.mod_booking.utility = {
           }
 
       }, document, 'a');
+
+			      
+      Y.delegate('click', function(targetNode) {
+					var id = targetNode.get('id');
+					alert(id);
+				},'#studentsform');
+      
+      Y.on('change', function (e) {
+			var origin = e.target;
+			var str = origin.get('id')
+			var ratingvalue = origin.one('option:checked').get('value');
+			var id = "#check" + str.replace('menurating','');
+			Y.one(id).set('checked', 'checked');
+			
+      }, '#studentsform');
       
       Y.on('click', function (e) {
           var checkbox = e.target;
@@ -87,5 +102,5 @@ M.mod_booking.utility = {
   }
 };
 }, '@VERSION@', {
-requires: ['node', 'node-event-simulate']
+requires: ['node', 'node-event-simulate', 'node-event-delegate', 'event-valuechange']
 });

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * BadgeCerts table for displaying list of users with certificate.
+ * For displaying all user bookings of a bookingoption
  *
  * @package    mod_booking
  * @copyright  2014 Andraž Prinčič <atletek@gmail.com>
@@ -15,7 +15,18 @@ class all_userbookings extends table_sql {
     var $cm = null;
     var $user = null;
     var $db = null;
+
+    /**
+     * 
+     * @var int
+     */
     var $optionid = null;
+    
+    /**
+     * 
+     * @var array of ratingoptions
+     */
+    var $ratingoptions = null;
 
     /**
      * Constructor
@@ -33,6 +44,14 @@ class all_userbookings extends table_sql {
         $this->user = $user;
         $this->db = $db;
         $this->optionid = $optionid;
+    }
+    
+    /**
+     * Set rating options
+     * @param array $ratingoptions
+     */
+    function set_ratingoptions ($ratingoptions){
+        $this->ratingoptions = $ratingoptions;
     }
 
     /**
@@ -76,10 +95,11 @@ class all_userbookings extends table_sql {
     }
     
     function col_rating($values) {
-    	global $OUTPUT;
+    	global $OUTPUT, $PAGE;
     	$output = '';
+    	$renderer = $PAGE->get_renderer('mod_booking');
     	if (!empty($values->rating)) {
-    		$output .= html_writer::tag('div', $OUTPUT->render($values->rating), array('class'=>'booking-option-rating'));
+    		$output .= html_writer::tag('div', $renderer->render($values->rating), array('class'=>'booking-option-rating'));
     	}
     	return $output;
     }
@@ -117,7 +137,7 @@ class all_userbookings extends table_sql {
 
     function col_selected($values) {
         if (!$this->is_downloading()) {
-            return '<input type="checkbox" class="usercheckbox" name="user[][' . $values->userid . ']" value="' . $values->userid . '" />';
+            return '<input id="check'.$values->id.'" type="checkbox" class="usercheckbox" name="user[][' . $values->userid . ']" value="' . $values->userid . '" />';
         } else {
             return '';
         }
@@ -151,6 +171,13 @@ class all_userbookings extends table_sql {
     
     function wrap_html_start() {
         echo '<form method="post" id="studentsform">'."\n";
+        $ratingoptions = $this->ratingoptions;
+        if(!empty ($ratingoptions)){
+            foreach ($ratingoptions as $name => $value) {
+               $attributes = array('type' => 'hidden', 'class' => 'ratinginput', 'name' => $name, 'value' => $value);
+               echo html_writer::empty_tag('input', $attributes);
+            }
+        }
     }
 
     function wrap_html_finish() {
@@ -174,7 +201,14 @@ class all_userbookings extends table_sql {
 
         if (booking_check_if_teacher($this->bookingData->option, $this->user) || has_capability('mod/booking:updatebooking', context_module::instance($this->cm->id))) {
             echo '<input type="submit" name="activitycompletion" value="' . (empty($this->bookingData->booking->btncacname) ? get_string('confirmactivitycompletion', 'booking') : $this->bookingData->booking->btncacname) . '" />';
-
+            
+            //output rating button
+            $ratingbutton = html_writer::start_tag('span', array('class'=>"ratingsubmit"));
+            
+            $attributes = array('type' => 'submit', 'class' => 'postratingmenusubmit', 'id' => 'postratingsubmit', 'name' => 'postratingsubmit', 'value' => s(get_string('rate', 'rating')));
+            $ratingbutton .= html_writer::empty_tag('input', $attributes);
+            echo $ratingbutton;
+            
             if ($this->bookingData->booking->numgenerator) {
                 echo '<input type="submit" name="generaterecnum" value="' . get_string('generaterecnum', 'booking') . '" onclick="return confirm(\'' . get_string('generaterecnumareyousure', 'booking') . '\')"/>';
             }

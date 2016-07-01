@@ -733,6 +733,7 @@ $string['activitycompleted'] = 'Activity completed';
 $string['waitinglist'] = 'Waiting list';
 $string['searchWaitingList'] = 'On waiting list';
 $string['optionmenu'] = 'This booking options';
+$string['ratingsuccess'] = 'The ratings were successfully updated';
 $string['userid'] = 'UserID';
 $string['nodateset'] = 'Course date not set';
 $string['editteachers'] = 'Edit';

@@ -17,7 +17,7 @@ require_once($CFG->dirroot.'/rating/lib.php');
 // Find only matched... http://blog.codinghorror.com/a-visual-explanation-of-sql-joins/
 
 $id = required_param('id', PARAM_INT); //moduleid
-$optionid = optional_param('optionid', 0, PARAM_INT);
+$optionid = required_param('optionid', PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
 $action = optional_param('action', '', PARAM_ALPHANUM);
 $confirm = optional_param('confirm', '', PARAM_INT);
@@ -36,6 +36,15 @@ $searchText = optional_param('searchText', '', PARAM_TEXT);
 $searchLocation = optional_param('searchLocation', '', PARAM_TEXT);
 $searchInstitution = optional_param('searchInstitution', '', PARAM_TEXT);
 $whichview = optional_param('whichview', '', PARAM_ALPHA);
+
+// form values
+$contextid = optional_param('contextid', '', PARAM_INT);
+$component = optional_param('component', '', PARAM_ALPHAEXT);
+$ratingarea = optional_param('ratingarea', '', PARAM_ALPHAEXT);
+$scaleid = optional_param('scaleid', '', PARAM_INT);
+$returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
+$aggregation  = optional_param('aggregate', '', PARAM_INT);
+
 
 $perPage = 25;
 
@@ -203,10 +212,12 @@ if (has_capability('mod/booking:downloadresponses', $context)) {
 }
 $tableAllBookings->show_download_buttons_at(array(TABLE_P_BOTTOM));
 $tableAllBookings->no_sorting('selected');
+$tableAllBookings->no_sorting('rating');
+
 
 if (!$tableAllBookings->is_downloading()) {
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
 
         $allSelectedUsers = array();
 
@@ -267,6 +278,32 @@ if (!$tableAllBookings->is_downloading()) {
 
             booking_activitycompletion($allSelectedUsers, $bookingData->booking, $cm->id, $optionid);
             redirect($url, (empty($bookingData->option->notificationtext) ? get_string('activitycompletionsuccess', 'booking') : $bookingData->option->notificationtext), 5);
+        } else if (isset($_POST['postratingsubmit']) && (booking_check_if_teacher($bookingData->option, $USER) || has_capability('moodle/rating:rate', $context))) {
+            if (empty($allSelectedUsers)) {
+                redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
+            }
+            $bookingData->get_users();
+            $bookedusers = array();
+            $ratings = array();
+            foreach ($bookingData->users as $baid => $object) {
+                if (in_array($object->id, $allSelectedUsers)) {
+                    $rating = new stdClass();
+                    $bookedusers[$object->userid] = $baid;
+                    $bookinganswerid = "rating" . $bookedusers[$object->userid];
+                    
+                    $rating->rateduserid = $object->userid;
+                    $rating->itemid = $baid;
+                    $rating->rating = $_POST[$bookinganswerid];
+                    $ratings[$baid] = $rating;
+                    // params valid for all ratings
+                    $params = new stdClass();
+                    $params->contextid = $contextid;
+                    $params->scaleid = $scaleid;
+                    $params->returnurl = $returnurl;
+                }
+            }
+            booking_rate($ratings, $params);
+            redirect($url, (empty($bookingData->option->notificationtext) ? get_string('ratingsuccess', 'booking') : $bookingData->option->notificationtext), 5);
         } else if (isset($_POST['sendreminderemail']) && has_capability('mod/booking:communicate', $context)) {
             if (empty($allSelectedUsers)) {
                 redirect($url, get_string('selectatleastoneuser', 'booking', $bookingData->option->howmanyusers), 5);
@@ -360,11 +397,14 @@ if (!$tableAllBookings->is_downloading()) {
     $from = ' {booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
     $where = ' ba.optionid = :optionid ' . $addSQLWhere;
 
+    
+    
     $tableAllBookings->set_sql(
             $fields, $from, $where, $sqlValues);
 
     $tableAllBookings->define_columns($columns);
     $tableAllBookings->define_headers($headers);
+    
 
 // ALL USERS - STOP
 
@@ -449,7 +489,7 @@ if (!$tableAllBookings->is_downloading()) {
     $tableAllBookings->query_db($bookingData->booking->paginationnum, true);
         
     if ($bookingData->booking->assessed != RATING_AGGREGATE_NONE) {
-    	$ratingoptions = new stdClass;
+    	$ratingoptions = new stdClass();
     	$ratingoptions->context = $bookingData->get_context();
     	$ratingoptions->component = 'mod_booking';
     	$ratingoptions->ratingarea = 'bookingoption';
@@ -457,13 +497,37 @@ if (!$tableAllBookings->is_downloading()) {
     	$ratingoptions->aggregate = $bookingData->booking->assessed;//the aggregation method
     	$ratingoptions->scaleid = $bookingData->booking->scale;
     	$ratingoptions->userid = $USER->id;
-    	$ratingoptions->returnurl = "$CFG->wwwroot/mod/booking/report.php?id=$cm->id";
+    	$ratingoptions->returnurl = "$CFG->wwwroot/mod/booking/report.php?id=$cm->id&optionid=$optionid";
     	$ratingoptions->assesstimestart = $bookingData->booking->assesstimestart;
     	$ratingoptions->assesstimefinish = $bookingData->booking->assesstimefinish;
     
     	$rm = new rating_manager();
     	$tableAllBookings->rawdata = $rm->get_ratings($ratingoptions);
     	
+    	// hidden input fields for the rating 
+    	$ratinginputs = array();
+    	$ratinginputs['contextid'] = $ratingoptions->context->id;
+    	$ratinginputs['component'] = $ratingoptions->component;
+    	$ratinginputs['ratingarea'] = $ratingoptions->ratingarea;
+    	$ratinginputs['scaleid'] = $ratingoptions->scaleid;
+    	$ratinginputs['returnurl'] = $ratingoptions->returnurl;
+    	$ratinginputs['aggregation'] = $ratingoptions->aggregate;
+    	$ratinginputs['sesskey'] = sesskey();
+    	$tableAllBookings->set_ratingoptions($ratinginputs);
+    	
+    	//set menu for modifying all ratings at once
+    	 
+    	//get an example rating and modify it
+    	
+    	 $newarray = array_values($tableAllBookings->rawdata);
+    	 $firstentry = array_shift($newarray);
+    	  
+    	 $strrate = get_string("rate", "rating");
+    	 $scalearray = array(RATING_UNSET_RATING => $strrate.'...') + $firstentry->rating->settings->scale->scaleitems;
+    	 $scaleattrs = array('class'=>'postratingmenu ratinginput','id'=>'menuratingall');
+    	 $menuhtml = html_writer::label(get_string('rating', 'core_rating'), 'menuratingall', false, array('class' => 'accesshide'));
+    	 $menuhtml .= html_writer::select($scalearray, 'rating', $rating->rating, false, $scaleattrs);
+    	 $tableAllBookings->headers[2] .= $menuhtml;
     }
     
     $tableAllBookings->build_table();
