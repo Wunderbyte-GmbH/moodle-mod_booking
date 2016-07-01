@@ -458,7 +458,7 @@ if (!$tableAllBookings->is_downloading()) {
         }
     }
 	$table->wrap_html_start();
-    $row = new html_table_row(array(get_string('searchDate', "booking"),  . $hidden . html_writer::checkbox('searchDate', '1', $checked, '', array('id' => 'searchDate')) . html_writer::select_time('days', 'searchDateDay', $timestamp, 5) . ' ' . html_writer::select_time('months', 'searchDateMonth', $timestamp, 5) . ' ' . html_writer::select_time('years', 'searchDateYear', $timestamp, 5), "", ""));
+    $row = new html_table_row(array(get_string('searchDate', "booking"), $hidden . html_writer::checkbox('searchDate', '1', $checked, '', array('id' => 'searchDate')) . html_writer::select_time('days', 'searchDateDay', $timestamp, 5) . ' ' . html_writer::select_time('months', 'searchDateMonth', $timestamp, 5) . ' ' . html_writer::select_time('years', 'searchDateYear', $timestamp, 5), "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 
