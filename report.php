@@ -410,7 +410,7 @@ if (!$tableAllBookings->is_downloading()) {
 
     echo $OUTPUT->header();
 
-    echo $OUTPUT->heading(html_writer::link(new moodle_url('/mod/booking/view.php', array('id' => $cm->id)), $bookingData->booking->name) . ' > ' . $bookingData->option->text, 4, '', '');
+    echo $OUTPUT->heading(html_writer::link(new moodle_url('/mod/booking/view.php', array('id' => $cm->id)), $bookingData->booking->name) . ' > ' . $bookingData->option->text, 4);
 
     $teachers = array();
 
@@ -457,8 +457,8 @@ if (!$tableAllBookings->is_downloading()) {
             $hidden .= '<input value="' . $value . '" type="hidden" name="' . $key . '">';
         }
     }
-
-    $row = new html_table_row(array(get_string('searchDate', "booking"), '<form>' . $hidden . html_writer::checkbox('searchDate', '1', $checked, '', array('id' => 'searchDate')) . html_writer::select_time('days', 'searchDateDay', $timestamp, 5) . ' ' . html_writer::select_time('months', 'searchDateMonth', $timestamp, 5) . ' ' . html_writer::select_time('years', 'searchDateYear', $timestamp, 5), "", ""));
+	$table->wrap_html_start();
+    $row = new html_table_row(array(get_string('searchDate', "booking"),  . $hidden . html_writer::checkbox('searchDate', '1', $checked, '', array('id' => 'searchDate')) . html_writer::select_time('days', 'searchDateDay', $timestamp, 5) . ' ' . html_writer::select_time('months', 'searchDateMonth', $timestamp, 5) . ' ' . html_writer::select_time('years', 'searchDateYear', $timestamp, 5), "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 
@@ -470,7 +470,7 @@ if (!$tableAllBookings->is_downloading()) {
     $tabledata[] = $row;
     $rowclasses[] = "";
 
-    $row = new html_table_row(array("", '<input type="submit" id="searchButton" value="' . get_string('search') . '"><input id="buttonclear" type="button" value="' . get_string('reset', 'booking') . '"></form>', "", ""));
+    $row = new html_table_row(array("", '<input type="submit" id="searchButton" value="' . get_string('search') . '"><input id="buttonclear" type="button" value="' . get_string('reset', 'booking') . '">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 
@@ -481,7 +481,7 @@ if (!$tableAllBookings->is_downloading()) {
     if (!$searching) {
         $table->attributes = array('style' => "display: none;");
     }
-    echo html_writer::table($table);
+    echo html_writer::tag('form', html_writer::table($table));
 
     echo '<h5>' . get_string('bookedusers', 'booking') . '</h5>';
     
