@@ -61,7 +61,16 @@ M.mod_booking.utility = {
 			var str = origin.get('id')
 			var ratingvalue = origin.one('option:checked').get('value');
 			var id = "#check" + str.replace('menurating','');
-			Y.one(id).set('checked', 'checked');
+			if (id == '#checkall'){
+	              Y.all('input.usercheckbox').each(function () {
+	                  this.set('checked', 'checked');
+	              });
+	              Y.all('.postratingmenu.ratinginput').each(function () {
+	                  this.set('value', ratingvalue);
+	              });
+			} else {
+				Y.one(id).set('checked', 'checked');
+			}
 			
       }, '#studentsform');
       

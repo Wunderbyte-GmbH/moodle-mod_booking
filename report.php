@@ -489,6 +489,23 @@ if (!$tableAllBookings->is_downloading()) {
     $tableAllBookings->query_db($bookingData->booking->paginationnum, true);
         
     if ($bookingData->booking->assessed != RATING_AGGREGATE_NONE) {
+        // get all bookings from all booking options: only that guarantees correct use of rating
+        
+    	/**
+        $userobjects = array();
+        $userids = array();
+        foreach ($tableAllBookings->rawdata as $baid => $data) {
+            $userobject = new stdClass();
+            $userobject->id = $baid;
+            $userobject->userid = $data->userid;
+            $userobjects[$baid] = $userobject;
+            $userids[] = $data->userid;            
+        }
+        $userids_for_sql = implode(',', $userids);
+        
+        $select = ' userid IN ('.$userids_for_sql.')';
+        $allratings = $DB->get_records_select('booking_answers', $select,null,'','id, userid');
+        **/
     	$ratingoptions = new stdClass();
     	$ratingoptions->context = $bookingData->get_context();
     	$ratingoptions->component = 'mod_booking';
@@ -503,6 +520,13 @@ if (!$tableAllBookings->is_downloading()) {
     
     	$rm = new rating_manager();
     	$tableAllBookings->rawdata = $rm->get_ratings($ratingoptions);
+    	
+    	// add ratings to the rawdata
+    	foreach ($tableAllBookings->rawdata as $baid => &$data) {
+    	    if(array_key_exists($baid, $allratings)){
+    	        $data->rating = $allratings[$baid]->rating;
+    	    }
+    	}
     	
     	// hidden input fields for the rating 
     	$ratinginputs = array();
@@ -526,7 +550,7 @@ if (!$tableAllBookings->is_downloading()) {
     	 $scalearray = array(RATING_UNSET_RATING => $strrate.'...') + $firstentry->rating->settings->scale->scaleitems;
     	 $scaleattrs = array('class'=>'postratingmenu ratinginput','id'=>'menuratingall');
     	 $menuhtml = html_writer::label(get_string('rating', 'core_rating'), 'menuratingall', false, array('class' => 'accesshide'));
-    	 $menuhtml .= html_writer::select($scalearray, 'rating', $rating->rating, false, $scaleattrs);
+    	 $menuhtml .= html_writer::select($scalearray, 'rating', $scalearray[RATING_UNSET_RATING], false, $scaleattrs);
     	 $tableAllBookings->headers[2] .= $menuhtml;
     }
     
