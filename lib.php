@@ -1022,7 +1022,14 @@ function booking_show_statistic() {
     echo "</tr></table>";
 }
 
-// Add activity completion for teachers.
+/**
+ * This inverts the completion status of the selected users.
+ * 
+ * @param array $selectedusers
+ * @param unknown $booking
+ * @param number $cmid
+ * @param number $optionid
+ */
 function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $optionid) {
     global $DB;
 
@@ -1033,6 +1040,7 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
 
     foreach ($selectedusers as $uid) {
         foreach ($uid as $ui) {
+        	//TODO: Optimization of db query: instead of loop, one get_records query
             $userData = $DB->get_record('booking_teachers', array('optionid' => $optionid, 'userid' => $ui));
 
             if ($userData->completed == '1') {
@@ -1070,6 +1078,7 @@ function booking_generatenewnumners($bookingDataBooking, $cmid, $optionid, $allS
         }
 
         foreach ($allSelectedUsers as $ui) {
+        	//TODO: Optimize DB query: get_records instead of loop
             $userData = $DB->get_record('booking_answers', array('optionid' => $optionid, 'userid' => $ui));
             $userData->numrec = $recnum++;
             $DB->update_record('booking_answers', $userData);
@@ -1087,7 +1096,8 @@ function booking_generatenewnumners($bookingDataBooking, $cmid, $optionid, $allS
 }
 
 /**
- * Set activity completion
+ * Invert activity completion status of selected users
+ * 
  * @param array $selectedusers array of userids
  * @param stdClass $booking booking instance
  * @param number $cmid course module id
