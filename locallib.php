@@ -525,12 +525,15 @@ class booking_option extends booking {
             $eventdata->messagehtml = $messagehtml;
             $eventdata->attachment = $attachment;
             $eventdata->attachname = $attachname;
-            booking_booking_deleted($eventdata);
-
+            $sendtask = new mod_booking\task\send_confirmation_mails();
+            $sendtask->set_custom_data($eventdata);
+            \core\task\manager::queue_adhoc_task($sendtask);   
+            
             if ($this->booking->copymail) {
                 $eventdata->userto = $bookingmanager;
-                booking_booking_deleted($eventdata);
-            }
+                $sendtask = new mod_booking\task\send_confirmation_mails();
+                $sendtask->set_custom_data($eventdata);
+                \core\task\manager::queue_adhoc_task($sendtask);            }
         }
 
         if ($this->option->limitanswers) {
@@ -568,11 +571,15 @@ class booking_option extends booking {
                     $eventdata->attachment = $attachment;
                     $eventdata->attachname = $attachname;
                     if ($this->booking->sendmail == 1) {
-                        booking_booking_deleted($eventdata);
+                        $sendtask = new mod_booking\task\send_confirmation_mails();
+                        $sendtask->set_custom_data($eventdata);
+                        \core\task\manager::queue_adhoc_task($sendtask);   
                     }
                     if ($this->booking->copymail) {
                         $eventdata->userto = $bookingmanager;
-                        booking_booking_deleted($eventdata);
+                        $sendtask = new mod_booking\task\send_confirmation_mails();
+                        $sendtask->set_custom_data($eventdata);
+                        \core\task\manager::queue_adhoc_task($eventdata);   
                     }
                 }
             }

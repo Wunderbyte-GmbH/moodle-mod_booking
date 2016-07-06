@@ -1962,7 +1962,9 @@ function booking_send_confirm_message($eventdata) {
     $messagedata->attachname = $attachname;
 
     if ($cansend) {
-        booking_booking_confirmed($messagedata);
+        $sendtask = new mod_booking\task\send_confirmation_mails();
+        $sendtask->set_custom_data($messagedata);
+        \core\task\manager::queue_adhoc_task($sendtask);
     }
 
     if ($eventdata->booking->copymail) {
@@ -1970,30 +1972,18 @@ function booking_send_confirm_message($eventdata) {
         $messagedata->subject = $subjectmanager;
 
         if ($cansend) {
-            booking_booking_confirmed($messagedata);
+            $sendtask = new mod_booking\task\send_confirmation_mails();
+            $sendtask->set_custom_data($messagedata);
+            \core\task\manager::queue_adhoc_task($sendtask);
         }
     }
     return true;
 }
 
 /**
- * Sends mail via cron when user is deleted from booking
- *
- * @param object $eventdata data for email_to_user params
+ * 
+ * @param number $seconds
  */
-function booking_booking_deleted($eventdata) {
-    email_to_user($eventdata->userto, $eventdata->userfrom, $eventdata->subject, $eventdata->messagetext, $eventdata->messagehtml, $eventdata->attachment, $eventdata->attachname);
-}
-
-/**
- * Sends mail via cron when booking of user is confirmed
- *
- * @param object $eventdata data for email_to_user params
- */
-function booking_booking_confirmed($eventdata) {
-    email_to_user($eventdata->userto, $eventdata->userfrom, $eventdata->subject, $eventdata->messagetext, $eventdata->messagehtml, $eventdata->attachment, $eventdata->attachname);
-}
-
 function booking_pretty_duration($seconds) {
     $measures = array(
         'days' => 24 * 60 * 60,

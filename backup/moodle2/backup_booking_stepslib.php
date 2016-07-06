@@ -93,7 +93,12 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
             'numgenerator',
             'paginationnum',
             'daystonotify',
-            'notifyemail')
+            'notifyemail',
+            'assessed',
+            'assesstimestart',
+            'assesstimefinish',
+            'scale',                     
+        )
         );
 
         $options = new backup_nested_element('options');
