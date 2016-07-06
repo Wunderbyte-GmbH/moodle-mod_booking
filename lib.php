@@ -836,6 +836,40 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
     echo (html_writer::table($table));
 }
 
+
+/**
+ * extend an booking navigation settings
+ *
+ * @param settings_navigation $settings
+ * @param navigation_node $navref
+ * @return void
+ */
+function booking_extend_settings_navigation(settings_navigation $settings, navigation_node $navref) {
+	global $PAGE, $DB;
+
+	$cm = $PAGE->cm;
+	if (!$cm) {
+		return;
+	}
+
+	$context = $cm->context;
+	$course = $PAGE->course;
+
+	if (!$course) {
+		return;
+	}
+
+	
+	if (has_capability('mod/booking:updatebooking', $context)) {
+	    $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null, navigation_node::TYPE_CONTAINER);
+	
+	    $settingnode->add(get_string('addnewbookingoption', 'booking'), new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add')));
+	    $settingnode->add(get_string('importcsvbookingoption', 'booking'), new moodle_url('importoptions.php', array('id' => $cm->id)));
+	    $settingnode->add(get_string('importexcelbutton', 'booking'), new moodle_url('importexcel.php', array('id' => $cm->id)));
+	    $settingnode->add(get_string('tagtemplates', 'booking'), new moodle_url('tagtemplates.php', array('cmid' => $cm->id)));
+	}
+}
+
 /**
  * Check if logged in user is in teachers db.
  * @return true if is assigned as teacher otherwise return false

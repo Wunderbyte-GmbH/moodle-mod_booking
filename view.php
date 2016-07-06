@@ -160,15 +160,6 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context) &
 $PAGE->set_title(format_string($booking->booking->name));
 $PAGE->set_heading($booking->booking->name);
 
-if (has_capability('mod/booking:updatebooking', $context)) {
-    $settingnode = $PAGE->settingsnav->add(get_string("bookingoptionsmenu", "booking"), null, navigation_node::TYPE_CONTAINER);
-
-    $settingnode->add(get_string('addnewbookingoption', 'booking'), new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add')));
-    $settingnode->add(get_string('importcsvbookingoption', 'booking'), new moodle_url('importoptions.php', array('id' => $cm->id)));
-    $settingnode->add(get_string('importexcelbutton', 'booking'), new moodle_url('importexcel.php', array('id' => $cm->id)));
-    $settingnode->add(get_string('tagtemplates', 'booking'), new moodle_url('tagtemplates.php', array('cmid' => $cm->id)));
-}
-
 // check if custom user profile fields are required and redirect to complete them if necessary
 if (has_capability('moodle/user:editownprofile', $context, NULL, false) and booking_check_user_profile_fields($USER->id) and ! has_capability('moodle/site:config', $context)) {
     echo $OUTPUT->header();
