@@ -204,11 +204,14 @@ class all_userbookings extends table_sql {
             echo '<input type="submit" name="activitycompletion" value="' . (empty($this->bookingData->booking->btncacname) ? get_string('confirmactivitycompletion', 'booking') : $this->bookingData->booking->btncacname) . '" />';
             
             //output rating button
-            $ratingbutton = html_writer::start_tag('span', array('class'=>"ratingsubmit"));
-            $attributes = array('type' => 'submit', 'class' => 'postratingmenusubmit', 'id' => 'postratingsubmit', 'name' => 'postratingsubmit', 'value' => s(get_string('rate', 'rating')));
-            $ratingbutton .= html_writer::empty_tag('input', $attributes);
-            $ratingbutton .= html_writer::end_span();
-            echo $ratingbutton;
+            if (has_capability('moodle/rating:rate', context_module::instance($this->cm->id))  && $this->bookingData->booking->assessed != 0){
+                $ratingbutton = html_writer::start_tag('span', array('class'=>"ratingsubmit"));
+                $attributes = array('type' => 'submit', 'class' => 'postratingmenusubmit', 'id' => 'postratingsubmit', 'name' => 'postratingsubmit', 'value' => s(get_string('rate', 'rating')));
+                $ratingbutton .= html_writer::empty_tag('input', $attributes);
+                $ratingbutton .= html_writer::end_span();
+                echo $ratingbutton;
+            }
+
             
             if ($this->bookingData->booking->numgenerator) {
                 echo '<input type="submit" name="generaterecnum" value="' . get_string('generaterecnum', 'booking') . '" onclick="return confirm(\'' . get_string('generaterecnumareyousure', 'booking') . '\')"/>';

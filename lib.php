@@ -599,6 +599,7 @@ function booking_get_user_booking_count($booking, $user, $bookinglist) {
 }
 
 /**
+ * TODO: This function may be obsolete: delete?
  * Echoes HTML code for booking table with all booking options and booking status
  * @param $booking object containing complete details of the booking instance
  * @param $user object of current user
@@ -1946,8 +1947,8 @@ function booking_send_confirm_message($eventdata) {
     $errormessage = get_string('error:failedtosendconfirmation', 'booking', $data);
     $errormessagehtml = text_to_html($errormessage, false, false, true);
     $user->mailformat = 1;  // Always send HTML version as well
-//implementing message send, but prior to moodle 2.6, that function does not
-//accept attachments, so have to call email_to_user in that case
+
+    
     $messagedata = new stdClass();
     $messagedata->userfrom = $bookingmanager;
     if ($eventdata->booking->sendmailtobooker) {

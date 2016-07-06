@@ -285,7 +285,7 @@ if (!$tableAllBookings->is_downloading()) {
             $bookedusers = array();
             $ratings = array();
             foreach ($bookingData->users as $baid => $object) {
-                if (in_array($object->id, $allSelectedUsers)) {
+                if (in_array($object->id, $allSelectedUsers) && $object->userid != $USER->id) {
                     $rating = new stdClass();
                     $bookedusers[$object->userid] = $baid;
                     $bookinganswerid = "rating" . $bookedusers[$object->userid];

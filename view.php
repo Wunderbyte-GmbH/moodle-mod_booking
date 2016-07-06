@@ -422,7 +422,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $labelSearchName = (empty($booking->booking->lblname) ? get_string('searchName', 'booking') : $booking->booking->lblname);
         $labelSearchSurname = (empty($booking->booking->lblsurname) ? get_string('searchSurname', 'booking') : $booking->booking->lblsurname);
 
-        $row = new html_table_row(array($labelBooking, '<form>' . $hidden . '<input value="' . $urlParams['searchText'] . '" type="text" id="searchText" name="searchText">', "", ""));
+        $row = new html_table_row(array($labelBooking, $hidden . '<input value="' . $urlParams['searchText'] . '" type="text" id="searchText" name="searchText">', "", ""));
         $tabledata[] = $row;
         $rowclasses[] = "";
         $row = new html_table_row(array($labelLocation, '<input value="' . $urlParams['searchLocation'] . '" type="text" id="searchLocation" name="searchLocation">', "", ""));
@@ -437,7 +437,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $row = new html_table_row(array($labelSearchSurname, '<input value="' . $urlParams['searchSurname'] . '" type="text" id="searchSurname" name="searchSurname">', "", ""));
         $tabledata[] = $row;
         $rowclasses[] = "";
-        $row = new html_table_row(array("", '<input id="searchButton" type="submit" value="' . get_string('search') . '"><input id="buttonclear" type="button" value="' . get_string('reset', 'booking') . '"></form>', "", ""));
+        $row = new html_table_row(array("", '<input id="searchButton" type="submit" value="' . get_string('search') . '"><input id="buttonclear" type="button" value="' . get_string('reset', 'booking') . '">', "", ""));
         $tabledata[] = $row;
         $rowclasses[] = "";
 
@@ -448,7 +448,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         if (empty($urlParams['searchText']) && empty($urlParams['searchLocation']) && empty($urlParams['searchName']) && empty($urlParams['searchInstitution']) && empty($urlParams['searchSurname'])) {
             $table->attributes = array('style' => "display: none;");
         }
-        echo html_writer::table($table);
+        echo html_writer::tag('form', html_writer::table($table));
 
         $sortUrl->set_anchor('goenrol');
 
