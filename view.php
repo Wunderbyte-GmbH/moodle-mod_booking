@@ -101,6 +101,7 @@ $urlCancel = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $sortUrl = new moodle_url('/mod/booking/view.php', $urlParamsSort);
 
 $PAGE->set_url($url);
+$PAGE->requires->yui_module('moodle-mod_booking-viewscript', 'M.mod_booking.viewscript.init');
 
 if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
     print_error('coursemisconf');
@@ -433,9 +434,10 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $rowclasses[] = "";
 
         $table = new html_table();
-        $table->head = array('', '', '');
+        $table->head = array('', '', '','');
         $table->data = $tabledata;
         $table->id = "tableSearch";
+        
         if (empty($urlParams['searchText']) && empty($urlParams['searchLocation']) && empty($urlParams['searchName']) && empty($urlParams['searchInstitution']) && empty($urlParams['searchSurname'])) {
             $table->attributes = array('style' => "display: none;");
         }
@@ -470,12 +472,13 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         $tableAllOtions->define_columns($columns);
         $tableAllOtions->define_headers($headers);
+        unset ($tableAllOtions->attributes['cellspacing']);
 
-        $pagging = $booking->booking->paginationnum;
-        if ($pagging == 0) {
-            $pagging = 25;
+        $paging = $booking->booking->paginationnum;
+        if ($paging == 0) {
+            $paging = 25;
         }
-        $tableAllOtions->out($pagging, true);
+        $tableAllOtions->out($paging, true);
     } else {
         $columns = array();
         $headers = array();
@@ -592,31 +595,3 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 echo $OUTPUT->box("<a href=\"http://www.edulabs.org\">" . get_string('createdby', 'booking') . "</a>", 'box mdl-align');
 echo $OUTPUT->footer();
 ?>
-
-<script type="text/javascript">
-    YUI().use('node-event-simulate', function (Y) {
-
-        Y.one('#buttonclear').on('click', function () {
-            Y.one('#searchText').set('value', '');
-            Y.one('#searchLocation').set('value', '');
-            Y.one('#searchInstitution').set('value', '');
-            Y.one('#searchName').set('value', '');
-            Y.one('#searchSurname').set('value', '');
-            Y.one('#searchButton').simulate('click');
-        });
-    });
-
-    YUI().use('node', function (Y) {
-        Y.delegate('click', function (e) {
-            var buttonID = e.currentTarget.get('id'),
-                    node = Y.one('#tableSearch');
-
-            if (buttonID === 'showHideSearch') {
-                node.toggleView();
-                location.hash = "#goenrol";
-                e.preventDefault();
-            }
-
-        }, document, 'a');
-    });
-</script>
