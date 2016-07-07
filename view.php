@@ -101,6 +101,7 @@ $urlCancel = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $sortUrl = new moodle_url('/mod/booking/view.php', $urlParamsSort);
 
 $PAGE->set_url($url);
+$PAGE->requires->yui_module('moodle-mod_booking-viewscript', 'M.mod_booking.viewscript.init');
 
 if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
     print_error('coursemisconf');
@@ -159,15 +160,6 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context) &
 
 $PAGE->set_title(format_string($booking->booking->name));
 $PAGE->set_heading($booking->booking->name);
-
-if (has_capability('mod/booking:updatebooking', $context)) {
-    $settingnode = $PAGE->settingsnav->add(get_string("bookingoptionsmenu", "booking"), null, navigation_node::TYPE_CONTAINER);
-
-    $settingnode->add(get_string('addnewbookingoption', 'booking'), new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add')));
-    $settingnode->add(get_string('importcsvbookingoption', 'booking'), new moodle_url('importoptions.php', array('id' => $cm->id)));
-    $settingnode->add(get_string('importexcelbutton', 'booking'), new moodle_url('importexcel.php', array('id' => $cm->id)));
-    $settingnode->add(get_string('tagtemplates', 'booking'), new moodle_url('tagtemplates.php', array('cmid' => $cm->id)));
-}
 
 // check if custom user profile fields are required and redirect to complete them if necessary
 if (has_capability('moodle/user:editownprofile', $context, NULL, false) and booking_check_user_profile_fields($USER->id) and ! has_capability('moodle/site:config', $context)) {
@@ -392,6 +384,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             } else if ($booking->booking->timeclose < $timenow && !has_capability('mod/booking:updatebooking', $context)) {
                 echo $OUTPUT->box(get_string("expired", "booking", userdate($booking->booking->timeclose)), "center");
                 $bookingopen = false;
+                echo $OUTPUT->footer();
+                exit;
             }
         }
 
@@ -420,7 +414,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $labelSearchName = (empty($booking->booking->lblname) ? get_string('searchName', 'booking') : $booking->booking->lblname);
         $labelSearchSurname = (empty($booking->booking->lblsurname) ? get_string('searchSurname', 'booking') : $booking->booking->lblsurname);
 
-        $row = new html_table_row(array($labelBooking, '<form>' . $hidden . '<input value="' . $urlParams['searchText'] . '" type="text" id="searchText" name="searchText">', "", ""));
+        $row = new html_table_row(array($labelBooking, $hidden . '<input value="' . $urlParams['searchText'] . '" type="text" id="searchText" name="searchText">', "", ""));
         $tabledata[] = $row;
         $rowclasses[] = "";
         $row = new html_table_row(array($labelLocation, '<input value="' . $urlParams['searchLocation'] . '" type="text" id="searchLocation" name="searchLocation">', "", ""));
@@ -435,18 +429,19 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $row = new html_table_row(array($labelSearchSurname, '<input value="' . $urlParams['searchSurname'] . '" type="text" id="searchSurname" name="searchSurname">', "", ""));
         $tabledata[] = $row;
         $rowclasses[] = "";
-        $row = new html_table_row(array("", '<input id="searchButton" type="submit" value="' . get_string('search') . '"><input id="buttonclear" type="button" value="' . get_string('reset', 'booking') . '"></form>', "", ""));
+        $row = new html_table_row(array("", '<input id="searchButton" type="submit" value="' . get_string('search') . '"><input id="buttonclear" type="button" value="' . get_string('reset', 'booking') . '">', "", ""));
         $tabledata[] = $row;
         $rowclasses[] = "";
 
         $table = new html_table();
-        $table->head = array('', '', '');
+        $table->head = array('', '', '','');
         $table->data = $tabledata;
         $table->id = "tableSearch";
+        
         if (empty($urlParams['searchText']) && empty($urlParams['searchLocation']) && empty($urlParams['searchName']) && empty($urlParams['searchInstitution']) && empty($urlParams['searchSurname'])) {
             $table->attributes = array('style' => "display: none;");
         }
-        echo html_writer::table($table);
+        echo html_writer::tag('form', html_writer::table($table));
 
         $sortUrl->set_anchor('goenrol');
 
@@ -477,12 +472,13 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         $tableAllOtions->define_columns($columns);
         $tableAllOtions->define_headers($headers);
+        unset ($tableAllOtions->attributes['cellspacing']);
 
-        $pagging = $booking->booking->paginationnum;
-        if ($pagging == 0) {
-            $pagging = 25;
+        $paging = $booking->booking->paginationnum;
+        if ($paging == 0) {
+            $paging = 25;
         }
-        $tableAllOtions->out($pagging, true);
+        $tableAllOtions->out($paging, true);
     } else {
         $columns = array();
         $headers = array();
@@ -599,31 +595,3 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 echo $OUTPUT->box("<a href=\"http://www.edulabs.org\">" . get_string('createdby', 'booking') . "</a>", 'box mdl-align');
 echo $OUTPUT->footer();
 ?>
-
-<script type="text/javascript">
-    YUI().use('node-event-simulate', function (Y) {
-
-        Y.one('#buttonclear').on('click', function () {
-            Y.one('#searchText').set('value', '');
-            Y.one('#searchLocation').set('value', '');
-            Y.one('#searchInstitution').set('value', '');
-            Y.one('#searchName').set('value', '');
-            Y.one('#searchSurname').set('value', '');
-            Y.one('#searchButton').simulate('click');
-        });
-    });
-
-    YUI().use('node', function (Y) {
-        Y.delegate('click', function (e) {
-            var buttonID = e.currentTarget.get('id'),
-                    node = Y.one('#tableSearch');
-
-            if (buttonID === 'showHideSearch') {
-                node.toggleView();
-                location.hash = "#goenrol";
-                e.preventDefault();
-            }
-
-        }, document, 'a');
-    });
-</script>

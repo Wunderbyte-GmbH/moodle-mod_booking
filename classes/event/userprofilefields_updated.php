@@ -61,11 +61,6 @@ class userprofilefields_updated extends \core\event\base {
             $this->objectid, $this->contextinstanceid);
     }
  
-    public static function get_legacy_eventname() {
-        // Override ONLY if you are migrating events_trigger() call.
-        return 'choose';
-    }
- 
     protected function get_legacy_eventdata() {
         // Override if you migrating events_trigger() call.
         $data = new \stdClass();

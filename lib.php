@@ -144,7 +144,8 @@ function booking_supports($feature) {
         case FEATURE_MOD_INTRO: return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS: return false;
         case FEATURE_COMPLETION_HAS_RULES: return true;
-        case FEATURE_GRADE_HAS_GRADE: return false;
+        case FEATURE_GRADE_HAS_GRADE: return true;
+        case FEATURE_RATE: return true;
         case FEATURE_GRADE_OUTCOMES: return false;
         case FEATURE_BACKUP_MOODLE2: return true;
 
@@ -155,7 +156,7 @@ function booking_supports($feature) {
 function booking_get_completion_state($course, $cm, $userid, $type) {
     global $CFG, $DB;
 
-// Get forum details
+// Get booking details
     if (!($booking = $DB->get_record('booking', array('id' => $cm->instance)))) {
         throw new Exception("Can't find booking {$cm->instance}");
     }
@@ -233,6 +234,8 @@ function booking_add_instance($booking) {
             }
         }
     }
+    
+    booking_grade_item_update($booking);
 
     return $booking->id;
 }
@@ -252,6 +255,16 @@ function booking_update_instance($booking) {
 
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
         $booking->categoryid = implode(',', $booking->categoryid);
+    }
+    
+
+    if (empty($booking->assessed)) {
+    	$booking->assessed = 0;
+    }
+    
+    if (empty($booking->ratingtime) or empty($booking->assessed)) {
+    	$booking->assesstimestart  = 0;
+    	$booking->assesstimefinish = 0;
     }
 
     $arr = array();
@@ -304,6 +317,8 @@ function booking_update_instance($booking) {
         }
     }
 
+    booking_grade_item_update($booking);
+    
     return $DB->update_record('booking', $booking);
 }
 
@@ -584,6 +599,7 @@ function booking_get_user_booking_count($booking, $user, $bookinglist) {
 }
 
 /**
+ * TODO: This function may be obsolete: delete?
  * Echoes HTML code for booking table with all booking options and booking status
  * @param $booking object containing complete details of the booking instance
  * @param $user object of current user
@@ -820,6 +836,40 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
     echo (html_writer::table($table));
 }
 
+
+/**
+ * extend an booking navigation settings
+ *
+ * @param settings_navigation $settings
+ * @param navigation_node $navref
+ * @return void
+ */
+function booking_extend_settings_navigation(settings_navigation $settings, navigation_node $navref) {
+	global $PAGE, $DB;
+
+	$cm = $PAGE->cm;
+	if (!$cm) {
+		return;
+	}
+
+	$context = $cm->context;
+	$course = $PAGE->course;
+
+	if (!$course) {
+		return;
+	}
+
+	
+	if (has_capability('mod/booking:updatebooking', $context)) {
+	    $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null, navigation_node::TYPE_CONTAINER);
+	
+	    $settingnode->add(get_string('addnewbookingoption', 'booking'), new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add')));
+	    $settingnode->add(get_string('importcsvbookingoption', 'booking'), new moodle_url('importoptions.php', array('id' => $cm->id)));
+	    $settingnode->add(get_string('importexcelbutton', 'booking'), new moodle_url('importexcel.php', array('id' => $cm->id)));
+	    $settingnode->add(get_string('tagtemplates', 'booking'), new moodle_url('tagtemplates.php', array('cmid' => $cm->id)));
+	}
+}
+
 /**
  * Check if logged in user is in teachers db.
  * @return true if is assigned as teacher otherwise return false
@@ -1007,7 +1057,14 @@ function booking_show_statistic() {
     echo "</tr></table>";
 }
 
-// Add activity completion for teachers.
+/**
+ * This inverts the completion status of the selected users.
+ * 
+ * @param array $selectedusers
+ * @param unknown $booking
+ * @param number $cmid
+ * @param number $optionid
+ */
 function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $optionid) {
     global $DB;
 
@@ -1018,6 +1075,7 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
 
     foreach ($selectedusers as $uid) {
         foreach ($uid as $ui) {
+        	//TODO: Optimization of db query: instead of loop, one get_records query
             $userData = $DB->get_record('booking_teachers', array('optionid' => $optionid, 'userid' => $ui));
 
             if ($userData->completed == '1') {
@@ -1055,6 +1113,7 @@ function booking_generatenewnumners($bookingDataBooking, $cmid, $optionid, $allS
         }
 
         foreach ($allSelectedUsers as $ui) {
+        	//TODO: Optimize DB query: get_records instead of loop
             $userData = $DB->get_record('booking_answers', array('optionid' => $optionid, 'userid' => $ui));
             $userData->numrec = $recnum++;
             $DB->update_record('booking_answers', $userData);
@@ -1071,7 +1130,14 @@ function booking_generatenewnumners($bookingDataBooking, $cmid, $optionid, $allS
     }
 }
 
-// Add activity completion to user.
+/**
+ * Invert activity completion status of selected users
+ * 
+ * @param array $selectedusers array of userids
+ * @param stdClass $booking booking instance
+ * @param number $cmid course module id
+ * @param number $optionid
+ */
 function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) {
     global $DB;
 
@@ -1104,6 +1170,367 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
         }
     }
 }
+
+
+
+/////////////////////////////////
+// GRADING AND RATING
+/////////////////////////////////
+
+
+/**
+ * Return grade for given user or all users.
+ *
+ * @global object
+ * @param stdClass $booking
+ * @param int $userid optional user id, 0 means all users
+ * @return array array of grades, false if none
+ */
+function booking_get_user_grades($booking, $userid = 0) {
+	global $CFG;
+
+	require_once($CFG->dirroot.'/rating/lib.php');
+
+	$ratingoptions = new stdClass;
+	$ratingoptions->component = 'mod_booking';
+	$ratingoptions->ratingarea = 'bookingoption';
+
+	//need these to work backwards to get a context id. Is there a better way to get contextid from a module instance?
+	$ratingoptions->modulename = 'booking';
+	$ratingoptions->moduleid   = $booking->id;
+	$ratingoptions->userid = $userid;
+	$ratingoptions->aggregationmethod = $booking->assessed;
+	$ratingoptions->scaleid = $booking->scale;
+	$ratingoptions->itemtable = 'booking_answers';
+	$ratingoptions->itemtableusercolumn = 'userid';
+
+	$rm = new rating_manager();
+	return $rm->get_user_grades($ratingoptions);
+}
+
+/**
+ * Update activity grades
+ *
+ * @category grade
+ * @param stdClass $booking
+ * @param int $userid specific user only, 0 means all
+ * @param boolean $nullifnone return null if grade does not exist
+ * @return void
+ */
+function booking_update_grades($booking, $userid=0, $nullifnone=true) {
+	global $CFG, $DB;
+	require_once($CFG->libdir.'/gradelib.php');
+
+	if (!$booking->assessed) {
+		booking_grade_item_update($booking);
+
+	} else if ($grades = booking_get_user_grades($booking, $userid)) {
+		booking_grade_item_update($booking, $grades);
+
+	} else if ($userid and $nullifnone) {
+		$grade = new stdClass();
+		$grade->userid   = $userid;
+		$grade->rawgrade = NULL;
+		booking_grade_item_update($booking, $grade);
+
+	} else {
+		booking_grade_item_update($booking);
+	}
+}
+
+/**
+ * Create/update grade item
+ *
+ * @category grade
+ * @uses GRADE_TYPE_NONE
+ * @uses GRADE_TYPE_VALUE
+ * @uses GRADE_TYPE_SCALE
+ * @param stdClass $booking Booking object with extra cmidnumber
+ * @param mixed $grades Optional array/object of grade(s); 'reset' means reset grades in gradebook
+ * @return int 0 if ok
+ */
+function booking_grade_item_update($booking, $grades=NULL) {
+	global $CFG;
+	if (!function_exists('grade_update')) { //workaround for buggy PHP versions
+		require_once($CFG->libdir.'/gradelib.php');
+	}
+
+	$params = array('itemname'=>$booking->name, 'idnumber'=>$booking->cmidnumber);
+
+	if (!$booking->assessed or $booking->scale == 0) {
+		$params['gradetype'] = GRADE_TYPE_NONE;
+
+	} else if ($booking->scale > 0) {
+		$params['gradetype'] = GRADE_TYPE_VALUE;
+		$params['grademax']  = $booking->scale;
+		$params['grademin']  = 0;
+
+	} else if ($booking->scale < 0) {
+		$params['gradetype'] = GRADE_TYPE_SCALE;
+		$params['scaleid']   = -$booking->scale;
+	}
+
+	if ($grades  === 'reset') {
+		$params['reset'] = true;
+		$grades = NULL;
+	}
+
+	return grade_update('mod/booking', $booking->course, 'mod', 'booking', $booking->id, 0, $grades, $params);
+}
+
+/**
+ * Delete grade item
+ *
+ * @category grade
+ * @return grade_item
+ */
+function booking_grade_item_delete($booking) {
+	global $CFG;
+	require_once($CFG->libdir.'/gradelib.php');
+
+	return grade_update('mod/booking', $booking->course, 'mod', 'booking', $booking->id, 0, NULL, array('deleted'=>1));
+}
+
+/**
+ * This function returns if a scale is being used by the booking instance
+ *
+ * @global object
+ * @param int $scaleid negative number
+ * @return bool
+ */
+function booking_scale_used ($bookingid, $scaleid) {
+	global $DB;
+	$return = false;
+	$rec = $DB->get_record("booking",array("id" => $bookingid,"scale" => "-$scaleid"));
+
+	if (!empty($rec) && !empty($scaleid)) {
+		$return = true;
+	}
+
+	return $return;
+}
+
+/**
+ * Checks if scale is being used by any instance of forum
+ *
+ * This is used to find out if scale used anywhere
+ *
+ * @global object
+ * @param $scaleid int
+ * @return boolean True if the scale is used by any booking instance
+ */
+function booking_scale_used_anywhere($scaleid) {
+	global $DB;
+	if ($scaleid and $DB->record_exists('booking', array('scale' => -$scaleid))) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+
+/**
+ * Return rating related permissions
+ *
+ * @param string $options the context id
+ * @return array an associative array of the user's rating permissions
+ */
+function booking_rating_permissions($contextid, $component, $ratingarea) {
+    $context = context::instance_by_id($contextid, MUST_EXIST);
+    if ($component != 'mod_booking' || $ratingarea != 'bookingoption') {
+        // We don't know about this component/ratingarea so just return null to get the
+        // default restrictive permissions.
+        return null;
+    }
+    return array(
+        'view'    => has_capability('mod/booking:viewrating', $context),
+        'viewany' => has_capability('mod/booking:viewanyrating', $context),
+        'viewall' => has_capability('mod/booking:viewallratings', $context),
+        'rate'    => has_capability('mod/booking:rate', $context)
+    );
+}
+
+
+
+/**
+ * Validates a submitted rating
+ * @param array $params submitted data
+ *            context => object the context in which the rated items exists [required]
+ *            component => The component for this module - should always be mod_forum [required]
+ *            ratingarea => object the context in which the rated items exists [required]
+ *            itemid => int the ID of the object being rated [required]
+ *            scaleid => int the scale from which the user can select a rating. Used for bounds checking. [required]
+ *            rating => int the submitted rating [required]
+ *            rateduserid => int the id of the user whose items have been rated. NOT the user who submitted the ratings. 0 to update all. [required]
+ *            aggregation => int the aggregation method to apply when calculating grades ie RATING_AGGREGATE_AVERAGE [required]
+ * @return boolean true if the rating is valid. Will throw rating_exception if not
+ */
+function booking_rating_validate($params) {
+	global $DB, $USER;
+
+	// Check the component is mod_booking
+	if ($params['component'] != 'mod_booking') {
+		throw new rating_exception('invalidcomponent');
+	}
+
+	// Check the ratingarea is post (the only rating area in booking)
+	if ($params['ratingarea'] != 'bookingoption') {
+		throw new rating_exception('invalidratingarea');
+	}
+
+	// Check the rateduserid is not the current user .. you can't rate your own posts
+	if ($params['rateduserid'] == $USER->id) {
+		throw new rating_exception('nopermissiontorate');
+	}
+
+	// Fetch all the related records
+	$answer = $DB->get_record('booking_answers', array('id' => $params['itemid'], 'userid' => $params['rateduserid']), '*', MUST_EXIST);
+	$booking = $DB->get_record('booking', array('id' => $answer->bookingid), '*', MUST_EXIST);
+	$course = $DB->get_record('course', array('id' => $booking->course), '*', MUST_EXIST);
+	$cm = get_coursemodule_from_instance('booking', $booking->id, $course->id , false, MUST_EXIST);
+	$context = context_module::instance($cm->id);
+
+	// Make sure the context provided is the context of the booking
+	if ($context->id != $params['context']->id) {
+		throw new rating_exception('invalidcontext');
+	}
+
+	if ($booking->scale != $params['scaleid']) {
+		//the scale being submitted doesnt match the one in the database
+		throw new rating_exception('invalidscaleid');
+	}
+
+	// check the item we're rating was created in the assessable time window
+	if (!empty($booking->assesstimestart) && !empty($booking->assesstimefinish)) {
+		if ($answer->timecreated < $booking->assesstimestart || $answer->timecreated > $booking->assesstimefinish) {
+			throw new rating_exception('notavailable');
+		}
+	}
+
+	//check that the submitted rating is valid for the scale
+
+	// lower limit
+	if ($params['rating'] < 0  && $params['rating'] != RATING_UNSET_RATING) {
+		throw new rating_exception('invalidnum');
+	}
+
+	// upper limit
+	if ($booking->scale < 0) {
+		//its a custom scale
+		$scalerecord = $DB->get_record('scale', array('id' => -$booking->scale));
+		if ($scalerecord) {
+			$scalearray = explode(',', $scalerecord->scale);
+			if ($params['rating'] > count($scalearray)) {
+				throw new rating_exception('invalidnum');
+			}
+		} else {
+			throw new rating_exception('invalidscaleid');
+		}
+	} else if ($params['rating'] > $booking->scale) {
+		//if its numeric and submitted rating is above maximum
+		throw new rating_exception('invalidnum');
+	}
+
+	// Make sure groups allow this user to see the item they're rating
+
+	// perform some final capability checks
+	//if (!booking_user_can_see_post($booking, $discussion, $post, $USER, $cm)) {
+	//	throw new rating_exception('nopermissiontorate');
+	//}
+
+	return true;
+}
+
+/**
+ * rate users
+ * @param stdClass $ratings
+ * @param array $params
+ */
+function booking_rate ($ratings, $params){
+    global $CFG, $USER, $DB;
+    require_once($CFG->dirroot.'/rating/lib.php');
+
+    $contextid   = $params->contextid;
+    $component   = 'mod_booking';
+    $ratingarea  = 'bookingoption';
+    $scaleid     = $params->scaleid;
+    $returnurl   = $params->returnurl;
+    
+    $result = new stdClass;
+    
+    list($context, $course, $cm) = get_context_info_array($params->contextid);
+    require_login($course, false, $cm);
+    
+    $contextid = null; // Now we have a context object, throw away the id from the user.
+    
+    $rm = new rating_manager();
+    
+    // Check the module rating permissions.
+    // Doing this check here rather than within rating_manager::get_ratings() so we can choose how to handle the error.
+    $pluginpermissionsarray = $rm->get_plugin_permissions_array($context->id, 'mod_booking', $ratingarea);
+    
+    if (!$pluginpermissionsarray['rate']) {
+        print_error('ratepermissiondenied', 'rating');
+    } else {
+        foreach ($ratings as $rating){
+            $checks = array(
+                            'context'     => $context,
+                            'component'   => $component,
+                            'ratingarea'  => $ratingarea,
+                            'itemid'      => $rating->itemid,
+                            'scaleid'     => $scaleid,
+                            'rating'      => $rating->rating,
+                            'rateduserid' => $rating->rateduserid
+            );
+            if (!$rm->check_rating_is_valid($checks)) {
+                echo $OUTPUT->header();
+                echo get_string('ratinginvalid', 'rating');
+                echo $OUTPUT->footer();
+                die();
+            }
+            
+            if ($rating->rating != RATING_UNSET_RATING) {
+                $ratingoptions = new stdClass;
+                $ratingoptions->context = $context;
+                $ratingoptions->component = $component;
+                $ratingoptions->ratingarea = $ratingarea;
+                $ratingoptions->itemid  = $rating->itemid;
+                $ratingoptions->scaleid = $scaleid;
+                $ratingoptions->userid  = $USER->id;
+            
+                $newrating = new rating($ratingoptions);
+                $newrating->update_rating($rating->rating);
+            } else { // Delete the rating if the user set to "Rate..."
+                $options = new stdClass;
+                $options->contextid = $context->id;
+                $options->component = $component;
+                $options->ratingarea = $ratingarea;
+                $options->userid = $USER->id;
+                $options->itemid = $rating->itemid;
+            
+                $rm->delete_ratings($options);
+            }
+        }
+
+    }
+    if (!empty($cm) && $context->contextlevel == CONTEXT_MODULE) {
+        // Tell the module that its grades have changed.
+        $modinstance = $DB->get_record($cm->modname, array('id' => $cm->instance
+        ), '*', MUST_EXIST);
+        $modinstance->cmidnumber = $cm->id; // MDL-12961.
+        $functionname = $cm->modname . '_update_grades';
+        require_once ($CFG->dirroot . "/mod/{$cm->modname}/lib.php");
+        foreach ($ratings as $rating) {
+            if (function_exists($functionname)) {
+                $functionname($modinstance, $rating->rateduserid);
+            }
+        }
+    }    
+}
+////// END RATING AND GRADES /////
+
+
+
 
 // Send reminder email
 function booking_sendreminderemail($selectedusers, $booking, $cmid, $optionid) {
@@ -1554,8 +1981,8 @@ function booking_send_confirm_message($eventdata) {
     $errormessage = get_string('error:failedtosendconfirmation', 'booking', $data);
     $errormessagehtml = text_to_html($errormessage, false, false, true);
     $user->mailformat = 1;  // Always send HTML version as well
-//implementing message send, but prior to moodle 2.6, that function does not
-//accept attachments, so have to call email_to_user in that case
+
+    
     $messagedata = new stdClass();
     $messagedata->userfrom = $bookingmanager;
     if ($eventdata->booking->sendmailtobooker) {
@@ -1570,7 +1997,9 @@ function booking_send_confirm_message($eventdata) {
     $messagedata->attachname = $attachname;
 
     if ($cansend) {
-        booking_booking_confirmed($messagedata);
+        $sendtask = new mod_booking\task\send_confirmation_mails();
+        $sendtask->set_custom_data($messagedata);
+        \core\task\manager::queue_adhoc_task($sendtask);
     }
 
     if ($eventdata->booking->copymail) {
@@ -1578,30 +2007,18 @@ function booking_send_confirm_message($eventdata) {
         $messagedata->subject = $subjectmanager;
 
         if ($cansend) {
-            booking_booking_confirmed($messagedata);
+            $sendtask = new mod_booking\task\send_confirmation_mails();
+            $sendtask->set_custom_data($messagedata);
+            \core\task\manager::queue_adhoc_task($sendtask);
         }
     }
     return true;
 }
 
 /**
- * Sends mail via cron when user is deleted from booking
- *
- * @param object $eventdata data for email_to_user params
+ * 
+ * @param number $seconds
  */
-function booking_booking_deleted($eventdata) {
-    email_to_user($eventdata->userto, $eventdata->userfrom, $eventdata->subject, $eventdata->messagetext, $eventdata->messagehtml, $eventdata->attachment, $eventdata->attachname);
-}
-
-/**
- * Sends mail via cron when booking of user is confirmed
- *
- * @param object $eventdata data for email_to_user params
- */
-function booking_booking_confirmed($eventdata) {
-    email_to_user($eventdata->userto, $eventdata->userfrom, $eventdata->subject, $eventdata->messagetext, $eventdata->messagehtml, $eventdata->attachment, $eventdata->attachname);
-}
-
 function booking_pretty_duration($seconds) {
     $measures = array(
         'days' => 24 * 60 * 60,
@@ -1932,13 +2349,13 @@ function booking_optionid_unsubscribe($userid, $optionid) {
 abstract class booking_subscriber_selector_base extends user_selector_base {
 
     /**
-     * The id of the forum this selector is being used for
+     * The id of the booking this selector is being used for
      * @var int
      */
     protected $optionid = null;
 
     /**
-     * The context of the forum this selector is being used for
+     * The context of the booking this selector is being used for
      * @var object
      */
     protected $context = null;
@@ -2147,7 +2564,7 @@ class booking_potential_subscriber_selector extends booking_subscriber_selector_
     }
 
     /**
-     * Sets this forum as force subscribed or not
+     * Sets this booking as force subscribed or not
      */
     public function set_force_subscribed($setting = true) {
         $this->forcesubscribed = true;
@@ -2156,14 +2573,14 @@ class booking_potential_subscriber_selector extends booking_subscriber_selector_
 }
 
 /**
- * Returns list of user objects that are subscribed to this forum
+ * Returns list of user objects that are subscribed to this booking
  *
  * @global object
  * @global object
  * @param object $course the course
- * @param forum $forum the forum
+ * @param booking $booking the booking
  * @param integer $groupid group id, or 0 for all.
- * @param object $context the forum context, to save re-fetching it where possible.
+ * @param object $context the booking context, to save re-fetching it where possible.
  * @param string $fields requested user fields (with "u." table prefix)
  * @return array list of users.
  */

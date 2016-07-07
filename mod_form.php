@@ -387,7 +387,8 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'conectedbooking', get_string('conectedbooking', 'mod_booking'), $opts);
         $mform->setDefault('conectedbooking', 0);
         $mform->addHelpButton('conectedbooking', 'conectedbooking', 'mod_booking');
-
+		//-------------------------------------------------------------------------------
+        $this->standard_grading_coursemodule_elements();
         //-------------------------------------------------------------------------------
         $this->standard_coursemodule_elements();
         //-------------------------------------------------------------------------------
@@ -395,6 +396,7 @@ class mod_booking_mod_form extends moodleform_mod {
     }
 
     function data_preprocessing(&$default_values) {
+    	parent::data_preprocessing($default_values);
         $options = array('subdirs' => false, 'maxfiles' => 50, 'accepted_types' => array('*'),
             'maxbytes' => 0);
 
@@ -477,6 +479,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         return $errors;
     }
+
 
     public function get_data() {
         $data = parent::get_data();

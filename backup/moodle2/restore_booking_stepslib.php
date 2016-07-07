@@ -59,8 +59,6 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $oldid = $data->id;
         $data->course = $this->get_courseid();
 
-        $data->timeopen = $this->apply_date_offset($data->timeopen);
-        $data->timeclose = $this->apply_date_offset($data->timeclose);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
         // insert the booking record
