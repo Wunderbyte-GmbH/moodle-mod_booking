@@ -167,6 +167,11 @@ if (booking_check_if_teacher($bookingData->option, $USER) && !has_capability('mo
 $event = \mod_booking\event\report_viewed::create(array('objectid' => $optionid, 'context' => context_module::instance($cm->id)));
 $event->trigger();
 
+if ($action == 'downloadsigninsheet') {
+    download_sign_in_sheet($bookingData);
+    die();
+}
+
 if ($action == 'deletebookingoption' && $confirm == 1 && has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
     booking_delete_booking_option($bookingData->booking, $optionid); //delete booking_option
     redirect("view.php?id=$cm->id");
@@ -543,7 +548,11 @@ if (!$tableAllBookings->is_downloading()) {
     }
 
     echo html_writer::link($onlyOneURL, get_string('onlythisbookingurl', 'booking'), array());
-    echo ' | ' . html_writer::link($onlyOneURL, get_string('copyonlythisbookingurl', 'booking'), array('onclick' => 'copyToClipboard("' . $onlyOneURL . '"); return false;'));
+    echo ' | ' . html_writer::link($onlyOneURL, get_string('copyonlythisbookingurl', 'booking'), array('onclick' => 'copyToClipboard("' . $onlyOneURL . '"); return false;')) . ' | ';
+    
+    $sign_in_sheet_URL = new moodle_url('/mod/booking/report.php', array('id' => $id, 'optionid' => $optionid, 'action' => 'downloadsigninsheet'));
+        
+    echo html_writer::link($sign_in_sheet_URL, get_string('sign_in_sheet_download', 'booking'), array('target' => '_blank'));
 
     echo "<script>
   function copyToClipboard(text) {

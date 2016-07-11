@@ -746,6 +746,7 @@ $string['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
 $string['yes'] = 'Yes';
 $string['optiondates'] = 'Multiple Dates Session';
 $string['sendreminderemailsuccess'] = 'Notification email was sucesfully send!';
+$string['sign_in_sheet_download'] = 'Download Sign in Sheet';
 
 // Send message
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';
@@ -812,3 +813,10 @@ $string['delete'] = "Delete";
 $string['leftdate'] = "%d %B %Y, %I:%M %p";
 $string['righttdate'] = "%I:%M %p";
 $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
+
+// locallib.php
+$string['pdfdate'] = 'Date: ';
+$string['pdflocation'] = 'Location: ';
+$string['pdfroom'] = 'Room: ';
+$string['pdfstudentname'] = "Student Name";
+$string['pdfsignature'] = "Signature";

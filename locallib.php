@@ -56,13 +56,13 @@ class booking {
             $this->groupmembers = $this::booking_get_groupmembers($this->course->id);
         }
     }
-    
+
     /**
      * 
      * @return context
      */
-    public function get_context () {
-    	return $this->context;
+    public function get_context() {
+        return $this->context;
     }
 
     public function apply_tags() {
@@ -102,7 +102,6 @@ class booking {
         }
         return $groupmembers;
     }
-    
 
 }
 
@@ -342,11 +341,10 @@ class booking_option extends booking {
         return $DB->get_records_sql('SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated, {booking_answers}.waitinglist, {booking_answers}.numrec, ' . $mainuserfields . ' FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' . $options . ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC', $params);
     }
 
-    
-	/**
-	 * Count, how man users...for pagination.
-	 * @return number
-	 */
+    /**
+     * Count, how man users...for pagination.
+     * @return number
+     */
     public function count_users() {
         global $DB;
         $params = array();
@@ -527,13 +525,14 @@ class booking_option extends booking {
             $eventdata->attachname = $attachname;
             $sendtask = new mod_booking\task\send_confirmation_mails();
             $sendtask->set_custom_data($eventdata);
-            \core\task\manager::queue_adhoc_task($sendtask);   
-            
+            \core\task\manager::queue_adhoc_task($sendtask);
+
             if ($this->booking->copymail) {
                 $eventdata->userto = $bookingmanager;
                 $sendtask = new mod_booking\task\send_confirmation_mails();
                 $sendtask->set_custom_data($eventdata);
-                \core\task\manager::queue_adhoc_task($sendtask);            }
+                \core\task\manager::queue_adhoc_task($sendtask);
+            }
         }
 
         if ($this->option->limitanswers) {
@@ -573,13 +572,13 @@ class booking_option extends booking {
                     if ($this->booking->sendmail == 1) {
                         $sendtask = new mod_booking\task\send_confirmation_mails();
                         $sendtask->set_custom_data($eventdata);
-                        \core\task\manager::queue_adhoc_task($sendtask);   
+                        \core\task\manager::queue_adhoc_task($sendtask);
                     }
                     if ($this->booking->copymail) {
                         $eventdata->userto = $bookingmanager;
                         $sendtask = new mod_booking\task\send_confirmation_mails();
                         $sendtask->set_custom_data($eventdata);
-                        \core\task\manager::queue_adhoc_task($eventdata);   
+                        \core\task\manager::queue_adhoc_task($eventdata);
                     }
                 }
             }
@@ -718,8 +717,6 @@ class booking_option extends booking {
             return 0;
         }
     }
-    
-    
 
 }
 
@@ -1602,4 +1599,51 @@ function booking_updatestartenddate($optionid) {
     }
 
     $DB->update_record("booking_options", $save);
+}
+
+function download_sign_in_sheet($bookingData = null) {
+    global $CFG, $DB;
+
+    require_once($CFG->libdir . '/tcpdf/tcpdf.php');
+
+    $users = $DB->get_records_sql('SELECT u.id, u.firstname, u.lastname FROM {booking_answers} AS ba LEFT JOIN {user} AS u ON u.id = ba.userid WHERE ba.optionid = ? ORDER BY u.lastname ASC', array($bookingData->option->id));
+
+    //var_dump($users);
+
+    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    $pdf->SetCreator(PDF_CREATOR);
+
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
+    $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+    $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_LEFT);
+    $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+    $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+    $pdf->setFontSubsetting(FALSE);
+
+    $pdf->AddPage();
+
+    $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 14);
+    $pdf->Cell(0, 0, $bookingData->option->text, 0, 1, '', 0);
+    $pdf->Ln();
+
+    $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
+    $pdf->Cell(0, 0, get_string('pdfdate', 'booking') . ($bookingData->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate($bookingData->option->coursestarttime, get_string('strftimedatetime')) . " - " . userdate($bookingData->option->courseendtime, get_string('strftimedatetime'))), 0, 1, '', 0);
+
+    $pdf->Cell(0, 0, get_string('pdflocation', 'booking') . $bookingData->option->address, 0, 1, '', 0);
+
+    $pdf->Cell(0, 0, get_string('pdfroom', 'booking') . $bookingData->option->location, 0, 1, '', 0);
+    $pdf->Ln();
+    
+    $pdf->SetFont(PDF_FONT_NAME_MAIN, 'B', 12);
+    $pdf->Cell((210 - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / 2, 0, get_string('pdfstudentname', 'booking'), 1, 0, '', 0);
+    $pdf->Cell(0, 0, get_string('pdfsignature', 'booking'), 1, 1, '', 0);
+    $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
+    
+    foreach ($users as $user) {
+        $pdf->Cell((210 - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / 2, 0, $user->lastname . " " . $user->firstname, 1, 0, '', 0);
+        $pdf->Cell(0, 0, "", 1, 1, '', 0);
+    }
+
+    $pdf->Output($bookingData->option->text . '.pdf', 'D');
 }
