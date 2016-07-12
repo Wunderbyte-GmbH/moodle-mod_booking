@@ -814,7 +814,7 @@ $string['righttdate'] = "%I:%M %p";
 $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
 
 // locallib.php
-$string['pdfdate'] = 'Booking date(s): ';
+$string['pdfdate'] = 'Booking Date(s): ';
 $string['pdflocation'] = 'Location: ';
 $string['pdfroom'] = 'Room: ';
 $string['pdfstudentname'] = "Student Name";
