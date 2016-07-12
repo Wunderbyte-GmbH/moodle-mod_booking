@@ -1608,7 +1608,36 @@ function download_sign_in_sheet($bookingData = null) {
 
     $users = $DB->get_records_sql('SELECT u.id, u.firstname, u.lastname FROM {booking_answers} AS ba LEFT JOIN {user} AS u ON u.id = ba.userid WHERE ba.optionid = ? ORDER BY u.lastname ASC', array($bookingData->option->id));
 
-    //var_dump($users);
+    //var_dump($bookingData);
+    
+    $teachers = array();
+
+    foreach ($bookingData->option->teachers as $value) {
+        $teachers[] = "{$value->firstname} {$value->lastname}";
+    }
+    
+    $times = get_string('datenotset', 'booking');
+    
+    if ($bookingData->option->coursestarttime == 0) {
+            $times = get_string('datenotset', 'booking');
+        } else {
+            if (is_null($bookingData->option->times)) {
+                $times = userdate($bookingData->option->coursestarttime) . " -" . userdate($bookingData->option->courseendtime);
+            } else {
+                $val = array();
+                $times = explode(',', $bookingData->option->times);
+                foreach ($times as $time) {
+                    $slot = explode('-', $time);
+                    $tmpDate = new stdClass();
+                    $tmpDate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
+                    $tmpDate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
+
+                    $val[] = get_string('leftandrightdate', 'booking', $tmpDate);
+                }
+                                
+                $times = implode(", ", $val);
+            }            
+        }
 
     $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
     $pdf->SetCreator(PDF_CREATOR);
@@ -1628,11 +1657,19 @@ function download_sign_in_sheet($bookingData = null) {
     $pdf->Ln();
 
     $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
-    $pdf->Cell(0, 0, get_string('pdfdate', 'booking') . ($bookingData->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate($bookingData->option->coursestarttime, get_string('strftimedatetime')) . " - " . userdate($bookingData->option->courseendtime, get_string('strftimedatetime'))), 0, 1, '', 0);
+    $pdf->Cell(0, 0, get_string('teachers', 'booking') . implode(', ', $teachers), 0, 1, '', 0);
+    $pdf->Ln();
+    
+    $pdf->MultiCell($pdf->GetStringWidth(get_string('pdfdate', 'booking')) + 1, 0, get_string('pdfdate', 'booking'), 0, 1, '', 0);
+    $pdf->MultiCell(0, 0, $times, 0, 1, '', 1);
 
     $pdf->Cell(0, 0, get_string('pdflocation', 'booking') . $bookingData->option->address, 0, 1, '', 0);
 
     $pdf->Cell(0, 0, get_string('pdfroom', 'booking') . $bookingData->option->location, 0, 1, '', 0);
+    $pdf->Ln();
+    
+    $pdf->Cell($pdf->GetStringWidth(get_string('pdftodaydate', 'booking')) + 1, 0, get_string('pdftodaydate', 'booking'), 0, 0, '', 0);
+    $pdf->Cell(100, 0, "", "B", 1, '', 0);
     $pdf->Ln();
     
     $pdf->SetFont(PDF_FONT_NAME_MAIN, 'B', 12);
@@ -1641,8 +1678,8 @@ function download_sign_in_sheet($bookingData = null) {
     $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
     
     foreach ($users as $user) {
-        $pdf->Cell((210 - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / 2, 0, $user->lastname . " " . $user->firstname, 1, 0, '', 0);
-        $pdf->Cell(0, 0, "", 1, 1, '', 0);
+        $pdf->Cell((210 - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / 2, 12, $user->lastname . " " . $user->firstname, 1, 0, '', 0);
+        $pdf->Cell(0, 12, "", 1, 1, '', 0);
     }
 
     $pdf->Output($bookingData->option->text . '.pdf', 'D');

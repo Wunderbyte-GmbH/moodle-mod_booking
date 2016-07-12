@@ -12,7 +12,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2016071102;
+$plugin->version = 2016071201;
 $plugin->requires = 2013111800;  // Requires this Moodle 2.X version
 $plugin->release = 'Diane Selwyn 1.0'; // famous female characters 
 $plugin->maturity = MATURITY_STABLE;

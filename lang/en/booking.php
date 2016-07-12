@@ -759,7 +759,6 @@ $string['messagesubject'] = 'Subject';
 $string['messagetext'] = 'Message';
 
 // teachers.php
-$string['teachers'] = 'Teachers';
 $string['users'] = '<< Manage responses';
 
 // lib.php
@@ -815,8 +814,9 @@ $string['righttdate'] = "%I:%M %p";
 $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
 
 // locallib.php
-$string['pdfdate'] = 'Date: ';
+$string['pdfdate'] = 'Booking date(s): ';
 $string['pdflocation'] = 'Location: ';
 $string['pdfroom'] = 'Room: ';
 $string['pdfstudentname'] = "Student Name";
 $string['pdfsignature'] = "Signature";
+$string['pdftodaydate'] = 'Date: ';

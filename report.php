@@ -437,7 +437,7 @@ if (!$tableAllBookings->is_downloading()) {
         $linkst = "(" . implode(", ", $linkst) . ")";
     }
 
-    echo "<p>" . ($bookingData->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate($bookingData->option->coursestarttime, get_string('strftimedatetime')) . " - " . userdate($bookingData->option->courseendtime, get_string('strftimedatetime'))) . " | " . (empty($bookingData->booking->lblteachname) ? get_string('teachers', 'booking') : $bookingData->booking->lblteachname) . ': ' . implode(', ', $teachers) . " {$linkst}</p>";
+    echo "<p>" . ($bookingData->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate($bookingData->option->coursestarttime, get_string('strftimedatetime')) . " - " . userdate($bookingData->option->courseendtime, get_string('strftimedatetime'))) . " | " . (empty($bookingData->booking->lblteachname) ? get_string('teachers', 'booking') : $bookingData->booking->lblteachname) . implode(', ', $teachers) . " {$linkst}</p>";
 
     $links = array();
 
