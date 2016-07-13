@@ -1660,7 +1660,7 @@ function download_sign_in_sheet($bookingData = null) {
     $pdf->AddPage();
 
     $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 14);
-    $pdf->Cell(0, 0, $bookingData->option->text, 0, 1, '', 0);
+    $pdf->MultiCell(0, 0, $bookingData->option->text, 0, 1, '', 1);
     $pdf->Ln();
 
     $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
@@ -1688,7 +1688,7 @@ function download_sign_in_sheet($bookingData = null) {
 
         if ($pdf->goToNewLine(12)) {
             $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 14);
-            $pdf->Cell(0, 0, $bookingData->option->text, 0, 1, '', 0);
+            $pdf->MultiCell(0, 0, $bookingData->option->text, 0, 1, '', 1);
             $pdf->Ln();
 
             $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
