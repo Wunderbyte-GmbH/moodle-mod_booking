@@ -182,6 +182,9 @@ class all_userbookings extends table_sql {
     }
 
     function wrap_html_finish() {
+        
+        echo '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
+        
         if (!$this->bookingData->booking->autoenrol && has_capability('mod/booking:communicate', context_module::instance($this->cm->id))) {
             if ($this->bookingData->option->courseid > 0) {
                 echo '<input type="submit" name="subscribetocourse" value="' . get_string('subscribetocourse', 'booking') . '" />';                
