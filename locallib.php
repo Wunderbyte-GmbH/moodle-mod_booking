@@ -579,7 +579,7 @@ class booking_option extends booking {
                         $eventdata->userto = $bookingmanager;
                         $sendtask = new mod_booking\task\send_confirmation_mails();
                         $sendtask->set_custom_data($eventdata);
-                        \core\task\manager::queue_adhoc_task($eventdata);
+                        \core\task\manager::queue_adhoc_task($sendtask);
                     }
                 }
             }
