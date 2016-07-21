@@ -1713,7 +1713,7 @@ function download_sign_in_sheet($bookingData = null) {
             $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
         }
 
-        $pdf->Cell((210 - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / 2, 12, $user->lastname . " " . $user->firstname, 1, 0, '', 0);
+        $pdf->Cell((210 - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / 2, 12, $user->lastname . ", " . $user->firstname, 1, 0, '', 0);
         $pdf->Cell(0, 12, "", 1, 1, '', 0);
     }
 
