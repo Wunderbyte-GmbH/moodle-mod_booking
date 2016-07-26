@@ -64,16 +64,16 @@ if ($mform->is_cancelled()) {
     $completedPos = -1;
 
     foreach ($csvArr[0] as $key => $value) {
-        switch ($value) {
-            case get_string("optionid", "booking"):
+        switch (trim($value)) {
+            case "OptionID":
                 $optionIDPos = $key;
                 break;
 
-            case get_string("user") . " " . get_string("idnumber"):
+            case "UserID":
                 $userIDPos = $key;
                 break;
 
-            case get_string("searchFinished", "booking"):
+            case "CourseCompleted":
                 $completedPos = $key;
                 break;
 
