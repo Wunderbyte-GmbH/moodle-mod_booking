@@ -70,6 +70,7 @@ $string['subscribersto'] = 'Teachers for \'{$a}\'';
 $string['taken'] = 'Taken';
 $string['teachers'] = 'Teachers: ';
 $string['timerestrict'] = 'Restrict answering to this time period: This is deprecated and will be removed. Please use "Restrict Access" settings for making the booking activity available for a certain period';
+$string['timecloseoption'] = 'Limit the availability of this booking option until a certain date';
 $string['to'] = 'to';
 $string['viewallresponses'] = 'Manage {$a} responses';
 $string['yourselection'] = 'Your selection';

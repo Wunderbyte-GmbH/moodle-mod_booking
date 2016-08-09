@@ -63,6 +63,7 @@ $string['subscribersto'] = 'Trainer/innen für \'{$a}\'';
 $string['taken'] = 'gebucht';
 $string['teachers'] = 'Trainer/innen: ';
 $string['timerestrict'] = 'Buchungsmöglichkeit auf diesen Zeitraum beschränken: Diese Option ist veraltet und sollte nicht mehr verwendet werden. Stattdessen verwenden Sie bitte die Optionen unter "Voraussetzungen", um die Buchungen für einen bestimmten Zeitraum zu beschränken.';
+$string['timecloseoption'] = 'Buchungsmöglichkeit nur bis zu einem bestimmten Zeitpunkt ermöglichen';
 $string['to'] = 'bis';
 $string['viewallresponses'] = '{$a} Antworten verwalten';
 $string['yourselection'] = 'Ihre Auswahl';

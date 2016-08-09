@@ -81,7 +81,7 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->setType('maxoverbooking', PARAM_INT);
         $mform->disabledIf('maxoverbooking', 'limitanswers', 'notchecked');
 
-        $mform->addElement('checkbox', 'restrictanswerperiod', get_string('timerestrict', 'booking'));
+        $mform->addElement('checkbox', 'restrictanswerperiod', get_string('timecloseoption', 'booking'));
 
         $mform->addElement('date_time_selector', 'bookingclosingtime', get_string("bookingclose", "booking"));
         $mform->disabledIf('bookingclosingtime', 'restrictanswerperiod', 'notchecked');

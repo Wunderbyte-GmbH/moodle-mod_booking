@@ -56,7 +56,7 @@ class booking_ical {
     public function __destruct() {
         global $CFG;
         if ($this->tempfilename) {
-            @unlink($CFG->dataroot . '/' . $this->tempfilename);
+            //@unlink($CFG->dataroot . '/' . $this->tempfilename);
         }
     }
 
@@ -204,10 +204,10 @@ EOF;
 
         $template = str_replace("\n", "\r\n", $template);
 
-        $this->tempfilename = md5($template);
-        $tempfilepathname = $CFG->dataroot . '/' . $this->tempfilename;
+        $this->tempfilename = md5($template.microtime());
+        $tempfilepathname = $CFG->tempdir . '/' . $this->tempfilename;
         file_put_contents($tempfilepathname, $template);
-        return $this->tempfilename;
+        return $tempfilepathname;
     }
 
     public function get_name() {
