@@ -12,13 +12,22 @@ class mod_booking_mod_form extends moodleform_mod {
 
     var $options = array();
 
-    function showSubCategories($cat_id, $dashes = '', $DB, $options) {
+    /**
+     * Return an array of categories catid as key and categoryname as value
+     * 
+     * @param number $cat_id
+     * @param string $dashes
+     * @param unknown $options
+     * @return array of course category names indexed by category id
+     */
+    function showSubCategories($cat_id, $dashes = '', $options) {
+        global $DB;
         $dashes .= '&nbsp;&nbsp;';
         $categories = $DB->get_records('booking_category', array('cid' => $cat_id));
         if (count((array) $categories) > 0) {
             foreach ($categories as $category) {
                 $options[$category->id] = $dashes . $category->name;
-                $options = $this->showSubCategories($category->id, $dashes, $DB, $options);
+                $options = $this->showSubCategories($category->id, $dashes, $options);
             }
         }
 
@@ -40,7 +49,7 @@ class mod_booking_mod_form extends moodleform_mod {
     }
 
     function definition() {
-        global $CFG, $DB, $COURSE;
+        global $CFG, $DB, $COURSE, $USER;
 
         $context = context_system::instance();
 
@@ -142,7 +151,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('text', 'bookingmanager', get_string('usernameofbookingmanager', 'booking'));
         $mform->addHelpButton('bookingmanager', 'usernameofbookingmanager', 'booking');
         $mform->setType('bookingmanager', PARAM_TEXT);
-        $mform->setDefault('bookingmanager', 'admin');
+        $mform->setDefault('bookingmanager', $USER->username);
         $mform->addRule('bookingmanager', null, 'required', null, 'client');
 
         // Add the fields to allow editing of the default text:
@@ -347,7 +356,7 @@ class mod_booking_mod_form extends moodleform_mod {
         foreach ($categories as $category) {
             $options[$category->id] = $category->name;
             $subcategories = $DB->get_records('booking_category', array('course' => $COURSE->id, 'cid' => $category->id));
-            $options = $this->showSubCategories($category->id, '', $DB, $options);
+            $options = $this->showSubCategories($category->id, '', $options);
         }
 
         $mform->addElement('header', 'categoryheader', get_string('category', 'booking'));
