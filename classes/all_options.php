@@ -28,11 +28,12 @@ class all_options extends table_sql {
     }
 
     function col_id($values) {
+        global $OUTPUT;
         
         $ret = "";
         
         if (has_capability('mod/booking:updatebooking', $this->context)) {
-            $ret .= html_writer::link(new moodle_url('/mod/booking/editoptions.php', array('id' => $this->cm->id, 'optionid' => $values->id)), '<i class="fa fa-cog icon" title="' . get_string('updatebooking', 'booking') . '"></i>', array());
+            $ret .= \html_writer::link(new moodle_url('/mod/booking/editoptions.php', array('id' => $this->cm->id, 'optionid' => $values->id)), \html_writer::empty_tag('img', array( 'src' => $OUTPUT->pix_url('t/edit'))),  array('class' => 'editbutton', 'title' => get_string('updatebooking', 'booking')));
         }
         
         if ($values->iambooked) {
