@@ -2329,7 +2329,7 @@ function booking_optionid_subscribe($userid, $optionid) {
 }
 
 /**
- * Removes user from the subscriber list
+ * Removes teacher from the subscriber list
  *
  * @global object
  * @param int $userid

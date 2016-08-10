@@ -589,7 +589,10 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         exit;
     }
 } else {
-    echo $OUTPUT->box(get_string("norighttobook", "booking"));
+    echo $OUTPUT->header();
+    echo $OUTPUT->error_text(get_string("norighttobook", "booking"));
+    echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id' => $course->id)));
+    
 }
 
 echo $OUTPUT->box("<a href=\"http://www.edulabs.org\">" . get_string('createdby', 'booking') . "</a>", 'box mdl-align');

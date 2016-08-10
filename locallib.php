@@ -457,7 +457,7 @@ class booking_option extends booking {
 
     /**
      * Deletes a single booking of a user if user cancels the booking, sends mail to bookingmanager. If there is a limit
-     * book other user ans send mail to him.
+     * book other user and send mail to the user.
      * @param $userid
      * @return true if booking was deleted successfully, otherwise false
      */
@@ -498,6 +498,7 @@ class booking_option extends booking {
             $subject = get_string('deletedbookingsubject', 'booking', $params);
         }
 
+        // TODO: user might have been deleted
         $bookingmanager = $DB->get_record('user', array('username' => $this->booking->bookingmanager));
 
         $eventdata = new stdClass();
