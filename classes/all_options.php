@@ -91,16 +91,28 @@ class all_options extends table_sql {
         }
 
         if (strlen($values->location) > 0) {
-            $additionalInfo .= '<br>' . get_string('location', "booking") . ': ' . $values->location;
+            $additionalInfo .= '<br>' . get_string('location', "mod_booking") . ': ' . $values->location;
         }
         if (strlen($values->institution) > 0) {
-            $additionalInfo .= '<br>' . get_string('institution', "booking") . ': ' . $values->institution;
+            $additionalInfo .= '<br>' . get_string('institution', "mod_booking") . ': ' . $values->institution;
         }
-
-
+  
         return "<b>{$values->text}</b>{$additionalInfo}<br>" . (!empty($values->teachers) ? (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') : $this->booking->booking->lblteachname) . ": " . $values->teachers : '');
     }
 
+    function  col_course ($values){        
+        if ($values->courseid > 0) {
+            $output = '';
+            $course = get_course($values->courseid);
+            $courseurl = new \moodle_url('/course/view.php', array('id' => $course->id));
+            $output .= html_writer::start_tag('b');
+            $output .= html_writer::link($courseurl, $course->fullname, array('target' => '_blank', 'class' => 'coursetitle'));
+            $output .= html_writer::end_tag('b');
+            $output .= html_writer::div($course->summary, 'courseinfo');
+        }
+        return $output;
+    }
+    
     function col_maxanswers($values) {
         global $OUTPUT, $USER;
 
