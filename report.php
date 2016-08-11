@@ -457,7 +457,8 @@ if (!$tableAllBookings->is_downloading()) {
     $hidden = "";
 
     foreach ($urlParams as $key => $value) {
-        if (!in_array($key, array('searchDate', 'searchFinished'))) {
+        $arr = array('searchDate', 'searchFinished');
+        if (!in_array($key, $arr)) {
             $hidden .= '<input value="' . $value . '" type="hidden" name="' . $key . '">';
         }
     }
@@ -542,9 +543,9 @@ if (!$tableAllBookings->is_downloading()) {
     $onlyOneURL = new moodle_url('/mod/booking/view.php', array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone', 'whichview' => 'showonlyone'));
     $onlyOneURL->set_anchor('goenrol');
 
-
-    if (!empty(trim($bookingData->option->pollurl))) {
-        echo html_writer::link($bookingData->option->pollurl, get_string('copypollurl', 'booking'), array('onclick' => 'copyToClipboard("' . $bookingData->option->pollurl . '"); return false;')) . ($bookingData->option->pollsend ? ' &#x2713;' : '') . ' | ';
+    $pollurl = trim($bookingData->option->pollurl);
+    if (!empty($pollurl)) {
+        echo html_writer::link($bookingData->option->pollurl, get_string('copypollurl', 'booking'), array('onclick' => 'copyToClipboard("' . $pollurl . '"); return false;')) . ($bookingData->option->pollsend ? ' &#x2713;' : '') . ' | ';
     }
 
     echo html_writer::link($onlyOneURL, get_string('onlythisbookingurl', 'booking'), array());

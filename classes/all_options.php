@@ -21,23 +21,22 @@ class all_options extends table_sql {
         $this->collapsible(true);
         $this->sortable(true);
         $this->pageable(true);
-
         $this->booking = $booking;
         $this->cm = $cm;
         $this->context = $context;
     }
-
+    
     function col_id($values) {
         global $OUTPUT;
         
         $ret = "";
         
         if (has_capability('mod/booking:updatebooking', $this->context)) {
-            $ret .= \html_writer::link(new moodle_url('/mod/booking/editoptions.php', array('id' => $this->cm->id, 'optionid' => $values->id)), \html_writer::empty_tag('img', array( 'src' => $OUTPUT->pix_url('t/edit'))),  array('class' => 'editbutton', 'title' => get_string('updatebooking', 'booking')));
+            $ret .= \html_writer::link(new moodle_url('/mod/booking/editoptions.php', array('id' => $this->cm->id, 'optionid' => $values->id)), \html_writer::empty_tag('img', array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'), 'alt' => get_string('updatebooking', 'booking'))));
         }
         
         if ($values->iambooked) {
-            $ret .= html_writer::link(new moodle_url('/mod/booking/viewconfirmation.php', array('id' => $this->cm->id, 'optionid' => $values->id)), '<i class="fa fa-file icon" title="' . get_string('bookedtext', 'booking') . '"></i>', array('style' => 'display: block', 'target' => '_blank'));
+            $ret .= html_writer::link(new moodle_url('/mod/booking/viewconfirmation.php', array('id' => $this->cm->id, 'optionid' => $values->id)), \html_writer::empty_tag('img', array('class' => 'icon', 'src' => $OUTPUT->pix_url('i/report'), 'alt' =>  get_string('bookedtext', 'booking'))) , array('target' => '_blank'));
         }
         
         return $ret;
@@ -84,31 +83,37 @@ class all_options extends table_sql {
 
     function col_text($values) {
 
-        $additionalInfo = '';
+        $output = '';
+        $output .= html_writer::tag('h4',$values->text);
 
         if (strlen($values->address) > 0) {
-            $additionalInfo .= '<br>' . $values->address;
+            $output .= html_writer::empty_tag('br');
+            $output .= $values->address;
         }
 
         if (strlen($values->location) > 0) {
-            $additionalInfo .= '<br>' . get_string('location', "mod_booking") . ': ' . $values->location;
+            $output .= html_writer::empty_tag('br');
+            $output .= get_string('location', "mod_booking") . ': ' . $values->location;
         }
         if (strlen($values->institution) > 0) {
-            $additionalInfo .= '<br>' . get_string('institution', "mod_booking") . ': ' . $values->institution;
+            $output .= html_writer::empty_tag('br');
+            $output .= get_string('institution', "mod_booking") . ': ' . $values->institution;
         }
-  
-        return "<b>{$values->text}</b>{$additionalInfo}<br>" . (!empty($values->teachers) ? (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') : $this->booking->booking->lblteachname) . ": " . $values->teachers : '');
+        
+        if(!empty($values->description)){
+            $output .= html_writer::div($values->description, 'description');
+        }
+        
+        
+        $output .= (!empty($values->teachers) ? (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') : $this->booking->booking->lblteachname) . ": " . $values->teachers : '');
+        
+        return  $output;
     }
 
-    function  col_course ($values){        
-        if ($values->courseid > 0) {
-            $output = '';
-            $course = get_course($values->courseid);
-            $courseurl = new \moodle_url('/course/view.php', array('id' => $course->id));
-            $output .= html_writer::start_tag('b');
-            $output .= html_writer::link($courseurl, $course->fullname, array('target' => '_blank', 'class' => 'coursetitle'));
-            $output .= html_writer::end_tag('b');
-            $output .= html_writer::div($course->summary, 'courseinfo');
+    function  col_description ($values){    
+        $output = '';
+        if(!empty($values->description)){
+            $output .= html_writer::div($values->description, 'courseinfo');
         }
         return $output;
     }
@@ -246,6 +251,18 @@ class all_options extends table_sql {
 
     function wrap_html_finish() {
         echo "<hr>";
+    }
+    
+    /**
+     *  Count the number of records. This has to be done after build_table was called!!!
+     * @return string: empty string of no record was found
+     */
+    function count_records (){
+        global $DB;
+        if(!empty($this->countsql)){
+            return $DB->execute($this->countsql);
+        }
+        return 0;
     }
 
 }

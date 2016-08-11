@@ -48,6 +48,7 @@ $string['full'] = 'Full';
 $string['goenrol'] = 'Go to registration';
 $string['gotop'] = 'Go to top';
 $string['havetologin'] = 'You have to log in before you can submit your booking';
+$string['infonobookingoption'] = 'Please use the block {$a} in order to add your first booking option';
 $string['limit'] = 'Limit';
 $string['modulename'] = 'Booking';
 $string['modulenameplural'] = 'Bookings';
