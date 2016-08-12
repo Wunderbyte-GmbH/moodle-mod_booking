@@ -254,14 +254,14 @@ class all_options extends table_sql {
     }
     
     /**
-     *  Count the number of records. This has to be done after build_table was called!!!
-     * @return string: empty string of no record was found
+     * Count the number of records. This has to be done after query_db was called!!!
+     * @return number of records found
      */
     function count_records (){
         global $DB;
         if(!empty($this->countsql)){
-            return $DB->execute($this->countsql);
-        }
+            return $DB->count_records_sql($this->countsql, $this->countparams);
+        } 
         return 0;
     }
 

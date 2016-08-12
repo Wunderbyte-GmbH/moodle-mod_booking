@@ -478,14 +478,16 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         if ($paging == 0) {
             $paging = 25;
         }
+        $tableAllOtions->setup();
+        $tableAllOtions->query_db($paging, true);
         $tableAllOtions->build_table();
         if ($tableAllOtions->count_records() > 0){
-            $tableAllOtions->out($paging, true);
+            $tableAllOtions->finish_output();
         } else {
             if (has_capability('mod/booking:updatebooking', $context)) {
                 echo $OUTPUT->notification(get_string('infonobookingoption', 'mod_booking', get_string('pluginname', 'block_settings')));
             } else {
-                $tableAllOtions->out($paging, true);
+                $tableAllOtions->finish_output();
             }
         }
     } else {

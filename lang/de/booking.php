@@ -41,6 +41,7 @@ $string['full'] = 'Ausgebucht';
 $string['goenrol'] = 'Gehe zu "Buchung vornehmen"';
 $string['gotop'] = 'Nach oben';
 $string['havetologin'] = 'Sie müssen sich einloggen, um eine Buchung vorzunehmen';
+$string['infonobookingoption'] = 'Bitte nutzen Sie den Block {$a}, um die erste Buchungsoption zu erstellen';
 $string['limit'] = 'Maximale Anzahl';
 $string['modulename'] = 'Buchung';
 $string['modulenameplural'] = 'Buchungen';
