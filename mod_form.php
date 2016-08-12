@@ -342,11 +342,16 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setType('showhelpfullnavigationlinks', PARAM_INT);
         // ----TAGS---------------------------------------------------
 
-        $mform->addElement('header', 'tagsheader', get_string('tags'));
+        if ( $CFG->branch < 31 ) {
+            //This is valid before v3.1
+            $mform->addElement('header', 'tagsheader', get_string('tags'));
+            $taglink = new moodle_url('/tag/search.php', array());
+            $mform->addElement('static', 'searchtag', '', '<a target="_blank" href="' . $taglink . '">' . get_string('searchtag', 'booking') . '</a>');
+            $mform->addElement('tags', 'tags', get_string('tags'));        
+        } else {
+            //This is valid after v3.1
+        }        
 
-        $taglink = new moodle_url('/tag/search.php', array());
-        $mform->addElement('static', 'searchtag', '', '<a target="_blank" href="' . $taglink . '">' . get_string('searchtag', 'booking') . '</a>');
-        $mform->addElement('tags', 'tags', get_string('tags'));
 
         $options = array();
 

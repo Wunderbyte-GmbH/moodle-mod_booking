@@ -217,7 +217,7 @@ function booking_add_instance($booking) {
         file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanager', $booking->id, array('subdirs' => false, 'maxfiles' => 50));
     }
 
-    tag_set('booking', $booking->id, $booking->tags);
+    tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
 
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {
@@ -248,6 +248,8 @@ function booking_update_instance($booking) {
 // we have to prepare the bookingclosingtimes as an $arrray, currently they are in $booking as $key (string)
     $booking->id = $booking->instance;
     $booking->timemodified = time();
+    $cm = get_coursemodule_from_instance('booking', $booking->id);
+    $context = context_module::instance($cm->id);
 
     if (isset($booking->additionalfields) && count($booking->additionalfields) > 0) {
         $booking->additionalfields = implode(',', $booking->additionalfields);
@@ -269,10 +271,8 @@ function booking_update_instance($booking) {
 
     $arr = array();
 
-    tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $booking->id);
-
-    $cm = get_coursemodule_from_instance('booking', $booking->id);
-    $context = context_module::instance($cm->id);
+    tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
+    
     file_save_draft_area_files($booking->myfilemanager, $context->id, 'mod_booking', 'myfilemanager', $booking->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 50));
 
     if (empty($booking->timerestrict)) {
