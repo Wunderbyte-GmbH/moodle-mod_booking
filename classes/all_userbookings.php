@@ -196,7 +196,8 @@ class all_userbookings extends table_sql {
         }
 
         if (has_capability('mod/booking:communicate', context_module::instance($this->cm->id))) {
-            if (!empty(trim($this->bookingData->option->pollurl))) {                
+            $pollurl = trim($this->bookingData->option->pollurl);
+            if (!empty($pollurl)) {                
                 echo '<input type="submit" name="sendpollurl" value="' . get_string('booking:sendpollurl', 'booking') . '" />';
             }
             echo '<input type="submit" name="sendreminderemail" value="' . get_string('sendreminderemail', 'booking') . '" />';
