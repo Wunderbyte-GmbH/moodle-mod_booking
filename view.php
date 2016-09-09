@@ -335,7 +335,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         if (!empty($CFG->usetags)) {
             $tags = tag_get_tags_array('booking', $booking->booking->id);
             
-            /** TODO: Upgrade Tagging
+            //** TODO: Upgrade Tagging
             $tags = core_tag_tag::get_item_tags_array('mod_booking', 'booking', $booking->booking->id);
 
             $links = array();
