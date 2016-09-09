@@ -334,6 +334,9 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         if (!empty($CFG->usetags)) {
             $tags = tag_get_tags_array('booking', $booking->booking->id);
+            
+            /** TODO: Upgrade Tagging
+            $tags = core_tag_tag::get_item_tags_array('mod_booking', 'booking', $booking->booking->id);
 
             $links = array();
             foreach ($tags as $tagid => $tag) {
@@ -454,9 +457,64 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $columns[] = 'id';
         $headers[] = "";
 
-        $fields = "DISTINCT bo.id, bo.text, bo.address, bo.description, bo.coursestarttime, bo.courseendtime, (SELECT GROUP_CONCAT(CONCAT(CONCAT(u.firstname, ' '), u.lastname) SEPARATOR ', ') AS teachers FROM {booking_teachers} AS t LEFT JOIN {user} AS u ON u.id = t.userid WHERE t.optionid = bo.id) AS teachers, bo.limitanswers, bo.maxanswers, bo.maxoverbooking, (SELECT  COUNT(*) FROM {booking_answers} AS ba WHERE ba.optionid = bo.id AND ba.waitinglist = 0) AS booked, (SELECT COUNT(*) FROM {booking_answers} AS ba WHERE ba.optionid = bo.id AND ba.waitinglist = 1) AS waiting, bo.location, bo.institution, (SELECT COUNT(*) FROM {booking_answers} AS ba WHERE ba.optionid = bo.id AND ba.userid = :userid) AS iambooked, b.allowupdate, bo.bookingclosingtime, b.btncancelname, (SELECT ba.waitinglist FROM {booking_answers} AS ba WHERE ba.optionid = bo.id AND ba.userid = :userid1) AS waitinglist, b.btnbooknowname, b.maxperuser, (SELECT 
-            COUNT(*) FROM {booking_answers} AS ba WHERE ba.bookingid = b.id AND ba.userid = :userid2) AS bookinggetuserbookingcount, b.cancancelbook, bo.disablebookingusers,
-            (SELECT COUNT(*) FROM {booking_teachers} AS ba WHERE ba.optionid = bo.id AND ba.userid = :userid3) AS isteacher, (SELECT GROUP_CONCAT(CONCAT(coursestarttime, '-', courseendtime) ORDER BY coursestarttime ASC) AS times FROM {booking_optiondates} WHERE optionid = bo.id) AS times";
+        $fields = "DISTINCT bo.id,
+                         bo.text,
+                         bo.address,
+                         bo.description,
+                         bo.coursestarttime,
+                         bo.courseendtime,
+                
+                  (SELECT GROUP_CONCAT(CONCAT(CONCAT(u.firstname, ' '), u.lastname) SEPARATOR ', ') AS teachers
+                   FROM {booking_teachers} AS t
+                   LEFT JOIN {user} AS u ON u.id = t.userid
+                   WHERE t.optionid = bo.id) AS teachers,
+                         bo.limitanswers,
+                         bo.maxanswers,
+                         bo.maxoverbooking,
+                
+                  (SELECT COUNT(*)
+                   FROM {booking_answers} AS ba
+                   WHERE ba.optionid = bo.id
+                     AND ba.waitinglist = 0) AS booked,
+                
+                  (SELECT COUNT(*)
+                   FROM {booking_answers} AS ba
+                   WHERE ba.optionid = bo.id
+                     AND ba.waitinglist = 1) AS waiting,
+                         bo.location,
+                         bo.institution,
+                
+                  (SELECT COUNT(*)
+                   FROM {booking_answers} AS ba
+                   WHERE ba.optionid = bo.id
+                     AND ba.userid = :userid) AS iambooked,
+                         b.allowupdate,
+                         bo.bookingclosingtime,
+                         b.btncancelname,
+                
+                  (SELECT ba.waitinglist
+                   FROM {booking_answers} AS ba
+                   WHERE ba.optionid = bo.id
+                     AND ba.userid = :userid1) AS waitinglist,
+                         b.btnbooknowname,
+                         b.maxperuser,
+                
+                  (SELECT COUNT(*)
+                   FROM {booking_answers} AS ba
+                   WHERE ba.bookingid = b.id
+                     AND ba.userid = :userid2) AS bookinggetuserbookingcount,
+                         b.cancancelbook,
+                         bo.disablebookingusers,
+                
+                  (SELECT COUNT(*)
+                   FROM {booking_teachers} AS ba
+                   WHERE ba.optionid = bo.id
+                     AND ba.userid = :userid3) AS isteacher,
+                
+                  (SELECT GROUP_CONCAT(CONCAT(coursestarttime, '-', courseendtime)
+                                       ORDER BY coursestarttime ASC) AS times
+                   FROM {booking_optiondates}
+                   WHERE optionid = bo.id) AS times";
         $from = '{booking} AS b '
                 . 'LEFT JOIN {booking_options} AS bo ON bo.bookingid = b.id';
         $where = "b.id = :bookingid " . (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions));

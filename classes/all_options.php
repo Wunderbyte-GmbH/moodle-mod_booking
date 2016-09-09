@@ -82,7 +82,7 @@ class all_options extends table_sql {
     }
 
     function col_text($values) {
-
+        
         $output = '';
         $output .= html_writer::tag('h4',$values->text);
 
