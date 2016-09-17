@@ -4,7 +4,9 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/icallib.php');
 require_once($CFG->dirroot . '/calendar/lib.php');
 require_once($CFG->libdir . '/filelib.php');
-require_once($CFG->dirroot . '/tag/locallib.php');
+if ($CFG->branch < 31) {
+	require_once ($CFG->dirroot . '/tag/locallib.php');
+}
 
 require_once($CFG->dirroot . '/question/category_class.php');
 
@@ -216,8 +218,11 @@ function booking_add_instance($booking) {
     if ($draftitemid = file_get_submitted_draft_itemid('myfilemanager')) {
         file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanager', $booking->id, array('subdirs' => false, 'maxfiles' => 50));
     }
-
-    tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
+    if($CFG->branch >= 31){
+    	core_tag_tag::set_item_tags('mod_booking', 'booking',$booking->id, $context, $booking->tags);
+    } else {
+    	tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
+    }
 
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {
@@ -271,7 +276,11 @@ function booking_update_instance($booking) {
 
     $arr = array();
 
-    tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
+    if($CFG->branch >= 31){
+    	core_tag_tag::set_item_tags('mod_booking', 'booking',$booking->id, $context, $booking->tags);
+    } else {
+    	tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
+    }
     
     file_save_draft_area_files($booking->myfilemanager, $context->id, 'mod_booking', 'myfilemanager', $booking->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 50));
 
