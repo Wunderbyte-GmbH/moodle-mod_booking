@@ -5,7 +5,7 @@ require_once($CFG->dirroot . '/mod/booking/icallib.php');
 require_once($CFG->dirroot . '/calendar/lib.php');
 require_once($CFG->libdir . '/filelib.php');
 if ($CFG->branch < 31) {
-	require_once ($CFG->dirroot . '/tag/locallib.php');
+    require_once ($CFG->dirroot . '/tag/locallib.php');
 }
 
 require_once($CFG->dirroot . '/question/category_class.php');

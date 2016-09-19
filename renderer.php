@@ -32,20 +32,20 @@ class mod_booking_renderer extends plugin_renderer_base {
         $row = array();
 
         unset($urlParams['sort']);
-        $tmpUrlParams = $urlParams;
+        $tmpUrlParams = $urlParams;//"#goenrol"
         
         $tmpUrlParams['whichview'] = 'myinstitution';
-        $row[] = new tabobject('myinstitution', new moodle_url('/mod/booking/view.php', $tmpUrlParams), get_string('showonlymyinstitutions', 'booking'));        
+        $row[] = new tabobject('myinstitution', new moodle_url('/mod/booking/view.php', $tmpUrlParams, "goenrol"), get_string('showonlymyinstitutions', 'booking'));        
         $tmpUrlParams['whichview'] = 'showactive';
-        $row[] = new tabobject('showactive', new moodle_url('/mod/booking/view.php', $tmpUrlParams), get_string('showactive', 'booking'));
+        $row[] = new tabobject('showactive', new moodle_url('/mod/booking/view.php', $tmpUrlParams, "goenrol"), get_string('showactive', 'booking'));
         $tmpUrlParams['whichview'] = 'showall';
-        $row[] = new tabobject('showall', new moodle_url('/mod/booking/view.php', $tmpUrlParams), get_string('showallbookings', 'booking'));
+        $row[] = new tabobject('showall', new moodle_url('/mod/booking/view.php', $tmpUrlParams, "goenrol"), get_string('showallbookings', 'booking'));
         $tmpUrlParams['whichview'] = 'mybooking';
-        $row[] = new tabobject('mybooking', new moodle_url('/mod/booking/view.php', $tmpUrlParams), get_string('showmybookings', 'booking', $mybookings));
+        $row[] = new tabobject('mybooking', new moodle_url('/mod/booking/view.php', $tmpUrlParams, "goenrol"), get_string('showmybookings', 'booking', $mybookings));
         
         if ($myoptions > 0) {
             $tmpUrlParams['whichview'] = 'myoptions';
-            $row[] = new tabobject('myoptions', new moodle_url('/mod/booking/view.php', $tmpUrlParams), get_string('myoptions', 'booking', $myoptions));
+            $row[] = new tabobject('myoptions', new moodle_url('/mod/booking/view.php', $tmpUrlParams, "goenrol"), get_string('myoptions', 'booking', $myoptions));
         }
                 
         echo $this->tabtree($row, $current);
