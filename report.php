@@ -249,8 +249,19 @@ if (!$tableAllBookings->is_downloading()) {
 
 
         if (isset($_POST['deleteusers']) && has_capability('mod/booking:deleteresponses', $context)) {
-            $bookingData->delete_responses($allSelectedUsers);
-            redirect($url);
+            $res = $bookingData->delete_responses($allSelectedUsers);
+            
+            $data = new stdClass();
+            
+            $data->all = count($res);
+            $data->del = 0;
+            foreach ($res as $value) {
+                if ($value == true) {
+                    $data->del++;
+                }
+            }
+            
+            redirect($url, get_string('delnotification', 'booking', $data), 5);
         } else if (isset($_POST['subscribetocourse'])) { // subscription submitted            
             if ($bookingData->option->courseid != 0) {
                 foreach ($allSelectedUsers as $selecteduserid) {

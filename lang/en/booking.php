@@ -720,6 +720,7 @@ $string['lblbooktootherbooking'] = 'Name of button "Book users to other booking"
 $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
 $string['searchWaitingList'] = 'On waiting list';
 $string['selectatleastoneuser'] = 'Please, select at least 1 user!';
+$string['delnotification'] = 'You sucesfully deleted {$a->del} of {$a->all} users. Users, that have completed activity, can\'t be deleted!';
 $string['selectoptionid'] = 'Please, select option!';
 $string['sendcustommessage'] = 'Send custom message';
 $string['sendpollurltoteachers'] = 'Send poll url';
