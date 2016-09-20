@@ -96,7 +96,7 @@ $string['limitanswers_help'] = 'If you change this option and you have booked pe
 $string['location'] = 'Location';
 $string['removeafterminutes'] = 'Remove activity completion after N minutes';
 $string['banusernames'] = "Ban usernames";
-$string['banusernames_help'] = "To limit which usernames with email domain name can't apply just write in this field, and separate with coma. To ban gmail and yahoo users just write: gmail.com, yahoo.com";
+$string['banusernames_help'] = "To limit which usernames can't apply just write in this field, and separate with coma. To ban usernames, that end with gmail.com and yahoo.com just write: gmail.com, yahoo.com";
 $string['showhelpfullnavigationlinks'] = 'Show navigation links.';
 $string['showhelpfullnavigationlinks_helt'] = 'Show "Go to registration" and "Go to top" links.';
 
