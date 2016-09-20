@@ -364,8 +364,10 @@ if (!$tableAllBookings->is_downloading()) {
     $columns[] = 'info';
     $headers[] = get_string('activitycompleted', 'mod_booking');
     
-    $columns[] = 'rating';
-    $headers[] = get_string('rating', 'core_rating');
+    if ($bookingData->booking->assessed != RATING_AGGREGATE_NONE) {
+        $columns[] = 'rating';
+        $headers[] = get_string('rating', 'core_rating');
+    }
 
     if ($bookingData->booking->numgenerator) {
         $columns[] = 'numrec';
