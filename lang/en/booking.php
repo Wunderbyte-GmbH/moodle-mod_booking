@@ -823,3 +823,5 @@ $string['pdfroom'] = 'Room: ';
 $string['pdfstudentname'] = "Student Name";
 $string['pdfsignature'] = "Signature";
 $string['pdftodaydate'] = 'Date: ';
+
+$string['booking:readallinstitutionusers'] = 'Show all users';

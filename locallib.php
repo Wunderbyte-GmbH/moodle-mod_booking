@@ -1206,7 +1206,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
         $option->id = $this->options['optionid'];
         $option->bookingid = $this->options['bookingid'];
 
-        if (booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readresponses', $this->options['accesscontext'])) {
+        if (booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readallinstitutionusers', $this->options['accesscontext'])) {
             $searchparams['onlyinstitution'] = $USER->institution;
             $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
         }
@@ -1285,7 +1285,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
         $option->id = $this->options['optionid'];
         $option->bookingid = $this->options['bookingid'];
 
-        if (booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readresponses', $this->options['accesscontext'])) {
+        if (booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readallinstitutionusers', $this->options['accesscontext'])) {
             $searchparams['onlyinstitution'] = $USER->institution;
             $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
         }
