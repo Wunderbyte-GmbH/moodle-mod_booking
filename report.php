@@ -380,9 +380,10 @@ if (!$tableAllBookings->is_downloading()) {
     $headers[] = get_string('timecreated', 'mod_booking');
     $columns[] = 'institution';
     $headers[] = get_string('institution', 'mod_booking');
-    $columns[] = 'waitinglist';
-    $headers[] = get_string('searchWaitingList', 'mod_booking');
-
+    if ($bookingData->option->limitanswers == 1 && $bookingData->option->maxoverbooking > 0) {
+        $columns[] = 'waitinglist';
+        $headers[] = get_string('searchWaitingList', 'mod_booking');
+    }
 
     $strbooking = get_string("modulename", "booking");
     $strbookings = get_string("modulenameplural", "booking");
