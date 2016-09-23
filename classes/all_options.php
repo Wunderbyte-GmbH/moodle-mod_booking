@@ -32,11 +32,15 @@ class all_options extends table_sql {
         $ret = "";
         
         if (has_capability('mod/booking:updatebooking', $this->context)) {
-            $ret .= \html_writer::link(new moodle_url('/mod/booking/editoptions.php', array('id' => $this->cm->id, 'optionid' => $values->id)), \html_writer::empty_tag('img', array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'), 'alt' => get_string('updatebooking', 'booking'))));
+            $ret .= \html_writer::link(new moodle_url('/mod/booking/editoptions.php', array('id' => $this->cm->id, 'optionid' => $values->id)), \html_writer::empty_tag('img', array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'), 'alt' => get_string('updatebooking', 'mod_booking'))));
+        }
+        
+        if (has_capability('mod/booking:updatebooking', $this->context)) {
+            $ret .= \html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $this->cm->id, 'optionid' => $values->id, 'action' => 'deletebookingoption', 'sesskey' => sesskey())), \html_writer::empty_tag('img', array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/delete'), 'alt' => get_string('deletebookingoption', 'mod_booking'))));
         }
         
         if ($values->iambooked) {
-            $ret .= html_writer::link(new moodle_url('/mod/booking/viewconfirmation.php', array('id' => $this->cm->id, 'optionid' => $values->id)), \html_writer::empty_tag('img', array('class' => 'icon', 'src' => $OUTPUT->pix_url('i/report'), 'alt' =>  get_string('bookedtext', 'booking'))) , array('target' => '_blank'));
+            $ret .= html_writer::link(new moodle_url('/mod/booking/viewconfirmation.php', array('id' => $this->cm->id, 'optionid' => $values->id)), \html_writer::empty_tag('img', array('class' => 'icon', 'src' => $OUTPUT->pix_url('i/report'), 'alt' =>  get_string('bookedtext', 'mod_booking'))) , array('target' => '_blank'));
         }
         
         return $ret;
