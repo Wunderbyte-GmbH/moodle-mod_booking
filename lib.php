@@ -331,29 +331,36 @@ function booking_update_instance($booking) {
     return $DB->update_record('booking', $booking);
 }
 
+/**
+ * Update the booking option settings when adding and modifying a single booking optiond
+ * 
+ * @param array $optionvalues
+ * @return boolean|number
+ */
 function booking_update_options($optionvalues) {
     global $DB, $CFG;
-    require_once("$CFG->dirroot/mod/booking/locallib.php");
-
+    require_once ("$CFG->dirroot/mod/booking/locallib.php");
+    
     $bokingUtils = new booking_utils();
-
-    $booking = $DB->get_record('booking', array('id' => $optionvalues->bookingid));
-
+    
+    $booking = $DB->get_record('booking', array('id' => $optionvalues->bookingid
+    ));
+    
     $option = new stdClass();
     $option->bookingid = $optionvalues->bookingid;
     $option->text = trim($optionvalues->text);
     $option->howmanyusers = $optionvalues->howmanyusers;
     $option->removeafterminutes = $optionvalues->removeafterminutes;
-
+    
     $option->notificationtext = $optionvalues->notificationtext;
     $option->disablebookingusers = $optionvalues->disablebookingusers;
-
+    
     $option->sent = 0;
-
+    
     $option->location = trim($optionvalues->location);
     $option->institution = trim($optionvalues->institution);
     $option->address = trim($optionvalues->address);
-
+    
     $option->pollurl = $optionvalues->pollurl;
     $option->pollurlteachers = $optionvalues->pollurlteachers;
     if ($optionvalues->limitanswers == 0) {
@@ -365,7 +372,7 @@ function booking_update_options($optionvalues) {
         $option->maxoverbooking = $optionvalues->maxoverbooking;
         $option->limitanswers = 1;
     }
-
+    
     if (isset($optionvalues->restrictanswerperiod)) {
         $option->bookingclosingtime = $optionvalues->bookingclosingtime;
     } else {
@@ -379,134 +386,112 @@ function booking_update_options($optionvalues) {
         $option->coursestarttime = 0;
         $option->courseendtime = 0;
     }
-
+    
     $option->description = $optionvalues->description;
     $option->limitanswers = $optionvalues->limitanswers;
     $option->timemodified = time();
-    if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) && $optionvalues->id != "add") {//existing booking record
+    if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) && $optionvalues->id != "add") { // existing booking record
         $option->id = $optionvalues->optionid;
-        if (isset($optionvalues->text) && $optionvalues->text <> '') {
-            $event = new stdClass();
-            $event->id = $DB->get_field('booking_options', 'calendarid', array('id' => $option->id));
-            $groupid = $DB->get_field('booking_options', 'groupid', array('id' => $option->id));
-            $coursestarttime = $DB->get_field('booking_options', 'coursestarttime', array('id' => $option->id));
-
+        if (isset($optionvalues->text) && $optionvalues->text != '') {
+            $option->calendarid = $DB->get_field('booking_options', 'calendarid', 
+                    array('id' => $option->id
+                    ));
+            $groupid = $DB->get_field('booking_options', 'groupid', array('id' => $option->id
+            ));
+            $coursestarttime = $DB->get_field('booking_options', 'coursestarttime', 
+                    array('id' => $option->id
+                    ));
+            
             if ($coursestarttime != $optionvalues->coursestarttime) {
                 $option->sent = 0;
             } else {
-                $option->sent = $DB->get_field('booking_options', 'sent', array('id' => $option->id));
+                $option->sent = $DB->get_field('booking_options', 'sent', 
+                        array('id' => $option->id
+                        ));
             }
-
+            
             $option->groupid = $bokingUtils->group($booking, $option);
-
-            $whereis = '';
-            if (strlen($option->location) > 0) {
-                $whereis = '<p>' . get_string('location', 'booking') . ': ' . $option->location . '</p>';
-            }
-
-            if ($event->id > 0) {
-// event exist
+            
+            if ($option->calendarid > 0) {
+                // event exist
                 if (isset($optionvalues->addtocalendar)) {
-                    $event->name = $option->text;
-                    $event->description = $option->description . $whereis;
-                    $event->courseid = $option->courseid;
-                    if ($option->courseid == 0) {
-                        $event->courseid = $booking->course;
-                    }
-                    $event->groupid = 0;
-                    $event->userid = 0;
-                    $event->modulename = 'booking';
-                    $event->instance = $option->bookingid;
-                    $event->eventtype = 'booking';
-                    $event->timestart = $option->coursestarttime;
-                    $event->visible = instance_is_visible('booking', $booking);
-                    $event->timeduration = $option->courseendtime - $option->coursestarttime;
-
-                    if ($DB->record_exists("event", array('id' => $event->id))) {
-                        $calendarevent = calendar_event::load($event->id);
-                        $calendarevent->update($event);
-                        $option->calendarid = $event->id;
-                        $option->addtocalendar = $optionvalues->addtocalendar;
-                    } else {
-                        unset($event->id);
-                        $tmpEvent = calendar_event::create($event);
-                        $option->calendarid = $tmpEvent->id;
-                    }
+                    booking_option_add_to_cal($booking, $option, $optionvalues);
                 } else {
-// Delete event if exist
-                    $event = calendar_event::load($event->id);
+                    // Delete event if exist
+                    $event = calendar_event::load($option->calendarid);
                     $event->delete(true);
-
+                    
                     $option->addtocalendar = 0;
                     $option->calendarid = 0;
                 }
             } else {
                 $option->addtocalendar = 0;
                 $option->calendarid = 0;
-// Insert into calendar
+                // Insert into calendar
                 if (isset($optionvalues->addtocalendar)) {
-                    $event = new stdClass;
-                    $event->name = $option->text;
-                    $event->description = $option->description . $whereis;
-                    $event->courseid = $option->courseid;
-                    if ($option->courseid == 0) {
-                        $event->courseid = $booking->course;
-                    }
-                    $event->groupid = 0;
-                    $event->userid = 0;
-                    $event->modulename = 'booking';
-                    $event->instance = $option->bookingid;
-                    $event->eventtype = 'booking';
-                    $event->timestart = $option->coursestarttime;
-                    $event->visible = instance_is_visible('booking', $booking);
-                    $event->timeduration = $option->courseendtime - $option->coursestarttime;
-
-                    $tmpEvent = calendar_event::create($event);
-                    $option->calendarid = $tmpEvent->id;
-                    $option->addtocalendar = $optionvalues->addtocalendar;
+                    booking_option_add_to_cal($booking, $option, $optionvalues);
                 }
             }
-
+            
             $DB->update_record("booking_options", $option);
-
+            
             return $option->id;
         }
-    } elseif (isset($optionvalues->text) && $optionvalues->text <> '') {
+    } elseif (isset($optionvalues->text) && $optionvalues->text != '') {
         $option->addtocalendar = 0;
         $option->calendarid = 0;
-// Insert into calendar
-// We add a new booking_options?
-
-        $whereis = '';
-        if (strlen($option->location) > 0) {
-            $whereis = '<p>' . get_string('location', 'booking') . ': ' . $option->location . '</p>';
-        }
-
+        // Insert into calendar
+        // We add a new booking_options?
+        
         if (isset($optionvalues->addtocalendar)) {
-            $event = new stdClass;
-            $event->name = $option->text;
-            $event->description = $option->description . $whereis;
-            $event->courseid = $option->courseid;
-            if ($option->courseid == 0) {
-                $event->courseid = $booking->course;
-            }
-            $event->groupid = 0;
-            $event->userid = 0;
-            $event->modulename = 'booking';
-            $event->instance = $option->bookingid;
-            $event->eventtype = 'booking';
-            $event->timestart = $option->coursestarttime;
-            $event->visible = instance_is_visible('booking', $booking);
-            $event->timeduration = $option->courseendtime;
-
-            $tmpEvent = calendar_event::create($event);
-            $option->calendarid = $tmpEvent->id;
-            $option->addtocalendar = $optionvalues->addtocalendar;
+            booking_option_add_to_cal($booking, $option, $optionvalues);
         }
-
+        
         $option->groupid = $bokingUtils->group($booking, $option);
-
+        
         return $DB->insert_record("booking_options", $option);
+    }
+}
+
+/**
+ * Add the booking option to the calendar
+ * 
+ * @param array $option
+ */
+function booking_option_add_to_cal($booking, $option, $optionvalues) {
+    global $DB;
+    $whereis = '';
+    if (strlen($option->location) > 0) {
+        $whereis = '<p>' . get_string('location', 'booking') . ': ' . $option->location . '</p>';
+    }
+    
+    $event = new stdClass();
+    $event->id = $option->calendarid;
+    $event->name = $option->text;
+    $event->description = $option->description . $whereis;
+    $event->courseid = $option->courseid;
+    if ($option->courseid == 0) {
+        $event->courseid = $booking->course;
+    }
+    $event->groupid = 0;
+    $event->userid = 0;
+    $event->modulename = 'booking';
+    $event->instance = $option->bookingid;
+    $event->eventtype = 'booking';
+    $event->timestart = $option->coursestarttime;
+    $event->visible = instance_is_visible('booking', $booking);
+    $event->timeduration = $option->courseendtime - $option->coursestarttime;
+    
+    if ($DB->record_exists("event", array('id' => $event->id
+    ))) {
+        $calendarevent = calendar_event::load($event->id);
+        $calendarevent->update($event);
+        $option->calendarid = $event->id;
+        $option->addtocalendar = $optionvalues->addtocalendar;
+    } else {
+        unset($event->id);
+        $tmpEvent = calendar_event::create($event);
+        $option->calendarid = $tmpEvent->id;
     }
 }
 
