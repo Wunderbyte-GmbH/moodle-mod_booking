@@ -159,11 +159,6 @@ if (!(booking_check_if_teacher($bookingData->option, $USER) || has_capability('m
     require_capability('mod/booking:readresponses', $context);
 }
 
-if (booking_check_if_teacher($bookingData->option, $USER) && !has_capability('mod/booking:readallinstitutionusers', $context)) {
-    $sqlValues['onlyinstitution'] = $USER->institution;
-    $addSQLWhere .= ' AND u.institution= :onlyinstitution';
-}
-
 $event = \mod_booking\event\report_viewed::create(array('objectid' => $optionid, 'context' => context_module::instance($cm->id)));
 $event->trigger();
 
