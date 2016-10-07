@@ -96,7 +96,7 @@ $string['limitanswers_help'] = 'If you change this option and you have booked pe
 $string['location'] = 'Location';
 $string['removeafterminutes'] = 'Remove activity completion after N minutes';
 $string['banusernames'] = "Ban usernames";
-$string['banusernames_help'] = "To limit which usernames with email domain name can't apply just write in this field, and separate with coma. To ban gmail and yahoo users just write: gmail.com, yahoo.com";
+$string['banusernames_help'] = "To limit which usernames can't apply just write in this field, and separate with coma. To ban usernames, that end with gmail.com and yahoo.com just write: gmail.com, yahoo.com";
 $string['showhelpfullnavigationlinks'] = 'Show navigation links.';
 $string['showhelpfullnavigationlinks_helt'] = 'Show "Go to registration" and "Go to top" links.';
 
@@ -720,6 +720,7 @@ $string['lblbooktootherbooking'] = 'Name of button "Book users to other booking"
 $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
 $string['searchWaitingList'] = 'On waiting list';
 $string['selectatleastoneuser'] = 'Please, select at least 1 user!';
+$string['delnotification'] = 'You sucesfully deleted {$a->del} of {$a->all} users. Users, that have completed activity, can\'t be deleted!';
 $string['selectoptionid'] = 'Please, select option!';
 $string['sendcustommessage'] = 'Send custom message';
 $string['sendpollurltoteachers'] = 'Send poll url';
@@ -822,3 +823,5 @@ $string['pdfroom'] = 'Room: ';
 $string['pdfstudentname'] = "Student Name";
 $string['pdfsignature'] = "Signature";
 $string['pdftodaydate'] = 'Date: ';
+
+$string['booking:readallinstitutionusers'] = 'Show all users';

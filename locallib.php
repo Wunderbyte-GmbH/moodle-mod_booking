@@ -448,11 +448,13 @@ class booking_option extends booking {
             return false;
         }
 
+        $results = array();
+        
         foreach ($users as $userid) {
-            $this->user_delete_response($userid);
+            $results[$userid] = $this->user_delete_response($userid);
         }
 
-        return TRUE;
+        return $results;
     }
 
     /**
@@ -464,9 +466,13 @@ class booking_option extends booking {
     public function user_delete_response($userid) {
         global $USER, $DB;
 
-        if (!$DB->delete_records('booking_answers', array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0))) {
+        $result = $DB->get_records('booking_answers', array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0));
+        
+        if (count($result) == 0) {
             return false;
         }
+        
+        $DB->delete_records('booking_answers', array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0));
 
         if ($userid == $USER->id) {
             $user = $USER;
@@ -1200,7 +1206,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
         $option->id = $this->options['optionid'];
         $option->bookingid = $this->options['bookingid'];
 
-        if (booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readresponses', $this->options['accesscontext'])) {
+        if (booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readallinstitutionusers', $this->options['accesscontext'])) {
             $searchparams['onlyinstitution'] = $USER->institution;
             $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
         }
@@ -1279,7 +1285,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
         $option->id = $this->options['optionid'];
         $option->bookingid = $this->options['bookingid'];
 
-        if (booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readresponses', $this->options['accesscontext'])) {
+        if (booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readallinstitutionusers', $this->options['accesscontext'])) {
             $searchparams['onlyinstitution'] = $USER->institution;
             $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
         }

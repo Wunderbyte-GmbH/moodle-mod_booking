@@ -159,11 +159,6 @@ if (!(booking_check_if_teacher($bookingData->option, $USER) || has_capability('m
     require_capability('mod/booking:readresponses', $context);
 }
 
-if (booking_check_if_teacher($bookingData->option, $USER) && !has_capability('mod/booking:readresponses', $context)) {
-    $sqlValues['onlyinstitution'] = $USER->institution;
-    $addSQLWhere .= ' AND u.institution= :onlyinstitution';
-}
-
 $event = \mod_booking\event\report_viewed::create(array('objectid' => $optionid, 'context' => context_module::instance($cm->id)));
 $event->trigger();
 
@@ -249,8 +244,19 @@ if (!$tableAllBookings->is_downloading()) {
 
 
         if (isset($_POST['deleteusers']) && has_capability('mod/booking:deleteresponses', $context)) {
-            $bookingData->delete_responses($allSelectedUsers);
-            redirect($url);
+            $res = $bookingData->delete_responses($allSelectedUsers);
+            
+            $data = new stdClass();
+            
+            $data->all = count($res);
+            $data->del = 0;
+            foreach ($res as $value) {
+                if ($value == true) {
+                    $data->del++;
+                }
+            }
+            
+            redirect($url, get_string('delnotification', 'booking', $data), 5);
         } else if (isset($_POST['subscribetocourse'])) { // subscription submitted            
             if ($bookingData->option->courseid != 0) {
                 foreach ($allSelectedUsers as $selecteduserid) {
@@ -353,8 +359,10 @@ if (!$tableAllBookings->is_downloading()) {
     $columns[] = 'info';
     $headers[] = get_string('activitycompleted', 'mod_booking');
     
-    $columns[] = 'rating';
-    $headers[] = get_string('rating', 'core_rating');
+    if ($bookingData->booking->assessed != RATING_AGGREGATE_NONE) {
+        $columns[] = 'rating';
+        $headers[] = get_string('rating', 'core_rating');
+    }
 
     if ($bookingData->booking->numgenerator) {
         $columns[] = 'numrec';
@@ -367,9 +375,10 @@ if (!$tableAllBookings->is_downloading()) {
     $headers[] = get_string('timecreated', 'mod_booking');
     $columns[] = 'institution';
     $headers[] = get_string('institution', 'mod_booking');
-    $columns[] = 'waitinglist';
-    $headers[] = get_string('searchWaitingList', 'mod_booking');
-
+    if ($bookingData->option->limitanswers == 1 && $bookingData->option->maxoverbooking > 0) {
+        $columns[] = 'waitinglist';
+        $headers[] = get_string('searchWaitingList', 'mod_booking');
+    }
 
     $strbooking = get_string("modulename", "booking");
     $strbookings = get_string("modulenameplural", "booking");
