@@ -109,7 +109,7 @@ class all_options extends table_sql {
         }
         
         
-        $output .= (!empty($values->teachers) ? (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') : $this->booking->booking->lblteachname) . ": " . $values->teachers : '');
+        $output .= (!empty($values->teachers) ? " " . (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') : $this->booking->booking->lblteachname) . "" . $values->teachers : '');
         
         return  $output;
     }
