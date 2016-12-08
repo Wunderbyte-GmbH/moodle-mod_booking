@@ -356,7 +356,7 @@ if (!$tableAllBookings->is_downloading()) {
 
     $columns[] = 'selected';
     $headers[] = '<input type="checkbox" id="usercheckboxall" name="selectall" value="0" />';
-    $columns[] = 'info';
+    $columns[] = 'completed';
     $headers[] = get_string('activitycompleted', 'mod_booking');
     
     if ($bookingData->booking->assessed != RATING_AGGREGATE_NONE) {

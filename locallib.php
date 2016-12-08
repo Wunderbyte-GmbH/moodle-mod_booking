@@ -871,7 +871,7 @@ class booking_options extends booking {
         global $DB;
 
         $options = $this->q_params();
-        $this->options = $DB->get_records_sql('SELECT DISTINCT bo.*, (SELECT GROUP_CONCAT(CONCAT(coursestarttime, ' - ', courseendtime)  ORDER BY coursestarttime ASC) AS times FROM {booking_optiondates} WHERE optionid = bo.id) AS times ' . $options['sql'], $options['args'], $this->perpage * $this->page, $this->perpage);
+        $this->options = $DB->get_records_sql("SELECT DISTINCT bo.*, (SELECT GROUP_CONCAT(CONCAT(coursestarttime, ' - ', courseendtime)  ORDER BY coursestarttime ASC) AS times FROM {booking_optiondates} WHERE optionid = bo.id) AS times " . $options['sql'], $options['args'], $this->perpage * $this->page, $this->perpage);
     }
 
     public function apply_tags() {
@@ -1286,7 +1286,10 @@ class booking_existing_user_selector extends booking_user_selector_base {
         $option->bookingid = $this->options['bookingid'];
 
         if (booking_check_if_teacher($option, $USER) && !has_capability('mod/booking:readallinstitutionusers', $this->options['accesscontext'])) {
-            $searchparams['onlyinstitution'] = $USER->institution;
+            
+            $institution = $DB->get_record('booking_options', array('id'=>$this->options['optionid']));
+            
+            $searchparams['onlyinstitution'] = $institution->institution;
             $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
         }
 

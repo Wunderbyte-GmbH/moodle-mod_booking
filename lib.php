@@ -246,7 +246,7 @@ function booking_add_instance($booking) {
 }
 
 function booking_update_instance($booking) {
-    global $DB;
+    global $DB, $CFG;
 // Given an object containing all the necessary data,
 // (defined by the form in mod.html) this function
 // will update an existing instance with new data.

@@ -87,7 +87,7 @@ class all_userbookings extends table_sql {
         }
     }
 
-    function col_info($values) {
+    function col_completed($values) {
     	$completed = '';
     	if ($values->completed) {
     		$completed = '&#x2713;';
