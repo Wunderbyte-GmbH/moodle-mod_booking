@@ -168,6 +168,11 @@ class all_options extends table_sql {
             }
         } else {
             $buttonoptions = array('answer' => $values->id, 'id' => $this->cm->id, 'sesskey' => $USER->sesskey);
+
+                if (empty($this->booking->booking->bookingpolicy)) {
+                    $buttonoptions['confirm'] = 1;
+                }
+
             $url = new moodle_url('view.php', $buttonoptions);
             $url->params(array('answer' => $values->id));
             $button = $OUTPUT->single_button($url, (empty($values->btnbooknowname) ? get_string('booknow', 'booking') : $values->btnbooknowname), 'post');
