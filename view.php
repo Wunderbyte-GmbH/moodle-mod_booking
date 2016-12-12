@@ -493,7 +493,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                          bo.bookingclosingtime,
                          b.btncancelname,
                 
-                  (SELECT ba.waitinglist
+                  (SELECT DISTINCT(ba.waitinglist)
                    FROM {booking_answers} AS ba
                    WHERE ba.optionid = bo.id
                      AND ba.userid = :userid1) AS waitinglist,
