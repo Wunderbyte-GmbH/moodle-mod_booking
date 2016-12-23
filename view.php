@@ -8,7 +8,7 @@ require_once("{$CFG->dirroot}/mod/booking/classes/all_options.php");
 $id = required_param('id', PARAM_INT);                 // Course Module ID
 $action = optional_param('action', '', PARAM_ALPHA);
 $download = optional_param('download', '', PARAM_ALPHA);
-$whichview = optional_param('whichview', 'showactive', PARAM_ALPHA);
+$whichview = optional_param('whichview', '', PARAM_ALPHA);
 $optionid = optional_param('optionid', '', PARAM_INT);
 $confirm = optional_param('confirm', '', PARAM_INT);
 $answer = optional_param('answer', '', PARAM_ALPHANUM);
@@ -40,7 +40,8 @@ if (!empty($action)) {
 if (!empty($whichview)) {
     $urlParams['whichview'] = $whichview;
 } else {
-    $urlParams['whichview'] = 'showactive';
+    $urlParams['whichview'] = $booking->booking->whichview;
+    $whichview = $booking->booking->whichview;
 }
 
 if ($optionid > 0) {

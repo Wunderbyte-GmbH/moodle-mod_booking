@@ -120,6 +120,15 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('text', 'maxoverbooking', get_string('maxoverbooking', 'booking'), 0);
         $mform->disabledIf('maxoverbooking', 'limitanswers', 0);
         $mform->setType('maxoverbooking', PARAM_INT);
+        
+        $whichviewopts = array(
+            'mybooking' => get_string('showmybookings', 'mod_booking'),
+            'myoptions' => get_string('myoptions', 'mod_booking'),
+            'showall' => get_string('showallbookings', 'mod_booking'),
+            'showactive' => get_string('showactive', 'mod_booking'),
+            'myinstitution' => get_string('showonlymyinstitutions', 'mod_booking')
+            );
+        $mform->addElement('select', 'whichview', get_string('whichview', 'mod_booking'), $whichviewopts);
 
         //-------------------------------------------------------------------------------
         $mform->addElement('header', 'timerestricthdr', get_string('timerestrict', 'booking'));
