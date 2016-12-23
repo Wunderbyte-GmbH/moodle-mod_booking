@@ -1315,6 +1315,21 @@ function xmldb_booking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2016062400, 'booking');
     }
 
+        if ($oldversion < 2016122300) {
+
+        // Define field whichview to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('whichview', XMLDB_TYPE_CHAR, '32', null, XMLDB_NOTNULL, null, 'showactive', 'scale');
+
+        // Conditionally launch add field whichview.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2016122300, 'booking');
+    }
+
 
     return true;
 }

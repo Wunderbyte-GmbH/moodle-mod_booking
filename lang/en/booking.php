@@ -539,6 +539,7 @@ $string['pollurltext'] = 'Send poll url';
 $string['reset'] = 'Reset';
 $string['searchtag'] = 'Search tags';
 $string['showinapi'] = 'Show in API?';
+$string['whichview'] = 'Default view for booking options';
 
 // editoptions.php
 $string['addeditbooking'] = 'Edit booking';
