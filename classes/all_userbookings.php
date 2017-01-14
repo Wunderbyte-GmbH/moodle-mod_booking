@@ -10,7 +10,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 class all_userbookings extends table_sql {
-    
+
     var $bookingData = null;
     var $cm = null;
     var $user = null;
@@ -21,7 +21,7 @@ class all_userbookings extends table_sql {
      * @var int
      */
     var $optionid = null;
-    
+
     /**
      * 
      * @var array of ratingoptions
@@ -44,14 +44,14 @@ class all_userbookings extends table_sql {
         $this->user = $user;
         $this->db = $db;
         $this->optionid = $optionid;
-        unset ($this->attributes['cellspacing']);
+        unset($this->attributes['cellspacing']);
     }
-    
+
     /**
      * Set rating options
      * @param array $ratingoptions
      */
-    function set_ratingoptions ($ratingoptions){
+    function set_ratingoptions($ratingoptions) {
         $this->ratingoptions = $ratingoptions;
     }
 
@@ -70,7 +70,7 @@ class all_userbookings extends table_sql {
 
         return '';
     }
-    
+
     function col_fullname($values) {
         if (empty($values->otheroptions)) {
             return html_writer::link(new moodle_url('/user/profile.php', array('id' => $values->userid)), "{$values->firstname} {$values->lastname} ({$values->username})", array());
@@ -88,21 +88,25 @@ class all_userbookings extends table_sql {
     }
 
     function col_completed($values) {
-    	$completed = '';
-    	if ($values->completed) {
-    		$completed = '&#x2713;';
-    	}
-    	return $completed;
+        if (!$this->is_downloading()) {
+            $completed = '';
+            if ($values->completed) {
+                $completed = '&#x2713;';
+            }
+            return $completed;
+        } else {
+            return $values->completed;
+        }
     }
-    
+
     function col_rating($values) {
-    	global $OUTPUT, $PAGE;
-    	$output = '';
-    	$renderer = $PAGE->get_renderer('mod_booking');
-    	if (!empty($values->rating)) {
-    		$output .= html_writer::tag('div', $renderer->render($values->rating), array('class'=>'booking-option-rating'));
-    	}
-    	return $output;
+        global $OUTPUT, $PAGE;
+        $output = '';
+        $renderer = $PAGE->get_renderer('mod_booking');
+        if (!empty($values->rating)) {
+            $output .= html_writer::tag('div', $renderer->render($values->rating), array('class' => 'booking-option-rating'));
+        }
+        return $output;
     }
 
     function col_coursestarttime($values) {
@@ -112,21 +116,21 @@ class all_userbookings extends table_sql {
             return userdate($values->coursestarttime, get_string('strftimedatetime'));
         }
     }
-    
+
     function col_courseendtime($values) {
         if ($values->courseendtime == 0) {
             return '';
         } else {
             return userdate($values->courseendtime, get_string('strftimedatetime'));
         }
-    }    
-        
+    }
+
     function col_waitinglist($values) {
 
         if ($this->is_downloading()) {
             return $values->waitinglist;
         }
-        
+
         $completed = '&nbsp;';
 
         if ($values->waitinglist) {
@@ -138,7 +142,7 @@ class all_userbookings extends table_sql {
 
     function col_selected($values) {
         if (!$this->is_downloading()) {
-            return '<input id="check'.$values->id.'" type="checkbox" class="usercheckbox" name="user[][' . $values->userid . ']" value="' . $values->userid . '" />';
+            return '<input id="check' . $values->id . '" type="checkbox" class="usercheckbox" name="user[][' . $values->userid . ']" value="' . $values->userid . '" />';
         } else {
             return '';
         }
@@ -151,15 +155,15 @@ class all_userbookings extends table_sql {
      *     been made.
      */
     function other_cols($colname, $value) {
-        if (substr( $colname, 0, 4 ) === "cust") {
+        if (substr($colname, 0, 4) === "cust") {
             $tmp = explode('|', $value->{$colname});
-            
-            if(!$tmp) {
+
+            if (!$tmp) {
                 return '';
             }
-            
-            if(count($tmp) == 2) {
-                if($tmp[0] == 'datetime') {
+
+            if (count($tmp) == 2) {
+                if ($tmp[0] == 'datetime') {
                     return userdate($tmp[1], get_string('strftimedate'));
                 } else {
                     return $tmp[1];
@@ -169,25 +173,25 @@ class all_userbookings extends table_sql {
             }
         }
     }
-    
+
     function wrap_html_start() {
-        echo '<form method="post" id="studentsform">'."\n";
+        echo '<form method="post" id="studentsform">' . "\n";
         $ratingoptions = $this->ratingoptions;
-        if(!empty ($ratingoptions)){
+        if (!empty($ratingoptions)) {
             foreach ($ratingoptions as $name => $value) {
-               $attributes = array('type' => 'hidden', 'class' => 'ratinginput', 'name' => $name, 'value' => $value);
-               echo html_writer::empty_tag('input', $attributes);
+                $attributes = array('type' => 'hidden', 'class' => 'ratinginput', 'name' => $name, 'value' => $value);
+                echo html_writer::empty_tag('input', $attributes);
             }
         }
     }
 
     function wrap_html_finish() {
-        
+
         echo '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
-        
+
         if (!$this->bookingData->booking->autoenrol && has_capability('mod/booking:communicate', context_module::instance($this->cm->id))) {
             if ($this->bookingData->option->courseid > 0) {
-                echo '<input type="submit" name="subscribetocourse" value="' . get_string('subscribetocourse', 'booking') . '" />';                
+                echo '<input type="submit" name="subscribetocourse" value="' . get_string('subscribetocourse', 'booking') . '" />';
             }
         }
 
@@ -197,7 +201,7 @@ class all_userbookings extends table_sql {
 
         if (has_capability('mod/booking:communicate', context_module::instance($this->cm->id))) {
             $pollurl = trim($this->bookingData->option->pollurl);
-            if (!empty($pollurl)) {                
+            if (!empty($pollurl)) {
                 echo '<input type="submit" name="sendpollurl" value="' . get_string('booking:sendpollurl', 'booking') . '" />';
             }
             echo '<input type="submit" name="sendreminderemail" value="' . get_string('sendreminderemail', 'booking') . '" />';
@@ -206,17 +210,17 @@ class all_userbookings extends table_sql {
 
         if (booking_check_if_teacher($this->bookingData->option, $this->user) || has_capability('mod/booking:updatebooking', context_module::instance($this->cm->id))) {
             echo '<input type="submit" name="activitycompletion" value="' . (empty($this->bookingData->booking->btncacname) ? get_string('confirmactivitycompletion', 'booking') : $this->bookingData->booking->btncacname) . '" />';
-            
+
             //output rating button
-            if (has_capability('moodle/rating:rate', context_module::instance($this->cm->id))  && $this->bookingData->booking->assessed != 0){
-                $ratingbutton = html_writer::start_tag('span', array('class'=>"ratingsubmit"));
+            if (has_capability('moodle/rating:rate', context_module::instance($this->cm->id)) && $this->bookingData->booking->assessed != 0) {
+                $ratingbutton = html_writer::start_tag('span', array('class' => "ratingsubmit"));
                 $attributes = array('type' => 'submit', 'class' => 'postratingmenusubmit', 'id' => 'postratingsubmit', 'name' => 'postratingsubmit', 'value' => s(get_string('rate', 'rating')));
                 $ratingbutton .= html_writer::empty_tag('input', $attributes);
                 $ratingbutton .= html_writer::end_span();
                 echo $ratingbutton;
             }
 
-            
+
             if ($this->bookingData->booking->numgenerator) {
                 echo '<input type="submit" name="generaterecnum" value="' . get_string('generaterecnum', 'booking') . '" onclick="return confirm(\'' . get_string('generaterecnumareyousure', 'booking') . '\')"/>';
             }
@@ -270,9 +274,9 @@ class all_userbookings extends table_sql {
                 }
             }
         }
-        
+
         echo '</form>';
-        
+
         echo '<hr>';
     }
 
