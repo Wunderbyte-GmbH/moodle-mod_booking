@@ -27,9 +27,9 @@ $urlParams = array();
 $urlParamsSort = array();
 $urlParams['id'] = $id;
 
-if (!$cm = get_coursemodule_from_id('booking', $id)) {
-    print_error('invalidcoursemodule');
-}
+list ($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
+require_course_login($course, false, $cm);
+$context = context_module::instance($cm->id);
 
 $booking = new booking_options($cm->id, TRUE, array(), 0, 0, false);
 
@@ -103,16 +103,6 @@ $sortUrl = new moodle_url('/mod/booking/view.php', $urlParamsSort);
 
 $PAGE->set_url($url);
 $PAGE->requires->yui_module('moodle-mod_booking-viewscript', 'M.mod_booking.viewscript.init');
-
-if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
-    print_error('coursemisconf');
-}
-
-require_course_login($course, false, $cm);
-
-if (!$context = context_module::instance($cm->id)) {
-    print_error('badcontext');
-}
 
 $booking->apply_tags();
 $booking->get_url_params();
