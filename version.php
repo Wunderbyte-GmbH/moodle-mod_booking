@@ -12,7 +12,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version =  2016122300;
+$plugin->version =  2016122301;
 $plugin->requires = 2014051200;  // Requires this Moodle 2.X version
 $plugin->release = 'Eva Thörnblad 2.4'; // famous female characters: Diane Selwyn, Eva Thörnblad,
 $plugin->maturity = MATURITY_STABLE;
