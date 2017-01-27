@@ -1157,34 +1157,31 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2016051703) {
 
-        $allCourses = $DB->get_records_sql('SELECT DISTINCT course FROM {booking}', array());
+        // Course ids from all courses with booking instance
+        $courseids = $DB->get_records_sql('SELECT DISTINCT course FROM {booking}', array());
 
-        foreach ($allCourses as $course) {
-            $DB->execute('DELETE ba FROM {booking_answers} AS ba LEFT JOIN {booking} AS b ON b.id = ba.bookingid WHERE b.course = :course1 AND ba.userid NOT IN (SELECT DISTINCT
-            eu1_u.id
-        FROM
-            mdl_user eu1_u
-                JOIN
-            mdl_user_enrolments eu1_ue ON eu1_ue.userid = eu1_u.id
-                JOIN
-            mdl_enrol eu1_e ON (eu1_e.id = eu1_ue.enrolid
-                AND eu1_e.courseid = :course2)
-        WHERE
-            eu1_u.deleted = 0 AND eu1_u.id <> 1)', array('course1' => $course->course, 'course2' => $course->course));
-
-            $DB->execute('DELETE ba FROM {booking_teachers} AS ba LEFT JOIN {booking} AS b ON b.id = ba.bookingid WHERE b.course = :course1 AND ba.userid NOT IN (SELECT DISTINCT
-            eu1_u.id
-        FROM
-            mdl_user eu1_u
-                JOIN
-            mdl_user_enrolments eu1_ue ON eu1_ue.userid = eu1_u.id
-                JOIN
-            mdl_enrol eu1_e ON (eu1_e.id = eu1_ue.enrolid
-                AND eu1_e.courseid = :course2)
-        WHERE
-            eu1_u.deleted = 0 AND eu1_u.id <> 1)', array('course1' => $course->course, 'course2' => $course->course));
+        foreach ($courseids as $courseid => $course) {
+            
+            $guestenrol = false;
+            $enrolmethods = enrol_get_instances($courseid, true);
+            foreach($enrolmethods as $method) {
+                if ('guest' == $method->enrol) {
+                    $guestenrol = true;
+                    break;
+                }
+            }
+            if(!$guestenrol){
+                continue;
+            }
+            
+            // Delete unenrolled and deleted users from booking_answers. This is done via events in the future.
+            $coursecontext = context_course::instance($courseid);
+            list($enrolsql, $enrolparams) = get_enrolled_sql($coursecontext);
+            $params = array_merge(array('course' => $courseid), $enrolparams);
+            $DB->delete_records_select('booking_answers', ' userid NOT IN ('.$enrolsql.') AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course)' , $params );
+            $DB->delete_records_select('booking_teachers', ' userid NOT IN ('.$enrolsql.') AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course)' , $params );
         }
-
+        
         upgrade_mod_savepoint(true, 2016051703, 'booking');
     }
 

@@ -2131,7 +2131,7 @@ function booking_get_email_body($booking, $fieldname, $defaultname, $params) {
 /**
  * Checks if user on waitinglist gets normal place if a user is deleted
  * @param $optionid id of booking option
- * @param $booking booking id
+ * @param $booking booking object
  * @param $cancelleduserid user id that was deleted form booking option
  * @param $cmid course module id
  * @return mixed false if no user gets from waitinglist to booked list or userid of user now on booked list
