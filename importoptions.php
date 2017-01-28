@@ -26,13 +26,7 @@ $url = new moodle_url('/mod/booking/importoptions.php', array('id' => $id));
 $urlRedirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $PAGE->set_url($url);
 
-if (!$cm = get_coursemodule_from_id('booking', $id)) {
-    print_error("Course Module ID was incorrect");
-}
-
-if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
-    print_error('coursemisconf');
-}
+list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
@@ -173,7 +167,7 @@ if ($mform->is_cancelled()) {
                     $getUser = $DB->get_record('booking_answers', array('bookingid' => $booking->id, 'userid' => $user->id, 'optionid' => $booking_option->id));
 
                     if ($getUser === FALSE) {                        
-                        $bookingData = new booking_option($cm->id, $booking_option->id, array(), 0, 0, false);
+                        $bookingData = new \mod_booking\booking_option($cm->id, $booking_option->id, array(), 0, 0, false);
                         $bookingData->user_submit_response($user);
 
                         if ($completion->is_enabled($cm) && $bookingData->booking->enablecompletion && $line[7] == 0) {

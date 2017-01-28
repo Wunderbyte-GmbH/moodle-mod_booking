@@ -86,7 +86,6 @@ class all_options extends table_sql {
     }
 
     function col_text($values) {
-        
         $output = '';
         $output .= html_writer::tag('h4',$values->text);
 
@@ -109,7 +108,7 @@ class all_options extends table_sql {
         }
         
         
-        $output .= (!empty($values->teachers) ? " " . (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') : $this->booking->booking->lblteachname) . "" . $values->teachers : '');
+        $output .= (!empty($values->teachers) ? " <br />" . (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') : $this->booking->booking->lblteachname) . "" . $values->teachers : '');
         
         return  $output;
     }

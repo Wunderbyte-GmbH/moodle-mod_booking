@@ -66,7 +66,7 @@ function booking_get_coursemodule_info($cm) {
     $tags = new booking_tags($cm);
     $info = new cached_cm_info();
 
-    $booking = new booking($cm->id);
+    $booking = new mod_booking\booking($cm->id);
     $booking->apply_tags();
 
     $info->name = $booking->booking->name;
@@ -76,42 +76,43 @@ function booking_get_coursemodule_info($cm) {
 
 function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
     global $CFG, $DB;
-
-// Check the contextlevel is as expected - if your plugin is a block, this becomes CONTEXT_BLOCK, etc.
+    
+    // Check the contextlevel is as expected - if your plugin is a block, this becomes
+    // CONTEXT_BLOCK, etc.
     if ($context->contextlevel != CONTEXT_MODULE) {
         return false;
     }
-
-// Make sure the filearea is one of those used by the plugin.
+    
+    // Make sure the filearea is one of those used by the plugin.
     if ($filearea !== 'myfilemanager') {
         return false;
     }
-
-// Make sure the user is logged in and has access to the module (plugins that are not course modules should leave out the 'cm' part).
+    
+    // Make sure the user is logged in and has access to the module (plugins that are not course
+    // modules should leave out the 'cm' part).
     require_login($course, true, $cm);
-
-// Leave this line out if you set the itemid to null in make_pluginfile_url (set $itemid to 0 instead).
+    
+    // Leave this line out if you set the itemid to null in make_pluginfile_url (set $itemid to 0 instead).
     $itemid = array_shift($args); // The first item in the $args array.
-// Use the itemid to retrieve any relevant data records and perform any security checks to see if the
-// user really does have access to the file in question.
-// Extract the filename / filepath from the $args array.
+                                  // Use the itemid to retrieve any relevant data records and
+                                  // perform any security checks to see if the
+                                  // user really does have access to the file in question.
+                                  // Extract the filename / filepath from the $args array.
     $filename = array_pop($args); // The last item in the $args array.
     if (!$args) {
         $filepath = '/'; // $args is empty => the path is '/'
     } else {
         $filepath = '/' . implode('/', $args) . '/'; // $args contains elements of the filepath
     }
-
-// Retrieve the file from the Files API.
+    
+    // Retrieve the file from the Files API.
     $fs = get_file_storage();
     $file = $fs->get_file($context->id, 'mod_booking', $filearea, $itemid, $filepath, $filename);
     if (!$file) {
         return false; // The file does not exist.
     }
-
-// We can now send the file back to the browser - in this case with a cache lifetime of 1 day and no filtering. 
-// From Moodle 2.3, use send_stored_file instead.
-//send_file($file, 86400, 0, $forcedownload, $options);
+    
+    // Send the file back to the browser - in this case with a cache lifetime of 1 day and no filtering.
     send_stored_file($file, 0, 0, true, $options);
 }
 
@@ -176,12 +177,16 @@ function booking_get_completion_state($course, $cm, $userid, $type) {
     }
 }
 
+/**
+ * Given an object containing all the necessary data,
+ * (defined by the form in mod.html) this function
+ *  will create a new instance and return the id number
+ *  of the new instance.
+ * @param unknown $booking
+ * @return unknown
+ */
 function booking_add_instance($booking) {
-    global $DB;
-// Given an object containing all the necessary data,
-// (defined by the form in mod.html) this function
-// will create a new instance and return the id number
-// of the new instance.
+    global $DB, $CFG;
 
     $booking->timemodified = time();
 
@@ -198,7 +203,7 @@ function booking_add_instance($booking) {
         $booking->timeclose = 0;
     }
 
-// Copy the text fields out:
+    // Copy the text fields out:
     $booking->bookedtext = $booking->bookedtext['text'];
     $booking->waitingtext = $booking->waitingtext['text'];
     $booking->notifyemail = $booking->notifyemail['text'];
@@ -209,7 +214,7 @@ function booking_add_instance($booking) {
     $booking->notificationtext = $booking->notificationtext['text'];
     $booking->userleave = $booking->userleave['text'];
 
-//insert answer options from mod_form
+    // Insert answer options from mod_form
     $booking->id = $DB->insert_record("booking", $booking);
 
     $cmid = $booking->coursemodule;
@@ -218,10 +223,10 @@ function booking_add_instance($booking) {
     if ($draftitemid = file_get_submitted_draft_itemid('myfilemanager')) {
         file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanager', $booking->id, array('subdirs' => false, 'maxfiles' => 50));
     }
-    if($CFG->branch >= 31){
-    	core_tag_tag::set_item_tags('mod_booking', 'booking',$booking->id, $context, $booking->tags);
+    if($CFG->branch < 31){
+        tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
     } else {
-    	tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
+        core_tag_tag::set_item_tags('mod_booking', 'booking',$booking->id, $context, $booking->tags);
     }
 
     if (!empty($booking->option)) {
@@ -289,7 +294,7 @@ function booking_update_instance($booking) {
         $booking->timeclose = 0;
     }
 
-// Copy the text fields out:
+    // Copy the text fields out:
     $booking->bookedtext = $booking->bookedtext['text'];
     $booking->waitingtext = $booking->waitingtext['text'];
     $booking->notifyemail = $booking->notifyemail['text'];
@@ -300,7 +305,7 @@ function booking_update_instance($booking) {
     $booking->notificationtext = $booking->notificationtext['text'];
     $booking->userleave = $booking->userleave['text'];
 
-//update, delete or insert answers
+    // Update, delete or insert answers
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {
             $value = trim($value);
@@ -315,7 +320,7 @@ function booking_update_instance($booking) {
                 $option->id = $booking->optionid[$key];
                 if (isset($value) && $value <> '') {
                     $DB->update_record("booking_options", $option);
-                } else { //empty old option - needs to be deleted.
+                } else { // Empty old option - needs to be deleted.
                     $DB->delete_records("booking_options", array("id" => $option->id));
                 }
             } else {
@@ -1061,12 +1066,10 @@ function booking_show_statistic() {
  */
 function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $optionid) {
     global $DB;
-
-    $course = $DB->get_record('course', array('id' => $booking->course));
+    list($course,$cm) = get_course_and_cm_from_cmid($cmid, "booking");
+    
     $completion = new completion_info($course);
-
-    $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
-
+    
     foreach ($selectedusers as $uid) {
         foreach ($uid as $ui) {
         	//TODO: Optimization of db query: instead of loop, one get_records query
@@ -1652,7 +1655,7 @@ function booking_send_notification($optionid, $subject, $toUsers = array()) {
 
     $cm = get_coursemodule_from_instance('booking', $booking->id);
 
-    $bookingData = new booking_option($cm->id, $option->id);
+    $bookingData = new \mod_booking\booking_option($cm->id, $option->id);
     $bookingData->apply_tags();
 
     if (!empty($toUsers)) {
@@ -1767,10 +1770,11 @@ function booking_get_groupmodedata() {
 /**
  * Gets the principal information of booking status and booking options
  * to be used by other functions
- * @param $bookingid id of the module
- * @param $sort which field use to sort options
- * @param $urlParams parameters for searching
- * @param $view if we need it for editing or viewing
+ * @param $cm course_module id of the module
+ * @param $sort string which field use to sort options
+ * @param $urlParams array parameters for searching
+ * @param $view boolean if we need it for editing or viewing
+ * @param $optionid int id booking_options
  * @return object with $booking->option as an array for the booking option valus for each booking option
  */
 function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), $view = TRUE, $optionid = null, $fetchOptions = true) {
@@ -1782,24 +1786,24 @@ function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' =>
     }
 
     $bookingid = $cm->instance;
-// Gets a full booking record
+    // Gets a full booking record
     $context = context_module::instance($cm->id);
 
-/// Initialise the returned array, which is a matrix:  $allresponses[responseid][userid] = responseobject
+    // Initialise the returned array, which is a matrix:  $allresponses[responseid][userid] = responseobject
     $allresponses = array();
-/// bookinglist $bookinglist[optionid][sortnumber] = userobject;
+    // bookinglist $bookinglist[optionid][sortnumber] = userobject;
     $bookinglist = array();
 
-/// First get all the users who have access here    
+    // First get all the users who have access here    
     $mainuserfields = user_picture::fields();
     $allresponses = get_users_by_capability($context, 'mod/booking:choose', $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true, true);
 
     if (is_null($optionid)) {
-        $bookingObject = new booking_options($cm->id, TRUE, $urlParams, 0, 0, $fetchOptions);
+        $bookingObject = new \mod_booking\booking_options($cm->id, TRUE, $urlParams, 0, 0, $fetchOptions);
         $booking = $bookingObject->booking;
         $options = $bookingObject->options;
     } else {
-        $bookingObject = new booking_option($cm->id, $optionid);
+        $bookingObject = new \mod_booking\booking_option($cm->id, $optionid);
         $booking = $bookingObject->booking;
         $options[$optionid] = $bookingObject->option;
     }
@@ -1826,7 +1830,7 @@ function booking_get_booking($cm, $sort = '', $urlParams = array('searchText' =>
             } else {
                 $booking->option[$option->id]->courseendtimetext = get_string("endtimenotset", 'booking');
             }
-// we have to change $taken is different from booking_show_results
+            // We have to change $taken is different from booking_show_results
             $answerstocount = array();
             if ($answers) {
                 foreach ($answers as $answer) {

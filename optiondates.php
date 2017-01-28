@@ -17,13 +17,7 @@ $delete = optional_param('delete', '', PARAM_INT);
 $url = new moodle_url('/mod/booking/optiondates.php', array('id' => $id, 'optionid' => $optionid));
 $PAGE->set_url($url);
 
-if (!$cm = get_coursemodule_from_id('booking', $id)) {
-    print_error("Course Module ID was incorrect");
-}
-
-if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
-    print_error('coursemisconf');
-}
+list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 

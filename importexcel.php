@@ -17,13 +17,7 @@ $url = new moodle_url('/mod/booking/importexcel.php', array('id' => $id));
 $urlRedirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $PAGE->set_url($url);
 
-if (!$cm = get_coursemodule_from_id('booking', $id)) {
-    print_error("Course Module ID was incorrect");
-}
-
-if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
-    print_error('coursemisconf');
-}
+list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
@@ -89,7 +83,7 @@ if ($mform->is_cancelled()) {
         
         foreach ($csvArr as $line) {
             if (count($line) >= 3) {
-                $user = $DB->get_record('booking_answers', array('bookingid' => $booking->id, 'userid' => $line[$userIDPos], 'optionid' => $line[$optionIDPos]));
+                $user = $DB->get_record('booking_answers', array('bookingid' => $cm->instance, 'userid' => $line[$userIDPos], 'optionid' => $line[$optionIDPos]));
 
                 if ($user !== FALSE) {
                     $user->completed = $line[$completedPos];

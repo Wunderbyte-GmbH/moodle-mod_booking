@@ -16,20 +16,10 @@ $optionid = required_param('optionid', PARAM_INT);
 $url = new moodle_url('/mod/booking/otherbooking.php', array('cmid' => $cmid, 'optionid' => $optionid));
 $PAGE->set_url($url);
 
-if (!$cm = get_coursemodule_from_id('booking', $cmid)) {
-    print_error("Course Module ID was incorrect");
-}
-
-if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
-    print_error('coursemisconf');
-}
+list($course, $cm) = get_course_and_cm_from_cmid($cmid);
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
-
-if (!$booking = booking_get_booking($cm, '', array(), true, $optionid, true)) {
-    error("Course module is incorrect");
-}
 
 if (!$context = context_module::instance($cm->id)) {
     print_error('badcontext');
@@ -37,7 +27,7 @@ if (!$context = context_module::instance($cm->id)) {
 
 require_capability('mod/booking:updatebooking', $context);
 
-$option = new booking_option($cmid, $optionid);
+$option = new \mod_booking\booking_option($cmid, $optionid);
 
 $PAGE->navbar->add(get_string("editotherbooking", "booking"));
 $PAGE->set_title(format_string(get_string("editotherbooking", "booking")));

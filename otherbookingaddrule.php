@@ -20,13 +20,7 @@ $url = new moodle_url('/mod/booking/otherbookingaddrule.php', array('cmid' => $c
 $urlRedirect = new moodle_url('/mod/booking/otherbooking.php', array('cmid' => $cmid, 'optionid' => $optionid));
 $PAGE->set_url($url);
 
-if (!$cm = get_coursemodule_from_id('booking', $cmid)) {
-    print_error("Course Module ID was incorrect");
-}
-
-if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
-    print_error('coursemisconf');
-}
+list($course, $cm) = get_course_and_cm_from_cmid($cmid);
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);

@@ -150,7 +150,7 @@ require_course_login($course, false, $cm);
 
 $context = context_module::instance($cm->id);
 
-$bookingData = new booking_option($cm->id, $optionid, $urlParams, $page, $perPage, false);
+$bookingData = new \mod_booking\booking_option($cm->id, $optionid, $urlParams, $page, $perPage, false);
 $bookingData->apply_tags();
 $bookingData->get_url_params();
 $bookingData->get_teachers();
@@ -337,7 +337,7 @@ if (!$tableAllBookings->is_downloading()) {
             $connectedBooking = $DB->get_record("booking", array('conectedbooking' => $bookingData->booking->id), 'id', IGNORE_MULTIPLE);
 
             $tmpcmid = $DB->get_record_sql("SELECT cm.id FROM {course_modules} cm JOIN {modules} md ON md.id = cm.module JOIN {booking} m ON m.id = cm.instance WHERE md.name = 'booking' AND cm.instance = ?", array($connectedBooking->id));
-            $tmpBooking = new booking_option($tmpcmid->id, $_POST['selectoptionid']);
+            $tmpBooking = new \mod_booking\booking_option($tmpcmid->id, $_POST['selectoptionid']);
 
             foreach ($allSelectedUsers as $value) {
                 $user = new stdClass();
@@ -396,30 +396,29 @@ if (!$tableAllBookings->is_downloading()) {
         $settingnode->add(get_string('editotherbooking', 'booking'), new moodle_url('/mod/booking/otherbooking.php', array('cmid' => $id, 'optionid' => $optionid)));
     }
         
-        // ALL USERS - START
-    $fields = 'ba.id, ' . get_all_user_name_fields(true, 'u') . ', u.username, u.institution, ba.completed, ba.timecreated, ba.userid, ba.waitinglist, 
-            (
-            SELECT GROUP_CONCAT(obo.text SEPARATOR \', \')
-        FROM
-            {booking_answers} AS oba
-            LEFT JOIN {booking_options} AS obo ON obo.id = oba.optionid
-        WHERE
-            oba.frombookingid = ba.optionid
-                AND oba.userid = ba.userid
-            ) AS otheroptions , ba.numrec';
-    $from = ' {booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
+    // ALL USERS - START
+    $fields = 'ba.id, ' . get_all_user_name_fields(true, 'u') . ', 
+            u.username, 
+            u.institution, 
+            ba.completed, 
+            ba.timecreated, 
+            ba.userid, 
+            ba.waitinglist,
+            otherbookingoption.text AS otheroptions,
+            ba.numrec';
+    $from = ' {booking_answers} AS ba
+            JOIN {user} AS u ON u.id = ba.userid 
+            JOIN {booking_options} AS bo ON bo.id = ba.optionid
+            LEFT JOIN {booking_options} AS otherbookingoption ON otherbookingoption.id = ba.frombookingid ';
     $where = ' ba.optionid = :optionid ' . $addSQLWhere;
 
-    
-    
-    $tableAllBookings->set_sql(
-            $fields, $from, $where, $sqlValues);
+    $tableAllBookings->set_sql($fields, $from, $where, $sqlValues);
 
     $tableAllBookings->define_columns($columns);
     $tableAllBookings->define_headers($headers);
     
 
-// ALL USERS - STOP
+    // ALL USERS - STOP
 
     echo $OUTPUT->header();
 
@@ -501,49 +500,50 @@ if (!$tableAllBookings->is_downloading()) {
     
     $tableAllBookings->setup();
     $tableAllBookings->query_db($bookingData->booking->paginationnum, true);
+    if ($bookingData->booking->assessed != RATING_AGGREGATE_NONE &&
+             !empty($tableAllBookings->rawdata)) {
+        // Get all bookings from all booking options: only that guarantees correct use of rating
         
-    if ($bookingData->booking->assessed != RATING_AGGREGATE_NONE && !empty($tableAllBookings->rawdata)) {
-        // get all bookings from all booking options: only that guarantees correct use of rating
+        $ratingoptions = new stdClass();
+        $ratingoptions->context = $bookingData->get_context();
+        $ratingoptions->component = 'mod_booking';
+        $ratingoptions->ratingarea = 'bookingoption';
+        $ratingoptions->items = $tableAllBookings->rawdata;
+        $ratingoptions->aggregate = $bookingData->booking->assessed; // the aggregation method
+        $ratingoptions->scaleid = $bookingData->booking->scale;
+        $ratingoptions->userid = $USER->id;
+        $ratingoptions->returnurl = "$CFG->wwwroot/mod/booking/report.php?id=$cm->id&optionid=$optionid";
+        $ratingoptions->assesstimestart = $bookingData->booking->assesstimestart;
+        $ratingoptions->assesstimefinish = $bookingData->booking->assesstimefinish;
         
-    	$ratingoptions = new stdClass();
-    	$ratingoptions->context = $bookingData->get_context();
-    	$ratingoptions->component = 'mod_booking';
-    	$ratingoptions->ratingarea = 'bookingoption';
-    	$ratingoptions->items = $tableAllBookings->rawdata;
-    	$ratingoptions->aggregate = $bookingData->booking->assessed;//the aggregation method
-    	$ratingoptions->scaleid = $bookingData->booking->scale;
-    	$ratingoptions->userid = $USER->id;
-    	$ratingoptions->returnurl = "$CFG->wwwroot/mod/booking/report.php?id=$cm->id&optionid=$optionid";
-    	$ratingoptions->assesstimestart = $bookingData->booking->assesstimestart;
-    	$ratingoptions->assesstimefinish = $bookingData->booking->assesstimefinish;
-    
-    	$rm = new rating_manager();
-    	$tableAllBookings->rawdata = $rm->get_ratings($ratingoptions);
-    	
-    	// hidden input fields for the rating 
-    	$ratinginputs = array();
-    	$ratinginputs['contextid'] = $ratingoptions->context->id;
-    	$ratinginputs['component'] = $ratingoptions->component;
-    	$ratinginputs['ratingarea'] = $ratingoptions->ratingarea;
-    	$ratinginputs['scaleid'] = $ratingoptions->scaleid;
-    	$ratinginputs['returnurl'] = $ratingoptions->returnurl;
-    	$ratinginputs['aggregation'] = $ratingoptions->aggregate;
-    	$ratinginputs['sesskey'] = sesskey();
-    	$tableAllBookings->set_ratingoptions($ratinginputs);
-    	
-    	//set menu for modifying all ratings at once
-    	 
-    	//get an example rating and modify it
-    	
-    	 $newarray = array_values($tableAllBookings->rawdata);
-    	 $firstentry = array_shift($newarray);
-    	  
-    	 $strrate = get_string("rate", "rating");
-    	 $scalearray = array(RATING_UNSET_RATING => $strrate.'...') + $firstentry->rating->settings->scale->scaleitems;
-    	 $scaleattrs = array('class'=>'postratingmenu ratinginput','id'=>'menuratingall');
-    	 $menuhtml = html_writer::label(get_string('rating', 'core_rating'), 'menuratingall', false, array('class' => 'accesshide'));
-    	 $menuhtml .= html_writer::select($scalearray, 'rating', $scalearray[RATING_UNSET_RATING], false, $scaleattrs);
-    	 $tableAllBookings->headers[2] .= $menuhtml;
+        $rm = new rating_manager();
+        $tableAllBookings->rawdata = $rm->get_ratings($ratingoptions);
+        
+        // Hidden input fields for the rating
+        $ratinginputs = array();
+        $ratinginputs['contextid'] = $ratingoptions->context->id;
+        $ratinginputs['component'] = $ratingoptions->component;
+        $ratinginputs['ratingarea'] = $ratingoptions->ratingarea;
+        $ratinginputs['scaleid'] = $ratingoptions->scaleid;
+        $ratinginputs['returnurl'] = $ratingoptions->returnurl;
+        $ratinginputs['aggregation'] = $ratingoptions->aggregate;
+        $ratinginputs['sesskey'] = sesskey();
+        $tableAllBookings->set_ratingoptions($ratinginputs);
+        
+        // Set menu for modifying all ratings at once
+        // Get an example rating and modify it
+        $newarray = array_values($tableAllBookings->rawdata);
+        $firstentry = array_shift($newarray);
+        
+        $strrate = get_string("rate", "rating");
+        $scalearray = array(RATING_UNSET_RATING => $strrate . '...') +
+                 $firstentry->rating->settings->scale->scaleitems;
+        $scaleattrs = array('class' => 'postratingmenu ratinginput', 'id' => 'menuratingall');
+        $menuhtml = html_writer::label(get_string('rating', 'core_rating'), 'menuratingall', false, 
+                array('class' => 'accesshide'));
+        $menuhtml .= html_writer::select($scalearray, 'rating', $scalearray[RATING_UNSET_RATING], 
+                false, $scaleattrs);
+        $tableAllBookings->headers[2] .= $menuhtml;
     }
     
     $tableAllBookings->build_table();
@@ -614,7 +614,7 @@ if (!$tableAllBookings->is_downloading()) {
         foreach ($userprofilefields as $profilefield) {
             $columns[] = "cust" . strtolower($profilefield->shortname);
             $headers[] = $profilefield->name;
-            $customfields .= ", (SELECT concat(uif.datatype,'|',uid.data) as custom FROM {user_info_data} AS uid LEFT JOIN {user_info_field} AS uif ON uid.fieldid = uif.id WHERE userid = ba.userid AND uif.shortname = '{$profilefield->shortname}') AS cust" . strtolower($profilefield->shortname);
+            $customfields .= ", (SELECT ". $DB->sql_concat('uif.datatype', "'|'", ',uid.data') ." as custom FROM {user_info_data} AS uid LEFT JOIN {user_info_field} AS uif ON uid.fieldid = uif.id WHERE userid = ba.userid AND uif.shortname = '{$profilefield->shortname}') AS cust" . strtolower($profilefield->shortname);
         }
     }
 
@@ -634,37 +634,33 @@ if (!$tableAllBookings->is_downloading()) {
                 u.username AS username,
                 u.email AS email,
                 ba.completed AS completed,
-                BINARY( SELECT 
-                        GROUP_CONCAT(obo.text
-                                SEPARATOR ', ') AS otheroptions
-                    FROM
-                        {booking_answers} AS oba
-                            LEFT JOIN
-                        {booking_options} AS obo ON obo.id = oba.optionid
-                    WHERE
-                        oba.frombookingid = ba.optionid
-                            AND oba.userid = ba.userid) AS otheroptions,
-                (SELECT 
-                        GROUP_CONCAT(g.name
-                                SEPARATOR ', ') AS groups
-                    FROM
-                        {groups_members} AS gm
-                            LEFT JOIN
-                        {groups} AS g ON g.id = gm.groupid
-                    WHERE
-                        gm.userid = u.id AND g.courseid = {$course->id}) AS groups,
                 ba.numrec,
-                        ba.waitinglist AS waitinglist {$customfields}";
+                ba.waitinglist AS waitinglist {$customfields}";
     $from = '{booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
     $where = 'ba.optionid = :optionid ' . $addSQLWhere;
-
-    $tableAllBookings->set_sql(
-            $fields, $from, $where, $sqlValues);
-
+    
     $tableAllBookings->define_columns($columns);
     $tableAllBookings->define_headers($headers);
 
-    $tableAllBookings->out(10, true);
+    $tableAllBookings->set_sql($fields, $from, $where, $sqlValues);
+    $tableAllBookings->setup();
+    $tableAllBookings->query_db(10);
+    if (!empty($tableAllBookings->rawdata)){
+        foreach ($tableAllBookings->rawdata as $option){
+            $option->otheroptions = "";
+            $option->groups = "";
+            $groups = groups_get_user_groups($course->id, $option->userid);
+            if(!empty($groups[0])){
+                $groupids = implode(',', $groups[0]);
+                $groupnames = $DB->get_fieldset_select('groups', 'name', ' id IN ('.$groupids.')');
+                $option->groups = implode(', ', $groupnames);
+            }
+        }
+    }
+
+    $tableAllBookings->build_table();
+    $tableAllBookings->finish_output();
+
     exit;
 }
 ?>

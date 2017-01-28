@@ -12,13 +12,7 @@ $url = new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid'
 
 $PAGE->set_url($url);
 
-if (!$cm = get_coursemodule_from_id('booking', $id)) {
-    print_error('invalidcoursemodule');
-}
-
-if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
-    print_error('coursemisconf');
-}
+list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 
@@ -62,9 +56,7 @@ if ($edit === 0) {
                 redirect($url, get_string('selectatleastoneuser', 'booking'), 5);
             }
 
-            $bookingData = new booking_options($cm->id, FALSE);
-            
-            booking_activitycompletion_teachers($selectedusers, $bookingData->booking, $cm->id, $optionid);
+            booking_activitycompletion_teachers($selectedusers, $booking, $cm->id, $optionid);
             redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);
         }
     }

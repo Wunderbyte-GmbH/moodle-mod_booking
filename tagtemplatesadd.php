@@ -19,20 +19,10 @@ $url = new moodle_url('/mod/booking/tagtemplatesadd.php', array('cmid' => $cmid,
 $urlRedirect = new moodle_url('/mod/booking/tagtemplates.php', array('cmid' => $cmid));
 $PAGE->set_url($url);
 
-if (!$cm = get_coursemodule_from_id('booking', $cmid)) {
-    print_error("Course Module ID was incorrect");
-}
-
-if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
-    print_error('coursemisconf');
-}
+list($course, $cm) = get_course_and_cm_from_cmid($cmid);
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
-
-if (!$booking = booking_get_booking($cm, '', array(), true, null, false)) {
-    error("Course module is incorrect");
-}
 
 if (!$context = context_module::instance($cm->id)) {
     print_error('badcontext');

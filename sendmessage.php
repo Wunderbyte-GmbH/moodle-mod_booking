@@ -5,38 +5,23 @@ require_once("lib.php");
 require_once("sendmessageform.class.php");
 
 $id = required_param('id', PARAM_INT);
-$optionid = optional_param('optionid', '', PARAM_INT);
+$optionid = required_param('optionid', PARAM_INT);
 $uids = required_param('uids', PARAM_RAW);
 
 $url = new moodle_url('/mod/booking/sendmessage.php', array('id' => $id, 'optionid' => $optionid, 'uids' => $uids));
 $PAGE->set_url($url);
 
 
-if (!$cm = get_coursemodule_from_id('booking', $id)) {
-    print_error("Course Module ID was incorrect");
-}
-
-if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
-    print_error('coursemisconf');
-}
+list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
 
-if (!$booking = booking_get_booking($cm, '', array(), true, $optionid, true)) {
-    error("Course module is incorrect");
-}
-
 $strbooking = get_string('modulename', 'booking');
-$strbookings = get_string('modulenameplural', 'booking');
 
 //if (!$context = get_context_instance(CONTEXT_MODULE, $cm->id)) {
 if (!$context = context_module::instance($cm->id)) {
     print_error('badcontext');
-}
-
-if (!isset($optionid) or empty($optionid)) {
-    print_error("Optionid is not correct or not set");
 }
 
 require_capability('mod/booking:communicate', $context);

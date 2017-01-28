@@ -5,21 +5,14 @@ require_once("locallib.php");
 require_once("bookingform.class.php");
 
 $id = required_param('id', PARAM_INT);                 // Course Module ID
-$optionid = optional_param('optionid', '', PARAM_ALPHANUM);
+$optionid = required_param('optionid', PARAM_ALPHANUM);
 $copyoptionid = optional_param('copyoptionid', '', PARAM_ALPHANUM);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
 
-$url = new moodle_url('/mod/booking/editoptions.php', array('id' => $id));
+$url = new moodle_url('/mod/booking/editoptions.php', array('id' => $id, 'optionid' => $optionid));
 $PAGE->set_url($url);
 
-
-if (!$cm = get_coursemodule_from_id('booking', $id)) {
-    print_error("Course Module ID was incorrect");
-}
-
-if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
-    print_error('coursemisconf');
-}
+list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
@@ -28,27 +21,20 @@ if (!$booking = booking_get_booking($cm, '', array('searchText' => '', 'searchLo
     error("Course module is incorrect");
 }
 
-$strbooking = get_string('modulename', 'booking');
-$strbookings = get_string('modulenameplural', 'booking');
-
-//if (!$context = get_context_instance(CONTEXT_MODULE, $cm->id)) {
 if (!$context = context_module::instance($cm->id)) {
     print_error('badcontext');
 }
 
-if (!isset($optionid) or empty($optionid)) {
-    print_error("Optionid is not correct or not set");
-}
 require_capability('mod/booking:updatebooking', $context);
 
-$mform = new mod_booking_bookingform_form(null, array('bookingid' => $booking->id));
+$mform = new mod_booking_bookingform_form(null, array('bookingid' => $cm->instance));
 
 if ($optionid == 'add') {
     $default_values = $booking;
     if ($copyoptionid != '') {
         if ($default_values = $DB->get_record('booking_options', array('id' => $copyoptionid))) {            
             $default_values->optionid = "add";
-            $default_values->bookingid = $booking->id;
+            $default_values->bookingid = $cm->instance;
             $default_values->id = $cm->id;
             $default_values->description = array('text' => $default_values->description, 'format' => FORMAT_HTML);
             $default_values->notificationtext = array('text' => $default_values->notificationtext, 'format' => FORMAT_HTML);
@@ -92,7 +78,7 @@ if ($mform->is_cancelled()) {
 
         $nBooking = booking_update_options($fromform);
 
-        $bookingData = new booking_option($cm->id, $nBooking);
+        $bookingData = new \mod_booking\booking_option($cm->id, $nBooking);
         $bookingData->sync_waiting_list();
 
         if (isset($fromform->submittandaddnew)) {

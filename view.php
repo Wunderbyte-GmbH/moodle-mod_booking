@@ -31,7 +31,7 @@ list ($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
 require_course_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 
-$booking = new booking_options($cm->id, TRUE, array(), 0, 0, false);
+$booking = new \mod_booking\booking_options($cm->id, TRUE, array(), 0, 0, false);
 
 if (!empty($action)) {
     $urlParams['action'] = $action;
@@ -112,7 +112,7 @@ $strbookings = get_string('modulenameplural', 'booking');
 
 // check if data has been submitted to be processed
 if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capability('mod/booking:choose', $context) and ( $booking->booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
-    $bookingData = new booking_option($cm->id, $optionid);
+    $bookingData = new \mod_booking\booking_option($cm->id, $optionid);
     $bookingData->apply_tags();
 
     if ($bookingData->user_delete_response($USER->id)) {
@@ -127,7 +127,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and has_capab
 } elseif ($action == 'delbooking' and confirm_sesskey() and has_capability('mod/booking:choose', $context) and ( $booking->booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {    //print confirm delete form
     echo $OUTPUT->header();
 
-    $bookingData = new booking_option($cm->id, $optionid);
+    $bookingData = new \mod_booking\booking_option($cm->id, $optionid);
     $bookingData->apply_tags();
 
     $options = array('id' => $cm->id, 'action' => 'delbooking', 'confirm' => 1, 'optionid' => $optionid, 'sesskey' => $USER->sesskey);
@@ -172,7 +172,7 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
 
 
     if (!empty($answer)) {
-        $bookingData = new booking_option($cm->id, $answer, array(), 0, 0, false);
+        $bookingData = new \mod_booking\booking_option($cm->id, $answer, array(), 0, 0, false);
         $bookingData->apply_tags();
         if ($bookingData->user_submit_response($USER)) {
             $contents = get_string('bookingsaved', 'booking');
@@ -449,20 +449,18 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $columns[] = 'id';
         $headers[] = "";
 
+        
         $fields = "DISTINCT bo.id,
                          bo.text,
                          bo.address,
                          bo.description,
                          bo.coursestarttime,
                          bo.courseendtime,
-                
-                  (SELECT GROUP_CONCAT(CONCAT(CONCAT(u.firstname, ' '), u.lastname) SEPARATOR ', ') AS teachers
-                   FROM {booking_teachers} AS t
-                   LEFT JOIN {user} AS u ON u.id = t.userid
-                   WHERE t.optionid = bo.id) AS teachers,
                          bo.limitanswers,
                          bo.maxanswers,
                          bo.maxoverbooking,
+                        
+                         
                 
                   (SELECT COUNT(*)
                    FROM {booking_answers} AS ba
@@ -501,12 +499,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                   (SELECT COUNT(*)
                    FROM {booking_teachers} AS ba
                    WHERE ba.optionid = bo.id
-                     AND ba.userid = :userid3) AS isteacher,
-                
-                  (SELECT GROUP_CONCAT(CONCAT(coursestarttime, '-', courseendtime)
-                                       ORDER BY coursestarttime ASC) AS times
-                   FROM {booking_optiondates}
-                   WHERE optionid = bo.id) AS times";
+                     AND ba.userid = :userid3) AS isteacher
+                ";
         $from = '{booking} AS b '
                 . 'LEFT JOIN {booking_options} AS bo ON bo.bookingid = b.id';
         $where = "b.id = :bookingid " . (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions));
@@ -517,8 +511,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $conditionsParams['userid3'] = $USER->id;
         $conditionsParams['bookingid'] = $booking->booking->id;
 
-        $tableAllOtions->set_sql(
-                $fields, $from, $where, $conditionsParams);
+        $tableAllOtions->set_sql($fields, $from, $where, $conditionsParams);
 
         $tableAllOtions->define_columns($columns);
         $tableAllOtions->define_headers($headers);
@@ -530,6 +523,64 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         }
         $tableAllOtions->setup();
         $tableAllOtions->query_db($paging, true);
+        
+        // Prepare rawdata for adding teachers and times
+        foreach ($tableAllOtions->rawdata AS $optionid => $option){
+            $option->times = null;
+            $option->teachers = "";
+        }
+        
+        // Add teachers to rawdata
+        $teachers = array();
+        $tachernamesql = $DB->sql_fullname('u.firstname', 'u.lastname');
+        $bookingoptionids = array_keys($tableAllOtions->rawdata);
+        $bookingoptionids = implode (',', $bookingoptionids);
+        if (!empty($bookingoptionids)){
+            $teachersql = "SELECT u.id, bo.id AS boid, $tachernamesql as teachername
+            FROM {booking_options} AS bo, {booking_teachers} AS t
+            LEFT JOIN {user} AS u ON u.id = t.userid
+            WHERE bo.id = t.optionid
+            AND t.optionid IN (".$bookingoptionids.")";
+            $teachers = $DB->get_records_sql($teachersql);
+            
+            $optionteachers = array();
+            foreach($teachers as $teacher) {
+                if(empty($optionteachers[$teacher->boid])){
+                    $optionteachers[$teacher->boid] = $teacher->teachername;
+                } else {
+                    $optionteachers[$teacher->boid] .= ", " . $teacher->teachername;
+                }
+            }
+            if (!empty($optionteachers)) {
+                foreach ($optionteachers as $key => $teacher) {
+                    $tableAllOtions->rawdata[$key]->teachers = $teacher;
+                }
+            }
+            
+            $timessql = 'SELECT bod.id AS dateid, bo.id AS optionid, '. $DB->sql_concat('bod.coursestarttime', "'-'", 'bod.courseendtime') .' AS times
+                   FROM {booking_optiondates} bod, {booking_options} bo
+                   WHERE bo.id = bod.optionid
+                   AND bo.id IN ('.$bookingoptionids.')
+                   ORDER BY bod.coursestarttime ASC';
+            $times = $DB->get_records_sql($timessql);
+            
+            if(!empty($times)){
+                foreach($times as $time) {
+                    if(empty($optiontimes[$time->optionid])){
+                        $optiontimes[$time->optionid] = $time->times;
+                    } else {
+                        $optiontimes[$time->optionid] .= ", " . $time->times;
+                    }
+                }
+                if (!empty($optiontimes)) {
+                    foreach ($optiontimes as $key => $time) {
+                        $tableAllOtions->rawdata[$key]->times = $time;
+                    }
+                }
+            }
+
+        }
+
         $tableAllOtions->build_table();
         if ($tableAllOtions->count_records() > 0){
             $tableAllOtions->finish_output();
@@ -583,10 +634,9 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             foreach ($userprofilefields as $profilefield) {
                 $columns[] = "cust" . strtolower($profilefield->shortname);
                 $headers[] = $profilefield->name;
-                $customfields .= ", (SELECT concat(uif.datatype,'|',uid.data) as custom FROM {user_info_data} AS uid LEFT JOIN {user_info_field} AS uif ON uid.fieldid = uif.id WHERE userid = tba.userid AND uif.shortname = '{$profilefield->shortname}') AS cust" . strtolower($profilefield->shortname);
+                $customfields .= ", (SELECT ". $DB->sql_concat('uif.datatype', "'|'", ',uid.data') ." as custom FROM {user_info_data} AS uid LEFT JOIN {user_info_field} AS uif ON uid.fieldid = uif.id WHERE userid = tba.userid AND uif.shortname = '{$profilefield->shortname}') AS cust" . strtolower($profilefield->shortname);
             }
         }
-
         $columns[] = 'groups';
         $headers[] = get_string("group");
 
@@ -596,8 +646,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         }
 
         $fields = "tba.id,
-            tu.id AS userid,
-        tba.optionid AS optionid,
+                tu.id AS userid,
+                tba.optionid AS optionid,
                 tbo.text AS booking,
                 tu.institution AS institution,
                 tbo.location AS location,
@@ -609,29 +659,16 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                 tu.username AS username,
                 tu.email AS email,
                 tba.completed AS completed,
-                BINARY( SELECT 
-                        GROUP_CONCAT(obo.text
-                                SEPARATOR ', ') AS otheroptions
-                    FROM
-                        {booking_answers} AS oba
-                            LEFT JOIN
-                        {booking_options} AS obo ON obo.id = oba.optionid
-                    WHERE
-                        oba.frombookingid = tba.optionid
-                            AND oba.userid = tba.userid) AS otheroptions,
-                (SELECT 
-                        GROUP_CONCAT(g.name
-                                SEPARATOR ', ') AS groups
-                    FROM
-                        {groups_members} AS gm
-                            LEFT JOIN
-                        {groups} AS g ON g.id = gm.groupid
-                    WHERE
-                        gm.userid = tu.id AND g.courseid = :tcourseid) AS groups,
                 tba.numrec,
-                        tba.waitinglist AS waitinglist {$customfields}";
-        $from = '{booking_answers} AS tba JOIN {user} AS tu ON tu.id = tba.userid JOIN {booking_options} AS tbo ON tbo.id = tba.optionid';
-        $where = 'tba.optionid IN (SELECT DISTINCT bo.id FROM {booking} AS b LEFT JOIN {booking_options} AS bo ON bo.bookingid = b.id WHERE b.id = :bookingid ' . (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions)) . ')';
+                otherbookingoption.text AS otheroptions,
+                tba.waitinglist AS waitinglist {$customfields}";
+        $from = '{booking_answers} AS tba 
+                JOIN {user} AS tu ON tu.id = tba.userid 
+                JOIN {booking_options} AS tbo ON tbo.id = tba.optionid
+                FULL JOIN {booking_options} AS otherbookingoption ON otherbookingoption.id = tba.frombookingid';
+        $where = 'tba.optionid IN (SELECT DISTINCT bo.id FROM {booking} AS b 
+                                    LEFT JOIN {booking_options} AS bo ON bo.bookingid = b.id WHERE b.id = :bookingid ' 
+                                    . (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions)) . ')';
 
         $conditionsParams['userid'] = $USER->id;
         $conditionsParams['userid1'] = $USER->id;
@@ -639,14 +676,32 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $conditionsParams['userid3'] = $USER->id;
         $conditionsParams['bookingid'] = $booking->booking->id;
         $conditionsParams['tcourseid'] = $course->id;
-
-        $tableAllOtions->set_sql(
-                $fields, $from, $where, $conditionsParams);
-
         $tableAllOtions->define_columns($columns);
         $tableAllOtions->define_headers($headers);
-
-        $tableAllOtions->out(10, true);
+        $tableAllOtions->set_sql($fields, $from, $where, $conditionsParams);
+        unset ($tableAllOtions->attributes['cellspacing']);
+        $tableAllOtions->setup();
+        $tableAllOtions->query_db(10);
+        if (!empty($tableAllOtions->rawdata)){
+            foreach ($tableAllOtions->rawdata as $option){
+                $option->otheroptions = "";
+                $option->groups = "";
+            }
+        }
+        if (!empty($tableAllOtions->rawdata)){
+            foreach ($tableAllOtions->rawdata as $option){
+                $option->otheroptions = "";
+                $option->groups = "";
+                $groups = groups_get_user_groups($course->id, $option->userid);
+                if(!empty($groups[0])){
+                    $groupids = implode(',', $groups[0]);
+                    $groupnames = $DB->get_fieldset_select('groups', 'name', ' id IN ('.$groupids.')');
+                    $option->groups = implode(', ', $groupnames);
+                }
+            }
+        }
+        $tableAllOtions->build_table();
+        $tableAllOtions->finish_output();
         exit;
     }
 } else {

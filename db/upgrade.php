@@ -1162,6 +1162,11 @@ function xmldb_booking_upgrade($oldversion) {
 
         foreach ($courseids as $courseid => $course) {
             
+            // Delete all records made by now deleted users from booking_answers
+            $deletedusers = $DB->get_fieldset_select('user', 'id', " deleted = 1");
+            list ($insql, $params) = $DB->get_in_or_equal($deletedusers);
+            $DB->delete_records_select('booking_answers', " userid $insql AND bookingid IN ( SELECT id FROM {booking} WHERE course = $courseid)" , $params );
+            
             $guestenrol = false;
             $enrolmethods = enrol_get_instances($courseid, true);
             foreach($enrolmethods as $method) {
