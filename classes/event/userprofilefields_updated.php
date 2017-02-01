@@ -51,13 +51,13 @@ class userprofilefields_updated extends \core\event\base {
     }
 
     public function get_url() {
-        return new \moodle_url('/mod/booking/edituserprofile.php', 
+        return new \moodle_url('/mod/booking/edituserprofile.php',
                 array('cmid' => $this->contextinstanceid, 'courseid' => $this->courseid));
     }
 
     public function get_legacy_logdata() {
         // Override if you are migrating an add_to_log() call.
-        return array($this->courseid, 'booking', 'user', 'update', 
+        return array($this->courseid, 'booking', 'user', 'update',
             'view.php?id=' . $this->contextinstanceid, $this->objectid, $this->contextinstanceid);
     }
 

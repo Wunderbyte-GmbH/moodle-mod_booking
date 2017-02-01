@@ -43,12 +43,12 @@ $tags = new booking_tags($cm);
 $tagsTable = array();
 
 foreach ($tags->get_all_tags() as $tag) {
-    
+
     $edit = new moodle_url('tagtemplatesadd.php', array('cmid' => $cm->id, 'tid' => $tag->id));
     $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get');
-    
-    $tagsTable[] = array("[{$tag->tag}]", nl2br($tag->text), 
-        html_writer::tag('span', $button, 
+
+    $tagsTable[] = array("[{$tag->tag}]", nl2br($tag->text),
+        html_writer::tag('span', $button,
                 array('style' => 'text-align: right; display:table-cell;')));
 }
 

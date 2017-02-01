@@ -16,8 +16,8 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
 
-if (!$booking = booking_get_booking($cm, '', 
-        array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), FALSE, null, 
+if (!$booking = booking_get_booking($cm, '',
+        array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), FALSE, null,
         false)) {
     error("Course module is incorrect");
 }
@@ -37,9 +37,9 @@ if ($optionid == 'add') {
             $default_values->optionid = "add";
             $default_values->bookingid = $cm->instance;
             $default_values->id = $cm->id;
-            $default_values->description = array('text' => $default_values->description, 
+            $default_values->description = array('text' => $default_values->description,
                 'format' => FORMAT_HTML);
-            $default_values->notificationtext = array('text' => $default_values->notificationtext, 
+            $default_values->notificationtext = array('text' => $default_values->notificationtext,
                 'format' => FORMAT_HTML);
             if ($default_values->bookingclosingtime) {
                 $default_values->restrictanswerperiod = "checked";
@@ -49,17 +49,17 @@ if ($optionid == 'add') {
             }
         }
     }
-    
+
     $default_values->optionid = "add";
     $default_values->bookingid = $booking->id;
     $default_values->id = $cm->id;
     $default_values->text = '';
-} else if ($default_values = $DB->get_record('booking_options', 
+} else if ($default_values = $DB->get_record('booking_options',
         array('bookingid' => $booking->id, 'id' => $optionid))) {
     $default_values->optionid = $optionid;
-    $default_values->description = array('text' => $default_values->description, 
+    $default_values->description = array('text' => $default_values->description,
         'format' => FORMAT_HTML);
-    $default_values->notificationtext = array('text' => $default_values->notificationtext, 
+    $default_values->notificationtext = array('text' => $default_values->notificationtext,
         'format' => FORMAT_HTML);
     $default_values->id = $cm->id;
     if ($default_values->bookingclosingtime) {
@@ -81,18 +81,18 @@ if ($mform->is_cancelled()) {
         if (!isset($fromform->limitanswers)) {
             $fromform->limitanswers = 0;
         }
-        
+
         $nBooking = booking_update_options($fromform);
-        
+
         $bookingData = new \mod_booking\booking_option($cm->id, $nBooking);
         $bookingData->sync_waiting_list();
-        
+
         if (isset($fromform->submittandaddnew)) {
-            $redirecturl = new moodle_url('editoptions.php', 
+            $redirecturl = new moodle_url('editoptions.php',
                     array('id' => $cm->id, 'optionid' => 'add'));
             redirect($redirecturl, get_string('changessaved'), 0);
         } else {
-            $redirecturl = new moodle_url('report.php', 
+            $redirecturl = new moodle_url('report.php',
                     array('id' => $cm->id, 'optionid' => $nBooking));
             redirect($redirecturl, get_string('changessaved'), 0);
         }
@@ -103,7 +103,7 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->header();
     // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
     // or on the first display of the form.
-    
+
     $mform->set_data($default_values);
     $mform->display();
 }

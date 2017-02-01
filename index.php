@@ -46,11 +46,11 @@ $table = new html_table();
 $timenow = time();
 
 if ($course->format == "weeks") {
-    $table->head = array(get_string("week", "booking"), get_string("question", "booking"), 
+    $table->head = array(get_string("week", "booking"), get_string("question", "booking"),
         get_string("answer", "booking"));
     $table->align = array("center", "left", "left");
 } else if ($course->format == "topics") {
-    $table->head = array(get_string("topic", "booking"), get_string("question", "booking"), 
+    $table->head = array(get_string("topic", "booking"), get_string("question", "booking"),
         get_string("answer", "booking"));
     $table->align = array("center", "left", "left");
 } else {
@@ -81,7 +81,7 @@ foreach ($bookings as $booking) {
         }
         $currentsection = $booking->section;
     }
-    
+
     // Calculate the href
     if (!$booking->visible) {
         // Show dimmed if the mod is hidden
@@ -92,7 +92,7 @@ foreach ($bookings as $booking) {
         $tt_href = "<a href=\"view.php?id=$booking->coursemodule\">" .
                  format_string($booking->name, true) . "</a>";
     }
-    
+
     if ($course->format == "weeks" || $course->format == "topics") {
         $table->data[] = array($printsection, $tt_href, $aa);
     } else {

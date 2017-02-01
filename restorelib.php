@@ -29,18 +29,18 @@
 // This function executes all the restore procedure about this mod
 function booking_restore_mods($mod, $restore) {
     global $CFG;
-    
+
     $status = true;
-    
+
     // Get record from backup_ids
     $data = backup_getid($restore->backup_unique_code, $mod->modtype, $mod->id);
-    
+
     if ($data) {
         // Now get completed xmlized object
         $info = $data->info;
         // if necessary, write to restorelog and adjust date/time fields
         if ($restore->course_startdateoffset) {
-            restore_log_date_changes('Booking', $restore, $info['MOD']['#'], 
+            restore_log_date_changes('Booking', $restore, $info['MOD']['#'],
                     array('TIMEOPEN', 'TIMECLOSE'));
         }
         // traverse_xmlize($info); //Debug
@@ -80,14 +80,14 @@ function booking_restore_mods($mod, $restore) {
                 $info['MOD']['#']['POLLURLTEACHERSTEXT']['0']['#']);
         $booking->daystonotify = backup_todb($info['#']['DAYSTONOTIFY']['0']['#']);
         $booking->notifyemail = backup_todb($info['#']['NOTIFYEMAIL']['0']['#']);
-        
+
         // The structure is equal to the db, so insert the booking
         $newid = insert_record("booking", $booking);
-        
+
         if ($newid) {
             // We have the newid, update backup_ids
             backup_putid($restore->backup_unique_code, $mod->modtype, $mod->id, $newid);
-            
+
             // Check to see how answers (curently booking_options) are stored in the table
             // If answer1 - answer6 exist, this is a pre 1.5 version of booking
             if (isset($info['MOD']['#']['ANSWER1']['0']['#']) ||
@@ -96,7 +96,7 @@ function booking_restore_mods($mod, $restore) {
                      isset($info['MOD']['#']['ANSWER4']['0']['#']) ||
                      isset($info['MOD']['#']['ANSWER5']['0']['#']) ||
                      isset($info['MOD']['#']['ANSWER6']['0']['#'])) {
-                
+
                 // This is a pre 1.5 booking backup, special work begins
                 $options = array();
                 $options[1] = backup_todb($info['MOD']['#']['ANSWER1']['0']['#']);
@@ -105,7 +105,7 @@ function booking_restore_mods($mod, $restore) {
                 $options[4] = backup_todb($info['MOD']['#']['ANSWER4']['0']['#']);
                 $options[5] = backup_todb($info['MOD']['#']['ANSWER5']['0']['#']);
                 $options[6] = backup_todb($info['MOD']['#']['ANSWER6']['0']['#']);
-                
+
                 for ($i = 1; $i < 7; $i++) { // insert old answers (in 1.4) as booking_options (1.5) to db.
                     if (!empty($options[$i])) { // make sure this option has something in it!
                         $option->bookingid = $newid;
@@ -113,14 +113,14 @@ function booking_restore_mods($mod, $restore) {
                         $option->timemodified = $booking->timemodified;
                         $newoptionid = insert_record("booking_options", $option);
                         // Save this booking_option to backup_ids
-                        backup_putid($restore->backup_unique_code, "booking_options", $i, 
+                        backup_putid($restore->backup_unique_code, "booking_options", $i,
                                 $newoptionid);
                     }
                 }
             } else { // Now we are in a "standard" 1.5 booking, so restore booking_options normally
                 $status = booking_options_restore_mods($newid, $info, $restore);
             }
-            
+
             // now restore the answers for this booking.
             if (restore_userdata_selected($restore, 'booking', $mod->id)) {
                 // Restore booking_answers
@@ -129,7 +129,7 @@ function booking_restore_mods($mod, $restore) {
         } else {
             $status = false;
         }
-        
+
         // Do some output
         if (!defined('RESTORE_SILENTLY')) {
             echo "<li>" . get_string("modulename", "booking") . " \"" .
@@ -144,11 +144,11 @@ function booking_restore_mods($mod, $restore) {
 
 function booking_options_restore_mods($bookingid, $info, $restore) {
     global $CFG;
-    
+
     $status = true;
-    
+
     $options = $info['MOD']['#']['OPTIONS']['0']['#']['OPTION'];
-    
+
     // Iterate over options
     for ($i = 0; $i < sizeof($options); $i++) {
         $opt_info = $options[$i];
@@ -159,7 +159,7 @@ function booking_options_restore_mods($bookingid, $info, $restore) {
         $oldid = backup_todb($opt_info['#']['ID']['0']['#']);
         $olduserid = isset($opt_info['#']['USERID']['0']['#']) ? backup_todb(
                 $opt_info['#']['USERID']['0']['#']) : '';
-        
+
         // Now, build the BOOKING_OPTIONS record structure
         $option->bookingid = $bookingid;
         $option->text = backup_todb($opt_info['#']['TEXT']['0']['#']);
@@ -182,7 +182,7 @@ function booking_options_restore_mods($bookingid, $info, $restore) {
         $option->address = backup_todb($opt_info['#']['ADDRESS']['0']['#']);
         // The structure is equal to the db, so insert the booking_options
         $newid = insert_record("booking_options", $option);
-        
+
         // Do some output
         if (($i + 1) % 50 == 0) {
             if (!defined('RESTORE_SILENTLY')) {
@@ -193,7 +193,7 @@ function booking_options_restore_mods($bookingid, $info, $restore) {
             }
             backup_flush(300);
         }
-        
+
         if ($newid) {
             // We have the newid, update backup_ids
             backup_putid($restore->backup_unique_code, "booking_options", $oldid, $newid);
@@ -201,18 +201,18 @@ function booking_options_restore_mods($bookingid, $info, $restore) {
             $status = false;
         }
     }
-    
+
     return $status;
 }
 
 // This function restores the booking_answers
 function booking_answers_restore_mods($bookingid, $info, $restore) {
     global $CFG;
-    
+
     $status = true;
     if (isset($info['MOD']['#']['ANSWERS']['0']['#']['ANSWER'])) {
         $answers = $info['MOD']['#']['ANSWERS']['0']['#']['ANSWER'];
-        
+
         // Iterate over answers
         for ($i = 0; $i < sizeof($answers); $i++) {
             $ans_info = $answers[$i];
@@ -222,35 +222,35 @@ function booking_answers_restore_mods($bookingid, $info, $restore) {
             // We'll need this later!!
             $oldid = backup_todb($ans_info['#']['ID']['0']['#']);
             $olduserid = backup_todb($ans_info['#']['USERID']['0']['#']);
-            
+
             // Now, build the BOOKING_ANSWERS record structure
             $answer->bookingid = $bookingid;
             $answer->userid = backup_todb($ans_info['#']['USERID']['0']['#']);
             $answer->optionid = backup_todb($ans_info['#']['OPTIONID']['0']['#']);
             $answer->timemodified = backup_todb($ans_info['#']['TIMEMODIFIED']['0']['#']);
-            
+
             // If the answer contains BOOKING_ANSWER, it's a pre 1.5 backup
             if (!empty($ans_info['#']['BOOKING_ANSWER']['0']['#'])) {
                 // optionid was, in pre 1.5 backups, booking_answer
                 $answer->optionid = backup_todb($ans_info['#']['BOOKING_ANSWER']['0']['#']);
             }
-            
+
             // We have to recode the optionid field
-            $option = backup_getid($restore->backup_unique_code, "booking_options", 
+            $option = backup_getid($restore->backup_unique_code, "booking_options",
                     $answer->optionid);
             if ($option) {
                 $answer->optionid = $option->new_id;
             }
-            
+
             // We have to recode the userid field
             $user = backup_getid($restore->backup_unique_code, "user", $answer->userid);
             if ($user) {
                 $answer->userid = $user->new_id;
             }
-            
+
             // The structure is equal to the db, so insert the booking_answers
             $newid = insert_record("booking_answers", $answer);
-            
+
             // Do some output
             if (($i + 1) % 50 == 0) {
                 if (!defined('RESTORE_SILENTLY')) {
@@ -261,7 +261,7 @@ function booking_answers_restore_mods($bookingid, $info, $restore) {
                 }
                 backup_flush(300);
             }
-            
+
             if ($newid) {
                 // We have the newid, update backup_ids
                 backup_putid($restore->backup_unique_code, "booking_answers", $oldid, $newid);
@@ -279,11 +279,11 @@ function booking_answers_restore_mods($bookingid, $info, $restore) {
 // in the restore process
 function booking_decode_content_links($content, $restore) {
     global $CFG;
-    
+
     $result = $content;
-    
+
     // Link to the list of bookings
-    
+
     $searchstring = '/\$@(BOOKINGINDEX)\*([0-9]+)@\$/';
     // We look for it
     preg_match_all($searchstring, $content, $foundset);
@@ -299,18 +299,18 @@ function booking_decode_content_links($content, $restore) {
             // If it is a link to this course, update the link to its new location
             if ($rec->new_id) {
                 // Now replace it
-                $result = preg_replace($searchstring, 
+                $result = preg_replace($searchstring,
                         $CFG->wwwroot . '/mod/booking/index.php?id=' . $rec->new_id, $result);
             } else {
                 // It's a foreign link so leave it as original
-                $result = preg_replace($searchstring, 
+                $result = preg_replace($searchstring,
                         $restore->original_wwwroot . '/mod/booking/index.php?id=' . $old_id, $result);
             }
         }
     }
-    
+
     // Link to booking view by moduleid
-    
+
     $searchstring = '/\$@(BOOKINGVIEWBYID)\*([0-9]+)@\$/';
     // We look for it
     preg_match_all($searchstring, $result, $foundset);
@@ -326,16 +326,16 @@ function booking_decode_content_links($content, $restore) {
             // If it is a link to this course, update the link to its new location
             if ($rec->new_id) {
                 // Now replace it
-                $result = preg_replace($searchstring, 
+                $result = preg_replace($searchstring,
                         $CFG->wwwroot . '/mod/booking/view.php?id=' . $rec->new_id, $result);
             } else {
                 // It's a foreign link so leave it as original
-                $result = preg_replace($searchstring, 
+                $result = preg_replace($searchstring,
                         $restore->original_wwwroot . '/mod/booking/view.php?id=' . $old_id, $result);
             }
         }
     }
-    
+
     return $result;
 }
 
@@ -347,7 +347,7 @@ function booking_decode_content_links($content, $restore) {
 function booking_decode_content_links_caller($restore) {
     global $CFG;
     $status = true;
-    
+
     if ($bookings = get_records_sql(
             "SELECT c.id, c.text
                                    FROM {$CFG->prefix}booking c
@@ -382,7 +382,7 @@ function booking_decode_content_links_caller($restore) {
             }
         }
     }
-    
+
     return $status;
 }
 
@@ -390,9 +390,9 @@ function booking_decode_content_links_caller($restore) {
 // some texts in the module
 function booking_restore_wiki2markdown($restore) {
     global $CFG;
-    
+
     $status = true;
-    
+
     // Convert booking->text
     if ($records = get_records_sql(
             "SELECT c.id, c.text, c.format
@@ -431,7 +431,7 @@ function booking_restore_wiki2markdown($restore) {
 // done. It's used by restore_log_module() to restore modules log.
 function booking_restore_logs($restore, $log) {
     $status = false;
-    
+
     // Depending of the action, we recode different things
     switch ($log->action) {
         case "add":
@@ -510,7 +510,7 @@ function booking_restore_logs($restore, $log) {
             }
             break;
     }
-    
+
     if ($status) {
         $status = $log;
     }

@@ -16,9 +16,9 @@ $cmid = required_param('cmid', PARAM_INT); // Course Module ID
 $boptionid = required_param('boptionid', PARAM_INT);
 $oid = optional_param('oid', '', PARAM_INT);
 
-$url = new moodle_url('/mod/booking/optiondatesadd.php', 
+$url = new moodle_url('/mod/booking/optiondatesadd.php',
         array('cmid' => $cmid, 'boptionid' => $boptionid));
-$urlRedirect = new moodle_url('/mod/booking/optiondates.php', 
+$urlRedirect = new moodle_url('/mod/booking/optiondates.php',
         array('id' => $cmid, 'optionid' => $boptionid));
 $PAGE->set_url($url);
 
@@ -48,7 +48,7 @@ if ($mform->is_cancelled()) {
     redirect($urlRedirect, '', 0);
     die();
 } else if ($data = $mform->get_data()) {
-    
+
     // Add new record
     $tag = new stdClass();
     $tag->id = $data->id;
@@ -56,25 +56,25 @@ if ($mform->is_cancelled()) {
     $tag->optionid = $boptionid;
     $tag->coursestarttime = $data->coursestarttime;
     $tag->courseendtime = $data->courseendtime;
-    
+
     if ($tag->id != '') {
         $DB->update_record("booking_optiondates", $tag);
     } else {
         $DB->insert_record("booking_optiondates", $tag);
     }
-    
+
     booking_updatestartenddate($boptionid);
-    
+
     redirect($urlRedirect, get_string('optiondatessucesfullysaved', 'booking'), 5);
 } else {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string("addnewoptiondates", "booking"), 3, 'helptitle', 'uniqueid');
-    
+
     $default_values = new stdClass();
     if ($oid != '') {
         $default_values = $DB->get_record('booking_optiondates', array('id' => $oid));
     }
-    
+
     // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
     // or on the first display of the form.
     // displays the form

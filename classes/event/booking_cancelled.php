@@ -55,7 +55,7 @@ class booking_cancelled extends \core\event\base {
     }
 
     public function get_url() {
-        return new \moodle_url('/mod/booking/subscribeusers.php', 
+        return new \moodle_url('/mod/booking/subscribeusers.php',
                 array('id' => $this->contextinstanceid, 'optionid' => $this->objectid));
     }
 }

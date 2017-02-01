@@ -16,9 +16,9 @@ $optionid = required_param('optionid', PARAM_INT); // Option ID
 $obid = optional_param('obid', 0, PARAM_INT);
 $delete = optional_param('delete', 0, PARAM_INT);
 
-$url = new moodle_url('/mod/booking/otherbookingaddrule.php', 
+$url = new moodle_url('/mod/booking/otherbookingaddrule.php',
         array('cmid' => $cmid, 'optionid' => $optionid, 'obid' => $obid));
-$urlRedirect = new moodle_url('/mod/booking/otherbooking.php', 
+$urlRedirect = new moodle_url('/mod/booking/otherbooking.php',
         array('cmid' => $cmid, 'optionid' => $optionid));
 $PAGE->set_url($url);
 
@@ -39,7 +39,7 @@ require_capability('mod/booking:updatebooking', $context);
 
 if ($delete == 1) {
     $DB->delete_records("booking_other", array("id" => $obid));
-    
+
     redirect($urlRedirect, get_string("deletedrule", "booking"), 5);
 }
 
@@ -48,7 +48,7 @@ $PAGE->set_title(format_string(get_string("otherbookingaddrule", "booking")));
 $PAGE->set_heading(get_string("otherbookingaddrule", "booking"));
 $PAGE->set_pagelayout('standard');
 
-$mform = new otherbookingaddrule_form($url->out(false), 
+$mform = new otherbookingaddrule_form($url->out(false),
         array('cmid' => $cmid, 'optionid' => $optionid));
 
 if ($mform->is_cancelled()) {
@@ -56,30 +56,30 @@ if ($mform->is_cancelled()) {
     redirect($urlRedirect, '', 0);
     die();
 } else if ($data = $mform->get_data()) {
-    
+
     // Add new record
     $rule = new stdClass();
     $rule->id = $data->id;
     $rule->optionid = $optionid;
     $rule->otheroptionid = (int) $data->otheroptionid;
     $rule->userslimit = $data->userslimit;
-    
+
     if ($rule->id > 0) {
         $DB->update_record("booking_other", $rule);
     } else {
         $DB->insert_record("booking_other", $rule);
     }
-    
+
     redirect($urlRedirect, get_string('otherbookingsucesfullysaved', 'booking'), 5);
 } else {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string("otherbookingaddrule", "booking"), 3, 'helptitle', 'uniqueid');
-    
+
     $default_values = new stdClass();
     if ($obid > 0) {
         $default_values = $DB->get_record('booking_other', array('id' => $obid));
     }
-    
+
     // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
     // or on the first display of the form.
     // displays the form

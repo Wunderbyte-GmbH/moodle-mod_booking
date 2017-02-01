@@ -53,7 +53,7 @@ class booking {
         $this->cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
         $this->id = $this->cm->instance;
         $this->context = \context_module::instance($this->cm->id);
-        $this->course = $DB->get_record('course', array('id' => $this->cm->course), 
+        $this->course = $DB->get_record('course', array('id' => $this->cm->course),
                 'id, fullname, shortname, groupmode, groupmodeforce, visible', MUST_EXIST);
         $this->booking = $DB->get_record("booking", array("id" => $this->id));
         // if the course has groups and I do not have the capability to see all groups, show only users of my groups
@@ -73,7 +73,7 @@ class booking {
 
     public function apply_tags() {
         $tags = new \booking_tags($this->cm);
-        
+
         $this->booking = $tags->bookingReplace($this->booking);
     }
 
@@ -97,7 +97,7 @@ class booking {
         global $USER, $DB;
         $groupmembers = array();
         $usergroups = groups_get_all_groups($courseid, $USER->id);
-        
+
         if (!empty($usergroups)) {
             $groupsparam = implode(',', array_keys($usergroups));
             $groupmembers = $DB->get_records_sql(

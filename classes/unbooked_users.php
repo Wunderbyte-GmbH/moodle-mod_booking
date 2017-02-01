@@ -14,7 +14,7 @@ class unbooked_users extends table_sql {
 
     /**
      * Constructor
-     * 
+     *
      * @param int $uniqueid all tables have to have a unique id, this is used as a key when storing table properties like sort order in the session.
      */
     function __construct($uniqueid) {
@@ -22,13 +22,13 @@ class unbooked_users extends table_sql {
         // Define the list of columns to show.
         $columns = array('selected', 'completed', 'institution', 'fullname', 'timecreated');
         $this->define_columns($columns);
-        
+
         // Define the titles of columns to show in header.
-        $headers = array('', get_string('completed', 'mod_booking'), 
-            get_string('institution', 'mod_booking'), get_string('fullname', 'mod_booking'), 
+        $headers = array('', get_string('completed', 'mod_booking'),
+            get_string('institution', 'mod_booking'), get_string('fullname', 'mod_booking'),
             get_string('timecreated', 'mod_booking'));
         $this->define_headers($headers);
-        
+
         $this->collapsible(false);
         $this->sortable(true);
         $this->pageable(true);
@@ -44,7 +44,7 @@ class unbooked_users extends table_sql {
         if ($values->timecreated > 0) {
             return userdate($values->timecreated);
         }
-        
+
         return '';
     }
 
@@ -52,7 +52,7 @@ class unbooked_users extends table_sql {
         if ($values->completed) {
             return '&#x2713;';
         }
-        
+
         return '';
     }
 
@@ -67,7 +67,7 @@ class unbooked_users extends table_sql {
 
     /**
      * This function is called for each data row to allow processing of columns which do not have a *_cols function.
-     * 
+     *
      * @return string return processed value. Return NULL if no change has been made.
      */
     function other_cols($colname, $value) {

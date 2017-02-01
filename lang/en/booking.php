@@ -674,7 +674,7 @@ Survey url {pollurlteachers}
 
 $string['notificationtextsubject'] = 'Info about course start!';
 $string['notificationtextmessage'] = 'Course will start:
-        
+
 Course:   {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
 

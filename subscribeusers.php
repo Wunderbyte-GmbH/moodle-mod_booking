@@ -51,18 +51,18 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
     echo $OUTPUT->footer();
     die();
 } else {
-    $options = array('bookingid' => $cm->instance, 'currentgroup' => array(), 
-        'accesscontext' => $context, 'optionid' => $optionid, 'cmid' => $cm->id, 'course' => $course, 
+    $options = array('bookingid' => $cm->instance, 'currentgroup' => array(),
+        'accesscontext' => $context, 'optionid' => $optionid, 'cmid' => $cm->id, 'course' => $course,
         'potentialusers' => $bookingoption->potentialusers);
-    
+
     $bookingoutput = $PAGE->get_renderer('mod_booking');
-    
+
     $existingoptions = $options;
     $existingoptions['potentialusers'] = $bookingoption->bookedvisibleusers;
-    
+
     $existingselector = new booking_existing_user_selector('removeselect', $existingoptions);
     $subscriberselector = new booking_potential_user_selector('addselect', $options);
-    
+
     if (data_submitted()) {
         require_sesskey();
         /**
@@ -77,7 +77,7 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
             // right to access all groups
             $subscribesuccess = true;
             $subscribedusers = array();
-            
+
             if (has_capability('moodle/site:accessallgroups', $context) or
                      (booking_check_if_teacher($bookingoption->option, $USER))) {
                 foreach ($users as $user) {
@@ -116,11 +116,11 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
 echo $OUTPUT->header();
 echo $OUTPUT->heading("{$bookingoption->option->text}", 3, 'helptitle', 'uniqueid');
 
-echo html_writer::tag('div', 
+echo html_writer::tag('div',
         html_writer::link(
-                new moodle_url('/mod/booking/report.php', 
-                        array('id' => $cm->id, 'optionid' => $optionid)), 
-                get_string('backtoresponses', 'booking')), 
+                new moodle_url('/mod/booking/report.php',
+                        array('id' => $cm->id, 'optionid' => $optionid)),
+                get_string('backtoresponses', 'booking')),
         array('style' => 'width:100%; font-weight: bold; text-align: right;'));
 
 if ($subscribesuccess || $unsubscribesuccess) {

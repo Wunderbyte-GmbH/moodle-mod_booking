@@ -24,7 +24,7 @@
  */
 if ($ADMIN->fulltree) {
     $settings->add(
-            new admin_setting_configcheckbox('booking/attachical', 
-                    get_string('attachical', 'mod_booking'), 
+            new admin_setting_configcheckbox('booking/attachical',
+                    get_string('attachical', 'mod_booking'),
                     get_string('attachicaldesc', 'mod_booking'), 0));
 }

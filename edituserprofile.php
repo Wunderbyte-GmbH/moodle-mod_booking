@@ -65,13 +65,13 @@ $userform->set_data($user);
 if ($usernew = $userform->get_data()) {
     // use all the profile settings from $user and only replace user_profile_fields;
     $usernew->timemodified = time();
-    
+
     // save custom profile fields data
     profile_save_data($usernew);
-    
+
     // reload from db
     $usernew = $DB->get_record('user', array('id' => $usernew->id));
-    
+
     $event = \mod_booking\event\userprofilefields_updated::create(
             array('objectid' => $usernew->id, 'context' => context_module::instance($cmid)));
     $event->trigger();

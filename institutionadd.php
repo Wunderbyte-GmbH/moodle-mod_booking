@@ -8,7 +8,7 @@ $cid = optional_param('cid', '', PARAM_INT);
 $delete = optional_param('delete', '', PARAM_INT);
 
 if ($cid != '') {
-    $url = new moodle_url('/mod/booking/institutionadd.php', 
+    $url = new moodle_url('/mod/booking/institutionadd.php',
             array('courseid' => $courseid, 'cid' => $cid));
 } else {
     $url = new moodle_url('/mod/booking/institutionadd.php', array('courseid' => $courseid));
@@ -35,7 +35,7 @@ $redirecturl = new moodle_url('institutions.php', array('courseid' => $courseid)
 if ($delete == 1) {
     $DB->delete_records("booking_institutions", array("id" => $cid));
     $delmessage = get_string('sucesfulldeletedinstitution', 'booking');
-    
+
     redirect($redirecturl, $delmessage, 5);
 }
 
@@ -57,9 +57,9 @@ if ($mform->is_cancelled()) {
     $institution = new stdClass();
     $institution->id = $data->id;
     $institution->name = $data->name;
-    
+
     $institution->course = $data->course;
-    
+
     if ($institution->id != '') {
         $DB->update_record("booking_institutions", $institution);
     } else {

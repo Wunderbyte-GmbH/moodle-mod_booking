@@ -34,38 +34,38 @@ class restore_booking_activity_structure_step extends restore_activity_structure
     protected function define_structure() {
         $paths = array();
         $userinfo = $this->get_setting_value('userinfo');
-        
+
         $paths[] = new restore_path_element('booking', '/activity/booking');
         $paths[] = new restore_path_element('booking_option', '/activity/booking/options/option');
-        $paths[] = new restore_path_element('booking_category', 
+        $paths[] = new restore_path_element('booking_category',
                 '/activity/booking/categories/caegory');
         $paths[] = new restore_path_element('booking_tag', '/activity/booking/tags/tag');
-        $paths[] = new restore_path_element('booking_institution', 
+        $paths[] = new restore_path_element('booking_institution',
                 '/activity/booking/institutions/institution');
-        $paths[] = new restore_path_element('booking_other', 
+        $paths[] = new restore_path_element('booking_other',
                 '/activity/booking/options/option/others/other');
-        $paths[] = new restore_path_element('booking_optiondate', 
+        $paths[] = new restore_path_element('booking_optiondate',
                 '/activity/booking/optiondates/optiondate');
-        
+
         if ($userinfo) {
             $paths[] = new restore_path_element('booking_answer', '/activity/booking/answers/answer');
-            $paths[] = new restore_path_element('booking_teacher', 
+            $paths[] = new restore_path_element('booking_teacher',
                     '/activity/booking/teachers/teacher');
         }
-        
+
         // Return the paths wrapped into standard activity structure
         return $this->prepare_activity_structure($paths);
     }
 
     protected function process_booking($data) {
         global $DB;
-        
+
         $data = (object) $data;
         $oldid = $data->id;
         $data->course = $this->get_courseid();
-        
+
         $data->timemodified = $this->apply_date_offset($data->timemodified);
-        
+
         // insert the booking record
         $newitemid = $DB->insert_record('booking', $data);
         // immediately after inserting "activity" record, call this
@@ -74,28 +74,28 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
     protected function process_booking_option($data) {
         global $DB;
-        
+
         $data = (object) $data;
         $oldid = $data->id;
-        
+
         $data->bookingid = $this->get_new_parentid('booking');
         $data->timemodified = $this->apply_date_offset($data->timemodified);
-        
+
         $newitemid = $DB->insert_record('booking_options', $data);
         $this->set_mapping('booking_option', $oldid, $newitemid);
     }
 
     protected function process_booking_answer($data) {
         global $DB;
-        
+
         $data = (object) $data;
         $oldid = $data->id;
-        
+
         $data->bookingid = $this->get_new_parentid('booking');
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
-        
+
         $newitemid = $DB->insert_record('booking_answers', $data);
         // No need to save this mapping as far as nothing depend on it
         // (child paths, file areas nor links decoder)
@@ -103,13 +103,13 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
     protected function process_booking_optiondate($data) {
         global $DB;
-        
+
         $data = (object) $data;
         $oldid = $data->id;
-        
+
         $data->bookingid = $this->get_new_parentid('booking');
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
-        
+
         $newitemid = $DB->insert_record('booking_optiondates', $data);
         // No need to save this mapping as far as nothing depend on it
         // (child paths, file areas nor links decoder)
@@ -117,10 +117,10 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
     protected function process_booking_teacher($data) {
         global $DB;
-        
+
         $data = (object) $data;
         $oldid = $data->id;
-        
+
         $data->bookingid = $this->get_new_parentid('booking');
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
         $data->userid = $this->get_mappingid('user', $data->userid);
@@ -131,12 +131,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
     protected function process_booking_category($data) {
         global $DB;
-        
+
         $data = (object) $data;
         $oldid = $data->id;
-        
+
         $data->course = $this->get_courseid();
-        
+
         $newitemid = $DB->insert_record('booking_category', $data);
         // No need to save this mapping as far as nothing depend on it
         // (child paths, file areas nor links decoder)
@@ -144,12 +144,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
     protected function process_booking_tag($data) {
         global $DB;
-        
+
         $data = (object) $data;
         $oldid = $data->id;
-        
+
         $data->courseid = $this->get_courseid();
-        
+
         $newitemid = $DB->insert_record('booking_tags', $data);
         // No need to save this mapping as far as nothing depend on it
         // (child paths, file areas nor links decoder)
@@ -157,12 +157,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
     protected function process_booking_institution($data) {
         global $DB;
-        
+
         $data = (object) $data;
         $oldid = $data->id;
-        
+
         $data->course = $this->get_courseid();
-        
+
         $newitemid = $DB->insert_record('booking_institutions', $data);
         // No need to save this mapping as far as nothing depend on it
         // (child paths, file areas nor links decoder)
@@ -170,12 +170,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
     protected function process_booking_other($data) {
         global $DB;
-        
+
         $data = (object) $data;
         $oldid = $data->id;
-        
+
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
-        
+
         $newitemid = $DB->insert_record('booking_other', $data);
         // No need to save this mapping as far as nothing depend on it
         // (child paths, file areas nor links decoder)

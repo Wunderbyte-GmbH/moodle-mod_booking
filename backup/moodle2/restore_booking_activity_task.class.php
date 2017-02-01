@@ -54,11 +54,11 @@ class restore_booking_activity_task extends restore_activity_task {
      */
     static public function define_decode_contents() {
         $contents = array();
-        
+
         $contents[] = new restore_decode_content('booking', array('intro'), 'booking');
-        $contents[] = new restore_decode_content('booking_options', array('description'), 
+        $contents[] = new restore_decode_content('booking_options', array('description'),
                 'booking_option');
-        
+
         return $contents;
     }
 
@@ -67,11 +67,11 @@ class restore_booking_activity_task extends restore_activity_task {
      */
     static public function define_decode_rules() {
         $rules = array();
-        
-        $rules[] = new restore_decode_rule('BOOKINGVIEWBYID', '/mod/booking/view.php?id=$1', 
+
+        $rules[] = new restore_decode_rule('BOOKINGVIEWBYID', '/mod/booking/view.php?id=$1',
                 'course_module');
         $rules[] = new restore_decode_rule('BOOKINGINDEX', '/mod/booking/index.php?id=$1', 'course');
-        
+
         return $rules;
     }
 
@@ -81,19 +81,19 @@ class restore_booking_activity_task extends restore_activity_task {
      */
     static public function define_restore_log_rules() {
         $rules = array();
-        
+
         $rules[] = new restore_log_rule('booking', 'add', 'view.php?id={course_module}', '{booking}');
-        $rules[] = new restore_log_rule('booking', 'update', 'view.php?id={course_module}', 
+        $rules[] = new restore_log_rule('booking', 'update', 'view.php?id={course_module}',
                 '{booking}');
-        $rules[] = new restore_log_rule('booking', 'view', 'view.php?id={course_module}', 
+        $rules[] = new restore_log_rule('booking', 'view', 'view.php?id={course_module}',
                 '{booking}');
-        $rules[] = new restore_log_rule('booking', 'choose', 'view.php?id={course_module}', 
+        $rules[] = new restore_log_rule('booking', 'choose', 'view.php?id={course_module}',
                 '{booking}');
-        $rules[] = new restore_log_rule('booking', 'choose again', 'view.php?id={course_module}', 
+        $rules[] = new restore_log_rule('booking', 'choose again', 'view.php?id={course_module}',
                 '{booking}');
-        $rules[] = new restore_log_rule('booking', 'report', 'report.php?id={course_module}', 
+        $rules[] = new restore_log_rule('booking', 'report', 'report.php?id={course_module}',
                 '{booking}');
-        
+
         return $rules;
     }
 
@@ -105,12 +105,12 @@ class restore_booking_activity_task extends restore_activity_task {
      */
     static public function define_restore_log_rules_for_course() {
         $rules = array();
-        
+
         // Fix old wrong uses (missing extension)
-        $rules[] = new restore_log_rule('booking', 'view all', 'index?id={course}', null, null, null, 
+        $rules[] = new restore_log_rule('booking', 'view all', 'index?id={course}', null, null, null,
                 'index.php?id={course}');
         $rules[] = new restore_log_rule('booking', 'view all', 'index.php?id={course}', null);
-        
+
         return $rules;
     }
 }

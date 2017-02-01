@@ -46,57 +46,57 @@ if ($mform->is_cancelled()) {
     die();
 } else if ($fromform = $mform->get_data()) {
     $csvfile = $mform->get_file_content('excelfile');
-    
+
     $lines = explode(PHP_EOL, $csvfile);
     $csvArr = array();
     foreach ($lines as $line) {
         $csvArr[] = str_getcsv($line);
     }
-    
+
     $optionIDPos = -1;
     $userIDPos = -1;
     $completedPos = -1;
-    
+
     foreach ($csvArr[0] as $key => $value) {
         switch (trim($value)) {
             case "OptionID":
                 $optionIDPos = $key;
                 break;
-            
+
             case "UserID":
                 $userIDPos = $key;
                 break;
-            
+
             case "CourseCompleted":
                 $completedPos = $key;
                 break;
-            
+
             default:
                 break;
         }
     }
-    
+
     if ($optionIDPos > -1 && $userIDPos > -1 && $completedPos > -1) {
         array_shift($csvArr);
-        
+
         $completion = new completion_info($course);
-        
+
         foreach ($csvArr as $line) {
             if (count($line) >= 3) {
-                $user = $DB->get_record('booking_answers', 
-                        array('bookingid' => $cm->instance, 'userid' => $line[$userIDPos], 
+                $user = $DB->get_record('booking_answers',
+                        array('bookingid' => $cm->instance, 'userid' => $line[$userIDPos],
                             'optionid' => $line[$optionIDPos]));
-                
+
                 if ($user !== FALSE) {
                     $user->completed = $line[$completedPos];
                     $user->timemodified = time();
                     $DB->update_record('booking_answers', $user, false);
-                    
+
                     if ($completion->is_enabled($cm) && $booking->enablecompletion &&
                              $user->completed == 0) {
                         $completion->update_state($cm, COMPLETION_INCOMPLETE, $user->userid);
                     }
-                    
+
                     if ($completion->is_enabled($cm) && $booking->enablecompletion &&
                              $user->completed == 1) {
                         $completion->update_state($cm, COMPLETION_COMPLETE, $user->userid);
@@ -104,17 +104,17 @@ if ($mform->is_cancelled()) {
                 }
             }
         }
-        
+
         redirect($urlRedirect, get_string('importfinished', 'booking'), 5);
     } else {
         redirect($urlRedirect, get_string('wrongfile', 'booking'), 5);
     }
-    
+
     // In this case you process validated data. $mform->get_data() returns data posted in form.
 } else {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string("importexceltitle", "booking"), 3, 'helptitle', 'uniqueid');
-    
+
     $mform->display();
 }
 

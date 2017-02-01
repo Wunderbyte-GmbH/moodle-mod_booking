@@ -528,7 +528,7 @@ vielen Dank für die Buchung von {$a->title}.
 Termin: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 Ihr Buchungsstatus: {$a->status}
 Name:   {$a->participant}
-Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf folgenden Link: 
+Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf folgenden Link:
 {$a->bookinglink}
 
 ';
@@ -541,7 +541,7 @@ vielen Dank für die Buchung von {$a->title}.
 Termin: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 Ihr Buchungsstatus: {$a->status}
 Name:   {$a->participant}
-Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf folgenden Link: 
+Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf folgenden Link:
 {$a->bookinglink}
 
 ';
@@ -588,7 +588,7 @@ $string['pollurltextsubject'] = 'Nehmen Sie bitte an der Umfrage teil';
 $string['pollurltextmessage'] = 'Füllen Sie die Umfrage unter
 
 Survey url {pollurl}
-        
+
 aus.
 ';
 

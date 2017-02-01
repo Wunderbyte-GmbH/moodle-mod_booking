@@ -33,9 +33,9 @@ require_capability('mod/booking:updatebooking', $context);
 
 if ($delete != '') {
     $DB->delete_records("booking_optiondates", array('optionid' => $optionid, 'id' => $delete));
-    
+
     booking_updatestartenddate($optionid);
-    
+
     redirect($url, get_string('optiondatessucesfullydelete', 'booking'), 5);
 }
 
@@ -50,25 +50,25 @@ echo $OUTPUT->heading(get_string("optiondates", "booking"), 3, 'helptitle', 'uni
 $table = new html_table();
 $table->head = array(get_string('optiondatestime', 'booking'), '');
 
-$times = $DB->get_records('booking_optiondates', array('optionid' => $optionid), 
+$times = $DB->get_records('booking_optiondates', array('optionid' => $optionid),
         'coursestarttime ASC');
 
 $timesTable = array();
 
 foreach ($times as $time) {
-    $edit = new moodle_url('optiondatesadd.php', 
+    $edit = new moodle_url('optiondatesadd.php',
             array('cmid' => $cm->id, 'boptionid' => $optionid, 'oid' => $time->id));
     $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get');
-    $delete = new moodle_url('optiondates.php', 
+    $delete = new moodle_url('optiondates.php',
             array('id' => $id, 'optionid' => $optionid, 'delete' => $time->id));
     $buttonDelete = $OUTPUT->single_button($delete, get_string('delete', 'booking'), 'get');
-    
+
     $tmpDate = new stdClass();
     $tmpDate->leftdate = userdate($time->coursestarttime, get_string('leftdate', 'booking'));
     $tmpDate->righttdate = userdate($time->courseendtime, get_string('righttdate', 'booking'));
-    
-    $timesTable[] = array(get_string('leftandrightdate', 'booking', $tmpDate), 
-        html_writer::tag('span', $button . $buttonDelete, 
+
+    $timesTable[] = array(get_string('leftandrightdate', 'booking', $tmpDate),
+        html_writer::tag('span', $button . $buttonDelete,
                 array('style' => 'text-align: right; display:table-cell;')));
 }
 

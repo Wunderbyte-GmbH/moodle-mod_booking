@@ -42,43 +42,43 @@ if ($mform->is_cancelled()) {
     redirect($urlRedirect, '', 0);
     die();
 } else if ($fromform = $mform->get_data()) {
-    
+
     $csvfile = $mform->get_file_content('csvfile');
-    
+
     $lines = explode(PHP_EOL, $csvfile);
     $csvArr = array();
     foreach ($lines as $line) {
         $csvArr[] = str_getcsv($line);
     }
-    
+
     // Check if CSV is ok
-    
+
     if ($csvArr[0][0] == 'Institution') {
         array_shift($csvArr);
-        
+
         foreach ($csvArr as $line) {
-            
+
             if (count($line) == 1 && !empty($line[0])) {
-                
+
                 $institution = new stdClass();
                 $institution->name = $line[0];
                 $institution->course = $id;
-                
+
                 $bid = $DB->insert_record('booking_institutions', $institution, TRUE);
             }
         }
-        
+
         redirect($urlRedirect, get_string('importfinished', 'booking'), 5);
     } else {
         // Not ok, write error!
         redirect($urlRedirect, get_string('wrongfile', 'booking'), 5);
     }
-    
+
     // In this case you process validated data. $mform->get_data() returns data posted in form.
 } else {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string("importcsvtitle", "booking"), 3, 'helptitle', 'uniqueid');
-    
+
     // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
     // or on the first display of the form.
     // displays the form

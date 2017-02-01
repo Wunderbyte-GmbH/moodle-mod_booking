@@ -60,7 +60,7 @@ class bookingoption_booked extends \core\event\base {
 
     public function get_legacy_logdata() {
         // Override if you are migrating an add_to_log() call.
-        return array($this->courseid, 'booking', 'book', 'choose', 
+        return array($this->courseid, 'booking', 'book', 'choose',
             'view.php?id=' . $this->contextinstanceid, $this->objectid, $this->contextinstanceid);
     }
 

@@ -64,7 +64,7 @@ foreach ($categories as $category) {
     $deletelink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$category->id&delete=1\">" .
              get_string('deletecategory', 'booking') . '</a>';
     echo "<li>$category->name - $editlink - $deletelink</li>";
-    $subcategories = $DB->get_records('booking_category', 
+    $subcategories = $DB->get_records('booking_category',
             array('course' => $courseid, 'cid' => $category->id));
     if (count((array) $subcategories < 0)) {
         echo "<ul>";

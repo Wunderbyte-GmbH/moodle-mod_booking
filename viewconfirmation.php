@@ -13,7 +13,7 @@ require_once ("locallib.php");
 $id = required_param('id', PARAM_INT); // Course Module ID
 $optionid = required_param('optionid', PARAM_INT); // Option ID
 
-$url = new moodle_url('/mod/booking/viewconfirmation.php', 
+$url = new moodle_url('/mod/booking/viewconfirmation.php',
         array('id' => $id, 'optionid' => $optionid));
 $PAGE->set_url($url);
 
