@@ -9,19 +9,22 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Global settings
  *
- * @package   mod_bookings
+ * @package mod_bookings
  * @copyright 2012 Davo Smith, Synergy Learning
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 if ($ADMIN->fulltree) {
-    $settings->add(new admin_setting_configcheckbox('booking/attachical', get_string('attachical', 'mod_booking'), get_string('attachicaldesc', 'mod_booking'), 0));
+    $settings->add(
+            new admin_setting_configcheckbox('booking/attachical', 
+                    get_string('attachical', 'mod_booking'), 
+                    get_string('attachicaldesc', 'mod_booking'), 0));
 }

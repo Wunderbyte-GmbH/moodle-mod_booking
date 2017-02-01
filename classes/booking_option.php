@@ -60,10 +60,11 @@ class booking_option extends booking {
         // $this->update_booked_users();
         $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', 
                 'MUST_EXIST');
-        $times = $DB->get_records_sql("SELECT id, coursestarttime, courseendtime FROM {booking_optiondates} WHERE optionid = ? ORDER BY coursestarttime ASC", 
+        $times = $DB->get_records_sql(
+                "SELECT id, coursestarttime, courseendtime FROM {booking_optiondates} WHERE optionid = ? ORDER BY coursestarttime ASC", 
                 array($optionid));
-        if(!empty($times)){
-            foreach ($times as $key => $time){
+        if (!empty($times)) {
+            foreach ($times as $key => $time) {
                 $this->option->times = $time->coursestarttime . " - " . $time->courseendtime . " - ";
             }
             trim($this->option->times, " - ");
@@ -127,8 +128,7 @@ class booking_option extends booking {
                         "SELECT bo.*, b.text
                         FROM mdl_booking_other AS bo
                         LEFT JOIN mdl_booking_options AS b ON b.id = bo.optionid
-                        WHERE b.bookingid = ?", 
-                        array($connectedBooking->id));
+                        WHERE b.bookingid = ?", array($connectedBooking->id));
                 
                 if (!$noLimits) {
                     $howManyNum = $this->option->howmanyusers;
@@ -227,12 +227,11 @@ class booking_option extends booking {
                 ba.timemodified,
                 ba.completed, 
                 ba.timecreated, 
-                ba.waitinglist, ' .
-                         $mainuserfields .
-                         ', ' . $DB->sql_fullname('u.firstname','u.lastname') . ' AS fullname FROM {booking_answers} ba LEFT JOIN {user} u ON ba.userid = u.id WHERE ' .
-                         $options .
-                         ' ORDER BY ba.optionid, ba.timemodified DESC', 
-                        $params, $this->perpage * $this->page, $this->perpage);
+                ba.waitinglist, ' . $mainuserfields . ', ' .
+                         $DB->sql_fullname('u.firstname', 'u.lastname') .
+                         ' AS fullname FROM {booking_answers} ba LEFT JOIN {user} u ON ba.userid = u.id WHERE ' .
+                         $options . ' ORDER BY ba.optionid, ba.timemodified DESC', $params, 
+                        $this->perpage * $this->page, $this->perpage);
         
         foreach ($this->users as $user) {
             if ($user->waitinglist == 1) {
@@ -328,8 +327,7 @@ class booking_option extends booking {
     }
 
     /**
-     * Updates canbookusers and bookedusers does not check the status (booked or waitinglist)
-     * Just gets the registered booking from database
+     * Updates canbookusers and bookedusers does not check the status (booked or waitinglist) Just gets the registered booking from database
      * Calculates the potential users (bookers able to book, but not yet booked)
      */
     public function update_booked_users() {
@@ -350,8 +348,7 @@ class booking_option extends booking {
         $params = array($this->id, $this->optionid);
         
         /**
-         * it is possible that the cap mod/booking:choose has been revoked after the user has booked
-         * Therefore do not count them as booked users.
+         * it is possible that the cap mod/booking:choose has been revoked after the user has booked Therefore do not count them as booked users.
          */
         $allanswers = $DB->get_records_sql($sql, $params);
         $this->bookedusers = array_intersect_key($allanswers, $this->canbookusers);
@@ -408,9 +405,8 @@ class booking_option extends booking {
     }
 
     /**
-     * Deletes a single booking of a user if user cancels the booking, sends mail to bookingmanager.
-     * If there is a limit
-     * book other user and send mail to the user.
+     * Deletes a single booking of a user if user cancels the booking, sends mail to bookingmanager. If there is a limit book other user and send mail
+     * to the user.
      *
      * @param $userid
      * @return true if booking was deleted successfully, otherwise false
@@ -440,8 +436,7 @@ class booking_option extends booking {
         $event = \mod_booking\event\booking_cancelled::create(
                 array('objectid' => $this->optionid, 
                     'context' => \context_module::instance($this->cm->id), 
-                    'relateduserid' => $user->id, 
-                    'other' => array('userid' => $user->id)));
+                    'relateduserid' => $user->id, 'other' => array('userid' => $user->id)));
         $event->trigger();
         
         booking_check_unenrol_user($this->option, $this->booking, $user->id);
@@ -521,8 +516,7 @@ class booking_option extends booking {
                 booking_check_enrol_user($this->option, $this->booking, $newUser->userid);
                 
                 if ($this->booking->sendmail == 1 || $this->booking->copymail) {
-                    $newbookeduser = $DB->get_record('user', 
-                            array('id' => $newUser->userid));
+                    $newbookeduser = $DB->get_record('user', array('id' => $newUser->userid));
                     $params = booking_generate_email_params($this->booking, $this->option, 
                             $newbookeduser, $this->cm->id);
                     $messagetextnewuser = booking_get_email_body($this->booking, 'statuschangetext', 
@@ -658,8 +652,7 @@ class booking_option extends booking {
         $event = \mod_booking\event\bookingoption_booked::create(
                 array('objectid' => $this->optionid, 
                     'context' => \context_module::instance($this->cm->id), 
-                    'relateduserid' => $user->id, 
-                    'other' => array('userid' => $user->id)));
+                    'relateduserid' => $user->id, 'other' => array('userid' => $user->id)));
         $event->trigger();
         
         if ($this->booking->sendmail) {

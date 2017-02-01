@@ -1,10 +1,8 @@
 <?php
-
-require_once('../../config.php');
-require_once("$CFG->dirroot/mod/booking/locallib.php");
+require_once ('../../config.php');
+require_once ("$CFG->dirroot/mod/booking/locallib.php");
 $id = required_param('id', PARAM_INT);
 $cmid = required_param('cmid', PARAM_INT);
-
 
 $booking = new \mod_booking\booking($cmid);
 $booking->apply_tags();
@@ -25,7 +23,8 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading(get_string("bookingpolicy", "booking"), 2);
 
-echo $OUTPUT->box_start('generalbox', 'tag-blogs'); //could use an id separate from tag-blogs, but would have to copy the css style to make it look the same
+echo $OUTPUT->box_start('generalbox', 'tag-blogs'); // could use an id separate from tag-blogs, but would have to copy the css style to make it look
+                                                    // the same
 
 echo $booking->booking->bookingpolicy;
 

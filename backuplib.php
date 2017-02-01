@@ -1,39 +1,37 @@
 <?php
 
-//$Id: backuplib.php,v 1.11 2006/02/08 23:46:21 danmarsden Exp $
-//This php script contains all the stuff to backup/restore
-//booking mods
-//This is the "graphical" structure of the booking mod:
+// $Id: backuplib.php,v 1.11 2006/02/08 23:46:21 danmarsden Exp $
+// This php script contains all the stuff to backup/restore
+// booking mods
+// This is the "graphical" structure of the booking mod:
 //
-//                      booking
-//                    (CL,pk->id)----------|
-//                        |                |
-//                        |                |
-//                        |                |
-//                  booking_options         |
-//             (UL,pk->id, fk->bookingid)   |
-//                        |                |
-//                        |                |
-//                        |                |
-//                   booking_answers        |
-//        (UL,pk->id, fk->bookingid, fk->optionid)
+// booking
+// (CL,pk->id)----------|
+// | |
+// | |
+// | |
+// booking_options |
+// (UL,pk->id, fk->bookingid) |
+// | |
+// | |
+// | |
+// booking_answers |
+// (UL,pk->id, fk->bookingid, fk->optionid)
 //
 // Meaning: pk->primary key field of the table
-//          fk->foreign key to link with parent
-//          nt->nested field (recursive data)
-//          CL->course level info
-//          UL->user level info
-//          files->table may have files)
+// fk->foreign key to link with parent
+// nt->nested field (recursive data)
+// CL->course level info
+// UL->user level info
+// files->table may have files)
 //
-//-----------------------------------------------------------
-
+// -----------------------------------------------------------
 function booking_backup_mods($bf, $preferences) {
-
     global $CFG;
-
+    
     $status = true;
-
-    //Iterate over booking table
+    
+    // Iterate over booking table
     $bookings = get_records("booking", "course", $preferences->backup_course, "id");
     if ($bookings) {
         foreach ($bookings as $booking) {
@@ -46,18 +44,17 @@ function booking_backup_mods($bf, $preferences) {
 }
 
 function booking_backup_one_mod($bf, $preferences, $booking) {
-
     global $CFG;
-
+    
     if (is_numeric($booking)) {
         $booking = get_record('booking', 'id', $booking);
     }
-
+    
     $status = true;
-
-    //Start mod
+    
+    // Start mod
     fwrite($bf, start_tag("MOD", 3, true));
-    //Print booking data
+    // Print booking data
     fwrite($bf, full_tag("ID", 4, false, $booking->id));
     fwrite($bf, full_tag("MODTYPE", 4, false, "booking"));
     fwrite($bf, full_tag("NAME", 4, false, $booking->name));
@@ -90,68 +87,66 @@ function booking_backup_one_mod($bf, $preferences, $booking) {
     fwrite($bf, full_tag("POLLURLTEACHERSTEXT", 4, false, $booking->pollurlteacherstext));
     fwrite($bf, full_tag("DAYSTONOTIFY", 4, false, $booking->daystonotify));
     fwrite($bf, full_tag("NOTIFYEMAIL", 4, false, $booking->notifyemail));
-
-    //Now backup booking_options
+    
+    // Now backup booking_options
     $status = backup_booking_options($bf, $preferences, $booking->id);
-
-    //if we've selected to backup users info, then execute backup_booking_answers
+    
+    // if we've selected to backup users info, then execute backup_booking_answers
     if (backup_userdata_selected($preferences, 'booking', $booking->id)) {
         $status = backup_booking_answers($bf, $preferences, $booking->id);
     }
-    //End mod
+    // End mod
     $status = fwrite($bf, end_tag("MOD", 3, true));
-
+    
     return $status;
 }
 
-//Backup booking_answers contents (executed from booking_backup_mods)
+// Backup booking_answers contents (executed from booking_backup_mods)
 function backup_booking_answers($bf, $preferences, $booking) {
-
     global $CFG;
-
+    
     $status = true;
-
+    
     $booking_answers = get_records("booking_answers", "bookingid", $booking, "id");
-    //If there is answers
+    // If there is answers
     if ($booking_answers) {
-        //Write start tag
+        // Write start tag
         $status = fwrite($bf, start_tag("ANSWERS", 4, true));
-        //Iterate over each answer
+        // Iterate over each answer
         foreach ($booking_answers as $cho_ans) {
-            //Start answer
+            // Start answer
             $status = fwrite($bf, start_tag("ANSWER", 5, true));
-            //Print answer contents
+            // Print answer contents
             fwrite($bf, full_tag("ID", 6, false, $cho_ans->id));
             fwrite($bf, full_tag("BOOKINGID", 6, false, $cho_ans->bookingid));
             fwrite($bf, full_tag("USERID", 6, false, $cho_ans->userid));
             fwrite($bf, full_tag("OPTIONID", 6, false, $cho_ans->optionid));
             fwrite($bf, full_tag("TIMEMODIFIED", 6, false, $cho_ans->timemodified));
-            //End answer
+            // End answer
             $status = fwrite($bf, end_tag("ANSWER", 5, true));
         }
-        //Write end tag
+        // Write end tag
         $status = fwrite($bf, end_tag("ANSWERS", 4, true));
     }
     return $status;
 }
 
-//backup booking_options contents (executed from booking_backup_mods)
+// backup booking_options contents (executed from booking_backup_mods)
 function backup_booking_options($bf, $preferences, $booking) {
-
     global $CFG;
-
+    
     $status = true;
-
+    
     $booking_options = get_records("booking_options", "bookingid", $booking, "id");
-    //If there is options
+    // If there is options
     if ($booking_options) {
-        //Write start tag
+        // Write start tag
         $status = fwrite($bf, start_tag("OPTIONS", 4, true));
-        //Iterate over each answer
+        // Iterate over each answer
         foreach ($booking_options as $cho_opt) {
-            //Start option
+            // Start option
             $status = fwrite($bf, start_tag("OPTION", 5, true));
-            //Print option contents
+            // Print option contents
             fwrite($bf, full_tag("ID", 6, false, $cho_opt->id));
             fwrite($bf, full_tag("BOOKINGID", 6, false, $cho_opt->bookingid));
             fwrite($bf, full_tag("TEXT", 6, false, $cho_opt->text));
@@ -167,23 +162,22 @@ function backup_booking_options($bf, $preferences, $booking) {
             fwrite($bf, full_tag("ADDTOCALENDAR", 6, false, $cho_opt->addtocalendar));
             fwrite($bf, full_tag("CALENDARID", 6, false, $cho_opt->calendarid));
             fwrite($bf, full_tag("POLLURL", 6, false, $cho_opt->pollurl));
-            fwrite($bf, full_tag("GROUPID", 6, false, $cho_opt->groupid));            
+            fwrite($bf, full_tag("GROUPID", 6, false, $cho_opt->groupid));
             fwrite($bf, full_tag("SENT", 6, false, $cho_opt->sent));
             fwrite($bf, full_tag("LOCATION", 6, false, $cho_opt->location));
             fwrite($bf, full_tag("INSTITUTION", 6, false, $cho_opt->institution));
             fwrite($bf, full_tag("ADDRESS", 6, false, $cho_opt->address));
-            //End answer
+            // End answer
             $status = fwrite($bf, end_tag("OPTION", 5, true));
         }
-        //Write end tag
+        // Write end tag
         $status = fwrite($bf, end_tag("OPTIONS", 4, true));
     }
     return $status;
 }
 
-////Return an array of info (name,value)
+// //Return an array of info (name,value)
 function booking_check_backup_mods($course, $user_data = false, $backup_unique_code, $instances = null) {
-
     if (!empty($instances) && is_array($instances) && count($instances)) {
         $info = array();
         foreach ($instances as $id => $instance) {
@@ -191,15 +185,15 @@ function booking_check_backup_mods($course, $user_data = false, $backup_unique_c
         }
         return $info;
     }
-    //First the course data
+    // First the course data
     $info[0][0] = get_string("modulenameplural", "booking");
     if ($ids = booking_ids($course)) {
         $info[0][1] = count($ids);
     } else {
         $info[0][1] = 0;
     }
-
-    //Now, if requested, the user_data
+    
+    // Now, if requested, the user_data
     if ($user_data) {
         $info[1][0] = get_string("responses", "booking");
         if ($ids = booking_answer_ids_by_course($course)) {
@@ -211,13 +205,13 @@ function booking_check_backup_mods($course, $user_data = false, $backup_unique_c
     return $info;
 }
 
-////Return an array of info (name,value)
+// //Return an array of info (name,value)
 function booking_check_backup_mods_instances($instance, $backup_unique_code) {
-    //First the course data
+    // First the course data
     $info[$instance->id . '0'][0] = '<b>' . $instance->name . '</b>';
     $info[$instance->id . '0'][1] = '';
-
-    //Now, if requested, the user_data
+    
+    // Now, if requested, the user_data
     if (!empty($instance->userdata)) {
         $info[$instance->id . '1'][0] = get_string("responses", "booking");
         if ($ids = booking_answer_ids_by_instance($instance->id)) {
@@ -229,54 +223,53 @@ function booking_check_backup_mods_instances($instance, $backup_unique_code) {
     return $info;
 }
 
-//Return a content encoded to support interactivities linking. Every module
-//should have its own. They are called automatically from the backup procedure.
+// Return a content encoded to support interactivities linking. Every module
+// should have its own. They are called automatically from the backup procedure.
 function booking_encode_content_links($content, $preferences) {
-
     global $CFG;
-
+    
     $base = preg_quote($CFG->wwwroot, "/");
-
-    //Link to the list of bookings
+    
+    // Link to the list of bookings
     $buscar = "/(" . $base . "\/mod\/booking\/index.php\?id\=)([0-9]+)/";
     $result = preg_replace($buscar, '$@BOOKINGINDEX*$2@$', $content);
-
-    //Link to booking view by moduleid
+    
+    // Link to booking view by moduleid
     $buscar = "/(" . $base . "\/mod\/booking\/view.php\?id\=)([0-9]+)/";
     $result = preg_replace($buscar, '$@BOOKINGVIEWBYID*$2@$', $result);
-
+    
     return $result;
 }
 
 // INTERNAL FUNCTIONS. BASED IN THE MOD STRUCTURE
-//Returns an array of bookings id
+// Returns an array of bookings id
 function booking_ids($course) {
-
     global $CFG;
-
-    return get_records_sql("SELECT a.id, a.course
+    
+    return get_records_sql(
+            "SELECT a.id, a.course
                                  FROM {$CFG->prefix}booking a
                                  WHERE a.course = '$course'");
 }
 
-//Returns an array of booking_answers id
+// Returns an array of booking_answers id
 function booking_answer_ids_by_course($course) {
-
     global $CFG;
-
-    return get_records_sql("SELECT s.id , s.bookingid
+    
+    return get_records_sql(
+            "SELECT s.id , s.bookingid
                                  FROM {$CFG->prefix}booking_answers s,
                                  {$CFG->prefix}booking a
                                  WHERE a.course = '$course' AND
                                        s.bookingid = a.id");
 }
 
-//Returns an array of booking_answers id
+// Returns an array of booking_answers id
 function booking_answer_ids_by_instance($instanceid) {
-
     global $CFG;
-
-    return get_records_sql("SELECT s.id , s.bookingid
+    
+    return get_records_sql(
+            "SELECT s.id , s.bookingid
                                  FROM {$CFG->prefix}booking_answers s
                                  WHERE s.bookingid = $instanceid");
 }

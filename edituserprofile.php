@@ -1,14 +1,13 @@
 <?php
+require_once ('../../config.php');
+require_once ($CFG->libdir . '/gdlib.php');
+require_once ($CFG->libdir . '/adminlib.php');
+require_once ($CFG->dirroot . '/mod/booking/editprofileform.class.php');
+require_once ($CFG->dirroot . '/user/editlib.php');
+require_once ($CFG->dirroot . '/user/profile/lib.php');
 
-require_once('../../config.php');
-require_once($CFG->libdir . '/gdlib.php');
-require_once($CFG->libdir . '/adminlib.php');
-require_once($CFG->dirroot . '/mod/booking/editprofileform.class.php');
-require_once($CFG->dirroot . '/user/editlib.php');
-require_once($CFG->dirroot . '/user/profile/lib.php');
-
-$cmid = required_param('cmid', PARAM_INT);    // course module id
-$courseid = required_param('courseid', PARAM_INT);   // course id (defaults to Site)
+$cmid = required_param('cmid', PARAM_INT); // course module id
+$courseid = required_param('courseid', PARAM_INT); // course id (defaults to Site)
 
 $url = new moodle_url('/mod/booking/edituserprofile.php', array('id' => $cmid));
 
@@ -24,9 +23,9 @@ if (!$cm = get_coursemodule_from_id('booking', $cmid)) {
 require_course_login($course, false, $cm);
 
 if ($course->id == SITEID) {
-	$coursecontext = context_course::instance(SITEID);   // SYSTEM context
+    $coursecontext = context_course::instance(SITEID); // SYSTEM context
 } else {
-	$coursecontext = context_course::instance($course->id); // Course context
+    $coursecontext = context_course::instance($course->id); // Course context
 }
 $systemcontext = context_system::instance();
 
@@ -41,7 +40,7 @@ if ($user->id != -1 and is_mnet_remote_user($user)) {
     redirect($CFG->wwwroot . "/user/view.php?id=$USER->id&course={$course->id}");
 }
 
-if ($user->id != $USER->id and is_primary_admin($user->id)) {  // Can't edit primary admin
+if ($user->id != $USER->id and is_primary_admin($user->id)) { // Can't edit primary admin
     print_error('adminprimarynoedit');
 }
 
@@ -49,16 +48,16 @@ if (isguestuser($user->id)) { // the real guest user can not be edited
     print_error('guestnoeditprofileother');
 }
 
-//Load custom profile fields data
+// Load custom profile fields data
 profile_load_data($user);
 
-//user interests separated by commas
+// user interests separated by commas
 if (!empty($CFG->usetags)) {
-    require_once($CFG->dirroot . '/tag/lib.php');
+    require_once ($CFG->dirroot . '/tag/lib.php');
     $user->interests = tag_get_tags_csv('user', $USER->id, TAG_RETURN_TEXT); // formslib uses htmlentities itself
 }
 
-//create form
+// create form
 $userform = new mod_booking_userprofile_form();
 $user->cmid = $cmid;
 $userform->set_data($user);
@@ -66,19 +65,17 @@ $userform->set_data($user);
 if ($usernew = $userform->get_data()) {
     // use all the profile settings from $user and only replace user_profile_fields;
     $usernew->timemodified = time();
-
+    
     // save custom profile fields data
     profile_save_data($usernew);
-
-	// reload from db
-	$usernew = $DB->get_record('user', array('id' => $usernew->id));
-	
-	$event = \mod_booking\event\userprofilefields_updated::create(array(
-	        'objectid' => $usernew->id,
-	        'context' => context_module::instance($cmid)
-	));
-	$event->trigger();
-	redirect("$CFG->wwwroot/mod/booking/view.php?id=$cmid");
+    
+    // reload from db
+    $usernew = $DB->get_record('user', array('id' => $usernew->id));
+    
+    $event = \mod_booking\event\userprofilefields_updated::create(
+            array('objectid' => $usernew->id, 'context' => context_module::instance($cmid)));
+    $event->trigger();
+    redirect("$CFG->wwwroot/mod/booking/view.php?id=$cmid");
 }
 
 // print header
@@ -92,9 +89,9 @@ $PAGE->set_title(get_string('edituser'));
 $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 
-/// Finally display THE form
+// / Finally display THE form
 $userform->display();
 
-/// and proper footer
+// / and proper footer
 echo $OUTPUT->footer();
 ?>

@@ -1,8 +1,8 @@
 <?PHP
-//renderer.php
+// renderer.php
 $string['showonlymyinstitutions'] = "Meine Institution";
 
-//view.php
+// view.php
 $string['addmorebookings'] = 'Buchungen hinzufügen';
 $string['allowupdate'] = 'Buchungen dürfen gelöscht/aktualisiert werden';
 $string['answered'] = 'Beantwortet';
@@ -241,7 +241,6 @@ $string['pollurl_help'] = 'Folgende Platzhalter können im Text verwendet werden
 <li>{qr_id} - QR Code der Userid einfügen</li>
 <li>{qr_username} - QR Code des Usernamen einfügen</li>
 </ul>';
-
 
 $string['bookedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
@@ -574,7 +573,6 @@ $string['deletedbookingusermessage'] = 'Guten Tag {$a->participant},
 Die Buchung für {$a->title} wurde erfolgreich storniert
 ';
 
-
 $string['error:failedtosendconfirmation'] = 'Folgender User hat kein Bestätigungsmail erhalten
 Die Buchung wurde erfolgreich durchgeführt, das Senden des Bestätigungsmails ist aber fehlgeschlagen.
 
@@ -606,7 +604,7 @@ $string['notificationtextmessage'] = 'Kursbeginn:
 Kurs:   {$a->title}
 Datum: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
 
-//report.php and bookingmanagusers.class.php
+// report.php and bookingmanagusers.class.php
 $string['addteachers'] = 'Trainer/innen hinzufügen';
 $string['allmailssend'] = 'Alle Benachrichtigungen wurden erfolgreich versandt!';
 $string['associatedcourse'] = 'Dazu gehörender Kurs';

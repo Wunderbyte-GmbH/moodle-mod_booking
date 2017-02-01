@@ -3,17 +3,18 @@
 /**
  * View confirmation message
  *
- * @package   Booking
+ * @package Booking
  * @copyright 2016 Andraž Prinčič www.princic.net
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * */
-require_once("../../config.php");
-require_once("locallib.php");
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+require_once ("../../config.php");
+require_once ("locallib.php");
 
-$id = required_param('id', PARAM_INT);                 // Course Module ID
-$optionid = required_param('optionid', PARAM_INT);                 // Option ID
+$id = required_param('id', PARAM_INT); // Course Module ID
+$optionid = required_param('optionid', PARAM_INT); // Option ID
 
-$url = new moodle_url('/mod/booking/viewconfirmation.php', array('id' => $id, 'optionid' => $optionid));
+$url = new moodle_url('/mod/booking/viewconfirmation.php', 
+        array('id' => $id, 'optionid' => $optionid));
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);

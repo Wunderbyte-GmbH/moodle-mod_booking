@@ -1,9 +1,8 @@
 <?php
+require_once ("../../config.php");
+require_once ("lib.php");
 
-require_once("../../config.php");
-require_once("lib.php");
-
-$id = required_param('id', PARAM_INT);   // course
+$id = required_param('id', PARAM_INT); // course
 
 $PAGE->set_url('/mod/booking/index.php', array('id' => $id));
 if (!$course = $DB->get_record('course', array('id' => $id))) {
@@ -35,7 +34,7 @@ $sql = "SELECT cha.*
                    ch.course = $course->id AND cha.userid = $USER->id";
 
 $answers = array();
-if (isloggedin() and ! isguestuser() and $allanswers = $DB->get_records_sql($sql)) {
+if (isloggedin() and !isguestuser() and $allanswers = $DB->get_records_sql($sql)) {
     foreach ($allanswers as $aa) {
         $answers[$aa->bookingid] = $aa;
     }
@@ -47,10 +46,12 @@ $table = new html_table();
 $timenow = time();
 
 if ($course->format == "weeks") {
-    $table->head = array(get_string("week", "booking"), get_string("question", "booking"), get_string("answer", "booking"));
+    $table->head = array(get_string("week", "booking"), get_string("question", "booking"), 
+        get_string("answer", "booking"));
     $table->align = array("center", "left", "left");
 } else if ($course->format == "topics") {
-    $table->head = array(get_string("topic", "booking"), get_string("question", "booking"), get_string("answer", "booking"));
+    $table->head = array(get_string("topic", "booking"), get_string("question", "booking"), 
+        get_string("answer", "booking"));
     $table->align = array("center", "left", "left");
 } else {
     $table->head = array(get_string("question", "booking"), get_string("answer", "booking"));
@@ -80,16 +81,18 @@ foreach ($bookings as $booking) {
         }
         $currentsection = $booking->section;
     }
-
-    //Calculate the href
+    
+    // Calculate the href
     if (!$booking->visible) {
-        //Show dimmed if the mod is hidden
-        $tt_href = "<a class=\"dimmed\" href=\"view.php?id=$booking->coursemodule\">" . format_string($booking->name, true) . "</a>";
+        // Show dimmed if the mod is hidden
+        $tt_href = "<a class=\"dimmed\" href=\"view.php?id=$booking->coursemodule\">" .
+                 format_string($booking->name, true) . "</a>";
     } else {
-        //Show normal if the mod is visible
-        $tt_href = "<a href=\"view.php?id=$booking->coursemodule\">" . format_string($booking->name, true) . "</a>";
+        // Show normal if the mod is visible
+        $tt_href = "<a href=\"view.php?id=$booking->coursemodule\">" .
+                 format_string($booking->name, true) . "</a>";
     }
-
+    
     if ($course->format == "weeks" || $course->format == "topics") {
         $table->data[] = array($printsection, $tt_href, $aa);
     } else {

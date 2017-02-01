@@ -6,10 +6,10 @@ $string['question'] = "Question";
 $string['answer'] = "Answer";
 $string['topic'] = "Topic";
 
-//renderer.php
+// renderer.php
 $string['showonlymyinstitutions'] = "My institution";
 
-//view.php
+// view.php
 $string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
 $string['answered'] = 'Answered';
@@ -37,7 +37,7 @@ $string['bookingopen'] = 'Open';
 $string['bookingtext'] = 'Booking text';
 $string['datenotset'] = 'Date not set';
 $string['daystonotify'] = 'How many days before start of event to notify participaints?';
-$string['eventbooking_cancelled'] = 'Booking canceled'; 
+$string['eventbooking_cancelled'] = 'Booking canceled';
 $string['eventbookingoption_booked'] = 'Booking option booked';
 $string['eventreport_viewed'] = 'Report viewed';
 $string['eventuserprofilefields_updated'] = 'Userprofile updated';
@@ -678,7 +678,7 @@ $string['notificationtextmessage'] = 'Course will start:
 Course:   {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
 
-//report.php
+// report.php
 $string['activitycompleted'] = 'Activity completed';
 $string['addteachers'] = 'Add teachers';
 $string['allmailssend'] = 'All emails to users have been sent sucesfully!';
@@ -803,7 +803,7 @@ $string['deletedrule'] = 'Rule sucesfully deleted.';
 $string['selectoptioninotherbooking'] = "Option";
 $string['otherbookinglimit'] = "Limit";
 $string['otherbookinglimit_help'] = "How many users you accept from option. If 0, you can accept unlimited users.";
-$string['otherbookingsucesfullysaved'] = 'Rule sucesfully saved!'; 
+$string['otherbookingsucesfullysaved'] = 'Rule sucesfully saved!';
 
 // optiondates.php
 $string['addnewoptiondates'] = 'Add new session';

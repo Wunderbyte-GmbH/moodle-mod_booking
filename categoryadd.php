@@ -1,15 +1,15 @@
 <?php
-
-require_once("../../config.php");
-require_once("lib.php");
-require_once("categoriesform.class.php");
+require_once ("../../config.php");
+require_once ("lib.php");
+require_once ("categoriesform.class.php");
 
 $courseid = required_param('courseid', PARAM_INT);
 $cid = optional_param('cid', '', PARAM_INT);
 $delete = optional_param('delete', '', PARAM_INT);
 
 if ($cid != '') {
-    $url = new moodle_url('/mod/booking/categoryadd.php', array('courseid' => $courseid, 'cid' => $cid));
+    $url = new moodle_url('/mod/booking/categoryadd.php', 
+            array('courseid' => $courseid, 'cid' => $cid));
 } else {
     $url = new moodle_url('/mod/booking/categoryadd.php', array('courseid' => $courseid));
 }
@@ -34,19 +34,19 @@ $redirecturl = new moodle_url('categories.php', array('courseid' => $courseid));
 
 if ($delete == 1) {
     $candelete = TRUE;
-
+    
     $categories = $DB->get_records("booking_category", array("cid" => $cid));
     if (count((array) $categories) > 0) {
         $candelete = FALSE;
         $delmessage = get_string('deletesubcategory', 'booking');
     }
-
+    
     $bookings = $DB->get_records("booking", array("categoryid" => $cid));
     if (count((array) $bookings) > 0) {
         $candelete = FALSE;
         $delmessage = get_string('usedinbooking', 'booking');
     }
-
+    
     if ($candelete) {
         $DB->delete_records("booking_category", array("id" => $cid));
         $delmessage = get_string('sucesfulldeleted', 'booking');
@@ -78,7 +78,7 @@ if ($mform->is_cancelled()) {
         $category->cid = $data->cid;
     }
     $category->course = $data->course;
-
+    
     if ($category->id != '') {
         $DB->update_record("booking_category", $category);
     } else {

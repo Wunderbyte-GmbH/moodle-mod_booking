@@ -4,18 +4,16 @@ namespace mod_booking;
 
 
 /**
- * Manage the view of all booking options
- * General methods for all options
- * 
+ * Manage the view of all booking options General methods for all options
+ *
  * @param cmid int coursemodule id
  */
 class booking_options extends booking {
 
     /**
      *
-     * @var array of users booked and on waitinglist
-     *      $allbookedusers[optionid][sortnumber]->userobject
-     *      no user data is stored in the object only id and booking option related data such as
+     * @var array of users booked and on waitinglist $allbookedusers[optionid][sortnumber]->userobject no user data is stored in the object only id
+     *      and booking option related data such as
      */
     public $allbookedusers = array();
 
@@ -155,21 +153,21 @@ class booking_options extends booking {
         
         $options = $this->q_params();
         $this->options = $DB->get_records_sql(
-                "SELECT DISTINCT bo.* " .
-                         $options['sql'], $options['args'], $this->perpage * $this->page, 
-                        $this->perpage);
-        if(!empty($this->options)){
-            list ($inoptionssql, $params) = $DB->get_in_or_equal(array_keys($this->options));
-            $timessql = 'SELECT bod.id AS dateid, bo.id AS optionid, '. $DB->sql_concat('bod.coursestarttime', "'-'", 'bod.courseendtime') .' AS times
+                "SELECT DISTINCT bo.* " . $options['sql'], $options['args'], 
+                $this->perpage * $this->page, $this->perpage);
+        if (!empty($this->options)) {
+            list($inoptionssql, $params) = $DB->get_in_or_equal(array_keys($this->options));
+            $timessql = 'SELECT bod.id AS dateid, bo.id AS optionid, ' .
+                     $DB->sql_concat('bod.coursestarttime', "'-'", 'bod.courseendtime') . ' AS times
                    FROM {booking_optiondates} bod, {booking_options} bo
                    WHERE bo.id = bod.optionid
-                   AND bo.id '.$inoptionssql.'
+                   AND bo.id ' . $inoptionssql . '
                    ORDER BY bod.coursestarttime ASC';
             $times = $DB->get_records_sql($timessql, $params);
             
-            if(!empty($times)){
-                foreach($times as $time) {
-                    if(empty($optiontimes[$time->optionid])){
+            if (!empty($times)) {
+                foreach ($times as $time) {
+                    if (empty($optiontimes[$time->optionid])) {
                         $optiontimes[$time->optionid] = $time->times;
                     } else {
                         $optiontimes[$time->optionid] .= ", " . $time->times;
@@ -284,9 +282,8 @@ class booking_options extends booking {
     }
 
     /**
-     * Gives a list of booked users sorted in an array by booking option
-     * former get_spreadsheet_data
-     * 
+     * Gives a list of booked users sorted in an array by booking option former get_spreadsheet_data
+     *
      * @return void
      */
     public function get_options_data() {
@@ -336,8 +333,7 @@ class booking_options extends booking {
     }
 
     /**
-     * sorts booking options in booked users and waitinglist users
-     * adds the status to userobject
+     * sorts booking options in booked users and waitinglist users adds the status to userobject
      */
     public function sort_bookings() {
         if (!empty($this->allbookedusers) && !empty($this->options)) {
@@ -366,7 +362,7 @@ class booking_options extends booking {
 
     /**
      * Returns all bookings of $USER with status
-     * 
+     *
      * @return array of [bookingid][optionid] = userobjects:
      */
     public function get_my_bookings() {
@@ -395,8 +391,7 @@ class booking_options extends booking {
     }
 
     /**
-     * sets $user->bookingvisible to true or false dependant on group
-     * member status and access all group capability
+     * sets $user->bookingvisible to true or false dependant on group member status and access all group capability
      */
     public function set_booked_visible_users() {
         if (!empty($this->allbookedusers)) {

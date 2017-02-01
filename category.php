@@ -1,7 +1,6 @@
 <?php
-
-require_once("../../config.php");
-require_once("lib.php");
+require_once ("../../config.php");
+require_once ("lib.php");
 
 $id = required_param('id', PARAM_INT);
 $categoryid = optional_param('category', '', PARAM_INT);
@@ -32,10 +31,11 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading($category->name, 2);
 
-//$records = $DB->get_records('booking', array('categoryid' => $category->id));
+// $records = $DB->get_records('booking', array('categoryid' => $category->id));
 $records = $DB->get_records_select('booking', 'categoryid LIKE "%' . $category->id . '%"');
 
-echo $OUTPUT->box_start('generalbox', 'tag-blogs'); //could use an id separate from tag-blogs, but would have to copy the css style to make it look the same
+echo $OUTPUT->box_start('generalbox', 'tag-blogs'); // could use an id separate from tag-blogs, but would have to copy the css style to make it look
+                                                    // the same
 
 echo '<ul>';
 
