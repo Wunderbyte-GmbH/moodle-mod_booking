@@ -1,5 +1,4 @@
 <?php
-
 // index.php
 $string['week'] = "Week";
 $string['question'] = "Question";

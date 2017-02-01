@@ -1,7 +1,7 @@
 <?php
-require_once ($CFG->dirroot . '/user/selector/lib.php');
-require_once ($CFG->dirroot . '/mod/booking/lib.php');
-require_once ($CFG->libdir . '/tcpdf/tcpdf.php');
+require_once($CFG->dirroot . '/user/selector/lib.php');
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+require_once($CFG->libdir . '/tcpdf/tcpdf.php');
 
 
 /**

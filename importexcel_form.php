@@ -1,5 +1,5 @@
 <?php
-require_once ("$CFG->libdir/formslib.php");
+require_once("$CFG->libdir/formslib.php");
 
 
 class importexcel_form extends moodleform {

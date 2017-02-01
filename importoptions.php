@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Import options or just add new users from CSV
  *
@@ -7,9 +6,9 @@
  * @copyright 2014 Andraž Prinčič www.princic.net
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once ("../../config.php");
-require_once ("lib.php");
-require_once ('importoptions_form.php');
+require_once("../../config.php");
+require_once("lib.php");
+require_once('importoptions_form.php');
 
 function modbooking_fixEncoding($in_str) {
     $cur_encoding = mb_detect_encoding($in_str);

@@ -1,5 +1,4 @@
 <?php
-
 namespace mod_booking\task;
 
 

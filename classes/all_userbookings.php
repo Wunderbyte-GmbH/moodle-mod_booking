@@ -1,5 +1,4 @@
 <?php
-
 /**
  * For displaying all user bookings of a bookingoption
  *

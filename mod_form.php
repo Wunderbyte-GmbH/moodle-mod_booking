@@ -3,9 +3,9 @@ if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.'); // It must be included from a Moodle page
 }
 
-require_once ($CFG->dirroot . '/course/moodleform_mod.php');
-require_once ($CFG->libdir . '/formslib.php');
-require_once ($CFG->dirroot . '/mod/booking/lib.php');
+require_once($CFG->dirroot . '/course/moodleform_mod.php');
+require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 
 class mod_booking_mod_form extends moodleform_mod {

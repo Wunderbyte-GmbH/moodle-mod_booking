@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -24,7 +23,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-require_once ($CFG->dirroot . '/mod/booking/backup/moodle2/restore_booking_stepslib.php');
+require_once($CFG->dirroot . '/mod/booking/backup/moodle2/restore_booking_stepslib.php');
 
  // Because it exists (must)
 

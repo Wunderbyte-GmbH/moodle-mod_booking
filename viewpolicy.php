@@ -1,6 +1,6 @@
 <?php
-require_once ('../../config.php');
-require_once ("$CFG->dirroot/mod/booking/locallib.php");
+require_once('../../config.php');
+require_once("$CFG->dirroot/mod/booking/locallib.php");
 $id = required_param('id', PARAM_INT);
 $cmid = required_param('cmid', PARAM_INT);
 

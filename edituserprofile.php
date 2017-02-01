@@ -1,10 +1,10 @@
 <?php
-require_once ('../../config.php');
-require_once ($CFG->libdir . '/gdlib.php');
-require_once ($CFG->libdir . '/adminlib.php');
-require_once ($CFG->dirroot . '/mod/booking/editprofileform.class.php');
-require_once ($CFG->dirroot . '/user/editlib.php');
-require_once ($CFG->dirroot . '/user/profile/lib.php');
+require_once('../../config.php');
+require_once($CFG->libdir . '/gdlib.php');
+require_once($CFG->libdir . '/adminlib.php');
+require_once($CFG->dirroot . '/mod/booking/editprofileform.class.php');
+require_once($CFG->dirroot . '/user/editlib.php');
+require_once($CFG->dirroot . '/user/profile/lib.php');
 
 $cmid = required_param('cmid', PARAM_INT); // course module id
 $courseid = required_param('courseid', PARAM_INT); // course id (defaults to Site)
@@ -53,7 +53,7 @@ profile_load_data($user);
 
 // user interests separated by commas
 if (!empty($CFG->usetags)) {
-    require_once ($CFG->dirroot . '/tag/lib.php');
+    require_once($CFG->dirroot . '/tag/lib.php');
     $user->interests = tag_get_tags_csv('user', $USER->id, TAG_RETURN_TEXT); // formslib uses htmlentities itself
 }
 

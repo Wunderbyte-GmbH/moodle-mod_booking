@@ -1,7 +1,7 @@
 <?php
-require_once ("../../config.php");
-require_once ("locallib.php");
-require_once ("institutionform.class.php");
+require_once("../../config.php");
+require_once("locallib.php");
+require_once("institutionform.class.php");
 
 $courseid = required_param('courseid', PARAM_INT);
 $cid = optional_param('cid', '', PARAM_INT);

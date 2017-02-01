@@ -1,7 +1,7 @@
 <?php
-require_once ("../../config.php");
-require_once ("locallib.php");
-require_once ("bookingform.class.php");
+require_once("../../config.php");
+require_once("locallib.php");
+require_once("bookingform.class.php");
 
 $id = required_param('id', PARAM_INT); // Course Module ID
 $optionid = required_param('optionid', PARAM_ALPHANUM);

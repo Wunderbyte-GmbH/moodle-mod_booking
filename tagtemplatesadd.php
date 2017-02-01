@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Import options or just add new users from CSV
  *
@@ -7,10 +6,10 @@
  * @copyright 2014 Andraž Prinčič www.princic.net
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once ("../../config.php");
-require_once ("lib.php");
-require_once ("locallib.php");
-require_once ('tagtemplatesadd_form.php');
+require_once("../../config.php");
+require_once("lib.php");
+require_once("locallib.php");
+require_once('tagtemplatesadd_form.php');
 
 $cmid = required_param('cmid', PARAM_INT); // Course Module ID
 $tid = optional_param('tid', '', PARAM_INT);

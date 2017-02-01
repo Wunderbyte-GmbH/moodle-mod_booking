@@ -1,8 +1,7 @@
 <?php
-
 // $Id: editadvanced_form.php,v 1.14.2.18 2010/01/14 20:46:32 mudrd8mz Exp $
-require_once ($CFG->dirroot . '/lib/formslib.php');
-require_once ('lib.php');
+require_once($CFG->dirroot . '/lib/formslib.php');
+require_once('lib.php');
 
 
 class mod_booking_userprofile_form extends moodleform {

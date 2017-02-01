@@ -1,5 +1,4 @@
 <?php
-
 //
 // Capability definitions for the booking module.
 //

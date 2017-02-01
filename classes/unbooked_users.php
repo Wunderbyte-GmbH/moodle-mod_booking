@@ -1,5 +1,4 @@
 <?php
-
 /**
  * BadgeCerts table for displaying list of users with certificate.
  *

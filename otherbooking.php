@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Import options or just add new users from CSV
  *
@@ -7,8 +6,8 @@
  * @copyright 2014 Andraž Prinčič www.princic.net
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once ("../../config.php");
-require_once ("locallib.php");
+require_once("../../config.php");
+require_once("locallib.php");
 
 $cmid = required_param('cmid', PARAM_INT); // Course Module ID
 $optionid = required_param('optionid', PARAM_INT);

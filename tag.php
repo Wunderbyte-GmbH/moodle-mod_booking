@@ -1,9 +1,9 @@
 <?php
-require_once ("../../config.php");
-require_once ("lib.php");
-require_once ($CFG->dirroot . '/tag/lib.php');
+require_once("../../config.php");
+require_once("lib.php");
+require_once($CFG->dirroot . '/tag/lib.php');
 if ($CFG->branch < 31) {
-    require_once ($CFG->dirroot . '/tag/locallib.php');
+    require_once($CFG->dirroot . '/tag/locallib.php');
 }
 $id = required_param('id', PARAM_INT);
 $tagname = optional_param('tag', '', PARAM_TAG);

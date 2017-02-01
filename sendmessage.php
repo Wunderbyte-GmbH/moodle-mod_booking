@@ -1,7 +1,7 @@
 <?php
-require_once ("../../config.php");
-require_once ("lib.php");
-require_once ("sendmessageform.class.php");
+require_once("../../config.php");
+require_once("lib.php");
+require_once("sendmessageform.class.php");
 
 $id = required_param('id', PARAM_INT);
 $optionid = required_param('optionid', PARAM_INT);

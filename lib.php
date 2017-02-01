@@ -1,17 +1,17 @@
 <?php
 defined('MOODLE_INTERNAL') || die();
-require_once ($CFG->dirroot . '/mod/booking/icallib.php');
-require_once ($CFG->dirroot . '/calendar/lib.php');
-require_once ($CFG->libdir . '/filelib.php');
+require_once($CFG->dirroot . '/mod/booking/icallib.php');
+require_once($CFG->dirroot . '/calendar/lib.php');
+require_once($CFG->libdir . '/filelib.php');
 if ($CFG->branch < 31) {
-    require_once ($CFG->dirroot . '/tag/locallib.php');
+    require_once($CFG->dirroot . '/tag/locallib.php');
 }
 
-require_once ($CFG->dirroot . '/question/category_class.php');
+require_once($CFG->dirroot . '/question/category_class.php');
 
-require_once ($CFG->dirroot . '/group/lib.php');
-require_once ($CFG->libdir . '/eventslib.php');
-require_once ($CFG->dirroot . '/user/selector/lib.php');
+require_once($CFG->dirroot . '/group/lib.php');
+require_once($CFG->libdir . '/eventslib.php');
+require_once($CFG->dirroot . '/user/selector/lib.php');
 
 $COLUMN_HEIGHT = 300;
 
@@ -59,7 +59,7 @@ WHERE
 
 function booking_get_coursemodule_info($cm) {
     global $CFG, $DB;
-    require_once ("$CFG->dirroot/mod/booking/locallib.php");
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
 
     $tags = new booking_tags($cm);
     $info = new cached_cm_info();
@@ -362,7 +362,7 @@ function booking_update_instance($booking) {
  */
 function booking_update_options($optionvalues) {
     global $DB, $CFG;
-    require_once ("$CFG->dirroot/mod/booking/locallib.php");
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
 
     $bokingUtils = new booking_utils();
 
@@ -1258,9 +1258,9 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
     }
 }
 
-// ///////////////////////////////
+// /////////////////////////////
 // GRADING AND RATING
-// ///////////////////////////////
+// /////////////////////////////
 
 /**
  * Return grade for given user or all users.
@@ -1273,7 +1273,7 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
 function booking_get_user_grades($booking, $userid = 0) {
     global $CFG;
 
-    require_once ($CFG->dirroot . '/rating/lib.php');
+    require_once($CFG->dirroot . '/rating/lib.php');
 
     $ratingoptions = new stdClass();
     $ratingoptions->component = 'mod_booking';
@@ -1303,7 +1303,7 @@ function booking_get_user_grades($booking, $userid = 0) {
  */
 function booking_update_grades($booking, $userid = 0, $nullifnone = true) {
     global $CFG, $DB;
-    require_once ($CFG->libdir . '/gradelib.php');
+    require_once($CFG->libdir . '/gradelib.php');
 
     if (!$booking->assessed) {
         booking_grade_item_update($booking);
@@ -1333,7 +1333,7 @@ function booking_update_grades($booking, $userid = 0, $nullifnone = true) {
 function booking_grade_item_update($booking, $grades = NULL) {
     global $CFG;
     if (!function_exists('grade_update')) { // workaround for buggy PHP versions
-        require_once ($CFG->libdir . '/gradelib.php');
+        require_once($CFG->libdir . '/gradelib.php');
     }
 
     $params = array('itemname' => $booking->name, 'idnumber' => $booking->cmidnumber);
@@ -1366,7 +1366,7 @@ function booking_grade_item_update($booking, $grades = NULL) {
  */
 function booking_grade_item_delete($booking) {
     global $CFG;
-    require_once ($CFG->libdir . '/gradelib.php');
+    require_once($CFG->libdir . '/gradelib.php');
 
     return grade_update('mod/booking', $booking->course, 'mod', 'booking', $booking->id, 0, NULL,
             array('deleted' => 1));
@@ -1524,7 +1524,7 @@ function booking_rating_validate($params) {
  */
 function booking_rate($ratings, $params) {
     global $CFG, $USER, $DB;
-    require_once ($CFG->dirroot . '/rating/lib.php');
+    require_once($CFG->dirroot . '/rating/lib.php');
 
     $contextid = $params->contextid;
     $component = 'mod_booking';
@@ -1588,7 +1588,7 @@ function booking_rate($ratings, $params) {
         $modinstance = $DB->get_record($cm->modname, array('id' => $cm->instance), '*', MUST_EXIST);
         $modinstance->cmidnumber = $cm->id; // MDL-12961.
         $functionname = $cm->modname . '_update_grades';
-        require_once ($CFG->dirroot . "/mod/{$cm->modname}/lib.php");
+        require_once($CFG->dirroot . "/mod/{$cm->modname}/lib.php");
         foreach ($ratings as $rating) {
             if (function_exists($functionname)) {
                 $functionname($modinstance, $rating->rateduserid);
@@ -1596,7 +1596,7 @@ function booking_rate($ratings, $params) {
         }
     }
 }
-// //// END RATING AND GRADES /////
+// // END RATING AND GRADES /////
 
 // Send reminder email
 function booking_sendreminderemail($selectedusers, $booking, $cmid, $optionid) {
@@ -1722,7 +1722,7 @@ function booking_sendcustommessage($optionid, $subject, $message, $uids) {
 
 function booking_send_notification($optionid, $subject, $toUsers = array()) {
     global $DB, $USER, $CFG;
-    require_once ("$CFG->dirroot/mod/booking/locallib.php");
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
 
     $returnVal = true;
 
@@ -1860,7 +1860,7 @@ function booking_get_groupmodedata() {
 function booking_get_booking($cm, $sort = '',
         $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), $view = TRUE, $optionid = null, $fetchOptions = true) {
     global $CFG, $DB;
-    require_once ("$CFG->dirroot/mod/booking/locallib.php");
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
 
     if ($sort == '') {
         $sort = 'id';
@@ -2372,7 +2372,7 @@ function booking_profile_definition(&$mform) {
                     $mform->addElement('header', 'category_' . $category->id,
                             format_string($category->name));
                     foreach ($fields as $field) {
-                        require_once ($CFG->dirroot . '/user/profile/field/' . $field->datatype .
+                        require_once($CFG->dirroot . '/user/profile/field/' . $field->datatype .
                                  '/field.class.php');
                         $newfield = 'profile_field_' . $field->datatype;
                         $formfield = new $newfield($field->id);

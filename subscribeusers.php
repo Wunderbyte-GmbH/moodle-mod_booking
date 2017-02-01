@@ -1,13 +1,12 @@
 <?php
-
 /**
  * This page allows a user to subscribe/unsubscribe other users from a booking option TODO: upgrade logging, add logging for added/deleted users
  *
  * @author David Bogner davidbogner@gmail.com
  * @package mod/booking
  */
-require_once (dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once ($CFG->dirroot . '/mod/booking/locallib.php');
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 $id = required_param('id', PARAM_INT); // course_module ID
 $optionid = required_param('optionid', PARAM_INT); //

@@ -1,7 +1,7 @@
 <?php
-require_once ("../../config.php");
-require_once ("lib.php");
-require_once ("categoriesform.class.php");
+require_once("../../config.php");
+require_once("lib.php");
+require_once("categoriesform.class.php");
 
 function showSubCategories($cat_id, $DB, $courseid) {
     $categories = $DB->get_records('booking_category', array('cid' => $cat_id));

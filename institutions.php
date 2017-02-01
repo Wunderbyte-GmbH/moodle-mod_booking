@@ -1,6 +1,6 @@
 <?php
-require_once ("../../config.php");
-require_once ("lib.php");
+require_once("../../config.php");
+require_once("lib.php");
 
 $courseid = required_param('courseid', PARAM_INT);
 

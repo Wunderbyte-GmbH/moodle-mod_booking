@@ -1,7 +1,7 @@
 <?php
-require_once ("../../config.php");
-require_once ("locallib.php");
-require_once ("teachers_form.php");
+require_once("../../config.php");
+require_once("locallib.php");
+require_once("teachers_form.php");
 
 $id = required_param('id', PARAM_INT);
 $optionid = required_param('optionid', PARAM_INT);

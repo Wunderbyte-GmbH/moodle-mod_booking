@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Display all options.
  *

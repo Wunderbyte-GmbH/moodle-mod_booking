@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Definition of log events
  *

@@ -1,5 +1,5 @@
 <?php
-require_once ("$CFG->libdir/formslib.php");
+require_once("$CFG->libdir/formslib.php");
 
 
 class importoptions_form extends moodleform {

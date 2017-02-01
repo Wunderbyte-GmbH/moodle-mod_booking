@@ -1,5 +1,4 @@
 <?php
-
 // $Id: backuplib.php,v 1.11 2006/02/08 23:46:21 danmarsden Exp $
 // This php script contains all the stuff to backup/restore
 // booking mods
@@ -107,21 +106,21 @@ function backup_booking_answers($bf, $preferences, $booking) {
 
     $status = true;
 
-    $booking_answers = get_records("booking_answers", "bookingid", $booking, "id");
+    $bookinganswers = get_records("booking_answers", "bookingid", $booking, "id");
     // If there is answers
-    if ($booking_answers) {
+    if ($bookinganswers) {
         // Write start tag
         $status = fwrite($bf, start_tag("ANSWERS", 4, true));
         // Iterate over each answer
-        foreach ($booking_answers as $cho_ans) {
+        foreach ($bookinganswers as $choans) {
             // Start answer
             $status = fwrite($bf, start_tag("ANSWER", 5, true));
             // Print answer contents
-            fwrite($bf, full_tag("ID", 6, false, $cho_ans->id));
-            fwrite($bf, full_tag("BOOKINGID", 6, false, $cho_ans->bookingid));
-            fwrite($bf, full_tag("USERID", 6, false, $cho_ans->userid));
-            fwrite($bf, full_tag("OPTIONID", 6, false, $cho_ans->optionid));
-            fwrite($bf, full_tag("TIMEMODIFIED", 6, false, $cho_ans->timemodified));
+            fwrite($bf, full_tag("ID", 6, false, $choans->id));
+            fwrite($bf, full_tag("BOOKINGID", 6, false, $choans->bookingid));
+            fwrite($bf, full_tag("USERID", 6, false, $choans->userid));
+            fwrite($bf, full_tag("OPTIONID", 6, false, $choans->optionid));
+            fwrite($bf, full_tag("TIMEMODIFIED", 6, false, $choans->timemodified));
             // End answer
             $status = fwrite($bf, end_tag("ANSWER", 5, true));
         }
@@ -143,30 +142,30 @@ function backup_booking_options($bf, $preferences, $booking) {
         // Write start tag
         $status = fwrite($bf, start_tag("OPTIONS", 4, true));
         // Iterate over each answer
-        foreach ($booking_options as $cho_opt) {
+        foreach ($booking_options as $choopt) {
             // Start option
             $status = fwrite($bf, start_tag("OPTION", 5, true));
             // Print option contents
-            fwrite($bf, full_tag("ID", 6, false, $cho_opt->id));
-            fwrite($bf, full_tag("BOOKINGID", 6, false, $cho_opt->bookingid));
-            fwrite($bf, full_tag("TEXT", 6, false, $cho_opt->text));
-            fwrite($bf, full_tag("MAXANSWERS", 6, false, $cho_opt->maxanswers));
-            fwrite($bf, full_tag("MAXOVERBOOKING", 6, false, $cho_opt->maxoverbooking));
-            fwrite($bf, full_tag("BOOKINGCLOSINGTIME", 6, false, $cho_opt->bookingclosingtime));
-            fwrite($bf, full_tag("COURSEID", 6, false, $cho_opt->courseid));
-            fwrite($bf, full_tag("COURSESTARTTIME", 6, false, $cho_opt->coursestarttime));
-            fwrite($bf, full_tag("COURSEENDTIME", 6, false, $cho_opt->courseendtime));
-            fwrite($bf, full_tag("DESCRIPTION", 6, false, $cho_opt->description));
-            fwrite($bf, full_tag("LIMITANSWERS", 6, false, $cho_opt->limitanswers));
-            fwrite($bf, full_tag("TIMEMODIFIED", 6, false, $cho_opt->timemodified));
-            fwrite($bf, full_tag("ADDTOCALENDAR", 6, false, $cho_opt->addtocalendar));
-            fwrite($bf, full_tag("CALENDARID", 6, false, $cho_opt->calendarid));
-            fwrite($bf, full_tag("POLLURL", 6, false, $cho_opt->pollurl));
-            fwrite($bf, full_tag("GROUPID", 6, false, $cho_opt->groupid));
-            fwrite($bf, full_tag("SENT", 6, false, $cho_opt->sent));
-            fwrite($bf, full_tag("LOCATION", 6, false, $cho_opt->location));
-            fwrite($bf, full_tag("INSTITUTION", 6, false, $cho_opt->institution));
-            fwrite($bf, full_tag("ADDRESS", 6, false, $cho_opt->address));
+            fwrite($bf, full_tag("ID", 6, false, $choopt->id));
+            fwrite($bf, full_tag("BOOKINGID", 6, false, $choopt->bookingid));
+            fwrite($bf, full_tag("TEXT", 6, false, $choopt->text));
+            fwrite($bf, full_tag("MAXANSWERS", 6, false, $choopt->maxanswers));
+            fwrite($bf, full_tag("MAXOVERBOOKING", 6, false, $choopt->maxoverbooking));
+            fwrite($bf, full_tag("BOOKINGCLOSINGTIME", 6, false, $choopt->bookingclosingtime));
+            fwrite($bf, full_tag("COURSEID", 6, false, $choopt->courseid));
+            fwrite($bf, full_tag("COURSESTARTTIME", 6, false, $choopt->coursestarttime));
+            fwrite($bf, full_tag("COURSEENDTIME", 6, false, $choopt->courseendtime));
+            fwrite($bf, full_tag("DESCRIPTION", 6, false, $choopt->description));
+            fwrite($bf, full_tag("LIMITANSWERS", 6, false, $choopt->limitanswers));
+            fwrite($bf, full_tag("TIMEMODIFIED", 6, false, $choopt->timemodified));
+            fwrite($bf, full_tag("ADDTOCALENDAR", 6, false, $choopt->addtocalendar));
+            fwrite($bf, full_tag("CALENDARID", 6, false, $choopt->calendarid));
+            fwrite($bf, full_tag("POLLURL", 6, false, $choopt->pollurl));
+            fwrite($bf, full_tag("GROUPID", 6, false, $choopt->groupid));
+            fwrite($bf, full_tag("SENT", 6, false, $choopt->sent));
+            fwrite($bf, full_tag("LOCATION", 6, false, $choopt->location));
+            fwrite($bf, full_tag("INSTITUTION", 6, false, $choopt->institution));
+            fwrite($bf, full_tag("ADDRESS", 6, false, $choopt->address));
             // End answer
             $status = fwrite($bf, end_tag("OPTION", 5, true));
         }
@@ -176,8 +175,8 @@ function backup_booking_options($bf, $preferences, $booking) {
     return $status;
 }
 
-// //Return an array of info (name,value)
-function booking_check_backup_mods($course, $user_data = false, $backup_unique_code, $instances = null) {
+// Return an array of info (name,value)
+function booking_check_backup_mods($course, $userdata = false, $backup_unique_code, $instances = null) {
     if (!empty($instances) && is_array($instances) && count($instances)) {
         $info = array();
         foreach ($instances as $id => $instance) {
@@ -194,7 +193,7 @@ function booking_check_backup_mods($course, $user_data = false, $backup_unique_c
     }
 
     // Now, if requested, the user_data
-    if ($user_data) {
+    if ($userdata) {
         $info[1][0] = get_string("responses", "booking");
         if ($ids = booking_answer_ids_by_course($course)) {
             $info[1][1] = count($ids);
@@ -205,8 +204,8 @@ function booking_check_backup_mods($course, $user_data = false, $backup_unique_c
     return $info;
 }
 
-// //Return an array of info (name,value)
-function booking_check_backup_mods_instances($instance, $backup_unique_code) {
+// Return an array of info (name,value)
+function booking_check_backup_mods_instances($instance, $backupuniquecode) {
     // First the course data
     $info[$instance->id . '0'][0] = '<b>' . $instance->name . '</b>';
     $info[$instance->id . '0'][1] = '';
@@ -273,5 +272,3 @@ function booking_answer_ids_by_instance($instanceid) {
                                  FROM {$CFG->prefix}booking_answers s
                                  WHERE s.bookingid = $instanceid");
 }
-
-?>

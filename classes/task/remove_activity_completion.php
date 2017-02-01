@@ -1,5 +1,4 @@
 <?php
-
 namespace mod_booking\task;
 
 
@@ -23,7 +22,7 @@ class remove_activity_completion extends \core\task\scheduled_task {
             AND ba.completed = 1
             AND IF(ba.timemodified < (UNIX_TIMESTAMP() - (bo.removeafterminutes*60)), 1, 0) = 1;');
 
-        require_once ($CFG->libdir . '/completionlib.php');
+        require_once($CFG->libdir . '/completionlib.php');
 
         foreach ($result as $value) {
             $course = $DB->get_record('course', array('id' => $value->course));

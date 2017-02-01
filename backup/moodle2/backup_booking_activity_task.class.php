@@ -1,5 +1,4 @@
 <?php
-
 /**
  *
  * @package moodlecore
@@ -7,8 +6,8 @@
  * @copyright 2010 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once ($CFG->dirroot . '/mod/booking/backup/moodle2/backup_booking_stepslib.php'); // Because it exists (must)
-require_once ($CFG->dirroot . '/mod/booking/backup/moodle2/backup_booking_settingslib.php');
+require_once($CFG->dirroot . '/mod/booking/backup/moodle2/backup_booking_stepslib.php'); // Because it exists (must)
+require_once($CFG->dirroot . '/mod/booking/backup/moodle2/backup_booking_settingslib.php');
 
  // Because it exists (optional)
 
