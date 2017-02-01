@@ -17,9 +17,6 @@ class mod_booking_userprofile_form extends moodleform {
         $mform->setType('id', PARAM_INT);
         $mform->addElement('hidden', 'courseid', $COURSE->id);
         $mform->setType('courseid', PARAM_INT);
-        // course module id
-        $mform->addElement('hidden', 'cmid');
-        $mform->setType('cmid', PARAM_INT);
 
         // Next the customisable profile fields
         booking_profile_definition($mform);

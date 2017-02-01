@@ -11,14 +11,14 @@ require_once("lib.php");
 require_once("locallib.php");
 require_once('tagtemplatesadd_form.php');
 
-$cmid = required_param('cmid', PARAM_INT); // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID
 $tid = optional_param('tid', '', PARAM_INT);
 
-$url = new moodle_url('/mod/booking/tagtemplatesadd.php', array('cmid' => $cmid, 'tid' => $tid));
-$urlRedirect = new moodle_url('/mod/booking/tagtemplates.php', array('cmid' => $cmid));
+$url = new moodle_url('/mod/booking/tagtemplatesadd.php', array('id' => $id, 'tid' => $tid));
+$urlRedirect = new moodle_url('/mod/booking/tagtemplates.php', array('id' => $id));
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($cmid);
+list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);

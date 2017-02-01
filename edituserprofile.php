@@ -6,10 +6,10 @@ require_once($CFG->dirroot . '/mod/booking/editprofileform.class.php');
 require_once($CFG->dirroot . '/user/editlib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
-$cmid = required_param('cmid', PARAM_INT); // course module id
+$id = required_param('id', PARAM_INT); // course module id
 $courseid = required_param('courseid', PARAM_INT); // course id (defaults to Site)
 
-$url = new moodle_url('/mod/booking/edituserprofile.php', array('id' => $cmid));
+$url = new moodle_url('/mod/booking/edituserprofile.php', array('id' => $id));
 
 $PAGE->set_url($url);
 $PAGE->requires->css('/mod/booking/styles.css');
@@ -17,7 +17,7 @@ $PAGE->requires->css('/mod/booking/styles.css');
 if (!$course = $DB->get_record("course", array("id" => $courseid))) {
     print_error('coursemisconf');
 }
-if (!$cm = get_coursemodule_from_id('booking', $cmid)) {
+if (!$cm = get_coursemodule_from_id('booking', $id)) {
     print_error('invalidcoursemodule');
 }
 require_course_login($course, false, $cm);
@@ -59,7 +59,7 @@ if (!empty($CFG->usetags)) {
 
 // create form
 $userform = new mod_booking_userprofile_form();
-$user->cmid = $cmid;
+$user->cmid = $id;
 $userform->set_data($user);
 
 if ($usernew = $userform->get_data()) {
@@ -73,9 +73,9 @@ if ($usernew = $userform->get_data()) {
     $usernew = $DB->get_record('user', array('id' => $usernew->id));
 
     $event = \mod_booking\event\userprofilefields_updated::create(
-            array('objectid' => $usernew->id, 'context' => context_module::instance($cmid)));
+            array('objectid' => $usernew->id, 'context' => context_module::instance($id)));
     $event->trigger();
-    redirect("$CFG->wwwroot/mod/booking/view.php?id=$cmid");
+    redirect("$CFG->wwwroot/mod/booking/view.php?id=$id");
 }
 
 // print header

@@ -52,7 +52,7 @@ class userprofilefields_updated extends \core\event\base {
 
     public function get_url() {
         return new \moodle_url('/mod/booking/edituserprofile.php',
-                array('cmid' => $this->contextinstanceid, 'courseid' => $this->courseid));
+                array('id' => $this->contextinstanceid, 'courseid' => $this->courseid));
     }
 
     public function get_legacy_logdata() {

@@ -23,13 +23,13 @@ class optiondatesadd_form extends moodleform {
         $mform->setType('courseendtime', PARAM_INT);
 
         $mform->addElement('hidden', 'id');
-        $mform->setType('id', PARAM_RAW);
+        $mform->setType('id', PARAM_INT);
 
         $mform->addElement('hidden', 'bookingid');
-        $mform->setType('bookingid', PARAM_RAW);
+        $mform->setType('bookingid', PARAM_INT);
 
         $mform->addElement('hidden', 'optionid');
-        $mform->setType('optionid', PARAM_RAW);
+        $mform->setType('optionid', PARAM_INT);
 
         $this->add_action_buttons(TRUE, get_string('savenewoptiondates', 'booking'));
     }

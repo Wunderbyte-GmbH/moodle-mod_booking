@@ -9,9 +9,9 @@
 require_once("../../config.php");
 require_once("locallib.php");
 
-$id = required_param('cmid', PARAM_INT); // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID
 
-$url = new moodle_url('/mod/booking/tagtemplates.php', array('cmid' => $id));
+$url = new moodle_url('/mod/booking/tagtemplates.php', array('id' => $id));
 $urlRedirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $PAGE->set_url($url);
 
@@ -43,7 +43,7 @@ $tagsTable = array();
 
 foreach ($tags->get_all_tags() as $tag) {
 
-    $edit = new moodle_url('tagtemplatesadd.php', array('cmid' => $cm->id, 'tid' => $tag->id));
+    $edit = new moodle_url('tagtemplatesadd.php', array('id' => $cm->id, 'tid' => $tag->id));
     $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get');
 
     $tagsTable[] = array("[{$tag->tag}]", nl2br($tag->text),
@@ -55,7 +55,7 @@ $table->data = $tagsTable;
 echo html_writer::table($table);
 
 $cancel = new moodle_url('view.php', array('id' => $cm->id));
-$addnew = new moodle_url('tagtemplatesadd.php', array('cmid' => $cm->id));
+$addnew = new moodle_url('tagtemplatesadd.php', array('id' => $cm->id));
 
 echo '<div style="width: 100%; text-align: center; display:table;">';
 $button = $OUTPUT->single_button($cancel, get_string('cancel', 'booking'), 'get');

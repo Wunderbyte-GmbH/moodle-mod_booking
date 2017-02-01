@@ -13,19 +13,13 @@ class otherbookingaddrule_form extends moodleform {
         global $CFG, $DB;
 
         $bookingoptions = $DB->get_records_sql(
-                "SELECT
-    id, text
-FROM
-    {booking_options}
-WHERE
-    bookingid = (SELECT
-            b.conectedbooking
-        FROM
-            {booking_options} AS bo
-                LEFT JOIN
-            {booking} AS b ON bo.bookingid = b.id
-        WHERE
-            bo.id = ?) ORDER BY text ASC",
+                "SELECT id, text
+                    FROM {booking_options}
+                    WHERE bookingid = (SELECT b.conectedbooking
+                                        FROM {booking_options} AS bo
+                                        LEFT JOIN {booking} AS b ON bo.bookingid = b.id
+                                        WHERE bo.id = ?)
+                    ORDER BY text ASC",
                 array($this->_customdata['optionid']));
 
         $bookingoptionsarray = array();
@@ -37,10 +31,7 @@ WHERE
         $mform = $this->_form; // Don't forget the underscore!
 
         $mform->addElement('select', 'otheroptionid',
-                get_string('selectoptioninotherbooking', 'booking'), $bookingoptionsarray); // Add
-                                                                                                                                          // elements
-                                                                                                                                          // to your
-                                                                                                                                          // form
+                get_string('selectoptioninotherbooking', 'booking'), $bookingoptionsarray);
         $mform->setType('otheroptionid', PARAM_INT); // Set type of element
         $mform->addRule('otheroptionid', null, 'required', null, 'client');
 

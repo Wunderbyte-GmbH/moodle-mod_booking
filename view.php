@@ -174,7 +174,7 @@ if (has_capability('moodle/user:editownprofile', $context, NULL, false) and
     $contents = get_string('mustfilloutuserinfobeforebooking', 'booking');
     $contents .= $OUTPUT->single_button(
             new moodle_url("edituserprofile.php",
-                    array('cmid' => $cm->id, 'courseid' => $course->id)), get_string('continue'),
+                    array('id' => $cm->id, 'courseid' => $course->id)), get_string('continue'),
             'get');
     echo $OUTPUT->box($contents, 'box generalbox', 'notice');
     echo $OUTPUT->footer();
@@ -399,7 +399,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         if (strlen($booking->booking->bookingpolicy) > 0) {
             $link = new moodle_url('/mod/booking/viewpolicy.php',
-                    array('id' => $booking->booking->id, 'cmid' => $cm->id));
+                    array('id' => $cm->id));
             echo $OUTPUT->action_link($link, get_string("bookingpolicy", "booking"),
                     new popup_action('click', $link));
         }
@@ -740,7 +740,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $from = '{booking_answers} AS tba
                 JOIN {user} AS tu ON tu.id = tba.userid
                 JOIN {booking_options} AS tbo ON tbo.id = tba.optionid
-                FULL JOIN {booking_options} AS otherbookingoption ON otherbookingoption.id = tba.frombookingid';
+                LEFT JOIN {booking_options} AS otherbookingoption ON otherbookingoption.id = tba.frombookingid';
         $where = 'tba.optionid IN (SELECT DISTINCT bo.id FROM {booking} AS b
                                     LEFT JOIN {booking_options} AS bo ON bo.bookingid = b.id WHERE b.id = :bookingid ' .
                  (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions)) . ')';

@@ -11,14 +11,14 @@ require_once("lib.php");
 require_once("locallib.php");
 require_once('optiondatesadd_form.php');
 
-$cmid = required_param('cmid', PARAM_INT); // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID
 $boptionid = required_param('boptionid', PARAM_INT);
 $oid = optional_param('oid', '', PARAM_INT);
 
 $url = new moodle_url('/mod/booking/optiondatesadd.php',
-        array('cmid' => $cmid, 'boptionid' => $boptionid));
+        array('id' => $id, 'boptionid' => $boptionid));
 $urlRedirect = new moodle_url('/mod/booking/optiondates.php',
-        array('id' => $cmid, 'optionid' => $boptionid));
+        array('id' => $id, 'optionid' => $boptionid));
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);

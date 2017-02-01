@@ -10,18 +10,18 @@ require_once("../../config.php");
 require_once("locallib.php");
 require_once('otherbookingaddrule_form.php');
 
-$cmid = required_param('cmid', PARAM_INT); // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID
 $optionid = required_param('optionid', PARAM_INT); // Option ID
 $obid = optional_param('obid', 0, PARAM_INT);
 $delete = optional_param('delete', 0, PARAM_INT);
 
 $url = new moodle_url('/mod/booking/otherbookingaddrule.php',
-        array('cmid' => $cmid, 'optionid' => $optionid, 'obid' => $obid));
+        array('id' => $id, 'optionid' => $optionid, 'obid' => $obid));
 $urlRedirect = new moodle_url('/mod/booking/otherbooking.php',
-        array('cmid' => $cmid, 'optionid' => $optionid));
+        array('id' => $id, 'optionid' => $optionid));
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($cmid);
+list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
@@ -48,7 +48,7 @@ $PAGE->set_heading(get_string("otherbookingaddrule", "booking"));
 $PAGE->set_pagelayout('standard');
 
 $mform = new otherbookingaddrule_form($url->out(false),
-        array('cmid' => $cmid, 'optionid' => $optionid));
+        array('id' => $id, 'optionid' => $optionid));
 
 if ($mform->is_cancelled()) {
     // Handle form cancel operation, if cancel button is present on form

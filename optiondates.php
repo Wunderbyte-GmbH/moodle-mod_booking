@@ -56,7 +56,7 @@ $timesTable = array();
 
 foreach ($times as $time) {
     $edit = new moodle_url('optiondatesadd.php',
-            array('cmid' => $cm->id, 'boptionid' => $optionid, 'oid' => $time->id));
+            array('id' => $cm->id, 'boptionid' => $optionid, 'oid' => $time->id));
     $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get');
     $delete = new moodle_url('optiondates.php',
             array('id' => $id, 'optionid' => $optionid, 'delete' => $time->id));
@@ -75,7 +75,7 @@ $table->data = $timesTable;
 echo html_writer::table($table);
 
 $cancel = new moodle_url('report.php', array('id' => $cm->id, 'optionid' => $optionid));
-$addnew = new moodle_url('optiondatesadd.php', array('cmid' => $cm->id, 'boptionid' => $optionid));
+$addnew = new moodle_url('optiondatesadd.php', array('id' => $cm->id, 'boptionid' => $optionid));
 
 echo '<div style="width: 100%; text-align: center; display:table;">';
 $button = $OUTPUT->single_button($cancel, get_string('cancel', 'booking'), 'get');

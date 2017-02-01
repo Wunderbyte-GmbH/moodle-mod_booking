@@ -9,14 +9,14 @@
 require_once("../../config.php");
 require_once("locallib.php");
 
-$cmid = required_param('cmid', PARAM_INT); // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID
 $optionid = required_param('optionid', PARAM_INT);
 
 $url = new moodle_url('/mod/booking/otherbooking.php',
-        array('cmid' => $cmid, 'optionid' => $optionid));
+        array('id' => $id, 'optionid' => $optionid));
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($cmid);
+list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
@@ -27,7 +27,7 @@ if (!$context = context_module::instance($cm->id)) {
 
 require_capability('mod/booking:updatebooking', $context);
 
-$option = new \mod_booking\booking_option($cmid, $optionid);
+$option = new \mod_booking\booking_option($id, $optionid);
 
 $PAGE->navbar->add(get_string("editotherbooking", "booking"));
 $PAGE->set_title(format_string(get_string("editotherbooking", "booking")));
@@ -62,9 +62,9 @@ $rulesTable = array();
 foreach ($rules as $rule) {
 
     $edit = new moodle_url('otherbookingaddrule.php',
-            array('cmid' => $cm->id, 'optionid' => $optionid, 'obid' => $rule->id));
+            array('id' => $cm->id, 'optionid' => $optionid, 'obid' => $rule->id));
     $delete = new moodle_url('otherbookingaddrule.php',
-            array('cmid' => $cm->id, 'optionid' => $optionid, 'obid' => $rule->id, 'delete' => 1));
+            array('id' => $cm->id, 'optionid' => $optionid, 'obid' => $rule->id, 'delete' => 1));
 
     $button = '<div style="width: 100%; text-align: right; display:table;">';
     $buttone = $OUTPUT->single_button($edit, get_string('editrule', 'booking'), 'get');
@@ -85,7 +85,7 @@ echo html_writer::table($table);
 
 $cancel = new moodle_url('report.php', array('id' => $cm->id, 'optionid' => $optionid));
 $addnew = new moodle_url('otherbookingaddrule.php',
-        array('cmid' => $cm->id, 'optionid' => $optionid));
+        array('id' => $cm->id, 'optionid' => $optionid));
 
 echo '<div style="width: 100%; text-align: center; display:table;">';
 $button = $OUTPUT->single_button($cancel, get_string('cancel', 'booking'), 'get');

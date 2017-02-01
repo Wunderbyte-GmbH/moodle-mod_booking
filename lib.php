@@ -939,7 +939,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $settingnode->add(get_string('importexcelbutton', 'booking'),
                 new moodle_url('importexcel.php', array('id' => $cm->id)));
         $settingnode->add(get_string('tagtemplates', 'booking'),
-                new moodle_url('tagtemplates.php', array('cmid' => $cm->id)));
+                new moodle_url('tagtemplates.php', array('id' => $cm->id)));
     }
 }
 
@@ -2255,7 +2255,6 @@ function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid
     }
     $allresponses = $DB->get_records('booking_answers',
             array('bookingid' => $booking->id, 'optionid' => $optionid), 'timemodified', 'userid');
-    // $context = get_context_instance(CONTEXT_MODULE,$cmid);
     $context = context_module::instance($cmid);
     $firstuseronwaitinglist = $option->maxanswers + 1;
     $i = 1;

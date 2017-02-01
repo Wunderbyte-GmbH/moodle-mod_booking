@@ -2,9 +2,8 @@
 require_once('../../config.php');
 require_once("$CFG->dirroot/mod/booking/locallib.php");
 $id = required_param('id', PARAM_INT);
-$cmid = required_param('cmid', PARAM_INT);
 
-$booking = new \mod_booking\booking($cmid);
+$booking = new \mod_booking\booking($id);
 $booking->apply_tags();
 
 $context = context_course::instance($booking->booking->course);
