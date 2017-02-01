@@ -15,7 +15,7 @@ require_once ($CFG->dirroot . '/user/selector/lib.php');
 
 $COLUMN_HEIGHT = 300;
 
-// / Standard functions /////////////////////////////////////////////////////////
+// Standard functions /////////////////////////////////////////////////////////
 function booking_cron() {
     global $DB, $USER, $CFG;
 
@@ -2014,7 +2014,7 @@ function booking_reset_userdata($data) {
             'item' => get_string('removeresponses', 'booking'), 'error' => false);
     }
 
-    // / updating dates - shift may be negative too
+    // updating dates - shift may be negative too
     if ($data->timeshift) {
         shift_course_mod_dates('booking', array('timeopen', 'timeclose'), $data->timeshift,
                 $data->courseid);

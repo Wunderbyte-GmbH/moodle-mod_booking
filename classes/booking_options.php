@@ -290,7 +290,7 @@ class booking_options extends booking {
         global $DB;
 
         $context = $this->context;
-        // / bookinglist $bookinglist[optionid][sortnumber] = userobject;
+        // bookinglist $bookinglist[optionid][sortnumber] = userobject;
         $bookinglist = array();
         $optionids = array();
         $totalbookings = array();

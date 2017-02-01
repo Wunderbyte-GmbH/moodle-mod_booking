@@ -26,7 +26,7 @@ $bookingoption->apply_tags();
 
 require_login($course, true, $cm);
 
-// / Print the page header
+// Print the page header
 $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
 

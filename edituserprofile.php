@@ -89,9 +89,9 @@ $PAGE->set_title(get_string('edituser'));
 $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 
-// / Finally display THE form
+// Finally display THE form
 $userform->display();
 
-// / and proper footer
+// and proper footer
 echo $OUTPUT->footer();
 ?>

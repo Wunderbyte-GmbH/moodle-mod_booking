@@ -13,7 +13,7 @@ class mod_booking_userprofile_form extends moodleform {
 
         $mform = & $this->_form;
 
-        // / Add some extra hidden fields
+        // Add some extra hidden fields
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
         $mform->addElement('hidden', 'courseid', $COURSE->id);
@@ -22,7 +22,7 @@ class mod_booking_userprofile_form extends moodleform {
         $mform->addElement('hidden', 'cmid');
         $mform->setType('cmid', PARAM_INT);
 
-        // / Next the customisable profile fields
+        // Next the customisable profile fields
         booking_profile_definition($mform);
 
         $this->add_action_buttons(false, get_string('updatemyprofile'));
@@ -38,7 +38,7 @@ class mod_booking_userprofile_form extends moodleform {
             $user = false;
         }
 
-        // / Next the customisable profile fields
+        // Next the customisable profile fields
         profile_definition_after_data($mform, $userid);
     }
 
@@ -55,7 +55,7 @@ class mod_booking_userprofile_form extends moodleform {
                 $data->{$akey} = $aval;
             }
         }
-        // / Next the customisable profile fields
+        // Next the customisable profile fields
         $err += profile_validation($data, $files);
 
         if (count($err) == 0) {
