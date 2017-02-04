@@ -14,12 +14,8 @@ $url = new moodle_url('/mod/booking/edituserprofile.php', array('id' => $id));
 $PAGE->set_url($url);
 $PAGE->requires->css('/mod/booking/styles.css');
 
-if (!$course = $DB->get_record("course", array("id" => $courseid))) {
-    print_error('coursemisconf');
-}
-if (!$cm = get_coursemodule_from_id('booking', $id)) {
-    print_error('invalidcoursemodule');
-}
+list($course, $cm) = get_course_and_cm_from_cmid($id);
+
 require_course_login($course, false, $cm);
 
 if ($course->id == SITEID) {

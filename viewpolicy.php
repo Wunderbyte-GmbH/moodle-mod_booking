@@ -8,9 +8,7 @@ $booking->apply_tags();
 
 $context = context_course::instance($booking->booking->course);
 
-if (!$course = $DB->get_record("course", array("id" => $booking->booking->course))) {
-    print_error('coursemisconf');
-}
+list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_login($course->id, false);
 

@@ -37,7 +37,7 @@ class booking_options extends booking {
     public $sort = ' ORDER BY bo.coursestarttime ASC';
 
     public function __construct($cmid, $checkcanbookusers = true,
-            $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => '', 'searchName' => '', 'searchSurname' => ''), $page = 0, $perpage = 0, $fetchOptions = true) {
+            $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => '', 'searchName' => '', 'searchSurname' => ''), $page = 0, $perpage = 0) {
         parent::__construct($cmid);
         $this->checkcanbookusers = $checkcanbookusers;
         $this->filters = $urlParams;
@@ -45,11 +45,6 @@ class booking_options extends booking {
         $this->perpage = $perpage;
         if (isset($this->filters['sort']) && $this->filters['sort'] === 1) {
             $this->sort = ' ORDER BY bo.coursestarttime DESC';
-        }
-
-        if ($fetchOptions) {
-            $this->fill_options();
-            $this->get_options_data();
         }
         // Call only when needed TODO
         $this->set_booked_visible_users();
@@ -145,40 +140,6 @@ class booking_options extends booking {
         $sql = " FROM {booking_options} AS bo LEFT JOIN {booking_teachers} AS bt ON bt.optionid = bo.id LEFT JOIN {user} AS ut ON bt.userid = ut.id LEFT JOIN {booking_answers} AS ba ON bo.id = ba.optionid LEFT JOIN {user} AS u ON ba.userid = u.id WHERE {$conditions} {$this->sort}";
 
         return array('sql' => $sql, 'args' => $args);
-    }
-
-    private function fill_options() {
-        global $DB;
-
-        $options = $this->q_params();
-        $this->options = $DB->get_records_sql(
-                "SELECT DISTINCT bo.* " . $options['sql'], $options['args'],
-                $this->perpage * $this->page, $this->perpage);
-        if (!empty($this->options)) {
-            list($inoptionssql, $params) = $DB->get_in_or_equal(array_keys($this->options));
-            $timessql = 'SELECT bod.id AS dateid, bo.id AS optionid, ' .
-                     $DB->sql_concat('bod.coursestarttime', "'-'", 'bod.courseendtime') . ' AS times
-                   FROM {booking_optiondates} bod, {booking_options} bo
-                   WHERE bo.id = bod.optionid
-                   AND bo.id ' . $inoptionssql . '
-                   ORDER BY bod.coursestarttime ASC';
-            $times = $DB->get_records_sql($timessql, $params);
-
-            if (!empty($times)) {
-                foreach ($times as $time) {
-                    if (empty($optiontimes[$time->optionid])) {
-                        $optiontimes[$time->optionid] = $time->times;
-                    } else {
-                        $optiontimes[$time->optionid] .= ", " . $time->times;
-                    }
-                }
-                if (!empty($optiontimes)) {
-                    foreach ($optiontimes as $key => $time) {
-                        $this->options[$key]->times = $time;
-                    }
-                }
-            }
-        }
     }
 
     public function apply_tags() {
@@ -278,57 +239,6 @@ class booking_options extends booking {
                 $option->bookingclosingtime = false;
             }
         }
-    }
-
-    /**
-     * Gives a list of booked users sorted in an array by booking option former get_spreadsheet_data
-     *
-     * @return void
-     */
-    public function get_options_data() {
-        global $DB;
-
-        $context = $this->context;
-        // bookinglist $bookinglist[optionid][sortnumber] = userobject;
-        $bookinglist = array();
-        $optionids = array();
-        $totalbookings = array();
-
-        // /TODO from 2.6 on use get_all_user_name_fields() instead of user_picture
-        $mainuserfields = \user_picture::fields('u', null);
-        $sql = "SELECT ba.id as answerid, $mainuserfields, ba.optionid, ba.bookingid, ba.userid, ba.timemodified, ba.completed, ba.timecreated, ba.waitinglist
-        FROM {booking_answers} ba
-        JOIN {user} u
-        ON ba.userid = u.id
-        WHERE u.deleted = 0
-        AND ba.bookingid = ?
-        ORDER BY ba.optionid, ba.timemodified ASC";
-        $rawresponses = $DB->get_records_sql($sql, array($this->id));
-        if ($rawresponses) {
-            if ($this->checkcanbookusers) {
-                if (empty($this->canbookusers)) {
-                    $this->get_canbook_userids();
-                }
-                foreach ($rawresponses as $answerid => $userobject) {
-                    $sortedusers[$userobject->id] = $userobject;
-                }
-                $validresponses = array_intersect_key($sortedusers, $this->canbookusers);
-            } else {
-                $validresponses = $rawresponses;
-            }
-            foreach ($validresponses as $response) {
-                if (isset($this->options[$response->optionid])) {
-                    $bookinglist[$response->optionid][] = $response;
-                    $optionids[$response->optionid] = $response->optionid;
-                }
-            }
-            foreach ($optionids as $optionid) {
-                $totalbookings[$optionid] = count($bookinglist[$optionid]);
-            }
-        }
-        $this->allbookedusers = $bookinglist;
-        $this->sort_bookings();
-        $this->numberofbookingsperoption = $totalbookings;
     }
 
     /**

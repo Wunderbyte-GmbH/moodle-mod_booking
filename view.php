@@ -31,7 +31,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
 require_course_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 
-$booking = new \mod_booking\booking_options($cm->id, TRUE, array(), 0, 0, false);
+$booking = new \mod_booking\booking_options($cm->id, TRUE, array(), 0, 0);
 
 if (!empty($action)) {
     $urlParams['action'] = $action;

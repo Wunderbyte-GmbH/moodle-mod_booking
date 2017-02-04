@@ -1858,7 +1858,7 @@ function booking_get_groupmodedata() {
  * @return object with $booking->option as an array for the booking option valus for each booking option
  */
 function booking_get_booking($cm, $sort = '',
-        $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), $view = TRUE, $optionid = null, $fetchOptions = true) {
+        $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), $view = TRUE, $optionid = null) {
     global $CFG, $DB;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
 
@@ -1882,8 +1882,7 @@ function booking_get_booking($cm, $sort = '',
             true);
 
     if (is_null($optionid)) {
-        $bookingObject = new \mod_booking\booking_options($cm->id, TRUE, $urlParams, 0, 0,
-                $fetchOptions);
+        $bookingObject = new \mod_booking\booking_options($cm->id, TRUE, $urlParams, 0, 0);
         $booking = $bookingObject->booking;
         $options = $bookingObject->options;
     } else {

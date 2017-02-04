@@ -14,8 +14,8 @@ $subscribe = optional_param('subscribe', false, PARAM_BOOL);
 $unsubscribe = optional_param('unsubscribe', false, PARAM_BOOL);
 $agree = optional_param('agree', false, PARAM_BOOL);
 
-$cm = get_coursemodule_from_id('booking', $id, 0, false, MUST_EXIST);
-$course = get_course($cm->course);
+list($course, $cm) = get_course_and_cm_from_cmid($id);
+
 (boolean) $subscribesuccess = false;
 (boolean) $unsubscribesuccess = false;
 

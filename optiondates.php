@@ -20,10 +20,6 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 
-if (!$booking = booking_get_booking($cm, '', array(), true, null, false)) {
-    error("Course module is incorrect");
-}
-
 if (!$context = context_module::instance($cm->id)) {
     print_error('badcontext');
 }

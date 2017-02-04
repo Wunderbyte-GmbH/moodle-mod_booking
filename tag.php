@@ -12,13 +12,7 @@ $url = new moodle_url('/mod/booking/tag.php', array('id' => $id, 'tag' => $tagna
 
 $PAGE->set_url($url);
 
-if (!$cm = get_coursemodule_from_id('booking', $id)) {
-    print_error('invalidcoursemodule');
-}
-
-if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
-    print_error('coursemisconf');
-}
+list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 

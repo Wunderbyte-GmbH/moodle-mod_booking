@@ -20,7 +20,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 
-if (!$booking = booking_get_booking($cm, '', array(), true, $optionid, false)) {
+if (!$booking = booking_get_booking($cm, '', array(), true, $optionid)) {
     error("Course module is incorrect");
 }
 
