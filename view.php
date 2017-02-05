@@ -180,21 +180,6 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context) &
 $PAGE->set_title(format_string($booking->booking->name));
 $PAGE->set_heading($booking->booking->name);
 
-// check if custom user profile fields are required and redirect to complete them if necessary
-if (has_capability('moodle/user:editownprofile', $context, NULL, false) and
-         booking_check_user_profile_fields($USER->id) and
-         !has_capability('moodle/site:config', $context)) {
-    echo $OUTPUT->header();
-    $contents = get_string('mustfilloutuserinfobeforebooking', 'booking');
-    $contents .= $OUTPUT->single_button(
-            new moodle_url("edituserprofile.php",
-                    array('id' => $cm->id, 'courseid' => $course->id)), get_string('continue'),
-            'get');
-    echo $OUTPUT->box($contents, 'box generalbox', 'notice');
-    echo $OUTPUT->footer();
-    die();
-}
-
 // Submit any new data if there is any
 if ($download == '' && $form = data_submitted() && has_capability('mod/booking:choose', $context)) {
     echo $OUTPUT->header();
