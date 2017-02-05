@@ -33,11 +33,11 @@ M.mod_booking.viewscript = {
   init: function() {
     
       Y.one('#buttonclear').on('click', function () {
-          Y.one('#searchText').set('value', '');
-          Y.one('#searchLocation').set('value', '');
-          Y.one('#searchInstitution').set('value', '');
-          Y.one('#searchName').set('value', '');
-          Y.one('#searchSurname').set('value', '');
+          Y.one('#searchtext').set('value', '');
+          Y.one('#searchlocation').set('value', '');
+          Y.one('#searchinstitution').set('value', '');
+          Y.one('#searchname').set('value', '');
+          Y.one('#searchsurname').set('value', '');
           Y.one('#searchButton').simulate('click');
       });
       

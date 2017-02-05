@@ -215,14 +215,14 @@ class booking_option extends booking {
             $params['searchdateday'] = $this->filters['searchDateDay'];
         }
 
-        if (isset($this->filters['searchName']) && strlen($this->filters['searchName']) > 0) {
+        if (isset($this->filters['searchname']) && strlen($this->filters['searchname']) > 0) {
             $options .= " AND u.firstname LIKE :searchname";
-            $params['searchname'] = '%' . $this->filters['searchName'] . '%';
+            $params['searchname'] = '%' . $this->filters['searchname'] . '%';
         }
 
-        if (isset($this->filters['searchSurname']) && strlen($this->filters['searchSurname']) > 0) {
+        if (isset($this->filters['searchsurname']) && strlen($this->filters['searchsurname']) > 0) {
             $options .= " AND u.lastname LIKE :searchsurname";
-            $params['searchsurname'] = '%' . $this->filters['searchSurname'] . '%';
+            $params['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
         }
 
         $mainuserfields = explode(',', \user_picture::fields());
@@ -275,14 +275,14 @@ class booking_option extends booking {
             $params['searchdateday'] = $this->filters['searchDateDay'];
         }
 
-        if (isset($this->filters['searchName']) && strlen($this->filters['searchName']) > 0) {
+        if (isset($this->filters['searchname']) && strlen($this->filters['searchname']) > 0) {
             $options .= " AND {user}.firstname LIKE :searchname";
-            $params['searchname'] = '%' . $this->filters['searchName'] . '%';
+            $params['searchname'] = '%' . $this->filters['searchname'] . '%';
         }
 
-        if (isset($this->filters['searchSurname']) && strlen($this->filters['searchSurname']) > 0) {
+        if (isset($this->filters['searchsurname']) && strlen($this->filters['searchsurname']) > 0) {
             $options .= " AND {user}.lastname LIKE :searchsurname";
-            $params['searchsurname'] = '%' . $this->filters['searchSurname'] . '%';
+            $params['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
         }
 
         $mainuserfields = \user_picture::fields('{user}', NULL);
@@ -320,14 +320,14 @@ class booking_option extends booking {
             $params['searchdateday'] = $this->filters['searchDateDay'];
         }
 
-        if (isset($this->filters['searchName']) && strlen($this->filters['searchName']) > 0) {
+        if (isset($this->filters['searchname']) && strlen($this->filters['searchname']) > 0) {
             $options .= " AND {user}.firstname LIKE :searchname";
-            $params['searchname'] = '%' . $this->filters['searchName'] . '%';
+            $params['searchname'] = '%' . $this->filters['searchname'] . '%';
         }
 
-        if (isset($this->filters['searchSurname']) && strlen($this->filters['searchSurname']) > 0) {
+        if (isset($this->filters['searchsurname']) && strlen($this->filters['searchsurname']) > 0) {
             $options .= " AND {user}.lastname LIKE :searchsurname";
-            $params['searchsurname'] = '%' . $this->filters['searchSurname'] . '%';
+            $params['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
         }
 
         $count = $DB->get_record_sql(

@@ -27,7 +27,7 @@ require_once('institutioncsv_form.php');
 $id = required_param('courseid', PARAM_INT); // Course Module ID
 
 $url = new moodle_url('/mod/booking/institutioncsv.php', array('courseid' => $id));
-$urlRedirect = new moodle_url('/mod/booking/institutions.php', array('courseid' => $id));
+$urlredirect = new moodle_url('/mod/booking/institutions.php', array('courseid' => $id));
 $PAGE->set_url($url);
 
 $context = context_course::instance($id);
@@ -52,7 +52,7 @@ $completion = new completion_info($course);
 // Form processing and displaying is done here
 if ($mform->is_cancelled()) {
     // Handle form cancel operation, if cancel button is present on form
-    redirect($urlRedirect, '', 0);
+    redirect($urlredirect, '', 0);
     die();
 } else if ($fromform = $mform->get_data()) {
 
@@ -81,10 +81,10 @@ if ($mform->is_cancelled()) {
             }
         }
 
-        redirect($urlRedirect, get_string('importfinished', 'booking'), 5);
+        redirect($urlredirect, get_string('importfinished', 'booking'), 5);
     } else {
         // Not ok, write error!
-        redirect($urlRedirect, get_string('wrongfile', 'booking'), 5);
+        redirect($urlredirect, get_string('wrongfile', 'booking'), 5);
     }
 
     // In this case you process validated data. $mform->get_data() returns data posted in form.

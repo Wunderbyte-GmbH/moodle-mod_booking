@@ -55,8 +55,8 @@ class otherbookingaddrule_form extends moodleform {
         $mform->addRule('userslimit', null, 'numeric', null, 'client');
         $mform->addHelpButton('userslimit', 'otherbookinglimit', 'mod_booking');
 
-        $mform->addElement('hidden', 'id');
-        $mform->setType('id', PARAM_INT);
+        $mform->addElement('hidden', 'bookingotherid');
+        $mform->setType('bookingotherid', PARAM_INT);
 
         $this->add_action_buttons(TRUE, get_string('savenewtagtemplate', 'booking'));
     }

@@ -27,7 +27,7 @@ require_once('importexcel_form.php');
 $id = required_param('id', PARAM_INT); // Course Module ID
 
 $url = new moodle_url('/mod/booking/importexcel.php', array('id' => $id));
-$urlRedirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
+$urlredirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
@@ -55,7 +55,7 @@ $mform = new importexcel_form($url);
 // Form processing and displaying is done here
 if ($mform->is_cancelled()) {
     // Handle form cancel operation, if cancel button is present on form
-    redirect($urlRedirect, '', 0);
+    redirect($urlredirect, '', 0);
     die();
 } else if ($fromform = $mform->get_data()) {
     $csvfile = $mform->get_file_content('excelfile');
@@ -118,9 +118,9 @@ if ($mform->is_cancelled()) {
             }
         }
 
-        redirect($urlRedirect, get_string('importfinished', 'booking'), 5);
+        redirect($urlredirect, get_string('importfinished', 'booking'), 5);
     } else {
-        redirect($urlRedirect, get_string('wrongfile', 'booking'), 5);
+        redirect($urlredirect, get_string('wrongfile', 'booking'), 5);
     }
 
     // In this case you process validated data. $mform->get_data() returns data posted in form.

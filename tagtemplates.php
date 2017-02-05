@@ -26,7 +26,7 @@ require_once("locallib.php");
 $id = required_param('id', PARAM_INT); // Course Module ID
 
 $url = new moodle_url('/mod/booking/tagtemplates.php', array('id' => $id));
-$urlRedirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
+$urlredirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
@@ -53,19 +53,19 @@ $table->head = array(get_string('tagtag', 'booking'), get_string('tagtext', 'boo
 
 $tags = new booking_tags($cm);
 
-$tagsTable = array();
+$tagstable = array();
 
 foreach ($tags->get_all_tags() as $tag) {
 
-    $edit = new moodle_url('tagtemplatesadd.php', array('id' => $cm->id, 'tid' => $tag->id));
+    $edit = new moodle_url('tagtemplatesadd.php', array('id' => $cm->id, 'tagid' => $tag->id));
     $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get');
 
-    $tagsTable[] = array("[{$tag->tag}]", nl2br($tag->text),
+    $tagstable[] = array("[{$tag->tag}]", nl2br($tag->text),
         html_writer::tag('span', $button,
                 array('style' => 'text-align: right; display:table-cell;')));
 }
 
-$table->data = $tagsTable;
+$table->data = $tagstable;
 echo html_writer::table($table);
 
 $cancel = new moodle_url('view.php', array('id' => $cm->id));

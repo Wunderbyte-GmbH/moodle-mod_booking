@@ -70,13 +70,13 @@ if ($delete == 1) {
 
 $mform = new mod_booking_categories_form(null, array('courseid' => $courseid, 'cidd' => $cid));
 
-$default_values = new stdClass();
+$defaultvalues = new stdClass();
 if ($cid != '') {
-    $default_values = $DB->get_record('booking_category', array('id' => $cid));
+    $defaultvalues = $DB->get_record('booking_category', array('id' => $cid));
 }
 
-$default_values->courseid = $courseid;
-$default_values->course = $courseid;
+$defaultvalues->courseid = $courseid;
+$defaultvalues->course = $courseid;
 
 $PAGE->set_title(get_string('addnewcategory', 'booking'));
 
@@ -106,7 +106,7 @@ echo $OUTPUT->header();
 // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
 // or on the first display of the form.
 
-$mform->set_data($default_values);
+$mform->set_data($defaultvalues);
 $mform->display();
 
 echo $OUTPUT->footer();

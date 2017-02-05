@@ -637,11 +637,11 @@ function booking_get_user_booking_count($booking, $user, $bookinglist) {
  * @param $cm course module object
  * @param $allresponses array of all responses
  * @param $sorturl
- * @param $urlParams - fparameters of url
+ * @param $urlparams - fparameters of url
  * @param $optionid - if is set, show only this option
  * @return void
  */
-function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $urlParams = array(),
+function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $urlparams = array(),
         $optionid = NULL) {
     global $DB, $OUTPUT;
     // $optiondisplay is an array of the display info for a booking $cdisplay[$optionid]->text - text name of option.
@@ -667,8 +667,8 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
 
     $hidden = "";
 
-    foreach ($urlParams as $key => $value) {
-        if (!in_array($key, array('searchText', 'searchLocation', 'searchInstitution'))) {
+    foreach ($urlparams as $key => $value) {
+        if (!in_array($key, array('searchtext', 'searchlocation', 'searchinstitution'))) {
             $hidden .= '<input value="' . $value . '" type="hidden" name="' . $key . '">';
         }
     }
@@ -677,38 +677,38 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
     $labelLocation = (empty($booking->booking->lbllocation) ? get_string('location', 'booking') : $booking->booking->lbllocation);
     $labelInstitution = (empty($booking->booking->lblinstitution) ? get_string('institution',
             'booking') : $booking->booking->lblinstitution);
-    $labelSearchName = (empty($booking->booking->lblname) ? get_string('searchName', 'booking') : $booking->booking->lblname);
-    $labelSearchSurname = (empty($booking->booking->lblsurname) ? get_string('searchSurname',
+    $labelSearchName = (empty($booking->booking->lblname) ? get_string('searchname', 'booking') : $booking->booking->lblname);
+    $labelSearchSurname = (empty($booking->booking->lblsurname) ? get_string('searchsurname',
             'booking') : $booking->booking->lblsurname);
 
     $row = new html_table_row(
             array($labelBooking,
-                $hidden . '<form><input value="' . $urlParams['searchText'] .
-                         '" type="text" id="searchText" name="searchText">', "", ""));
+                $hidden . '<form><input value="' . $urlparams['searchtext'] .
+                         '" type="text" id="searchtext" name="searchtext">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
     $row = new html_table_row(
             array($labelLocation,
-                $hidden . '<input value="' . $urlParams['searchLocation'] .
-                         '" type="text" id="searchLocation" name="searchLocation">', "", ""));
+                $hidden . '<input value="' . $urlparams['searchlocation'] .
+                         '" type="text" id="searchlocation" name="searchlocation">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
     $row = new html_table_row(
             array($labelInstitution,
-                $hidden . '<input value="' . $urlParams['searchInstitution'] .
-                         '" type="text" id="searchInstitution" name="searchInstitution">', "", ""));
+                $hidden . '<input value="' . $urlparams['searchinstitution'] .
+                         '" type="text" id="searchinstitution" name="searchinstitution">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
     $row = new html_table_row(
             array($labelSearchName,
-                '<form>' . $hidden . '<input value="' . $urlParams['searchName'] .
-                         '" type="text" id="searchName" name="searchName">', "", ""));
+                '<form>' . $hidden . '<input value="' . $urlparams['searchname'] .
+                         '" type="text" id="searchname" name="searchname">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
     $row = new html_table_row(
             array($labelSearchSurname,
-                '<input value="' . $urlParams['searchSurname'] .
-                         '" type="text" id="searchSurname" name="searchSurname">', "", ""));
+                '<input value="' . $urlparams['searchsurname'] .
+                         '" type="text" id="searchsurname" name="searchsurname">', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
     $row = new html_table_row(
@@ -723,9 +723,9 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
     $table->head = array('', '', '');
     $table->data = $tabledata;
     $table->id = "tableSearch";
-    if (empty($urlParams['searchText']) && empty($urlParams['searchLocation']) &&
-             empty($urlParams['searchName']) && empty($urlParams['searchInstitution']) &&
-             empty($urlParams['searchSurname'])) {
+    if (empty($urlparams['searchtext']) && empty($urlparams['searchlocation']) &&
+             empty($urlparams['searchname']) && empty($urlparams['searchinstitution']) &&
+             empty($urlparams['searchsurname'])) {
         $table->attributes = array('style' => "display: none;");
     }
     echo html_writer::table($table);
@@ -921,7 +921,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
 }
 
 /**
- * extend an booking navigation settings
+ * extend booking navigation settings
  *
  * @param settings_navigation $settings
  * @param navigation_node $navref
@@ -1866,13 +1866,13 @@ function booking_get_groupmodedata() {
  *
  * @param $cm course_module id of the module
  * @param $sort string which field use to sort options
- * @param $urlParams array parameters for searching
+ * @param $urlparams array parameters for searching
  * @param $view boolean if we need it for editing or viewing
  * @param $optionid int id booking_options
  * @return object with $booking->option as an array for the booking option valus for each booking option
  */
 function booking_get_booking($cm, $sort = '',
-        $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), $view = TRUE, $optionid = null) {
+        $urlparams = array('searchtext' => '', 'searchlocation' => '', 'searchinstitution' => ''), $view = TRUE, $optionid = null) {
     global $CFG, $DB;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
 
@@ -1896,7 +1896,7 @@ function booking_get_booking($cm, $sort = '',
             true);
 
     if (is_null($optionid)) {
-        $bookingObject = new \mod_booking\booking_options($cm->id, TRUE, $urlParams, 0, 0);
+        $bookingObject = new \mod_booking\booking_options($cm->id, TRUE, $urlparams, 0, 0);
         $booking = $bookingObject->booking;
         $options = $bookingObject->options;
     } else {

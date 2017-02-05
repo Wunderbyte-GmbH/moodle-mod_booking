@@ -184,21 +184,21 @@ class mod_booking_bookingform_form extends moodleform {
         // $this->add_action_buttons();
     }
 
-    function data_preprocessing(&$default_values) {
-        if (!isset($default_values['descriptionformat'])) {
-            $default_values['descriptionformat'] = FORMAT_HTML;
+    function data_preprocessing(&$defaultvalues) {
+        if (!isset($defaultvalues['descriptionformat'])) {
+            $defaultvalues['descriptionformat'] = FORMAT_HTML;
         }
 
-        if (!isset($default_values['description'])) {
-            $default_values['description'] = '';
+        if (!isset($defaultvalues['description'])) {
+            $defaultvalues['description'] = '';
         }
 
-        if (!isset($default_values['notificationtextformat'])) {
-            $default_values['notificationtextformat'] = FORMAT_HTML;
+        if (!isset($defaultvalues['notificationtextformat'])) {
+            $defaultvalues['notificationtextformat'] = FORMAT_HTML;
         }
 
-        if (!isset($default_values['notificationtext'])) {
-            $default_values['notificationtext'] = '';
+        if (!isset($defaultvalues['notificationtext'])) {
+            $defaultvalues['notificationtext'] = '';
         }
     }
 

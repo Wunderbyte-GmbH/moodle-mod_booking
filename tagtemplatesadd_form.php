@@ -36,8 +36,8 @@ class tagtemplatesadd_form extends moodleform {
         $mform->setType('text', PARAM_CLEANHTML);
         $mform->addRule('text', null, 'required', null, 'client');
 
-        $mform->addElement('hidden', 'id');
-        $mform->setType('id', PARAM_RAW);
+        $mform->addElement('hidden', 'tagid');
+        $mform->setType('tagid', PARAM_RAW);
 
         $this->add_action_buttons(TRUE, get_string('savenewtagtemplate', 'booking'));
     }

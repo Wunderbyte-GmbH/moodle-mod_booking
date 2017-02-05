@@ -51,10 +51,10 @@ class booking_options extends booking {
     public $sort = ' ORDER BY bo.coursestarttime ASC';
 
     public function __construct($cmid, $checkcanbookusers = true,
-            $urlParams = array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => '', 'searchName' => '', 'searchSurname' => ''), $page = 0, $perpage = 0) {
+            $urlparams = array('searchtext' => '', 'searchlocation' => '', 'searchinstitution' => '', 'searchname' => '', 'searchsurname' => ''), $page = 0, $perpage = 0) {
         parent::__construct($cmid);
         $this->checkcanbookusers = $checkcanbookusers;
-        $this->filters = $urlParams;
+        $this->filters = $urlparams;
         $this->page = $page;
         $this->perpage = $perpage;
         if (isset($this->filters['sort']) && $this->filters['sort'] === 1) {
@@ -79,14 +79,14 @@ class booking_options extends booking {
         $conditions = " bo.bookingid = :bookingid ";
         $args['bookingid'] = $this->id;
 
-        if (!empty($this->filters['searchText'])) {
+        if (!empty($this->filters['searchtext'])) {
 
             $tags = $DB->get_records_sql('SELECT * FROM {booking_tags} WHERE text LIKE :text',
-                    array('text' => '%' . $this->filters['searchText'] . '%'));
+                    array('text' => '%' . $this->filters['searchtext'] . '%'));
 
             if (!empty($tags)) {
                 $conditions .= " AND (bo.text LIKE :text ";
-                $args['text'] = '%' . $this->filters['searchText'] . '%';
+                $args['text'] = '%' . $this->filters['searchtext'] . '%';
 
                 foreach ($tags as $tag) {
                     $conditions .= " OR bo.text LIKE :tag{$tag->id} ";
@@ -96,18 +96,18 @@ class booking_options extends booking {
                 $conditions .= " ) ";
             } else {
                 $conditions .= " AND bo.text LIKE :text ";
-                $args['text'] = '%' . $this->filters['searchText'] . '%';
+                $args['text'] = '%' . $this->filters['searchtext'] . '%';
             }
         }
 
-        if (!empty($this->filters['searchLocation'])) {
+        if (!empty($this->filters['searchlocation'])) {
             $conditions .= " AND bo.location LIKE :location ";
-            $args['location'] = '%' . $this->filters['searchLocation'] . '%';
+            $args['location'] = '%' . $this->filters['searchlocation'] . '%';
         }
 
-        if (!empty($this->filters['searchInstitution'])) {
+        if (!empty($this->filters['searchinstitution'])) {
             $conditions .= " AND bo.institution LIKE :institution ";
-            $args['institution'] = '%' . $this->filters['searchInstitution'] . '%';
+            $args['institution'] = '%' . $this->filters['searchinstitution'] . '%';
         }
 
         if (!empty($this->filters['coursestarttime'])) {
@@ -115,16 +115,16 @@ class booking_options extends booking {
             $args['coursestarttime'] = $this->filters['coursestarttime'];
         }
 
-        if (!empty($this->filters['searchName'])) {
+        if (!empty($this->filters['searchname'])) {
             $conditions .= " AND (u.firstname LIKE :searchname OR ut.firstname LIKE :searchnamet) ";
-            $args['searchname'] = '%' . $this->filters['searchName'] . '%';
-            $args['searchnamet'] = '%' . $this->filters['searchName'] . '%';
+            $args['searchname'] = '%' . $this->filters['searchname'] . '%';
+            $args['searchnamet'] = '%' . $this->filters['searchname'] . '%';
         }
 
-        if (!empty($this->filters['searchSurname'])) {
+        if (!empty($this->filters['searchsurname'])) {
             $conditions .= " AND (u.lastname LIKE :searchsurname OR ut.lastname LIKE :searchsurnamet) ";
-            $args['searchsurname'] = '%' . $this->filters['searchSurname'] . '%';
-            $args['searchsurnamet'] = '%' . $this->filters['searchSurname'] . '%';
+            $args['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
+            $args['searchsurnamet'] = '%' . $this->filters['searchsurname'] . '%';
         }
 
         if (isset($this->filters['whichview'])) {

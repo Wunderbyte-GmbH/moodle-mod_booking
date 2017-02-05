@@ -456,9 +456,9 @@ class mod_booking_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
-    function data_preprocessing(&$default_values) {
+    function data_preprocessing(&$defaultvalues) {
         global $CFG;
-        parent::data_preprocessing($default_values);
+        parent::data_preprocessing($defaultvalues);
         $options = array('subdirs' => false, 'maxfiles' => 50, 'accepted_types' => array('*'),
             'maxbytes' => 0);
 
@@ -466,72 +466,72 @@ class mod_booking_mod_form extends moodleform_mod {
             $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
             file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking',
                     'myfilemanager', $this->current->id, $options);
-            $default_values['myfilemanager'] = $draftitemid;
+            $defaultvalues['myfilemanager'] = $draftitemid;
 
             if ($CFG->branch >= 31) {
                 core_tag_tag::get_item_tags_array('mod_booking', 'booking', $this->current->id);
             } else {
-                $default_values['tags'] = tag_get_tags_array('booking', $this->current->id);
+                $defaultvalues['tags'] = tag_get_tags_array('booking', $this->current->id);
             }
         } else {
             $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
             file_prepare_draft_area($draftitemid, null, 'mod_booking', 'myfilemanager', 0, $options);
-            $default_values['myfilemanager'] = $draftitemid;
+            $defaultvalues['myfilemanager'] = $draftitemid;
         }
 
-        if (empty($default_values['timeopen'])) {
-            $default_values['timerestrict'] = 0;
+        if (empty($defaultvalues['timeopen'])) {
+            $defaultvalues['timerestrict'] = 0;
         } else {
-            $default_values['timerestrict'] = 1;
+            $defaultvalues['timerestrict'] = 1;
         }
-        if (!isset($default_values['bookingpolicyformat'])) {
-            $default_values['bookingpolicyformat'] = FORMAT_HTML;
+        if (!isset($defaultvalues['bookingpolicyformat'])) {
+            $defaultvalues['bookingpolicyformat'] = FORMAT_HTML;
         }
-        if (!isset($default_values['bookingpolicy'])) {
-            $default_values['bookingpolicy'] = '';
-        }
-
-        if (!isset($default_values['showinapi'])) {
-            $default_values['showinapi'] = 1;
+        if (!isset($defaultvalues['bookingpolicy'])) {
+            $defaultvalues['bookingpolicy'] = '';
         }
 
-        $default_values['bookingpolicy'] = array('text' => $default_values['bookingpolicy'],
-            'format' => $default_values['bookingpolicyformat']);
+        if (!isset($defaultvalues['showinapi'])) {
+            $defaultvalues['showinapi'] = 1;
+        }
 
-        if (isset($default_values['bookedtext'])) {
-            $default_values['bookedtext'] = array('text' => $default_values['bookedtext'],
+        $defaultvalues['bookingpolicy'] = array('text' => $defaultvalues['bookingpolicy'],
+            'format' => $defaultvalues['bookingpolicyformat']);
+
+        if (isset($defaultvalues['bookedtext'])) {
+            $defaultvalues['bookedtext'] = array('text' => $defaultvalues['bookedtext'],
                 'format' => FORMAT_HTML);
         }
-        if (isset($default_values['waitingtext'])) {
-            $default_values['waitingtext'] = array('text' => $default_values['waitingtext'],
+        if (isset($defaultvalues['waitingtext'])) {
+            $defaultvalues['waitingtext'] = array('text' => $defaultvalues['waitingtext'],
                 'format' => FORMAT_HTML);
         }
-        if (isset($default_values['notifyemail'])) {
-            $default_values['notifyemail'] = array('text' => $default_values['notifyemail'],
+        if (isset($defaultvalues['notifyemail'])) {
+            $defaultvalues['notifyemail'] = array('text' => $defaultvalues['notifyemail'],
                 'format' => FORMAT_HTML);
         }
-        if (isset($default_values['statuschangetext'])) {
-            $default_values['statuschangetext'] = array(
-                'text' => $default_values['statuschangetext'], 'format' => FORMAT_HTML);
+        if (isset($defaultvalues['statuschangetext'])) {
+            $defaultvalues['statuschangetext'] = array(
+                'text' => $defaultvalues['statuschangetext'], 'format' => FORMAT_HTML);
         }
-        if (isset($default_values['deletedtext'])) {
-            $default_values['deletedtext'] = array('text' => $default_values['deletedtext'],
+        if (isset($defaultvalues['deletedtext'])) {
+            $defaultvalues['deletedtext'] = array('text' => $defaultvalues['deletedtext'],
                 'format' => FORMAT_HTML);
         }
-        if (isset($default_values['pollurltext'])) {
-            $default_values['pollurltext'] = array('text' => $default_values['pollurltext'],
+        if (isset($defaultvalues['pollurltext'])) {
+            $defaultvalues['pollurltext'] = array('text' => $defaultvalues['pollurltext'],
                 'format' => FORMAT_HTML);
         }
-        if (isset($default_values['pollurlteacherstext'])) {
-            $default_values['pollurlteacherstext'] = array(
-                'text' => $default_values['pollurlteacherstext'], 'format' => FORMAT_HTML);
+        if (isset($defaultvalues['pollurlteacherstext'])) {
+            $defaultvalues['pollurlteacherstext'] = array(
+                'text' => $defaultvalues['pollurlteacherstext'], 'format' => FORMAT_HTML);
         }
-        if (isset($default_values['notificationtext'])) {
-            $default_values['notificationtext'] = array(
-                'text' => $default_values['notificationtext'], 'format' => FORMAT_HTML);
+        if (isset($defaultvalues['notificationtext'])) {
+            $defaultvalues['notificationtext'] = array(
+                'text' => $defaultvalues['notificationtext'], 'format' => FORMAT_HTML);
         }
-        if (isset($default_values['userleave'])) {
-            $default_values['userleave'] = array('text' => $default_values['userleave'],
+        if (isset($defaultvalues['userleave'])) {
+            $defaultvalues['userleave'] = array('text' => $defaultvalues['userleave'],
                 'format' => FORMAT_HTML);
         }
     }

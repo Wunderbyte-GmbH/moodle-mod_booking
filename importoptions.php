@@ -36,7 +36,7 @@ function modbooking_fixEncoding($in_str) {
 $id = required_param('id', PARAM_INT); // Course Module ID
 
 $url = new moodle_url('/mod/booking/importoptions.php', array('id' => $id));
-$urlRedirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
+$urlredirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
@@ -66,7 +66,7 @@ $completion = new completion_info($course);
 // Form processing and displaying is done here
 if ($mform->is_cancelled()) {
     // Handle form cancel operation, if cancel button is present on form
-    redirect($urlRedirect, '', 0);
+    redirect($urlredirect, '', 0);
     die();
 } else if ($fromform = $mform->get_data()) {
 

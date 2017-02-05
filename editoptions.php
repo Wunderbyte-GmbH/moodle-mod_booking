@@ -31,7 +31,7 @@ require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
 
 if (!$booking = booking_get_booking($cm, '',
-        array('searchText' => '', 'searchLocation' => '', 'searchInstitution' => ''), FALSE, null,
+        array('searchtext' => '', 'searchlocation' => '', 'searchinstitution' => ''), FALSE, null,
         false)) {
     error("Course module is incorrect");
 }
@@ -45,42 +45,42 @@ require_capability('mod/booking:updatebooking', $context);
 $mform = new mod_booking_bookingform_form(null, array('bookingid' => $cm->instance));
 
 if ($optionid == 'add') {
-    $default_values = $booking;
+    $defaultvalues = $booking;
     if ($copyoptionid != '') {
-        if ($default_values = $DB->get_record('booking_options', array('id' => $copyoptionid))) {
-            $default_values->optionid = "add";
-            $default_values->bookingid = $cm->instance;
-            $default_values->id = $cm->id;
-            $default_values->description = array('text' => $default_values->description,
+        if ($defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid))) {
+            $defaultvalues->optionid = "add";
+            $defaultvalues->bookingid = $cm->instance;
+            $defaultvalues->id = $cm->id;
+            $defaultvalues->description = array('text' => $defaultvalues->description,
                 'format' => FORMAT_HTML);
-            $default_values->notificationtext = array('text' => $default_values->notificationtext,
+            $defaultvalues->notificationtext = array('text' => $defaultvalues->notificationtext,
                 'format' => FORMAT_HTML);
-            if ($default_values->bookingclosingtime) {
-                $default_values->restrictanswerperiod = "checked";
+            if ($defaultvalues->bookingclosingtime) {
+                $defaultvalues->restrictanswerperiod = "checked";
             }
-            if ($default_values->coursestarttime) {
-                $default_values->startendtimeknown = "checked";
+            if ($defaultvalues->coursestarttime) {
+                $defaultvalues->startendtimeknown = "checked";
             }
         }
     }
 
-    $default_values->optionid = "add";
-    $default_values->bookingid = $booking->id;
-    $default_values->id = $cm->id;
-    $default_values->text = '';
-} else if ($default_values = $DB->get_record('booking_options',
+    $defaultvalues->optionid = "add";
+    $defaultvalues->bookingid = $booking->id;
+    $defaultvalues->id = $cm->id;
+    $defaultvalues->text = '';
+} else if ($defaultvalues = $DB->get_record('booking_options',
         array('bookingid' => $booking->id, 'id' => $optionid))) {
-    $default_values->optionid = $optionid;
-    $default_values->description = array('text' => $default_values->description,
+    $defaultvalues->optionid = $optionid;
+    $defaultvalues->description = array('text' => $defaultvalues->description,
         'format' => FORMAT_HTML);
-    $default_values->notificationtext = array('text' => $default_values->notificationtext,
+    $defaultvalues->notificationtext = array('text' => $defaultvalues->notificationtext,
         'format' => FORMAT_HTML);
-    $default_values->id = $cm->id;
-    if ($default_values->bookingclosingtime) {
-        $default_values->restrictanswerperiod = "checked";
+    $defaultvalues->id = $cm->id;
+    if ($defaultvalues->bookingclosingtime) {
+        $defaultvalues->restrictanswerperiod = "checked";
     }
-    if ($default_values->coursestarttime) {
-        $default_values->startendtimeknown = "checked";
+    if ($defaultvalues->coursestarttime) {
+        $defaultvalues->startendtimeknown = "checked";
     }
 } else {
     print_error('This booking option does not exist');
@@ -118,7 +118,7 @@ if ($mform->is_cancelled()) {
     // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
     // or on the first display of the form.
 
-    $mform->set_data($default_values);
+    $mform->set_data($defaultvalues);
     $mform->display();
 }
 echo $OUTPUT->footer();

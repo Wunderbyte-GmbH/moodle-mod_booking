@@ -34,8 +34,7 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading(get_string("bookingpolicy", "booking"), 2);
 
-echo $OUTPUT->box_start('generalbox', 'tag-blogs'); // could use an id separate from tag-blogs, but would have to copy the css style to make it look
-                                                    // the same
+echo $OUTPUT->box_start('generalbox', 'tag-blogs'); // Could use an id separate from tag-blogs, but looks the same with that id.
 
 echo $booking->booking->bookingpolicy;
 

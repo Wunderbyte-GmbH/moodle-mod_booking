@@ -25,13 +25,13 @@
 class mod_booking_renderer extends plugin_renderer_base {
 
     // Prints tabs for options.
-    public function print_booking_tabs($urlParams, $current = 'showactive', $mybookings = 0, $myoptions = 0) {
+    public function print_booking_tabs($urlparams, $current = 'showactive', $mybookings = 0, $myoptions = 0) {
 
         // Output tabs
         $row = array();
 
-        unset($urlParams['sort']);
-        $tmpUrlParams = $urlParams; // "#goenrol"
+        unset($urlparams['sort']);
+        $tmpUrlParams = $urlparams; // "#goenrol"
 
         $tmpUrlParams['whichview'] = 'myinstitution';
         $row[] = new tabobject('myinstitution',

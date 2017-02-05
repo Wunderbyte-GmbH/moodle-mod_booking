@@ -39,10 +39,10 @@ if (!$context = context_module::instance($cm->id)) {
 
 require_capability('mod/booking:communicate', $context);
 
-$default_values = new stdClass();
-$default_values->optionid = $optionid;
-$default_values->id = $id;
-$default_values->uids = $uids;
+$defaultvalues = new stdClass();
+$defaultvalues->optionid = $optionid;
+$defaultvalues->id = $id;
+$defaultvalues->uids = $uids;
 
 $redirecturl = new moodle_url('report.php', array('id' => $id, 'optionid' => $optionid));
 
@@ -65,7 +65,7 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading(get_string("sendcustommessage", "booking"), 2);
 
-$mform->set_data($default_values);
+$mform->set_data($defaultvalues);
 $mform->display();
 
 echo $OUTPUT->footer();

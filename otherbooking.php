@@ -76,9 +76,9 @@ $rulesTable = array();
 foreach ($rules as $rule) {
 
     $edit = new moodle_url('otherbookingaddrule.php',
-            array('id' => $cm->id, 'optionid' => $optionid, 'obid' => $rule->id));
+            array('id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id));
     $delete = new moodle_url('otherbookingaddrule.php',
-            array('id' => $cm->id, 'optionid' => $optionid, 'obid' => $rule->id, 'delete' => 1));
+            array('id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id, 'delete' => 1));
 
     $button = '<div style="width: 100%; text-align: right; display:table;">';
     $buttone = $OUTPUT->single_button($edit, get_string('editrule', 'booking'), 'get');

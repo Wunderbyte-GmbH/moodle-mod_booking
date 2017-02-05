@@ -45,9 +45,9 @@ $searchFinished = optional_param('searchFinished', '', PARAM_TEXT);
 $searchWaitingList = optional_param('searchWaitingList', '', PARAM_TEXT);
 
 // from view.php
-$searchText = optional_param('searchText', '', PARAM_TEXT);
-$searchLocation = optional_param('searchLocation', '', PARAM_TEXT);
-$searchInstitution = optional_param('searchInstitution', '', PARAM_TEXT);
+$searchtext = optional_param('searchtext', '', PARAM_TEXT);
+$searchlocation = optional_param('searchlocation', '', PARAM_TEXT);
+$searchinstitution = optional_param('searchinstitution', '', PARAM_TEXT);
 $whichview = optional_param('whichview', '', PARAM_ALPHA);
 
 // form values
@@ -60,92 +60,92 @@ $perPage = 25;
 
 $searching = FALSE;
 
-$urlParams = array();
-$urlParams['id'] = $id;
-$urlParams['page'] = $page;
+$urlparams = array();
+$urlparams['id'] = $id;
+$urlparams['page'] = $page;
 
 $sqlValues = array();
 $addSQLWhere = '';
 
 if ($optionid > 0) {
-    $urlParams['optionid'] = $optionid;
+    $urlparams['optionid'] = $optionid;
     $sqlValues['optionid'] = $optionid;
 }
 
 $timestamp = time();
 
-$urlParams['searchDateDay'] = "";
+$urlparams['searchDateDay'] = "";
 if (strlen($searchDateDay) > 0) {
-    $urlParams['searchDateDay'] = $searchDateDay;
+    $urlparams['searchDateDay'] = $searchDateDay;
 }
 
-$urlParams['searchDateMonth'] = "";
+$urlparams['searchDateMonth'] = "";
 if (strlen($searchDateMonth) > 0) {
-    $urlParams['searchDateMonth'] = $searchDateMonth;
+    $urlparams['searchDateMonth'] = $searchDateMonth;
 }
 
-$urlParams['searchDateYear'] = "";
+$urlparams['searchDateYear'] = "";
 if (strlen($searchDateYear) > 0) {
-    $urlParams['searchDateYear'] = $searchDateYear;
+    $urlparams['searchDateYear'] = $searchDateYear;
 }
 
 $checked = FALSE;
-$urlParams['searchDate'] = "";
+$urlparams['searchDate'] = "";
 if ($searchDate == 1) {
-    $urlParams['searchDate'] = $searchDate;
+    $urlparams['searchDate'] = $searchDate;
     $checked = TRUE;
     $timestamp = strtotime(
-            "{$urlParams['searchDateDay']}-{$urlParams['searchDateMonth']}-{$urlParams['searchDateYear']}");
+            "{$urlparams['searchDateDay']}-{$urlparams['searchDateMonth']}-{$urlparams['searchDateYear']}");
     $addSQLWhere .= " AND FROM_UNIXTIME(ba.timecreated, '%Y') = :searchdateyear AND FROM_UNIXTIME(ba.timecreated, '%c') = :searchdatemonth AND FROM_UNIXTIME(ba.timecreated, '%e') = :searchdateday";
-    $sqlValues['searchdateyear'] = $urlParams['searchDateYear'];
-    $sqlValues['searchdatemonth'] = $urlParams['searchDateMonth'];
-    $sqlValues['searchdateday'] = $urlParams['searchDateDay'];
+    $sqlValues['searchdateyear'] = $urlparams['searchDateYear'];
+    $sqlValues['searchdatemonth'] = $urlparams['searchDateMonth'];
+    $sqlValues['searchdateday'] = $urlparams['searchDateDay'];
     $searching = TRUE;
 }
 
-$urlParams['searchFinished'] = "";
+$urlparams['searchFinished'] = "";
 if (strlen($searchFinished) > 0) {
-    $urlParams['searchFinished'] = $searchFinished;
+    $urlparams['searchFinished'] = $searchFinished;
     $sqlValues['completed'] = $searchFinished;
     $addSQLWhere .= ' AND ba.completed = :completed ';
     $searching = TRUE;
 }
 
-$urlParams['searchWaitingList'] = "";
+$urlparams['searchWaitingList'] = "";
 if (strlen($searchWaitingList) > 0) {
-    $urlParams['searchWaitingList'] = $searchWaitingList;
+    $urlparams['searchWaitingList'] = $searchWaitingList;
     $sqlValues['searchwaitinglist'] = $searchWaitingList;
     $addSQLWhere .= ' AND ba.waitinglist = :searchwaitinglist ';
     $searching = TRUE;
 }
 
-$urlParams['searchText'] = "";
-if (strlen($searchText) > 0) {
-    $urlParams['searchText'] = $searchText;
+$urlparams['searchtext'] = "";
+if (strlen($searchtext) > 0) {
+    $urlparams['searchtext'] = $searchtext;
 }
 
-$urlParams['searchLocation'] = "";
-if (strlen($searchLocation) > 0) {
-    $urlParams['searchLocation'] = $searchLocation;
+$urlparams['searchlocation'] = "";
+if (strlen($searchlocation) > 0) {
+    $urlparams['searchlocation'] = $searchlocation;
 }
 
-$urlParams['searchInstitution'] = "";
-if (strlen($searchInstitution) > 0) {
-    $urlParams['searchInstitution'] = $searchInstitution;
+$urlparams['searchinstitution'] = "";
+if (strlen($searchinstitution) > 0) {
+    $urlparams['searchinstitution'] = $searchinstitution;
 }
 
 if (!empty($whichview)) {
-    $urlParams['whichview'] = $whichview;
+    $urlparams['whichview'] = $whichview;
 } else {
-    $urlParams['whichview'] = 'showactive';
+    $urlparams['whichview'] = 'showactive';
 }
 
 if ($action !== '') {
-    $urlParams['action'] = $action;
+    $urlparams['action'] = $action;
 }
 
-$url = new moodle_url('/mod/booking/report.php', $urlParams);
-$currenturl = new moodle_url('/mod/booking/report.php', $urlParams);
+$url = new moodle_url('/mod/booking/report.php', $urlparams);
+$currenturl = new moodle_url('/mod/booking/report.php', $urlparams);
 
 $PAGE->set_url($url);
 $PAGE->requires->yui_module('moodle-mod_booking-utility', 'M.mod_booking.utility.init');
@@ -156,7 +156,7 @@ require_course_login($course, false, $cm);
 
 $context = context_module::instance($cm->id);
 
-$bookingdata = new \mod_booking\booking_option($cm->id, $optionid, $urlParams, $page, $perPage,
+$bookingdata = new \mod_booking\booking_option($cm->id, $optionid, $urlparams, $page, $perPage,
         false);
 $bookingdata->apply_tags();
 $bookingdata->get_url_params();
@@ -462,7 +462,7 @@ if (!$tableallbookings->is_downloading()) {
              $bookingdata->booking->conectedbooking > 0) {
         $settingnode->add(get_string('editotherbooking', 'booking'),
                 new moodle_url('/mod/booking/otherbooking.php',
-                        array('cmid' => $id, 'optionid' => $optionid)));
+                        array('id' => $id, 'optionid' => $optionid)));
     }
 
     // ALL USERS - START
@@ -556,7 +556,7 @@ if (!$tableallbookings->is_downloading()) {
 
     $hidden = "";
 
-    foreach ($urlParams as $key => $value) {
+    foreach ($urlparams as $key => $value) {
         $arr = array('searchDate', 'searchFinished');
         if (!in_array($key, $arr)) {
             $hidden .= '<input value="' . $value . '" type="hidden" name="' . $key . '">';
@@ -579,7 +579,7 @@ if (!$tableallbookings->is_downloading()) {
                 html_writer::select(
                         array('0' => get_string('no', "booking"),
                             '1' => get_string('yes', "booking")), 'searchFinished',
-                        $urlParams['searchFinished']), "", ""));
+                        $urlparams['searchFinished']), "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 
@@ -588,7 +588,7 @@ if (!$tableallbookings->is_downloading()) {
                 html_writer::select(
                         array('0' => get_string('no', "booking"),
                             '1' => get_string('yes', "booking")), 'searchWaitingList',
-                        $urlParams['searchWaitingList']), "", ""));
+                        $urlparams['searchWaitingList']), "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 
