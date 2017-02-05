@@ -66,7 +66,7 @@ $timesTable = array();
 
 foreach ($times as $time) {
     $edit = new moodle_url('optiondatesadd.php',
-            array('id' => $cm->id, 'boptionid' => $optionid, 'oid' => $time->id));
+            array('id' => $cm->id, 'boptionid' => $optionid, 'optiondateid' => $time->id));
     $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get');
     $delete = new moodle_url('optiondates.php',
             array('id' => $id, 'optionid' => $optionid, 'delete' => $time->id));

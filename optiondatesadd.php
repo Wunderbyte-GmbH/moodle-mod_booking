@@ -84,7 +84,7 @@ if ($mform->is_cancelled()) {
         $defaultvalues = $DB->get_record('booking_optiondates', array('id' => $optiondateid));
         // id in the form will be course module id, not the optiondate id
         $defaultvalues->optiondateid = $defaultvalues->id;
-        unset($defaultvalues['id']);
+        unset($defaultvalues->id);
     }
 
     // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed

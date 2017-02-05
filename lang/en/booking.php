@@ -819,7 +819,7 @@ $string['otherbookinglimit_help'] = "How many users you accept from option. If 0
 $string['otherbookingsucesfullysaved'] = 'Rule sucesfully saved!';
 
 // optiondates.php
-$string['addnewoptiondates'] = 'Add new session';
+$string['addnewoptiondates'] = 'Add/edit session';
 $string['savenewoptiondates'] = 'Save';
 $string['optiondatestime'] = 'Session time';
 $string['optiondatessucesfullysaved'] = "Session time was sucesfully saved.";
