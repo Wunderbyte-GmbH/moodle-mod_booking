@@ -148,7 +148,7 @@ class booking_options extends booking {
         $tags = new \booking_tags($this->cm);
 
         foreach ($this->options as $key => $value) {
-            $this->options[$key] = $tags->optionReplace($this->options[$key]);
+            $this->options[$key] = $tags->option_replace($this->options[$key]);
         }
     }
 

@@ -49,11 +49,9 @@ class booking {
      */
     public function __construct($cmid) {
         global $DB;
-        $this->cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
+        list($this->course, $this->cm) = get_course_and_cm_from_cmid($cmid, 'booking');
         $this->id = $this->cm->instance;
-        $this->context = \context_module::instance($this->cm->id);
-        $this->course = $DB->get_record('course', array('id' => $this->cm->course),
-                'id, fullname, shortname, groupmode, groupmodeforce, visible', MUST_EXIST);
+        $this->context = \context_module::instance($cmid);
         $this->booking = $DB->get_record("booking", array("id" => $this->id));
         // if the course has groups and I do not have the capability to see all groups, show only users of my groups
         if ($this->course->groupmode !== 0 &&
@@ -73,7 +71,7 @@ class booking {
     public function apply_tags() {
         $tags = new \booking_tags($this->cm);
 
-        $this->booking = $tags->bookingReplace($this->booking);
+        $this->booking = $tags->booking_replace($this->booking);
     }
 
     /**

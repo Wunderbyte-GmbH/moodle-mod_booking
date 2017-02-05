@@ -386,8 +386,8 @@ class booking_utils {
             $cm = get_coursemodule_from_instance('booking', $booking->id);
 
             $tags = new booking_tags($cm);
-            $booking = $tags->bookingReplace($booking);
-            $option = $tags->optionReplace($option);
+            $booking = $tags->booking_replace($booking);
+            $option = $tags->option_replace($option);
             $newGroupData = new stdClass();
 
             if (isset($option->id)) {
@@ -463,7 +463,7 @@ class booking_tags {
         return array('keys' => $keys, 'values' => $values);
     }
 
-    public function getReplaces() {
+    public function get_replaces() {
         return $this->replaces;
     }
 
@@ -471,7 +471,7 @@ class booking_tags {
         return str_replace($this->replaces['keys'], $this->replaces['values'], $text);
     }
 
-    public function bookingReplace($bookingtmp = NULL) {
+    public function booking_replace($bookingtmp = NULL) {
         $booking = clone $bookingtmp;
         foreach ($booking as $key => $value) {
             if (in_array($key, $this->bookingChangeText)) {
@@ -482,7 +482,7 @@ class booking_tags {
         return $booking;
     }
 
-    public function optionReplace($option = NULL) {
+    public function option_replace($option = NULL) {
         $this->option = clone $option;
         foreach ($this->option as $key => $value) {
             if (in_array($key, $this->optionsChangeText)) {

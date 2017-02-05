@@ -165,7 +165,7 @@ $string['nobookingselected'] = 'No booking option selected';
 $string['norighttobook'] = 'Booking is not possible for your user role. Please contact the site administrator to give you the appropriate rights or sign in.';
 $string['notbooked'] = 'Not yet booked';
 $string['onwaitinglist'] = 'You are on the waiting list';
-$string['organizatorname'] = 'Organizator name';
+$string['organizatorname'] = 'Organizer name';
 $string['placesavailable'] = 'Places available: {$a->available} of {$a->maxanswers}';
 $string['pollurl'] = 'Poll url';
 $string['pollurlteachers'] = 'Teachers poll url';
@@ -193,14 +193,14 @@ $string['addnewtagtemplate'] = 'Add new tag template';
 $string['savenewtagtemplate'] = 'Save';
 $string['tagtag'] = 'Tag';
 $string['tagtext'] = 'Text';
-$string['wrongdataallfields'] = 'Please, fill all fields!';
+$string['wrongdataallfields'] = 'Please, fill out all fields!';
 $string['tagsucesfullysaved'] = 'Tag was sucesfully saved.';
 $string['edittag'] = 'Edit';
 
 // mod_form
 $string['conectedbooking'] = 'Connected booking';
 $string['notconectedbooking'] = 'Not connected';
-$string['conectedbooking_help'] = 'From which booking you accept users. You can define from which option and how many users you will accept.';
+$string['conectedbooking_help'] = 'Booking option eligible for transferring booked users. You can define from which option and how many users you will accept.';
 $string['cancancelbook'] = 'Allow user to cancel or book their booking when it is started?';
 $string['addtocalendar'] = 'Add to calendar';
 $string['limitanswers'] = 'Limit the number of participants';

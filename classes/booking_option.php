@@ -163,7 +163,7 @@ class booking_option extends booking {
         parent::apply_tags();
 
         $tags = new \booking_tags($this->cm);
-        $this->option = $tags->optionReplace($this->option);
+        $this->option = $tags->option_replace($this->option);
     }
 
     public function get_url_params() {

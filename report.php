@@ -37,8 +37,6 @@ $searchInstitution = optional_param('searchInstitution', '', PARAM_TEXT);
 $whichview = optional_param('whichview', '', PARAM_ALPHA);
 
 // form values
-$contextid = optional_param('contextid', '', PARAM_INT);
-$component = optional_param('component', '', PARAM_ALPHAEXT);
 $ratingarea = optional_param('ratingarea', '', PARAM_ALPHAEXT);
 $scaleid = optional_param('scaleid', '', PARAM_INT);
 $returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
@@ -331,7 +329,7 @@ if (!$tableallbookings->is_downloading()) {
                     $ratings[$baid] = $rating;
                     // params valid for all ratings
                     $params = new stdClass();
-                    $params->contextid = $contextid;
+                    $params->contextid = $context->id;
                     $params->scaleid = $scaleid;
                     $params->returnurl = $returnurl;
                 }
@@ -622,8 +620,6 @@ if (!$tableallbookings->is_downloading()) {
 
         // Hidden input fields for the rating
         $ratinginputs = array();
-        $ratinginputs['contextid'] = $ratingoptions->context->id;
-        $ratinginputs['component'] = $ratingoptions->component;
         $ratinginputs['ratingarea'] = $ratingoptions->ratingarea;
         $ratinginputs['scaleid'] = $ratingoptions->scaleid;
         $ratinginputs['returnurl'] = $ratingoptions->returnurl;
