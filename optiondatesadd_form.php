@@ -36,8 +36,8 @@ class optiondatesadd_form extends moodleform {
                 get_string("courseendtime", "booking"));
         $mform->setType('courseendtime', PARAM_INT);
 
-        $mform->addElement('hidden', 'id');
-        $mform->setType('id', PARAM_INT);
+        $mform->addElement('hidden', 'optiondatesid');
+        $mform->setType('optiondatesid', PARAM_INT);
 
         $mform->addElement('hidden', 'bookingid');
         $mform->setType('bookingid', PARAM_INT);
