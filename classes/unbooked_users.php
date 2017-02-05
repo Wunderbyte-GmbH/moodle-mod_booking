@@ -81,7 +81,7 @@ class unbooked_users extends table_sql {
     /**
      * This function is called for each data row to allow processing of columns which do not have a *_cols function.
      *
-     * @return string return processed value. Return NULL if no change has been made.
+     * @return string return processed value. Return null if no change has been made.
      */
     function other_cols($colname, $value) {
     }

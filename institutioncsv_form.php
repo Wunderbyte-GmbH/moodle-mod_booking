@@ -29,7 +29,7 @@ class importoptions_form extends moodleform {
         $mform->addHelpButton('csvfile', 'csvfile', 'mod_booking');
         $mform->addRule('csvfile', null, 'required', null, 'client');
 
-        $this->add_action_buttons(TRUE, get_string('importcsvtitle', 'booking'));
+        $this->add_action_buttons(true, get_string('importcsvtitle', 'booking'));
     }
 
     // Custom validation should be added here

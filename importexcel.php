@@ -100,7 +100,7 @@ if ($mform->is_cancelled()) {
                         array('bookingid' => $cm->instance, 'userid' => $line[$userIDPos],
                             'optionid' => $line[$optionIDPos]));
 
-                if ($user !== FALSE) {
+                if ($user !== false) {
                     $user->completed = $line[$completedPos];
                     $user->timemodified = time();
                     $DB->update_record('booking_answers', $user, false);

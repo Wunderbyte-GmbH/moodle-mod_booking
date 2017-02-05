@@ -38,7 +38,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Rename field text on table booking to text
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('text', XMLDB_TYPE_TEXT, 'small', null, XMLDB_NOTNULL, null, null,
+        $field = new xmldb_field('text', XMLDB_TYPE_TEXT, 'small', null, XMLDB_NOTnull, null, null,
                 'name');
 
         // Launch rename field text
@@ -52,7 +52,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Rename field format on table booking to format
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('format', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL,
+        $field = new xmldb_field('format', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTnull,
                 null, '0', 'intro');
 
         // Launch rename field format
@@ -63,7 +63,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field bookingpolicyformat to be added to choice
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('bookingpolicyformat', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL,
+        $field = new xmldb_field('bookingpolicyformat', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTnull,
                 null, '0', 'bookingpolicy');
 
         // Conditionally launch add field completionsubmit
@@ -77,7 +77,7 @@ function xmldb_booking_upgrade($oldversion) {
     if ($oldversion < 2011020403) {
         // Define field bookingpolicyformat to be added to choice
         $table = new xmldb_table('booking_options');
-        $field = new xmldb_field('descriptionformat', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL,
+        $field = new xmldb_field('descriptionformat', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTnull,
                 null, '0', 'description');
 
         // Conditionally launch add field completionsubmit
@@ -151,7 +151,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field addtocalendar to be added to booking_options.
         $table = new xmldb_table('booking_options');
-        $field = new xmldb_field('addtocalendar', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null,
+        $field = new xmldb_field('addtocalendar', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTnull, null,
                 '0', 'timemodified');
 
         // Conditionally launch add field addtocalendar.
@@ -258,7 +258,7 @@ function xmldb_booking_upgrade($oldversion) {
         $table = new xmldb_table('booking_category');
 
         // Adding fields to table booking_category.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, XMLDB_SEQUENCE, null);
         $table->add_field('cid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
         $table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
         $table->add_field('name', XMLDB_TYPE_TEXT, null, null, null, null, null);
@@ -313,8 +313,8 @@ function xmldb_booking_upgrade($oldversion) {
         $table = new xmldb_table('booking_teachers');
 
         // Adding fields to table booking_teachers.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('bookingid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, XMLDB_SEQUENCE, null);
+        $table->add_field('bookingid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, null, '0');
         $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
         $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
 
@@ -593,7 +593,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field timecreated to be added to booking_answers.
         $table = new xmldb_table('booking_answers');
-        $field = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null,
+        $field = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, null,
                 '0', 'completed');
 
         // Conditionally launch add field timecreated.
@@ -611,10 +611,10 @@ function xmldb_booking_upgrade($oldversion) {
         $table = new xmldb_table('booking_tags');
 
         // Adding fields to table booking_tags.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('tag', XMLDB_TYPE_CHAR, '64', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('text', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, XMLDB_SEQUENCE, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, null, '0');
+        $table->add_field('tag', XMLDB_TYPE_CHAR, '64', null, XMLDB_NOTnull, null, null);
+        $table->add_field('text', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTnull, null, null);
 
         // Adding keys to table booking_tags.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
@@ -632,7 +632,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field addtocalendar to be added to booking_options.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('sendmailtobooker', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL,
+        $field = new xmldb_field('sendmailtobooker', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTnull,
                 null, '0', 'maxperuser');
 
         // Conditionally launch add field sendmailtobooker.
@@ -648,7 +648,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field waitinglist to be added to booking_answers.
         $table = new xmldb_table('booking_answers');
-        $field = new xmldb_field('waitinglist', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null,
+        $field = new xmldb_field('waitinglist', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTnull, null,
                 '0', 'timecreated');
 
         // Conditionally launch add field waitinglist.
@@ -664,7 +664,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field cancancelbook to be added to booking.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('cancancelbook', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null,
+        $field = new xmldb_field('cancancelbook', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTnull, null,
                 '0', 'pollurlteacherstext');
 
         // Conditionally launch add field cancancelbook.
@@ -744,7 +744,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field showinapi to be added to booking.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('showinapi', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null,
+        $field = new xmldb_field('showinapi', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTnull, null,
                 '1', 'conectedbooking');
 
         // Conditionally launch add field showinapi.
@@ -760,7 +760,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field pollsend to be added to booking_options.
         $table = new xmldb_table('booking_options');
-        $field = new xmldb_field('pollsend', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0',
+        $field = new xmldb_field('pollsend', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTnull, null, '0',
                 'howmanyusers');
 
         // Conditionally launch add field pollsend.
@@ -776,7 +776,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field id to be added to booking_tags.
         $table = new xmldb_table('booking_tags');
-        $field = new xmldb_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE,
+        $field = new xmldb_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, XMLDB_SEQUENCE,
                 null, null);
 
         // Conditionally launch add field id.
@@ -792,7 +792,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field removeafterminutes to be added to booking_options.
         $table = new xmldb_table('booking_options');
-        $field = new xmldb_field('removeafterminutes', XMLDB_TYPE_INTEGER, '5', null, XMLDB_NOTNULL,
+        $field = new xmldb_field('removeafterminutes', XMLDB_TYPE_INTEGER, '5', null, XMLDB_NOTnull,
                 null, '0', 'pollsend');
 
         // Conditionally launch add field removeafterminutes.
@@ -808,7 +808,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field btncacname to be added to booking_options.
         $table = new xmldb_table('booking_options');
-        $field = new xmldb_field('btncacname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null,
+        $field = new xmldb_field('btncacname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTnull, null,
                 null, 'removeafterminutes');
 
         // Conditionally launch add field btncacname.
@@ -824,7 +824,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field lblteachname to be added to booking_options.
         $table = new xmldb_table('booking_options');
-        $field = new xmldb_field('lblteachname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null,
+        $field = new xmldb_field('lblteachname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTnull, null,
                 null, 'btncacname');
 
         // Conditionally launch add field lblteachname.
@@ -832,7 +832,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        $field = new xmldb_field('lblsputtname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null,
+        $field = new xmldb_field('lblsputtname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTnull, null,
                 null, 'lblteachname');
 
         // Conditionally launch add field lblsputtname.
@@ -865,7 +865,7 @@ function xmldb_booking_upgrade($oldversion) {
         // Define field notificationtextformat to be added to booking_options.
         $table = new xmldb_table('booking_options');
         $field = new xmldb_field('notificationtextformat', XMLDB_TYPE_INTEGER, '2', null,
-                XMLDB_NOTNULL, null, '0', 'notificationtext');
+                XMLDB_NOTnull, null, '0', 'notificationtext');
 
         // Conditionally launch add field notificationtextformat.
         if (!$dbman->field_exists($table, $field)) {
@@ -880,7 +880,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field btnbooknowname to be added to booking_options.
         $table = new xmldb_table('booking_options');
-        $field = new xmldb_field('btnbooknowname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null,
+        $field = new xmldb_field('btnbooknowname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTnull, null,
                 null, 'notificationtextformat');
 
         // Conditionally launch add field btnbooknowname.
@@ -888,7 +888,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        $field = new xmldb_field('btncancelname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null,
+        $field = new xmldb_field('btncancelname', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTnull, null,
                 null, 'btnbooknowname');
 
         // Conditionally launch add field btncancelname.
@@ -906,7 +906,7 @@ function xmldb_booking_upgrade($oldversion) {
         $table = new xmldb_table('booking_institutions');
 
         // Adding fields to table booking_institutions.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, XMLDB_SEQUENCE, null);
         $table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
         $table->add_field('name', XMLDB_TYPE_TEXT, null, null, null, null, null);
 
@@ -926,7 +926,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field disablebookingusers to be added to booking_options.
         $table = new xmldb_table('booking_options');
-        $field = new xmldb_field('disablebookingusers', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL,
+        $field = new xmldb_field('disablebookingusers', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTnull,
                 null, '0', 'btncancelname');
 
         // Conditionally launch add field disablebookingusers.
@@ -1071,7 +1071,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field frombookingid to be added to booking_answers.
         $table = new xmldb_table('booking_answers');
-        $field = new xmldb_field('frombookingid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL,
+        $field = new xmldb_field('frombookingid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull,
                 null, '0', 'waitinglist');
 
         // Conditionally launch add field frombookingid.
@@ -1105,11 +1105,11 @@ function xmldb_booking_upgrade($oldversion) {
         $table = new xmldb_table('booking_other');
 
         // Adding fields to table booking_other.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('otheroptionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null,
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, null, null);
+        $table->add_field('otheroptionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, null,
                 null);
-        $table->add_field('limit', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('limit', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, null, '0');
 
         // Adding keys to table booking_other.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
@@ -1140,11 +1140,11 @@ function xmldb_booking_upgrade($oldversion) {
         $table = new xmldb_table('booking_other');
 
         // Adding fields to table booking_other.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('otheroptionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null,
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, null, null);
+        $table->add_field('otheroptionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, null,
                 null);
-        $table->add_field('userslimit', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userslimit', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, null, '0');
 
         // Adding keys to table booking_other.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
@@ -1189,7 +1189,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field numgenerator to be added to booking.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('numgenerator', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null,
+        $field = new xmldb_field('numgenerator', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTnull, null,
                 '0', 'lblnumofusers');
 
         // Conditionally launch add field numgenerator.
@@ -1205,7 +1205,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field numrec to be added to booking_answers.
         $table = new xmldb_table('booking_answers');
-        $field = new xmldb_field('numrec', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0',
+        $field = new xmldb_field('numrec', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTnull, null, '0',
                 'frombookingid');
 
         // Conditionally launch add field numrec.
@@ -1221,7 +1221,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field paginationnum to be added to booking.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('paginationnum', XMLDB_TYPE_INTEGER, '5', null, XMLDB_NOTNULL, null,
+        $field = new xmldb_field('paginationnum', XMLDB_TYPE_INTEGER, '5', null, XMLDB_NOTnull, null,
                 '25', 'numgenerator');
 
         // Conditionally launch add field paginationnum.
@@ -1312,7 +1312,7 @@ function xmldb_booking_upgrade($oldversion) {
         // Define field showhelpfullnavigationlinks to be added to booking.
         $table = new xmldb_table('booking');
         $field = new xmldb_field('showhelpfullnavigationlinks', XMLDB_TYPE_INTEGER, '1', null,
-                XMLDB_NOTNULL, null, '1', 'banusernames');
+                XMLDB_NOTnull, null, '1', 'banusernames');
 
         // Conditionally launch add field showhelpfullnavigationlinks.
         if (!$dbman->field_exists($table, $field)) {
@@ -1364,8 +1364,8 @@ function xmldb_booking_upgrade($oldversion) {
         $table = new xmldb_table('booking_optiondates');
 
         // Adding fields to table booking_optiondates.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('bookingid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, XMLDB_SEQUENCE, null);
+        $table->add_field('bookingid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, null, '0');
         $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
         $table->add_field('coursestarttime', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
         $table->add_field('courseendtime', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
@@ -1390,7 +1390,7 @@ function xmldb_booking_upgrade($oldversion) {
         // Define fields to be added to booking.
         $table = new xmldb_table('booking');
 
-        $field = new xmldb_field('assessed', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null,
+        $field = new xmldb_field('assessed', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, null,
                 '0', 'notifyemail');
 
         // Conditionally launch add field.
@@ -1398,7 +1398,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        $field = new xmldb_field('assesstimestart', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL,
+        $field = new xmldb_field('assesstimestart', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull,
                 null, '0', 'assessed');
 
         // Conditionally launch add field.
@@ -1406,7 +1406,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        $field = new xmldb_field('assesstimefinish', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL,
+        $field = new xmldb_field('assesstimefinish', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull,
                 null, '0', 'assesstimestart');
 
         // Conditionally launch add field.
@@ -1414,7 +1414,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        $field = new xmldb_field('scale', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0',
+        $field = new xmldb_field('scale', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTnull, null, '0',
                 'assesstimefinish');
 
         // Conditionally launch add field.
@@ -1430,7 +1430,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field whichview to be added to booking.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('whichview', XMLDB_TYPE_CHAR, '32', null, XMLDB_NOTNULL, null,
+        $field = new xmldb_field('whichview', XMLDB_TYPE_CHAR, '32', null, XMLDB_NOTnull, null,
                 'showactive', 'scale');
 
         // Conditionally launch add field whichview.

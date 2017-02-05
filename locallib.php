@@ -115,7 +115,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
 
         $countfields = 'SELECT COUNT(1)';
         list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
-        list($esql, $params) = get_enrolled_sql($this->options['accesscontext'], NULL, NULL, true);
+        list($esql, $params) = get_enrolled_sql($this->options['accesscontext'], null, null, true);
 
         $option = new stdClass();
         $option->id = $this->options['optionid'];
@@ -273,7 +273,7 @@ class booking_utils {
      * @param stdClass $booking
      * @return stdClass data to be sent via mail
      */
-    public function generate_params(stdClass $booking, stdClass $option = NULL) {
+    public function generate_params(stdClass $booking, stdClass $option = null) {
         global $DB;
 
         $params = new stdClass();
@@ -370,7 +370,7 @@ class booking_utils {
      * @param object $params the booking details
      * @return string
      */
-    function get_body($booking, $fieldname, $params, $urlEncode = FALSE) {
+    function get_body($booking, $fieldname, $params, $urlEncode = false) {
         $text = $booking->$fieldname;
         foreach ($params as $name => $value) {
             if ($urlEncode) {
@@ -389,7 +389,7 @@ class booking_utils {
      * @param object $option
      * @return int
      */
-    public function group($bookingtmp = NULL, $optiontmp = NULL) {
+    public function group($bookingtmp = null, $optiontmp = null) {
         global $DB;
 
         $booking = clone $bookingtmp;
@@ -485,7 +485,7 @@ class booking_tags {
         return str_replace($this->replaces['keys'], $this->replaces['values'], $text);
     }
 
-    public function booking_replace($bookingtmp = NULL) {
+    public function booking_replace($bookingtmp = null) {
         $booking = clone $bookingtmp;
         foreach ($booking as $key => $value) {
             if (in_array($key, $this->bookingChangeText)) {
@@ -496,7 +496,7 @@ class booking_tags {
         return $booking;
     }
 
-    public function option_replace($option = NULL) {
+    public function option_replace($option = null) {
         $this->option = clone $option;
         foreach ($this->option as $key => $value) {
             if (in_array($key, $this->optionsChangeText)) {
@@ -565,32 +565,32 @@ class MYPDF extends TCPDF {
     }
 }
 
-function download_sign_in_sheet($bookingData = null) {
+function download_sign_in_sheet($bookingdata = null) {
     global $CFG, $DB;
 
     $users = $DB->get_records_sql(
             'SELECT u.id, u.firstname, u.lastname FROM {booking_answers} AS ba LEFT JOIN {user} AS u ON u.id = ba.userid WHERE ba.optionid = ? ORDER BY u.lastname ASC',
-            array($bookingData->option->id));
+            array($bookingdata->option->id));
 
-    // var_dump($bookingData);
+    // var_dump($bookingdata);
 
     $teachers = array();
 
-    foreach ($bookingData->option->teachers as $value) {
+    foreach ($bookingdata->option->teachers as $value) {
         $teachers[] = "{$value->firstname} {$value->lastname}";
     }
 
     $times = get_string('datenotset', 'booking');
 
-    if ($bookingData->option->coursestarttime == 0) {
+    if ($bookingdata->option->coursestarttime == 0) {
         $times = get_string('datenotset', 'booking');
     } else {
-        if (is_null($bookingData->option->times)) {
-            $times = userdate($bookingData->option->coursestarttime) . " -" .
-                     userdate($bookingData->option->courseendtime);
+        if (is_null($bookingdata->option->times)) {
+            $times = userdate($bookingdata->option->coursestarttime) . " -" .
+                     userdate($bookingdata->option->courseendtime);
         } else {
             $val = array();
-            $times = explode(',', $bookingData->option->times);
+            $times = explode(',', $bookingdata->option->times);
             foreach ($times as $time) {
                 $slot = explode('-', $time);
                 $tmpDate = new stdClass();
@@ -611,14 +611,14 @@ function download_sign_in_sheet($bookingData = null) {
     $pdf->setPrintFooter(false);
     $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
     $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_LEFT);
-    $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+    $pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
     $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-    $pdf->setFontSubsetting(FALSE);
+    $pdf->setFontSubsetting(false);
 
     $pdf->AddPage();
 
     $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 14);
-    $pdf->MultiCell(0, 0, $bookingData->option->text, 0, 1, '', 1);
+    $pdf->MultiCell(0, 0, $bookingdata->option->text, 0, 1, '', 1);
     $pdf->Ln();
 
     $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
@@ -629,10 +629,10 @@ function download_sign_in_sheet($bookingData = null) {
             get_string('pdfdate', 'booking'), 0, 1, '', 0);
     $pdf->MultiCell(0, 0, $times, 0, 1, '', 1);
 
-    $pdf->Cell(0, 0, get_string('pdflocation', 'booking') . $bookingData->option->address, 0, 1, '',
+    $pdf->Cell(0, 0, get_string('pdflocation', 'booking') . $bookingdata->option->address, 0, 1, '',
             0);
 
-    $pdf->Cell(0, 0, get_string('pdfroom', 'booking') . $bookingData->option->location, 0, 1, '', 0);
+    $pdf->Cell(0, 0, get_string('pdfroom', 'booking') . $bookingdata->option->location, 0, 1, '', 0);
     $pdf->Ln();
 
     $pdf->Cell($pdf->GetStringWidth(get_string('pdftodaydate', 'booking')) + 1, 0,
@@ -650,7 +650,7 @@ function download_sign_in_sheet($bookingData = null) {
 
         if ($pdf->goToNewLine(12)) {
             $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 14);
-            $pdf->MultiCell(0, 0, $bookingData->option->text, 0, 1, '', 1);
+            $pdf->MultiCell(0, 0, $bookingdata->option->text, 0, 1, '', 1);
             $pdf->Ln();
 
             $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
@@ -662,10 +662,10 @@ function download_sign_in_sheet($bookingData = null) {
                     get_string('pdfdate', 'booking'), 0, 1, '', 0);
             $pdf->MultiCell(0, 0, $times, 0, 1, '', 1);
 
-            $pdf->Cell(0, 0, get_string('pdflocation', 'booking') . $bookingData->option->address,
+            $pdf->Cell(0, 0, get_string('pdflocation', 'booking') . $bookingdata->option->address,
                     0, 1, '', 0);
 
-            $pdf->Cell(0, 0, get_string('pdfroom', 'booking') . $bookingData->option->location, 0,
+            $pdf->Cell(0, 0, get_string('pdfroom', 'booking') . $bookingdata->option->location, 0,
                     1, '', 0);
             $pdf->Ln();
 
@@ -686,5 +686,5 @@ function download_sign_in_sheet($bookingData = null) {
         $pdf->Cell(0, 12, "", 1, 1, '', 0);
     }
 
-    $pdf->Output($bookingData->option->text . '.pdf', 'D');
+    $pdf->Output($bookingdata->option->text . '.pdf', 'D');
 }

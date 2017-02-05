@@ -45,7 +45,7 @@ class optiondatesadd_form extends moodleform {
         $mform->addElement('hidden', 'optionid');
         $mform->setType('optionid', PARAM_INT);
 
-        $this->add_action_buttons(TRUE, get_string('savenewoptiondates', 'booking'));
+        $this->add_action_buttons(true, get_string('savenewoptiondates', 'booking'));
     }
 
     // Custom validation should be added here

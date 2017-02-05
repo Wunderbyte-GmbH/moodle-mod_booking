@@ -58,7 +58,7 @@ class otherbookingaddrule_form extends moodleform {
         $mform->addElement('hidden', 'bookingotherid');
         $mform->setType('bookingotherid', PARAM_INT);
 
-        $this->add_action_buttons(TRUE, get_string('savenewtagtemplate', 'booking'));
+        $this->add_action_buttons(true, get_string('savenewtagtemplate', 'booking'));
     }
 
     // Custom validation should be added here

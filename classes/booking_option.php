@@ -183,8 +183,8 @@ class booking_option extends booking {
     public function get_url_params() {
         $bu = new \booking_utils();
         $params = $bu->generate_params($this->booking, $this->option);
-        $this->option->pollurl = $bu->get_body($params, 'pollurl', $params, TRUE);
-        $this->option->pollurlteachers = $bu->get_body($params, 'pollurlteachers', $params, TRUE);
+        $this->option->pollurl = $bu->get_body($params, 'pollurl', $params, true);
+        $this->option->pollurlteachers = $bu->get_body($params, 'pollurlteachers', $params, true);
     }
 
     public function get_teachers() {
@@ -285,7 +285,7 @@ class booking_option extends booking {
             $params['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
         }
 
-        $mainuserfields = \user_picture::fields('{user}', NULL);
+        $mainuserfields = \user_picture::fields('{user}', null);
 
         return $DB->get_records_sql(
                 'SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated, {booking_answers}.waitinglist, {booking_answers}.numrec, ' .
@@ -632,16 +632,16 @@ class booking_option extends booking {
 
         $waitingList = $this->check_if_limit();
 
-        if ($waitingList === FALSE) {
-            return FALSE;
+        if ($waitingList === false) {
+            return false;
         }
 
         $underlimit = ($this->booking->maxperuser == 0);
         $underlimit = $underlimit ||
-                 (booking_get_user_booking_count($this, $user, NULL) < $this->booking->maxperuser);
+                 (booking_get_user_booking_count($this, $user, null) < $this->booking->maxperuser);
 
         if (!$underlimit) {
-            return FALSE;
+            return false;
         }
 
         if (!($currentanswerid = $DB->get_field('booking_answers', 'id',
@@ -706,7 +706,7 @@ class booking_option extends booking {
                     return 1;
                 }
             } else {
-                return FALSE;
+                return false;
             }
         } else {
             return 0;

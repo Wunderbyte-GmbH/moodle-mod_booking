@@ -58,7 +58,7 @@ $aggregation = optional_param('aggregate', '', PARAM_INT);
 
 $perPage = 25;
 
-$searching = FALSE;
+$searching = false;
 
 $urlparams = array();
 $urlparams['id'] = $id;
@@ -89,18 +89,18 @@ if (strlen($searchDateYear) > 0) {
     $urlparams['searchDateYear'] = $searchDateYear;
 }
 
-$checked = FALSE;
+$checked = false;
 $urlparams['searchDate'] = "";
 if ($searchDate == 1) {
     $urlparams['searchDate'] = $searchDate;
-    $checked = TRUE;
+    $checked = true;
     $timestamp = strtotime(
             "{$urlparams['searchDateDay']}-{$urlparams['searchDateMonth']}-{$urlparams['searchDateYear']}");
     $addSQLWhere .= " AND FROM_UNIXTIME(ba.timecreated, '%Y') = :searchdateyear AND FROM_UNIXTIME(ba.timecreated, '%c') = :searchdatemonth AND FROM_UNIXTIME(ba.timecreated, '%e') = :searchdateday";
     $sqlValues['searchdateyear'] = $urlparams['searchDateYear'];
     $sqlValues['searchdatemonth'] = $urlparams['searchDateMonth'];
     $sqlValues['searchdateday'] = $urlparams['searchDateDay'];
-    $searching = TRUE;
+    $searching = true;
 }
 
 $urlparams['searchFinished'] = "";
@@ -108,7 +108,7 @@ if (strlen($searchFinished) > 0) {
     $urlparams['searchFinished'] = $searchFinished;
     $sqlValues['completed'] = $searchFinished;
     $addSQLWhere .= ' AND ba.completed = :completed ';
-    $searching = TRUE;
+    $searching = true;
 }
 
 $urlparams['searchWaitingList'] = "";
@@ -116,7 +116,7 @@ if (strlen($searchWaitingList) > 0) {
     $urlparams['searchWaitingList'] = $searchWaitingList;
     $sqlValues['searchwaitinglist'] = $searchWaitingList;
     $addSQLWhere .= ' AND ba.waitinglist = :searchwaitinglist ';
-    $searching = TRUE;
+    $searching = true;
 }
 
 $urlparams['searchtext'] = "";

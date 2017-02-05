@@ -45,7 +45,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
 require_course_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 
-$booking = new \mod_booking\booking_options($cm->id, TRUE, array(), 0, 0);
+$booking = new \mod_booking\booking_options($cm->id, true, array(), 0, 0);
 
 if (!empty($action)) {
     $urlparams['action'] = $action;
@@ -128,10 +128,10 @@ $strbookings = get_string('modulenameplural', 'booking');
 if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
          has_capability('mod/booking:choose', $context) and
          ($booking->booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
-    $bookingData = new \mod_booking\booking_option($cm->id, $optionid);
-    $bookingData->apply_tags();
+    $bookingdata = new \mod_booking\booking_option($cm->id, $optionid);
+    $bookingdata->apply_tags();
 
-    if ($bookingData->user_delete_response($USER->id)) {
+    if ($bookingdata->user_delete_response($USER->id)) {
         echo $OUTPUT->header();
         $contents = get_string('bookingdeleted', 'booking');
         $options = array('id' => $cm->id);
@@ -149,19 +149,19 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
                                                                                                        // form
     echo $OUTPUT->header();
 
-    $bookingData = new \mod_booking\booking_option($cm->id, $optionid);
-    $bookingData->apply_tags();
+    $bookingdata = new \mod_booking\booking_option($cm->id, $optionid);
+    $bookingdata->apply_tags();
 
     $options = array('id' => $cm->id, 'action' => 'delbooking', 'confirm' => 1,
         'optionid' => $optionid, 'sesskey' => $USER->sesskey);
 
-    $deletemessage = $bookingData->option->text;
+    $deletemessage = $bookingdata->option->text;
 
-    if ($bookingData->option->coursestarttime != 0) {
+    if ($bookingdata->option->coursestarttime != 0) {
         $deletemessage .= "<br />" .
-                 userdate($bookingData->option->coursestarttime, get_string('strftimedatetime')) .
+                 userdate($bookingdata->option->coursestarttime, get_string('strftimedatetime')) .
                  " - " .
-                 userdate($bookingData->option->courseendtime, get_string('strftimedatetime'));
+                 userdate($bookingdata->option->courseendtime, get_string('strftimedatetime'));
     }
 
     echo $OUTPUT->confirm(get_string('deletebooking', 'booking', $deletemessage),
@@ -189,9 +189,9 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
     $url->set_anchor("option" . $answer);
 
     if (!empty($answer)) {
-        $bookingData = new \mod_booking\booking_option($cm->id, $answer, array(), 0, 0, false);
-        $bookingData->apply_tags();
-        if ($bookingData->user_submit_response($USER)) {
+        $bookingdata = new \mod_booking\booking_option($cm->id, $answer, array(), 0, 0, false);
+        $bookingdata->apply_tags();
+        if ($bookingdata->user_submit_response($USER)) {
             $contents = get_string('bookingsaved', 'booking');
             if ($booking->booking->sendmail) {
                 $contents .= "<br />" . get_string('mailconfirmationsent', 'booking') . ".";
@@ -202,7 +202,7 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
             die();
         } elseif (is_int($answer)) {
             $contents = get_string('bookingmeanwhilefull', 'booking') . " " .
-                     $bookingData->option->text;
+                     $bookingdata->option->text;
             $contents .= $OUTPUT->single_button($url, 'get');
             echo $OUTPUT->box($contents, 'box generalbox', 'notice');
             echo $OUTPUT->footer();

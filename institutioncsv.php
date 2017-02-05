@@ -77,7 +77,7 @@ if ($mform->is_cancelled()) {
                 $institution->name = $line[0];
                 $institution->course = $id;
 
-                $bid = $DB->insert_record('booking_institutions', $institution, TRUE);
+                $bid = $DB->insert_record('booking_institutions', $institution, true);
             }
         }
 

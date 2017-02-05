@@ -39,7 +39,7 @@ class tagtemplatesadd_form extends moodleform {
         $mform->addElement('hidden', 'tagid');
         $mform->setType('tagid', PARAM_RAW);
 
-        $this->add_action_buttons(TRUE, get_string('savenewtagtemplate', 'booking'));
+        $this->add_action_buttons(true, get_string('savenewtagtemplate', 'booking'));
     }
 
     // Custom validation should be added here

@@ -28,7 +28,7 @@ class importexcel_form extends moodleform {
                 array('maxbytes' => $CFG->maxbytes, 'accepted_types' => '*'));
         $mform->addRule('excelfile', null, 'required', null, 'client');
 
-        $this->add_action_buttons(TRUE, get_string('importexceltitle', 'booking'));
+        $this->add_action_buttons(true, get_string('importexceltitle', 'booking'));
     }
 
     // Custom validation should be added here

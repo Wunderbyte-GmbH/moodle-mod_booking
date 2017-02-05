@@ -97,9 +97,9 @@ if ($mform->is_cancelled()) {
 
             if (count($line) == 12) {
 
-                $user = FALSE;
-                $teacher = FALSE;
-                $booking_option = FALSE;
+                $user = false;
+                $teacher = false;
+                $booking_option = false;
                 $startDate = 0;
                 $endDate = 0;
 
@@ -167,7 +167,7 @@ if ($mform->is_cancelled()) {
                     $bookingObject->limitanswers = $line[10];
                     $bookingObject->location = modbooking_fixEncoding($line[11]);
 
-                    $bid = $DB->insert_record('booking_options', $bookingObject, TRUE);
+                    $bid = $DB->insert_record('booking_options', $bookingObject, true);
 
                     $bookingObject->id = $bid;
                     $booking_option = $bookingObject;
@@ -178,13 +178,13 @@ if ($mform->is_cancelled()) {
                             array('bookingid' => $booking->id, 'userid' => $teacher->id,
                                 'optionid' => $booking_option->id));
 
-                    if ($getUser === FALSE) {
+                    if ($getUser === false) {
                         $newTeacher = new stdClass();
                         $newTeacher->bookingid = $booking->id;
                         $newTeacher->userid = $teacher->id;
                         $newTeacher->optionid = $booking_option->id;
 
-                        $DB->insert_record('booking_teachers', $newTeacher, TRUE);
+                        $DB->insert_record('booking_teachers', $newTeacher, true);
                     }
                 } else {
                     echo $OUTPUT->notification(
@@ -196,17 +196,17 @@ if ($mform->is_cancelled()) {
                             array('bookingid' => $booking->id, 'userid' => $user->id,
                                 'optionid' => $booking_option->id));
 
-                    if ($getUser === FALSE) {
-                        $bookingData = new \mod_booking\booking_option($cm->id, $booking_option->id,
+                    if ($getUser === false) {
+                        $bookingdata = new \mod_booking\booking_option($cm->id, $booking_option->id,
                                 array(), 0, 0, false);
-                        $bookingData->user_submit_response($user);
+                        $bookingdata->user_submit_response($user);
 
-                        if ($completion->is_enabled($cm) && $bookingData->booking->enablecompletion &&
+                        if ($completion->is_enabled($cm) && $bookingdata->booking->enablecompletion &&
                                  $line[7] == 0) {
                             $completion->update_state($cm, COMPLETION_INCOMPLETE, $user->id);
                         }
 
-                        if ($completion->is_enabled($cm) && $bookingData->booking->enablecompletion &&
+                        if ($completion->is_enabled($cm) && $bookingdata->booking->enablecompletion &&
                                  $line[7] == 1) {
                             $completion->update_state($cm, COMPLETION_COMPLETE, $user->id);
                         }

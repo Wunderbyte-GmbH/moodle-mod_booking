@@ -183,7 +183,7 @@ class booking_options extends booking {
 
         $answers = $DB->get_records('booking_answers', array('bookingid' => $this->id), 'id');
         $allresponses = array();
-        $mainuserfields = \user_picture::fields('u', NULL);
+        $mainuserfields = \user_picture::fields('u', null);
         $allresponses = get_users_by_capability($this->context, 'mod/booking:choose',
                 $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true,
                 true);

@@ -139,7 +139,7 @@ function booking_user_outline($course, $user, $mod, $booking) {
         $result->time = $answer->timemodified;
         return $result;
     }
-    return NULL;
+    return null;
 }
 
 function booking_user_complete($course, $user, $mod, $booking) {
@@ -197,10 +197,10 @@ function booking_get_completion_state($course, $cm, $userid, $type) {
         $user = $DB->get_record('booking_answers',
                 array('bookingid' => $booking->id, 'userid' => $userid, 'completed' => '1'));
 
-        if ($user === FALSE) {
-            return FALSE;
+        if ($user === false) {
+            return false;
         } else {
-            return TRUE;
+            return true;
         }
     } else {
         return $type;
@@ -642,7 +642,7 @@ function booking_get_user_booking_count($booking, $user, $bookinglist) {
  * @return void
  */
 function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $urlparams = array(),
-        $optionid = NULL) {
+        $optionid = null) {
     global $DB, $OUTPUT;
     // $optiondisplay is an array of the display info for a booking $cdisplay[$optionid]->text - text name of option.
     // ->maxanswers -maxanswers for this option
@@ -658,7 +658,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
     }
 
     $context = context_module::instance($cm->id);
-    $table = NULL;
+    $table = null;
     $displayoptions = new stdClass();
     $displayoptions->para = false;
     $tabledata = array();
@@ -730,7 +730,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
     }
     echo html_writer::table($table);
 
-    $table = NULL;
+    $table = null;
     $displayoptions = new stdClass();
     $displayoptions->para = false;
     $tabledata = array();
@@ -969,10 +969,10 @@ function booking_check_if_teacher($option, $user) {
             array('bookingid' => $option->bookingid, 'userid' => $user->id,
                 'optionid' => $option->id));
 
-    if ($userr === FALSE) {
-        return FALSE;
+    if ($userr === false) {
+        return false;
     } else {
-        return TRUE;
+        return true;
     }
 }
 
@@ -1195,7 +1195,7 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
 }
 
 // Generate new numbers for users
-function booking_generatenewnumners($bookingDataBooking, $cmid, $optionid, $allSelectedUsers) {
+function booking_generatenewnumners($bookingdataBooking, $cmid, $optionid, $allSelectedUsers) {
     global $DB;
 
     if (!empty($allSelectedUsers)) {
@@ -1326,7 +1326,7 @@ function booking_update_grades($booking, $userid = 0, $nullifnone = true) {
     } else if ($userid and $nullifnone) {
         $grade = new stdClass();
         $grade->userid = $userid;
-        $grade->rawgrade = NULL;
+        $grade->rawgrade = null;
         booking_grade_item_update($booking, $grade);
     } else {
         booking_grade_item_update($booking);
@@ -1344,7 +1344,7 @@ function booking_update_grades($booking, $userid = 0, $nullifnone = true) {
  * @param mixed $grades Optional array/object of grade(s); 'reset' means reset grades in gradebook
  * @return int 0 if ok
  */
-function booking_grade_item_update($booking, $grades = NULL) {
+function booking_grade_item_update($booking, $grades = null) {
     global $CFG;
     if (!function_exists('grade_update')) { // workaround for buggy PHP versions
         require_once($CFG->libdir . '/gradelib.php');
@@ -1365,7 +1365,7 @@ function booking_grade_item_update($booking, $grades = NULL) {
 
     if ($grades === 'reset') {
         $params['reset'] = true;
-        $grades = NULL;
+        $grades = null;
     }
 
     return grade_update('mod/booking', $booking->course, 'mod', 'booking', $booking->id, 0, $grades,
@@ -1382,7 +1382,7 @@ function booking_grade_item_delete($booking) {
     global $CFG;
     require_once($CFG->libdir . '/gradelib.php');
 
-    return grade_update('mod/booking', $booking->course, 'mod', 'booking', $booking->id, 0, NULL,
+    return grade_update('mod/booking', $booking->course, 'mod', 'booking', $booking->id, 0, null,
             array('deleted' => 1));
 }
 
@@ -1745,8 +1745,8 @@ function booking_send_notification($optionid, $subject, $toUsers = array()) {
 
     $cm = get_coursemodule_from_instance('booking', $booking->id);
 
-    $bookingData = new \mod_booking\booking_option($cm->id, $option->id);
-    $bookingData->apply_tags();
+    $bookingdata = new \mod_booking\booking_option($cm->id, $option->id);
+    $bookingdata->apply_tags();
 
     if (!empty($toUsers)) {
         foreach ($toUsers as $value) {
@@ -1755,8 +1755,8 @@ function booking_send_notification($optionid, $subject, $toUsers = array()) {
             $allusers[] = $tmpUser;
         }
     } else {
-        if (isset($bookingData->usersOnList)) {
-            $allusers = $bookingData->usersOnList;
+        if (isset($bookingdata->usersOnList)) {
+            $allusers = $bookingdata->usersOnList;
         } else {
             $allusers = array();
         }
@@ -1766,9 +1766,9 @@ function booking_send_notification($optionid, $subject, $toUsers = array()) {
         foreach ($allusers as $record) {
             $ruser = $DB->get_record('user', array('id' => $record->id));
 
-            $params = booking_generate_email_params($bookingData->booking, $bookingData->option,
+            $params = booking_generate_email_params($bookingdata->booking, $bookingdata->option,
                     $ruser, $cm->id);
-            $pollurlmessage = booking_get_email_body($bookingData->booking, 'notifyemail',
+            $pollurlmessage = booking_get_email_body($bookingdata->booking, 'notifyemail',
                     'notifyemaildefaultmessage', $params);
 
             $eventdata = new stdClass();
@@ -1789,7 +1789,7 @@ function booking_send_notification($optionid, $subject, $toUsers = array()) {
 
         return $returnVal;
     } else {
-        return FALSE;
+        return false;
     }
 }
 
@@ -1872,7 +1872,7 @@ function booking_get_groupmodedata() {
  * @return object with $booking->option as an array for the booking option valus for each booking option
  */
 function booking_get_booking($cm, $sort = '',
-        $urlparams = array('searchtext' => '', 'searchlocation' => '', 'searchinstitution' => ''), $view = TRUE, $optionid = null) {
+        $urlparams = array('searchtext' => '', 'searchlocation' => '', 'searchinstitution' => ''), $view = true, $optionid = null) {
     global $CFG, $DB;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
 
@@ -1896,7 +1896,7 @@ function booking_get_booking($cm, $sort = '',
             true);
 
     if (is_null($optionid)) {
-        $bookingObject = new \mod_booking\booking_options($cm->id, TRUE, $urlparams, 0, 0);
+        $bookingObject = new \mod_booking\booking_options($cm->id, true, $urlparams, 0, 0);
         $booking = $bookingObject->booking;
         $options = $bookingObject->options;
     } else {
@@ -2059,7 +2059,7 @@ function booking_send_confirm_message($eventdata) {
     $data = booking_generate_email_params($eventdata->booking,
             $eventdata->booking->option[$optionid], $user, $cmid);
 
-    $cansend = TRUE;
+    $cansend = true;
 
     if ($data->status == get_string('booked', 'booking')) {
         $subject = get_string('confirmationsubject', 'booking', $data);
@@ -2083,7 +2083,7 @@ function booking_send_confirm_message($eventdata) {
         $subjectmanager = "tester";
         $message = "message";
 
-        $cansend = FALSE;
+        $cansend = false;
     }
     $messagehtml = text_to_html($message, false, false, true);
     $errormessage = get_string('error:failedtosendconfirmation', 'booking', $data);

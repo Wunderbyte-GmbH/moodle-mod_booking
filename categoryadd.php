@@ -47,17 +47,17 @@ $PAGE->set_pagelayout('standard');
 $redirecturl = new moodle_url('categories.php', array('courseid' => $courseid));
 
 if ($delete == 1) {
-    $candelete = TRUE;
+    $candelete = true;
 
     $categories = $DB->get_records("booking_category", array("cid" => $cid));
     if (count((array) $categories) > 0) {
-        $candelete = FALSE;
+        $candelete = false;
         $delmessage = get_string('deletesubcategory', 'booking');
     }
 
     $bookings = $DB->get_records("booking", array("categoryid" => $cid));
     if (count((array) $bookings) > 0) {
-        $candelete = FALSE;
+        $candelete = false;
         $delmessage = get_string('usedinbooking', 'booking');
     }
 

@@ -34,7 +34,7 @@ class importoptions_form extends moodleform {
         $mform->addRule('dateparseformat', null, 'required', null, 'client');
         $mform->addHelpButton('dateparseformat', 'dateparseformat', 'mod_booking');
 
-        $this->add_action_buttons(TRUE, get_string('importcsvtitle', 'booking'));
+        $this->add_action_buttons(true, get_string('importcsvtitle', 'booking'));
     }
 
     // Custom validation should be added here

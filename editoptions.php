@@ -31,7 +31,7 @@ require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
 
 if (!$booking = booking_get_booking($cm, '',
-        array('searchtext' => '', 'searchlocation' => '', 'searchinstitution' => ''), FALSE, null,
+        array('searchtext' => '', 'searchlocation' => '', 'searchinstitution' => ''), false, null,
         false)) {
     error("Course module is incorrect");
 }
@@ -98,8 +98,8 @@ if ($mform->is_cancelled()) {
 
         $nBooking = booking_update_options($fromform);
 
-        $bookingData = new \mod_booking\booking_option($cm->id, $nBooking);
-        $bookingData->sync_waiting_list();
+        $bookingdata = new \mod_booking\booking_option($cm->id, $nBooking);
+        $bookingdata->sync_waiting_list();
 
         if (isset($fromform->submittandaddnew)) {
             $redirecturl = new moodle_url('editoptions.php',
