@@ -1,30 +1,25 @@
 <?php
-// $Id: backuplib.php,v 1.11 2006/02/08 23:46:21 danmarsden Exp $
-// This php script contains all the stuff to backup/restore
-// booking mods
-// This is the "graphical" structure of the booking mod:
+// This file is part of Moodle - http://moodle.org/
 //
-// booking
-// (CL,pk->id)----------|
-// | |
-// | |
-// | |
-// booking_options |
-// (UL,pk->id, fk->bookingid) |
-// | |
-// | |
-// | |
-// booking_answers |
-// (UL,pk->id, fk->bookingid, fk->optionid)
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 //
-// Meaning: pk->primary key field of the table
-// fk->foreign key to link with parent
-// nt->nested field (recursive data)
-// CL->course level info
-// UL->user level info
-// files->table may have files)
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 //
-// -----------------------------------------------------------
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ *
+ * @param unknown $bf
+ * @param unknown $preferences
+ * @return boolean
+ */
 function booking_backup_mods($bf, $preferences) {
     global $CFG;
 
