@@ -64,7 +64,7 @@ class mod_booking_mod_form extends moodleform_mod {
         return !empty($data['enablecompletion']);
     }
 
-    function definition() {
+    public function definition() {
         global $CFG, $DB, $COURSE, $USER;
 
         $context = context_system::instance();

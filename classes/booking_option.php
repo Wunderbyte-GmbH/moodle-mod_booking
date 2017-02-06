@@ -48,15 +48,15 @@ class booking_option extends booking {
     /** @var array of users objects - filtered */
     public $users = array();
 
-    public $usersOnList = array();
+    public $usersonlist = array();
 
-    public $usersOnWaitingList = array();
+    public $usersonwaitinglist = array();
     // Pagination
     public $page = 0;
 
     public $perpage = 0;
 
-    public $canBookToOtherBooking = 0;
+    public $canbooktootherbooking = 0;
 
     /**
      * Creates basic booking option
@@ -102,13 +102,13 @@ class booking_option extends booking {
         global $DB;
 
         if (isset($optionid) && $optionid > 0) {
-            $alredyBooked = 0;
+            $alreadybooked = 0;
 
             $result = $DB->get_records_sql(
                     'SELECT answers.userid FROM {booking_answers} AS answers INNER JOIN {booking_answers} AS parent on parent.userid = answers.userid WHERE answers.optionid = ? AND parent.optionid = ?',
                     array($this->optionid, $optionid));
 
-            $alredyBooked = count($result);
+            $alreadybooked = count($result);
 
             $keys = array();
 
@@ -116,7 +116,7 @@ class booking_option extends booking {
                 $keys[] = $value->userid;
             }
 
-            foreach ($this->usersOnWaitingList as $user) {
+            foreach ($this->usersonwaitinglist as $user) {
                 if (in_array($user->userid, $keys)) {
                     $user->bookedToOtherBooking = 1;
                 } else {
@@ -124,44 +124,44 @@ class booking_option extends booking {
                 }
             }
 
-            foreach ($this->usersOnList as $user) {
+            foreach ($this->usersonlist as $user) {
                 if (in_array($user->userid, $keys)) {
-                    $user->usersOnList = 1;
+                    $user->usersonlist = 1;
                 } else {
-                    $user->usersOnList = 0;
+                    $user->usersonlist = 0;
                 }
             }
 
-            $connectedBooking = $DB->get_record("booking",
+            $connectedbooking = $DB->get_record("booking",
                     array('conectedbooking' => $this->booking->id), 'id', IGNORE_MULTIPLE);
 
-            if ($connectedBooking) {
+            if ($connectedbooking) {
 
-                $noLimits = $DB->get_records_sql(
+                $nolimits = $DB->get_records_sql(
                         "SELECT bo.*, b.text
                         FROM mdl_booking_other AS bo
                         LEFT JOIN mdl_booking_options AS b ON b.id = bo.optionid
-                        WHERE b.bookingid = ?", array($connectedBooking->id));
+                        WHERE b.bookingid = ?", array($connectedbooking->id));
 
-                if (!$noLimits) {
-                    $howManyNum = $this->option->howmanyusers;
+                if (!$nolimits) {
+                    $howmanynum = $this->option->howmanyusers;
                 } else {
-                    $howMany = $DB->get_record_sql(
+                    $hownany = $DB->get_record_sql(
                             "SELECT userslimit FROM {booking_other} WHERE optionid = ? AND otheroptionid = ?",
                             array($optionid, $this->optionid));
 
-                    $howManyNum = 0;
-                    if ($howMany) {
-                        $howManyNum = $howMany->userslimit;
+                    $howmanynum = 0;
+                    if ($hownany) {
+                        $howmanynum = $hownany->userslimit;
                     }
                 }
             }
 
-            if ($howManyNum == 0) {
-                $howManyNum = 999999;
+            if ($howmanynum == 0) {
+                $howmanynum = 999999;
             }
 
-            return (int) $howManyNum - (int) $alredyBooked;
+            return (int) $howmanynum - (int) $alreadybooked;
         } else {
             return 0;
         }
@@ -191,7 +191,7 @@ class booking_option extends booking {
         global $DB;
 
         $this->option->teachers = $DB->get_records_sql(
-                'SELECT DISTINCT t.userid, u.firstname, u.lastname FROM {booking_teachers} AS t LEFT JOIN {user} AS u ON t.userid = u.id WHERE t.optionid = ' .
+                'SELECT DISTINCT t.userid, u.firstname, u.lastname FROM {booking_teachers} t LEFT JOIN {user} u ON t.userid = u.id WHERE t.optionid = ' .
                          $this->optionid . '');
     }
 
@@ -248,9 +248,9 @@ class booking_option extends booking {
 
         foreach ($this->users as $user) {
             if ($user->waitinglist == 1) {
-                $this->usersOnWaitingList[] = $user;
+                $this->usersonwaitinglist[] = $user;
             } else {
-                $this->usersOnList[] = $user;
+                $this->usersonlist[] = $user;
             }
         }
     }
@@ -360,9 +360,7 @@ class booking_option extends booking {
         ORDER BY ba.timemodified ASC";
         $params = array($this->id, $this->optionid);
 
-        /**
-         * it is possible that the cap mod/booking:choose has been revoked after the user has booked Therefore do not count them as booked users.
-         */
+        // It is possible that the cap mod/booking:choose has been revoked after the user has booked Therefore do not count them as booked users.
         $allanswers = $DB->get_records_sql($sql, $params);
         $this->bookedusers = array_intersect_key($allanswers, $this->canbookusers);
         // TODO offer users with according caps to delete excluded users from booking option
@@ -443,9 +441,7 @@ class booking_option extends booking {
             $user = $DB->get_record('user', array('id' => $userid));
         }
 
-        /**
-         * log deletion of user *
-         */
+        // Log deletion of user.
         $event = \mod_booking\event\booking_cancelled::create(
                 array('objectid' => $this->optionid,
                     'context' => \context_module::instance($this->cm->id),
@@ -458,12 +454,12 @@ class booking_option extends booking {
 
         $messagetext = get_string('deletedbookingmessage', 'booking', $params);
         if ($userid == $USER->id) {
-            // I canceled the booking
+            // I cancelled the booking.
             $deletedbookingusermessage = booking_get_email_body($this->booking, 'userleave',
                     'userleavebookedmessage', $params);
             $subject = get_string('userleavebookedsubject', 'booking', $params);
         } else {
-            // Booking manager canceled the booking
+            // Booking manager cancelled the booking.
             $deletedbookingusermessage = booking_get_email_body($this->booking, 'deletedtext',
                     'deletedbookingmessage', $params);
             $subject = get_string('deletedbookingsubject', 'booking', $params);
@@ -511,25 +507,25 @@ class booking_option extends booking {
 
         if ($this->option->limitanswers) {
             $maxplacesavailable = $this->option->maxanswers + $this->option->maxoverbooking;
-            $bookedUsers = $DB->count_records("booking_answers",
+            $bookedusers = $DB->count_records("booking_answers",
                     array('optionid' => $this->optionid, 'waitinglist' => 0));
-            $waitingUsers = $DB->count_records("booking_answers",
+            $waitingusers = $DB->count_records("booking_answers",
                     array('optionid' => $this->optionid, 'waitinglist' => 1));
-            $allUsersCount = $bookedUsers + $waitingUsers;
+            $alluserscount = $bookedusers + $waitingusers;
 
-            if ($waitingUsers > 0 && $this->option->maxanswers > $bookedUsers) {
-                $newUser = $DB->get_record_sql(
+            if ($waitingusers > 0 && $this->option->maxanswers > $bookedusers) {
+                $newuser = $DB->get_record_sql(
                         'SELECT * FROM {booking_answers} WHERE optionid = ? AND waitinglist = 1 ORDER BY timemodified ASC',
                         array($this->optionid), IGNORE_MULTIPLE);
 
-                $newUser->waitinglist = 0;
+                $newuser->waitinglist = 0;
 
-                $DB->update_record("booking_answers", $newUser);
+                $DB->update_record("booking_answers", $newuser);
 
-                booking_check_enrol_user($this->option, $this->booking, $newUser->userid);
+                booking_check_enrol_user($this->option, $this->booking, $newuser->userid);
 
                 if ($this->booking->sendmail == 1 || $this->booking->copymail) {
-                    $newbookeduser = $DB->get_record('user', array('id' => $newUser->userid));
+                    $newbookeduser = $DB->get_record('user', array('id' => $newuser->userid));
                     $params = booking_generate_email_params($this->booking, $this->option,
                             $newbookeduser, $this->cm->id);
                     $messagetextnewuser = booking_get_email_body($this->booking, 'statuschangetext',
@@ -586,20 +582,20 @@ class booking_option extends booking {
 
         if ($this->option->limitanswers) {
 
-            $nBooking = $DB->get_records_sql(
+            $nbooking = $DB->get_records_sql(
                     'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
                     array($this->optionid), 0, $this->option->maxanswers);
 
-            foreach ($nBooking as $value) {
+            foreach ($nbooking as $value) {
                 $value->waitinglist = 0;
                 $DB->update_record("booking_answers", $value);
             }
 
-            $nOverBooking = $DB->get_records_sql(
+            $noverbooking = $DB->get_records_sql(
                     'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
                     array($this->optionid), $this->option->maxanswers, $this->option->maxoverbooking);
 
-            foreach ($nOverBooking as $value) {
+            foreach ($noverbooking as $value) {
                 $value->waitinglist = 1;
                 $DB->update_record("booking_answers", $value);
             }
@@ -693,14 +689,14 @@ class booking_option extends booking {
 
         if ($this->option->limitanswers) {
             $maxplacesavailable = $this->option->maxanswers + $this->option->maxoverbooking;
-            $bookedUsers = $DB->count_records("booking_answers",
+            $bookedusers = $DB->count_records("booking_answers",
                     array('optionid' => $this->optionid, 'waitinglist' => 0));
-            $waitingUsers = $DB->count_records("booking_answers",
+            $waitingusers = $DB->count_records("booking_answers",
                     array('optionid' => $this->optionid, 'waitinglist' => 1));
-            $allUsersCount = $bookedUsers + $waitingUsers;
+            $alluserscount = $bookedusers + $waitingusers;
 
-            if ($maxplacesavailable > $allUsersCount) {
-                if ($this->option->maxanswers > $bookedUsers) {
+            if ($maxplacesavailable > $alluserscount) {
+                if ($this->option->maxanswers > $bookedusers) {
                     return 0;
                 } else {
                     return 1;

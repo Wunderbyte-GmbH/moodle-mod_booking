@@ -18,7 +18,7 @@ require_once $CFG->libdir . '/formslib.php';
 
 class mod_booking_teachers_form extends moodleform {
 
-    function definition() {
+    public function definition() {
         global $DB, $CFG;
 
         $mform = & $this->_form;

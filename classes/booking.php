@@ -64,7 +64,7 @@ class booking {
     public function __construct($cmid) {
         global $DB;
         $this->cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
-        $this->course = $DB->get_record('course', array('id' => $this->cm->course), 
+        $this->course = $DB->get_record('course', array('id' => $this->cm->course),
                 'id, fullname, shortname, groupmode, groupmodeforce, visible', MUST_EXIST);
         $this->id = $this->cm->instance;
         $this->context = \context_module::instance($cmid);

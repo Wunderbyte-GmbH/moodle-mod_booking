@@ -17,27 +17,26 @@ if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.'); // It must be included from a Moodle page
 }
 
-require_once $CFG->libdir . '/formslib.php';
-
+require_once($CFG->libdir . '/formslib.php');
 
 class mod_booking_categories_form extends moodleform {
 
-    var $options = array();
-
-    function showSubCategories($cat_id, $dashes = '', $DB, $options) {
+    private function show_sub_categories($catid, $dashes = '', $options) {
+        global $DB;
+        $options = array();
         $dashes .= '&nbsp;&nbsp;';
-        $categories = $DB->get_records('booking_category', array('cid' => $cat_id));
+        $categories = $DB->get_records('booking_category', array('cid' => $catid));
         if (count((array) $categories) > 0) {
             foreach ($categories as $category) {
                 $options[$category->id] = $dashes . $category->name;
-                $options = $this->showSubCategories($category->id, $dashes, $DB, $options);
+                $options = $this->show_sub_categories($category->id, $dashes, $options);
             }
         }
 
         return $options;
     }
 
-    function definition() {
+    public function definition() {
         global $CFG, $DB, $COURSE;
 
         $categories = $DB->get_records('booking_category',
@@ -47,7 +46,7 @@ class mod_booking_categories_form extends moodleform {
 
         foreach ($categories as $category) {
             $options[$category->id] = $category->name;
-            $options = $this->showSubCategories($category->id, '', $DB, $options);
+            $options = $this->show_sub_categories($category->id, '', $DB, $options);
         }
 
         $context = context_system::instance();

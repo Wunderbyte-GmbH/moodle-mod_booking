@@ -929,7 +929,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
  */
 function booking_extend_settings_navigation(settings_navigation $settings, navigation_node $navref) {
     global $PAGE, $DB;
-   
+
     $cm = $PAGE->cm;
     if (!$cm) {
         return;
@@ -938,7 +938,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     $context = $cm->context;
     $course = $PAGE->course;
     $optionid = $PAGE->url->get_param('optionid');
-    
+
 
     if (!$course) {
         return;
@@ -957,25 +957,25 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 new moodle_url('tagtemplates.php', array('id' => $cm->id)));
         if (!is_null($optionid)) {
             $connectedbooking = $DB->count_records('booking_other', array('optionid' => $optionid));
-            $settingnode = $navref->add(get_string("optionmenu", "booking"), null, 
+            $settingnode = $navref->add(get_string("optionmenu", "booking"), null,
                     navigation_node::TYPE_CONTAINER);
-            $settingnode->add(get_string('updatebooking', 'booking'), 
-                    new moodle_url('/mod/booking/editoptions.php', 
+            $settingnode->add(get_string('updatebooking', 'booking'),
+                    new moodle_url('/mod/booking/editoptions.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
-            $settingnode->add(get_string('duplicatebooking', 'booking'), 
-                    new moodle_url('/mod/booking/editoptions.php', 
-                            array('id' => $cm->id, 'optionid' => 'add', 
+            $settingnode->add(get_string('duplicatebooking', 'booking'),
+                    new moodle_url('/mod/booking/editoptions.php',
+                            array('id' => $cm->id, 'optionid' => 'add',
                                 'copyoptionid' => $optionid)));
-            $settingnode->add(get_string('deletebookingoption', 'booking'), 
-                    new moodle_url('/mod/booking/report.php', 
-                            array('id' => $cm->id, 'optionid' => $optionid, 
+            $settingnode->add(get_string('deletebookingoption', 'booking'),
+                    new moodle_url('/mod/booking/report.php',
+                            array('id' => $cm->id, 'optionid' => $optionid,
                                 'action' => 'deletebookingoption', 'sesskey' => sesskey())));
-            $settingnode->add(get_string('optiondates', 'booking'), 
-                    new moodle_url('/mod/booking/optiondates.php', 
+            $settingnode->add(get_string('optiondates', 'booking'),
+                    new moodle_url('/mod/booking/optiondates.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
             if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) && $connectedbooking > 0) {
-                $settingnode->add(get_string('editotherbooking', 'booking'), 
-                        new moodle_url('/mod/booking/otherbooking.php', 
+                $settingnode->add(get_string('editotherbooking', 'booking'),
+                        new moodle_url('/mod/booking/otherbooking.php',
                                 array('id' => $cm->id, 'optionid' => $optionid)));
             }
         }
@@ -1780,8 +1780,8 @@ function booking_send_notification($optionid, $subject, $toUsers = array()) {
             $allusers[] = $tmpUser;
         }
     } else {
-        if (isset($bookingdata->usersOnList)) {
-            $allusers = $bookingdata->usersOnList;
+        if (isset($bookingdata->usersonlist)) {
+            $allusers = $bookingdata->usersonlist;
         } else {
             $allusers = array();
         }
@@ -2482,6 +2482,25 @@ function booking_optionid_unsubscribe($userid, $optionid) {
     return ($DB->delete_records('booking_teachers',
             array('userid' => $userid, 'optionid' => $optionid)));
 }
+
+
+function booking_show_subcategories($catid, $courseid) {
+    global $DB;
+    $categories = $DB->get_records('booking_category', array('cid' => $catid));
+    if (count((array) $categories) > 0) {
+        echo '<ul>';
+        foreach ($categories as $category) {
+            $editlink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$category->id\">" .
+            get_string('editcategory', 'booking') . '</a>';
+            $deletelink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$category->id&delete=1\">" .
+            get_string('deletecategory', 'booking') . '</a>';
+            echo "<li>$category->name - $editlink - $deletelink</li>";
+            booking_show_subcategories($category->id, $courseid);
+        }
+        echo '</ul>';
+    }
+}
+
 
 
 /**

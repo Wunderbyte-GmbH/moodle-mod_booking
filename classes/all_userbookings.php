@@ -25,32 +25,32 @@ defined('MOODLE_INTERNAL') || die();
 
 class all_userbookings extends table_sql {
 
-    var $bookingdata = null;
+    public $bookingdata = null;
 
-    var $cm = null;
+    public $cm = null;
 
-    var $user = null;
+    public $user = null;
 
-    var $db = null;
+    public $db = null;
 
     /**
      *
      * @var int
      */
-    var $optionid = null;
+    public $optionid = null;
 
     /**
      *
      * @var array of ratingoptions
      */
-    var $ratingoptions = null;
+    public $ratingoptions = null;
 
     /**
      * Constructor
      *
      * @param int $uniqueid all tables have to have a unique id, this is used as a key when storing table properties like sort order in the session.
      */
-    function __construct($uniqueid, $bookingdata, $cm, $user, $db, $optionid) {
+    public function __construct($uniqueid, $bookingdata, $cm, $user, $db, $optionid) {
         parent::__construct($uniqueid);
 
         $this->collapsible(true);
@@ -59,7 +59,7 @@ class all_userbookings extends table_sql {
         $this->bookingdata = $bookingdata;
         $this->cm = $cm;
         $this->user = $user;
-        $this->db = $db;
+        $DB = $db;
         $this->optionid = $optionid;
         unset($this->attributes['cellspacing']);
     }
@@ -69,7 +69,7 @@ class all_userbookings extends table_sql {
      *
      * @param array $ratingoptions
      */
-    function set_ratingoptions($ratingoptions) {
+    public function set_ratingoptions($ratingoptions) {
         $this->ratingoptions = $ratingoptions;
     }
 
@@ -79,7 +79,7 @@ class all_userbookings extends table_sql {
      * @param object $values Contains object with all the values of record.
      * @return $string Return username with link to profile or username only when downloading.
      */
-    function col_timecreated($values) {
+    protected function col_timecreated($values) {
         if ($values->timecreated > 0) {
             return userdate($values->timecreated);
         }
@@ -87,7 +87,7 @@ class all_userbookings extends table_sql {
         return '';
     }
 
-    function col_fullname($values) {
+    protected function col_fullname($values) {
         if (empty($values->otheroptions)) {
             return html_writer::link(
                     new moodle_url('/user/profile.php', array('id' => $values->userid)),
@@ -100,7 +100,7 @@ class all_userbookings extends table_sql {
         }
     }
 
-    function col_numrec($values) {
+    protected function col_numrec($values) {
         if ($values->numrec == 0) {
             return '';
         } else {
@@ -108,7 +108,7 @@ class all_userbookings extends table_sql {
         }
     }
 
-    function col_completed($values) {
+    protected function col_completed($values) {
         if (!$this->is_downloading()) {
             $completed = '';
             if ($values->completed) {
@@ -120,7 +120,7 @@ class all_userbookings extends table_sql {
         }
     }
 
-    function col_rating($values) {
+    protected function col_rating($values) {
         global $OUTPUT, $PAGE;
         $output = '';
         $renderer = $PAGE->get_renderer('mod_booking');
@@ -131,7 +131,7 @@ class all_userbookings extends table_sql {
         return $output;
     }
 
-    function col_coursestarttime($values) {
+    protected function col_coursestarttime($values) {
         if ($values->coursestarttime == 0) {
             return '';
         } else {
@@ -139,7 +139,7 @@ class all_userbookings extends table_sql {
         }
     }
 
-    function col_courseendtime($values) {
+    protected function col_courseendtime($values) {
         if ($values->courseendtime == 0) {
             return '';
         } else {
@@ -147,7 +147,7 @@ class all_userbookings extends table_sql {
         }
     }
 
-    function col_waitinglist($values) {
+    protected function col_waitinglist($values) {
         if ($this->is_downloading()) {
             return $values->waitinglist;
         }
@@ -161,7 +161,7 @@ class all_userbookings extends table_sql {
         return $completed;
     }
 
-    function col_selected($values) {
+    protected function col_selected($values) {
         if (!$this->is_downloading()) {
             return '<input id="check' . $values->id .
                      '" type="checkbox" class="usercheckbox" name="user[][' . $values->userid .
@@ -176,7 +176,7 @@ class all_userbookings extends table_sql {
      *
      * @return string return processed value. Return null if no change has been made.
      */
-    function other_cols($colname, $value) {
+    protected function other_cols($colname, $value) {
         if (substr($colname, 0, 4) === "cust") {
             $tmp = explode('|', $value->{$colname});
 
@@ -196,7 +196,7 @@ class all_userbookings extends table_sql {
         }
     }
 
-    function wrap_html_start() {
+    protected function wrap_html_start() {
         echo '<form method="post" id="studentsform">' . "\n";
         $ratingoptions = $this->ratingoptions;
         if (!empty($ratingoptions)) {
@@ -208,7 +208,8 @@ class all_userbookings extends table_sql {
         }
     }
 
-    function wrap_html_finish() {
+    protected function wrap_html_finish() {
+        global $DB;
         echo '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
 
         if (!$this->bookingdata->booking->autoenrol &&
@@ -262,22 +263,22 @@ class all_userbookings extends table_sql {
                          get_string('generaterecnumareyousure', 'booking') . '\')"/>';
             }
 
-            $connectedBooking = $this->db->get_record("booking",
+            $connectedbooking = $DB->get_record("booking",
                     array('conectedbooking' => $this->bookingdata->booking->id), 'id',
                     IGNORE_MULTIPLE);
 
-            if ($connectedBooking) {
+            if ($connectedbooking) {
 
-                $noLimits = $this->db->get_records_sql(
+                $nolimits = $DB->get_records_sql(
                         "SELECT bo.*, b.text
-                        FROM {booking_other} AS bo
-                        LEFT JOIN {booking_options} AS b ON b.id = bo.optionid
+                        FROM {booking_other} bo
+                        LEFT JOIN {booking_options} b ON b.id = bo.optionid
                         WHERE b.bookingid = ?",
-                        array($connectedBooking->id));
+                        array($connectedbooking->id));
 
-                if (!$noLimits) {
-                    $result = $this->db->get_records_select("booking_options",
-                            "bookingid = {$connectedBooking->id} AND id <> {$this->optionid}", null,
+                if (!$nolimits) {
+                    $result = $DB->get_records_select("booking_options",
+                            "bookingid = {$connectedbooking->id} AND id <> {$this->optionid}", null,
                             'text ASC', 'id, text');
 
                     $options = array();
@@ -290,24 +291,24 @@ class all_userbookings extends table_sql {
 
                     echo html_writer::select($options, 'selectoptionid', '');
 
-                    $labelBooktootherbooking = (empty(
+                    $labelbooktootherbooking = (empty(
                             $this->bookingdata->booking->booktootherbooking) ? get_string(
                             'booktootherbooking', 'booking') : $this->bookingdata->booking->booktootherbooking);
 
                     echo '<input type="submit" name="booktootherbooking" value="' .
-                             $labelBooktootherbooking . '" />';
+                             $labelbooktootherbooking . '" />';
                 } else {
-                    $allLimits = $this->db->get_records_sql(
+                    $alllimits = $DB->get_records_sql(
                             "SELECT bo.*, b.text
-                        FROM {booking_other} AS bo
-                        LEFT JOIN {booking_options} AS b ON b.id = bo.optionid
+                        FROM {booking_other} bo
+                        LEFT JOIN {booking_options} b ON b.id = bo.optionid
                         WHERE b.bookingid = ? AND bo.otheroptionid = ?",
-                            array($connectedBooking->id, $this->optionid));
+                            array($connectedbooking->id, $this->optionid));
 
-                    if ($allLimits) {
+                    if ($alllimits) {
                         $options = array();
 
-                        foreach ($allLimits as $value) {
+                        foreach ($alllimits as $value) {
                             $options[$value->optionid] = $value->text;
                         }
 
@@ -315,12 +316,12 @@ class all_userbookings extends table_sql {
 
                         echo html_writer::select($options, 'selectoptionid', '');
 
-                        $labelBooktootherbooking = (empty(
+                        $labelbooktootherbooking = (empty(
                                 $this->bookingdata->booking->booktootherbooking) ? get_string(
                                 'booktootherbooking', 'booking') : $this->bookingdata->booking->booktootherbooking);
 
                         echo '<input type="submit" name="booktootherbooking" value="' .
-                                 $labelBooktootherbooking . '" />';
+                                 $labelbooktootherbooking . '" />';
                     }
                 }
             }

@@ -671,7 +671,7 @@ $string['pollstrftimedate'] = '%Y-%m-%d';
 
 // all_users.php
 $string['completed'] = 'Abgeschlossen';
-$string['usersOnList'] = 'Nutzer/innen';
+$string['usersonlist'] = 'Nutzer/innen';
 $string['fullname'] = 'Voller Name';
 $string['timecreated'] = 'Erstellungsdatum';
 

@@ -25,13 +25,13 @@ defined('MOODLE_INTERNAL') || die();
 
 class all_options extends table_sql {
 
-    var $booking = null;
+    public $booking = null;
 
-    var $cm = null;
+    public $cm = null;
 
-    var $context = null;
+    public $context = null;
 
-    function __construct($uniqueid, $booking, $cm, $context) {
+    public function __construct($uniqueid, $booking, $cm, $context) {
         parent::__construct($uniqueid);
 
         $this->collapsible(true);
@@ -42,7 +42,7 @@ class all_options extends table_sql {
         $this->context = $context;
     }
 
-    function col_id($values) {
+    protected function col_id($values) {
         global $OUTPUT;
 
         $ret = "";
@@ -79,7 +79,7 @@ class all_options extends table_sql {
         return $ret;
     }
 
-    function col_coursestarttime($values) {
+    protected function col_coursestarttime($values) {
         if ($this->is_downloading()) {
             if ($values->coursestarttime == 0) {
                 return '';
@@ -111,7 +111,7 @@ class all_options extends table_sql {
         }
     }
 
-    function col_courseendtime($values) {
+    protected function col_courseendtime($values) {
         if ($values->courseendtime == 0) {
             return '';
         } else {
@@ -119,7 +119,7 @@ class all_options extends table_sql {
         }
     }
 
-    function col_text($values) {
+    protected function col_text($values) {
         $output = '';
         $output .= html_writer::tag('h4', $values->text);
 
@@ -148,7 +148,7 @@ class all_options extends table_sql {
         return $output;
     }
 
-    function col_description($values) {
+    protected function col_description($values) {
         $output = '';
         if (!empty($values->description)) {
             $output .= html_writer::div($values->description, 'courseinfo');
@@ -156,7 +156,7 @@ class all_options extends table_sql {
         return $output;
     }
 
-    function col_maxanswers($values) {
+    protected function col_maxanswers($values) {
         global $OUTPUT, $USER;
 
         $delete = '';
@@ -200,8 +200,6 @@ class all_options extends table_sql {
             } else {
                 if ($inpast) {
                     $booked = get_string('bookedpast', 'booking') . '<br>';
-                } else {
-                    // $booked = get_string('booked', 'booking');
                 }
             }
         } else {
@@ -278,7 +276,7 @@ class all_options extends table_sql {
      *
      * @return string return processed value. Return null if no change has been made.
      */
-    function other_cols($colname, $value) {
+    protected function other_cols($colname, $value) {
         if (substr($colname, 0, 4) === "cust") {
             $tmp = explode('|', $value->{$colname});
 
@@ -298,10 +296,10 @@ class all_options extends table_sql {
         }
     }
 
-    function wrap_html_start() {
+    protected function wrap_html_start() {
     }
 
-    function wrap_html_finish() {
+    protected function wrap_html_finish() {
         echo "<hr>";
     }
 
@@ -310,7 +308,7 @@ class all_options extends table_sql {
      *
      * @return number of records found
      */
-    function count_records() {
+    public function count_records() {
         global $DB;
         if (!empty($this->countsql)) {
             return $DB->count_records_sql($this->countsql, $this->countparams);

@@ -783,7 +783,7 @@ $string['pollstrftimedate'] = '%Y-%m-%d';
 
 // all_users.php
 $string['completed'] = 'Completed';
-$string['usersOnList'] = 'User on list';
+$string['usersonlist'] = 'User on list';
 $string['fullname'] = 'Full name';
 $string['timecreated'] = 'Time created';
 $string['sendreminderemail'] = "Send Reminder Email";

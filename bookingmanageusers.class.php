@@ -18,7 +18,7 @@ require_once($CFG->libdir . '/formslib.php');
 
 class mod_booking_manageusers_form extends moodleform {
 
-    function definition() {
+    public function definition() {
         global $CFG, $DB, $OUTPUT, $USER;
         $mform = $this->_form;
 
@@ -36,27 +36,27 @@ class mod_booking_manageusers_form extends moodleform {
                     $user->imagealt = '';
                 }
 
-                $userData = $DB->get_record('booking_answers',
+                $userdata = $DB->get_record('booking_answers',
                         array('optionid' => $this->_customdata['bookingdata']->id,
                             'userid' => $user->id));
 
-                $checkMark = "&nbsp;";
-                if ($userData->completed == '1') {
-                    $checkMark = "&#x2713;";
+                $checkmark = "&nbsp;";
+                if ($userdata->completed == '1') {
+                    $checkmark = "&#x2713;";
                 }
 
                 $arrow = "&nbsp;";
 
-                if (isset($user->usersOnList) && $user->usersOnList == '1') {
+                if (isset($user->usersonlist) && $user->usersonlist == '1') {
                     $arrow = "&#11014;";
                 }
 
                 $mform->addElement('advcheckbox', "user[{$user->id}]",
-                        $arrow . $checkMark .
+                        $arrow . $checkmark .
                                  " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" .
                                  fullname($user) . "</a>",
-                                ($userData->timecreated > 0 ? ' ' .
-                                 userdate($userData->timecreated,
+                                ($userdata->timecreated > 0 ? ' ' .
+                                 userdate($userdata->timecreated,
                                         get_string('strftimedatefullshort')) : ''),
                                 array('class' => 'modbooking',
                                     'group' => $this->_customdata['bookingdata']->id + 1));
@@ -132,7 +132,7 @@ class mod_booking_manageusers_form extends moodleform {
         $mform->setType('optionid', PARAM_INT);
     }
 
-    function data_preprocessing($defaultvalues) {
+    protected function data_preprocessing($defaultvalues) {
         if (!isset($defaultvalues['descriptionformat'])) {
             $defaultvalues['descriptionformat'] = FORMAT_HTML;
         }
@@ -141,7 +141,7 @@ class mod_booking_manageusers_form extends moodleform {
         }
     }
 
-    function get_data() {
+    public function get_data() {
         $data = parent::get_data();
 
         if (isset($data->subscribetocourse) && !array_keys($data->user, 1)) {
