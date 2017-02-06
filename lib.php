@@ -929,7 +929,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
  */
 function booking_extend_settings_navigation(settings_navigation $settings, navigation_node $navref) {
     global $PAGE, $DB;
-
+   
     $cm = $PAGE->cm;
     if (!$cm) {
         return;
@@ -937,6 +937,8 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
     $context = $cm->context;
     $course = $PAGE->course;
+    $optionid = $PAGE->url->get_param('optionid');
+    
 
     if (!$course) {
         return;
@@ -945,7 +947,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     if (has_capability('mod/booking:updatebooking', $context)) {
         $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null,
                 navigation_node::TYPE_CONTAINER);
-
         $settingnode->add(get_string('addnewbookingoption', 'booking'),
                 new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add')));
         $settingnode->add(get_string('importcsvbookingoption', 'booking'),
@@ -954,6 +955,30 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 new moodle_url('importexcel.php', array('id' => $cm->id)));
         $settingnode->add(get_string('tagtemplates', 'booking'),
                 new moodle_url('tagtemplates.php', array('id' => $cm->id)));
+        if (!is_null($optionid)) {
+            $connectedbooking = $DB->count_records('booking_other', array('optionid' => $optionid));
+            $settingnode = $navref->add(get_string("optionmenu", "booking"), null, 
+                    navigation_node::TYPE_CONTAINER);
+            $settingnode->add(get_string('updatebooking', 'booking'), 
+                    new moodle_url('/mod/booking/editoptions.php', 
+                            array('id' => $cm->id, 'optionid' => $optionid)));
+            $settingnode->add(get_string('duplicatebooking', 'booking'), 
+                    new moodle_url('/mod/booking/editoptions.php', 
+                            array('id' => $cm->id, 'optionid' => 'add', 
+                                'copyoptionid' => $optionid)));
+            $settingnode->add(get_string('deletebookingoption', 'booking'), 
+                    new moodle_url('/mod/booking/report.php', 
+                            array('id' => $cm->id, 'optionid' => $optionid, 
+                                'action' => 'deletebookingoption', 'sesskey' => sesskey())));
+            $settingnode->add(get_string('optiondates', 'booking'), 
+                    new moodle_url('/mod/booking/optiondates.php', 
+                            array('id' => $cm->id, 'optionid' => $optionid)));
+            if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) && $connectedbooking > 0) {
+                $settingnode->add(get_string('editotherbooking', 'booking'), 
+                        new moodle_url('/mod/booking/otherbooking.php', 
+                                array('id' => $cm->id, 'optionid' => $optionid)));
+            }
+        }
     }
 }
 
