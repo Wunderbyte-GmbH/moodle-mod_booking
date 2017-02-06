@@ -13,7 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-require_once $CFG->libdir . '/formslib.php';
+require_once($CFG->libdir . '/formslib.php');
 
 
 class mod_booking_manageusers_form extends moodleform {
@@ -151,5 +151,3 @@ class mod_booking_manageusers_form extends moodleform {
         return $data;
     }
 }
-
-?>

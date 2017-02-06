@@ -52,5 +52,3 @@ class mod_booking_sendmessage_form extends moodleform {
         $this->add_action_buttons();
     }
 }
-
-?>

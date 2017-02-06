@@ -78,5 +78,3 @@ class mod_booking_categories_form extends moodleform {
         $this->add_action_buttons();
     }
 }
-
-?>

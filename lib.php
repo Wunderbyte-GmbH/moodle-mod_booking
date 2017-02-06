@@ -2799,4 +2799,3 @@ function booking_get_moodle_version_major() {
     return $version_array[0];
 }
 
-?>

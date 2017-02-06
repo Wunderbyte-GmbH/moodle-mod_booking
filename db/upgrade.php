@@ -1444,5 +1444,3 @@ function xmldb_booking_upgrade($oldversion) {
 
     return true;
 }
-
-?>

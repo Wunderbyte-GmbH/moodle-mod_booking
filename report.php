@@ -759,4 +759,3 @@ if (!$tableallbookings->is_downloading()) {
 
     exit();
 }
-?>

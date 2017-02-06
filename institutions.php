@@ -70,4 +70,3 @@ echo "</ul>";
 echo $OUTPUT->box_end();
 
 echo $OUTPUT->footer();
-?>

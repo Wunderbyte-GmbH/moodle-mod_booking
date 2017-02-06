@@ -122,4 +122,3 @@ if ($mform->is_cancelled()) {
     $mform->display();
 }
 echo $OUTPUT->footer();
-?>

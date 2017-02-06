@@ -79,5 +79,3 @@ class mod_booking_teachers_form extends moodleform {
         $mform->setType('edit', PARAM_INT);
     }
 }
-
-?>

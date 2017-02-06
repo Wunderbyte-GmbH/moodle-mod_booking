@@ -13,12 +13,12 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-require_once $CFG->libdir . '/formslib.php';
+require_once($CFG->libdir . '/formslib.php');
 
 
 class mod_booking_bookingform_form extends moodleform {
 
-    function definition() {
+    public function definition() {
         global $CFG, $DB, $COURSE;
         $mform = & $this->_form;
 
@@ -60,13 +60,13 @@ class mod_booking_bookingform_form extends moodleform {
 
         $institutions = $DB->get_records('booking_institutions', array('course' => $COURSE->id));
 
-        $tmpSearchInstitutions = array();
+        $tmpsearchinstitutions = array();
 
         foreach ($institutions as $institution) {
-            $tmpSearchInstitutions[] = "'" . $institution->name . "'";
+            $tmpsearchinstitutions[] = "'" . $institution->name . "'";
         }
 
-        $tmpSearchInstitutions = implode(',', $tmpSearchInstitutions);
+        $tmpsearchinstitutions = implode(',', $tmpsearchinstitutions);
 
         $mform->addElement('static', null, '',
                 "<script type=\"text/javascript\">
@@ -75,7 +75,7 @@ class mod_booking_bookingform_form extends moodleform {
   Y.one('#institutionid').plug(Y.Plugin.AutoComplete, {
     resultFilters    : 'phraseMatch',
     resultHighlighter: 'phraseMatch',
-    source           : [{$tmpSearchInstitutions}]
+    source           : [{$tmpsearchinstitutions}]
   });
 });
             //]]>
@@ -184,7 +184,7 @@ class mod_booking_bookingform_form extends moodleform {
         // $this->add_action_buttons();
     }
 
-    function data_preprocessing(&$defaultvalues) {
+    protected function data_preprocessing(&$defaultvalues) {
         if (!isset($defaultvalues['descriptionformat'])) {
             $defaultvalues['descriptionformat'] = FORMAT_HTML;
         }
@@ -220,7 +220,7 @@ class mod_booking_bookingform_form extends moodleform {
         return $errors;
     }
 
-    function get_data() {
+    public function get_data() {
         $data = parent::get_data();
         if ($data) {
             $data->descriptionformat = $data->description['format'];
@@ -232,5 +232,3 @@ class mod_booking_bookingform_form extends moodleform {
         return $data;
     }
 }
-
-?>

@@ -787,5 +787,3 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 echo $OUTPUT->box('<a href="http://www.edulabs.org">' . get_string('createdby', 'booking') . "</a>",
         'box mdl-align');
 echo $OUTPUT->footer();
-
-?>

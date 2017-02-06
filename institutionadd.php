@@ -91,4 +91,3 @@ $mform->set_data($defaultvalues);
 $mform->display();
 
 echo $OUTPUT->footer();
-?>

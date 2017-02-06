@@ -49,5 +49,3 @@ class mod_booking_institution_form extends moodleform {
         $this->add_action_buttons();
     }
 }
-
-?>

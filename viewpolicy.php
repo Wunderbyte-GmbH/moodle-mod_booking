@@ -41,4 +41,3 @@ echo $booking->booking->bookingpolicy;
 echo $OUTPUT->box_end();
 
 echo $OUTPUT->footer();
-?>

@@ -145,4 +145,3 @@ if (empty($USER->subscriptionsediting)) {
     echo $output->subscriber_selection_form($existingselector, $subscriberselector);
 }
 echo $output->footer();
-?>

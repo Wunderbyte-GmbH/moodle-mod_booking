@@ -151,4 +151,3 @@ if ($subscribesuccess || $unsubscribesuccess) {
 echo $bookingoutput->subscriber_selection_form($existingselector, $subscriberselector);
 
 echo $OUTPUT->footer();
-?>
