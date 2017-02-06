@@ -40,11 +40,11 @@ class mod_booking_observer {
         $visible = $DB->get_record('course_modules', array('id' => $event->contextinstanceid),
                 'visible');
 
-        $showHide = new stdClass();
-        $showHide->id = $event->other['instanceid'];
-        $showHide->showinapi = $visible->visible;
+        $showhide = new stdClass();
+        $showhide->id = $event->other['instanceid'];
+        $showhide->showinapi = $visible->visible;
 
-        $DB->update_record("booking", $showHide);
+        $DB->update_record("booking", $showhide);
 
         return;
     }
@@ -71,13 +71,20 @@ class mod_booking_observer {
     public static function user_enrolment_deleted(\core\event\user_enrolment_deleted $event) {
         GLOBAL $DB;
 
+        // FIXME: SQL does not work in postgres
         $cp = (object) $event->other['userenrolment'];
         if ($cp->lastenrol) {
             $DB->execute(
-                    'DELETE ba FROM {booking_answers} AS ba LEFT JOIN {booking} AS b ON b.id = ba.bookingid WHERE ba.userid = :userid AND b.course = :course',
+                    'DELETE ba FROM {booking_answers} AS ba
+                    LEFT JOIN {booking} b ON b.id = ba.bookingid
+                    WHERE ba.userid = :userid
+                    AND b.course = :course',
                     array('userid' => $cp->userid, 'course' => $cp->courseid));
             $DB->execute(
-                    'DELETE ba FROM {booking_teachers} AS ba LEFT JOIN {booking} AS b ON b.id = ba.bookingid WHERE ba.userid = :userid AND b.course = :course',
+                    'DELETE ba FROM {booking_teachers} AS ba
+                    LEFT JOIN {booking} b ON b.id = ba.bookingid
+                    WHERE ba.userid = :userid
+                    AND b.course = :course',
                     array('userid' => $cp->userid, 'course' => $cp->courseid));
         }
     }

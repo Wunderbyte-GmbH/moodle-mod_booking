@@ -151,7 +151,11 @@ class booking_options extends booking {
             }
         }
 
-        $sql = " FROM {booking_options} AS bo LEFT JOIN {booking_teachers} AS bt ON bt.optionid = bo.id LEFT JOIN {user} AS ut ON bt.userid = ut.id LEFT JOIN {booking_answers} AS ba ON bo.id = ba.optionid LEFT JOIN {user} AS u ON ba.userid = u.id WHERE {$conditions} {$this->sort}";
+        $sql = " FROM {booking_options} bo
+        LEFT JOIN {booking_teachers} bt ON bt.optionid = bo.id
+        LEFT JOIN {user} ut ON bt.userid = ut.id
+        LEFT JOIN {booking_answers} ba ON bo.id = ba.optionid
+        LEFT JOIN {user} u ON ba.userid = u.id WHERE {$conditions} {$this->sort}";
 
         return array('sql' => $sql, 'args' => $args);
     }
@@ -230,13 +234,12 @@ class booking_options extends booking {
                     $option->availspaces = $option->maxanswers - $taken;
                     $option->taken = $taken;
                     $option->availwaitspaces = $option->maxoverbooking;
-                } elseif ($taken >= $option->maxanswers && $taken < $totalavailable) {
+                } else if ($taken >= $option->maxanswers && $taken < $totalavailable) {
                     $option->status = "waitspaceavailable";
                     $option->availspaces = 0;
                     $option->taken = $option->maxanswers;
-                    $option->availwaitspaces = $option->maxoverbooking -
-                             ($taken - $option->maxanswers);
-                } elseif ($taken >= $totalavailable) {
+                    $option->availwaitspaces = $option->maxoverbooking - ($taken - $option->maxanswers);
+                } else if ($taken >= $totalavailable) {
                     $option->status = "full";
                     $option->availspaces = 0;
                     $option->taken = $option->maxanswers;

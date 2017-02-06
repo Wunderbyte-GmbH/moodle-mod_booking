@@ -98,14 +98,16 @@ class booking_option extends booking {
      * @param number $optionid
      * @return number
      */
-    public function calculateHowManyCanBookToOther($optionid) {
+    public function calculate_how_many_can_book_to_other($optionid) {
         global $DB;
 
         if (isset($optionid) && $optionid > 0) {
             $alreadybooked = 0;
 
             $result = $DB->get_records_sql(
-                    'SELECT answers.userid FROM {booking_answers} AS answers INNER JOIN {booking_answers} AS parent on parent.userid = answers.userid WHERE answers.optionid = ? AND parent.optionid = ?',
+                    'SELECT answers.userid FROM {booking_answers} answers
+                    INNER JOIN {booking_answers} parent on parent.userid = answers.userid
+                    WHERE answers.optionid = ? AND parent.optionid = ?',
                     array($this->optionid, $optionid));
 
             $alreadybooked = count($result);
@@ -118,9 +120,9 @@ class booking_option extends booking {
 
             foreach ($this->usersonwaitinglist as $user) {
                 if (in_array($user->userid, $keys)) {
-                    $user->bookedToOtherBooking = 1;
+                    $user->bookedtootherbooking = 1;
                 } else {
-                    $user->bookedToOtherBooking = 0;
+                    $user->bookedtootherbooking = 0;
                 }
             }
 
@@ -139,8 +141,8 @@ class booking_option extends booking {
 
                 $nolimits = $DB->get_records_sql(
                         "SELECT bo.*, b.text
-                        FROM mdl_booking_other AS bo
-                        LEFT JOIN mdl_booking_options AS b ON b.id = bo.optionid
+                        FROM {booking_other} bo
+                        LEFT JOIN {booking_options} b ON b.id = bo.optionid
                         WHERE b.bookingid = ?", array($connectedbooking->id));
 
                 if (!$nolimits) {
@@ -209,7 +211,9 @@ class booking_option extends booking {
         }
 
         if (isset($this->filters['searchDate']) && $this->filters['searchDate'] == 1) {
-            $options .= " AND FROM_UNIXTIME(ba.timecreated, '%Y') = :searchdateyear AND FROM_UNIXTIME(ba.timecreated, '%m') = :searchdatemonth AND FROM_UNIXTIME(ba.timecreated, '%d') = :searchdateday";
+            $options .= " AND FROM_UNIXTIME(ba.timecreated, '%Y') = :searchdateyear
+                    AND FROM_UNIXTIME(ba.timecreated, '%m') = :searchdatemonth
+                    AND FROM_UNIXTIME(ba.timecreated, '%d') = :searchdateday";
             $params['searchdateyear'] = $this->filters['searchDateYear'];
             $params['searchdatemonth'] = $this->filters['searchDateMonth'];
             $params['searchdateday'] = $this->filters['searchDateDay'];
@@ -269,7 +273,9 @@ class booking_option extends booking {
         }
 
         if (isset($this->filters['searchDate']) && $this->filters['searchDate'] == 1) {
-            $options .= " AND FROM_UNIXTIME({booking_answers}.timecreated, '%Y') = :searchdateyear AND FROM_UNIXTIME({booking_answers}.timecreated, '%m') = :searchdatemonth AND FROM_UNIXTIME({booking_answers}.timecreated, '%d') = :searchdateday";
+            $options .= " AND FROM_UNIXTIME({booking_answers}.timecreated, '%Y') = :searchdateyear
+                    AND FROM_UNIXTIME({booking_answers}.timecreated, '%m') = :searchdatemonth
+                    AND FROM_UNIXTIME({booking_answers}.timecreated, '%d') = :searchdateday";
             $params['searchdateyear'] = $this->filters['searchDateYear'];
             $params['searchdatemonth'] = $this->filters['searchDateMonth'];
             $params['searchdateday'] = $this->filters['searchDateDay'];
@@ -288,7 +294,11 @@ class booking_option extends booking {
         $mainuserfields = \user_picture::fields('{user}', null);
 
         return $DB->get_records_sql(
-                'SELECT {booking_answers}.id AS aid, {booking_answers}.bookingid, {booking_answers}.userid, {booking_answers}.optionid, {booking_answers}.timemodified, {booking_answers}.completed, {booking_answers}.timecreated, {booking_answers}.waitinglist, {booking_answers}.numrec, ' .
+                'SELECT {booking_answers}.id AS aid,
+                {booking_answers}.bookingid, {booking_answers}.userid,
+                {booking_answers}.optionid, {booking_answers}.timemodified,
+                {booking_answers}.completed, {booking_answers}.timecreated,
+                {booking_answers}.waitinglist, {booking_answers}.numrec, ' .
                          $mainuserfields .
                          ' FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' .
                          $options .
@@ -314,7 +324,9 @@ class booking_option extends booking {
         }
 
         if (isset($this->filters['searchDate']) && $this->filters['searchDate'] == 1) {
-            $options .= " AND FROM_UNIXTIME({booking_answers}.timecreated, '%Y') = :searchdateyear AND FROM_UNIXTIME({booking_answers}.timecreated, '%m') = :searchdatemonth AND FROM_UNIXTIME({booking_answers}.timecreated, '%d') = :searchdateday";
+            $options .= " AND FROM_UNIXTIME({booking_answers}.timecreated, '%Y') = :searchdateyear
+                    AND FROM_UNIXTIME({booking_answers}.timecreated, '%m') = :searchdatemonth
+                    AND FROM_UNIXTIME({booking_answers}.timecreated, '%d') = :searchdateday";
             $params['searchdateyear'] = $this->filters['searchDateYear'];
             $params['searchdatemonth'] = $this->filters['searchDateMonth'];
             $params['searchdateday'] = $this->filters['searchDateDay'];
@@ -600,12 +612,12 @@ class booking_option extends booking {
                 $DB->update_record("booking_answers", $value);
             }
 
-            $nOver = $DB->get_records_sql(
+            $nover = $DB->get_records_sql(
                     'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
                     array($this->optionid),
                     $this->option->maxoverbooking + $this->option->maxanswers);
 
-            foreach ($nOver as $value) {
+            foreach ($nover as $value) {
                 $DB->delete_records('booking_answers', array('id' => $value->id));
             }
         } else {
@@ -626,9 +638,9 @@ class booking_option extends booking {
             return false;
         }
 
-        $waitingList = $this->check_if_limit();
+        $waitinglist = $this->check_if_limit();
 
-        if ($waitingList === false) {
+        if ($waitinglist === false) {
             return false;
         }
 
@@ -649,7 +661,7 @@ class booking_option extends booking {
             $newanswer->optionid = $this->optionid;
             $newanswer->timemodified = time();
             $newanswer->timecreated = time();
-            $newanswer->waitinglist = $waitingList;
+            $newanswer->waitinglist = $waitinglist;
 
             if (!$DB->insert_record("booking_answers", $newanswer)) {
                 error("Could not register your booking because of a database error");

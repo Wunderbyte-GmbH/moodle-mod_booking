@@ -99,11 +99,11 @@ class all_options extends table_sql {
                 $times = explode(',', $values->times);
                 foreach ($times as $time) {
                     $slot = explode('-', $time);
-                    $tmpDate = new stdClass();
-                    $tmpDate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
-                    $tmpDate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
+                    $tmpdate = new stdClass();
+                    $tmpdate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
+                    $tmpdate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
 
-                    $val .= get_string('leftandrightdate', 'booking', $tmpDate) . '<br>';
+                    $val .= get_string('leftandrightdate', 'booking', $tmpdate) . '<br>';
                 }
 
                 return $val;
@@ -172,8 +172,7 @@ class all_options extends table_sql {
             $status = "available";
             ;
         } else {
-            if (($values->waiting + $values->booked) >=
-                     ($values->maxanswers + $values->maxoverbooking)) {
+            if (($values->waiting + $values->booked) >= ($values->maxanswers + $values->maxoverbooking)) {
                 $status = "full";
             }
         }

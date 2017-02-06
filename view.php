@@ -86,7 +86,7 @@ if (strlen($searchinstitution) > 0) {
 $urlparams['searchname'] = "";
 if (strlen($searchname) > 0) {
     $urlparams['searchname'] = $searchname;
-    $conditions[] = "bo.id IN (SELECT DISTINCT optionid FROM (SELECT userid, optionid FROM {booking_teachers} WHERE bookingid = :snbookingid1 UNION SELECT userid, optionid FROM {booking_answers} WHERE bookingid = :snbookingid2) AS un LEFT JOIN mdl_user AS u ON u.id = un.userid WHERE u.firstname LIKE :searchname)";
+    $conditions[] = "bo.id IN (SELECT DISTINCT optionid FROM (SELECT userid, optionid FROM {booking_teachers} WHERE bookingid = :snbookingid1 UNION SELECT userid, optionid FROM {booking_answers} WHERE bookingid = :snbookingid2) AS un LEFT JOIN {user} u ON u.id = un.userid WHERE u.firstname LIKE :searchname)";
     $conditionsparams['searchname'] = "%{$searchname}%";
     $conditionsparams['snbookingid1'] = $booking->id;
     $conditionsparams['snbookingid2'] = $booking->id;
@@ -95,7 +95,7 @@ if (strlen($searchname) > 0) {
 $urlparams['searchsurname'] = "";
 if (strlen($searchsurname) > 0) {
     $urlparams['searchsurname'] = $searchsurname;
-    $conditions[] = "bo.id IN (SELECT DISTINCT optionid FROM (SELECT userid, optionid FROM {booking_teachers} WHERE bookingid = :snbookingid3 UNION SELECT userid, optionid FROM {booking_answers} WHERE bookingid = :snbookingid4) AS un LEFT JOIN mdl_user AS u ON u.id = un.userid WHERE u.lastname LIKE :searchsurname)";
+    $conditions[] = "bo.id IN (SELECT DISTINCT optionid FROM (SELECT userid, optionid FROM {booking_teachers} WHERE bookingid = :snbookingid3 UNION SELECT userid, optionid FROM {booking_answers} WHERE bookingid = :snbookingid4) AS un LEFT JOIN {user} u ON u.id = un.userid WHERE u.lastname LIKE :searchsurname)";
     $conditionsparams['searchsurname'] = "%{$searchsurname}%";
     $conditionsparams['snbookingid3'] = $booking->id;
     $conditionsparams['snbookingid4'] = $booking->id;
