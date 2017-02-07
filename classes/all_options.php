@@ -142,7 +142,7 @@ class all_options extends table_sql {
         }
 
         $output .= (!empty($values->teachers) ? " <br />" .
-                 (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') : $this->booking->booking->lblteachname) .
+                 (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') . ": " : $this->booking->booking->lblteachname) .
                  "" . $values->teachers : '');
 
         return $output;
@@ -275,7 +275,7 @@ class all_options extends table_sql {
      *
      * @return string return processed value. Return null if no change has been made.
      */
-    protected function other_cols($colname, $value) {
+    public function other_cols($colname, $value) {
         if (substr($colname, 0, 4) === "cust") {
             $tmp = explode('|', $value->{$colname});
 
@@ -295,10 +295,10 @@ class all_options extends table_sql {
         }
     }
 
-    protected function wrap_html_start() {
+    public function wrap_html_start() {
     }
 
-    protected function wrap_html_finish() {
+    public function wrap_html_finish() {
         echo "<hr>";
     }
 

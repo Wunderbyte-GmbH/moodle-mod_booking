@@ -695,7 +695,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $columns[] = 'email';
         $headers[] = get_string("email");
         $columns[] = 'completed';
-        $headers[] = get_string("searchFinished", "booking");
+        $headers[] = get_string("searchfinished", "booking");
         $columns[] = 'waitinglist';
         $headers[] = get_string("waitinglist", "booking");
 

@@ -34,8 +34,8 @@ M.mod_booking.utility = {
     
       Y.one('#buttonclear').on('click', function () {
           Y.one('#menusearchWaitingList').set('value', '');
-          Y.one('#menusearchFinished').set('value', '');
-          Y.one('#searchDate').set('value', '');
+          Y.one('#menusearchfinished').set('value', '');
+          Y.one('#searchdate').set('value', '');
           Y.one('#searchButton').simulate('click');
       });
 	  

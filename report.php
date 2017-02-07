@@ -27,8 +27,6 @@ require_once("{$CFG->dirroot}/mod/booking/classes/all_userbookings.php");
 require_once("{$CFG->dirroot}/user/profile/lib.php");
 require_once($CFG->dirroot . '/rating/lib.php');
 
-// Find only matched... http://blog.codinghorror.com/a-visual-explanation-of-sql-joins/
-
 $id = required_param('id', PARAM_INT); // moduleid
 $optionid = required_param('optionid', PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
@@ -37,11 +35,11 @@ $confirm = optional_param('confirm', '', PARAM_INT);
 $page = optional_param('page', '0', PARAM_INT);
 
 // Search
-$searchDate = optional_param('searchDate', '', PARAM_TEXT);
-$searchDateDay = optional_param('searchDateDay', '', PARAM_TEXT);
-$searchDateMonth = optional_param('searchDateMonth', '', PARAM_TEXT);
-$searchDateYear = optional_param('searchDateYear', '', PARAM_TEXT);
-$searchFinished = optional_param('searchFinished', '', PARAM_TEXT);
+$searchdate = optional_param('searchdate', '', PARAM_TEXT);
+$searchdateday = optional_param('searchdateday', '', PARAM_TEXT);
+$searchdatemonth = optional_param('searchdatemonth', '', PARAM_TEXT);
+$searchdateyear = optional_param('searchdateyear', '', PARAM_TEXT);
+$searchfinished = optional_param('searchfinished', '', PARAM_TEXT);
 $searchWaitingList = optional_param('searchWaitingList', '', PARAM_TEXT);
 
 // from view.php
@@ -74,39 +72,39 @@ if ($optionid > 0) {
 
 $timestamp = time();
 
-$urlparams['searchDateDay'] = "";
-if (strlen($searchDateDay) > 0) {
-    $urlparams['searchDateDay'] = $searchDateDay;
+$urlparams['searchdateday'] = "";
+if (strlen($searchdateday) > 0) {
+    $urlparams['searchdateday'] = $searchdateday;
 }
 
-$urlparams['searchDateMonth'] = "";
-if (strlen($searchDateMonth) > 0) {
-    $urlparams['searchDateMonth'] = $searchDateMonth;
+$urlparams['searchdatemonth'] = "";
+if (strlen($searchdatemonth) > 0) {
+    $urlparams['searchdatemonth'] = $searchdatemonth;
 }
 
-$urlparams['searchDateYear'] = "";
-if (strlen($searchDateYear) > 0) {
-    $urlparams['searchDateYear'] = $searchDateYear;
+$urlparams['searchdateyear'] = "";
+if (strlen($searchdateyear) > 0) {
+    $urlparams['searchdateyear'] = $searchdateyear;
 }
 
 $checked = false;
-$urlparams['searchDate'] = "";
-if ($searchDate == 1) {
-    $urlparams['searchDate'] = $searchDate;
+$urlparams['searchdate'] = "";
+if ($searchdate == 1) {
+    $urlparams['searchdate'] = $searchdate;
     $checked = true;
     $timestamp = strtotime(
-            "{$urlparams['searchDateDay']}-{$urlparams['searchDateMonth']}-{$urlparams['searchDateYear']}");
+            "{$urlparams['searchdateday']}-{$urlparams['searchdatemonth']}-{$urlparams['searchdateyear']}");
     $addSQLWhere .= " AND FROM_UNIXTIME(ba.timecreated, '%Y') = :searchdateyear AND FROM_UNIXTIME(ba.timecreated, '%c') = :searchdatemonth AND FROM_UNIXTIME(ba.timecreated, '%e') = :searchdateday";
-    $sqlValues['searchdateyear'] = $urlparams['searchDateYear'];
-    $sqlValues['searchdatemonth'] = $urlparams['searchDateMonth'];
-    $sqlValues['searchdateday'] = $urlparams['searchDateDay'];
+    $sqlValues['searchdateyear'] = $urlparams['searchdateyear'];
+    $sqlValues['searchdatemonth'] = $urlparams['searchdatemonth'];
+    $sqlValues['searchdateday'] = $urlparams['searchdateday'];
     $searching = true;
 }
 
-$urlparams['searchFinished'] = "";
-if (strlen($searchFinished) > 0) {
-    $urlparams['searchFinished'] = $searchFinished;
-    $sqlValues['completed'] = $searchFinished;
+$urlparams['searchfinished'] = "";
+if (strlen($searchfinished) > 0) {
+    $urlparams['searchfinished'] = $searchfinished;
+    $sqlValues['completed'] = $searchfinished;
     $addSQLWhere .= ' AND ba.completed = :completed ';
     $searching = true;
 }
@@ -328,16 +326,16 @@ if (!$tableallbookings->is_downloading()) {
                         get_string('selectatleastoneuser', 'booking',
                                 $bookingdata->option->howmanyusers), 5);
             }
-            $bookingdata->get_users();
+            $alluserids = $bookingdata->get_all_userids();
             $bookedusers = array();
             $ratings = array();
-            foreach ($bookingdata->users as $baid => $object) {
-                if (in_array($object->id, $allselectedusers) && $object->userid != $USER->id) {
+            foreach ($alluserids as $baid => $userid) {
+                if (in_array($userid, $allselectedusers) && $userid != $USER->id) {
                     $rating = new stdClass();
-                    $bookedusers[$object->userid] = $baid;
-                    $bookinganswerid = "rating" . $bookedusers[$object->userid];
+                    $bookedusers[$userid] = $baid;
+                    $bookinganswerid = "rating" . $bookedusers[$userid];
 
-                    $rating->rateduserid = $object->userid;
+                    $rating->rateduserid = $userid;
                     $rating->itemid = $baid;
                     $rating->rating = $_POST[$bookinganswerid];
                     $ratings[$baid] = $rating;
@@ -348,10 +346,13 @@ if (!$tableallbookings->is_downloading()) {
                     $params->returnurl = $returnurl;
                 }
             }
-            booking_rate($ratings, $params);
-            redirect($url,
-                    (empty($bookingdata->option->notificationtext) ? get_string('ratingsuccess',
-                            'booking') : $bookingdata->option->notificationtext), 5);
+            if(!empty($ratings)){
+                booking_rate($ratings, $params);
+                redirect($url,
+                        (empty($bookingdata->option->notificationtext) ? get_string('ratingsuccess',
+                                'booking') : $bookingdata->option->notificationtext), 5);
+            }
+
         } else if (isset($_POST['sendreminderemail']) &&
                  has_capability('mod/booking:communicate', $context)) {
             if (empty($allselectedusers)) {
@@ -446,10 +447,10 @@ if (!$tableallbookings->is_downloading()) {
             ba.waitinglist,
             otherbookingoption.text AS otheroptions,
             ba.numrec';
-    $from = ' {booking_answers} AS ba
-            JOIN {user} AS u ON u.id = ba.userid
-            JOIN {booking_options} AS bo ON bo.id = ba.optionid
-            LEFT JOIN {booking_options} AS otherbookingoption ON otherbookingoption.id = ba.frombookingid ';
+    $from = ' {booking_answers} ba
+            JOIN {user} u ON u.id = ba.userid
+            JOIN {booking_options} bo ON bo.id = ba.optionid
+            LEFT JOIN {booking_options} otherbookingoption ON otherbookingoption.id = ba.frombookingid ';
     $where = ' ba.optionid = :optionid ' . $addSQLWhere;
 
     $tableallbookings->set_sql($fields, $from, $where, $sqlValues);
@@ -528,29 +529,29 @@ if (!$tableallbookings->is_downloading()) {
     $hidden = "";
 
     foreach ($urlparams as $key => $value) {
-        $arr = array('searchDate', 'searchFinished');
+        $arr = array('searchdate', 'searchfinished');
         if (!in_array($key, $arr)) {
             $hidden .= '<input value="' . $value . '" type="hidden" name="' . $key . '">';
         }
     }
 
     $row = new html_table_row(
-            array(get_string('searchDate', "booking"),
+            array(get_string('searchdate', "booking"),
                 $hidden .
-                         html_writer::checkbox('searchDate', '1', $checked, '',
-                                array('id' => 'searchDate')) .
-                         html_writer::select_time('days', 'searchDateDay', $timestamp, 5) . ' ' .
-                         html_writer::select_time('months', 'searchDateMonth', $timestamp, 5) . ' ' .
-                         html_writer::select_time('years', 'searchDateYear', $timestamp, 5), "", ""));
+                         html_writer::checkbox('searchdate', '1', $checked, '',
+                                array('id' => 'searchdate')) .
+                         html_writer::select_time('days', 'searchdateday', $timestamp, 5) . ' ' .
+                         html_writer::select_time('months', 'searchdatemonth', $timestamp, 5) . ' ' .
+                         html_writer::select_time('years', 'searchdateyear', $timestamp, 5), "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 
     $row = new html_table_row(
-            array(get_string('searchFinished', "booking"),
+            array(get_string('searchfinished', "booking"),
                 html_writer::select(
                         array('0' => get_string('no', "booking"),
-                            '1' => get_string('yes', "booking")), 'searchFinished',
-                        $urlparams['searchFinished']), "", ""));
+                            '1' => get_string('yes', "booking")), 'searchfinished',
+                        $urlparams['searchfinished']), "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 
@@ -696,7 +697,7 @@ if (!$tableallbookings->is_downloading()) {
     $columns[] = 'email';
     $headers[] = get_string("email");
     $columns[] = 'completed';
-    $headers[] = get_string("searchFinished", "booking");
+    $headers[] = get_string("searchfinished", "booking");
     $columns[] = 'waitinglist';
     $headers[] = get_string("waitinglist", "booking");
 

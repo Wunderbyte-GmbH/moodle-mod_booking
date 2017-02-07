@@ -25,6 +25,9 @@ namespace mod_booking;
  */
 class booking_option extends booking {
 
+    /** @var array key is booking_answer id, value userid, all users with answers (waitlist and regular) */
+    protected $alluserids = array();
+
     /** @var array of the users booked for this option key userid */
     public $bookedusers = array();
 
@@ -45,17 +48,22 @@ class booking_option extends booking {
     /** @var array of users filters */
     public $filters = array();
 
-    /** @var array of users objects - filtered */
+    /** @var array of all user objects (waitinglist and regular) - filtered */
     public $users = array();
 
+    /** @var array of user objects with regular bookings NO waitinglist */
     public $usersonlist = array();
 
+    /** @var array of user objects with users on waitinglist */
     public $usersonwaitinglist = array();
-    // Pagination
+
+    /** @var the number of the page starting with 0 */
     public $page = 0;
 
+    /** @var the number of bookings displayed on a single page */
     public $perpage = 0;
 
+    /** @var  */
     public $canbooktootherbooking = 0;
 
     /**
@@ -197,7 +205,12 @@ class booking_option extends booking {
                          $this->optionid . '');
     }
 
-    // Get all users with filters
+    /**
+     * Get all users filtered,and save them in
+     * $this->users all users (booked and waitinglist)
+     * $this->usersonwaitinglist waitinglist users
+     * $this->usersonlist booked users
+     */
     public function get_users() {
         global $DB;
         $params = array();
@@ -205,18 +218,17 @@ class booking_option extends booking {
         $options = "ba.optionid = :optionid";
         $params['optionid'] = $this->optionid;
 
-        if (isset($this->filters['searchFinished']) && strlen($this->filters['searchFinished']) > 0) {
+        if (isset($this->filters['searchfinished']) && strlen($this->filters['searchfinished']) > 0) {
             $options .= " AND ba.completed = :completed";
-            $params['completed'] = $this->filters['searchFinished'];
+            $params['completed'] = $this->filters['searchfinished'];
         }
-
-        if (isset($this->filters['searchDate']) && $this->filters['searchDate'] == 1) {
+        if (isset($this->filters['searchdate']) && $this->filters['searchdate'] == 1) {
             $options .= " AND FROM_UNIXTIME(ba.timecreated, '%Y') = :searchdateyear
                     AND FROM_UNIXTIME(ba.timecreated, '%m') = :searchdatemonth
                     AND FROM_UNIXTIME(ba.timecreated, '%d') = :searchdateday";
-            $params['searchdateyear'] = $this->filters['searchDateYear'];
-            $params['searchdatemonth'] = $this->filters['searchDateMonth'];
-            $params['searchdateday'] = $this->filters['searchDateDay'];
+            $params['searchdateyear'] = $this->filters['searchdateyear'];
+            $params['searchdatemonth'] = $this->filters['searchdatemonth'];
+            $params['searchdateday'] = $this->filters['searchdateday'];
         }
 
         if (isset($this->filters['searchname']) && strlen($this->filters['searchname']) > 0) {
@@ -229,14 +241,11 @@ class booking_option extends booking {
             $params['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
         }
 
-        $mainuserfields = explode(',', \user_picture::fields());
-        foreach ($mainuserfields as $key => $value) {
-            $mainuserfields[$key] = 'u.' . $value;
-        }
-        $mainuserfields = implode(', ', $mainuserfields);
-        $DB->sql_fullname();
-        $this->users = $DB->get_records_sql(
-                'SELECT ba.id AS aid,
+        $limitfrom =  $this->perpage * $this->page;
+        $numberofrecords = $this->perpage;
+        $mainuserfields = get_all_user_name_fields(true, 'u');
+
+        $sql = 'SELECT ba.id AS aid,
                 ba.bookingid,
                 ba.numrec,
                 ba.userid,
@@ -244,11 +253,15 @@ class booking_option extends booking {
                 ba.timemodified,
                 ba.completed,
                 ba.timecreated,
-                ba.waitinglist, ' . $mainuserfields . ', ' .
-                         $DB->sql_fullname('u.firstname', 'u.lastname') .
-                         ' AS fullname FROM {booking_answers} ba LEFT JOIN {user} u ON ba.userid = u.id WHERE ' .
-                         $options . ' ORDER BY ba.optionid, ba.timemodified DESC', $params,
-                        $this->perpage * $this->page, $this->perpage);
+                ba.waitinglist,
+                ' . $mainuserfields . ', ' .
+                $DB->sql_fullname('u.firstname', 'u.lastname') . ' AS fullname
+                FROM {booking_answers} ba
+                LEFT JOIN {user} u ON ba.userid = u.id
+                WHERE ' .$options . '
+                ORDER BY ba.optionid, ba.timemodified DESC';
+
+        $this->users = $DB->get_records_sql($sql, $params, $limitfrom, $numberofrecords);
 
         foreach ($this->users as $user) {
             if ($user->waitinglist == 1) {
@@ -259,51 +272,17 @@ class booking_option extends booking {
         }
     }
 
-    // Get all users...filtered!
-    public function get_all_users() {
+    /**
+     * Get all answers (bookings) as an array from booking_answer id as key, userid as value regular AND waitinglist
+     * @return array of userids $this->alluserids
+     */
+    public function get_all_userids() {
         global $DB;
-        $params = array();
-
-        $options = "{booking_answers}.optionid = :optionid";
-        $params['optionid'] = $this->optionid;
-
-        if (isset($this->filters['searchFinished']) && strlen($this->filters['searchFinished']) > 0) {
-            $options .= " AND {booking_answers}.completed = :completed";
-            $params['completed'] = $this->filters['searchFinished'];
+        if (empty($this->alluserids)){
+            $conditions = array('optionid' => $this->optionid);
+            $this->alluserids = $DB->get_records_menu('booking_answers', $conditions, null, 'id, userid');
         }
-
-        if (isset($this->filters['searchDate']) && $this->filters['searchDate'] == 1) {
-            $options .= " AND FROM_UNIXTIME({booking_answers}.timecreated, '%Y') = :searchdateyear
-                    AND FROM_UNIXTIME({booking_answers}.timecreated, '%m') = :searchdatemonth
-                    AND FROM_UNIXTIME({booking_answers}.timecreated, '%d') = :searchdateday";
-            $params['searchdateyear'] = $this->filters['searchDateYear'];
-            $params['searchdatemonth'] = $this->filters['searchDateMonth'];
-            $params['searchdateday'] = $this->filters['searchDateDay'];
-        }
-
-        if (isset($this->filters['searchname']) && strlen($this->filters['searchname']) > 0) {
-            $options .= " AND {user}.firstname LIKE :searchname";
-            $params['searchname'] = '%' . $this->filters['searchname'] . '%';
-        }
-
-        if (isset($this->filters['searchsurname']) && strlen($this->filters['searchsurname']) > 0) {
-            $options .= " AND {user}.lastname LIKE :searchsurname";
-            $params['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
-        }
-
-        $mainuserfields = \user_picture::fields('{user}', null);
-
-        return $DB->get_records_sql(
-                'SELECT {booking_answers}.id AS aid,
-                {booking_answers}.bookingid, {booking_answers}.userid,
-                {booking_answers}.optionid, {booking_answers}.timemodified,
-                {booking_answers}.completed, {booking_answers}.timecreated,
-                {booking_answers}.waitinglist, {booking_answers}.numrec, ' .
-                         $mainuserfields .
-                         ' FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' .
-                         $options .
-                         ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC',
-                        $params);
+        return $this->alluserids;
     }
 
     /**
@@ -318,18 +297,18 @@ class booking_option extends booking {
         $options = "{booking_answers}.optionid = :optionid";
         $params['optionid'] = $this->optionid;
 
-        if (isset($this->filters['searchFinished']) && strlen($this->filters['searchFinished']) > 0) {
+        if (isset($this->filters['searchfinished']) && strlen($this->filters['searchfinished']) > 0) {
             $options .= " AND {booking_answers}.completed = :completed";
-            $params['completed'] = $this->filters['searchFinished'];
+            $params['completed'] = $this->filters['searchfinished'];
         }
 
-        if (isset($this->filters['searchDate']) && $this->filters['searchDate'] == 1) {
+        if (isset($this->filters['searchdate']) && $this->filters['searchdate'] == 1) {
             $options .= " AND FROM_UNIXTIME({booking_answers}.timecreated, '%Y') = :searchdateyear
                     AND FROM_UNIXTIME({booking_answers}.timecreated, '%m') = :searchdatemonth
                     AND FROM_UNIXTIME({booking_answers}.timecreated, '%d') = :searchdateday";
-            $params['searchdateyear'] = $this->filters['searchDateYear'];
-            $params['searchdatemonth'] = $this->filters['searchDateMonth'];
-            $params['searchdateday'] = $this->filters['searchDateDay'];
+            $params['searchdateyear'] = $this->filters['searchdateyear'];
+            $params['searchdatemonth'] = $this->filters['searchdatemonth'];
+            $params['searchdateday'] = $this->filters['searchdateday'];
         }
 
         if (isset($this->filters['searchname']) && strlen($this->filters['searchname']) > 0) {

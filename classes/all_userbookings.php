@@ -87,7 +87,7 @@ class all_userbookings extends table_sql {
         return '';
     }
 
-    protected function col_fullname($values) {
+    public function col_fullname($values) {
         if (empty($values->otheroptions)) {
             return html_writer::link(
                     new moodle_url('/user/profile.php', array('id' => $values->userid)),
@@ -176,7 +176,7 @@ class all_userbookings extends table_sql {
      *
      * @return string return processed value. Return null if no change has been made.
      */
-    protected function other_cols($colname, $value) {
+    public function other_cols($colname, $value) {
         if (substr($colname, 0, 4) === "cust") {
             $tmp = explode('|', $value->{$colname});
 
@@ -196,7 +196,12 @@ class all_userbookings extends table_sql {
         }
     }
 
-    protected function wrap_html_start() {
+    /**
+     *
+     * {@inheritDoc}
+     * @see flexible_table::wrap_html_start()
+     */
+    public function wrap_html_start() {
         echo '<form method="post" id="studentsform">' . "\n";
         $ratingoptions = $this->ratingoptions;
         if (!empty($ratingoptions)) {
@@ -208,7 +213,12 @@ class all_userbookings extends table_sql {
         }
     }
 
-    protected function wrap_html_finish() {
+    /**
+     *
+     * {@inheritDoc}
+     * @see flexible_table::wrap_html_finish()
+     */
+    public function wrap_html_finish() {
         global $DB;
         echo '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
 

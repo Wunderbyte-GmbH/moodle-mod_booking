@@ -30,7 +30,7 @@ class unbooked_users extends table_sql {
      *
      * @param int $uniqueid all tables have to have a unique id, this is used as a key when storing table properties like sort order in the session.
      */
-    function __construct($uniqueid) {
+    public function __construct($uniqueid) {
         parent::__construct($uniqueid);
         // Define the list of columns to show.
         $columns = array('selected', 'completed', 'institution', 'fullname', 'timecreated');
@@ -53,7 +53,7 @@ class unbooked_users extends table_sql {
      * @param object $values Contains object with all the values of record.
      * @return $string Return username with link to profile or username only when downloading.
      */
-    function col_timecreated($values) {
+    public function col_timecreated($values) {
         if ($values->timecreated > 0) {
             return userdate($values->timecreated);
         }
@@ -61,7 +61,7 @@ class unbooked_users extends table_sql {
         return '';
     }
 
-    function col_completed($values) {
+    public function col_completed($values) {
         if ($values->completed) {
             return '&#x2713;';
         }
@@ -69,7 +69,7 @@ class unbooked_users extends table_sql {
         return '';
     }
 
-    function col_selected($values) {
+    public function col_selected($values) {
         if (!$this->is_downloading()) {
             return '<input type="checkbox" class="usercheckbox" name="user[][' . $values->userid .
                      ']" value="' . $values->userid . '" />';
@@ -83,6 +83,6 @@ class unbooked_users extends table_sql {
      *
      * @return string return processed value. Return null if no change has been made.
      */
-    function other_cols($colname, $value) {
+    public function other_cols($colname, $value) {
     }
 }
