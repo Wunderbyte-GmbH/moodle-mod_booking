@@ -15,16 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
  * Import options or just add new users from CSV
- *
- * @package Booking
- * @copyright 2014 Andraž Prinčič www.princic.net
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+*
+* @package Booking
+* @copyright 2014 Andraž Prinčič www.princic.net
+* @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+*/
 require_once("../../config.php");
 require_once("locallib.php");
 require_once('institutioncsv_form.php');
 
-$id = required_param('courseid', PARAM_INT); // Course Module ID
+$id = required_param('courseid', PARAM_INT); // Course Module ID.
 
 $url = new moodle_url('/mod/booking/institutioncsv.php', array('courseid' => $id));
 $urlredirect = new moodle_url('/mod/booking/institutions.php', array('courseid' => $id));
@@ -45,13 +45,13 @@ $PAGE->set_title(get_string("importcsvtitle", "booking"));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('standard');
 
-$mform = new importoptions_form($url);
+$mform = new institutioncsv_form($url);
 
 $completion = new completion_info($course);
 
-// Form processing and displaying is done here
+// Form processing and displaying is done here.
 if ($mform->is_cancelled()) {
-    // Handle form cancel operation, if cancel button is present on form
+    // Handle form cancel operation, if cancel button is present on form.
     redirect($urlredirect, '', 0);
     die();
 } else if ($fromform = $mform->get_data()) {
@@ -59,17 +59,17 @@ if ($mform->is_cancelled()) {
     $csvfile = $mform->get_file_content('csvfile');
 
     $lines = explode(PHP_EOL, $csvfile);
-    $csvArr = array();
+    $csvarr = array();
     foreach ($lines as $line) {
-        $csvArr[] = str_getcsv($line);
+        $csvarr[] = str_getcsv($line);
     }
 
-    // Check if CSV is ok
+    // Check if CSV is ok.
 
-    if ($csvArr[0][0] == 'Institution') {
-        array_shift($csvArr);
+    if ($csvarr[0][0] == 'Institution') {
+        array_shift($csvarr);
 
-        foreach ($csvArr as $line) {
+        foreach ($csvarr as $line) {
 
             if (count($line) == 1 && !empty($line[0])) {
 

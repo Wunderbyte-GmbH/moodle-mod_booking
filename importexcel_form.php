@@ -18,7 +18,11 @@ require_once("$CFG->libdir/formslib.php");
 
 class importexcel_form extends moodleform {
 
-    // Add elements to form
+    /**
+     *
+     * {@inheritDoc}
+     * @see moodleform::definition()
+     */
     public function definition() {
         global $CFG;
 
@@ -31,8 +35,12 @@ class importexcel_form extends moodleform {
         $this->add_action_buttons(true, get_string('importexceltitle', 'booking'));
     }
 
-    // Custom validation should be added here
-    function validation($data, $files) {
+    /**
+     *
+     * {@inheritDoc}
+     * @see moodleform::validation()
+     */
+    public function validation($data, $files) {
         return array();
     }
 }

@@ -43,9 +43,9 @@ if ($usesections) {
 }
 
 $sql = "SELECT cha.*
-              FROM {booking} AS ch, {booking_answers} AS cha
-             WHERE cha.bookingid = ch.id AND
-                   ch.course = $course->id AND cha.userid = $USER->id";
+FROM {booking} AS ch, {booking_answers} AS cha
+WHERE cha.bookingid = ch.id AND
+ch.course = $course->id AND cha.userid = $USER->id";
 
 $answers = array();
 if (isloggedin() and !isguestuser() and $allanswers = $DB->get_records_sql($sql)) {
@@ -61,11 +61,11 @@ $timenow = time();
 
 if ($course->format == "weeks") {
     $table->head = array(get_string("week", "booking"), get_string("question", "booking"),
-        get_string("answer", "booking"));
+                    get_string("answer", "booking"));
     $table->align = array("center", "left", "left");
 } else if ($course->format == "topics") {
     $table->head = array(get_string("topic", "booking"), get_string("question", "booking"),
-        get_string("answer", "booking"));
+                    get_string("answer", "booking"));
     $table->align = array("center", "left", "left");
 } else {
     $table->head = array(get_string("question", "booking"), get_string("answer", "booking"));
@@ -99,18 +99,18 @@ foreach ($bookings as $booking) {
     // Calculate the href
     if (!$booking->visible) {
         // Show dimmed if the mod is hidden
-        $tt_href = "<a class=\"dimmed\" href=\"view.php?id=$booking->coursemodule\">" .
-                 format_string($booking->name, true) . "</a>";
+        $tthref = "<a class=\"dimmed\" href=\"view.php?id=$booking->coursemodule\">" .
+        format_string($booking->name, true) . "</a>";
     } else {
         // Show normal if the mod is visible
-        $tt_href = "<a href=\"view.php?id=$booking->coursemodule\">" .
-                 format_string($booking->name, true) . "</a>";
+        $tthref = "<a href=\"view.php?id=$booking->coursemodule\">" .
+        format_string($booking->name, true) . "</a>";
     }
 
     if ($course->format == "weeks" || $course->format == "topics") {
-        $table->data[] = array($printsection, $tt_href, $aa);
+        $table->data[] = array($printsection, $tthref, $aa);
     } else {
-        $table->data[] = array($tt_href, $aa);
+        $table->data[] = array($tthref, $aa);
     }
 }
 echo "<br />";

@@ -15,21 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
  * Import options or just add new users from CSV
- *
- * @package Booking
- * @copyright 2014 Andraž Prinčič www.princic.net
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+*
+* @package Booking
+* @copyright 2014 Andraž Prinčič www.princic.net
+* @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+*/
 require_once("../../config.php");
 require_once("lib.php");
 require_once('importoptions_form.php');
 
-function modbooking_fixEncoding($in_str) {
-    $cur_encoding = mb_detect_encoding($in_str);
-    if ($cur_encoding == "UTF-8" && mb_check_encoding($in_str, "UTF-8")) {
-        return $in_str;
+function modbooking_fixEncoding($instr) {
+    $curencoding = mb_detect_encoding($instr);
+    if ($curencoding == "UTF-8" && mb_check_encoding($instr, "UTF-8")) {
+        return $instr;
     } else {
-        return utf8_encode($in_str);
+        return utf8_encode($instr);
     }
 }
 
@@ -76,154 +76,154 @@ if ($mform->is_cancelled()) {
     $csvfile = $mform->get_file_content('csvfile');
 
     $lines = explode(PHP_EOL, $csvfile);
-    $csvArr = array();
+    $csvarr = array();
     foreach ($lines as $line) {
-        $csvArr[] = str_getcsv($line);
+        $csvarr[] = str_getcsv($line);
     }
 
     // Check if CSV is ok
 
-    if ($csvArr[0][0] == 'name' && $csvArr[0][1] == 'startdate' && $csvArr[0][2] == 'enddate' &&
-             $csvArr[0][3] == 'institution' && $csvArr[0][4] == 'institutionaddress' &&
-             $csvArr[0][5] == 'teacheremail' && $csvArr[0][6] == 'useremail' &&
-             $csvArr[0][7] == 'finished' && $csvArr[0][8] == 'maxanswers' &&
-             $csvArr[0][9] == 'maxoverbooking' && $csvArr[0][10] == 'limitanswers' &&
-             $csvArr[0][11] == 'location') {
-        array_shift($csvArr);
-        $i = 0;
-        foreach ($csvArr as $line) {
+    if ($csvarr[0][0] == 'name' && $csvarr[0][1] == 'startdate' && $csvarr[0][2] == 'enddate' &&
+            $csvarr[0][3] == 'institution' && $csvarr[0][4] == 'institutionaddress' &&
+            $csvarr[0][5] == 'teacheremail' && $csvarr[0][6] == 'useremail' &&
+            $csvarr[0][7] == 'finished' && $csvarr[0][8] == 'maxanswers' &&
+            $csvarr[0][9] == 'maxoverbooking' && $csvarr[0][10] == 'limitanswers' &&
+            $csvarr[0][11] == 'location') {
+                array_shift($csvarr);
+                $i = 0;
+                foreach ($csvarr as $line) {
 
-            $i++;
+                    $i++;
 
-            if (count($line) == 12) {
+                    if (count($line) == 12) {
 
-                $user = false;
-                $teacher = false;
-                $booking_option = false;
-                $startDate = 0;
-                $endDate = 0;
+                        $user = false;
+                        $teacher = false;
+                        $bookingoption = false;
+                        $startdate = 0;
+                        $enddate = 0;
 
-                $booking_option_name = $booking->name;
+                        $bookingoptionname = $booking->name;
 
-                if (trim($line[1]) != 0) {
-                    $startDate = date_create_from_format("!" . $fromform->dateparseformat, $line[1]);
-                    $startDate = $startDate->getTimestamp();
-                }
-
-                $dErors = DateTime::getLastErrors();
-                if ($dErors['error_count'] > 0) {
-
-                    echo $OUTPUT->notification(
-                            get_string('dateerror', 'booking', $i) . implode(', ', $line));
-
-                    continue;
-                }
-
-                if (trim($line[2]) != 0) {
-                    $endDate = date_create_from_format("!" . $fromform->dateparseformat, $line[2]);
-                    $endDate = $endDate->getTimestamp();
-                }
-
-                $dErors = DateTime::getLastErrors();
-                if ($dErors['error_count'] > 0) {
-
-                    echo $OUTPUT->notification(
-                            get_string('dateerror', 'booking', $i) . implode(', ', $line));
-
-                    continue;
-                }
-
-                if (strlen(trim($line[5])) > 0) {
-                    $teacher = $DB->get_record('user', array('email' => $line[5]));
-                }
-
-                if (strlen(trim($line[6])) > 0) {
-                    $user = $DB->get_record('user',
-                            array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
-                                'email' => $line[6]), '*', IGNORE_MULTIPLE);
-                }
-
-                if (strlen(trim($line[0])) > 0) {
-                    $booking_option_name = $line[0];
-                }
-
-                $booking_option = $DB->get_record_sql(
-                        'SELECT * FROM {booking_options} WHERE institution LIKE :institution AND text LIKE :text AND bookingid = :bookingid AND coursestarttime = :coursestarttime',
-                        array('institution' => $line[3], 'text' => $booking_option_name,
-                            'bookingid' => $booking->id, 'coursestarttime' => $startDate));
-
-                if (empty($booking_option)) {
-                    $bookingObject = new stdClass();
-                    $bookingObject->bookingid = $booking->id;
-                    $bookingObject->text = modbooking_fixEncoding($booking_option_name);
-                    $bookingObject->description = '';
-                    $bookingObject->courseid = $booking->course;
-                    $bookingObject->coursestarttime = $startDate;
-                    $bookingObject->courseendtime = $endDate;
-                    $bookingObject->institution = modbooking_fixEncoding($line[3]);
-                    $bookingObject->address = modbooking_fixEncoding($line[4]);
-                    $bookingObject->maxanswers = $line[8];
-                    $bookingObject->maxoverbooking = $line[9];
-                    $bookingObject->limitanswers = $line[10];
-                    $bookingObject->location = modbooking_fixEncoding($line[11]);
-
-                    $bid = $DB->insert_record('booking_options', $bookingObject, true);
-
-                    $bookingObject->id = $bid;
-                    $booking_option = $bookingObject;
-                }
-
-                if ($teacher) {
-                    $getUser = $DB->get_record('booking_teachers',
-                            array('bookingid' => $booking->id, 'userid' => $teacher->id,
-                                'optionid' => $booking_option->id));
-
-                    if ($getUser === false) {
-                        $newTeacher = new stdClass();
-                        $newTeacher->bookingid = $booking->id;
-                        $newTeacher->userid = $teacher->id;
-                        $newTeacher->optionid = $booking_option->id;
-
-                        $DB->insert_record('booking_teachers', $newTeacher, true);
-                    }
-                } else {
-                    echo $OUTPUT->notification(
-                            get_string('noteacherfound', 'booking', $i) . $line[5]);
-                }
-
-                if ($user) {
-                    $getUser = $DB->get_record('booking_answers',
-                            array('bookingid' => $booking->id, 'userid' => $user->id,
-                                'optionid' => $booking_option->id));
-
-                    if ($getUser === false) {
-                        $bookingdata = new \mod_booking\booking_option($cm->id, $booking_option->id,
-                                array(), 0, 0, false);
-                        $bookingdata->user_submit_response($user);
-
-                        if ($completion->is_enabled($cm) && $bookingdata->booking->enablecompletion &&
-                                 $line[7] == 0) {
-                            $completion->update_state($cm, COMPLETION_INCOMPLETE, $user->id);
+                        if (trim($line[1]) != 0) {
+                            $startdate = date_create_from_format("!" . $fromform->dateparseformat, $line[1]);
+                            $startdate = $startdate->getTimestamp();
                         }
 
-                        if ($completion->is_enabled($cm) && $bookingdata->booking->enablecompletion &&
-                                 $line[7] == 1) {
-                            $completion->update_state($cm, COMPLETION_COMPLETE, $user->id);
+                        $derors = DateTime::getLastErrors();
+                        if ($derors['error_count'] > 0) {
+
+                            echo $OUTPUT->notification(
+                                    get_string('dateerror', 'booking', $i) . implode(', ', $line));
+
+                            continue;
                         }
+
+                        if (trim($line[2]) != 0) {
+                            $enddate = date_create_from_format("!" . $fromform->dateparseformat, $line[2]);
+                            $enddate = $enddate->getTimestamp();
+                        }
+
+                        $derors = DateTime::getLastErrors();
+                        if ($derors['error_count'] > 0) {
+
+                            echo $OUTPUT->notification(
+                                    get_string('dateerror', 'booking', $i) . implode(', ', $line));
+
+                            continue;
+                        }
+
+                        if (strlen(trim($line[5])) > 0) {
+                            $teacher = $DB->get_record('user', array('email' => $line[5]));
+                        }
+
+                        if (strlen(trim($line[6])) > 0) {
+                            $user = $DB->get_record('user',
+                                    array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
+                                                    'email' => $line[6]), '*', IGNORE_MULTIPLE);
+                        }
+
+                        if (strlen(trim($line[0])) > 0) {
+                            $bookingoptionname = $line[0];
+                        }
+
+                        $bookingoption = $DB->get_record_sql(
+                                'SELECT * FROM {booking_options} WHERE institution LIKE :institution AND text LIKE :text AND bookingid = :bookingid AND coursestarttime = :coursestarttime',
+                                array('institution' => $line[3], 'text' => $bookingoptionname,
+                                                'bookingid' => $booking->id, 'coursestarttime' => $startdate));
+
+                                if (empty($bookingoption)) {
+                                    $bookingobject = new stdClass();
+                                    $bookingobject->bookingid = $booking->id;
+                                    $bookingobject->text = modbooking_fixEncoding($bookingoptionname);
+                                    $bookingobject->description = '';
+                                    $bookingobject->courseid = $booking->course;
+                                    $bookingobject->coursestarttime = $startdate;
+                                    $bookingobject->courseendtime = $enddate;
+                                    $bookingobject->institution = modbooking_fixEncoding($line[3]);
+                                    $bookingobject->address = modbooking_fixEncoding($line[4]);
+                                    $bookingobject->maxanswers = $line[8];
+                                    $bookingobject->maxoverbooking = $line[9];
+                                    $bookingobject->limitanswers = $line[10];
+                                    $bookingobject->location = modbooking_fixEncoding($line[11]);
+
+                                    $bid = $DB->insert_record('booking_options', $bookingobject, true);
+
+                                    $bookingobject->id = $bid;
+                                    $bookingoption = $bookingobject;
+                                }
+
+                                if ($teacher) {
+                                    $getuser = $DB->get_record('booking_teachers',
+                                            array('bookingid' => $booking->id, 'userid' => $teacher->id,
+                                                            'optionid' => $bookingoption->id));
+
+                                            if ($getuser === false) {
+                                                $newteacher = new stdClass();
+                                                $newteacher->bookingid = $booking->id;
+                                                $newteacher->userid = $teacher->id;
+                                                $newteacher->optionid = $bookingoption->id;
+
+                                                $DB->insert_record('booking_teachers', $newteacher, true);
+                                            }
+                                } else {
+                                    echo $OUTPUT->notification(
+                                            get_string('noteacherfound', 'booking', $i) . $line[5]);
+                                }
+
+                                if ($user) {
+                                    $getuser = $DB->get_record('booking_answers',
+                                            array('bookingid' => $booking->id, 'userid' => $user->id,
+                                                            'optionid' => $bookingoption->id));
+
+                                            if ($getuser === false) {
+                                                $bookingdata = new \mod_booking\booking_option($cm->id, $bookingoption->id,
+                                                        array(), 0, 0, false);
+                                                $bookingdata->user_submit_response($user);
+
+                                                if ($completion->is_enabled($cm) && $bookingdata->booking->enablecompletion &&
+                                                        $line[7] == 0) {
+                                                            $completion->update_state($cm, COMPLETION_INCOMPLETE, $user->id);
+                                                        }
+
+                                                        if ($completion->is_enabled($cm) && $bookingdata->booking->enablecompletion &&
+                                                                $line[7] == 1) {
+                                                                    $completion->update_state($cm, COMPLETION_COMPLETE, $user->id);
+                                                                }
+                                            }
+                                } else {
+                                    echo $OUTPUT->notification(get_string('nouserfound', 'booking') . $line[6]);
+                                }
                     }
-                } else {
-                    echo $OUTPUT->notification(get_string('nouserfound', 'booking') . $line[6]);
                 }
+
+                echo $OUTPUT->box(get_string('importfinished', 'booking'));
+            } else {
+                // Not ok, write error!
+                echo $OUTPUT->notification(get_string('wrongfile', 'booking'));
             }
-        }
 
-        echo $OUTPUT->box(get_string('importfinished', 'booking'));
-    } else {
-        // Not ok, write error!
-        echo $OUTPUT->notification(get_string('wrongfile', 'booking'));
-    }
-
-    // In this case you process validated data. $mform->get_data() returns data posted in form.
+            // In this case you process validated data. $mform->get_data() returns data posted in form.
 } else {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string("importcsvtitle", "booking"), 3, 'helptitle', 'uniqueid');

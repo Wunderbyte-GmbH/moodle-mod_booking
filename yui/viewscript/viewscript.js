@@ -15,18 +15,12 @@ YUI.add('moodle-mod_booking-viewscript', function(Y, NAME) {
     // You should have received a copy of the GNU General Public License
     // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
-    /**
-     * 
-     * @package mod_booking
-     * @copyright 2016 David Bogner
-     * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-     * @main moodle-mod_booking-viewscript
-     */
-
-    /**
-     * @namespace M.mod_booking
-     * @class viewscript
-     */
+     // @package mod_booking
+     // @copyright 2016 David Bogner
+     // @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+     // @main moodle-mod_booking-viewscript
+     // @namespace M.mod_booking
+     // @class viewscript
 
     M.mod_booking = M.mod_booking || {};
     M.mod_booking.viewscript = {

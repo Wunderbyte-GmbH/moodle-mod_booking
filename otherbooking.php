@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
  * Import options or just add new users from CSV
- *
- * @package Booking
- * @copyright 2014 Andraž Prinčič www.princic.net
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+*
+* @package Booking
+* @copyright 2014 Andraž Prinčič www.princic.net
+* @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+*/
 require_once("../../config.php");
 require_once("locallib.php");
 
@@ -50,7 +50,7 @@ $PAGE->set_pagelayout('standard');
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("editotherbooking", "booking") . " [{$option->option->text}]", 3,
-        'helptitle', 'uniqueid');
+'helptitle', 'uniqueid');
 
 echo html_writer::link(
         new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)),
@@ -59,8 +59,8 @@ echo '<br>';
 
 $table = new html_table();
 $table->head = array(
-    (empty($option->booking->lblacceptingfrom) ? get_string('otherbookingoptions', 'booking') : $option->booking->lblacceptingfrom),
-    (empty($option->booking->lblnumofusers) ? get_string('otherbookingnumber', 'booking') : $option->booking->lblnumofusers));
+                (empty($option->booking->lblacceptingfrom) ? get_string('otherbookingoptions', 'booking') : $option->booking->lblacceptingfrom),
+                (empty($option->booking->lblnumofusers) ? get_string('otherbookingnumber', 'booking') : $option->booking->lblnumofusers));
 
 $rules = $DB->get_records_sql(
         "SELECT
@@ -71,7 +71,7 @@ FROM
 WHERE
     bo.optionid = ?", array($optionid));
 
-$rulesTable = array();
+$rulestable = array();
 
 foreach ($rules as $rule) {
 
@@ -89,12 +89,12 @@ foreach ($rules as $rule) {
             array('style' => 'text-align: left; display:table-cell;'));
     $button .= '</div>';
 
-    $rulesTable[] = array("{$rule->text}", $rule->userslimit,
-        html_writer::tag('span', $button,
-                array('style' => 'text-align: right; display:table-cell;')));
+    $rulestable[] = array("{$rule->text}", $rule->userslimit,
+    html_writer::tag('span', $button,
+            array('style' => 'text-align: right; display:table-cell;')));
 }
 
-$table->data = $rulesTable;
+$table->data = $rulestable;
 echo html_writer::table($table);
 
 $cancel = new moodle_url('report.php', array('id' => $cm->id, 'optionid' => $optionid));

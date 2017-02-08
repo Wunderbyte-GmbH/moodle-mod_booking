@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Manage bookings for a booking option
  *
@@ -20,12 +20,12 @@
  * @copyright 2012 David Bogner www.edulabs.org
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once("../../config.php");
-require_once("locallib.php");
-require_once("{$CFG->libdir}/tablelib.php");
-require_once("{$CFG->dirroot}/mod/booking/classes/all_userbookings.php");
-require_once("{$CFG->dirroot}/user/profile/lib.php");
-require_once($CFG->dirroot . '/rating/lib.php');
+require_once ("../../config.php");
+require_once ("locallib.php");
+require_once ("{$CFG->libdir}/tablelib.php");
+require_once ("{$CFG->dirroot}/mod/booking/classes/all_userbookings.php");
+require_once ("{$CFG->dirroot}/user/profile/lib.php");
+require_once ($CFG->dirroot . '/rating/lib.php');
 
 $id = required_param('id', PARAM_INT); // moduleid
 $optionid = required_param('optionid', PARAM_INT);
@@ -92,8 +92,9 @@ $urlparams['searchdate'] = "";
 if ($searchdate == 1) {
     $urlparams['searchdate'] = $searchdate;
     $checked = true;
-    $beginofday = strtotime("{$urlparams['searchdateday']}-{$urlparams['searchdatemonth']}-{$urlparams['searchdateyear']}");
-    $endofday   = strtotime("tomorrow", $beginofday) - 1;
+    $beginofday = strtotime(
+            "{$urlparams['searchdateday']}-{$urlparams['searchdatemonth']}-{$urlparams['searchdateyear']}");
+    $endofday = strtotime("tomorrow", $beginofday) - 1;
     $addsqlwhere .= " AND ba.timecreated BETWEEN :beginofday AND :endofday";
     $sqlvalues['beginofday'] = $beginofday;
     $sqlvalues['endofday'] = $endofday;
@@ -159,7 +160,8 @@ $bookingdata->apply_tags();
 $bookingdata->get_url_params();
 $bookingdata->get_teachers();
 
-if (!(booking_check_if_teacher($bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
+if (!(booking_check_if_teacher($bookingdata->option, $USER) ||
+         has_capability('mod/booking:readresponses', $context))) {
     require_capability('mod/booking:readresponses', $context);
 }
 
@@ -230,9 +232,8 @@ if (!$tableallbookings->is_downloading()) {
 
         $allselectedusers = array();
 
-        if (isset($_POST['generaterecnum']) &&
-                 (booking_check_if_teacher($bookingdata->option, $USER) ||
-                 has_capability('mod/booking:updatebooking', $context))) {
+        if (isset($_POST['generaterecnum']) && (booking_check_if_teacher($bookingdata->option,
+                $USER) || has_capability('mod/booking:updatebooking', $context))) {
             if (isset($_POST['user'])) {
                 foreach ($_POST['user'] as $value) {
                     $allselectedusers[] = array_keys($value)[0];
@@ -344,13 +345,12 @@ if (!$tableallbookings->is_downloading()) {
                     $params->returnurl = $returnurl;
                 }
             }
-            if(!empty($ratings)){
+            if (!empty($ratings)) {
                 booking_rate($ratings, $params);
                 redirect($url,
                         (empty($bookingdata->option->notificationtext) ? get_string('ratingsuccess',
                                 'booking') : $bookingdata->option->notificationtext), 5);
             }
-
         } else if (isset($_POST['sendreminderemail']) &&
                  has_capability('mod/booking:communicate', $context)) {
             if (empty($allselectedusers)) {
@@ -382,18 +382,18 @@ if (!$tableallbookings->is_downloading()) {
                                         $_POST['selectoptionid'])), 5);
             }
 
-            $connectedBooking = $DB->get_record("booking",
+            $connectedbooking = $DB->get_record("booking",
                     array('conectedbooking' => $bookingdata->booking->id), 'id', IGNORE_MULTIPLE);
 
             $tmpcmid = $DB->get_record_sql(
                     "SELECT cm.id FROM {course_modules} cm JOIN {modules} md ON md.id = cm.module JOIN {booking} m ON m.id = cm.instance WHERE md.name = 'booking' AND cm.instance = ?",
-                    array($connectedBooking->id));
-            $tmpBooking = new \mod_booking\booking_option($tmpcmid->id, $_POST['selectoptionid']);
+                    array($connectedbooking->id));
+            $tmpbooking = new \mod_booking\booking_option($tmpcmid->id, $_POST['selectoptionid']);
 
             foreach ($allselectedusers as $value) {
                 $user = new stdClass();
                 $user->id = $value;
-                if (!$tmpBooking->user_submit_response($user, $optionid)) {
+                if (!$tmpbooking->user_submit_response($user, $optionid)) {
                     redirect($url, get_string('bookingfulldidntregister', 'booking'), 5);
                 }
             }
@@ -630,10 +630,10 @@ if (!$tableallbookings->is_downloading()) {
     $tableallbookings->build_table();
     $tableallbookings->finish_output();
 
-    $onlyOneURL = new moodle_url('/mod/booking/view.php',
+    $onlyoneurl = new moodle_url('/mod/booking/view.php',
             array('id' => $id, 'optionid' => $optionid, 'action' => 'showonlyone',
                 'whichview' => 'showonlyone'));
-    $onlyOneURL->set_anchor('goenrol');
+    $onlyoneurl->set_anchor('goenrol');
 
     $pollurl = trim($bookingdata->option->pollurl);
     if (!empty($pollurl)) {
@@ -642,10 +642,10 @@ if (!$tableallbookings->is_downloading()) {
                  ($bookingdata->option->pollsend ? ' &#x2713;' : '') . ' | ';
     }
 
-    echo html_writer::link($onlyOneURL, get_string('onlythisbookingurl', 'booking'), array());
+    echo html_writer::link($onlyoneurl, get_string('onlythisbookingurl', 'booking'), array());
     echo ' | ' .
-             html_writer::link($onlyOneURL, get_string('copyonlythisbookingurl', 'booking'),
-                    array('onclick' => 'copyToClipboard("' . $onlyOneURL . '"); return false;')) .
+             html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
+                    array('onclick' => 'copyToClipboard("' . $onlyoneurl . '"); return false;')) .
              ' | ';
 
     $sign_in_sheet_URL = new moodle_url('/mod/booking/report.php',
@@ -656,8 +656,7 @@ if (!$tableallbookings->is_downloading()) {
 
     echo "<script>
   function copyToClipboard(text) {
-    window.prompt('" .
-             get_string('copytoclipboard', 'booking') . "', text);
+    window.prompt('" . get_string('copytoclipboard', 'booking') . "', text);
   }
 </script>";
 
@@ -716,20 +715,20 @@ if (!$tableallbookings->is_downloading()) {
     $headers[] = get_string("group");
 
     $fields = "u.id AS userid,
-                ba.optionid AS optionid,
-                bo.text AS booking,
-                u.institution AS institution,
-                bo.location AS location,
-                bo.coursestarttime AS coursestarttime,
-                bo.courseendtime AS courseendtime,
-                ba.numrec AS numrec,
-                u.firstname AS firstname,
-                u.lastname AS lastname,
-                u.username AS username,
-                u.email AS email,
-                ba.completed AS completed,
-                ba.numrec,
-                ba.waitinglist AS waitinglist {$customfields}";
+                    ba.optionid AS optionid,
+                    bo.text AS booking,
+                    u.institution AS institution,
+                    bo.location AS location,
+                    bo.coursestarttime AS coursestarttime,
+                    bo.courseendtime AS courseendtime,
+                    ba.numrec AS numrec,
+                    u.firstname AS firstname,
+                    u.lastname AS lastname,
+                    u.username AS username,
+                    u.email AS email,
+                    ba.completed AS completed,
+                    ba.numrec,
+                    ba.waitinglist AS waitinglist {$customfields}";
     $from = '{booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
     $where = 'ba.optionid = :optionid ' . $addsqlwhere;
 
@@ -746,8 +745,8 @@ if (!$tableallbookings->is_downloading()) {
             $groups = groups_get_user_groups($course->id, $option->userid);
             if (!empty($groups[0])) {
                 $groupids = implode(',', $groups[0]);
-                $groupnames = $DB->get_fieldset_select('groups', 'name', ' id IN (' . $groupids .
-                         ')');
+                $groupnames = $DB->get_fieldset_select('groups', 'name',
+                        ' id IN (' . $groupids . ')');
                 $option->groups = implode(', ', $groupnames);
             }
         }

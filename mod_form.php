@@ -24,7 +24,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 class mod_booking_mod_form extends moodleform_mod {
 
-    var $options = array();
+    public $options = array();
 
     /**
      * Return an array of categories catid as key and categoryname as value
@@ -34,14 +34,14 @@ class mod_booking_mod_form extends moodleform_mod {
      * @param unknown $options
      * @return array of course category names indexed by category id
      */
-    function showSubCategories($cat_id, $dashes = '', $options) {
+    function show_sub_categories($catid, $dashes = '', $options) {
         global $DB;
         $dashes .= '&nbsp;&nbsp;';
-        $categories = $DB->get_records('booking_category', array('cid' => $cat_id));
+        $categories = $DB->get_records('booking_category', array('cid' => $catid));
         if (count((array) $categories) > 0) {
             foreach ($categories as $category) {
                 $options[$category->id] = $dashes . $category->name;
-                $options = $this->showSubCategories($category->id, $dashes, $options);
+                $options = $this->show_sub_categories($category->id, $dashes, $options);
             }
         }
 
@@ -92,8 +92,8 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         $mform->addRule('eventtype', null, 'required', null, 'client');
 
-        $version_major = booking_get_moodle_version_major();
-        if ($version_major < '2015051100') {
+        $versionmajor = booking_get_moodle_version_major();
+        if ($versionmajor < '2015051100') {
             // This is valid before v2.9
             $this->add_intro_editor(false, get_string('bookingtext', 'booking'));
         } else {
@@ -387,8 +387,6 @@ class mod_booking_mod_form extends moodleform_mod {
                     '<a target="_blank" href="' . $taglink . '">' .
                              get_string('searchtag', 'booking') . '</a>');
             $mform->addElement('tags', 'tags', get_string('tags'));
-        } else {
-            // This is valid after v3.1
         }
 
         $options = array();
@@ -401,7 +399,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $options[$category->id] = $category->name;
             $subcategories = $DB->get_records('booking_category',
                     array('course' => $COURSE->id, 'cid' => $category->id));
-            $options = $this->showSubCategories($category->id, '', $options);
+            $options = $this->show_sub_categories($category->id, '', $options);
         }
 
         $mform->addElement('header', 'categoryheader', get_string('category', 'booking'));
@@ -456,7 +454,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
-    function data_preprocessing(&$defaultvalues) {
+    public function data_preprocessing(&$defaultvalues) {
         global $CFG;
         parent::data_preprocessing($defaultvalues);
         $options = array('subdirs' => false, 'maxfiles' => 50, 'accepted_types' => array('*'),

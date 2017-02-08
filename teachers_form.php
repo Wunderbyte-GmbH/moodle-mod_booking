@@ -32,20 +32,20 @@ class mod_booking_teachers_form extends moodleform {
                     $user->imagealt = '';
                 }
 
-                $userData = $DB->get_record('booking_teachers',
+                $userdata = $DB->get_record('booking_teachers',
                         array('optionid' => $this->_customdata['option']->id, 'userid' => $user->id));
 
-                $checkMark = "&nbsp;";
-                if ($userData->completed == '1') {
-                    $checkMark = "&#x2713;";
+                $checkmark = "&nbsp;";
+                if ($userdata->completed == '1') {
+                    $checkmark = "&#x2713;";
                 }
 
                 $arrow = "&nbsp;";
 
                 $mform->addElement('advcheckbox', "user[{$user->id}]",
-                        $checkMark . " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" .
-                                 fullname($user) . "</a>", '',
-                                array('group' => $this->_customdata['option']->id + 1));
+                $checkmark . " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" .
+                fullname($user) . "</a>", '',
+                array('group' => $this->_customdata['option']->id + 1));
             }
 
             $this->add_checkbox_controller($this->_customdata['option']->id + 1);

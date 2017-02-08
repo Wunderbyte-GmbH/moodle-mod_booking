@@ -78,12 +78,10 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
 
     if (data_submitted()) {
         require_sesskey();
-        /**
-         * It has to be one or the other, not both or neither
-         */
-        if (!($subscribe xor $unsubscribe)) {
+        // It has to be one or the other, not both or neither
+        // if (!($subscribe xor $unsubscribe)) {
             // print_error('invalidaction');
-        }
+        // }
         if ($subscribe) {
             $users = $subscriberselector->get_selected_users();
             // compare if selected users are members of the currentgroup if person has not the
@@ -140,12 +138,9 @@ if ($subscribesuccess || $unsubscribesuccess) {
     if ($subscribesuccess) {
         echo $OUTPUT->container(get_string('allchangessave', 'booking'), 'important', 'notice');
     }
-    if ($unsubscribesuccess &&
-             (has_capability('mod/booking:deleteresponses', $context) ||
-             (booking_check_if_teacher($bookingoption->option, $USER)))) {
+    if ($unsubscribesuccess && (has_capability('mod/booking:deleteresponses', $context) || (booking_check_if_teacher($bookingoption->option, $USER)))) {
         echo $OUTPUT->container(get_string('allchangessave', 'booking'), 'important', 'notice');
     }
-    ;
 }
 
 echo $bookingoutput->subscriber_selection_form($existingselector, $subscriberselector);

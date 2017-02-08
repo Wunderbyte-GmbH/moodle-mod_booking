@@ -96,9 +96,9 @@ if ($mform->is_cancelled()) {
             $fromform->limitanswers = 0;
         }
 
-        $nBooking = booking_update_options($fromform);
+        $nbooking = booking_update_options($fromform);
 
-        $bookingdata = new \mod_booking\booking_option($cm->id, $nBooking);
+        $bookingdata = new \mod_booking\booking_option($cm->id, $nbooking);
         $bookingdata->sync_waiting_list();
 
         if (isset($fromform->submittandaddnew)) {
@@ -107,7 +107,7 @@ if ($mform->is_cancelled()) {
             redirect($redirecturl, get_string('changessaved'), 0);
         } else {
             $redirecturl = new moodle_url('report.php',
-                    array('id' => $cm->id, 'optionid' => $nBooking));
+                    array('id' => $cm->id, 'optionid' => $nbooking));
             redirect($redirecturl, get_string('changessaved'), 0);
         }
     }

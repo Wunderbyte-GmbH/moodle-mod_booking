@@ -27,10 +27,10 @@ class remove_activity_completion extends \core\task\scheduled_task {
 
         $result = $DB->get_records_sql(
                 'SELECT ba.id, ba.bookingid, ba.optionid, ba.userid, b.course
-            FROM {booking_answers} AS ba
-            LEFT JOIN {booking_options} AS bo
+            FROM {booking_answers} ba
+            LEFT JOIN {booking_options} bo
             ON bo.id = ba.optionid
-            LEFT JOIN {booking} AS b
+            LEFT JOIN {booking} b
             ON b.id = bo.bookingid
             WHERE bo.removeafterminutes > 0
             AND ba.completed = 1
@@ -43,16 +43,16 @@ class remove_activity_completion extends \core\task\scheduled_task {
             $completion = new \completion_info($course);
             $cm = get_coursemodule_from_instance('booking', $value->bookingid);
 
-            $userData = $DB->get_record('booking_answers', array('id' => $value->id));
+            $userdata = $DB->get_record('booking_answers', array('id' => $value->id));
             $booking = $DB->get_record('booking', array('id' => $value->bookingid));
 
-            $userData->completed = '0';
-            $userData->timemodified = time();
+            $userdata->completed = '0';
+            $userdata->timemodified = time();
 
-            $DB->update_record('booking_answers', $userData);
+            $DB->update_record('booking_answers', $userdata);
 
             if ($completion->is_enabled($cm) && $booking->enablecompletion) {
-                $completion->update_state($cm, COMPLETION_INCOMPLETE, $userData->userid);
+                $completion->update_state($cm, COMPLETION_INCOMPLETE, $userdata->userid);
             }
         }
     }

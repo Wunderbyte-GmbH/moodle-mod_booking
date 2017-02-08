@@ -122,43 +122,43 @@ class booking_potential_user_selector extends booking_user_selector_base {
         $option->bookingid = $this->options['bookingid'];
 
         if (booking_check_if_teacher($option, $USER) &&
-                 !has_capability('mod/booking:readallinstitutionusers',
+                !has_capability('mod/booking:readallinstitutionusers',
                         $this->options['accesscontext'])) {
 
-            $institution = $DB->get_record('booking_options',
-                    array('id' => $this->options['optionid']));
+                            $institution = $DB->get_record('booking_options',
+                                    array('id' => $this->options['optionid']));
 
-            $searchparams['onlyinstitution'] = $institution->institution;
-            $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
-        }
+                            $searchparams['onlyinstitution'] = $institution->institution;
+                            $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
+                        }
 
-        $sql = " FROM {user} u WHERE $searchcondition AND u.id IN (SELECT nnn.id FROM ($esql) AS nnn WHERE nnn.id > 1) AND u.id NOT IN (SELECT ba.userid FROM {booking_answers} AS ba WHERE ba.optionid = {$this->options['optionid']})";
+                        $sql = " FROM {user} u WHERE $searchcondition AND u.id IN (SELECT nnn.id FROM ($esql) AS nnn WHERE nnn.id > 1) AND u.id NOT IN (SELECT ba.userid FROM {booking_answers} AS ba WHERE ba.optionid = {$this->options['optionid']})";
 
-        list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
-        $order = ' ORDER BY ' . $sort;
+                        list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
+                        $order = ' ORDER BY ' . $sort;
 
-        if (!$this->is_validating()) {
-            $potentialmemberscount = $DB->count_records_sql($countfields . $sql,
-                    array_merge($searchparams, $params));
-            if ($potentialmemberscount > $this->maxusersperpage) {
-                return $this->too_many_results($search, $potentialmemberscount);
-            }
-        }
+                        if (!$this->is_validating()) {
+                            $potentialmemberscount = $DB->count_records_sql($countfields . $sql,
+                                    array_merge($searchparams, $params));
+                            if ($potentialmemberscount > $this->maxusersperpage) {
+                                return $this->too_many_results($search, $potentialmemberscount);
+                            }
+                        }
 
-        $availableusers = $DB->get_records_sql($fields . $sql . $order,
-                array_merge($searchparams, $params, $sortparams));
+                        $availableusers = $DB->get_records_sql($fields . $sql . $order,
+                                array_merge($searchparams, $params, $sortparams));
 
-        if (empty($availableusers)) {
-            return array();
-        }
+                        if (empty($availableusers)) {
+                            return array();
+                        }
 
-        if ($search) {
-            $groupname = get_string('enrolledusersmatching', 'enrol', $search);
-        } else {
-            $groupname = get_string('enrolledusers', 'enrol');
-        }
+                        if ($search) {
+                            $groupname = get_string('enrolledusersmatching', 'enrol', $search);
+                        } else {
+                            $groupname = get_string('enrolledusers', 'enrol');
+                        }
 
-        return array($groupname => $availableusers);
+                        return array($groupname => $availableusers);
     }
 }
 
@@ -211,36 +211,36 @@ class booking_existing_user_selector extends booking_user_selector_base {
         $option->bookingid = $this->options['bookingid'];
 
         if (booking_check_if_teacher($option, $USER) &&
-                 !has_capability('mod/booking:readallinstitutionusers',
+                !has_capability('mod/booking:readallinstitutionusers',
                         $this->options['accesscontext'])) {
 
-            $institution = $DB->get_record('booking_options',
-                    array('id' => $this->options['optionid']));
+                            $institution = $DB->get_record('booking_options',
+                                    array('id' => $this->options['optionid']));
 
-            $searchparams['onlyinstitution'] = $institution->institution;
-            $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
-        }
+                            $searchparams['onlyinstitution'] = $institution->institution;
+                            $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
+                        }
 
-        $sql = " FROM {user} u
-        WHERE u.id IN ($subscriberssql) AND
-        $searchcondition
-        ";
+                        $sql = " FROM {user} u
+                        WHERE u.id IN ($subscriberssql) AND
+                        $searchcondition
+                        ";
 
-        if (!$this->is_validating()) {
-            $potentialmemberscount = $DB->count_records_sql($countfields . $sql, $searchparams);
-            if ($potentialmemberscount > $this->maxusersperpage) {
-                return $this->too_many_results($search, $potentialmemberscount);
-            }
-        }
+                        if (!$this->is_validating()) {
+                            $potentialmemberscount = $DB->count_records_sql($countfields . $sql, $searchparams);
+                            if ($potentialmemberscount > $this->maxusersperpage) {
+                                return $this->too_many_results($search, $potentialmemberscount);
+                            }
+                        }
 
-        $availableusers = $DB->get_records_sql($fields . $sql . $order,
-                array_merge($searchparams, $sortparams));
+                        $availableusers = $DB->get_records_sql($fields . $sql . $order,
+                                array_merge($searchparams, $sortparams));
 
-        if (empty($availableusers)) {
-            return array();
-        }
+                        if (empty($availableusers)) {
+                            return array();
+                        }
 
-        return array(get_string("booked", 'booking') => $availableusers);
+                        return array(get_string("booked", 'booking') => $availableusers);
     }
 }
 
@@ -319,44 +319,44 @@ class booking_utils {
             $params->title = s($option->text);
             $params->starttime = $option->coursestarttime ? userdate($option->coursestarttime,
                     $timeformat) : '';
-            $params->endtime = $option->courseendtime ? userdate($option->courseendtime,
-                    $timeformat) : '';
-            $params->startdate = $option->coursestarttime ? userdate($option->coursestarttime,
-                    $dateformat) : '';
-            $params->enddate = $option->courseendtime ? userdate($option->courseendtime,
-                    $dateformat) : '';
-            $params->courselink = $courselink;
-            $params->location = $option->location;
-            $params->institution = $option->institution;
-            $params->address = $option->address;
-            $params->pollstartdate = $option->coursestarttime ? userdate(
-                    (int) $option->coursestarttime, get_string('pollstrftimedate', 'booking'), '',
-                    false) : '';
-            if (empty($option->pollurl)) {
-                $params->pollurl = $booking->pollurl;
-            } else {
-                $params->pollurl = $option->pollurl;
-            }
-            if (empty($option->pollurlteachers)) {
-                $params->pollurlteachers = $booking->pollurlteachers;
-            } else {
-                $params->pollurlteachers = $option->pollurlteachers;
-            }
+                    $params->endtime = $option->courseendtime ? userdate($option->courseendtime,
+                            $timeformat) : '';
+                            $params->startdate = $option->coursestarttime ? userdate($option->coursestarttime,
+                                    $dateformat) : '';
+                                    $params->enddate = $option->courseendtime ? userdate($option->courseendtime,
+                                            $dateformat) : '';
+                                            $params->courselink = $courselink;
+                                            $params->location = $option->location;
+                                            $params->institution = $option->institution;
+                                            $params->address = $option->address;
+                                            $params->pollstartdate = $option->coursestarttime ? userdate(
+                                                    (int) $option->coursestarttime, get_string('pollstrftimedate', 'booking'), '',
+                                                    false) : '';
+                                                    if (empty($option->pollurl)) {
+                                                        $params->pollurl = $booking->pollurl;
+                                                    } else {
+                                                        $params->pollurl = $option->pollurl;
+                                                    }
+                                                    if (empty($option->pollurlteachers)) {
+                                                        $params->pollurlteachers = $booking->pollurlteachers;
+                                                    } else {
+                                                        $params->pollurlteachers = $option->pollurlteachers;
+                                                    }
 
-            $val = '';
-            if (!is_null($option->times)) {
-                $times = explode(',', $option->times);
-                foreach ($times as $time) {
-                    $slot = explode('-', $time);
-                    $tmpDate = new stdClass();
-                    $tmpDate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
-                    $tmpDate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
+                                                    $val = '';
+                                                    if (!is_null($option->times)) {
+                                                        $times = explode(',', $option->times);
+                                                        foreach ($times as $time) {
+                                                            $slot = explode('-', $time);
+                                                            $tmpdate = new stdClass();
+                                                            $tmpdate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
+                                                            $tmpdate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
 
-                    $val .= get_string('leftandrightdate', 'booking', $tmpDate) . '<br>';
-                }
-            }
+                                                            $val .= get_string('leftandrightdate', 'booking', $tmpdate) . '<br>';
+                                                        }
+                                                    }
 
-            $params->times = $val;
+                                                    $params->times = $val;
         }
 
         return $params;
@@ -370,10 +370,10 @@ class booking_utils {
      * @param object $params the booking details
      * @return string
      */
-    function get_body($booking, $fieldname, $params, $urlEncode = false) {
+    function get_body($booking, $fieldname, $params, $urlencode = false) {
         $text = $booking->$fieldname;
         foreach ($params as $name => $value) {
-            if ($urlEncode) {
+            if ($urlencode) {
                 $text = str_replace('{' . $name . '}', urlencode($value), $text);
             } else {
                 $text = str_replace('{' . $name . '}', $value, $text);
@@ -402,25 +402,25 @@ class booking_utils {
             $tags = new booking_tags($cm);
             $booking = $tags->booking_replace($booking);
             $option = $tags->option_replace($option);
-            $newGroupData = new stdClass();
+            $newgroupdata = new stdClass();
 
             if (isset($option->id)) {
                 $groupid = $DB->get_field('booking_options', 'groupid', array('id' => $option->id));
 
                 if (!is_null($groupid) && ($groupid > 0)) {
-                    $newGroupData->id = $groupid;
+                    $newgroupdata->id = $groupid;
                 }
 
-                $newGroupData->courseid = $option->courseid;
-                $newGroupData->name = $booking->name . ' - ' . $option->text . ' - ' . $option->id;
-                $newGroupData->description = $booking->name . ' - ' . $option->text;
-                $newGroupData->descriptionformat = FORMAT_HTML;
+                $newgroupdata->courseid = $option->courseid;
+                $newgroupdata->name = $booking->name . ' - ' . $option->text . ' - ' . $option->id;
+                $newgroupdata->description = $booking->name . ' - ' . $option->text;
+                $newgroupdata->descriptionformat = FORMAT_HTML;
 
-                if (isset($newGroupData->id)) {
-                    groups_update_group($newGroupData);
-                    return $newGroupData->id;
+                if (isset($newgroupdata->id)) {
+                    groups_update_group($newgroupdata);
+                    return $newgroupdata->id;
                 } else {
-                    return groups_create_group($newGroupData);
+                    return groups_create_group($newgroupdata);
                 }
             }
         } else {
@@ -445,11 +445,11 @@ class booking_tags {
 
     public $replaces;
 
-    public $optionsChangeText = array('text', 'description', 'location', 'institution', 'address');
+    public $optionschangetext = array('text', 'description', 'location', 'institution', 'address');
 
-    public $bookingChangeText = array('name', 'intro', 'bookingpolicy', 'bookedtext', 'notifyemail',
-        'waitingtext', 'statuschangetext', 'deletedtext', 'duration', 'organizatorname',
-        'pollurltext', 'eventtype', 'notificationtext', 'userleave', 'pollurlteacherstext');
+    public $bookingchangetext = array('name', 'intro', 'bookingpolicy', 'bookedtext', 'notifyemail',
+                    'waitingtext', 'statuschangetext', 'deletedtext', 'duration', 'organizatorname',
+                    'pollurltext', 'eventtype', 'notificationtext', 'userleave', 'pollurlteacherstext');
 
     private $option;
 
@@ -524,15 +524,15 @@ function booking_confirm_booking($optionid, $booking, $user, $cm, $url) {
     $requestedcourse = "<br />" . $option->option->text;
     if ($option->option->coursestarttime != 0) {
         $requestedcourse .= "<br />" .
-                 userdate($option->option->coursestarttime, get_string('strftimedatetime')) . " - " .
-                 userdate($option->option->courseendtime, get_string('strftimedatetime'));
+                userdate($option->option->coursestarttime, get_string('strftimedatetime')) . " - " .
+                userdate($option->option->courseendtime, get_string('strftimedatetime'));
     }
     $message = "<h2>" . get_string('confirmbookingoffollowing', 'booking') . "</h2>" .
-             $requestedcourse;
-    $message .= "<p><b>" . get_string('agreetobookingpolicy', 'booking') . ":</b></p>";
-    $message .= "<p>" . $option->booking->bookingpolicy . "<p>";
-    echo $OUTPUT->confirm($message, new moodle_url('/mod/booking/view.php', $optionidarray), $url);
-    echo $OUTPUT->footer();
+            $requestedcourse;
+            $message .= "<p><b>" . get_string('agreetobookingpolicy', 'booking') . ":</b></p>";
+            $message .= "<p>" . $option->booking->bookingpolicy . "<p>";
+            echo $OUTPUT->confirm($message, new moodle_url('/mod/booking/view.php', $optionidarray), $url);
+            echo $OUTPUT->footer();
 }
 
 // Update option start and end datetime - when you add session time
@@ -558,9 +558,14 @@ function booking_updatestartenddate($optionid) {
 }
 
 
-class MYPDF extends TCPDF {
+class mypdf extends TCPDF {
 
-    public function goToNewLine($h) {
+    /**
+     *
+     * @param unknown $h
+     * @return boolean
+     */
+    public function go_to_newline($h) {
         return $this->checkPageBreak($h, '', true);
     }
 }
@@ -587,24 +592,24 @@ function download_sign_in_sheet($bookingdata = null) {
     } else {
         if (is_null($bookingdata->option->times)) {
             $times = userdate($bookingdata->option->coursestarttime) . " -" .
-                     userdate($bookingdata->option->courseendtime);
+                    userdate($bookingdata->option->courseendtime);
         } else {
             $val = array();
             $times = explode(',', $bookingdata->option->times);
             foreach ($times as $time) {
                 $slot = explode('-', $time);
-                $tmpDate = new stdClass();
-                $tmpDate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
-                $tmpDate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
+                $tmpdate = new stdClass();
+                $tmpdate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
+                $tmpdate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
 
-                $val[] = get_string('leftandrightdate', 'booking', $tmpDate);
+                $val[] = get_string('leftandrightdate', 'booking', $tmpdate);
             }
 
             $times = implode(", ", $val);
         }
     }
 
-    $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    $pdf = new mypdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
     $pdf->SetCreator(PDF_CREATOR);
 
     $pdf->setPrintHeader(false);
@@ -648,7 +653,7 @@ function download_sign_in_sheet($bookingdata = null) {
 
     foreach ($users as $user) {
 
-        if ($pdf->goToNewLine(12)) {
+        if ($pdf->go_to_newline(12)) {
             $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 14);
             $pdf->MultiCell(0, 0, $bookingdata->option->text, 0, 1, '', 1);
             $pdf->Ln();

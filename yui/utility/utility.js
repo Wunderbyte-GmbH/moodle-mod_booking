@@ -15,18 +15,13 @@ YUI.add('moodle-mod_booking-utility', function(Y, NAME) {
     // You should have received a copy of the GNU General Public License
     // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
-    /**
-     * 
-     * @package mod_booking
-     * @copyright 2016 David Bogner
-     * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-     * @main moodle-mod_booking-utility
-     */
+     // @package mod_booking
+     // @copyright 2016 David Bogner
+     // @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+     // @main moodle-mod_booking-utility
 
-    /**
-     * @namespace M.mod_booking
-     * @class utility
-     */
+     // @namespace M.mod_booking
+     // @class utility
 
     M.mod_booking = M.mod_booking || {};
     M.mod_booking.utility = {

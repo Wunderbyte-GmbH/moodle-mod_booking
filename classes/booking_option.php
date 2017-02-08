@@ -238,7 +238,7 @@ class booking_option extends booking {
             $params['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
         }
 
-        $limitfrom =  $this->perpage * $this->page;
+        $limitfrom = $this->perpage * $this->page;
         $numberofrecords = $this->perpage;
         $mainuserfields = get_all_user_name_fields(true, 'u');
 
@@ -269,19 +269,17 @@ class booking_option extends booking {
         }
     }
 
-    public function get_filter_sql_(){
-
-    }
-
     /**
      * Get all answers (bookings) as an array from booking_answer id as key, userid as value regular AND waitinglist
+     *
      * @return array of userids $this->alluserids
      */
     public function get_all_userids() {
         global $DB;
-        if (empty($this->alluserids)){
+        if (empty($this->alluserids)) {
             $conditions = array('optionid' => $this->optionid);
-            $this->alluserids = $DB->get_records_menu('booking_answers', $conditions, null, 'id, userid');
+            $this->alluserids = $DB->get_records_menu('booking_answers', $conditions, null,
+                    'id, userid');
         }
         return $this->alluserids;
     }

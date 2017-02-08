@@ -51,42 +51,40 @@ $subscriberselector->set_extra_fields(array('email'));
 
 if ($edit === 0) {
     $option = $DB->get_record("booking_options", array("id" => $optionid));
-    $allSubscribedTeachers = booking_subscribed_teachers($course, $optionid, $id, $currentgroup,
+    $allsubscribedteachers = booking_subscribed_teachers($course, $optionid, $id, $currentgroup,
             $context);
     $mform = new mod_booking_teachers_form(null,
-            array('teachers' => $allSubscribedTeachers, 'option' => $option, 'cm' => $cm,
-                'id' => $id, 'optionid' => $optionid, 'edit' => $edit));
+            array('teachers' => $allsubscribedteachers, 'option' => $option, 'cm' => $cm,
+                            'id' => $id, 'optionid' => $optionid, 'edit' => $edit));
 
-    if ($mform->is_cancelled()) {
-        redirect("report.php?id=$cm->id&optionid={$optionid}");
-    } else if ($fromform = $mform->get_data()) {
+            if ($mform->is_cancelled()) {
+                redirect("report.php?id=$cm->id&optionid={$optionid}");
+            } else if ($fromform = $mform->get_data()) {
 
-        if (isset($fromform->turneditingon) && has_capability('mod/booking:updatebooking', $context) &&
-                 confirm_sesskey()) {
-            $urlR = new moodle_url('/mod/booking/teachers.php',
-                    array('id' => $id, 'optionid' => $optionid, 'edit' => 1));
-            redirect($urlR, '', 0);
-        }
+                if (isset($fromform->turneditingon) && has_capability('mod/booking:updatebooking', $context) &&
+                        confirm_sesskey()) {
+                            $urlr = new moodle_url('/mod/booking/teachers.php',
+                                    array('id' => $id, 'optionid' => $optionid, 'edit' => 1));
+                            redirect($urlr, '', 0);
+                        }
 
-        if (isset($fromform->activitycompletion) &&
-                 has_capability('mod/booking:readresponses', $context) && confirm_sesskey()) {
-            $selectedusers[$optionid] = array_keys($fromform->user, 1);
+                        if (isset($fromform->activitycompletion) &&
+                                has_capability('mod/booking:readresponses', $context) && confirm_sesskey()) {
+                                    $selectedusers[$optionid] = array_keys($fromform->user, 1);
 
-            if (empty($selectedusers[$optionid])) {
-                redirect($url, get_string('selectatleastoneuser', 'booking'), 5);
+                                    if (empty($selectedusers[$optionid])) {
+                                        redirect($url, get_string('selectatleastoneuser', 'booking'), 5);
+                                    }
+
+                                    booking_activitycompletion_teachers($selectedusers, $booking, $cm->id, $optionid);
+                                    redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);
+                                }
             }
-
-            booking_activitycompletion_teachers($selectedusers, $booking, $cm->id, $optionid);
-            redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);
-        }
-    }
 } else if (data_submitted()) {
     require_sesskey();
     $subscribe = (bool) optional_param('subscribe', false, PARAM_RAW);
     $unsubscribe = (bool) optional_param('unsubscribe', false, PARAM_RAW);
-    /**
-     * It has to be one or the other, not both or neither
-     */
+    // It has to be one or the other, not both or neither
     if (!($subscribe xor $unsubscribe)) {
         print_error('invalidaction');
     }

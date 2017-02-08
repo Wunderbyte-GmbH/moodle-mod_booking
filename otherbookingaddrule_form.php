@@ -22,7 +22,11 @@ require_once("$CFG->libdir/formslib.php");
 
 class otherbookingaddrule_form extends moodleform {
 
-    // Add elements to form
+    /**
+     *
+     * {@inheritDoc}
+     * @see moodleform::definition()
+     */
     public function definition() {
         global $CFG, $DB;
 
@@ -30,8 +34,8 @@ class otherbookingaddrule_form extends moodleform {
                 "SELECT id, text
                     FROM {booking_options}
                     WHERE bookingid = (SELECT b.conectedbooking
-                                        FROM {booking_options} AS bo
-                                        LEFT JOIN {booking} AS b ON bo.bookingid = b.id
+                                        FROM {booking_options} bo
+                                        LEFT JOIN {booking} b ON bo.bookingid = b.id
                                         WHERE bo.id = ?)
                     ORDER BY text ASC",
                 array($this->_customdata['optionid']));
@@ -61,8 +65,12 @@ class otherbookingaddrule_form extends moodleform {
         $this->add_action_buttons(true, get_string('savenewtagtemplate', 'booking'));
     }
 
-    // Custom validation should be added here
-    function validation($data, $files) {
+    /**
+     *
+     * {@inheritDoc}
+     * @see moodleform::validation()
+     */
+    public function validation($data, $files) {
         return array();
     }
 

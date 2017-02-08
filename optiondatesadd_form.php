@@ -22,7 +22,11 @@ require_once("$CFG->libdir/formslib.php");
 
 class optiondatesadd_form extends moodleform {
 
-    // Add elements to form
+    /**
+     *
+     * {@inheritDoc}
+     * @see moodleform::definition()
+     */
     public function definition() {
         global $CFG;
 
@@ -48,8 +52,12 @@ class optiondatesadd_form extends moodleform {
         $this->add_action_buttons(true, get_string('savenewoptiondates', 'booking'));
     }
 
-    // Custom validation should be added here
-    function validation($data, $files) {
+    /**
+     *
+     * {@inheritDoc}
+     * @see moodleform::validation()
+     */
+    public function validation($data, $files) {
         return array();
     }
 
