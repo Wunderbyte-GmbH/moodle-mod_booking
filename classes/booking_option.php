@@ -223,12 +223,9 @@ class booking_option extends booking {
             $params['completed'] = $this->filters['searchfinished'];
         }
         if (isset($this->filters['searchdate']) && $this->filters['searchdate'] == 1) {
-            $options .= " AND FROM_UNIXTIME(ba.timecreated, '%Y') = :searchdateyear
-                    AND FROM_UNIXTIME(ba.timecreated, '%m') = :searchdatemonth
-                    AND FROM_UNIXTIME(ba.timecreated, '%d') = :searchdateday";
-            $params['searchdateyear'] = $this->filters['searchdateyear'];
-            $params['searchdatemonth'] = $this->filters['searchdatemonth'];
-            $params['searchdateday'] = $this->filters['searchdateday'];
+            $options .= " AND ba.timecreated BETWEEN :beginofday AND :endofday";
+            $params['beginofday'] = $beginofday;
+            $params['endofday'] = $endofday;
         }
 
         if (isset($this->filters['searchname']) && strlen($this->filters['searchname']) > 0) {
@@ -272,6 +269,10 @@ class booking_option extends booking {
         }
     }
 
+    public function get_filter_sql_(){
+
+    }
+
     /**
      * Get all answers (bookings) as an array from booking_answer id as key, userid as value regular AND waitinglist
      * @return array of userids $this->alluserids
@@ -286,7 +287,7 @@ class booking_option extends booking {
     }
 
     /**
-     * Count, how man users...for pagination.
+     * Count, how many users for pagination.
      *
      * @return number
      */
@@ -303,12 +304,9 @@ class booking_option extends booking {
         }
 
         if (isset($this->filters['searchdate']) && $this->filters['searchdate'] == 1) {
-            $options .= " AND FROM_UNIXTIME({booking_answers}.timecreated, '%Y') = :searchdateyear
-                    AND FROM_UNIXTIME({booking_answers}.timecreated, '%m') = :searchdatemonth
-                    AND FROM_UNIXTIME({booking_answers}.timecreated, '%d') = :searchdateday";
-            $params['searchdateyear'] = $this->filters['searchdateyear'];
-            $params['searchdatemonth'] = $this->filters['searchdatemonth'];
-            $params['searchdateday'] = $this->filters['searchdateday'];
+            $options .= " AND ba.timecreated BETWEEN :beginofday AND :endofday";
+            $params['beginofday'] = $beginofday;
+            $params['endofday'] = $endofday;
         }
 
         if (isset($this->filters['searchname']) && strlen($this->filters['searchname']) > 0) {

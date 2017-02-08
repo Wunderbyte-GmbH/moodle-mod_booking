@@ -81,7 +81,7 @@ class all_userbookings extends table_sql {
      */
     protected function col_timecreated($values) {
         if ($values->timecreated > 0) {
-            return userdate($values->timecreated);
+            return $values->timecreated;
         }
 
         return '';

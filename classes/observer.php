@@ -69,22 +69,15 @@ class mod_booking_observer {
      * @param \core\event\user_enrolment_deleted $event
      */
     public static function user_enrolment_deleted(\core\event\user_enrolment_deleted $event) {
-        GLOBAL $DB;
+        global $DB;
 
-        // FIXME: SQL does not work in postgres
         $cp = (object) $event->other['userenrolment'];
         if ($cp->lastenrol) {
-            $DB->execute(
-                    'DELETE ba FROM {booking_answers} AS ba
-                    LEFT JOIN {booking} b ON b.id = ba.bookingid
-                    WHERE ba.userid = :userid
-                    AND b.course = :course',
+            $DB->delete_records_select('booking_answers',
+                    " userid = :userid AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course)",
                     array('userid' => $cp->userid, 'course' => $cp->courseid));
-            $DB->execute(
-                    'DELETE ba FROM {booking_teachers} AS ba
-                    LEFT JOIN {booking} b ON b.id = ba.bookingid
-                    WHERE ba.userid = :userid
-                    AND b.course = :course',
+            $DB->delete_records_select('booking_teachers',
+                    " userid = :userid AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course)",
                     array('userid' => $cp->userid, 'course' => $cp->courseid));
         }
     }

@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
- * Manage bookings
+ * Manage bookings for a booking option
  *
- * @package Booking
+ * @package mod_booking
  * @copyright 2012 David Bogner www.edulabs.org
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,12 +35,12 @@ $confirm = optional_param('confirm', '', PARAM_INT);
 $page = optional_param('page', '0', PARAM_INT);
 
 // Search
-$searchdate = optional_param('searchdate', '', PARAM_TEXT);
-$searchdateday = optional_param('searchdateday', '', PARAM_TEXT);
-$searchdatemonth = optional_param('searchdatemonth', '', PARAM_TEXT);
-$searchdateyear = optional_param('searchdateyear', '', PARAM_TEXT);
-$searchfinished = optional_param('searchfinished', '', PARAM_TEXT);
-$searchWaitingList = optional_param('searchWaitingList', '', PARAM_TEXT);
+$searchdate = optional_param('searchdate', 0, PARAM_INT);
+$searchdateday = optional_param('searchdateday', null, PARAM_INT);
+$searchdatemonth = optional_param('searchdatemonth', null, PARAM_INT);
+$searchdateyear = optional_param('searchdateyear', null, PARAM_INT);
+$searchfinished = optional_param('searchfinished', 0, PARAM_INT) - 1;
+$searchwaitinglist = optional_param('searchwaitinglist', 0, PARAM_INT) - 1;
 
 // from view.php
 $searchtext = optional_param('searchtext', '', PARAM_TEXT);
@@ -54,7 +54,7 @@ $scaleid = optional_param('scaleid', '', PARAM_INT);
 $returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
 $aggregation = optional_param('aggregate', '', PARAM_INT);
 
-$perPage = 25;
+$perpage = 25;
 
 $searching = false;
 
@@ -62,28 +62,28 @@ $urlparams = array();
 $urlparams['id'] = $id;
 $urlparams['page'] = $page;
 
-$sqlValues = array();
-$addSQLWhere = '';
+$sqlvalues = array();
+$addsqlwhere = '';
 
 if ($optionid > 0) {
     $urlparams['optionid'] = $optionid;
-    $sqlValues['optionid'] = $optionid;
+    $sqlvalues['optionid'] = $optionid;
 }
 
 $timestamp = time();
 
 $urlparams['searchdateday'] = "";
-if (strlen($searchdateday) > 0) {
+if ($searchdateday > 0) {
     $urlparams['searchdateday'] = $searchdateday;
 }
 
 $urlparams['searchdatemonth'] = "";
-if (strlen($searchdatemonth) > 0) {
+if (!is_null($searchdatemonth)) {
     $urlparams['searchdatemonth'] = $searchdatemonth;
 }
 
 $urlparams['searchdateyear'] = "";
-if (strlen($searchdateyear) > 0) {
+if (!is_null($searchdateyear)) {
     $urlparams['searchdateyear'] = $searchdateyear;
 }
 
@@ -92,28 +92,27 @@ $urlparams['searchdate'] = "";
 if ($searchdate == 1) {
     $urlparams['searchdate'] = $searchdate;
     $checked = true;
-    $timestamp = strtotime(
-            "{$urlparams['searchdateday']}-{$urlparams['searchdatemonth']}-{$urlparams['searchdateyear']}");
-    $addSQLWhere .= " AND FROM_UNIXTIME(ba.timecreated, '%Y') = :searchdateyear AND FROM_UNIXTIME(ba.timecreated, '%c') = :searchdatemonth AND FROM_UNIXTIME(ba.timecreated, '%e') = :searchdateday";
-    $sqlValues['searchdateyear'] = $urlparams['searchdateyear'];
-    $sqlValues['searchdatemonth'] = $urlparams['searchdatemonth'];
-    $sqlValues['searchdateday'] = $urlparams['searchdateday'];
+    $beginofday = strtotime("{$urlparams['searchdateday']}-{$urlparams['searchdatemonth']}-{$urlparams['searchdateyear']}");
+    $endofday   = strtotime("tomorrow", $beginofday) - 1;
+    $addsqlwhere .= " AND ba.timecreated BETWEEN :beginofday AND :endofday";
+    $sqlvalues['beginofday'] = $beginofday;
+    $sqlvalues['endofday'] = $endofday;
     $searching = true;
 }
 
 $urlparams['searchfinished'] = "";
-if (strlen($searchfinished) > 0) {
-    $urlparams['searchfinished'] = $searchfinished;
-    $sqlValues['completed'] = $searchfinished;
-    $addSQLWhere .= ' AND ba.completed = :completed ';
+if ($searchfinished > -1) {
+    $urlparams['searchfinished'] = $searchfinished + 1;
+    $sqlvalues['completed'] = $searchfinished;
+    $addsqlwhere .= ' AND ba.completed = :completed ';
     $searching = true;
 }
 
-$urlparams['searchWaitingList'] = "";
-if (strlen($searchWaitingList) > 0) {
-    $urlparams['searchWaitingList'] = $searchWaitingList;
-    $sqlValues['searchwaitinglist'] = $searchWaitingList;
-    $addSQLWhere .= ' AND ba.waitinglist = :searchwaitinglist ';
+$urlparams['searchwaitinglist'] = "";
+if ($searchwaitinglist > -1) {
+    $urlparams['searchwaitinglist'] = $searchwaitinglist + 1;
+    $sqlvalues['searchwaitinglist'] = $searchwaitinglist;
+    $addsqlwhere .= ' AND ba.waitinglist = :searchwaitinglist ';
     $searching = true;
 }
 
@@ -154,14 +153,13 @@ require_course_login($course, false, $cm);
 
 $context = context_module::instance($cm->id);
 
-$bookingdata = new \mod_booking\booking_option($cm->id, $optionid, $urlparams, $page, $perPage,
+$bookingdata = new \mod_booking\booking_option($cm->id, $optionid, $urlparams, $page, $perpage,
         false);
 $bookingdata->apply_tags();
 $bookingdata->get_url_params();
 $bookingdata->get_teachers();
 
-if (!(booking_check_if_teacher($bookingdata->option, $USER) ||
-         has_capability('mod/booking:readresponses', $context))) {
+if (!(booking_check_if_teacher($bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
     require_capability('mod/booking:readresponses', $context);
 }
 
@@ -176,7 +174,7 @@ if ($action == 'downloadsigninsheet') {
 
 if ($action == 'deletebookingoption' && $confirm == 1 &&
          has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
-    booking_delete_booking_option($bookingdata->booking, $optionid); // delete booking_option
+    booking_delete_booking_option($bookingdata->booking, $optionid);
     redirect("view.php?id=$cm->id");
 } elseif ($action == 'deletebookingoption' && has_capability('mod/booking:updatebooking', $context) &&
          confirm_sesskey()) {
@@ -430,7 +428,7 @@ if (!$tableallbookings->is_downloading()) {
     $headers[] = get_string('institution', 'mod_booking');
     if ($bookingdata->option->limitanswers == 1 && $bookingdata->option->maxoverbooking > 0) {
         $columns[] = 'waitinglist';
-        $headers[] = get_string('searchWaitingList', 'mod_booking');
+        $headers[] = get_string('searchwaitinglist', 'mod_booking');
     }
 
     $strbooking = get_string("modulename", "booking");
@@ -451,9 +449,9 @@ if (!$tableallbookings->is_downloading()) {
             JOIN {user} u ON u.id = ba.userid
             JOIN {booking_options} bo ON bo.id = ba.optionid
             LEFT JOIN {booking_options} otherbookingoption ON otherbookingoption.id = ba.frombookingid ';
-    $where = ' ba.optionid = :optionid ' . $addSQLWhere;
+    $where = ' ba.optionid = :optionid ' . $addsqlwhere;
 
-    $tableallbookings->set_sql($fields, $from, $where, $sqlValues);
+    $tableallbookings->set_sql($fields, $from, $where, $sqlvalues);
 
     $tableallbookings->define_columns($columns);
     $tableallbookings->define_headers($headers);
@@ -549,18 +547,18 @@ if (!$tableallbookings->is_downloading()) {
     $row = new html_table_row(
             array(get_string('searchfinished', "booking"),
                 html_writer::select(
-                        array('0' => get_string('no', "booking"),
-                            '1' => get_string('yes', "booking")), 'searchfinished',
+                        array('1' => get_string('no', "booking"),
+                            '2' => get_string('yes', "booking")), 'searchfinished',
                         $urlparams['searchfinished']), "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 
     $row = new html_table_row(
-            array(get_string('searchWaitingList', "booking"),
+            array(get_string('searchwaitinglist', "booking"),
                 html_writer::select(
-                        array('0' => get_string('no', "booking"),
-                            '1' => get_string('yes', "booking")), 'searchWaitingList',
-                        $urlparams['searchWaitingList']), "", ""));
+                        array('1' => get_string('no', "booking"),
+                            '2' => get_string('yes', "booking")), 'searchwaitinglist',
+                        $urlparams['searchwaitinglist']), "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 
@@ -718,7 +716,7 @@ if (!$tableallbookings->is_downloading()) {
     $headers[] = get_string("group");
 
     $fields = "u.id AS userid,
-        ba.optionid AS optionid,
+                ba.optionid AS optionid,
                 bo.text AS booking,
                 u.institution AS institution,
                 bo.location AS location,
@@ -733,12 +731,12 @@ if (!$tableallbookings->is_downloading()) {
                 ba.numrec,
                 ba.waitinglist AS waitinglist {$customfields}";
     $from = '{booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
-    $where = 'ba.optionid = :optionid ' . $addSQLWhere;
+    $where = 'ba.optionid = :optionid ' . $addsqlwhere;
 
     $tableallbookings->define_columns($columns);
     $tableallbookings->define_headers($headers);
 
-    $tableallbookings->set_sql($fields, $from, $where, $sqlValues);
+    $tableallbookings->set_sql($fields, $from, $where, $sqlvalues);
     $tableallbookings->setup();
     $tableallbookings->query_db(10);
     if (!empty($tableallbookings->rawdata)) {

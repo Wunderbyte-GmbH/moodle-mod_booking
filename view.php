@@ -34,7 +34,7 @@ $searchname = optional_param('searchname', '', PARAM_TEXT);
 $searchsurname = optional_param('searchsurname', '', PARAM_TEXT);
 $page = optional_param('page', '0', PARAM_INT);
 
-$perPage = 10;
+$perpage = 10;
 $conditions = array();
 $conditionsparams = array();
 $urlparams = array();
