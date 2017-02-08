@@ -8,21 +8,21 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Import excel data - change activity completion to user
-*
-* @package Booking
-* @copyright 2015 Andraž Prinčič www.princic.net
-* @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
-require_once("../../config.php");
-require_once("locallib.php");
-require_once('importexcel_form.php');
+ *
+ * @package Booking
+ * @copyright 2015 Andraž Prinčič www.princic.net
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+require_once ("../../config.php");
+require_once ("locallib.php");
+require_once ('importexcel_form.php');
 
 $id = required_param('id', PARAM_INT); // Course Module ID
 
@@ -98,23 +98,23 @@ if ($mform->is_cancelled()) {
             if (count($line) >= 3) {
                 $user = $DB->get_record('booking_answers',
                         array('bookingid' => $cm->instance, 'userid' => $line[$useridpos],
-                                        'optionid' => $line[$optionidpos]));
+                            'optionid' => $line[$optionidpos]));
 
-                        if ($user !== false) {
-                            $user->completed = $line[$completedpos];
-                            $user->timemodified = time();
-                            $DB->update_record('booking_answers', $user, false);
+                if ($user !== false) {
+                    $user->completed = $line[$completedpos];
+                    $user->timemodified = time();
+                    $DB->update_record('booking_answers', $user, false);
 
-                            if ($completion->is_enabled($cm) && $booking->enablecompletion &&
-                                    $user->completed == 0) {
-                                        $completion->update_state($cm, COMPLETION_INCOMPLETE, $user->userid);
-                                    }
+                    if ($completion->is_enabled($cm) && $booking->enablecompletion &&
+                             $user->completed == 0) {
+                        $completion->update_state($cm, COMPLETION_INCOMPLETE, $user->userid);
+                    }
 
-                                    if ($completion->is_enabled($cm) && $booking->enablecompletion &&
-                                            $user->completed == 1) {
-                                                $completion->update_state($cm, COMPLETION_COMPLETE, $user->userid);
-                                            }
-                        }
+                    if ($completion->is_enabled($cm) && $booking->enablecompletion &&
+                             $user->completed == 1) {
+                        $completion->update_state($cm, COMPLETION_COMPLETE, $user->userid);
+                    }
+                }
             }
         }
 

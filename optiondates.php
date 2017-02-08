@@ -8,20 +8,20 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Add dates to option.
-*
-* @package Booking
-* @copyright 2016 Andraž Prinčič www.princic.net
-* @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
-require_once("../../config.php");
-require_once("locallib.php");
+ *
+ * @package Booking
+ * @copyright 2016 Andraž Prinčič www.princic.net
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+require_once ("../../config.php");
+require_once ("locallib.php");
 
 $id = required_param('id', PARAM_INT); // Course Module ID
 $optionid = required_param('optionid', PARAM_INT); // Option ID
@@ -77,8 +77,8 @@ foreach ($times as $time) {
     $tmpdate->righttdate = userdate($time->courseendtime, get_string('righttdate', 'booking'));
 
     $timestable[] = array(get_string('leftandrightdate', 'booking', $tmpdate),
-                    html_writer::tag('span', $button . $buttondelete,
-                            array('style' => 'text-align: right; display:table-cell;')));
+        html_writer::tag('span', $button . $buttondelete,
+                array('style' => 'text-align: right; display:table-cell;')));
 }
 
 $table->data = $timestable;

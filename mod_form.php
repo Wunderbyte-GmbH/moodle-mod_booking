@@ -8,18 +8,18 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.'); // It must be included from a Moodle page
 }
 
-require_once($CFG->dirroot . '/course/moodleform_mod.php');
-require_once($CFG->libdir . '/formslib.php');
-require_once($CFG->dirroot . '/mod/booking/lib.php');
+require_once ($CFG->dirroot . '/course/moodleform_mod.php');
+require_once ($CFG->libdir . '/formslib.php');
+require_once ($CFG->dirroot . '/mod/booking/lib.php');
 
 
 class mod_booking_mod_form extends moodleform_mod {
@@ -509,8 +509,8 @@ class mod_booking_mod_form extends moodleform_mod {
                 'format' => FORMAT_HTML);
         }
         if (isset($defaultvalues['statuschangetext'])) {
-            $defaultvalues['statuschangetext'] = array(
-                'text' => $defaultvalues['statuschangetext'], 'format' => FORMAT_HTML);
+            $defaultvalues['statuschangetext'] = array('text' => $defaultvalues['statuschangetext'],
+                'format' => FORMAT_HTML);
         }
         if (isset($defaultvalues['deletedtext'])) {
             $defaultvalues['deletedtext'] = array('text' => $defaultvalues['deletedtext'],
@@ -525,8 +525,8 @@ class mod_booking_mod_form extends moodleform_mod {
                 'text' => $defaultvalues['pollurlteacherstext'], 'format' => FORMAT_HTML);
         }
         if (isset($defaultvalues['notificationtext'])) {
-            $defaultvalues['notificationtext'] = array(
-                'text' => $defaultvalues['notificationtext'], 'format' => FORMAT_HTML);
+            $defaultvalues['notificationtext'] = array('text' => $defaultvalues['notificationtext'],
+                'format' => FORMAT_HTML);
         }
         if (isset($defaultvalues['userleave'])) {
             $defaultvalues['userleave'] = array('text' => $defaultvalues['userleave'],

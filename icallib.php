@@ -8,19 +8,19 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Support class for generating ical items Note - this code is based on the ical code from mod_facetoface
-*
-* @package mod_booking
-* @copyright 2012 Davo Smith, Synergy Learning
-* @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
+ *
+ * @package mod_booking
+ * @copyright 2012 Davo Smith, Synergy Learning
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined('MOODLE_INTERNAL') || die();
 
 
@@ -84,7 +84,7 @@ class booking_ical {
         // UIDs should be globally unique
         $urlbits = parse_url($CFG->wwwroot);
         $uid = md5($CFG->siteidentifier . $this->option->id . 'mod_booking_option') . // Unique identifier, salted with site identifier
-        '@' . $urlbits['host']; // Hostname for this moodle installation
+'@' . $urlbits['host']; // Hostname for this moodle installation
 
         $dtstart = $this->generate_timestamp($this->option->coursestarttime);
         $dtend = $this->generate_timestamp($this->option->courseendtime);
@@ -199,12 +199,12 @@ END:VTIMEZONE
 END:VCALENDAR
 EOF;
 
-$template = str_replace("\n", "\r\n", $template);
+        $template = str_replace("\n", "\r\n", $template);
 
-$this->tempfilename = md5($template . microtime());
-$tempfilepathname = $CFG->tempdir . '/' . $this->tempfilename;
-file_put_contents($tempfilepathname, $template);
-return $tempfilepathname;
+        $this->tempfilename = md5($template . microtime());
+        $tempfilepathname = $CFG->tempdir . '/' . $this->tempfilename;
+        file_put_contents($tempfilepathname, $template);
+        return $tempfilepathname;
     }
 
     public function get_name() {

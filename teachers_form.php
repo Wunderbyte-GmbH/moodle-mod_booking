@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 require_once $CFG->libdir . '/formslib.php';
 
 
@@ -20,61 +20,61 @@ class mod_booking_teachers_form extends moodleform {
 
     public function definition() {
         global $DB, $CFG;
-
+        
         $mform = & $this->_form;
-
+        
         $cm = $this->_customdata['cm'];
-
+        
         if ($this->_customdata['teachers']) {
-
+            
             foreach ($this->_customdata['teachers'] as $user) {
                 if (empty($user->imagealt)) {
                     $user->imagealt = '';
                 }
-
-                $userdata = $DB->get_record('booking_teachers',
+                
+                $userdata = $DB->get_record('booking_teachers', 
                         array('optionid' => $this->_customdata['option']->id, 'userid' => $user->id));
-
+                
                 $checkmark = "&nbsp;";
                 if ($userdata->completed == '1') {
                     $checkmark = "&#x2713;";
                 }
-
+                
                 $arrow = "&nbsp;";
-
-                $mform->addElement('advcheckbox', "user[{$user->id}]",
-                $checkmark . " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" .
-                fullname($user) . "</a>", '',
-                array('group' => $this->_customdata['option']->id + 1));
+                
+                $mform->addElement('advcheckbox', "user[{$user->id}]", 
+                        $checkmark . " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" .
+                                 fullname($user) . "</a>", '', 
+                                array('group' => $this->_customdata['option']->id + 1));
             }
-
+            
             $this->add_checkbox_controller($this->_customdata['option']->id + 1);
         } else {
             $mform->addElement('html', '<p>' . get_string('nousers', 'booking') . '</p>');
         }
-
+        
         $buttonarray = array();
-        $buttonarray[] = &$mform->createElement('static', 'onlylabel', '',
+        $buttonarray[] = &$mform->createElement('static', 'onlylabel', '', 
                 '<span class="bookinglabelname">' . get_string('withselected', 'booking') . '</span>');
-
+        
         if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-            $buttonarray[] = &$mform->createElement("submit", 'activitycompletion',
+            $buttonarray[] = &$mform->createElement("submit", 'activitycompletion', 
                     get_string('confirmactivitycompletion', 'booking'));
-            $buttonarray[] = &$mform->createElement("submit", 'turneditingon',
+            $buttonarray[] = &$mform->createElement("submit", 'turneditingon', 
                     get_string('turneditingon'));
         }
-
+        
         $buttonarray[] = &$mform->createElement('cancel');
-
+        
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
-
+        
         // hidden elements
         $mform->addElement('hidden', 'id', $this->_customdata['id']);
         $mform->setType('id', PARAM_INT);
-
+        
         $mform->addElement('hidden', 'optionid', $this->_customdata['optionid']);
         $mform->setType('optionid', PARAM_INT);
-
+        
         $mform->addElement('hidden', 'edit', $this->_customdata['edit']);
         $mform->setType('edit', PARAM_INT);
     }
