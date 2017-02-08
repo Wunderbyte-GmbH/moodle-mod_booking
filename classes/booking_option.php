@@ -66,6 +66,9 @@ class booking_option extends booking {
     /** @var  */
     public $canbooktootherbooking = 0;
 
+    /** @var filter and other url params */
+    public $urparams;
+
     /**
      * Creates basic booking option
      *
@@ -223,6 +226,8 @@ class booking_option extends booking {
             $params['completed'] = $this->filters['searchfinished'];
         }
         if (isset($this->filters['searchdate']) && $this->filters['searchdate'] == 1) {
+            $beginofday = strtotime("{$this->urlparams['searchdateday']}-{$this->urlparams['searchdatemonth']}-{$this->urlparams['searchdateyear']}");
+            $endofday = strtotime("tomorrow", $beginofday) - 1;
             $options .= " AND ba.timecreated BETWEEN :beginofday AND :endofday";
             $params['beginofday'] = $beginofday;
             $params['endofday'] = $endofday;
@@ -388,17 +393,13 @@ class booking_option extends booking {
      * @return void
      */
     public function delete_responses($users = array()) {
-        global $DB;
         if (!is_array($users) || empty($users)) {
             return false;
         }
-
         $results = array();
-
         foreach ($users as $userid) {
             $results[$userid] = $this->user_delete_response($userid);
         }
-
         return $results;
     }
 
