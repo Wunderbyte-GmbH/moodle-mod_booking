@@ -17,9 +17,9 @@ if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.'); // It must be included from a Moodle page
 }
 
-require_once ($CFG->dirroot . '/course/moodleform_mod.php');
-require_once ($CFG->libdir . '/formslib.php');
-require_once ($CFG->dirroot . '/mod/booking/lib.php');
+require_once($CFG->dirroot . '/course/moodleform_mod.php');
+require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 
 class mod_booking_mod_form extends moodleform_mod {
@@ -34,7 +34,7 @@ class mod_booking_mod_form extends moodleform_mod {
      * @param unknown $options
      * @return array of course category names indexed by category id
      */
-    function show_sub_categories($catid, $dashes = '', $options) {
+    public function show_sub_categories($catid, $dashes = '', $options) {
         global $DB;
         $dashes .= '&nbsp;&nbsp;';
         $categories = $DB->get_records('booking_category', array('cid' => $catid));
@@ -48,7 +48,7 @@ class mod_booking_mod_form extends moodleform_mod {
         return $options;
     }
 
-    function add_completion_rules() {
+    public function add_completion_rules() {
         $mform = & $this->_form;
 
         $group = array();
@@ -60,7 +60,7 @@ class mod_booking_mod_form extends moodleform_mod {
         return array('enablecompletiongroup');
     }
 
-    function completion_rule_enabled($data) {
+    public function completion_rule_enabled($data) {
         return !empty($data['enablecompletion']);
     }
 

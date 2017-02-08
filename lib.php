@@ -14,18 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 defined('MOODLE_INTERNAL') || die();
-require_once ($CFG->dirroot . '/mod/booking/icallib.php');
-require_once ($CFG->dirroot . '/calendar/lib.php');
-require_once ($CFG->libdir . '/filelib.php');
+require_once($CFG->dirroot . '/mod/booking/icallib.php');
+require_once($CFG->dirroot . '/calendar/lib.php');
+require_once($CFG->libdir . '/filelib.php');
 if ($CFG->branch < 31) {
-    require_once ($CFG->dirroot . '/tag/locallib.php');
+    require_once($CFG->dirroot . '/tag/locallib.php');
 }
 
-require_once ($CFG->dirroot . '/question/category_class.php');
+require_once($CFG->dirroot . '/question/category_class.php');
 
-require_once ($CFG->dirroot . '/group/lib.php');
-require_once ($CFG->libdir . '/eventslib.php');
-require_once ($CFG->dirroot . '/user/selector/lib.php');
+require_once($CFG->dirroot . '/group/lib.php');
+require_once($CFG->libdir . '/eventslib.php');
+require_once($CFG->dirroot . '/user/selector/lib.php');
 
 // Standard functions /////////////////////////////////////////////////////////
 function booking_cron() {
@@ -67,7 +67,7 @@ function booking_cron() {
 
 function booking_get_coursemodule_info($cm) {
     global $CFG, $DB;
-    require_once ("$CFG->dirroot/mod/booking/locallib.php");
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
 
     $tags = new booking_tags($cm);
     $info = new cached_cm_info();
@@ -370,7 +370,7 @@ function booking_update_instance($booking) {
  */
 function booking_update_options($optionvalues) {
     global $DB, $CFG;
-    require_once ("$CFG->dirroot/mod/booking/locallib.php");
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
 
     $bokingutils = new booking_utils();
 
@@ -731,8 +731,7 @@ function booking_show_form($booking, $user, $cm, $allresponses, $sorturl = '', $
 
     $underlimit = ($booking->booking->maxperuser == 0);
     $underlimit = $underlimit ||
-             (booking_get_user_booking_count($booking, $user, $allresponses) <
-             $booking->booking->maxperuser);
+             (booking_get_user_booking_count($booking, $user, $allresponses) < $booking->booking->maxperuser);
 
     // Show only one option
     if (isset($optionid)) {
@@ -1154,7 +1153,7 @@ function booking_show_statistic() {
             echo get_string("taken", "booking") . ":";
             echo $column[$optionid] . '<br />';
             echo get_string("limit", "booking") . ":";
-            $option = $GB->get_record("booking_options", array("id", $optionid));
+            $option = $DB->get_record("booking_options", array("id", $optionid));
             echo $option->maxanswers;
         } else {
             echo $column[$optionid];
@@ -1303,7 +1302,7 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
 function booking_get_user_grades($booking, $userid = 0) {
     global $CFG;
 
-    require_once ($CFG->dirroot . '/rating/lib.php');
+    require_once($CFG->dirroot . '/rating/lib.php');
 
     $ratingoptions = new stdClass();
     $ratingoptions->component = 'mod_booking';
@@ -1333,7 +1332,7 @@ function booking_get_user_grades($booking, $userid = 0) {
  */
 function booking_update_grades($booking, $userid = 0, $nullifnone = true) {
     global $CFG, $DB;
-    require_once ($CFG->libdir . '/gradelib.php');
+    require_once($CFG->libdir . '/gradelib.php');
 
     if (!$booking->assessed) {
         booking_grade_item_update($booking);
@@ -1363,7 +1362,7 @@ function booking_update_grades($booking, $userid = 0, $nullifnone = true) {
 function booking_grade_item_update($booking, $grades = null) {
     global $CFG;
     if (!function_exists('grade_update')) { // workaround for buggy PHP versions
-        require_once ($CFG->libdir . '/gradelib.php');
+        require_once($CFG->libdir . '/gradelib.php');
     }
 
     $params = array('itemname' => $booking->name, 'idnumber' => $booking->cmidnumber);
@@ -1396,7 +1395,7 @@ function booking_grade_item_update($booking, $grades = null) {
  */
 function booking_grade_item_delete($booking) {
     global $CFG;
-    require_once ($CFG->libdir . '/gradelib.php');
+    require_once($CFG->libdir . '/gradelib.php');
 
     return grade_update('mod/booking', $booking->course, 'mod', 'booking', $booking->id, 0, null,
             array('deleted' => 1));
@@ -1553,7 +1552,7 @@ function booking_rating_validate($params) {
  */
 function booking_rate($ratings, $params) {
     global $CFG, $USER, $DB;
-    require_once ($CFG->dirroot . '/rating/lib.php');
+    require_once($CFG->dirroot . '/rating/lib.php');
 
     $contextid = $params->contextid;
     $component = 'mod_booking';
@@ -1617,7 +1616,7 @@ function booking_rate($ratings, $params) {
         $modinstance = $DB->get_record($cm->modname, array('id' => $cm->instance), '*', MUST_EXIST);
         $modinstance->cmidnumber = $cm->id; // MDL-12961.
         $functionname = $cm->modname . '_update_grades';
-        require_once ($CFG->dirroot . "/mod/{$cm->modname}/lib.php");
+        require_once($CFG->dirroot . "/mod/{$cm->modname}/lib.php");
         foreach ($ratings as $rating) {
             if (function_exists($functionname)) {
                 $functionname($modinstance, $rating->rateduserid);
@@ -1751,7 +1750,7 @@ function booking_sendcustommessage($optionid, $subject, $message, $uids) {
 
 function booking_send_notification($optionid, $subject, $tousers = array()) {
     global $DB, $USER, $CFG;
-    require_once ("$CFG->dirroot/mod/booking/locallib.php");
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
 
     $returnval = true;
 
@@ -1884,7 +1883,7 @@ function booking_get_option_text($booking, $id) {
 function booking_get_booking($cm, $sort = '',
         $urlparams = array('searchtext' => '', 'searchlocation' => '', 'searchinstitution' => ''), $view = true, $optionid = null) {
     global $CFG, $DB;
-    require_once ("$CFG->dirroot/mod/booking/locallib.php");
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
 
     if ($sort == '') {
         $sort = 'id';
@@ -1965,8 +1964,7 @@ function booking_get_booking($cm, $sort = '',
                     $booking->option[$option->id]->status = "waitspaceavailable";
                     $booking->option[$option->id]->availspaces = 0;
                     $booking->option[$option->id]->taken = $option->maxanswers;
-                    $booking->option[$option->id]->availwaitspaces = $option->maxoverbooking -
-                             ($taken - $option->maxanswers);
+                    $booking->option[$option->id]->availwaitspaces = $option->maxoverbooking - ($taken - $option->maxanswers);
                 } else if ($taken >= $totalavailable) {
                     $booking->option[$option->id]->status = "full";
                     $booking->option[$option->id]->availspaces = 0;
@@ -2083,7 +2081,7 @@ function booking_send_confirm_message($eventdata) {
         if ($attachment = $ical->get_attachment()) {
             $attachname = $ical->get_name();
         }
-    } elseif ($data->status == get_string('onwaitinglist', 'booking')) {
+    } else if ($data->status == get_string('onwaitinglist', 'booking')) {
         $subject = get_string('confirmationsubjectwaitinglist', 'booking', $data);
         $subjectmanager = get_string('confirmationsubjectwaitinglistmanager', 'booking', $data);
         $message = booking_get_email_body($eventdata->booking, 'waitingtext',
@@ -2262,8 +2260,7 @@ function booking_get_email_body($booking, $fieldname, $defaultname, $params) {
  */
 function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid) {
     global $DB;
-    if (booking_get_user_status($cancelleduserid, $optionid, $booking->id, $cmid) !==
-             get_string('booked', 'booking')) {
+    if (booking_get_user_status($cancelleduserid, $optionid, $booking->id, $cmid) !== get_string('booked', 'booking')) {
         return false;
     }
     // backward compatibility hack TODO: remove
@@ -2394,7 +2391,7 @@ function booking_profile_definition(&$mform) {
                     $mform->addElement('header', 'category_' . $category->id,
                             format_string($category->name));
                     foreach ($fields as $field) {
-                        require_once ($CFG->dirroot . '/user/profile/field/' . $field->datatype .
+                        require_once($CFG->dirroot . '/user/profile/field/' . $field->datatype .
                                  '/field.class.php');
                         $newfield = 'profile_field_' . $field->datatype;
                         $formfield = new $newfield($field->id);

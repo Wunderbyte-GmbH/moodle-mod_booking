@@ -8,16 +8,16 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-require_once ("../../config.php");
-require_once ("locallib.php");
-require_once ($CFG->libdir . '/completionlib.php');
-require_once ("{$CFG->libdir}/tablelib.php");
-require_once ("{$CFG->dirroot}/mod/booking/classes/all_options.php");
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+require_once("../../config.php");
+require_once("locallib.php");
+require_once($CFG->libdir . '/completionlib.php');
+require_once("{$CFG->libdir}/tablelib.php");
+require_once("{$CFG->dirroot}/mod/booking/classes/all_options.php");
 
 $id = required_param('id', PARAM_INT); // Course Module ID
 $action = optional_param('action', '', PARAM_ALPHA);
@@ -87,7 +87,10 @@ $urlparams['searchname'] = "";
 if (strlen($searchname) > 0) {
     $urlparams['searchname'] = $searchname;
     $conditions[] = "bo.id IN (SELECT DISTINCT optionid
-            FROM (SELECT userid, optionid FROM {booking_teachers} WHERE bookingid = :snbookingid1 UNION SELECT userid, optionid FROM {booking_answers} WHERE bookingid = :snbookingid2) AS un
+            FROM (SELECT userid, optionid
+            FROM {booking_teachers}
+            WHERE bookingid = :snbookingid1 UNION SELECT userid, optionid
+            FROM {booking_answers} WHERE bookingid = :snbookingid2) AS un
             LEFT JOIN {user} u ON u.id = un.userid
             WHERE u.firstname LIKE :searchname)";
     $conditionsparams['searchname'] = "%{$searchname}%";
@@ -707,7 +710,10 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                 $columns[] = "cust" . strtolower($profilefield->shortname);
                 $headers[] = $profilefield->name;
                 $customfields .= ", (SELECT " . $DB->sql_concat('uif.datatype', "'|'", ',uid.data') .
-                         " as custom FROM {user_info_data} AS uid LEFT JOIN {user_info_field} AS uif ON uid.fieldid = uif.id WHERE userid = tba.userid AND uif.shortname = '{$profilefield->shortname}') AS cust" .
+                         " as custom
+                         FROM {user_info_data} uid
+                         LEFT JOIN {user_info_field} uif ON uid.fieldid = uif.id
+                         WHERE userid = tba.userid AND uif.shortname = '{$profilefield->shortname}') AS cust" .
                          strtolower($profilefield->shortname);
             }
         }
@@ -736,12 +742,12 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                         tba.numrec,
                         otherbookingoption.text AS otheroptions,
                         tba.waitinglist AS waitinglist {$customfields}";
-        $from = '{booking_answers} AS tba
-                JOIN {user} AS tu ON tu.id = tba.userid
-                JOIN {booking_options} AS tbo ON tbo.id = tba.optionid
-                LEFT JOIN {booking_options} AS otherbookingoption ON otherbookingoption.id = tba.frombookingid';
-        $where = 'tba.optionid IN (SELECT DISTINCT bo.id FROM {booking} AS b
-                                    LEFT JOIN {booking_options} AS bo ON bo.bookingid = b.id WHERE b.id = :bookingid ' .
+        $from = '{booking_answers} tba
+                JOIN {user} tu ON tu.id = tba.userid
+                JOIN {booking_options} tbo ON tbo.id = tba.optionid
+                LEFT JOIN {booking_options} otherbookingoption ON otherbookingoption.id = tba.frombookingid';
+        $where = 'tba.optionid IN (SELECT DISTINCT bo.id FROM {booking} b
+                                    LEFT JOIN {booking_options} bo ON bo.bookingid = b.id WHERE b.id = :bookingid ' .
                  (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions)) . ')';
 
         $conditionsparams['userid'] = $USER->id;

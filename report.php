@@ -20,12 +20,12 @@
  * @copyright 2012 David Bogner www.edulabs.org
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once ("../../config.php");
-require_once ("locallib.php");
-require_once ("{$CFG->libdir}/tablelib.php");
-require_once ("{$CFG->dirroot}/mod/booking/classes/all_userbookings.php");
-require_once ("{$CFG->dirroot}/user/profile/lib.php");
-require_once ($CFG->dirroot . '/rating/lib.php');
+require_once("../../config.php");
+require_once("locallib.php");
+require_once("{$CFG->libdir}/tablelib.php");
+require_once("{$CFG->dirroot}/mod/booking/classes/all_userbookings.php");
+require_once("{$CFG->dirroot}/user/profile/lib.php");
+require_once($CFG->dirroot . '/rating/lib.php');
 
 $id = required_param('id', PARAM_INT); // moduleid
 $optionid = required_param('optionid', PARAM_INT);
@@ -178,7 +178,7 @@ if ($action == 'deletebookingoption' && $confirm == 1 &&
          has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
     booking_delete_booking_option($bookingdata->booking, $optionid);
     redirect("view.php?id=$cm->id");
-} elseif ($action == 'deletebookingoption' && has_capability('mod/booking:updatebooking', $context) &&
+} else if ($action == 'deletebookingoption' && has_capability('mod/booking:updatebooking', $context) &&
          confirm_sesskey()) {
     echo $OUTPUT->header();
     $confirmarray['action'] = 'deletebookingoption';
@@ -371,8 +371,7 @@ if (!$tableallbookings->is_downloading()) {
                 redirect($url, get_string('selectoptionid', 'booking'), 5);
             }
 
-            if (count($allselectedusers) >
-                     $bookingdata->calculate_how_many_can_book_to_other($_POST['selectoptionid'])) {
+            if (count($allselectedusers) > $bookingdata->calculate_how_many_can_book_to_other($_POST['selectoptionid'])) {
                 redirect($url,
                         get_string('toomuchusersbooked', 'booking',
                                 $bookingdata->calculate_how_many_can_book_to_other(
@@ -613,8 +612,7 @@ if (!$tableallbookings->is_downloading()) {
         $firstentry = array_shift($newarray);
 
         $strrate = get_string("rate", "rating");
-        $scalearray = array(RATING_UNSET_RATING => $strrate . '...') +
-                 $firstentry->rating->settings->scale->scaleitems;
+        $scalearray = array(RATING_UNSET_RATING => $strrate . '...') + $firstentry->rating->settings->scale->scaleitems;
         $scaleattrs = array('class' => 'postratingmenu ratinginput', 'id' => 'menuratingall');
         $menuhtml = html_writer::label(get_string('rating', 'core_rating'), 'menuratingall', false,
                 array('class' => 'accesshide'));
@@ -642,10 +640,10 @@ if (!$tableallbookings->is_downloading()) {
     echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
             array('onclick' => 'copyToClipboard("' . $onlyoneurl . '"); return false;')) . ' | ';
 
-    $sign_in_sheet_URL = new moodle_url('/mod/booking/report.php',
+    $signinsheeturl = new moodle_url('/mod/booking/report.php',
             array('id' => $id, 'optionid' => $optionid, 'action' => 'downloadsigninsheet'));
 
-    echo html_writer::link($sign_in_sheet_URL, get_string('sign_in_sheet_download', 'booking'),
+    echo html_writer::link($signinsheeturl, get_string('sign_in_sheet_download', 'booking'),
             array('target' => '_blank'));
 
     echo "<script>
@@ -700,8 +698,11 @@ if (!$tableallbookings->is_downloading()) {
         foreach ($userprofilefields as $profilefield) {
             $columns[] = "cust" . strtolower($profilefield->shortname);
             $headers[] = $profilefield->name;
-            $customfields .= ", (SELECT " . $DB->sql_concat('uif.datatype', "'|'", ',uid.data') .
-                     " as custom FROM {user_info_data} AS uid LEFT JOIN {user_info_field} AS uif ON uid.fieldid = uif.id WHERE userid = ba.userid AND uif.shortname = '{$profilefield->shortname}') AS cust" .
+            $customfields .= ", (SELECT " . $DB->sql_concat('uif.datatype', "'|'", ',uid.data') . " as custom
+                     FROM {user_info_data} uid
+                     LEFT JOIN {user_info_field}  uif ON uid.fieldid = uif.id
+                     WHERE userid = ba.userid
+                     AND uif.shortname = '{$profilefield->shortname}') AS cust" .
                      strtolower($profilefield->shortname);
         }
     }

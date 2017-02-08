@@ -331,8 +331,7 @@ class mod_booking_renderer extends plugin_renderer_base {
             }
             $ratinghtml = $formstart . $ratinghtml;
 
-            $scalearray = array(RATING_UNSET_RATING => $strrate . '...') +
-                     $rating->settings->scale->scaleitems;
+            $scalearray = array(RATING_UNSET_RATING => $strrate . '...') + $rating->settings->scale->scaleitems;
             $scaleattrs = array('class' => 'postratingmenu ratinginput',
                 'id' => 'menurating' . $rating->itemid);
             $ratinghtml .= html_writer::label($rating->rating, 'menurating' . $rating->itemid,

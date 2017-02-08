@@ -83,8 +83,7 @@ class booking_ical {
 
         // UIDs should be globally unique
         $urlbits = parse_url($CFG->wwwroot);
-        $uid = md5($CFG->siteidentifier . $this->option->id . 'mod_booking_option') . // Unique identifier, salted with site identifier
-'@' . $urlbits['host']; // Hostname for this moodle installation
+        $uid = md5($CFG->siteidentifier . $this->option->id . 'mod_booking_option') . '@' . $urlbits['host']; // Hostname for this moodle installation
 
         $dtstart = $this->generate_timestamp($this->option->coursestarttime);
         $dtend = $this->generate_timestamp($this->option->courseendtime);

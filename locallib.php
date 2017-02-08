@@ -13,9 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-require_once ($CFG->dirroot . '/user/selector/lib.php');
-require_once ($CFG->dirroot . '/mod/booking/lib.php');
-require_once ($CFG->libdir . '/tcpdf/tcpdf.php');
+require_once($CFG->dirroot . '/user/selector/lib.php');
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+require_once($CFG->libdir . '/tcpdf/tcpdf.php');
 
 
 /**
@@ -368,7 +368,7 @@ class booking_utils {
      * @param object $params the booking details
      * @return string
      */
-    function get_body($booking, $fieldname, $params, $urlencode = false) {
+    public function get_body($booking, $fieldname, $params, $urlencode = false) {
         $text = $booking->$fieldname;
         foreach ($params as $name => $value) {
             if ($urlencode) {
@@ -572,10 +572,11 @@ function download_sign_in_sheet($bookingdata = null) {
     global $CFG, $DB;
 
     $users = $DB->get_records_sql(
-            'SELECT u.id, u.firstname, u.lastname FROM {booking_answers} AS ba LEFT JOIN {user} AS u ON u.id = ba.userid WHERE ba.optionid = ? ORDER BY u.lastname ASC',
+            'SELECT u.id, u.firstname, u.lastname
+            FROM {booking_answers} ba
+            LEFT JOIN {user} u ON u.id = ba.userid
+            WHERE ba.optionid = ? ORDER BY u.lastname ASC',
             array($bookingdata->option->id));
-
-    // var_dump($bookingdata);
 
     $teachers = array();
 
