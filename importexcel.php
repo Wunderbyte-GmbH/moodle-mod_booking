@@ -54,7 +54,7 @@ $mform = new importexcel_form($url);
 
 // Form processing and displaying is done here
 if ($mform->is_cancelled()) {
-    // Handle form cancel operation, if cancel button is present on form
+    // Handle form cancel operation, if cancel button is present on form.
     redirect($urlredirect, '', 0);
     die();
 } else if ($fromform = $mform->get_data()) {

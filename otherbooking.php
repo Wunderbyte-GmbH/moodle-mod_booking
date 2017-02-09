@@ -62,13 +62,10 @@ $table->head = array(
     (empty($option->booking->lblnumofusers) ? get_string('otherbookingnumber', 'booking') : $option->booking->lblnumofusers));
 
 $rules = $DB->get_records_sql(
-        "SELECT
-    bo.id, bo.otheroptionid, bo.userslimit, b.text
-FROM
-    {booking_other} AS bo
-    LEFT JOIN {booking_options} AS b ON b.id = bo.otheroptionid
-WHERE
-    bo.optionid = ?", array($optionid));
+        "SELECT bo.id, bo.otheroptionid, bo.userslimit, b.text
+        FROM {booking_other} bo
+        LEFT JOIN {booking_options} b ON b.id = bo.otheroptionid
+        WHERE bo.optionid = ?", array($optionid));
 
 $rulestable = array();
 

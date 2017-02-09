@@ -382,7 +382,10 @@ if (!$tableallbookings->is_downloading()) {
                     array('conectedbooking' => $bookingdata->booking->id), 'id', IGNORE_MULTIPLE);
 
             $tmpcmid = $DB->get_record_sql(
-                    "SELECT cm.id FROM {course_modules} cm JOIN {modules} md ON md.id = cm.module JOIN {booking} m ON m.id = cm.instance WHERE md.name = 'booking' AND cm.instance = ?",
+                    "SELECT cm.id FROM {course_modules} cm
+                    JOIN {modules} md ON md.id = cm.module
+                    JOIN {booking} m ON m.id = cm.instance
+                    WHERE md.name = 'booking' AND cm.instance = ?",
                     array($connectedbooking->id));
             $tmpbooking = new \mod_booking\booking_option($tmpcmid->id, $_POST['selectoptionid']);
 
@@ -725,7 +728,9 @@ if (!$tableallbookings->is_downloading()) {
                     ba.completed AS completed,
                     ba.numrec,
                     ba.waitinglist AS waitinglist {$customfields}";
-    $from = '{booking_answers} AS ba JOIN {user} AS u ON u.id = ba.userid JOIN {booking_options} AS bo ON bo.id = ba.optionid';
+    $from = '{booking_answers} ba
+            JOIN {user}  u ON u.id = ba.userid
+            JOIN {booking_options} bo ON bo.id = ba.optionid';
     $where = 'ba.optionid = :optionid ' . $addsqlwhere;
 
     $tableallbookings->define_columns($columns);
@@ -740,9 +745,9 @@ if (!$tableallbookings->is_downloading()) {
             $option->groups = "";
             $groups = groups_get_user_groups($course->id, $option->userid);
             if (!empty($groups[0])) {
-                $groupids = implode(',', $groups[0]);
+                list ($insql, $paramsin) = $DB->get_in_or_equal($groups[0]);
                 $groupnames = $DB->get_fieldset_select('groups', 'name',
-                        ' id IN (' . $groupids . ')');
+                        ' id (' . $insql . ')', $paramsin);
                 $option->groups = implode(', ', $groupnames);
             }
         }

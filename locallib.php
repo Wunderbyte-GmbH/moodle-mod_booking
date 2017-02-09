@@ -131,7 +131,10 @@ class booking_potential_user_selector extends booking_user_selector_base {
             $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
         }
 
-        $sql = " FROM {user} u WHERE $searchcondition AND u.id IN (SELECT nnn.id FROM ($esql) AS nnn WHERE nnn.id > 1) AND u.id NOT IN (SELECT ba.userid FROM {booking_answers} AS ba WHERE ba.optionid = {$this->options['optionid']})";
+        $sql = " FROM {user} u
+        WHERE $searchcondition
+        AND u.id IN (SELECT nnn.id FROM ($esql) AS nnn WHERE nnn.id > 1)
+        AND u.id NOT IN (SELECT ba.userid FROM {booking_answers} ba WHERE ba.optionid = {$this->options['optionid']})";
 
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;

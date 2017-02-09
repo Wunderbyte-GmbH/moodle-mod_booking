@@ -88,8 +88,7 @@ class booking_ical {
         $dtstart = $this->generate_timestamp($this->option->coursestarttime);
         $dtend = $this->generate_timestamp($this->option->courseendtime);
 
-        // FIXME: currently we are not sending updates if the times of the
-        // session are changed. This is not ideal!
+        // FIXME: currently we not sending updates if the times of the session are changed.
         $sequence = 0;
 
         $summary = $this->escape($this->booking->name);
@@ -117,8 +116,7 @@ class booking_ical {
 
         $icalmethod = ($cancel) ? 'CANCEL' : 'REQUEST';
 
-        // FIXME: if the user has input their name in another language, we need
-        // to set the LANGUAGE property parameter here
+        // FIXME: if user did input name in another language, we need to set the LANGUAGE property parameter here
         $username = fullname($this->user);
         $mailto = $this->user->email;
 
@@ -225,8 +223,7 @@ EOF;
 
         $text = str_replace(array('\\', "\n", ';', ','), array('\\\\', '\n', '\;', '\,'), $text);
 
-        // Text should be wordwrapped at 75 octets, and there should be one
-        // whitespace after the newline that does the wrapping
+        // Text should be wordwrapped at 75 octets, and there should be one whitespace after the newline that does the wrapping.
         $text = wordwrap($text, 75, "\n ", true);
 
         return $text;

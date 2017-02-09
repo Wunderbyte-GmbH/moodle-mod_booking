@@ -22,7 +22,7 @@ class mod_booking_bookingform_form extends moodleform {
         global $CFG, $DB, $COURSE;
         $mform = & $this->_form;
 
-        // visible elements
+        // Visible elements.
         $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
 
         $mform->addElement('text', 'text', get_string('booking', 'booking'), array('size' => '64'));
@@ -161,7 +161,7 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->addElement('selectyesno', 'disablebookingusers',
                 get_string("disablebookingusers", "booking"));
 
-        // hidden elements
+        // Hidden elements.
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 
@@ -170,9 +170,8 @@ class mod_booking_bookingform_form extends moodleform {
 
         $mform->addElement('hidden', 'optionid');
         $mform->setType('optionid', PARAM_INT);
-        // -------------------------------------------------------------------------------
-        // buttons
-        //
+
+        // Buttons.
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton',
                 get_string('savechangesanddisplay'));
@@ -181,7 +180,6 @@ class mod_booking_bookingform_form extends moodleform {
         $buttonarray[] = &$mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
         $mform->closeHeaderBefore('buttonar');
-        // $this->add_action_buttons();
     }
 
     protected function data_preprocessing(&$defaultvalues) {

@@ -90,7 +90,7 @@ if ($mform->is_cancelled()) {
     $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
     redirect($redirecturl, '', 0);
 } else if ($fromform = $mform->get_data()) {
-    // validated data.
+    // Validated data.
     if (confirm_sesskey() && has_capability('mod/booking:updatebooking', $context)) {
         if (!isset($fromform->limitanswers)) {
             $fromform->limitanswers = 0;
@@ -115,8 +115,6 @@ if ($mform->is_cancelled()) {
     $PAGE->set_title(format_string($booking->name));
     $PAGE->set_heading($course->fullname);
     echo $OUTPUT->header();
-    // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
-    // or on the first display of the form.
 
     $mform->set_data($defaultvalues);
     $mform->display();

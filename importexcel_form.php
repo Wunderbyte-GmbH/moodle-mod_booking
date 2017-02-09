@@ -26,7 +26,7 @@ class importexcel_form extends moodleform {
     public function definition() {
         global $CFG;
 
-        $mform = $this->_form; // Don't forget the underscore!
+        $mform = $this->_form;
 
         $mform->addElement('filepicker', 'excelfile', get_string('excelfile', 'booking'), null,
                 array('maxbytes' => $CFG->maxbytes, 'accepted_types' => '*'));

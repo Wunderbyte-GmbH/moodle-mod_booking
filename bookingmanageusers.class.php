@@ -24,9 +24,8 @@ class mod_booking_manageusers_form extends moodleform {
 
         $cm = $this->_customdata['cm'];
 
-        // visible elements
-        //
-        // add all booked users to form
+        // Visible elements.
+        // Add all booked users to form.
         $mform->addElement('html', '<h5>' . get_string('bookedusers', 'booking') . ':</h5>');
 
         if ($this->_customdata['bookedusers']) {
@@ -67,7 +66,7 @@ class mod_booking_manageusers_form extends moodleform {
             $mform->addElement('html', '<p>' . get_string('nousers', 'booking') . '</p>');
         }
 
-        // add all waiting list users to form
+        // Add all waiting list users to form.
         if (!empty($this->_customdata['waitinglistusers'])) {
             $mform->addElement('html',
                     '<h5>' . get_string('waitinglistusers', 'booking') . ':</h5>');
@@ -87,9 +86,7 @@ class mod_booking_manageusers_form extends moodleform {
                 $this->add_checkbox_controller($this->_customdata['bookingdata']->id);
             }
         }
-        // -------------------------------------------------------------------------------
-        // buttons
-
+        // Buttons
         $buttonarray = array();
         $buttonarray[] = $mform->createElement('static', 'onlylabel', '',
                 '<span class="bookinglabelname">' . get_string('withselected', 'booking') . '</span>');
@@ -121,7 +118,7 @@ class mod_booking_manageusers_form extends moodleform {
 
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
 
-        // hidden elements
+        // Hidden elements.
         $mform->addElement('hidden', 'id', $this->_customdata['bookingdata']->cmid);
         $mform->setType('id', PARAM_INT);
 

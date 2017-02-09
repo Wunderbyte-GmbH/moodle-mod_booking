@@ -423,8 +423,8 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('header', 'categoryadditionalfields',
                 get_string('additionalfields', 'booking'));
         $additionalfields = array();
-        $tmpAddFields = $DB->get_records('user_info_field', array());
-        foreach ($tmpAddFields as $field) {
+        $tmpaddfields = $DB->get_records('user_info_field', array());
+        foreach ($tmpaddfields as $field) {
             $additionalfields[$field->shortname] = $field->name;
         }
         $select = $mform->addElement('select', 'additionalfields',
