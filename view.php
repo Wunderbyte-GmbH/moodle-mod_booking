@@ -715,7 +715,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             foreach ($userprofilefields as $profilefield) {
                 $columns[] = "cust" . strtolower($profilefield->shortname);
                 $headers[] = $profilefield->name;
-                $customfields .= ", (SELECT " . $DB->sql_concat('uif.datatype', "'|'", ',uid.data') .
+                $customfields .= ", (SELECT " . $DB->sql_concat('uif.datatype', "'|'", 'uid.data') .
                          " as custom
                          FROM {user_info_data} uid
                          LEFT JOIN {user_info_field} uif ON uid.fieldid = uif.id
@@ -725,6 +725,10 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         }
         $columns[] = 'groups';
         $headers[] = get_string("group");
+        if ($DB->count_records_select('user', ' idnumber <> ""') > 0) {
+            $columns[] = 'idnumber';
+            $headers[] = get_string("idnumber");
+        }
 
         if ($myoptions->myoptions > 0 && !has_capability('mod/booking:readresponses', $context)) {
             $conditionsparams['onlyinstitution1'] = $USER->institution;
@@ -747,7 +751,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                         tba.completed AS completed,
                         tba.numrec,
                         otherbookingoption.text AS otheroptions,
-                        tba.waitinglist AS waitinglist {$customfields}";
+                        tba.waitinglist AS waitinglist,
+                        tu.idnumber AS idnumber {$customfields}";
         $from = '{booking_answers} tba
                 JOIN {user} tu ON tu.id = tba.userid
                 JOIN {booking_options} tbo ON tbo.id = tba.optionid

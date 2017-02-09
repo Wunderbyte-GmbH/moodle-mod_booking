@@ -701,7 +701,7 @@ if (!$tableallbookings->is_downloading()) {
         foreach ($userprofilefields as $profilefield) {
             $columns[] = "cust" . strtolower($profilefield->shortname);
             $headers[] = $profilefield->name;
-            $customfields .= ", (SELECT " . $DB->sql_concat('uif.datatype', "'|'", ',uid.data') . " as custom
+            $customfields .= ", (SELECT " . $DB->sql_concat('uif.datatype', "'|'", 'uid.data') . " as custom
                      FROM {user_info_data} uid
                      LEFT JOIN {user_info_field}  uif ON uid.fieldid = uif.id
                      WHERE userid = ba.userid
@@ -712,6 +712,10 @@ if (!$tableallbookings->is_downloading()) {
 
     $columns[] = 'groups';
     $headers[] = get_string("group");
+    if ($DB->count_records_select('user', ' idnumber <> ""') > 0) {
+        $columns[] = 'idnumber';
+        $headers[] = get_string("idnumber");
+    }
 
     $fields = "u.id AS userid,
                     ba.optionid AS optionid,
@@ -727,7 +731,9 @@ if (!$tableallbookings->is_downloading()) {
                     u.email AS email,
                     ba.completed AS completed,
                     ba.numrec,
-                    ba.waitinglist AS waitinglist {$customfields}";
+                    ba.waitinglist AS waitinglist,
+                    u.idnumber as idnumber
+                    {$customfields}";
     $from = '{booking_answers} ba
             JOIN {user}  u ON u.id = ba.userid
             JOIN {booking_options} bo ON bo.id = ba.optionid';
@@ -747,7 +753,7 @@ if (!$tableallbookings->is_downloading()) {
             if (!empty($groups[0])) {
                 list ($insql, $paramsin) = $DB->get_in_or_equal($groups[0]);
                 $groupnames = $DB->get_fieldset_select('groups', 'name',
-                        ' id (' . $insql . ')', $paramsin);
+                        ' id ' . $insql , $paramsin);
                 $option->groups = implode(', ', $groupnames);
             }
         }
