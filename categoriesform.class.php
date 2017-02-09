@@ -37,7 +37,7 @@ class mod_booking_categories_form extends moodleform {
     }
 
     public function definition() {
-        global $CFG, $DB, $COURSE;
+        global $DB, $COURSE;
 
         $categories = $DB->get_records('booking_category',
                 array('course' => $COURSE->id, 'cid' => 0));
@@ -48,8 +48,6 @@ class mod_booking_categories_form extends moodleform {
             $options[$category->id] = $category->name;
             $options = $this->show_sub_categories($category->id, '', $DB, $options);
         }
-
-        $context = context_system::instance();
 
         $mform = $this->_form;
 

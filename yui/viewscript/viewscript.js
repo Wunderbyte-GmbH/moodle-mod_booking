@@ -1,4 +1,4 @@
-YUI.add('moodle-mod_booking-viewscript', function(Y, NAME) {
+YUI.add('moodle-mod_booking-viewscript', function(Y) {
 
     // This file is part of Moodle - http://moodle.org/
     //

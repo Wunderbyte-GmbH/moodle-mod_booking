@@ -333,27 +333,26 @@ class booking_utils {
             $params->pollstartdate = $option->coursestarttime ? userdate(
                     (int) $option->coursestarttime, get_string('pollstrftimedate', 'booking'), '',
                     false) : '';
-            if (empty($option->pollurl)) {
-                $params->pollurl = $booking->pollurl;
-            } else {
+            if (!empty($option->pollurl)) {
                 $params->pollurl = $option->pollurl;
-            }
-            if (empty($option->pollurlteachers)) {
-                $params->pollurlteachers = $booking->pollurlteachers;
             } else {
+                $params->pollurl = $booking->pollurl;
+            }
+            if (!empty($option->pollurlteachers)) {
                 $params->pollurlteachers = $option->pollurlteachers;
+            } else {
+                $params->pollurlteachers = $booking->pollurlteachers;
             }
 
             $val = '';
             if (!is_null($option->times)) {
-                $times = explode(',', $option->times);
-                foreach ($times as $time) {
-                    $slot = explode('-', $time);
-                    $tmpdate = new stdClass();
-                    $tmpdate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
-                    $tmpdate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
-
-                    $val .= get_string('leftandrightdate', 'booking', $tmpdate) . '<br>';
+                $additionaltimes = explode(',', $option->times);
+                foreach ($additionaltimes as $t) {
+                    $slot = explode('-', $t);
+                    $tempdate = new stdClass();
+                    $tempdate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
+                    $tempdate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
+                    $val .= get_string('leftandrightdate', 'booking', $tempdate) . '<br>';
                 }
             }
 
@@ -489,7 +488,7 @@ class booking_tags {
     public function booking_replace($bookingtmp = null) {
         $booking = clone $bookingtmp;
         foreach ($booking as $key => $value) {
-            if (in_array($key, $this->bookingChangeText)) {
+            if (in_array($key, $this->bookingchangetext)) {
                 $booking->{$key} = $this->tag_replaces($booking->{$key});
             }
         }
@@ -500,7 +499,7 @@ class booking_tags {
     public function option_replace($option = null) {
         $this->option = clone $option;
         foreach ($this->option as $key => $value) {
-            if (in_array($key, $this->optionsChangeText)) {
+            if (in_array($key, $this->optionschangetext)) {
                 $this->option->{$key} = $this->tag_replaces($this->option->{$key});
             }
         }
@@ -571,7 +570,7 @@ class mypdf extends TCPDF {
     }
 }
 
-function download_sign_in_sheet($bookingdata = null) {
+function booking_download_sign_in_sheet(mod_booking\booking_option $bookingdata = null) {
     global $CFG, $DB;
 
     $users = $DB->get_records_sql(
@@ -623,23 +622,47 @@ function download_sign_in_sheet($bookingdata = null) {
     $pdf->setFontSubsetting(false);
 
     $pdf->AddPage();
+    $pdf = booking_set_pdf_font($pdf, $bookingdata, $teachers, $times);
 
+    foreach ($users as $user) {
+        if ($pdf->go_to_newline(12)) {
+            $pdf = booking_set_pdf_font($pdf, $bookingdata, $teachers, $times);
+        }
+        $pdf->Cell((210 - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / 2, 12,
+                $user->lastname . ", " . $user->firstname, 1, 0, '', 0);
+        $pdf->Cell(0, 12, "", 1, 1, '', 0);
+    }
+
+    $pdf->Output($bookingdata->option->text . '.pdf', 'D');
+}
+/**
+ * Set font for pdf via tcpdf
+ *
+ * @param mypdf $pdf
+ * @param mod_booking\booking_option $bookingdata
+ * @param array $teachers
+ * @param string $times
+ * @return mypdf
+ */
+function booking_set_pdf_font(mypdf $pdf, mod_booking\booking_option $bookingdata, array $teachers, string $times) {
     $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 14);
     $pdf->MultiCell(0, 0, $bookingdata->option->text, 0, 1, '', 1);
     $pdf->Ln();
 
     $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
-    $pdf->Cell(0, 0, get_string('teachers', 'booking') . implode(', ', $teachers), 0, 1, '', 0);
+    $pdf->Cell(0, 0, get_string('teachers', 'booking') . implode(', ', $teachers), 0, 1, '',
+            0);
     $pdf->Ln();
 
     $pdf->MultiCell($pdf->GetStringWidth(get_string('pdfdate', 'booking')) + 5, 0,
             get_string('pdfdate', 'booking'), 0, 1, '', 0);
     $pdf->MultiCell(0, 0, $times, 0, 1, '', 1);
 
-    $pdf->Cell(0, 0, get_string('pdflocation', 'booking') . $bookingdata->option->address, 0, 1, '',
-            0);
+    $pdf->Cell(0, 0, get_string('pdflocation', 'booking') . $bookingdata->option->address,
+            0, 1, '', 0);
 
-    $pdf->Cell(0, 0, get_string('pdfroom', 'booking') . $bookingdata->option->location, 0, 1, '', 0);
+    $pdf->Cell(0, 0, get_string('pdfroom', 'booking') . $bookingdata->option->location, 0,
+            1, '', 0);
     $pdf->Ln();
 
     $pdf->Cell($pdf->GetStringWidth(get_string('pdftodaydate', 'booking')) + 1, 0,
@@ -652,46 +675,5 @@ function download_sign_in_sheet($bookingdata = null) {
             get_string('pdfstudentname', 'booking'), 1, 0, '', 0);
     $pdf->Cell(0, 0, get_string('pdfsignature', 'booking'), 1, 1, '', 0);
     $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
-
-    foreach ($users as $user) {
-
-        if ($pdf->go_to_newline(12)) {
-            $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 14);
-            $pdf->MultiCell(0, 0, $bookingdata->option->text, 0, 1, '', 1);
-            $pdf->Ln();
-
-            $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
-            $pdf->Cell(0, 0, get_string('teachers', 'booking') . implode(', ', $teachers), 0, 1, '',
-                    0);
-            $pdf->Ln();
-
-            $pdf->MultiCell($pdf->GetStringWidth(get_string('pdfdate', 'booking')) + 5, 0,
-                    get_string('pdfdate', 'booking'), 0, 1, '', 0);
-            $pdf->MultiCell(0, 0, $times, 0, 1, '', 1);
-
-            $pdf->Cell(0, 0, get_string('pdflocation', 'booking') . $bookingdata->option->address,
-                    0, 1, '', 0);
-
-            $pdf->Cell(0, 0, get_string('pdfroom', 'booking') . $bookingdata->option->location, 0,
-                    1, '', 0);
-            $pdf->Ln();
-
-            $pdf->Cell($pdf->GetStringWidth(get_string('pdftodaydate', 'booking')) + 1, 0,
-                    get_string('pdftodaydate', 'booking'), 0, 0, '', 0);
-            $pdf->Cell(100, 0, "", "B", 1, '', 0);
-            $pdf->Ln();
-
-            $pdf->SetFont(PDF_FONT_NAME_MAIN, 'B', 12);
-            $pdf->Cell((210 - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / 2, 0,
-                    get_string('pdfstudentname', 'booking'), 1, 0, '', 0);
-            $pdf->Cell(0, 0, get_string('pdfsignature', 'booking'), 1, 1, '', 0);
-            $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
-        }
-
-        $pdf->Cell((210 - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / 2, 12,
-                $user->lastname . ", " . $user->firstname, 1, 0, '', 0);
-        $pdf->Cell(0, 12, "", 1, 1, '', 0);
-    }
-
-    $pdf->Output($bookingdata->option->text . '.pdf', 'D');
+    return $pdf;
 }

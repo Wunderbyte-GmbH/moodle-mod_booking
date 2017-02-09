@@ -151,67 +151,6 @@ class mod_booking_renderer extends plugin_renderer_base {
     }
 
     /**
-     * display all the bookings of the whole moodle site sorted by course
-     *
-     * @param booking_options $bookingoptions
-     * @return string rendered html
-     */
-    public function render_bookings(booking_options $bookingoptions) {
-        $output = '';
-        $output .= html_writer::start_div();
-        $header = html_writer::tag('h3', $bookingoptions->booking->name);
-        $url = new moodle_url('/mod/booking/view.php', array('id' => $bookingoptions->cm->id));
-        $output .= html_writer::link($url, $header);
-        foreach ($bookingoptions->options as $optionid => $bookingoption) {
-            if (!empty($bookingoptions->allbookedusers[$optionid])) {
-                $waitinglist = array();
-                $output .= html_writer::tag('h4', $bookingoption->text);
-                $output .= html_writer::start_div('mod-booking-regular');
-                $output .= html_writer::div(get_string('bookedusers', 'booking'));
-                $table = new html_table();
-                $table->cellpadding = 1;
-                $table->cellspacing = 0;
-                $table->tablealign = 'left';
-                $table->data = array();
-                foreach ($bookingoptions->allbookedusers[$optionid] as $user) {
-                    if ($user->status[$optionid]->bookingvisible &&
-                             $user->status[$optionid]->booked == 'booked') {
-                        $table->data[] = array(
-                            $this->output->user_picture($user,
-                                    array('courseid' => $bookingoptions->booking->course)),
-                            fullname($user) . "<br />" . $user->email);
-                    } else if ($user->status[$optionid]->bookingvisible) {
-                        $waitinglist[] = $user;
-                    }
-                }
-                $output .= html_writer::table($table);
-                $output .= html_writer::end_div();
-            }
-            if (!empty($waitinglist)) {
-                $output .= html_writer::start_div('mod-booking-waiting');
-                $output .= html_writer::div(get_string('waitinglistusers', 'booking'));
-                $table = new html_table();
-                $table->cellpadding = 1;
-                $table->cellspacing = 0;
-                $table->tablealign = 'left';
-                $table->data = array();
-                foreach ($waitinglist as $user) {
-                    if ($user->status[$optionid]->bookingvisible) {
-                        $table->data[] = array(
-                            $this->output->user_picture($user,
-                                    array('courseid' => $bookingoptions->booking->course)),
-                            fullname($user) . "<br />" . $user->email);
-                    }
-                }
-                $output .= html_writer::table($table);
-                $output .= html_writer::end_div();
-            }
-        }
-        $output .= html_writer::end_div();
-        return $output;
-    }
-
-    /**
      * render userbookings for the whole site sorted per user
      *
      * @param array $userbookings
