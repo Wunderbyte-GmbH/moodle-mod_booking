@@ -1418,6 +1418,20 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2016122300, 'booking');
     }
+    if ($oldversion < 2017021000) {
+
+        $sql = "SELECT tc.id, tc.stringid
+        FROM {tool_customlang} tc
+        LEFT JOIN {tool_customlang_components} tcc ON tcc.id = tc.componentid
+        WHERE tcc.name = 'mod_booking'";
+        $langstrings = $DB->get_records_sql($sql);
+        foreach ($langstrings as $langstring) {
+            $langstring->stringid = strtolower($langstring->stringid);
+            $DB->update_record('tool_customlang', $langstring, true);
+        }
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2017021000, 'booking');
+    }
 
     return true;
 }
