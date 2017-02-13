@@ -503,6 +503,7 @@ $string['sendmailtobooker_help'] = 'Diese Option aktivieren, um Buchungsbestäti
 $string['startendtimeknown'] = 'Kursbeginn und Kursende sind bekannt';
 $string['submitandaddnew'] = 'Speichern und neue Buchung hinzufügen';
 $string['waitinglisttaken'] = 'Auf der Warteliste';
+$string['groupexists'] = 'Die Gruppe existiert bereits im Zielkurs. Bitte verwenden Sie einen anderen Namen für die Buchungsoption';
 
 // importoptions.php
 $string['csvfile'] = 'CSV Datei';

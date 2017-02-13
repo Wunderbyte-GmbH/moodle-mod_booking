@@ -413,15 +413,13 @@ class booking_option extends booking {
     public function user_delete_response($userid) {
         global $USER, $DB;
 
-        $result = $DB->get_records('booking_answers',
-                array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0));
+        $result = $DB->get_records('booking_answers', array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0));
 
         if (count($result) == 0) {
             return false;
         }
 
-        $DB->delete_records('booking_answers',
-                array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0));
+        $DB->delete_records('booking_answers', array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0));
 
         if ($userid == $USER->id) {
             $user = $USER;

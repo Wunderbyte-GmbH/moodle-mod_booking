@@ -398,30 +398,37 @@ class booking_utils {
         if ($booking->addtogroup == 1 && $option->courseid > 0) {
 
             $cm = get_coursemodule_from_instance('booking', $booking->id);
+            $url = new moodle_url('/mod/booking/view.php', array('id' => $cm->id));
 
             $tags = new booking_tags($cm);
             $booking = $tags->booking_replace($booking);
             $option = $tags->option_replace($option);
             $newgroupdata = new stdClass();
+            $newgroupdata->courseid = $option->courseid;
+            $newgroupdata->name = $booking->name . ' - ' . $option->text;
+            $newgroupdata->description = $booking->name . ' - ' . $option->text;
+            $newgroupdata->descriptionformat = FORMAT_HTML;
+            // If group name already exists, do not create it a second time, it should be unique.
+            if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name)) {
+                throw new moodle_exception('groupexists', 'booking', $url->out());
+            }
 
             if (isset($option->id)) {
                 $groupid = $DB->get_field('booking_options', 'groupid', array('id' => $option->id));
 
                 if (!is_null($groupid) && ($groupid > 0)) {
-                    $newgroupdata->id = $groupid;
+                    $newgroupdata->idnumber = $groupid;
                 }
 
-                $newgroupdata->courseid = $option->courseid;
-                $newgroupdata->name = $booking->name . ' - ' . $option->text . ' - ' . $option->id;
-                $newgroupdata->description = $booking->name . ' - ' . $option->text;
-                $newgroupdata->descriptionformat = FORMAT_HTML;
-
-                if (isset($newgroupdata->id)) {
+                if (isset($newgroupdata->idnumber)) {
                     groups_update_group($newgroupdata);
-                    return $newgroupdata->id;
+                    return $newgroupdata->idnumber;
                 } else {
                     return groups_create_group($newgroupdata);
                 }
+            } else {
+                // New option, optionid not yet available.
+                return groups_create_group($newgroupdata);
             }
         } else {
             return 0;

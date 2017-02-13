@@ -569,6 +569,7 @@ $string['sendmailtobooker_help'] = 'Activate this option in order to send bookin
 $string['startendtimeknown'] = 'Start and end time of course are known';
 $string['submitandaddnew'] = 'Save and add new';
 $string['waitinglisttaken'] = 'On the waiting list';
+$string['groupexists'] = 'The group already exists in the target course, please choose another name for the booking option';
 
 // importoptions.php
 $string['csvfile'] = 'CSV file';

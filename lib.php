@@ -27,7 +27,6 @@ require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->libdir . '/eventslib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 
-// Standard functions /////////////////////////////////////////////////////////
 function booking_cron() {
     global $DB, $USER, $CFG;
 
@@ -107,9 +106,11 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
                                   // Extract the filename / filepath from the $args array.
     $filename = array_pop($args); // The last item in the $args array.
     if (!$args) {
-        $filepath = '/'; // $args is empty => the path is '/'
+        // Var $args is empty => the path is '/'.
+        $filepath = '/';
     } else {
-        $filepath = '/' . implode('/', $args) . '/'; // $args contains elements of the filepath
+        // Var $args contains elements of the filepath.
+        $filepath = '/' . implode('/', $args) . '/';
     }
 
     // Retrieve the file from the Files API.
@@ -182,7 +183,7 @@ function booking_supports($feature) {
 function booking_get_completion_state($course, $cm, $userid, $type) {
     global $CFG, $DB;
 
-    // Get booking details
+    // Get booking details.
     if (!($booking = $DB->get_record('booking', array('id' => $cm->instance)))) {
         throw new Exception("Can't find booking {$cm->instance}");
     }
@@ -202,7 +203,7 @@ function booking_get_completion_state($course, $cm, $userid, $type) {
 }
 
 /**
- * Given an object containing all the necessary data, (defined by the form in mod.html) this function will create a new instance and return the id
+ * Given an object containing all the necessary data this will create a new instance and return the id
  * number of the new instance.
  *
  * @param unknown $booking
@@ -225,7 +226,7 @@ function booking_add_instance($booking) {
         $booking->timeopen = $booking->timeclose = 0;
     }
 
-    // Copy the text fields out:
+    // Copy the text fields out.
     $booking->bookedtext = $booking->bookedtext['text'];
     $booking->waitingtext = $booking->waitingtext['text'];
     $booking->notifyemail = $booking->notifyemail['text'];
@@ -236,7 +237,7 @@ function booking_add_instance($booking) {
     $booking->notificationtext = $booking->notificationtext['text'];
     $booking->userleave = $booking->userleave['text'];
 
-    // Insert answer options from mod_form
+    // Insert answer options from mod_form.
     $booking->id = $DB->insert_record("booking", $booking);
 
     $cmid = $booking->coursemodule;
@@ -274,12 +275,15 @@ function booking_add_instance($booking) {
     return $booking->id;
 }
 
+/**
+ * Given an object containing all the necessary data this will update an existing instance.
+ *
+ * @param unknown $booking
+ * @return boolean
+ */
 function booking_update_instance($booking) {
     global $DB, $CFG;
-    // Given an object containing all the necessary data,
-    // (defined by the form in mod.html) this function
-    // will update an existing instance with new data.
-    // we have to prepare the bookingclosingtimes as an $arrray, currently they are in $booking as $key (string)
+    // We have to prepare the bookingclosingtimes as an $arrray, currently they are in $booking as $key (string).
     $booking->id = $booking->instance;
     $booking->timemodified = time();
     $cm = get_coursemodule_from_instance('booking', $booking->id);
@@ -319,7 +323,7 @@ function booking_update_instance($booking) {
         $booking->timeclose = 0;
     }
 
-    // Copy the text fields out:
+    // Copy the text fields out.
     $booking->bookedtext = $booking->bookedtext['text'];
     $booking->waitingtext = $booking->waitingtext['text'];
     $booking->notifyemail = $booking->notifyemail['text'];
@@ -330,7 +334,7 @@ function booking_update_instance($booking) {
     $booking->notificationtext = $booking->notificationtext['text'];
     $booking->userleave = $booking->userleave['text'];
 
-    // Update, delete or insert answers
+    // Update, delete or insert answers.
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {
             $value = trim($value);
@@ -362,7 +366,7 @@ function booking_update_instance($booking) {
 }
 
 /**
- * Update the booking option settings when adding and modifying a single booking optiond
+ * Update the booking option settings when adding and modifying a single booking option
  *
  * @param array $optionvalues
  * @return boolean|number
@@ -439,7 +443,7 @@ function booking_update_options($optionvalues) {
             $option->groupid = $bokingutils->group($booking, $option);
 
             if ($option->calendarid > 0) {
-                // event exist
+                // Event exists.
                 if (isset($optionvalues->addtocalendar)) {
                     booking_option_add_to_cal($booking, $option, $optionvalues);
                 } else {
@@ -453,7 +457,7 @@ function booking_update_options($optionvalues) {
             } else {
                 $option->addtocalendar = 0;
                 $option->calendarid = 0;
-                // Insert into calendar
+                // Insert into calendar.
                 if (isset($optionvalues->addtocalendar)) {
                     booking_option_add_to_cal($booking, $option, $optionvalues);
                 }
@@ -466,9 +470,7 @@ function booking_update_options($optionvalues) {
     } else if (isset($optionvalues->text) && $optionvalues->text != '') {
         $option->addtocalendar = 0;
         $option->calendarid = 0;
-        // Insert into calendar
-        // We add a new booking_options?
-
+        // Insert into calendar.
         if (isset($optionvalues->addtocalendar)) {
             booking_option_add_to_cal($booking, $option, $optionvalues);
         }
@@ -550,7 +552,7 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
                 $status = get_string('notbooked', 'booking');
             } else if ($useridaskey[$userid] > $option->maxanswers + $option->maxoverbooking) {
                 $status = "Problem, please contact the admin";
-            } else if (($useridaskey[$userid]) >= $option->maxanswers) { // waitspaceavailable
+            } else if (($useridaskey[$userid]) >= $option->maxanswers) {
                 $status = get_string('onwaitinglist', 'booking');
             } else if ($useridaskey[$userid] <= $option->maxanswers) {
                 $status = get_string('booked', 'booking');
@@ -605,7 +607,7 @@ function booking_show_maxperuser($booking, $user, $bookinglist) {
 }
 
 /**
- * determins the number of bookings that a single user has already made in all booking options
+ * Determins the number of bookings that a single user has already made in all booking options
  *
  * @param object $booking
  * @param object $user
@@ -622,7 +624,7 @@ function booking_get_user_booking_count($booking, $user, $bookinglist) {
 }
 
 /**
- * extend booking navigation settings
+ * Extend booking navigation settings
  *
  * @param settings_navigation $settings
  * @param navigation_node $navref
@@ -702,7 +704,7 @@ function booking_check_if_teacher($option, $user) {
 }
 
 /**
- * Manualy enrol the user in the relevant course, if that setting is on and a course has been specified.
+ * Manually enrol the user in the relevant course, if that setting is on and a course has been specified.
  *
  * @param object $option
  * @param object $booking
@@ -769,15 +771,16 @@ function booking_check_enrol_user($option, $booking, $userid) {
         return; // No manual enrolment instance on this course.
     }
 
+    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
+
+    $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
+
     if ($booking->addtogroup == 1) {
         if (!is_null($option->groupid) && ($option->groupid > 0)) {
             groups_add_member($option->groupid, $userid);
         }
     }
 
-    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-
-    $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
 }
 
 /**
@@ -817,65 +820,6 @@ function booking_check_unenrol_user($option, $booking, $userid) {
     $instance = reset($instances); // Use the first manual enrolment plugin in the course.
 
     $enrol->unenrol_user($instance, $userid); // Unenrol the user.
-}
-
-// this function is not yet implemented and needs to be changed a lot before using it
-function booking_show_statistic() {
-    global $DB;
-    echo "<table cellpadding=\"5\" cellspacing=\"0\" class=\"results anonymous\">";
-    echo "<tr>";
-
-    foreach ($booking->option as $optionid => $option) {
-        echo "<th class=\"col$count header\" scope=\"col\">";
-        echo format_string($option->text);
-        echo "</th>";
-
-        $column[$optionid] = 0;
-        if (isset($allresponses[$optionid])) {
-            $column[$optionid] = count($allresponses[$optionid]);
-            if ($column[$optionid] > $maxcolumn) {
-                $maxcolumn = $column[$optionid];
-            }
-        } else {
-            $column[$optionid] = 0;
-        }
-    }
-    echo "</tr><tr>";
-
-    $height = 0;
-
-    $count = 1;
-    foreach ($booking->option as $optionid => $option) {
-        if ($maxcolumn) {
-            $height = 300 * ((float) $column[$optionid] / (float) $maxcolumn);
-        }
-        echo "<td style=\"vertical-align:bottom\" align=\"center\" class=\"col$count data\">";
-        echo "<img src=\"column.png\" height=\"$height\" width=\"49\" alt=\"\" />";
-        echo "</td>";
-        $count++;
-    }
-    echo "</tr><tr>";
-
-    $count = 1;
-    foreach ($booking->option as $optionid => $option) {
-        echo "<td align=\"center\" class=\"col$count count\">";
-        if ($booking->limitanswers) {
-            echo get_string("taken", "booking") . ":";
-            echo $column[$optionid] . '<br />';
-            echo get_string("limit", "booking") . ":";
-            $option = $DB->get_record("booking_options", array("id", $optionid));
-            echo $option->maxanswers;
-        } else {
-            echo $column[$optionid];
-            echo '<br />(' .
-                     format_float(
-                            ((float) $column[$optionid] / (float) $totalresponsecount) * 100.0, 1) .
-                     '%)';
-        }
-        echo "</td>";
-        $count++;
-    }
-    echo "</tr></table>";
 }
 
 /**
@@ -919,7 +863,14 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
     }
 }
 
-// Generate new numbers for users
+/**
+ * Generate new numbers for users
+ *
+ * @param unknown $bookingdatabooking
+ * @param unknown $cmid
+ * @param unknown $optionid
+ * @param unknown $allselectedusers
+ */
 function booking_generatenewnumners($bookingdatabooking, $cmid, $optionid, $allselectedusers) {
     global $DB;
 
@@ -997,9 +948,7 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
     }
 }
 
-// /////////////////////////////
-// GRADING AND RATING
-// /////////////////////////////
+// GRADING AND RATING.
 
 /**
  * Return grade for given user or all users.
@@ -1155,8 +1104,7 @@ function booking_scale_used_anywhere($scaleid) {
 function booking_rating_permissions($contextid, $component, $ratingarea) {
     $context = context::instance_by_id($contextid, MUST_EXIST);
     if ($component != 'mod_booking' || $ratingarea != 'bookingoption') {
-        // We don't know about this component/ratingarea so just return null to get the
-        // default restrictive permissions.
+        // Know nothing about component/ratingarea: return null for default perms.
         return null;
     }
     return array('view' => has_capability('mod/booking:viewrating', $context),
@@ -1166,7 +1114,7 @@ function booking_rating_permissions($contextid, $component, $ratingarea) {
 }
 
 /**
- * Validates a submitted rating
+ * Validates a submitted rating. OBSOLETE?
  *
  * @param array $params submitted data context => object the context in which the rated items exists [required] component => The component for this
  *            module - should always be mod_forum [required] ratingarea => object the context in which the rated items exists [required] itemid => int
@@ -1179,22 +1127,22 @@ function booking_rating_permissions($contextid, $component, $ratingarea) {
 function booking_rating_validate($params) {
     global $DB, $USER;
 
-    // Check the component is mod_booking
+    // Check the component is mod_booking.
     if ($params['component'] != 'mod_booking') {
         throw new rating_exception('invalidcomponent');
     }
 
-    // Check the ratingarea is post (the only rating area in booking)
+    // Check the ratingarea is post (the only rating area in booking).
     if ($params['ratingarea'] != 'bookingoption') {
         throw new rating_exception('invalidratingarea');
     }
 
-    // Check the rateduserid is not the current user .. you can't rate your own posts
+    // Check the rateduserid is not the current user .. you can't rate your own posts.
     if ($params['rateduserid'] == $USER->id) {
         throw new rating_exception('nopermissiontorate');
     }
 
-    // Fetch all the related records
+    // Fetch all the related records.
     $answer = $DB->get_record('booking_answers',
             array('id' => $params['itemid'], 'userid' => $params['rateduserid']), '*', MUST_EXIST);
     $booking = $DB->get_record('booking', array('id' => $answer->bookingid), '*', MUST_EXIST);
@@ -1202,17 +1150,17 @@ function booking_rating_validate($params) {
     $cm = get_coursemodule_from_instance('booking', $booking->id, $course->id, false, MUST_EXIST);
     $context = context_module::instance($cm->id);
 
-    // Make sure the context provided is the context of the booking
+    // Make sure the context provided is the context of the booking.
     if ($context->id != $params['context']->id) {
         throw new rating_exception('invalidcontext');
     }
 
     if ($booking->scale != $params['scaleid']) {
-        // the scale being submitted doesnt match the one in the database
+        // The scale being submitted doesnt match the one in the database.
         throw new rating_exception('invalidscaleid');
     }
 
-    // check the item we're rating was created in the assessable time window
+    // Check the item we're rating was created in the assessable time window.
     if (!empty($booking->assesstimestart) && !empty($booking->assesstimefinish)) {
         if ($answer->timecreated < $booking->assesstimestart ||
                  $answer->timecreated > $booking->assesstimefinish) {
@@ -1220,16 +1168,14 @@ function booking_rating_validate($params) {
         }
     }
 
-    // check that the submitted rating is valid for the scale
-
-    // lower limit
+    // Check that the submitted rating is valid for the scale.
     if ($params['rating'] < 0 && $params['rating'] != RATING_UNSET_RATING) {
         throw new rating_exception('invalidnum');
     }
 
-    // upper limit
+    // Upper limit.
     if ($booking->scale < 0) {
-        // its a custom scale
+        // It is a custom scale.
         $scalerecord = $DB->get_record('scale', array('id' => -$booking->scale));
         if ($scalerecord) {
             $scalearray = explode(',', $scalerecord->scale);
@@ -1240,22 +1186,14 @@ function booking_rating_validate($params) {
             throw new rating_exception('invalidscaleid');
         }
     } else if ($params['rating'] > $booking->scale) {
-        // if its numeric and submitted rating is above maximum
+        // If its numeric and submitted rating is above maximum.
         throw new rating_exception('invalidnum');
     }
-
-    // Make sure groups allow this user to see the item they're rating
-
-    // perform some final capability checks
-    // if (!booking_user_can_see_post($booking, $discussion, $post, $USER, $cm)) {
-    // throw new rating_exception('nopermissiontorate');
-    // }
-
     return true;
 }
 
 /**
- * rate users
+ * Rate users.
  *
  * @param stdClass $ratings
  * @param array $params
@@ -1334,15 +1272,15 @@ function booking_rate($ratings, $params) {
         }
     }
 }
-// // END RATING AND GRADES /////
+// END RATING AND GRADES.
 
-// Send reminder email
+// Send reminder email.
 function booking_sendreminderemail($selectedusers, $booking, $cmid, $optionid) {
     booking_send_notification($optionid, get_string('notificationsubject', 'booking'),
             $selectedusers);
 }
 
-// Send mail to all teachers - pollurlteachers
+// Send mail to all teachers - pollurlteachers.
 function booking_sendpollurlteachers($booking, $cmid, $optionid) {
     global $DB, $USER;
 
@@ -1380,7 +1318,7 @@ function booking_sendpollurlteachers($booking, $cmid, $optionid) {
     return $returnval;
 }
 
-// Send mail to all users - pollurl
+// Send mail to all users - pollurl.
 function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
     global $DB, $USER;
 
@@ -1431,10 +1369,8 @@ function booking_sendcustommessage($optionid, $subject, $message, $uids) {
 
     $option = $DB->get_record('booking_options', array('id' => $optionid));
     $booking = $DB->get_record('booking', array('id' => $option->bookingid));
-    // $allusers = $DB->get_records('booking_answers', array('bookingid' => $option->bookingid, 'optionid' => $optionid));
 
     $cm = get_coursemodule_from_instance('booking', $booking->id);
-    // foreach ($allusers as $record) {
     foreach ($uids as $record) {
         $ruser = $DB->get_record('user', array('id' => $record));
 
@@ -1517,11 +1453,15 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
     }
 }
 
+/**
+ * Given an ID of an instance of this module, will permanently delete the instance
+ * and data.
+ *
+ * @param unknown $id
+ * @return boolean
+ */
 function booking_delete_instance($id) {
     global $DB;
-    // Given an ID of an instance of this module,
-    // this function will permanently delete the instance
-    // and any data that depends on it.
 
     if (!$booking = $DB->get_record("booking", array("id" => "$id"))) {
         return false;
@@ -1545,7 +1485,8 @@ function booking_delete_instance($id) {
 }
 
 /**
- * Returns the users with data in one booking (users with records in booking_answers, students) @bookingid booking id of booking instance
+ * Returns the users with data in one booking (users with records in booking_answers, students)
+ * @param int bookingid booking id of booking instance
  *
  * @return array of students
  */
@@ -1600,15 +1541,14 @@ function booking_get_booking($cm, $sort = '',
     }
 
     $bookingid = $cm->instance;
-    // Gets a full booking record
+    // Gets a full booking record.
     $context = context_module::instance($cm->id);
 
-    // Initialise the returned array, which is a matrix: $allresponses[responseid][userid] = responseobject
+    // Initialise the returned array, which is a matrix: $allresponses[responseid][userid] = responseobject.
     $allresponses = array();
-    // bookinglist $bookinglist[optionid][sortnumber] = userobject;
     $bookinglist = array();
 
-    // First get all the users who have access here
+    // First get all the users who have access here.
     $mainuserfields = user_picture::fields();
     $allresponses = get_users_by_capability($context, 'mod/booking:choose',
             $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true,
@@ -1649,7 +1589,7 @@ function booking_get_booking($cm, $sort = '',
                 $booking->option[$option->id]->courseendtimetext = get_string("endtimenotset",
                         'booking');
             }
-            // We have to change $taken is different from booking_show_results
+            // We have to change $taken is different from booking_show_results.
             $answerstocount = array();
             if ($answers) {
                 foreach ($answers as $answer) {
@@ -1745,7 +1685,7 @@ function booking_reset_userdata($data) {
             'item' => get_string('removeresponses', 'booking'), 'error' => false);
     }
 
-    // updating dates - shift may be negative too
+    // Updating dates - shift may be negative too.
     if ($data->timeshift) {
         shift_course_mod_dates('booking', array('timeopen', 'timeclose'), $data->timeshift,
                 $data->courseid);
@@ -1767,7 +1707,7 @@ function booking_send_confirm_message($eventdata) {
     $optionid = $eventdata->optionid;
     $user = $eventdata->user;
 
-    // Used to store the ical attachment (if required)
+    // Used to store the ical attachment (if required).
     $attachname = '';
     $attachment = '';
 
@@ -2062,10 +2002,10 @@ function booking_delete_booking_option($booking, $optionid) {
         $result = false;
     }
 
-    // Delete calendar entry, if any
+    // Delete calendar entry, if any.
     $event->id = $DB->get_field('booking_options', 'calendarid', array('id' => $optionid));
     if ($event->id > 0) {
-        // Delete event if exist
+        // Delete event if exist.
         $event = calendar_event::load($event->id);
         $event->delete(true);
     }
@@ -2080,7 +2020,7 @@ function booking_delete_booking_option($booking, $optionid) {
 function booking_profile_definition(&$mform) {
     global $CFG, $DB;
 
-    // if user is "admin" fields are displayed regardless
+    // If user is "admin" fields are displayed regardless.
     $update = has_capability('moodle/user:update', context_system::instance());
 
     if ($categories = $DB->get_records('user_info_category', array(), 'sortorder ASC')) {
@@ -2088,7 +2028,7 @@ function booking_profile_definition(&$mform) {
             if ($fields = $DB->get_records_select('user_info_field', "categoryid=$category->id",
                     array(), 'sortorder ASC')) {
 
-                // check first if *any* fields will be displayed
+                // Check first if *any* fields will be displayed.
                 $display = false;
                 foreach ($fields as $field) {
                     if ($field->visible != PROFILE_VISIBLE_NONE) {
@@ -2096,7 +2036,7 @@ function booking_profile_definition(&$mform) {
                     }
                 }
 
-                // display the header and the fields
+                // Display the header and the fields.
                 if ($display or $update) {
                     $mform->addElement('header', 'category_' . $category->id,
                             format_string($category->name));
@@ -2479,7 +2419,7 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
                 u.mnethostid";
     }
 
-    // only active enrolled users or everybody on the frontpage
+    // Only active enrolled users or everybody on the frontpage.
     list($esql, $params) = get_enrolled_sql($context, '', $groupid, true);
     $params['optionid'] = $optionid;
     $results = $DB->get_records_sql(
