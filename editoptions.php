@@ -63,14 +63,14 @@ if ($optionid == 'add') {
             }
         }
     }
-
+    $defaultvalues->bookingname = $booking->name;
     $defaultvalues->optionid = "add";
     $defaultvalues->bookingid = $booking->id;
     $defaultvalues->id = $cm->id;
     $defaultvalues->text = '';
-} else if ($defaultvalues = $DB->get_record('booking_options',
-        array('bookingid' => $booking->id, 'id' => $optionid))) {
+} else if ($defaultvalues = $DB->get_record('booking_options', array('bookingid' => $booking->id, 'id' => $optionid))) {
     $defaultvalues->optionid = $optionid;
+    $defaultvalues->bookingname = $booking->name;
     $defaultvalues->description = array('text' => $defaultvalues->description,
         'format' => FORMAT_HTML);
     $defaultvalues->notificationtext = array('text' => $defaultvalues->notificationtext,

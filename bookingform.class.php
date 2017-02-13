@@ -171,6 +171,9 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->addElement('hidden', 'optionid');
         $mform->setType('optionid', PARAM_INT);
 
+        $mform->addElement('hidden', 'bookingname');
+        $mform->setType('bookingname', PARAM_TEXT);
+
         // Buttons.
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton',
@@ -213,6 +216,11 @@ class mod_booking_bookingform_form extends moodleform {
             if (!filter_var($data['pollurlteachers'], FILTER_VALIDATE_URL)) {
                 $errors['pollurlteachers'] = get_string('entervalidurl', 'booking');
             }
+        }
+
+        $groupname = $data['bookingname'] . ' - ' . $data['text'];
+        if ($groupid = groups_get_group_by_name($data['courseid'], $groupname) && $data['optionid'] == 0) {
+            $errors['text'] = get_string('groupexists', 'booking');
         }
 
         return $errors;
