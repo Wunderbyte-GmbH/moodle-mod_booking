@@ -409,7 +409,7 @@ class booking_utils {
             $newgroupdata->description = $booking->name . ' - ' . $option->text;
             $newgroupdata->descriptionformat = FORMAT_HTML;
             // If group name already exists, do not create it a second time, it should be unique.
-            if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name)) {
+            if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name) && !isset($option->id)) {
                 throw new moodle_exception('groupexists', 'booking', $url->out());
             }
 
@@ -417,12 +417,12 @@ class booking_utils {
                 $groupid = $DB->get_field('booking_options', 'groupid', array('id' => $option->id));
 
                 if (!is_null($groupid) && ($groupid > 0)) {
-                    $newgroupdata->idnumber = $groupid;
+                    $newgroupdata->id = $groupid;
                 }
 
-                if (isset($newgroupdata->idnumber)) {
+                if (isset($newgroupdata->id)) {
                     groups_update_group($newgroupdata);
-                    return $newgroupdata->idnumber;
+                    return $newgroupdata->id;
                 } else {
                     return groups_create_group($newgroupdata);
                 }
