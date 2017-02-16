@@ -651,7 +651,7 @@ function booking_download_sign_in_sheet(mod_booking\booking_option $bookingdata 
  * @param string $times
  * @return mypdf
  */
-function booking_set_pdf_font(mypdf $pdf, mod_booking\booking_option $bookingdata, array $teachers, string $times) {
+function booking_set_pdf_font(mypdf $pdf, mod_booking\booking_option $bookingdata, array $teachers, $times) {
     $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 14);
     $pdf->MultiCell(0, 0, $bookingdata->option->text, 0, 1, '', 1);
     $pdf->Ln();
