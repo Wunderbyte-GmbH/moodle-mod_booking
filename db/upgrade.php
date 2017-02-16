@@ -451,7 +451,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        if($oldversion < 2014033100){
+        if ($oldversion < 2014033100) {
             upgrade_mod_savepoint(true, 2014033100, 'booking');
         }
     }
