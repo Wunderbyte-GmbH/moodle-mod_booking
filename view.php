@@ -725,7 +725,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         }
         $columns[] = 'groups';
         $headers[] = get_string("group");
-        if ($DB->count_records_select('user', ' idnumber <> ""') > 0) {
+        if ($DB->count_records_select('user', ' idnumber <> \'\'') > 0) {
             $columns[] = 'idnumber';
             $headers[] = get_string("idnumber");
         }
