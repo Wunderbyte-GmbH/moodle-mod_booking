@@ -667,8 +667,10 @@ if (!$tableallbookings->is_downloading()) {
     $headers[] = get_string("optionid", "booking");
     $columns[] = 'booking';
     $headers[] = get_string("booking", "booking");
-    $columns[] = 'institution';
-    $headers[] = get_string("institution", "booking");
+    if (has_capability('moodle/site:viewuseridentity', $context)) {
+        $columns[] = 'institution';
+        $headers[] = get_string("institution", "booking");
+    }
     $columns[] = 'location';
     $headers[] = get_string("location", "booking");
     $columns[] = 'coursestarttime';
@@ -712,7 +714,7 @@ if (!$tableallbookings->is_downloading()) {
 
     $columns[] = 'groups';
     $headers[] = get_string("group");
-    if ($DB->count_records_select('user', ' idnumber <> \'\'') > 0) {
+    if ($DB->count_records_select('user', ' idnumber <> \'\'') > 0 && has_capability('moodle/site:viewuseridentity', $context)) {
         $columns[] = 'idnumber';
         $headers[] = get_string("idnumber");
     }

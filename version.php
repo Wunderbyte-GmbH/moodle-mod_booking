@@ -22,9 +22,9 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2017021700;
+$plugin->version = 2017022000;
 $plugin->requires = 2014051200; // Requires this Moodle 2.X version
-$plugin->release = 'Alex Kirkman 1.3'; // Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman.
+$plugin->release = 'Alex Kirkman 1.4'; // Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman.
 $plugin->maturity = MATURITY_STABLE;
 $plugin->cron = 5;
 $plugin->component = 'mod_booking';
