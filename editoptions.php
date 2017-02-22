@@ -18,7 +18,7 @@ require_once("locallib.php");
 require_once("bookingform.class.php");
 
 $id = required_param('id', PARAM_INT); // Course Module ID
-$optionid = required_param('optionid', PARAM_ALPHANUM);
+$optionid = required_param('optionid', PARAM_INT);
 $copyoptionid = optional_param('copyoptionid', '', PARAM_ALPHANUM);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
 
@@ -44,11 +44,11 @@ require_capability('mod/booking:updatebooking', $context);
 
 $mform = new mod_booking_bookingform_form(null, array('bookingid' => $cm->instance));
 
-if ($optionid == 'add') {
+if ($optionid == -1) {
     $defaultvalues = $booking;
     if ($copyoptionid != '') {
         if ($defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid))) {
-            $defaultvalues->optionid = "add";
+            $defaultvalues->optionid = -1;
             $defaultvalues->bookingid = $cm->instance;
             $defaultvalues->id = $cm->id;
             $defaultvalues->description = array('text' => $defaultvalues->description,
@@ -64,7 +64,7 @@ if ($optionid == 'add') {
         }
     }
     $defaultvalues->bookingname = $booking->name;
-    $defaultvalues->optionid = "add";
+    $defaultvalues->optionid = -1;
     $defaultvalues->bookingid = $booking->id;
     $defaultvalues->id = $cm->id;
     $defaultvalues->text = '';
@@ -103,7 +103,7 @@ if ($mform->is_cancelled()) {
 
         if (isset($fromform->submittandaddnew)) {
             $redirecturl = new moodle_url('editoptions.php',
-                    array('id' => $cm->id, 'optionid' => 'add'));
+                    array('id' => $cm->id, 'optionid' => -1));
             redirect($redirecturl, get_string('changessaved'), 0);
         } else {
             $redirecturl = new moodle_url('report.php',

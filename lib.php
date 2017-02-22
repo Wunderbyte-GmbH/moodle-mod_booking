@@ -424,7 +424,7 @@ function booking_update_options($optionvalues) {
     $option->limitanswers = $optionvalues->limitanswers;
     $option->timemodified = time();
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
-             $optionvalues->id != "add") { // existing booking record
+             $optionvalues->optionid != -1) { // existing booking record
         $option->id = $optionvalues->optionid;
         if (isset($optionvalues->text) && $optionvalues->text != '') {
             $option->calendarid = $DB->get_field('booking_options', 'calendarid',
@@ -650,7 +650,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null,
                 navigation_node::TYPE_CONTAINER);
         $settingnode->add(get_string('addnewbookingoption', 'booking'),
-                new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => 'add')));
+                new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1)));
         $settingnode->add(get_string('importcsvbookingoption', 'booking'),
                 new moodle_url('importoptions.php', array('id' => $cm->id)));
         $settingnode->add(get_string('importexcelbutton', 'booking'),
@@ -666,7 +666,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                             array('id' => $cm->id, 'optionid' => $optionid)));
             $settingnode->add(get_string('duplicatebooking', 'booking'),
                     new moodle_url('/mod/booking/editoptions.php',
-                            array('id' => $cm->id, 'optionid' => 'add', 'copyoptionid' => $optionid)));
+                            array('id' => $cm->id, 'optionid' => -1, 'copyoptionid' => $optionid)));
             $settingnode->add(get_string('deletebookingoption', 'booking'),
                     new moodle_url('/mod/booking/report.php',
                             array('id' => $cm->id, 'optionid' => $optionid,
