@@ -24,6 +24,8 @@ class remove_activity_completion extends \core\task\scheduled_task {
 
     public function execute() {
         global $DB, $CFG;
+        $now = time();
+        $params = array('now' => $now);
 
         $result = $DB->get_records_sql(
                 'SELECT ba.id, ba.bookingid, ba.optionid, ba.userid, b.course
@@ -34,7 +36,7 @@ class remove_activity_completion extends \core\task\scheduled_task {
             ON b.id = bo.bookingid
             WHERE bo.removeafterminutes > 0
             AND ba.completed = 1
-            AND IF(ba.timemodified < (UNIX_TIMESTAMP() - (bo.removeafterminutes*60)), 1, 0) = 1;');
+                AND ba.timemodified < (:now - bo.removeafterminutes * 60);', $params);
 
         require_once($CFG->libdir . '/completionlib.php');
 

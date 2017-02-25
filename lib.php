@@ -689,11 +689,11 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
  *
  * @return true if is assigned as teacher otherwise return false
  */
-function booking_check_if_teacher($option, $user) {
-    global $DB;
+function booking_check_if_teacher($option) {
+    global $DB, $USER;
 
     $userr = $DB->get_record('booking_teachers',
-            array('bookingid' => $option->bookingid, 'userid' => $user->id,
+            array('bookingid' => $option->bookingid, 'userid' => $USER->id,
                 'optionid' => $option->id));
 
     if ($userr === false) {

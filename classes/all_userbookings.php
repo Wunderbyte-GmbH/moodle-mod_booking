@@ -29,8 +29,6 @@ class all_userbookings extends table_sql {
 
     public $cm = null;
 
-    public $user = null;
-
     public $db = null;
 
     /**
@@ -50,7 +48,7 @@ class all_userbookings extends table_sql {
      *
      * @param int $uniqueid all tables have to have a unique id, this is used as a key when storing table properties like sort order in the session.
      */
-    public function __construct($uniqueid, $bookingdata, $cm, $user, $db, $optionid) {
+    public function __construct($uniqueid, $bookingdata, $cm, $optionid) {
         parent::__construct($uniqueid);
 
         $this->collapsible(true);
@@ -58,8 +56,6 @@ class all_userbookings extends table_sql {
         $this->pageable(true);
         $this->bookingdata = $bookingdata;
         $this->cm = $cm;
-        $this->user = $user;
-        $DB = $db;
         $this->optionid = $optionid;
         unset($this->attributes['cellspacing']);
     }
@@ -247,7 +243,7 @@ class all_userbookings extends table_sql {
                      get_string('sendcustommessage', 'booking') . '" />';
         }
 
-        if (booking_check_if_teacher($this->bookingdata->option, $this->user) ||
+        if (booking_check_if_teacher($this->bookingdata->option) ||
                  has_capability('mod/booking:updatebooking',
                         context_module::instance($this->cm->id))) {
             echo '<input type="submit" name="activitycompletion" value="' .

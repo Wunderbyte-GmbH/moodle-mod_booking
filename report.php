@@ -160,7 +160,7 @@ $bookingdata->apply_tags();
 $bookingdata->get_url_params();
 $bookingdata->get_teachers();
 
-if (!(booking_check_if_teacher($bookingdata->option, $USER) ||
+if (!(booking_check_if_teacher($bookingdata->option) ||
          has_capability('mod/booking:readresponses', $context))) {
     require_capability('mod/booking:readresponses', $context);
 }
@@ -210,8 +210,7 @@ $bookingdata->option->urltitle = $DB->get_field('course', 'shortname',
 $bookingdata->option->cmid = $cm->id;
 $bookingdata->option->autoenrol = $bookingdata->booking->autoenrol;
 
-$tableallbookings = new all_userbookings('mod_booking_all_users_sort_new', $bookingdata, $cm, $USER,
-        $DB, $optionid);
+$tableallbookings = new all_userbookings('mod_booking_all_users_sort_new', $bookingdata, $cm, $optionid);
 $tableallbookings->is_downloading($download, $bookingdata->option->text, $bookingdata->option->text);
 
 $tableallbookings->define_baseurl($currenturl);

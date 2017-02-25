@@ -140,10 +140,9 @@ class all_options extends table_sql {
         if (!empty($values->description)) {
             $output .= html_writer::div($values->description, 'description');
         }
-
         $output .= (!empty($values->teachers) ? " <br />" .
-                 (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') . ": " : $this->booking->booking->lblteachname) .
-                 "" . $values->teachers : '');
+                 (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') .
+                 ": " : $this->booking->booking->lblteachname) . "" . $values->teachers : '');
 
         return $output;
     }
@@ -167,14 +166,10 @@ class all_options extends table_sql {
 
         $underlimit = ($values->maxperuser == 0);
         $underlimit = $underlimit || ($values->bookinggetuserbookingcount < $values->maxperuser);
-
         if (!$values->limitanswers) {
             $status = "available";
-            ;
-        } else {
-            if (($values->waiting + $values->booked) >= ($values->maxanswers + $values->maxoverbooking)) {
-                $status = "full";
-            }
+        } else if (($values->waiting + $values->booked) >= ($values->maxanswers + $values->maxoverbooking)) {
+            $status = "full";
         }
 
         if (time() > $values->bookingclosingtime and $values->bookingclosingtime != 0) {
@@ -190,16 +185,12 @@ class all_options extends table_sql {
                 $delete = $OUTPUT->single_button($url,
                         (empty($values->btncancelname) ? get_string('cancelbooking', 'booking') : $values->btncancelname),
                         'post');
-            } else {
-                $button = "";
             }
 
             if ($values->waitinglist) {
                 $booked = get_string('onwaitinglist', 'booking') . '<br>';
-            } else {
-                if ($inpast) {
-                    $booked = get_string('bookedpast', 'booking') . '<br>';
-                }
+            } else if ($inpast) {
+                $booked = get_string('bookedpast', 'booking') . '<br>';
             }
         } else {
             $buttonoptions = array('answer' => $values->id, 'id' => $this->cm->id,
@@ -226,7 +217,7 @@ class all_options extends table_sql {
             $delete = '';
         }
 
-        // Dont display button Book now if it's disabled
+        // Dont display button Book now if it's disabled.
         if ($values->disablebookingusers) {
             $button = '';
         }
@@ -241,9 +232,8 @@ class all_options extends table_sql {
             }
         }
 
-        // check if user ist logged in
-        if (!has_capability('mod/booking:choose', $this->context, $USER->id, false)) { // don't show booking button if the logged in user is the guest
-                                                                                       // user.
+        // Check if user has right to book.
+        if (!has_capability('mod/booking:choose', $this->context, $USER->id, false)) {
             $button = get_string('havetologin', 'booking') . "<br />";
         }
 

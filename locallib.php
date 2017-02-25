@@ -121,7 +121,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
         $option->id = $this->options['optionid'];
         $option->bookingid = $this->options['bookingid'];
 
-        if (booking_check_if_teacher($option, $USER) && !has_capability(
+        if (booking_check_if_teacher($option) && !has_capability(
                 'mod/booking:readallinstitutionusers', $this->options['accesscontext'])) {
 
             $institution = $DB->get_record('booking_options',
@@ -212,7 +212,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
         $option->id = $this->options['optionid'];
         $option->bookingid = $this->options['bookingid'];
 
-        if (booking_check_if_teacher($option, $USER) && !has_capability(
+        if (booking_check_if_teacher($option) && !has_capability(
                 'mod/booking:readallinstitutionusers', $this->options['accesscontext'])) {
 
             $institution = $DB->get_record('booking_options',

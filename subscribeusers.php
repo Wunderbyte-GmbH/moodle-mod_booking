@@ -90,7 +90,7 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
             $subscribedusers = array();
 
             if (has_capability('moodle/site:accessallgroups', $context) or
-                     (booking_check_if_teacher($bookingoption->option, $USER))) {
+                     (booking_check_if_teacher($bookingoption->option))) {
                 foreach ($users as $user) {
                     if (!$bookingoption->user_submit_response($user)) {
                         $subscribesuccess = false;

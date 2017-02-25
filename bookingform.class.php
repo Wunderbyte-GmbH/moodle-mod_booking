@@ -21,8 +21,6 @@ class mod_booking_bookingform_form extends moodleform {
     public function definition() {
         global $CFG, $DB, $COURSE;
         $mform = & $this->_form;
-
-        // Visible elements.
         $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
 
         $mform->addElement('text', 'text', get_string('booking', 'booking'), array('size' => '64'));
@@ -60,14 +58,15 @@ class mod_booking_bookingform_form extends moodleform {
 
         $institutions = $DB->get_records('booking_institutions', array('course' => $COURSE->id));
 
-        $tmpsearchinstitutions = array();
+        $searchinstitutions = array();
 
         foreach ($institutions as $institution) {
-            $tmpsearchinstitutions[] = "'" . $institution->name . "'";
+            $searchinstitutions[] = "'" . $institution->name . "'";
         }
 
-        $tmpsearchinstitutions = implode(',', $tmpsearchinstitutions);
+        $searchinstitutions = implode(',', $searchinstitutions);
 
+        // FIXME: Remove inline javascript
         $mform->addElement('static', null, '',
                 "<script type=\"text/javascript\">
             //<![CDATA[
@@ -75,7 +74,7 @@ class mod_booking_bookingform_form extends moodleform {
   Y.one('#institutionid').plug(Y.Plugin.AutoComplete, {
     resultFilters    : 'phraseMatch',
     resultHighlighter: 'phraseMatch',
-    source           : [{$tmpsearchinstitutions}]
+    source           : [{$searchinstitutions}]
   });
 });
             //]]>
@@ -219,7 +218,8 @@ class mod_booking_bookingform_form extends moodleform {
         }
 
         $groupname = $data['bookingname'] . ' - ' . $data['text'];
-        if ($groupid = groups_get_group_by_name($data['courseid'], $groupname) && $data['optionid'] == 0) {
+        $groupid = groups_get_group_by_name($data['courseid'], $groupname);
+        if ($groupid && $data['optionid'] == 0) {
             $errors['text'] = get_string('groupexists', 'booking');
         }
 
