@@ -17,6 +17,7 @@ namespace mod_booking;
 
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
+require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->libdir . '/tcpdf/tcpdf.php');
 
 
@@ -86,8 +87,17 @@ class booking {
 
     public function apply_tags() {
         $tags = new \booking_tags($this->cm);
-
         $this->booking = $tags->booking_replace($this->booking);
+    }
+
+    /**
+     *
+     */
+    public function get_url_params() {
+        $bu = new \booking_utils();
+        $params = $bu->generate_params($this->booking);
+        $this->booking->pollurl = $bu->get_body($this->booking, 'pollurl', $params);
+        $this->booking->pollurlteachers = $bu->get_body($this->booking, 'pollurlteachers', $params);
     }
 
     /**

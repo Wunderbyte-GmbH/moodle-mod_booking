@@ -45,7 +45,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
 require_course_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 
-$booking = new \mod_booking\booking_options($cm->id, true, array(), 0, 0);
+$booking = new \mod_booking\booking($cm->id);
 
 if (!empty($action)) {
     $urlparams['action'] = $action;
@@ -185,7 +185,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
 // before processing data user has to agree to booking policy and confirm booking
 if ($form = data_submitted() && has_capability('mod/booking:choose', $context) && $download == '' &&
          confirm_sesskey() && $confirm != 1 && $answer) {
-    booking_confirm_booking($answer, $booking, $USER, $cm, $url);
+    booking_confirm_booking($answer, $USER, $cm, $url);
     die();
 }
 
@@ -234,9 +234,7 @@ $event = \mod_booking\event\course_module_viewed::create(
 $event->add_record_snapshot('course', $PAGE->course);
 $event->trigger();
 
-// Display the booking and possibly results
-
-$bookinglist = $booking->allbookedusers;
+// Display the booking and possibly results.
 
 $mybookings = $DB->get_record_sql(
         "SELECT COUNT(*) AS mybookings FROM {booking_answers} WHERE userid = :userid AND bookingid = :bookingid",
@@ -440,7 +438,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             }
         }
 
-        echo $OUTPUT->box(booking_show_maxperuser($booking, $USER, $bookinglist), 'box mdl-align');
+        echo $OUTPUT->box(booking_show_maxperuser($booking, $USER), 'box mdl-align');
 
         $output = $PAGE->get_renderer('mod_booking');
         $output->print_booking_tabs($urlparams, $whichview, $mybookings->mybookings,

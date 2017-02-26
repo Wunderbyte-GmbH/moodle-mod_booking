@@ -34,7 +34,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 
-if (!$booking = booking_get_booking($cm, '', array(), true, $optionid)) {
+if (!$booking = new mod_booking\booking_option($id, $optionid, array(), 0, 0, false)) {
     error("Course module is incorrect");
 }
 
@@ -51,10 +51,10 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("bookedtext", "booking"), 3, 'helptitle', 'uniqueid');
 
 $user = $DB->get_record('user', array('id' => $USER->id));
-$bookingmanager = $DB->get_record('user', array('username' => $booking->bookingmanager));
-$data = booking_generate_email_params($booking, $booking->option[$optionid], $user, $cm->id);
+$bookingmanager = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));
+$data = booking_generate_email_params($booking->booking, $booking->option, $user, $cm->id);
 
-$message = booking_get_email_body($booking, 'bookedtext', 'confirmationmessage', $data);
+$message = booking_get_email_body($booking->booking, 'bookedtext', 'confirmationmessage', $data);
 
 echo "{$message}";
 

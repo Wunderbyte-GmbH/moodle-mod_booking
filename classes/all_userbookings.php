@@ -117,7 +117,7 @@ class all_userbookings extends table_sql {
     }
 
     protected function col_rating($values) {
-        global $OUTPUT, $PAGE;
+        global $PAGE;
         $output = '';
         $renderer = $PAGE->get_renderer('mod_booking');
         if (!empty($values->rating)) {
@@ -217,13 +217,11 @@ class all_userbookings extends table_sql {
     public function wrap_html_finish() {
         global $DB;
         echo '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
-
         if (!$this->bookingdata->booking->autoenrol &&
-                 has_capability('mod/booking:communicate', context_module::instance($this->cm->id))) {
-            if ($this->bookingdata->option->courseid > 0) {
-                echo '<input type="submit" name="subscribetocourse" value="' .
-                 get_string('subscribetocourse', 'booking') . '" />';
-            }
+                 has_capability('mod/booking:communicate', context_module::instance($this->cm->id)) &&
+                 $this->bookingdata->option->courseid > 0) {
+            echo '<input type="submit" name="subscribetocourse" value="' .
+             get_string('subscribetocourse', 'booking') . '" />';
         }
 
         if (has_capability('mod/booking:deleteresponses', context_module::instance($this->cm->id))) {
@@ -251,7 +249,7 @@ class all_userbookings extends table_sql {
                     'confirmactivitycompletion', 'booking') : $this->bookingdata->booking->btncacname) .
              '" />';
 
-            // output rating button
+            // Output rating button.
             if (has_capability('moodle/rating:rate', context_module::instance($this->cm->id)) &&
                      $this->bookingdata->booking->assessed != 0) {
                 $ratingbutton = html_writer::start_tag('span', array('class' => "ratingsubmit"));
@@ -297,12 +295,12 @@ class all_userbookings extends table_sql {
 
                     echo html_writer::select($options, 'selectoptionid', '');
 
-                    $labelbooktootherbooking = (empty(
+                    $label = (empty(
                             $this->bookingdata->booking->booktootherbooking) ? get_string(
                             'booktootherbooking', 'booking') : $this->bookingdata->booking->booktootherbooking);
 
                     echo '<input type="submit" name="booktootherbooking" value="' .
-                             $labelbooktootherbooking . '" />';
+                             $label . '" />';
                 } else {
                     $alllimits = $DB->get_records_sql(
                             "SELECT bo.*, b.text
@@ -322,12 +320,12 @@ class all_userbookings extends table_sql {
 
                         echo html_writer::select($options, 'selectoptionid', '');
 
-                        $labelbooktootherbooking = (empty(
+                        $label = (empty(
                                 $this->bookingdata->booking->booktootherbooking) ? get_string(
                                 'booktootherbooking', 'booking') : $this->bookingdata->booking->booktootherbooking);
 
                         echo '<input type="submit" name="booktootherbooking" value="' .
-                                 $labelbooktootherbooking . '" />';
+                                 $label . '" />';
                     }
                 }
             }

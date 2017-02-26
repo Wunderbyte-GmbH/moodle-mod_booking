@@ -63,9 +63,6 @@ class booking_option extends booking {
     /** @var the number of bookings displayed on a single page */
     public $perpage = 0;
 
-    /** @var  */
-    public $canbooktootherbooking = 0;
-
     /** @var filter and other url params */
     public $urparams;
 
@@ -88,7 +85,7 @@ class booking_option extends booking {
                 "SELECT id, coursestarttime, courseendtime FROM {booking_optiondates} WHERE optionid = ? ORDER BY coursestarttime ASC",
                 array($optionid));
         if (!empty($times)) {
-            foreach ($times as $key => $time) {
+            foreach ($times as $time) {
                 $this->option->times = $time->coursestarttime . " - " . $time->courseendtime . " - ";
             }
             trim($this->option->times, " - ");
@@ -275,9 +272,10 @@ class booking_option extends booking {
     }
 
     /**
-     * Get all answers (bookings) as an array from booking_answer id as key, userid as value regular AND waitinglist
+     * Get all answers (bookings) as an array from booking_answers
+     * id as key, userid as value regular AND waitinglist
      *
-     * @return array of userids $this->alluserids
+     * @return array of userids $this->alluserids key: booking_answers id
      */
     public function get_all_userids() {
         global $DB;
@@ -287,48 +285,6 @@ class booking_option extends booking {
                     'id, userid');
         }
         return $this->alluserids;
-    }
-
-    /**
-     * Count, how many users for pagination.
-     *
-     * @return number
-     */
-    public function count_users() {
-        global $DB;
-        $params = array();
-
-        $options = "{booking_answers}.optionid = :optionid";
-        $params['optionid'] = $this->optionid;
-
-        if (isset($this->filters['searchfinished']) && strlen($this->filters['searchfinished']) > 0) {
-            $options .= " AND {booking_answers}.completed = :completed";
-            $params['completed'] = $this->filters['searchfinished'];
-        }
-
-        if (isset($this->filters['searchdate']) && $this->filters['searchdate'] == 1) {
-            $options .= " AND ba.timecreated BETWEEN :beginofday AND :endofday";
-            $params['beginofday'] = $beginofday;
-            $params['endofday'] = $endofday;
-        }
-
-        if (isset($this->filters['searchname']) && strlen($this->filters['searchname']) > 0) {
-            $options .= " AND {user}.firstname LIKE :searchname";
-            $params['searchname'] = '%' . $this->filters['searchname'] . '%';
-        }
-
-        if (isset($this->filters['searchsurname']) && strlen($this->filters['searchsurname']) > 0) {
-            $options .= " AND {user}.lastname LIKE :searchsurname";
-            $params['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
-        }
-
-        $count = $DB->get_record_sql(
-                'SELECT COUNT(*) AS count FROM {booking_answers} LEFT JOIN {user} ON {booking_answers}.userid = {user}.id WHERE ' .
-                         $options .
-                         ' ORDER BY {booking_answers}.optionid, {booking_answers}.timemodified ASC',
-                        $params);
-
-        return (int) $count->count;
     }
 
     /**
@@ -620,7 +576,7 @@ class booking_option extends booking {
 
         $underlimit = ($this->booking->maxperuser == 0);
         $underlimit = $underlimit ||
-                 (booking_get_user_booking_count($this, $user, null) < $this->booking->maxperuser);
+                 (booking_get_user_booking_count($this, $user) < $this->booking->maxperuser);
 
         if (!$underlimit) {
             return false;

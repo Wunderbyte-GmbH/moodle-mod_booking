@@ -576,11 +576,10 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
  *
  * @param object $booking
  * @param object $user
- * @param object[] $bookinglist
  * @return string
  */
-function booking_show_maxperuser($booking, $user, $bookinglist) {
-    GLOBAL $USER;
+function booking_show_maxperuser($booking, $user) {
+    global $USER;
 
     $warning = '';
 
@@ -600,7 +599,7 @@ function booking_show_maxperuser($booking, $user, $bookinglist) {
 
     $outdata = new stdClass();
     $outdata->limit = $booking->booking->maxperuser;
-    $outdata->count = booking_get_user_booking_count($booking, $user, $bookinglist);
+    $outdata->count = booking_get_user_booking_count($booking, $user);
 
     $warning .= html_writer::tag('p', get_string('maxperuserwarning', 'mod_booking', $outdata));
     return $warning;
@@ -611,10 +610,9 @@ function booking_show_maxperuser($booking, $user, $bookinglist) {
  *
  * @param object $booking
  * @param object $user
- * @param object[] $bookinglist
  * @return number of bookings made by user
  */
-function booking_get_user_booking_count($booking, $user, $bookinglist) {
+function booking_get_user_booking_count($booking, $user) {
     global $DB;
 
     $result = $DB->get_records('booking_answers',
@@ -1519,123 +1517,6 @@ function booking_get_option_text($booking, $id) {
     } else {
         return get_string("notanswered", "booking");
     }
-}
-
-/**
- * Gets the principal information of booking status and booking options to be used by other functions
- *
- * @param $cm course_module id of the module
- * @param $sort string which field use to sort options
- * @param $urlparams array parameters for searching
- * @param $view boolean if we need it for editing or viewing
- * @param $optionid int id booking_options
- * @return object with $booking->option as an array for the booking option valus for each booking option
- */
-function booking_get_booking($cm, $sort = '',
-        $urlparams = array('searchtext' => '', 'searchlocation' => '', 'searchinstitution' => ''), $view = true, $optionid = null) {
-    global $CFG, $DB;
-    require_once("$CFG->dirroot/mod/booking/locallib.php");
-
-    if ($sort == '') {
-        $sort = 'id';
-    }
-
-    $bookingid = $cm->instance;
-    // Gets a full booking record.
-    $context = context_module::instance($cm->id);
-
-    // Initialise the returned array, which is a matrix: $allresponses[responseid][userid] = responseobject.
-    $allresponses = array();
-    $bookinglist = array();
-
-    // First get all the users who have access here.
-    $mainuserfields = user_picture::fields();
-    $allresponses = get_users_by_capability($context, 'mod/booking:choose',
-            $mainuserfields . ', u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', '', true,
-            true);
-
-    if (is_null($optionid)) {
-        $bookingobject = new \mod_booking\booking_options($cm->id, true, $urlparams, 0, 0);
-        $booking = $bookingobject->booking;
-        $options = $bookingobject->options;
-    } else {
-        $bookingobject = new \mod_booking\booking_option($cm->id, $optionid);
-        $booking = $bookingobject->booking;
-        $options[$optionid] = $bookingobject->option;
-    }
-
-    if ($view) {
-        $bookingobject->apply_tags();
-    }
-
-    if ($options) {
-        $answers = $DB->get_records('booking_answers', array('bookingid' => $bookingid), 'id');
-
-        foreach ($options as $option) {
-
-            $booking->option[$option->id] = $option;
-
-            if (!$option->coursestarttime == 0) {
-                $booking->option[$option->id]->coursestarttimetext = userdate(
-                        $option->coursestarttime, get_string('strftimedatetime'));
-            } else {
-                $booking->option[$option->id]->coursestarttimetext = get_string("starttimenotset",
-                        'booking');
-            }
-            if (!$option->courseendtime == 0) {
-                $booking->option[$option->id]->courseendtimetext = userdate($option->courseendtime,
-                        get_string('strftimedatetime'), '', false);
-            } else {
-                $booking->option[$option->id]->courseendtimetext = get_string("endtimenotset",
-                        'booking');
-            }
-            // We have to change $taken is different from booking_show_results.
-            $answerstocount = array();
-            if ($answers) {
-                foreach ($answers as $answer) {
-                    if ($answer->optionid == $option->id && isset($allresponses[$answer->userid])) {
-                        $answerstocount[] = $answer;
-                    }
-                }
-            }
-            $taken = count($answerstocount);
-            $totalavailable = $option->maxanswers + $option->maxoverbooking;
-            if (!$option->limitanswers) {
-                $booking->option[$option->id]->status = "available";
-                $booking->option[$option->id]->taken = $taken;
-                $booking->option[$option->id]->availspaces = "unlimited";
-            } else {
-                if ($taken < $option->maxanswers) {
-                    $booking->option[$option->id]->status = "available";
-                    $booking->option[$option->id]->availspaces = $option->maxanswers - $taken;
-                    $booking->option[$option->id]->taken = $taken;
-                    $booking->option[$option->id]->availwaitspaces = $option->maxoverbooking;
-                } else if ($taken >= $option->maxanswers && $taken < $totalavailable) {
-                    $booking->option[$option->id]->status = "waitspaceavailable";
-                    $booking->option[$option->id]->availspaces = 0;
-                    $booking->option[$option->id]->taken = $option->maxanswers;
-                    $booking->option[$option->id]->availwaitspaces = $option->maxoverbooking - ($taken - $option->maxanswers);
-                } else if ($taken >= $totalavailable) {
-                    $booking->option[$option->id]->status = "full";
-                    $booking->option[$option->id]->availspaces = 0;
-                    $booking->option[$option->id]->taken = $option->maxanswers;
-                    $booking->option[$option->id]->availwaitspaces = 0;
-                }
-            }
-            if (time() > $booking->option[$option->id]->bookingclosingtime and
-                     $booking->option[$option->id]->bookingclosingtime != 0) {
-                $booking->option[$option->id]->status = "closed";
-            }
-            if ($option->bookingclosingtime) {
-                $booking->option[$option->id]->bookingclosingtime = userdate(
-                        $option->bookingclosingtime, get_string('strftimedate'), '', false);
-            } else {
-                $booking->option[$option->id]->bookingclosingtime = false;
-            }
-        }
-    }
-
-    return $booking;
 }
 
 function booking_get_view_actions() {

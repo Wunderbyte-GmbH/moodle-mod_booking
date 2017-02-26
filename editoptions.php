@@ -30,9 +30,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
 
-if (!$booking = booking_get_booking($cm, '',
-        array('searchtext' => '', 'searchlocation' => '', 'searchinstitution' => ''), false, null,
-        false)) {
+if (!$booking = new \mod_booking\booking($cm->id)) {
     error("Course module is incorrect");
 }
 
@@ -45,7 +43,7 @@ require_capability('mod/booking:updatebooking', $context);
 $mform = new mod_booking_bookingform_form(null, array('bookingid' => $cm->instance));
 
 if ($optionid == -1) {
-    $defaultvalues = $booking;
+    $defaultvalues = $booking->booking;
     if ($copyoptionid != '') {
         if ($defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid))) {
             $defaultvalues->optionid = -1;
@@ -63,14 +61,14 @@ if ($optionid == -1) {
             }
         }
     }
-    $defaultvalues->bookingname = $booking->name;
+    $defaultvalues->bookingname = $booking->booking->name;
     $defaultvalues->optionid = -1;
-    $defaultvalues->bookingid = $booking->id;
+    $defaultvalues->bookingid = $booking->booking->id;
     $defaultvalues->id = $cm->id;
     $defaultvalues->text = '';
-} else if ($defaultvalues = $DB->get_record('booking_options', array('bookingid' => $booking->id, 'id' => $optionid))) {
+} else if ($defaultvalues = $DB->get_record('booking_options', array('bookingid' => $booking->booking->id, 'id' => $optionid))) {
     $defaultvalues->optionid = $optionid;
-    $defaultvalues->bookingname = $booking->name;
+    $defaultvalues->bookingname = $booking->booking->name;
     $defaultvalues->description = array('text' => $defaultvalues->description,
         'format' => FORMAT_HTML);
     $defaultvalues->notificationtext = array('text' => $defaultvalues->notificationtext,
@@ -112,7 +110,7 @@ if ($mform->is_cancelled()) {
         }
     }
 } else {
-    $PAGE->set_title(format_string($booking->name));
+    $PAGE->set_title(format_string($booking->booking->name));
     $PAGE->set_heading($course->fullname);
     echo $OUTPUT->header();
 

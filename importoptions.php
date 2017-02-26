@@ -44,7 +44,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
 
-if (!$booking = booking_get_booking($cm, '', array(), true, null, false)) {
+if (!$booking = new \mod_booking\booking($cm->id)) {
     error("Course module is incorrect");
 }
 
@@ -55,7 +55,7 @@ if (!$context = context_module::instance($cm->id)) {
 require_capability('mod/booking:updatebooking', $context);
 
 $PAGE->navbar->add(get_string("importcsvtitle", "booking"));
-$PAGE->set_title(format_string($booking->name));
+$PAGE->set_title(format_string($booking->booking->name));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('standard');
 
@@ -103,7 +103,7 @@ if ($mform->is_cancelled()) {
                 $startdate = 0;
                 $enddate = 0;
 
-                $bookingoptionname = $booking->name;
+                $bookingoptionname = $booking->booking->name;
 
                 if (trim($line[1]) != 0) {
                     $startdate = date_create_from_format("!" . $fromform->dateparseformat, $line[1]);

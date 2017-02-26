@@ -30,7 +30,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 
-if (!$booking = booking_get_booking($cm, 'coursestarttime ASC', array(), true, $optionid)) {
+if (!$booking = new mod_booking\booking_option($id, $optionid, array(), 0, 0, false)) {
     print_error("Course module is incorrect");
 }
 
@@ -76,7 +76,7 @@ if ($edit === 0) {
                 redirect($url, get_string('selectatleastoneuser', 'booking'), 5);
             }
 
-            booking_activitycompletion_teachers($selectedusers, $booking, $cm->id, $optionid);
+            booking_activitycompletion_teachers($selectedusers, $booking->booking, $cm->id, $optionid);
             redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);
         }
     }
@@ -126,10 +126,10 @@ if (has_capability('mod/booking:updatebooking', $context)) {
 echo $output->header();
 if ($edit === 1) {
     echo $output->heading(
-            get_string('addteachers', 'booking') . " [{$booking->option[$optionid]->text}]");
+            get_string('addteachers', 'booking') . " [{$booking->option->text}]");
 } else {
     echo $output->heading(
-            get_string('teachers', 'booking') . " [{$booking->option[$optionid]->text}]");
+            get_string('teachers', 'booking') . " [{$booking->option->text}]");
 }
 
 echo html_writer::link(

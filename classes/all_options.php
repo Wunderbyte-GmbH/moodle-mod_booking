@@ -162,6 +162,7 @@ class all_options extends table_sql {
         $status = '';
         $button = '';
         $booked = '';
+        $manage = '';
         $inpast = $values->courseendtime && ($values->courseendtime < time());
 
         $underlimit = ($values->maxperuser == 0);
@@ -207,7 +208,7 @@ class all_options extends table_sql {
                     'post');
         }
 
-        if (($values->limitanswers && ($status == "full")) || ($status == "closed") || !$underlimit) {
+        if (($values->limitanswers && ($status == "full")) || ($status == "closed") || !$underlimit || $values->disablebookingusers) {
             $button = '';
         }
 
@@ -215,11 +216,6 @@ class all_options extends table_sql {
                  $values->courseendtime < time()) {
             $button = '';
             $delete = '';
-        }
-
-        // Dont display button Book now if it's disabled.
-        if ($values->disablebookingusers) {
-            $button = '';
         }
 
         if (!empty($this->booking->booking->banusernames)) {
@@ -241,14 +237,11 @@ class all_options extends table_sql {
             $numberofresponses = $values->waiting + $values->booked;
             $manage = "<br><a href=\"report.php?id={$this->cm->id}&optionid={$values->id}\">" .
                      get_string("viewallresponses", "booking", $numberofresponses) . "</a>";
-        } else {
-            $manage = "";
         }
 
         if (!$values->limitanswers) {
             return $button . $delete . $booked . get_string("unlimited", 'booking') . $manage;
         } else {
-
             $places = new stdClass();
             $places->maxanswers = $values->maxanswers;
             $places->available = $values->maxanswers - $values->booked;

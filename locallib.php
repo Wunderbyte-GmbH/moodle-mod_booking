@@ -518,7 +518,7 @@ class booking_tags {
 /**
  * Outputs a confirm button on a separate page to confirm a booking.
  */
-function booking_confirm_booking($optionid, $booking, $user, $cm, $url) {
+function booking_confirm_booking($optionid, $user, $cm, $url) {
     global $OUTPUT;
     echo $OUTPUT->header();
 
