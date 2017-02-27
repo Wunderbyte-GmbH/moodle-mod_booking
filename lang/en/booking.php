@@ -126,7 +126,7 @@ $string['editcategory'] = 'Edit';
 $string['deletecategory'] = 'Delete';
 $string['deletesubcategory'] = 'Please, first delete all subcategories of this category!';
 $string['usedinbooking'] = 'You can\'t delete this category, because you\'re using it in booking!';
-$string['sucesfulldeleted'] = 'Category was sucesfully deleted!';
+$string['sucesfulldeleted'] = 'Category was deleted!';
 
 // view.php
 $string['agreetobookingpolicy'] = 'I have read and agree to the following booking policies';
@@ -208,7 +208,7 @@ $string['savenewtagtemplate'] = 'Save';
 $string['tagtag'] = 'Tag';
 $string['tagtext'] = 'Text';
 $string['wrongdataallfields'] = 'Please, fill out all fields!';
-$string['tagsucesfullysaved'] = 'Tag was sucesfully saved.';
+$string['tagsucesfullysaved'] = 'Tag was saved.';
 $string['edittag'] = 'Edit';
 
 // mod_form
@@ -639,10 +639,10 @@ The associated course can be found here: {$a->courselink}
 ';
 $string['notifyemail'] = 'Notification before start';
 
-$string['userleavebookedsubject'] = 'You have sucesfully unsubscribed from {$a->title}';
+$string['userleavebookedsubject'] = 'You successfully unsubscribed from {$a->title}';
 $string['userleavebookedmessage'] = 'Hello {$a->participant},
 
-You have sucesfully unsubscribed from {$a->title}.
+You have been unsubscribed from {$a->title}.
 ';
 
 $string['statuschangebookedsubject'] = 'Booking status changed for {$a->title}';
@@ -695,11 +695,11 @@ Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
 // report.php
 $string['activitycompleted'] = 'Activity completed';
 $string['addteachers'] = 'Add teachers';
-$string['allmailssend'] = 'All e-mails to users have been sent sucesfully!';
+$string['allmailssend'] = 'All e-mails to the users have been sent!';
 $string['associatedcourse'] = 'Associated course';
 $string['bookedusers'] = 'Booked users';
 $string['bookingfulldidntregister'] = 'Option is full, so I didn\'t transfer all users!';
-$string['booktootherbooking'] = 'Book users to other booking';
+$string['booktootherbooking'] = 'Book users to other booking option';
 $string['downloadallresponses'] = 'Download all responses for all booking options';
 $string['copyonlythisbookingurl'] = 'Copy this booking URL';
 $string['copypollurl'] = 'Copy poll URL';
@@ -708,7 +708,7 @@ $string['editotherbooking'] = 'Other booking rules';
 $string['editteachers'] = 'Edit';
 $string['generaterecnum'] = "Generate numbers";
 $string['generaterecnumareyousure'] = "This will generate new numbers and permanently delete the old one!";
-$string['generaterecnumnotification'] = "New numbers where sucesfully generated.";
+$string['generaterecnumnotification'] = "New numbers have been generated.";
 $string['gotobooking'] = '<< Bookings';
 $string['lblbooktootherbooking'] = 'Name of button "Book users to other booking"';
 $string['no'] = 'No';
@@ -717,6 +717,7 @@ $string['nodateset'] = 'Course date not set';
 $string['nousers'] = 'No users!';
 $string['numrec'] = "Rec. num.";
 $string['onlythisbookingurl'] = 'Link to this booking URL';
+$string['optiondates'] = 'Multiple dates session';
 $string['optionid'] = 'Option ID';
 $string['optionmenu'] = 'This booking option';
 $string['searchdate'] = 'Date';
@@ -731,18 +732,18 @@ $string['copypollurl'] = 'Copy poll URL';
 $string['gotobooking'] = '<< Bookings';
 $string['nousers'] = 'No users!';
 $string['booktootherbooking'] = 'Book users to other booking';
-$string['lblbooktootherbooking'] = 'Name of button "Book users to other booking"';
+$string['lblbooktootherbooking'] = 'Name of button "Book users to other booking option"';
 $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
 $string['searchwaitinglist'] = 'On waiting list';
 $string['selectatleastoneuser'] = 'Please, select at least 1 user!';
-$string['delnotification'] = 'You sucesfully deleted {$a->del} of {$a->all} users. Users, that have completed activity, can\'t be deleted!';
+$string['delnotification'] = 'You deleted {$a->del} of {$a->all} users. Users, that have completed activity, can\'t be deleted!';
 $string['selectoptionid'] = 'Please, select option!';
 $string['sendcustommessage'] = 'Send custom message';
 $string['sendpollurltoteachers'] = 'Send poll url';
 $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
 $string['userid'] = 'UserID';
-$string['userrssucesfullenroled'] = 'All users has been sucesfully enroled!';
-$string['userssucesfullybooked'] = 'All users have been sucesfully booked to other booking.';
+$string['userrssucesfullenroled'] = 'All users have been enrolled!';
+$string['userssucesfullybooked'] = 'All users have been booked to the other booking option.';
 $string['waitinglistusers'] = 'Users on waiting list';
 $string['withselected'] = 'With selected users:';
 $string['editotherbooking'] = 'Other booking rules';
@@ -750,11 +751,10 @@ $string['bookingfulldidntregister'] = 'Option is full, so I didn\'t transfer all
 $string['numrec'] = "Rec. num.";
 $string['generaterecnum'] = "Generate numbers";
 $string['generaterecnumareyousure'] = "This will generate new numbers and permanently delete the old one!";
-$string['generaterecnumnotification'] = "New numbers where sucesfully generated.";
+$string['generaterecnumnotification'] = "New numbers have been generated.";
 $string['activitycompleted'] = 'Activity completed';
 $string['waitinglist'] = 'Waiting list';
 $string['searchwaitinglist'] = 'On waiting list';
-$string['optionmenu'] = 'This booking options';
 $string['ratingsuccess'] = 'The ratings were successfully updated';
 $string['userid'] = 'UserID';
 $string['nodateset'] = 'Course date not set';
@@ -762,8 +762,7 @@ $string['editteachers'] = 'Edit';
 $string['sendpollurltoteachers'] = 'Send poll url';
 $string['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
 $string['yes'] = 'Yes';
-$string['optiondates'] = 'Multiple Dates Session';
-$string['sendreminderemailsuccess'] = 'Notification e-mail was sucesfully send!';
+$string['sendreminderemailsuccess'] = 'Notification e-mail has been sent!';
 $string['sign_in_sheet_download'] = 'Download Sign in Sheet';
 
 // Send message
@@ -772,7 +771,7 @@ $string['booking:communicate'] = 'Can communicate';
 $string['confirmactivitycompletion'] = 'Confirm activity completion';
 $string['enablecompletion'] = 'Enable manual activity completion in booking option responses';
 $string['enablecompletiongroup'] = 'Manual activity completion';
-$string['messagesend'] = 'You message was sucesfully send.';
+$string['messagesend'] = 'Your message has been sent.';
 $string['messagesubject'] = 'Subject';
 $string['messagetext'] = 'Message';
 
@@ -802,7 +801,7 @@ $string['addnewinstitution'] = 'Add new institution';
 // institutionform.class.php
 $string['institutionname'] = 'Institution name';
 $string['addnewinstitution'] = 'Add new institution';
-$string['sucesfulldeletedinstitution'] = 'Institution was sucesfully deleted';
+$string['sucesfulldeletedinstitution'] = 'Institution was deleted';
 $string['csvfile_help'] = 'CSV file must contain only one column named Institution.';
 
 // otherbooking.php
@@ -811,20 +810,20 @@ $string['otherbookingnumber'] = 'Num. of users';
 $string['otherbookingaddrule'] = 'Add new rule';
 $string['editrule'] = "Edit";
 $string['deleterule'] = 'Delete';
-$string['deletedrule'] = 'Rule sucesfully deleted.';
+$string['deletedrule'] = 'Rule deleted.';
 
 // otherbookingaddrule_form.php
 $string['selectoptioninotherbooking'] = "Option";
 $string['otherbookinglimit'] = "Limit";
 $string['otherbookinglimit_help'] = "How many users you accept from option. If 0, you can accept unlimited users.";
-$string['otherbookingsucesfullysaved'] = 'Rule sucesfully saved!';
+$string['otherbookingsucesfullysaved'] = 'Rule saved!';
 
 // optiondates.php
 $string['addnewoptiondates'] = 'Add/edit session';
 $string['savenewoptiondates'] = 'Save';
 $string['optiondatestime'] = 'Session time';
-$string['optiondatessucesfullysaved'] = "Session time was sucesfully saved.";
-$string['optiondatessucesfullydelete'] = "Session time was sucesfully deleted.";
+$string['optiondatessucesfullysaved'] = "Session time was saved.";
+$string['optiondatessucesfullydelete'] = "Session time was deleted.";
 $string['delete'] = "Delete";
 
 $string['leftdate'] = "%d %B %Y, %I:%M %p";
