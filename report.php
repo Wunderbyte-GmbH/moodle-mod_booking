@@ -53,9 +53,6 @@ $ratingarea = optional_param('ratingarea', '', PARAM_ALPHAEXT);
 $scaleid = optional_param('scaleid', '', PARAM_INT);
 $returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
 $aggregation = optional_param('aggregate', '', PARAM_INT);
-
-$perpage = 25;
-
 $searching = false;
 
 $urlparams = array();
@@ -153,13 +150,16 @@ require_course_login($course, false, $cm);
 
 $context = context_module::instance($cm->id);
 
-$bookingdata = new \mod_booking\booking_option($cm->id, $optionid, $urlparams, $page, $perpage,
+$bookingdata = new \mod_booking\booking_option($cm->id, $optionid, $urlparams, $page, 25,
         false);
 $bookingdata->urparams = $urlparams;
 $bookingdata->apply_tags();
 $bookingdata->get_url_params();
 $bookingdata->get_teachers();
-
+$paging = $bookingdata->booking->paginationnum;
+if ($paging < 1) {
+    $paging = 25;
+}
 if (!(booking_check_if_teacher($bookingdata->option) ||
          has_capability('mod/booking:readresponses', $context))) {
     require_capability('mod/booking:readresponses', $context);
@@ -579,7 +579,7 @@ if (!$tableallbookings->is_downloading()) {
     echo '<h5>' . get_string('bookedusers', 'booking') . '</h5>';
 
     $tableallbookings->setup();
-    $tableallbookings->query_db($bookingdata->booking->paginationnum, true);
+    $tableallbookings->query_db($paging, true);
     if ($bookingdata->booking->assessed != RATING_AGGREGATE_NONE &&
              !empty($tableallbookings->rawdata)) {
         // Get all bookings from all booking options: only that guarantees correct use of rating

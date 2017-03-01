@@ -547,6 +547,10 @@ class mod_booking_mod_form extends moodleform_mod {
             }
         }
 
+        if ($data['paginationnum'] < 1) {
+                $errors['paginationnum'] = get_string('errorpagination', 'booking');
+        }
+
         if (strlen($data['pollurlteachers']) > 0) {
             if (!filter_var($data['pollurlteachers'], FILTER_VALIDATE_URL)) {
                 $errors['pollurlteachers'] = get_string('entervalidurl', 'booking');

@@ -186,6 +186,7 @@ $string['edittag'] = 'Bearbeiten';
 
 // mod_form
 $string['conectedbooking'] = 'Vorgeschaltete Buchung';
+$string['errorpagination'] = 'Geben Sie ein Zahl ein, die größer als 0 ist';
 $string['notconectedbooking'] = 'Nicht vorgeschaltete Buchung';
 $string['conectedbooking_help'] = 'Buchung von der Teilnehmer/innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer/innen übernommen werden.';
 $string['cancancelbook'] = 'Nutzer/innen das Stornieren und buchen nach dem Buchungsstart erlauben?';

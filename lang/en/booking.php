@@ -213,6 +213,7 @@ $string['edittag'] = 'Edit';
 
 // mod_form
 $string['conectedbooking'] = 'Connected booking';
+$string['errorpagination'] = 'Please enter a number bigger than 0';
 $string['notconectedbooking'] = 'Not connected';
 $string['conectedbooking_help'] = 'Booking option eligible for transferring booked users. You can define from which option and how many users you will accept.';
 $string['cancancelbook'] = 'Allow user to cancel or book their booking when it is started?';
