@@ -394,15 +394,14 @@ class booking_option extends booking {
 
         $params = booking_generate_email_params($this->booking, $this->option, $user, $this->cm->id);
 
-        $messagetext = get_string('deletedbookingmessage', 'booking', $params);
         if ($userid == $USER->id) {
             // I cancelled the booking.
-            $deletedbookingusermessage = booking_get_email_body($this->booking, 'userleave',
+            $messagebody = booking_get_email_body($this->booking, 'userleave',
                     'userleavebookedmessage', $params);
             $subject = get_string('userleavebookedsubject', 'booking', $params);
         } else {
             // Booking manager cancelled the booking.
-            $deletedbookingusermessage = booking_get_email_body($this->booking, 'deletedtext',
+            $messagebody = booking_get_email_body($this->booking, 'deletedtext',
                     'deletedbookingmessage', $params);
             $subject = get_string('deletedbookingsubject', 'booking', $params);
         }
@@ -421,7 +420,7 @@ class booking_option extends booking {
                 $attachname = $ical->get_name();
             }
 
-            $messagehtml = text_to_html($deletedbookingusermessage, false, false, true);
+            $messagehtml = text_to_html($messagebody, false, false, true);
 
             if (isset($this->booking->sendmailtobooker) && $this->booking->sendmailtobooker) {
                 $eventdata->userto = $USER;
@@ -431,7 +430,7 @@ class booking_option extends booking {
 
             $eventdata->userfrom = $bookingmanager;
             $eventdata->subject = $subject;
-            $eventdata->messagetext = $deletedbookingusermessage;
+            $eventdata->messagetext = $messagebody;
             $eventdata->messagehtml = $messagehtml;
             $eventdata->attachment = $attachment;
             $eventdata->attachname = $attachname;
@@ -448,12 +447,10 @@ class booking_option extends booking {
         }
 
         if ($this->option->limitanswers) {
-            $maxplacesavailable = $this->option->maxanswers + $this->option->maxoverbooking;
             $bookedusers = $DB->count_records("booking_answers",
                     array('optionid' => $this->optionid, 'waitinglist' => 0));
             $waitingusers = $DB->count_records("booking_answers",
                     array('optionid' => $this->optionid, 'waitinglist' => 1));
-            $alluserscount = $bookedusers + $waitingusers;
 
             if ($waitingusers > 0 && $this->option->maxanswers > $bookedusers) {
                 $newuser = $DB->get_record_sql(
@@ -507,7 +504,6 @@ class booking_option extends booking {
         // Remove activity completion
         $course = $DB->get_record('course', array('id' => $this->booking->course));
         $completion = new \completion_info($course);
-        $cm = get_coursemodule_from_instance('booking', $this->cm->id);
 
         if ($completion->is_enabled($this->cm) && $this->booking->enablecompletion) {
             $completion->update_state($this->cm, COMPLETION_INCOMPLETE, $userid);
@@ -581,9 +577,9 @@ class booking_option extends booking {
         if (!$underlimit) {
             return false;
         }
-
-        if (!($currentanswerid = $DB->get_field('booking_answers', 'id',
-                array('userid' => $user->id, 'optionid' => $this->optionid)))) {
+        $currentanswerid = $DB->get_field('booking_answers', 'id',
+                array('userid' => $user->id, 'optionid' => $this->optionid));
+        if (!$currentanswerid) {
             $newanswer = new \stdClass();
             $newanswer->bookingid = $this->id;
             $newanswer->frombookingid = $frombookingid;
