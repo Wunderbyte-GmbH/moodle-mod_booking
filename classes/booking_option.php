@@ -51,10 +51,10 @@ class booking_option extends booking {
     /** @var array of all user objects (waitinglist and regular) - filtered */
     public $users = array();
 
-    /** @var array of user objects with regular bookings NO waitinglist */
+    /** @var array of user objects with regular bookings NO waitinglist userid as key */
     public $usersonlist = array();
 
-    /** @var array of user objects with users on waitinglist */
+    /** @var array of user objects with users on waitinglist userid as key */
     public $usersonwaitinglist = array();
 
     /** @var the number of the page starting with 0 */
@@ -264,9 +264,9 @@ class booking_option extends booking {
 
         foreach ($this->users as $user) {
             if ($user->waitinglist == 1) {
-                $this->usersonwaitinglist[] = $user;
+                $this->usersonwaitinglist[$user->userid] = $user;
             } else {
-                $this->usersonlist[] = $user;
+                $this->usersonlist[$user->userid] = $user;
             }
         }
     }

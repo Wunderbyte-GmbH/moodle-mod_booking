@@ -32,13 +32,15 @@ function booking_cron() {
 
     mtrace('Starting cron for Booking ...');
 
+    $now = time();
     $toprocess = $DB->get_records_sql(
             'SELECT bo.id, bo.coursestarttime, b.daystonotify
             FROM {booking_options} bo
             LEFT JOIN {booking} b ON b.id = bo.bookingid
             WHERE b.daystonotify > 0
             AND bo.coursestarttime > 0
-            AND bo.sent = 0');
+            AND bo.coursestarttime > :now
+            AND bo.sent = 0', array ( 'now' => $now));
 
     foreach ($toprocess as $value) {
         $dateevent = new DateTime();
@@ -1398,6 +1400,7 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
 
     $returnval = true;
 
+    // TODO: Remove these queries, they are not really necessary.
     $option = $DB->get_record('booking_options', array('id' => $optionid));
     $booking = $DB->get_record('booking', array('id' => $option->bookingid));
 
@@ -1410,7 +1413,7 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
         foreach ($tousers as $value) {
             $tmpuser = new stdClass();
             $tmpuser->id = $value;
-            $allusers[] = $tmpuser;
+            $allusers[$value] = $tmpuser;
         }
     } else {
         if (isset($bookingdata->usersonlist)) {
@@ -1419,32 +1422,32 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
             $allusers = array();
         }
     }
-
     if (!empty($allusers)) {
-        foreach ($allusers as $record) {
-            $ruser = $DB->get_record('user', array('id' => $record->id));
-
-            $params = booking_generate_email_params($bookingdata->booking, $bookingdata->option,
-                    $ruser, $cm->id);
-            $pollurlmessage = booking_get_email_body($bookingdata->booking, 'notifyemail',
-                    'notifyemaildefaultmessage', $params);
-
-            $eventdata = new stdClass();
-            $eventdata->modulename = 'booking';
-            $eventdata->userfrom = $USER;
-            $eventdata->userto = $ruser;
-            $eventdata->subject = $subject;
-            $eventdata->fullmessage = strip_tags(
-                    preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
-            $eventdata->fullmessageformat = FORMAT_HTML;
-            $eventdata->fullmessagehtml = $pollurlmessage;
-            $eventdata->smallmessage = '';
-            $eventdata->component = 'mod_booking';
-            $eventdata->name = 'bookingconfirmation';
-
-            $returnval = message_send($eventdata);
+        $userids = array_keys($allusers);
+        list($usersql, $userparams) = $DB->get_in_or_equal($userids);
+        $sql = "id $usersql";
+        $users = $DB->get_records_select("user", $sql, $userparams);
+        if (!empty($users)) {
+            foreach ($users as $ruser) {
+                $params = booking_generate_email_params($bookingdata->booking, $bookingdata->option,
+                        $ruser, $cm->id);
+                $pollurlmessage = booking_get_email_body($bookingdata->booking, 'notifyemail',
+                        'notifyemaildefaultmessage', $params);
+                $eventdata = new stdClass();
+                $eventdata->modulename = 'booking';
+                $eventdata->userfrom = $USER;
+                $eventdata->userto = $ruser;
+                $eventdata->subject = $subject;
+                $eventdata->fullmessage = strip_tags(
+                        preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
+                $eventdata->fullmessageformat = FORMAT_HTML;
+                $eventdata->fullmessagehtml = $pollurlmessage;
+                $eventdata->smallmessage = '';
+                $eventdata->component = 'mod_booking';
+                $eventdata->name = 'bookingconfirmation';
+                $returnval = message_send($eventdata);
+            }
         }
-
         return $returnval;
     } else {
         return false;
