@@ -17,8 +17,8 @@
 /**
  * Global settings
  *
- * @package mod_bookings
- * @copyright 2012 Davo Smith, Synergy Learning
+ * @package mod_booking
+ * @copyright 2017 David Bogner, http://www.edulabs.org
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 if ($ADMIN->fulltree) {
@@ -26,4 +26,19 @@ if ($ADMIN->fulltree) {
             new admin_setting_configcheckbox('booking/attachical',
                     get_string('attachical', 'mod_booking'),
                     get_string('attachicaldesc', 'mod_booking'), 0));
+    $bookingcfg = get_config('mod_booking');
+    $number = 1;
+    $cfgname = "customfield_$number";
+    // Only increase number when value is set
+    while (isset($bookingcfg->$cfgname) && !empty($bookingcfg->$cfgname)) {
+        $number++;
+        $cfgname = "customfield_$number";
+    }
+
+    for ($i = 1; $i <= $number; $i++) {
+        $settings->add(
+                new admin_setting_configtext('booking/customfield_' . $i,
+                        get_string('customfield', 'mod_booking'),
+                        get_string('customfielddesc', 'mod_booking'), ''));
+    }
 }
