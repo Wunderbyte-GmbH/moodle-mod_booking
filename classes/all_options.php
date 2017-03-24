@@ -179,7 +179,7 @@ class all_options extends table_sql {
 
         // I'm booked?
         if ($values->iambooked) {
-            if ($values->allowupdate and $status != 'closed') {
+            if ($values->allowupdate and $status != 'closed' and $values->completed != 1) {
                 $buttonoptions = array('id' => $this->cm->id, 'action' => 'delbooking',
                     'optionid' => $values->id, 'sesskey' => $USER->sesskey);
                 $url = new moodle_url('view.php', $buttonoptions);
