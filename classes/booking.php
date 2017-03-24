@@ -123,11 +123,12 @@ class booking {
 
         if (!empty($usergroups)) {
             $groupsparam = implode(',', array_keys($usergroups));
+            list($insql, $inparams) = $DB->get_in_or_equal($groupsparam);
             $groupmembers = $DB->get_records_sql(
                     "SELECT u.id
                     FROM {user} u, {groups_members} gm
-                    WHERE u.id = gm.userid AND gm.groupid IN (?)
-                    ORDER BY lastname ASC", array($groupsparam));
+                    WHERE u.id = gm.userid AND gm.groupid $insql
+                    ORDER BY lastname ASC", $inparams);
         }
         return $groupmembers;
     }
