@@ -122,8 +122,8 @@ class booking {
         $usergroups = groups_get_all_groups($courseid, $USER->id);
 
         if (!empty($usergroups)) {
-            $groupsparam = implode(',', array_keys($usergroups));
-            list($insql, $inparams) = $DB->get_in_or_equal($groupsparam);
+            $groupids = array_keys($usergroups);
+            list($insql, $inparams) = $DB->get_in_or_equal($groupids);
             $groupmembers = $DB->get_records_sql(
                     "SELECT u.id
                     FROM {user} u, {groups_members} gm

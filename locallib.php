@@ -203,7 +203,8 @@ class booking_existing_user_selector extends booking_user_selector_base {
         $order = ' ORDER BY ' . $sort;
 
         if (!empty($this->potentialusers)) {
-            list($subscriberssql, $subscribeparams) = $DB->get_in_or_equal($this->potentialusers);
+            $potentialuserids = array_keys ($this->potentialusers);
+            list($subscriberssql, $subscribeparams) = $DB->get_in_or_equal($potentialuserids, SQL_PARAMS_NAMED, "in_");
         } else {
             return array();
         }
@@ -228,7 +229,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
                         ";
 
         if (!$this->is_validating()) {
-            $potentialmemberscount = $DB->count_records_sql($countfields . $sql, $searchparams);
+            $potentialmemberscount = $DB->count_records_sql($countfields . $sql, array_merge($subscribeparams, $searchparams));
             if ($potentialmemberscount > $this->maxusersperpage) {
                 return $this->too_many_results($search, $potentialmemberscount);
             }

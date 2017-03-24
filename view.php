@@ -152,6 +152,15 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
         echo $OUTPUT->box($contents, 'box generalbox', 'notice');
         echo $OUTPUT->footer();
         die();
+    } else {
+        echo $OUTPUT->header();
+        $contents = get_string('cannotremovesubscriber', 'booking');
+        $options = array('id' => $cm->id);
+        $contents .= $OUTPUT->single_button(new moodle_url('view.php', $options),
+                get_string('continue'), 'get');
+        echo $OUTPUT->box($contents, 'box generalbox', 'notice');
+        echo $OUTPUT->footer();
+        die();
     }
 } else if ($action == 'delbooking' and confirm_sesskey() and
          has_capability('mod/booking:choose', $context) and
@@ -558,6 +567,12 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                          bo.bookingclosingtime,
                          b.btncancelname,
 
+                  (SELECT COUNT(*)
+                   FROM {booking_answers} ba
+                   WHERE ba.optionid = bo.id
+                     AND ba.completed = 1
+                     AND ba.userid = :userid4) AS completed,
+
                   (SELECT DISTINCT(ba.waitinglist)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
@@ -585,6 +600,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $conditionsparams['userid1'] = $USER->id;
         $conditionsparams['userid2'] = $USER->id;
         $conditionsparams['userid3'] = $USER->id;
+        $conditionsparams['userid4'] = $USER->id;
         $conditionsparams['bookingid'] = $booking->booking->id;
 
         $tablealloptions->set_sql($fields, $from, $where, $conditionsparams);

@@ -90,6 +90,7 @@ $string['viewallresponses'] = 'Manage {$a} responses';
 $string['yourselection'] = 'Your selection';
 
 // subscribeusers.php
+$string['cannotremovesubscriber'] = 'You have to remove the activity completion prior to cancel the booking. Booking was not cancelled!';
 $string['allchangessave'] = 'All changes have been saved.';
 $string['backtoresponses'] = '<< Back to responses';
 
@@ -166,7 +167,7 @@ $string['confirmdeletebookingoption'] = 'Do you really want to delete this booki
 $string['norighttobook'] = 'Booking is not possible for your user role. Please contact the site administrator to give you the appropriate rights or sign in.';
 $string['createdby'] = 'Booking module created by edulabs.org';
 $string['maxperuserwarning'] = 'You currently have {$a->count}/{$a->limit} maximum bookings';
-$string['bookedpast'] = 'Booked (course finished)';
+$string['bookedpast'] = 'Booked (course terminated)';
 $string['bookotherusers'] = 'Book other users';
 $string['attachedfiles'] = 'Attached files';
 $string['eventduration'] = 'Event duration';
