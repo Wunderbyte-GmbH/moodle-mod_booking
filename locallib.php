@@ -203,7 +203,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
         $order = ' ORDER BY ' . $sort;
 
         if (!empty($this->potentialusers)) {
-            $subscriberssql = implode(',', array_keys($this->potentialusers));
+            list($subscriberssql, $subscribeparams) = $DB->get_in_or_equal($this->potentialusers);
         } else {
             return array();
         }
@@ -223,8 +223,8 @@ class booking_existing_user_selector extends booking_user_selector_base {
         }
 
         $sql = " FROM {user} u
-                        WHERE u.id IN ($subscriberssql) AND
-                        $searchcondition
+                        WHERE u.id $subscriberssql
+                        AND $searchcondition
                         ";
 
         if (!$this->is_validating()) {
@@ -235,7 +235,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
         }
 
         $availableusers = $DB->get_records_sql($fields . $sql . $order,
-                array_merge($searchparams, $sortparams));
+                array_merge($searchparams, $sortparams, $subscribeparams));
 
         if (empty($availableusers)) {
             return array();

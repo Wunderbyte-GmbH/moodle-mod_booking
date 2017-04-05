@@ -709,9 +709,10 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $headers[] = get_string("waitinglist", "booking");
 
         $addfields = explode(',', $booking->booking->additionalfields);
-        $addquoted = "'" . implode("','", $addfields) . "'";
+        global $DB;
+        list($addquoted, $addquotedparams) = $DB->get_in_or_equal($addfields);
         if ($userprofilefields = $DB->get_records_select('user_info_field',
-                'id > 0 AND shortname IN (' . $addquoted . ')', array(), 'id', 'id, shortname, name')) {
+                'id > 0 AND shortname ' . $addquoted, $addquotedparams, 'id', 'id, shortname, name')) {
             foreach ($userprofilefields as $profilefield) {
                 $columns[] = "cust" . strtolower($profilefield->shortname);
                 $headers[] = $profilefield->name;
@@ -786,8 +787,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                 $groups = groups_get_user_groups($course->id, $option->userid);
                 if (!empty($groups[0])) {
                     $groupids = implode(',', $groups[0]);
-                    $groupnames = $DB->get_fieldset_select('groups', 'name',
-                            ' id IN (' . $groupids . ')');
+                    list($groupids, $groupidsparams) = $DB->get_in_or_equal($groups[0]);
+                    $groupnames = $DB->get_fieldset_select('groups', 'name', " id $groupids", $groupidsparams) ;
                     $option->groups = implode(', ', $groupnames);
                 }
             }

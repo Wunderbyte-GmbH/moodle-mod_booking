@@ -694,11 +694,11 @@ if (!$tableallbookings->is_downloading()) {
     $headers[] = get_string("searchfinished", "booking");
     $columns[] = 'waitinglist';
     $headers[] = get_string("waitinglist", "booking");
-
     $addfields = explode(',', $bookingdata->booking->additionalfields);
-    $addquoted = "'" . implode("','", $addfields) . "'";
+    global $DB;
+    list($addquoted, $addquotedparams) = $DB->get_in_or_equal($addfields);
     if ($userprofilefields = $DB->get_records_select('user_info_field',
-            'id > 0 AND shortname IN (' . $addquoted . ')', array(), 'id', 'id, shortname, name')) {
+            'id > 0 AND shortname ' . $addquoted, $addquotedparams, 'id', 'id, shortname, name')) {
         foreach ($userprofilefields as $profilefield) {
             $columns[] = "cust" . strtolower($profilefield->shortname);
             $headers[] = $profilefield->name;
