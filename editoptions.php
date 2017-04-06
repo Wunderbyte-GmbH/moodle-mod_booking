@@ -80,6 +80,16 @@ if ($optionid == -1) {
     if ($defaultvalues->coursestarttime) {
         $defaultvalues->startendtimeknown = "checked";
     }
+
+    // Defaults for customfields
+    $cfdefaults = $DB->get_records('booking_customfields', array('optionid' => $optionid));
+    $customfields = \mod_booking\booking_option::get_customfield_settings();
+    if (!empty($cfdefaults)) {
+        foreach ($cfdefaults as $defaultval) {
+            $cfgvalue = $customfields[$defaultval->cfgname]['value'];
+            $defaultvalues->$cfgvalue = $defaultval->value;
+        }
+    }
 } else {
     print_error('This booking option does not exist');
 }

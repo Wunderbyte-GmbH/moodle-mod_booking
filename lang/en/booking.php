@@ -840,3 +840,13 @@ $string['pdfsignature'] = "Signature";
 $string['pdftodaydate'] = 'Date: ';
 
 $string['booking:readallinstitutionusers'] = 'Show all users';
+
+// File: settings.php
+$string['customfield'] = 'Custom field to be set in the booking option settings. It will then be shown in the booking option overview.';
+$string['customfielddesc'] = 'After adding a custom field, you can define the value for the field in the booking option settings. The value will be shown in the booking option description.';
+$string['customfieldconfigure'] = 'Custom booking option fields';
+$string['customfielddef'] = 'Custom booking option field';
+$string['customfieldtype'] = 'Field type';
+$string['textfield'] = 'Single line text input';
+$string['delcustfield'] = 'Delete this field and all associated field settings in the booking options';
+

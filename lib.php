@@ -376,6 +376,8 @@ function booking_update_instance($booking) {
 function booking_update_options($optionvalues) {
     global $DB, $CFG;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
+    $customfields = \mod_booking\booking_option::get_customfield_settings();
+    $customfield = new stdClass();
 
     $bokingutils = new booking_utils();
 
@@ -467,6 +469,27 @@ function booking_update_options($optionvalues) {
 
             $DB->update_record("booking_options", $option);
 
+            // Check if custom field will be updated or newly created
+            if (!empty($customfields)) {
+                foreach ($customfields as $fieldcfgname => $field) {
+                    if (isset($optionvalues->{$field['value']})) {
+                        $customfieldid = $DB->get_field('booking_customfields', 'id',
+                                array('bookingid' => $booking->id, 'optionid' => $option->id,
+                                    'cfgname' => $fieldcfgname));
+                        if ($customfieldid) {
+                            $customfield->id = $customfieldid;
+                            $customfield->value = $optionvalues->{$field['value']};
+                            $DB->update_record('booking_customfields', $customfield);
+                        } else {
+                            $customfield->value = $optionvalues->{$field['value']};
+                            $customfield->optionid = $option->id;
+                            $customfield->bookingid = $booking->id;
+                            $customfield->cfgname = $fieldcfgname;
+                            $DB->insert_record('booking_customfields', $customfield);
+                        }
+                    }
+                }
+            }
             return $option->id;
         }
     } else if (isset($optionvalues->text) && $optionvalues->text != '') {
@@ -479,7 +502,21 @@ function booking_update_options($optionvalues) {
 
         $option->groupid = $bokingutils->group($booking, $option);
 
-        return $DB->insert_record("booking_options", $option);
+        $id = $DB->insert_record("booking_options", $option);
+
+        // Save custom fields if there are any
+        if (!empty($customfields)) {
+            foreach ($customfields as $fieldcfgname => $field) {
+                if (!empty($optionvalues->$fieldcfgname)) {
+                    $customfield->value = $optionvalues->$fieldcfgname;
+                    $customfield->optionid = $id;
+                    $customfield->bookingid = $booking->id;
+                    $customfield->cfgname = $fieldcfgname;
+                    $DB->insert_record('booking_customfields', $customfield);
+                }
+            }
+        }
+        return $id;
     }
 }
 

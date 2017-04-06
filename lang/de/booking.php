@@ -706,3 +706,14 @@ $string['selectoptioninotherbooking'] = "Auswahl";
 $string['otherbookinglimit'] = "Limit";
 $string['otherbookinglimit_help'] = "Anzahl der Nutzer/innen die von dieser Buchungsoption akzeptiert werden. 0 bedeutet unlimitiert.";
 $string['otherbookingsucesfullysaved'] = 'Buchungsmöglichkeit gespeichert!';
+
+// File: settings.php
+$string['customfield'] = 'Benutzerdefiniertes Feld, dessen Wert in den Buchungsoptionseinstellungen angegeben wird und in der Buchungsoptionsübersicht angezeigt wird';
+$string['customfielddesc'] = 'Definieren Sie den Wert dieses Feldes in den Buchungsoptionseinstellungen.';
+$string['customfieldconfigure'] = 'Benutzerdefinierte Buchungsoptionsfelder';
+$string['customfielddef'] = 'Benutzerdefiniertes Buchungsoptionsfeld';
+$string['customfieldtype'] = 'Feldtyp';
+$string['textfield'] = 'Eingabezeile';
+$string['delcustfield'] = 'Dieses Feld und alle dazugehörenden Einstellungen in den Buchungsoptionen löschen';
+
+

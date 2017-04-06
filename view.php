@@ -788,7 +788,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                 if (!empty($groups[0])) {
                     $groupids = implode(',', $groups[0]);
                     list($groupids, $groupidsparams) = $DB->get_in_or_equal($groups[0]);
-                    $groupnames = $DB->get_fieldset_select('groups', 'name', " id $groupids", $groupidsparams) ;
+                    $groupnames = $DB->get_fieldset_select('groups', 'name', " id $groupids", $groupidsparams);
                     $option->groups = implode(', ', $groupnames);
                 }
             }

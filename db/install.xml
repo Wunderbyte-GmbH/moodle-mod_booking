@@ -223,18 +223,14 @@
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
 				<FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
 				<FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="configpluginsid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="cfgname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
 				<FIELD NAME="value" TYPE="text" NOTNULL="true" SEQUENCE="false" />
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
 				<KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id" />
 				<KEY NAME="optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id" />
-				<KEY NAME="configpluginsid" TYPE="foreign" FIELDS="configpluginsid" REFTABLE="config_plugins" REFFIELDS="id" />
 			</KEYS>
-			<INDEXES>
-				<INDEX NAME="optionid" UNIQUE="false" FIELDS="optionid" />
-			</INDEXES>
 		</TABLE>
 	</TABLES>
 </XMLDB>
