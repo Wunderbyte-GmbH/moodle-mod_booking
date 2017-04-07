@@ -1420,7 +1420,7 @@ function xmldb_booking_upgrade($oldversion) {
         // Define table to be created.
         $table = new xmldb_table('booking_customfields');
 
-        // Adding fields to table booking_other.
+        // Adding fields to table.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('bookingid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);

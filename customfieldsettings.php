@@ -27,9 +27,7 @@ require_once($CFG->libdir . '/adminlib.php');
 // No guest autologin.
 require_login(0, false);
 
-require_sesskey();
-
-$pageurl = new moodle_url('/mod/booking/customfieldsettings.php', array('sesskey' => sesskey()));
+$pageurl = new moodle_url('/mod/booking/customfieldsettings.php');
 $PAGE->set_url($pageurl);
 admin_externalpage_setup('modbookingcustomfield', '', null, '', array('pagelayout' => 'report'));
 $PAGE->set_title(

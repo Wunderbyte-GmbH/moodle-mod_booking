@@ -853,4 +853,17 @@ $string['delcustfield'] = 'Delete this field and all associated field settings i
 $string['signinlogo'] = 'Logo to display on the sign-in sheet';
 $string['cfgsignin'] = 'Sign-In Sheet Configuration';
 $string['cfgsignin_desc'] = 'Configure the sign-in sheet settings';
+$string['pdfportrait'] = 'Portrait';
+$string['pdflandscape'] = 'Landscape';
+$string['signincustfields'] = 'Custom profile fields';
+$string['signincustfields_desc'] = 'Select the custom profiles fields to be shown on the sign-in sheet';
+$string['showcustomfields'] = 'Custom booking option fields';
+$string['showcustomfields_desc'] = 'Select the custom booking option fields to be shown on the sign-in sheet';
+$string['signinextracols_heading'] = 'Additional columns on the sign-in sheet';
+$string['signinextracols'] = 'Additional column';
+$string['signinextracols_desc'] = 'You can print up to 3 additional columns on the sign-in sheet. Fill in the column title or leave it blank for no additional column';
+
+
+
+
 

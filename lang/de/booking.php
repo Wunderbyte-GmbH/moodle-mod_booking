@@ -719,4 +719,14 @@ $string['delcustfield'] = 'Dieses Feld und alle dazugehörenden Einstellungen in
 $string['signinlogo'] = 'Logo für die Unterschriftenliste';
 $string['cfgsignin'] = 'Einstellungen für die Unterschriftenliste';
 $string['cfgsignin_desc'] = 'Konfiguration der Unterschriftenliste';
+$string['pdfportrait'] = 'Hochformat';
+$string['pdflandscape'] = 'Querformat';
+$string['signincustfields'] = 'Anzuzeigende Profilfelder';
+$string['signincustfields_desc'] = 'Wählen Sie die Profilfelder, die auf der Unterschriftenliste abgedruckt werden sollen';
+$string['showcustomfields'] = 'Anzuzeigende benutzerdefnierte Buchungsoptionsfelder';
+$string['showcustomfields_desc'] = 'Wählen Sie die benutzerdefinierte Buchungsoptionfelder, die auf der Unterschriftenliste abgedruckt werden sollen';
+$string['signinextracols_heading'] = 'Zusätzliche Spalten auf der Unterschriftenliste';
+$string['signinextracols'] = 'Extra Spalte auf der Unterschriftenliste';
+$string['signinextracols_desc'] = 'Sie können bis zu 3 extra Spalten auf der Unterschriftenliste abbilden. Geben Sie den Titel der Spalte ein, oder lassen Sie das Feld leer, um keine extra Spalte anzuzeigen';
+
 

@@ -371,7 +371,7 @@ function booking_update_instance($booking) {
  * Update the booking option settings when adding and modifying a single booking option
  *
  * @param array $optionvalues
- * @return boolean|number
+ * @return boolean|number optionid
  */
 function booking_update_options($optionvalues) {
     global $DB, $CFG;
@@ -507,8 +507,8 @@ function booking_update_options($optionvalues) {
         // Save custom fields if there are any
         if (!empty($customfields)) {
             foreach ($customfields as $fieldcfgname => $field) {
-                if (!empty($optionvalues->$fieldcfgname)) {
-                    $customfield->value = $optionvalues->$fieldcfgname;
+                if (!empty($optionvalues->{$field['value']})) {
+                    $customfield->value = $optionvalues->{$field['value']};
                     $customfield->optionid = $id;
                     $customfield->bookingid = $booking->id;
                     $customfield->cfgname = $fieldcfgname;
@@ -851,6 +851,7 @@ function booking_check_unenrol_user($option, $booking, $userid) {
     if ($booking->addtogroup == 1) {
         if (!is_null($option->groupid) && ($option->groupid > 0)) {
             groups_remove_member($option->groupid, $userid);
+            return;
         }
     }
 

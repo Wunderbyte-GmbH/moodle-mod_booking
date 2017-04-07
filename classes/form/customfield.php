@@ -91,6 +91,10 @@ class customfield extends \moodleform {
                 if (isset($cfgbkg->$cfgname)) {
                     \unset_config($cfgname, 'booking');
                     \unset_config($cfgname . "type", 'booking');
+                    // Update the showcustfields config, because it might reference the cfgname
+                    $cfgbkg->showcustfields = \str_replace($cfgname, '', $cfgbkg->showcustfields);
+                    trim($cfgbkg->showcustfields, ",");
+                    \set_config('showcustfields', $cfgbkg->showcustfields, 'booking');
                     $DB->delete_records('booking_customfields', array('cfgname' => $cfgname));
                 }
                 // Remove all deleted values in order to exclude them from further data processing
@@ -104,6 +108,8 @@ class customfield extends \moodleform {
         if (isset($data->customfield) && !empty($data->customfield)) {
             foreach ($data->customfield as $key => $value) {
                 $cfgname = $data->customfieldname[$key];
+                // Get config again because it has changed
+                $cfgbkg = \get_config('booking');
                 // Not yet configured, config name has to be found not overwriting existing ones
                 if (empty($cfgname)) {
                     for ($i = 0; $i < 300; $i++) {
@@ -123,7 +129,6 @@ class customfield extends \moodleform {
                 }
             }
         }
-
         return $data;
     }
 }
