@@ -849,4 +849,7 @@ $string['customfielddef'] = 'Custom booking option field';
 $string['customfieldtype'] = 'Field type';
 $string['textfield'] = 'Single line text input';
 $string['delcustfield'] = 'Delete this field and all associated field settings in the booking options';
+$string['signinlogo'] = 'Logo to display on the sign-in sheet';
+$string['cfgsignin'] = 'Sign-In Sheet Configuration';
+$string['cfgsignin_desc'] = 'Configure the sign-in sheet settings';
 

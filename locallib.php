@@ -620,8 +620,17 @@ function booking_download_sign_in_sheet(mod_booking\booking_option $bookingdata 
     $pdf = new mypdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
     $pdf->SetCreator(PDF_CREATOR);
 
-    $pdf->setPrintHeader(false);
+    $pdf->setPrintHeader(true);
     $pdf->setPrintFooter(false);
+    // set default header data
+    // set default monospaced font
+    $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+    // set margins
+    $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+    $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+    $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+    $pdf->SetHeaderData('', 0, $bookingdata->option->text, '');
     $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
     $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_LEFT);
     $pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
@@ -629,7 +638,24 @@ function booking_download_sign_in_sheet(mod_booking\booking_option $bookingdata 
     $pdf->setFontSubsetting(false);
 
     $pdf->AddPage();
+    $pdf->setJPEGQuality(80);
+
+    // Get logo for signin sheet
+    $fs = get_file_storage();
+    $files = $fs->get_area_files(context_system::instance()->id, 'mod_booking', 'mod_booking_signinlogo',0,'sortorder,filepath,filename', false);
+    $filepath = '';
+    if ($files) {
+        /** @var stored_file $file */
+        $file = reset($files);
+        $filepath = $file->get_filepath().$file->get_filename();
+        $content = $file->get_content();
+        $filetype = str_replace('image/', '', $file->get_mimetype());
+        $pdf->SetXY(10, 10);
+        $pdf->Image('@'.$content, '', 20, 40, '', $filetype, 'logo', 'T', false, 300, 'R', false, false, 1, false, false, false);
+    }
+
     $pdf = booking_set_pdf_font($pdf, $bookingdata, $teachers, $times);
+
 
     foreach ($users as $user) {
         if ($pdf->go_to_newline(12)) {
@@ -652,12 +678,17 @@ function booking_download_sign_in_sheet(mod_booking\booking_option $bookingdata 
  * @return mypdf
  */
 function booking_set_pdf_font(mypdf $pdf, mod_booking\booking_option $bookingdata, array $teachers, $times) {
-    $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 14);
-    $pdf->MultiCell(0, 0, $bookingdata->option->text, 0, 1, '', 1);
+
+    $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
+    $pdf->Cell(0, 0,'', 0, 1, 'khgghkgh',0);
     $pdf->Ln();
 
     $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
-    $pdf->Cell(0, 0, get_string('teachers', 'booking') . implode(', ', $teachers), 0, 1, '',
+    $pdf->Cell(0, 0,'', 0, 1, 'khgghkgh',0);
+    $pdf->Ln();
+
+    $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
+    $pdf->Cell(0, 0, get_string('teachers', 'booking') . ": " . implode(', ', $teachers), 0, 1, '',
             0);
     $pdf->Ln();
 

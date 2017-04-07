@@ -715,5 +715,7 @@ $string['customfielddef'] = 'Benutzerdefiniertes Buchungsoptionsfeld';
 $string['customfieldtype'] = 'Feldtyp';
 $string['textfield'] = 'Eingabezeile';
 $string['delcustfield'] = 'Dieses Feld und alle dazugehörenden Einstellungen in den Buchungsoptionen löschen';
-
+$string['signinlogo'] = 'Logo für die Unterschriftenliste';
+$string['cfgsignin'] = 'Einstellungen für die Unterschriftenliste';
+$string['cfgsignin_desc'] = 'Konfiguration der Unterschriftenliste';
 

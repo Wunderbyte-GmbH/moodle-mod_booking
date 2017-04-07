@@ -26,10 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 $ADMIN->add('modsettings',
         new admin_category('modbookingfolder', new lang_string('pluginname', 'mod_booking'),
                 $module->is_enabled() === false));
-$ADMIN->add('modbookingfolder',
-        new admin_externalpage('modbookingcustomfield',
-                get_string('customfieldconfigure', 'mod_booking'),
-                new moodle_url('/mod/booking/customfieldsettings.php', array('sesskey' => sesskey()))));
+
 $ADMIN->add('modbookingfolder', $settings);
 
 if ($ADMIN->fulltree) {
@@ -37,5 +34,20 @@ if ($ADMIN->fulltree) {
             new admin_setting_configcheckbox('booking/attachical',
                     get_string('attachical', 'mod_booking'),
                     get_string('attachicaldesc', 'mod_booking'), 0));
+    // The default here is feedback_comments (if it exists).
+    $settings->add( new admin_setting_heading('mod_booking_signinsheet',
+            get_string('cfgsignin', 'mod_booking'),
+            get_string('cfgsignin_desc', 'mod_booking')));
+
+    $name = 'mod_booking/signinlogo';
+    $title = get_string('signinlogo', 'mod_booking');
+    $description = $title;
+    $fileoptions = array('maxfiles' => 1, 'accepted_types' => array('image'));
+    $setting = new admin_setting_configstoredfile($name, $title, $description, 'mod_booking_signinlogo',0,$fileoptions);
+    $settings->add($setting);
 }
+$ADMIN->add('modbookingfolder',
+        new admin_externalpage('modbookingcustomfield',
+                get_string('customfieldconfigure', 'mod_booking'),
+                new moodle_url('/mod/booking/customfieldsettings.php', array('sesskey' => sesskey()))));
 $settings = null;
