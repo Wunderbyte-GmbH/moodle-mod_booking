@@ -1,6 +1,20 @@
 <?php
-
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking\task;
+
 
 class remove_activity_completion extends \core\task\scheduled_task {
 
@@ -9,38 +23,39 @@ class remove_activity_completion extends \core\task\scheduled_task {
     }
 
     public function execute() {
-        global $DB, $CFG;        
-        
-        $result = $DB->get_records_sql('SELECT ba.id, ba.bookingid, ba.optionid, ba.userid, b.course
-            FROM {booking_answers} AS ba
-            LEFT JOIN {booking_options} AS bo 
+        global $DB, $CFG;
+        $now = time();
+        $params = array('now' => $now);
+
+        $result = $DB->get_records_sql(
+                'SELECT ba.id, ba.bookingid, ba.optionid, ba.userid, b.course
+            FROM {booking_answers} ba
+            LEFT JOIN {booking_options} bo
             ON bo.id = ba.optionid
-            LEFT JOIN {booking} AS b
+            LEFT JOIN {booking} b
             ON b.id = bo.bookingid
             WHERE bo.removeafterminutes > 0
             AND ba.completed = 1
-            AND IF(ba.timemodified < (UNIX_TIMESTAMP() - (bo.removeafterminutes*60)), 1, 0) = 1;'
-        );
+                AND ba.timemodified < (:now - bo.removeafterminutes * 60);', $params);
 
         require_once($CFG->libdir . '/completionlib.php');
-        
+
         foreach ($result as $value) {
             $course = $DB->get_record('course', array('id' => $value->course));
             $completion = new \completion_info($course);
             $cm = get_coursemodule_from_instance('booking', $value->bookingid);
 
-            $userData = $DB->get_record('booking_answers', array('id' => $value->id));
+            $userdata = $DB->get_record('booking_answers', array('id' => $value->id));
             $booking = $DB->get_record('booking', array('id' => $value->bookingid));
 
-            $userData->completed = '0';
-            $userData->timemodified = time();
+            $userdata->completed = '0';
+            $userdata->timemodified = time();
 
-            $DB->update_record('booking_answers', $userData);
+            $DB->update_record('booking_answers', $userdata);
 
             if ($completion->is_enabled($cm) && $booking->enablecompletion) {
-                $completion->update_state($cm, COMPLETION_INCOMPLETE, $userData->userid);
+                $completion->update_state($cm, COMPLETION_INCOMPLETE, $userdata->userid);
             }
         }
     }
-
 }
