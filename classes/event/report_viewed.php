@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+
 /**
  * The mod_booking report viewed event.
  *
@@ -21,17 +22,18 @@
  * @copyright 2014 David Bogner http://www.edulabs.org
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace mod_booking\event;
+
 defined('MOODLE_INTERNAL') || die();
+
 
 /**
  * The mod_booking report viewed event class.
  *
- * @package    mod_booking
- * @since      Moodle 2.7
- * @copyright  2014 David Bogner
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod_booking
+ * @since Moodle 2.7
+ * @copyright 2014 David Bogner
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class report_viewed extends \core\event\base {
 
@@ -65,10 +67,12 @@ class report_viewed extends \core\event\base {
 
     /**
      * Returns relevant URL.
+     *
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/booking/report.php', array('id' => $this->contextinstanceid, 'optionid' => $this->objectid));
+        return new \moodle_url('/mod/booking/report.php',
+                array('id' => $this->contextinstanceid, 'optionid' => $this->objectid));
     }
 
     /**
@@ -77,7 +81,9 @@ class report_viewed extends \core\event\base {
      * @return array of parameters to be passed to legacy add_to_log() function.
      */
     protected function get_legacy_logdata() {
-        $url = new \moodle_url('report.php', array('id' => $this->contextinstanceid, 'optionid' => $this->objectid));
-        return array($this->courseid, 'choose', 'report', $url->out(), $this->objectid, $this->contextinstanceid);
+        $url = new \moodle_url('report.php',
+                array('id' => $this->contextinstanceid, 'optionid' => $this->objectid));
+        return array($this->courseid, 'choose', 'report', $url->out(), $this->objectid,
+            $this->contextinstanceid);
     }
 }

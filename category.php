@@ -1,5 +1,18 @@
 <?php
-
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 require_once("../../config.php");
 require_once("lib.php");
 
@@ -32,10 +45,10 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading($category->name, 2);
 
-//$records = $DB->get_records('booking', array('categoryid' => $category->id));
 $records = $DB->get_records_select('booking', 'categoryid LIKE "%' . $category->id . '%"');
 
-echo $OUTPUT->box_start('generalbox', 'tag-blogs'); //could use an id separate from tag-blogs, but would have to copy the css style to make it look the same
+// Could use an id separate from tag-blogs, but would have to copy the css style to make it look the same.
+echo $OUTPUT->box_start('generalbox', 'tag-blogs');
 
 echo '<ul>';
 
@@ -52,4 +65,3 @@ echo '</ul>';
 echo $OUTPUT->box_end();
 
 echo $OUTPUT->footer();
-?>

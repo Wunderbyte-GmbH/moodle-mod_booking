@@ -1,48 +1,61 @@
 <?php
-
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page
+    die('Direct access to this script is forbidden.');
 }
 
-require_once $CFG->libdir . '/formslib.php';
+require_once($CFG->libdir . '/formslib.php');
 
 class mod_booking_categories_form extends moodleform {
 
-    var $options = array();
-
-    function showSubCategories($cat_id, $dashes = '', $DB, $options) {
+    private function show_sub_categories($catid, $dashes = '', $options) {
+        global $DB;
+        $options = array();
         $dashes .= '&nbsp;&nbsp;';
-        $categories = $DB->get_records('booking_category', array('cid' => $cat_id));
+        $categories = $DB->get_records('booking_category', array('cid' => $catid));
         if (count((array) $categories) > 0) {
             foreach ($categories as $category) {
                 $options[$category->id] = $dashes . $category->name;
-                $options = $this->showSubCategories($category->id, $dashes, $DB, $options);
+                $options = $this->show_sub_categories($category->id, $dashes, $options);
             }
         }
 
         return $options;
     }
 
-    function definition() {
-        global $CFG, $DB, $COURSE;
+    public function definition() {
+        global $DB, $COURSE;
 
-        $categories = $DB->get_records('booking_category', array('course' => $COURSE->id, 'cid' => 0));
+        $categories = $DB->get_records('booking_category',
+                array('course' => $COURSE->id, 'cid' => 0));
 
         $options = array(0 => get_string('rootcategory', 'mod_booking'));
 
         foreach ($categories as $category) {
             $options[$category->id] = $category->name;
-            $options = $this->showSubCategories($category->id, '', $DB, $options);
+            $options = $this->show_sub_categories($category->id, '', $DB, $options);
         }
-
-        $context = context_system::instance();
 
         $mform = $this->_form;
 
-        //-------------------------------------------------------------------------------
+        // -------------------------------------------------------------------------------
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        $mform->addElement('text', 'name', get_string('categoryname', 'booking'), array('size' => '64'));
+        $mform->addElement('text', 'name', get_string('categoryname', 'booking'),
+                array('size' => '64'));
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->setType('name', PARAM_TEXT);
 
@@ -61,7 +74,4 @@ class mod_booking_categories_form extends moodleform {
 
         $this->add_action_buttons();
     }
-
 }
-
-?>

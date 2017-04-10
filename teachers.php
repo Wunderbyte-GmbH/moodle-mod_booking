@@ -1,5 +1,18 @@
 <?php
-
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 require_once("../../config.php");
 require_once("locallib.php");
 require_once("teachers_form.php");
@@ -8,21 +21,16 @@ $id = required_param('id', PARAM_INT);
 $optionid = required_param('optionid', PARAM_INT);
 $edit = optional_param('edit', 0, PARAM_INT);
 
-$url = new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid, 'edit' => $edit));
+$url = new moodle_url('/mod/booking/teachers.php',
+        array('id' => $id, 'optionid' => $optionid, 'edit' => $edit));
 
 $PAGE->set_url($url);
 
-if (!$cm = get_coursemodule_from_id('booking', $id)) {
-    print_error('invalidcoursemodule');
-}
-
-if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
-    print_error('coursemisconf');
-}
+list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 
-if (!$booking = booking_get_booking($cm, 'coursestarttime ASC', array(), true, $optionid)) {
+if (!$booking = new mod_booking\booking_option($id, $optionid, array(), 0, 0, false)) {
     print_error("Course module is incorrect");
 }
 
@@ -43,28 +51,32 @@ $subscriberselector->set_extra_fields(array('email'));
 
 if ($edit === 0) {
     $option = $DB->get_record("booking_options", array("id" => $optionid));
-    $allSubscribedTeachers = booking_subscribed_teachers($course, $optionid, $id, $currentgroup, $context);
-    $mform = new mod_booking_teachers_form(null, array('teachers' => $allSubscribedTeachers, 'option' => $option, 'cm' => $cm, 'id' => $id, 'optionid' => $optionid, 'edit' => $edit));
+    $allsubscribedteachers = booking_subscribed_teachers($course, $optionid, $id, $currentgroup,
+            $context);
+    $mform = new mod_booking_teachers_form(null,
+            array('teachers' => $allsubscribedteachers, 'option' => $option, 'cm' => $cm,
+                'id' => $id, 'optionid' => $optionid, 'edit' => $edit));
 
     if ($mform->is_cancelled()) {
         redirect("report.php?id=$cm->id&optionid={$optionid}");
     } else if ($fromform = $mform->get_data()) {
-        
-        if (isset($fromform->turneditingon) && has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
-            $urlR = new moodle_url('/mod/booking/teachers.php', array('id' => $id, 'optionid' => $optionid, 'edit' => 1));
-            redirect($urlR, '', 0);
+
+        if (isset($fromform->turneditingon) && has_capability('mod/booking:updatebooking', $context) &&
+                 confirm_sesskey()) {
+            $urlr = new moodle_url('/mod/booking/teachers.php',
+                    array('id' => $id, 'optionid' => $optionid, 'edit' => 1));
+            redirect($urlr, '', 0);
         }
-        
-        if (isset($fromform->activitycompletion) && has_capability('mod/booking:readresponses', $context) && confirm_sesskey()) {
+
+        if (isset($fromform->activitycompletion) &&
+                 has_capability('mod/booking:readresponses', $context) && confirm_sesskey()) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
 
             if (empty($selectedusers[$optionid])) {
                 redirect($url, get_string('selectatleastoneuser', 'booking'), 5);
             }
 
-            $bookingData = new booking_options($cm->id, FALSE);
-            
-            booking_activitycompletion_teachers($selectedusers, $bookingData->booking, $cm->id, $optionid);
+            booking_activitycompletion_teachers($selectedusers, $booking->booking, $cm->id, $optionid);
             redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);
         }
     }
@@ -72,7 +84,7 @@ if ($edit === 0) {
     require_sesskey();
     $subscribe = (bool) optional_param('subscribe', false, PARAM_RAW);
     $unsubscribe = (bool) optional_param('unsubscribe', false, PARAM_RAW);
-    /** It has to be one or the other, not both or neither */
+    // It has to be one or the other, not both or neither
     if (!($subscribe xor $unsubscribe)) {
         print_error('invalidaction');
     }
@@ -102,12 +114,8 @@ if ($edit === 1) {
     $PAGE->navbar->add(get_string('teachers', 'booking'));
 }
 
-
-
 $PAGE->set_title(get_string('addteachers', 'booking'));
 $PAGE->set_heading($COURSE->fullname);
-
-
 
 if (has_capability('mod/booking:updatebooking', $context)) {
     $USER->subscriptionsediting = $edit;
@@ -117,18 +125,21 @@ if (has_capability('mod/booking:updatebooking', $context)) {
 }
 echo $output->header();
 if ($edit === 1) {
-    echo $output->heading(get_string('addteachers', 'booking') . " [{$booking->option[$optionid]->text}]");
+    echo $output->heading(
+            get_string('addteachers', 'booking') . " [{$booking->option->text}]");
 } else {
-    echo $output->heading(get_string('teachers', 'booking') . " [{$booking->option[$optionid]->text}]");
+    echo $output->heading(
+            get_string('teachers', 'booking') . " [{$booking->option->text}]");
 }
 
-echo html_writer::link(new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)), get_string('users', 'booking'), array('style' => 'float:right;'));
+echo html_writer::link(
+        new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)),
+        get_string('users', 'booking'), array('style' => 'float:right;'));
 echo '<br>';
 
-if (empty($USER->subscriptionsediting)) {    
+if (empty($USER->subscriptionsediting)) {
     $mform->display();
 } else {
     echo $output->subscriber_selection_form($existingselector, $subscriberselector);
 }
 echo $output->footer();
-?>

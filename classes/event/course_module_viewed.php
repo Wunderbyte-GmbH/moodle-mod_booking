@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+
 /**
  * The mod_booking course module viewed event.
  *
@@ -21,17 +22,18 @@
  * @copyright 2014 David Bogner http://www.edulabs.org
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace mod_booking\event;
+
 defined('MOODLE_INTERNAL') || die();
+
 
 /**
  * The mod_booking course module viewed event class.
  *
- * @package    mod_booking
- * @since      Moodle 2.7
- * @copyright  2014 David Bogner
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod_booking
+ * @since Moodle 2.7
+ * @copyright 2014 David Bogner
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class course_module_viewed extends \core\event\course_module_viewed {
 
