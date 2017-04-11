@@ -38,7 +38,7 @@ function booking_cron() {
             FROM {booking_options} bo
             LEFT JOIN {booking} b ON b.id = bo.bookingid
             WHERE (b.daystonotify > 0 OR b.daystonotify2 > 0)
-            AND bo.coursestarttime > 0
+            AND bo.coursestarttime > 0  AND bo.coursestarttime > UNIX_TIMESTAMP()
             AND (bo.sent = 0 AND bo.sent2 = 0)');
 
     foreach ($toprocess as $value) {
@@ -48,7 +48,7 @@ function booking_cron() {
 
         $dateevent->modify('-' . $value->daystonotify . ' day');
 
-        if ($value->sent == 0) {
+        if ($value->sent == 0 AND $value->daystonotify > 0) {
             if ($dateevent < $datenow) {
 
                 $save = new stdClass();
@@ -66,7 +66,7 @@ function booking_cron() {
 
         $dateevent->modify('-' . $value->daystonotify2 . ' day');
 
-        if ($value->sent2 == 0) {
+        if ($value->sent2 == 0 AND $value->daystonotify2 > 0) {
             if ($dateevent < $datenow) {
                 $save = new stdClass();
                 $save->id = $value->id;
