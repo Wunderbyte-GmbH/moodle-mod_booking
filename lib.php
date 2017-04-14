@@ -38,8 +38,8 @@ function booking_cron() {
             FROM {booking_options} bo
             LEFT JOIN {booking} b ON b.id = bo.bookingid
             WHERE (b.daystonotify > 0 OR b.daystonotify2 > 0)
-            AND bo.coursestarttime > 0  AND bo.coursestarttime > UNIX_TIMESTAMP()
-            AND (bo.sent = 0 AND bo.sent2 = 0)');
+            AND bo.coursestarttime > 0  AND bo.coursestarttime > ?
+            AND (bo.sent = 0 AND bo.sent2 = 0)', array(time()));
 
     foreach ($toprocess as $value) {
         $dateevent = new DateTime();
@@ -1429,7 +1429,7 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
             $pollurlmessage = booking_get_email_body($bookingdata->booking, 'notifyemail', 'notifyemaildefaultmessage',
                     $params);
 
-            $eventdata = new stdClass();
+            $eventdata = new \core\message\message();
             $eventdata->modulename = 'booking';
             $eventdata->userfrom = $USER;
             $eventdata->userto = $ruser;
@@ -1441,6 +1441,7 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
             $eventdata->smallmessage = '';
             $eventdata->component = 'mod_booking';
             $eventdata->name = 'bookingconfirmation';
+            $eventdata->courseid = $bookingdata->booking->course;
 
             $returnval = message_send($eventdata);
         }
