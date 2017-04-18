@@ -161,6 +161,19 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         // (child paths, file areas nor links decoder)
     }
 
+    protected function process_booking_customfield($data) {
+        global $DB;
+
+        $data = (object)$data;
+
+        $data->bookingid = $this->get_new_parentid('booking');
+        $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
+
+        $newitemid = $DB->insert_record('booking_customfields', $data);
+        // No need to save this mapping as far as nothing depend on it
+        // (child paths, file areas nor links decoder)
+    }
+
     protected function after_execute() {
         // Add booking related files, no need to match by itemname (just internally handled context)
         $this->add_related_files('mod_booking', 'intro', null);
