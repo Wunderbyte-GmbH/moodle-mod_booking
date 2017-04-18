@@ -46,6 +46,8 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                 '/activity/booking/options/option/others/other');
         $paths[] = new restore_path_element('booking_optiondate',
                 '/activity/booking/optiondates/optiondate');
+        $paths[] = new restore_path_element('booking_customfield',
+                '/activity/booking/customfields/customfield');
 
         if ($userinfo) {
             $paths[] = new restore_path_element('booking_answer', '/activity/booking/answers/answer');
