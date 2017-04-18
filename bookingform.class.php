@@ -37,9 +37,9 @@ class mod_booking_bookingform_form extends moodleform {
             foreach ($customfields as $customfieldname => $customfieldarray) {
                 // TODO: Only textfield yet defined, extend when there are more types
                 if ($customfieldarray['type'] = "textfield") {
-                    $mform->addElement('text', $customfieldarray['value'],
+                    $mform->addElement('text', $customfieldname,
                             $customfieldarray['value'], array('size' => '64'));
-                    $mform->setType($customfieldarray['value'], PARAM_NOTAGS);
+                    $mform->setType($customfieldname, PARAM_NOTAGS);
                 }
             }
         }

@@ -86,7 +86,7 @@ if ($optionid == -1) {
     $customfields = \mod_booking\booking_option::get_customfield_settings();
     if (!empty($cfdefaults)) {
         foreach ($cfdefaults as $defaultval) {
-            $cfgvalue = $customfields[$defaultval->cfgname]['value'];
+            $cfgvalue = $defaultval->cfgname;
             $defaultvalues->$cfgvalue = $defaultval->value;
         }
     }

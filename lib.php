@@ -472,16 +472,16 @@ function booking_update_options($optionvalues) {
             // Check if custom field will be updated or newly created
             if (!empty($customfields)) {
                 foreach ($customfields as $fieldcfgname => $field) {
-                    if (isset($optionvalues->{$field['value']})) {
+                    if (isset($optionvalues->$fieldcfgname)) {
                         $customfieldid = $DB->get_field('booking_customfields', 'id',
                                 array('bookingid' => $booking->id, 'optionid' => $option->id,
                                     'cfgname' => $fieldcfgname));
                         if ($customfieldid) {
                             $customfield->id = $customfieldid;
-                            $customfield->value = $optionvalues->{$field['value']};
+                            $customfield->value = $optionvalues->$fieldcfgname;
                             $DB->update_record('booking_customfields', $customfield);
                         } else {
-                            $customfield->value = $optionvalues->{$field['value']};
+                            $customfield->value = $optionvalues->$fieldcfgname;
                             $customfield->optionid = $option->id;
                             $customfield->bookingid = $booking->id;
                             $customfield->cfgname = $fieldcfgname;
@@ -507,8 +507,8 @@ function booking_update_options($optionvalues) {
         // Save custom fields if there are any
         if (!empty($customfields)) {
             foreach ($customfields as $fieldcfgname => $field) {
-                if (!empty($optionvalues->{$field['value']})) {
-                    $customfield->value = $optionvalues->{$field['value']};
+                if (!empty($optionvalues->$fieldcfgname)) {
+                    $customfield->value = $optionvalues->$fieldcfgname;
                     $customfield->optionid = $id;
                     $customfield->bookingid = $booking->id;
                     $customfield->cfgname = $fieldcfgname;

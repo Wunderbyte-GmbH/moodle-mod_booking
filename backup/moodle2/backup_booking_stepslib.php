@@ -116,6 +116,9 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $booking->add_child($institutions);
         $institutions->add_child($institution);
 
+        $option->add_child($others);
+        $others->add_child($other);
+
         $booking->add_child($customfields);
         $customfields->add_child($customfield);
 
@@ -131,7 +134,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $category->set_source_table('booking_category', array('course' => '../../course'));
         $tag->set_source_table('booking_tags', array('courseid' => '../../course'));
         $institution->set_source_table('booking_institutions', array('course' => '../../course'));
-        $other->set_source_table('booking_other', array('optionid' => '../../id'));
+        $other->set_source_table('booking_other', array('optionid' => backup::VAR_PARENTID));
         $optiondate->set_source_table('booking_optiondates', array('bookingid' => backup::VAR_PARENTID));
         $customfield->set_source_table('booking_customfields', array('bookingid' => backup::VAR_PARENTID));
 
