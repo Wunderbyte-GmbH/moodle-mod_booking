@@ -841,3 +841,29 @@ $string['pdfsignature'] = "Signature";
 $string['pdftodaydate'] = 'Date: ';
 
 $string['booking:readallinstitutionusers'] = 'Show all users';
+
+// File: settings.php
+$string['customfield'] = 'Custom field to be set in the booking option settings. It will then be shown in the booking option overview.';
+$string['customfielddesc'] = 'After adding a custom field, you can define the value for the field in the booking option settings. The value will be shown in the booking option description.';
+$string['customfieldconfigure'] = 'Custom booking option fields';
+$string['customfielddef'] = 'Custom booking option field';
+$string['customfieldtype'] = 'Field type';
+$string['textfield'] = 'Single line text input';
+$string['delcustfield'] = 'Delete this field and all associated field settings in the booking options';
+$string['signinlogo'] = 'Logo to display on the sign-in sheet';
+$string['cfgsignin'] = 'Sign-In Sheet Configuration';
+$string['cfgsignin_desc'] = 'Configure the sign-in sheet settings';
+$string['pdfportrait'] = 'Portrait';
+$string['pdflandscape'] = 'Landscape';
+$string['signincustfields'] = 'Custom profile fields';
+$string['signincustfields_desc'] = 'Select the custom profiles fields to be shown on the sign-in sheet';
+$string['showcustomfields'] = 'Custom booking option fields';
+$string['showcustomfields_desc'] = 'Select the custom booking option fields to be shown on the sign-in sheet';
+$string['signinextracols_heading'] = 'Additional columns on the sign-in sheet';
+$string['signinextracols'] = 'Additional column';
+$string['signinextracols_desc'] = 'You can print up to 3 additional columns on the sign-in sheet. Fill in the column title or leave it blank for no additional column';
+
+
+
+
+

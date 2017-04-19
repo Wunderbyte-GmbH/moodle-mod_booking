@@ -31,6 +31,19 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('text', PARAM_CLEANHTML);
         }
 
+        // Add custom fields here
+        $customfields = mod_booking\booking_option::get_customfield_settings();
+        if (!empty($customfields)) {
+            foreach ($customfields as $customfieldname => $customfieldarray) {
+                // TODO: Only textfield yet defined, extend when there are more types
+                if ($customfieldarray['type'] = "textfield") {
+                    $mform->addElement('text', $customfieldname,
+                            $customfieldarray['value'], array('size' => '64'));
+                    $mform->setType($customfieldname, PARAM_NOTAGS);
+                }
+            }
+        }
+
         $mform->addElement('text', 'location', get_string('location', 'booking'),
                 array('size' => '64'));
         if (!empty($CFG->formatstringstriptags)) {
@@ -237,4 +250,5 @@ class mod_booking_bookingform_form extends moodleform {
         }
         return $data;
     }
+
 }

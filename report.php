@@ -169,8 +169,8 @@ $event = \mod_booking\event\report_viewed::create(
         array('objectid' => $optionid, 'context' => context_module::instance($cm->id)));
 $event->trigger();
 
-if ($action == 'downloadsigninsheet') {
-    booking_download_sign_in_sheet($bookingdata);
+if ($action == 'downloadsigninportrait' || $action == 'downloadsigninlandscape') {
+    booking_download_sign_in_sheet($bookingdata , $action);
     die();
 }
 
@@ -642,10 +642,18 @@ if (!$tableallbookings->is_downloading()) {
     echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
             array('onclick' => 'copyToClipboard("' . $onlyoneurl . '"); return false;')) . ' | ';
 
-    $signinsheeturl = new moodle_url('/mod/booking/report.php',
-            array('id' => $id, 'optionid' => $optionid, 'action' => 'downloadsigninsheet'));
+    echo html_writer::span( get_string('sign_in_sheet_download', 'mod_booking') . ": ");
 
-    echo html_writer::link($signinsheeturl, get_string('sign_in_sheet_download', 'booking'),
+    $signinsheeturlp = new moodle_url('/mod/booking/report.php',
+            array('id' => $id, 'optionid' => $optionid, 'action' => 'downloadsigninportrait'));
+
+    $signinsheeturll = new moodle_url('/mod/booking/report.php',
+            array('id' => $id, 'optionid' => $optionid, 'action' => 'downloadsigninlandscape'));
+
+    echo html_writer::link($signinsheeturlp, get_string('pdfportrait', 'mod_booking') . " ",
+            array('target' => '_blank'));
+
+            echo html_writer::link($signinsheeturll, get_string('pdflandscape', 'mod_booking'),
             array('target' => '_blank'));
 
     echo "<script>
