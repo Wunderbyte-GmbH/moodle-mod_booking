@@ -554,31 +554,6 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Define field location to be added to booking_options.
-        $table = new xmldb_table('booking_options');
-        $field = new xmldb_field('location', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'sent');
-
-        // Conditionally launch add field location.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('institution', XMLDB_TYPE_CHAR, '255', null, null, null, null,
-                'location');
-
-        // Conditionally launch add field institution.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('address', XMLDB_TYPE_CHAR, '255', null, null, null, null,
-                'institution');
-
-        // Conditionally launch add field address.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2014092901, 'booking');
     }
