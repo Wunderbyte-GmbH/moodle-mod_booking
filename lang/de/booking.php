@@ -84,6 +84,7 @@ $string['viewallresponses'] = '{$a} Antworten verwalten';
 $string['yourselection'] = 'Ihre Auswahl';
 
 // subscribeusers.php
+$string['cannotremovesubscriber'] = 'Um die Buchung zu stornieren, muss zuvor der Aktivitätsabschluss entfernt werden. Die Buchung wurde nicht storniert';
 $string['allchangessave'] = 'Alle Änderungen wurden gespeichert.';
 $string['backtoresponses'] = '<< Zurück zu den Antworten';
 
@@ -706,3 +707,26 @@ $string['selectoptioninotherbooking'] = "Auswahl";
 $string['otherbookinglimit'] = "Limit";
 $string['otherbookinglimit_help'] = "Anzahl der Nutzer/innen die von dieser Buchungsoption akzeptiert werden. 0 bedeutet unlimitiert.";
 $string['otherbookingsucesfullysaved'] = 'Buchungsmöglichkeit gespeichert!';
+
+// File: settings.php
+$string['customfield'] = 'Benutzerdefiniertes Feld, dessen Wert in den Buchungsoptionseinstellungen angegeben wird und in der Buchungsoptionsübersicht angezeigt wird';
+$string['customfielddesc'] = 'Definieren Sie den Wert dieses Feldes in den Buchungsoptionseinstellungen.';
+$string['customfieldconfigure'] = 'Benutzerdefinierte Buchungsoptionsfelder';
+$string['customfielddef'] = 'Benutzerdefiniertes Buchungsoptionsfeld';
+$string['customfieldtype'] = 'Feldtyp';
+$string['textfield'] = 'Eingabezeile';
+$string['delcustfield'] = 'Dieses Feld und alle dazugehörenden Einstellungen in den Buchungsoptionen löschen';
+$string['signinlogo'] = 'Logo für die Unterschriftenliste';
+$string['cfgsignin'] = 'Einstellungen für die Unterschriftenliste';
+$string['cfgsignin_desc'] = 'Konfiguration der Unterschriftenliste';
+$string['pdfportrait'] = 'Hochformat';
+$string['pdflandscape'] = 'Querformat';
+$string['signincustfields'] = 'Anzuzeigende Profilfelder';
+$string['signincustfields_desc'] = 'Wählen Sie die Profilfelder, die auf der Unterschriftenliste abgedruckt werden sollen';
+$string['showcustomfields'] = 'Anzuzeigende benutzerdefnierte Buchungsoptionsfelder';
+$string['showcustomfields_desc'] = 'Wählen Sie die benutzerdefinierte Buchungsoptionfelder, die auf der Unterschriftenliste abgedruckt werden sollen';
+$string['signinextracols_heading'] = 'Zusätzliche Spalten auf der Unterschriftenliste';
+$string['signinextracols'] = 'Extra Spalte auf der Unterschriftenliste';
+$string['signinextracols_desc'] = 'Sie können bis zu 3 extra Spalten auf der Unterschriftenliste abbilden. Geben Sie den Titel der Spalte ein, oder lassen Sie das Feld leer, um keine extra Spalte anzuzeigen';
+
+

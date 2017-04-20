@@ -51,10 +51,10 @@ class booking_option extends booking {
     /** @var array of all user objects (waitinglist and regular) - filtered */
     public $users = array();
 
-    /** @var array of user objects with regular bookings NO waitinglist */
+    /** @var array of user objects with regular bookings NO waitinglist userid as key */
     public $usersonlist = array();
 
-    /** @var array of user objects with users on waitinglist */
+    /** @var array of user objects with users on waitinglist userid as key */
     public $usersonwaitinglist = array();
 
     /** @var the number of the page starting with 0 */
@@ -264,9 +264,9 @@ class booking_option extends booking {
 
         foreach ($this->users as $user) {
             if ($user->waitinglist == 1) {
-                $this->usersonwaitinglist[] = $user;
+                $this->usersonwaitinglist[$user->userid] = $user;
             } else {
-                $this->usersonlist[] = $user;
+                $this->usersonlist[$user->userid] = $user;
             }
         }
     }
@@ -645,5 +645,29 @@ class booking_option extends booking {
         } else {
             return 0;
         }
+    }
+
+    /**
+     * Retrieves the global booking settings and returns the customfields string[customfieldname][value] will return the actual text for the custom
+     * field string[customfieldname][type] will return the type: for now only textfield
+     *
+     * @return multideminsional array string[customfieldname][value|type]; empty array if no settings set
+     */
+    static public function get_customfield_settings() {
+        $values = array();
+        $bkgconfig = \get_config('booking');
+        $customfieldvals = \get_object_vars($bkgconfig);
+        if (!empty($customfieldvals)) {
+            foreach ($customfieldvals as $customfieldname => $value) {
+                $iscustomfield = \strpos($customfieldname, 'customfield');
+                $istype = \strpos($customfieldname, 'type');
+                if ($iscustomfield !== false && $istype === false) {
+                    $type = $customfieldname . "type";
+                    $values[$customfieldname]['value'] = $bkgconfig->$customfieldname;
+                    $values[$customfieldname]['type'] = $bkgconfig->$type;
+                }
+            }
+        }
+        return $values;
     }
 }

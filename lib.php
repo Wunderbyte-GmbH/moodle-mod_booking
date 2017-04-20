@@ -32,6 +32,7 @@ function booking_cron() {
 
     mtrace('Starting cron for Booking ...');
 
+    $now = time();
     $toprocess = $DB->get_records_sql(
             'SELECT bo.id, bo.coursestarttime, b.daystonotify, b.daystonotify2, bo.sent, bo.sent2
             FROM {booking_options} bo
@@ -383,11 +384,13 @@ function booking_update_instance($booking) {
  * Update the booking option settings when adding and modifying a single booking option
  *
  * @param array $optionvalues
- * @return boolean|number
+ * @return boolean|number optionid
  */
 function booking_update_options($optionvalues) {
     global $DB, $CFG;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
+    $customfields = \mod_booking\booking_option::get_customfield_settings();
+    $customfield = new stdClass();
 
     $bokingutils = new booking_utils();
 
@@ -479,6 +482,27 @@ function booking_update_options($optionvalues) {
 
             $DB->update_record("booking_options", $option);
 
+            // Check if custom field will be updated or newly created
+            if (!empty($customfields)) {
+                foreach ($customfields as $fieldcfgname => $field) {
+                    if (isset($optionvalues->$fieldcfgname)) {
+                        $customfieldid = $DB->get_field('booking_customfields', 'id',
+                                array('bookingid' => $booking->id, 'optionid' => $option->id,
+                                    'cfgname' => $fieldcfgname));
+                        if ($customfieldid) {
+                            $customfield->id = $customfieldid;
+                            $customfield->value = $optionvalues->$fieldcfgname;
+                            $DB->update_record('booking_customfields', $customfield);
+                        } else {
+                            $customfield->value = $optionvalues->$fieldcfgname;
+                            $customfield->optionid = $option->id;
+                            $customfield->bookingid = $booking->id;
+                            $customfield->cfgname = $fieldcfgname;
+                            $DB->insert_record('booking_customfields', $customfield);
+                        }
+                    }
+                }
+            }
             return $option->id;
         }
     } else if (isset($optionvalues->text) && $optionvalues->text != '') {
@@ -491,7 +515,21 @@ function booking_update_options($optionvalues) {
 
         $option->groupid = $bokingutils->group($booking, $option);
 
-        return $DB->insert_record("booking_options", $option);
+        $id = $DB->insert_record("booking_options", $option);
+
+        // Save custom fields if there are any
+        if (!empty($customfields)) {
+            foreach ($customfields as $fieldcfgname => $field) {
+                if (!empty($optionvalues->$fieldcfgname)) {
+                    $customfield->value = $optionvalues->$fieldcfgname;
+                    $customfield->optionid = $id;
+                    $customfield->bookingid = $booking->id;
+                    $customfield->cfgname = $fieldcfgname;
+                    $DB->insert_record('booking_customfields', $customfield);
+                }
+            }
+        }
+        return $id;
     }
 }
 
@@ -819,6 +857,7 @@ function booking_check_unenrol_user($option, $booking, $userid) {
     if ($booking->addtogroup == 1) {
         if (!is_null($option->groupid) && ($option->groupid > 0)) {
             groups_remove_member($option->groupid, $userid);
+            return;
         }
     }
 
@@ -1394,6 +1433,7 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
     $returnval = true;
     $allusers = array();
 
+    // TODO: Remove these queries, they are not really necessary.
     $option = $DB->get_record('booking_options', array('id' => $optionid));
     $booking = $DB->get_record('booking', array('id' => $option->bookingid));
 
@@ -1406,7 +1446,7 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
         foreach ($tousers as $value) {
             $tmpuser = new stdClass();
             $tmpuser->id = $value;
-            $allusers[] = $tmpuser;
+            $allusers[$value] = $tmpuser;
         }
     } else {
         if (isset($bookingdata->usersonlist)) {
@@ -1419,7 +1459,6 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
             $allusers = array();
         }
     }
-
     if (!empty($allusers)) {
         foreach ($allusers as $record) {
             $ruser = $DB->get_record('user', array('id' => $record->id));
@@ -1444,7 +1483,6 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
 
             $returnval = message_send($eventdata);
         }
-
         return $returnval;
     } else {
         return false;
