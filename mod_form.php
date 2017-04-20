@@ -183,6 +183,11 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('daystonotify', 0);
         $mform->addHelpButton('daystonotify', 'daystonotify', 'booking');
 
+        $mform->addElement('text', 'daystonotify2', get_string('daystonotify2', 'booking'));
+        $mform->setType('daystonotify2', PARAM_INT);
+        $mform->setDefault('daystonotify2', 0);
+        $mform->addHelpButton('daystonotify2', 'daystonotify2', 'booking');
+
         // booking manager
         $mform->addElement('text', 'bookingmanager',
                 get_string('usernameofbookingmanager', 'booking'));

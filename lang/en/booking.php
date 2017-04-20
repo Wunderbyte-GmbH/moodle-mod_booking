@@ -50,6 +50,7 @@ $string['bookingopen'] = 'Open';
 $string['bookingtext'] = 'Booking text';
 $string['datenotset'] = 'Date not set';
 $string['daystonotify'] = 'Number of days in advance of the event-start to notify participatants';
+$string['daystonotify2'] = 'Second notification before start of event to notify participatants.';
 $string['eventbooking_cancelled'] = 'Booking cancelled';
 $string['eventbookingoption_booked'] = 'Booking option booked';
 $string['eventreport_viewed'] = 'Report viewed';
@@ -520,6 +521,7 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 </ul>';
 
 $string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
+$string['daystonotify2_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
 
 $string['additionalfields'] = 'Additional fields';
 $string['addtogroup'] = 'Automatically enrol users in group';
