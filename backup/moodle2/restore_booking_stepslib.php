@@ -46,6 +46,8 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                 '/activity/booking/options/option/others/other');
         $paths[] = new restore_path_element('booking_optiondate',
                 '/activity/booking/optiondates/optiondate');
+        $paths[] = new restore_path_element('booking_customfield',
+                '/activity/booking/customfields/customfield');
 
         if ($userinfo) {
             $paths[] = new restore_path_element('booking_answer', '/activity/booking/answers/answer');
@@ -157,6 +159,19 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data = (object) $data;
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
         $DB->insert_record('booking_other', $data);
+        // No need to save this mapping as far as nothing depend on it
+        // (child paths, file areas nor links decoder)
+    }
+
+    protected function process_booking_customfield($data) {
+        global $DB;
+
+        $data = (object)$data;
+
+        $data->bookingid = $this->get_new_parentid('booking');
+        $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
+
+        $newitemid = $DB->insert_record('booking_customfields', $data);
         // No need to save this mapping as far as nothing depend on it
         // (child paths, file areas nor links decoder)
     }

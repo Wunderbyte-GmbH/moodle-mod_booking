@@ -109,7 +109,7 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
             foreach ($users as $user) {
                 if (!$bookingoption->user_delete_response($user->id)) {
                     $unsubscribesuccess = false;
-                    print_error('cannotremovesubscriber', 'forum', $errorurl->out(), $user->id);
+                    print_error('cannotremovesubscriber', 'booking', $errorurl->out(), $user->id);
                 }
             }
         } else if ($unsubscribe &&
