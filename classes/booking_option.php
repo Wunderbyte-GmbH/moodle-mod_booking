@@ -646,4 +646,28 @@ class booking_option extends booking {
             return 0;
         }
     }
+
+    /**
+     * Retrieves the global booking settings and returns the customfields string[customfieldname][value] will return the actual text for the custom
+     * field string[customfieldname][type] will return the type: for now only textfield
+     *
+     * @return multideminsional array string[customfieldname][value|type]; empty array if no settings set
+     */
+    static public function get_customfield_settings() {
+        $values = array();
+        $bkgconfig = \get_config('booking');
+        $customfieldvals = \get_object_vars($bkgconfig);
+        if (!empty($customfieldvals)) {
+            foreach ($customfieldvals as $customfieldname => $value) {
+                $iscustomfield = \strpos($customfieldname, 'customfield');
+                $istype = \strpos($customfieldname, 'type');
+                if ($iscustomfield !== false && $istype === false) {
+                    $type = $customfieldname . "type";
+                    $values[$customfieldname]['value'] = $bkgconfig->$customfieldname;
+                    $values[$customfieldname]['type'] = $bkgconfig->$type;
+                }
+            }
+        }
+        return $values;
+    }
 }

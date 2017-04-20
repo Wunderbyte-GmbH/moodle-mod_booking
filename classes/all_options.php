@@ -120,6 +120,7 @@ class all_options extends table_sql {
     }
 
     protected function col_text($values) {
+        global $DB;
         $output = '';
         $output .= html_writer::tag('h4', $values->text);
 
@@ -140,9 +141,22 @@ class all_options extends table_sql {
         if (!empty($values->description)) {
             $output .= html_writer::div($values->description, 'description');
         }
-        $output .= (!empty($values->teachers) ? " <br />" .
-                 (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') .
-                 ": " : $this->booking->booking->lblteachname) . "" . $values->teachers : '');
+
+        $output .= (!empty($values->teachers) ? " <br />" . (empty(
+                $this->booking->booking->lblteachname) ? get_string('teachers', 'booking') . ": " : $this->booking->booking->lblteachname) .
+                 "" . $values->teachers : '');
+
+        // Custom fields
+        $customfields = $DB->get_records('booking_customfields', array('optionid' => $values->id));
+        $customfieldcfg = \mod_booking\booking_option::get_customfield_settings();
+        if ($customfields) {
+            foreach ($customfields as $field) {
+                if (!empty($field->value)) {
+                    $cfgvalue = $customfieldcfg[$field->cfgname]['value'];
+                    $output .= "<br> <b>$cfgvalue: </b>$field->value";
+                }
+            }
+        }
 
         return $output;
     }

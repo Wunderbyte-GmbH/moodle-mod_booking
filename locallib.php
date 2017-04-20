@@ -578,8 +578,27 @@ class mypdf extends TCPDF {
     }
 }
 
-function booking_download_sign_in_sheet(mod_booking\booking_option $bookingdata = null) {
+function booking_download_sign_in_sheet(mod_booking\booking_option $bookingdata = null,
+        $orientation = "downloadsigninportrait") {
     global $CFG, $DB;
+
+    if ($orientation == "downloadsigninportrait") {
+        $orientation = "P";
+        $colwidth = 210;
+    } else {
+        $orientation = "L";
+        $colwidth = 297;
+    }
+
+    $extracols = array();
+    for ($i = 1; $i < 4; $i++) {
+        $colscfg = get_config('booking', 'signinextracols' . $i);
+        $colscfg = trim($colscfg);
+        if (!empty($colscfg)) {
+            $extracols[] = $colscfg;
+        }
+    }
+    $extracolsnum = count($extracols);
 
     $users = $DB->get_records_sql(
             'SELECT u.id, u.firstname, u.lastname
@@ -618,11 +637,20 @@ function booking_download_sign_in_sheet(mod_booking\booking_option $bookingdata 
         }
     }
 
-    $pdf = new mypdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    $pdf = new mypdf($orientation, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
     $pdf->SetCreator(PDF_CREATOR);
 
-    $pdf->setPrintHeader(false);
+    $pdf->setPrintHeader(true);
     $pdf->setPrintFooter(false);
+    // set default header data
+    // set default monospaced font
+    $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+    // set margins
+    $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+    $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+    $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+    $pdf->SetHeaderData('', 0, $bookingdata->option->text, '');
     $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
     $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_LEFT);
     $pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
@@ -630,19 +658,97 @@ function booking_download_sign_in_sheet(mod_booking\booking_option $bookingdata 
     $pdf->setFontSubsetting(false);
 
     $pdf->AddPage();
-    $pdf = booking_set_pdf_font($pdf, $bookingdata, $teachers, $times);
+    $pdf->setJPEGQuality(80);
 
-    foreach ($users as $user) {
-        if ($pdf->go_to_newline(12)) {
-            $pdf = booking_set_pdf_font($pdf, $bookingdata, $teachers, $times);
+    // Get logo for signin sheet
+    $fs = get_file_storage();
+    $files = $fs->get_area_files(context_system::instance()->id, 'booking',
+            'mod_booking_signinlogo', 0, 'sortorder,filepath,filename', false);
+    $fileuse = false;
+    if ($files) {
+        $file = reset($files);
+        $filepath = $file->get_filepath() . $file->get_filename();
+        $imageinfo = $file->get_imageinfo();
+        $content = $file->get_content();
+        $filetype = str_replace('image/', '', $file->get_mimetype());
+        $pdf->SetXY(18, 18);
+        $w = 0;
+        $h = 0;
+        if ($imageinfo['height'] == $imageinfo['width']) {
+            $w = 40;
+            $h = 40;
         }
-        $pdf->Cell((210 - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / 2, 12,
-                $user->lastname . ", " . $user->firstname, 1, 0, '', 0);
-        $pdf->Cell(0, 12, "", 1, 1, '', 0);
+        if ($imageinfo['width'] > 200 && $imageinfo['width'] > $imageinfo['height']) {
+            $w = 40;
+            $h = 0;
+        }
+        if ($imageinfo['width'] < $imageinfo['height'] && $imageinfo['height'] > 200) {
+            $w = 0;
+            $h = 40;
+        }
+        $pdf->Image('@' . $content, '', '', $w, $h, $filetype, '', 'T', true, 150, 'R', false,
+                false, 1, false, false, false);
+        $fileuse = true;
+    }
+
+    $pdf = booking_set_pdf_font($pdf, $bookingdata, $teachers, $times, $extracols, $colwidth);
+
+    $profilefields = explode(',', get_config('booking', 'custprofilefields'));
+    $profiles = profile_get_custom_fields();
+    if (!empty($profiles)) {
+        $profilefieldnames = array_map(
+                function ($object) {
+                    return $object->shortname;
+                }, $profiles);
+    }
+    foreach ($profilefieldnames as $key => $value) {
+        if (!in_array($key, $profilefields)) {
+            unset($profilefieldnames[$key]);
+        }
+    }
+    foreach ($users as $user) {
+        $profiletext = '';
+        profile_load_custom_fields($user);
+        $userprofile = $user->profile;
+        if (!empty($user->profile)) {
+            $profiletext .= " ";
+            foreach ($user->profile as $profilename => $value) {
+                if (in_array($profilename, $profilefieldnames)) {
+                    $profiletext .= $value . " ";
+                }
+            }
+        }
+
+        if ($pdf->go_to_newline(12)) {
+            if ($fileuse) {
+                $pdf->SetXY(18, 18);
+                $pdf->Image('@' . $content, '', '', $w, $h, '', '', 'T', true, 150, 'R', false,
+                        false, 1, false, false, false);
+            }
+            $pdf = booking_set_pdf_font($pdf, $bookingdata, $teachers, $times, $extracols,
+                    $colwidth);
+        }
+        $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 10);
+        $pdf->Cell(($colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + $extracolsnum), 12,
+                $user->lastname . ", " . $user->firstname . $profiletext, 1, 0, '', 0);
+        $pdf->Cell(($colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + $extracolsnum), 12, "", 1,
+                0, '', 0);
+        if (count($extracols) > 0) {
+            for ($i = 1; $i <= $extracolsnum; $i++) {
+                if ($i == $extracolsnum) {
+                    $pdf->Cell(0, 12, "", 1, 1, '', 0);
+                } else {
+                    $pdf->Cell(
+                            ($colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + $extracolsnum),
+                            12, "", 1, 0, '', 0);
+                }
+            }
+        }
     }
 
     $pdf->Output($bookingdata->option->text . '.pdf', 'D');
 }
+
 /**
  * Set font for pdf via tcpdf
  *
@@ -652,13 +758,16 @@ function booking_download_sign_in_sheet(mod_booking\booking_option $bookingdata 
  * @param string $times
  * @return mypdf
  */
-function booking_set_pdf_font(mypdf $pdf, mod_booking\booking_option $bookingdata, array $teachers, $times) {
-    $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 14);
-    $pdf->MultiCell(0, 0, $bookingdata->option->text, 0, 1, '', 1);
+function booking_set_pdf_font(mypdf $pdf, mod_booking\booking_option $bookingdata, array $teachers,
+        $times, $extracols = array (), $colwidth = 210) {
+    global $DB;
+
+    $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
+    $pdf->Cell(0, 0, '', 0, 1, '', 0);
     $pdf->Ln();
 
     $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
-    $pdf->Cell(0, 0, get_string('teachers', 'booking') . implode(', ', $teachers), 0, 1, '',
+    $pdf->Cell(0, 0, get_string('teachers', 'booking') . ": " . implode(', ', $teachers), 0, 1, '',
             0);
     $pdf->Ln();
 
@@ -666,11 +775,33 @@ function booking_set_pdf_font(mypdf $pdf, mod_booking\booking_option $bookingdat
             get_string('pdfdate', 'booking'), 0, 1, '', 0);
     $pdf->MultiCell(0, 0, $times, 0, 1, '', 1);
 
-    $pdf->Cell(0, 0, get_string('pdflocation', 'booking') . $bookingdata->option->address,
-            0, 1, '', 0);
+    $cfgcustfields = explode(',', get_config('booking', 'showcustfields'));
+    $customfields = \mod_booking\booking_option::get_customfield_settings();
+    if (!empty($cfgcustfields)) {
+        list($insql, $params) = $DB->get_in_or_equal($cfgcustfields);
+        $sql = "SELECT bc.cfgname, bc.value
+                  FROM {booking_customfields} bc
+                 WHERE cfgname " . $insql;
+        $custfieldvalues = $DB->get_records_sql($sql, $params);
+        if (!empty($custfieldvalues)) {
+            foreach ($custfieldvalues as $cfgname => $record) {
+                if (!empty($record->value)) {
+                    $pdf->Cell(0, 0, $customfields[$cfgname]['value'] . ": " . $record->value, 0, 1,
+                            '', 0);
+                }
+            }
+        }
+    }
 
-    $pdf->Cell(0, 0, get_string('pdfroom', 'booking') . $bookingdata->option->location, 0,
-            1, '', 0);
+    if (!empty($bookingdata->option->address)) {
+        $pdf->Cell(0, 0, get_string('pdflocation', 'booking') . $bookingdata->option->address, 0, 1,
+                '', 0);
+    }
+
+    if (!empty($bookingdata->option->location)) {
+        $pdf->Cell(0, 0, get_string('pdfroom', 'booking') . $bookingdata->option->location, 0, 1,
+                '', 0);
+    }
     $pdf->Ln();
 
     $pdf->Cell($pdf->GetStringWidth(get_string('pdftodaydate', 'booking')) + 1, 0,
@@ -679,9 +810,24 @@ function booking_set_pdf_font(mypdf $pdf, mod_booking\booking_option $bookingdat
     $pdf->Ln();
 
     $pdf->SetFont(PDF_FONT_NAME_MAIN, 'B', 12);
-    $pdf->Cell((210 - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / 2, 0,
+    $pdf->Cell(($colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + count($extracols)), 0,
             get_string('pdfstudentname', 'booking'), 1, 0, '', 0);
-    $pdf->Cell(0, 0, get_string('pdfsignature', 'booking'), 1, 1, '', 0);
+    $pdf->Cell(($colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + count($extracols)), 0,
+            get_string('pdfsignature', 'booking'), 1, 0, '', 0);
+
+    if (count($extracols) > 0) {
+        for ($i = 0; $i < count($extracols); $i++) {
+            if ($i == count($extracols) - 1) {
+                $pdf->Cell(
+                        ($colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + count($extracols)), 0,
+                        $extracols[$i], 1, 1, '', 0);
+            } else {
+                $pdf->Cell(
+                        ($colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + count($extracols)), 0,
+                        $extracols[$i], 1, 0, '', 0);
+            }
+        }
+    }
     $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
     return $pdf;
 }

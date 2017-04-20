@@ -90,6 +90,10 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $other = new backup_nested_element('other', array('id'),
                 array('optionid', 'otheroptionid', 'userslimit'));
 
+        $customfields = new backup_nested_element('customfields');
+        $customfield = new backup_nested_element('customfield', array('id'),
+                array('bookingid', 'optionid', 'cfgname', 'value'));
+
         // Build the tree
         $booking->add_child($options);
         $options->add_child($option);
@@ -115,6 +119,9 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $option->add_child($others);
         $others->add_child($other);
 
+        $booking->add_child($customfields);
+        $customfields->add_child($customfield);
+
         // Define sources
         $booking->set_source_table('booking', array('id' => backup::VAR_ACTIVITYID));
 
@@ -127,13 +134,14 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $category->set_source_table('booking_category', array('course' => '../../course'));
         $tag->set_source_table('booking_tags', array('courseid' => '../../course'));
         $institution->set_source_table('booking_institutions', array('course' => '../../course'));
-        $other->set_source_table('booking_other', array('optionid' => '../../id'));
-        $optiondate->set_source_table('booking_optiondates', array('bookingid' => '../../id'));
+        $other->set_source_table('booking_other', array('optionid' => backup::VAR_PARENTID));
+        $optiondate->set_source_table('booking_optiondates', array('bookingid' => backup::VAR_PARENTID));
+        $customfield->set_source_table('booking_customfields', array('bookingid' => backup::VAR_PARENTID));
 
         // All the rest of elements only happen if we are including user info
         if ($userinfo) {
-            $answer->set_source_table('booking_answers', array('bookingid' => '../../id'));
-            $teacher->set_source_table('booking_teachers', array('bookingid' => '../../id'));
+            $answer->set_source_table('booking_answers', array('bookingid' => backup::VAR_PARENTID));
+            $teacher->set_source_table('booking_teachers', array('bookingid' => backup::VAR_PARENTID));
         }
 
         // Define id annotations

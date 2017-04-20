@@ -17,15 +17,15 @@
 /**
  *
  * @package mod_booking
- * @copyright 2012,2013,2014,2015, 2016 David Bogner <info@edulabs.org>, Andraž Prinčič <atletek@gmail.com>
+ * @copyright 2012,2013,2014,2015,2016,2017 David Bogner <info@edulabs.org>, Andraž Prinčič <atletek@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2017032401;
+$plugin->version = 2017041900;
 $plugin->requires = 2014051200; // Requires this Moodle 2.X version
-// Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman.
-$plugin->release = 'Alex Kirkman 1.8';
+// Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman, Piper Chapman
+$plugin->release = 'Piper Chapman 1.0';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->cron = 5;
 $plugin->component = 'mod_booking';
