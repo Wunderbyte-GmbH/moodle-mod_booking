@@ -1,239 +1,238 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/booking/db" VERSION="20170410" COMMENT="XMLDB file for Moodle mod/booking"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
->
-    <TABLES>
-        <TABLE NAME="booking" COMMENT="Available bookings are stored here">
-            <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="intro" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="introformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="bookingmanager" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="sendmail" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="copymail" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="allowupdate" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="bookingpolicy" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="bookingpolicyformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="timeopen" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="timeclose" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="limitanswers" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="maxanswers" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="maxoverbooking" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="autoenrol" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Automatically enrol / unenrol users to/from courses as soon as booking are made / cancelled"/>
-                <FIELD NAME="bookedtext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a successful booking is made"/>
-                <FIELD NAME="waitingtext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a booking has been added to the waiting list"/>
-                <FIELD NAME="statuschangetext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a booking status has changed"/>
-                <FIELD NAME="deletedtext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a booking has been cancelled"/>
-                <FIELD NAME="maxperuser" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Maximum number of bookings that each user can make (reset when an event passes)"/>
-                <FIELD NAME="sendmailtobooker" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Send mails to booker instead to booked users"/>
-                <FIELD NAME="duration" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Duration - info field."/>
-                <FIELD NAME="points" TYPE="number" LENGTH="10" NOTNULL="false" SEQUENCE="false" DECIMALS="2" COMMENT="Points, get from this course."/>
-                <FIELD NAME="organizatorname" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Name of organizator - for sending emails."/>
-                <FIELD NAME="pollurl" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Url to send in email - poll for evaluation."/>
-                <FIELD NAME="addtogroup" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="categoryid" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="pollurltext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="additionalfields" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="eventtype" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="Booking" SEQUENCE="false"/>
-                <FIELD NAME="notificationtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="userleave" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="enablecompletion" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="For activity completion API!"/>
-                <FIELD NAME="pollurlteachers" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="pollurlteacherstext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="cancancelbook" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Can cancel or book when the seminar is started?"/>
-                <FIELD NAME="conectedbooking" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="showinapi" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
-                <FIELD NAME="lblbooking" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="lbllocation" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="lblinstitution" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="lblname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="lblsurname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="btncacname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="lblteachname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="lblsputtname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="btnbooknowname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="btncancelname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="booktootherbooking" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="lblacceptingfrom" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="lblnumofusers" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="numgenerator" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="paginationnum" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="25" SEQUENCE="false"/>
-                <FIELD NAME="banusernames" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="showhelpfullnavigationlinks" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
-                <FIELD NAME="daystonotify" TYPE="int" LENGTH="3" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="notifyemail" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="assessed" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="assesstimestart" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="assesstimefinish" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="scale" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="whichview" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="showactive" SEQUENCE="false" COMMENT="Which view is default."/>
-                <FIELD NAME="daystonotify2" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-            </FIELDS>
-            <KEYS>
-                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-            </KEYS>
-            <INDEXES>
-                <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
-            </INDEXES>
-        </TABLE>
-        <TABLE NAME="booking_options" COMMENT="Defines booking options">
-            <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="text" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="maxanswers" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="maxoverbooking" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="bookingclosingtime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="coursestarttime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="courseendtime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="descriptionformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="limitanswers" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="addtocalendar" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Add event_option to calendar."/>
-                <FIELD NAME="calendarid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Calendar event id."/>
-                <FIELD NAME="pollurl" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="groupid" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="sent" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="location" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="institution" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="address" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="pollurlteachers" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="howmanyusers" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="pollsend" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="removeafterminutes" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="notificationtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="notificationtextformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="disablebookingusers" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="sent2" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-            </FIELDS>
-            <KEYS>
-                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-                <KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id"/>
-            </KEYS>
-        </TABLE>
-        <TABLE NAME="booking_answers" COMMENT="bookings performed by users">
-            <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="completed" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="waitinglist" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If user is on waiting list."/>
-                <FIELD NAME="frombookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="numrec" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-            </FIELDS>
-            <KEYS>
-                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-                <KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id"/>
-                <KEY NAME="optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id"/>
-            </KEYS>
-            <INDEXES>
-                <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
-            </INDEXES>
-        </TABLE>
-        <TABLE NAME="booking_category" COMMENT="Categories">
-            <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="cid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="name" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-            </FIELDS>
-            <KEYS>
-                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-            </KEYS>
-        </TABLE>
-        <TABLE NAME="booking_teachers" COMMENT="Teachers">
-            <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="completed" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-            </FIELDS>
-            <KEYS>
-                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-                <KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id"/>
-                <KEY NAME="optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id"/>
-            </KEYS>
-            <INDEXES>
-                <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
-            </INDEXES>
-        </TABLE>
-        <TABLE NAME="booking_tags" COMMENT="Default comment for the table, please edit me">
-            <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="tag" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="text" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="textformat" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-            </FIELDS>
-            <KEYS>
-                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-            </KEYS>
-            <INDEXES>
-                <INDEX NAME="courseid" UNIQUE="false" FIELDS="courseid"/>
-            </INDEXES>
-        </TABLE>
-        <TABLE NAME="booking_institutions" COMMENT="booking_institutions">
-            <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="name" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-            </FIELDS>
-            <KEYS>
-                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-            </KEYS>
-        </TABLE>
-        <TABLE NAME="booking_other" COMMENT="Default comment for the table, please edit me">
-            <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="otheroptionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="userslimit" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-            </FIELDS>
-            <KEYS>
-                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-            </KEYS>
-            <INDEXES>
-                <INDEX NAME="optionid" UNIQUE="false" FIELDS="optionid, otheroptionid"/>
-            </INDEXES>
-        </TABLE>
-        <TABLE NAME="booking_optiondates" COMMENT="Default comment for the table, please edit me">
-            <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="coursestarttime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-                <FIELD NAME="courseendtime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-            </FIELDS>
-            <KEYS>
-                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-            </KEYS>
-            <INDEXES>
-                <INDEX NAME="optionid" UNIQUE="false" FIELDS="optionid"/>
-            </INDEXES>
-        </TABLE>
-        <TABLE NAME="booking_customfields" COMMENT="Default comment for the table, please edit me">
-            <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
-                <FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
-                <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
-                <FIELD NAME="cfgname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
-                <FIELD NAME="value" TYPE="text" NOTNULL="true" SEQUENCE="false" />
-            </FIELDS>
-            <KEYS>
-                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
-                <KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id" />
-                <KEY NAME="optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id" />
-            </KEYS>
-        </TABLE>
-    </TABLES>
+<XMLDB PATH="mod/booking/db" VERSION="20161223"
+	COMMENT="XMLDB file for Moodle mod/booking" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+	<TABLES>
+		<TABLE NAME="booking" COMMENT="Available bookings are stored here">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+				<FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
+				<FIELD NAME="intro" TYPE="text" NOTNULL="true" SEQUENCE="false" />
+				<FIELD NAME="introformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="bookingmanager" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
+				<FIELD NAME="sendmail" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="copymail" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="allowupdate" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="bookingpolicy" TYPE="text" NOTNULL="true" SEQUENCE="false" />
+				<FIELD NAME="bookingpolicyformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="timeopen" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="timeclose" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="limitanswers" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="maxanswers" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="maxoverbooking" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="autoenrol" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Automatically enrol / unenrol users to/from courses as soon as booking are made / cancelled" />
+				<FIELD NAME="bookedtext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a successful booking is made" />
+				<FIELD NAME="waitingtext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a booking has been added to the waiting list" />
+				<FIELD NAME="statuschangetext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a booking status has changed" />
+				<FIELD NAME="deletedtext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a booking has been cancelled" />
+				<FIELD NAME="maxperuser" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Maximum number of bookings that each user can make (reset when an event passes)" />
+				<FIELD NAME="sendmailtobooker" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Send mails to booker instead to booked users" />
+				<FIELD NAME="duration" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Duration - info field." />
+				<FIELD NAME="points" TYPE="number" LENGTH="10" NOTNULL="false" SEQUENCE="false" DECIMALS="2" COMMENT="Points, get from this course." />
+				<FIELD NAME="organizatorname" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Name of organizator - for sending emails." />
+				<FIELD NAME="pollurl" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Url to send in email - poll for evaluation." />
+				<FIELD NAME="addtogroup" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="categoryid" TYPE="text" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="pollurltext" TYPE="text" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="additionalfields" TYPE="text" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="eventtype" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="Booking" SEQUENCE="false" />
+				<FIELD NAME="notificationtext" TYPE="text" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="userleave" TYPE="text" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="enablecompletion" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="For activity completion API!" />
+				<FIELD NAME="pollurlteachers" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="pollurlteacherstext" TYPE="text" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="cancancelbook" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Can cancel or book when the seminar is started?" />
+				<FIELD NAME="conectedbooking" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="showinapi" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" />
+				<FIELD NAME="lblbooking" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="lbllocation" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="lblinstitution" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="lblname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="lblsurname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="btncacname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="lblteachname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="lblsputtname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="btnbooknowname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="btncancelname" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="booktootherbooking" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="lblacceptingfrom" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="lblnumofusers" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="numgenerator" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="paginationnum" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="25" SEQUENCE="false" />
+				<FIELD NAME="banusernames" TYPE="text" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="showhelpfullnavigationlinks" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" />
+				<FIELD NAME="daystonotify" TYPE="int" LENGTH="3" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="notifyemail" TYPE="text" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="assessed" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="assesstimestart" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="assesstimefinish" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="scale" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="whichview" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="showactive" SEQUENCE="false" COMMENT="Which view is default." />
+				<FIELD NAME="daystonotify2" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
+			</KEYS>
+			<INDEXES>
+				<INDEX NAME="course" UNIQUE="false" FIELDS="course" />
+			</INDEXES>
+		</TABLE>
+		<TABLE NAME="booking_options" COMMENT="Defines booking options">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+				<FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="text" TYPE="text" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="maxanswers" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="maxoverbooking" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="bookingclosingtime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="coursestarttime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="courseendtime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false" />
+				<FIELD NAME="descriptionformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="limitanswers" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="addtocalendar" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Add event_option to calendar." />
+				<FIELD NAME="calendarid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Calendar event id." />
+				<FIELD NAME="pollurl" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="groupid" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="sent" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="location" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="institution" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="address" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="pollurlteachers" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="howmanyusers" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="pollsend" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="removeafterminutes" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="notificationtext" TYPE="text" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="notificationtextformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="disablebookingusers" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="sent2" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
+				<KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id" />
+			</KEYS>
+		</TABLE>
+		<TABLE NAME="booking_answers" COMMENT="bookings performed by users">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+				<FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="completed" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="waitinglist" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If user is on waiting list." />
+				<FIELD NAME="frombookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="numrec" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
+				<KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id" />
+				<KEY NAME="optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id" />
+			</KEYS>
+			<INDEXES>
+				<INDEX NAME="userid" UNIQUE="false" FIELDS="userid" />
+			</INDEXES>
+		</TABLE>
+		<TABLE NAME="booking_category" COMMENT="Categories">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+				<FIELD NAME="cid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="name" TYPE="text" NOTNULL="false" SEQUENCE="false" />
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
+			</KEYS>
+		</TABLE>
+		<TABLE NAME="booking_teachers" COMMENT="Teachers">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+				<FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="completed" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
+				<KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id" />
+				<KEY NAME="optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id" />
+			</KEYS>
+			<INDEXES>
+				<INDEX NAME="userid" UNIQUE="false" FIELDS="userid" />
+			</INDEXES>
+		</TABLE>
+		<TABLE NAME="booking_tags" COMMENT="Default comment for the table, please edit me">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+				<FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="tag" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false" />
+				<FIELD NAME="text" TYPE="text" NOTNULL="true" SEQUENCE="false" />
+				<FIELD NAME="textformat" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
+			</KEYS>
+			<INDEXES>
+				<INDEX NAME="courseid" UNIQUE="false" FIELDS="courseid" />
+			</INDEXES>
+		</TABLE>
+		<TABLE NAME="booking_institutions" COMMENT="booking_institutions">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+				<FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="name" TYPE="text" NOTNULL="false" SEQUENCE="false" />
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
+			</KEYS>
+		</TABLE>
+		<TABLE NAME="booking_other" COMMENT="Default comment for the table, please edit me">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+				<FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
+				<FIELD NAME="otheroptionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
+				<FIELD NAME="userslimit" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
+			</KEYS>
+			<INDEXES>
+				<INDEX NAME="optionid" UNIQUE="false" FIELDS="optionid, otheroptionid" />
+			</INDEXES>
+		</TABLE>
+		<TABLE NAME="booking_optiondates" COMMENT="Default comment for the table, please edit me">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+				<FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="coursestarttime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="courseendtime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
+			</KEYS>
+			<INDEXES>
+				<INDEX NAME="optionid" UNIQUE="false" FIELDS="optionid" />
+			</INDEXES>
+		</TABLE>
+		<TABLE NAME="booking_customfields" COMMENT="Default comment for the table, please edit me">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+				<FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="cfgname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
+				<FIELD NAME="value" TYPE="text" NOTNULL="true" SEQUENCE="false" />
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
+				<KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id" />
+				<KEY NAME="optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id" />
+			</KEYS>
+		</TABLE>
+	</TABLES>
 </XMLDB>
