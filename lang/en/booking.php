@@ -521,7 +521,6 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 </ul>';
 
 $string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
-$string['daystonotify2_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
 
 $string['additionalfields'] = 'Additional fields';
 $string['addtogroup'] = 'Automatically enrol users in group';
