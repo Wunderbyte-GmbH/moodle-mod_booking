@@ -841,7 +841,7 @@ function booking_check_enrol_user($option, $booking, $userid) {
 }
 
 /**
- * Automatically unenrol the user from the relevant course, if that setting is on and a course has been specified.
+ * Automatically unenrol the user from the relevant course or group, if that setting is on and a course has been specified.
  *
  * @param object $option
  * @param object $booking
@@ -867,11 +867,15 @@ function booking_check_unenrol_user($option, $booking, $userid) {
                 'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
         return; // No manual enrolment instance on this course.
     }
-
     if ($booking->addtogroup == 1) {
         if (!is_null($option->groupid) && ($option->groupid > 0)) {
-            groups_remove_member($option->groupid, $userid);
-            return;
+            $groupsofuser = groups_get_all_groups($option->courseid, $userid);
+            $numberofgroups = count($groupsofuser);
+            // When user is member of only 1 group: unenrol from course otherwise remove from group
+            if ($numberofgroups > 1) {
+                groups_remove_member($option->groupid, $userid);
+                return;
+            }
         }
     }
 
