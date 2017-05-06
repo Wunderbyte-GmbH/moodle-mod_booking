@@ -1817,8 +1817,8 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
         foreach ($times as $time) {
             $slot = explode('-', $time);
             $tmpdate = new stdClass();
-            $tmpdate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
-            $tmpdate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
+            $tmpdate->leftdate = userdate($slot[0], get_string('strftimedatetime', 'langconfig'));
+            $tmpdate->righttdate = userdate($slot[1], get_string('strftimetime', 'langconfig'));
 
             $val .= get_string('leftandrightdate', 'booking', $tmpdate) . '<br>';
         }

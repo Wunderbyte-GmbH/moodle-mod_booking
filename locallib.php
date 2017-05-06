@@ -348,12 +348,16 @@ class booking_utils {
             $val = '';
             if (!is_null($option->times)) {
                 $additionaltimes = explode(',', $option->times);
-                foreach ($additionaltimes as $t) {
-                    $slot = explode('-', $t);
-                    $tempdate = new stdClass();
-                    $tempdate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
-                    $tempdate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
-                    $val .= get_string('leftandrightdate', 'booking', $tempdate) . '<br>';
+                if (!empty($additionaltimes)) {
+                    foreach ($additionaltimes as $t) {
+                        $slot = explode('-', $t);
+                        $tmpdate = new stdClass();
+                        $tmpdate->leftdate = userdate($slot[0],
+                                get_string('strftimedatetime', 'langconfig'));
+                        $tmpdate->righttdate = userdate($slot[1],
+                                get_string('strftimetime', 'langconfig'));
+                        $val .= get_string('leftandrightdate', 'booking', $tmpdate) . '<br>';
+                    }
                 }
             }
 
@@ -627,8 +631,8 @@ function booking_download_sign_in_sheet(mod_booking\booking_option $bookingdata 
             foreach ($times as $time) {
                 $slot = explode('-', $time);
                 $tmpdate = new stdClass();
-                $tmpdate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
-                $tmpdate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
+                $tmpdate->leftdate = userdate($slot[0], get_string('strftimedatetime', 'langconfig'));
+                $tmpdate->righttdate = userdate($slot[1], get_string('strftimetime', 'langconfig'));
 
                 $val[] = get_string('leftandrightdate', 'booking', $tmpdate);
             }
