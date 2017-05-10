@@ -1934,8 +1934,6 @@ function booking_check_user_profile_fields($userid) {
 function booking_delete_booking_option($booking, $optionid) {
     global $DB;
 
-    $event = new stdClass();
-
     if (!$option = $DB->get_record("booking_options", array("id" => $optionid))) {
         return false;
     }
@@ -1953,12 +1951,19 @@ function booking_delete_booking_option($booking, $optionid) {
         $result = false;
     }
 
-    // Delete calendar entry, if any.
-    $event->id = $DB->get_field('booking_options', 'calendarid', array('id' => $optionid));
+        // Delete calendar entry, if any.
+    $eventid = $DB->get_field('booking_options', 'calendarid', array('id' => $optionid));
+    $eventexists = true;
     if ($event->id > 0) {
         // Delete event if exist.
-        $event = calendar_event::load($event->id);
-        $event->delete(true);
+        try {
+            $event = calendar_event::load($eventid);
+        } catch (Exception $e) {
+            $eventexists = false;
+        }
+        if ($eventexists) {
+            $event->delete(true);
+        }
     }
 
     if (!$DB->delete_records("booking_options", array("id" => $optionid))) {
