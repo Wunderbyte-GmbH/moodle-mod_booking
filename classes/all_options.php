@@ -143,8 +143,8 @@ class all_options extends table_sql {
         }
 
         $output .= (!empty($values->teachers) ? " <br />" . (empty(
-                $this->booking->booking->lblteachname) ? get_string('teachers', 'booking') . ": " : $this->booking->booking->lblteachname) .
-                 "" . $values->teachers : '');
+                $this->booking->booking->lblteachname) ? get_string('teachers', 'booking') : $this->booking->booking->lblteachname) .
+                 " " . $values->teachers : '');
 
         // Custom fields
         $customfields = $DB->get_records('booking_customfields', array('optionid' => $values->id));

@@ -767,7 +767,7 @@ function booking_set_pdf_font(mypdf $pdf, mod_booking\booking_option $bookingdat
     $pdf->Ln();
 
     $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
-    $pdf->Cell(0, 0, get_string('teachers', 'booking') . ": " . implode(', ', $teachers), 0, 1, '',
+    $pdf->Cell(0, 0, get_string('teachers', 'booking') . " " . implode(', ', $teachers), 0, 1, '',
             0);
     $pdf->Ln();
 
