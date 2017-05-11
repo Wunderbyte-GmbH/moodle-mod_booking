@@ -205,7 +205,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'endtime' => '{endtime}', 'startdate' => '{startdate}', 'enddate' => '{enddate}',
             'courselink' => '{courselink}', 'bookinglink' => '{bookinglink}',
             'location' => '{location}', 'institution' => '{institution}', 'address' => '{address}',
-            'eventtype' => '{evventtype}');
+                        'eventtype' => '{evventtype}', 'email' => '{email}');
 
         $mform->addElement('editor', 'bookedtext', get_string('bookedtext', 'booking'), null,
                 $editoroptions);

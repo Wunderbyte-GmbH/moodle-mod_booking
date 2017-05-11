@@ -244,6 +244,7 @@ $string['pollurlteachers_help'] = 'You can use any of the following placeholders
 <ul>
 <li>{status}</li>
 <li>{participant}</li>
+<li>{email} - User email</li>
 <li>{title}</li>
 <li>{duration}</li>
 <li>{starttime}</li>
@@ -268,6 +269,7 @@ $string['pollurl_help'] = 'You can use any of the following placeholders in the 
 <ul>
 <li>{status}</li>
 <li>{participant}</li>
+<li>{email} - User email</li>
 <li>{title}</li>
 <li>{duration}</li>
 <li>{starttime}</li>
@@ -292,6 +294,7 @@ $string['bookedtext_help'] = 'Leave this blank to use the site default text. You
 <ul>
 <li>{status}</li>
 <li>{participant}</li>
+<li>{email} - User email</li>
 <li>{title}</li>
 <li>{duration}</li>
 <li>{starttime}</li>
@@ -316,6 +319,7 @@ $string['userleave_help'] = 'Leave this blank to use the site default text. You 
 <ul>
 <li>{status}</li>
 <li>{participant}</li>
+<li>{email} - User email</li>
 <li>{title}</li>
 <li>{duration}</li>
 <li>{starttime}</li>
@@ -342,6 +346,7 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <ul>
 <li>{status}</li>
 <li>{participant}</li>
+<li>{email} - User email</li>
 <li>{title}</li>
 <li>{duration}</li>
 <li>{starttime}</li>
@@ -368,6 +373,7 @@ $string['notifyemail_help'] = 'Leave this blank to use the site default text. Yo
 <ul>
 <li>{status}</li>
 <li>{participant}</li>
+<li>{email} - User email</li>
 <li>{title}</li>
 <li>{duration}</li>
 <li>{starttime}</li>
@@ -394,6 +400,7 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 <ul>
 <li>{status}</li>
 <li>{participant}</li>
+<li>{email} - User email</li>
 <li>{title}</li>
 <li>{duration}</li>
 <li>{starttime}</li>
@@ -420,6 +427,7 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <ul>
 <li>{status}</li>
 <li>{participant}</li>
+<li>{email} - User email</li>
 <li>{title}</li>
 <li>{duration}</li>
 <li>{starttime}</li>
@@ -446,6 +454,7 @@ $string['pollurltext_help'] = 'Leave this blank to use the site default text. Yo
 <ul>
 <li>{status}</li>
 <li>{participant}</li>
+<li>{email} - User email</li>
 <li>{title}</li>
 <li>{duration}</li>
 <li>{starttime}</li>
@@ -472,6 +481,7 @@ $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default 
 <ul>
 <li>{status}</li>
 <li>{participant}</li>
+<li>{email} - User email</li>
 <li>{title}</li>
 <li>{duration}</li>
 <li>{starttime}</li>
@@ -498,6 +508,7 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 <ul>
 <li>{status}</li>
 <li>{participant}</li>
+<li>{email} - User email</li>
 <li>{title}</li>
 <li>{duration}</li>
 <li>{starttime}</li>

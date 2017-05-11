@@ -1781,6 +1781,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
 
     $params->status = booking_get_user_status($user->id, $option->id, $booking->id, $cmid);
     $params->participant = fullname($user);
+    $params->email = $user->email;
     $params->title = s($option->text);
     $params->duration = $booking->duration;
     $params->starttime = $option->coursestarttime ? userdate($option->coursestarttime, $timeformat) : '';
