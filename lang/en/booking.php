@@ -839,9 +839,6 @@ $string['optiondatestime'] = 'Session time';
 $string['optiondatessucesfullysaved'] = "Session time was saved.";
 $string['optiondatessucesfullydelete'] = "Session time was deleted.";
 $string['delete'] = "Delete";
-
-$string['leftdate'] = "%d %B %Y, %I:%M %p";
-$string['righttdate'] = "%I:%M %p";
 $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
 
 // locallib.php

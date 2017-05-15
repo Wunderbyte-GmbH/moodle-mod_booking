@@ -100,8 +100,8 @@ class all_options extends table_sql {
                 foreach ($times as $time) {
                     $slot = explode('-', $time);
                     $tmpdate = new stdClass();
-                    $tmpdate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
-                    $tmpdate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
+                    $tmpdate->leftdate = userdate($slot[0], get_string('strftimedatetime', 'langconfig'));
+                    $tmpdate->righttdate = userdate($slot[1], get_string('strftimetime', 'langconfig'));
 
                     $val .= get_string('leftandrightdate', 'booking', $tmpdate) . '<br>';
                 }
