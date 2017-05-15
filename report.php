@@ -371,8 +371,7 @@ if (!$tableallbookings->is_downloading()) {
                 redirect($url, get_string('selectoptionid', 'booking'), 5);
             }
 
-            if (count($allselectedusers) >
-                     $bookingdata->calculate_how_many_can_book_to_other($_POST['selectoptionid'])) {
+            if (count($allselectedusers) > $bookingdata->calculate_how_many_can_book_to_other($_POST['selectoptionid'])) {
                 redirect($url,
                         get_string('toomuchusersbooked', 'booking',
                                 $bookingdata->calculate_how_many_can_book_to_other(
