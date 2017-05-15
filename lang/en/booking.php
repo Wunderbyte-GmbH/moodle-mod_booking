@@ -778,6 +778,13 @@ $string['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
 $string['yes'] = 'Yes';
 $string['sendreminderemailsuccess'] = 'Notification e-mail has been sent!';
 $string['sign_in_sheet_download'] = 'Download Sign in Sheet';
+$string['status_complete'] = "Complete";
+$string['status_incomplete'] = "Incomplete";
+$string['status_noshow'] = "No show";
+$string['presence'] = "Presence";
+$string['confirmpresence'] = "Confirm presence";
+$string['selectpresencestatus'] = "Choose presence status";
+$string['userssucesfullygetnewpresencestatus'] = 'All users have a new presence status.';
 
 // Send message
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';
@@ -871,8 +878,3 @@ $string['showcustomfields_desc'] = 'Select the custom booking option fields to b
 $string['signinextracols_heading'] = 'Additional columns on the sign-in sheet';
 $string['signinextracols'] = 'Additional column';
 $string['signinextracols_desc'] = 'You can print up to 3 additional columns on the sign-in sheet. Fill in the column title or leave it blank for no additional column';
-
-
-
-
-

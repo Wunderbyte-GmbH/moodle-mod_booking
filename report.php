@@ -358,8 +358,9 @@ if (!$tableallbookings->is_downloading()) {
 
             booking_sendreminderemail($allselectedusers, $bookingdata->booking, $cm->id, $optionid);
             redirect($url, get_string('sendreminderemailsuccess', 'booking'), 5);
-        } else if (isset($_POST['booktootherbooking']) && (booking_check_if_teacher(
-                $bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
+        } else if (isset($_POST['booktootherbooking']) &&
+                 (booking_check_if_teacher($bookingdata->option, $USER) ||
+                 has_capability('mod/booking:readresponses', $context))) {
             if (empty($allselectedusers)) {
                 redirect($url,
                         get_string('selectatleastoneuser', 'booking',
@@ -370,7 +371,8 @@ if (!$tableallbookings->is_downloading()) {
                 redirect($url, get_string('selectoptionid', 'booking'), 5);
             }
 
-            if (count($allselectedusers) > $bookingdata->calculate_how_many_can_book_to_other($_POST['selectoptionid'])) {
+            if (count($allselectedusers) >
+                     $bookingdata->calculate_how_many_can_book_to_other($_POST['selectoptionid'])) {
                 redirect($url,
                         get_string('toomuchusersbooked', 'booking',
                                 $bookingdata->calculate_how_many_can_book_to_other(
@@ -384,8 +386,7 @@ if (!$tableallbookings->is_downloading()) {
                     "SELECT cm.id FROM {course_modules} cm
                     JOIN {modules} md ON md.id = cm.module
                     JOIN {booking} m ON m.id = cm.instance
-                    WHERE md.name = 'booking' AND cm.instance = ?",
-                    array($connectedbooking->id));
+                    WHERE md.name = 'booking' AND cm.instance = ?", array($connectedbooking->id));
             $tmpbooking = new \mod_booking\booking_option($tmpcmid->id, $_POST['selectoptionid']);
 
             foreach ($allselectedusers as $value) {
@@ -397,6 +398,23 @@ if (!$tableallbookings->is_downloading()) {
             }
 
             redirect($url, get_string('userssucesfullybooked', 'booking'), 5);
+        } else if (isset($_POST['changepresencestatus']) &&
+                 (booking_check_if_teacher($bookingdata->option, $USER) ||
+                 has_capability('mod/booking:readresponses', $context))) {
+                     // Change presence status
+            if (empty($allselectedusers)) {
+                redirect($url,
+                        get_string('selectatleastoneuser', 'booking',
+                                $bookingdata->option->howmanyusers), 5);
+            }
+
+            if (!isset($_POST['selectpresencestatus']) || empty($_POST['selectpresencestatus'])) {
+                redirect($url, get_string('selectpresencestatus', 'booking'), 5);
+            }
+
+            booking_changepresencestatus($allselectedusers, $optionid, $_POST['selectpresencestatus']);
+
+            redirect($url, get_string('userssucesfullygetnewpresencestatus', 'booking'), 5);
         }
     }
 
@@ -407,6 +425,8 @@ if (!$tableallbookings->is_downloading()) {
     $headers[] = '<input type="checkbox" id="usercheckboxall" name="selectall" value="0" />';
     $columns[] = 'completed';
     $headers[] = get_string('activitycompleted', 'mod_booking');
+    $columns[] = 'status';
+    $headers[] = get_string('presence', 'mod_booking');
 
     if ($bookingdata->booking->assessed != RATING_AGGREGATE_NONE) {
         $columns[] = 'rating';
@@ -438,6 +458,7 @@ if (!$tableallbookings->is_downloading()) {
             u.username,
             u.institution,
             ba.completed,
+            ba.status,
             ba.timecreated,
             ba.userid,
             ba.waitinglist,
@@ -702,6 +723,8 @@ if (!$tableallbookings->is_downloading()) {
     $headers[] = get_string("searchfinished", "booking");
     $columns[] = 'waitinglist';
     $headers[] = get_string("waitinglist", "booking");
+    $columns[] = 'status';
+    $headers[] = get_string('presence', 'mod_booking');
     $addfields = explode(',', $bookingdata->booking->additionalfields);
     global $DB;
     list($addquoted, $addquotedparams) = $DB->get_in_or_equal($addfields);
@@ -741,7 +764,8 @@ if (!$tableallbookings->is_downloading()) {
                     ba.completed AS completed,
                     ba.numrec,
                     ba.waitinglist AS waitinglist,
-                    u.idnumber as idnumber
+                    ba.status,
+                    u.idnumber as idnumber, ba.status
                     {$customfields}";
     $from = '{booking_answers} ba
             JOIN {user}  u ON u.id = ba.userid

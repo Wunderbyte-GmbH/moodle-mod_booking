@@ -79,6 +79,26 @@ class all_options extends table_sql {
         return $ret;
     }
 
+    protected function col_status($values) {
+        switch ($values->status) {
+            case 0:
+                return '';
+                break;
+            case 1:
+                return get_string('status_complete', 'booking');
+                break;
+            case 2:
+                return get_string('status_incomplete', 'booking');
+                break;
+            case 3:
+                return get_string('status_noshow', 'booking');
+                break;
+            default:
+                return '';
+                break;
+        }
+    }
+
     protected function col_coursestarttime($values) {
         if ($this->is_downloading()) {
             if ($values->coursestarttime == 0) {

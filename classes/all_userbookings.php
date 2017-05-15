@@ -83,6 +83,26 @@ class all_userbookings extends table_sql {
         return '';
     }
 
+    protected function col_status($values) {
+        switch ($values->status) {
+            case 0:
+                return '';
+                break;
+            case 1:
+                return get_string('status_complete', 'booking');
+                break;
+            case 2:
+                return get_string('status_incomplete', 'booking');
+                break;
+            case 3:
+                return get_string('status_noshow', 'booking');
+                break;
+            default:
+                return '';
+                break;
+        }
+    }
+
     public function col_fullname($values) {
         if (empty($values->otheroptions)) {
             return html_writer::link(
@@ -329,6 +349,19 @@ class all_userbookings extends table_sql {
                     }
                 }
             }
+
+            // Change presence status
+            echo "<br>";
+            $presences = array(
+                            1 => get_string('status_complete', 'booking'),
+                            2 => get_string('status_incomplete', 'booking'),
+                            3 => get_string('status_noshow', 'booking')
+            );
+
+            echo html_writer::select($presences, 'selectpresencestatus', '');
+
+                    echo '<input type="submit" name="changepresencestatus" value="' .
+                            get_string('confirmpresence', 'booking'). '" />';
         }
 
         echo '</form>';

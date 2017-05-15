@@ -723,6 +723,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $headers[] = get_string("searchfinished", "booking");
         $columns[] = 'waitinglist';
         $headers[] = get_string("waitinglist", "booking");
+        $columns[] = 'status';
+        $headers[] = get_string('presence', 'mod_booking');
 
         $addfields = explode(',', $booking->booking->additionalfields);
         global $DB;
@@ -766,6 +768,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                         tu.username AS username,
                         tu.email AS email,
                         tba.completed AS completed,
+                        tba.status,
                         tba.numrec,
                         otherbookingoption.text AS otheroptions,
                         tba.waitinglist AS waitinglist,
