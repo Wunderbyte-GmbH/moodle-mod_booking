@@ -841,7 +841,7 @@ function booking_check_enrol_user($option, $booking, $userid) {
 }
 
 /**
- * Automatically unenrol the user from the relevant course, if that setting is on and a course has been specified.
+ * Automatically unenrol the user from the relevant course or group, if that setting is on and a course has been specified.
  *
  * @param object $option
  * @param object $booking
@@ -867,11 +867,15 @@ function booking_check_unenrol_user($option, $booking, $userid) {
                 'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
         return; // No manual enrolment instance on this course.
     }
-
     if ($booking->addtogroup == 1) {
         if (!is_null($option->groupid) && ($option->groupid > 0)) {
-            groups_remove_member($option->groupid, $userid);
-            return;
+            $groupsofuser = groups_get_all_groups($option->courseid, $userid);
+            $numberofgroups = count($groupsofuser);
+            // When user is member of only 1 group: unenrol from course otherwise remove from group
+            if ($numberofgroups > 1) {
+                groups_remove_member($option->groupid, $userid);
+                return;
+            }
         }
     }
 
@@ -1814,8 +1818,8 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
         foreach ($times as $time) {
             $slot = explode('-', $time);
             $tmpdate = new stdClass();
-            $tmpdate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
-            $tmpdate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
+            $tmpdate->leftdate = userdate($slot[0], get_string('strftimedatetime', 'langconfig'));
+            $tmpdate->righttdate = userdate($slot[1], get_string('strftimetime', 'langconfig'));
 
             $val .= get_string('leftandrightdate', 'booking', $tmpdate) . '<br>';
         }
@@ -1931,8 +1935,6 @@ function booking_check_user_profile_fields($userid) {
 function booking_delete_booking_option($booking, $optionid) {
     global $DB;
 
-    $event = new stdClass();
-
     if (!$option = $DB->get_record("booking_options", array("id" => $optionid))) {
         return false;
     }
@@ -1950,12 +1952,19 @@ function booking_delete_booking_option($booking, $optionid) {
         $result = false;
     }
 
-    // Delete calendar entry, if any.
-    $event->id = $DB->get_field('booking_options', 'calendarid', array('id' => $optionid));
+        // Delete calendar entry, if any.
+    $eventid = $DB->get_field('booking_options', 'calendarid', array('id' => $optionid));
+    $eventexists = true;
     if ($event->id > 0) {
         // Delete event if exist.
-        $event = calendar_event::load($event->id);
-        $event->delete(true);
+        try {
+            $event = calendar_event::load($eventid);
+        } catch (Exception $e) {
+            $eventexists = false;
+        }
+        if ($eventexists) {
+            $event->delete(true);
+        }
     }
 
     if (!$DB->delete_records("booking_options", array("id" => $optionid))) {

@@ -73,8 +73,8 @@ foreach ($times as $time) {
     $buttondelete = $OUTPUT->single_button($delete, get_string('delete', 'booking'), 'get');
 
     $tmpdate = new stdClass();
-    $tmpdate->leftdate = userdate($time->coursestarttime, get_string('leftdate', 'booking'));
-    $tmpdate->righttdate = userdate($time->courseendtime, get_string('righttdate', 'booking'));
+    $tmpdate->leftdate = userdate($time->coursestarttime, get_string('strftimedatetime', 'langconfig'));
+    $tmpdate->righttdate = userdate($time->courseendtime, get_string('strftimetime', 'langconfig'));
 
     $timestable[] = array(get_string('leftandrightdate', 'booking', $tmpdate),
         html_writer::tag('span', $button . $buttondelete,
