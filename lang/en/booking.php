@@ -50,6 +50,7 @@ $string['bookingopen'] = 'Open';
 $string['bookingtext'] = 'Booking text';
 $string['datenotset'] = 'Date not set';
 $string['daystonotify'] = 'Number of days in advance of the event-start to notify participatants';
+$string['daystonotify2'] = 'Second notification before start of event to notify participatants.';
 $string['eventbooking_cancelled'] = 'Booking cancelled';
 $string['eventbookingoption_booked'] = 'Booking option booked';
 $string['eventreport_viewed'] = 'Report viewed';
@@ -827,9 +828,6 @@ $string['optiondatestime'] = 'Session time';
 $string['optiondatessucesfullysaved'] = "Session time was saved.";
 $string['optiondatessucesfullydelete'] = "Session time was deleted.";
 $string['delete'] = "Delete";
-
-$string['leftdate'] = "%d %B %Y, %I:%M %p";
-$string['righttdate'] = "%I:%M %p";
 $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
 
 // locallib.php

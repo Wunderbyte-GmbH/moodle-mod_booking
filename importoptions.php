@@ -157,7 +157,7 @@ if ($mform->is_cancelled()) {
                     $bookingobject->bookingid = $booking->id;
                     $bookingobject->text = mod_booking_fix_encoding($bookingoptionname);
                     $bookingobject->description = '';
-                    $bookingobject->courseid = $booking->course;
+                    $bookingobject->courseid = $booking->course->id;
                     $bookingobject->coursestarttime = $startdate;
                     $bookingobject->courseendtime = $enddate;
                     $bookingobject->institution = mod_booking_fix_encoding($line[3]);

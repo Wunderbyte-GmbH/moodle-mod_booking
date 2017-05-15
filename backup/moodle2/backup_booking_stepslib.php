@@ -49,7 +49,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'showinapi', 'lblbooking', 'lbllocation', 'lblinstitution', 'lblname',
                     'lblsurname', 'btncacname', 'lblteachname', 'lblsputtname', 'btnbooknowname',
                     'btncancelname', 'booktootherbooking', 'lblacceptingfrom', 'lblnumofusers',
-                    'numgenerator', 'paginationnum', 'daystonotify', 'notifyemail', 'assessed',
+                    'numgenerator', 'paginationnum', 'daystonotify', 'daystonotify2', 'notifyemail', 'assessed',
                     'assesstimestart', 'assesstimefinish', 'scale'));
 
         $options = new backup_nested_element('options');
@@ -57,7 +57,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                 array('text', 'maxanswers', 'maxoverbooking', 'bookingclosingtime', 'courseid',
                     'coursestarttime', 'courseendtime', 'description', 'descriptionformat',
                     'limitanswers', 'timemodified', 'addtocalendar', 'calendarid', 'pollurl',
-                    'groupid', 'sent', 'location', 'institution', 'address', 'pollurlteachers',
+                    'groupid', 'sent', 'sent2', 'location', 'institution', 'address', 'pollurlteachers',
                     'howmanyusers', 'pollsend', 'removeafterminutes', 'notificationtext',
                     'notificationtextformat', 'disablebookingusers'));
 

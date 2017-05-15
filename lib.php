@@ -34,13 +34,12 @@ function booking_cron() {
 
     $now = time();
     $toprocess = $DB->get_records_sql(
-            'SELECT bo.id, bo.coursestarttime, b.daystonotify
+            'SELECT bo.id, bo.coursestarttime, b.daystonotify, b.daystonotify2, bo.sent, bo.sent2
             FROM {booking_options} bo
             LEFT JOIN {booking} b ON b.id = bo.bookingid
-            WHERE b.daystonotify > 0
-            AND bo.coursestarttime > 0
-            AND bo.coursestarttime > :now
-            AND bo.sent = 0', array ( 'now' => $now));
+            WHERE (b.daystonotify > 0 OR b.daystonotify2 > 0)
+            AND bo.coursestarttime > 0  AND bo.coursestarttime > ?
+            AND (bo.sent = 0 AND bo.sent2 = 0)', array(time()));
 
     foreach ($toprocess as $value) {
         $dateevent = new DateTime();
@@ -49,21 +48,40 @@ function booking_cron() {
 
         $dateevent->modify('-' . $value->daystonotify . ' day');
 
-        if ($dateevent < $datenow) {
+        if ($value->sent == 0 and $value->daystonotify > 0) {
+            if ($dateevent < $datenow) {
 
-            $save = new stdClass();
-            $save->id = $value->id;
-            $save->sent = 1;
+                $save = new stdClass();
+                $save->id = $value->id;
+                $save->sent = 1;
 
-            booking_send_notification($save->id, get_string('notificationsubject', 'booking'));
+                booking_send_notification($save->id, get_string('notificationsubject', 'booking'));
 
-            $DB->update_record("booking_options", $save);
+                $DB->update_record("booking_options", $save);
+            }
         }
 
-        mtrace('Ending cron for Booking ...');
+        $dateevent = new DateTime();
+        $dateevent->setTimestamp($value->coursestarttime);
 
-        return true;
+        $dateevent->modify('-' . $value->daystonotify2 . ' day');
+
+        if ($value->sent2 == 0 and $value->daystonotify2 > 0) {
+            if ($dateevent < $datenow) {
+                $save = new stdClass();
+                $save->id = $value->id;
+                $save->sent2 = 1;
+
+                booking_send_notification($save->id, get_string('notificationsubject', 'booking'));
+
+                $DB->update_record("booking_options", $save);
+            }
+        }
     }
+
+    mtrace('Ending cron for Booking ...');
+
+    return true;
 }
 
 function booking_get_coursemodule_info($cm) {
@@ -205,8 +223,7 @@ function booking_get_completion_state($course, $cm, $userid, $type) {
 }
 
 /**
- * Given an object containing all the necessary data this will create a new instance and return the id
- * number of the new instance.
+ * Given an object containing all the necessary data this will create a new instance and return the id number of the new instance.
  *
  * @param unknown $booking
  * @return unknown
@@ -393,6 +410,7 @@ function booking_update_options($optionvalues) {
     $option->disablebookingusers = $optionvalues->disablebookingusers;
 
     $option->sent = 0;
+    $option->sent2 = 0;
 
     $option->location = trim($optionvalues->location);
     $option->institution = trim($optionvalues->institution);
@@ -439,8 +457,11 @@ function booking_update_options($optionvalues) {
 
             if ($coursestarttime != $optionvalues->coursestarttime) {
                 $option->sent = 0;
+                $option->sent2 = 0;
             } else {
                 $option->sent = $DB->get_field('booking_options', 'sent',
+                        array('id' => $option->id));
+                $option->sent2 = $DB->get_field('booking_options', 'sent2',
                         array('id' => $option->id));
             }
 
@@ -817,11 +838,10 @@ function booking_check_enrol_user($option, $booking, $userid) {
             groups_add_member($option->groupid, $userid);
         }
     }
-
 }
 
 /**
- * Automatically unenrol the user from the relevant course, if that setting is on and a course has been specified.
+ * Automatically unenrol the user from the relevant course or group, if that setting is on and a course has been specified.
  *
  * @param object $option
  * @param object $booking
@@ -847,11 +867,15 @@ function booking_check_unenrol_user($option, $booking, $userid) {
                 'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
         return; // No manual enrolment instance on this course.
     }
-
     if ($booking->addtogroup == 1) {
         if (!is_null($option->groupid) && ($option->groupid > 0)) {
-            groups_remove_member($option->groupid, $userid);
-            return;
+            $groupsofuser = groups_get_all_groups($option->courseid, $userid);
+            $numberofgroups = count($groupsofuser);
+            // When user is member of only 1 group: unenrol from course otherwise remove from group
+            if ($numberofgroups > 1) {
+                groups_remove_member($option->groupid, $userid);
+                return;
+            }
         }
     }
 
@@ -1310,8 +1334,8 @@ function booking_rate($ratings, $params) {
         }
     }
 }
-// END RATING AND GRADES.
 
+// END RATING AND GRADES.
 // Send reminder email.
 function booking_sendreminderemail($selectedusers, $booking, $cmid, $optionid) {
     booking_send_notification($optionid, get_string('notificationsubject', 'booking'),
@@ -1437,6 +1461,7 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
     require_once("$CFG->dirroot/mod/booking/locallib.php");
 
     $returnval = true;
+    $allusers = array();
 
     // TODO: Remove these queries, they are not really necessary.
     $option = $DB->get_record('booking_options', array('id' => $optionid));
@@ -1455,36 +1480,41 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
         }
     } else {
         if (isset($bookingdata->usersonlist)) {
-            $allusers = $bookingdata->usersonlist;
+            foreach ($bookingdata->usersonlist as $value) {
+                $tmpuser = new stdClass();
+                $tmpuser->id = $value->userid;
+                $allusers[] = $tmpuser;
+            }
         } else {
             $allusers = array();
         }
     }
     if (!empty($allusers)) {
-        $userids = array_keys($allusers);
-        list($usersql, $userparams) = $DB->get_in_or_equal($userids);
-        $sql = "id $usersql";
-        $users = $DB->get_records_select("user", $sql, $userparams);
-        if (!empty($users)) {
-            foreach ($users as $ruser) {
-                $params = booking_generate_email_params($bookingdata->booking, $bookingdata->option,
-                        $ruser, $cm->id);
-                $pollurlmessage = booking_get_email_body($bookingdata->booking, 'notifyemail',
-                        'notifyemaildefaultmessage', $params);
-                $eventdata = new stdClass();
-                $eventdata->modulename = 'booking';
-                $eventdata->userfrom = $USER;
-                $eventdata->userto = $ruser;
-                $eventdata->subject = $subject;
-                $eventdata->fullmessage = strip_tags(
-                        preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
-                $eventdata->fullmessageformat = FORMAT_HTML;
-                $eventdata->fullmessagehtml = $pollurlmessage;
-                $eventdata->smallmessage = '';
-                $eventdata->component = 'mod_booking';
-                $eventdata->name = 'bookingconfirmation';
-                $returnval = message_send($eventdata);
+        foreach ($allusers as $record) {
+            $ruser = $DB->get_record('user', array('id' => $record->id));
+
+            $params = booking_generate_email_params($bookingdata->booking, $bookingdata->option,
+                    $ruser, $cm->id);
+            $pollurlmessage = booking_get_email_body($bookingdata->booking, 'notifyemail',
+                    'notifyemaildefaultmessage', $params);
+
+            $eventdata = new \core\message\message();
+            $eventdata->userfrom = $USER;
+            $eventdata->userto = $ruser;
+            $eventdata->subject = $subject;
+            $eventdata->fullmessage = strip_tags(
+                    preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
+            $eventdata->fullmessageformat = FORMAT_HTML;
+            $eventdata->fullmessagehtml = $pollurlmessage;
+            $eventdata->smallmessage = '';
+            $eventdata->component = 'mod_booking';
+            $eventdata->name = 'bookingconfirmation';
+            // $eventdata->modulename = 'booking';
+            if ($CFG->version >= 2016120500) {
+                $eventdata->courseid = $bookingdata->booking->course;
             }
+
+            $returnval = message_send($eventdata);
         }
         return $returnval;
     } else {
@@ -1493,8 +1523,7 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
 }
 
 /**
- * Given an ID of an instance of this module, will permanently delete the instance
- * and data.
+ * Given an ID of an instance of this module, will permanently delete the instance and data.
  *
  * @param unknown $id
  * @return boolean
@@ -1525,8 +1554,8 @@ function booking_delete_instance($id) {
 
 /**
  * Returns the users with data in one booking (users with records in booking_answers, students)
- * @param int bookingid booking id of booking instance
  *
+ * @param int bookingid booking id of booking instance
  * @return array of students
  */
 function booking_get_participants($bookingid) {
@@ -1788,8 +1817,8 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
         foreach ($times as $time) {
             $slot = explode('-', $time);
             $tmpdate = new stdClass();
-            $tmpdate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
-            $tmpdate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
+            $tmpdate->leftdate = userdate($slot[0], get_string('strftimedatetime', 'langconfig'));
+            $tmpdate->righttdate = userdate($slot[1], get_string('strftimetime', 'langconfig'));
 
             $val .= get_string('leftandrightdate', 'booking', $tmpdate) . '<br>';
         }
@@ -1905,8 +1934,6 @@ function booking_check_user_profile_fields($userid) {
 function booking_delete_booking_option($booking, $optionid) {
     global $DB;
 
-    $event = new stdClass();
-
     if (!$option = $DB->get_record("booking_options", array("id" => $optionid))) {
         return false;
     }
@@ -1924,12 +1951,19 @@ function booking_delete_booking_option($booking, $optionid) {
         $result = false;
     }
 
-    // Delete calendar entry, if any.
-    $event->id = $DB->get_field('booking_options', 'calendarid', array('id' => $optionid));
+        // Delete calendar entry, if any.
+    $eventid = $DB->get_field('booking_options', 'calendarid', array('id' => $optionid));
+    $eventexists = true;
     if ($event->id > 0) {
         // Delete event if exist.
-        $event = calendar_event::load($event->id);
-        $event->delete(true);
+        try {
+            $event = calendar_event::load($eventid);
+        } catch (Exception $e) {
+            $eventexists = false;
+        }
+        if ($eventexists) {
+            $event->delete(true);
+        }
     }
 
     if (!$DB->delete_records("booking_options", array("id" => $optionid))) {

@@ -348,12 +348,16 @@ class booking_utils {
             $val = '';
             if (!is_null($option->times)) {
                 $additionaltimes = explode(',', $option->times);
-                foreach ($additionaltimes as $t) {
-                    $slot = explode('-', $t);
-                    $tempdate = new stdClass();
-                    $tempdate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
-                    $tempdate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
-                    $val .= get_string('leftandrightdate', 'booking', $tempdate) . '<br>';
+                if (!empty($additionaltimes)) {
+                    foreach ($additionaltimes as $t) {
+                        $slot = explode('-', $t);
+                        $tmpdate = new stdClass();
+                        $tmpdate->leftdate = userdate($slot[0],
+                                get_string('strftimedatetime', 'langconfig'));
+                        $tmpdate->righttdate = userdate($slot[1],
+                                get_string('strftimetime', 'langconfig'));
+                        $val .= get_string('leftandrightdate', 'booking', $tmpdate) . '<br>';
+                    }
                 }
             }
 
@@ -627,8 +631,8 @@ function booking_download_sign_in_sheet(mod_booking\booking_option $bookingdata 
             foreach ($times as $time) {
                 $slot = explode('-', $time);
                 $tmpdate = new stdClass();
-                $tmpdate->leftdate = userdate($slot[0], get_string('leftdate', 'booking'));
-                $tmpdate->righttdate = userdate($slot[1], get_string('righttdate', 'booking'));
+                $tmpdate->leftdate = userdate($slot[0], get_string('strftimedatetime', 'langconfig'));
+                $tmpdate->righttdate = userdate($slot[1], get_string('strftimetime', 'langconfig'));
 
                 $val[] = get_string('leftandrightdate', 'booking', $tmpdate);
             }
@@ -732,7 +736,7 @@ function booking_download_sign_in_sheet(mod_booking\booking_option $bookingdata 
         $pdf->Cell(($colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + $extracolsnum), 12,
                 $user->lastname . ", " . $user->firstname . $profiletext, 1, 0, '', 0);
         $pdf->Cell(($colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + $extracolsnum), 12, "", 1,
-                0, '', 0);
+                (count($extracols) > 0 ? 0 : 1), '', 0);
         if (count($extracols) > 0) {
             for ($i = 1; $i <= $extracolsnum; $i++) {
                 if ($i == $extracolsnum) {
@@ -813,7 +817,7 @@ function booking_set_pdf_font(mypdf $pdf, mod_booking\booking_option $bookingdat
     $pdf->Cell(($colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + count($extracols)), 0,
             get_string('pdfstudentname', 'booking'), 1, 0, '', 0);
     $pdf->Cell(($colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + count($extracols)), 0,
-            get_string('pdfsignature', 'booking'), 1, 0, '', 0);
+            get_string('pdfsignature', 'booking'), 1, (count($extracols) > 0 ? 0 : 1), '', 0);
 
     if (count($extracols) > 0) {
         for ($i = 0; $i < count($extracols); $i++) {

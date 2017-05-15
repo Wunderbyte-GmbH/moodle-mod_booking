@@ -1241,12 +1241,12 @@ function xmldb_booking_upgrade($oldversion) {
             $params = array_merge(array('course' => $courseid), $enrolparams);
             $DB->delete_records_select('booking_answers',
                     ' userid NOT IN (' . $enrolsql .
-                             ') AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course)',
-                            $params);
+                    ') AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course)',
+                    $params);
             $DB->delete_records_select('booking_teachers',
                     ' userid NOT IN (' . $enrolsql .
-                             ') AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course)',
-                            $params);
+                    ') AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course)',
+                    $params);
         }
 
         upgrade_mod_savepoint(true, 2016051703, 'booking');
@@ -1440,6 +1440,31 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2017040600, 'booking');
+    }
+
+    if ($oldversion < 2017050400) {
+        // Define field daystonotify2 to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('daystonotify2', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null,
+                '0', 'whichview');
+
+        // Conditionally launch add field daystonotify2.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field sent2 to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('sent2', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0',
+                'disablebookingusers');
+
+        // Conditionally launch add field sent2.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2017050400, 'booking');
     }
 
     return true;
