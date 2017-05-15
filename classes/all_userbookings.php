@@ -97,6 +97,15 @@ class all_userbookings extends table_sql {
             case 3:
                 return get_string('status_noshow', 'booking');
                 break;
+            case 4:
+                return get_string('status_failed', 'booking');
+                break;
+            case 5:
+                return get_string('status_unknown', 'booking');
+                break;
+            case 6:
+                return get_string('status_attending', 'booking');
+                break;
             default:
                 return '';
                 break;
@@ -351,11 +360,15 @@ class all_userbookings extends table_sql {
             }
 
             // Change presence status
+            // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed
             echo "<br>";
             $presences = array(
+                            5 => get_string('status_unknown', 'booking'),
+                            6 => get_string('status_attending', 'booking'),
                             1 => get_string('status_complete', 'booking'),
                             2 => get_string('status_incomplete', 'booking'),
-                            3 => get_string('status_noshow', 'booking')
+                            3 => get_string('status_noshow', 'booking'),
+                            4 => get_string('status_failed', 'booking')
             );
 
             echo html_writer::select($presences, 'selectpresencestatus', '');

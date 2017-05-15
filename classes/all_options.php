@@ -93,6 +93,15 @@ class all_options extends table_sql {
             case 3:
                 return get_string('status_noshow', 'booking');
                 break;
+            case 4:
+                return get_string('status_failed', 'booking');
+                break;
+            case 5:
+                return get_string('status_unknown', 'booking');
+                break;
+            case 6:
+                return get_string('status_attending', 'booking');
+                break;
             default:
                 return '';
                 break;
