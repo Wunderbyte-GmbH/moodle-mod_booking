@@ -503,9 +503,9 @@ if (!$tableallbookings->is_downloading()) {
         }
 
         // Fix for Travis CI complaining!!!!!!!!!!!!
-        $hasPollURL= (!empty($bookingdata->booking->pollurlteachers) || !empty($bookingdata->option->pollurlteachers));
+        $haspollurl = (!empty($bookingdata->booking->pollurlteachers) || !empty($bookingdata->option->pollurlteachers));
 
-        if (has_capability('mod/booking:communicate', context_module::instance($cm->id)) && $hasPollURL) {
+        if (has_capability('mod/booking:communicate', context_module::instance($cm->id)) && $haspollurl) {
             $linkst[] = html_writer::link(
                     new moodle_url('/mod/booking/report.php',
                             array('id' => $cm->id, 'optionid' => $optionid,
