@@ -502,7 +502,7 @@ if (!$tableallbookings->is_downloading()) {
                     get_string('editteachers', 'booking'), array());
         }
 
-        if (has_capability('mod/booking:communicate', context_module::instance($cm->id))) {
+        if (has_capability('mod/booking:communicate', context_module::instance($cm->id)) && (!empty($bookingdata->booking->pollurlteachers) || !empty($bookingdata->option->pollurlteachers))) {
             $linkst[] = html_writer::link(
                     new moodle_url('/mod/booking/report.php',
                             array('id' => $cm->id, 'optionid' => $optionid,
