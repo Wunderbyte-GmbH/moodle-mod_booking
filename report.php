@@ -170,7 +170,8 @@ $event = \mod_booking\event\report_viewed::create(
 $event->trigger();
 
 if ($action == 'downloadsigninportrait' || $action == 'downloadsigninlandscape') {
-    booking_download_sign_in_sheet($bookingdata , $action);
+    $pdf = new mod_booking\signinsheet\generator($bookingdata , $action);
+    $pdf->download_signinsheet();
     die();
 }
 
