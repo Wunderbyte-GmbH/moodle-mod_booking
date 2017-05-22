@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot . '/mod/booking/icallib.php');
 require_once($CFG->dirroot . '/calendar/lib.php');
 require_once($CFG->libdir . '/filelib.php');
 if ($CFG->branch < 31) {
@@ -1677,7 +1676,7 @@ function booking_send_confirm_message($eventdata) {
                 $data);
 
         // Generate ical attachment to go with the message.
-        $ical = new booking_ical($eventdata->booking, $eventdata->booking->option[$optionid], $user,
+        $ical = new mod_booking\ical($eventdata->booking, $eventdata->booking->option[$optionid], $user,
                 $bookingmanager);
         if ($attachment = $ical->get_attachment()) {
             $attachname = $ical->get_name();

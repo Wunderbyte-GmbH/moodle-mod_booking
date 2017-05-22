@@ -13,18 +13,18 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+namespace mod_booking;
+
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Support class for generating ical items Note - this code is based on the ical code from mod_facetoface
  *
  * @package mod_booking
- * @copyright 2012 Davo Smith, Synergy Learning
+ * @copyright 2012-2017 Davo Smith, Synergy Learning, Andras Princic, David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
-
-
-class booking_ical {
+class ical {
 
     protected $booking;
 
@@ -39,7 +39,7 @@ class booking_ical {
     protected $times = '';
 
     /**
-     * Create a new booking_ical instance
+     * Create a new mod_booking\ical instance
      *
      * @param object $booking the booking activity details
      * @param object $option the option that is being booked
@@ -99,7 +99,7 @@ class booking_ical {
         // and shows the newlines as [0x0A] junk. So we switch it for commas
         // here. Remember commas need to be escaped too.
         if ($this->option->courseid) {
-            $url = new moodle_url('/course/view.php', array('id' => $this->option->courseid));
+            $url = new \moodle_url('/course/view.php', array('id' => $this->option->courseid));
             $location = $this->escape($url->out());
         } else {
             $location = '';
