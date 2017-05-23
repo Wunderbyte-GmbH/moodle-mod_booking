@@ -1497,6 +1497,5 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017052300, 'booking');
     }
 
-
     return true;
 }
