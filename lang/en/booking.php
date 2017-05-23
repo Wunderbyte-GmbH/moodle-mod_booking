@@ -567,6 +567,7 @@ $string['reset'] = 'Reset';
 $string['searchtag'] = 'Search tags';
 $string['showinapi'] = 'Show in API?';
 $string['whichview'] = 'Default view for booking options';
+$string['enablepresence'] = 'Enable presence';
 
 // editoptions.php
 $string['addeditbooking'] = 'Edit booking';

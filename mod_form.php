@@ -154,6 +154,9 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'whichview', get_string('whichview', 'mod_booking'),
                 $whichviewopts);
 
+        $mform->addElement('select', 'enablepresence', get_string('enablepresence', 'booking'),
+                $menuoptions);
+
         // -------------------------------------------------------------------------------
         $mform->addElement('header', 'timerestricthdr', get_string('timerestrict', 'booking'));
         $mform->addElement('checkbox', 'timerestrict', get_string('timerestrict', 'booking'));

@@ -428,6 +428,8 @@ function booking_update_options($optionvalues) {
         $option->limitanswers = 1;
     }
 
+    $option->enablepresence= $optionvalues->enablepresence;
+
     if (isset($optionvalues->restrictanswerperiod)) {
         $option->bookingclosingtime = $optionvalues->bookingclosingtime;
     } else {
@@ -444,6 +446,7 @@ function booking_update_options($optionvalues) {
 
     $option->description = $optionvalues->description;
     $option->limitanswers = $optionvalues->limitanswers;
+    $option->enablepresence= $optionvalues->enablepresence;
     $option->timemodified = time();
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
              $optionvalues->optionid != -1) { // existing booking record

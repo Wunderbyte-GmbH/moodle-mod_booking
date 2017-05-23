@@ -425,7 +425,9 @@ if (!$tableallbookings->is_downloading()) {
     $columns[] = 'completed';
     $headers[] = get_string('activitycompleted', 'mod_booking');
     $columns[] = 'status';
-    $headers[] = get_string('presence', 'mod_booking');
+    if ($bookingdata->booking->enablepresence) {
+        $headers[] = get_string('presence', 'mod_booking');
+    }
 
     if ($bookingdata->booking->assessed != RATING_AGGREGATE_NONE) {
         $columns[] = 'rating';
@@ -726,7 +728,9 @@ if (!$tableallbookings->is_downloading()) {
     $columns[] = 'waitinglist';
     $headers[] = get_string("waitinglist", "booking");
     $columns[] = 'status';
-    $headers[] = get_string('presence', 'mod_booking');
+    if ($bookingdata->booking->enablepresence) {
+        $headers[] = get_string('presence', 'mod_booking');
+    }
     $addfields = explode(',', $bookingdata->booking->additionalfields);
     global $DB;
     list($addquoted, $addquotedparams) = $DB->get_in_or_equal($addfields);

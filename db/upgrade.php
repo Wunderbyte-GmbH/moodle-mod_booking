@@ -1482,5 +1482,21 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017051500, 'booking');
     }
 
+    if ($oldversion < 2017052300) {
+
+        // Define field enablepresence to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('enablepresence', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'daystonotify2');
+
+        // Conditionally launch add field enablepresence.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2017052300, 'booking');
+    }
+
+
     return true;
 }

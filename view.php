@@ -724,7 +724,9 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $columns[] = 'waitinglist';
         $headers[] = get_string("waitinglist", "booking");
         $columns[] = 'status';
-        $headers[] = get_string('presence', 'mod_booking');
+        if ($booking->booking->enablepresence) {
+            $headers[] = get_string('presence', 'mod_booking');
+        }
 
         $addfields = explode(',', $booking->booking->additionalfields);
         global $DB;

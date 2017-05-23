@@ -359,22 +359,22 @@ class all_userbookings extends table_sql {
                 }
             }
 
-            // Change presence status
-            // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed
-            echo "<br>";
-            $presences = array(
-                            5 => get_string('status_unknown', 'booking'),
-                            6 => get_string('status_attending', 'booking'),
-                            1 => get_string('status_complete', 'booking'),
-                            2 => get_string('status_incomplete', 'booking'),
-                            3 => get_string('status_noshow', 'booking'),
-                            4 => get_string('status_failed', 'booking')
-            );
+            if ($this->bookingdata->booking->enablepresence) {
+                // Change presence status
+                // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed
+                echo "<br>";
+                $presences = array(5 => get_string('status_unknown', 'booking'),
+                    6 => get_string('status_attending', 'booking'),
+                    1 => get_string('status_complete', 'booking'),
+                    2 => get_string('status_incomplete', 'booking'),
+                    3 => get_string('status_noshow', 'booking'),
+                    4 => get_string('status_failed', 'booking'));
 
-            echo html_writer::select($presences, 'selectpresencestatus', '');
+                echo html_writer::select($presences, 'selectpresencestatus', '');
 
-                    echo '<input type="submit" name="changepresencestatus" value="' .
-                            get_string('confirmpresence', 'booking'). '" />';
+                echo '<input type="submit" name="changepresencestatus" value="' .
+                         get_string('confirmpresence', 'booking') . '" />';
+            }
         }
 
         echo '</form>';
