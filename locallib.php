@@ -547,9 +547,12 @@ function booking_confirm_booking($optionid, $user, $cm, $url) {
     echo $OUTPUT->footer();
 }
 
-// Update option start and end datetime - when you add session time.
+/**
+ * Update start and enddate in booking_option when dates are set or deleted
+ * @param number $optionid
+ */
 function booking_updatestartenddate($optionid) {
-    GLOBAL $DB;
+    global $DB;
 
     $result = $DB->get_record_sql(
             'SELECT MIN(coursestarttime) AS coursestarttime, MAX(courseendtime) AS courseendtime FROM {booking_optiondates} WHERE optionid = ?',

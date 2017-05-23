@@ -26,6 +26,8 @@ defined('MOODLE_INTERNAL') || die();
  */
 class ical {
 
+    private $datesareset = false;
+
     protected $booking;
 
     protected $option;
@@ -38,6 +40,26 @@ class ical {
 
     protected $times = '';
 
+    protected $ical = '';
+
+    protected $vevents = '';
+
+    protected $dtstamp = '';
+
+    protected $summary = '';
+
+    protected $description = '';
+
+    protected $location = '';
+
+    protected $host = '';
+
+    protected $status = '';
+
+    protected $role = 'REQ-PARTICIPANT';
+
+    protected $userfullname = '';
+
     /**
      * Create a new mod_booking\ical instance
      *
@@ -46,153 +68,92 @@ class ical {
      * @param object $user the user the booking is for
      */
     public function __construct($booking, $option, $user, $fromuser) {
-        global $DB;
+        global $DB, $CFG;
 
         $this->booking = $booking;
         $this->option = $option;
-        $this->user = $DB->get_record('user', array('id' => $user->id));
         $this->fromuser = $fromuser;
         $this->times = $DB->get_records('booking_optiondates', array('optionid' => $option->id),
                 'coursestarttime ASC');
+        // Check if start and end dates exist.
+        $coursedates = ($this->option->coursestarttime && $this->option->courseendtime);
+        $sessiontimes = !empty($this->times);
+        if ( ($coursedates OR $sessiontimes) ) {
+            $this->datesareset = true;
+            $this->user = $DB->get_record('user', array('id' => $user->id));
+            // Date that this representation of the calendar information was created -
+            // we use the time the option was last modified
+            // http://www.kanzaki.com/docs/ical/dtstamp.html
+            $this->dtstamp = $this->generate_timestamp($this->option->timemodified);
+            $this->summary = $this->escape($this->booking->name);
+            $this->description = $this->escape($this->option->text, true);
+            // NOTE: Newlines are meant to be encoded with the literal sequence
+            // '\n'. But evolution presents a single line text field for location,
+            // and shows the newlines as [0x0A] junk. So we switch it for commas
+            // here. Remember commas need to be escaped too.
+            if ($this->option->courseid) {
+                $url = new \moodle_url('/course/view.php', array('id' => $this->option->courseid));
+                $this->location = $this->escape($url->out());
+            }
+            $urlbits = parse_url($CFG->wwwroot);
+            $this->host = $urlbits['host'];
+            $this->userfullname = \fullname($this->user);
+        }
     }
 
     /**
      * Create an attachment to add to the notification email
      *
      * @param bool $cancel optional - true to generate a 'cancel' ical event
-     * @return string the path to the attachment file
+     * @return string the path to the attachment file empty if no dates are set
      */
     public function get_attachment($cancel = false) {
         global $CFG;
-
-        if (!get_config('booking', 'attachical')) {
-            return ''; // ical attachments not enabled.
+        if (!$this->datesareset){
+            return '';
         }
-
-        if (!$this->option->coursestarttime || !$this->option->courseendtime) {
-            return ''; // missing start or end time for course.
-        }
-
-        // First, generate the VEVENT block
-        $vevents = '';
-
-        // Date that this representation of the calendar information was created -
-        // we use the time the option was last modified
-        // http://www.kanzaki.com/docs/ical/dtstamp.html
-        $dtstamp = $this->generate_timestamp($this->option->timemodified);
 
         // UIDs should be globally unique
-        $urlbits = parse_url($CFG->wwwroot);
-        $uid = md5($CFG->siteidentifier . $this->option->id . 'mod_booking_option') . '@' . $urlbits['host']; // Hostname for this moodle installation
-
+        $uid = md5($CFG->siteidentifier . $this->option->id . 'mod_booking_option') . '@' . $this->host; // Hostname for this moodle installation
         $dtstart = $this->generate_timestamp($this->option->coursestarttime);
         $dtend = $this->generate_timestamp($this->option->courseendtime);
 
-        // FIXME: currently we not sending updates if the times of the session are changed.
-        $sequence = 0;
-
-        $summary = $this->escape($this->booking->name);
-        $description = $this->escape($this->option->text, true);
-
-        // NOTE: Newlines are meant to be encoded with the literal sequence
-        // '\n'. But evolution presents a single line text field for location,
-        // and shows the newlines as [0x0A] junk. So we switch it for commas
-        // here. Remember commas need to be escaped too.
-        if ($this->option->courseid) {
-            $url = new \moodle_url('/course/view.php', array('id' => $this->option->courseid));
-            $location = $this->escape($url->out());
-        } else {
-            $location = '';
-        }
-
-        $organiseremail = $this->fromuser->email;
-
-        $role = 'REQ-PARTICIPANT';
-        $cancelstatus = '';
         if ($cancel) {
-            $role = 'NON-PARTICIPANT';
-            $cancelstatus = "\nSTATUS:CANCELLED";
+            $this->role = 'NON-PARTICIPANT';
+            $this->status = "\nSTATUS:CANCELLED";
         }
-
-        $icalmethod = ($cancel) ? 'CANCEL' : 'REQUEST';
-
-        // FIXME: if user did input name in another language, we need to set the LANGUAGE property parameter here
-        $username = fullname($this->user);
-        $mailto = $this->user->email;
+        $icalmethod = ($cancel) ? 'CANCEL' : 'PUBLISH';
 
         if (!empty($this->times)) {
-
-            foreach ($this->times as $time) {
-                $dtstart = $this->generate_timestamp($time->coursestarttime);
-                $dtend = $this->generate_timestamp($time->courseendtime);
-
-                $vevents .= <<<EOF
-BEGIN:VEVENT
-UID:{$uid}
-DTSTAMP:{$dtstamp}
-DTSTART:{$dtstart}
-DTEND:{$dtend}
-SEQUENCE:{$sequence}
-SUMMARY:{$summary}
-LOCATION:{$location}
-DESCRIPTION:{$description}
-CLASS:PRIVATE
-TRANSP:OPAQUE{$cancelstatus}
-ORGANIZER;CN={$organiseremail}:MAILTO:{$organiseremail}
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$role};PARTSTAT=NEEDS-ACTION;RSVP=false;CN={$username};LANGUAGE=en:MAILTO:{$mailto}
-END:VEVENT
-
-EOF;
-            }
+            $this->get_vevents_from_optiondates();
         } else {
-            $vevents .= <<<EOF
+            $this->vevents = <<<EOF
 BEGIN:VEVENT
 UID:{$uid}
-DTSTAMP:{$dtstamp}
+DTSTAMP:{$this->dtstamp}
 DTSTART:{$dtstart}
 DTEND:{$dtend}
-SEQUENCE:{$sequence}
-SUMMARY:{$summary}
-LOCATION:{$location}
-DESCRIPTION:{$description}
+SUMMARY:{$this->summary}
+LOCATION:{$this->location}
+DESCRIPTION:{$this->description}
 CLASS:PRIVATE
-TRANSP:OPAQUE{$cancelstatus}
-ORGANIZER;CN={$organiseremail}:MAILTO:{$organiseremail}
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$role};PARTSTAT=NEEDS-ACTION;RSVP=false;CN={$username};LANGUAGE=en:MAILTO:{$mailto}
+TRANSP:OPAQUE{$this->status}
+ORGANIZER;CN={$this->fromuser->email}:MAILTO:{$this->fromuser->email}
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT=NEEDS-ACTION;RSVP=false;CN={$this->userfullname};LANGUAGE=en:MAILTO:{$this->user->email}
 END:VEVENT
 
 EOF;
         }
 
-        $vevents = trim($vevents);
+        $this->vevents = trim($this->vevents);
 
-        // TODO: remove the hard-coded timezone!
         $template = <<<EOF
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Moodle//NONSGML Booking//EN
-X-WR-RELCALID:{$uid}
 CALSCALE:GREGORIAN
 METHOD:{$icalmethod}
-BEGIN:VTIMEZONE
-TZID:/softwarestudio.org/Tzfile/Pacific/Auckland
-X-LIC-LOCATION:Pacific/Auckland
-BEGIN:STANDARD
-TZNAME:NZST
-DTSTART:19700405T020000
-RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=1SU;BYMONTH=4
-TZOFFSETFROM:+1300
-TZOFFSETTO:+1200
-END:STANDARD
-BEGIN:DAYLIGHT
-TZNAME:NZDT
-DTSTART:19700928T030000
-RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=-1SU;BYMONTH=9
-TZOFFSETFROM:+1200
-TZOFFSETTO:+1300
-END:DAYLIGHT
-END:VTIMEZONE
-{$vevents}
+{$this->vevents}
 END:VCALENDAR
 EOF;
 
@@ -202,6 +163,35 @@ EOF;
         $tempfilepathname = $CFG->tempdir . '/' . $this->tempfilename;
         file_put_contents($tempfilepathname, $template);
         return $tempfilepathname;
+    }
+
+    /**
+     * Get the dates from the sessions and render them for ical.
+     * Events are saved in $this->vevents
+     */
+    protected function get_vevents_from_optiondates(){
+        foreach ($this->times as $time) {
+            $dtstart = $this->generate_timestamp($time->coursestarttime);
+            $dtend = $this->generate_timestamp($time->courseendtime);
+            $uid = md5($CFG->siteidentifier . $this->times->id . $this->option->id . 'mod_booking_option') . '@' . $this->host;
+
+            $this->vevents .= <<<EOF
+BEGIN:VEVENT
+UID:{$uid}
+DTSTAMP:{$this->dtstamp}
+DTSTART:{$dtstart}
+DTEND:{$dtend}
+SUMMARY:{$this->summary}
+LOCATION:{$this->location}
+DESCRIPTION:{$this->description}
+CLASS:PRIVATE
+TRANSP:OPAQUE{$this->status}
+ORGANIZER;CN={$this->fromuser->email}:MAILTO:{$this->fromuser->email}
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT=NEEDS-ACTION;RSVP=false;CN={$this->userfullname};LANGUAGE=en:MAILTO:{$this->user->email}
+END:VEVENT
+
+EOF;
+        }
     }
 
     public function get_name() {

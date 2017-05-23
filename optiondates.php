@@ -42,9 +42,7 @@ require_capability('mod/booking:updatebooking', $context);
 
 if ($delete != '') {
     $DB->delete_records("booking_optiondates", array('optionid' => $optionid, 'id' => $delete));
-
     booking_updatestartenddate($optionid);
-
     redirect($url, get_string('optiondatessucesfullydelete', 'booking'), 5);
 }
 
@@ -93,5 +91,4 @@ echo html_writer::tag('span', $button, array('style' => 'text-align: right; disp
 $button = $OUTPUT->single_button($addnew, get_string('addnewoptiondates', 'booking'), 'get');
 echo html_writer::tag('span', $button, array('style' => 'text-align: left; display:table-cell;'));
 echo '</div>';
-booking_updatestartenddate($optionid);
 echo $OUTPUT->footer();

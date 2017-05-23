@@ -1676,10 +1676,13 @@ function booking_send_confirm_message($eventdata) {
                 $data);
 
         // Generate ical attachment to go with the message.
-        $ical = new mod_booking\ical($eventdata->booking, $eventdata->booking->option[$optionid], $user,
-                $bookingmanager);
-        if ($attachment = $ical->get_attachment()) {
-            $attachname = $ical->get_name();
+        // Check if ical attachments enabled.
+        if (get_config('booking', 'attachical')) {
+            $ical = new mod_booking\ical($eventdata->booking, $eventdata->booking->option[$optionid], $user,
+                    $bookingmanager);
+            if ($attachment = $ical->get_attachment()) {
+                $attachname = $ical->get_name();
+            }
         }
     } else if ($data->status == get_string('onwaitinglist', 'booking')) {
         $subject = get_string('confirmationsubjectwaitinglist', 'booking', $data);

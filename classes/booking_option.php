@@ -415,11 +415,13 @@ class booking_option extends booking {
         if ($this->booking->sendmail) {
             // Generate ical attachment to go with the message.
             $attachname = '';
-            $ical = new \mod_booking\ical($this->booking, $this->option, $user, $bookingmanager);
-            if ($attachment = $ical->get_attachment(true)) {
-                $attachname = $ical->get_name();
+            $attachment = '';
+            if (get_config('booking', 'attachical')) {
+                $ical = new \mod_booking\ical($this->booking, $this->option, $user, $bookingmanager);
+                if ($attachment = $ical->get_attachment(true)) {
+                    $attachname = $ical->get_name();
+                }
             }
-
             $messagehtml = text_to_html($messagebody, false, false, true);
 
             if (isset($this->booking->sendmailtobooker) && $this->booking->sendmailtobooker) {
