@@ -424,8 +424,8 @@ if (!$tableallbookings->is_downloading()) {
     $headers[] = '<input type="checkbox" id="usercheckboxall" name="selectall" value="0" />';
     $columns[] = 'completed';
     $headers[] = get_string('activitycompleted', 'mod_booking');
-    $columns[] = 'status';
     if ($bookingdata->booking->enablepresence) {
+        $columns[] = 'status';
         $headers[] = get_string('presence', 'mod_booking');
     }
 
@@ -727,8 +727,8 @@ if (!$tableallbookings->is_downloading()) {
     $headers[] = get_string("searchfinished", "booking");
     $columns[] = 'waitinglist';
     $headers[] = get_string("waitinglist", "booking");
-    $columns[] = 'status';
     if ($bookingdata->booking->enablepresence) {
+        $columns[] = 'status';
         $headers[] = get_string('presence', 'mod_booking');
     }
     $addfields = explode(',', $bookingdata->booking->additionalfields);
