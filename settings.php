@@ -38,6 +38,14 @@ if ($ADMIN->fulltree) {
             new admin_setting_configcheckbox('booking/attachical',
                     get_string('attachical', 'mod_booking'),
                     get_string('attachicaldesc', 'mod_booking'), 0));
+    $settings->add(
+            new admin_setting_configcheckbox('booking/attachicalsessions',
+                    get_string('attachicalsess', 'mod_booking'),
+                    get_string('attachicalsessdesc', 'mod_booking'), 1));
+    $settings->add(
+            new admin_setting_configcheckbox('booking/icalcancel',
+                    get_string('icalcancel', 'mod_booking'),
+                    get_string('icalcanceldesc', 'mod_booking'), 1));
     // The default here is feedback_comments (if it exists).
     $settings->add(
             new admin_setting_heading('mod_booking_signinsheet',

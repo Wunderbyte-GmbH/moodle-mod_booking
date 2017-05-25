@@ -20,8 +20,13 @@ $string['showonlymyinstitutions'] = "Meine Institution";
 $string['addmorebookings'] = 'Buchungen hinzufügen';
 $string['allowupdate'] = 'Buchungen dürfen gelöscht/aktualisiert werden';
 $string['answered'] = 'Beantwortet';
-$string['attachical'] = 'ICAL Kalendereintrag hinzufügen';
-$string['attachicaldesc'] = 'E-Mail Benachrichtigungen im ical Kalenderformat hinzufügen, wenn diese Option aktiviert wird';
+$string['attachical'] = 'Einen Ical Kalendereintrag für die gesamte Dauer einer Buchung als Dateianhang in der E-Mail Benachrichtigung einfügen';
+$string['attachicaldesc'] = 'E-Mail Benachrichtigungen im ical Kalenderformat hinzufügen, wenn diese Option aktiviert wird. Es wir entweder der in den Buchungsoptionen festgelegte
+Termin eingefügt oder ein Event mit dem Anfangsdatum des ersten Termins einer Terminserie und dem Enddatum des letzten Termins der Terminserie.';
+$string['attachicalsess'] = 'Von einer Terminserie alle Einzeltermine im ical Anhang hinzufügen';
+$string['attachicalsessdesc'] = 'Im Ical-Anhang der E-Mail Benachrichtigungen werden alle einzelnen Termine einer Terminserie angeführt.';
+$string['icalcancel'] = 'Einen Ical Anhang in die Benachrichtigungsmail einfügen, wenn eine Buchung storniert wurde.';
+$string['icalcanceldesc'] = 'Wenn ein User eine Buchung storniert oder von der Buchungsliste entfernt wurde, ein Ical-Event mit dem stornierten Event anhängen. (Das fügt den Termin als abgesagten Termin in den Kalender ein bzw. berichtigt den Termin)';
 $string['booking'] = 'Buchung';
 $string['booking:addinstance'] = 'Neue Buchung anlegen';
 $string['booking:choose'] = 'Buchen';

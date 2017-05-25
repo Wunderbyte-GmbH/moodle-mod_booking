@@ -39,7 +39,7 @@ class send_confirmation_mails extends \core\task\adhoc_task {
             } else {
                 $search = str_replace($CFG->tempdir . '/', '', $taskdata->attachment);
                 if ($DB->count_records_select('task_adhoc', "customdata LIKE '%$search%'") == 1) {
-                    if(!empty($taskdata->attachment)){
+                    if (!empty($taskdata->attachment)) {
                         unlink($taskdata->attachment);
                     }
                 }

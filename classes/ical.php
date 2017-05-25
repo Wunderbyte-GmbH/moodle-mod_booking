@@ -60,6 +60,10 @@ class ical {
 
     protected $userfullname = '';
 
+    protected $attachicaloverall = false;
+
+    protected $attachicalsessions = false;
+
     /**
      * Create a new mod_booking\ical instance
      *
@@ -98,6 +102,8 @@ class ical {
             $urlbits = parse_url($CFG->wwwroot);
             $this->host = $urlbits['host'];
             $this->userfullname = \fullname($this->user);
+            $this->attachicaloverall = \get_config('booking', 'attachical');
+            $this->attachicalsessions = \get_config('booking', 'attachicalsessions');
         }
     }
 
@@ -109,7 +115,7 @@ class ical {
      */
     public function get_attachment($cancel = false) {
         global $CFG;
-        if (!$this->datesareset){
+        if (!$this->datesareset) {
             return '';
         }
 
@@ -124,10 +130,12 @@ class ical {
         }
         $icalmethod = ($cancel) ? 'CANCEL' : 'PUBLISH';
 
-        if (!empty($this->times)) {
+        if (!empty($this->times) && $this->attachicalsessions) {
             $this->get_vevents_from_optiondates();
-        } else {
-            $this->vevents = <<<EOF
+        }
+
+        if ($this->attachicaloverall && $this->option->coursestarttime) {
+            $this->vevents .= <<<EOF
 BEGIN:VEVENT
 UID:{$uid}
 DTSTAMP:{$this->dtstamp}
@@ -166,14 +174,14 @@ EOF;
     }
 
     /**
-     * Get the dates from the sessions and render them for ical.
-     * Events are saved in $this->vevents
+     * Get the dates from the sessions and render them for ical. Events are saved in $this->vevents
      */
-    protected function get_vevents_from_optiondates(){
+    protected function get_vevents_from_optiondates() {
+        global $CFG;
         foreach ($this->times as $time) {
             $dtstart = $this->generate_timestamp($time->coursestarttime);
             $dtend = $this->generate_timestamp($time->courseendtime);
-            $uid = md5($CFG->siteidentifier . $this->times->id . $this->option->id . 'mod_booking_option') . '@' . $this->host;
+            $uid = md5($CFG->siteidentifier . $time->id . $this->option->id . 'mod_booking_option') . '@' . $this->host;
 
             $this->vevents .= <<<EOF
 BEGIN:VEVENT

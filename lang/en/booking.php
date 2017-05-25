@@ -26,8 +26,13 @@ $string['showonlymyinstitutions'] = "My institution";
 $string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
 $string['answered'] = 'Answered';
-$string['attachical'] = 'Attach ical events';
-$string['attachicaldesc'] = 'Email notifications will include an attached ical event, if this is enabled';
+$string['attachical'] = 'Attach single ical event per booking';
+$string['attachicaldesc'] = 'Email notifications will include an attached ical event, if this is enabled. The ical will include only one start time and one end time either defined
+in the booking option settings or start time of the first session to end time of the last session';
+$string['attachicalsess'] = 'Attach all session dates as ical events';
+$string['attachicalsessdesc'] = 'Email notifications will include all session dates defined for a booking option as ical attachment.';
+$string['icalcancel'] = 'Include ical event when booking is cancelled as cancelled event';
+$string['icalcanceldesc'] = 'When a users cancels a booking or is removed from the booked users list, then attach an ical attachment as cancelled event.';
 $string['booking'] = 'Booking';
 $string['booking:addinstance'] = 'Add new booking';
 $string['booking:choose'] = 'Book';

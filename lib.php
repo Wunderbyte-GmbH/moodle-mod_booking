@@ -1677,7 +1677,7 @@ function booking_send_confirm_message($eventdata) {
 
         // Generate ical attachment to go with the message.
         // Check if ical attachments enabled.
-        if (get_config('booking', 'attachical')) {
+        if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
             $ical = new mod_booking\ical($eventdata->booking, $eventdata->booking->option[$optionid], $user,
                     $bookingmanager);
             if ($attachment = $ical->get_attachment()) {

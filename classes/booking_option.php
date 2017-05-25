@@ -416,7 +416,7 @@ class booking_option extends booking {
             // Generate ical attachment to go with the message.
             $attachname = '';
             $attachment = '';
-            if (get_config('booking', 'attachical')) {
+            if (\get_config('booking', 'icalcancel')) {
                 $ical = new \mod_booking\ical($this->booking, $this->option, $user, $bookingmanager);
                 if ($attachment = $ical->get_attachment(true)) {
                     $attachname = $ical->get_name();
