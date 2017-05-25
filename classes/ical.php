@@ -135,22 +135,7 @@ class ical {
         }
 
         if ($this->attachicaloverall && $this->option->coursestarttime) {
-            $this->vevents .= <<<EOF
-BEGIN:VEVENT
-UID:{$uid}
-DTSTAMP:{$this->dtstamp}
-DTSTART:{$dtstart}
-DTEND:{$dtend}
-SUMMARY:{$this->summary}
-LOCATION:{$this->location}
-DESCRIPTION:{$this->description}
-CLASS:PRIVATE
-TRANSP:OPAQUE{$this->status}
-ORGANIZER;CN={$this->fromuser->email}:MAILTO:{$this->fromuser->email}
-ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT=NEEDS-ACTION;RSVP=false;CN={$this->userfullname};LANGUAGE=en:MAILTO:{$this->user->email}
-END:VEVENT
-
-EOF;
+            $this->add_vevent($uid, $dtstart, $dtend);
         }
 
         $this->vevents = trim($this->vevents);
@@ -166,7 +151,6 @@ END:VCALENDAR
 EOF;
 
         $template = str_replace("\n", "\r\n", $template);
-
         $this->tempfilename = md5($template . microtime());
         $tempfilepathname = $CFG->tempdir . '/' . $this->tempfilename;
         file_put_contents($tempfilepathname, $template);
@@ -182,8 +166,19 @@ EOF;
             $dtstart = $this->generate_timestamp($time->coursestarttime);
             $dtend = $this->generate_timestamp($time->courseendtime);
             $uid = md5($CFG->siteidentifier . $time->id . $this->option->id . 'mod_booking_option') . '@' . $this->host;
+            $this->add_vevent($uid, $dtstart, $dtend);
+        }
+    }
 
-            $this->vevents .= <<<EOF
+    /**
+     * Add data to ical string
+     *
+     * @param string $uid
+     * @param string $dtstart
+     * @param string $dtend
+     */
+    protected function add_vevent ($uid, $dtstart, $dtend) {
+        $this->vevents .= <<<EOF
 BEGIN:VEVENT
 UID:{$uid}
 DTSTAMP:{$this->dtstamp}
@@ -199,7 +194,6 @@ ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT=NEEDS-ACTION;RSVP=false;C
 END:VEVENT
 
 EOF;
-        }
     }
 
     public function get_name() {
