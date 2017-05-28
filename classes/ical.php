@@ -143,9 +143,8 @@ class ical {
         $template = <<<EOF
 BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Moodle//NONSGML Booking//EN
-CALSCALE:GREGORIAN
 METHOD:{$icalmethod}
+PRODID:Data::ICal 0.22
 {$this->vevents}
 END:VCALENDAR
 EOF;
@@ -180,17 +179,19 @@ EOF;
     protected function add_vevent ($uid, $dtstart, $dtend) {
         $this->vevents .= <<<EOF
 BEGIN:VEVENT
-UID:{$uid}
+CLASS:PUBLIC
+DESCRIPTION:{$this->description}
+DTEND:{$dtend}
 DTSTAMP:{$this->dtstamp}
 DTSTART:{$dtstart}
-DTEND:{$dtend}
-SUMMARY:{$this->summary}
 LOCATION:{$this->location}
-DESCRIPTION:{$this->description}
-CLASS:PRIVATE
+PRIORITY:5
+SEQUENCE:0
+SUMMARY:{$this->summary}
 TRANSP:OPAQUE{$this->status}
 ORGANIZER;CN={$this->fromuser->email}:MAILTO:{$this->fromuser->email}
 ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT=NEEDS-ACTION;RSVP=false;CN={$this->userfullname};LANGUAGE=en:MAILTO:{$this->user->email}
+UID:{$uid}
 END:VEVENT
 
 EOF;
