@@ -221,7 +221,7 @@ class generator {
                 $times = explode(',', $this->bookingdata->option->times);
                 foreach ($times as $time) {
                     $slot = explode('-', $time);
-                    $tmpdate = new stdClass();
+                    $tmpdate = new \stdClass();
                     $tmpdate->leftdate = userdate($slot[0],
                             get_string('strftimedatetime', 'langconfig'));
                     $tmpdate->righttdate = userdate($slot[1],
