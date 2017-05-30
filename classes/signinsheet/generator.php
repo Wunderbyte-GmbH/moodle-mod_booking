@@ -300,13 +300,14 @@ class generator {
             list($insql, $params) = $DB->get_in_or_equal($this->cfgcustfields);
             $sql = "SELECT bc.cfgname, bc.value
                   FROM {booking_customfields} bc
-                 WHERE cfgname " . $insql;
+                 WHERE cfgname $insql
+                 AND   optionid = " . $this->bookingdata->option->id;
             $custfieldvalues = $DB->get_records_sql($sql, $params);
             if (!empty($custfieldvalues)) {
-                foreach ($custfieldvalues as $cfgname => $record) {
+                foreach ($custfieldvalues as $record) {
                     if (!empty($record->value)) {
                         $this->pdf->Cell(0, 0,
-                                $customfields[$cfgname]['value'] . ": " . $record->value, 0, 1, '',
+                                $customfields[$record->cfgname]['value'] . ": " . $record->value, 0, 1, '',
                                 0);
                     }
                 }
