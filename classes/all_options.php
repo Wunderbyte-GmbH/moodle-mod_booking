@@ -149,7 +149,7 @@ class all_options extends table_sql {
         // Custom fields
         $customfields = $DB->get_records('booking_customfields', array('optionid' => $values->id));
         $customfieldcfg = \mod_booking\booking_option::get_customfield_settings();
-        if ($customfields) {
+        if ($customfields && !empty($customfieldcfg)) {
             foreach ($customfields as $field) {
                 if (!empty($field->value)) {
                     $cfgvalue = $customfieldcfg[$field->cfgname]['value'];

@@ -76,6 +76,26 @@ class generator {
     public $colwidth;
 
     /**
+     * width of logo
+     * @var number
+     */
+    public $w = 0;
+
+    /**
+     *  height of logo
+     *  @var number
+     */
+    public $h = 0;
+
+    /**
+     * signinsheet logo fetched from booking module setting
+     * (admin level) as string
+     *
+     * @var string
+     */
+    public $signinsheetlogo = '';
+
+    /**
      * Define basic variable values for signinsheet pdf
      *
      * @param mod_booking\booking_option $bookingdata
@@ -151,6 +171,7 @@ class generator {
 
         $profilefields = explode(',', get_config('booking', 'custprofilefields'));
         $profiles = profile_get_custom_fields();
+        $profilefieldnames = array();
         if (!empty($profiles)) {
             $profilefieldnames = array_map(
                     function ($object) {
@@ -178,7 +199,7 @@ class generator {
             if ($this->pdf->go_to_newline(12)) {
                 if ($fileuse) {
                     $this->pdf->SetXY(18, 18);
-                    $this->pdf->Image('@' . $content, '', '', $w, $h, '', '', 'T', true, 150, 'R',
+                    $this->pdf->Image('@' . $this->signinsheetlogo, '', '', $this->w, $this->h, '', '', 'T', true, 150, 'R',
                             false, false, 1, false, false, false);
                 }
                 $this->set_page_header($extracols);
@@ -249,24 +270,22 @@ class generator {
             $file = reset($files);
             $filepath = $file->get_filepath() . $file->get_filename();
             $imageinfo = $file->get_imageinfo();
-            $content = $file->get_content();
+            $this->signinsheetlogo = $file->get_content();
             $filetype = str_replace('image/', '', $file->get_mimetype());
             $this->pdf->SetXY(18, 18);
-            $w = 0;
-            $h = 0;
             if ($imageinfo['height'] == $imageinfo['width']) {
-                $w = 40;
-                $h = 40;
+                $this->w = 40;
+                $this->h = 40;
             }
             if ($imageinfo['width'] > 200 && $imageinfo['width'] > $imageinfo['height']) {
-                $w = 40;
-                $h = 0;
+                $this->w = 40;
+                $this->h = 0;
             }
             if ($imageinfo['width'] < $imageinfo['height'] && $imageinfo['height'] > 200) {
-                $w = 0;
-                $h = 40;
+                $this->w = 0;
+                $this->h = 40;
             }
-            $this->pdf->Image('@' . $content, '', '', $w, $h, $filetype, '', 'T', true, 150, 'R',
+            $this->pdf->Image('@' . $this->signinsheetlogo, '', '', $this->w, $this->h, $filetype, '', 'T', true, 150, 'R',
                     false, false, 1, false, false, false);
             $fileuse = true;
         }
