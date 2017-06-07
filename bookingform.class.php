@@ -19,7 +19,7 @@ require_once($CFG->libdir . '/formslib.php');
 class mod_booking_bookingform_form extends moodleform {
 
     public function definition() {
-        global $CFG, $DB, $COURSE;
+        global $CFG, $DB, $COURSE, $PAGE;
         $mform = & $this->_form;
         $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
 
@@ -52,13 +52,16 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('location', PARAM_CLEANHTML);
         }
 
-        $mform->addElement('text', 'institution', get_string('institution', 'booking'),
-                array('size' => '64', 'id' => 'institutionid'));
-        if (!empty($CFG->formatstringstriptags)) {
-            $mform->setType('institution', PARAM_TEXT);
-        } else {
-            $mform->setType('institution', PARAM_CLEANHTML);
+        $institutions = $DB->get_records('booking_institutions', array('course' => $COURSE->id));
+        $searchareas = \core_search\manager::get_search_areas_list(true);
+        $instnames = array();
+        foreach ($institutions as $id => $inst) {
+            $instnames[$inst->name] = $inst->name;
         }
+        $options = array(
+                        'tags' => true,
+        );
+        $mform->addElement('autocomplete', 'institution', get_string('institution', 'booking'), $instnames, $options);
 
         $url = $CFG->wwwroot . '/mod/booking/institutions.php';
         if (isset($COURSE->id)) {
@@ -68,30 +71,6 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->addElement('html',
                 '<a target="_blank" href="' . $url . '">' . get_string('editinstitutions',
                         'booking') . '</a>');
-
-        $institutions = $DB->get_records('booking_institutions', array('course' => $COURSE->id));
-
-        $searchinstitutions = array();
-
-        foreach ($institutions as $institution) {
-            $searchinstitutions[] = "'" . $institution->name . "'";
-        }
-
-        $searchinstitutions = implode(',', $searchinstitutions);
-
-        // FIXME: Remove inline javascript
-        $mform->addElement('static', null, '',
-                "<script type=\"text/javascript\">
-            //<![CDATA[
-            YUI().use('autocomplete', 'autocomplete-filters', 'autocomplete-highlighters', function (Y) {
-  Y.one('#institutionid').plug(Y.Plugin.AutoComplete, {
-    resultFilters    : 'phraseMatch',
-    resultHighlighter: 'phraseMatch',
-    source           : [{$searchinstitutions}]
-  });
-});
-            //]]>
-            </script>");
 
         $mform->addElement('text', 'address', get_string('address', 'booking'),
                 array('size' => '64'));

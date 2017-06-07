@@ -128,7 +128,7 @@ $urlcancel = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $sorturl = new moodle_url('/mod/booking/view.php', $urlparamssort);
 
 $PAGE->set_url($url);
-$PAGE->requires->yui_module('moodle-mod_booking-viewscript', 'M.mod_booking.viewscript.init');
+$PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup');
 
 $booking->apply_tags();
 $booking->get_url_params();
@@ -518,11 +518,11 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $table->head = array('', '', '', '');
         $table->data = $tabledata;
         $table->id = "tableSearch";
-
+        $table->attributes['class'] = "table table-striped ";
         if (empty($urlparams['searchtext']) && empty($urlparams['searchlocation']) &&
                  empty($urlparams['searchname']) && empty($urlparams['searchinstitution']) &&
                  empty($urlparams['searchsurname'])) {
-            $table->attributes = array('style' => "display: none;");
+            $table->attributes['style'] = "display: none;";
         }
         echo html_writer::tag('form', html_writer::table($table));
 

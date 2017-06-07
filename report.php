@@ -142,7 +142,7 @@ $url = new moodle_url('/mod/booking/report.php', $urlparams);
 $currenturl = new moodle_url('/mod/booking/report.php', $urlparams);
 
 $PAGE->set_url($url);
-$PAGE->requires->yui_module('moodle-mod_booking-utility', 'M.mod_booking.utility.init');
+$PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup');
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 

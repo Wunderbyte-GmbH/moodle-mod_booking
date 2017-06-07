@@ -207,7 +207,6 @@ class mod_booking_renderer extends plugin_renderer_base {
         }
 
         $ratingmanager = new rating_manager();
-        // Initialise the JavaScript so ratings can be done by AJAX.
 
         $strrate = get_string("rate", "rating");
         $ratinghtml = ''; // the string we'll return
