@@ -51,10 +51,15 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("bookedtext", "booking"), 3, 'helptitle', 'uniqueid');
 
 $user = $DB->get_record('user', array('id' => $USER->id));
+$answer = $DB->get_record('booking_answers', array('userid' => $USER->id, 'optionid' => $optionid));
 $bookingmanager = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));
 $data = booking_generate_email_params($booking->booking, $booking->option, $user, $cm->id);
 
-$message = booking_get_email_body($booking->booking, 'bookedtext', 'confirmationmessage', $data);
+if ($answer->waitinglist == 1) {
+    $message = booking_get_email_body($booking->booking, 'bookedtext', 'confirmationmessage', $data);
+} else {
+    $message = booking_get_email_body($booking->booking, 'waitingtext', 'confirmationmessagewaitinglist', $data);
+}
 
 echo "{$message}";
 
