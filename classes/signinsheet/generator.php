@@ -82,8 +82,8 @@ class generator {
     public $w = 0;
 
     /**
-     *  height of logo
-     *  @var number
+     * height of logo
+     * @var number
      */
     public $h = 0;
 
@@ -117,7 +117,7 @@ class generator {
                 $this->teachers[] = "{$value->firstname} {$value->lastname}";
             }
         }
-        $this->times = $this->get_bookingoption_times();
+        $this->get_bookingoption_times();
         $cfgcustfields = get_config('booking', 'showcustfields');
         if ($cfgcustfields) {
             $this->cfgcustfields = explode(',', $cfgcustfields);
