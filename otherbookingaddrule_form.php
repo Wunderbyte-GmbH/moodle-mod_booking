@@ -28,7 +28,7 @@ class otherbookingaddrule_form extends moodleform {
      * @see moodleform::definition()
      */
     public function definition() {
-        global $CFG, $DB;
+        global $DB;
 
         $bookingoptions = $DB->get_records_sql(
                 "SELECT id, text

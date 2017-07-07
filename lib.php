@@ -920,9 +920,9 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
  * Generate new numbers for users
  *
  * @param unknown $bookingdatabooking
- * @param unknown $cmid
- * @param unknown $optionid
- * @param unknown $allselectedusers
+ * @param number $cmid
+ * @param number $optionid
+ * @param array $allselectedusers
  */
 function booking_generatenewnumners($bookingdatabooking, $cmid, $optionid, $allselectedusers) {
     global $DB;

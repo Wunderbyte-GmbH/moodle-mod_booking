@@ -171,7 +171,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->bookingid = $this->get_new_parentid('booking');
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
 
-        $newitemid = $DB->insert_record('booking_customfields', $data);
+        $DB->insert_record('booking_customfields', $data);
         // No need to save this mapping as far as nothing depend on it
         // (child paths, file areas nor links decoder)
     }

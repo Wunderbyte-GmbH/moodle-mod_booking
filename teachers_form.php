@@ -39,9 +39,6 @@ class mod_booking_teachers_form extends moodleform {
                 if ($userdata->completed == '1') {
                     $checkmark = "&#x2713;";
                 }
-
-                $arrow = "&nbsp;";
-
                 $mform->addElement('advcheckbox', "user[{$user->id}]",
                         $checkmark . " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" .
                                  fullname($user) . "</a>", '',

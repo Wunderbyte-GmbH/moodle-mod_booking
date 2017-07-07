@@ -19,7 +19,7 @@ require_once($CFG->libdir . '/formslib.php');
 class mod_booking_bookingform_form extends moodleform {
 
     public function definition() {
-        global $CFG, $DB, $COURSE, $PAGE;
+        global $CFG, $DB, $COURSE;
         $mform = & $this->_form;
         $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
 
@@ -53,7 +53,6 @@ class mod_booking_bookingform_form extends moodleform {
         }
 
         $institutions = $DB->get_records('booking_institutions', array('course' => $COURSE->id));
-        $searchareas = \core_search\manager::get_search_areas_list(true);
         $instnames = array();
         foreach ($institutions as $id => $inst) {
             $instnames[$inst->name] = $inst->name;

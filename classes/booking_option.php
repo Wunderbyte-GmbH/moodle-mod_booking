@@ -660,7 +660,7 @@ class booking_option extends booking {
         $bkgconfig = \get_config('booking');
         $customfieldvals = \get_object_vars($bkgconfig);
         if (!empty($customfieldvals)) {
-            foreach ($customfieldvals as $customfieldname => $value) {
+            foreach (array_keys($customfieldvals) as $customfieldname) {
                 $iscustomfield = \strpos($customfieldname, 'customfield');
                 $istype = \strpos($customfieldname, 'type');
                 if ($iscustomfield !== false && $istype === false) {
