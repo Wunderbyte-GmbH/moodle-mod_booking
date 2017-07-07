@@ -37,7 +37,7 @@ class generator {
 
     /**
      *
-     * @var mod_booking\booking_option
+     * @var \mod_booking\booking_option
      */
     public $bookingdata = null;
 
@@ -98,7 +98,7 @@ class generator {
     /**
      * Define basic variable values for signinsheet pdf
      *
-     * @param mod_booking\booking_option $bookingdata
+     * @param \mod_booking\booking_option $bookingdata
      * @param string $orientation
      */
     public function __construct(\mod_booking\booking_option $bookingdata = null,

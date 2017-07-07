@@ -22,10 +22,10 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2017070300;
+$plugin->version = 2017070700;
 $plugin->requires = 2016052300; // Requires this Moodle version
                                 // Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman, Piper Chapman
-$plugin->release = 'Piper Chapman 1.7';
+$plugin->release = 'Piper Chapman 1.8';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->cron = 5;
 $plugin->component = 'mod_booking';

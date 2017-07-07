@@ -16,12 +16,7 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/calendar/lib.php');
 require_once($CFG->libdir . '/filelib.php');
-if ($CFG->branch < 31) {
-    require_once($CFG->dirroot . '/tag/locallib.php');
-}
-
 require_once($CFG->dirroot . '/question/category_class.php');
-
 require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->libdir . '/eventslib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
@@ -265,12 +260,7 @@ function booking_add_instance($booking) {
         file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanager',
                 $booking->id, array('subdirs' => false, 'maxfiles' => 50));
     }
-    if ($CFG->branch < 31) {
-        tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
-    } else {
-        core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context,
-                $booking->tags);
-    }
+    core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
 
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {
@@ -323,18 +313,12 @@ function booking_update_instance($booking) {
         $booking->assesstimestart = 0;
         $booking->assesstimefinish = 0;
     }
-
     $arr = array();
 
-    if ($CFG->branch >= 31) {
-        core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context,
-                $booking->tags);
-    } else {
-        tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
-    }
+    core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
 
-    file_save_draft_area_files($booking->myfilemanager, $context->id, 'mod_booking',
-            'myfilemanager', $booking->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 50));
+    file_save_draft_area_files($booking->myfilemanager, $context->id, 'mod_booking', 'myfilemanager',
+            $booking->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 50));
 
     if (empty($booking->timerestrict)) {
         $booking->timeopen = 0;
@@ -704,20 +688,19 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     }
 
     if (has_capability('mod/booking:updatebooking', $context)) {
-        $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null,
-                navigation_node::TYPE_CONTAINER);
-        $settingnode->add(get_string('addnewbookingoption', 'booking'),
-                new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1)));
-        $settingnode->add(get_string('importcsvbookingoption', 'booking'),
-                new moodle_url('importoptions.php', array('id' => $cm->id)));
-        $settingnode->add(get_string('importexcelbutton', 'booking'),
-                new moodle_url('importexcel.php', array('id' => $cm->id)));
-        $settingnode->add(get_string('tagtemplates', 'booking'),
-                new moodle_url('tagtemplates.php', array('id' => $cm->id)));
         if (!is_null($optionid)) {
             $connectedbooking = $DB->count_records('booking_other', array('optionid' => $optionid));
             $settingnode = $navref->add(get_string("optionmenu", "booking"), null,
                     navigation_node::TYPE_CONTAINER);
+            $keys = $settingnode->parent->get_children_key_list();
+            foreach ($keys as $key => $name) {
+                if ($name == 'modedit' || $name == 'roleassign' || $name == 'roleoverride'
+                        || $name == 'rolecheck' || $name == 'filtermanage'
+                        || $name == 'logreport' || $name == 'backup'
+                        || $name == 'restore') {
+                    $node = $settingnode->parent->get($name)->remove();
+                }
+            }
             $settingnode->add(get_string('updatebooking', 'booking'),
                     new moodle_url('/mod/booking/editoptions.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
@@ -731,13 +714,22 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             $settingnode->add(get_string('optiondates', 'booking'),
                     new moodle_url('/mod/booking/optiondates.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
-            if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) &&
-                     $connectedbooking > 0) {
+            if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) && $connectedbooking > 0) {
                 $settingnode->add(get_string('editotherbooking', 'booking'),
                         new moodle_url('/mod/booking/otherbooking.php',
                                 array('id' => $cm->id, 'optionid' => $optionid)));
             }
         }
+        $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null,
+                navigation_node::TYPE_CONTAINER);
+        $settingnode->add(get_string('addnewbookingoption', 'booking'),
+                new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1)));
+        $settingnode->add(get_string('importcsvbookingoption', 'booking'),
+                new moodle_url('importoptions.php', array('id' => $cm->id)));
+        $settingnode->add(get_string('importexcelbutton', 'booking'),
+                new moodle_url('importexcel.php', array('id' => $cm->id)));
+        $settingnode->add(get_string('tagtemplates', 'booking'),
+                new moodle_url('tagtemplates.php', array('id' => $cm->id)));
     }
 }
 

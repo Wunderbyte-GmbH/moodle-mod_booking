@@ -31,19 +31,19 @@ require_once($CFG->libdir . '/tcpdf/tcpdf.php');
  */
 class booking {
 
-    /** @var id booking id  */
+    /** @var number id booking id  */
     public $id = 0;
 
     /**
      *
-     * @var context the context of the course module for this booking instance (or just the course if we are
+     * @var \context the context of the course module for this booking instance (or just the course if we are
      */
     protected $context = null;
 
-    /** @var stdClass the course this booking instance belongs to */
+    /** @var \stdClass the course this booking instance belongs to */
     public $course = null;
 
-    /** @var stdClass the course module for this assign instance */
+    /** @var \stdClass the course module for this assign instance */
     public $cm = null;
 
     /** @var array of user objects who have capability to book. object contains only id */
@@ -79,7 +79,7 @@ class booking {
 
     /**
      *
-     * @return context
+     * @return \context
      */
     public function get_context() {
         return $this->context;

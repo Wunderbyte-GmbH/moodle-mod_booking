@@ -59,6 +59,13 @@ define([ 'jquery' ],
                                 $('.booking-option-rating .postratingmenu.ratinginput [value="' + selected + '"]')
                                         .attr('selected', true);
                             });
+                    $('#page-mod-booking-report .booking-option-rating .ratinginput')
+                            .change(function() {
+                                var selectid = $(this).attr('id');
+                                var selected = selectid.replace(/\D/g, '');
+                                $('#studentsform [id=check' + selected + ']')
+                                        .prop('checked', 'checked');
+                            });
                 }
             };
         });

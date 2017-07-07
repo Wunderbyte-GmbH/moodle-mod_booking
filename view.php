@@ -372,27 +372,9 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             echo html_writer::tag('span', implode(', ', $out));
             echo html_writer::end_tag('div');
         }
-
         if (!empty($CFG->usetags)) {
-            if ($CFG->branch >= 31) {
-                $tags = core_tag_tag::get_item_tags('mod_booking', 'booking', $booking->booking->id);
-                echo $OUTPUT->tag_list($tags, null, 'booking-tags');
-            } else {
-                $tags = tag_get_tags_array('booking', $booking->booking->id);
-                $links = array();
-                foreach ($tags as $tagid => $tag) {
-                    $turl = new moodle_url('tag.php', array('id' => $id, 'tag' => $tag));
-                    $links[] = html_writer::link($turl, $tag, array());
-                }
-
-                if (!empty($tags)) {
-                    echo html_writer::start_tag('div');
-                    echo html_writer::tag('label', get_string('tags') . ': ',
-                            array('class' => 'bold'));
-                    echo html_writer::tag('span', implode(', ', $links));
-                    echo html_writer::end_tag('div');
-                }
-            }
+            $tags = core_tag_tag::get_item_tags('mod_booking', 'booking', $booking->booking->id);
+            echo $OUTPUT->tag_list($tags, null, 'booking-tags');
         }
 
         if ($booking->booking->categoryid != '0' && $booking->booking->categoryid != '') {

@@ -143,6 +143,9 @@ $currenturl = new moodle_url('/mod/booking/report.php', $urlparams);
 
 $PAGE->set_url($url);
 $PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup');
+if ($CFG->branch >= 33) {
+    $PAGE->force_settings_menu(true);
+}
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 
