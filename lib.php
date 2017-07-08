@@ -568,11 +568,11 @@ function booking_option_add_to_cal($booking, $option, $optionvalues) {
 /**
  * Checks the status of the specified user
  *
- * @param $userid userid of the user
- * @param $optionid booking option to check
- * @param $bookingid booking id
- * @param $cmid course module id
- * @return localised string of user status
+ * @param number $userid userid of the user
+ * @param number $optionid booking option to check
+ * @param number $bookingid booking id
+ * @param number $cmid course module id
+ * @return string of user status
  */
 function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
     global $DB;
@@ -615,56 +615,6 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
 }
 
 /**
- * Display a message about the maximum nubmer of bookings this user is allowed to make
- *
- * @param object $booking
- * @param object $user
- * @return string
- */
-function booking_show_maxperuser($booking, $user) {
-    global $USER;
-
-    $warning = '';
-
-    if (!empty($booking->booking->banusernames)) {
-        $disabledusernames = explode(',', $booking->booking->banusernames);
-
-        foreach ($disabledusernames as $value) {
-            if (strpos($USER->username, trim($value)) !== false) {
-                $warning = html_writer::tag('p', get_string('banusernameswarning', 'mod_booking'));
-            }
-        }
-    }
-
-    if (!$booking->booking->maxperuser) {
-        return $warning; // No per-user limits.
-    }
-
-    $outdata = new stdClass();
-    $outdata->limit = $booking->booking->maxperuser;
-    $outdata->count = booking_get_user_booking_count($booking, $user);
-
-    $warning .= html_writer::tag('p', get_string('maxperuserwarning', 'mod_booking', $outdata));
-    return $warning;
-}
-
-/**
- * Determins the number of bookings that a single user has already made in all booking options
- *
- * @param object $booking
- * @param object $user
- * @return number of bookings made by user
- */
-function booking_get_user_booking_count($booking, $user) {
-    global $DB;
-
-    $result = $DB->get_records('booking_answers',
-            array('bookingid' => $booking->id, 'userid' => $user->id));
-
-    return count($result);
-}
-
-/**
  * Extend booking navigation settings
  *
  * @param settings_navigation $settings
@@ -701,7 +651,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                     $node = $settingnode->parent->get($name)->remove();
                 }
             }
-            $settingnode->add(get_string('updatebooking', 'booking'),
+            $settingnode->add(get_string('edit', 'core'),
                     new moodle_url('/mod/booking/editoptions.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
             $settingnode->add(get_string('duplicatebooking', 'booking'),
@@ -749,85 +699,6 @@ function booking_check_if_teacher($option) {
         return false;
     } else {
         return true;
-    }
-}
-
-/**
- * Manually enrol the user in the relevant course, if that setting is on and a course has been specified.
- *
- * @param object $option
- * @param object $booking
- * @param int $userid
- */
-function booking_enrol_user($option, $booking, $userid) {
-    global $DB;
-
-    if (!$option->courseid) {
-        return; // No course specified.
-    }
-
-    if (!enrol_is_enabled('manual')) {
-        return; // Manual enrolment not enabled.
-    }
-
-    if (!$enrol = enrol_get_plugin('manual')) {
-        return; // No manual enrolment plugin
-    }
-    if (!$instances = $DB->get_records('enrol',
-            array('enrol' => 'manual', 'courseid' => $option->courseid,
-                'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
-        return; // No manual enrolment instance on this course.
-    }
-
-    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-
-    $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
-
-    if ($booking->addtogroup == 1) {
-        if (!is_null($option->groupid) && ($option->groupid > 0)) {
-            groups_add_member($option->groupid, $userid);
-        }
-    }
-}
-
-/**
- * Automatically enrol the user in the relevant course, if that setting is on and a course has been specified.
- *
- * @param object $option
- * @param object $booking
- * @param int $userid
- */
-function booking_check_enrol_user($option, $booking, $userid) {
-    global $DB;
-
-    if (!$booking->autoenrol) {
-        return; // Autoenrol not enabled.
-    }
-    if (!$option->courseid) {
-        return; // No course specified.
-    }
-
-    if (!enrol_is_enabled('manual')) {
-        return; // Manual enrolment not enabled.
-    }
-
-    if (!$enrol = enrol_get_plugin('manual')) {
-        return; // No manual enrolment plugin
-    }
-    if (!$instances = $DB->get_records('enrol',
-            array('enrol' => 'manual', 'courseid' => $option->courseid,
-                'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
-        return; // No manual enrolment instance on this course.
-    }
-
-    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-
-    $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
-
-    if ($booking->addtogroup == 1) {
-        if (!is_null($option->groupid) && ($option->groupid > 0)) {
-            groups_add_member($option->groupid, $userid);
-        }
     }
 }
 
@@ -1806,8 +1677,8 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
 
     $val = '';
 
-    if (!is_null($option->times)) {
-        $times = explode(',', $option->times);
+    if (!empty($option->optiontimes)) {
+        $times = explode(',', $option->optiontimes);
         foreach ($times as $time) {
             $slot = explode('-', $time);
             $tmpdate = new stdClass();

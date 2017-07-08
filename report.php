@@ -143,7 +143,7 @@ $currenturl = new moodle_url('/mod/booking/report.php', $urlparams);
 
 $PAGE->set_url($url);
 $PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup');
-if ($CFG->branch >= 33) {
+if ($CFG->branch >= 32) {
     $PAGE->force_settings_menu(true);
 }
 
@@ -277,7 +277,7 @@ if (!$tableallbookings->is_downloading()) {
         } else if (isset($_POST['subscribetocourse'])) { // subscription submitted
             if ($bookingdata->option->courseid != 0) {
                 foreach ($allselectedusers as $selecteduserid) {
-                    booking_enrol_user($bookingdata->option, $bookingdata->booking, $selecteduserid);
+                    $bookingdata->enrol_user($selecteduserid);
                 }
                 redirect($url, get_string('userrssucesfullenroled', 'booking'), 5);
             } else {
@@ -326,16 +326,16 @@ if (!$tableallbookings->is_downloading()) {
                         get_string('selectatleastoneuser', 'booking',
                                 $bookingdata->option->howmanyusers), 5);
             }
-            $alluserids = $bookingdata->get_all_userids();
+            $allusers = $bookingdata->get_all_users();
             $bookedusers = array();
             $ratings = array();
-            foreach ($alluserids as $baid => $userid) {
-                if (in_array($userid, $allselectedusers) && $userid != $USER->id) {
+            foreach ($allusers as $baid => $user) {
+                if (in_array($user->userid, $allselectedusers) && $user->userid != $USER->id) {
                     $rating = new stdClass();
-                    $bookedusers[$userid] = $baid;
-                    $bookinganswerid = "rating" . $bookedusers[$userid];
+                    $bookedusers[$user->userid] = $baid;
+                    $bookinganswerid = "rating" . $bookedusers[$user->userid];
 
-                    $rating->rateduserid = $userid;
+                    $rating->rateduserid = $user->userid;
                     $rating->itemid = $baid;
                     $rating->rating = $_POST[$bookinganswerid];
                     $ratings[$baid] = $rating;
@@ -374,7 +374,8 @@ if (!$tableallbookings->is_downloading()) {
                 redirect($url, get_string('selectoptionid', 'booking'), 5);
             }
 
-            if (count($allselectedusers) > $bookingdata->calculate_how_many_can_book_to_other($_POST['selectoptionid'])) {
+            if (count($allselectedusers) > $bookingdata->calculate_how_many_can_book_to_other(
+                    $_POST['selectoptionid'])) {
                 redirect($url,
                         get_string('toomuchusersbooked', 'booking',
                                 $bookingdata->calculate_how_many_can_book_to_other(
@@ -388,22 +389,43 @@ if (!$tableallbookings->is_downloading()) {
                     "SELECT cm.id FROM {course_modules} cm
                     JOIN {modules} md ON md.id = cm.module
                     JOIN {booking} m ON m.id = cm.instance
-                    WHERE md.name = 'booking' AND cm.instance = ?",
-                    array($connectedbooking->id));
+                    WHERE md.name = 'booking' AND cm.instance = ?", array($connectedbooking->id));
             $tmpbooking = new \mod_booking\booking_option($tmpcmid->id, $_POST['selectoptionid']);
 
             foreach ($allselectedusers as $value) {
                 $user = new stdClass();
                 $user->id = $value;
                 if (!$tmpbooking->user_submit_response($user, $optionid)) {
-                    redirect($url, get_string('bookingfulldidntregister', 'booking'), 5);
+                    redirect($url, get_string('bookingfulldidntregister', 'mod_booking'), 5);
                 }
             }
-
-            redirect($url, get_string('userssucesfullybooked', 'booking'), 5);
+            redirect($url, get_string('userssucesfullybooked', 'mod_booking'), 5);
+        } else if (isset($_POST['transfersubmit'])) {
+            if (empty($allselectedusers)) {
+                redirect($url,
+                        get_string('selectatleastoneuser', 'mod_booking',
+                                $bookingdata->option->howmanyusers), 5);
+            }
+            if ($_POST['transferoption'] == "") {
+                redirect($url,
+                        get_string('selectanoption', 'mod_booking'), 5);
+            }
+            $result = $bookingdata->transfer_users_to_otheroption($_POST['transferoption'],
+                    $allselectedusers);
+            if ($result->success) {
+                redirect($url, get_string('transfersuccess', 'mod_booking', $result), 5);
+            } else {
+                $output = '<br>';
+                if (!empty($result->no)) {
+                    foreach ($result->no as $user) {
+                        $output .= $user->firstname . " $user->lastname <br>";
+                    }
+                }
+                redirect($url, get_string('transferproblem', 'mod_booking', $output), 5, 'error');
+            }
         }
-    }
 
+    }
     $columns = array();
     $headers = array();
 

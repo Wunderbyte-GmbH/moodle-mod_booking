@@ -31,7 +31,7 @@ class all_options extends table_sql {
 
     public $context = null;
 
-    public function __construct($uniqueid, $booking, $cm, $context) {
+    public function __construct($uniqueid, \mod_booking\booking $booking, $cm, $context) {
         parent::__construct($uniqueid);
 
         $this->collapsible(true);
@@ -245,7 +245,7 @@ class all_options extends table_sql {
                     'post');
         }
 
-        if (($values->limitanswers && ($status == "full")) || ($status == "closed") || !$underlimit || $values->disablebookingusers) {
+        if (($values->limitanswers && ($status == "full")) || ($status == "closed") || $underlimit || $values->disablebookingusers) {
             $button = '';
         }
 

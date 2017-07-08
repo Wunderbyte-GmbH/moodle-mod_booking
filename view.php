@@ -208,7 +208,6 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
 
     $url = new moodle_url("view.php", array('id' => $cm->id));
     $url->set_anchor("option" . $answer);
-
     if (!empty($answer)) {
         $bookingdata = new \mod_booking\booking_option($cm->id, $answer, array(), 0, 0, false);
         $bookingdata->apply_tags();
@@ -217,21 +216,22 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
             if ($booking->booking->sendmail) {
                 $contents .= "<br />" . get_string('mailconfirmationsent', 'booking') . ".";
             }
-            $contents .= $OUTPUT->single_button($url, get_string('continue'), 'get');
+            $contents .= $OUTPUT->single_button($url,
+                    get_string('continue'), 'get');
             echo $OUTPUT->box($contents, 'box generalbox', 'notice');
             echo $OUTPUT->footer();
             die();
-        } else if (is_int($answer)) {
-            $contents = get_string('bookingmeanwhilefull', 'booking') . " " .
-                     $bookingdata->option->text;
-            $contents .= $OUTPUT->single_button($url, 'get');
+        } else if (is_numeric($answer)) {
+            $contents = get_string('bookingmeanwhilefull', 'booking') . " " . $bookingdata->option->text;
+            $contents .= $OUTPUT->single_button($url,
+                    get_string('continue'), 'get');
             echo $OUTPUT->box($contents, 'box generalbox', 'notice');
             echo $OUTPUT->footer();
             die();
         }
     } else {
         $contents = get_string('nobookingselected', 'booking');
-        $contents .= $OUTPUT->single_button($url, 'get');
+        $contents .= $OUTPUT->single_button($url, get_string('continue'));
         echo $OUTPUT->box($contents, 'box generalbox', 'notice');
         echo $OUTPUT->footer();
         die();
@@ -429,7 +429,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             }
         }
 
-        echo $OUTPUT->box(booking_show_maxperuser($booking, $USER), 'box mdl-align');
+        echo $OUTPUT->box($booking->show_maxperuser($USER), 'box mdl-align');
 
         $output = $PAGE->get_renderer('mod_booking');
         $output->print_booking_tabs($urlparams, $whichview, $mybookings->mybookings,

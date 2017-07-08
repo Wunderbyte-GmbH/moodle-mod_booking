@@ -25,8 +25,8 @@ namespace mod_booking;
  */
 class booking_option extends booking {
 
-    /** @var array key is booking_answer id, value userid, all users with answers (waitlist and regular) */
-    protected $alluserids = array();
+    /** @var array of stdClass objects including status: key is booking_answer id $allusers->userid, $allusers->waitinglist */
+    protected $allusers = array();
 
     /** @var array of the users booked for this option key userid */
     public $bookedusers = array();
@@ -39,7 +39,7 @@ class booking_option extends booking {
 
     public $optionid = null;
 
-    /** @var booking option confix object */
+    /** @var booking option config object */
     public $option = null;
 
     /** @var number of answers */
@@ -57,14 +57,17 @@ class booking_option extends booking {
     /** @var array of user objects with users on waitinglist userid as key */
     public $usersonwaitinglist = array();
 
-    /** @var the number of the page starting with 0 */
+    /** @var number of the page starting with 0 */
     public $page = 0;
 
-    /** @var the number of bookings displayed on a single page */
+    /** @var number of bookings displayed on a single page */
     public $perpage = 0;
 
-    /** @var filter and other url params */
+    /** @var string filter and other url params */
     public $urparams;
+
+    /** @var string $times course start time - course end time or session times separated with, */
+    protected $optiontimes = '';
 
     /**
      * Creates basic booking option
@@ -86,11 +89,11 @@ class booking_option extends booking {
                 array($optionid));
         if (!empty($times)) {
             foreach ($times as $time) {
-                $this->option->times = $time->coursestarttime . " - " . $time->courseendtime . " - ";
+                $this->optiontimes .= $time->coursestarttime . " - " . $time->courseendtime . ",";
             }
-            trim($this->option->times, " - ");
+            trim($this->optiontimes, ",");
         } else {
-            $this->option->times = null;
+            $this->optiontimes = '';
         }
         $this->filters = $filters;
         $this->page = $page;
@@ -101,7 +104,8 @@ class booking_option extends booking {
     }
 
     /**
-     * TODO: What is that for? Documentation missing!
+     * This calculates number of user that can be booked to the connected booking option
+     * Looks for max participant in the connected booking given the optionid
      *
      * @param number $optionid
      * @return number
@@ -272,19 +276,53 @@ class booking_option extends booking {
     }
 
     /**
-     * Get all answers (bookings) as an array from booking_answers
-     * id as key, userid as value regular AND waitinglist
+     * Get all answers (bookings) as an array of objects
+     * booking_answer id as key, ->userid, ->waitinglist
      *
-     * @return array of userids $this->alluserids key: booking_answers id
+     * @return array of userobjects $this->allusers key: booking_answers id
      */
-    public function get_all_userids() {
+    public function get_all_users() {
         global $DB;
-        if (empty($this->alluserids)) {
+        if (empty($this->allusers)) {
             $conditions = array('optionid' => $this->optionid);
-            $this->alluserids = $DB->get_records_menu('booking_answers', $conditions, null,
-                    'id, userid');
+            $this->allusers = $DB->get_records('booking_answers', $conditions, null,
+                    'id, userid, waitinglist');
         }
-        return $this->alluserids;
+        return $this->allusers;
+    }
+
+    /**
+     * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
+     *
+     * @param number $userid
+     * @return number status 0 = not existing, 1 = waitinglist, 2 = regularely booked
+     */
+    public function user_status($userid = null) {
+        global $DB, $USER;
+        $booked = false;
+        if (\is_null($userid)) {
+            $userid = $USER->id;
+        }
+        if (empty($this->allusers)) {
+            $booked = $DB->get_field('booking_answers', 'waitinglist',
+                    array('optionid' => $this->optionid, 'userid' => $userid));
+        } else {
+            foreach ($this->allusers as $user) {
+                if ($userid == $user->userid) {
+                    $booked = $user->waitinglist;
+                    break;
+                }
+            }
+        }
+        if ($booked === false) {
+            return 0;
+        } else if ($booked === "0") {
+            return 2;
+        } else if ($booked === 1 || $booked === "1") {
+            return 1;
+        } else { // Should never be reached.
+            return 0;
+        }
     }
 
     /**
@@ -317,7 +355,6 @@ class booking_option extends booking {
 
         $this->bookedvisibleusers = $this->bookedusers;
         $this->potentialusers = array_diff_key($this->canbookusers, $this->bookedusers);
-
         $this->sort_answers();
     }
 
@@ -460,10 +497,9 @@ class booking_option extends booking {
                         array($this->optionid), IGNORE_MULTIPLE);
 
                 $newuser->waitinglist = 0;
-
                 $DB->update_record("booking_answers", $newuser);
 
-                booking_check_enrol_user($this->option, $this->booking, $newuser->userid);
+                $this->enrol_user($newuser->userid);
 
                 if ($this->booking->sendmail == 1 || $this->booking->copymail) {
                     $newbookeduser = $DB->get_record('user', array('id' => $newuser->userid));
@@ -515,6 +551,50 @@ class booking_option extends booking {
     }
 
     /**
+     * Unsubscribes given users from this booking option and subscribes them to the newoption
+     *
+     * @param number $newoption
+     * @param array of numbers $userids
+     * @return \stdClass transferred->success = true/false, transferred->no[] errored users, $transferred->yes transferred users
+     */
+    public function transfer_users_to_otheroption($newoption, $userids) {
+        global $DB, $USER;
+        $transferred = new \stdClass();
+        $transferred->yes = array(); // successfully transferred users
+        $transferred->no = array(); // errored users
+        $transferred->success = false;
+        $otheroption = new booking_option($this->booking->id, $newoption);
+        if (!empty($userids) && (has_capability('mod/booking:subscribeusers', $this->context) || booking_check_if_teacher(
+                $otheroption, $USER))) {
+            $transferred->success = true;
+            list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, "limit_");
+            $mainuserfields = get_all_user_name_fields(true, 'u');
+            $sql = 'SELECT ba.userid AS id,
+                ba.timecreated,
+                ' . $mainuserfields . ', ' .
+                $DB->sql_fullname('u.firstname', 'u.lastname') . ' AS fullname
+                FROM {booking_answers} ba
+                LEFT JOIN {user} u ON ba.userid = u.id
+                WHERE ' . 'ba.userid '. $insql . '
+                ORDER BY ba.timecreated ASC';
+            $users = $DB->get_records_sql($sql, $inparams);
+            foreach ($users as $user) {
+                if ($otheroption->user_submit_response($user)) {
+                    $transferred->yes[] = $user;
+                } else {
+                    $transferred->no[] = $user;
+                    $transferred->success = false;
+                }
+            }
+        }
+        if(!empty($transferred->yes)){
+            foreach ($transferred->yes as $user)
+            $this->user_delete_response($user->id);
+        }
+        return $transferred;
+    }
+
+    /**
      * "Sync" users on waiting list, based on edited option - if has limit or not.
      */
     public function sync_waiting_list() {
@@ -555,8 +635,9 @@ class booking_option extends booking {
     }
 
     /**
-     * Saves the booking for the user
      *
+     * @param \stdClass $user
+     * @param number $frombookingid
      * @return boolean true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response($user, $frombookingid = 0) {
@@ -574,7 +655,7 @@ class booking_option extends booking {
 
         $underlimit = ($this->booking->maxperuser == 0);
         $underlimit = $underlimit ||
-                 (booking_get_user_booking_count($this, $user) < $this->booking->maxperuser);
+        ($this->get_user_booking_count($user) < $this->booking->maxperuser);
 
         if (!$underlimit) {
             return false;
@@ -594,8 +675,7 @@ class booking_option extends booking {
             if (!$DB->insert_record("booking_answers", $newanswer)) {
                 error("Could not register your booking because of a database error");
             }
-            // TODO replace
-            booking_check_enrol_user($this->option, $this->booking, $user->id);
+            $this->enrol_user($newanswer->userid);
         }
 
         $event = \mod_booking\event\bookingoption_booked::create(
@@ -617,6 +697,47 @@ class booking_option extends booking {
             booking_send_confirm_message($eventdata);
         }
         return true;
+    }
+
+    /**
+     * Automatically enrol the user in the relevant course, if that setting is on and a course has been specified.
+     *
+     * @param int $userid
+     */
+    public function enrol_user($userid) {
+        global $DB;
+
+        if (!$this->booking->autoenrol) {
+            return; // Autoenrol not enabled.
+        }
+        if (!$this->option->courseid) {
+            return; // No course specified.
+        }
+
+        if (!enrol_is_enabled('manual')) {
+            return; // Manual enrolment not enabled.
+        }
+
+        if (!$enrol = enrol_get_plugin('manual')) {
+            return; // No manual enrolment plugin
+        }
+        if (!$instances = $DB->get_records('enrol',
+                array('enrol' => 'manual', 'courseid' => $this->option->courseid,
+                    'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
+            return; // No manual enrolment instance on this course.
+        }
+
+        $instance = reset($instances); // Use the first manual enrolment plugin in the course.
+
+        if ($this->user_status($userid) === 2) {
+            $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
+
+            if ($this->booking->addtogroup == 1) {
+                if (!is_null($this->option->groupid) && ($this->option->groupid > 0)) {
+                    groups_add_member($this->option->groupid, $userid);
+                }
+            }
+        }
     }
 
     /**
@@ -653,7 +774,7 @@ class booking_option extends booking {
      * Retrieves the global booking settings and returns the customfields string[customfieldname][value] will return the actual text for the custom
      * field string[customfieldname][type] will return the type: for now only textfield
      *
-     * @return multideminsional array string[customfieldname][value|type]; empty array if no settings set
+     * @return array string[customfieldname][value|type]; empty array if no settings set
      */
     static public function get_customfield_settings() {
         $values = array();

@@ -346,8 +346,8 @@ class booking_utils {
             }
 
             $val = '';
-            if (!is_null($option->times)) {
-                $additionaltimes = explode(',', $option->times);
+            if (!empty($option->optiontimes)) {
+                $additionaltimes = explode(',', $option->optiontimes);
                 if (!empty($additionaltimes)) {
                     foreach ($additionaltimes as $t) {
                         $slot = explode('-', $t);

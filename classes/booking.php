@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
 
+use gradereport_singleview\local\ui\empty_element;
+
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
@@ -54,6 +56,22 @@ class booking {
 
     /** @var booking booking object from booking instance settings */
     public $booking;
+
+    /**
+     * @var array $alloptions option objects indexed by optionid
+     */
+    protected $alloptions = array();
+
+    /**
+     * @var array of ids
+     */
+    protected $optionids = array();
+
+    /**
+     *
+     * @var number of bookings a user has made
+     */
+    protected $userbookings = null;
 
     /**
      * Constructor for the booking class
@@ -131,5 +149,85 @@ class booking {
                     ORDER BY lastname ASC", $inparams);
         }
         return $groupmembers;
+    }
+
+
+    /**
+     * Get all booking options as an array of objects indexed by optionid
+     *
+     * @return array of booking options records
+     */
+    public function get_all_options() {
+        global $DB;
+        if (empty($this->alloptions)) {
+            $this->alloptions = $DB->get_records('booking_options',
+                    array('bookingid' => $this->id));
+            if(!empty($this->optionids)){
+                $this->optionids = array_keys ($this->alloptions);
+            }
+        }
+        return $this->alloptions;
+    }
+
+    /**
+     * Get all booking option ids as an array of numbers
+     *
+     * @return array of ids
+     */
+    public function get_all_optionids() {
+        global $DB;
+        if (!empty($this->optionids)) {
+            return $this->optionids;
+        }
+        $this->optionids = $DB->get_fieldset_select('booking_options', 'id', "bookingid = {$this->booking->id}");
+        return $this->optionids;
+    }
+
+    /**
+     * Display a message about the maximum nubmer of bookings this user is allowed to make
+     *
+     * @param \stdClass $user
+     * @return string
+     */
+    public function show_maxperuser($user) {
+        global $USER;
+
+        $warning = '';
+
+        if (!empty($this->booking->banusernames)) {
+            $disabledusernames = explode(',', $this->booking->banusernames);
+
+            foreach ($disabledusernames as $value) {
+                if (strpos($USER->username, trim($value)) !== false) {
+                    $warning = \html_writer::tag('p', get_string('banusernameswarning', 'mod_booking'));
+                }
+            }
+        }
+
+        if (!$this->booking->maxperuser) {
+            return $warning; // No per-user limits.
+        }
+
+        $outdata = new \stdClass();
+        $outdata->limit = $this->booking->maxperuser;
+        $outdata->count = $this->get_user_booking_count($user);
+
+        $warning .= \html_writer::tag('div', get_string('maxperuserwarning', 'mod_booking', $outdata), array ('class' => 'alert alert-warning'));
+        return $warning;
+    }
+
+    /**
+     * Determins the number of bookings that a single user has already made in all booking options
+     *
+     * @param \stdClass $user
+     * @return number of bookings made by user
+     */
+    public function get_user_booking_count($user) {
+        global $DB;
+        if (!empty($this->userbookings)){
+            return $this->userbookings;
+        }
+        return $this->userbookings = $DB->count_records('booking_answers',
+                array('bookingid' => $this->id, 'userid' => $user->id));
     }
 }

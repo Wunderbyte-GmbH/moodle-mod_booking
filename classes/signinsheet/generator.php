@@ -88,6 +88,12 @@ class generator {
     public $h = 0;
 
     /**
+     *
+     * @var string starttime to endtime
+     */
+    public $time = '';
+
+    /**
      * signinsheet logo fetched from booking module setting
      * (admin level) as string
      *
@@ -234,12 +240,12 @@ class generator {
         if ($this->bookingdata->option->coursestarttime == 0) {
             return;
         } else {
-            if (is_null($this->bookingdata->option->times)) {
+            if (empty($this->bookingdata->optiontimes)) {
                 $times = userdate($this->bookingdata->option->coursestarttime) . " -" .
                          userdate($this->bookingdata->option->courseendtime);
             } else {
                 $val = array();
-                $times = explode(',', $this->bookingdata->option->times);
+                $times = explode(',', $this->bookingdata->optiontimes);
                 foreach ($times as $time) {
                     $slot = explode('-', $time);
                     $tmpdate = new \stdClass();
