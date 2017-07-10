@@ -72,14 +72,14 @@ class booking_option extends booking {
     /**
      * Creates basic booking option
      *
-     * @param int $id cm id
+     * @param int $cmid cmid
      * @param int $optionid
      * @param object $option option object
      */
-    public function __construct($id, $optionid, $filters = array(), $page = 0, $perpage = 0, $getusers = true) {
+    public function __construct($cmid, $optionid, $filters = array(), $page = 0, $perpage = 0, $getusers = true) {
         global $DB;
 
-        parent::__construct($id);
+        parent::__construct($cmid);
         $this->optionid = $optionid;
         // $this->update_booked_users();
         $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*',
@@ -484,7 +484,6 @@ class booking_option extends booking {
                 \core\task\manager::queue_adhoc_task($sendtask);
             }
         }
-
         if ($this->option->limitanswers) {
             $bookedusers = $DB->count_records("booking_answers",
                     array('optionid' => $this->optionid, 'waitinglist' => 0));
@@ -518,8 +517,7 @@ class booking_option extends booking {
                     }
                     $eventdata->userto = $newbookeduser;
                     $eventdata->userfrom = $bookingmanager;
-                    $eventdata->subject = get_string('statuschangebookedsubject', 'booking',
-                            $params);
+                    $eventdata->subject = get_string('statuschangebookedsubject', 'booking', $params);
                     $eventdata->messagetext = $messagetextnewuser;
                     $eventdata->messagehtml = $messagehtml;
                     $eventdata->attachment = $attachment;
@@ -555,7 +553,8 @@ class booking_option extends booking {
      *
      * @param number $newoption
      * @param array of numbers $userids
-     * @return \stdClass transferred->success = true/false, transferred->no[] errored users, $transferred->yes transferred users
+     * @return \stdClass transferred->success = true/false, transferred->no[] errored users,
+     *         $transferred->yes transferred users
      */
     public function transfer_users_to_otheroption($newoption, $userids) {
         global $DB, $USER;
@@ -563,7 +562,7 @@ class booking_option extends booking {
         $transferred->yes = array(); // successfully transferred users
         $transferred->no = array(); // errored users
         $transferred->success = false;
-        $otheroption = new booking_option($this->booking->id, $newoption);
+        $otheroption = new booking_option($this->cm->id, $newoption);
         if (!empty($userids) && (has_capability('mod/booking:subscribeusers', $this->context) || booking_check_if_teacher(
                 $otheroption, $USER))) {
             $transferred->success = true;
@@ -572,10 +571,10 @@ class booking_option extends booking {
             $sql = 'SELECT ba.userid AS id,
                 ba.timecreated,
                 ' . $mainuserfields . ', ' .
-                $DB->sql_fullname('u.firstname', 'u.lastname') . ' AS fullname
+                     $DB->sql_fullname('u.firstname', 'u.lastname') . ' AS fullname
                 FROM {booking_answers} ba
                 LEFT JOIN {user} u ON ba.userid = u.id
-                WHERE ' . 'ba.userid '. $insql . '
+                WHERE ' . 'ba.userid ' . $insql . '
                 ORDER BY ba.timecreated ASC';
             $users = $DB->get_records_sql($sql, $inparams);
             foreach ($users as $user) {
@@ -587,9 +586,10 @@ class booking_option extends booking {
                 }
             }
         }
-        if(!empty($transferred->yes)){
-            foreach ($transferred->yes as $user)
-            $this->user_delete_response($user->id);
+        if (!empty($transferred->yes)) {
+            foreach ($transferred->yes as $user) {
+                $this->user_delete_response($user->id);
+            }
         }
         return $transferred;
     }

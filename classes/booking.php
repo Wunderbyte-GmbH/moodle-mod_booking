@@ -151,7 +151,6 @@ class booking {
         return $groupmembers;
     }
 
-
     /**
      * Get all booking options as an array of objects indexed by optionid
      *
@@ -160,10 +159,9 @@ class booking {
     public function get_all_options() {
         global $DB;
         if (empty($this->alloptions)) {
-            $this->alloptions = $DB->get_records('booking_options',
-                    array('bookingid' => $this->id));
-            if(!empty($this->optionids)){
-                $this->optionids = array_keys ($this->alloptions);
+            $this->alloptions = $DB->get_records('booking_options', array('bookingid' => $this->id));
+            if (!empty($this->optionids)) {
+                $this->optionids = array_keys($this->alloptions);
             }
         }
         return $this->alloptions;
@@ -224,7 +222,7 @@ class booking {
      */
     public function get_user_booking_count($user) {
         global $DB;
-        if (!empty($this->userbookings)){
+        if (!empty($this->userbookings)) {
             return $this->userbookings;
         }
         return $this->userbookings = $DB->count_records('booking_answers',
