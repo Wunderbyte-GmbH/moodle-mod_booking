@@ -245,7 +245,7 @@ class all_options extends table_sql {
                     'post');
         }
 
-        if (($values->limitanswers && ($status == "full")) || ($status == "closed") || $underlimit || $values->disablebookingusers) {
+        if (($values->limitanswers && ($status == "full")) || ($status == "closed") || !$underlimit || $values->disablebookingusers) {
             $button = '';
         }
 

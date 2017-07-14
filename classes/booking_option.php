@@ -16,6 +16,8 @@
 namespace mod_booking;
 
 
+use Doctrine\Tests\Common\Annotations\Fixtures\AnotherClass;
+
 /**
  * Managing a single booking option
  *
@@ -559,8 +561,8 @@ class booking_option extends booking {
     public function transfer_users_to_otheroption($newoption, $userids) {
         global $DB, $USER;
         $transferred = new \stdClass();
-        $transferred->yes = array(); // successfully transferred users
-        $transferred->no = array(); // errored users
+        $transferred->yes = array(); // Successfully transferred users.
+        $transferred->no = array(); // Errored users.
         $transferred->success = false;
         $otheroption = new booking_option($this->cm->id, $newoption);
         if (!empty($userids) && (has_capability('mod/booking:subscribeusers', $this->context) || booking_check_if_teacher(
@@ -575,10 +577,11 @@ class booking_option extends booking {
                 FROM {booking_answers} ba
                 LEFT JOIN {user} u ON ba.userid = u.id
                 WHERE ' . 'ba.userid ' . $insql . '
+                AND ba.optionid = ' . $this->optionid . '
                 ORDER BY ba.timecreated ASC';
             $users = $DB->get_records_sql($sql, $inparams);
             foreach ($users as $user) {
-                if ($otheroption->user_submit_response($user)) {
+                if ($otheroption->user_submit_response($user, 0, 1)) {
                     $transferred->yes[] = $user;
                 } else {
                     $transferred->no[] = $user;
@@ -635,12 +638,16 @@ class booking_option extends booking {
     }
 
     /**
+     * Subscribe a user to a booking option
      *
      * @param \stdClass $user
      * @param number $frombookingid
+     * @param number $substractfromlimit this is used for transferring users from one option to another
+     * The number of bookings for the user has to be decreased by one, because, the user will be unsubscribed
+     * from the old booking option afterwards (which is not yet taken into account).
      * @return boolean true if booking was possible, false if meanwhile the booking got full
      */
-    public function user_submit_response($user, $frombookingid = 0) {
+    public function user_submit_response($user, $frombookingid = 0, $substractfromlimit = 0) {
         global $DB;
 
         if (null == $this->option) {
@@ -655,7 +662,7 @@ class booking_option extends booking {
 
         $underlimit = ($this->booking->maxperuser == 0);
         $underlimit = $underlimit ||
-        ($this->get_user_booking_count($user) < $this->booking->maxperuser);
+        (($this->get_user_booking_count($user) - $substractfromlimit) < $this->booking->maxperuser);
 
         if (!$underlimit) {
             return false;
