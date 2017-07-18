@@ -608,10 +608,12 @@ class booking_option extends booking {
             $nbooking = $DB->get_records_sql(
                     'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
                     array($this->optionid), 0, $this->option->maxanswers);
-
             foreach ($nbooking as $value) {
-                $value->waitinglist = 0;
-                $DB->update_record("booking_answers", $value);
+                if ($value->waitinglist != 0) {
+                    $value->waitinglist = 0;
+                    $DB->update_record("booking_answers", $value);
+                    $this->enrol_user($value->userid);
+                }
             }
 
             $noverbooking = $DB->get_records_sql(
@@ -619,8 +621,10 @@ class booking_option extends booking {
                     array($this->optionid), $this->option->maxanswers, $this->option->maxoverbooking);
 
             foreach ($noverbooking as $value) {
-                $value->waitinglist = 1;
-                $DB->update_record("booking_answers", $value);
+                if ($value->waitinglist != 1) {
+                    $value->waitinglist = 1;
+                    $DB->update_record("booking_answers", $value);
+                }
             }
 
             $nover = $DB->get_records_sql(
