@@ -180,7 +180,7 @@ if ($action == 'downloadsigninportrait' || $action == 'downloadsigninlandscape')
 
 if ($action == 'deletebookingoption' && $confirm == 1 &&
          has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
-    booking_delete_booking_option($bookingdata->booking, $optionid);
+             $bookingdata->delete_booking_option();
     redirect("view.php?id=$cm->id");
 } else if ($action == 'deletebookingoption' && has_capability('mod/booking:updatebooking', $context) &&
          confirm_sesskey()) {

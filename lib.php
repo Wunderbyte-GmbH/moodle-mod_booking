@@ -219,8 +219,8 @@ function booking_get_completion_state($course, $cm, $userid, $type) {
 /**
  * Given an object containing all the necessary data this will create a new instance and return the id number of the new instance.
  *
- * @param unknown $booking
- * @return unknown
+ * @param object $booking
+ * @return number $bookingid
  */
 function booking_add_instance($booking) {
     global $DB, $CFG;
@@ -700,50 +700,6 @@ function booking_check_if_teacher($option) {
     } else {
         return true;
     }
-}
-
-/**
- * Automatically unenrol the user from the relevant course or group, if that setting is on and a course has been specified.
- *
- * @param object $option
- * @param object $booking
- * @param int $userid
- */
-function booking_check_unenrol_user($option, $booking, $userid) {
-    global $DB;
-
-    if (!$booking->autoenrol) {
-        return; // Autoenrol not enabled.
-    }
-    if (!$option->courseid) {
-        return; // No course specified.
-    }
-    if (!enrol_is_enabled('manual')) {
-        return; // Manual enrolment not enabled.
-    }
-    if (!$enrol = enrol_get_plugin('manual')) {
-        return; // No manual enrolment plugin
-    }
-    if (!$instances = $DB->get_records('enrol',
-            array('enrol' => 'manual', 'courseid' => $option->courseid,
-                'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
-        return; // No manual enrolment instance on this course.
-    }
-    if ($booking->addtogroup == 1) {
-        if (!is_null($option->groupid) && ($option->groupid > 0)) {
-            $groupsofuser = groups_get_all_groups($option->courseid, $userid);
-            $numberofgroups = count($groupsofuser);
-            // When user is member of only 1 group: unenrol from course otherwise remove from group
-            if ($numberofgroups > 1) {
-                groups_remove_member($option->groupid, $userid);
-                return;
-            }
-        }
-    }
-
-    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-
-    $enrol->unenrol_user($instance, $userid); // Unenrol the user.
 }
 
 /**
@@ -1756,121 +1712,6 @@ function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid
         return $sortedresponses[$firstuseronwaitinglist];
     } else {
         return false;
-    }
-}
-
-/**
- * Checks if required user profile fields are filled out
- *
- * @param $userid to be checked
- * @return false if no redirect necessery true if necessary
- */
-function booking_check_user_profile_fields($userid) {
-    global $DB;
-    $redirect = false;
-    if ($categories = $DB->get_records('user_info_category', array(), 'sortorder ASC')) {
-        foreach ($categories as $category) {
-            if ($fields = $DB->get_records_select('user_info_field', "categoryid=$category->id",
-                    array(), 'sortorder ASC')) {
-                // check first if *any* fields will be displayed and if there are required fields
-                $requiredfields = array();
-                $redirect = false;
-                foreach ($fields as $field) {
-                    if ($field->visible != 0 && $field->required == 1) {
-                        if (!$userdata = $DB->get_field('user_info_data', 'data',
-                                array("userid" => $userid, "fieldid" => $field->id))) {
-                            $redirect = true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return $redirect;
-}
-
-/**
- * Deletes a booking option and the associated user answers
- *
- * @param $bookingid the booking instance
- * @param $optionid the booking option
- * @return false if not successful, true on success
- */
-function booking_delete_booking_option($booking, $optionid) {
-    global $DB;
-
-    if (!$option = $DB->get_record("booking_options", array("id" => $optionid))) {
-        return false;
-    }
-
-    $result = true;
-
-    $params = array('bookingid' => $booking->id, 'optionid' => $optionid);
-    $userids = $DB->get_fieldset_select('booking_answers', 'userid',
-            'bookingid = :bookingid AND optionid = :optionid', $params);
-    foreach ($userids as $userid) {
-        booking_check_unenrol_user($option, $booking, $userid); // Unenrol any users enroled via this option.
-    }
-    if (!$DB->delete_records("booking_answers",
-            array("bookingid" => $booking->id, "optionid" => $optionid))) {
-        $result = false;
-    }
-
-        // Delete calendar entry, if any.
-    $eventid = $DB->get_field('booking_options', 'calendarid', array('id' => $optionid));
-    $eventexists = true;
-    if ($event->id > 0) {
-        // Delete event if exist.
-        try {
-            $event = calendar_event::load($eventid);
-        } catch (Exception $e) {
-            $eventexists = false;
-        }
-        if ($eventexists) {
-            $event->delete(true);
-        }
-    }
-
-    if (!$DB->delete_records("booking_options", array("id" => $optionid))) {
-        $result = false;
-    }
-
-    return $result;
-}
-
-function booking_profile_definition(&$mform) {
-    global $CFG, $DB;
-
-    // If user is "admin" fields are displayed regardless.
-    $update = has_capability('moodle/user:update', context_system::instance());
-
-    if ($categories = $DB->get_records('user_info_category', array(), 'sortorder ASC')) {
-        foreach ($categories as $category) {
-            if ($fields = $DB->get_records_select('user_info_field', "categoryid=$category->id",
-                    array(), 'sortorder ASC')) {
-
-                // Check first if *any* fields will be displayed.
-                $display = false;
-                foreach ($fields as $field) {
-                    if ($field->visible != PROFILE_VISIBLE_NONE) {
-                        $display = true;
-                    }
-                }
-
-                // Display the header and the fields.
-                if ($display or $update) {
-                    $mform->addElement('header', 'category_' . $category->id,
-                            format_string($category->name));
-                    foreach ($fields as $field) {
-                        require_once($CFG->dirroot . '/user/profile/field/' . $field->datatype .
-                                 '/field.class.php');
-                        $newfield = 'profile_field_' . $field->datatype;
-                        $formfield = new $newfield($field->id);
-                        $formfield->edit_field($mform);
-                    }
-                }
-            }
-        }
     }
 }
 

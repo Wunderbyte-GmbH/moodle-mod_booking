@@ -92,6 +92,8 @@ $string['yourselection'] = 'Ihre Auswahl';
 $string['cannotremovesubscriber'] = 'Um die Buchung zu stornieren, muss zuvor der Aktivitätsabschluss entfernt werden. Die Buchung wurde nicht storniert';
 $string['allchangessave'] = 'Alle Änderungen wurden gespeichert.';
 $string['backtoresponses'] = '<< Zurück zu den Antworten';
+$string['allusersbooked'] = 'Alle {$a} Nutzer/innen wurden erfolgreich für diese Buchungsoption gebucht.';
+$string['notallbooked'] = 'Folgende Nutzer/innen konnten aufgrund nicht mehr verfügbarer Plätze oder durch das Überschreiten des vorgegebenen Buchungslimits pro Nutzer/in nicht gebucht werden: {$a}';
 
 // Bookingform
 $string['address'] = 'Adresse';

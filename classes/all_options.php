@@ -285,8 +285,8 @@ class all_options extends table_sql {
             $places->maxoverbooking = $values->maxoverbooking;
             $places->overbookingavailable = $values->maxoverbooking - $values->waiting;
 
-            return $button . $delete . $booked . get_string("placesavailable", "booking", $places) .
-                     "<br />" . get_string("waitingplacesavailable", "booking", $places) . $manage;
+            return $button . $delete . $booked .  "<div>" . get_string("placesavailable", "booking", $places) .
+                     "</div><div>" . get_string("waitingplacesavailable", "booking", $places) . "</div>" . $manage;
         }
     }
 

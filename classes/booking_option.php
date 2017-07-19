@@ -15,9 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
 
-
-use Doctrine\Tests\Common\Annotations\Fixtures\AnotherClass;
-
 /**
  * Managing a single booking option
  *
@@ -428,8 +425,7 @@ class booking_option extends booking {
                     'context' => \context_module::instance($this->cm->id),
                     'relateduserid' => $user->id, 'other' => array('userid' => $user->id)));
         $event->trigger();
-
-        booking_check_unenrol_user($this->option, $this->booking, $user->id);
+        $this->unenrol_user($user->id);
 
         $params = booking_generate_email_params($this->booking, $this->option, $user, $this->cm->id);
 
@@ -629,8 +625,7 @@ class booking_option extends booking {
 
             $nover = $DB->get_records_sql(
                     'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
-                    array($this->optionid),
-                    $this->option->maxoverbooking + $this->option->maxanswers);
+                    array($this->optionid), $this->option->maxoverbooking + $this->option->maxanswers);
 
             foreach ($nover as $value) {
                 $DB->delete_records('booking_answers', array('id' => $value->id));
@@ -749,6 +744,92 @@ class booking_option extends booking {
                 }
             }
         }
+    }
+
+    /**
+     * Unenrol the user from the course, which has been defined as target course
+     * in the booking option settings
+     *
+     * @param number $userid
+     */
+    public function unenrol_user($userid) {
+        global $DB;
+
+        global $DB;
+
+        if (!$this->booking->autoenrol) {
+            return; // Autoenrol not enabled.
+        }
+        if (!$this->option->courseid) {
+            return; // No course specified.
+        }
+        if (!enrol_is_enabled('manual')) {
+            return; // Manual enrolment not enabled.
+        }
+        if (!$enrol = enrol_get_plugin('manual')) {
+            return; // No manual enrolment plugin.
+        }
+
+        if (!$instances = $DB->get_records('enrol',
+                array('enrol' => 'manual', 'courseid' => $this->option->courseid,
+                    'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
+            return; // No manual enrolment instance on this course.
+        }
+        if ($this->booking->addtogroup == 1) {
+            if (!is_null($this->option->groupid) && ($this->option->groupid > 0)) {
+                $groupsofuser = groups_get_all_groups($this->option->courseid, $userid);
+                $numberofgroups = count($groupsofuser);
+                // When user is member of only 1 group: unenrol from course otherwise remove from group.
+                if ($numberofgroups > 1) {
+                    groups_remove_member($this->option->groupid, $userid);
+                    return;
+                }
+            }
+        }
+        $instance = reset($instances); // Use the first manual enrolment plugin in the course.
+        $enrol->unenrol_user($instance, $userid); // Unenrol the user.
+    }
+
+    /**
+     * Deletes a booking option and the associated user answers
+     *
+     * @return false if not successful, true on success
+     */
+    public function delete_booking_option() {
+        global $DB;
+        if (!$DB->record_exists("booking_options", array("id" => $this->optionid))) {
+            return false;
+        }
+
+        $result = true;
+        $answers = $this->get_all_users();
+        foreach ($answers as $answer) {
+            $this->unenrol_user($answer->userid); // Unenrol any users enroled via this option.
+        }
+        if (!$DB->delete_records("booking_answers",
+                array("bookingid" => $this->id, "optionid" => $this->optionid))) {
+            $result = false;
+        }
+
+        // Delete calendar entry, if any.
+        $eventid = $DB->get_field('booking_options', 'calendarid', array('id' => $this->optionid));
+        $eventexists = true;
+        if ($event->id > 0) {
+            // Delete event if exist.
+            try {
+                $event = \calendar_event::load($eventid);
+            } catch (\Exception $e) {
+                $eventexists = false;
+            }
+            if ($eventexists) {
+                $event->delete(true);
+            }
+        }
+
+        if (!$DB->delete_records("booking_options", array("id" => $this->optionid))) {
+            $result = false;
+        }
+        return $result;
     }
 
     /**
