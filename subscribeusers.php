@@ -33,11 +33,11 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 (boolean) $subscribesuccess = false;
 (boolean) $unsubscribesuccess = false;
 
+require_login($course, true, $cm);
+
 $bookingoption = new \mod_booking\booking_option($id, $optionid);
 $bookingoption->update_booked_users();
 $bookingoption->apply_tags();
-
-require_login($course, true, $cm);
 
 // Print the page header
 $context = context_module::instance($cm->id);
