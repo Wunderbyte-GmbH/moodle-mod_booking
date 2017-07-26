@@ -262,23 +262,27 @@ class all_userbookings extends table_sql {
             }
 
                 // Output transfer users to other option.
-            if (has_capability('mod/booking:subscribeusers', context_module::instance(
-                    $this->cm->id))) {
+            if (has_capability('mod/booking:subscribeusers',
+                    context_module::instance($this->cm->id))) {
                 echo "<br>";
                 $optionids = $this->bookingdata->get_all_optionids();
                 $optionids = array_values(array_diff($optionids, array($this->optionid)));
-                list($insql, $inparams) = $DB->get_in_or_equal($optionids);
-                $options = $DB->get_records_select_menu('booking_options', "id {$insql}", $inparams,
-                        '', 'id,text');
-                $optionbutton = html_writer::start_tag('span', array('class' => "transfersubmit"));
-                echo html_writer::div(get_string('transferheading', 'mod_booking'));
-                echo $dropdown = html_writer::select($options, 'transferoption');
-                $attributes = array('type' => 'submit',
-                    'class' => 'transfersubmit btn btn-secondary', 'id' => 'transfersubmit',
-                    'name' => 'transfersubmit', 'value' => s(get_string('transfer', 'mod_booking')));
-                $optionbutton .= html_writer::empty_tag('input', $attributes);
-                $optionbutton .= html_writer::end_span();
-                echo $optionbutton;
+                if (!empty($optionids)) {
+                    list($insql, $inparams) = $DB->get_in_or_equal($optionids);
+                    $options = $DB->get_records_select_menu('booking_options', "id {$insql}",
+                            $inparams, '', 'id,text');
+                    $optionbutton = html_writer::start_tag('span',
+                            array('class' => "transfersubmit"));
+                    echo html_writer::div(get_string('transferheading', 'mod_booking'));
+                    echo $dropdown = html_writer::select($options, 'transferoption');
+                    $attributes = array('type' => 'submit',
+                        'class' => 'transfersubmit btn btn-secondary', 'id' => 'transfersubmit',
+                        'name' => 'transfersubmit',
+                        'value' => s(get_string('transfer', 'mod_booking')));
+                    $optionbutton .= html_writer::empty_tag('input', $attributes);
+                    $optionbutton .= html_writer::end_span();
+                    echo $optionbutton;
+                }
             }
 
             if ($this->bookingdata->booking->numgenerator) {
