@@ -128,7 +128,7 @@ $urlcancel = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $sorturl = new moodle_url('/mod/booking/view.php', $urlparamssort);
 
 $PAGE->set_url($url);
-$PAGE->requires->yui_module('moodle-mod_booking-viewscript', 'M.mod_booking.viewscript.init');
+$PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup');
 
 $booking->apply_tags();
 $booking->get_url_params();
@@ -208,7 +208,6 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
 
     $url = new moodle_url("view.php", array('id' => $cm->id));
     $url->set_anchor("option" . $answer);
-
     if (!empty($answer)) {
         $bookingdata = new \mod_booking\booking_option($cm->id, $answer, array(), 0, 0, false);
         $bookingdata->apply_tags();
@@ -217,21 +216,22 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
             if ($booking->booking->sendmail) {
                 $contents .= "<br />" . get_string('mailconfirmationsent', 'booking') . ".";
             }
-            $contents .= $OUTPUT->single_button($url, get_string('continue'), 'get');
+            $contents .= $OUTPUT->single_button($url,
+                    get_string('continue'), 'get');
             echo $OUTPUT->box($contents, 'box generalbox', 'notice');
             echo $OUTPUT->footer();
             die();
-        } else if (is_int($answer)) {
-            $contents = get_string('bookingmeanwhilefull', 'booking') . " " .
-                     $bookingdata->option->text;
-            $contents .= $OUTPUT->single_button($url, 'get');
+        } else if (is_numeric($answer)) {
+            $contents = get_string('bookingmeanwhilefull', 'booking') . " " . $bookingdata->option->text;
+            $contents .= $OUTPUT->single_button($url,
+                    get_string('continue'), 'get');
             echo $OUTPUT->box($contents, 'box generalbox', 'notice');
             echo $OUTPUT->footer();
             die();
         }
     } else {
         $contents = get_string('nobookingselected', 'booking');
-        $contents .= $OUTPUT->single_button($url, 'get');
+        $contents .= $OUTPUT->single_button($url, get_string('continue'));
         echo $OUTPUT->box($contents, 'box generalbox', 'notice');
         echo $OUTPUT->footer();
         die();
@@ -372,27 +372,9 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             echo html_writer::tag('span', implode(', ', $out));
             echo html_writer::end_tag('div');
         }
-
         if (!empty($CFG->usetags)) {
-            if ($CFG->branch >= 31) {
-                $tags = core_tag_tag::get_item_tags('mod_booking', 'booking', $booking->booking->id);
-                echo $OUTPUT->tag_list($tags, null, 'booking-tags');
-            } else {
-                $tags = tag_get_tags_array('booking', $booking->booking->id);
-                $links = array();
-                foreach ($tags as $tagid => $tag) {
-                    $turl = new moodle_url('tag.php', array('id' => $id, 'tag' => $tag));
-                    $links[] = html_writer::link($turl, $tag, array());
-                }
-
-                if (!empty($tags)) {
-                    echo html_writer::start_tag('div');
-                    echo html_writer::tag('label', get_string('tags') . ': ',
-                            array('class' => 'bold'));
-                    echo html_writer::tag('span', implode(', ', $links));
-                    echo html_writer::end_tag('div');
-                }
-            }
+            $tags = core_tag_tag::get_item_tags('mod_booking', 'booking', $booking->booking->id);
+            echo $OUTPUT->tag_list($tags, null, 'booking-tags');
         }
 
         if ($booking->booking->categoryid != '0' && $booking->booking->categoryid != '') {
@@ -447,7 +429,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             }
         }
 
-        echo $OUTPUT->box(booking_show_maxperuser($booking, $USER), 'box mdl-align');
+        echo $OUTPUT->box($booking->show_maxperuser($USER), 'box mdl-align');
 
         $output = $PAGE->get_renderer('mod_booking');
         $output->print_booking_tabs($urlparams, $whichview, $mybookings->mybookings,
@@ -518,11 +500,11 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $table->head = array('', '', '', '');
         $table->data = $tabledata;
         $table->id = "tableSearch";
-
+        $table->attributes['class'] = "table table-striped ";
         if (empty($urlparams['searchtext']) && empty($urlparams['searchlocation']) &&
                  empty($urlparams['searchname']) && empty($urlparams['searchinstitution']) &&
                  empty($urlparams['searchsurname'])) {
-            $table->attributes = array('style' => "display: none;");
+            $table->attributes['style'] = "display: none;";
         }
         echo html_writer::tag('form', html_writer::table($table));
 

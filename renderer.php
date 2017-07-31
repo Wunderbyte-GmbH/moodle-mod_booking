@@ -200,14 +200,12 @@ class mod_booking_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_rating(rating $rating) {
-        global $CFG, $USER;
 
         if ($rating->settings->aggregationmethod == RATING_AGGREGATE_NONE) {
             return null; // ratings are turned off
         }
 
         $ratingmanager = new rating_manager();
-        // Initialise the JavaScript so ratings can be done by AJAX.
 
         $strrate = get_string("rate", "rating");
         $ratinghtml = ''; // the string we'll return
@@ -255,8 +253,6 @@ class mod_booking_renderer extends plugin_renderer_base {
             // $inputs = $rateurl->params();
 
             // start the rating form
-            $formattrs = array('id' => "postrating{$rating->itemid}", 'class' => 'postratingform',
-                'method' => 'post', 'action' => $rateurl->out_omit_querystring());
             $formstart .= html_writer::start_tag('div', array('class' => 'ratingform'));
 
             // add the hidden inputs

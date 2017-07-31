@@ -28,7 +28,6 @@ class optiondatesadd_form extends moodleform {
      * @see moodleform::definition()
      */
     public function definition() {
-        global $CFG;
 
         $mform = $this->_form; // Don't forget the underscore!
 

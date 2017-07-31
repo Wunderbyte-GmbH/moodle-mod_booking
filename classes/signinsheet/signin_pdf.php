@@ -13,19 +13,23 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+namespace mod_booking\signinsheet;
+
+require_once($CFG->libdir . '/tcpdf/tcpdf.php');
 
 /**
+ * Extend the TCPDF class in order to add custom page break
+ * @author David Bogner
  *
- * @package mod_booking
- * @copyright 2012,2013,2014,2015,2016,2017 David Bogner <info@edulabs.org>, Andraž Prinčič <atletek@gmail.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
+class signin_pdf extends \TCPDF {
 
-$plugin->version = 2017072600;
-$plugin->requires = 2016052300; // Requires this Moodle version
-                                // Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman, Piper Chapman
-$plugin->release = 'Lois Wilkerson 1.2';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->cron = 5;
-$plugin->component = 'mod_booking';
+    /**
+     *
+     * @param $h (float) Cell height. Default value: 0.
+     * @return boolean
+     */
+    public function go_to_newline($h) {
+        return $this->checkPageBreak($h, '', true);
+    }
+}

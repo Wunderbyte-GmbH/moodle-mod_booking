@@ -142,7 +142,10 @@ $url = new moodle_url('/mod/booking/report.php', $urlparams);
 $currenturl = new moodle_url('/mod/booking/report.php', $urlparams);
 
 $PAGE->set_url($url);
-$PAGE->requires->yui_module('moodle-mod_booking-utility', 'M.mod_booking.utility.init');
+$PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup');
+if ($CFG->branch >= 32) {
+    $PAGE->force_settings_menu(true);
+}
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 
@@ -170,13 +173,14 @@ $event = \mod_booking\event\report_viewed::create(
 $event->trigger();
 
 if ($action == 'downloadsigninportrait' || $action == 'downloadsigninlandscape') {
-    booking_download_sign_in_sheet($bookingdata , $action);
+    $pdf = new mod_booking\signinsheet\generator($bookingdata , $action);
+    $pdf->download_signinsheet();
     die();
 }
 
 if ($action == 'deletebookingoption' && $confirm == 1 &&
          has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
-    booking_delete_booking_option($bookingdata->booking, $optionid);
+             $bookingdata->delete_booking_option();
     redirect("view.php?id=$cm->id");
 } else if ($action == 'deletebookingoption' && has_capability('mod/booking:updatebooking', $context) &&
          confirm_sesskey()) {
@@ -273,7 +277,7 @@ if (!$tableallbookings->is_downloading()) {
         } else if (isset($_POST['subscribetocourse'])) { // subscription submitted
             if ($bookingdata->option->courseid != 0) {
                 foreach ($allselectedusers as $selecteduserid) {
-                    booking_enrol_user($bookingdata->option, $bookingdata->booking, $selecteduserid);
+                    $bookingdata->enrol_user($selecteduserid);
                 }
                 redirect($url, get_string('userrssucesfullenroled', 'booking'), 5);
             } else {
@@ -322,16 +326,16 @@ if (!$tableallbookings->is_downloading()) {
                         get_string('selectatleastoneuser', 'booking',
                                 $bookingdata->option->howmanyusers), 5);
             }
-            $alluserids = $bookingdata->get_all_userids();
+            $allusers = $bookingdata->get_all_users();
             $bookedusers = array();
             $ratings = array();
-            foreach ($alluserids as $baid => $userid) {
-                if (in_array($userid, $allselectedusers) && $userid != $USER->id) {
+            foreach ($allusers as $baid => $user) {
+                if (in_array($user->userid, $allselectedusers) && $user->userid != $USER->id) {
                     $rating = new stdClass();
-                    $bookedusers[$userid] = $baid;
-                    $bookinganswerid = "rating" . $bookedusers[$userid];
+                    $bookedusers[$user->userid] = $baid;
+                    $bookinganswerid = "rating" . $bookedusers[$user->userid];
 
-                    $rating->rateduserid = $userid;
+                    $rating->rateduserid = $user->userid;
                     $rating->itemid = $baid;
                     $rating->rating = $_POST[$bookinganswerid];
                     $ratings[$baid] = $rating;
@@ -358,9 +362,8 @@ if (!$tableallbookings->is_downloading()) {
 
             booking_sendreminderemail($allselectedusers, $bookingdata->booking, $cm->id, $optionid);
             redirect($url, get_string('sendreminderemailsuccess', 'booking'), 5);
-        } else if (isset($_POST['booktootherbooking']) &&
-                 (booking_check_if_teacher($bookingdata->option, $USER) ||
-                 has_capability('mod/booking:readresponses', $context))) {
+        } else if (isset($_POST['booktootherbooking']) && (booking_check_if_teacher(
+                $bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
             if (empty($allselectedusers)) {
                 redirect($url,
                         get_string('selectatleastoneuser', 'booking',
@@ -371,7 +374,8 @@ if (!$tableallbookings->is_downloading()) {
                 redirect($url, get_string('selectoptionid', 'booking'), 5);
             }
 
-            if (count($allselectedusers) > $bookingdata->calculate_how_many_can_book_to_other($_POST['selectoptionid'])) {
+            if (count($allselectedusers) > $bookingdata->calculate_how_many_can_book_to_other(
+                    $_POST['selectoptionid'])) {
                 redirect($url,
                         get_string('toomuchusersbooked', 'booking',
                                 $bookingdata->calculate_how_many_can_book_to_other(
@@ -392,7 +396,7 @@ if (!$tableallbookings->is_downloading()) {
                 $user = new stdClass();
                 $user->id = $value;
                 if (!$tmpbooking->user_submit_response($user, $optionid)) {
-                    redirect($url, get_string('bookingfulldidntregister', 'booking'), 5);
+                    redirect($url, get_string('bookingfulldidntregister', 'mod_booking'), 5);
                 }
             }
 
@@ -403,18 +407,28 @@ if (!$tableallbookings->is_downloading()) {
                      // Change presence status
             if (empty($allselectedusers)) {
                 redirect($url,
-                        get_string('selectatleastoneuser', 'booking',
+                        get_string('selectatleastoneuser', 'mod_booking',
                                 $bookingdata->option->howmanyusers), 5);
             }
-
-            if (!isset($_POST['selectpresencestatus']) || empty($_POST['selectpresencestatus'])) {
-                redirect($url, get_string('selectpresencestatus', 'booking'), 5);
+            if ($_POST['transferoption'] == "") {
+                redirect($url,
+                        get_string('selectanoption', 'mod_booking'), 5);
             }
-
-            booking_changepresencestatus($allselectedusers, $optionid, $_POST['selectpresencestatus']);
-
-            redirect($url, get_string('userssucesfullygetnewpresencestatus', 'booking'), 5);
+            $result = $bookingdata->transfer_users_to_otheroption($_POST['transferoption'],
+                    $allselectedusers);
+            if ($result->success) {
+                redirect($url, get_string('transfersuccess', 'mod_booking', $result), 5);
+            } else {
+                $output = '<br>';
+                if (!empty($result->no)) {
+                    foreach ($result->no as $user) {
+                        $output .= $user->firstname . " $user->lastname <br>";
+                    }
+                }
+                redirect($url, get_string('transferproblem', 'mod_booking', $output), 5, 'error');
+            }
         }
+
     }
 
     $columns = array();
@@ -524,7 +538,7 @@ if (!$tableallbookings->is_downloading()) {
              ($bookingdata->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate(
                     $bookingdata->option->coursestarttime, get_string('strftimedatetime')) . " - " .
              userdate($bookingdata->option->courseendtime, get_string('strftimedatetime'))) . " | " .
-             (empty($bookingdata->booking->lblteachname) ? get_string('teachers', 'booking') : $bookingdata->booking->lblteachname) . ": " .
+             (empty($bookingdata->booking->lblteachname) ? get_string('teachers', 'booking') : $bookingdata->booking->lblteachname) .
              implode(', ', $teachers) . " {$linkst}</p>";
 
     $links = array();
@@ -770,8 +784,8 @@ if (!$tableallbookings->is_downloading()) {
                     ba.completed AS completed,
                     ba.numrec,
                     ba.waitinglist AS waitinglist,
-                    ba.status,
-                    u.idnumber as idnumber, ba.status
+		    ba.status,
+                    u.idnumber as idnumber
                     {$customfields}";
     $from = '{booking_answers} ba
             JOIN {user}  u ON u.id = ba.userid

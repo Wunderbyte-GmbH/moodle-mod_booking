@@ -33,11 +33,11 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 (boolean) $subscribesuccess = false;
 (boolean) $unsubscribesuccess = false;
 
+require_login($course, true, $cm);
+
 $bookingoption = new \mod_booking\booking_option($id, $optionid);
 $bookingoption->update_booked_users();
 $bookingoption->apply_tags();
-
-require_login($course, true, $cm);
 
 // Print the page header
 $context = context_module::instance($cm->id);
@@ -78,25 +78,39 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
 
     if (data_submitted()) {
         require_sesskey();
-        // It has to be one or the other, not both or neither
-        // if (!($subscribe xor $unsubscribe)) {
+            // It has to be one or the other, not both or neither
+            // if (!($subscribe xor $unsubscribe)) {
             // print_error('invalidaction');
-        // }
+            // }
         if ($subscribe) {
             $users = $subscriberselector->get_selected_users();
             // compare if selected users are members of the currentgroup if person has not the
             // right to access all groups
             $subscribesuccess = true;
             $subscribedusers = array();
+            $notsubscribedusers = array();
 
-            if (has_capability('moodle/site:accessallgroups', $context) or
-                     (booking_check_if_teacher($bookingoption->option))) {
+            if (has_capability('moodle/site:accessallgroups', $context) or (booking_check_if_teacher(
+                    $bookingoption->option))) {
                 foreach ($users as $user) {
                     if (!$bookingoption->user_submit_response($user)) {
                         $subscribesuccess = false;
-                        print_error('bookingmeanwhilefull', 'booking', $errorurl->out(), $user->id);
+                        $notsubscribedusers[] = $user;
                     }
                     $subscribedusers[] = $user->id;
+                }
+                if ($subscribesuccess) {
+                    redirect($errorurl,
+                            get_string('allusersbooked', 'mod_booking', count($subscribedusers)), 5);
+                } else {
+                    $output = '<br>';
+                    if (!empty($notsubscribedusers)) {
+                        foreach ($notsubscribedusers as $user) {
+                            $output .= $user->firstname . " $user->lastname <br>";
+                        }
+                    }
+                    redirect($errorurl,
+                            get_string('notallbooked', 'mod_booking', $output), 5);
                 }
             } else {
                 print_error('invalidaction');

@@ -14,15 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot . '/mod/booking/icallib.php');
 require_once($CFG->dirroot . '/calendar/lib.php');
 require_once($CFG->libdir . '/filelib.php');
-if ($CFG->branch < 31) {
-    require_once($CFG->dirroot . '/tag/locallib.php');
-}
-
 require_once($CFG->dirroot . '/question/category_class.php');
-
 require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->libdir . '/eventslib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
@@ -225,8 +219,8 @@ function booking_get_completion_state($course, $cm, $userid, $type) {
 /**
  * Given an object containing all the necessary data this will create a new instance and return the id number of the new instance.
  *
- * @param unknown $booking
- * @return unknown
+ * @param object $booking
+ * @return number $bookingid
  */
 function booking_add_instance($booking) {
     global $DB, $CFG;
@@ -266,12 +260,7 @@ function booking_add_instance($booking) {
         file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanager',
                 $booking->id, array('subdirs' => false, 'maxfiles' => 50));
     }
-    if ($CFG->branch < 31) {
-        tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
-    } else {
-        core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context,
-                $booking->tags);
-    }
+    core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
 
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {
@@ -324,18 +313,12 @@ function booking_update_instance($booking) {
         $booking->assesstimestart = 0;
         $booking->assesstimefinish = 0;
     }
-
     $arr = array();
 
-    if ($CFG->branch >= 31) {
-        core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context,
-                $booking->tags);
-    } else {
-        tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
-    }
+    core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
 
-    file_save_draft_area_files($booking->myfilemanager, $context->id, 'mod_booking',
-            'myfilemanager', $booking->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 50));
+    file_save_draft_area_files($booking->myfilemanager, $context->id, 'mod_booking', 'myfilemanager',
+            $booking->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 50));
 
     if (empty($booking->timerestrict)) {
         $booking->timeopen = 0;
@@ -588,11 +571,11 @@ function booking_option_add_to_cal($booking, $option, $optionvalues) {
 /**
  * Checks the status of the specified user
  *
- * @param $userid userid of the user
- * @param $optionid booking option to check
- * @param $bookingid booking id
- * @param $cmid course module id
- * @return localised string of user status
+ * @param number $userid userid of the user
+ * @param number $optionid booking option to check
+ * @param number $bookingid booking id
+ * @param number $cmid course module id
+ * @return string of user status
  */
 function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
     global $DB;
@@ -635,56 +618,6 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
 }
 
 /**
- * Display a message about the maximum nubmer of bookings this user is allowed to make
- *
- * @param object $booking
- * @param object $user
- * @return string
- */
-function booking_show_maxperuser($booking, $user) {
-    global $USER;
-
-    $warning = '';
-
-    if (!empty($booking->booking->banusernames)) {
-        $disabledusernames = explode(',', $booking->booking->banusernames);
-
-        foreach ($disabledusernames as $value) {
-            if (strpos($USER->username, trim($value)) !== false) {
-                $warning = html_writer::tag('p', get_string('banusernameswarning', 'mod_booking'));
-            }
-        }
-    }
-
-    if (!$booking->booking->maxperuser) {
-        return $warning; // No per-user limits.
-    }
-
-    $outdata = new stdClass();
-    $outdata->limit = $booking->booking->maxperuser;
-    $outdata->count = booking_get_user_booking_count($booking, $user);
-
-    $warning .= html_writer::tag('p', get_string('maxperuserwarning', 'mod_booking', $outdata));
-    return $warning;
-}
-
-/**
- * Determins the number of bookings that a single user has already made in all booking options
- *
- * @param object $booking
- * @param object $user
- * @return number of bookings made by user
- */
-function booking_get_user_booking_count($booking, $user) {
-    global $DB;
-
-    $result = $DB->get_records('booking_answers',
-            array('bookingid' => $booking->id, 'userid' => $user->id));
-
-    return count($result);
-}
-
-/**
  * Extend booking navigation settings
  *
  * @param settings_navigation $settings
@@ -708,21 +641,20 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     }
 
     if (has_capability('mod/booking:updatebooking', $context)) {
-        $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null,
-                navigation_node::TYPE_CONTAINER);
-        $settingnode->add(get_string('addnewbookingoption', 'booking'),
-                new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1)));
-        $settingnode->add(get_string('importcsvbookingoption', 'booking'),
-                new moodle_url('importoptions.php', array('id' => $cm->id)));
-        $settingnode->add(get_string('importexcelbutton', 'booking'),
-                new moodle_url('importexcel.php', array('id' => $cm->id)));
-        $settingnode->add(get_string('tagtemplates', 'booking'),
-                new moodle_url('tagtemplates.php', array('id' => $cm->id)));
         if (!is_null($optionid)) {
             $connectedbooking = $DB->count_records('booking_other', array('optionid' => $optionid));
             $settingnode = $navref->add(get_string("optionmenu", "booking"), null,
                     navigation_node::TYPE_CONTAINER);
-            $settingnode->add(get_string('updatebooking', 'booking'),
+            $keys = $settingnode->parent->get_children_key_list();
+            foreach ($keys as $key => $name) {
+                if ($name == 'modedit' || $name == 'roleassign' || $name == 'roleoverride'
+                        || $name == 'rolecheck' || $name == 'filtermanage'
+                        || $name == 'logreport' || $name == 'backup'
+                        || $name == 'restore') {
+                    $node = $settingnode->parent->get($name)->remove();
+                }
+            }
+            $settingnode->add(get_string('edit', 'core'),
                     new moodle_url('/mod/booking/editoptions.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
             $settingnode->add(get_string('duplicatebooking', 'booking'),
@@ -735,13 +667,22 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             $settingnode->add(get_string('optiondates', 'booking'),
                     new moodle_url('/mod/booking/optiondates.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
-            if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) &&
-                     $connectedbooking > 0) {
+            if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) && $connectedbooking > 0) {
                 $settingnode->add(get_string('editotherbooking', 'booking'),
                         new moodle_url('/mod/booking/otherbooking.php',
                                 array('id' => $cm->id, 'optionid' => $optionid)));
             }
         }
+        $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null,
+                navigation_node::TYPE_CONTAINER);
+        $settingnode->add(get_string('addnewbookingoption', 'booking'),
+                new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1)));
+        $settingnode->add(get_string('importcsvbookingoption', 'booking'),
+                new moodle_url('importoptions.php', array('id' => $cm->id)));
+        $settingnode->add(get_string('importexcelbutton', 'booking'),
+                new moodle_url('importexcel.php', array('id' => $cm->id)));
+        $settingnode->add(get_string('tagtemplates', 'booking'),
+                new moodle_url('tagtemplates.php', array('id' => $cm->id)));
     }
 }
 
@@ -762,129 +703,6 @@ function booking_check_if_teacher($option) {
     } else {
         return true;
     }
-}
-
-/**
- * Manually enrol the user in the relevant course, if that setting is on and a course has been specified.
- *
- * @param object $option
- * @param object $booking
- * @param int $userid
- */
-function booking_enrol_user($option, $booking, $userid) {
-    global $DB;
-
-    if (!$option->courseid) {
-        return; // No course specified.
-    }
-
-    if (!enrol_is_enabled('manual')) {
-        return; // Manual enrolment not enabled.
-    }
-
-    if (!$enrol = enrol_get_plugin('manual')) {
-        return; // No manual enrolment plugin
-    }
-    if (!$instances = $DB->get_records('enrol',
-            array('enrol' => 'manual', 'courseid' => $option->courseid,
-                'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
-        return; // No manual enrolment instance on this course.
-    }
-
-    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-
-    $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
-
-    if ($booking->addtogroup == 1) {
-        if (!is_null($option->groupid) && ($option->groupid > 0)) {
-            groups_add_member($option->groupid, $userid);
-        }
-    }
-}
-
-/**
- * Automatically enrol the user in the relevant course, if that setting is on and a course has been specified.
- *
- * @param object $option
- * @param object $booking
- * @param int $userid
- */
-function booking_check_enrol_user($option, $booking, $userid) {
-    global $DB;
-
-    if (!$booking->autoenrol) {
-        return; // Autoenrol not enabled.
-    }
-    if (!$option->courseid) {
-        return; // No course specified.
-    }
-
-    if (!enrol_is_enabled('manual')) {
-        return; // Manual enrolment not enabled.
-    }
-
-    if (!$enrol = enrol_get_plugin('manual')) {
-        return; // No manual enrolment plugin
-    }
-    if (!$instances = $DB->get_records('enrol',
-            array('enrol' => 'manual', 'courseid' => $option->courseid,
-                'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
-        return; // No manual enrolment instance on this course.
-    }
-
-    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-
-    $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
-
-    if ($booking->addtogroup == 1) {
-        if (!is_null($option->groupid) && ($option->groupid > 0)) {
-            groups_add_member($option->groupid, $userid);
-        }
-    }
-}
-
-/**
- * Automatically unenrol the user from the relevant course or group, if that setting is on and a course has been specified.
- *
- * @param object $option
- * @param object $booking
- * @param int $userid
- */
-function booking_check_unenrol_user($option, $booking, $userid) {
-    global $DB;
-
-    if (!$booking->autoenrol) {
-        return; // Autoenrol not enabled.
-    }
-    if (!$option->courseid) {
-        return; // No course specified.
-    }
-    if (!enrol_is_enabled('manual')) {
-        return; // Manual enrolment not enabled.
-    }
-    if (!$enrol = enrol_get_plugin('manual')) {
-        return; // No manual enrolment plugin
-    }
-    if (!$instances = $DB->get_records('enrol',
-            array('enrol' => 'manual', 'courseid' => $option->courseid,
-                'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
-        return; // No manual enrolment instance on this course.
-    }
-    if ($booking->addtogroup == 1) {
-        if (!is_null($option->groupid) && ($option->groupid > 0)) {
-            $groupsofuser = groups_get_all_groups($option->courseid, $userid);
-            $numberofgroups = count($groupsofuser);
-            // When user is member of only 1 group: unenrol from course otherwise remove from group
-            if ($numberofgroups > 1) {
-                groups_remove_member($option->groupid, $userid);
-                return;
-            }
-        }
-    }
-
-    $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-
-    $enrol->unenrol_user($instance, $userid); // Unenrol the user.
 }
 
 /**
@@ -932,9 +750,9 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
  * Generate new numbers for users
  *
  * @param unknown $bookingdatabooking
- * @param unknown $cmid
- * @param unknown $optionid
- * @param unknown $allselectedusers
+ * @param number $cmid
+ * @param number $optionid
+ * @param array $allselectedusers
  */
 function booking_generatenewnumners($bookingdatabooking, $cmid, $optionid, $allselectedusers) {
     global $DB;
@@ -1701,10 +1519,13 @@ function booking_send_confirm_message($eventdata) {
                 $data);
 
         // Generate ical attachment to go with the message.
-        $ical = new booking_ical($eventdata->booking, $eventdata->booking->option[$optionid], $user,
-                $bookingmanager);
-        if ($attachment = $ical->get_attachment()) {
-            $attachname = $ical->get_name();
+        // Check if ical attachments enabled.
+        if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
+            $ical = new mod_booking\ical($eventdata->booking, $eventdata->booking->option[$optionid], $user,
+                    $bookingmanager);
+            if ($attachment = $ical->get_attachment()) {
+                $attachname = $ical->get_name();
+            }
         }
     } else if ($data->status == get_string('onwaitinglist', 'booking')) {
         $subject = get_string('confirmationsubjectwaitinglist', 'booking', $data);
@@ -1837,8 +1658,8 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
 
     $val = '';
 
-    if (!is_null($option->times)) {
-        $times = explode(',', $option->times);
+    if (!empty($option->optiontimes)) {
+        $times = explode(',', $option->optiontimes);
         foreach ($times as $time) {
             $slot = explode('-', $time);
             $tmpdate = new stdClass();
@@ -1916,121 +1737,6 @@ function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid
         return $sortedresponses[$firstuseronwaitinglist];
     } else {
         return false;
-    }
-}
-
-/**
- * Checks if required user profile fields are filled out
- *
- * @param $userid to be checked
- * @return false if no redirect necessery true if necessary
- */
-function booking_check_user_profile_fields($userid) {
-    global $DB;
-    $redirect = false;
-    if ($categories = $DB->get_records('user_info_category', array(), 'sortorder ASC')) {
-        foreach ($categories as $category) {
-            if ($fields = $DB->get_records_select('user_info_field', "categoryid=$category->id",
-                    array(), 'sortorder ASC')) {
-                // check first if *any* fields will be displayed and if there are required fields
-                $requiredfields = array();
-                $redirect = false;
-                foreach ($fields as $field) {
-                    if ($field->visible != 0 && $field->required == 1) {
-                        if (!$userdata = $DB->get_field('user_info_data', 'data',
-                                array("userid" => $userid, "fieldid" => $field->id))) {
-                            $redirect = true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return $redirect;
-}
-
-/**
- * Deletes a booking option and the associated user answers
- *
- * @param $bookingid the booking instance
- * @param $optionid the booking option
- * @return false if not successful, true on success
- */
-function booking_delete_booking_option($booking, $optionid) {
-    global $DB;
-
-    if (!$option = $DB->get_record("booking_options", array("id" => $optionid))) {
-        return false;
-    }
-
-    $result = true;
-
-    $params = array('bookingid' => $booking->id, 'optionid' => $optionid);
-    $userids = $DB->get_fieldset_select('booking_answers', 'userid',
-            'bookingid = :bookingid AND optionid = :optionid', $params);
-    foreach ($userids as $userid) {
-        booking_check_unenrol_user($option, $booking, $userid); // Unenrol any users enroled via this option.
-    }
-    if (!$DB->delete_records("booking_answers",
-            array("bookingid" => $booking->id, "optionid" => $optionid))) {
-        $result = false;
-    }
-
-        // Delete calendar entry, if any.
-    $eventid = $DB->get_field('booking_options', 'calendarid', array('id' => $optionid));
-    $eventexists = true;
-    if ($event->id > 0) {
-        // Delete event if exist.
-        try {
-            $event = calendar_event::load($eventid);
-        } catch (Exception $e) {
-            $eventexists = false;
-        }
-        if ($eventexists) {
-            $event->delete(true);
-        }
-    }
-
-    if (!$DB->delete_records("booking_options", array("id" => $optionid))) {
-        $result = false;
-    }
-
-    return $result;
-}
-
-function booking_profile_definition(&$mform) {
-    global $CFG, $DB;
-
-    // If user is "admin" fields are displayed regardless.
-    $update = has_capability('moodle/user:update', context_system::instance());
-
-    if ($categories = $DB->get_records('user_info_category', array(), 'sortorder ASC')) {
-        foreach ($categories as $category) {
-            if ($fields = $DB->get_records_select('user_info_field', "categoryid=$category->id",
-                    array(), 'sortorder ASC')) {
-
-                // Check first if *any* fields will be displayed.
-                $display = false;
-                foreach ($fields as $field) {
-                    if ($field->visible != PROFILE_VISIBLE_NONE) {
-                        $display = true;
-                    }
-                }
-
-                // Display the header and the fields.
-                if ($display or $update) {
-                    $mform->addElement('header', 'category_' . $category->id,
-                            format_string($category->name));
-                    foreach ($fields as $field) {
-                        require_once($CFG->dirroot . '/user/profile/field/' . $field->datatype .
-                                 '/field.class.php');
-                        $newfield = 'profile_field_' . $field->datatype;
-                        $formfield = new $newfield($field->id);
-                        $formfield->edit_field($mform);
-                    }
-                }
-            }
-        }
     }
 }
 

@@ -23,9 +23,7 @@ require_once($CFG->libdir . '/formslib.php');
 class mod_booking_sendmessage_form extends moodleform {
 
     public function definition() {
-        global $CFG, $DB, $COURSE;
 
-        $context = context_system::instance();
         $mform = $this->_form;
 
         $mform->addElement('header', 'general', get_string('general', 'form'));

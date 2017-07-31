@@ -387,18 +387,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setType('showhelpfullnavigationlinks', PARAM_INT);
         // ----TAGS---------------------------------------------------
 
-        if ($CFG->branch < 31) {
-            // This is valid before v3.1
-            $mform->addElement('header', 'tagsheader', get_string('tags'));
-            $taglink = new moodle_url('/tag/search.php', array());
-            $mform->addElement('static', 'searchtag', '',
-                    '<a target="_blank" href="' . $taglink . '">' .
-                             get_string('searchtag', 'booking') . '</a>');
-            $mform->addElement('tags', 'tags', get_string('tags'));
-        }
-
         $options = array();
-
         $options[0] = "&nbsp;";
         $categories = $DB->get_records('booking_category',
                 array('course' => $COURSE->id, 'cid' => 0));
@@ -467,18 +456,13 @@ class mod_booking_mod_form extends moodleform_mod {
         parent::data_preprocessing($defaultvalues);
         $options = array('subdirs' => false, 'maxfiles' => 50, 'accepted_types' => array('*'),
             'maxbytes' => 0);
-
         if ($this->current->instance) {
             $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
-            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking',
-                    'myfilemanager', $this->current->id, $options);
+            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'myfilemanager',
+                    $this->current->id, $options);
             $defaultvalues['myfilemanager'] = $draftitemid;
 
-            if ($CFG->branch >= 31) {
-                core_tag_tag::get_item_tags_array('mod_booking', 'booking', $this->current->id);
-            } else {
-                $defaultvalues['tags'] = tag_get_tags_array('booking', $this->current->id);
-            }
+            core_tag_tag::get_item_tags_array('mod_booking', 'booking', $this->current->id);
         } else {
             $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
             file_prepare_draft_area($draftitemid, null, 'mod_booking', 'myfilemanager', 0, $options);

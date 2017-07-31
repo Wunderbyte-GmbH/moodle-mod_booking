@@ -23,9 +23,6 @@ require_once($CFG->libdir . '/formslib.php');
 class mod_booking_institution_form extends moodleform {
 
     public function definition() {
-        global $CFG, $DB, $COURSE;
-
-        $context = context_system::instance();
 
         $mform = $this->_form;
 

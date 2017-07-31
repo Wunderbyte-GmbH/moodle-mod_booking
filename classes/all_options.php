@@ -31,7 +31,7 @@ class all_options extends table_sql {
 
     public $context = null;
 
-    public function __construct($uniqueid, $booking, $cm, $context) {
+    public function __construct($uniqueid, \mod_booking\booking $booking, $cm, $context) {
         parent::__construct($uniqueid);
 
         $this->collapsible(true);
@@ -43,39 +43,62 @@ class all_options extends table_sql {
     }
 
     protected function col_id($values) {
-        global $OUTPUT;
-
+        global $OUTPUT, $CFG;
         $ret = "";
 
-        if (has_capability('mod/booking:updatebooking', $this->context)) {
-            $ret .= \html_writer::link(
-                    new moodle_url('/mod/booking/editoptions.php',
-                            array('id' => $this->cm->id, 'optionid' => $values->id)),
-                    \html_writer::empty_tag('img',
-                            array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'),
-                                'alt' => get_string('updatebooking', 'mod_booking'))));
-        }
+        if ($CFG->branch >= 33) {
+            if (has_capability('mod/booking:updatebooking', $this->context)) {
+                $ret .= \html_writer::link(
+                        new moodle_url('/mod/booking/editoptions.php',
+                                array('id' => $this->cm->id, 'optionid' => $values->id)),
+                        $OUTPUT->pix_icon('t/edit', get_string('updatebooking', 'mod_booking')));
+            }
 
-        if (has_capability('mod/booking:updatebooking', $this->context)) {
-            $ret .= \html_writer::link(
-                    new moodle_url('/mod/booking/report.php',
-                            array('id' => $this->cm->id, 'optionid' => $values->id,
-                                'action' => 'deletebookingoption', 'sesskey' => sesskey())),
-                    \html_writer::empty_tag('img',
-                            array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/delete'),
-                                'alt' => get_string('deletebookingoption', 'mod_booking'))));
-        }
+            if (has_capability('mod/booking:updatebooking', $this->context)) {
+                $ret .= \html_writer::link(
+                        new moodle_url('/mod/booking/report.php',
+                                array('id' => $this->cm->id, 'optionid' => $values->id,
+                                    'action' => 'deletebookingoption', 'sesskey' => sesskey())),
+                        $OUTPUT->pix_icon('t/delete', get_string('deletebookingoption', 'mod_booking')));
+            }
 
-        if ($values->iambooked) {
-            $ret .= html_writer::link(
-                    new moodle_url('/mod/booking/viewconfirmation.php',
-                            array('id' => $this->cm->id, 'optionid' => $values->id)),
-                    \html_writer::empty_tag('img',
-                            array('class' => 'icon', 'src' => $OUTPUT->pix_url('i/report'),
-                                'alt' => get_string('bookedtext', 'mod_booking'))),
-                    array('target' => '_blank'));
-        }
+            if ($values->iambooked) {
+                $ret .= \html_writer::link(
+                        new moodle_url('/mod/booking/viewconfirmation.php',
+                                array('id' => $this->cm->id, 'optionid' => $values->id)),
+                        $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')),
+                        array('target' => '_blank'));
+            }
+        } else {
+            if (has_capability('mod/booking:updatebooking', $this->context)) {
+                $ret .= \html_writer::link(
+                        new moodle_url('/mod/booking/editoptions.php',
+                                array('id' => $this->cm->id, 'optionid' => $values->id)),
+                        \html_writer::empty_tag('img',
+                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'),
+                                    'alt' => get_string('updatebooking', 'mod_booking'))));
+            }
 
+            if (has_capability('mod/booking:updatebooking', $this->context)) {
+                $ret .= \html_writer::link(
+                        new moodle_url('/mod/booking/report.php',
+                                array('id' => $this->cm->id, 'optionid' => $values->id,
+                                    'action' => 'deletebookingoption', 'sesskey' => sesskey())),
+                        \html_writer::empty_tag('img',
+                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/delete'),
+                                    'alt' => get_string('deletebookingoption', 'mod_booking'))));
+            }
+
+            if ($values->iambooked) {
+                $ret .= html_writer::link(
+                        new moodle_url('/mod/booking/viewconfirmation.php',
+                                array('id' => $this->cm->id, 'optionid' => $values->id)),
+                        \html_writer::empty_tag('img',
+                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('i/report'),
+                                    'alt' => get_string('bookedtext', 'mod_booking'))),
+                        array('target' => '_blank'));
+            }
+        }
         return $ret;
     }
 
@@ -178,7 +201,7 @@ class all_options extends table_sql {
         // Custom fields
         $customfields = $DB->get_records('booking_customfields', array('optionid' => $values->id));
         $customfieldcfg = \mod_booking\booking_option::get_customfield_settings();
-        if ($customfields) {
+        if ($customfields && !empty($customfieldcfg)) {
             foreach ($customfields as $field) {
                 if (!empty($field->value)) {
                     $cfgvalue = $customfieldcfg[$field->cfgname]['value'];
@@ -291,8 +314,8 @@ class all_options extends table_sql {
             $places->maxoverbooking = $values->maxoverbooking;
             $places->overbookingavailable = $values->maxoverbooking - $values->waiting;
 
-            return $button . $delete . $booked . get_string("placesavailable", "booking", $places) .
-                     "<br />" . get_string("waitingplacesavailable", "booking", $places) . $manage;
+            return $button . $delete . $booked .  "<div>" . get_string("placesavailable", "booking", $places) .
+                     "</div><div>" . get_string("waitingplacesavailable", "booking", $places) . "</div>" . $manage;
         }
     }
 
