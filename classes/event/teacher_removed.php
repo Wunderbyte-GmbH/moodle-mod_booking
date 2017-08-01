@@ -8,12 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * The mod_booking taecher added event.
@@ -36,27 +35,27 @@ defined('MOODLE_INTERNAL') || die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class teacher_removed extends \core\event\base {
-	
-	/**
-	 * Init method.
-	 */
-	protected function init() {
-		$this->data['crud'] = 'd';
-		$this->data['edulevel'] = self::LEVEL_TEACHING;
-		$this->data['objecttable'] = 'booking_teachers';
-	}
-	
-	/**
-	 * Returns localised general event name.
-	 *
-	 * @return string
-	 */
-	public static function get_name() {
-		return get_string('eventteacher_removed', 'mod_booking');
-	}
-	
-	public function get_description() {
-		return "The user with id '$this->userid' removed teacher with user id '$this->relateduserid' from the booking option with the option id
+
+    /**
+     * Init method.
+     */
+    protected function init() {
+        $this->data['crud'] = 'd';
+        $this->data['edulevel'] = self::LEVEL_TEACHING;
+        $this->data['objecttable'] = 'booking_teachers';
+    }
+
+    /**
+     * Returns localised general event name.
+     *
+     * @return string
+     */
+    public static function get_name() {
+        return get_string('eventteacher_removed', 'mod_booking');
+    }
+
+    public function get_description() {
+        return "The user with id '$this->userid' removed teacher with user id '$this->relateduserid' from the booking option with the option id
         '$this->objectid'";
     }
 
@@ -67,6 +66,6 @@ class teacher_removed extends \core\event\base {
      */
     public function get_url() {
         return new \moodle_url('/mod/booking/teachers.php',
-        		array('id' => $this->contextinstanceid, 'optionid' => $this->objectid));
+                array('id' => $this->contextinstanceid, 'optionid' => $this->objectid));
     }
 }
