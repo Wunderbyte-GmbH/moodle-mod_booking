@@ -8,83 +8,87 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 defined('MOODLE_INTERNAL') || die();
+
 
 /**
  * mod_booking data generator
  *
- * @package    mod_booking
- * @category   test
- * @copyright  2017 Andraž Prinčič {@link https://www.princic.net}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod_booking
+ * @category test
+ * @copyright 2017 Andraž Prinčič {@link https://www.princic.net}
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_booking_generator extends testing_module_generator {
-		
-	/**
-	 * @var int keep track of how many booking options have been created.
-	 */
-	protected $bookingoptions = 0;
-	
-	/**
-	 * To be called from data reset code only,
-	 * do not use in tests.
-	 * @return void
-	 */
-	public function reset() {	
-		$this->bookingoptions = 0;
-		
-		parent::reset();
-	}
-	
-	public function create_instance($record = null, array $options = NULL) {
-		global $CFG;
-		require_once($CFG->dirroot.'/mod/booking/lib.php');
-		$record = (object)(array)$record;
-		
-		if (!isset($record->assessed)) {
-			$record->assessed = 0;
-		}
-		
-		return parent::create_instance($record, $options);
-	}
-	
-	/**
-	 * Function to create a dummy option.
-	 *
-	 * @param array|stdClass $record
-	 * @return stdClass the booking option object
-	 */
-	public function create_option($record = null) {
-		global $DB;
-						
-		$record = (array)$record;
-		
-		if (!isset($record['bookingid'])) {
-			throw new coding_exception('bookingid must be present in phpunit_util::create_option() $record');
-		}
-		
-		if (!isset($record['text'])) {
-			throw new coding_exception('text must be present in phpunit_util::create_option() $record');
-		}
-		
-		if (!isset($record['courseid'])) {
-			throw new coding_exception('courseid must be present in phpunit_util::create_option() $record');
-		}
-		
-		// Increment the forum subscription count.
-		$this->bookingoptions++;
-		
-		$record = (object)$record;
-		
-		// Add the subscription.
-		$record->id = $DB->insert_record('booking_options', $record);
-		
-		return $record;
-	}
+
+    /**
+     *
+     * @var int keep track of how many booking options have been created.
+     */
+    protected $bookingoptions = 0;
+
+    /**
+     * To be called from data reset code only, do not use in tests.
+     * 
+     * @return void
+     */
+    public function reset() {
+        $this->bookingoptions = 0;
+        
+        parent::reset();
+    }
+
+    public function create_instance($record = null, array $options = NULL) {
+        global $CFG;
+        require_once ($CFG->dirroot . '/mod/booking/lib.php');
+        $record = (object) (array) $record;
+        
+        if (!isset($record->assessed)) {
+            $record->assessed = 0;
+        }
+        
+        return parent::create_instance($record, $options);
+    }
+
+    /**
+     * Function to create a dummy option.
+     *
+     * @param array|stdClass $record
+     * @return stdClass the booking option object
+     */
+    public function create_option($record = null) {
+        global $DB;
+        
+        $record = (array) $record;
+        
+        if (!isset($record['bookingid'])) {
+            throw new coding_exception(
+                    'bookingid must be present in phpunit_util::create_option() $record');
+        }
+        
+        if (!isset($record['text'])) {
+            throw new coding_exception(
+                    'text must be present in phpunit_util::create_option() $record');
+        }
+        
+        if (!isset($record['courseid'])) {
+            throw new coding_exception(
+                    'courseid must be present in phpunit_util::create_option() $record');
+        }
+        
+        // Increment the forum subscription count.
+        $this->bookingoptions++;
+        
+        $record = (object) $record;
+        
+        // Add the subscription.
+        $record->id = $DB->insert_record('booking_options', $record);
+        
+        return $record;
+    }
 }
