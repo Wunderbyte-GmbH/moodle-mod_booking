@@ -1771,8 +1771,9 @@ function booking_update_subscriptions_button($id, $optionid) {
  * @global object
  * @param int $userid
  * @param int $optionid
+ * @param $cm
  */
-function booking_optionid_subscribe($userid, $optionid) {
+function booking_optionid_subscribe($userid, $optionid, $cm) {
     global $DB;
 
     if ($DB->record_exists("booking_teachers", array("userid" => $userid, "optionid" => $optionid))) {
@@ -1785,8 +1786,16 @@ function booking_optionid_subscribe($userid, $optionid) {
     $sub->userid = $userid;
     $sub->optionid = $optionid;
     $sub->bookingid = $option->bookingid;
+    
+    $inserted = $DB->insert_record("booking_teachers", $sub);
+    
+    if ($inserted) {
+    	$event = \mod_booking\event\teacher_added::create(
+    			array('relateduserid' => $userid, 'objectid' => $optionid, 'context' => context_module::instance($cm->id)));
+    	$event->trigger();
+    }
 
-    return $DB->insert_record("booking_teachers", $sub);
+    return $inserted;
 }
 
 /**
@@ -1795,9 +1804,15 @@ function booking_optionid_subscribe($userid, $optionid) {
  * @global object
  * @param int $userid
  * @param int $optionid
+ * @param $cm
  */
-function booking_optionid_unsubscribe($userid, $optionid) {
+function booking_optionid_unsubscribe($userid, $optionid, $cm) {
     global $DB;
+    
+    $event = \mod_booking\event\teacher_removed::create(
+    		array('relateduserid' => $userid, 'objectid' => $optionid, 'context' => context_module::instance($cm->id)));
+    $event->trigger();
+    
     return ($DB->delete_records('booking_teachers',
             array('userid' => $userid, 'optionid' => $optionid)));
 }

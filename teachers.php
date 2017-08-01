@@ -91,14 +91,14 @@ if ($edit === 0) {
     if ($subscribe) {
         $users = $subscriberselector->get_selected_users();
         foreach ($users as $user) {
-            if (!booking_optionid_subscribe($user->id, $optionid)) {
+            if (!booking_optionid_subscribe($user->id, $optionid, $cm)) {
                 print_error('cannotaddsubscriber', 'booking', '', $user->id);
             }
         }
     } else if ($unsubscribe) {
         $users = $existingselector->get_selected_users();
         foreach ($users as $user) {
-            if (!booking_optionid_unsubscribe($user->id, $optionid)) {
+        	if (!booking_optionid_unsubscribe($user->id, $optionid, $cm)) {
                 print_error('cannotremovesubscriber', 'booking', '', $user->id);
             }
         }

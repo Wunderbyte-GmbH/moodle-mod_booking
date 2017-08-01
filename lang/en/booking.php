@@ -19,6 +19,10 @@ $string['question'] = "Question";
 $string['answer'] = "Answer";
 $string['topic'] = "Topic";
 
+// teacher_added.php
+$string['eventteacher_added'] = 'Teacher added';
+$string['eventteacher_removed'] = 'Teacher removed';
+
 // renderer.php
 $string['showonlymyinstitutions'] = "My institution";
 
