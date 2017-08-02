@@ -43,9 +43,11 @@ class mod_booking_generator extends testing_module_generator {
         parent::reset();
     }
 
-    public function create_instance($record = null, array $options = NULL) {
+    public function create_instance($record = null, array $options = null) {
         global $CFG;
+
         require_once ($CFG->dirroot . '/mod/booking/lib.php');
+
         $record = (object) (array) $record;
 
         if (!isset($record->assessed)) {
