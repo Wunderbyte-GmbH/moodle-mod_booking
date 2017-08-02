@@ -35,8 +35,8 @@ defined('MOODLE_INTERNAL') || die();
  */
 class mod_booking_events_testcase extends advanced_testcase {
 
-    private $bdata = array('course' => $course->id, 'name' => 'Test Booking',
-                    'eventtype' => 'Test event', 'bookingmanager' => $user2->username,
+    private $bdata = array('name' => 'Test Booking',
+                    'eventtype' => 'Test event',
                     'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
                     'notifyemail' => array('text' => 'text'), 'statuschangetext' => array('text' => 'text'),
                     'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
@@ -64,7 +64,11 @@ class mod_booking_events_testcase extends advanced_testcase {
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
 
-        $booking = $this->getDataGenerator()->create_module('booking', $this->bdata);
+        $bdata = $this->bdata;
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $user2->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
 
         $this->setUser($user2);
         $this->setAdminUser();
@@ -114,7 +118,11 @@ class mod_booking_events_testcase extends advanced_testcase {
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
 
-        $booking = $this->getDataGenerator()->create_module('booking', $this->bdata);
+        $bdata = $this->bdata;
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $user2->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
 
         $this->setUser($user2);
         $this->setAdminUser();
