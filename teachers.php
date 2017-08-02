@@ -13,9 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-require_once ("../../config.php");
-require_once ("locallib.php");
-require_once ("teachers_form.php");
+require_once("../../config.php");
+require_once("locallib.php");
+require_once("teachers_form.php");
 
 $id = required_param('id', PARAM_INT);
 $optionid = required_param('optionid', PARAM_INT);

@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 defined('MOODLE_INTERNAL') || die();
-require_once ($CFG->dirroot . '/calendar/lib.php');
-require_once ($CFG->libdir . '/filelib.php');
-require_once ($CFG->dirroot . '/question/category_class.php');
-require_once ($CFG->dirroot . '/group/lib.php');
-require_once ($CFG->libdir . '/eventslib.php');
-require_once ($CFG->dirroot . '/user/selector/lib.php');
+require_once($CFG->dirroot . '/calendar/lib.php');
+require_once($CFG->libdir . '/filelib.php');
+require_once($CFG->dirroot . '/question/category_class.php');
+require_once($CFG->dirroot . '/group/lib.php');
+require_once($CFG->libdir . '/eventslib.php');
+require_once($CFG->dirroot . '/user/selector/lib.php');
 
 function booking_cron() {
     global $DB, $USER, $CFG;
@@ -80,7 +80,7 @@ function booking_cron() {
 
 function booking_get_coursemodule_info($cm) {
     global $CFG, $DB;
-    require_once ("$CFG->dirroot/mod/booking/locallib.php");
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
 
     $tags = new booking_tags($cm);
     $info = new cached_cm_info();
@@ -375,7 +375,7 @@ function booking_update_instance($booking) {
  */
 function booking_update_options($optionvalues) {
     global $DB, $CFG;
-    require_once ("$CFG->dirroot/mod/booking/locallib.php");
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
     $customfields = \mod_booking\booking_option::get_customfield_settings();
     $customfield = new stdClass();
 
@@ -865,7 +865,7 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
 function booking_get_user_grades($booking, $userid = 0) {
     global $CFG;
 
-    require_once ($CFG->dirroot . '/rating/lib.php');
+    require_once($CFG->dirroot . '/rating/lib.php');
 
     $ratingoptions = new stdClass();
     $ratingoptions->component = 'mod_booking';
@@ -895,7 +895,7 @@ function booking_get_user_grades($booking, $userid = 0) {
  */
 function booking_update_grades($booking, $userid = 0, $nullifnone = true) {
     global $CFG, $DB;
-    require_once ($CFG->libdir . '/gradelib.php');
+    require_once($CFG->libdir . '/gradelib.php');
 
     if (!$booking->assessed) {
         booking_grade_item_update($booking);
@@ -925,7 +925,7 @@ function booking_update_grades($booking, $userid = 0, $nullifnone = true) {
 function booking_grade_item_update($booking, $grades = null) {
     global $CFG;
     if (!function_exists('grade_update')) { // workaround for buggy PHP versions
-        require_once ($CFG->libdir . '/gradelib.php');
+        require_once($CFG->libdir . '/gradelib.php');
     }
 
     $params = array('itemname' => $booking->name, 'idnumber' => $booking->cmidnumber);
@@ -958,7 +958,7 @@ function booking_grade_item_update($booking, $grades = null) {
  */
 function booking_grade_item_delete($booking) {
     global $CFG;
-    require_once ($CFG->libdir . '/gradelib.php');
+    require_once($CFG->libdir . '/gradelib.php');
 
     return grade_update('mod/booking', $booking->course, 'mod', 'booking', $booking->id, 0, null,
             array('deleted' => 1));
@@ -1104,7 +1104,7 @@ function booking_rating_validate($params) {
  */
 function booking_rate($ratings, $params) {
     global $CFG, $USER, $DB;
-    require_once ($CFG->dirroot . '/rating/lib.php');
+    require_once($CFG->dirroot . '/rating/lib.php');
 
     $contextid = $params->contextid;
     $component = 'mod_booking';
@@ -1168,7 +1168,7 @@ function booking_rate($ratings, $params) {
         $modinstance = $DB->get_record($cm->modname, array('id' => $cm->instance), '*', MUST_EXIST);
         $modinstance->cmidnumber = $cm->id; // MDL-12961.
         $functionname = $cm->modname . '_update_grades';
-        require_once ($CFG->dirroot . "/mod/{$cm->modname}/lib.php");
+        require_once($CFG->dirroot . "/mod/{$cm->modname}/lib.php");
         foreach ($ratings as $rating) {
             if (function_exists($functionname)) {
                 $functionname($modinstance, $rating->rateduserid);
@@ -1300,7 +1300,7 @@ function booking_sendcustommessage($optionid, $subject, $message, $uids) {
 
 function booking_send_notification($optionid, $subject, $tousers = array()) {
     global $DB, $USER, $CFG;
-    require_once ("$CFG->dirroot/mod/booking/locallib.php");
+    require_once("$CFG->dirroot/mod/booking/locallib.php");
 
     $returnval = true;
     $allusers = array();
