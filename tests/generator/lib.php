@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 defined('MOODLE_INTERNAL') || die();
 
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once ($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * mod_booking data generator
@@ -44,10 +46,6 @@ class mod_booking_generator extends testing_module_generator {
     }
 
     public function create_instance($record = null, array $options = null) {
-        global $CFG;
-
-        require_once ($CFG->dirroot . '/mod/booking/lib.php');
-
         $record = (object) (array) $record;
 
         if (!isset($record->assessed)) {
