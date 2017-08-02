@@ -24,7 +24,6 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-
 /**
  * Tests for forum events.
  *
@@ -34,15 +33,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_booking_events_testcase extends advanced_testcase {
-
-    private $bdata = array('name' => 'Test Booking',
-                    'eventtype' => 'Test event',
-                    'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
-                    'notifyemail' => array('text' => 'text'), 'statuschangetext' => array('text' => 'text'),
-                    'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
-                    'pollurlteacherstext' => array('text' => 'text'),
-                    'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
-                    'bookingpolicy' => 'bookingpolicy', 'tags' => '');
 
     /**
      * Tests set up.
@@ -54,17 +44,20 @@ class mod_booking_events_testcase extends advanced_testcase {
     public function tearDown() {
     }
 
-    /**
-     * Test teacher_added event.
-     */
-    public function test_teacher_added() {
-
+    private function _returnData() {
+        $bdata = array('name' => 'Test Booking',
+                        'eventtype' => 'Test event',
+                        'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
+                        'notifyemail' => array('text' => 'text'), 'statuschangetext' => array('text' => 'text'),
+                        'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
+                        'pollurlteacherstext' => array('text' => 'text'),
+                        'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
+                        'bookingpolicy' => 'bookingpolicy', 'tags' => '');
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
 
-        $bdata = $this->bdata;
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $user2->username;
 
@@ -86,6 +79,16 @@ class mod_booking_events_testcase extends advanced_testcase {
 
         $option = self::getDataGenerator()->get_plugin_generator('mod_booking')->create_option(
                 $record);
+
+        return array($user1, $option, $coursectx);
+    }
+
+    /**
+     * Test teacher_added event.
+     */
+    public function test_teacher_added() {
+
+        list($user1, $option, $coursectx) = $this->_returnData();
 
         $params = array('relateduserid' => $user1->id, 'objectid' => $option->id,
             'context' => $coursectx);
@@ -113,33 +116,7 @@ class mod_booking_events_testcase extends advanced_testcase {
      */
     public function test_teacher_removed() {
 
-        // Setup test data.
-        $course = $this->getDataGenerator()->create_course();
-        $user1 = $this->getDataGenerator()->create_user();
-        $user2 = $this->getDataGenerator()->create_user();
-
-        $bdata = $this->bdata;
-        $bdata['course'] = $course->id;
-        $bdata['bookingmanager'] = $user2->username;
-
-        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $this->setUser($user2);
-        $this->setAdminUser();
-
-        $this->getDataGenerator()->enrol_user($user1->id, $course->id);
-        $this->getDataGenerator()->enrol_user($user2->id, $course->id);
-
-        $coursectx = context_course::instance($course->id);
-
-        $record = new stdClass();
-        $record->bookingid = $booking->id;
-        $record->text = 'Test option';
-        $record->courseid = $course->id;
-        $record->description = 'Test description';
-
-        $option = self::getDataGenerator()->get_plugin_generator('mod_booking')->create_option(
-                $record);
+        list($user1, $option, $coursectx) = $this->_returnData();
 
         $params = array('relateduserid' => $user1->id, 'objectid' => $option->id,
             'context' => $coursectx);
