@@ -35,6 +35,15 @@ defined('MOODLE_INTERNAL') || die();
  */
 class mod_booking_events_testcase extends advanced_testcase {
 
+    private $bdata = array('course' => $course->id, 'name' => 'Test Booking',
+                    'eventtype' => 'Test event', 'bookingmanager' => $user2->username,
+                    'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
+                    'notifyemail' => array('text' => 'text'), 'statuschangetext' => array('text' => 'text'),
+                    'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
+                    'pollurlteacherstext' => array('text' => 'text'),
+                    'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
+                    'bookingpolicy' => 'bookingpolicy', 'tags' => '');
+
     /**
      * Tests set up.
      */
@@ -55,16 +64,7 @@ class mod_booking_events_testcase extends advanced_testcase {
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
 
-        $bdata = array('course' => $course->id, 'name' => 'Test Booking',
-            'eventtype' => 'Test event', 'bookingmanager' => $user2->username,
-            'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
-            'notifyemail' => array('text' => 'text'), 'statuschangetext' => array('text' => 'text'),
-            'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
-            'pollurlteacherstext' => array('text' => 'text'),
-            'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
-            'bookingpolicy' => 'bookingpolicy', 'tags' => '');
-
-        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+        $booking = $this->getDataGenerator()->create_module('booking', $this->bdata);
 
         $this->setUser($user2);
         $this->setAdminUser();
@@ -114,16 +114,7 @@ class mod_booking_events_testcase extends advanced_testcase {
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
 
-        $bdata = array('course' => $course->id, 'name' => 'Test Booking',
-            'eventtype' => 'Test event', 'bookingmanager' => $user2->username,
-            'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
-            'notifyemail' => array('text' => 'text'), 'statuschangetext' => array('text' => 'text'),
-            'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
-            'pollurlteacherstext' => array('text' => 'text'),
-            'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
-            'bookingpolicy' => 'bookingpolicy', 'tags' => '');
-
-        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+        $booking = $this->getDataGenerator()->create_module('booking', $this->bdata);
 
         $this->setUser($user2);
         $this->setAdminUser();
