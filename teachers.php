@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 require_once ("../../config.php");
 require_once ("locallib.php");
 require_once ("teachers_form.php");
@@ -21,7 +21,7 @@ $id = required_param('id', PARAM_INT);
 $optionid = required_param('optionid', PARAM_INT);
 $edit = optional_param('edit', 0, PARAM_INT);
 
-$url = new moodle_url('/mod/booking/teachers.php', 
+$url = new moodle_url('/mod/booking/teachers.php',
         array('id' => $id, 'optionid' => $optionid, 'edit' => $edit));
 
 $PAGE->set_url($url);
@@ -51,32 +51,32 @@ $subscriberselector->set_extra_fields(array('email'));
 
 if ($edit === 0) {
     $option = $DB->get_record("booking_options", array("id" => $optionid));
-    $allsubscribedteachers = booking_subscribed_teachers($course, $optionid, $id, $currentgroup, 
+    $allsubscribedteachers = booking_subscribed_teachers($course, $optionid, $id, $currentgroup,
             $context);
-    $mform = new mod_booking_teachers_form(null, 
-            array('teachers' => $allsubscribedteachers, 'option' => $option, 'cm' => $cm, 
+    $mform = new mod_booking_teachers_form(null,
+            array('teachers' => $allsubscribedteachers, 'option' => $option, 'cm' => $cm,
                 'id' => $id, 'optionid' => $optionid, 'edit' => $edit));
-    
+
     if ($mform->is_cancelled()) {
         redirect("report.php?id=$cm->id&optionid={$optionid}");
     } else if ($fromform = $mform->get_data()) {
-        
+
         if (isset($fromform->turneditingon) && has_capability('mod/booking:updatebooking', $context) &&
                  confirm_sesskey()) {
-            $urlr = new moodle_url('/mod/booking/teachers.php', 
+            $urlr = new moodle_url('/mod/booking/teachers.php',
                     array('id' => $id, 'optionid' => $optionid, 'edit' => 1));
             redirect($urlr, '', 0);
         }
-        
+
         if (isset($fromform->activitycompletion) &&
                  has_capability('mod/booking:readresponses', $context) && confirm_sesskey()) {
             $selectedusers[$optionid] = array_keys($fromform->user, 1);
-            
+
             if (empty($selectedusers[$optionid])) {
                 redirect($url, get_string('selectatleastoneuser', 'booking'), 5);
             }
-            
-            booking_activitycompletion_teachers($selectedusers, $booking->booking, $cm->id, 
+
+            booking_activitycompletion_teachers($selectedusers, $booking->booking, $cm->id,
                     $optionid);
             redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);
         }
@@ -132,7 +132,7 @@ if ($edit === 1) {
 }
 
 echo html_writer::link(
-        new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)), 
+        new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)),
         get_string('users', 'booking'), array('style' => 'float:right;'));
 echo '<br>';
 

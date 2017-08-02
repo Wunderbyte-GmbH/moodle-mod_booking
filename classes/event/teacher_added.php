@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * The mod_booking taecher added event.
@@ -65,7 +65,6 @@ class teacher_added extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/booking/teachers.php', 
-                array('id' => $this->contextinstanceid, 'optionid' => $this->objectid));
+        return new \moodle_url('/mod/booking/teachers.php', array('id' => $this->contextinstanceid, 'optionid' => $this->objectid));
     }
 }
