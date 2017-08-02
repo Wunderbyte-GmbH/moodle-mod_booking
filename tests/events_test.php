@@ -44,7 +44,7 @@ class mod_booking_events_testcase extends advanced_testcase {
     public function tearDown() {
     }
 
-    private function _returnData() {
+    private function returntestdata() {
         $bdata = array('name' => 'Test Booking',
                         'eventtype' => 'Test event',
                         'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
@@ -88,7 +88,7 @@ class mod_booking_events_testcase extends advanced_testcase {
      */
     public function test_teacher_added() {
 
-        list($user1, $option, $coursectx) = $this->_returnData();
+        list($user1, $option, $coursectx) = $this->returntestdata();
 
         $params = array('relateduserid' => $user1->id, 'objectid' => $option->id,
             'context' => $coursectx);
@@ -116,7 +116,7 @@ class mod_booking_events_testcase extends advanced_testcase {
      */
     public function test_teacher_removed() {
 
-        list($user1, $option, $coursectx) = $this->_returnData();
+        list($user1, $option, $coursectx) = $this->returntestdata();
 
         $params = array('relateduserid' => $user1->id, 'objectid' => $option->id,
             'context' => $coursectx);
