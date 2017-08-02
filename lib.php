@@ -1708,8 +1708,7 @@ function booking_get_email_body($booking, $fieldname, $defaultname, $params) {
  */
 function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid) {
     global $DB;
-    if (booking_get_user_status($cancelleduserid, $optionid, $booking->id, $cmid) !==
-             get_string('booked', 'booking')) {
+    if (booking_get_user_status($cancelleduserid, $optionid, $booking->id, $cmid) !== get_string('booked', 'booking')) {
         return false;
     }
     // backward compatibility hack TODO: remove
