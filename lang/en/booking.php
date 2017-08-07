@@ -105,6 +105,7 @@ $string['allchangessave'] = 'All changes have been saved.';
 $string['backtoresponses'] = '<< Back to responses';
 $string['allusersbooked'] = 'All {$a} selected users have successfully been assigned to this booking option.';
 $string['notallbooked'] = 'The following users could not be booked due to reaching the max number of bookings per user or lack of available places for the booking option: {$a}';
+$string['enroledinoptions'] =  " alredy booked in booking options: ";
 
 // Bookingform
 $string['address'] = 'Address';

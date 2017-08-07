@@ -106,7 +106,16 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
                     $output = '<br>';
                     if (!empty($notsubscribedusers)) {
                         foreach ($notsubscribedusers as $user) {
-                            $output .= $user->firstname . " $user->lastname <br>";
+                            $result = $DB->get_records_sql('SELECT bo.text FROM {booking_answers} AS ba LEFT JOIN {booking_options} AS bo ON bo.id = ba.optionid WHERE ba.userid = ? AND ba.bookingid = ?', array($user->id, $bookingoption->id));
+                            $output .= "{$user->firstname} {$user->lastname}";
+                            if (!empty($result)) {
+                                $r = array();
+                                foreach ($result AS $v) {
+                                    $r[] = $v->text;
+                                }
+                                $output .= get_string('enroledinoptions', 'mod_booking') . implode(', ', $r);
+                            }
+                            $output .= " <br>";
                         }
                     }
                     redirect($errorurl,
