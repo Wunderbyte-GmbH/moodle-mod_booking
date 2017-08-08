@@ -49,9 +49,11 @@ class all_options extends table_sql {
     <div class="action-menu moodle-actionmenu" id="action-menu-3" data-enhance="moodle-core-actionmenu">
         <div class="menubar" id="action-menu-3-menubar" role="menubar">
             <div class="dropdown d-inline" id="yui_3_17_2_1_1502106021226_30">
-                <a href="#" class="dropdown-toggle" id="action-menu-toggle-3" title="" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img class="icon " alt="" src="http://localhost/theme/image.php/boost/core/1501580972/t/edit"></a>
-                    <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-3-menu" data-rel="menu-content" aria-labelledby="action-menu-toggle-3" role="menu" data-align="tr-br">
-';
+                <a href="#" class="dropdown-toggle" id="action-menu-toggle-3" title="" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <img class="icon " alt="" src="http://localhost/theme/image.php/boost/core/1501580972/t/edit">
+                </a>
+                    <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-3-menu" data-rel="menu-content" aria-labelledby="action-menu-toggle-3"
+                        role="menu" data-align="tr-br">';
 
         if ($CFG->branch >= 33) {
             if (has_capability('mod/booking:updatebooking', $this->context)) {
