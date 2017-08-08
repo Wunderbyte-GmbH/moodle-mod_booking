@@ -111,7 +111,7 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
                             $output .= "{$user->firstname} {$user->lastname}";
                             if (!empty($result)) {
                                 $r = array();
-                                foreach ($result AS $v) {
+                                foreach ($result as $v) {
                                     $r[] = $v->text;
                                 }
                                 $output .= get_string('enroledinoptions', 'mod_booking') . implode(', ', $r);
