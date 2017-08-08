@@ -106,7 +106,8 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
                     $output = '<br>';
                     if (!empty($notsubscribedusers)) {
                         foreach ($notsubscribedusers as $user) {
-                            $result = $DB->get_records_sql('SELECT bo.text FROM {booking_answers} AS ba LEFT JOIN {booking_options} AS bo ON bo.id = ba.optionid WHERE ba.userid = ? AND ba.bookingid = ?', array($user->id, $bookingoption->id));
+                            $result = $DB->get_records_sql('SELECT bo.text FROM {booking_answers} ba LEFT JOIN {booking_options} bo ON bo.id = ba.optionid WHERE ba.userid = ? AND
+                                        ba.bookingid = ?', array($user->id, $bookingoption->id));
                             $output .= "{$user->firstname} {$user->lastname}";
                             if (!empty($result)) {
                                 $r = array();
