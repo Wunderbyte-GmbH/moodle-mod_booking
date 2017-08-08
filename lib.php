@@ -291,6 +291,7 @@ function booking_add_instance($booking) {
  */
 function booking_update_instance($booking) {
     global $DB, $CFG;
+
     // We have to prepare the bookingclosingtimes as an $arrray, currently they are in $booking as $key (string).
     $booking->id = $booking->instance;
     $booking->timemodified = time();

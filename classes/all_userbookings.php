@@ -256,6 +256,14 @@ class all_userbookings extends table_sql {
         if (has_capability('mod/booking:deleteresponses', context_module::instance($this->cm->id))) {
             echo '<input type="submit" class="btn btn-secondary" name="deleteusers" value="' .
                      get_string('booking:deleteresponses', 'booking') . '" />';
+                     if ($this->bookingdata->booking->completionmodule > 0) {
+                         $result = $DB->get_record_sql('SELECT cm.id, cm.course, cm.module, cm.instance, m.name
+                FROM {course_modules} cm LEFT JOIN {modules} m ON m.id = cm.module WHERE cm.id = ?',
+                                 array($this->bookingdata->booking->completionmodule));
+                         $dynamic_activity_modules_data = $DB->get_record($result->name,array('id' => $result->instance));
+                echo '<input type="submit" class="btn btn-secondary" name="deleteusersactivitycompletion" value="' .
+                        get_string('deleteresponsesactivitycompletion', 'booking', $dynamic_activity_modules_data->name) . '" />';
+            }
         }
 
         if (has_capability('mod/booking:communicate', context_module::instance($this->cm->id))) {

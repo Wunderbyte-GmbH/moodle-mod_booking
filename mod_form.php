@@ -385,6 +385,26 @@ class mod_booking_mod_form extends moodleform_mod {
                 get_string('showhelpfullnavigationlinks', 'booking'), 0);
         $mform->setDefault('showhelpfullnavigationlinks', 1);
         $mform->setType('showhelpfullnavigationlinks', PARAM_INT);
+
+        if ($COURSE->enablecompletion > 0) {
+            $opts = array(-1 => get_string('disabled', 'mod_booking'));
+
+            $result = $DB->get_records_sql('SELECT cm.id, cm.course, cm.module, cm.instance, m.name
+                FROM {course_modules} cm LEFT JOIN {modules} m ON m.id = cm.module WHERE cm.course = ?
+                AND cm.completion > 0', array($COURSE->id));
+
+            foreach ($result as $r) {
+                $dynamic_activity_modules_data = $DB->get_record($r->name,array('id' => $r->instance));
+                $opts[$r->id] = $dynamic_activity_modules_data->name;
+            }
+
+            $mform->addElement('select', 'completionmodule', get_string('completionmodule', 'mod_booking'), $opts);
+            $mform->setDefault('completionmodule', -1);
+            $mform->addHelpButton('completionmodule', 'completionmodule', 'mod_booking');
+        } else {
+            $mform->addElement('hidden', 'completionmodule', '-1');
+        }
+
         // ----TAGS---------------------------------------------------
 
         $options = array();

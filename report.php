@@ -248,6 +248,22 @@ if (!$tableallbookings->is_downloading()) {
             redirect($url, get_string('generaterecnumnotification', 'booking'), 5);
         }
 
+        if (isset($_POST['deleteusersactivitycompletion']) && has_capability('mod/booking:deleteresponses', $context)){
+            $res = $bookingdata->delete_responses_activitycompletion();
+
+            $data = new stdClass();
+
+            $data->all = count($res);
+            $data->del = 0;
+            foreach ($res as $value) {
+                if ($value == true) {
+                    $data->del++;
+                }
+            }
+
+            redirect($url, get_string('delnotificationactivitycompletion', 'booking', $data), 5);
+        }
+
         $allselectedusers = array();
 
         if (isset($_POST['user'])) {

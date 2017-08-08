@@ -379,6 +379,36 @@ class booking_option extends booking {
     }
 
     /**
+     * Mass delete all users with activity completion
+     */
+    public function delete_responses_activitycompletion() {
+        global $DB;
+
+        $ud = array();
+        $oud = array();
+
+        $users = $DB->get_records('course_modules_completion', array('coursemoduleid' => $this->booking->completionmodule));
+        $ousers = $DB->get_records('booking_answers', array('optionid' => $this->optionid));
+
+        foreach ($users as $u) {
+            $ud[] = $u->userid;
+        }
+
+        foreach ($ousers as $u) {
+            $oud[] = $u->userid;
+        }
+
+        $toDelete = array_intersect($ud, $oud);
+
+        $results = array();
+        foreach ($toDelete as $userid) {
+            $results[$toDelete] = $this->user_delete_response($userid);
+        }
+
+        return $results;
+    }
+
+    /**
      * Mass delete all responses
      *
      * @param $users Array of users

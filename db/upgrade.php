@@ -1497,5 +1497,21 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017052300, 'booking');
     }
 
+    if ($oldversion < 2017080800) {
+
+        // Define field completionmodule to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('completionmodule', XMLDB_TYPE_INTEGER, '20', null, null, null, '-1', 'enablepresence');
+
+        // Conditionally launch add field completionmodule.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2017080800, 'booking');
+    }
+
+
     return true;
 }

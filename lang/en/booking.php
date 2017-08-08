@@ -126,6 +126,9 @@ $string['banusernames'] = "Ban usernames";
 $string['banusernames_help'] = "To limit which usernames can't apply just write in this field, and separate with coma. To ban usernames, that end with gmail.com and yahoo.com just write: gmail.com, yahoo.com";
 $string['showhelpfullnavigationlinks'] = 'Show navigation links.';
 $string['showhelpfullnavigationlinks_helt'] = 'Show "Go to registration" and "Go to top" links.';
+$string['disabled'] = 'Disabled';
+$string['completionmodule'] = 'Activity completed';
+$string['completionmodule_help'] = 'Delete all users, that completed this activity. Users will be deleted with a click of button on report page!';
 
 // Categories
 $string['category'] = 'Category';
@@ -769,6 +772,7 @@ $string['searchwaitinglist'] = 'On waiting list';
 $string['selectatleastoneuser'] = 'Please, select at least 1 user!';
 $string['selectanoption'] = 'Please, select a booking option';
 $string['delnotification'] = 'You deleted {$a->del} of {$a->all} users. Users, that have completed activity, can\'t be deleted!';
+$string['delnotificationactivitycompletion'] = 'You deleted {$a->del} of {$a->all} users. Users, that have completed activity, can\'t be deleted!';
 $string['selectoptionid'] = 'Please, select option!';
 $string['sendcustommessage'] = 'Send custom message';
 $string['sendpollurltoteachers'] = 'Send poll url';
@@ -806,6 +810,7 @@ $string['presence'] = "Presence";
 $string['confirmpresence'] = "Confirm presence";
 $string['selectpresencestatus'] = "Choose presence status";
 $string['userssucesfullygetnewpresencestatus'] = 'All users have a new presence status.';
+$string['deleteresponsesactivitycompletion'] = 'Delete all users with completed activity: {$a}';
 
 // Send message
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';
