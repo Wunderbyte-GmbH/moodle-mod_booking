@@ -248,7 +248,8 @@ if (!$tableallbookings->is_downloading()) {
             redirect($url, get_string('generaterecnumnotification', 'booking'), 5);
         }
 
-        if (isset($_POST['deleteusersactivitycompletion']) && has_capability('mod/booking:deleteresponses', $context)){
+        if (isset($_POST['deleteusersactivitycompletion']) &&
+                 has_capability('mod/booking:deleteresponses', $context)) {
             $res = $bookingdata->delete_responses_activitycompletion();
 
             $data = new stdClass();

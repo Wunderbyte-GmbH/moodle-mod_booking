@@ -398,11 +398,11 @@ class booking_option extends booking {
             $oud[] = $u->userid;
         }
 
-        $toDelete = array_intersect($ud, $oud);
+        $todelete = array_intersect($ud, $oud);
 
         $results = array();
-        foreach ($toDelete as $userid) {
-            $results[$toDelete] = $this->user_delete_response($userid);
+        foreach ($todelete as $userid) {
+            $results[$todelete] = $this->user_delete_response($userid);
         }
 
         return $results;
