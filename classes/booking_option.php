@@ -402,7 +402,7 @@ class booking_option extends booking {
 
         $results = array();
         foreach ($todelete as $userid) {
-            $results[$todelete] = $this->user_delete_response($userid);
+            $results[$userid] = $this->user_delete_response($userid);
         }
 
         return $results;

@@ -45,6 +45,83 @@ class mod_booking_booking_option_testcase extends advanced_testcase {
     }
 
     public function test_delete_responses_activitycompletion() {
+        global $DB, $CFG;
 
+        $CFG->enablecompletion = 1;
+
+        $bdata = array('name' => 'Test Booking 1', 'eventtype' => 'Test event', 'enablecompletion' => 1,
+            'bookedtext' => array('text' => 'text'), 'waitingtext' => array('text' => 'text'),
+            'notifyemail' => array('text' => 'text'), 'statuschangetext' => array('text' => 'text'),
+            'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
+            'pollurlteacherstext' => array('text' => 'text'),
+            'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
+                        'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2);
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1));
+
+        // Create users
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+        $user3 = $this->getDataGenerator()->create_user(); // Booking manager
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $user3->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $result = $DB->get_record_sql(
+                'SELECT cm.id, cm.course, cm.module, cm.instance, m.name
+                FROM {course_modules} cm LEFT JOIN {modules} m ON m.id = cm.module WHERE cm.course = ?
+                AND cm.completion > 0 LIMIT 1', array($course->id));
+
+        $bdata['name'] = 'Test Booking 2';
+        unset($bdata['completion']);
+        unset($bdata['enablecompletion']);
+        $bdata['completionmodule'] = $result->id;
+        $booking2 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setUser($user3);
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id);
+        $this->getDataGenerator()->enrol_user($user3->id, $course->id);
+
+        $coursectx = context_course::instance($course->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option';
+        $record->courseid = $course->id;
+        $record->description = 'Test description';
+
+        $option1 = self::getDataGenerator()->get_plugin_generator('mod_booking')->create_option(
+                $record);
+        $record->bookingid = $booking2->id;
+        $option2 = self::getDataGenerator()->get_plugin_generator('mod_booking')->create_option(
+                $record);
+
+        $cmb1 = get_coursemodule_from_instance('booking', $booking1->id);
+        $cmb2 = get_coursemodule_from_instance('booking', $booking2->id);
+
+        $bookingopttion1 = new \mod_booking\booking_option($cmb1->id, $option1->id);
+        $bookingopttion2 = new \mod_booking\booking_option($cmb2->id, $option2->id);
+
+        $bookingopttion1->user_submit_response($user1);
+        $bookingopttion2->user_submit_response($user1);
+        $bookingopttion2->user_submit_response($user2);
+
+        $sink = $this->redirectEvents();
+
+        booking_activitycompletion(array($user1->id), $booking1, $cmb1->id, $option1->id);
+
+        $events = $sink->get_events();
+
+        $completion = new completion_info($course);
+        $completiondata = $completion->get_data($cmb1);
+
+        $bookingopttion2->delete_responses_activitycompletion();
+
+        $this->assertEquals(1, $DB->count_records('booking_answers', array('optionid' => $option2->id)));
     }
 }

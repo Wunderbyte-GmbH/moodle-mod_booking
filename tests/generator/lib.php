@@ -92,4 +92,13 @@ class mod_booking_generator extends testing_module_generator {
 
         return $record;
     }
+
+    /**
+     * Function, to add user to option
+     * @param array|stdClass $record
+     * @return stdClass the booking option object
+     */
+    public function add_user($record = null) {
+
+    }
 }
