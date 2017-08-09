@@ -395,9 +395,9 @@ class mod_booking_mod_form extends moodleform_mod {
                 AND cm.completion > 0', array($COURSE->id));
 
             foreach ($result as $r) {
-                $dynamic_activity_modules_data = $DB->get_record($r->name,
+                $dynamicactivitymodulesdata = $DB->get_record($r->name,
                         array('id' => $r->instance));
-                $opts[$r->id] = $dynamic_activity_modules_data->name;
+                $opts[$r->id] = $dynamicactivitymodulesdata->name;
             }
 
             $mform->addElement('select', 'completionmodule',
