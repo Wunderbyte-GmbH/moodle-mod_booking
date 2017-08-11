@@ -904,3 +904,8 @@ $string['showcustomfields_desc'] = 'Select the custom booking option fields to b
 $string['signinextracols_heading'] = 'Additional columns on the sign-in sheet';
 $string['signinextracols'] = 'Additional column';
 $string['signinextracols_desc'] = 'You can print up to 3 additional columns on the sign-in sheet. Fill in the column title or leave it blank for no additional column';
+
+
+
+
+

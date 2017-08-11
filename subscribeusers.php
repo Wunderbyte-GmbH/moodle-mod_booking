@@ -78,10 +78,10 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
 
     if (data_submitted()) {
         require_sesskey();
-            // It has to be one or the other, not both or neither
-            // if (!($subscribe xor $unsubscribe)) {
+        // It has to be one or the other, not both or neither
+        // if (!($subscribe xor $unsubscribe)) {
             // print_error('invalidaction');
-            // }
+        // }
         if ($subscribe) {
             $users = $subscriberselector->get_selected_users();
             // compare if selected users are members of the currentgroup if person has not the
