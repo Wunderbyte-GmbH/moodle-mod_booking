@@ -445,7 +445,6 @@ if (!$tableallbookings->is_downloading()) {
                 redirect($url, get_string('transferproblem', 'mod_booking', $output), 5, 'error');
             }
         }
-
     }
 
     $columns = array();
