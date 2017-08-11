@@ -744,16 +744,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                                 array('id' => $cm->id, 'optionid' => $optionid)));
             }
         }
-        $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null,
-                navigation_node::TYPE_CONTAINER);
-        $settingnode->add(get_string('addnewbookingoption', 'booking'),
-                new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1)));
-        $settingnode->add(get_string('importcsvbookingoption', 'booking'),
-                new moodle_url('importoptions.php', array('id' => $cm->id)));
-        $settingnode->add(get_string('importexcelbutton', 'booking'),
-                new moodle_url('importexcel.php', array('id' => $cm->id)));
-        $settingnode->add(get_string('tagtemplates', 'booking'),
-                new moodle_url('tagtemplates.php', array('id' => $cm->id)));
     }
 }
 
