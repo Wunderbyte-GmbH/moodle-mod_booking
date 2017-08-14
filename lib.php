@@ -701,17 +701,21 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         return;
     }
 
-    if (has_capability('mod/booking:updatebooking', $context)) {
+    if (has_capability('mod/booking:updatebooking', $context) ||
+             has_capability('mod/booking:addeditownoption', $context)) {
         $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null,
                 navigation_node::TYPE_CONTAINER);
         $settingnode->add(get_string('addnewbookingoption', 'booking'),
                 new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1)));
-        $settingnode->add(get_string('importcsvbookingoption', 'booking'),
-                new moodle_url('importoptions.php', array('id' => $cm->id)));
-        $settingnode->add(get_string('importexcelbutton', 'booking'),
-                new moodle_url('importexcel.php', array('id' => $cm->id)));
-        $settingnode->add(get_string('tagtemplates', 'booking'),
-                new moodle_url('tagtemplates.php', array('id' => $cm->id)));
+
+        if (has_capability('mod/booking:updatebooking', $context)) {
+            $settingnode->add(get_string('importcsvbookingoption', 'booking'),
+                    new moodle_url('importoptions.php', array('id' => $cm->id)));
+            $settingnode->add(get_string('importexcelbutton', 'booking'),
+                    new moodle_url('importexcel.php', array('id' => $cm->id)));
+            $settingnode->add(get_string('tagtemplates', 'booking'),
+                    new moodle_url('tagtemplates.php', array('id' => $cm->id)));
+        }
         if (!is_null($optionid)) {
             $connectedbooking = $DB->count_records('booking_other', array('optionid' => $optionid));
             $settingnode = $navref->add(get_string("optionmenu", "booking"), null,
@@ -727,16 +731,18 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             $settingnode->add(get_string('edit', 'core'),
                     new moodle_url('/mod/booking/editoptions.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
-            $settingnode->add(get_string('duplicatebooking', 'booking'),
-                    new moodle_url('/mod/booking/editoptions.php',
-                            array('id' => $cm->id, 'optionid' => -1, 'copyoptionid' => $optionid)));
-            $settingnode->add(get_string('deletebookingoption', 'booking'),
-                    new moodle_url('/mod/booking/report.php',
-                            array('id' => $cm->id, 'optionid' => $optionid,
-                                'action' => 'deletebookingoption', 'sesskey' => sesskey())));
-            $settingnode->add(get_string('optiondates', 'booking'),
-                    new moodle_url('/mod/booking/optiondates.php',
-                            array('id' => $cm->id, 'optionid' => $optionid)));
+            if (has_capability('mod/booking:updatebooking', $context)) {
+                $settingnode->add(get_string('duplicatebooking', 'booking'),
+                        new moodle_url('/mod/booking/editoptions.php',
+                                array('id' => $cm->id, 'optionid' => -1, 'copyoptionid' => $optionid)));
+                $settingnode->add(get_string('deletebookingoption', 'booking'),
+                        new moodle_url('/mod/booking/report.php',
+                                array('id' => $cm->id, 'optionid' => $optionid,
+                                    'action' => 'deletebookingoption', 'sesskey' => sesskey())));
+                $settingnode->add(get_string('optiondates', 'booking'),
+                        new moodle_url('/mod/booking/optiondates.php',
+                                array('id' => $cm->id, 'optionid' => $optionid)));
+            }
             if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) &&
                      $connectedbooking > 0) {
                 $settingnode->add(get_string('editotherbooking', 'booking'),
@@ -756,7 +762,7 @@ function booking_check_if_teacher($option) {
     global $DB, $USER;
 
     $userr = $DB->get_record('booking_teachers',
-            array('bookingid' => $option->bookingid, 'userid' => $USER->id,
+            array('userid' => $USER->id,
                 'optionid' => $option->id));
 
     if ($userr === false) {

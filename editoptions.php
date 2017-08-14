@@ -38,7 +38,9 @@ if (!$context = context_module::instance($cm->id)) {
     print_error('badcontext');
 }
 
-require_capability('mod/booking:updatebooking', $context);
+if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mod/booking:addeditownoption', $context)) == false) {
+    print_error('nopermissions');
+}
 
 $mform = new mod_booking_bookingform_form(null, array('bookingid' => $cm->instance));
 
@@ -99,7 +101,7 @@ if ($mform->is_cancelled()) {
     redirect($redirecturl, '', 0);
 } else if ($fromform = $mform->get_data()) {
     // Validated data.
-    if (confirm_sesskey() && has_capability('mod/booking:updatebooking', $context)) {
+    if (confirm_sesskey() && (has_capability('mod/booking:updatebooking', $context) || has_capability('mod/booking:addeditownoption', $context))) {
         if (!isset($fromform->limitanswers)) {
             $fromform->limitanswers = 0;
         }
@@ -108,6 +110,10 @@ if ($mform->is_cancelled()) {
 
         $bookingdata = new \mod_booking\booking_option($cm->id, $nbooking);
         $bookingdata->sync_waiting_list();
+
+        if (has_capability('mod/booking:addeditownoption', $context)) {
+            booking_optionid_subscribe($USER->id, $nbooking, $cm);
+        }
 
         if (isset($fromform->submittandaddnew)) {
             $redirecturl = new moodle_url('editoptions.php',

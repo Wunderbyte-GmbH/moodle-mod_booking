@@ -56,7 +56,7 @@ class all_options extends table_sql {
                         role="menu" data-align="tr-br">';
 
         if ($CFG->branch >= 33) {
-            if (has_capability('mod/booking:updatebooking', $this->context)) {
+            if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability('mod/booking:addeditownoption', $this->context) && booking_check_if_teacher($values))) {
                 $ret .= '<div class="dropdown-item">' . html_writer::link(
                         new moodle_url('/mod/booking/editoptions.php',
                                 array('id' => $this->cm->id, 'optionid' => $values->id)),
@@ -79,7 +79,7 @@ class all_options extends table_sql {
                         array('target' => '_blank')) . '</div>';
             }
         } else {
-            if (has_capability('mod/booking:updatebooking', $this->context)) {
+            if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability('mod/booking:addeditownoption', $this->context) && booking_check_if_teacher($values))) {
                 $ret .= '<div class="dropdown-item">' . html_writer::link(
                         new moodle_url('/mod/booking/editoptions.php',
                                 array('id' => $this->cm->id, 'optionid' => $values->id)),

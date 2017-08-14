@@ -47,6 +47,8 @@ $capabilities = array(
     'mod/booking:choose' => array('captype' => 'write', 'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array('student' => CAP_ALLOW, 'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW)),
+    'mod/booking:addeditownoption' => array('captype' => 'write', 'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array('editingteacher' => CAP_ALLOW)),
     'mod/booking:readresponses' => array('captype' => 'read', 'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array('teacher' => CAP_ALLOW, 'editingteacher' => CAP_ALLOW)),
     'mod/booking:deleteresponses' => array('captype' => 'write', 'contextlevel' => CONTEXT_MODULE,

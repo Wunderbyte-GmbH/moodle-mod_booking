@@ -51,6 +51,7 @@ $string['booking:updatebooking'] = 'Manage booking options';
 $string['booking:viewallratings'] = 'View all raw ratings given by individuals';
 $string['booking:viewanyrating'] = 'View total ratings that anyone received';
 $string['booking:viewrating'] = 'View the total rating you received';
+$string['booking:addeditownoption'] = 'Add new option and edit own options.';
 $string['bookingclose'] = 'Until';
 $string['bookingfull'] = 'There are no available places';
 $string['bookingname'] = 'Booking name';
