@@ -1442,7 +1442,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017040600, 'booking');
     }
 
-    if ($oldversion < 2017050400) {
+    if ($oldversion < 2017081401) {
         // Define field daystonotify2 to be added to booking.
         $table = new xmldb_table('booking');
         $field = new xmldb_field('daystonotify2', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null,
@@ -1463,12 +1463,6 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2017050400, 'booking');
-    }
-
-    if ($oldversion < 2017051500) {
-
         // Define field status to be added to booking_answers.
         $table = new xmldb_table('booking_answers');
         $field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'numrec');
@@ -1477,12 +1471,6 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2017051500, 'booking');
-    }
-
-    if ($oldversion < 2017052300) {
 
         // Define field enablepresence to be added to booking.
         $table = new xmldb_table('booking');
@@ -1493,12 +1481,6 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2017052300, 'booking');
-    }
-
-    if ($oldversion < 2017080800) {
 
         // Define field completionmodule to be added to booking.
         $table = new xmldb_table('booking');
@@ -1511,7 +1493,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2017080800, 'booking');
+        upgrade_mod_savepoint(true, 2017081401, 'booking');
     }
 
     return true;
