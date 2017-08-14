@@ -56,77 +56,74 @@ class all_options extends table_sql {
                         role="menu" data-align="tr-br">';
 
         if ($CFG->branch >= 33) {
-            if (has_capability('mod/booking:updatebooking', $this->context) ||
-                     (has_capability('mod/booking:addeditownoption', $this->context) &&
+            if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability(
+                    'mod/booking:addeditownoption', $this->context) &&
                      booking_check_if_teacher($values))) {
-                $ret .= '<div class="dropdown-item">' .
-                 html_writer::link(
+                $ret .= '<div class="dropdown-item">' . html_writer::link(
                         new moodle_url('/mod/booking/editoptions.php',
                                 array('id' => $this->cm->id, 'optionid' => $values->id)),
                         $OUTPUT->pix_icon('t/edit', get_string('updatebooking', 'mod_booking')) .
                          get_string('updatebooking', 'mod_booking')) . '</div>';
-    }
+            }
 
-    if (has_capability('mod/booking:updatebooking', $this->context)) {
-        $ret .= '<div class="dropdown-item">' .
-                 html_writer::link(
+            if (has_capability('mod/booking:updatebooking', $this->context)) {
+                $ret .= '<div class="dropdown-item">' . html_writer::link(
                         new moodle_url('/mod/booking/report.php',
                                 array('id' => $this->cm->id, 'optionid' => $values->id,
                                     'action' => 'deletebookingoption', 'sesskey' => sesskey())),
                         $OUTPUT->pix_icon('t/delete',
                                 get_string('deletebookingoption', 'mod_booking')) .
-                         get_string('deletebookingoption', 'mod_booking')) . '</div>';
+                                 get_string('deletebookingoption', 'mod_booking')) . '</div>';
+            }
+
+            if ($values->iambooked) {
+                $ret .= '<div class="dropdown-item">' . html_writer::link(
+                        new moodle_url('/mod/booking/viewconfirmation.php',
+                                array('id' => $this->cm->id, 'optionid' => $values->id)),
+                        $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')) .
+                                 get_string('bookedtext', 'mod_booking'),
+                                array('target' => '_blank')) . '</div>';
+            }
+        } else {
+            if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability(
+                    'mod/booking:addeditownoption', $this->context) &&
+                     booking_check_if_teacher($values))) {
+                $ret .= '<div class="dropdown-item">' . html_writer::link(
+                        new moodle_url('/mod/booking/editoptions.php',
+                                array('id' => $this->cm->id, 'optionid' => $values->id)),
+                        \html_writer::empty_tag('img',
+                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'),
+                                    'alt' => get_string('updatebooking', 'mod_booking'))) .
+                         get_string('updatebooking', 'mod_booking')) . '</div>';
+            }
+
+            if (has_capability('mod/booking:updatebooking', $this->context)) {
+                $ret .= '<div class="dropdown-item">' . html_writer::link(
+                        new moodle_url('/mod/booking/report.php',
+                                array('id' => $this->cm->id, 'optionid' => $values->id,
+                                    'action' => 'deletebookingoption', 'sesskey' => sesskey())),
+                        \html_writer::empty_tag('img',
+                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/delete'),
+                                    'alt' => get_string('deletebookingoption', 'mod_booking'))) .
+                                 get_string('deletebookingoption', 'mod_booking')) . '</div>';
+            }
+
+            if ($values->iambooked) {
+                $ret .= '<div class="dropdown-item">' . html_writer::link(
+                        new moodle_url('/mod/booking/viewconfirmation.php',
+                                array('id' => $this->cm->id, 'optionid' => $values->id)),
+                        \html_writer::empty_tag('img',
+                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('i/report'),
+                                    'alt' => get_string('bookedtext', 'mod_booking'))) .
+                                 get_string('bookedtext', 'mod_booking'),
+                                array('target' => '_blank')) . '</div>';
+            }
+        }
+
+        $ret .= '</div></div></div></div></div>';
+
+        return $ret;
     }
-
-    if ($values->iambooked) {
-        $ret .= '<div class="dropdown-item">' . html_writer::link(
-                new moodle_url('/mod/booking/viewconfirmation.php',
-                        array('id' => $this->cm->id, 'optionid' => $values->id)),
-                $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')) .
-                         get_string('bookedtext', 'mod_booking'), array('target' => '_blank')) .
-         '</div>';
-}
-} else {
-if (has_capability('mod/booking:updatebooking', $this->context) ||
-     (has_capability('mod/booking:addeditownoption', $this->context) &&
-     booking_check_if_teacher($values))) {
-$ret .= '<div class="dropdown-item">' .
- html_writer::link(
-        new moodle_url('/mod/booking/editoptions.php',
-                array('id' => $this->cm->id, 'optionid' => $values->id)),
-        \html_writer::empty_tag('img',
-                array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'),
-                    'alt' => get_string('updatebooking', 'mod_booking'))) .
-         get_string('updatebooking', 'mod_booking')) . '</div>';
-}
-
-if (has_capability('mod/booking:updatebooking', $this->context)) {
-$ret .= '<div class="dropdown-item">' .
- html_writer::link(
-        new moodle_url('/mod/booking/report.php',
-                array('id' => $this->cm->id, 'optionid' => $values->id,
-                    'action' => 'deletebookingoption', 'sesskey' => sesskey())),
-        \html_writer::empty_tag('img',
-                array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/delete'),
-                    'alt' => get_string('deletebookingoption', 'mod_booking'))) .
-         get_string('deletebookingoption', 'mod_booking')) . '</div>';
-}
-
-if ($values->iambooked) {
-$ret .= '<div class="dropdown-item">' . html_writer::link(
-new moodle_url('/mod/booking/viewconfirmation.php',
-        array('id' => $this->cm->id, 'optionid' => $values->id)),
-\html_writer::empty_tag('img',
-        array('class' => 'icon', 'src' => $OUTPUT->pix_url('i/report'),
-            'alt' => get_string('bookedtext', 'mod_booking'))) .
-         get_string('bookedtext', 'mod_booking'), array('target' => '_blank')) . '</div>';
-}
-}
-
-$ret .= '</div></div></div></div></div>';
-
-return $ret;
-}
 
     protected function col_status($values) {
         switch ($values->status) {
