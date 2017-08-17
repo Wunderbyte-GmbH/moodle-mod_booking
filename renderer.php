@@ -114,7 +114,7 @@ class mod_booking_renderer extends plugin_renderer_base {
             }
 
             $output .= html_writer::start_tag('div', array());
-            $output .= html_writer::label('Add user to group: ', 'addtogroup');
+            $output .= html_writer::label(get_string('addusertogroup', 'booking'), 'addtogroup');
             $output .= html_writer::select($sg, 'addtogroup', '');
             $output .= html_writer::end_tag('div', array());
         }

@@ -25,6 +25,7 @@ $string['eventteacher_removed'] = 'Teacher removed';
 
 // renderer.php
 $string['showonlymyinstitutions'] = "My institution";
+$string['addusertogroup'] = 'Add user to group: ';
 
 // view.php
 $string['addmorebookings'] = 'Add more bookings';
