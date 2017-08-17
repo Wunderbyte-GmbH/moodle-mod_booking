@@ -64,10 +64,11 @@ class mod_booking_renderer extends plugin_renderer_base {
      *
      * @param user_selector_base $existinguc
      * @param user_selector_base $potentialuc
+     * @param $courseid
      * @return string
      */
     public function subscriber_selection_form(user_selector_base $existinguc,
-            user_selector_base $potentialuc) {
+            user_selector_base $potentialuc, $courseid) {
         $output = '';
         $formattributes = array();
         $formattributes['id'] = 'subscriberform';
@@ -101,6 +102,22 @@ class mod_booking_renderer extends plugin_renderer_base {
         $table->attributes['class'] = 'subscribertable boxaligncenter';
         $table->data = array(new html_table_row(array($existingcell, $actioncell, $potentialcell)));
         $output .= html_writer::table($table);
+
+        $groups = groups_get_all_groups($courseid);
+
+        if (!empty($groups)){
+
+            $sg = array();
+
+            foreach ($groups as $group) {
+                $sg[$group->id] = $group->name;
+            }
+
+            $output .= html_writer::start_tag('div', array());
+            $output .= html_writer::label('Add user to group: ', 'addtogroup');
+            $output .= html_writer::select($sg, 'addtogroup', '');
+            $output .= html_writer::end_tag('div', array());
+        }
 
         $output .= html_writer::end_tag('form');
         return $output;

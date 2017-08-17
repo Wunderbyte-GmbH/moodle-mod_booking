@@ -1964,7 +1964,7 @@ function booking_update_subscriptions_button($id, $optionid) {
  * @param int $optionid
  * @param $cm
  */
-function booking_optionid_subscribe($userid, $optionid, $cm) {
+function booking_optionid_subscribe($userid, $optionid, $cm, $groupid) {
     global $DB;
 
     if ($DB->record_exists("booking_teachers", array("userid" => $userid, "optionid" => $optionid))) {
@@ -1979,6 +1979,10 @@ function booking_optionid_subscribe($userid, $optionid, $cm) {
     $sub->bookingid = $option->bookingid;
 
     $inserted = $DB->insert_record("booking_teachers", $sub);
+
+    if (!empty($groupid)) {
+        groups_add_member($groupid, $userid);
+    }
 
     if ($inserted) {
         $event = \mod_booking\event\teacher_added::create(
