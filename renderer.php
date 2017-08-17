@@ -105,7 +105,7 @@ class mod_booking_renderer extends plugin_renderer_base {
 
         $groups = groups_get_all_groups($courseid);
 
-        if (!empty($groups)){
+        if (!empty($groups)) {
 
             $sg = array();
 
