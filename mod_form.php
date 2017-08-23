@@ -443,14 +443,54 @@ class mod_booking_mod_form extends moodleform_mod {
         // array('link' => $url, 'label' => get_string('addcategory', 'booking')));
 
         $mform->addElement('header', 'categoryadditionalfields',
-                get_string('additionalfields', 'booking'));
+                get_string('fields', 'booking'));
         $additionalfields = array();
+
         $tmpaddfields = $DB->get_records('user_info_field', array());
+
+        $responsesfields = array(
+                        'completed' => get_string('activitycompleted', 'mod_booking'),
+                        'status' => get_string('presence', 'mod_booking'),
+                        'rating' => get_string('rating', 'core_rating'),
+                        'numrec' => get_string('numrec', 'mod_booking'),
+                        'fullname' => get_string('fullname', 'mod_booking'),
+                        'timecreated' => get_string('timecreated', 'mod_booking'),
+                        'institution' => get_string('institution', 'mod_booking'),
+                        'waitinglist' => get_string('searchwaitinglist', 'mod_booking')
+
+        );
+
+        $reportfields = array(
+                        'optionid' => get_string("optionid", "booking"),
+                        'booking' => get_string("booking", "booking"),
+                        'institution' => get_string("institution", "booking"),
+                        'location' => get_string("location", "booking"),
+                        'coursestarttime' => get_string("coursestarttime", "booking"),
+                        'courseendtime' => get_string("courseendtime", "booking"),
+                        'numrec' => get_string("numrec", "booking"),
+                        'userid' => get_string("userid", "booking"),
+                        'username' => get_string("username"),
+                        'firstname' => get_string("firstname"),
+                        'lastname' => get_string("lastname"),
+                        'email' => get_string("email"),
+                        'completed' => get_string("searchfinished", "booking"),
+                        'waitinglist' => get_string("waitinglist", "booking"),
+                        'status' => get_string('presence', 'mod_booking'),
+                        'groups' => get_string("group"),
+                        'idnumber' => get_string("idnumber")
+        );
+
         foreach ($tmpaddfields as $field) {
-            $additionalfields[$field->shortname] = $field->name;
+            $responsesfields[$field->shortname] = $field->name;
+            $reportfields[$field->shortname] = $field->name;
         }
-        $select = $mform->addElement('select', 'additionalfields',
-                get_string('additionalfields', 'booking'), $additionalfields);
+
+        $select = $mform->addElement('select', 'responsesfields',
+                get_string('responsesfields', 'booking'), $responsesfields);
+        $select->setMultiple(true);
+
+        $select = $mform->addElement('select', 'reportfields',
+                get_string('reportfields', 'booking'), $reportfields);
         $select->setMultiple(true);
 
         $mform->addElement('header', 'conectedbookingheader',

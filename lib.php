@@ -231,6 +231,14 @@ function booking_add_instance($booking) {
         $booking->additionalfields = implode(',', $booking->additionalfields);
     }
 
+    if (isset($booking->responsesfields) && count($booking->responsesfields) > 0) {
+        $booking->responsesfields= implode(',', $booking->responsesfields);
+    }
+
+    if (isset($booking->reportfields) && count($booking->reportfields) > 0) {
+        $booking->reportfields= implode(',', $booking->reportfields);
+    }
+
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
         $booking->categoryid = implode(',', $booking->categoryid);
     }
@@ -302,8 +310,12 @@ function booking_update_instance($booking) {
     $cm = get_coursemodule_from_instance('booking', $booking->id);
     $context = context_module::instance($cm->id);
 
-    if (isset($booking->additionalfields) && count($booking->additionalfields) > 0) {
-        $booking->additionalfields = implode(',', $booking->additionalfields);
+    if (isset($booking->responsesfields) && count($booking->responsesfields) > 0) {
+        $booking->responsesfields= implode(',', $booking->responsesfields);
+    }
+
+    if (isset($booking->reportfields) && count($booking->reportfields) > 0) {
+        $booking->reportfields= implode(',', $booking->reportfields);
     }
 
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {

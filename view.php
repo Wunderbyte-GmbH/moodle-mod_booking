@@ -673,64 +673,104 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         $customfields = '';
 
-        $columns[] = 'optionid';
-        $headers[] = get_string("optionid", "booking");
-        $columns[] = 'booking';
-        $headers[] = get_string("booking", "booking");
-        if (has_capability('moodle/site:viewuseridentity', $context)) {
-            $columns[] = 'institution';
-            $headers[] = get_string("institution", "booking");
-        }
-        $columns[] = 'location';
-        $headers[] = get_string("location", "booking");
-        $columns[] = 'coursestarttime';
-        $headers[] = get_string("coursestarttime", "booking");
-        $columns[] = 'courseendtime';
-        $headers[] = get_string("courseendtime", "booking");
-        if ($booking->booking->numgenerator) {
-            $columns[] = 'numrec';
-            $headers[] = get_string("numrec", "booking");
-        }
-        $columns[] = 'userid';
-        $headers[] = get_string("userid", "booking");
-        $columns[] = 'username';
-        $headers[] = get_string("username");
-        $columns[] = 'firstname';
-        $headers[] = get_string("firstname");
-        $columns[] = 'lastname';
-        $headers[] = get_string("lastname");
-        $columns[] = 'email';
-        $headers[] = get_string("email");
-        $columns[] = 'completed';
-        $headers[] = get_string("searchfinished", "booking");
-        $columns[] = 'waitinglist';
-        $headers[] = get_string("waitinglist", "booking");
-        if ($booking->booking->enablepresence) {
-            $columns[] = 'status';
-            $headers[] = get_string('presence', 'mod_booking');
+        $reportfields= explode(',', $booking->booking->reportfields);
+        list($addquoted, $addquotedparams) = $DB->get_in_or_equal($reportfields);
+
+        $userprofilefields = $DB->get_records_select('user_info_field',
+                'id > 0 AND shortname ' . $addquoted, $addquotedparams, 'id', 'id, shortname, name');
+
+        foreach ($reportfields as $value) {
+            switch ($value) {
+                case 'optionid':
+                    $columns[] = 'optionid';
+                    $headers[] = get_string("optionid", "booking");
+                    break;
+                case 'booking':
+                    $columns[] = 'booking';
+                    $headers[] = get_string("booking", "booking");
+                    break;
+                case 'institution':
+                    if (has_capability('moodle/site:viewuseridentity', $context)) {
+                        $columns[] = 'institution';
+                        $headers[] = get_string("institution", "booking");
+                    }
+                    break;
+                case 'location':
+                    $columns[] = 'location';
+                    $headers[] = get_string("location", "booking");
+                    break;
+                case 'coursestarttime':
+                    $columns[] = 'coursestarttime';
+                    $headers[] = get_string("coursestarttime", "booking");
+                    break;
+                case 'courseendtime':
+                    $columns[] = 'courseendtime';
+                    $headers[] = get_string("courseendtime", "booking");
+                    break;
+                case 'numrec':
+                    if ($bookingdata->booking->numgenerator) {
+                        $columns[] = 'numrec';
+                        $headers[] = get_string("numrec", "booking");
+                    }
+                    break;
+                case 'userid':
+                    $columns[] = 'userid';
+                    $headers[] = get_string("userid", "booking");
+                    break;
+                case 'username':
+                    $columns[] = 'username';
+                    $headers[] = get_string("username");
+                    break;
+                case 'firstname':
+                    $columns[] = 'firstname';
+                    $headers[] = get_string("firstname");
+                    break;
+                case 'lastname':
+                    $columns[] = 'lastname';
+                    $headers[] = get_string("lastname");
+                    break;
+                case 'email':
+                    $columns[] = 'email';
+                    $headers[] = get_string("email");
+                    break;
+                case 'completed':
+                    $columns[] = 'completed';
+                    $headers[] = get_string("searchfinished", "booking");
+                    break;
+                case 'waitinglist':
+                    $columns[] = 'waitinglist';
+                    $headers[] = get_string("waitinglist", "booking");
+                    break;
+                case 'status':
+                    if ($bookingdata->booking->enablepresence) {
+                        $columns[] = 'status';
+                        $headers[] = get_string('presence', 'mod_booking');
+                    }
+                    break;
+                case 'groups':
+                    $columns[] = 'groups';
+                    $headers[] = get_string("group");
+                    break;
+                case 'idnumber':
+                    if ($DB->count_records_select('user', ' idnumber <> \'\'') > 0 && has_capability('moodle/site:viewuseridentity', $context)) {
+                        $columns[] = 'idnumber';
+                        $headers[] = get_string("idnumber");
+                    }
+                    break;
+            }
         }
 
-        $addfields = explode(',', $booking->booking->additionalfields);
-        global $DB;
-        list($addquoted, $addquotedparams) = $DB->get_in_or_equal($addfields);
-        if ($userprofilefields = $DB->get_records_select('user_info_field',
-                'id > 0 AND shortname ' . $addquoted, $addquotedparams, 'id', 'id, shortname, name')) {
+        if ($userprofilefields) {
             foreach ($userprofilefields as $profilefield) {
                 $columns[] = "cust" . strtolower($profilefield->shortname);
                 $headers[] = $profilefield->name;
-                $customfields .= ", (SELECT " . $DB->sql_concat('uif.datatype', "'|'", 'uid.data') .
-                         " as custom
-                         FROM {user_info_data} uid
-                         LEFT JOIN {user_info_field} uif ON uid.fieldid = uif.id
-                         WHERE userid = tba.userid AND uif.shortname = '{$profilefield->shortname}') AS cust" .
-                         strtolower($profilefield->shortname);
+                $customfields .= ", (SELECT " . $DB->sql_concat('uif.datatype', "'|'", 'uid.data') . " as custom
+                FROM {user_info_data} uid
+                LEFT JOIN {user_info_field}  uif ON uid.fieldid = uif.id
+                WHERE userid = tba.userid
+                AND uif.shortname = '{$profilefield->shortname}') AS cust" .
+                strtolower($profilefield->shortname);
             }
-        }
-        $columns[] = 'groups';
-        $headers[] = get_string("group");
-        if ($DB->count_records_select('user', ' idnumber <> \'\'') > 0 && has_capability('moodle/site:viewuseridentity', $context)) {
-            $columns[] = 'idnumber';
-            $headers[] = get_string("idnumber");
         }
 
         if ($myoptions->myoptions > 0 && !has_capability('mod/booking:readresponses', $context)) {

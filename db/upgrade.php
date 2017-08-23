@@ -1496,5 +1496,40 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017081401, 'booking');
     }
 
+    if ($oldversion < 2017082303) {
+
+        // Changing type of field responsesfields on table booking to char.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('responsesfields', XMLDB_TYPE_CHAR, '1333', null, null, null, 'completed,status,rating,numrec,fullname,timecreated,institution,waitinglist', 'completionmodule');
+
+        // Launch change of type for field responsesfields.
+        $dbman->add_field($table, $field);
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2017082303, 'booking');
+    }
+
+    if ($oldversion < 2017082305) {
+
+        // Define field additionalfields to be dropped from booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('reportfields');
+
+        // Conditionally launch drop field additionalfields.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Changing type of field responsesfields on table booking to char.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('reportfields', XMLDB_TYPE_CHAR, '1333', null, null, null, 'booking,location,coursestarttime,courseendtime,firstname,lastname', 'responsesfields');
+
+        // Launch change of type for field responsesfields.
+        $dbman->add_field($table, $field);
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2017082305, 'booking');
+    }
+
     return true;
 }

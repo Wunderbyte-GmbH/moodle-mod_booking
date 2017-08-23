@@ -550,7 +550,9 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 
 $string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
 
-$string['additionalfields'] = 'Additional fields';
+$string['fields'] = 'Fields';
+$string['reportfields'] = 'Report fields';
+$string['responsesfields'] = 'Responses fields';
 $string['addtogroup'] = 'Automatically enrol users in group';
 $string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name "Bookin name - Option name"';
 $string['bookingattachment'] = 'Attachment';
@@ -585,6 +587,7 @@ $string['searchtag'] = 'Search tags';
 $string['showinapi'] = 'Show in API?';
 $string['whichview'] = 'Default view for booking options';
 $string['enablepresence'] = 'Enable presence';
+
 
 // editoptions.php
 $string['addeditbooking'] = 'Edit booking';

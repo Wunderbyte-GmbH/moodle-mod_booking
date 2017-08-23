@@ -43,14 +43,14 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'timeclose', 'limitanswers', 'maxanswers', 'maxoverbooking', 'timemodified',
                     'autoenrol', 'bookedtext', 'waitingtext', 'statuschangetext', 'deletedtext',
                     'maxperuser', 'sendmailtobooker', 'duration', 'points', 'organizatorname',
-                    'pollurl', 'addtogroup', 'categoryid', 'pollurltext', 'additionalfields',
+                    'pollurl', 'addtogroup', 'categoryid', 'pollurltext',
                     'eventtype', 'notificationtext', 'userleave', 'enablecompletion',
                     'pollurlteachers', 'pollurlteacherstext', 'cancancelbook', 'conectedbooking',
                     'showinapi', 'lblbooking', 'lbllocation', 'lblinstitution', 'lblname',
                     'lblsurname', 'btncacname', 'lblteachname', 'lblsputtname', 'btnbooknowname',
                     'btncancelname', 'booktootherbooking', 'lblacceptingfrom', 'lblnumofusers',
                     'numgenerator', 'paginationnum', 'daystonotify', 'daystonotify2', 'notifyemail', 'assessed',
-                    'assesstimestart', 'assesstimefinish', 'scale', 'enablepresence'));
+                    'assesstimestart', 'assesstimefinish', 'scale', 'enablepresence', 'responsesfields', 'reportfields'));
 
         $options = new backup_nested_element('options');
         $option = new backup_nested_element('option', array('id'),
