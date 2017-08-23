@@ -453,7 +453,7 @@ if (!$tableallbookings->is_downloading()) {
     $columns[] = 'selected';
     $headers[] = '<input type="checkbox" id="usercheckboxall" name="selectall" value="0" />';
 
-    $responsesfields= explode(',', $bookingdata->booking->responsesfields);
+    $responsesfields = explode(',', $bookingdata->booking->responsesfields);
     list($addquoted, $addquotedparams) = $DB->get_in_or_equal($responsesfields);
 
     $userprofilefields = $DB->get_records_select('user_info_field',
@@ -505,16 +505,16 @@ if (!$tableallbookings->is_downloading()) {
     }
 
     if ($userprofilefields) {
-            foreach ($userprofilefields as $profilefield) {
-                $columns[] = "cust" . strtolower($profilefield->shortname);
-                $headers[] = $profilefield->name;
-                $customfields .= ", (SELECT " . $DB->sql_concat('uif.datatype', "'|'", 'uid.data') . " as custom
+        foreach ($userprofilefields as $profilefield) {
+            $columns[] = "cust" . strtolower($profilefield->shortname);
+            $headers[] = $profilefield->name;
+            $customfields .= ", (SELECT " . $DB->sql_concat('uif.datatype', "'|'", 'uid.data') . " as custom
                 FROM {user_info_data} uid
                 LEFT JOIN {user_info_field}  uif ON uid.fieldid = uif.id
                 WHERE userid = ba.userid
                 AND uif.shortname = '{$profilefield->shortname}') AS cust" .
-                strtolower($profilefield->shortname);
-            }
+                     strtolower($profilefield->shortname);
+        }
     }
 
     $strbooking = get_string("modulename", "booking");
@@ -762,7 +762,7 @@ if (!$tableallbookings->is_downloading()) {
 
     $customfields = '';
 
-    $reportfields= explode(',', $bookingdata->booking->reportfields);
+    $reportfields = explode(',', $bookingdata->booking->reportfields);
     list($addquoted, $addquotedparams) = $DB->get_in_or_equal($reportfields);
 
     $userprofilefields = $DB->get_records_select('user_info_field',

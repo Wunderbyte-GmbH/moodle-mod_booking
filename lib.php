@@ -232,11 +232,11 @@ function booking_add_instance($booking) {
     }
 
     if (isset($booking->responsesfields) && count($booking->responsesfields) > 0) {
-        $booking->responsesfields= implode(',', $booking->responsesfields);
+        $booking->responsesfields = implode(',', $booking->responsesfields);
     }
 
     if (isset($booking->reportfields) && count($booking->reportfields) > 0) {
-        $booking->reportfields= implode(',', $booking->reportfields);
+        $booking->reportfields = implode(',', $booking->reportfields);
     }
 
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
@@ -311,11 +311,11 @@ function booking_update_instance($booking) {
     $context = context_module::instance($cm->id);
 
     if (isset($booking->responsesfields) && count($booking->responsesfields) > 0) {
-        $booking->responsesfields= implode(',', $booking->responsesfields);
+        $booking->responsesfields = implode(',', $booking->responsesfields);
     }
 
     if (isset($booking->reportfields) && count($booking->reportfields) > 0) {
-        $booking->reportfields= implode(',', $booking->reportfields);
+        $booking->reportfields = implode(',', $booking->reportfields);
     }
 
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {

@@ -673,7 +673,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         $customfields = '';
 
-        $reportfields= explode(',', $booking->booking->reportfields);
+        $reportfields = explode(',', $booking->booking->reportfields);
         list($addquoted, $addquotedparams) = $DB->get_in_or_equal($reportfields);
 
         $userprofilefields = $DB->get_records_select('user_info_field',
