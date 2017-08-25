@@ -227,20 +227,12 @@ function booking_add_instance($booking) {
 
     $booking->timemodified = time();
 
-    if (isset($booking->additionalfields) && count($booking->additionalfields) > 0) {
-        $booking->additionalfields = implode(',', $booking->additionalfields);
-    }
-
     if (isset($booking->responsesfields) && count($booking->responsesfields) > 0) {
         $booking->responsesfields = implode(',', $booking->responsesfields);
     }
 
-    if (isset($booking->reportfields) && count($booking->reportfields) > 0) {
-        $booking->reportfields = implode(',', $booking->reportfields);
-    }
-
-    if (isset($booking->optionsfields) && count($booking->optionsfields) > 0) {
-        $booking->optionsfields= implode(',', $booking->optionsfields);
+    if (isset($booking->additionalfields) && count($booking->additionalfields) > 0) {
+        $booking->additionalfields = implode(',', $booking->additionalfields);
     }
 
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
@@ -249,6 +241,14 @@ function booking_add_instance($booking) {
 
     if (empty($booking->timerestrict)) {
         $booking->timeopen = $booking->timeclose = 0;
+    }
+
+    if (isset($booking->reportfields) && count($booking->reportfields) > 0) {
+        $booking->reportfields = implode(',', $booking->reportfields);
+    }
+
+    if (isset($booking->optionsfields) && count($booking->optionsfields) > 0) {
+        $booking->optionsfields = implode(',', $booking->optionsfields);
     }
 
     // Copy the text fields out.
@@ -323,7 +323,7 @@ function booking_update_instance($booking) {
     }
 
     if (isset($booking->optionsfields) && count($booking->optionsfields) > 0) {
-        $booking->optionsfields= implode(',', $booking->optionsfields);
+        $booking->optionsfields = implode(',', $booking->optionsfields);
     }
 
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {

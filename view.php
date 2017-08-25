@@ -510,7 +510,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         $sorturl->set_anchor('goenrol');
 
-        $optionsfields= explode(',', $booking->booking->optionsfields);
+        $optionsfields = explode(',', $booking->booking->optionsfields);
 
         foreach ($optionsfields as $value) {
             switch ($value) {
