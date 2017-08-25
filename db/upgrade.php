@@ -1526,5 +1526,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017082305, 'booking');
     }
 
+    if ($oldversion < 2017082500) {
+
+        // Define field optionsfields to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('optionsfields', XMLDB_TYPE_CHAR, '1333', null, null, null, 'text,coursestarttime,maxanswers', 'reportfields');
+
+        // Conditionally launch add field optionsfields.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2017082500, 'booking');
+    }
+
     return true;
 }

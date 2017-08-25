@@ -480,6 +480,12 @@ class mod_booking_mod_form extends moodleform_mod {
                         'idnumber' => get_string("idnumber")
         );
 
+        $optionsfields = array(
+                        'text' => get_string("select", "mod_booking"),
+                        'coursestarttime' => get_string("coursedate", "mod_booking"),
+                        'maxanswers' => get_string("availability", "mod_booking")
+        );
+
         foreach ($tmpaddfields as $field) {
             $responsesfields[$field->shortname] = $field->name;
             $reportfields[$field->shortname] = $field->name;
@@ -491,6 +497,10 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $select = $mform->addElement('select', 'reportfields',
                 get_string('reportfields', 'booking'), $reportfields);
+        $select->setMultiple(true);
+
+        $select = $mform->addElement('select', 'optionsfields',
+                get_string('optionsfields', 'booking'), $optionsfields);
         $select->setMultiple(true);
 
         $mform->addElement('header', 'conectedbookingheader',

@@ -510,12 +510,25 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         $sorturl->set_anchor('goenrol');
 
-        $columns[] = 'text';
-        $headers[] = get_string("select", "mod_booking");
-        $columns[] = 'coursestarttime';
-        $headers[] = get_string("coursedate", "mod_booking");
-        $columns[] = 'maxanswers';
-        $headers[] = get_string("availability", "mod_booking");
+        $optionsfields= explode(',', $booking->booking->optionsfields);
+
+        foreach ($optionsfields as $value) {
+            switch ($value) {
+                case 'text':
+                    $columns[] = 'text';
+                    $headers[] = get_string("select", "mod_booking");
+                    break;
+                case 'coursestarttime':
+                    $columns[] = 'coursestarttime';
+                    $headers[] = get_string("coursedate", "mod_booking");
+                    break;
+                case 'maxanswers':
+                    $columns[] = 'maxanswers';
+                    $headers[] = get_string("availability", "mod_booking");
+                    break;
+            }
+        }
+
         $columns[] = 'id';
         $headers[] = "";
 

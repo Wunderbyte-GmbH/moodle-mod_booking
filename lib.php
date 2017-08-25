@@ -239,6 +239,10 @@ function booking_add_instance($booking) {
         $booking->reportfields = implode(',', $booking->reportfields);
     }
 
+    if (isset($booking->optionsfields) && count($booking->optionsfields) > 0) {
+        $booking->optionsfields= implode(',', $booking->optionsfields);
+    }
+
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
         $booking->categoryid = implode(',', $booking->categoryid);
     }
@@ -316,6 +320,10 @@ function booking_update_instance($booking) {
 
     if (isset($booking->reportfields) && count($booking->reportfields) > 0) {
         $booking->reportfields = implode(',', $booking->reportfields);
+    }
+
+    if (isset($booking->optionsfields) && count($booking->optionsfields) > 0) {
+        $booking->optionsfields= implode(',', $booking->optionsfields);
     }
 
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {

@@ -553,6 +553,7 @@ $string['daystonotify_help'] = "Will work only if start and end date of option a
 $string['fields'] = 'Fields';
 $string['reportfields'] = 'Report fields';
 $string['responsesfields'] = 'Responses fields';
+$string['optionsfields'] = 'Options fields';
 $string['addtogroup'] = 'Automatically enrol users in group';
 $string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name "Bookin name - Option name"';
 $string['bookingattachment'] = 'Attachment';
