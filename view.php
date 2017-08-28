@@ -441,12 +441,12 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             echo $OUTPUT->box("{$search}", 'box mdl-align');
         } else {
             // Show text
-            $textToShow = "";
+            $texttoshow= "";
             $bookingdata = new \mod_booking\booking_option($cm->id, $optionid);
-            $textToShow = $bookingdata->get_option_text();
+            $texttoshow= $bookingdata->get_option_text();
 
-            if (!empty($textToShow)) {
-                echo $OUTPUT->box($textToShow, 'box');
+            if (!empty($texttoshow)) {
+                echo $OUTPUT->box($texttoshow, 'box');
             }
         }
 

@@ -255,9 +255,9 @@ class mod_booking_bookingform_form extends moodleform {
             $data->notificationtextformat = $data->notificationtext['format'];
             $data->notificationtext = $data->notificationtext['text'];
 
-            $data->beforebookedtext= $data->beforebookedtext['text'];
-            $data->beforecompletedtext= $data->beforecompletedtext['text'];
-            $data->aftercompletedtext= $data->aftercompletedtext['text'];
+            $data->beforebookedtext = $data->beforebookedtext['text'];
+            $data->beforecompletedtext = $data->beforecompletedtext['text'];
+            $data->aftercompletedtext = $data->aftercompletedtext['text'];
         }
         return $data;
     }

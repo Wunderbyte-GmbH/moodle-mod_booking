@@ -218,13 +218,13 @@ class all_options extends table_sql {
         }
 
         // Show text
-        $textToShow = "";
+        $texttoshow = "";
         $bookingdata = new \mod_booking\booking_option($this->cm->id, $values->id);
-        $textToShow = $bookingdata->get_option_text();
+        $texttoshow= $bookingdata->get_option_text();
 
-        if (!empty($textToShow)) {
+        if (!empty($texttoshow)) {
             $output .= '<a href="#" class="showHideOptionText" data-id="' . $values->id. '">' . get_string('showdescription', "mod_booking"). "</a>";
-            $output .= html_writer::div($textToShow, 'optiontext', array('style' => 'display: none;', 'id' => 'optiontext' . $values->id));
+            $output .= html_writer::div($texttoshow, 'optiontext', array('style' => 'display: none;', 'id' => 'optiontext' . $values->id));
         }
 
         $output .= (!empty($values->teachers) ? " <br />" . (empty(
