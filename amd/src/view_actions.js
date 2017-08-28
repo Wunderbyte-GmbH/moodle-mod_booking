@@ -32,6 +32,12 @@ define([ 'jquery' ],
                             scrollTop : $("#tableSearch").offset().top - 120
                         }, 1000);
                     });
+                    $('.showHideOptionText').on('click', function() {
+                        $('#optiontext' + $(this).data("id")).fadeToggle("slow", "linear");
+                        $('html, body').animate({
+                            scrollTop : $('#optiontext' + $(this).data("id")).offset().top - 120
+                        }, 1000);
+                    });
                     $('#page-mod-booking-view #buttonclear')
                             .on('click',
                                     function() {

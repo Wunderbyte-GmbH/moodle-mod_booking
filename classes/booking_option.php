@@ -325,6 +325,59 @@ class booking_option extends booking {
     }
 
     /**
+     * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
+     *
+     * @param number $userid
+     * @return number status 0 = activity not completed, 1 = activity completed
+     */
+    public function is_activity_completed($userid = null) {
+        global $DB, $USER;
+        $booked = false;
+        if (\is_null($userid)) {
+            $userid = $USER->id;
+        }
+
+        $userstatus = $DB->get_field('booking_answers', 'completed',
+                array('optionid' => $this->optionid, 'userid' => $userid));
+
+        if ($userstatus == 1) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    public function get_option_text($userid = null) {
+
+        $text = "";
+
+        if (in_array($this->user_status($userid), array(1, 2))) {
+            $ac = $this->is_activity_completed($userid);
+            if ($ac == 1) {
+                if (!empty($this->option->aftercompletedtext)) {
+                    $text = $this->option->aftercompletedtext;
+                } else if (!empty($this->booking->aftercompletedtext)) {
+                    $text = $this->booking->aftercompletedtext;
+                }
+            } else {
+                if (!empty($this->option->beforecompletedtext)) {
+                    $text = $this->option->beforecompletedtext;
+                } else if (!empty($this->booking->beforecompletedtext)) {
+                    $text = $this->booking->beforecompletedtext;
+                }
+            }
+        } else {
+            if (!empty($this->option->beforebookedtext)) {
+                $text = $this->option->beforebookedtext;
+            } else if (!empty($this->booking->beforebookedtext)) {
+                $text = $this->booking->beforebookedtext;
+            }
+        }
+
+        return $text;
+    }
+
+    /**
      * Updates canbookusers and bookedusers does not check the status (booked or waitinglist) Just gets the registered booking from database
      * Calculates the potential users (bookers able to book, but not yet booked)
      */

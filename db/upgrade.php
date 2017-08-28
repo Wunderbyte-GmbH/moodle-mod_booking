@@ -1530,7 +1530,8 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field optionsfields to be added to booking.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('optionsfields', XMLDB_TYPE_CHAR, '1333', null, null, null, 'text,coursestarttime,maxanswers', 'reportfields');
+        $field = new xmldb_field('optionsfields', XMLDB_TYPE_CHAR, '1333', null, null, null,
+                'text,coursestarttime,maxanswers', 'reportfields');
 
         // Conditionally launch add field optionsfields.
         if (!$dbman->field_exists($table, $field)) {
@@ -1539,6 +1540,72 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2017082500, 'booking');
+    }
+
+    if ($oldversion < 2017082800) {
+
+        // Define field beforebookedtext to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('beforebookedtext', XMLDB_TYPE_TEXT, null, null, null, null, null,
+                'optionsfields');
+
+        // Conditionally launch add field beforebookedtext.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field beforecompletedtext to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('beforecompletedtext', XMLDB_TYPE_TEXT, null, null, null, null,
+                null, 'beforebookedtext');
+
+        // Conditionally launch add field beforecompletedtext.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field aftercompletedtext to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('aftercompletedtext', XMLDB_TYPE_TEXT, null, null, null, null, null,
+                'beforecompletedtext');
+
+        // Conditionally launch add field aftercompletedtext.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field beforebookedtext to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('beforebookedtext', XMLDB_TYPE_TEXT, null, null, null, null, null,
+                'sent2');
+
+        // Conditionally launch add field beforebookedtext.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field beforecompletedtext to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('beforecompletedtext', XMLDB_TYPE_TEXT, null, null, null, null,
+                null, 'beforebookedtext');
+
+        // Conditionally launch add field beforecompletedtext.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field aftercompletedtext to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('aftercompletedtext', XMLDB_TYPE_TEXT, null, null, null, null, null,
+                'beforecompletedtext');
+
+        // Conditionally launch add field aftercompletedtext.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2017082800, 'booking');
     }
 
     return true;

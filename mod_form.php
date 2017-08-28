@@ -503,6 +503,24 @@ class mod_booking_mod_form extends moodleform_mod {
                 get_string('optionsfields', 'booking'), $optionsfields);
         $select->setMultiple(true);
 
+        // -------------------- Booking option text------------------------------
+
+        $mform->addElement('header', 'bookingoptiontextheader',
+                get_string('bookingoptiontext', 'booking'));
+
+        $mform->addElement('editor', 'beforebookedtext', get_string("beforebookedtext", "booking"), null,
+                null);
+        $mform->setType('beforebookedtext', PARAM_CLEANHTML);
+
+        $mform->addElement('editor', 'beforecompletedtext', get_string("beforecompletedtext", "booking"), null,
+                null);
+        $mform->setType('beforecompletedtext', PARAM_CLEANHTML);
+
+        $mform->addElement('editor', 'aftercompletedtext', get_string("aftercompletedtext", "booking"), null,
+                null);
+        $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
+
+        // -------------------- Conected bookings -------------------------------
         $mform->addElement('header', 'conectedbookingheader',
                 get_string('conectedbooking', 'booking'));
 
@@ -603,6 +621,18 @@ class mod_booking_mod_form extends moodleform_mod {
         if (isset($defaultvalues['userleave'])) {
             $defaultvalues['userleave'] = array('text' => $defaultvalues['userleave'],
                 'format' => FORMAT_HTML);
+        }
+        if (isset($defaultvalues['beforebookedtext'])) {
+            $defaultvalues['beforebookedtext'] = array('text' => $defaultvalues['beforebookedtext'],
+                            'format' => FORMAT_HTML);
+        }
+        if (isset($defaultvalues['beforecompletedtext'])) {
+            $defaultvalues['beforecompletedtext'] = array('text' => $defaultvalues['beforecompletedtext'],
+                            'format' => FORMAT_HTML);
+        }
+        if (isset($defaultvalues['aftercompletedtext'])) {
+            $defaultvalues['aftercompletedtext'] = array('text' => $defaultvalues['aftercompletedtext'],
+                            'format' => FORMAT_HTML);
         }
     }
 

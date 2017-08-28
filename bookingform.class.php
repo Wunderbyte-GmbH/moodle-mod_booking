@@ -151,6 +151,23 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->addElement('selectyesno', 'disablebookingusers',
                 get_string("disablebookingusers", "booking"));
 
+        // -------------------- Booking option text------------------------------
+
+        $mform->addElement('header', 'bookingoptiontextheader',
+                get_string('bookingoptiontext', 'booking'));
+
+        $mform->addElement('editor', 'beforebookedtext', get_string("beforebookedtext", "booking"), null,
+                null);
+        $mform->setType('beforebookedtext', PARAM_CLEANHTML);
+
+        $mform->addElement('editor', 'beforecompletedtext', get_string("beforecompletedtext", "booking"), null,
+                null);
+        $mform->setType('beforecompletedtext', PARAM_CLEANHTML);
+
+        $mform->addElement('editor', 'aftercompletedtext', get_string("aftercompletedtext", "booking"), null,
+                null);
+        $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
+
         // Hidden elements.
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
@@ -191,6 +208,18 @@ class mod_booking_bookingform_form extends moodleform {
         if (!isset($defaultvalues['notificationtext'])) {
             $defaultvalues['notificationtext'] = '';
         }
+
+        if (!isset($defaultvalues['beforebookedtext'])) {
+            $defaultvalues['beforebookedtext'] = '';
+        }
+
+        if (!isset($defaultvalues['beforecompletedtext'])) {
+            $defaultvalues['beforecompletedtext'] = '';
+        }
+
+        if (!isset($defaultvalues['aftercompletedtext'])) {
+            $defaultvalues['aftercompletedtext'] = '';
+        }
     }
 
     public function validation($data, $files) {
@@ -225,6 +254,10 @@ class mod_booking_bookingform_form extends moodleform {
 
             $data->notificationtextformat = $data->notificationtext['format'];
             $data->notificationtext = $data->notificationtext['text'];
+
+            $data->beforebookedtext= $data->beforebookedtext['text'];
+            $data->beforecompletedtext= $data->beforecompletedtext['text'];
+            $data->aftercompletedtext= $data->aftercompletedtext['text'];
         }
         return $data;
     }

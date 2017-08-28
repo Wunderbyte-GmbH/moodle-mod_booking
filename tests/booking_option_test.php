@@ -112,13 +112,14 @@ class mod_booking_booking_option_testcase extends advanced_testcase {
         $bookingopttion2->user_submit_response($user2);
 
         $sink = $this->redirectEvents();
-
+        $this->assertEquals(0, $bookingopttion1->is_activity_completed($user1->id));
         booking_activitycompletion(array($user1->id), $booking1, $cmb1->id, $option1->id);
 
         $events = $sink->get_events();
 
         $completion = new completion_info($course);
         $completiondata = $completion->get_data($cmb1);
+        $this->assertEquals(1, $bookingopttion1->is_activity_completed($user1->id));
 
         $bookingopttion2->delete_responses_activitycompletion();
 

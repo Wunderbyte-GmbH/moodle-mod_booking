@@ -55,6 +55,12 @@ if ($optionid == -1) {
                 'format' => FORMAT_HTML);
             $defaultvalues->notificationtext = array('text' => $defaultvalues->notificationtext,
                 'format' => FORMAT_HTML);
+            $defaultvalues->beforebookedtext= array('text' => $defaultvalues->beforebookedtext,
+                            'format' => FORMAT_HTML);
+            $defaultvalues->beforecompletedtext= array('text' => $defaultvalues->beforecompletedtext,
+                            'format' => FORMAT_HTML);
+            $defaultvalues->aftercompletedtext= array('text' => $defaultvalues->aftercompletedtext,
+                            'format' => FORMAT_HTML);
             if ($defaultvalues->bookingclosingtime) {
                 $defaultvalues->restrictanswerperiod = "checked";
             }
@@ -75,6 +81,12 @@ if ($optionid == -1) {
         'format' => FORMAT_HTML);
     $defaultvalues->notificationtext = array('text' => $defaultvalues->notificationtext,
         'format' => FORMAT_HTML);
+    $defaultvalues->beforebookedtext= array('text' => $defaultvalues->beforebookedtext,
+                    'format' => FORMAT_HTML);
+    $defaultvalues->beforecompletedtext= array('text' => $defaultvalues->beforecompletedtext,
+                    'format' => FORMAT_HTML);
+    $defaultvalues->aftercompletedtext= array('text' => $defaultvalues->aftercompletedtext,
+                    'format' => FORMAT_HTML);
     $defaultvalues->id = $cm->id;
     if ($defaultvalues->bookingclosingtime) {
         $defaultvalues->restrictanswerperiod = "checked";

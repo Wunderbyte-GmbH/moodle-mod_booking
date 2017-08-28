@@ -439,6 +439,15 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         if ($whichview != 'showonlyone') {
             echo $OUTPUT->box("{$search}", 'box mdl-align');
+        } else {
+            // Show text
+            $textToShow = "";
+            $bookingdata = new \mod_booking\booking_option($cm->id, $optionid);
+            $textToShow = $bookingdata->get_option_text();
+
+            if (!empty($textToShow)) {
+                echo $OUTPUT->box($textToShow, 'box');
+            }
         }
 
         $hidden = "";

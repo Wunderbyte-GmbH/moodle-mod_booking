@@ -261,6 +261,15 @@ function booking_add_instance($booking) {
     $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'];
     $booking->notificationtext = $booking->notificationtext['text'];
     $booking->userleave = $booking->userleave['text'];
+    if (isset($booking->beforebookedtext['text'])) {
+        $booking->beforebookedtext = $booking->beforebookedtext['text'];
+    }
+    if (isset($booking->beforecompletedtext['text'])) {
+        $booking->beforecompletedtext= $booking->beforecompletedtext['text'];
+    }
+    if (isset($booking->aftercompletedtext['text'])) {
+        $booking->aftercompletedtext= $booking->aftercompletedtext['text'];
+    }
 
     // Insert answer options from mod_form.
     $booking->id = $DB->insert_record("booking", $booking);
@@ -357,6 +366,15 @@ function booking_update_instance($booking) {
     }
 
     // Copy the text fields out.
+    if (isset($booking->beforebookedtext['text'])) {
+        $booking->beforebookedtext = $booking->beforebookedtext['text'];
+    }
+    if (isset($booking->beforecompletedtext['text'])) {
+        $booking->beforecompletedtext= $booking->beforecompletedtext['text'];
+    }
+    if (isset($booking->aftercompletedtext['text'])) {
+        $booking->aftercompletedtext= $booking->aftercompletedtext['text'];
+    }
     $booking->bookedtext = $booking->bookedtext['text'];
     $booking->waitingtext = $booking->waitingtext['text'];
     $booking->notifyemail = $booking->notifyemail['text'];
@@ -459,6 +477,9 @@ function booking_update_options($optionvalues) {
     }
 
     $option->description = $optionvalues->description;
+    $option->beforebookedtext= $optionvalues->beforebookedtext;
+    $option->beforecompletedtext= $optionvalues->beforecompletedtext;
+    $option->aftercompletedtext= $optionvalues->aftercompletedtext;
     $option->limitanswers = $optionvalues->limitanswers;
     $option->enablepresence = $optionvalues->enablepresence;
     $option->timemodified = time();

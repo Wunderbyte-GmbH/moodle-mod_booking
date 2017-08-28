@@ -230,7 +230,14 @@ $string['wrongdataallfields'] = 'Please, fill out all fields!';
 $string['tagsucesfullysaved'] = 'Tag was saved.';
 $string['edittag'] = 'Edit';
 
+// all_options
+$string['showdescription'] = 'Show description';
+
 // mod_form
+$string['bookingoptiontext'] = "Booking option text";
+$string['beforebookedtext'] = 'Before booked';
+$string['beforecompletedtext'] = 'After booked';
+$string['aftercompletedtext'] = 'After activity completed';
 $string['conectedbooking'] = 'Connected booking';
 $string['errorpagination'] = 'Please enter a number bigger than 0';
 $string['notconectedbooking'] = 'Not connected';

@@ -217,6 +217,16 @@ class all_options extends table_sql {
             $output .= html_writer::div($values->description, 'description');
         }
 
+        // Show text
+        $textToShow = "";
+        $bookingdata = new \mod_booking\booking_option($this->cm->id, $values->id);
+        $textToShow = $bookingdata->get_option_text();
+
+        if (!empty($textToShow)) {
+            $output .= '<a href="#" class="showHideOptionText" data-id="' . $values->id. '">' . get_string('showdescription', "mod_booking"). "</a>";
+            $output .= html_writer::div($textToShow, 'optiontext', array('style' => 'display: none;', 'id' => 'optiontext' . $values->id));
+        }
+
         $output .= (!empty($values->teachers) ? " <br />" . (empty(
                 $this->booking->booking->lblteachname) ? get_string('teachers', 'booking') : $this->booking->booking->lblteachname) .
                  ": " . $values->teachers : '');
@@ -241,6 +251,7 @@ class all_options extends table_sql {
         if (!empty($values->description)) {
             $output .= html_writer::div($values->description, 'courseinfo');
         }
+
         return $output;
     }
 
