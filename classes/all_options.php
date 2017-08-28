@@ -220,7 +220,7 @@ class all_options extends table_sql {
         // Show text
         $texttoshow = "";
         $bookingdata = new \mod_booking\booking_option($this->cm->id, $values->id);
-        $texttoshow= $bookingdata->get_option_text();
+        $texttoshow = $bookingdata->get_option_text();
 
         if (!empty($texttoshow)) {
             $output .= '<a href="#" class="showHideOptionText" data-id="' . $values->id. '">' . get_string('showdescription', "mod_booking"). "</a>";
