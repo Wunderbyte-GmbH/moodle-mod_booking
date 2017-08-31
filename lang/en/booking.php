@@ -234,6 +234,8 @@ $string['edittag'] = 'Edit';
 $string['showdescription'] = 'Show description';
 
 // mod_form
+$string['signinlogoheader'] = 'Logo in header to display on the sign-in sheet';
+$string['signinlogofooter'] = 'Logo in footer to display on the sign-in sheet';
 $string['bookingoptiontext'] = "Booking option text";
 $string['beforebookedtext'] = 'Before booked';
 $string['beforecompletedtext'] = 'After booked';

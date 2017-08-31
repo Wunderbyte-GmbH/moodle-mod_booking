@@ -53,11 +53,19 @@ if ($ADMIN->fulltree) {
                     get_string('cfgsignin_desc', 'mod_booking')));
 
     $name = 'booking/signinlogo';
-    $title = get_string('signinlogo', 'mod_booking');
+    $title = get_string('signinlogoheader', 'mod_booking');
     $description = $title;
     $fileoptions = array('maxfiles' => 1, 'accepted_types' => array('image'));
     $setting = new admin_setting_configstoredfile($name, $title, $description,
             'mod_booking_signinlogo', 0, $fileoptions);
+    $settings->add($setting);
+
+    $name = 'booking/signinlogofooter';
+    $title = get_string('signinlogofooter', 'mod_booking');
+    $description = $title;
+    $fileoptions = array('maxfiles' => 1, 'accepted_types' => array('image'));
+    $setting = new admin_setting_configstoredfile($name, $title, $description,
+            'mod_booking_signinlogo_footer', 0, $fileoptions);
     $settings->add($setting);
 
     $name = 'booking/custprofilefields';

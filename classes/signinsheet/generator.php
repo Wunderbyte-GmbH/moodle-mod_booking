@@ -100,6 +100,8 @@ class generator {
      * @var string
      */
     public $signinsheetlogo = '';
+    public $signinsheetlogofooter = '';
+    public $headerlogofile = false;
 
     /**
      * Define basic variable values for signinsheet pdf
@@ -156,7 +158,7 @@ class generator {
 
         $this->pdf->SetCreator(PDF_CREATOR);
         $this->pdf->setPrintHeader(true);
-        $this->pdf->setPrintFooter(false);
+        $this->pdf->setPrintFooter(true);
         $this->pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
         $this->pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
         $this->pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
@@ -170,7 +172,9 @@ class generator {
         $this->pdf->AddPage();
         $this->pdf->setJPEGQuality(80);
 
-        // Get logo for signin sheet.
+        $this->get_signinsheet_logo_footer();
+
+        // Get header and footer logo for signin sheet.
         $fileuse = $this->get_signinsheet_logo();
 
         $this->set_page_header($extracols);
@@ -206,7 +210,7 @@ class generator {
                 if ($fileuse) {
                     $this->pdf->SetXY(18, 18);
                     $this->pdf->Image('@' . $this->signinsheetlogo, '', '', $this->w, $this->h, '', '', 'T', true, 150, 'R',
-                            false, false, 1, false, false, false);
+                            false, false, 0, false, false, false);
                 }
                 $this->set_page_header($extracols);
             }
@@ -262,18 +266,25 @@ class generator {
     }
 
     /**
-     * Get logo for signin sheet and include it in PDF
-     * return true if logo is used otherwise false
+     * Get logo in header for signin sheet and include it in PDF return true if logo is used otherwise false
      *
      * @return boolean true if image is used false if not
      */
     public function get_signinsheet_logo() {
         $fileuse = false;
         $fs = get_file_storage();
-        $files = $fs->get_area_files(\context_system::instance()->id, 'booking',
-                'mod_booking_signinlogo', 0, 'sortorder,filepath,filename', false);
+        $context = \context_module::instance($this->bookingdata->cm->id);
+        $files = $fs->get_area_files($context->id, 'mod_booking', 'signinlogoheader',
+                $this->bookingdata->booking->id, 'sortorder,filepath,filename', false);
+
+        if (!$files) {
+            $files = $fs->get_area_files(\context_system::instance()->id, 'booking',
+                    'mod_booking_signinlogo', 0, 'sortorder,filepath,filename', false);
+        }
+
         if ($files) {
             $file = reset($files);
+
             $filepath = $file->get_filepath() . $file->get_filename();
             $imageinfo = $file->get_imageinfo();
             $this->signinsheetlogo = $file->get_content();
@@ -291,9 +302,33 @@ class generator {
                 $this->w = 0;
                 $this->h = 40;
             }
-            $this->pdf->Image('@' . $this->signinsheetlogo, '', '', $this->w, $this->h, $filetype, '', 'T', true, 150, 'R',
-                    false, false, 1, false, false, false);
+            $this->pdf->Image('@' . $this->signinsheetlogo, '', '', $this->w, $this->h, $filetype,
+                    '', 'T', true, 150, 'R', false, false, 1, false, false, false);
             $fileuse = true;
+        }
+        return $fileuse;
+    }
+
+    /**
+     * Get logo in footer for signin sheet and include it in PDF return true if logo is used otherwise false
+     *
+     * @return boolean true if image is used false if not
+     */
+    public function get_signinsheet_logo_footer() {
+        $fileuse = false;
+        $fs = get_file_storage();
+        $context = \context_module::instance($this->bookingdata->cm->id);
+        $files = $fs->get_area_files($context->id, 'mod_booking', 'signinlogofooter',
+                $this->bookingdata->booking->id, 'sortorder,filepath,filename', false);
+
+        if (!$files) {
+            $files = $fs->get_area_files(\context_system::instance()->id, 'booking',
+                    'mod_booking_signinlogo_footer', 0, 'sortorder,filepath,filename', false);
+        }
+
+        if ($files) {
+            $file = reset($files);
+            $this->pdf->SetFooterImage($file);
         }
         return $fileuse;
     }

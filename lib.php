@@ -108,6 +108,14 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
         return false;
     }
 
+    if ($filearea !== 'signinlogoheader') {
+        return false;
+    }
+
+    if ($filearea !== 'signinlogofooter') {
+        return false;
+    }
+
     // Make sure the user is logged in and has access to the module (plugins that are not course
     // modules should leave out the 'cm' part).
     require_login($course, true, $cm);
@@ -281,6 +289,17 @@ function booking_add_instance($booking) {
         file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanager',
                 $booking->id, array('subdirs' => false, 'maxfiles' => 50));
     }
+
+    if ($draftitemid = file_get_submitted_draft_itemid('signinlogoheader')) {
+        file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'signinlogoheader',
+                $booking->id, array('subdirs' => false, 'maxfiles' => 1));
+    }
+
+    if ($draftitemid = file_get_submitted_draft_itemid('signinlogofooter')) {
+        file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'signinlogofooter',
+                $booking->id, array('subdirs' => false, 'maxfiles' => 1));
+    }
+
     if ($CFG->branch < 31) {
         tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
     } else {
@@ -356,6 +375,12 @@ function booking_update_instance($booking) {
     } else {
         tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
     }
+
+    file_save_draft_area_files($booking->signinlogoheader, $context->id, 'mod_booking',
+            'signinlogoheader', $booking->id, array('subdirs' => false, 'maxfiles' => 1));
+
+    file_save_draft_area_files($booking->signinlogofooter, $context->id, 'mod_booking',
+            'signinlogofooter', $booking->id, array('subdirs' => false, 'maxfiles' => 1));
 
     file_save_draft_area_files($booking->myfilemanager, $context->id, 'mod_booking',
             'myfilemanager', $booking->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 50));

@@ -520,6 +520,20 @@ class mod_booking_mod_form extends moodleform_mod {
                 null);
         $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
 
+        // -------------------- Sign-In Sheet Configuration ---------------------
+        $mform->addElement('header', 'cfgsigninheader',
+                get_string('cfgsignin', 'booking'));
+
+        $mform->addElement('filemanager', 'signinlogoheader',
+                get_string('signinlogoheader', 'booking'), null,
+                array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1,
+                                'accepted_types' => array('image')));
+
+                $mform->addElement('filemanager', 'signinlogofooter',
+                        get_string('signinlogofooter', 'booking'), null,
+                        array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1,
+                                        'accepted_types' => array('image')));
+
         // -------------------- Conected bookings -------------------------------
         $mform->addElement('header', 'conectedbookingheader',
                 get_string('conectedbooking', 'booking'));
@@ -556,6 +570,16 @@ class mod_booking_mod_form extends moodleform_mod {
                     $this->current->id, $options);
             $defaultvalues['myfilemanager'] = $draftitemid;
 
+            $draftitemid = file_get_submitted_draft_itemid('signinlogoheader');
+            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'signinlogoheader',
+                    $this->current->id, $options);
+            $defaultvalues['signinlogoheader'] = $draftitemid;
+
+            $draftitemid = file_get_submitted_draft_itemid('signinlogofooter');
+            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'signinlogofooter',
+                    $this->current->id, $options);
+            $defaultvalues['signinlogofooter'] = $draftitemid;
+
             if ($CFG->branch >= 31) {
                 core_tag_tag::get_item_tags_array('mod_booking', 'booking', $this->current->id);
             } else {
@@ -565,6 +589,14 @@ class mod_booking_mod_form extends moodleform_mod {
             $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
             file_prepare_draft_area($draftitemid, null, 'mod_booking', 'myfilemanager', 0, $options);
             $defaultvalues['myfilemanager'] = $draftitemid;
+
+            $draftitemid = file_get_submitted_draft_itemid('signinlogoheader');
+            file_prepare_draft_area($draftitemid, null, 'mod_booking', 'signinlogoheader', 0, $options);
+            $defaultvalues['signinlogoheader'] = $draftitemid;
+
+            $draftitemid = file_get_submitted_draft_itemid('signinlogofooter');
+            file_prepare_draft_area($draftitemid, null, 'mod_booking', 'signinlogofooter', 0, $options);
+            $defaultvalues['signinlogofooter'] = $draftitemid;
         }
 
         if (empty($defaultvalues['timeopen'])) {

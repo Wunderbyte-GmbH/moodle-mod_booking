@@ -24,6 +24,8 @@ require_once($CFG->libdir . '/tcpdf/tcpdf.php');
  */
 class signin_pdf extends \TCPDF {
 
+    private $file = false;
+
     /**
      *
      * @param $h (float) Cell height. Default value: 0.
@@ -31,5 +33,38 @@ class signin_pdf extends \TCPDF {
      */
     public function go_to_newline($h) {
         return $this->checkPageBreak($h, '', true);
+    }
+
+    // Page footer
+    public function Footer() {
+        // Position at 15 mm from bottom
+        $this->SetY(-20);
+
+        if ($this->file) {
+            $filepath = $this->file->get_filepath() . $this->file->get_filename();
+            $imageinfo = $this->file->get_imageinfo();
+            $signinsheetlogofooter = $this->file->get_content();
+            $filetype = str_replace('image/', '', $this->file->get_mimetype());
+            //$this->SetXY(18, 18);
+            if ($imageinfo['height'] == $imageinfo['width']) {
+                $w = 40;
+                $h = 40;
+            }
+            if ($imageinfo['width'] > 200 && $imageinfo['width'] > $imageinfo['height']) {
+                $w = 40;
+                $h = 0;
+            }
+            if ($imageinfo['width'] < $imageinfo['height'] && $imageinfo['height'] > 200) {
+                $w = 0;
+                $h = 40;
+            }
+
+            $this->Image('@' . $signinsheetlogofooter, '', '', $w, $h, $filetype,
+                '', 'T', true, 150, 'C', false, false, 1, false, false, false);
+        }
+    }
+
+    public function SetFooterImage($file) {
+        $this->file = $file;
     }
 }
