@@ -36,7 +36,7 @@ class signin_pdf extends \TCPDF {
     }
 
     // Page footer
-    public function Footer() {
+    public function footer() {
         // Position at 15 mm from bottom
         $this->SetY(-20);
 
