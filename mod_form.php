@@ -208,7 +208,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'endtime' => '{endtime}', 'startdate' => '{startdate}', 'enddate' => '{enddate}',
             'courselink' => '{courselink}', 'bookinglink' => '{bookinglink}',
             'location' => '{location}', 'institution' => '{institution}', 'address' => '{address}',
-                        'eventtype' => '{evventtype}', 'email' => '{email}');
+            'eventtype' => '{evventtype}', 'email' => '{email}');
 
         $mform->addElement('editor', 'bookedtext', get_string('bookedtext', 'booking'), null,
                 $editoroptions);
@@ -396,8 +396,7 @@ class mod_booking_mod_form extends moodleform_mod {
                 AND cm.completion > 0', array($COURSE->id));
 
             foreach ($result as $r) {
-                $dynamicactivitymodulesdata = $DB->get_record($r->name,
-                        array('id' => $r->instance));
+                $dynamicactivitymodulesdata = $DB->get_record($r->name, array('id' => $r->instance));
                 $opts[$r->id] = $dynamicactivitymodulesdata->name;
             }
 
@@ -442,49 +441,38 @@ class mod_booking_mod_form extends moodleform_mod {
         // $mform->addElement('selectwithlink', 'categoryid', get_string('category', 'booking'), $options, null,
         // array('link' => $url, 'label' => get_string('addcategory', 'booking')));
 
-        $mform->addElement('header', 'categoryadditionalfields',
-                get_string('fields', 'booking'));
+        $mform->addElement('header', 'categoryadditionalfields', get_string('fields', 'booking'));
         $additionalfields = array();
 
         $tmpaddfields = $DB->get_records('user_info_field', array());
 
-        $responsesfields = array(
-                        'completed' => get_string('activitycompleted', 'mod_booking'),
-                        'status' => get_string('presence', 'mod_booking'),
-                        'rating' => get_string('rating', 'core_rating'),
-                        'numrec' => get_string('numrec', 'mod_booking'),
-                        'fullname' => get_string('fullname', 'mod_booking'),
-                        'timecreated' => get_string('timecreated', 'mod_booking'),
-                        'institution' => get_string('institution', 'mod_booking'),
-                        'waitinglist' => get_string('searchwaitinglist', 'mod_booking')
-
+        $responsesfields = array('completed' => get_string('activitycompleted', 'mod_booking'),
+            'status' => get_string('presence', 'mod_booking'),
+            'rating' => get_string('rating', 'core_rating'),
+            'numrec' => get_string('numrec', 'mod_booking'),
+            'fullname' => get_string('fullname', 'mod_booking'),
+            'timecreated' => get_string('timecreated', 'mod_booking'),
+            'institution' => get_string('institution', 'mod_booking'),
+            'waitinglist' => get_string('searchwaitinglist', 'mod_booking')
         );
 
-        $reportfields = array(
-                        'optionid' => get_string("optionid", "booking"),
-                        'booking' => get_string("booking", "booking"),
-                        'institution' => get_string("institution", "booking"),
-                        'location' => get_string("location", "booking"),
-                        'coursestarttime' => get_string("coursestarttime", "booking"),
-                        'courseendtime' => get_string("courseendtime", "booking"),
-                        'numrec' => get_string("numrec", "booking"),
-                        'userid' => get_string("userid", "booking"),
-                        'username' => get_string("username"),
-                        'firstname' => get_string("firstname"),
-                        'lastname' => get_string("lastname"),
-                        'email' => get_string("email"),
-                        'completed' => get_string("searchfinished", "booking"),
-                        'waitinglist' => get_string("waitinglist", "booking"),
-                        'status' => get_string('presence', 'mod_booking'),
-                        'groups' => get_string("group"),
-                        'idnumber' => get_string("idnumber")
-        );
+        $reportfields = array('optionid' => get_string("optionid", "booking"),
+            'booking' => get_string("booking", "booking"),
+            'institution' => get_string("institution", "booking"),
+            'location' => get_string("location", "booking"),
+            'coursestarttime' => get_string("coursestarttime", "booking"),
+            'courseendtime' => get_string("courseendtime", "booking"),
+            'numrec' => get_string("numrec", "booking"), 'userid' => get_string("userid", "booking"),
+            'username' => get_string("username"), 'firstname' => get_string("firstname"),
+            'lastname' => get_string("lastname"), 'email' => get_string("email"),
+            'completed' => get_string("searchfinished", "booking"),
+            'waitinglist' => get_string("waitinglist", "booking"),
+            'status' => get_string('presence', 'mod_booking'), 'groups' => get_string("group"),
+            'idnumber' => get_string("idnumber"));
 
-        $optionsfields = array(
-                        'text' => get_string("select", "mod_booking"),
-                        'coursestarttime' => get_string("coursedate", "mod_booking"),
-                        'maxanswers' => get_string("availability", "mod_booking")
-        );
+        $optionsfields = array('text' => get_string("select", "mod_booking"),
+            'coursestarttime' => get_string("coursedate", "mod_booking"),
+            'maxanswers' => get_string("availability", "mod_booking"));
 
         foreach ($tmpaddfields as $field) {
             $responsesfields[$field->shortname] = $field->name;
@@ -508,31 +496,30 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('header', 'bookingoptiontextheader',
                 get_string('bookingoptiontext', 'booking'));
 
-        $mform->addElement('editor', 'beforebookedtext', get_string("beforebookedtext", "booking"), null,
-                null);
+        $mform->addElement('editor', 'beforebookedtext', get_string("beforebookedtext", "booking"),
+                null, null);
         $mform->setType('beforebookedtext', PARAM_CLEANHTML);
 
-        $mform->addElement('editor', 'beforecompletedtext', get_string("beforecompletedtext", "booking"), null,
-                null);
+        $mform->addElement('editor', 'beforecompletedtext',
+                get_string("beforecompletedtext", "booking"), null, null);
         $mform->setType('beforecompletedtext', PARAM_CLEANHTML);
 
-        $mform->addElement('editor', 'aftercompletedtext', get_string("aftercompletedtext", "booking"), null,
-                null);
+        $mform->addElement('editor', 'aftercompletedtext',
+                get_string("aftercompletedtext", "booking"), null, null);
         $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
 
         // -------------------- Sign-In Sheet Configuration ---------------------
-        $mform->addElement('header', 'cfgsigninheader',
-                get_string('cfgsignin', 'booking'));
+        $mform->addElement('header', 'cfgsigninheader', get_string('cfgsignin', 'booking'));
 
         $mform->addElement('filemanager', 'signinlogoheader',
                 get_string('signinlogoheader', 'booking'), null,
                 array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1,
-                                'accepted_types' => array('image')));
+                    'accepted_types' => array('image')));
 
-                $mform->addElement('filemanager', 'signinlogofooter',
-                        get_string('signinlogofooter', 'booking'), null,
-                        array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1,
-                                        'accepted_types' => array('image')));
+        $mform->addElement('filemanager', 'signinlogofooter',
+                get_string('signinlogofooter', 'booking'), null,
+                array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1,
+                    'accepted_types' => array('image')));
 
         // -------------------- Conected bookings -------------------------------
         $mform->addElement('header', 'conectedbookingheader',
