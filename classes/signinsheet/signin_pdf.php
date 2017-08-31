@@ -45,7 +45,7 @@ class signin_pdf extends \TCPDF {
             $imageinfo = $this->file->get_imageinfo();
             $signinsheetlogofooter = $this->file->get_content();
             $filetype = str_replace('image/', '', $this->file->get_mimetype());
-            //$this->SetXY(18, 18);
+            // $this->SetXY(18, 18);
             if ($imageinfo['height'] == $imageinfo['width']) {
                 $w = 40;
                 $h = 40;
@@ -59,12 +59,12 @@ class signin_pdf extends \TCPDF {
                 $h = 40;
             }
 
-            $this->Image('@' . $signinsheetlogofooter, '', '', $w, $h, $filetype,
-                '', 'T', true, 150, 'C', false, false, 1, false, false, false);
+            $this->Image('@' . $signinsheetlogofooter, '', '', $w, $h, $filetype, '', 'T', true,
+                    150, 'C', false, false, 1, false, false, false);
         }
     }
 
-    public function SetFooterImage($file) {
+    public function setfooterimage($file) {
         $this->file = $file;
     }
 }

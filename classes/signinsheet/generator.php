@@ -328,7 +328,7 @@ class generator {
 
         if ($files) {
             $file = reset($files);
-            $this->pdf->SetFooterImage($file);
+            $this->pdf->setfooterimage($file);
         }
         return $fileuse;
     }
