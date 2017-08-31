@@ -44,22 +44,39 @@ class all_options extends table_sql {
 
     protected function col_id($values) {
         global $OUTPUT, $CFG;
-        $ret = '
-<div>
-    <div class="action-menu moodle-actionmenu" id="action-menu-3" data-enhance="moodle-core-actionmenu">
-        <div class="menubar" id="action-menu-3-menubar" role="menubar">
-            <div class="dropdown d-inline" id="yui_3_17_2_1_1502106021226_30">
-                <a href="#" class="dropdown-toggle" id="action-menu-toggle-3" title="" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img class="icon " alt="" src="http://localhost/theme/image.php/boost/core/1501580972/t/edit">
-                </a>
-                    <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-3-menu" data-rel="menu-content" aria-labelledby="action-menu-toggle-3"
-                        role="menu" data-align="tr-br">';
+
+        $ddoptions = array();
+        $ret = '<div class="menubar" id="action-menu-' . $values->id. '-menubar" role="menubar">';
+
+        if ($CFG->branch >= 33) {
+            $editiconurl = $OUTPUT->pix_icon('t/edit', get_string('updatebooking', 'mod_booking'));
+        } else {
+            $editiconurl = $OUTPUT->pix_url('t/edit');
+        }
+
+        if ($values->iambooked) {
+            if ($CFG->branch >= 33) {
+                $ret .= \html_writer::link(
+                        new moodle_url('/mod/booking/viewconfirmation.php',
+                                array('id' => $this->cm->id, 'optionid' => $values->id)),
+                        $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')),
+                        array('target' => '_blank'));
+            } else {
+                $ret .= html_writer::link(
+                        new moodle_url('/mod/booking/viewconfirmation.php',
+                                array('id' => $this->cm->id, 'optionid' => $values->id)),
+                        \html_writer::empty_tag('img',
+                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('i/report'),
+                                    'alt' => get_string('bookedtext', 'mod_booking'))),
+                        array('target' => '_blank'));
+            }
+        }
 
         if ($CFG->branch >= 33) {
             if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability(
                     'mod/booking:addeditownoption', $this->context) &&
                      booking_check_if_teacher($values))) {
-                $ret .= '<div class="dropdown-item">' . html_writer::link(
+                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
                         new moodle_url('/mod/booking/editoptions.php',
                                 array('id' => $this->cm->id, 'optionid' => $values->id)),
                         $OUTPUT->pix_icon('t/edit', get_string('updatebooking', 'mod_booking')) .
@@ -67,7 +84,7 @@ class all_options extends table_sql {
             }
 
             if (has_capability('mod/booking:updatebooking', $this->context)) {
-                $ret .= '<div class="dropdown-item">' . html_writer::link(
+                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
                         new moodle_url('/mod/booking/report.php',
                                 array('id' => $this->cm->id, 'optionid' => $values->id,
                                     'action' => 'deletebookingoption', 'sesskey' => sesskey())),
@@ -75,20 +92,11 @@ class all_options extends table_sql {
                                 get_string('deletebookingoption', 'mod_booking')) .
                                  get_string('deletebookingoption', 'mod_booking')) . '</div>';
             }
-
-            if ($values->iambooked) {
-                $ret .= '<div class="dropdown-item">' . html_writer::link(
-                        new moodle_url('/mod/booking/viewconfirmation.php',
-                                array('id' => $this->cm->id, 'optionid' => $values->id)),
-                        $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')) .
-                                 get_string('bookedtext', 'mod_booking'),
-                                array('target' => '_blank')) . '</div>';
-            }
         } else {
             if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability(
                     'mod/booking:addeditownoption', $this->context) &&
                      booking_check_if_teacher($values))) {
-                $ret .= '<div class="dropdown-item">' . html_writer::link(
+                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
                         new moodle_url('/mod/booking/editoptions.php',
                                 array('id' => $this->cm->id, 'optionid' => $values->id)),
                         \html_writer::empty_tag('img',
@@ -98,7 +106,7 @@ class all_options extends table_sql {
             }
 
             if (has_capability('mod/booking:updatebooking', $this->context)) {
-                $ret .= '<div class="dropdown-item">' . html_writer::link(
+                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
                         new moodle_url('/mod/booking/report.php',
                                 array('id' => $this->cm->id, 'optionid' => $values->id,
                                     'action' => 'deletebookingoption', 'sesskey' => sesskey())),
@@ -107,20 +115,21 @@ class all_options extends table_sql {
                                     'alt' => get_string('deletebookingoption', 'mod_booking'))) .
                                  get_string('deletebookingoption', 'mod_booking')) . '</div>';
             }
-
-            if ($values->iambooked) {
-                $ret .= '<div class="dropdown-item">' . html_writer::link(
-                        new moodle_url('/mod/booking/viewconfirmation.php',
-                                array('id' => $this->cm->id, 'optionid' => $values->id)),
-                        \html_writer::empty_tag('img',
-                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('i/report'),
-                                    'alt' => get_string('bookedtext', 'mod_booking'))) .
-                                 get_string('bookedtext', 'mod_booking'),
-                                array('target' => '_blank')) . '</div>';
-            }
         }
 
-        $ret .= '</div></div></div></div></div>';
+        if (!empty($ddoptions)) {
+            $ret .= '<div class="dropdown d-inline">
+                        <a href="#" id="action-menu-toggle-' . $values->id  . '" title="" role="button" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false"><img class="icon " alt="" src="' .
+                     $editiconurl .
+                     '"></a>
+                        <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' . $values->id . '-menu" data-rel="menu-content"
+                            aria-labelledby="action-menu-toggle-3" role="menu" data-align="tr-br">';
+            $ret .= implode($ddoptions);
+            $ret .= '</div></div>';
+        }
+
+        $ret .= '</div>';
 
         return $ret;
     }
