@@ -259,6 +259,10 @@ function booking_add_instance($booking) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
     }
 
+    if (isset($booking->signinsheetfields) && count($booking->signinsheetfields) > 0) {
+        $booking->signinsheetfields = implode(',', $booking->signinsheetfields);
+    }
+
     // Copy the text fields out.
     $booking->bookedtext = $booking->bookedtext['text'];
     $booking->waitingtext = $booking->waitingtext['text'];
@@ -348,6 +352,10 @@ function booking_update_instance($booking) {
 
     if (isset($booking->reportfields) && count($booking->reportfields) > 0) {
         $booking->reportfields = implode(',', $booking->reportfields);
+    }
+
+    if (isset($booking->signinsheetfields) && count($booking->signinsheetfields) > 0) {
+        $booking->signinsheetfields = implode(',', $booking->signinsheetfields);
     }
 
     if (isset($booking->optionsfields) && count($booking->optionsfields) > 0) {

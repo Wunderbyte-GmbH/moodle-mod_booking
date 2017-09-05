@@ -474,6 +474,16 @@ class mod_booking_mod_form extends moodleform_mod {
             'coursestarttime' => get_string("coursedate", "mod_booking"),
             'maxanswers' => get_string("availability", "mod_booking"));
 
+        $signinsheetfields = array('fullname' => get_string('fullname', 'mod_booking'),
+            'signature' => get_string('signature', 'mod_booking'),
+            'institution' => get_string('institution', 'mod_booking'));
+
+        for ($i = 1; $i < 4; $i++) {
+            $name = 'signinextracols' . $i;
+            $visiblename = get_string('signinextracols', 'mod_booking') . " $i";
+            $signinsheetfields[$name] = $visiblename;
+        }
+
         foreach ($tmpaddfields as $field) {
             $responsesfields[$field->shortname] = $field->name;
             $reportfields[$field->shortname] = $field->name;
@@ -489,6 +499,10 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $select = $mform->addElement('select', 'optionsfields',
                 get_string('optionsfields', 'booking'), $optionsfields);
+        $select->setMultiple(true);
+
+        $select = $mform->addElement('select', 'signinsheetfields',
+                get_string('signinsheetfields', 'booking'), $signinsheetfields);
         $select->setMultiple(true);
 
         // -------------------- Booking option text------------------------------

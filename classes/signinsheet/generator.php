@@ -102,6 +102,8 @@ class generator {
     public $signinsheetlogo = '';
     public $signinsheetlogofooter = '';
     public $headerlogofile = false;
+    public $allfields = array();
+    public $extracols = array();
 
     /**
      * Define basic variable values for signinsheet pdf
@@ -130,6 +132,13 @@ class generator {
         if ($cfgcustfields) {
             $this->cfgcustfields = explode(',', $cfgcustfields);
         }
+
+        $this->allfields = explode(',', $this->bookingdata->booking->signinsheetfields);
+
+        for ($i = 1; $i < 4; $i++) {
+            $this->extracols[$i] = trim(get_config('booking', 'signinextracols' . $i));
+        }
+
         $this->pdf = new signin_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8',
                 false);
     }
@@ -140,18 +149,8 @@ class generator {
     public function download_signinsheet() {
         global $CFG, $DB;
 
-        $extracols = array();
-        for ($i = 1; $i < 4; $i++) {
-            $colscfg = get_config('booking', 'signinextracols' . $i);
-            $colscfg = trim($colscfg);
-            if (!empty($colscfg)) {
-                $extracols[] = $colscfg;
-            }
-        }
-        $extracolsnum = count($extracols);
-
         $users = $DB->get_records_sql(
-                'SELECT u.id, u.firstname, u.lastname
+                'SELECT u.id, ' . get_all_user_name_fields(true, 'u') . ', u.institution
             FROM {booking_answers} ba
             LEFT JOIN {user} u ON u.id = ba.userid
             WHERE ba.optionid = ? ORDER BY u.lastname ASC', array($this->bookingdata->option->id));
@@ -177,7 +176,7 @@ class generator {
         // Get header and footer logo for signin sheet.
         $fileuse = $this->get_signinsheet_logo();
 
-        $this->set_page_header($extracols);
+        $this->set_page_header();
 
         $profilefields = explode(',', get_config('booking', 'custprofilefields'));
         $profiles = profile_get_custom_fields();
@@ -194,45 +193,37 @@ class generator {
             }
         }
         foreach ($users as $user) {
-            $profiletext = '';
-            profile_load_custom_fields($user);
-            $userprofile = $user->profile;
-            if (!empty($user->profile)) {
-                $profiletext .= " ";
-                foreach ($user->profile as $profilename => $value) {
-                    if (in_array($profilename, $profilefieldnames)) {
-                        $profiletext .= $value . " ";
-                    }
-                }
-            }
-
             if ($this->pdf->go_to_newline(12)) {
                 if ($fileuse) {
                     $this->pdf->SetXY(18, 18);
                     $this->pdf->Image('@' . $this->signinsheetlogo, '', '', $this->w, $this->h, '', '', 'T', true, 150, 'R',
                             false, false, 0, false, false, false);
                 }
-                $this->set_page_header($extracols);
+                $this->set_page_header();
             }
             $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 10);
-            $this->pdf->Cell(
-                    ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + $extracolsnum), 12,
-                    $user->lastname . ", " . $user->firstname . $profiletext, 1, 0, '', 0);
-            $this->pdf->Cell(
-                    ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + $extracolsnum), 12,
-                    "", 1, (count($extracols) > 0 ? 0 : 1), '', 0);
-            if (count($extracols) > 0) {
-                for ($i = 1; $i <= $extracolsnum; $i++) {
-                    if ($i == $extracolsnum) {
-                        $this->pdf->Cell(0, 12, "", 1, 1, '', 0);
-                    } else {
-                        $this->pdf->Cell(
-                                ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + $extracolsnum),
-                                12, "", 1, 0, '', 0);
-                    }
+
+            $c = 0 ;
+            foreach ($this->allfields as $value) {
+                $c++;
+                switch ($value) {
+                    case fullname:
+                        $name = "{$user->firstname} {$user->lastname}";
+                        break;
+                    case 'institution':
+                        $name = $user->institution;
+                        break;
+                    default:
+                        $name = '';
                 }
+
+
+                $this->pdf->Cell(
+                        ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (count($this->allfields)), 0,
+                        $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0);
             }
         }
+
         $this->pdf->Output($this->bookingdata->option->text . '.pdf', 'D');
     }
 
@@ -393,25 +384,40 @@ class generator {
         $this->pdf->Ln();
 
         $this->pdf->SetFont(PDF_FONT_NAME_MAIN, 'B', 12);
-        $this->pdf->Cell(
-                ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + count($extracols)), 0,
-                get_string('pdfstudentname', 'booking'), 1, 0, '', 0);
-        $this->pdf->Cell(
-                ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + count($extracols)), 0,
-                get_string('pdfsignature', 'booking'), 1, (count($extracols) > 0 ? 0 : 1), '', 0);
-        if (count($extracols) > 0) {
-            for ($i = 0; $i < count($extracols); $i++) {
-                if ($i == count($extracols) - 1) {
-                    $this->pdf->Cell(
-                            ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + count(
-                                    $extracols)), 0, $extracols[$i], 1, 1, '', 0);
-                } else {
-                    $this->pdf->Cell(
-                            ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (2 + count(
-                                    $extracols)), 0, $extracols[$i], 1, 0, '', 0);
-                }
+
+        $c = 0 ;
+
+        foreach ($this->allfields as $value) {
+            $c++;
+            switch ($value) {
+                case fullname:
+                    $name = get_string('fullname', 'mod_booking');
+                    break;
+                case 'signature':
+                    $name = get_string('signature', 'mod_booking');
+                    break;
+                case 'institution':
+                    $name = get_string('institution', 'mod_booking');
+                    break;
+                case 'signinextracols1':
+                    $name = $this->extracols[1];
+                    break;
+                case 'signinextracols2':
+                    $name = $this->extracols[2];
+                    break;
+                case 'signinextracols3':
+                    $name = $this->extracols[3];
+                    break;
+                default:
+                        $name = '';
             }
+
+
+            $this->pdf->Cell(
+                    ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (count($this->allfields)), 0,
+                    $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0);
         }
+
         $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
     }
 }

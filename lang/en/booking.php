@@ -826,6 +826,8 @@ $string['confirmpresence'] = "Confirm presence";
 $string['selectpresencestatus'] = "Choose presence status";
 $string['userssucesfullygetnewpresencestatus'] = 'All users have a new presence status.';
 $string['deleteresponsesactivitycompletion'] = 'Delete all users with completed activity: {$a}';
+$string['signature'] = 'Signature';
+$string['signinsheetfields'] = 'Sign in Sheet fields';
 
 // Send message
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';

@@ -1608,5 +1608,21 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017082800, 'booking');
     }
 
+    if ($oldversion < 2017090500) {
+
+        // Define field signinsheetfields to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('signinsheetfields', XMLDB_TYPE_CHAR, '1333', null, null, null,
+                'fullname,signature', 'aftercompletedtext');
+
+        // Conditionally launch add field signinsheetfields.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2017090500, 'booking');
+    }
+
     return true;
 }
