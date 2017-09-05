@@ -153,8 +153,7 @@ class generator {
                 'SELECT u.id, ' . get_all_user_name_fields(true, 'u') . ', u.institution
             FROM {booking_answers} ba
             LEFT JOIN {user} u ON u.id = ba.userid
-            WHERE ba.optionid = ? ORDER BY u.lastname ASC',
-                array($this->bookingdata->option->id));
+            WHERE ba.optionid = ? ORDER BY u.lastname ASC', array($this->bookingdata->option->id));
 
         $this->pdf->SetCreator(PDF_CREATOR);
         $this->pdf->setPrintHeader(true);
@@ -218,10 +217,8 @@ class generator {
                         $name = '';
                 }
 
-                $this->pdf->Cell(
-                        ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) /
-                                 (count($this->allfields)), 0, $name, 1,
-                                (count($this->allfields) == $c ? 1 : 0), '', 0);
+                $w = ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (count($this->allfields));
+                $this->pdf->Cell($w, 0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0);
             }
         }
 
