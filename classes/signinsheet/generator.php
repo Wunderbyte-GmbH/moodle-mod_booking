@@ -153,7 +153,8 @@ class generator {
                 'SELECT u.id, ' . get_all_user_name_fields(true, 'u') . ', u.institution
             FROM {booking_answers} ba
             LEFT JOIN {user} u ON u.id = ba.userid
-            WHERE ba.optionid = ? ORDER BY u.lastname ASC', array($this->bookingdata->option->id));
+            WHERE ba.optionid = ? ORDER BY u.lastname ASC',
+                array($this->bookingdata->option->id));
 
         $this->pdf->SetCreator(PDF_CREATOR);
         $this->pdf->setPrintHeader(true);
@@ -196,14 +197,14 @@ class generator {
             if ($this->pdf->go_to_newline(12)) {
                 if ($fileuse) {
                     $this->pdf->SetXY(18, 18);
-                    $this->pdf->Image('@' . $this->signinsheetlogo, '', '', $this->w, $this->h, '', '', 'T', true, 150, 'R',
-                            false, false, 0, false, false, false);
+                    $this->pdf->Image('@' . $this->signinsheetlogo, '', '', $this->w, $this->h, '',
+                            '', 'T', true, 150, 'R', false, false, 0, false, false, false);
                 }
                 $this->set_page_header();
             }
             $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 10);
 
-            $c = 0 ;
+            $c = 0;
             foreach ($this->allfields as $value) {
                 $c++;
                 switch ($value) {
@@ -217,10 +218,10 @@ class generator {
                         $name = '';
                 }
 
-
                 $this->pdf->Cell(
-                        ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (count($this->allfields)), 0,
-                        $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0);
+                        ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) /
+                                 (count($this->allfields)), 0, $name, 1,
+                                (count($this->allfields) == $c ? 1 : 0), '', 0);
             }
         }
 
@@ -352,14 +353,15 @@ class generator {
             $sql = "SELECT bc.cfgname, bc.value
                   FROM {booking_customfields} bc
                  WHERE cfgname $insql
-                 AND   optionid = " . $this->bookingdata->option->id;
+                 AND   optionid = " .
+                     $this->bookingdata->option->id;
             $custfieldvalues = $DB->get_records_sql($sql, $params);
             if (!empty($custfieldvalues)) {
                 foreach ($custfieldvalues as $record) {
                     if (!empty($record->value)) {
                         $this->pdf->Cell(0, 0,
-                                $customfields[$record->cfgname]['value'] . ": " . $record->value, 0, 1, '',
-                                0);
+                                $customfields[$record->cfgname]['value'] . ": " . $record->value, 0,
+                                1, '', 0);
                     }
                 }
             }
@@ -385,7 +387,7 @@ class generator {
 
         $this->pdf->SetFont(PDF_FONT_NAME_MAIN, 'B', 12);
 
-        $c = 0 ;
+        $c = 0;
 
         foreach ($this->allfields as $value) {
             $c++;
@@ -409,13 +411,12 @@ class generator {
                     $name = $this->extracols[3];
                     break;
                 default:
-                        $name = '';
+                    $name = '';
             }
 
-
             $this->pdf->Cell(
-                    ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (count($this->allfields)), 0,
-                    $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0);
+                    ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (count($this->allfields)),
+                    0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0);
         }
 
         $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
