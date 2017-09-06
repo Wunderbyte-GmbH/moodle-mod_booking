@@ -48,8 +48,8 @@ if ($ADMIN->fulltree) {
                     get_string('icalcanceldesc', 'mod_booking'), 1));
 
     $name = 'booking/googleapikey';
-    $visiblename = get_string('googleapikey', 'mod_booking') . " $i";
-    $description = get_string('googleapikey_desc', 'mod_booking') . " $i";
+    $visiblename = get_string('googleapikey', 'mod_booking');
+    $description = get_string('googleapikey_desc', 'mod_booking');
     $setting = new admin_setting_configtext($name, $visiblename, $description, '');
     $settings->add($setting);
 
