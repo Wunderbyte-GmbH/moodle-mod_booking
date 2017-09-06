@@ -460,7 +460,6 @@ function booking_update_options($optionvalues) {
     require_once("$CFG->dirroot/mod/booking/locallib.php");
     $customfields = \mod_booking\booking_option::get_customfield_settings();
     $customfield = new stdClass();
-
     $bokingutils = new booking_utils();
 
     $booking = $DB->get_record('booking', array('id' => $optionvalues->bookingid));
@@ -595,6 +594,25 @@ function booking_update_options($optionvalues) {
         $option->groupid = $bokingutils->group($booking, $option);
 
         $id = $DB->insert_record("booking_options", $option);
+
+        // URL shortnere - only if API key is entered.
+        $gapik = get_config('booking', 'googleapikey');
+        $option->shorturl = '';
+        if (!empty($gapik)) {
+            require_once ("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
+            $googer = new GoogleURLAPI($gapik);
+            $onlyoneurl = new moodle_url('/mod/booking/view.php',
+                    array('id' => $optionvalues->id, 'optionid' => $id, 'action' => 'showonlyone',
+                        'whichview' => 'showonlyone'));
+            $onlyoneurl->set_anchor('goenrol');
+
+            $shorturl = $googer->shorten(htmlspecialchars_decode($onlyoneurl->__toString()));
+            if ($shorturl) {
+                $option->shorturl = $shorturl;
+                $option->id = $id;
+                $DB->update_record("booking_options", $option);
+            }
+        }
 
         // Save custom fields if there are any
         if (!empty($customfields)) {

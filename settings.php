@@ -46,6 +46,13 @@ if ($ADMIN->fulltree) {
             new admin_setting_configcheckbox('booking/icalcancel',
                     get_string('icalcancel', 'mod_booking'),
                     get_string('icalcanceldesc', 'mod_booking'), 1));
+
+    $name = 'booking/googleapikey';
+    $visiblename = get_string('googleapikey', 'mod_booking') . " $i";
+    $description = get_string('googleapikey_desc', 'mod_booking') . " $i";
+    $setting = new admin_setting_configtext($name, $visiblename, $description, '');
+    $settings->add($setting);
+
     // The default here is feedback_comments (if it exists).
     $settings->add(
             new admin_setting_heading('mod_booking_signinsheet',

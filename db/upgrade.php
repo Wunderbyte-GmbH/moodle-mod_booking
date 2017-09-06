@@ -1624,5 +1624,21 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017090500, 'booking');
     }
 
+    if ($oldversion < 2017090600) {
+
+        // Define field shorturl to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('shorturl', XMLDB_TYPE_CHAR, '1333', null, null, null, null,
+                'aftercompletedtext');
+
+        // Conditionally launch add field shorturl.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2017090600, 'booking');
+    }
+
     return true;
 }

@@ -921,8 +921,5 @@ $string['showcustomfields_desc'] = 'Select the custom booking option fields to b
 $string['signinextracols_heading'] = 'Additional columns on the sign-in sheet';
 $string['signinextracols'] = 'Additional column';
 $string['signinextracols_desc'] = 'You can print up to 3 additional columns on the sign-in sheet. Fill in the column title or leave it blank for no additional column';
-
-
-
-
-
+$string['googleapikey'] = 'Google API key';
+$string['googleapikey_desc'] = 'API key for Google URL Shortener. Get it here: https://developers.google.com/url-shortener/v1/getting_started#APIKey';

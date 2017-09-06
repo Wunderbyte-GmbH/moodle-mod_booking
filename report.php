@@ -731,6 +731,9 @@ if (!$tableallbookings->is_downloading()) {
     }
 
     echo html_writer::link($onlyoneurl, get_string('onlythisbookingurl', 'booking'), array());
+    if (!empty($bookingdata->option->shorturl)) {
+        echo " ({$bookingdata->option->shorturl})";
+    }
     echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
             array('onclick' => 'copyToClipboard("' . $onlyoneurl . '"); return false;')) . ' | ';
 
