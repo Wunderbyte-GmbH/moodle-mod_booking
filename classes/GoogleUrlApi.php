@@ -27,7 +27,7 @@ class GoogleUrlApi {
 
     // https://developers.google.com/url-shortener/v1/getting_started#APIKey Get a new key
     // Constructor
-    function __construct($key, $apiurl = 'https://www.googleapis.com/urlshortener/v1/url') {
+    public function __construct($key, $apiurl = 'https://www.googleapis.com/urlshortener/v1/url') {
         // Keep the API Url
         $this->apiurl = $apiurl . '?key=' . $key;
     }
