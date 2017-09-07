@@ -23,15 +23,17 @@
 
 class GoogleUrlApi {
 
+    private $apiurl;
+
     // https://developers.google.com/url-shortener/v1/getting_started#APIKey Get a new key
     // Constructor
-    function GoogleURLAPI($key, $apiURL = 'https://www.googleapis.com/urlshortener/v1/url') {
+    function __construct($key, $apiurl = 'https://www.googleapis.com/urlshortener/v1/url') {
         // Keep the API Url
-        $this->apiURL = $apiURL . '?key=' . $key;
+        $this->apiurl = $apiurl . '?key=' . $key;
     }
 
     // Shorten a URL
-    function shorten($url) {
+    public function shorten($url) {
         // Send information along
         $response = $this->send($url);
         // Return the result
@@ -39,7 +41,7 @@ class GoogleUrlApi {
     }
 
     // Expand a URL
-    function expand($url) {
+    public function expand($url) {
         // Send information along
         $response = $this->send($url, false);
         // Return the result
@@ -47,17 +49,17 @@ class GoogleUrlApi {
     }
 
     // Send information to Google
-    function send($url, $shorten = true) {
+    public function send($url, $shorten = true) {
         // Create cURL
         $ch = curl_init();
         // If we're shortening a URL...
         if ($shorten) {
-            curl_setopt($ch, CURLOPT_URL, $this->apiURL);
+            curl_setopt($ch, CURLOPT_URL, $this->apiurl);
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array("longUrl" => $url)));
             curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
         } else {
-            curl_setopt($ch, CURLOPT_URL, $this->apiURL . '&shortUrl=' . $url);
+            curl_setopt($ch, CURLOPT_URL, $this->apiurl . '&shortUrl=' . $url);
         }
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         // Execute the post
