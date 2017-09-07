@@ -599,7 +599,7 @@ function booking_update_options($optionvalues) {
         $gapik = get_config('booking', 'googleapikey');
         $option->shorturl = '';
         if (!empty($gapik)) {
-            require_once ("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
+            require_once("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
             $googer = new GoogleURLAPI($gapik);
             $onlyoneurl = new moodle_url('/mod/booking/view.php',
                     array('id' => $optionvalues->id, 'optionid' => $id, 'action' => 'showonlyone',
