@@ -348,8 +348,11 @@ class booking_option extends booking {
     }
 
     public function get_option_text($userid = null) {
+        global $USER;
 
         $text = "";
+
+        $params = booking_generate_email_params($this->booking, $this->option, $USER, $this->cm->id);
 
         if (in_array($this->user_status($userid), array(1, 2))) {
             $ac = $this->is_activity_completed($userid);
@@ -372,6 +375,10 @@ class booking_option extends booking {
             } else if (!empty($this->booking->beforebookedtext)) {
                 $text = $this->booking->beforebookedtext;
             }
+        }
+
+        foreach ($params as $name => $value) {
+            $text = str_replace('{' . $name . '}', $value, $text);
         }
 
         return $text;

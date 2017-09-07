@@ -289,6 +289,7 @@ $string['pollurlteachers_help'] = 'You can use any of the following placeholders
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
 </ul>';
 
 $string['pollurl_help'] = 'You can use any of the following placeholders in the text:
@@ -314,6 +315,7 @@ $string['pollurl_help'] = 'You can use any of the following placeholders in the 
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
 </ul>';
 
 $string['bookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -339,6 +341,7 @@ $string['bookedtext_help'] = 'Leave this blank to use the site default text. You
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
 </ul>';
 
 $string['userleave_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -366,6 +369,7 @@ $string['userleave_help'] = 'Leave this blank to use the site default text. You 
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
 </ul>';
 
 $string['waitingtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -393,6 +397,7 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
 </ul>';
 
 $string['notifyemail_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -420,6 +425,7 @@ $string['notifyemail_help'] = 'Leave this blank to use the site default text. Yo
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
 </ul>';
 
 $string['statuschangetext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -447,6 +453,7 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
 </ul>';
 
 $string['deletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -474,6 +481,7 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
 </ul>';
 
 $string['pollurltext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -501,6 +509,7 @@ $string['pollurltext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
 </ul>';
 
 $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -528,6 +537,7 @@ $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default 
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
 </ul>';
 
 $string['notificationtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -555,6 +565,91 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
+</ul>';
+
+$string['beforebookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{email} - User email</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+<li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
+</ul>';
+
+$string['beforecompletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{email} - User email</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+<li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
+</ul>';
+
+$string['aftercompletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{email} - User email</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+<li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
 </ul>';
 
 $string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";

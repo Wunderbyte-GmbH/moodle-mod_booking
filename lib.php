@@ -1926,6 +1926,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $params->institution = $option->institution;
     $params->address = $option->address;
     $params->eventtype = $booking->eventtype;
+    $params->shorturl= $option->shorturl;
     $params->pollstartdate = $option->coursestarttime ? userdate((int) $option->coursestarttime,
             get_string('pollstrftimedate', 'booking')) : '';
     if (empty($option->pollurl)) {
