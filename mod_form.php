@@ -510,11 +510,6 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('header', 'bookingoptiontextheader',
                 get_string('bookingoptiontext', 'booking'));
 
-        $mform->addElement('editor', 'beforebookedtext', get_string("beforebookedtext", "booking"),
-                null, null);
-        $mform->setType('beforebookedtext', PARAM_CLEANHTML);
-        $mform->addHelpButton('beforebookedtext', 'beforebookedtext', 'mod_booking');
-
         $mform->addElement('editor', 'beforecompletedtext',
                 get_string("beforecompletedtext", "booking"), null, null);
         $mform->setType('beforecompletedtext', PARAM_CLEANHTML);
@@ -524,6 +519,11 @@ class mod_booking_mod_form extends moodleform_mod {
                 get_string("aftercompletedtext", "booking"), null, null);
         $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
         $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
+
+        $mform->addElement('editor', 'beforebookedtext', get_string("beforebookedtext", "booking"),
+                null, null);
+        $mform->setType('beforebookedtext', PARAM_CLEANHTML);
+        $mform->addHelpButton('beforebookedtext', 'beforebookedtext', 'mod_booking');
 
         // -------------------- Sign-In Sheet Configuration ---------------------
         $mform->addElement('header', 'cfgsigninheader', get_string('cfgsignin', 'booking'));
