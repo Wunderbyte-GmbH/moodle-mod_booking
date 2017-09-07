@@ -107,6 +107,8 @@ class mod_booking_booking_option_testcase extends advanced_testcase {
         $bookingopttion1 = new \mod_booking\booking_option($cmb1->id, $option1->id);
         $bookingopttion2 = new \mod_booking\booking_option($cmb2->id, $option2->id);
 
+        $this->assertEquals(true, empty($bookingopttion1->option->shorturl));
+
         $bookingopttion1->user_submit_response($user1);
         $bookingopttion2->user_submit_response($user1);
         $bookingopttion2->user_submit_response($user2);
