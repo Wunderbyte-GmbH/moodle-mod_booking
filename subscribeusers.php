@@ -114,7 +114,7 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
                                 foreach ($result as $v) {
                                     $r[] = $v->text;
                                 }
-                                $output .= get_string('enroledinoptions', 'mod_booking') . implode(', ', $r);
+                                $output .= '&nbsp;' . get_string('enroledinoptions', 'mod_booking') . implode(', ', $r);
                             }
                             $output .= " <br>";
                         }
