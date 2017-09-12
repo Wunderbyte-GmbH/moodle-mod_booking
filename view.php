@@ -42,7 +42,7 @@ $urlparams = array();
 $urlparamssort = array();
 $urlparams['id'] = $id;
 
-//comment::init();
+// comment::init();
 
 list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
 require_course_login($course, false, $cm);

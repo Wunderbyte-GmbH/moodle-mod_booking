@@ -214,10 +214,10 @@ function booking_supports($feature) {
  *            string comment area itemid => int itemid }
  * @return array
  */
-function booking_comment_permissions($comment_param) {
+function booking_comment_permissions($commentparam) {
     global $DB, $USER;
 
-    $odata = $DB->get_record('booking_options', array('id' => $comment_param->itemid));
+    $odata = $DB->get_record('booking_options', array('id' => $commentparam->itemid));
     $bdata = $DB->get_record('booking', array('id' => $odata->bookingid));
 
     switch ($bdata->comments) {
@@ -229,7 +229,7 @@ function booking_comment_permissions($comment_param) {
             break;
         case 2:
             $udata = $DB->get_record('booking_answers',
-                    array('userid' => $USER->id, 'optionid' => $comment_param->itemid));
+                    array('userid' => $USER->id, 'optionid' => $commentparam->itemid));
             if ($udata) {
                 return array('post' => true, 'view' => true);
             } else {
@@ -238,7 +238,7 @@ function booking_comment_permissions($comment_param) {
             break;
         case 3:
             $udata = $DB->get_record('booking_answers',
-                    array('userid' => $USER->id, 'optionid' => $comment_param->itemid));
+                    array('userid' => $USER->id, 'optionid' => $commentparam->itemid));
             if ($udata && $udata->completed == 1) {
                 return array('post' => true, 'view' => true);
             } else {
@@ -257,13 +257,13 @@ function booking_comment_permissions($comment_param) {
  *            string comment area itemid => int itemid }
  * @return boolean
  */
-function booking_comment_validate($comment_param) {
+function booking_comment_validate($commentparam) {
     global $DB;
 
-    if ($comment_param->commentarea != 'booking_option') {
+    if ($commentparam->commentarea != 'booking_option') {
         throw new comment_exception('invalidcommentarea');
     }
-    if (!$record = $DB->get_record('booking_options', array('id' => $comment_param->itemid))) {
+    if (!$record = $DB->get_record('booking_options', array('id' => $commentparam->itemid))) {
         throw new comment_exception('invalidcommentitemid');
     }
     if ($record->id) {
@@ -281,7 +281,7 @@ function booking_comment_validate($comment_param) {
     $context = context_module::instance($cm->id);
 
     // validate context id
-    if ($context->id != $comment_param->context->id) {
+    if ($context->id != $commentparam->context->id) {
         throw new comment_exception('invalidcontext');
     }
     // validation for comment deletion
