@@ -52,7 +52,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'paginationnum', 'daystonotify', 'daystonotify2', 'notifyemail', 'assessed',
                     'assesstimestart', 'assesstimefinish', 'scale', 'enablepresence',
                     'responsesfields', 'reportfields', 'beforebookedtext', 'beforecompletedtext',
-                    'aftercompletedtext'));
+                    'aftercompletedtext', 'comments'));
 
         $options = new backup_nested_element('options');
         $option = new backup_nested_element('option', array('id'),

@@ -18,6 +18,7 @@ require_once("locallib.php");
 require_once($CFG->libdir . '/completionlib.php');
 require_once("{$CFG->libdir}/tablelib.php");
 require_once("{$CFG->dirroot}/mod/booking/classes/all_options.php");
+require_once($CFG->dirroot . '/comment/lib.php');
 
 $id = required_param('id', PARAM_INT); // Course Module ID
 $action = optional_param('action', '', PARAM_ALPHA);
@@ -40,6 +41,8 @@ $conditionsparams = array();
 $urlparams = array();
 $urlparamssort = array();
 $urlparams['id'] = $id;
+
+//comment::init();
 
 list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
 require_course_login($course, false, $cm);

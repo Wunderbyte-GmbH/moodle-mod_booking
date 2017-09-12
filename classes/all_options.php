@@ -22,7 +22,6 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-
 class all_options extends table_sql {
 
     public $booking = null;
@@ -252,6 +251,14 @@ class all_options extends table_sql {
             }
         }
 
+        $options->area = 'booking_option';
+        $options->context = $this->context;
+        $options->cm = $this->cm;
+        $options->itemid = $values->id;
+        $options->component = 'mod_booking';
+        $options->showcount = true;
+        $comment = new comment($options);
+        $output .= "<div>" . $comment->output(true) . "</div>";
         return $output;
     }
 

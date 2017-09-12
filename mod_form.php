@@ -408,8 +408,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement('hidden', 'completionmodule', '-1');
         }
 
-        // ----TAGS---------------------------------------------------
-
+            // ----TAGS---------------------------------------------------
         $options = array();
 
         $options[0] = "&nbsp;";
@@ -422,6 +421,16 @@ class mod_booking_mod_form extends moodleform_mod {
                     array('course' => $COURSE->id, 'cid' => $category->id));
             $options = $this->show_sub_categories($category->id, '', $options);
         }
+
+        $opts = array(0 => get_string('nocomments', 'mod_booking'),
+            1 => get_string('allcomments', 'mod_booking'),
+            2 => get_string('enroledcomments', 'mod_booking'),
+            3 => get_string('completedcomments', 'mod_booking')
+        );
+        $mform->addElement('select', 'comments', get_string('comments', 'mod_booking'), $opts);
+        $mform->setDefault('comments', 0);
+
+        // ----CATEGORY-----------------------------------------------
 
         $mform->addElement('header', 'categoryheader', get_string('category', 'booking'));
 

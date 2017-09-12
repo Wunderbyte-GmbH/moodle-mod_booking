@@ -916,6 +916,11 @@ class booking_option extends booking {
             }
         }
 
+        // Delete comments
+        $DB->delete_records("comments",
+                array('itemid' => $this->optionid, 'commentarea' => 'booking_option',
+                    'contextid' => $this->context->id));
+
         if (!$DB->delete_records("booking_options", array("id" => $this->optionid))) {
             $result = false;
         }

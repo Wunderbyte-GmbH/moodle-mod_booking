@@ -44,6 +44,14 @@
 //
 // For the core capabilities, the variable is $moodle_capabilities.
 $capabilities = array(
+    'mod/booking:comment' => array('riskbitmask' => RISK_SPAM, 'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array('student' => CAP_ALLOW, 'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW, 'manager' => CAP_ALLOW)),
+    'mod/booking:managecomments' => array('riskbitmask' => RISK_SPAM, 'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array('teacher' => CAP_ALLOW, 'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW)),
     'mod/booking:choose' => array('captype' => 'write', 'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array('student' => CAP_ALLOW, 'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW)),

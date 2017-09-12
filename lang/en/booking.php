@@ -53,6 +53,8 @@ $string['booking:viewallratings'] = 'View all raw ratings given by individuals';
 $string['booking:viewanyrating'] = 'View total ratings that anyone received';
 $string['booking:viewrating'] = 'View the total rating you received';
 $string['booking:addeditownoption'] = 'Add new option and edit own options.';
+$string['booking:comment'] = 'Add comments';
+$string['booking:managecomments'] = 'Manage comments';
 $string['bookingclose'] = 'Until';
 $string['bookingfull'] = 'There are no available places';
 $string['bookingname'] = 'Booking name';
@@ -265,6 +267,11 @@ $string['userleave'] = 'User has cancelled his/her own booking';
 $string['waitingtext'] = 'Waiting list confirmation';
 $string['statuschangetext'] = 'Status change message';
 $string['deletedtext'] = 'Cancelled booking message';
+$string['comments'] = 'Comments';
+$string['nocomments'] = 'Commenting disaled';
+$string['allcomments'] = 'Everybody can comment';
+$string['enroledcomments'] = 'Only enroled';
+$string['completedcomments'] = 'Only with completed activity';
 
 $string['pollurlteachers_help'] = 'You can use any of the following placeholders in the text:
 <ul>

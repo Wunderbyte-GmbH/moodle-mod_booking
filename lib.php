@@ -196,10 +196,102 @@ function booking_supports($feature) {
             return false;
         case FEATURE_BACKUP_MOODLE2:
             return true;
+        case FEATURE_COMMENT:
+            return true;
 
         default:
             return null;
     }
+}
+
+/**
+ * Running addtional permission check on plugin, for example, plugins may have switch to turn on/off comments option, this callback will affect UI
+ * display, not like pluginname_comment_validate only throw exceptions.
+ *
+ * @package mod_booking
+ * @category comment
+ * @param stdClass $comment_param { context => context the context object courseid => int course id cm => stdClass course module object commentarea =>
+ *            string comment area itemid => int itemid }
+ * @return array
+ */
+function booking_comment_permissions($comment_param) {
+    global $DB, $USER;
+
+    $odata = $DB->get_record('booking_options', array('id' => $comment_param->itemid));
+    $bdata = $DB->get_record('booking', array('id' => $odata->bookingid));
+
+    switch ($bdata->comments) {
+        case 0:
+            return array('post' => false, 'view' => false);
+            break;
+        case 1:
+            return array('post' => true, 'view' => true);
+            break;
+        case 2:
+            $udata = $DB->get_record('booking_answers',
+                    array('userid' => $USER->id, 'optionid' => $comment_param->itemid));
+            if ($udata) {
+                return array('post' => true, 'view' => true);
+            } else {
+                return array('post' => false, 'view' => false);
+            }
+            break;
+        case 3:
+            $udata = $DB->get_record('booking_answers',
+                    array('userid' => $USER->id, 'optionid' => $comment_param->itemid));
+            if ($udata && $udata->completed == 1) {
+                return array('post' => true, 'view' => true);
+            } else {
+                return array('post' => false, 'view' => false);
+            }
+            break;
+    }
+}
+
+/**
+ * Validate comment parameter before perform other comments actions
+ *
+ * @package mod_booking
+ * @category comment
+ * @param stdClass $comment_param { context => context the context object courseid => int course id cm => stdClass course module object commentarea =>
+ *            string comment area itemid => int itemid }
+ * @return boolean
+ */
+function booking_comment_validate($comment_param) {
+    global $DB;
+
+    if ($comment_param->commentarea != 'booking_option') {
+        throw new comment_exception('invalidcommentarea');
+    }
+    if (!$record = $DB->get_record('booking_options', array('id' => $comment_param->itemid))) {
+        throw new comment_exception('invalidcommentitemid');
+    }
+    if ($record->id) {
+        $glossary = $DB->get_record('booking', array('id' => $record->bookingid));
+    }
+    if (!$glossary) {
+        throw new comment_exception('invalidid', 'data');
+    }
+    if (!$course = $DB->get_record('course', array('id' => $glossary->course))) {
+        throw new comment_exception('coursemisconf');
+    }
+    if (!$cm = get_coursemodule_from_instance('booking', $glossary->id, $course->id)) {
+        throw new comment_exception('invalidcoursemodule');
+    }
+    $context = context_module::instance($cm->id);
+
+    // validate context id
+    if ($context->id != $comment_param->context->id) {
+        throw new comment_exception('invalidcontext');
+    }
+    // validation for comment deletion
+    /*
+     * if (!empty($comment_param->commentid)) { if ($comment = $DB->get_record('comments', array('id'=>$comment_param->commentid))) { if
+     * ($comment->commentarea != 'glossary_entry') { throw new comment_exception('invalidcommentarea'); } if ($comment->contextid !=
+     * $comment_param->context->id) { throw new comment_exception('invalidcontext'); } if ($comment->itemid != $comment_param->itemid) { throw new
+     * comment_exception('invalidcommentitemid'); } } else { throw new comment_exception('invalidcommentid'); } }
+     */
+    return true;
 }
 
 function booking_get_completion_state($course, $cm, $userid, $type) {
@@ -1659,11 +1751,23 @@ function booking_delete_instance($id) {
         return false;
     }
 
+    if (!$cm = get_coursemodule_from_instance('booking', $id)) {
+        return false;
+    }
+
+    if (!$context = context_module::instance($cm->id, IGNORE_MISSING)) {
+        return false;
+    }
+
     $result = true;
 
     if (!$DB->delete_records("booking_answers", array("bookingid" => "$booking->id"))) {
         $result = false;
     }
+
+    $DB->delete_records_select('comments',
+            "contextid = ? AND component='mod_booking' AND itemid IN (SELECT id FROM {booking_options} WHERE bookingid = ?)",
+            array("$context->id", "$booking->id"));
 
     if (!$DB->delete_records("booking_options", array("bookingid" => "$booking->id"))) {
         $result = false;
