@@ -32,6 +32,7 @@ define(['jquery', 'mod_booking/jquery.barrating'],
                         var itemid = $(this).data('itemid');
                         if(!value) {
                             // Just for stupid TravisCI rules!
+                            value = '';
                         }
                         var thisid = this;
                         $(this).barrating({
