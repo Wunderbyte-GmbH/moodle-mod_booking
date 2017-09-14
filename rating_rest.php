@@ -17,8 +17,8 @@ if (!defined('AJAX_SCRIPT')) {
     define('AJAX_SCRIPT', true);
 }
 
-require_once (__DIR__ . '/../../config.php');
-require_once ($CFG->dirroot . '/mod/booking/locallib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 $id = required_param('id', PARAM_INT); // Course Module ID
 $optionid = required_param('optionid', PARAM_INT); // Course Module ID
@@ -34,10 +34,13 @@ $record->userid = $USER->id;
 $record->optionid = $optionid;
 $record->rate = $value;
 
+$isinserted = false;
+
 try {
     $DB->insert_record('booking_ratings', $record, false, false);
 } catch (Exception $e) {
-    //
+    // I don't allow duplicates!
+    $isinserted = true;
 }
 
 $avg = $DB->get_record_sql(
@@ -45,4 +48,4 @@ $avg = $DB->get_record_sql(
         FROM {booking_ratings}
         WHERE optionid = ?', array($optionid));
 
-echo json_encode(array('rate' => (int) $avg->rate));
+echo json_encode(array('rate' => (int) $avg->rate, 'duplicate' => $isinserted));

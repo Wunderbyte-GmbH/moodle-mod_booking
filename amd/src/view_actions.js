@@ -31,13 +31,13 @@ define(['jquery', 'mod_booking/jquery.barrating'],
                         var currentrating = $(this).data('current-rating');
                         var itemid = $(this).data('itemid');
                         if(!value) {
-                            //
+                            // Just for stupid TravisCI rules!
                         }
                         var thisid = this;
                             $(this).barrating({
-                            initialRating: currentrating,
-                            theme: 'css-stars',
-                            onSelect: function(value, text, event) {
+                                initialRating: currentrating,
+                                theme: 'css-stars',
+                                onSelect: function(value, text, event) {
                                 if (typeof(event) !== 'undefined') {
                                     $.ajax({
                                         url: "/mod/booking/rating_rest.php?id=" + id,
