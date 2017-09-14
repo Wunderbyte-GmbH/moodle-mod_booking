@@ -27,17 +27,17 @@ define(['jquery', 'mod_booking/jquery.barrating'],
         function($) {
             return {
                 setup : function(id) {
-                     $('.starrating').each(function(index, value) {
+                    $('.starrating').each(function(index, value) {
                         var currentrating = $(this).data('current-rating');
                         var itemid = $(this).data('itemid');
                         if(!value) {
                             // Just for stupid TravisCI rules!
                         }
                         var thisid = this;
-                            $(this).barrating({
-                                initialRating: currentrating,
-                                theme: 'css-stars',
-                                onSelect: function(value, text, event) {
+                        $(this).barrating({
+                            initialRating: currentrating,
+                            theme: 'css-stars',
+                            onSelect: function(value, text, event) {
                                 if (typeof(event) !== 'undefined') {
                                     $.ajax({
                                         url: "/mod/booking/rating_rest.php?id=" + id,
