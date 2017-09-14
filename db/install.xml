@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/booking/db" VERSION="20170912" COMMENT="XMLDB file for Moodle mod/booking"
+<XMLDB PATH="mod/booking/db" VERSION="20170914" COMMENT="XMLDB file for Moodle mod/booking"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -81,6 +81,7 @@
         <FIELD NAME="aftercompletedtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="signinsheetfields" TYPE="char" LENGTH="1333" NOTNULL="false" DEFAULT="fullname,signature" SEQUENCE="false"/>
         <FIELD NAME="comments" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="ratings" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -247,6 +248,21 @@
         <KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id"/>
         <KEY NAME="optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id"/>
       </KEYS>
+    </TABLE>
+    <TABLE NAME="booking_ratings" COMMENT="Default comment for the table, please edit me">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="rate" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="uniq" TYPE="unique" FIELDS="userid, optionid"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="optionid" UNIQUE="false" FIELDS="optionid"/>
+      </INDEXES>
     </TABLE>
   </TABLES>
 </XMLDB>

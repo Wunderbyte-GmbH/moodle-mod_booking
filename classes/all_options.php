@@ -263,8 +263,9 @@ class all_options extends table_sql {
         $output .= "<div>" . $comment->output(true) . "</div>";
 
         if ($bookingdata->can_rate()) {
-        $output .= '<div><select class="starrating" id="rate' . $options->itemid .
-                 '" data-current-rating="' . $values->rating . '" data-itemid="' . $options->itemid . '">
+            $output .= '<div><select class="starrating" id="rate' . $options->itemid .
+                     '" data-current-rating="' . $values->rating . '" data-itemid="' .
+                     $options->itemid . '">
   <option value="1">1</option><option value="2">2</option><option value="3">3</option>
   <option value="4">4</option><option value="5">5</option></select></div>';
         }
