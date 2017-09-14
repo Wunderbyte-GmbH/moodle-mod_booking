@@ -231,12 +231,14 @@ class all_options extends table_sql {
         $texttoshow = $bookingdata->get_option_text();
 
         if (!empty($texttoshow)) {
-            $output .= '<a href="#" class="showHideOptionText" data-id="' . $values->id. '">' . get_string('showdescription', "mod_booking"). "</a>";
-            $output .= html_writer::div($texttoshow, 'optiontext', array('style' => 'display: none;', 'id' => 'optiontext' . $values->id));
+            $output .= '<a href="#" class="showHideOptionText" data-id="' . $values->id . '">' .
+                     get_string('showdescription', "mod_booking") . "</a>";
+            $output .= html_writer::div($texttoshow, 'optiontext',
+                    array('style' => 'display: none;', 'id' => 'optiontext' . $values->id));
         }
 
-        $output .= (!empty($values->teachers) ? " <br />" . (empty(
-                $this->booking->booking->lblteachname) ? get_string('teachers', 'booking') : $this->booking->booking->lblteachname) .
+        $output .= (!empty($values->teachers) ? " <br />" .
+                 (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') : $this->booking->booking->lblteachname) .
                  ": " . $values->teachers : '');
 
         // Custom fields
@@ -259,6 +261,14 @@ class all_options extends table_sql {
         $options->showcount = true;
         $comment = new comment($options);
         $output .= "<div>" . $comment->output(true) . "</div>";
+
+        if ($bookingdata->can_rate()) {
+        $output .= '<div><select class="starrating" id="rate' . $options->itemid .
+                 '" data-current-rating="' . $values->rating . '" data-itemid="' . $options->itemid . '">
+  <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+  <option value="4">4</option><option value="5">5</option></select></div>';
+        }
+
         return $output;
     }
 

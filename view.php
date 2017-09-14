@@ -42,8 +42,6 @@ $urlparams = array();
 $urlparamssort = array();
 $urlparams['id'] = $id;
 
-// comment::init();
-
 list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
 require_course_login($course, false, $cm);
 $context = context_module::instance($cm->id);
@@ -131,7 +129,7 @@ $urlcancel = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $sorturl = new moodle_url('/mod/booking/view.php', $urlparamssort);
 
 $PAGE->set_url($url);
-$PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup');
+$PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup', array($id));
 
 $booking->apply_tags();
 $booking->get_url_params();
@@ -597,7 +595,11 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                   (SELECT COUNT(*)
                    FROM {booking_teachers} ba
                    WHERE ba.optionid = bo.id
-                     AND ba.userid = :userid3) AS isteacher
+                     AND ba.userid = :userid3) AS isteacher,
+
+                  (SELECT IFNULL(AVG(rate), 1)
+                   FROM {booking_ratings} br
+                   WHERE br.optionid = bo.id) AS rating
                 ";
         $from = '{booking} b ' . 'LEFT JOIN {booking_options} bo ON bo.bookingid = b.id';
         $where = "b.id = :bookingid " .

@@ -22,22 +22,44 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since 3.1
  */
-define([ 'jquery' ],
+
+define(['jquery', 'mod_booking/jquery.barrating'],  
         function($) {
             return {
-                setup : function() {
-                    $('#showHideSearch').on('click', function() {
-                        $('#tableSearch').fadeToggle("slow", "linear");
-                        $('html, body').animate({
-                            scrollTop : $("#tableSearch").offset().top - 120
-                        }, 1000);
-                    });
-                    $('.showHideOptionText').on('click', function() {
-                        $('#optiontext' + $(this).data("id")).fadeToggle("slow", "linear");
-                        $('html, body').animate({
-                            scrollTop : $('#optiontext' + $(this).data("id")).offset().top - 120
-                        }, 1000);
-                    });
+            	setup : function(id) {
+            		$('.starrating').each(function(index, value) {
+            			var currentrating     = $(this).data('current-rating');
+            			var itemid     = $(this).data('itemid');
+            			var thisid = this;
+            			$(this).barrating({
+            				initialRating: currentrating,
+            				theme: 'css-stars',
+            				onSelect: function(value, text, event) {            					
+            					if (typeof(event) !== 'undefined') {
+            						$.ajax({
+            							url: "/mod/booking/rating_rest.php?id=" + id,
+            							method: "POST",
+            							data: { optionid: itemid, value: value }
+            						}).done(function(data) {
+            							$(thisid).barrating('readonly', true);
+            							$(thisid).barrating('set', data.rate);
+            						});		      
+            					}
+            				}
+            			});
+            		});
+            		$('#showHideSearch').on('click', function() {
+            			$('#tableSearch').fadeToggle("slow", "linear");
+            			$('html, body').animate({
+            				scrollTop : $("#tableSearch").offset().top - 120
+            			}, 1000);
+            		});
+            		$('.showHideOptionText').on('click', function() {
+            			$('#optiontext' + $(this).data("id")).fadeToggle("slow", "linear");
+            			$('html, body').animate({
+            				scrollTop : $('#optiontext' + $(this).data("id")).offset().top - 120
+            			}, 1000);
+            		});
                     $('#page-mod-booking-view #buttonclear')
                             .on('click',
                                     function() {

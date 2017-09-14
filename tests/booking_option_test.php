@@ -107,11 +107,33 @@ class mod_booking_booking_option_testcase extends advanced_testcase {
         $bookingopttion1 = new \mod_booking\booking_option($cmb1->id, $option1->id);
         $bookingopttion2 = new \mod_booking\booking_option($cmb2->id, $option2->id);
 
+        $this->setUser($user1);
+        $this->assertEquals(false, $bookingopttion1->can_rate());
+
+        $bo1 = $DB->get_record('booking', array('id' => $booking1->id));
+        $bo1->ratings = 1;
+        $DB->update_record('booking', $bo1);
+        $bookingopttion1 = new \mod_booking\booking_option($cmb1->id, $option1->id);
+        $this->assertEquals(true, $bookingopttion1->can_rate());
+
+        $bo1->ratings = 2;
+        $DB->update_record('booking', $bo1);
+        $bookingopttion1 = new \mod_booking\booking_option($cmb1->id, $option1->id);
+        $this->assertEquals(false, $bookingopttion1->can_rate());
+
         $this->assertEquals(true, empty($bookingopttion1->option->shorturl));
 
         $bookingopttion1->user_submit_response($user1);
         $bookingopttion2->user_submit_response($user1);
         $bookingopttion2->user_submit_response($user2);
+
+        $this->assertEquals(true, $bookingopttion1->can_rate());
+
+        $bo1->ratings = 3;
+        $DB->update_record('booking', $bo1);
+        $bookingopttion1 = new \mod_booking\booking_option($cmb1->id, $option1->id);
+
+        $this->assertEquals(false, $bookingopttion1->can_rate());
 
         $sink = $this->redirectEvents();
         $this->assertEquals(0, $bookingopttion1->is_activity_completed($user1->id));
@@ -122,9 +144,11 @@ class mod_booking_booking_option_testcase extends advanced_testcase {
         $completion = new completion_info($course);
         $completiondata = $completion->get_data($cmb1);
         $this->assertEquals(1, $bookingopttion1->is_activity_completed($user1->id));
+        $this->assertEquals(true, $bookingopttion1->can_rate());
 
         $bookingopttion2->delete_responses_activitycompletion();
 
         $this->assertEquals(1, $DB->count_records('booking_answers', array('optionid' => $option2->id)));
     }
+
 }

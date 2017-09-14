@@ -272,6 +272,11 @@ $string['nocomments'] = 'Commenting disaled';
 $string['allcomments'] = 'Everybody can comment';
 $string['enroledcomments'] = 'Only enroled';
 $string['completedcomments'] = 'Only with completed activity';
+$string['ratings'] = 'Ratings';
+$string['noratings'] = 'Ratings disaled';
+$string['allratings'] = 'Everybody can rate';
+$string['enroledratings'] = 'Only enroled';
+$string['completedratings'] = 'Only with completed activity';
 
 $string['pollurlteachers_help'] = 'You can use any of the following placeholders in the text:
 <ul>

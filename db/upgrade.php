@@ -1639,7 +1639,6 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2017090600, 'booking');
     }
-
     if ($oldversion < 2017091200) {
 
         // Define field comments to be added to booking.
@@ -1654,6 +1653,60 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2017091200, 'booking');
+    }
+    if ($oldversion < 2017091400) {
+
+        // Define table booking_ratings to be created.
+        $table = new xmldb_table('booking_ratings');
+
+        // Adding fields to table booking_ratings.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('rate', XMLDB_TYPE_INTEGER, '5', null, XMLDB_NOTNULL, null, '1');
+
+        // Adding keys to table booking_ratings.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('uniq', XMLDB_KEY_UNIQUE, array('userid', 'optionid'));
+
+        // Conditionally launch create table for booking_ratings.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2017091400, 'booking');
+    }
+
+    if ($oldversion < 2017091401) {
+
+        // Define index optionid (not unique) to be added to booking_ratings.
+        $table = new xmldb_table('booking_ratings');
+        $index = new xmldb_index('optionid', XMLDB_INDEX_NOTUNIQUE, array('optionid'));
+
+        // Conditionally launch add index optionid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2017091401, 'booking');
+    }
+
+    if ($oldversion < 2017091402) {
+
+        // Define field ratings to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('ratings', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0',
+                'comments');
+
+        // Conditionally launch add field ratings.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2017091402, 'booking');
     }
 
     return true;

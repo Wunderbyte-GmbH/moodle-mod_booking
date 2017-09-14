@@ -347,6 +347,36 @@ class booking_option extends booking {
         }
     }
 
+    public function can_rate() {
+        global $USER;
+
+        if ($this->booking->ratings == 0) {
+            return false;
+        }
+
+        if ($this->booking->ratings == 1) {
+            return true;
+        }
+
+        if ($this->booking->ratings == 2) {
+            if (in_array($this->user_status($USER->id), array(1, 2))) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        if ($this->booking->ratings == 3) {
+            if ($this->is_activity_completed($USER->id)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
     public function get_option_text($userid = null) {
         global $USER;
 
