@@ -35,9 +35,9 @@ class signin_pdf extends \TCPDF {
         return $this->checkPageBreak($h, '', true);
     }
 
-    // Page footer
+    // Page footer.
     public function footer() {
-        // Position at 15 mm from bottom
+        // Position at 15 mm from bottom.
         $this->SetY(-20);
 
         if ($this->file) {
@@ -45,18 +45,11 @@ class signin_pdf extends \TCPDF {
             $imageinfo = $this->file->get_imageinfo();
             $signinsheetlogofooter = $this->file->get_content();
             $filetype = str_replace('image/', '', $this->file->get_mimetype());
-            // $this->SetXY(18, 18);
-            if ($imageinfo['height'] == $imageinfo['width']) {
-                $w = 40;
-                $h = 40;
-            }
-            if ($imageinfo['width'] > 200 && $imageinfo['width'] > $imageinfo['height']) {
-                $w = 40;
-                $h = 0;
-            }
-            if ($imageinfo['width'] < $imageinfo['height'] && $imageinfo['height'] > 200) {
-                $w = 0;
-                $h = 40;
+            $w = 0;
+            $h = 15;
+
+            if ($imageinfo['height'] > 15) {
+                $h = 15;
             }
 
             $this->Image('@' . $signinsheetlogofooter, '', '', $w, $h, $filetype, '', 'T', true,

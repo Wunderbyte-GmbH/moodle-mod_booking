@@ -286,18 +286,13 @@ class generator {
             $this->signinsheetlogo = $file->get_content();
             $filetype = str_replace('image/', '', $file->get_mimetype());
             $this->pdf->SetXY(18, 18);
-            if ($imageinfo['height'] == $imageinfo['width']) {
-                $this->w = 40;
-                $this->h = 40;
+            $this->w = 0;
+            $this->h = 20;
+
+            if ($imageinfo['height'] > 20) {
+                $this->h = 20;
             }
-            if ($imageinfo['width'] > 200 && $imageinfo['width'] > $imageinfo['height']) {
-                $this->w = 40;
-                $this->h = 0;
-            }
-            if ($imageinfo['width'] < $imageinfo['height'] && $imageinfo['height'] > 200) {
-                $this->w = 0;
-                $this->h = 40;
-            }
+
             $this->pdf->Image('@' . $this->signinsheetlogo, '', '', $this->w, $this->h, $filetype,
                     '', 'T', true, 150, 'R', false, false, 1, false, false, false);
             $fileuse = true;
