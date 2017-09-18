@@ -207,6 +207,7 @@ class booking {
         $outdata = new \stdClass();
         $outdata->limit = $this->booking->maxperuser;
         $outdata->count = $this->get_user_booking_count($user);
+        $outdata->eventtype = $this->booking->eventtype;
 
         $warning .= \html_writer::tag('div', get_string('maxperuserwarning', 'mod_booking', $outdata), array ('class' => 'alert alert-warning'));
         return $warning;

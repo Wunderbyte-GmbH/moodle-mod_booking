@@ -841,6 +841,7 @@ function booking_show_maxperuser($booking, $user) {
     $outdata = new stdClass();
     $outdata->limit = $booking->booking->maxperuser;
     $outdata->count = booking_get_user_booking_count($booking, $user);
+    $outdata->eventtype = $booking->booking->eventtype;
 
     $warning .= html_writer::tag('p', get_string('maxperuserwarning', 'mod_booking', $outdata));
     return $warning;
