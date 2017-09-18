@@ -36,8 +36,12 @@ $record->rate = $value;
 
 $isinserted = false;
 
+$bookingdata = new \mod_booking\booking_option($cm->id, $optionid);
+
 try {
-    $DB->insert_record('booking_ratings', $record, false, false);
+    if ($bookingdata->can_rate()) {
+        $DB->insert_record('booking_ratings', $record, false, false);
+    }
 } catch (Exception $e) {
     // I don't allow duplicates!
     $isinserted = true;
