@@ -151,6 +151,11 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->addElement('selectyesno', 'disablebookingusers',
                 get_string("disablebookingusers", "booking"));
 
+        $mform->addElement('text', 'shorturl',
+                get_string('shorturl', 'booking'), array('size' => '1333'));
+        $mform->setType('shorturl', PARAM_TEXT);
+        $mform->disabledIf('shorturl', 'optionid', 'eq', -1);
+
         // -------------------- Booking option text------------------------------
 
         $mform->addElement('header', 'bookingoptiontextheader',

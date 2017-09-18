@@ -277,6 +277,7 @@ $string['noratings'] = 'Ratings disaled';
 $string['allratings'] = 'Everybody can rate';
 $string['enroledratings'] = 'Only enroled';
 $string['completedratings'] = 'Only with completed activity';
+$string['shorturl'] = 'Short URL of this option'.
 
 $string['pollurlteachers_help'] = 'You can use any of the following placeholders in the text:
 <ul>
