@@ -135,6 +135,13 @@ class generator {
 
         $this->allfields = explode(',', $this->bookingdata->booking->signinsheetfields);
 
+        foreach ($this->allfields as $key => $value) {
+            if ($value == 'signature') {
+                unset($this->allfields[$key]);
+                $this->allfields[] = 'signature';
+            }
+        }
+
         for ($i = 1; $i < 4; $i++) {
             $this->extracols[$i] = trim(get_config('booking', 'signinextracols' . $i));
         }
