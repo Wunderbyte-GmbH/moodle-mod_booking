@@ -233,7 +233,7 @@ function booking_comment_permissions($commentparam) {
             if ($udata) {
                 return array('post' => true, 'view' => true);
             } else {
-                return array('post' => false, 'view' => false);
+                return array('post' => false, 'view' => true);
             }
             break;
         case 3:
@@ -242,7 +242,7 @@ function booking_comment_permissions($commentparam) {
             if ($udata && $udata->completed == 1) {
                 return array('post' => true, 'view' => true);
             } else {
-                return array('post' => false, 'view' => false);
+                return array('post' => false, 'view' => true);
             }
             break;
     }
