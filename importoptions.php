@@ -33,7 +33,7 @@ function mod_booking_fix_encoding($instr) {
     }
 }
 
-$id = required_param('id', PARAM_INT); // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID.
 
 $url = new moodle_url('/mod/booking/importoptions.php', array('id' => $id));
 $urlredirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
@@ -63,9 +63,9 @@ $mform = new importoptions_form($url);
 
 $completion = new completion_info($course);
 
-// Form processing and displaying is done here
+// Form processing and displaying is done here.
 if ($mform->is_cancelled()) {
-    // Handle form cancel operation, if cancel button is present on form
+    // Handle form cancel operation, if cancel button is present on form.
     redirect($urlredirect, '', 0);
     die();
 } else if ($fromform = $mform->get_data()) {
@@ -81,7 +81,7 @@ if ($mform->is_cancelled()) {
         $csvarr[] = str_getcsv($line);
     }
 
-    // Check if CSV is ok
+    // Check if CSV is ok.
 
     if ($csvarr[0][0] == 'name' && $csvarr[0][1] == 'startdate' && $csvarr[0][2] == 'enddate' &&
              $csvarr[0][3] == 'institution' && $csvarr[0][4] == 'institutionaddress' &&
@@ -146,7 +146,6 @@ if ($mform->is_cancelled()) {
                 if (strlen(trim($line[0])) > 0) {
                     $bookingoptionname = $line[0];
                 }
-
                 $bookingoption = $DB->get_record_sql(
                         'SELECT * FROM {booking_options} WHERE institution LIKE :institution AND text LIKE :text AND bookingid = :bookingid AND coursestarttime = :coursestarttime',
                         array('institution' => $line[3], 'text' => $bookingoptionname,
@@ -230,7 +229,7 @@ if ($mform->is_cancelled()) {
 
     // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
     // or on the first display of the form.
-    // displays the form
+    // displays the form.
     $mform->display();
 }
 

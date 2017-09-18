@@ -262,14 +262,6 @@ class all_options extends table_sql {
         $comment = new comment($options);
         $output .= "<div>" . $comment->output(true) . "</div>";
 
-        if ($this->booking->booking->ratings > 0) {
-            $output .= '<div><select class="starrating" id="rate' . $options->itemid .
-                     '" data-current-rating="' . $values->rating . '" data-itemid="' .
-                     $options->itemid . '">
-  <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-  <option value="4">4</option><option value="5">5</option></select></div>';
-        }
-
         return $output;
     }
 
@@ -364,6 +356,14 @@ class all_options extends table_sql {
             $numberofresponses = $values->waiting + $values->booked;
             $manage = "<br><a href=\"report.php?id={$this->cm->id}&optionid={$values->id}\">" .
                      get_string("viewallresponses", "booking", $numberofresponses) . "</a>";
+        }
+
+        if ($this->booking->booking->ratings > 0) {
+            $manage .= '<div><select class="starrating" id="rate' . $values->id .
+            '" data-current-rating="' . $values->rating . '" data-itemid="' .
+            $values->id. '">
+  <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+  <option value="4">4</option><option value="5">5</option></select></div>';
         }
 
         if (!$values->limitanswers) {
