@@ -13,6 +13,10 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+if (!defined('MOODLE_INTERNAL')) {
+    die('Direct access to this script is forbidden.'); // It must be included from a Moodle page
+}
+
 require_once("$CFG->libdir/formslib.php");
 
 
@@ -26,14 +30,14 @@ class importoptions_form extends moodleform {
     public function definition() {
         global $CFG;
 
-        $mform = $this->_form; // Don't forget the underscore!
+        $mform = $this->_form;
 
         $mform->addElement('filepicker', 'csvfile', get_string('csvfile', 'booking'), null,
                 array('maxbytes' => $CFG->maxbytes, 'accepted_types' => '*'));
         $mform->addRule('csvfile', null, 'required', null, 'client');
 
-        $mform->addElement('text', 'dateparseformat', get_string('dateparseformat', 'booking')); // Add elements to your form
-        $mform->setType('dateparseformat', PARAM_NOTAGS); // Set type of element
+        $mform->addElement('text', 'dateparseformat', get_string('dateparseformat', 'booking'));
+        $mform->setType('dateparseformat', PARAM_NOTAGS);
         $mform->setDefault('dateparseformat', get_string('defaultdateformat', 'booking'));
         $mform->addRule('dateparseformat', null, 'required', null, 'client');
         $mform->addHelpButton('dateparseformat', 'dateparseformat', 'mod_booking');

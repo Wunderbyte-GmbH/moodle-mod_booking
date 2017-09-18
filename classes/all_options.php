@@ -262,7 +262,7 @@ class all_options extends table_sql {
         $comment = new comment($options);
         $output .= "<div>" . $comment->output(true) . "</div>";
 
-        if($this->booking->booking->ratings > 0) {
+        if ($this->booking->booking->ratings > 0) {
             $output .= '<div><select class="starrating" id="rate' . $options->itemid .
                      '" data-current-rating="' . $values->rating . '" data-itemid="' .
                      $options->itemid . '">
