@@ -285,7 +285,11 @@
 
                     $all = self.$widget.find('a');
 
-                    $fractional = ($a.length) ? $a[(getData('userOptions').reverse) ? 'prev' : 'next']() : $all[(getData('userOptions').reverse) ? 'last' : 'first']();
+                    if ($a.length) {
+                        $fractional = $a[(getData('userOptions').reverse) ? 'prev' : 'next']();
+                    } else {
+                        $fractional = $all[(getData('userOptions').reverse) ? 'last' : 'first']();
+                    }
 
                     $fractional.addClass('br-fractional');
                     $fractional.addClass('br-fractional-' + f);
