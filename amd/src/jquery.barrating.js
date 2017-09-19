@@ -561,7 +561,7 @@
                     }
                 }
 
-            // no method supplied or only options supplied
+                // no method supplied or only options supplied
             } else if (typeof method === 'object' || !method) {
                 options = method;
                 plugin.init(options, this);
