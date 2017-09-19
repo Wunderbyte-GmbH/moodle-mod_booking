@@ -47,12 +47,6 @@ class all_options extends table_sql {
         $ddoptions = array();
         $ret = '<div class="menubar" id="action-menu-' . $values->id. '-menubar" role="menubar">';
 
-        if ($CFG->branch >= 33) {
-            $editiconurl = $OUTPUT->pix_icon('t/edit', get_string('updatebooking', 'mod_booking'));
-        } else {
-            $editiconurl = $OUTPUT->pix_url('t/edit');
-        }
-
         if ($values->iambooked) {
             if ($CFG->branch >= 33) {
                 $ret .= \html_writer::link(
@@ -119,9 +113,7 @@ class all_options extends table_sql {
         if (!empty($ddoptions)) {
             $ret .= '<div class="dropdown d-inline">
                         <a href="#" id="action-menu-toggle-' . $values->id  . '" title="" role="button" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false"><img class="icon " alt="" src="' .
-                     $editiconurl .
-                     '"></a>
+                            aria-haspopup="true" aria-expanded="false"><img class="icon " alt="" src="' . $OUTPUT->pix_url('t/edit') . '"></a>
                         <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' . $values->id . '-menu" data-rel="menu-content"
                             aria-labelledby="action-menu-toggle-3" role="menu" data-align="tr-br">';
             $ret .= implode($ddoptions);
