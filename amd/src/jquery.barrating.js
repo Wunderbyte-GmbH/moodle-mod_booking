@@ -58,7 +58,7 @@
                     value = Math.floor(value);
                 }
 
-                return $('option[value="' + value  + '"]', self.$elem);
+                return $('option[value="' + value + '"]', self.$elem);
             };
 
             // get initial option
@@ -114,9 +114,7 @@
                 var text = $opt.data('html') ? $opt.data('html') : $opt.text();
 
                 // if the allowEmpty option is not set let's check if empty option exists in the select field
-                var allowEmpty = (self.options.allowEmpty !== null) ?
-                    self.options.allowEmpty :
-                    !!$emptyOpt.length;
+                var allowEmpty = (self.options.allowEmpty !== null) ? self.options.allowEmpty : !!$emptyOpt.length;
 
                 var emptyValue = ($emptyOpt.length) ? $emptyOpt.val() : null;
                 var emptyText = ($emptyOpt.length) ? $emptyOpt.text() : null;
@@ -287,9 +285,7 @@
 
                     $all = self.$widget.find('a');
 
-                    $fractional = ($a.length) ?
-                        $a[(getData('userOptions').reverse) ? 'prev' : 'next']() :
-                        $all[(getData('userOptions').reverse) ? 'last' : 'first']();
+                    $fractional = ($a.length) ? $a[(getData('userOptions').reverse) ? 'prev' : 'next']() : $all[(getData('userOptions').reverse) ? 'last' : 'first']();
 
                     $fractional.addClass('br-fractional');
                     $fractional.addClass('br-fractional-' + f);
@@ -570,7 +566,6 @@
                 options = method;
                 plugin.init(options, this);
                 return plugin.show();
-
             } else {
                 $.error('Method ' + method + ' does not exist on jQuery.barrating');
             }
