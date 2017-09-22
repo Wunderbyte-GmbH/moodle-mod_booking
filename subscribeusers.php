@@ -100,7 +100,7 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
                     $subscribedusers[] = $user->id;
                 }
                 if ($subscribesuccess) {
-                    redirect($errorurl,
+                    redirect($url,
                             get_string('allusersbooked', 'mod_booking', count($subscribedusers)), 5);
                 } else {
                     $output = '<br>';
@@ -119,7 +119,7 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
                             $output .= " <br>";
                         }
                     }
-                    redirect($errorurl,
+                    redirect($url,
                             get_string('notallbooked', 'mod_booking', $output), 5);
                 }
             } else {
@@ -133,13 +133,13 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
             foreach ($users as $user) {
                 if (!$bookingoption->user_delete_response($user->id)) {
                     $unsubscribesuccess = false;
-                    print_error('cannotremovesubscriber', 'booking', $errorurl->out(), $user->id);
+                    print_error('cannotremovesubscriber', 'booking', $url->out(), $user->id);
                 }
             }
         } else if ($unsubscribe &&
                  (!has_capability('mod/booking:deleteresponses', $context) ||
                  (booking_check_if_teacher($bookingoption->option, $USER)))) {
-            print_error('nopermission', null, $errorurl->out());
+                     print_error('nopermission', null, $url->out());
         }
         $subscriberselector->invalidate_selected_users();
         $existingselector->invalidate_selected_users();
