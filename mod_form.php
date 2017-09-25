@@ -505,21 +505,29 @@ class mod_booking_mod_form extends moodleform_mod {
             $reportfields[$field->shortname] = $field->name;
         }
 
-        $select = $mform->addElement('select', 'responsesfields',
-                get_string('responsesfields', 'booking'), $responsesfields);
-        $select->setMultiple(true);
+        $options = array(
+                        'multiple' => true,
+                        'noselectionstring' => get_string('responsesfields', 'booking'),
+        );
+        $select = $mform->addElement('autocomplete', 'responsesfields', get_string('responsesfields', 'booking'), $responsesfields, $options);
 
-        $select = $mform->addElement('select', 'reportfields',
-                get_string('reportfields', 'booking'), $reportfields);
-        $select->setMultiple(true);
+        $options = array(
+                        'multiple' => true,
+                        'noselectionstring' => get_string('reportfields', 'booking'),
+        );
+        $select = $mform->addElement('autocomplete', 'reportfields', get_string('reportfields', 'booking'), $reportfields, $options);
 
-        $select = $mform->addElement('select', 'optionsfields',
-                get_string('optionsfields', 'booking'), $optionsfields);
-        $select->setMultiple(true);
+        $options = array(
+                        'multiple' => true,
+                        'noselectionstring' => get_string('optionsfields', 'booking'),
+        );
+        $select = $mform->addElement('autocomplete', 'optionsfields', get_string('optionsfields', 'booking'), $optionsfields, $options);
 
-        $select = $mform->addElement('select', 'signinsheetfields',
-                get_string('signinsheetfields', 'booking'), $signinsheetfields);
-        $select->setMultiple(true);
+        $options = array(
+                        'multiple' => true,
+                        'noselectionstring' => get_string('signinsheetfields', 'booking'),
+        );
+        $select = $mform->addElement('autocomplete', 'signinsheetfields', get_string('signinsheetfields', 'booking'), $signinsheetfields, $options);
 
         // -------------------- Booking option text------------------------------
 
