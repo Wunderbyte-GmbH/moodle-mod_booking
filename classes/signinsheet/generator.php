@@ -214,7 +214,7 @@ class generator {
             foreach ($this->allfields as $value) {
                 $c++;
                 switch ($value) {
-                    case fullname:
+                    case 'fullname':
                         $name = "{$user->firstname} {$user->lastname}";
                         break;
                     case 'institution':
@@ -391,7 +391,7 @@ class generator {
         foreach ($this->allfields as $value) {
             $c++;
             switch ($value) {
-                case fullname:
+                case 'fullname':
                     $name = get_string('fullname', 'mod_booking');
                     break;
                 case 'signature':
