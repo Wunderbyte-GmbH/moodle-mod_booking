@@ -706,8 +706,7 @@ if (!$tableallbookings->is_downloading()) {
         $firstentry = array_shift($newarray);
 
         $strrate = get_string("rate", "rating");
-        $scalearray = array(RATING_UNSET_RATING => $strrate . '...') +
-                 $firstentry->rating->settings->scale->scaleitems;
+        $scalearray = array(RATING_UNSET_RATING => $strrate . '...') + $firstentry->rating->settings->scale->scaleitems;
         $scaleattrs = array('class' => 'postratingmenu ratinginput', 'id' => 'menuratingall');
         $menuhtml = html_writer::label(get_string('rating', 'core_rating'), 'menuratingall', false,
                 array('class' => 'accesshide'));

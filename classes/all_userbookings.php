@@ -303,7 +303,7 @@ class all_userbookings extends table_sql {
 
                 // Output transfer users to other option.
             if (has_capability('mod/booking:subscribeusers',
-                    context_module::instance($this->cm->id)) && $this->bookingdata->booking->conectedbooking > 0) {
+                    context_module::instance($this->cm->id))) {
                 echo "<br>";
                 $optionids = $this->bookingdata->get_all_optionids();
                 $optionids = array_values(array_diff($optionids, array($this->optionid)));
