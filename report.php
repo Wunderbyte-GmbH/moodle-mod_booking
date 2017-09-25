@@ -700,19 +700,25 @@ if (!$tableallbookings->is_downloading()) {
         $ratinginputs['sesskey'] = sesskey();
         $tableallbookings->set_ratingoptions($ratinginputs);
 
-        // Set menu for modifying all ratings at once
-        // Get an example rating and modify it
+            // Set menu for modifying all ratings at once
+            // Get an example rating and modify it
         $newarray = array_values($tableallbookings->rawdata);
         $firstentry = array_shift($newarray);
 
         $strrate = get_string("rate", "rating");
-        $scalearray = array(RATING_UNSET_RATING => $strrate . '...') + $firstentry->rating->settings->scale->scaleitems;
+        $scalearray = array(RATING_UNSET_RATING => $strrate . '...') +
+                 $firstentry->rating->settings->scale->scaleitems;
         $scaleattrs = array('class' => 'postratingmenu ratinginput', 'id' => 'menuratingall');
         $menuhtml = html_writer::label(get_string('rating', 'core_rating'), 'menuratingall', false,
                 array('class' => 'accesshide'));
         $menuhtml .= html_writer::select($scalearray, 'rating', $scalearray[RATING_UNSET_RATING],
                 false, $scaleattrs);
-        $tableallbookings->headers[2] .= $menuhtml;
+        foreach ($columns as $key => $value) {
+            if ($value == "rating") {
+                $tableallbookings->headers[$key] .= $menuhtml;
+            }
+        }
+
     }
 
     $tableallbookings->build_table();
