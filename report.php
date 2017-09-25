@@ -503,7 +503,7 @@ if (!$tableallbookings->is_downloading()) {
                 break;
         }
     }
-
+    $customfields = '';
     if ($userprofilefields) {
         foreach ($userprofilefields as $profilefield) {
             $columns[] = "cust" . strtolower($profilefield->shortname);
