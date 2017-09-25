@@ -666,10 +666,10 @@ $string['aftercompletedtext_help'] = 'Leave this blank to use the site default t
 
 $string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
 
-$string['fields'] = 'Fields';
-$string['reportfields'] = 'Report fields';
+$string['fields'] = 'Fields to display in different contexts';
+$string['reportfields'] = 'Downlodable responses fields';
 $string['responsesfields'] = 'Responses fields';
-$string['optionsfields'] = 'Options fields';
+$string['optionsfields'] = 'All options fields';
 $string['addtogroup'] = 'Automatically enrol users in group';
 $string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name "Bookin name - Option name"';
 $string['bookingattachment'] = 'Attachment';
