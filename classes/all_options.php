@@ -59,7 +59,7 @@ class all_options extends table_sql {
                         new moodle_url('/mod/booking/viewconfirmation.php',
                                 array('id' => $this->cm->id, 'optionid' => $values->id)),
                         \html_writer::empty_tag('img',
-                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('i/report'),
+                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/print'),
                                     'alt' => get_string('bookedtext', 'mod_booking'))),
                         array('target' => '_blank'));
             }
@@ -109,13 +109,29 @@ class all_options extends table_sql {
                                  get_string('deletebookingoption', 'mod_booking')) . '</div>';
             }
         }
-
         if (!empty($ddoptions)) {
-            $ret .= '<div class="dropdown d-inline">
-                        <a href="#" id="action-menu-toggle-' . $values->id  . '" title="" role="button" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false"><img class="icon " alt="" src="' . $OUTPUT->pix_url('t/edit') . '"></a>
-                        <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' . $values->id . '-menu" data-rel="menu-content"
+            if ($CFG->branch >= 33) {
+                $ret .= '<div class="dropdown d-inline">
+                        <a href="#" id="action-menu-toggle-' . $values->id . '" title="" role="button" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">' .
+                         $OUTPUT->pix_icon('t/edit', get_string('settings', 'moodle')) .
+                         '</a>
+                        <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' .
+                         $values->id .
+                         '-menu" data-rel="menu-content"
                             aria-labelledby="action-menu-toggle-3" role="menu" data-align="tr-br">';
+            } else {
+                $ret .= '<div class="dropdown d-inline">
+                        <a href="#" id="action-menu-toggle-' . $values->id .
+                         '" title="" role="button" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false"><img class="icon " alt="" src="' .
+                         $OUTPUT->pix_url('t/edit') .
+                         '"></a>
+                        <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' .
+                         $values->id .
+                         '-menu" data-rel="menu-content"
+                            aria-labelledby="action-menu-toggle-3" role="menu" data-align="tr-br">';
+            }
             $ret .= implode($ddoptions);
             $ret .= '</div></div>';
         }
@@ -245,6 +261,7 @@ class all_options extends table_sql {
             }
         }
 
+        $options = new stdClass();
         $options->area = 'booking_option';
         $options->context = $this->context;
         $options->cm = $this->cm;
