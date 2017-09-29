@@ -264,12 +264,17 @@ if (!$tableallbookings->is_downloading()) {
 
             redirect($url, get_string('delnotificationactivitycompletion', 'booking', $data), 5);
         }
-
         $allselectedusers = array();
 
         if (isset($_POST['user'])) {
             foreach ($_POST['user'] as $value) {
                 $allselectedusers[] = array_keys($value)[0];
+            }
+
+            if (empty($allselectedusers)) {
+                redirect($url,
+                        get_string('selectatleastoneuser', 'booking',
+                                $bookingdata->option->howmanyusers), 5);
             }
         } else {
             redirect($url,
@@ -303,21 +308,11 @@ if (!$tableallbookings->is_downloading()) {
             die();
         } else if (isset($_POST['sendpollurl']) &&
                  has_capability('mod/booking:communicate', $context)) {
-            if (empty($allselectedusers)) {
-                redirect($url,
-                        get_string('selectatleastoneuser', 'booking',
-                                $bookingdata->option->howmanyusers), 5);
-            }
 
             booking_sendpollurl($allselectedusers, $bookingdata, $cm->id, $optionid);
             redirect($url, get_string('allmailssend', 'booking'), 5);
         } else if (isset($_POST['sendcustommessage']) &&
                  has_capability('mod/booking:communicate', $context)) {
-            if (empty($allselectedusers)) {
-                redirect($url,
-                        get_string('selectatleastoneuser', 'booking',
-                                $bookingdata->option->howmanyusers), 5);
-            }
 
             $sendmessageurl = new moodle_url('/mod/booking/sendmessage.php',
                     array('id' => $id, 'optionid' => $optionid,
@@ -325,11 +320,6 @@ if (!$tableallbookings->is_downloading()) {
             redirect($sendmessageurl);
         } else if (isset($_POST['activitycompletion']) && (booking_check_if_teacher(
                 $bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
-            if (empty($allselectedusers)) {
-                redirect($url,
-                        get_string('selectatleastoneuser', 'booking',
-                                $bookingdata->option->howmanyusers), 5);
-            }
 
             booking_activitycompletion($allselectedusers, $bookingdata->booking, $cm->id, $optionid);
             redirect($url,
@@ -338,11 +328,7 @@ if (!$tableallbookings->is_downloading()) {
                     5);
         } else if (isset($_POST['postratingsubmit']) && (booking_check_if_teacher(
                 $bookingdata->option, $USER) || has_capability('moodle/rating:rate', $context))) {
-            if (empty($allselectedusers)) {
-                redirect($url,
-                        get_string('selectatleastoneuser', 'booking',
-                                $bookingdata->option->howmanyusers), 5);
-            }
+
             $allusers = $bookingdata->get_all_users();
             $bookedusers = array();
             $ratings = array();
@@ -371,21 +357,11 @@ if (!$tableallbookings->is_downloading()) {
             }
         } else if (isset($_POST['sendreminderemail']) &&
                  has_capability('mod/booking:communicate', $context)) {
-            if (empty($allselectedusers)) {
-                redirect($url,
-                        get_string('selectatleastoneuser', 'booking',
-                                $bookingdata->option->howmanyusers), 5);
-            }
 
             booking_sendreminderemail($allselectedusers, $bookingdata->booking, $cm->id, $optionid);
             redirect($url, get_string('sendreminderemailsuccess', 'booking'), 5);
         } else if (isset($_POST['booktootherbooking']) && (booking_check_if_teacher(
                 $bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
-            if (empty($allselectedusers)) {
-                redirect($url,
-                        get_string('selectatleastoneuser', 'booking',
-                                $bookingdata->option->howmanyusers), 5);
-            }
 
             if (!isset($_POST['selectoptionid']) || empty($_POST['selectoptionid'])) {
                 redirect($url, get_string('selectoptionid', 'booking'), 5);
@@ -419,11 +395,6 @@ if (!$tableallbookings->is_downloading()) {
 
             redirect($url, get_string('userssucesfullybooked', 'booking'), 5);
         } else if (isset($_POST['transfersubmit'])) {
-            if (empty($allselectedusers)) {
-                redirect($url,
-                        get_string('selectatleastoneuser', 'mod_booking',
-                                $bookingdata->option->howmanyusers), 5);
-            }
             if ($_POST['transferoption'] == "") {
                 redirect($url, get_string('selectanoption', 'mod_booking'), 5);
             }
@@ -443,11 +414,6 @@ if (!$tableallbookings->is_downloading()) {
         } else if (isset($_POST['changepresencestatus']) && (booking_check_if_teacher(
                 $bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
             // Change presence status
-            if (empty($allselectedusers)) {
-                redirect($url,
-                        get_string('selectatleastoneuser', 'mod_booking',
-                                $bookingdata->option->howmanyusers), 5);
-            }
             if ($_POST['transferoption'] == "") {
                 redirect($url, get_string('selectanoption', 'mod_booking'), 5);
             }
