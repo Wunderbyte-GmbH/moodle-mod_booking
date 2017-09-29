@@ -62,7 +62,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'groupid', 'sent', 'sent2', 'location', 'institution', 'address',
                     'pollurlteachers', 'howmanyusers', 'pollsend', 'removeafterminutes',
                     'notificationtext', 'notificationtextformat', 'disablebookingusers',
-                    'enablepresence', 'beforebookedtext', 'beforecompletedtext',
+                    'beforebookedtext', 'beforecompletedtext',
                     'aftercompletedtext'));
 
         $answers = new backup_nested_element('answers');

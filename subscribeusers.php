@@ -45,95 +45,106 @@ $PAGE->set_context($context);
 
 require_capability('mod/booking:subscribeusers', $context);
 
-$url = new moodle_url('/mod/booking/subscribeusers.php', array('id' => $id, 'optionid' => $optionid));
+$url = new moodle_url('/mod/booking/subscribeusers.php', array('id' => $id, 'optionid' => $optionid, 'agree' => $agree));
 $errorurl = new moodle_url('/mod/booking/view.php', array('id' => $id));
 
 $PAGE->set_url($url);
 $PAGE->set_title(get_string('modulename', 'booking'));
 $PAGE->set_heading($COURSE->fullname);
 $PAGE->navbar->add(get_string('booking:subscribeusers', 'booking'), $url);
-$options = array('bookingid' => $cm->instance, 'currentgroup' => array(), 'accesscontext' => $context,
-    'optionid' => $optionid, 'cmid' => $cm->id, 'course' => $course,
-    'potentialusers' => $bookingoption->potentialusers);
+if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
+    echo $OUTPUT->header();
+    $alright = false;
+    $message = "<p><b>" . get_string('agreetobookingpolicy', 'booking') . ":</b></p>";
+    $message .= "<p>" . $bookingoption->booking->bookingpolicy . "<p>";
+    $continueurl = new moodle_url($PAGE->url->out(false, array('agree' => 1)));
+    $continue = new single_button($continueurl, get_string('continue'), 'get');
+    $cancel = new single_button($errorurl, get_string('cancel'), 'get');
+    echo $OUTPUT->confirm($message, $continue, $cancel);
+    echo $OUTPUT->footer();
+    die();
+} else {
+    $options = array('bookingid' => $cm->instance, 'currentgroup' => array(),
+        'accesscontext' => $context, 'optionid' => $optionid, 'cmid' => $cm->id, 'course' => $course,
+        'potentialusers' => $bookingoption->potentialusers);
+    $bookingoutput = $PAGE->get_renderer('mod_booking');
 
-$bookingoutput = $PAGE->get_renderer('mod_booking');
+    $existingoptions = $options;
+    $existingoptions['potentialusers'] = $bookingoption->bookedvisibleusers;
 
-$existingoptions = $options;
-$existingoptions['potentialusers'] = $bookingoption->bookedvisibleusers;
+    $existingselector = new booking_existing_user_selector('removeselect', $existingoptions);
+    $subscriberselector = new booking_potential_user_selector('addselect', $options);
 
-$existingselector = new booking_existing_user_selector('removeselect', $existingoptions);
-$subscriberselector = new booking_potential_user_selector('addselect', $options);
+    if (data_submitted()) {
+        require_sesskey();
+        // It has to be one or the other, not both or neither
+        // if (!($subscribe xor $unsubscribe)) {
+        // print_error('invalidaction');
+        // }
+        if ($subscribe) {
+            $users = $subscriberselector->get_selected_users();
+            // compare if selected users are members of the currentgroup if person has not the
+            // right to access all groups
+            $subscribesuccess = true;
+            $subscribedusers = array();
+            $notsubscribedusers = array();
 
-if (data_submitted()) {
-    require_sesskey();
-    // It has to be one or the other, not both or neither
-    // if (!($subscribe xor $unsubscribe)) {
-    // print_error('invalidaction');
-    // }
-    if ($subscribe) {
-        $users = $subscriberselector->get_selected_users();
-        // compare if selected users are members of the currentgroup if person has not the
-        // right to access all groups
-        $subscribesuccess = true;
-        $subscribedusers = array();
-        $notsubscribedusers = array();
-
-        if (has_capability('moodle/site:accessallgroups', $context) or (booking_check_if_teacher(
-                $bookingoption->option))) {
-            foreach ($users as $user) {
-                if (!$bookingoption->user_submit_response($user)) {
-                    $subscribesuccess = false;
-                    $notsubscribedusers[] = $user;
-                }
-                $subscribedusers[] = $user->id;
-            }
-            if ($subscribesuccess) {
-                redirect($url, get_string('allusersbooked', 'mod_booking', count($subscribedusers)),
-                        5);
-            } else {
-                $output = '<br>';
-                if (!empty($notsubscribedusers)) {
-                    foreach ($notsubscribedusers as $user) {
-                        $result = $DB->get_records_sql(
-                                'SELECT bo.text FROM {booking_answers} ba LEFT JOIN {booking_options} bo ON bo.id = ba.optionid WHERE ba.userid = ? AND
-                                        ba.bookingid = ?',
-                                array($user->id, $bookingoption->id));
-                        $output .= "{$user->firstname} {$user->lastname}";
-                        if (!empty($result)) {
-                            $r = array();
-                            foreach ($result as $v) {
-                                $r[] = $v->text;
-                            }
-                            $output .= '&nbsp;' . get_string('enroledinoptions', 'mod_booking') .
-                                     implode(', ', $r);
-                        }
-                        $output .= " <br>";
+            if (has_capability('moodle/site:accessallgroups', $context) or (booking_check_if_teacher(
+                    $bookingoption->option))) {
+                foreach ($users as $user) {
+                    if (!$bookingoption->user_submit_response($user)) {
+                        $subscribesuccess = false;
+                        $notsubscribedusers[] = $user;
                     }
+                    $subscribedusers[] = $user->id;
                 }
-                redirect($url, get_string('notallbooked', 'mod_booking', $output), 5);
+                if ($subscribesuccess) {
+                    redirect($url,
+                            get_string('allusersbooked', 'mod_booking', count($subscribedusers)), 5);
+                } else {
+                    $output = '<br>';
+                    if (!empty($notsubscribedusers)) {
+                        foreach ($notsubscribedusers as $user) {
+                            $result = $DB->get_records_sql(
+                                    'SELECT bo.text FROM {booking_answers} ba LEFT JOIN {booking_options} bo ON bo.id = ba.optionid WHERE ba.userid = ? AND
+                                        ba.bookingid = ?', array($user->id, $bookingoption->id));
+                            $output .= "{$user->firstname} {$user->lastname}";
+                            if (!empty($result)) {
+                                $r = array();
+                                foreach ($result as $v) {
+                                    $r[] = $v->text;
+                                }
+                                $output .= '&nbsp;' . get_string('enroledinoptions', 'mod_booking') .
+                                         implode(', ', $r);
+                            }
+                            $output .= " <br>";
+                        }
+                    }
+                    redirect($url, get_string('notallbooked', 'mod_booking', $output), 5);
+                }
+            } else {
+                print_error('invalidaction');
             }
-        } else {
-            print_error('invalidaction');
-        }
-    } else if ($unsubscribe && (has_capability('mod/booking:deleteresponses', $context) ||
-             (booking_check_if_teacher($bookingoption->option, $USER)))) {
-        $users = $existingselector->get_selected_users();
-        $unsubscribesuccess = true;
-        foreach ($users as $user) {
-            if (!$bookingoption->user_delete_response($user->id)) {
-                $unsubscribesuccess = false;
-                print_error('cannotremovesubscriber', 'booking', $url->out(), $user->id);
+        } else if ($unsubscribe && (has_capability('mod/booking:deleteresponses', $context) ||
+                 (booking_check_if_teacher($bookingoption->option, $USER)))) {
+            $users = $existingselector->get_selected_users();
+            $unsubscribesuccess = true;
+            foreach ($users as $user) {
+                if (!$bookingoption->user_delete_response($user->id)) {
+                    $unsubscribesuccess = false;
+                    print_error('cannotremovesubscriber', 'booking', $url->out(), $user->id);
+                }
             }
+        } else if ($unsubscribe && (!has_capability('mod/booking:deleteresponses', $context) ||
+                 (booking_check_if_teacher($bookingoption->option, $USER)))) {
+            print_error('nopermission', null, $url->out());
         }
-    } else if ($unsubscribe && (!has_capability('mod/booking:deleteresponses', $context) ||
-             (booking_check_if_teacher($bookingoption->option, $USER)))) {
-        print_error('nopermission', null, $url->out());
+        $subscriberselector->invalidate_selected_users();
+        $existingselector->invalidate_selected_users();
+        $bookingoption->update_booked_users();
+        $subscriberselector->set_potential_users($bookingoption->potentialusers);
+        $existingselector->set_potential_users($bookingoption->bookedvisibleusers);
     }
-    $subscriberselector->invalidate_selected_users();
-    $existingselector->invalidate_selected_users();
-    $bookingoption->update_booked_users();
-    $subscriberselector->set_potential_users($bookingoption->potentialusers);
-    $existingselector->set_potential_users($bookingoption->bookedvisibleusers);
 }
 echo $OUTPUT->header();
 echo $OUTPUT->heading("{$bookingoption->option->text}", 3, 'helptitle', 'uniqueid');

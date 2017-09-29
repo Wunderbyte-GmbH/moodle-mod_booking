@@ -166,7 +166,7 @@ class booking {
     }
 
     /**
-     * Get all booking option ids as an array of numbers
+     * Get all booking option ids as an array of numbers.
      *
      * @return array of ids
      */
@@ -180,7 +180,18 @@ class booking {
     }
 
     /**
-     * Display a message about the maximum nubmer of bookings this user is allowed to make
+     * Get all booking option ids as an array of numbers - only where is teacher.
+     *
+     * @return array of ids
+     */
+    public function get_all_optionids_of_teacher() {
+        global $DB, $USER;
+
+        return $DB->get_fieldset_select('booking_teachers', 'optionid', "userid = {$USER->id} AND bookingid = {$this->booking->id}");
+    }
+
+    /**
+     * Display a message about the maximum nubmer of bookings this user is allowed to make.
      *
      * @param \stdClass $user
      * @return string

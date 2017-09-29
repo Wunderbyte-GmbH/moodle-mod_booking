@@ -418,18 +418,38 @@ if (!$tableallbookings->is_downloading()) {
             }
 
             redirect($url, get_string('userssucesfullybooked', 'booking'), 5);
-        } else if (isset($_POST['changepresencestatus']) &&
-                 (booking_check_if_teacher($bookingdata->option, $USER) ||
-                 has_capability('mod/booking:readresponses', $context))) {
-                     // Change presence status
+        } else if (isset($_POST['transfersubmit'])) {
             if (empty($allselectedusers)) {
                 redirect($url,
                         get_string('selectatleastoneuser', 'mod_booking',
                                 $bookingdata->option->howmanyusers), 5);
             }
             if ($_POST['transferoption'] == "") {
+                redirect($url, get_string('selectanoption', 'mod_booking'), 5);
+            }
+            $result = $bookingdata->transfer_users_to_otheroption($_POST['transferoption'],
+                    $allselectedusers);
+            if ($result->success) {
+                redirect($url, get_string('transfersuccess', 'mod_booking', $result), 5);
+            } else {
+                $output = '<br>';
+                if (!empty($result->no)) {
+                    foreach ($result->no as $user) {
+                        $output .= $user->firstname . " $user->lastname <br>";
+                    }
+                }
+                redirect($url, get_string('transferproblem', 'mod_booking', $output), 5, 'error');
+            }
+        } else if (isset($_POST['changepresencestatus']) && (booking_check_if_teacher(
+                $bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
+            // Change presence status
+            if (empty($allselectedusers)) {
                 redirect($url,
-                        get_string('selectanoption', 'mod_booking'), 5);
+                        get_string('selectatleastoneuser', 'mod_booking',
+                                $bookingdata->option->howmanyusers), 5);
+            }
+            if ($_POST['transferoption'] == "") {
+                redirect($url, get_string('selectanoption', 'mod_booking'), 5);
             }
             $result = $bookingdata->transfer_users_to_otheroption($_POST['transferoption'],
                     $allselectedusers);

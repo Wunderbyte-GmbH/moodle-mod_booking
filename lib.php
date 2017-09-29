@@ -584,8 +584,6 @@ function booking_update_options($optionvalues) {
         $option->limitanswers = 1;
     }
 
-    $option->enablepresence = $optionvalues->enablepresence;
-
     if (isset($optionvalues->restrictanswerperiod)) {
         $option->bookingclosingtime = $optionvalues->bookingclosingtime;
     } else {
@@ -605,7 +603,6 @@ function booking_update_options($optionvalues) {
     $option->beforecompletedtext = $optionvalues->beforecompletedtext;
     $option->aftercompletedtext = $optionvalues->aftercompletedtext;
     $option->limitanswers = $optionvalues->limitanswers;
-    $option->enablepresence = $optionvalues->enablepresence;
     $option->timemodified = time();
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
              $optionvalues->optionid != -1) { // existing booking record
@@ -2162,7 +2159,7 @@ function booking_update_subscriptions_button($id, $optionid) {
  * @param int $optionid
  * @param $cm
  */
-function booking_optionid_subscribe($userid, $optionid, $cm, $groupid) {
+function booking_optionid_subscribe($userid, $optionid, $cm, $groupid = '') {
     global $DB;
 
     if ($DB->record_exists("booking_teachers", array("userid" => $userid, "optionid" => $optionid))) {

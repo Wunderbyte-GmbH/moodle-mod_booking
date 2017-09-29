@@ -301,11 +301,16 @@ class all_userbookings extends table_sql {
                 echo $ratingbutton;
             }
 
-                // Output transfer users to other option.
+            // Output transfer users to other option.
             if (has_capability('mod/booking:subscribeusers',
                     context_module::instance($this->cm->id))) {
                 echo "<br>";
-                $optionids = $this->bookingdata->get_all_optionids();
+                if (has_capability('mod/booking:addeditownoption',
+                        context_module::instance($this->cm->id))) {
+                    $optionids = $this->bookingdata->get_all_optionids_of_teacher();
+                } else {
+                    $optionids = $this->bookingdata->get_all_optionids();
+                }
                 $optionids = array_values(array_diff($optionids, array($this->optionid)));
                 if (!empty($optionids)) {
                     list($insql, $inparams) = $DB->get_in_or_equal($optionids);
