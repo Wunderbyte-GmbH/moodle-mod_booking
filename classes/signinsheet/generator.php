@@ -200,6 +200,18 @@ class generator {
             }
         }
         foreach ($users as $user) {
+            $profiletext = '';
+            profile_load_custom_fields($user);
+            $userprofile = $user->profile;
+            if (!empty($user->profile)) {
+                $profiletext .= " ";
+                foreach ($user->profile as $profilename => $value) {
+                    if (in_array($profilename, $profilefieldnames)) {
+                        $profiletext .= $value . " ";
+                    }
+                }
+            }
+
             if ($this->pdf->go_to_newline(12)) {
                 if ($fileuse) {
                     $this->pdf->SetXY(18, 18);
@@ -215,7 +227,7 @@ class generator {
                 $c++;
                 switch ($value) {
                     case 'fullname':
-                        $name = "{$user->firstname} {$user->lastname}";
+                        $name = "{$user->firstname} {$user->lastname}{$profiletext}";
                         break;
                     case 'institution':
                         $name = $user->institution;
@@ -225,7 +237,7 @@ class generator {
                 }
 
                 $w = ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (count($this->allfields));
-                $this->pdf->Cell($w, 0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0);
+                $this->pdf->Cell($w, 0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, "", 1);
             }
         }
 
