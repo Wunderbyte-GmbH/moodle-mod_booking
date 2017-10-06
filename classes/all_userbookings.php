@@ -46,7 +46,7 @@ class all_userbookings extends table_sql {
     /**
      * Constructor
      *
-     * @param int $uniqueid all tables have to have a unique id, this is used as a key when 
+     * @param int $uniqueid all tables have to have a unique id, this is used as a key when
      * storing table properties like sort order in the session.
      */
     public function __construct($uniqueid, \mod_booking\booking_option $bookingdata, $cm, $optionid) {

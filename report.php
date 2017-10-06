@@ -584,9 +584,9 @@ if (!$tableallbookings->is_downloading()) {
     if (has_capability ( 'mod/booking:subscribeusers', $context ) || booking_check_if_teacher ( $bookingdata->option, $USER )) {
         $links [] = html_writer::link ( new moodle_url ( '/mod/booking/subscribeusers.php', array (
                 'id' => $cm->id,
-                'optionid' => $optionid 
+                'optionid' => $optionid
         ) ), get_string ( 'bookotherusers', 'booking' ), array (
-                'style' => 'float:right;' 
+                'style' => 'float:right;'
         ) );
     }
 
