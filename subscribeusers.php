@@ -44,7 +44,7 @@ $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
 
 if (!booking_check_if_teacher ( $bookingoption->option, $USER )) {
-	require_capability('mod/booking:subscribeusers', $context);
+    require_capability('mod/booking:subscribeusers', $context);
 }
 
 $url = new moodle_url('/mod/booking/subscribeusers.php', array('id' => $id, 'optionid' => $optionid, 'agree' => $agree));

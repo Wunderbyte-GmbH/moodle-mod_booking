@@ -46,7 +46,8 @@ class all_userbookings extends table_sql {
     /**
      * Constructor
      *
-     * @param int $uniqueid all tables have to have a unique id, this is used as a key when storing table properties like sort order in the session.
+     * @param int $uniqueid all tables have to have a unique id, this is used as a key when 
+     * storing table properties like sort order in the session.
      */
     public function __construct($uniqueid, \mod_booking\booking_option $bookingdata, $cm, $optionid) {
         parent::__construct($uniqueid);
@@ -303,14 +304,14 @@ class all_userbookings extends table_sql {
 
             // Output transfer users to other option.
             if (has_capability('mod/booking:subscribeusers',
-            		context_module::instance($this->cm->id)) || booking_check_if_teacher(
-            				$this->bookingdata->option)) {
+                    context_module::instance($this->cm->id)) || booking_check_if_teacher(
+                            $this->bookingdata->option)) {
                 echo "<br>";
                 if (has_capability('mod/booking:subscribeusers',
                         context_module::instance($this->cm->id))) {
-                        	$optionids = $this->bookingdata->get_all_optionids();
+                            $optionids = $this->bookingdata->get_all_optionids();
                 } else {
-                	$optionids = $this->bookingdata->get_all_optionids_of_teacher();
+                    $optionids = $this->bookingdata->get_all_optionids_of_teacher();
                 }
                 $optionids = array_values(array_diff($optionids, array($this->optionid)));
                 if (!empty($optionids)) {
@@ -402,7 +403,7 @@ class all_userbookings extends table_sql {
 
             if ($this->bookingdata->booking->enablepresence) {
                 // Change presence status
-                // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed
+                // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed.
                 echo "<br>";
                 $presences = array(5 => get_string('status_unknown', 'booking'),
                     6 => get_string('status_attending', 'booking'),
