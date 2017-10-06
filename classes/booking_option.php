@@ -682,7 +682,7 @@ class booking_option extends booking {
         $transferred->success = false;
         $otheroption = new booking_option($this->cm->id, $newoption);
         if (!empty($userids) && (has_capability('mod/booking:subscribeusers', $this->context) || booking_check_if_teacher(
-                $otheroption, $USER))) {
+                $otheroption->option))) {
             $transferred->success = true;
             list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, "limit_");
             $mainuserfields = get_all_user_name_fields(true, 'u');
@@ -710,6 +710,7 @@ class booking_option extends booking {
                 $this->user_delete_response($user->id);
             }
         }
+
         return $transferred;
     }
 
