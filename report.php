@@ -581,13 +581,14 @@ if (!$tableallbookings->is_downloading()) {
              implode(', ', $teachers) . " {$linkst}</p>";
 
     $links = array();
-
-    if (has_capability('mod/booking:subscribeusers', $context)) {
-        $links[] = html_writer::link(
-                new moodle_url('/mod/booking/subscribeusers.php',
-                        array('id' => $cm->id, 'optionid' => $optionid)),
-                get_string('bookotherusers', 'booking'), array('style' => 'float:right;'));
-    }
+	if (has_capability ( 'mod/booking:subscribeusers', $context ) || booking_check_if_teacher ( $bookingdata->option, $USER )) {
+		$links [] = html_writer::link ( new moodle_url ( '/mod/booking/subscribeusers.php', array (
+				'id' => $cm->id,
+				'optionid' => $optionid 
+		) ), get_string ( 'bookotherusers', 'booking' ), array (
+				'style' => 'float:right;' 
+		) );
+	}
 
     $links[] = '<a href="#" style="float:right;" id="showHideSearch">' . get_string('search') .
              '</a>';

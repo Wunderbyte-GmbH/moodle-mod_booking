@@ -303,13 +303,14 @@ class all_userbookings extends table_sql {
 
             // Output transfer users to other option.
             if (has_capability('mod/booking:subscribeusers',
-                    context_module::instance($this->cm->id))) {
+            		context_module::instance($this->cm->id)) || booking_check_if_teacher(
+            				$this->bookingdata->option)) {
                 echo "<br>";
-                if (has_capability('mod/booking:addeditownoption',
+                if (has_capability('mod/booking:subscribeusers',
                         context_module::instance($this->cm->id))) {
-                    $optionids = $this->bookingdata->get_all_optionids_of_teacher();
+                        	$optionids = $this->bookingdata->get_all_optionids();
                 } else {
-                    $optionids = $this->bookingdata->get_all_optionids();
+                	$optionids = $this->bookingdata->get_all_optionids_of_teacher();
                 }
                 $optionids = array_values(array_diff($optionids, array($this->optionid)));
                 if (!empty($optionids)) {
