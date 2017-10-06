@@ -155,6 +155,10 @@ class mod_booking_bookingform_form extends moodleform {
                 get_string('shorturl', 'booking'), array('size' => '1333'));
         $mform->setType('shorturl', PARAM_TEXT);
         $mform->disabledIf('shorturl', 'optionid', 'eq', -1);
+        
+        $mform->addElement('checkbox', 'generatenewurl',
+        		get_string('generatenewurl', 'booking'));
+        $mform->disabledIf('generatenewurl', 'optionid', 'eq', -1);
 
         // -------------------- Booking option text------------------------------
 
