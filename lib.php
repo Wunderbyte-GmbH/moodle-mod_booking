@@ -662,7 +662,7 @@ function booking_update_options($optionvalues) {
                     if ($shorturl) {
                         $option->shorturl = $shorturl;
                     }
-            	}
+                }
             }
 
             $DB->update_record("booking_options", $option);
