@@ -177,7 +177,7 @@ function booking_user_complete($course, $user, $mod, $booking) {
 function booking_supports($feature) {
     switch ($feature) {
         case FEATURE_GROUPS:
-            return false;
+            return true;
         case FEATURE_GROUPINGS:
             return false;
         case FEATURE_GROUPMEMBERSONLY:

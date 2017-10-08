@@ -35,20 +35,22 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_login($course, true, $cm);
 
-$bookingoption = new \mod_booking\booking_option($id, $optionid);
-$bookingoption->update_booked_users();
-$bookingoption->apply_tags();
-
 // Print the page header
 $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
 
-if (!booking_check_if_teacher ( $bookingoption->option, $USER )) {
-    require_capability('mod/booking:subscribeusers', $context);
-}
-
+$bookingoption = new \mod_booking\booking_option($id, $optionid);
 $url = new moodle_url('/mod/booking/subscribeusers.php', array('id' => $id, 'optionid' => $optionid, 'agree' => $agree));
 $errorurl = new moodle_url('/mod/booking/view.php', array('id' => $id));
+
+if (!booking_check_if_teacher ( $bookingoption->option, $USER )) {
+    if (!(has_capability('mod/booking:subscribeusers', $context) || has_capability('moodle/site:accessallgroups', $context))) {
+        throw new moodle_exception('nopermissions', 'core', $errorurl, get_string('bookotherusers', 'mod_booking'));
+    }
+}
+
+$bookingoption->update_booked_users();
+$bookingoption->apply_tags();
 
 $PAGE->set_url($url);
 $PAGE->set_title(get_string('modulename', 'booking'));
@@ -66,14 +68,11 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
     echo $OUTPUT->footer();
     die();
 } else {
-    $options = array('bookingid' => $cm->instance, 'currentgroup' => array(),
-        'accesscontext' => $context, 'optionid' => $optionid, 'cmid' => $cm->id, 'course' => $course,
-        'potentialusers' => $bookingoption->potentialusers);
+     $options = array('bookingid' => $cm->instance,
+                    'accesscontext' => $context, 'optionid' => $optionid, 'cm' => $cm, 'course' => $course,
+                    'potentialusers' => $bookingoption->bookedvisibleusers);
     $bookingoutput = $PAGE->get_renderer('mod_booking');
-
     $existingoptions = $options;
-    $existingoptions['potentialusers'] = $bookingoption->bookedvisibleusers;
-
     $existingselector = new booking_existing_user_selector('removeselect', $existingoptions);
     $subscriberselector = new booking_potential_user_selector('addselect', $options);
 
@@ -85,13 +84,11 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
         // }
         if ($subscribe) {
             $users = $subscriberselector->get_selected_users();
-            // compare if selected users are members of the currentgroup if person has not the
-            // right to access all groups
             $subscribesuccess = true;
             $subscribedusers = array();
             $notsubscribedusers = array();
 
-            if (has_capability('moodle/site:accessallgroups', $context) or (booking_check_if_teacher(
+            if (has_capability('mod/booking:subscribeusers', $context) or (booking_check_if_teacher(
                     $bookingoption->option))) {
                 foreach ($users as $user) {
                     if (!$bookingoption->user_submit_response($user)) {

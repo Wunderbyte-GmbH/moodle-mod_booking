@@ -271,6 +271,13 @@ if (!$tableallbookings->is_downloading()) {
                 $allselectedusers[] = array_keys($value)[0];
             }
 
+            // Check when separated groups are activated, that all users are the same group of current users.
+            if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
+                list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($course->id);
+                $groupusers = $DB->get_fieldset_sql($groupsql, $groupparams);
+                $allselectedusers = array_intersect($groupusers, $allselectedusers);
+            }
+
             if (empty($allselectedusers)) {
                 redirect($url,
                         get_string('selectatleastoneuser', 'booking',
@@ -506,6 +513,11 @@ if (!$tableallbookings->is_downloading()) {
     $strbooking = get_string("modulename", "booking");
     $strbookings = get_string("modulenameplural", "booking");
     $strresponses = get_string("responses", "booking");
+    if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
+        list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($course->id);
+        $addsqlwhere .= " AND u.id IN ($groupsql)";
+        $sqlvalues = array_merge($sqlvalues, $groupparams);
+    }
 
     // ALL USERS - START
     $fields = 'ba.id, ' . get_all_user_name_fields(true, 'u') . ',
@@ -770,6 +782,11 @@ if (!$tableallbookings->is_downloading()) {
             AND uif.shortname = '{$profilefield->shortname}') AS cust" .
             strtolower($profilefield->shortname);
         }
+    }
+    if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
+        list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($course->id);
+        $addsqlwhere .= " AND u.id IN ($groupsql)";
+        $sqlvalues = array_merge($sqlvalues, $groupparams);
     }
 
     $fields = "u.id AS userid,

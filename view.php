@@ -541,6 +541,16 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         $columns[] = 'id';
         $headers[] = "";
+        $usersofgroupsql = '';
+        if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
+            list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($course->id);
+            $conditionsparams = array_merge($conditionsparams, $groupparams);
+            $usersofgroupsql = "
+                (SELECT COUNT(*)
+                   FROM {booking_answers} ba
+                  WHERE ba.optionid = bo.id
+                    AND ba.userid IN ( $groupsql )) AS allbookedsamegroup,";
+        }
 
         $fields = "DISTINCT bo.id,
                          bo.text,
@@ -556,6 +566,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
                      AND ba.waitinglist = 0) AS booked,
+
+                          $usersofgroupsql
 
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
@@ -718,6 +730,11 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         if ($myoptions->myoptions > 0 && !has_capability('mod/booking:readresponses', $context)) {
             $conditionsparams['onlyinstitution1'] = $USER->institution;
             $conditions[] = 'tu.institution LIKE :onlyinstitution1';
+        }
+        if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
+            list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($course->id);
+            array_push($conditions, "tu.id IN ($groupsql)");
+            $conditionsparams = array_merge($conditionsparams, $groupparams);
         }
 
         $fields = "tba.id,

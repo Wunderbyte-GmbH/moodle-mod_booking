@@ -362,9 +362,14 @@ class all_options extends table_sql {
         }
 
         if (has_capability('mod/booking:readresponses', $this->context) || $values->isteacher) {
-            $numberofresponses = $values->waiting + $values->booked;
+            if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS
+                    AND !has_capability('moodle/site:accessallgroups', \context_course::instance($this->booking->course->id))) {
+                $numberofresponses = $values->allbookedsamegroup;
+            } else {
+                $numberofresponses = $values->waiting + $values->booked;
+            }
             $manage = "<br><a href=\"report.php?id={$this->cm->id}&optionid={$values->id}\">" .
-                     get_string("viewallresponses", "booking", $numberofresponses) . "</a>";
+            get_string("viewallresponses", "booking", $numberofresponses) . "</a>";
         }
 
         if ($this->booking->booking->ratings > 0) {

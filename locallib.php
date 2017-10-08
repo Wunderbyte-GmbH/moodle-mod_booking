@@ -48,7 +48,22 @@ abstract class booking_user_selector_base extends user_selector_base {
      */
     public $potentialusers = null;
 
+    /**
+     *
+     * @var array of userids
+     */
     public $bookedvisibleusers = null;
+
+    /**
+     *
+     * @var stdClass
+     */
+    public $course;
+    /**
+     *
+     * @var cm_info
+     */
+    public $cm;
 
     /**
      * Constructor method
@@ -69,6 +84,12 @@ abstract class booking_user_selector_base extends user_selector_base {
         if (isset($options['optionid'])) {
             $this->optionid = $options['optionid'];
         }
+        if (isset($options['course'])) {
+            $this->course = $options['course'];
+        }
+        if (isset($options['cm'])) {
+            $this->cm = $options['cm'];
+        }
     }
 
     protected function get_options() {
@@ -77,6 +98,8 @@ abstract class booking_user_selector_base extends user_selector_base {
         $options['bookingid'] = $this->bookingid;
         $options['potentialusers'] = $this->potentialusers;
         $options['optionid'] = $this->optionid;
+        $options['cm'] = $this->cm;
+        $options['course'] = $this->course;
         // Add our custom options to the $options array.
         return $options;
     }
@@ -97,25 +120,34 @@ abstract class booking_user_selector_base extends user_selector_base {
  */
 class booking_potential_user_selector extends booking_user_selector_base {
 
-    public $potentialusers;
-
     public $options;
 
     public function __construct($name, $options) {
-        $this->potentialusers = $options['potentialusers'];
         $this->options = $options;
-
         parent::__construct($name, $options);
     }
 
     public function find_users($search) {
         global $DB, $USER;
 
+        $onlygroupmembers = false;
+        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($this->course->id))) {
+            $onlygroupmembers = true;
+        }
+
         $fields = "SELECT " . $this->required_fields_sql("u");
 
         $countfields = 'SELECT COUNT(1)';
         list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
-        list($esql, $params) = get_enrolled_sql($this->options['accesscontext'], null, null, true);
+        $groupsql = '';
+        if ($onlygroupmembers) {
+            list($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($this->course->id);
+            list($esql, $eparams) = get_enrolled_sql($this->options['accesscontext'], null, null, true);
+            $groupsql = " AND u.id IN (" . $groupsql.")";
+            $params = array_merge($eparams, $groupparams);
+        } else {
+            list($esql, $params) = get_enrolled_sql($this->options['accesscontext'], null, null, true);
+        }
 
         $option = new stdClass();
         $option->id = $this->options['optionid'];
@@ -134,6 +166,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
         $sql = " FROM {user} u
         WHERE $searchcondition
         AND u.id IN (SELECT nnn.id FROM ($esql) AS nnn WHERE nnn.id > 1)
+        $groupsql
         AND u.id NOT IN (SELECT ba.userid FROM {booking_answers} ba WHERE ba.optionid = {$this->options['optionid']})";
 
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
@@ -198,7 +231,6 @@ class booking_existing_user_selector extends booking_user_selector_base {
         $fields = "SELECT " . $this->required_fields_sql("u");
         $countfields = 'SELECT COUNT(1)';
         list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
-
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
 

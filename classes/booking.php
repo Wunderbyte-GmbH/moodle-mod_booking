@@ -87,9 +87,10 @@ class booking {
         $this->context = \context_module::instance($cmid);
         $this->booking = $DB->get_record("booking", array("id" => $this->id));
         // if the course has groups and I do not have the capability to see all groups, show only users of my groups
-        if ($this->course->groupmode !== 0 &&
+        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS  &&
                  !has_capability('moodle/site:accessallgroups', $this->context)) {
-            $this->groupmembers = $this::booking_get_groupmembers($this->course->id);
+                     list($sql, $params) = $this::booking_get_groupmembers_sql($this->course->id);
+            $this->groupmembers = $DB->execute($sql, $params);
         }
     }
 
@@ -127,26 +128,22 @@ class booking {
     }
 
     /**
-     * get all group members of $USER (of all groups $USER belongs to)
+     * get sql for all group member ids of $USER (of all groups $USER belongs to a course)
      *
      * @param int $courseid
      * @return array: all members of all groups $USER belongs to
      */
-    public static function booking_get_groupmembers($courseid) {
-        global $USER, $DB;
-        $groupmembers = array();
-        $usergroups = groups_get_all_groups($courseid, $USER->id);
-
-        if (!empty($usergroups)) {
-            $groupids = array_keys($usergroups);
-            list($insql, $inparams) = $DB->get_in_or_equal($groupids);
-            $groupmembers = $DB->get_records_sql(
-                    "SELECT u.id
-                    FROM {user} u, {groups_members} gm
-                    WHERE u.id = gm.userid AND gm.groupid $insql
-                    ORDER BY lastname ASC", $inparams);
-        }
-        return $groupmembers;
+    public static function booking_get_groupmembers_sql($courseid) {
+        global $DB, $USER;
+        $mygroups = groups_get_all_groups($courseid, $USER->id);
+        $mygroupids = array_keys($mygroups);
+        list($insql, $params) = $DB->get_in_or_equal($mygroupids, SQL_PARAMS_NAMED, 'book_', true, -1);
+        $groupsql = "SELECT u.id
+                       FROM {user} u, {groups_members} gm
+                      WHERE u.deleted = 0
+                        AND u.id = gm.userid AND gm.groupid $insql
+                   GROUP BY u.id";
+        return array($groupsql, $params);
     }
 
     /**

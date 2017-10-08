@@ -155,12 +155,21 @@ class generator {
      */
     public function download_signinsheet() {
         global $CFG, $DB;
+        $groupparams = array();
+        $addsqlwhere = '';
+
+        if (groups_get_activity_groupmode($this->bookingdata->cm) == SEPARATEGROUPS
+                AND !has_capability('moodle/site:accessallgroups', \context_course::instance($this->bookingdata->course->id))) {
+            list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($this->bookingdata->course->id);
+            $addsqlwhere .= " AND u.id IN ($groupsql)";
+        }
 
         $users = $DB->get_records_sql(
                 'SELECT u.id, ' . get_all_user_name_fields(true, 'u') . ', u.institution
             FROM {booking_answers} ba
             LEFT JOIN {user} u ON u.id = ba.userid
-            WHERE ba.optionid = ? ORDER BY u.lastname ASC', array($this->bookingdata->option->id));
+            WHERE ba.optionid = :optionid ' . $addsqlwhere . 'ORDER BY u.lastname ASC',
+                array_merge($groupparams, array('optionid' => $this->bookingdata->option->id)));
 
         $this->pdf->SetCreator(PDF_CREATOR);
         $this->pdf->setPrintHeader(true);
@@ -348,7 +357,7 @@ class generator {
         $this->pdf->Cell(0, 0, '', 0, 1, '', 0);
         $this->pdf->Ln();
 
-        $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
+        $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 10);
         $this->pdf->Cell(0, 0,
                 get_string('teachers', 'booking') . ": " . implode(', ', $this->teachers), 0, 1, '',
                 0);

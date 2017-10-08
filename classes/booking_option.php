@@ -419,7 +419,7 @@ class booking_option extends booking {
      * Calculates the potential users (bookers able to book, but not yet booked)
      */
     public function update_booked_users() {
-        global $DB;
+        global $DB, $USER;
 
         if (empty($this->canbookusers)) {
             $this->get_canbook_userids();
@@ -430,10 +430,10 @@ class booking_option extends booking {
         FROM {booking_answers} ba, {user} u
         WHERE ba.userid = u.id AND
         u.deleted = 0 AND
-        ba.bookingid = ? AND
-        ba.optionid = ?
+        ba.bookingid = :bookingid AND
+        ba.optionid = :optionid
         ORDER BY ba.timemodified ASC";
-        $params = array($this->id, $this->optionid);
+        $params = array("bookingid" => $this->id, "optionid" => $this->optionid);
 
         // It is possible that the cap mod/booking:choose has been revoked after the user has booked Therefore do not count them as booked users.
         $allanswers = $DB->get_records_sql($sql, $params);
@@ -442,8 +442,26 @@ class booking_option extends booking {
         // $excludedusers = array_diff_key($allanswers, $this->canbookusers);
         $this->numberofanswers = count($this->bookedusers);
 
-        $this->bookedvisibleusers = $this->bookedusers;
-        $this->potentialusers = array_diff_key($this->canbookusers, $this->bookedusers);
+        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($this->course->id))) {
+            $mygroups = groups_get_all_groups($this->course->id, $USER->id);
+            $mygroupids = array_keys($mygroups);
+            list($insql, $inparams) = $DB->get_in_or_equal($mygroupids, SQL_PARAMS_NAMED);
+
+            $sql = "SELECT $mainuserfields, ba.id AS answerid, ba.optionid, ba.bookingid
+            FROM {booking_answers} ba, {user} u, {groups_members} gm
+            WHERE ba.userid = u.id AND
+            u.deleted = 0 AND
+            ba.bookingid = :bookingid AND
+            ba.optionid = :optionid AND
+            u.id = gm.userid AND gm.groupid $insql
+            GROUP BY u.id
+            ORDER BY ba.timemodified ASC";
+            $groupmembers = $DB->get_records_sql($sql, array_merge($params, $inparams));
+            $this->bookedvisibleusers = array_intersect_key($groupmembers, $this->canbookusers);
+        } else {
+            $this->bookedvisibleusers = $this->bookedusers;
+        }
+        $this->potentialusers = array_diff_key($this->canbookusers, $this->bookedvisibleusers);
         $this->sort_answers();
     }
 
