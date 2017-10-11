@@ -22,7 +22,7 @@ class mod_booking_bookingform_form extends moodleform {
         global $CFG, $DB, $COURSE;
         $mform = & $this->_form;
         $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
-
+        $mform->addElement('header', 'general', get_string('general', 'form'));
         $mform->addElement('text', 'text', get_string('booking', 'booking'), array('size' => '64'));
         $mform->addRule('text', get_string('required'), 'required', null, 'client');
         if (!empty($CFG->formatstringstriptags)) {
