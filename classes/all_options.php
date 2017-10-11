@@ -255,7 +255,7 @@ class all_options extends table_sql {
         $texttoshow = $bookingdata->get_option_text();
 
         $style = 'display: none;';
-        if ($_GET['whichview'] == 'showonlyone') {
+        if (isset($_GET['whichview']) && $_GET['whichview'] == 'showonlyone') {
             $style = '';
         }
         if (!empty($texttoshow)) {
