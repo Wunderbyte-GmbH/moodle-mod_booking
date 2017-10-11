@@ -253,12 +253,16 @@ class all_options extends table_sql {
         $texttoshow = "";
         $bookingdata = new \mod_booking\booking_option($this->cm->id, $values->id);
         $texttoshow = $bookingdata->get_option_text();
-        
+
+        $style = 'display: none;';
+        if ($_GET['whichview'] == 'showonlyone') {
+            $style = '';
+        }
         if (!empty($texttoshow)) {
-        	$output .= '<br><a href="#" class="showHideOptionText" data-id="' . $values->id . '">' .
-          	get_string('showdescription', "mod_booking") . "</a>";
-          	$output .= html_writer::div($texttoshow, 'optiontext',
-          			array('style' => 'display: none;', 'id' => 'optiontext' . $values->id));
+            $output .= '<br><a href="#" class="showHideOptionText" data-id="' . $values->id . '">' .
+            get_string('showdescription', "mod_booking") . "</a>";
+            $output .= html_writer::div($texttoshow, 'optiontext',
+                    array('style' => $style, 'id' => 'optiontext' . $values->id));
         }
 
         $options = new stdClass();
