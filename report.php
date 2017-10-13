@@ -214,7 +214,7 @@ $bookingdata->option->urltitle = $DB->get_field('course', 'shortname',
 $bookingdata->option->cmid = $cm->id;
 $bookingdata->option->autoenrol = $bookingdata->booking->autoenrol;
 
-$tableallbookings = new all_userbookings('mod_booking_all_users_sort_new', $bookingdata, $cm, $optionid);
+$tableallbookings = new \mod_booking\all_userbookings('mod_booking_all_users_sort_new', $bookingdata, $cm, $optionid);
 $tableallbookings->is_downloading($download, $bookingdata->option->text, $bookingdata->option->text);
 
 $tableallbookings->define_baseurl($currenturl);
