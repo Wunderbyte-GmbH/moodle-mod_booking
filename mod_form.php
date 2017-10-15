@@ -407,6 +407,7 @@ class mod_booking_mod_form extends moodleform_mod {
         } else {
             $mform->addElement('hidden', 'completionmodule', '-1');
         }
+        $mform->setType('completionmodule', PARAM_INT);
 
             // ----TAGS---------------------------------------------------
         $options = array();

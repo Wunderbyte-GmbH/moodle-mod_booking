@@ -600,7 +600,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                    WHERE ba.optionid = bo.id
                      AND ba.userid = :userid3) AS isteacher,
 
-                  (SELECT IFNULL(AVG(rate), 1)
+                  (SELECT AVG(rate)
                    FROM {booking_ratings} br
                    WHERE br.optionid = bo.id) AS rating
                 ";

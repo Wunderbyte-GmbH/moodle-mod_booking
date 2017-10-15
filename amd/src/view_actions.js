@@ -23,8 +23,8 @@
  * @since 3.1
  */
 
-define(['jquery', 'mod_booking/jquery.barrating'],
-        function($) {
+define(['jquery', 'core/config', 'mod_booking/jquery.barrating'],
+        function($, mdlconfig) {
             return {
                 setup : function(id) {
                     $('.starrating').each(function(index, value) {
@@ -41,7 +41,7 @@ define(['jquery', 'mod_booking/jquery.barrating'],
                             onSelect: function(value, text, event) {
                                 if (typeof(event) !== 'undefined') {
                                     $.ajax({
-                                        url: "/mod/booking/rating_rest.php?id=" + id,
+                                        url: mdlconfig.wwwroot + "/mod/booking/rating_rest.php?id=" + id,
                                         method: "POST",
                                         data: { optionid: itemid, value: value }
                                     }).done(function(data) {
