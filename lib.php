@@ -1694,11 +1694,9 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
     $returnval = true;
     $allusers = array();
 
-    // TODO: Remove these queries, they are not really necessary.
+    // TODO: Remove this query, not really necessary.
     $option = $DB->get_record('booking_options', array('id' => $optionid));
-    $booking = $DB->get_record('booking', array('id' => $option->bookingid));
-
-    $cm = get_coursemodule_from_instance('booking', $booking->id);
+    $cm = get_coursemodule_from_instance('booking', $option->bookingid);
 
     $bookingdata = new \mod_booking\booking_option($cm->id, $option->id);
     $bookingdata->apply_tags();
@@ -1935,6 +1933,7 @@ function booking_send_confirm_message($eventdata) {
         $message = booking_get_email_body($eventdata->booking, 'waitingtext',
                 'confirmationmessagewaitinglist', $data);
     } else {
+        // TODO: should never be reached.
         $subject = "test";
         $subjectmanager = "tester";
         $message = "message";
@@ -1944,7 +1943,7 @@ function booking_send_confirm_message($eventdata) {
     $messagehtml = text_to_html($message, false, false, true);
     $errormessage = get_string('error:failedtosendconfirmation', 'booking', $data);
     $errormessagehtml = text_to_html($errormessage, false, false, true);
-    $user->mailformat = 1; // Always send HTML version as well
+    $user->mailformat = FORMAT_HTML; // Always send HTML version as well
 
     $messagedata = new stdClass();
     $messagedata->userfrom = $bookingmanager;
@@ -1954,7 +1953,7 @@ function booking_send_confirm_message($eventdata) {
         $messagedata->userto = $DB->get_record('user', array('id' => $user->id));
     }
     $messagedata->subject = $subject;
-    $messagedata->messagetext = $message;
+    $messagedata->messagetext = format_text_email($message, FORMAT_HTML);
     $messagedata->messagehtml = $messagehtml;
     $messagedata->attachment = $attachment;
     $messagedata->attachname = $attachname;
@@ -2113,7 +2112,7 @@ function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid
     if (booking_get_user_status($cancelleduserid, $optionid, $booking->id, $cmid) !== get_string('booked', 'booking')) {
         return false;
     }
-    // backward compatibility hack TODO: remove
+    // Backward compatibility hack TODO: remove.
     if (!isset($booking->option[$optionid])) {
         $option = $DB->get_record('booking_options',
                 array('bookingid' => $booking->id, 'id' => $optionid));
@@ -2121,7 +2120,7 @@ function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid
         $option = $booking->option[$optionid];
     }
     if ($option->maxanswers == 0) {
-        return false; // No limit on bookings => no waiting list to manage
+        return false; // No limit on bookings => no waiting list to manage.
     }
     $allresponses = $DB->get_records('booking_answers',
             array('bookingid' => $booking->id, 'optionid' => $optionid), 'timemodified', 'userid');
