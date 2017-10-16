@@ -425,7 +425,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $opts = array(0 => get_string('nocomments', 'mod_booking'),
             1 => get_string('allcomments', 'mod_booking'),
-            2 => get_string('enroledcomments', 'mod_booking'),
+            2 => get_string('enrolledcomments', 'mod_booking'),
             3 => get_string('completedcomments', 'mod_booking')
         );
         $mform->addElement('select', 'comments', get_string('comments', 'mod_booking'), $opts);
@@ -433,7 +433,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $opts = array(0 => get_string('noratings', 'mod_booking'),
                         1 => get_string('allratings', 'mod_booking'),
-                        2 => get_string('enroledratings', 'mod_booking'),
+                        2 => get_string('enrolledratings', 'mod_booking'),
                         3 => get_string('completedratings', 'mod_booking')
         );
         $mform->addElement('select', 'ratings', get_string('ratings', 'mod_booking'), $opts);

@@ -943,7 +943,7 @@ class booking_option extends booking {
         $result = true;
         $answers = $this->get_all_users();
         foreach ($answers as $answer) {
-            $this->unenrol_user($answer->userid); // Unenrol any users enroled via this option.
+            $this->unenrol_user($answer->userid); // Unenrol any users enrolled via this option.
         }
         if (!$DB->delete_records("booking_answers",
                 array("bookingid" => $this->id, "optionid" => $this->optionid))) {

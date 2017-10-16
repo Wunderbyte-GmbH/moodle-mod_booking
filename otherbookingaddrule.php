@@ -78,7 +78,7 @@ if ($mform->is_cancelled()) {
         $DB->insert_record("booking_other", $bookingother);
     }
 
-    redirect($urlredirect, get_string('otherbookingsucesfullysaved', 'booking'), 5);
+    redirect($urlredirect, get_string('otherbookingsuccessfullysaved', 'booking'), 5);
 } else {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string("otherbookingaddrule", "booking"), 3, 'helptitle', 'uniqueid');

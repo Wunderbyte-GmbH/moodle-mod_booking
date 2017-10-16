@@ -128,7 +128,7 @@ $string['editcategory'] = 'Bearbeiten';
 $string['deletecategory'] = 'Löschen';
 $string['deletesubcategory'] = 'Löschen Sie zuerst alle Unterkategorien dieser Kategorie!';
 $string['usedinbooking'] = 'Das Löschen dieser Kategorie/n ist nicht möglich, da sie verwendet werden!';
-$string['sucesfulldeleted'] = 'Kategorie wurde erfolgreich gelöscht!';
+$string['successfulldeleted'] = 'Kategorie wurde erfolgreich gelöscht!';
 
 // view.php
 $string['agreetobookingpolicy'] = 'Ich habe folgende Buchungsbedingungen gelesen und erkläre mich damit einverstanden';
@@ -195,7 +195,7 @@ $string['savenewtagtemplate'] = 'Speichern';
 $string['tagtag'] = 'Schlagwort';
 $string['tagtext'] = 'Schlagwort-Text';
 $string['wrongdataallfields'] = 'Bitte alle Felder ausfüllen!';
-$string['tagsucesfullysaved'] = 'Schlagwort erfolgreich gespeichert.';
+$string['tagsuccessfullysaved'] = 'Schlagwort erfolgreich gespeichert.';
 $string['edittag'] = 'Bearbeiten';
 
 // mod_form
@@ -208,7 +208,7 @@ $string['addtocalendar'] = 'Zum Kalender hinzufügen';
 $string['limitanswers'] = 'Teilnehmeranzahl beschränken';
 $string['maxparticipantsnumber'] = 'Maximale Teilnehmeranzahl';
 $string['maxoverbooking'] = 'Maximale Anzahl der Wartelistenplätze';
-$string['defaultbookingoption'] = 'Standardeinstellungen für Buchungen';
+$string['defaultbookingoption'] = 'Standardeinstellungen für Buchungsoptionen';
 $string['sendconfirmmail'] = 'Bestätigungsmail versenden';
 $string['sendconfirmmailtobookingmanger'] = 'Eine Kopie des Bestätigungsmail an Buchungsverwalter senden';
 $string['allowdelete'] = 'Teilnehmer/innen dürfen Buchungen selbst stornieren';
@@ -224,6 +224,18 @@ $string['userleave'] = 'Nutzer/in hat Buchung storniert';
 $string['waitingtext'] = 'Wartelistenbestätigung';
 $string['statuschangetext'] = 'Statusänderungsbenachrichtigung';
 $string['deletedtext'] = 'Stornierungsbenachrichtigung';
+$string['comments'] = 'Kommentare';
+$string['nocomments'] = 'Kommentare deaktiviert';
+$string['allcomments'] = 'Jede/r kann kommentieren';
+$string['enrolledcomments'] = 'Nur Eingeschriebene können kommentieren';
+$string['completedcomments'] = 'Nur diejenigen, die Aktivität abgeschlossen haben';
+$string['ratings'] = 'Bewertung der Buchungsoption';
+$string['noratings'] = 'Bewertungen deaktiviert';
+$string['allratings'] = 'Jede/r kann bewerten';
+$string['enrolledratings'] = 'Nur Eingeschriebene können bewerten';
+$string['completedratings'] = 'Nur diejenigen, die Aktivität abgeschlossen haben';
+$string['shorturl'] = 'Verkürzter Link zu dieser Buchungsoption';
+$string['generatenewurl'] = 'Neue Kurz-URL generieren';
 
 $string['pollurlteachers_help'] = 'Folgende Platzhalter können im Text verwendet werden:
 <ul>
@@ -668,8 +680,8 @@ $string['transfer'] = 'Umbuchen';
 $string['transferheading'] = 'Ausgewählte Nutzer/innen in die ausgewählte Buchungsoption umbuchen';
 $string['transfersuccess'] = 'Die Nutzer/innen wurden erfolgreich umgebucht';
 $string['transferproblem'] = 'Die folgenden Nuther/innen konnten aufgrund einer limitierten Anzahl an Plätzen der Buchungsoption oder aufgrund individueller Limitierungen seitens des/der Nutzer/in nicht umgebucht werden: {$a}';
-$string['userrssucesfullenroled'] = 'Alle Nutzer/innen wurden erfolgreich eingeschrieben!';
-$string['userssucesfullybooked'] = 'Alle Nutzer/innen wurden erfolgreich in die andere Buchungsoption eingeschrieben.';
+$string['userssuccessfullenrolled'] = 'Alle Nutzer/innen wurden erfolgreich eingeschrieben!';
+$string['userssuccessfullybooked'] = 'Alle Nutzer/innen wurden erfolgreich in die andere Buchungsoption eingeschrieben.';
 $string['waitinglistusers'] = 'Nutzer/innen auf der Warteliste';
 $string['withselected'] = 'Ausgewählte Nutzer/innen';
 $string['yes'] = 'Ja';
@@ -710,7 +722,7 @@ $string['addnewinstitution'] = 'Institution hinzufügen';
 // institutionform.class.php
 $string['institutionname'] = 'Name der Institution';
 $string['addnewinstitution'] = 'Institution hinzufügen';
-$string['sucesfulldeletedinstitution'] = 'Institution erfolgreich gelöscht';
+$string['successfulldeletedinstitution'] = 'Institution erfolgreich gelöscht';
 $string['csvfile_help'] = 'CSV Datei darf nur eine Spalte mit dem Namen der Institution beinhalten.';
 
 // otherbooking.php
@@ -725,7 +737,7 @@ $string['deletedrule'] = 'Buchungsmöglichkeit erfolgreich gelöscht';
 $string['selectoptioninotherbooking'] = "Auswahl";
 $string['otherbookinglimit'] = "Limit";
 $string['otherbookinglimit_help'] = "Anzahl der Nutzer/innen die von dieser Buchungsoption akzeptiert werden. 0 bedeutet unlimitiert.";
-$string['otherbookingsucesfullysaved'] = 'Buchungsmöglichkeit gespeichert!';
+$string['otherbookingsuccessfullysaved'] = 'Buchungsmöglichkeit gespeichert!';
 
 // File: settings.php
 $string['customfield'] = 'Benutzerdefiniertes Feld, dessen Wert in den Buchungsoptionseinstellungen angegeben wird und in der Buchungsoptionsübersicht angezeigt wird';

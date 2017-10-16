@@ -113,7 +113,7 @@ $string['allchangessave'] = 'All changes have been saved.';
 $string['backtoresponses'] = '<< Back to responses';
 $string['allusersbooked'] = 'All {$a} selected users have successfully been assigned to this booking option.';
 $string['notallbooked'] = 'The following users could not be booked due to reaching the max number of bookings per user or lack of available places for the booking option: {$a}';
-$string['enroledinoptions'] = "alredy booked in booking options: ";
+$string['enrolledinoptions'] = "alredy booked in booking options: ";
 
 // Bookingform
 $string['address'] = 'Address';
@@ -151,7 +151,7 @@ $string['editcategory'] = 'Edit';
 $string['deletecategory'] = 'Delete';
 $string['deletesubcategory'] = 'Please, first delete all subcategories of this category!';
 $string['usedinbooking'] = 'You can\'t delete this category, because you\'re using it in booking!';
-$string['sucesfulldeleted'] = 'Category was deleted!';
+$string['successfulldeleted'] = 'Category was deleted!';
 
 // view.php
 $string['agreetobookingpolicy'] = 'I have read and agree to the following booking policies';
@@ -232,7 +232,7 @@ $string['savenewtagtemplate'] = 'Save';
 $string['tagtag'] = 'Tag';
 $string['tagtext'] = 'Text';
 $string['wrongdataallfields'] = 'Please, fill out all fields!';
-$string['tagsucesfullysaved'] = 'Tag was saved.';
+$string['tagsuccessfullysaved'] = 'Tag was saved.';
 $string['edittag'] = 'Edit';
 
 // all_options
@@ -264,24 +264,24 @@ $string['usernameofbookingmanager'] = 'Username of the booking manager';
 $string['usernameofbookingmanager_help'] = 'Username of the user who will be displayed in the "From" field of the confirmation notifications. If the option "Send confirmation e-mail to booking manager" is enabled, this is the user who receives a copy of the confirmation notifications.';
 $string['bookingmanagererror'] = 'The username entered is not valid. Either it does not exist or there are more then one users with this username (example: if you have mnet and local authentication enabled)';
 $string['autoenrol'] = 'Automatically enrol users';
-$string['autoenrol_help'] = 'If selected, users will be enroled onto the relevant course as soon as they make the booking and unenroled from that course as soon as the booking is cancelled.';
+$string['autoenrol_help'] = 'If selected, users will be enrolled onto the relevant course as soon as they make the booking and unenrolled from that course as soon as the booking is cancelled.';
 $string['bookedtext'] = 'Booking confirmation';
 $string['userleave'] = 'User has cancelled his/her own booking';
 $string['waitingtext'] = 'Waiting list confirmation';
 $string['statuschangetext'] = 'Status change message';
 $string['deletedtext'] = 'Cancelled booking message';
 $string['comments'] = 'Comments';
-$string['nocomments'] = 'Commenting disaled';
+$string['nocomments'] = 'Commenting disabled';
 $string['allcomments'] = 'Everybody can comment';
-$string['enroledcomments'] = 'Only enroled';
+$string['enrolledcomments'] = 'Only enrolled';
 $string['completedcomments'] = 'Only with completed activity';
-$string['ratings'] = 'Ratings';
-$string['noratings'] = 'Ratings disaled';
+$string['ratings'] = 'Bookingoption ratings';
+$string['noratings'] = 'Ratings disabled';
 $string['allratings'] = 'Everybody can rate';
-$string['enroledratings'] = 'Only enroled';
+$string['enrolledratings'] = 'Only enrolled';
 $string['completedratings'] = 'Only with completed activity';
 $string['shorturl'] = 'Short URL of this option';
-$string['generatenewurl'] = 'Generate new url';
+$string['generatenewurl'] = 'Generate new short url';
 
 $string['pollurlteachers_help'] = 'You can use any of the following placeholders in the text:
 <ul>
@@ -905,8 +905,8 @@ $string['sendcustommessage'] = 'Send custom message';
 $string['sendpollurltoteachers'] = 'Send poll url';
 $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
 $string['userid'] = 'UserID';
-$string['userrssucesfullenroled'] = 'All users have been enrolled!';
-$string['userssucesfullybooked'] = 'All users have been booked to the other booking option.';
+$string['userssuccessfullenrolled'] = 'All users have been enrolled!';
+$string['userssuccessfullybooked'] = 'All users have been booked to the other booking option.';
 $string['waitinglistusers'] = 'Users on waiting list';
 $string['withselected'] = 'With selected users:';
 $string['editotherbooking'] = 'Other booking rules';
@@ -936,7 +936,7 @@ $string['status_attending'] = "Attending";
 $string['presence'] = "Presence";
 $string['confirmpresence'] = "Confirm presence";
 $string['selectpresencestatus'] = "Choose presence status";
-$string['userssucesfullygetnewpresencestatus'] = 'All users have a new presence status.';
+$string['userssuccessfullygetnewpresencestatus'] = 'All users have a new presence status.';
 $string['deleteresponsesactivitycompletion'] = 'Delete all users with completed activity: {$a}';
 $string['signature'] = 'Signature';
 $string['signinsheetfields'] = 'Sign in Sheet fields';
@@ -977,7 +977,7 @@ $string['addnewinstitution'] = 'Add new institution';
 // institutionform.class.php
 $string['institutionname'] = 'Institution name';
 $string['addnewinstitution'] = 'Add new institution';
-$string['sucesfulldeletedinstitution'] = 'Institution was deleted';
+$string['successfulldeletedinstitution'] = 'Institution was deleted';
 $string['csvfile_help'] = 'CSV file must contain only one column named Institution.';
 
 // otherbooking.php
@@ -992,14 +992,14 @@ $string['deletedrule'] = 'Rule deleted.';
 $string['selectoptioninotherbooking'] = "Option";
 $string['otherbookinglimit'] = "Limit";
 $string['otherbookinglimit_help'] = "How many users you accept from option. If 0, you can accept unlimited users.";
-$string['otherbookingsucesfullysaved'] = 'Rule saved!';
+$string['otherbookingsuccessfullysaved'] = 'Rule saved!';
 
 // optiondates.php
 $string['addnewoptiondates'] = 'Add/edit session';
 $string['savenewoptiondates'] = 'Save';
 $string['optiondatestime'] = 'Session time';
-$string['optiondatessucesfullysaved'] = "Session time was saved.";
-$string['optiondatessucesfullydelete'] = "Session time was deleted.";
+$string['optiondatessuccessfullysaved'] = "Session time was saved.";
+$string['optiondatessuccessfullydelete'] = "Session time was deleted.";
 $string['delete'] = "Delete";
 $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
 

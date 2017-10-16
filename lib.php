@@ -960,11 +960,11 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 function booking_check_if_teacher($option) {
     global $DB, $USER;
 
-    $userr = $DB->get_record('booking_teachers',
+    $user = $DB->get_record('booking_teachers',
             array('userid' => $USER->id,
                 'optionid' => $option->id));
 
-    if ($userr === false) {
+    if ($user === false) {
         return false;
     } else {
         return true;
@@ -1754,7 +1754,7 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
 /**
  * Given an ID of an instance of this module, will permanently delete the instance and data.
  *
- * @param unknown $id
+ * @param number $id
  * @return boolean
  */
 function booking_delete_instance($id) {
@@ -2398,7 +2398,7 @@ class booking_potential_subscriber_selector extends booking_subscriber_selector_
     }
 
     /**
-     * Finds all potential users Potential subscribers are all enroled users who are not already subscribed.
+     * Finds all potential users Potential subscribers are all enrolled users who are not already subscribed.
      *
      * @param string $search
      * @return array

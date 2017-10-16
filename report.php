@@ -308,7 +308,7 @@ if (!$tableallbookings->is_downloading()) {
                 foreach ($allselectedusers as $selecteduserid) {
                     $bookingdata->enrol_user($selecteduserid);
                 }
-                redirect($url, get_string('userrssucesfullenroled', 'booking'), 5);
+                redirect($url, get_string('userssuccessfullenrolled', 'booking'), 5);
             } else {
                 redirect($url, get_string('nocourse', 'booking'), 5);
             }
@@ -400,7 +400,7 @@ if (!$tableallbookings->is_downloading()) {
                 }
             }
 
-            redirect($url, get_string('userssucesfullybooked', 'booking'), 5);
+            redirect($url, get_string('userssuccessfullybooked', 'booking'), 5);
         } else if (isset($_POST['transfersubmit'])) {
             if ($_POST['transferoption'] == "") {
                 redirect($url, get_string('selectanoption', 'mod_booking'), 5);
