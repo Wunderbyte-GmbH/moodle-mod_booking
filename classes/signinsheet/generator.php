@@ -94,6 +94,12 @@ class generator {
     public $time = '';
 
     /**
+     * show row numbers left of name in first column
+     * @var boolean
+     */
+    public $showrownumbers = false;
+
+    /**
      * signinsheet logo fetched from booking module setting
      * (admin level) as string
      *
@@ -104,6 +110,12 @@ class generator {
     public $headerlogofile = false;
     public $allfields = array();
     public $extracols = array();
+
+    /**
+     * number of row
+     * @var int
+     */
+    protected $rownumber = null;
 
     /**
      * Define basic variable values for signinsheet pdf
@@ -127,6 +139,11 @@ class generator {
                 $this->teachers[] = "{$value->firstname} {$value->lastname}";
             }
         }
+        if (get_config('booking', 'numberrows') == 1) {
+            $this->showrownumbers = true;
+            $this->rownumber = 0;
+        }
+
         $this->get_bookingoption_times();
         $cfgcustfields = get_config('booking', 'showcustfields');
         if ($cfgcustfields) {
@@ -220,7 +237,6 @@ class generator {
                     }
                 }
             }
-
             if ($this->pdf->go_to_newline(12)) {
                 if ($fileuse) {
                     $this->pdf->SetXY(18, 18);
@@ -232,11 +248,14 @@ class generator {
             $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 10);
 
             $c = 0;
+            if ($this->showrownumbers) {
+                $this->rownumber++;
+            }
             foreach ($this->allfields as $value) {
                 $c++;
                 switch ($value) {
                     case 'fullname':
-                        $name = "{$user->firstname} {$user->lastname}{$profiletext}";
+                        $name = "{$this->rownumber} {$user->firstname} {$user->lastname}{$profiletext}";
                         break;
                     case 'institution':
                         $name = $user->institution;
@@ -381,7 +400,7 @@ class generator {
                     if (!empty($record->value)) {
                         $this->pdf->Cell(0, 0,
                                 $customfields[$record->cfgname]['value'] . ": " . $record->value, 0,
-                                1, '', 0);
+                                1, '', 0, '', 1);
                     }
                 }
             }
@@ -390,19 +409,19 @@ class generator {
         if (!empty($this->bookingdata->option->address)) {
             $this->pdf->Cell(0, 0,
                     get_string('pdflocation', 'booking') . $this->bookingdata->option->address, 0, 1,
-                    '', 0);
+                    '', 0, '', 1);
         }
 
         if (!empty($this->bookingdata->option->location)) {
             $this->pdf->Cell(0, 0,
                     get_string('pdfroom', 'booking') . $this->bookingdata->option->location, 0, 1,
-                    '', 0);
+                    '', 0, '', 1);
         }
         $this->pdf->Ln();
 
         $this->pdf->Cell($this->pdf->GetStringWidth(get_string('pdftodaydate', 'booking')) + 1, 0,
                 get_string('pdftodaydate', 'booking'), 0, 0, '', 0);
-        $this->pdf->Cell(100, 0, "", "B", 1, '', 0);
+        $this->pdf->Cell(100, 0, "", "B", 1, '', 0, '', 1);
         $this->pdf->Ln();
 
         $this->pdf->SetFont(PDF_FONT_NAME_MAIN, 'B', 12);
@@ -436,7 +455,7 @@ class generator {
 
             $this->pdf->Cell(
                     ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (count($this->allfields)),
-                    0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0);
+                    0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, '', 1);
         }
 
         $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);

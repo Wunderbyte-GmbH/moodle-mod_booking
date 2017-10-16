@@ -241,7 +241,7 @@ $string['showdescription'] = 'Show description';
 // mod_form
 $string['signinlogoheader'] = 'Logo in header to display on the sign-in sheet';
 $string['signinlogofooter'] = 'Logo in footer to display on the sign-in sheet';
-$string['bookingoptiontext'] = "Booking option text";
+$string['bookingoptiontext'] = "Booking option text depending on booking status";
 $string['beforebookedtext'] = 'Before booked';
 $string['beforecompletedtext'] = 'After booked';
 $string['aftercompletedtext'] = 'After activity completed';
@@ -672,9 +672,10 @@ $string['aftercompletedtext_help'] = 'Leave this blank to use the site default t
 $string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
 
 $string['fields'] = 'Fields to display in different contexts';
-$string['reportfields'] = 'Downlodable responses fields';
-$string['responsesfields'] = 'Responses fields';
-$string['optionsfields'] = 'All options fields';
+$string['reportfields'] = 'Downlodable responses fields (csv, xls-Download)';
+$string['responsesfields'] = 'Fields on the "manage responses" page';
+$string['optionsfields'] = 'Fields on the booking options overview page';
+$string['signinsheetfields'] = 'Sign-in hheet fields (PDF)';
 $string['addtogroup'] = 'Automatically enrol users in group';
 $string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name "Bookin name - Option name"';
 $string['bookingattachment'] = 'Attachment';
@@ -939,7 +940,6 @@ $string['selectpresencestatus'] = "Choose presence status";
 $string['userssuccessfullygetnewpresencestatus'] = 'All users have a new presence status.';
 $string['deleteresponsesactivitycompletion'] = 'Delete all users with completed activity: {$a}';
 $string['signature'] = 'Signature';
-$string['signinsheetfields'] = 'Sign in Sheet fields';
 
 // Send message
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';
@@ -1035,3 +1035,7 @@ $string['signinextracols'] = 'Additional column';
 $string['signinextracols_desc'] = 'You can print up to 3 additional columns on the sign-in sheet. Fill in the column title or leave it blank for no additional column';
 $string['googleapikey'] = 'Google API key';
 $string['googleapikey_desc'] = 'API key for Google URL Shortener. Get it here: https://developers.google.com/url-shortener/v1/getting_started#APIKey';
+$string['numberrows'] = 'Number rows';
+$string['numberrowsdesc'] = 'Number each row of the sign-in sheet. Number will be displayed left of the name in the same column';
+
+

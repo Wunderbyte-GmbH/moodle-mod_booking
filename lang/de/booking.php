@@ -199,6 +199,12 @@ $string['tagsuccessfullysaved'] = 'Schlagwort erfolgreich gespeichert.';
 $string['edittag'] = 'Bearbeiten';
 
 // mod_form
+$string['signinlogoheader'] = 'Logo in der Kopfzeile auf der Unterschriftenliste';
+$string['signinlogofooter'] = 'Logo in der Fußzeile auf der Unterschriftenliste';
+$string['bookingoptiontext'] = 'Statusabhängiger Buchungsoptionstext';
+$string['beforebookedtext'] = 'Vor der Buchung';
+$string['beforecompletedtext'] = 'Nach der Buchung';
+$string['aftercompletedtext'] = 'Nach Aktivitätsabschluss';
 $string['conectedbooking'] = 'Vorgeschaltete Buchung';
 $string['errorpagination'] = 'Geben Sie ein Zahl ein, die größer als 0 ist';
 $string['notconectedbooking'] = 'Nicht vorgeschaltete Buchung';
@@ -481,6 +487,11 @@ $string['notificationtext_help'] = 'Lassen Sie dieses Feld leer, um den Standard
 <li>{qr_username} - Insert QR code with user username</li>
 </ul>';
 
+$string['fields'] = 'In bestimmten Bereichen anzuzeigende Informationen';
+$string['reportfields'] = 'Buchungsdatenload als csv, xls, usw.';
+$string['responsesfields'] = 'Auf der "Antworten verwalten"-Seite';
+$string['optionsfields'] = 'Auf der Seite der Buchungsoptionsübersicht';
+$string['signinsheetfields'] = 'Auf der Unterschriftenliste (PDF-Download)';
 $string['additionalfields'] = 'Zusätzliche Felder';
 $string['addtogroup'] = 'Nutzer/innen automatisch in Gruppe einschreiben';
 $string['addtogroup_help'] = 'Nutzer/innen automatisch in Gruppe eintragen. Die Gruppe wird nach folgendem Schema automatisch erstellt: "Aktivitätsname - Name der Buchungsoption"';
@@ -759,6 +770,10 @@ $string['showcustomfields_desc'] = 'Wählen Sie die benutzerdefinierte Buchungso
 $string['signinextracols_heading'] = 'Zusätzliche Spalten auf der Unterschriftenliste';
 $string['signinextracols'] = 'Extra Spalte auf der Unterschriftenliste';
 $string['signinextracols_desc'] = 'Sie können bis zu 3 extra Spalten auf der Unterschriftenliste abbilden. Geben Sie den Titel der Spalte ein, oder lassen Sie das Feld leer, um keine extra Spalte anzuzeigen';
+$string['numberrows'] = 'Zeilen nummerieren';
+$string['numberrowsdesc'] = 'Nummerierung der Zeilen in der Unterschriftenliste aktivieren. Die Nummer wird links des Namens dargestellt';
+
+
 
 // locallib.php
 $string['pdfdate'] = 'Buchungsdaten: ';
