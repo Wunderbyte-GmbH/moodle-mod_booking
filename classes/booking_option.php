@@ -245,7 +245,7 @@ class booking_option extends booking {
 
         $limitfrom = $this->perpage * $this->page;
         $numberofrecords = $this->perpage;
-        $mainuserfields = get_all_user_name_fields(true, 'u');
+        $mainuserfields = \user_picture::fields('u');
 
         $sql = 'SELECT ba.id AS aid,
                 ba.bookingid,
@@ -283,9 +283,13 @@ class booking_option extends booking {
     public function get_all_users() {
         global $DB;
         if (empty($this->allusers)) {
-            $conditions = array('optionid' => $this->optionid);
-            $this->allusers = $DB->get_records('booking_answers', $conditions, null,
-                    'id, userid, waitinglist');
+            $userfields = \user_picture::fields('u');
+            $params = array('optionid' => $this->optionid);
+            $sql = "SELECT ba.id, ba.userid, ba.waitinglist, $userfields
+                      FROM {booking_answers} ba
+                      JOIN {user} u ON u.id = ba.userid
+                     WHERE ba.optionid = :optionid";
+            $this->allusers = $DB->get_records_sql($sql, $params);
         }
         return $this->allusers;
     }

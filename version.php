@@ -22,7 +22,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2017102400;
+$plugin->version = 2017102500;
 $plugin->requires = 2016052300; // Requires this Moodle version.
 // Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman, Piper Chapman.
 // Lois Wilkerson, Audrey Horne, Pippi Langstrumpf.

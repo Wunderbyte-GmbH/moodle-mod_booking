@@ -715,7 +715,7 @@ if (!$tableallbookings->is_downloading()) {
 
     }
     $otheroptions = $bookingdata->get_other_options();
-    if(!empty($otheroptions)) {
+    if (!empty($otheroptions)) {
         if (!empty($tableallbookings->rawdata)) {
             foreach ($tableallbookings->rawdata as $answer) {
                 foreach ($otheroptions as $option) {
