@@ -321,9 +321,11 @@ class all_options extends table_sql {
             }
 
             if ($values->waitinglist) {
-                $booked = get_string('onwaitinglist', 'booking') . '<br>';
+                $booked = '<div class="alert alert-info">' . get_string('onwaitinglist', 'booking') . '</div>';
             } else if ($inpast) {
-                $booked = get_string('bookedpast', 'booking') . '<br>';
+                $booked = '<div class="alert alert-success">' . get_string('bookedpast', 'booking') . '</div>';
+            } else {
+                $booked = '<div class="alert alert-success">' . get_string('booked', 'booking') . '</div>';
             }
         } else {
             $buttonoptions = array('answer' => $values->id, 'id' => $this->cm->id,
@@ -378,10 +380,13 @@ class all_options extends table_sql {
 
         if ($this->booking->booking->ratings > 0) {
             $manage .= '<div><select class="starrating" id="rate' . $values->id .
-            '" data-current-rating="' . $values->rating . '" data-itemid="' .
+            '" data-current-rating="' . $values->myrating . '" data-itemid="' .
             $values->id. '">
   <option value="1">1</option><option value="2">2</option><option value="3">3</option>
   <option value="4">4</option><option value="5">5</option></select></div>';
+            if (has_capability('mod/booking:readresponses', $this->context) || $values->isteacher) {
+                $manage .= get_string('aggregateavg', 'rating') . ' ' . number_format((float)$values->rating, 2, '.', '') . " ({$values->ratingcount})" ;
+            }
         }
 
         if (!$values->limitanswers) {

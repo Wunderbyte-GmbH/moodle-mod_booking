@@ -602,7 +602,16 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
                   (SELECT AVG(rate)
                    FROM {booking_ratings} br
-                   WHERE br.optionid = bo.id) AS rating
+                  WHERE br.optionid = bo.id) AS rating,
+
+                  (SELECT COUNT(*)
+                   FROM {booking_ratings} br
+                  WHERE br.optionid = bo.id) AS ratingcount,
+
+                  (SELECT rate
+                  FROM {booking_ratings} br
+                  WHERE br.optionid = bo.id
+                    AND br.userid = :userid5) AS myrating
                 ";
         $from = '{booking} b ' . 'LEFT JOIN {booking_options} bo ON bo.bookingid = b.id';
         $where = "b.id = :bookingid " .
@@ -613,6 +622,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $conditionsparams['userid2'] = $USER->id;
         $conditionsparams['userid3'] = $USER->id;
         $conditionsparams['userid4'] = $USER->id;
+        $conditionsparams['userid5'] = $USER->id;
         $conditionsparams['bookingid'] = $booking->booking->id;
 
         $tablealloptions->set_sql($fields, $from, $where, $conditionsparams);

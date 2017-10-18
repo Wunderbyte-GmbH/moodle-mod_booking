@@ -349,14 +349,13 @@
             // handle mouseenter events
             var attachMouseEnterHandler = function($elements) {
                 $elements.on('mouseenter.barrating', function() {
-                    var $a = $(this);
-
-                    resetStyle();
-
-                    $a.addClass('br-active')[nextAllorPreviousAll()]()
-                        .addClass('br-active');
-
-                    showSelectedRating($a.attr('data-rating-text'));
+                    if (!self.options.initialRating) {
+                        var $a = $(this);
+                        resetStyle();
+                        $a.addClass('br-active')[nextAllorPreviousAll()]()
+                            .addClass('br-active');
+                        showSelectedRating($a.attr('data-rating-text'));
+                    }
                 });
             };
 
