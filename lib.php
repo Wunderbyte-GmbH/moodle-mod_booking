@@ -1182,8 +1182,6 @@ function booking_generatenewnumners($bookingdatabooking, $cmid, $optionid, $alls
  * Change presence status
  *
  * @param array $allselectedusers
- * @param stdClass $booking
- * @param number $cmid
  * @param number $optionid
  * @param number $presencestatus
  */

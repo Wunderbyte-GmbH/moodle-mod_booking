@@ -33,6 +33,7 @@ $download = optional_param('download', '', PARAM_ALPHA);
 $action = optional_param('action', '', PARAM_ALPHANUM);
 $confirm = optional_param('confirm', '', PARAM_INT);
 $page = optional_param('page', '0', PARAM_INT);
+$orderby = optional_param('orderby', 'lastname', PARAM_ALPHANUM);
 
 // Search
 $searchdate = optional_param('searchdate', 0, PARAM_INT);
@@ -173,7 +174,7 @@ $event = \mod_booking\event\report_viewed::create(
 $event->trigger();
 
 if ($action == 'downloadsigninportrait' || $action == 'downloadsigninlandscape') {
-    $pdf = new mod_booking\signinsheet\generator($bookingdata , $action);
+    $pdf = new mod_booking\signinsheet\generator($bookingdata , $action, array('orderby' => $orderby));
     $pdf->download_signinsheet();
     die();
 }
@@ -741,7 +742,7 @@ if (!$tableallbookings->is_downloading()) {
     echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
             array('onclick' => 'copyToClipboard("' . $onlyoneurl . '"); return false;')) . ' | ';
 
-    echo html_writer::span( get_string('sign_in_sheet_download', 'mod_booking') . ": ");
+            echo html_writer::div( get_string('sign_in_sheet_download', 'mod_booking') . ": ", '');
 
     $signinsheeturlp = new moodle_url('/mod/booking/report.php',
             array('id' => $id, 'optionid' => $optionid, 'action' => 'downloadsigninportrait'));
@@ -749,11 +750,21 @@ if (!$tableallbookings->is_downloading()) {
     $signinsheeturll = new moodle_url('/mod/booking/report.php',
             array('id' => $id, 'optionid' => $optionid, 'action' => 'downloadsigninlandscape'));
 
-    echo html_writer::link($signinsheeturlp, get_string('pdfportrait', 'mod_booking') . " ",
-            array('target' => '_blank'));
+    $signinsheeturlp->param('orderby', 'firstname');
+    echo html_writer::link($signinsheeturlp, get_string('pdfportrait', 'mod_booking') . ": " . get_string('sortbyfirstname', 'grades') ,
+            array('target' => '_blank', 'class' => 'btn btn-default'));
 
-            echo html_writer::link($signinsheeturll, get_string('pdflandscape', 'mod_booking'),
-            array('target' => '_blank'));
+    $signinsheeturlp->param('orderby', 'lastname');
+    echo html_writer::link($signinsheeturlp, get_string('pdfportrait', 'mod_booking') . ": " . get_string('sortbylastname', 'grades') ,
+            array('target' => '_blank', 'class' => 'btn btn-default'));
+
+    $signinsheeturll->param('orderby', 'firstname');
+    echo html_writer::link($signinsheeturll, get_string('pdflandscape', 'mod_booking') . ": " . get_string('sortbyfirstname', 'grades') ,
+            array('target' => '_blank', 'class' => 'btn btn-default'));
+
+    $signinsheeturll->param('orderby', 'lastname');
+    echo html_writer::link($signinsheeturll, get_string('pdflandscape', 'mod_booking') . ": " . get_string('sortbylastname', 'grades') ,
+            array('target' => '_blank', 'class' => 'btn btn-default'));
 
     echo "<script>
   function copyToClipboard(text) {

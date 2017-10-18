@@ -110,6 +110,7 @@ class generator {
     public $headerlogofile = false;
     public $allfields = array();
     public $extracols = array();
+    protected $orderby = 'lastname';
 
     /**
      * number of row
@@ -124,7 +125,7 @@ class generator {
      * @param string $orientation
      */
     public function __construct(\mod_booking\booking_option $bookingdata = null,
-            $orientation = "downloadsigninportrait") {
+            $orientation = "downloadsigninportrait", $options = array()) {
         $this->bookingdata = $bookingdata;
 
         if ($orientation == "downloadsigninportrait") {
@@ -133,6 +134,9 @@ class generator {
         } else {
             $this->orientation = "L";
             $this->colwidth = 297;
+        }
+        if ($options['orderby'] == 'firstname') {
+            $this->orderby = 'firstname';
         }
         if (!empty($this->bookingdata->option->teachers)) {
             foreach ($this->bookingdata->option->teachers as $value) {
@@ -185,7 +189,7 @@ class generator {
                 'SELECT u.id, ' . get_all_user_name_fields(true, 'u') . ', u.institution
             FROM {booking_answers} ba
             LEFT JOIN {user} u ON u.id = ba.userid
-            WHERE ba.optionid = :optionid ' . $addsqlwhere . 'ORDER BY u.lastname ASC',
+            WHERE ba.optionid = :optionid ' . $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
                 array_merge($groupparams, array('optionid' => $this->bookingdata->option->id)));
 
         $this->pdf->SetCreator(PDF_CREATOR);
