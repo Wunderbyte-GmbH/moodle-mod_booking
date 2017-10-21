@@ -135,7 +135,7 @@ class all_options extends table_sql {
                                     array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'),
                                         'alt' => get_string('editteachers', 'mod_booking'))) .
                                      get_string('editteachers', 'mod_booking')) . '</div>';
-                }       
+                        }
                         if (has_capability('mod/booking:subscribeusers', $this->context) ||
                          booking_check_if_teacher($values, $USER)) {
                             $onlyoneurl = new moodle_url('/mod/booking/subscribeusers.php',
