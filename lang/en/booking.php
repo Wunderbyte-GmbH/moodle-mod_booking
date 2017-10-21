@@ -233,6 +233,7 @@ $string['edittag'] = 'Edit';
 
 // all_options
 $string['showdescription'] = 'Show description';
+$string['editteacherslink'] = 'Edit teachers';
 
 // mod_form
 $string['signinlogoheader'] = 'Logo in header to display on the sign-in sheet';
