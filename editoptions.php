@@ -45,6 +45,7 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
 $mform = new mod_booking_bookingform_form(null, array('bookingid' => $cm->instance));
 
 if ($optionid == -1) {
+    // Adding new booking option - default values.
     $defaultvalues = $booking->booking;
     if ($copyoptionid != '') {
         if ($defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid))) {
@@ -123,7 +124,7 @@ if ($mform->is_cancelled()) {
         $bookingdata = new \mod_booking\booking_option($cm->id, $nbooking);
         $bookingdata->sync_waiting_list();
 
-        if (has_capability('mod/booking:addeditownoption', $context)) {
+        if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 && !has_capability('mod/booking:updatebooking', $context)) {
             booking_optionid_subscribe($USER->id, $nbooking, $cm);
         }
 

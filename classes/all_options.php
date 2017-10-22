@@ -42,7 +42,7 @@ class all_options extends table_sql {
     }
 
     protected function col_id($values) {
-        global $OUTPUT, $CFG;
+        global $OUTPUT, $CFG, $USER;
 
         $ddoptions = array();
         $ret = '<div class="menubar" id="action-menu-' . $values->id. '-menubar" role="menubar">';
@@ -74,6 +74,37 @@ class all_options extends table_sql {
                                 array('id' => $this->cm->id, 'optionid' => $values->id)),
                         $OUTPUT->pix_icon('t/edit', get_string('updatebooking', 'mod_booking')) .
                          get_string('updatebooking', 'mod_booking')) . '</div>';
+                // Book teachers.
+                if (has_capability('mod/booking:updatebooking', $this->context)) {
+                    $onlyoneurl = new moodle_url('/mod/booking/teachers.php',
+                            array('id' => $this->cm->id, 'optionid' => $values->id));
+                    $ddoptions[] = '<div class="dropdown-item">' .
+                            html_writer::link($onlyoneurl,
+                                    $OUTPUT->pix_icon('t/edit',
+                                            get_string('editteacherslink', 'mod_booking')) .
+                                    get_string('editteacherslink', 'mod_booking')) . '</div>';
+                }
+                // Book other users.
+                if (has_capability('mod/booking:subscribeusers', $this->context) ||
+                         booking_check_if_teacher($values, $USER)) {
+                    $onlyoneurl = new moodle_url('/mod/booking/subscribeusers.php',
+                            array('id' => $this->cm->id, 'optionid' => $values->id));
+                    $ddoptions[] = '<div class="dropdown-item">' .
+                             html_writer::link($onlyoneurl,
+                                    $OUTPUT->pix_icon('t/edit',
+                                            get_string('bookotherusers', 'mod_booking')) .
+                                     get_string('bookotherusers', 'mod_booking')) . '</div>';
+                }
+                // Show only one option.
+                $onlyoneurl = new moodle_url('/mod/booking/view.php',
+                        array('id' => $this->cm->id, 'optionid' => $values->id,
+                            'action' => 'showonlyone', 'whichview' => 'showonlyone'));
+                $onlyoneurl->set_anchor('goenrol');
+                $ddoptions[] = '<div class="dropdown-item">' .
+                         html_writer::link($onlyoneurl,
+                                $OUTPUT->pix_icon('t/edit',
+                                        get_string('onlythisbookingurl', 'mod_booking')) .
+                                 get_string('onlythisbookingurl', 'mod_booking')) . '</div>';
             }
 
             if (has_capability('mod/booking:updatebooking', $this->context)) {
@@ -96,6 +127,34 @@ class all_options extends table_sql {
                                 array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'),
                                     'alt' => get_string('updatebooking', 'mod_booking'))) .
                          get_string('updatebooking', 'mod_booking')) . '</div>';
+                        if (has_capability('mod/booking:updatebooking', $this->context)) {
+                            $onlyoneurl = new moodle_url('/mod/booking/teachers.php',
+                                    array('id' => $this->cm->id, 'optionid' => $values->id));
+                            $ddoptions[] = '<div class="dropdown-item">' . html_writer::link($onlyoneurl,
+                                \html_writer::empty_tag('img',
+                                    array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'),
+                                        'alt' => get_string('editteachers', 'mod_booking'))) .
+                                     get_string('editteachers', 'mod_booking')) . '</div>';
+                        }
+                        if (has_capability('mod/booking:subscribeusers', $this->context) ||
+                         booking_check_if_teacher($values, $USER)) {
+                            $onlyoneurl = new moodle_url('/mod/booking/subscribeusers.php',
+                                array('id' => $this->cm->id, 'optionid' => $values->id));
+                            $ddoptions[] = '<div class="dropdown-item">' . html_writer::link($onlyoneurl,
+                                \html_writer::empty_tag('img',
+                                    array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'),
+                                        'alt' => get_string('bookotherusers', 'mod_booking'))) .
+                                     get_string('bookotherusers', 'mod_booking')) . '</div>';
+                        }
+                        $onlyoneurl = new moodle_url('/mod/booking/view.php',
+                            array('id' => $this->cm->id, 'optionid' => $values->id,
+                                'action' => 'showonlyone', 'whichview' => 'showonlyone'));
+                        $onlyoneurl->set_anchor('goenrol');
+                        $ddoptions[] = '<div class="dropdown-item">' . html_writer::link($onlyoneurl,
+                            \html_writer::empty_tag('img',
+                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'),
+                                    'alt' => get_string('updatebooking', 'mod_booking'))) .
+                                 get_string('onlythisbookingurl', 'mod_booking')) . '</div>';
             }
 
             if (has_capability('mod/booking:updatebooking', $this->context)) {
