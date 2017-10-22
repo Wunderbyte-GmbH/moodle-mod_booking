@@ -420,7 +420,7 @@ class all_userbookings extends \table_sql {
 
                 echo \html_writer::select($presences, 'selectpresencestatus', '');
 
-                echo '<input type="submit" name="changepresencestatus" value="' .
+                echo '<input type="submit" class="btn btn-secondary" name="changepresencestatus" value="' .
                          get_string('confirmpresence', 'booking') . '" />';
             }
         }

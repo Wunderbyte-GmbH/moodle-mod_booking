@@ -1179,25 +1179,6 @@ function booking_generatenewnumners($bookingdatabooking, $cmid, $optionid, $alls
 }
 
 /**
- * Change presence status
- *
- * @param array $allselectedusers
- * @param number $optionid
- * @param number $presencestatus
- */
-function booking_changepresencestatus($allselectedusers, $optionid, $presencestatus) {
-    global $DB;
-
-    foreach ($allselectedusers as $ui) {
-        $userdata = $DB->get_record('booking_answers',
-                array('optionid' => $optionid, 'userid' => $ui));
-        $userdata->status = $presencestatus;
-
-        $DB->update_record('booking_answers', $userdata);
-    }
-}
-
-/**
  * Invert activity completion status of selected users
  *
  * @param array $selectedusers array of userids

@@ -977,6 +977,24 @@ class booking_option extends booking {
     }
 
     /**
+     * Change presence status
+     *
+     * @param array $allselectedusers
+     * @param number $presencestatus
+     */
+    public function changepresencestatus($allselectedusers, $presencestatus) {
+        global $DB;
+
+        foreach ($allselectedusers as $ui) {
+            $userdata = $DB->get_record('booking_answers',
+                    array('optionid' => $this->optionid, 'userid' => $ui));
+            $userdata->status = $presencestatus;
+
+            $DB->update_record('booking_answers', $userdata);
+        }
+    }
+
+    /**
      * Check if user can enrol
      *
      * @return mixed false on full, or if can enrol or 1 for waiting list.

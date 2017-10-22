@@ -941,6 +941,8 @@ $string['selectpresencestatus'] = "Choose presence status";
 $string['userssuccessfullygetnewpresencestatus'] = 'All users have a new presence status.';
 $string['deleteresponsesactivitycompletion'] = 'Delete all users with completed activity: {$a}';
 $string['signature'] = 'Signature';
+$string['userssucesfullygetnewpresencestatus'] = 'Anwesenheitsstatus für ausgewählte Nutzer/innen erfolgreich aktualisiert';
+
 
 // Send message
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';

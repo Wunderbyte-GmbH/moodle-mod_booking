@@ -696,6 +696,7 @@ $string['userssuccessfullybooked'] = 'Alle Nutzer/innen wurden erfolgreich in di
 $string['waitinglistusers'] = 'Nutzer/innen auf der Warteliste';
 $string['withselected'] = 'Ausgewählte Nutzer/innen';
 $string['yes'] = 'Ja';
+$string['userssucesfullygetnewpresencestatus'] = 'Presence status for selected users successfully updated';
 
 // Send message
 $string['activitycompletionsuccess'] = 'Alle Nutzer/innen wurden für den Aktivitätsabschluss ausgewählt';
@@ -772,8 +773,6 @@ $string['signinextracols'] = 'Extra Spalte auf der Unterschriftenliste';
 $string['signinextracols_desc'] = 'Sie können bis zu 3 extra Spalten auf der Unterschriftenliste abbilden. Geben Sie den Titel der Spalte ein, oder lassen Sie das Feld leer, um keine extra Spalte anzuzeigen';
 $string['numberrows'] = 'Zeilen nummerieren';
 $string['numberrowsdesc'] = 'Nummerierung der Zeilen in der Unterschriftenliste aktivieren. Die Nummer wird links des Namens dargestellt';
-
-
 
 // locallib.php
 $string['pdfdate'] = 'Buchungsdaten: ';
