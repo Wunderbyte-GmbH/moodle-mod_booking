@@ -59,6 +59,11 @@ if ($ADMIN->fulltree) {
                     get_string('cfgsignin', 'mod_booking'),
                     get_string('cfgsignin_desc', 'mod_booking')));
 
+    $settings->add(
+            new admin_setting_configcheckbox('booking/numberrows',
+                    get_string('numberrows', 'mod_booking'),
+                    get_string('numberrowsdesc', 'mod_booking'), 0));
+
     $name = 'booking/signinlogo';
     $title = get_string('signinlogoheader', 'mod_booking');
     $description = $title;

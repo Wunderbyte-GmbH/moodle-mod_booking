@@ -48,7 +48,7 @@ $redirecturl = new moodle_url('institutions.php', array('courseid' => $courseid)
 
 if ($delete == 1) {
     $DB->delete_records("booking_institutions", array("id" => $cid));
-    $delmessage = get_string('sucesfulldeletedinstitution', 'booking');
+    $delmessage = get_string('successfulldeletedinstitution', 'booking');
 
     redirect($redirecturl, $delmessage, 5);
 }

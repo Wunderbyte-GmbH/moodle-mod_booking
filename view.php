@@ -532,6 +532,16 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         $columns[] = 'id';
         $headers[] = "";
+        $usersofgroupsql = '';
+        if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
+            list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($course->id);
+            $conditionsparams = array_merge($conditionsparams, $groupparams);
+            $usersofgroupsql = "
+                (SELECT COUNT(*)
+                   FROM {booking_answers} ba
+                  WHERE ba.optionid = bo.id
+                    AND ba.userid IN ( $groupsql )) AS allbookedsamegroup,";
+        }
 
         $fields = "DISTINCT bo.id,
                          bo.text,
@@ -547,6 +557,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
                      AND ba.waitinglist = 0) AS booked,
+
+                          $usersofgroupsql
 
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
@@ -588,9 +600,18 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                    WHERE ba.optionid = bo.id
                      AND ba.userid = :userid3) AS isteacher,
 
-                  (SELECT IFNULL(AVG(rate), 1)
+                  (SELECT AVG(rate)
                    FROM {booking_ratings} br
-                   WHERE br.optionid = bo.id) AS rating
+                  WHERE br.optionid = bo.id) AS rating,
+
+                  (SELECT COUNT(*)
+                   FROM {booking_ratings} br
+                  WHERE br.optionid = bo.id) AS ratingcount,
+
+                  (SELECT rate
+                  FROM {booking_ratings} br
+                  WHERE br.optionid = bo.id
+                    AND br.userid = :userid5) AS myrating
                 ";
         $from = '{booking} b ' . 'LEFT JOIN {booking_options} bo ON bo.bookingid = b.id';
         $where = "b.id = :bookingid " .
@@ -601,6 +622,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $conditionsparams['userid2'] = $USER->id;
         $conditionsparams['userid3'] = $USER->id;
         $conditionsparams['userid4'] = $USER->id;
+        $conditionsparams['userid5'] = $USER->id;
         $conditionsparams['bookingid'] = $booking->booking->id;
 
         $tablealloptions->set_sql($fields, $from, $where, $conditionsparams);
@@ -709,6 +731,11 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         if ($myoptions->myoptions > 0 && !has_capability('mod/booking:readresponses', $context)) {
             $conditionsparams['onlyinstitution1'] = $USER->institution;
             $conditions[] = 'tu.institution LIKE :onlyinstitution1';
+        }
+        if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
+            list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($course->id);
+            array_push($conditions, "tu.id IN ($groupsql)");
+            $conditionsparams = array_merge($conditionsparams, $groupparams);
         }
 
         $fields = "tba.id,

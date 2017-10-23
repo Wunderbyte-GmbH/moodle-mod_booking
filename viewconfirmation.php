@@ -52,13 +52,18 @@ echo $OUTPUT->heading(get_string("bookedtext", "booking"), 3, 'helptitle', 'uniq
 
 $user = $DB->get_record('user', array('id' => $USER->id));
 $answer = $DB->get_record('booking_answers', array('userid' => $USER->id, 'optionid' => $optionid));
+if (!$answer) {
+    echo $OUTPUT->error_text(get_string("notbooked", "booking"));
+    echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id' => $course->id)));
+    echo $OUTPUT->footer();
+}
 $bookingmanager = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));
 $data = booking_generate_email_params($booking->booking, $booking->option, $user, $cm->id);
 
 if ($answer->waitinglist == 1) {
-    $message = booking_get_email_body($booking->booking, 'bookedtext', 'confirmationmessage', $data);
+    $message = booking_get_email_body($booking->booking, 'waitingtext', 'confirmationmessage', $data);
 } else {
-    $message = booking_get_email_body($booking->booking, 'waitingtext', 'confirmationmessagewaitinglist', $data);
+    $message = booking_get_email_body($booking->booking, 'bookedtext', 'confirmationmessagewaitinglist', $data);
 }
 
 echo "{$message}";

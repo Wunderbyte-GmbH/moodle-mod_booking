@@ -17,7 +17,7 @@
 /**
  *
  * @package mod_booking
- * @copyright 2012,2013,2014,2015,2016,2017 David Bogner <info@edulabs.org>, Andraž Prinčič <atletek@gmail.com>
+ * @copyright 2012-2017 David Bogner <info@edulabs.org>, Andraž Prinčič <atletek@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();

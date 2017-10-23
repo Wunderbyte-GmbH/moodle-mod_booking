@@ -55,7 +55,7 @@ class all_options extends table_sql {
                         $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')),
                         array('target' => '_blank'));
             } else {
-                $ret .= html_writer::link(
+                $ret .= \html_writer::link(
                         new moodle_url('/mod/booking/viewconfirmation.php',
                                 array('id' => $this->cm->id, 'optionid' => $values->id)),
                         \html_writer::empty_tag('img',
@@ -69,7 +69,7 @@ class all_options extends table_sql {
             if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability(
                     'mod/booking:addeditownoption', $this->context) &&
                      booking_check_if_teacher($values))) {
-                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
+                $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
                         new moodle_url('/mod/booking/editoptions.php',
                                 array('id' => $this->cm->id, 'optionid' => $values->id)),
                         $OUTPUT->pix_icon('t/edit', get_string('updatebooking', 'mod_booking')) .
@@ -108,7 +108,7 @@ class all_options extends table_sql {
             }
 
             if (has_capability('mod/booking:updatebooking', $this->context)) {
-                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
+                $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
                         new moodle_url('/mod/booking/report.php',
                                 array('id' => $this->cm->id, 'optionid' => $values->id,
                                     'action' => 'deletebookingoption', 'sesskey' => sesskey())),
@@ -120,7 +120,7 @@ class all_options extends table_sql {
             if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability(
                     'mod/booking:addeditownoption', $this->context) &&
                      booking_check_if_teacher($values))) {
-                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
+                $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
                         new moodle_url('/mod/booking/editoptions.php',
                                 array('id' => $this->cm->id, 'optionid' => $values->id)),
                         \html_writer::empty_tag('img',
@@ -158,7 +158,7 @@ class all_options extends table_sql {
             }
 
             if (has_capability('mod/booking:updatebooking', $this->context)) {
-                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
+                $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
                         new moodle_url('/mod/booking/report.php',
                                 array('id' => $this->cm->id, 'optionid' => $values->id,
                                     'action' => 'deletebookingoption', 'sesskey' => sesskey())),
@@ -272,24 +272,24 @@ class all_options extends table_sql {
     protected function col_text($values) {
         global $DB;
         $output = '';
-        $output .= html_writer::tag('h4', $values->text);
+        $output .= \html_writer::tag('h4', $values->text);
 
         if (strlen($values->address) > 0) {
-            $output .= html_writer::empty_tag('br');
+            $output .= \html_writer::empty_tag('br');
             $output .= $values->address;
         }
 
         if (strlen($values->location) > 0) {
-            $output .= html_writer::empty_tag('br');
+            $output .= \html_writer::empty_tag('br');
             $output .= get_string('location', "mod_booking") . ': ' . $values->location;
         }
         if (strlen($values->institution) > 0) {
-            $output .= html_writer::empty_tag('br');
+            $output .= \html_writer::empty_tag('br');
             $output .= get_string('institution', "mod_booking") . ': ' . $values->institution;
         }
 
         if (!empty($values->description)) {
-            $output .= html_writer::div($values->description, 'description');
+            $output .= \html_writer::div($values->description, 'description');
         }
 
         $output .= (!empty($values->teachers) ? " <br />" .
@@ -320,7 +320,7 @@ class all_options extends table_sql {
         if (!empty($texttoshow)) {
             $output .= '<br><a href="#" class="showHideOptionText" data-id="' . $values->id . '">' .
             get_string('showdescription', "mod_booking") . "</a>";
-            $output .= html_writer::div($texttoshow, 'optiontext',
+            $output .= \html_writer::div($texttoshow, 'optiontext',
                     array('style' => $style, 'id' => 'optiontext' . $values->id));
         }
 
@@ -340,7 +340,7 @@ class all_options extends table_sql {
     protected function col_description($values) {
         $output = '';
         if (!empty($values->description)) {
-            $output .= html_writer::div($values->description, 'courseinfo');
+            $output .= \html_writer::div($values->description, 'courseinfo');
         }
 
         return $output;
@@ -380,9 +380,11 @@ class all_options extends table_sql {
             }
 
             if ($values->waitinglist) {
-                $booked = get_string('onwaitinglist', 'booking') . '<br>';
+                $booked = '<div class="alert alert-info">' . get_string('onwaitinglist', 'booking') . '</div>';
             } else if ($inpast) {
-                $booked = get_string('bookedpast', 'booking') . '<br>';
+                $booked = '<div class="alert alert-success">' . get_string('bookedpast', 'booking') . '</div>';
+            } else {
+                $booked = '<div class="alert alert-success">' . get_string('booked', 'booking') . '</div>';
             }
         } else {
             $buttonoptions = array('answer' => $values->id, 'id' => $this->cm->id,
@@ -425,17 +427,26 @@ class all_options extends table_sql {
         }
 
         if (has_capability('mod/booking:readresponses', $this->context) || $values->isteacher) {
-            $numberofresponses = $values->waiting + $values->booked;
+            if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS
+                    AND !has_capability('moodle/site:accessallgroups', \context_course::instance($this->booking->course->id))) {
+                $numberofresponses = $values->allbookedsamegroup;
+            } else {
+                $numberofresponses = $values->waiting + $values->booked;
+            }
             $manage = "<br><a href=\"report.php?id={$this->cm->id}&optionid={$values->id}\">" .
-                     get_string("viewallresponses", "booking", $numberofresponses) . "</a>";
+            get_string("viewallresponses", "booking", $numberofresponses) . "</a>";
         }
 
         if ($this->booking->booking->ratings > 0) {
             $manage .= '<div><select class="starrating" id="rate' . $values->id .
-            '" data-current-rating="' . $values->rating . '" data-itemid="' .
+            '" data-current-rating="' . $values->myrating . '" data-itemid="' .
             $values->id. '">
   <option value="1">1</option><option value="2">2</option><option value="3">3</option>
   <option value="4">4</option><option value="5">5</option></select></div>';
+            if (has_capability('mod/booking:readresponses', $this->context) || $values->isteacher) {
+                $manage .= get_string('aggregateavg', 'rating') . ' ' . number_format(
+                        (float) $values->rating, 2, '.', '') . " ({$values->ratingcount})";
+            }
         }
 
         if (!$values->limitanswers) {

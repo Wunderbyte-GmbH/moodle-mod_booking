@@ -177,7 +177,7 @@ function booking_user_complete($course, $user, $mod, $booking) {
 function booking_supports($feature) {
     switch ($feature) {
         case FEATURE_GROUPS:
-            return false;
+            return true;
         case FEATURE_GROUPINGS:
             return false;
         case FEATURE_GROUPMEMBERSONLY:
@@ -960,11 +960,11 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 function booking_check_if_teacher($option) {
     global $DB, $USER;
 
-    $userr = $DB->get_record('booking_teachers',
+    $user = $DB->get_record('booking_teachers',
             array('userid' => $USER->id,
                 'optionid' => $option->id));
 
-    if ($userr === false) {
+    if ($user === false) {
         return false;
     } else {
         return true;
@@ -1175,27 +1175,6 @@ function booking_generatenewnumners($bookingdatabooking, $cmid, $optionid, $alls
             $user->numrec = $recnum++;
             $DB->update_record('booking_answers', $user);
         }
-    }
-}
-
-/**
- * Change presence status
- *
- * @param array $allselectedusers
- * @param stdClass $booking
- * @param number $cmid
- * @param number $optionid
- * @param number $presencestatus
- */
-function booking_changepresencestatus($allselectedusers, $optionid, $presencestatus) {
-    global $DB;
-
-    foreach ($allselectedusers as $ui) {
-        $userdata = $DB->get_record('booking_answers',
-                array('optionid' => $optionid, 'userid' => $ui));
-        $userdata->status = $presencestatus;
-
-        $DB->update_record('booking_answers', $userdata);
     }
 }
 
@@ -1694,11 +1673,9 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
     $returnval = true;
     $allusers = array();
 
-    // TODO: Remove these queries, they are not really necessary.
+    // TODO: Remove this query, not really necessary.
     $option = $DB->get_record('booking_options', array('id' => $optionid));
-    $booking = $DB->get_record('booking', array('id' => $option->bookingid));
-
-    $cm = get_coursemodule_from_instance('booking', $booking->id);
+    $cm = get_coursemodule_from_instance('booking', $option->bookingid);
 
     $bookingdata = new \mod_booking\booking_option($cm->id, $option->id);
     $bookingdata->apply_tags();
@@ -1756,7 +1733,7 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
 /**
  * Given an ID of an instance of this module, will permanently delete the instance and data.
  *
- * @param unknown $id
+ * @param number $id
  * @return boolean
  */
 function booking_delete_instance($id) {
@@ -1935,6 +1912,7 @@ function booking_send_confirm_message($eventdata) {
         $message = booking_get_email_body($eventdata->booking, 'waitingtext',
                 'confirmationmessagewaitinglist', $data);
     } else {
+        // TODO: should never be reached.
         $subject = "test";
         $subjectmanager = "tester";
         $message = "message";
@@ -1944,7 +1922,7 @@ function booking_send_confirm_message($eventdata) {
     $messagehtml = text_to_html($message, false, false, true);
     $errormessage = get_string('error:failedtosendconfirmation', 'booking', $data);
     $errormessagehtml = text_to_html($errormessage, false, false, true);
-    $user->mailformat = 1; // Always send HTML version as well
+    $user->mailformat = FORMAT_HTML; // Always send HTML version as well
 
     $messagedata = new stdClass();
     $messagedata->userfrom = $bookingmanager;
@@ -1954,7 +1932,7 @@ function booking_send_confirm_message($eventdata) {
         $messagedata->userto = $DB->get_record('user', array('id' => $user->id));
     }
     $messagedata->subject = $subject;
-    $messagedata->messagetext = $message;
+    $messagedata->messagetext = format_text_email($message, FORMAT_HTML);
     $messagedata->messagehtml = $messagehtml;
     $messagedata->attachment = $attachment;
     $messagedata->attachname = $attachname;
@@ -2113,7 +2091,7 @@ function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid
     if (booking_get_user_status($cancelleduserid, $optionid, $booking->id, $cmid) !== get_string('booked', 'booking')) {
         return false;
     }
-    // backward compatibility hack TODO: remove
+    // Backward compatibility hack TODO: remove.
     if (!isset($booking->option[$optionid])) {
         $option = $DB->get_record('booking_options',
                 array('bookingid' => $booking->id, 'id' => $optionid));
@@ -2121,7 +2099,7 @@ function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid
         $option = $booking->option[$optionid];
     }
     if ($option->maxanswers == 0) {
-        return false; // No limit on bookings => no waiting list to manage
+        return false; // No limit on bookings => no waiting list to manage.
     }
     $allresponses = $DB->get_records('booking_answers',
             array('bookingid' => $booking->id, 'optionid' => $optionid), 'timemodified', 'userid');
@@ -2399,7 +2377,7 @@ class booking_potential_subscriber_selector extends booking_subscriber_selector_
     }
 
     /**
-     * Finds all potential users Potential subscribers are all enroled users who are not already subscribed.
+     * Finds all potential users Potential subscribers are all enrolled users who are not already subscribed.
      *
      * @param string $search
      * @return array

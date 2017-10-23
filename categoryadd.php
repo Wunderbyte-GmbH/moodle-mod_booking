@@ -63,7 +63,7 @@ if ($delete == 1) {
 
     if ($candelete) {
         $DB->delete_records("booking_category", array("id" => $cid));
-        $delmessage = get_string('sucesfulldeleted', 'booking');
+        $delmessage = get_string('successfulldeleted', 'booking');
     }
     redirect($redirecturl, $delmessage, 5);
 }

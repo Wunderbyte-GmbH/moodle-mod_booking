@@ -43,7 +43,7 @@ require_capability('mod/booking:updatebooking', $context);
 if ($delete != '') {
     $DB->delete_records("booking_optiondates", array('optionid' => $optionid, 'id' => $delete));
     booking_updatestartenddate($optionid);
-    redirect($url, get_string('optiondatessucesfullydelete', 'booking'), 5);
+    redirect($url, get_string('optiondatessuccessfullydelete', 'booking'), 5);
 }
 
 $PAGE->navbar->add(get_string("optiondates", "booking"));

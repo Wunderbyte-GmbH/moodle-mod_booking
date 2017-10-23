@@ -74,7 +74,7 @@ if ($mform->is_cancelled()) {
 
     booking_updatestartenddate($boptionid);
 
-    redirect($urlredirect, get_string('optiondatessucesfullysaved', 'booking'), 5);
+    redirect($urlredirect, get_string('optiondatessuccessfullysaved', 'booking'), 5);
 } else {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string("addnewoptiondates", "booking"), 3, 'helptitle', 'uniqueid');
