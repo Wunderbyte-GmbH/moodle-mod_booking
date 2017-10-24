@@ -237,6 +237,7 @@ $string['edittag'] = 'Edit';
 
 // all_options
 $string['showdescription'] = 'Show description';
+$string['hidedescription'] = 'Hide description';
 $string['editteacherslink'] = 'Edit teachers';
 
 // mod_form

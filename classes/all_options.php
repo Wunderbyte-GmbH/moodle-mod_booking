@@ -314,12 +314,19 @@ class all_options extends table_sql {
         $texttoshow = $bookingdata->get_option_text();
 
         $style = 'display: none;';
+        $th = '';
+        $ts = '"display: none;"';
         if (isset($_GET['whichview']) && $_GET['whichview'] == 'showonlyone') {
             $style = '';
+            $th = '"display: none;"';
+            $ts = '';
         }
+
+        $showhidetext = '<span id="showtext' . $values->id . '" style=' . $th . '>' . get_string('showdescription', "mod_booking") . '</span><span id="hidetext' . $values->id . '" style=' . $ts . '>' . get_string('hidedescription', "mod_booking") . '</span>';
+
         if (!empty($texttoshow)) {
             $output .= '<br><a href="#" class="showHideOptionText" data-id="' . $values->id . '">' .
-            get_string('showdescription', "mod_booking") . "</a>";
+            $showhidetext . "</a>";
             $output .= \html_writer::div($texttoshow, 'optiontext',
                     array('style' => $style, 'id' => 'optiontext' . $values->id));
         }

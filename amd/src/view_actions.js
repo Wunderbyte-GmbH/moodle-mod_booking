@@ -60,6 +60,8 @@ define(['jquery', 'core/config', 'mod_booking/jquery.barrating'],
                     });
                     $('.showHideOptionText').on('click', function() {
                         $('#optiontext' + $(this).data("id")).fadeToggle("slow", "linear");
+                        $('#showtext' + $(this).data("id")).toggle();
+                        $('#hidetext' + $(this).data("id")).toggle();
                         $('html, body').animate({
                             scrollTop : $('#optiontext' + $(this).data("id")).offset().top - 120
                         }, 1000);
