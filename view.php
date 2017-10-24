@@ -713,7 +713,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         $customfields = '';
 
-        list($columns, $headers, $userprofilefields) = get_fields($booking);
+        list($columns, $headers, $userprofilefields) = get_fields($booking, $context);
 
         if ($userprofilefields) {
             foreach ($userprofilefields as $profilefield) {

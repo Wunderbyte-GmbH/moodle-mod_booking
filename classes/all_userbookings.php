@@ -128,7 +128,7 @@ class all_userbookings extends \table_sql {
             return \html_writer::link(
                     new \moodle_url('/user/profile.php', array('id' => $values->userid)),
                     "{$values->firstname} {$values->lastname} ({$values->username})", array()) .
-                     "({$values->otheroptions})";
+                     "&nbsp;({$values->otheroptions})";
         }
     }
 
@@ -376,7 +376,7 @@ class all_userbookings extends \table_sql {
                             $this->bookingdata->booking->booktootherbooking) ? get_string(
                             'booktootherbooking', 'booking') : $this->bookingdata->booking->booktootherbooking);
 
-                    echo '<input type="submit" name="booktootherbooking" value="' .
+                    echo '<input type="submit" class="btn btn-secondary" name="booktootherbooking" value="' .
                              $label . '" />';
                 } else {
                     $alllimits = $DB->get_records_sql(
@@ -401,7 +401,7 @@ class all_userbookings extends \table_sql {
                                 $this->bookingdata->booking->booktootherbooking) ? get_string(
                                 'booktootherbooking', 'booking') : $this->bookingdata->booking->booktootherbooking);
 
-                        echo '<input type="submit" name="booktootherbooking" value="' .
+                        echo '<input type="submit" class="btn btn-secondary" name="booktootherbooking" value="' .
                                  $label . '" />';
                     }
                 }

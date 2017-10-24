@@ -606,7 +606,37 @@ function booking_updatestartenddate($optionid) {
     $DB->update_record("booking_options", $save);
 }
 
-function get_fields($bookingdata = null) {
+/**
+ * Returns, to which booking user was send.
+ *
+ * @param unknown $optionid
+ * @param unknown $userid
+ * @return string
+ */
+function get_other_options($optionid = null, $userid = null) {
+    global $DB;
+
+    $result = $DB->get_records_sql(
+            'SELECT obo.text
+        FROM
+            {booking_answers} oba
+            LEFT JOIN {booking_options} obo ON obo.id = oba.optionid
+                WHERE
+            oba.frombookingid = ?
+                AND oba.userid = ?', array($optionid, $userid));
+
+    if (empty($result)) {
+        return '';
+    } else {
+        $r = array();
+        foreach ($result as $option) {
+            $r[] = $option->text;
+        }
+        return implode($r, ', ');
+    }
+}
+
+function get_fields($bookingdata = null, $context = null) {
     global $DB;
     $reportfields = explode(',', $bookingdata->booking->reportfields);
     list($addquoted, $addquotedparams) = $DB->get_in_or_equal($reportfields);

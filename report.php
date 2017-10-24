@@ -515,6 +515,7 @@ if (!$tableallbookings->is_downloading()) {
     }
 
     // ALL USERS - START
+    // To make compatible MySQL and PostgreSQL - http://hyperpolyglot.org/db
     $fields = 'ba.id, ' . get_all_user_name_fields(true, 'u') . ',
             u.username,
             u.institution,
@@ -523,7 +524,7 @@ if (!$tableallbookings->is_downloading()) {
             ba.timecreated,
             ba.userid,
             ba.waitinglist,
-            otherbookingoption.text AS otheroptions,
+            \'\' otheroptions,
             ba.numrec' . $customfields;
     $from = ' {booking_answers} ba
             JOIN {user} u ON u.id = ba.userid
@@ -714,6 +715,12 @@ if (!$tableallbookings->is_downloading()) {
 
     }
 
+    if (!empty($tableallbookings->rawdata)) {
+        foreach ($tableallbookings->rawdata as $option) {
+            $option->otheroptions = get_other_options($optionid, $option->userid);
+        }
+    }
+
     $tableallbookings->build_table();
     $tableallbookings->finish_output();
 
@@ -774,7 +781,7 @@ if (!$tableallbookings->is_downloading()) {
 
     $customfields = '';
 
-    list($columns, $headers, $userprofilefields) = get_fields($bookingdata);
+    list($columns, $headers, $userprofilefields) = get_fields($bookingdata, $context);
 
     if ($userprofilefields) {
         foreach ($userprofilefields as $profilefield) {
@@ -809,7 +816,7 @@ if (!$tableallbookings->is_downloading()) {
                     ba.completed AS completed,
                     ba.numrec,
                     ba.waitinglist AS waitinglist,
-		            ba.status,
+                    ba.status,
                     u.idnumber as idnumber
                     {$customfields}";
     $from = '{booking_answers} ba
@@ -823,7 +830,6 @@ if (!$tableallbookings->is_downloading()) {
     $tableallbookings->query_db(10);
     if (!empty($tableallbookings->rawdata)) {
         foreach ($tableallbookings->rawdata as $option) {
-            $option->otheroptions = "";
             $option->groups = "";
             $groups = groups_get_user_groups($course->id, $option->userid);
             if (!empty($groups[0])) {
