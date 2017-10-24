@@ -995,6 +995,21 @@ class booking_option extends booking {
     }
 
     /**
+     * Returns, to which booking option user was sent to.
+     *
+     * @return array
+     */
+    public function get_other_options() {
+        global $DB;
+        return $result = $DB->get_records_sql(
+                'SELECT obo.id, obo.text, oba.id, oba.userid
+                  FROM {booking_answers} oba
+             LEFT JOIN {booking_options} obo ON obo.id = oba.optionid
+                 WHERE oba.frombookingid = ?',
+                array($this->optionid));
+    }
+
+    /**
      * Check if user can enrol
      *
      * @return mixed false on full, or if can enrol or 1 for waiting list.

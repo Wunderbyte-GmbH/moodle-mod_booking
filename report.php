@@ -714,10 +714,17 @@ if (!$tableallbookings->is_downloading()) {
         }
 
     }
-
-    if (!empty($tableallbookings->rawdata)) {
-        foreach ($tableallbookings->rawdata as $option) {
-            $option->otheroptions = get_other_options($optionid, $option->userid);
+    $otheroptions = $bookingdata->get_other_options();
+    if(!empty($otheroptions)) {
+        if (!empty($tableallbookings->rawdata)) {
+            foreach ($tableallbookings->rawdata as $answer) {
+                foreach ($otheroptions as $option) {
+                    if ($answer->userid == $option->userid) {
+                        $answer->otheroptions .= $option->text . ", ";
+                    }
+                }
+                $answer->otheroptions = trim($answer->otheroptions, ', ');
+            }
         }
     }
 
@@ -781,7 +788,7 @@ if (!$tableallbookings->is_downloading()) {
 
     $customfields = '';
 
-    list($columns, $headers, $userprofilefields) = get_fields($bookingdata, $context);
+    list($columns, $headers, $userprofilefields) = $bookingdata->get_fields();
 
     if ($userprofilefields) {
         foreach ($userprofilefields as $profilefield) {
