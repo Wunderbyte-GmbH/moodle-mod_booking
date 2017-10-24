@@ -321,6 +321,7 @@ class all_options extends table_sql {
             $th = '"display: none;"';
             $ts = '';
         }
+
         $showhidetext = '<span id="showtext' . $values->id . '" style=' . $th . '>' . get_string(
                 'showdescription', "mod_booking") . '</span><span id="hidetext' . $values->id . '" style=' . $ts . '>' . get_string(
                 'hidedescription', "mod_booking") . '</span>';
