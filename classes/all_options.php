@@ -171,24 +171,21 @@ class all_options extends table_sql {
         if (!empty($ddoptions)) {
             if ($CFG->branch >= 33) {
                 $ret .= '<div class="dropdown d-inline">
-                        <a href="#" id="action-menu-toggle-' . $values->id . '" title="" role="button" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">' .
-                         $OUTPUT->pix_icon('t/edit', get_string('settings', 'moodle')) .
-                         '</a>
-                        <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' .
-                         $values->id .
-                         '-menu" data-rel="menu-content"
+                        <a href="' . new moodle_url(
+                        '/mod/booking/editoptions.php',
+                        array('id' => $this->cm->id, 'optionid' => $values->id)) . '" id="action-menu-toggle-' . $values->id . '" title="" role="button" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">' . $OUTPUT->pix_icon(
+                        't/edit', get_string('settings', 'moodle')) . '</a>
+                        <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' . $values->id . '-menu" data-rel="menu-content"
                             aria-labelledby="action-menu-toggle-3" role="menu" data-align="tr-br">';
             } else {
                 $ret .= '<div class="dropdown d-inline">
-                        <a href="#" id="action-menu-toggle-' . $values->id .
-                         '" title="" role="button" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false"><img class="icon " alt="" src="' .
-                         $OUTPUT->pix_url('t/edit') .
-                         '"></a>
-                        <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' .
-                         $values->id .
-                         '-menu" data-rel="menu-content"
+                        <a href="' . new moodle_url(
+                        '/mod/booking/editoptions.php',
+                        array('id' => $this->cm->id, 'optionid' => $values->id)) . '" id="action-menu-toggle-' . $values->id . '" title="" role="button" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false"><img class="icon " alt="" src="' . $OUTPUT->pix_url(
+                        't/edit') . '"></a>
+                        <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' . $values->id . '-menu" data-rel="menu-content"
                             aria-labelledby="action-menu-toggle-3" role="menu" data-align="tr-br">';
             }
             $ret .= implode($ddoptions);
@@ -281,11 +278,12 @@ class all_options extends table_sql {
 
         if (strlen($values->location) > 0) {
             $output .= \html_writer::empty_tag('br');
-            $output .= get_string('location', "mod_booking") . ': ' . $values->location;
+            $output .= (empty($this->booking->booking->lbllocation) ? get_string('location', 'booking') : $this->booking->booking->lbllocation). ': ' . $values->location;
         }
         if (strlen($values->institution) > 0) {
             $output .= \html_writer::empty_tag('br');
-            $output .= get_string('institution', "mod_booking") . ': ' . $values->institution;
+            $output .= (empty($this->booking->booking->lblinstitution) ? get_string('institution',
+                    -            'booking') : $this->booking->booking->lblinstitution). ': ' . $values->institution;
         }
 
         if (!empty($values->description)) {

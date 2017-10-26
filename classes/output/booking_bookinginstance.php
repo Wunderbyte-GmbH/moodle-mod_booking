@@ -81,13 +81,13 @@ class booking_bookinginstance implements renderable, templatable {
                         }
                     }
                 } else {
-                    if (!empty($option->usersonlist && isset($option->usersonlist[$USER->id]))) {
+                    if (!empty($option->usersonlist) && isset($option->usersonlist[$USER->id])) {
                         $userdata = new \user_picture($USER);
                         $regulars[] = $OUTPUT->render($userdata) . ' ' . fullname($USER);
                     }
                     if (!empty(
-                            $option->usersonwaitinglist &&
-                                     isset($option->usersonwaitinglist[$USER->id]))) {
+                            $option->usersonwaitinglist) &&
+                                     isset($option->usersonwaitinglist[$USER->id])) {
                         $userdata = new \user_picture($USER);
                         $waiting[] = $OUTPUT->render($userdata) . ' ' . fullname($USER);
                     }
