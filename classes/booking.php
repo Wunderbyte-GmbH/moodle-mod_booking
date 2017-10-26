@@ -235,4 +235,103 @@ class booking {
         return $this->userbookings = $DB->count_records('booking_answers',
                 array('bookingid' => $this->id, 'userid' => $user->id));
     }
+
+    /**
+     * Get extra fields to display in report.php and view.php
+     *
+     * @return string[][]|array[]
+     */
+    public function get_fields() {
+        global $DB;
+        $reportfields = explode(',', $this->booking->reportfields);
+        list($addquoted, $addquotedparams) = $DB->get_in_or_equal($reportfields);
+
+        $userprofilefields = $DB->get_records_select('user_info_field',
+                'id > 0 AND shortname ' . $addquoted, $addquotedparams, 'id', 'id, shortname, name');
+
+        $columns = array();
+        $headers = array();
+
+        foreach ($reportfields as $value) {
+            switch ($value) {
+                case 'optionid':
+                    $columns[] = 'optionid';
+                    $headers[] = get_string("optionid", "booking");
+                    break;
+                case 'booking':
+                    $columns[] = 'booking';
+                    $headers[] = get_string("booking", "booking");
+                    break;
+                case 'institution':
+                    if (has_capability('moodle/site:viewuseridentity', $this->context)) {
+                        $columns[] = 'institution';
+                        $headers[] = get_string("institution", "booking");
+                    }
+                    break;
+                case 'location':
+                    $columns[] = 'location';
+                    $headers[] = get_string("location", "booking");
+                    break;
+                case 'coursestarttime':
+                    $columns[] = 'coursestarttime';
+                    $headers[] = get_string("coursestarttime", "booking");
+                    break;
+                case 'courseendtime':
+                    $columns[] = 'courseendtime';
+                    $headers[] = get_string("courseendtime", "booking");
+                    break;
+                case 'numrec':
+                    if ($this->booking->numgenerator) {
+                        $columns[] = 'numrec';
+                        $headers[] = get_string("numrec", "booking");
+                    }
+                    break;
+                case 'userid':
+                    $columns[] = 'userid';
+                    $headers[] = get_string("userid", "booking");
+                    break;
+                case 'username':
+                    $columns[] = 'username';
+                    $headers[] = get_string("username");
+                    break;
+                case 'firstname':
+                    $columns[] = 'firstname';
+                    $headers[] = get_string("firstname");
+                    break;
+                case 'lastname':
+                    $columns[] = 'lastname';
+                    $headers[] = get_string("lastname");
+                    break;
+                case 'email':
+                    $columns[] = 'email';
+                    $headers[] = get_string("email");
+                    break;
+                case 'completed':
+                    $columns[] = 'completed';
+                    $headers[] = get_string("searchfinished", "booking");
+                    break;
+                case 'waitinglist':
+                    $columns[] = 'waitinglist';
+                    $headers[] = get_string("waitinglist", "booking");
+                    break;
+                case 'status':
+                    if ($this->booking->enablepresence) {
+                        $columns[] = 'status';
+                        $headers[] = get_string('presence', 'mod_booking');
+                    }
+                    break;
+                case 'groups':
+                    $columns[] = 'groups';
+                    $headers[] = get_string("group");
+                    break;
+                case 'idnumber':
+                    if ($DB->count_records_select('user', ' idnumber <> \'\'') > 0 && has_capability('moodle/site:viewuseridentity', $this->context)) {
+                        $columns[] = 'idnumber';
+                        $headers[] = get_string("idnumber");
+                    }
+                    break;
+            }
+        }
+        return array($columns, $headers, $userprofilefields);
+    }
 }

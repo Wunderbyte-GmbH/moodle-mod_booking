@@ -1,0 +1,32 @@
+<div class="card">
+  <div class="card-header">
+    <a class="btn" href="{{url}}">{{bookingname}}</a>
+  </div>
+  {{#options}}
+  <div class="card-block">
+    <h4 class="card-title">{{{name}}}</h4>
+    <div class="card-text">
+    	<div class="container">
+			  <div class="row">
+			    <div class="col-xs-6 span6 col">
+			    <ul class="list-group">
+			    			<li class="list-group-item">{{# str }} booked, mod_booking {{/ str }}</li>
+			        	{{#regular}}
+			      			<li class="list-group-item">{{{.}}}</li>
+			      		{{/regular}}
+			    </ul>
+			    </div>
+			    <div class="col-xs-6 span6 col">
+			    <ul class="list-group">
+			    			<li class="list-group-item">{{# str }} waitinglist, mod_booking {{/ str }}</li>
+			        	{{#waiting}}
+			      			<li class="list-group-item">{{{.}}}</li>
+			      		{{/waiting}}
+			    </ul>
+			    </div>
+			  </div>
+		</div>
+    </div>
+  </div>
+  {{/options}}
+</div>
