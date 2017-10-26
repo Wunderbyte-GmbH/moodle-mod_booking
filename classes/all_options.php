@@ -278,11 +278,12 @@ class all_options extends table_sql {
 
         if (strlen($values->location) > 0) {
             $output .= \html_writer::empty_tag('br');
-            $output .= get_string('location', "mod_booking") . ': ' . $values->location;
+            $output .= (empty($this->booking->booking->lbllocation) ? get_string('location', 'booking') : $this->booking->booking->lbllocation). ': ' . $values->location;
         }
         if (strlen($values->institution) > 0) {
             $output .= \html_writer::empty_tag('br');
-            $output .= get_string('institution', "mod_booking") . ': ' . $values->institution;
+            $output .= (empty($this->booking->booking->lblinstitution) ? get_string('institution',
+                    -            'booking') : $this->booking->booking->lblinstitution). ': ' . $values->institution;
         }
 
         if (!empty($values->description)) {
