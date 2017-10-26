@@ -127,6 +127,7 @@ if ($sorto == 1) {
 $url = new moodle_url('/mod/booking/view.php', $urlparams);
 $urlcancel = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $sorturl = new moodle_url('/mod/booking/view.php', $urlparamssort);
+$sorturl->set_anchor('goenrol');
 
 $PAGE->set_url($url);
 $PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup', array($id));
@@ -301,7 +302,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
     $tablealloptions = new all_options('mod_booking_all_options', $booking, $cm, $context);
     $tablealloptions->is_downloading($download, $booking->booking->name, $booking->booking->name);
 
-    $tablealloptions->define_baseurl($url);
+    $tablealloptions->define_baseurl($sorturl);
     $tablealloptions->defaultdownloadformat = 'ods';
     if (has_capability('mod/booking:downloadresponses', $context)) {
         $tablealloptions->is_downloadable(true);
@@ -508,8 +509,6 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             $table->attributes['style'] = "display: none;";
         }
         echo html_writer::tag('form', html_writer::table($table));
-
-        $sorturl->set_anchor('goenrol');
 
         $optionsfields = explode(',', $booking->booking->optionsfields);
 

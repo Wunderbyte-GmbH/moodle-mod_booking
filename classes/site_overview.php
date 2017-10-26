@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -9,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *
@@ -60,7 +59,7 @@ class site_overview implements \renderable {
     public function __construct() {
         global $USER, $DB;
         $isadmin = has_capability('moodle/site:config', \context_system::instance());
-        if($isadmin){
+        if ($isadmin) {
             $this->usercourses = \get_courses("all", "c.sortorder ASC", "c.id, c.fullname, c.shortname");
         } else {
             $this->usercourses = enrol_get_all_users_courses($USER->id, false, array('id', 'fullname', 'shortname'), 'visible DESC, sortorder ASC');
@@ -95,7 +94,7 @@ class site_overview implements \renderable {
         if (empty($this->bookingidsvisible)) {
             if (has_capability('moodle/site:config', \context_system::instance())) {
                 $sql = "SELECT b.id
-                      FROM {booking} as b
+                      FROM {booking} b
                      WHERE b.id > 0";
                 $this->bookingidsvisible = $DB->get_fieldset_sql($sql);
             } else {
@@ -134,11 +133,11 @@ class site_overview implements \renderable {
      */
     public function get_all_booking_option_instances() {
         global $DB;
-        if (empty($this->allbookingoptionobjects)){
-            if (!empty($this->readresponsesprivilegeinstances)){
-                foreach ($this->readresponsesprivilegeinstances as $response){
-                    if (!empty($response->optionids)){
-                        foreach ($response->optionids as $id){
+        if (empty($this->allbookingoptionobjects)) {
+            if (!empty($this->readresponsesprivilegeinstances)) {
+                foreach ($this->readresponsesprivilegeinstances as $response) {
+                    if (!empty($response->optionids)) {
+                        foreach ($response->optionids as $id) {
                             $this->allbookingoptionobjects[$id] = new \mod_booking\booking_option($response->coursemodule, $id);
                         }
                     }
@@ -154,7 +153,7 @@ class site_overview implements \renderable {
     public function get_my_responses() {
         global $DB, $USER;
         $sql = "SELECT ba.optionid, ba.bookingid, ba.waitinglist
-            FROM {booking_answers} AS ba
+            FROM {booking_answers} ba
             WHERE ba.userid = :userid ";
         $options = $DB->get_records_sql($sql, array('userid' => $USER->id));
         foreach ($options as $option) {
@@ -178,7 +177,7 @@ class site_overview implements \renderable {
      * @return array booking option objects or empty array, when not bookings are found
      */
     protected function all_bookings_of_course($courseid) {
-        if(!empty($this->courseswithbookings[$courseid])){
+        if (!empty($this->courseswithbookings[$courseid])) {
             return $this->courseswithbookings[$courseid];
         } else {
             return array();
@@ -220,9 +219,7 @@ class site_overview implements \renderable {
         $attributeuser = null;
         $attributecourse = null;
         $attributemy = null;
-        /**
-         * output sort links and heading
-         */
+        // Output sort links and heading.
         $url = $PAGE->url;
         switch ($sort) {
             case null:
@@ -264,9 +261,9 @@ class site_overview implements \renderable {
                         $firstelement = reset($allcoursebookings);
                         $output .= \html_writer::tag('h2', $this->usercourses[$firstelement->course]->fullname);
                         foreach ($allcoursebookings as $booking) {
-                            if (!empty($booking->optionids)){
+                            if (!empty($booking->optionids)) {
                                 $compare = \array_flip($booking->optionids);
-                                if ($sort === 'my'){
+                                if ($sort === 'my') {
                                     $mybookings = $this->get_my_optionids();
                                     $compare = array_flip($mybookings);
                                 }
