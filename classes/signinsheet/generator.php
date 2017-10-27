@@ -185,10 +185,14 @@ class generator {
             list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($this->bookingdata->course->id);
             $addsqlwhere .= " AND u.id IN ($groupsql)";
         }
-
-        $remove = array ('signinextracols1', 'signinextracols2', 'signinextracols3', 'fullname', 'signature', 'rownumber', 'role');
+        $remove = array('signinextracols1', 'signinextracols2', 'signinextracols3', 'fullname',
+            'signature', 'rownumber', 'role');
         $userfields = array_diff($this->allfields, $remove);
-        $userfields = ', u.' . implode(', u.', $userfields);
+        if (!empty($userfields)) {
+            $userfields = ', u.' . implode(', u.', $userfields);
+        } else {
+            $userfields = '';
+        }
         $users = $DB->get_records_sql(
                 'SELECT u.id, ' . get_all_user_name_fields(true, 'u') . $userfields . '
             FROM {booking_answers} ba

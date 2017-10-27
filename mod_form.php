@@ -146,7 +146,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->disabledIf('maxoverbooking', 'limitanswers', 0);
         $mform->setType('maxoverbooking', PARAM_INT);
 
-        $whichviewopts = array('mybooking' => get_string('showmybookings', 'mod_booking'),
+        $whichviewopts = array('mybooking' => get_string('showmybookingsonly', 'mod_booking'),
             'myoptions' => get_string('myoptions', 'mod_booking'),
             'showall' => get_string('showallbookings', 'mod_booking'),
             'showactive' => get_string('showactive', 'mod_booking'),

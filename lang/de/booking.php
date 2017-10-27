@@ -173,7 +173,6 @@ $string['pollurlteachers'] = 'Trainer/innen Umfragelink';
 $string['select'] = 'Auswahl';
 $string['showactive'] = 'Nur buchbare Buchungsoptionen anzeigen';
 $string['showallbookings'] = 'Alle Buchungsmöglichkeiten anzeigen';
-$string['showmybookings'] = 'Nur meine Buchungen anzeigen';
 $string['starttimenotset'] = 'Kursbeginn nicht festgelegt';
 $string['subscribetocourse'] = 'Nutzer/innen in den Kurs einschreiben';
 $string['subscribeuser'] = 'Wollen Sie diese User wirklich in diesen Kurs einschreiben';
@@ -185,6 +184,7 @@ $string['waitinglist'] = 'Auf der Warteliste';
 $string['waitingplacesavailable'] = 'Verfügbare Wartelistenplätze:  {$a->overbookingavailable} von {$a->maxoverbooking}';
 $string['waitspaceavailable'] = 'Wartelistenplätze verfügbar';
 $string['duplicatebooking'] = 'Diese Buchungsoption duplizieren';
+$string['showmybookingsonly'] = 'Meine Buchungen anzeigen';
 
 
 // tag templates

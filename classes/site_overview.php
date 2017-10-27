@@ -60,16 +60,18 @@ class site_overview implements \renderable {
         global $USER, $DB;
         $isadmin = has_capability('moodle/site:config', \context_system::instance());
         if ($isadmin) {
-            $this->usercourses = \get_courses("all", "c.sortorder ASC", "c.id, c.fullname, c.shortname");
+            $this->usercourses = \get_courses("all", "c.sortorder ASC",
+                    "c.id, c.fullname, c.shortname");
         } else {
-            $this->usercourses = enrol_get_all_users_courses($USER->id, false, array('id', 'fullname', 'shortname'), 'visible DESC, sortorder ASC');
+            $this->usercourses = enrol_get_all_users_courses($USER->id, false,
+                    array('id', 'fullname', 'shortname'), 'visible DESC, sortorder ASC');
         }
         $this->allbookinginstanceobjects = \get_all_instances_in_courses('booking',
                 $this->usercourses);
         if (has_capability('moodle/site:config', \context_system::instance())) {
             $this->readresponsesprivilegeinstances = $this->allbookinginstanceobjects;
             foreach ($this->readresponsesprivilegeinstances as $id => $bookinginstance) {
-                $optionids = $DB->get_fieldset_select('booking_options', 'id', "bookingid = {$bookinginstance->id}");
+                $optionids = \mod_booking\booking::get_all_optionids($id);
                 $this->readresponsesprivilegeinstances[$id]->optionids = $optionids;
                 $this->courseswithbookings[$bookinginstance->course][$bookinginstance->id] = $this->readresponsesprivilegeinstances[$id];
             }
@@ -77,51 +79,12 @@ class site_overview implements \renderable {
             foreach ($this->allbookinginstanceobjects as $booking) {
                 if (has_capability('mod/booking:readresponses',
                         \context_module::instance($booking->coursemodule))) {
+                    $optionids = \mod_booking\booking::get_all_optionids($booking->id);
+                    $booking->optionids = $optionids;
                     $this->readresponsesprivilegeinstances[$booking->id] = $booking;
                     $this->courseswithbookings[$booking->course][$booking->id] = $booking;
                 }
             }
-        }
-    }
-
-    /**
-     * Get all ids of booking instances that are visible to the user
-     *
-     * @return array of numbers or empty array
-     */
-    public function get_bookinginstances_visibletouser() {
-        global $DB;
-        if (empty($this->bookingidsvisible)) {
-            if (has_capability('moodle/site:config', \context_system::instance())) {
-                $sql = "SELECT b.id
-                      FROM {booking} b
-                     WHERE b.id > 0";
-                $this->bookingidsvisible = $DB->get_fieldset_sql($sql);
-            } else {
-                if (!empty($this->readresponsesprivilegeinstances)) {
-                    $this->bookingidsvisible = \array_keys($this->readresponsesprivilegeinstances);
-                }
-            }
-        }
-        return $this->bookingidsvisible;
-    }
-
-    /**
-     * returns all bookings, where responses are present
-     *
-     * @return array [bookingid]
-     */
-    public function get_all_bookinginstances_with_responses() {
-        global $DB;
-        if (!empty($this->readresponsesprivilegeinstances)) {
-            $bookingids = array_keys($this->readresponsesprivilegeinstances);
-            $bookingidsstring = implode(',', $bookingids);
-            $sql = "SELECT ba.id, ba.bookingid, COUNT(DISTINCT ba.id) AS numanswers
-                      FROM {booking_answers} ba
-                  GROUP BY ba.bookingid";
-            return $DB->get_fieldset_sql($sql);
-        } else {
-            return array();
         }
     }
 
@@ -138,7 +101,8 @@ class site_overview implements \renderable {
                 foreach ($this->readresponsesprivilegeinstances as $response) {
                     if (!empty($response->optionids)) {
                         foreach ($response->optionids as $id) {
-                            $this->allbookingoptionobjects[$id] = new \mod_booking\booking_option($response->coursemodule, $id);
+                            $this->allbookingoptionobjects[$id] = new \mod_booking\booking_option(
+                                    $response->coursemodule, $id);
                         }
                     }
                 }
@@ -164,6 +128,7 @@ class site_overview implements \renderable {
 
     /**
      * Get opionids booked by $USER
+     *
      * @return array of optionids
      */
     public function get_my_optionids() {
@@ -176,7 +141,7 @@ class site_overview implements \renderable {
      *
      * @return array booking option objects or empty array, when not bookings are found
      */
-    protected function all_bookings_of_course($courseid) {
+    protected function all_bookingoptions_of_course($courseid) {
         if (!empty($this->courseswithbookings[$courseid])) {
             return $this->courseswithbookings[$courseid];
         } else {
@@ -192,7 +157,7 @@ class site_overview implements \renderable {
     protected function sort_bookings_per_user() {
         $userstoprint = array();
         foreach ($this->get_all_booking_option_instances() as $bookingid => $bookingoptionswithdata) {
-            $allusers = $bookingoptionswithdata->get_all_users();
+            $allusers = $bookingoptionswithdata->users;
             foreach ($allusers as $user) {
                 $user->optionid = $bookingoptionswithdata->optionid;
                 $user->courseid = $bookingoptionswithdata->course->id;
@@ -243,7 +208,7 @@ class site_overview implements \renderable {
             echo \html_writer::span("  //  ");
         }
         $sorturl->param('sort', 'my');
-        echo \html_writer::link($sorturl, get_string('showmybookings', 'booking'), $attributemy);
+        echo \html_writer::link($sorturl, get_string('showmybookingsonly', 'mod_booking'), $attributemy);
         $bookingoptions = $this->get_all_booking_option_instances();
 
         $output = '';
@@ -255,7 +220,7 @@ class site_overview implements \renderable {
         }
         if (!empty($this->courseswithbookings)) {
             foreach (array_keys($this->courseswithbookings) as $courseid) {
-                $allcoursebookings = $this->all_bookings_of_course($courseid);
+                $allcoursebookings = $this->all_bookingoptions_of_course($courseid);
                 if (!empty($allcoursebookings)) {
                     if ($sort == 'my' || !$sort) {
                         $firstelement = reset($allcoursebookings);

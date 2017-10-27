@@ -30,24 +30,31 @@ use renderer_base;
 use renderable;
 use templatable;
 
+
 /**
  * This class prepares data for displaying a booking instance
- * @package   mod_booking
+ *
+ * @package mod_booking
  * @copyright 2017 David Bogner {@link http://www.edulabs.org}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_bookinginstance implements renderable, templatable {
+
     /** @var int $coursemoduleid */
     public $coursemoduleid = 0;
+
     /** @var string bookingname */
     public $bookingname = '';
+
     /** @var \moodle_url $url */
     public $url = null;
+
     /** @var array $options */
     public $options = array();
 
     /**
      * Constructor
+     *
      * @param int $coursemoduleid
      * @param \stdClass $data
      */
@@ -85,16 +92,23 @@ class booking_bookinginstance implements renderable, templatable {
                         $userdata = new \user_picture($USER);
                         $regulars[] = $OUTPUT->render($userdata) . ' ' . fullname($USER);
                     }
-                    if (!empty(
-                            $option->usersonwaitinglist) &&
-                                     isset($option->usersonwaitinglist[$USER->id])) {
+                    if (!empty($option->usersonwaitinglist) &&
+                             isset($option->usersonwaitinglist[$USER->id])) {
                         $userdata = new \user_picture($USER);
                         $waiting[] = $OUTPUT->render($userdata) . ' ' . fullname($USER);
                     }
                 }
-
+                $waitinglistusersexist = false;
+                $regularusersexist = false;
+                if (!empty($regulars)) {
+                    $regularusersexist = true;
+                }
+                if (!empty($waiting)) {
+                    $waitinglistusersexist = true;
+                }
                 $this->options[] = array('name' => $link, 'regular' => $regulars,
-                    'waiting' => $waiting);
+                    'waiting' => $waiting, 'regularusersexist' => $regularusersexist,
+                    'waitinglistusersexist' => $waitinglistusersexist);
             }
         }
     }

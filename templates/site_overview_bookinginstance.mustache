@@ -9,20 +9,24 @@
     	<div class="container">
 			  <div class="row">
 			    <div class="col-xs-6 span6 col">
+			    {{#regularusersexist}}
 			    <ul class="list-group">
 			    			<li class="list-group-item">{{# str }} booked, mod_booking {{/ str }}</li>
 			        	{{#regular}}
 			      			<li class="list-group-item">{{{.}}}</li>
 			      		{{/regular}}
 			    </ul>
+			    {{/regularusersexist}}
 			    </div>
 			    <div class="col-xs-6 span6 col">
+			    {{#waitinglistusersexist}}
 			    <ul class="list-group">
 			    			<li class="list-group-item">{{# str }} waitinglist, mod_booking {{/ str }}</li>
 			        	{{#waiting}}
 			      			<li class="list-group-item">{{{.}}}</li>
 			      		{{/waiting}}
 			    </ul>
+			    {{/waitinglistusersexist}}
 			    </div>
 			  </div>
 		</div>
