@@ -183,7 +183,7 @@ $string['mustfilloutuserinfobeforebooking'] = 'Befor proceeding to the booking f
 $string['subscribeuser'] = 'Do you really want to enrol the users in the following course';
 $string['deleteuserfrombooking'] = 'Do you really want to delete the users from the booking?';
 $string['showallbookings'] = 'All bookings';
-$string['showmybookings'] = 'My bookings ({$a})';
+$string['showmybookings'] = 'My bookings';
 $string['showactive'] = 'Active bookings';
 $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
 $string['deletebookingoption'] = 'Delete this booking option';
@@ -210,7 +210,6 @@ $string['pollurlteachers'] = 'Teachers poll url';
 $string['select'] = 'Selection';
 $string['showactive'] = 'Active bookings';
 $string['showallbookings'] = 'All bookings';
-$string['showmybookings'] = 'My bookings ({$a})';
 $string['starttimenotset'] = 'Start date not set';
 $string['subscribetocourse'] = 'Enrol users in the course';
 $string['subscribeuser'] = 'Do you really want to enrol the users in the following course';
@@ -942,7 +941,7 @@ $string['selectpresencestatus'] = "Choose presence status";
 $string['userssuccessfullygetnewpresencestatus'] = 'All users have a new presence status.';
 $string['deleteresponsesactivitycompletion'] = 'Delete all users with completed activity: {$a}';
 $string['signature'] = 'Signature';
-$string['userssucesfullygetnewpresencestatus'] = 'Anwesenheitsstatus für ausgewählte Nutzer/innen erfolgreich aktualisiert';
+$string['userssucesfullygetnewpresencestatus'] = 'Presence status for selected users successfully updated';
 
 
 // Send message

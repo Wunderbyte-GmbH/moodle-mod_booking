@@ -481,7 +481,7 @@ if (!$tableallbookings->is_downloading()) {
                 break;
             case 'institution':
                 $columns[] = 'institution';
-                $headers[] = get_string('institution', 'mod_booking');
+                $headers[] = get_string('institution');
                 break;
             case 'waitinglist':
                 if ($bookingdata->option->limitanswers == 1 && $bookingdata->option->maxoverbooking > 0) {

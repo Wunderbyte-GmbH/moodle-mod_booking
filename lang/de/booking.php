@@ -686,6 +686,15 @@ $string['selectatleastoneuser'] = 'Mindestens 1 Nutzer/in auswählen!';
 $string['selectanoption'] = 'Wählen Sie eine Buchungsoption aus!';
 $string['selectoptionid'] = 'Eine Auswahl treffen';
 $string['sendcustommessage'] = 'Persönliche Nachricht senden';
+$string['sendreminderemailsuccess'] = 'Benachrichtung wurde per E-Mail versandt';
+$string['sign_in_sheet_download'] = 'Download Anwesenheitsliste (PDF)';
+$string['status_complete'] = "Abgeschlossen";
+$string['status_incomplete'] = "Nicht abgeschlossen";
+$string['status_noshow'] = "Nicht aufgetaucht";
+$string['status_failed'] = "Nicht erfolgreich";
+$string['status_unknown'] = "Unbekannt";
+$string['status_attending'] = "Teilgenommen";
+$string['presence'] = "Anwesenheit";
 $string['toomuchusersbooked'] = 'Maximale Anzahl an Benutzern, die Sie buchen können: {$a}';
 $string['transfer'] = 'Umbuchen';
 $string['transferheading'] = 'Ausgewählte Nutzer/innen in die ausgewählte Buchungsoption umbuchen';
@@ -696,7 +705,8 @@ $string['userssuccessfullybooked'] = 'Alle Nutzer/innen wurden erfolgreich in di
 $string['waitinglistusers'] = 'Nutzer/innen auf der Warteliste';
 $string['withselected'] = 'Ausgewählte Nutzer/innen';
 $string['yes'] = 'Ja';
-$string['userssucesfullygetnewpresencestatus'] = 'Presence status for selected users successfully updated';
+$string['signature'] = 'Unterschrift';
+$string['userssucesfullygetnewpresencestatus'] = 'Anwesenheitsstatus für ausgewählte Nutzer/innen erfolgreich aktualisiert';
 
 // Send message
 $string['activitycompletionsuccess'] = 'Alle Nutzer/innen wurden für den Aktivitätsabschluss ausgewählt';

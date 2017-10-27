@@ -143,10 +143,6 @@ class generator {
                 $this->teachers[] = "{$value->firstname} {$value->lastname}";
             }
         }
-        if (get_config('booking', 'numberrows') == 1) {
-            $this->showrownumbers = true;
-            $this->rownumber = 0;
-        }
 
         $this->get_bookingoption_times();
         $cfgcustfields = get_config('booking', 'showcustfields');
@@ -155,6 +151,11 @@ class generator {
         }
 
         $this->allfields = explode(',', $this->bookingdata->booking->signinsheetfields);
+        if (get_config('booking', 'numberrows') == 1) {
+            $this->showrownumbers = true;
+            $this->rownumber = 0;
+            array_unshift($this->allfields, 'rownumber');
+        }
 
         foreach ($this->allfields as $key => $value) {
             if ($value == 'signature') {
@@ -185,8 +186,11 @@ class generator {
             $addsqlwhere .= " AND u.id IN ($groupsql)";
         }
 
+        $remove = array ('signinextracols1', 'signinextracols2', 'signinextracols3', 'fullname', 'signature', 'rownumber', 'role');
+        $userfields = array_diff($this->allfields, $remove);
+        $userfields = ', u.' . implode(', u.', $userfields);
         $users = $DB->get_records_sql(
-                'SELECT u.id, ' . get_all_user_name_fields(true, 'u') . ', u.institution
+                'SELECT u.id, ' . get_all_user_name_fields(true, 'u') . $userfields . '
             FROM {booking_answers} ba
             LEFT JOIN {user} u ON u.id = ba.userid
             WHERE ba.optionid = :optionid ' . $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
@@ -257,18 +261,49 @@ class generator {
             }
             foreach ($this->allfields as $value) {
                 $c++;
+                $w = ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (count($this->allfields));
                 switch ($value) {
+                    case 'rownumber':
+                        $name = "{$this->rownumber}";
+                        $w = 10;
+                        break;
                     case 'fullname':
-                        $name = "{$this->rownumber} {$user->firstname} {$user->lastname}{$profiletext}";
+                        $name = "{$user->firstname} {$user->lastname}{$profiletext}";
                         break;
                     case 'institution':
                         $name = $user->institution;
                         break;
+                    case 'description':
+                        $name = format_text_email($user->description, FORMAT_HTML);
+                        break;
+                    case 'city':
+                        $name = $user->city;
+                        break;
+                    case 'country':
+                        $name = $user->country;
+                        break;
+                    case 'idnumber':
+                        $name = $user->idnumber;
+                        break;
+                    case 'email':
+                        $name = $user->email;
+                        break;
+                    case 'phone1':
+                        $name = $user->phone1;
+                        break;
+                    case 'department':
+                        $name = $user->department;
+                        break;
+                    case 'address':
+                        $name = $user->address;
+                        break;
+                    case 'role':
+                        $name = strip_tags(
+                                get_user_roles_in_course($user->id, $this->bookingdata->course->id));
+                        break;
                     default:
                         $name = '';
                 }
-
-                $w = ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (count($this->allfields));
                 $this->pdf->Cell($w, 0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, "", 1);
             }
         }
@@ -422,19 +457,20 @@ class generator {
                     '', 0, '', 1);
         }
         $this->pdf->Ln();
-
         $this->pdf->Cell($this->pdf->GetStringWidth(get_string('pdftodaydate', 'booking')) + 1, 0,
                 get_string('pdftodaydate', 'booking'), 0, 0, '', 0);
         $this->pdf->Cell(100, 0, "", "B", 1, '', 0, '', 1);
         $this->pdf->Ln();
-
         $this->pdf->SetFont(PDF_FONT_NAME_MAIN, 'B', 12);
-
         $c = 0;
-
         foreach ($this->allfields as $value) {
             $c++;
+            $w = ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (count($this->allfields));
             switch ($value) {
+                case 'rownumber':
+                    $w = 10;
+                    $name = '';
+                    break;
                 case 'fullname':
                     $name = get_string('fullname', 'mod_booking');
                     break;
@@ -442,7 +478,31 @@ class generator {
                     $name = get_string('signature', 'mod_booking');
                     break;
                 case 'institution':
-                    $name = get_string('institution', 'mod_booking');
+                    $name = get_string('institution');
+                    break;
+                case 'description':
+                    $name = get_string('description');
+                    break;
+                case 'city':
+                    $name = get_string('city');
+                    break;
+                case 'country':
+                    $name = get_string('country');
+                    break;
+                case 'idnumber':
+                    $name = get_string('idnumber');
+                    break;
+                case 'email':
+                    $name = get_string('email');
+                    break;
+                case 'phone1':
+                    $name = get_string('phone1');
+                    break;
+                case 'department':
+                    $name = get_string('department');
+                    break;
+                case 'address':
+                    $name = get_string('address');
                     break;
                 case 'signinextracols1':
                     $name = $this->extracols[1];
@@ -453,13 +513,13 @@ class generator {
                 case 'signinextracols3':
                     $name = $this->extracols[3];
                     break;
+                case 'role':
+                    $name = new \lang_string('role');
+                    break;
                 default:
                     $name = '';
             }
-
-            $this->pdf->Cell(
-                    ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (count($this->allfields)),
-                    0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, '', 1);
+            $this->pdf->Cell($w, 0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, '', 1);
         }
 
         $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);

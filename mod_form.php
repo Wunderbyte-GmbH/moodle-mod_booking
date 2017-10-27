@@ -31,7 +31,7 @@ class mod_booking_mod_form extends moodleform_mod {
      *
      * @param number $cat_id
      * @param string $dashes
-     * @param unknown $options
+     * @param array $options
      * @return array of course category names indexed by category id
      */
     public function show_sub_categories($catid, $dashes = '', $options) {
@@ -469,7 +469,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'numrec' => get_string('numrec', 'mod_booking'),
             'fullname' => get_string('fullname', 'mod_booking'),
             'timecreated' => get_string('timecreated', 'mod_booking'),
-            'institution' => get_string('institution', 'mod_booking'),
+            'institution' => get_string('institution'),
             'waitinglist' => get_string('searchwaitinglist', 'mod_booking')
         );
 
@@ -493,7 +493,17 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $signinsheetfields = array('fullname' => get_string('fullname', 'mod_booking'),
             'signature' => get_string('signature', 'mod_booking'),
-            'institution' => get_string('institution', 'mod_booking'));
+            'institution' => new lang_string('institution'),
+            'description' => new lang_string('description'),
+            'city' => new lang_string('city'),
+            'country' => new lang_string('country'),
+            'idnumber'    => new lang_string('idnumber'),
+            'email'       => new lang_string('email'),
+            'phone1'      => new lang_string('phone1'),
+            'department'  => new lang_string('department'),
+            'address'  => new lang_string('address'),
+            'role'  => new lang_string('role'),
+        );
 
         for ($i = 1; $i < 4; $i++) {
             $name = 'signinextracols' . $i;
