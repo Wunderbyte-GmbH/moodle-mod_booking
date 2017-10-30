@@ -315,7 +315,7 @@ class all_userbookings extends \table_sql {
                 echo "<br>";
                 if (has_capability('mod/booking:subscribeusers',
                         \context_module::instance($this->cm->id))) {
-                            $optionids = $this->bookingdata->get_all_optionids();
+                            $optionids = \mod_booking\booking::get_all_optionids($this->bookingdata->id);
                 } else {
                     $optionids = $this->bookingdata->get_all_optionids_of_teacher();
                 }

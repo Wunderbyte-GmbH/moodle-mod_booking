@@ -165,15 +165,12 @@ class booking {
     /**
      * Get all booking option ids as an array of numbers.
      *
+     * @param number $bookingid
      * @return array of ids
      */
-    public function get_all_optionids() {
+    static public function get_all_optionids($bookingid) {
         global $DB;
-        if (!empty($this->optionids)) {
-            return $this->optionids;
-        }
-        $this->optionids = $DB->get_fieldset_select('booking_options', 'id', "bookingid = {$this->booking->id}");
-        return $this->optionids;
+        return $DB->get_fieldset_select('booking_options', 'id', "bookingid = {$bookingid}");
     }
 
     /**
