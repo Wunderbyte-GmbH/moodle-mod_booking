@@ -60,7 +60,7 @@ class mod_booking_bookingform_form extends moodleform {
         $options = array(
                         'tags' => true,
         );
-        $mform->addElement('autocomplete', 'institution', get_string('institution', 'booking'), $instnames, $options);
+        $mform->addElement('autocomplete', 'institution', new lang_string('institution'), $instnames, $options);
 
         $url = $CFG->wwwroot . '/mod/booking/institutions.php';
         if (isset($COURSE->id)) {

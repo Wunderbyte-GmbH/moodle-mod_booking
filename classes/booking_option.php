@@ -242,6 +242,11 @@ class booking_option extends booking {
             $options .= " AND u.lastname LIKE :searchsurname";
             $params['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
         }
+        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($this->course->id))) {
+            list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($this->course->id);
+            $options .= " AND u.id IN ($groupsql)";
+            $params = array_merge($params, $groupparams);
+        }
 
         $limitfrom = $this->perpage * $this->page;
         $numberofrecords = $this->perpage;
@@ -260,7 +265,7 @@ class booking_option extends booking {
                 $DB->sql_fullname('u.firstname', 'u.lastname') . ' AS fullname
                 FROM {booking_answers} ba
                 LEFT JOIN {user} u ON ba.userid = u.id
-                WHERE ' .$options . '
+                WHERE ' . $options . '
                 ORDER BY ba.optionid, ba.timemodified DESC';
 
         $this->users = $DB->get_records_sql($sql, $params, $limitfrom, $numberofrecords);
@@ -449,7 +454,7 @@ class booking_option extends booking {
         if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($this->course->id))) {
             $mygroups = groups_get_all_groups($this->course->id, $USER->id);
             $mygroupids = array_keys($mygroups);
-            list($insql, $inparams) = $DB->get_in_or_equal($mygroupids, SQL_PARAMS_NAMED);
+            list($insql, $inparams) = $DB->get_in_or_equal($mygroupids, SQL_PARAMS_NAMED, 'grp', true, -1);
 
             $sql = "SELECT $mainuserfields, ba.id AS answerid, ba.optionid, ba.bookingid
             FROM {booking_answers} ba, {user} u, {groups_members} gm

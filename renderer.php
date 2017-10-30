@@ -35,19 +35,19 @@ class mod_booking_renderer extends plugin_renderer_base {
         $tmpurlparams['whichview'] = 'myinstitution';
         $row[] = new tabobject('myinstitution',
                 new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
-                get_string('showonlymyinstitutions', 'booking'));
+                get_string('showonlymyinstitutions', 'mod_booking'));
         $tmpurlparams['whichview'] = 'showactive';
         $row[] = new tabobject('showactive',
                 new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
-                get_string('showactive', 'booking'));
+                get_string('showactive', 'mod_booking'));
         $tmpurlparams['whichview'] = 'showall';
         $row[] = new tabobject('showall',
                 new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
-                get_string('showallbookings', 'booking'));
+                get_string('showallbookings', 'mod_booking'));
         $tmpurlparams['whichview'] = 'mybooking';
         $row[] = new tabobject('mybooking',
                 new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
-                get_string('showmybookings', 'booking', $mybookings));
+                get_string('showmybookingsonly', 'mod_booking'));
 
         if ($myoptions > 0) {
             $tmpurlparams['whichview'] = 'myoptions';
