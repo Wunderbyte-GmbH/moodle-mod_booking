@@ -678,6 +678,7 @@ $string['numrec'] = "Eintragsnummer.";
 $string['onlythisbookingurl'] = 'Nur dieser Buchungslink';
 $string['optionid'] = 'Option ID';
 $string['optionmenu'] = 'Diese Buchungsoption';
+$string['ratingsuccess'] = 'Die Bewrtungen wurden erfolgreich aktualisiert';
 $string['searchdate'] = 'Datum';
 $string['searchfinished'] = 'Kurs abgeschlossen';
 $string['searchname'] = 'Vorname';

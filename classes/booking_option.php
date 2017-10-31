@@ -290,7 +290,7 @@ class booking_option extends booking {
         if (empty($this->allusers)) {
             $userfields = \user_picture::fields('u');
             $params = array('optionid' => $this->optionid);
-            $sql = "SELECT ba.id, ba.userid, ba.waitinglist, $userfields
+            $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, $userfields
                       FROM {booking_answers} ba
                       JOIN {user} u ON u.id = ba.userid
                      WHERE ba.optionid = :optionid";
