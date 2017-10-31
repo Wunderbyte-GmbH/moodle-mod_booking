@@ -70,10 +70,10 @@ class site_overview implements \renderable {
                 $this->usercourses);
         if (has_capability('moodle/site:config', \context_system::instance())) {
             $this->readresponsesprivilegeinstances = $this->allbookinginstanceobjects;
-            foreach ($this->readresponsesprivilegeinstances as $id => $bookinginstance) {
-                $optionids = \mod_booking\booking::get_all_optionids($id);
-                $this->readresponsesprivilegeinstances[$id]->optionids = $optionids;
-                $this->courseswithbookings[$bookinginstance->course][$bookinginstance->id] = $this->readresponsesprivilegeinstances[$id];
+            foreach ($this->readresponsesprivilegeinstances as $cmid => $bookinginstance) {
+                $optionids = \mod_booking\booking::get_all_optionids($bookinginstance->id);
+                $this->readresponsesprivilegeinstances[$cmid]->optionids = $optionids;
+                $this->courseswithbookings[$bookinginstance->course][$cmid] = $this->readresponsesprivilegeinstances[$cmid];
             }
         } else {
             foreach ($this->allbookinginstanceobjects as $booking) {
@@ -81,8 +81,8 @@ class site_overview implements \renderable {
                         \context_module::instance($booking->coursemodule))) {
                     $optionids = \mod_booking\booking::get_all_optionids($booking->id);
                     $booking->optionids = $optionids;
-                    $this->readresponsesprivilegeinstances[$booking->id] = $booking;
-                    $this->courseswithbookings[$booking->course][$booking->id] = $booking;
+                    $this->readresponsesprivilegeinstances[$booking->coursemodule] = $booking;
+                    $this->courseswithbookings[$booking->course][$booking->coursemodule] = $booking;
                 }
             }
         }
