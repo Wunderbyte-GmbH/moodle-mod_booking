@@ -408,7 +408,7 @@ class all_userbookings extends \table_sql {
             }
 
             if ($this->bookingdata->booking->enablepresence) {
-                // Change presence status
+                // Change presence status.
                 // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed.
                 echo "<br>";
                 $presences = array(5 => get_string('status_unknown', 'booking'),

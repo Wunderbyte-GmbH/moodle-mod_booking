@@ -842,12 +842,12 @@ class booking_option extends booking {
             $eventdata = new \stdClass();
             $eventdata->user = $user;
             $eventdata->booking = $this->booking;
-            // TODO the next line is for backward compatibility only, delete when finished
-            // refurbishing the module ;-)
+            // TODO the next line is for backward compatibility only, delete when finished.
+            // refurbishing the module ;-).
             $eventdata->booking->option[$this->optionid] = $this->option;
             $eventdata->optionid = $this->optionid;
             $eventdata->cmid = $this->cm->id;
-            // TODO replace
+            // TODO replace.
             booking_send_confirm_message($eventdata);
         }
         return true;
@@ -873,7 +873,7 @@ class booking_option extends booking {
         }
 
         if (!$enrol = enrol_get_plugin('manual')) {
-            return; // No manual enrolment plugin
+            return; // No manual enrolment plugin.
         }
         if (!$instances = $DB->get_records('enrol',
                 array('enrol' => 'manual', 'courseid' => $this->option->courseid,

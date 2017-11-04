@@ -83,7 +83,7 @@ class customfield extends \moodleform {
         global $DB;
         $data = parent::get_data();
         $cfgbkg = \get_config('booking');
-        // Check if something needs to be deleted
+        // Check if something needs to be deleted.
         if (isset($data->deletefield)) {
             $tobedeleted = array_keys($data->deletefield);
             foreach ($tobedeleted as $value) {
@@ -91,26 +91,26 @@ class customfield extends \moodleform {
                 if (isset($cfgbkg->$cfgname)) {
                     \unset_config($cfgname, 'booking');
                     \unset_config($cfgname . "type", 'booking');
-                    // Update the showcustfields config, because it might reference the cfgname
+                    // Update the showcustfields config, because it might reference the cfgname.
                     $cfgbkg->showcustfields = \str_replace($cfgname, '', $cfgbkg->showcustfields);
                     trim($cfgbkg->showcustfields, ",");
                     \set_config('showcustfields', $cfgbkg->showcustfields, 'booking');
                     $DB->delete_records('booking_customfields', array('cfgname' => $cfgname));
                 }
-                // Remove all deleted values in order to exclude them from further data processing
+                // Remove all deleted values in order to exclude them from further data processing.
                 unset($data->customfieldname[$value]);
                 unset($data->type[$value]);
                 unset($data->customfield[$value]);
             }
         }
 
-        // Set new and changed config values
+        // Set new and changed config values.
         if (isset($data->customfield) && !empty($data->customfield)) {
             foreach ($data->customfield as $key => $value) {
                 $cfgname = $data->customfieldname[$key];
-                // Get config again because it has changed
+                // Get config again because it has changed.
                 $cfgbkg = \get_config('booking');
-                // Not yet configured, config name has to be found not overwriting existing ones
+                // Not yet configured, config name has to be found not overwriting existing ones.
                 if (empty($cfgname)) {
                     for ($i = 0; $i < 300; $i++) {
                         $customname = "customfield_" . $i;

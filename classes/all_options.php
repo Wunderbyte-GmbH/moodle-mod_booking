@@ -294,7 +294,7 @@ class all_options extends table_sql {
                  (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') : $this->booking->booking->lblteachname) .
                  ": " . $values->teachers : '');
 
-        // Custom fields
+        // Custom fields.
         $customfields = $DB->get_records('booking_customfields', array('optionid' => $values->id));
         $customfieldcfg = \mod_booking\booking_option::get_customfield_settings();
         if ($customfields && !empty($customfieldcfg)) {
@@ -306,7 +306,7 @@ class all_options extends table_sql {
             }
         }
 
-        // Show text
+        // Show text.
         $texttoshow = "";
         $bookingdata = new \mod_booking\booking_option($this->cm->id, $values->id);
         $texttoshow = $bookingdata->get_option_text();
@@ -375,7 +375,7 @@ class all_options extends table_sql {
             $status = "closed";
         }
 
-        // I'm booked?
+        // I'm booked or not.
         if ($values->iambooked) {
             if ($values->allowupdate and $status != 'closed' and $values->completed != 1) {
                 $buttonoptions = array('id' => $this->cm->id, 'action' => 'delbooking',

@@ -22,11 +22,11 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2017110400;
+$plugin->version = 2017110401;
 $plugin->requires = 2016052300; // Requires this Moodle version.
 // Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman, Piper Chapman.
 // Lois Wilkerson, Audrey Horne, Pippi Langstrumpf.
-$plugin->release = 'Audrey Horne 1.3';
+$plugin->release = 'Audrey Horne 1.4';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->cron = 5;
 $plugin->component = 'mod_booking';

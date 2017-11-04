@@ -25,7 +25,7 @@ require_once("lib.php");
 require_once("locallib.php");
 require_once('tagtemplatesadd_form.php');
 
-$id = required_param('id', PARAM_INT); // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID.
 $tagid = optional_param('tagid', '', PARAM_INT);
 
 $url = new moodle_url('/mod/booking/tagtemplatesadd.php', array('id' => $id, 'tagid' => $tagid));
@@ -51,12 +51,12 @@ $PAGE->set_pagelayout('standard');
 $mform = new tagtemplatesadd_form($url);
 
 if ($mform->is_cancelled()) {
-    // Handle form cancel operation, if cancel button is present on form
+    // Handle form cancel operation, if cancel button is present on form.
     redirect($urlredirect, '', 0);
     die();
 } else if ($data = $mform->get_data()) {
 
-    // Add new record
+    // Add new record.
     $tag = new stdClass();
     $tag->id = $data->tagid;
     $tag->courseid = $cm->course;
@@ -83,9 +83,7 @@ if ($mform->is_cancelled()) {
         $defaultvalues->text = array('text' => $defaultvalues->text, 'format' => FORMAT_HTML);
     }
 
-    // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
-    // or on the first display of the form.
-    // displays the form
+    // Processed if form is submitted but data not validated & form should be redisplayed OR first display of form.
     $mform->set_data($defaultvalues);
     $mform->display();
 }

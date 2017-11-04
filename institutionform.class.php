@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.'); // It must be included from a Moodle page
+    die('Direct access to this script is forbidden.');
 }
 
 require_once($CFG->libdir . '/formslib.php');
@@ -26,7 +26,6 @@ class mod_booking_institution_form extends moodleform {
 
         $mform = $this->_form;
 
-        // -------------------------------------------------------------------------------
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         $mform->addElement('text', 'name', get_string('institutionname', 'booking'),

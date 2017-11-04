@@ -17,7 +17,7 @@ require_once("../../config.php");
 require_once("locallib.php");
 require_once("bookingform.class.php");
 
-$id = required_param('id', PARAM_INT); // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $copyoptionid = optional_param('copyoptionid', '', PARAM_ALPHANUM);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
@@ -96,7 +96,7 @@ if ($optionid == -1) {
         $defaultvalues->startendtimeknown = "checked";
     }
 
-    // Defaults for customfields
+    // Defaults for customfields.
     $cfdefaults = $DB->get_records('booking_customfields', array('optionid' => $optionid));
     $customfields = \mod_booking\booking_option::get_customfield_settings();
     if (!empty($cfdefaults)) {

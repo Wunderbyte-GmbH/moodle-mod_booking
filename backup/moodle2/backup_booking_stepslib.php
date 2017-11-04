@@ -33,10 +33,10 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
     protected function define_structure() {
 
-        // To know if we are including userinfo
+        // To know if we are including userinfo.
         $userinfo = $this->get_setting_value('userinfo');
 
-        // Define each element separated
+        // Define each element separated.
         $booking = new backup_nested_element('booking', array('id'),
                 array('course', 'name', 'intro', 'introformat', 'bookingmanager', 'sendmail',
                     'copymail', 'allowupdate', 'bookingpolicy', 'bookingpolicyformat', 'timeopen',
@@ -98,7 +98,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $customfield = new backup_nested_element('customfield', array('id'),
                 array('bookingid', 'optionid', 'cfgname', 'value'));
 
-        // Build the tree
+        // Build the tree.
         $booking->add_child($options);
         $options->add_child($option);
 
@@ -126,7 +126,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $booking->add_child($customfields);
         $customfields->add_child($customfield);
 
-        // Define sources
+        // Define sources.
         $booking->set_source_table('booking', array('id' => backup::VAR_ACTIVITYID));
 
         $option->set_source_sql(
@@ -142,20 +142,20 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $optiondate->set_source_table('booking_optiondates', array('bookingid' => backup::VAR_PARENTID));
         $customfield->set_source_table('booking_customfields', array('bookingid' => backup::VAR_PARENTID));
 
-        // All the rest of elements only happen if we are including user info
+        // All the rest of elements only happen if we are including user info.
         if ($userinfo) {
             $answer->set_source_table('booking_answers', array('bookingid' => backup::VAR_PARENTID));
             $teacher->set_source_table('booking_teachers', array('bookingid' => backup::VAR_PARENTID));
         }
 
-        // Define id annotations
+        // Define id annotations.
         $answer->annotate_ids('user', 'userid');
 
-        // Define file annotations
-        $booking->annotate_files('mod_booking', 'intro', null); // This file area hasn't itemid
-        $booking->annotate_files('mod_booking', 'bookingpolicy', null); // This file area hasn't itemid
-        $booking->annotate_files('mod_booking', 'description', 'id'); // This file area hasn't itemid
-                                                                      // Return the root element (booking), wrapped into standard activity structure
+        // Define file annotations.
+        $booking->annotate_files('mod_booking', 'intro', null); // This file area hasn't itemid.
+        $booking->annotate_files('mod_booking', 'bookingpolicy', null); // This file area hasn't itemid.
+        $booking->annotate_files('mod_booking', 'description', 'id'); // This file area hasn't itemid.
+                                                                      // Return the root element (booking), wrapped into standard activity structure.
         return $this->prepare_activity_structure($booking);
     }
 }

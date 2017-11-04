@@ -25,7 +25,7 @@ require_once("lib.php");
 require_once("locallib.php");
 require_once('optiondatesadd_form.php');
 
-$id = required_param('id', PARAM_INT); // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID.
 $boptionid = required_param('boptionid', PARAM_INT);
 $optiondateid = optional_param('optiondateid', '', PARAM_INT);
 
@@ -53,12 +53,11 @@ $PAGE->set_pagelayout('standard');
 $mform = new optiondatesadd_form($url);
 
 if ($mform->is_cancelled()) {
-    // Handle form cancel operation, if cancel button is present on form
+    // Handle form cancel operation, if cancel button is present on form.
     redirect($urlredirect, '', 0);
     die();
 } else if ($data = $mform->get_data()) {
 
-    // Add new record
     $optiondate = new stdClass();
     $optiondate->id = $optiondateid;
     $optiondate->bookingid = $cm->instance;
@@ -82,14 +81,10 @@ if ($mform->is_cancelled()) {
     $defaultvalues = new stdClass();
     if ($optiondateid != '') {
         $defaultvalues = $DB->get_record('booking_optiondates', array('id' => $optiondateid));
-        // id in the form will be course module id, not the optiondate id
+        // The id in the form will be course module id, not the optiondate id.
         $defaultvalues->optiondateid = $defaultvalues->id;
         unset($defaultvalues->id);
     }
-
-    // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
-    // or on the first display of the form.
-    // displays the form
     $mform->set_data($defaultvalues);
     $mform->display();
 }
