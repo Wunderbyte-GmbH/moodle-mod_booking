@@ -218,7 +218,10 @@ $bookingdata->option->autoenrol = $bookingdata->booking->autoenrol;
 $tableallbookings = new \mod_booking\all_userbookings('mod_booking_all_users_sort_new', $bookingdata, $cm, $optionid);
 $tableallbookings->is_downloading($download, $bookingdata->option->text, $bookingdata->option->text);
 
-$tableallbookings->define_baseurl($currenturl);
+// Remove page number from url otherwise empty results are shown when searching via first/lastname letters.
+$tablebaseurl = $currenturl;
+$tablebaseurl->remove_params('page');
+$tableallbookings->define_baseurl($tablebaseurl);
 $tableallbookings->defaultdownloadformat = 'ods';
 $tableallbookings->sortable(true, 'firstname');
 if (has_capability('mod/booking:downloadresponses', $context)) {

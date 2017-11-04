@@ -197,7 +197,7 @@ class generator {
                 'SELECT u.id, ' . get_all_user_name_fields(true, 'u') . $userfields . '
             FROM {booking_answers} ba
             LEFT JOIN {user} u ON u.id = ba.userid
-            WHERE ba.optionid = :optionid ' . $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
+            WHERE ba.optionid = :optionid AND ba.waitinglist = 0 ' . $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
                 array_merge($groupparams, array('optionid' => $this->bookingdata->option->id)));
 
         $this->pdf->SetCreator(PDF_CREATOR);
@@ -302,8 +302,7 @@ class generator {
                         $name = $user->address;
                         break;
                     case 'role':
-                        $name = strip_tags(
-                                get_user_roles_in_course($user->id, $this->bookingdata->course->id));
+                        $name = strip_tags(get_user_roles_in_course($user->id, 1));
                         break;
                     default:
                         $name = '';
