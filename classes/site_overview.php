@@ -129,11 +129,12 @@ class site_overview implements \renderable {
     /**
      * Get opionids booked by $USER
      *
-     * @return array of optionids
+     * @return array of optionids as keys and bookingids as values
      */
     public function get_my_optionids() {
         global $USER, $DB;
-        return $optionids = $DB->get_fieldset_select('booking_answers', 'optionid', "userid = {$USER->id}");
+        return $optionids = $DB->get_records_menu('booking_answers', array('userid' => $USER->id),
+                '', 'optionid, bookingid');
     }
 
     /**
@@ -225,12 +226,12 @@ class site_overview implements \renderable {
                     if ($sort == 'my' || !$sort) {
                         $firstelement = reset($allcoursebookings);
                         $output .= \html_writer::tag('h2', $this->usercourses[$firstelement->course]->fullname);
+                        $mybookings = $this->get_my_optionids();
                         foreach ($allcoursebookings as $booking) {
                             if (!empty($booking->optionids)) {
                                 $compare = \array_flip($booking->optionids);
                                 if ($sort === 'my') {
-                                    $mybookings = $this->get_my_optionids();
-                                    $compare = array_flip($mybookings);
+                                    $compare = array_intersect($mybookings, array($booking->id));
                                 }
                                 $booking->options = array_intersect_key($this->allbookingoptionobjects, $compare);
                             }

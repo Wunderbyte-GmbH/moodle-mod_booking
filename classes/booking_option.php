@@ -77,14 +77,15 @@ class booking_option extends booking {
      */
     public function __construct($cmid, $optionid, $filters = array(), $page = 0, $perpage = 0, $getusers = true) {
         global $DB;
-
         parent::__construct($cmid);
         $this->optionid = $optionid;
-        // $this->update_booked_users();
-        $this->option = $DB->get_record('booking_options', array('id' => $optionid, 'bookingid' => $this->id), '*',
-                'MUST_EXIST');
+        $this->option = $DB->get_record('booking_options',
+                array('id' => $optionid, 'bookingid' => $this->id), '*', MUST_EXIST);
         $times = $DB->get_records_sql(
-                "SELECT id, coursestarttime, courseendtime FROM {booking_optiondates} WHERE optionid = ? ORDER BY coursestarttime ASC",
+                "SELECT id, coursestarttime, courseendtime
+                   FROM {booking_optiondates}
+                  WHERE optionid = ?
+               ORDER BY coursestarttime ASC",
                 array($optionid));
         if (!empty($times)) {
             foreach ($times as $time) {
