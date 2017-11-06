@@ -215,6 +215,7 @@ class generator {
         $this->pdf->setFontSubsetting(false);
         $this->pdf->AddPage();
         $this->pdf->setJPEGQuality(80);
+        $this->pdf->setCellPadding(1);
 
         $this->get_signinsheet_logo_footer();
 
