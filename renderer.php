@@ -314,6 +314,18 @@ class mod_booking_renderer extends plugin_renderer_base {
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/site_overview_bookinginstance', $data);
         return $o;
-        return $output;
+    }
+
+    /**
+     * display signinsheet pdf download form
+     *
+     * @param mod_booking\output\booking_bookinginstance $data
+     * @return string rendered html
+     */
+    public function render_signin_pdfdownloadform(mod_booking\output\signin_downloadform $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/signin_downloadform', $data);
+        return $o;
     }
 }

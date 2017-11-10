@@ -66,7 +66,10 @@ class booking_option extends booking {
     public $urparams;
 
     /** @var string $times course start time - course end time or session times separated with, */
-    protected $optiontimes = '';
+    public $optiontimes = '';
+
+    /** @var array $sessions array of objects containing coursestarttime and courseendtime as object values */
+    public $sessions = array();
 
     /**
      * Creates basic booking option
@@ -88,6 +91,7 @@ class booking_option extends booking {
                ORDER BY coursestarttime ASC",
                 array($optionid));
         if (!empty($times)) {
+            $this->sessions = $times;
             foreach ($times as $time) {
                 $this->optiontimes .= $time->coursestarttime . " - " . $time->courseendtime . ",";
             }

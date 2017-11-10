@@ -8,22 +8,23 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking\signinsheet;
 
 defined('MOODLE_INTERNAL') || die();
 
+
 /**
  * Class for generating the signin sheet as PDF using TCPDF
  *
- * @package    mod_booking
- * @since      Moodle 3.0
- * @copyright  2017 David Bogner
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod_booking
+ * @since Moodle 3.0
+ * @copyright 2017 David Bogner
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
 class generator {
@@ -31,19 +32,19 @@ class generator {
     /**
      * P for portrait or L for landscape
      *
-     * @var string
+     * @var string $orientation
      */
     public $orientation;
 
     /**
      *
-     * @var \mod_booking\booking_option
+     * @var \mod_booking\booking_option $bookingdata
      */
     public $bookingdata = null;
 
     /**
      *
-     * @var signin_pdf
+     * @var signin_pdf $pdf
      */
     public $pdf;
 
@@ -77,12 +78,14 @@ class generator {
 
     /**
      * width of logo
+     *
      * @var number
      */
     public $w = 0;
 
     /**
      * height of logo
+     *
      * @var number
      */
     public $h = 0;
@@ -95,6 +98,7 @@ class generator {
 
     /**
      * show row numbers left of name in first column
+     *
      * @var boolean
      */
     public $showrownumbers = false;
@@ -106,38 +110,59 @@ class generator {
      * @var string
      */
     public $signinsheetlogo = '';
+
     public $signinsheetlogofooter = '';
+
     public $headerlogofile = false;
+
     public $allfields = array();
+
     public $extracols = array();
+
+    /**
+     *
+     * @var string $orderby order users
+     */
     protected $orderby = 'lastname';
 
     /**
+     * Title to choose: 1 = instancename + optiontext, 2 = optiontext only
+     * @var integer
+     */
+    protected $title = 1;
+
+
+    /**
      * number of row
+     *
      * @var int
      */
     protected $rownumber = null;
 
     /**
+     * 0 for all sessions, or id of the session
+     * @var integer
+     */
+    protected $pdfsessions = 0;
+
+    /**
      * Define basic variable values for signinsheet pdf
      *
      * @param \mod_booking\booking_option $bookingdata
-     * @param string $orientation
+     * @param \stdClass $pdfoptions
      */
-    public function __construct(\mod_booking\booking_option $bookingdata = null,
-            $orientation = "downloadsigninportrait", $options = array()) {
+    public function __construct(\mod_booking\booking_option $bookingdata = null, \stdClass $pdfoptions) {
         $this->bookingdata = $bookingdata;
+        $this->orientation = $pdfoptions->orientation;
+        $this->title = $pdfoptions->title;
+        $this->pdfsessions = $pdfoptions->sessions;
 
-        if ($orientation == "downloadsigninportrait") {
-            $this->orientation = "P";
+        if ($this->orientation == "P") {
             $this->colwidth = 210;
         } else {
-            $this->orientation = "L";
             $this->colwidth = 297;
         }
-        if ($options['orderby'] == 'firstname') {
-            $this->orderby = 'firstname';
-        }
+        $this->orderby = $pdfoptions->orderby;
         if (!empty($this->bookingdata->option->teachers)) {
             foreach ($this->bookingdata->option->teachers as $value) {
                 $this->teachers[] = "{$value->firstname} {$value->lastname}";
@@ -180,9 +205,11 @@ class generator {
         $groupparams = array();
         $addsqlwhere = '';
 
-        if (groups_get_activity_groupmode($this->bookingdata->cm) == SEPARATEGROUPS
-                AND !has_capability('moodle/site:accessallgroups', \context_course::instance($this->bookingdata->course->id))) {
-            list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($this->bookingdata->course->id);
+        if (groups_get_activity_groupmode($this->bookingdata->cm) == SEPARATEGROUPS and
+                 !has_capability('moodle/site:accessallgroups',
+                        \context_course::instance($this->bookingdata->course->id))) {
+            list($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql(
+                    $this->bookingdata->course->id);
             $addsqlwhere .= " AND u.id IN ($groupsql)";
         }
         $remove = array('signinextracols1', 'signinextracols2', 'signinextracols3', 'fullname',
@@ -194,11 +221,14 @@ class generator {
             $userfields = '';
         }
         $users = $DB->get_records_sql(
-                'SELECT u.id, ' . get_all_user_name_fields(true, 'u') . $userfields . '
+                'SELECT u.id, ' . get_all_user_name_fields(true, 'u') . $userfields .
+                         '
             FROM {booking_answers} ba
             LEFT JOIN {user} u ON u.id = ba.userid
-            WHERE ba.optionid = :optionid AND ba.waitinglist = 0 ' . $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
-                array_merge($groupparams, array('optionid' => $this->bookingdata->option->id)));
+            WHERE ba.optionid = :optionid AND ba.waitinglist = 0 ' .
+                         $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
+                        array_merge($groupparams,
+                                array('optionid' => $this->bookingdata->option->id)));
 
         $this->pdf->SetCreator(PDF_CREATOR);
         $this->pdf->setPrintHeader(true);
@@ -207,7 +237,11 @@ class generator {
         $this->pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
         $this->pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
         $this->pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-        $this->pdf->SetHeaderData('', 0, $this->bookingdata->option->text, '');
+        if ($this->title == 2) {
+            $this->pdf->SetHeaderData('', 0, $this->bookingdata->option->text, '');
+        } else {
+            $this->pdf->SetHeaderData('', 0, $this->bookingdata->booking->name . ': ' . $this->bookingdata->option->text, '');
+        }
         $this->pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
         $this->pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_LEFT);
         $this->pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
@@ -308,7 +342,8 @@ class generator {
                     default:
                         $name = '';
                 }
-                $this->pdf->Cell($w, 0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, "", 1);
+                $this->pdf->Cell($w, 0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, "",
+                        1);
             }
         }
 
@@ -324,28 +359,32 @@ class generator {
             return;
         } else {
             if (empty($this->bookingdata->optiontimes)) {
-                $times = userdate($this->bookingdata->option->coursestarttime) . " -" .
+                $times = userdate($this->bookingdata->option->coursestarttime) . " - " .
                          userdate($this->bookingdata->option->courseendtime);
-            } else {
+            } else if ($this->pdfsessions == 0) {
                 $val = array();
-                $times = explode(',', $this->bookingdata->optiontimes);
-                foreach ($times as $time) {
-                    $slot = explode('-', $time);
+                foreach ($this->bookingdata->sessions as $time) {
                     $tmpdate = new \stdClass();
-                    $tmpdate->leftdate = userdate($slot[0],
+                    $tmpdate->leftdate = userdate($time->coursestarttime,
                             get_string('strftimedatetime', 'langconfig'));
-                    $tmpdate->righttdate = userdate($slot[1],
+                    $tmpdate->righttdate = userdate($time->courseendtime,
                             get_string('strftimetime', 'langconfig'));
                     $val[] = get_string('leftandrightdate', 'booking', $tmpdate);
                 }
-                $times = implode(", ", $val);
+                $times = implode("\n\r", $val);
+            } else {
+                $times = userdate($this->bookingdata->sessions[$this->pdfsessions]->coursestarttime,
+                        get_string('strftimedatetime', 'langconfig'));
+                $times .= ' - ' . userdate($this->bookingdata->sessions[$this->pdfsessions]->courseendtime,
+                        get_string('strftimetime', 'langconfig'));
             }
         }
         $this->times = $times;
     }
 
     /**
-     * Get logo in header for signin sheet and include it in PDF return true if logo is used otherwise false
+     * Get logo in header for signin sheet and include it in PDF return true if logo is used
+     * otherwise false
      *
      * @return boolean true if image is used false if not
      */
@@ -384,7 +423,8 @@ class generator {
     }
 
     /**
-     * Get logo in footer for signin sheet and include it in PDF return true if logo is used otherwise false
+     * Get logo in footer for signin sheet and include it in PDF return true if logo is used
+     * otherwise false
      *
      * @return boolean true if image is used false if not
      */
@@ -435,8 +475,7 @@ class generator {
             $sql = "SELECT bc.cfgname, bc.value
                   FROM {booking_customfields} bc
                  WHERE cfgname $insql
-                 AND   optionid = " .
-                     $this->bookingdata->option->id;
+                 AND   optionid = " . $this->bookingdata->option->id;
             $custfieldvalues = $DB->get_records_sql($sql, $params);
             if (!empty($custfieldvalues)) {
                 foreach ($custfieldvalues as $record) {
@@ -457,8 +496,8 @@ class generator {
 
         if (!empty($this->bookingdata->option->location)) {
             $this->pdf->Cell(0, 0,
-                    get_string('pdfroom', 'booking') . $this->bookingdata->option->location, 0, 1,
-                    '', 0, '', 1);
+                    get_string('pdfroom', 'booking') . $this->bookingdata->option->location, 0, 1, '',
+                    0, '', 1);
         }
         $this->pdf->Ln();
         $this->pdf->Cell($this->pdf->GetStringWidth(get_string('pdftodaydate', 'booking')) + 1, 0,

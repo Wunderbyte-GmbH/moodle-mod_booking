@@ -34,6 +34,9 @@ $action = optional_param('action', '', PARAM_ALPHANUM);
 $confirm = optional_param('confirm', '', PARAM_INT);
 $page = optional_param('page', '0', PARAM_INT);
 $orderby = optional_param('orderby', 'lastname', PARAM_ALPHANUM);
+$orientation = optional_param('orientation', 'L', PARAM_ALPHA);
+$pdfsessions = optional_param('pdfsessions', 0, PARAM_INT);
+$pdftitle = optional_param('pdftitle', 1, PARAM_INT);
 
 // Search.
 $searchdate = optional_param('searchdate', 0, PARAM_INT);
@@ -139,6 +142,7 @@ if ($action !== '') {
     $urlparams['action'] = $action;
 }
 
+$baseurl = new moodle_url('/mod/booking/report.php', array('id' => $id, 'optionid' => $optionid));
 $url = new moodle_url('/mod/booking/report.php', $urlparams);
 $currenturl = new moodle_url('/mod/booking/report.php', $urlparams);
 
@@ -173,8 +177,13 @@ $event = \mod_booking\event\report_viewed::create(
         array('objectid' => $optionid, 'context' => context_module::instance($cm->id)));
 $event->trigger();
 
-if ($action == 'downloadsigninportrait' || $action == 'downloadsigninlandscape') {
-    $pdf = new mod_booking\signinsheet\generator($bookingdata , $action, array('orderby' => $orderby));
+if ($action == 'downloadpdf') {
+    $pdfoptions = new stdClass();
+    $pdfoptions->orientation = $orientation;
+    $pdfoptions->orderby = $orderby;
+    $pdfoptions->title = $pdftitle;
+    $pdfoptions->sessions = $pdfsessions;
+    $pdf = new mod_booking\signinsheet\generator($bookingdata , $pdfoptions);
     $pdf->download_signinsheet();
     die();
 }
@@ -750,34 +759,13 @@ if (!$tableallbookings->is_downloading()) {
     echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
             array('onclick' => 'copyToClipboard("' . $onlyoneurl . '"); return false;')) . ' | ';
 
-            echo html_writer::div( get_string('sign_in_sheet_download', 'mod_booking') . ": ", '');
-
-    $signinsheeturlp = new moodle_url('/mod/booking/report.php',
-            array('id' => $id, 'optionid' => $optionid, 'action' => 'downloadsigninportrait'));
-
-    $signinsheeturll = new moodle_url('/mod/booking/report.php',
-            array('id' => $id, 'optionid' => $optionid, 'action' => 'downloadsigninlandscape'));
-
-    $signinsheeturlp->param('orderby', 'firstname');
-    echo html_writer::link($signinsheeturlp, get_string('pdfportrait', 'mod_booking') . ": " . get_string('sortbyfirstname', 'grades') ,
-            array('target' => '_blank', 'class' => 'btn btn-default'));
-
-    $signinsheeturlp->param('orderby', 'lastname');
-    echo html_writer::link($signinsheeturlp, get_string('pdfportrait', 'mod_booking') . ": " . get_string('sortbylastname', 'grades') ,
-            array('target' => '_blank', 'class' => 'btn btn-default'));
-
-    $signinsheeturll->param('orderby', 'firstname');
-    echo html_writer::link($signinsheeturll, get_string('pdflandscape', 'mod_booking') . ": " . get_string('sortbyfirstname', 'grades') ,
-            array('target' => '_blank', 'class' => 'btn btn-default'));
-
-    $signinsheeturll->param('orderby', 'lastname');
-    echo html_writer::link($signinsheeturll, get_string('pdflandscape', 'mod_booking') . ": " . get_string('sortbylastname', 'grades') ,
-            array('target' => '_blank', 'class' => 'btn btn-default'));
+    $signinform = new mod_booking\output\signin_downloadform($bookingdata, $baseurl);
+    $renderer = $PAGE->get_renderer('mod_booking');
+    echo $renderer->render_signin_pdfdownloadform($signinform);
 
     echo "<script>
   function copyToClipboard(text) {
-    window.prompt('" .
-             get_string('copytoclipboard', 'booking') . "', text);
+    window.prompt('" . get_string('copytoclipboard', 'booking') . "', text);
   }
 </script>";
 
