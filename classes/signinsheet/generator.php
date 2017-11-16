@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking\signinsheet;
 
 defined('MOODLE_INTERNAL') || die();
@@ -337,7 +337,11 @@ class generator {
                         $name = $user->address;
                         break;
                     case 'role':
-                        $name = strip_tags(get_user_roles_in_course($user->id, 1));
+                        $roles = get_user_roles(\context_system::instance(), $user->id);
+                        $rolenames = array_map(function ($role) {
+                            return $role->name;
+                        }, $roles);
+                        $name = implode(", ", $rolenames);
                         break;
                     default:
                         $name = '';

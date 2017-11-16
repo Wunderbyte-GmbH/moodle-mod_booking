@@ -198,9 +198,9 @@ class site_overview implements \renderable {
                 $attributemy = $boldtext;
                 break;
         }
+        $sorturl = new \moodle_url($url);
+        $sorturl->param('sort', 'user');
         if (!empty($this->readresponsesprivilegeinstances)) {
-            $sorturl = new \moodle_url($url);
-            $sorturl->param('sort', 'user');
             echo \html_writer::link($sorturl, get_string('sortbyuser', 'block_booking'),
                     $attributeuser);
             echo \html_writer::span("  //  ");
@@ -208,7 +208,6 @@ class site_overview implements \renderable {
                     $attributecourse);
             echo \html_writer::span("  //  ");
         }
-        $sorturl->param('sort', 'my');
         echo \html_writer::link($sorturl, get_string('showmybookingsonly', 'mod_booking'), $attributemy);
         $bookingoptions = $this->get_all_booking_option_instances();
 

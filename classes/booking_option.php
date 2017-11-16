@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Managing a single booking option
@@ -33,7 +34,7 @@ class booking_option extends booking {
     /** @var array of booked users visible to the current user (group members) */
     public $bookedvisibleusers = array();
 
-    /** @var array of users that can be subscribed to that booking option if groups enabled, only members of groups user has access to are shown */
+    /** @var array of users subscribeable to booking option if groups enabled, members of groups user has access to */
     public $potentialusers = array();
 
     public $optionid = null;
@@ -207,10 +208,11 @@ class booking_option extends booking {
 
     public function get_teachers() {
         global $DB;
-
         $this->option->teachers = $DB->get_records_sql(
-                'SELECT DISTINCT t.userid, u.firstname, u.lastname FROM {booking_teachers} t LEFT JOIN {user} u ON t.userid = u.id WHERE t.optionid = ' .
-                         $this->optionid . '');
+                'SELECT DISTINCT t.userid, u.firstname, u.lastname
+                            FROM {booking_teachers} t
+                       LEFT JOIN {user} u ON t.userid = u.id
+                           WHERE t.optionid = ' . $this->optionid . '');
     }
 
     /**
@@ -231,7 +233,8 @@ class booking_option extends booking {
             $params['completed'] = $this->filters['searchfinished'];
         }
         if (isset($this->filters['searchdate']) && $this->filters['searchdate'] == 1) {
-            $beginofday = strtotime("{$this->urlparams['searchdateday']}-{$this->urlparams['searchdatemonth']}-{$this->urlparams['searchdateyear']}");
+            $beginofday = strtotime(
+                    "{$this->urlparams['searchdateday']}-{$this->urlparams['searchdatemonth']}-{$this->urlparams['searchdateyear']}");
             $endofday = strtotime("tomorrow", $beginofday) - 1;
             $options .= " AND ba.timecreated BETWEEN :beginofday AND :endofday";
             $params['beginofday'] = $beginofday;
@@ -247,8 +250,11 @@ class booking_option extends booking {
             $options .= " AND u.lastname LIKE :searchsurname";
             $params['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
         }
-        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($this->course->id))) {
-            list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($this->course->id);
+        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS and
+                 !has_capability('moodle/site:accessallgroups',
+                        \context_course::instance($this->course->id))) {
+            list($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql(
+                    $this->course->id);
             $options .= " AND u.id IN ($groupsql)";
             $params = array_merge($params, $groupparams);
         }
@@ -429,7 +435,8 @@ class booking_option extends booking {
     }
 
     /**
-     * Updates canbookusers and bookedusers does not check the status (booked or waitinglist) Just gets the registered booking from database
+     * Updates canbookusers and bookedusers does not check the status (booked or waitinglist)
+     * Just gets the registered booking from database
      * Calculates the potential users (bookers able to book, but not yet booked)
      */
     public function update_booked_users() {
@@ -441,22 +448,22 @@ class booking_option extends booking {
 
         $mainuserfields = \user_picture::fields('u', null);
         $sql = "SELECT $mainuserfields, ba.id AS answerid, ba.optionid, ba.bookingid
-        FROM {booking_answers} ba, {user} u
-        WHERE ba.userid = u.id AND
-        u.deleted = 0 AND
-        ba.bookingid = :bookingid AND
-        ba.optionid = :optionid
-        ORDER BY ba.timemodified ASC";
+                 FROM {booking_answers} ba, {user} u
+                WHERE ba.userid = u.id
+                  AND u.deleted = 0
+                  AND ba.bookingid = :bookingid
+                  AND ba.optionid = :optionid
+             ORDER BY ba.timemodified ASC";
         $params = array("bookingid" => $this->id, "optionid" => $this->optionid);
 
         // It is possible that the cap mod/booking:choose has been revoked after the user has booked Therefore do not count them as booked users.
         $allanswers = $DB->get_records_sql($sql, $params);
         $this->bookedusers = array_intersect_key($allanswers, $this->canbookusers);
-        // TODO offer users with according caps to delete excluded users from booking option
-        // $excludedusers = array_diff_key($allanswers, $this->canbookusers);
+        // TODO offer users with according caps to delete excluded users from booking option.
         $this->numberofanswers = count($this->bookedusers);
-
-        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($this->course->id))) {
+        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS and
+                 !has_capability('moodle/site:accessallgroups',
+                        \context_course::instance($this->course->id))) {
             $mygroups = groups_get_all_groups($this->course->id, $USER->id);
             $mygroupids = array_keys($mygroups);
             list($insql, $inparams) = $DB->get_in_or_equal($mygroupids, SQL_PARAMS_NAMED, 'grp', true, -1);
@@ -480,7 +487,7 @@ class booking_option extends booking {
     }
 
     /**
-     * add booked/waitinglist info to each userobject of users
+     * Add booked/waitinglist info to each userobject of users.
      */
     public function sort_answers() {
         if (!empty($this->bookedusers) && null != $this->option) {
@@ -489,7 +496,7 @@ class booking_option extends booking {
                 if (!$this->option->limitanswers) {
                     $userobject->booked = 'booked';
                 }
-                // rank starts at 0 so add + 1 to corespond to max answer settings
+                // Rank starts at 0 so add + 1 to corespond to max answer settings.
                 if ($this->option->maxanswers < ($rank + 1) &&
                          $rank + 1 <= ($this->option->maxanswers + $this->option->maxoverbooking)) {
                     $userobject->booked = 'waitinglist';
@@ -501,15 +508,15 @@ class booking_option extends booking {
     }
 
     /**
-     * Mass delete all users with activity completion
+     * Mass delete all users with activity completion.
      */
     public function delete_responses_activitycompletion() {
         global $DB;
 
         $ud = array();
         $oud = array();
-
-        $users = $DB->get_records('course_modules_completion', array('coursemoduleid' => $this->booking->completionmodule));
+        $users = $DB->get_records('course_modules_completion',
+                array('coursemoduleid' => $this->booking->completionmodule));
         $ousers = $DB->get_records('booking_answers', array('optionid' => $this->optionid));
 
         foreach ($users as $u) {
@@ -548,22 +555,22 @@ class booking_option extends booking {
     }
 
     /**
-     * Deletes a single booking of a user if user cancels the booking, sends mail to bookingmanager. If there is a limit book other user and send mail
-     * to the user.
+     * Deletes a single booking of a user if user cancels the booking, sends mail to bookingmanager.
+     * If there is a limit book other user and send mail to the user.
      *
      * @param $userid
      * @return true if booking was deleted successfully, otherwise false
      */
     public function user_delete_response($userid) {
         global $USER, $DB;
-
-        $result = $DB->get_records('booking_answers', array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0));
+        $result = $DB->get_records('booking_answers',
+                array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0));
 
         if (count($result) == 0) {
             return false;
         }
-
-        $DB->delete_records('booking_answers', array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0));
+        $DB->delete_records('booking_answers',
+                array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0));
 
         if ($userid == $USER->id) {
             $user = $USER;
@@ -687,7 +694,7 @@ class booking_option extends booking {
             }
         }
 
-        // Remove activity completion
+        // Remove activity completion.
         $course = $DB->get_record('course', array('id' => $this->booking->course));
         $completion = new \completion_info($course);
 
@@ -979,7 +986,7 @@ class booking_option extends booking {
             }
         }
 
-        // Delete comments
+        // Delete comments.
         $DB->delete_records("comments",
                 array('itemid' => $this->optionid, 'commentarea' => 'booking_option',
                     'contextid' => $this->context->id));
@@ -1054,8 +1061,10 @@ class booking_option extends booking {
     }
 
     /**
-     * Retrieves the global booking settings and returns the customfields string[customfieldname][value] will return the actual text for the custom
-     * field string[customfieldname][type] will return the type: for now only textfield
+     * Retrieves the global booking settings and returns the customfields
+     * string[customfieldname][value]
+     * Will return the actual text for the custom field string[customfieldname][type]
+     * Will return the type: for now only textfield
      *
      * @return array string[customfieldname][value|type]; empty array if no settings set
      */

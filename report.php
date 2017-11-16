@@ -759,15 +759,15 @@ if (!$tableallbookings->is_downloading()) {
     echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
             array('onclick' => 'copyToClipboard("' . $onlyoneurl . '"); return false;')) . ' | ';
 
-    $signinform = new mod_booking\output\signin_downloadform($bookingdata, $baseurl);
-    $renderer = $PAGE->get_renderer('mod_booking');
-    echo $renderer->render_signin_pdfdownloadform($signinform);
-
     echo "<script>
   function copyToClipboard(text) {
     window.prompt('" . get_string('copytoclipboard', 'booking') . "', text);
   }
 </script>";
+
+    $signinform = new mod_booking\output\signin_downloadform($bookingdata, $baseurl);
+    $renderer = $PAGE->get_renderer('mod_booking');
+    echo $renderer->render_signin_pdfdownloadform($signinform);
 
     echo $OUTPUT->footer();
 } else {
