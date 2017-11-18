@@ -29,13 +29,13 @@
     This template is initially hidden, and is only displayed after the current user info has been loaded.
 }}
 <div class="card">
-    <div class="card-body">
-		<h5 class="card-title">{{#str}}sign_in_sheet_download, mod_booking{{/str}}</h5>
-		<form data-region="booking-download-signinsheet-form" method="get" action="{{baseurl}}">
+    <form data-region="booking-download-signinsheet-form" method="get" action="{{baseurl}}">
+		<div class="card-header"><h5 class="card-title">{{#str}}sign_in_sheet_download, mod_booking{{/str}}</h5></div>
+	    <div class="card-body">
 		    <input name="optionid" type="hidden" value="{{optionid}}">
 		    <input name="id" type="hidden" value="{{id}}">
 		    <input name="action" type="hidden" value="downloadpdf">
-		    <div class="container">
+		    <div class="container-fluid">
 			    <div class="row">
 				    <div class="col-xs-6 span6 col-6">
 					    <input id="signin-landscape" checked="checked" type="radio" class="m-r-1" name="orientation" value="L"/><label for="signin-landscape">{{#str}}pdflandscape, mod_booking{{/str}}</label><br>
@@ -47,31 +47,30 @@
 					</div>
 				</div>
 				<div class="row">
-				    <fieldset> 
-					    <div class="col-xs-6 span6 col-6">
-						    <label for="signin-pdftitle">{{#str}}choosepdftitle, mod_booking{{/str}}</label>
-						    <div>
-							    <select name="pdftitle" id="signin-pdftitle" class="custom-select">
-							        <option value="1">{{titleinstanceoption}}</option>
-							        <option value="2">{{titleoption}}</option>
-							    </select>
-						    </div>
+				    <div class="col-xs-6 span6 col-6">
+					    <label for="signin-pdftitle">{{#str}}choosepdftitle, mod_booking{{/str}}</label>
+					    <div>
+						    <select name="pdftitle" id="signin-pdftitle" class="custom-select">
+						        <option value="1">{{titleinstanceoption}}</option>
+						        <option value="2">{{titleoption}}</option>
+						        <option value="3">{{instanceoption}}</option>
+						    </select>
 					    </div>
-					    <div class="col-xs-6 span6 col-6">
-						    <label for="signin-onesession">{{#str}}signinonesession, mod_booking{{/str}}</label>
-						    <div>
-							    <select name="pdfsessions" id="signin-onesession" class="custom-select">
-							            <option value="0">{{#str}}all{{/str}}</option>
-							        {{#sessions}}
-							            <option value="{{id}}">{{coursestarttime}} - {{courseendtime}}</option>
-							        {{/sessions}}
-							    </select>
-						    </div>
+				    </div>
+				    <div class="col-xs-6 span6 col-6">
+					    <label for="signin-onesession">{{#str}}signinonesession, mod_booking{{/str}}</label>
+					    <div>
+						    <select name="pdfsessions" id="signin-onesession" class="custom-select">
+						            <option value="0">{{#str}}all{{/str}}</option>
+						        {{#sessions}}
+						            <option value="{{id}}">{{coursestarttime}} - {{courseendtime}}</option>
+						        {{/sessions}}
+						    </select>
 					    </div>
-    			    </fieldset>
+				    </div>
 			    </div>
 		    </div>
-		    <button type="submit" class="btn btn-primary" name="downloadpdf" />{{#str}}download{{/str}}</button>
-		</form>
-	</div>
+		</div>
+		<div class="card-footer"><button type="submit" class="btn btn-primary" name="downloadpdf" />{{#str}}download{{/str}}</button></div>
+	</form>
 </div>

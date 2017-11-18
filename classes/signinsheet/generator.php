@@ -239,8 +239,10 @@ class generator {
         $this->pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
         if ($this->title == 2) {
             $this->pdf->SetHeaderData('', 0, $this->bookingdata->option->text, '');
-        } else {
+        } else if ($this->title == 1) {
             $this->pdf->SetHeaderData('', 0, $this->bookingdata->booking->name . ': ' . $this->bookingdata->option->text, '');
+        }  else {
+            $this->pdf->SetHeaderData('', 0, $this->bookingdata->booking->name, '');
         }
         $this->pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
         $this->pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_LEFT);
