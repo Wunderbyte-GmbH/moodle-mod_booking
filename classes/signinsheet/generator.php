@@ -240,8 +240,9 @@ class generator {
         if ($this->title == 2) {
             $this->pdf->SetHeaderData('', 0, $this->bookingdata->option->text, '');
         } else if ($this->title == 1) {
-            $this->pdf->SetHeaderData('', 0, $this->bookingdata->booking->name . ': ' . $this->bookingdata->option->text, '');
-        }  else {
+            $this->pdf->SetHeaderData('', 0,
+                    $this->bookingdata->booking->name . ': ' . $this->bookingdata->option->text, '');
+        } else {
             $this->pdf->SetHeaderData('', 0, $this->bookingdata->booking->name, '');
         }
         $this->pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
