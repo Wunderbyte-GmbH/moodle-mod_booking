@@ -1708,6 +1708,22 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2017091402, 'booking');
     }
+    if ($oldversion < 2017112101) {
+        $sql = 'SELECT MAX(id), cfgname, optionid, COUNT(*)
+                  FROM {booking_customfields}
+              GROUP BY optionid, cfgname
+                HAVING COUNT(*) > 1';
+        while ($records = $DB->get_records_sql($sql)) {
+            if (!empty($records)) {
+                foreach ($records as $id => $record) {
+                    $DB->delete_records('booking_customfields', array('id' => $id));
+                }
+            }
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2017112101, 'booking');
+    }
 
     return true;
 }

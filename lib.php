@@ -543,7 +543,6 @@ function booking_update_options($optionvalues) {
     require_once("$CFG->dirroot/mod/booking/locallib.php");
     require_once("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
     $customfields = \mod_booking\booking_option::get_customfield_settings();
-    $customfield = new stdClass();
     $bokingutils = new booking_utils();
 
     $booking = $DB->get_record('booking', array('id' => $optionvalues->bookingid));
@@ -666,10 +665,12 @@ function booking_update_options($optionvalues) {
                                 array('bookingid' => $booking->id, 'optionid' => $option->id,
                                     'cfgname' => $fieldcfgname));
                         if ($customfieldid) {
+                            $customfield = new stdClass();
                             $customfield->id = $customfieldid;
                             $customfield->value = $optionvalues->$fieldcfgname;
                             $DB->update_record('booking_customfields', $customfield);
                         } else {
+                            $customfield = new stdClass();
                             $customfield->value = $optionvalues->$fieldcfgname;
                             $customfield->optionid = $option->id;
                             $customfield->bookingid = $booking->id;
