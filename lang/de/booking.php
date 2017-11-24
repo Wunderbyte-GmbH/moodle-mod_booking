@@ -493,6 +493,7 @@ $string['responsesfields'] = 'Auf der "Antworten verwalten"-Seite';
 $string['optionsfields'] = 'Auf der Seite der Buchungsoptionsübersicht';
 $string['signinsheetfields'] = 'Auf der Unterschriftenliste (PDF-Download)';
 $string['signinonesession'] = 'Ausfgewählte Session-Zeiten auf der Unterschriftenliste anzeigen';
+$string['signinaddemptyrows'] = 'Anzahl an hinzuzufügenden leeren Zeilen, für Personen die sich nicht registriert haben';
 $string['choosepdftitle'] = 'Wählen Sie einen Titel für die Unterschriftenliste';
 $string['additionalfields'] = 'Zusätzliche Felder';
 $string['addtogroup'] = 'Nutzer/innen automatisch in Gruppe einschreiben';
@@ -794,5 +795,3 @@ $string['pdfroom'] = 'Raum: ';
 $string['pdfstudentname'] = "Name Student/in";
 $string['pdfsignature'] = "Unterschrift";
 $string['pdftodaydate'] = 'Datum: ';
-
-

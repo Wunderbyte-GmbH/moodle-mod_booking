@@ -70,6 +70,13 @@ class generator {
     public $cfgcustfields = array();
 
     /**
+     * number of empty rows to add at the end of the pdf
+     *
+     * @var int
+     */
+    public $addemptyrows = 0;
+
+    /**
      * width of the pdf columns
      *
      * @var number
@@ -156,6 +163,7 @@ class generator {
         $this->orientation = $pdfoptions->orientation;
         $this->title = $pdfoptions->title;
         $this->pdfsessions = $pdfoptions->sessions;
+        $this->addemptyrows = $pdfoptions->addemptyrows;
 
         if ($this->orientation == "P") {
             $this->colwidth = 210;
@@ -230,6 +238,27 @@ class generator {
                         array_merge($groupparams,
                                 array('optionid' => $this->bookingdata->option->id)));
 
+            // Create fake users for adding empty rows.
+        if ($this->addemptyrows > 0) {
+            $fakeuser = new \stdClass();
+            $fakeuser->id = 0;
+            $fakeuser->city = '';
+            $fakeuser->firstname = '';
+            $fakeuser->lastname = '';
+            $fakeuser->institution = '';
+            $fakeuser->description = '';
+            $fakeuser->city = '';
+            $fakeuser->country = '';
+            $fakeuser->idnumber = '';
+            $fakeuser->email = '';
+            $fakeuser->phone1 = '';
+            $fakeuser->department = '';
+            $fakeuser->address = '';
+            for ($i = 1; $i <= $this->addemptyrows; $i++) {
+                array_push($users, $fakeuser);
+            }
+        }
+
         $this->pdf->SetCreator(PDF_CREATOR);
         $this->pdf->setPrintHeader(true);
         $this->pdf->setPrintFooter(true);
@@ -279,7 +308,7 @@ class generator {
             $profiletext = '';
             profile_load_custom_fields($user);
             $userprofile = $user->profile;
-            if (!empty($user->profile)) {
+            if (!empty($user->profile) && $user->id > 0) {
                 $profiletext .= " ";
                 foreach ($user->profile as $profilename => $value) {
                     if (in_array($profilename, $profilefieldnames)) {
@@ -340,11 +369,17 @@ class generator {
                         $name = $user->address;
                         break;
                     case 'role':
-                        $roles = get_user_roles(\context_system::instance(), $user->id);
-                        $rolenames = array_map(function ($role) {
-                            return $role->name;
-                        }, $roles);
-                        $name = implode(", ", $rolenames);
+                            // Check if the user is a fake user.
+                        if ($user->id > 0) {
+                            $roles = get_user_roles(\context_system::instance(), $user->id);
+                            $rolenames = array_map(
+                                    function ($role) {
+                                        return $role->name;
+                                    }, $roles);
+                            $name = implode(", ", $rolenames);
+                        } else {
+                            $name = '';
+                        }
                         break;
                     default:
                         $name = '';
