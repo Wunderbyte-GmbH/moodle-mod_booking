@@ -37,6 +37,7 @@ $orderby = optional_param('orderby', 'lastname', PARAM_ALPHANUM);
 $orientation = optional_param('orientation', 'L', PARAM_ALPHA);
 $pdfsessions = optional_param('pdfsessions', 0, PARAM_INT);
 $pdftitle = optional_param('pdftitle', 1, PARAM_INT);
+$addemptyrows = optional_param('addemptyrows', 0, PARAM_INT);
 
 // Search.
 $searchdate = optional_param('searchdate', 0, PARAM_INT);
@@ -183,6 +184,7 @@ if ($action == 'downloadpdf') {
     $pdfoptions->orderby = $orderby;
     $pdfoptions->title = $pdftitle;
     $pdfoptions->sessions = $pdfsessions;
+    $pdfoptions->addemptyrows = $addemptyrows;
     $pdf = new mod_booking\signinsheet\generator($bookingdata , $pdfoptions);
     $pdf->download_signinsheet();
     die();

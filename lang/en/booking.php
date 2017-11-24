@@ -678,6 +678,7 @@ $string['responsesfields'] = 'Fields on the "manage responses" page';
 $string['optionsfields'] = 'Fields on the booking options overview page';
 $string['signinsheetfields'] = 'Sign-in sheet fields (PDF)';
 $string['signinonesession'] = 'Display selected session time on the sign-in sheet';
+$string['signinaddemptyrows'] = 'Number of empty rows to add for people who did not sign up';
 $string['choosepdftitle'] = 'Select a title for the sign-in sheet';
 $string['addtogroup'] = 'Automatically enrol users in group';
 $string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name "Bookin name - Option name"';
@@ -1042,5 +1043,3 @@ $string['googleapikey'] = 'Google API key';
 $string['googleapikey_desc'] = 'API key for Google URL Shortener. Get it here: https://developers.google.com/url-shortener/v1/getting_started#APIKey';
 $string['numberrows'] = 'Number rows';
 $string['numberrowsdesc'] = 'Number each row of the sign-in sheet. Number will be displayed left of the name in the same column';
-
-

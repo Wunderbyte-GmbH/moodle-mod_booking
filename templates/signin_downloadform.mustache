@@ -31,19 +31,40 @@
 <div class="card">
     <form data-region="booking-download-signinsheet-form" method="get" action="{{baseurl}}">
 		<div class="card-header"><h5 class="card-title">{{#str}}sign_in_sheet_download, mod_booking{{/str}}</h5></div>
-	    <div class="card-body">
+	    <div class="card-body py-4">
 		    <input name="optionid" type="hidden" value="{{optionid}}">
 		    <input name="id" type="hidden" value="{{id}}">
 		    <input name="action" type="hidden" value="downloadpdf">
 		    <div class="container-fluid">
 			    <div class="row">
-				    <div class="col-xs-6 span6 col-6">
+				    <div class="col-xs-4 span4 col-4">
 					    <input id="signin-landscape" checked="checked" type="radio" class="m-r-1" name="orientation" value="L"/><label for="signin-landscape">{{#str}}pdflandscape, mod_booking{{/str}}</label><br>
 					    <input id="signin-portrait" type="radio" class="m-r-1" name="orientation" value="P"/><label for="signin-portrait">{{#str}}pdfportrait, mod_booking{{/str}}</label><br>
 				    </div>
-				    <div class="col-xs-6 span6 col-6">
+				    <div class="col-xs-4 span4 col-4">
 					    <input id="signin-sort-firstname" checked="checked" type="radio" class="m-r-1" name="orderby" value="firstname"/><label for="signin-sort-firstname">{{#str}}sortbyfirstname, grades{{/str}}</label><br>
 					    <input id="signin-sort-lastname" type="radio" class="m-r-1" name="orderby" value="lastname"/><label for="signin-sort-lastname">{{#str}}sortbylastname, grades{{/str}}</label><br>
+					</div>
+					<div class="col-xs-4 span4 col-4">
+						<label for="addemptyrows">{{#str}}signinaddemptyrows, mod_booking{{/str}}</label>
+						<div>
+							<select name="addemptyrows" id="signin-addemptyrows" class="custom-select">
+								<option value="0">0</option>
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+								<option value="6">6</option>
+								<option value="7">7</option>
+								<option value="8">8</option>
+								<option value="9">9</option>
+								<option value="10">10</option>
+								<option value="20">20</option>
+								<option value="40">40</option>
+								<option value="80">80</option>
+							</select>
+						</div>
 					</div>
 				</div>
 				<div class="row">
