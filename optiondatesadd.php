@@ -80,7 +80,8 @@ if ($mform->is_cancelled()) {
 
     $defaultvalues = new stdClass();
     if ($optiondateid != '') {
-        $defaultvalues = $DB->get_record('booking_optiondates', array('id' => $optiondateid));
+        $defaultvalues = $DB->get_record('booking_optiondates', array('id' => $optiondateid), '*',
+                MUST_EXIST);
         // The id in the form will be course module id, not the optiondate id.
         $defaultvalues->optiondateid = $defaultvalues->id;
         unset($defaultvalues->id);

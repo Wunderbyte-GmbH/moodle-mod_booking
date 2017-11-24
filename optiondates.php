@@ -26,6 +26,7 @@ require_once("locallib.php");
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $delete = optional_param('delete', '', PARAM_INT);
+$duplicate = optional_param('duplicate', '', PARAM_INT);
 
 $url = new moodle_url('/mod/booking/optiondates.php', array('id' => $id, 'optionid' => $optionid));
 $PAGE->set_url($url);
@@ -44,6 +45,14 @@ if ($delete != '') {
     $DB->delete_records("booking_optiondates", array('optionid' => $optionid, 'id' => $delete));
     booking_updatestartenddate($optionid);
     redirect($url, get_string('optiondatessuccessfullydelete', 'booking'), 5);
+}
+if ($duplicate != '') {
+    $record = $DB->get_record("booking_optiondates",
+            array('optionid' => $optionid, 'id' => $duplicate),
+            'bookingid, optionid, coursestarttime, courseendtime');
+    $DB->insert_record("booking_optiondates", $record);
+    booking_updatestartenddate($optionid);
+    redirect($url, get_string('optiondatessuccessfullysaved', 'booking'), 5);
 }
 
 $PAGE->navbar->add(get_string("optiondates", "booking"));
@@ -69,13 +78,16 @@ foreach ($times as $time) {
     $delete = new moodle_url('optiondates.php',
             array('id' => $id, 'optionid' => $optionid, 'delete' => $time->id));
     $buttondelete = $OUTPUT->single_button($delete, get_string('delete', 'booking'), 'get');
+    $duplicate = new moodle_url('optiondates.php',
+            array('id' => $id, 'optionid' => $optionid, 'duplicate' => $time->id));
+    $buttonduplicate = $OUTPUT->single_button($duplicate, get_string('duplicate'), 'get');
 
     $tmpdate = new stdClass();
     $tmpdate->leftdate = userdate($time->coursestarttime, get_string('strftimedatetime', 'langconfig'));
     $tmpdate->righttdate = userdate($time->courseendtime, get_string('strftimetime', 'langconfig'));
 
     $timestable[] = array(get_string('leftandrightdate', 'booking', $tmpdate),
-        html_writer::tag('span', $button . $buttondelete,
+        html_writer::tag('span', $button . $buttondelete . $buttonduplicate,
                 array('style' => 'text-align: right; display:table-cell;')));
 }
 
