@@ -15,11 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->libdir . '/tcpdf/tcpdf.php');
-
 
 /**
  * Standard base class for mod_booking

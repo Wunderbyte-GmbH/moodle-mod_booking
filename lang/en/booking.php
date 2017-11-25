@@ -1001,13 +1001,11 @@ $string['otherbookinglimit_help'] = "How many users you accept from option. If 0
 $string['otherbookingsuccessfullysaved'] = 'Rule saved!';
 
 // optiondates.php
-$string['addnewoptiondates'] = 'Add/edit session';
-$string['savenewoptiondates'] = 'Save';
 $string['optiondatestime'] = 'Session time';
 $string['optiondatessuccessfullysaved'] = "Session time was saved.";
 $string['optiondatessuccessfullydelete'] = "Session time was deleted.";
-$string['delete'] = "Delete";
 $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
+$string['editingoptiondate'] = 'You are currently editing this session';
 
 // locallib.php
 $string['pdfdate'] = 'Booking Date(s): ';

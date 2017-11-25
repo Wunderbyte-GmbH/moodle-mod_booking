@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  *
  * @package moodlecore
@@ -22,9 +21,8 @@
  * @copyright 2010 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-/**
- * Define all the backup steps that will be used by the backup_booking_activity_task
- */
+
+defined('MOODLE_INTERNAL') || die;
 
 /**
  * Define the complete booking structure for backup, with file and id annotations
@@ -142,10 +140,11 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $optiondate->set_source_table('booking_optiondates', array('bookingid' => backup::VAR_PARENTID));
         $customfield->set_source_table('booking_customfields', array('bookingid' => backup::VAR_PARENTID));
 
-        // All the rest of elements only happen if we are including user info.
+            // All the rest of elements only happen if we are including user info.
         if ($userinfo) {
             $answer->set_source_table('booking_answers', array('bookingid' => backup::VAR_PARENTID));
-            $teacher->set_source_table('booking_teachers', array('bookingid' => backup::VAR_PARENTID));
+            $teacher->set_source_table('booking_teachers',
+                    array('bookingid' => backup::VAR_PARENTID));
         }
 
         // Define id annotations.
@@ -153,9 +152,14 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         // Define file annotations.
         $booking->annotate_files('mod_booking', 'intro', null); // This file area hasn't itemid.
-        $booking->annotate_files('mod_booking', 'bookingpolicy', null); // This file area hasn't itemid.
-        $booking->annotate_files('mod_booking', 'description', 'id'); // This file area hasn't itemid.
-                                                                      // Return the root element (booking), wrapped into standard activity structure.
+        $booking->annotate_files('mod_booking', 'bookingpolicy', null); // This file area hasn't
+                                                                        // itemid.
+        $booking->annotate_files('mod_booking', 'description', 'id'); // This file area hasn't
+                                                                      // itemid.
+                                                                      // Return the root element
+                                                                      // (booking), wrapped into
+                                                                      // standard activity
+                                                                      // structure.
         return $this->prepare_activity_structure($booking);
     }
 }

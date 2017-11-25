@@ -21,18 +21,26 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die;
+
 class GoogleUrlApi {
 
     private $apiurl;
 
-    // https://developers.google.com/url-shortener/v1/getting_started#APIKey Get a new key
-    // Constructor
+    /**
+     * https://developers.google.com/url-shortener/v1/getting_started#APIKey Get a new key
+     * Constructor
+     */
     public function __construct($key, $apiurl = 'https://www.googleapis.com/urlshortener/v1/url') {
-        // Keep the API Url
+        // Keep the API Url.
         $this->apiurl = $apiurl . '?key=' . $key;
     }
 
-    // Shorten a URL
+    /**
+     * Shorten a URL
+     * @param string $url
+     * @return boolean|mixed
+     */
     public function shorten($url) {
         // Send information along
         $response = $this->send($url);
@@ -40,17 +48,28 @@ class GoogleUrlApi {
         return isset($response['id']) ? $response['id'] : false;
     }
 
-    // Expand a URL
+    /**
+     * Expand a URL
+     *
+     * @param string $url
+     * @return boolean|mixed
+     */
     public function expand($url) {
-        // Send information along
+        // Send information along.
         $response = $this->send($url, false);
-        // Return the result
+        // Return the result.
         return isset($response['longUrl']) ? $response['longUrl'] : false;
     }
 
-    // Send information to Google
+    /**
+     * Send information to Google
+     *
+     * @param string $url
+     * @param boolean $shorten
+     * @return mixed
+     */
     public function send($url, $shorten = true) {
-        // Create cURL
+        // Create cURL.
         $ch = curl_init();
         // If we're shortening a URL...
         if ($shorten) {
@@ -62,11 +81,11 @@ class GoogleUrlApi {
             curl_setopt($ch, CURLOPT_URL, $this->apiurl . '&shortUrl=' . $url);
         }
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // Execute the post
+        // Execute the post.
         $result = curl_exec($ch);
-        // Close the connection
+        // Close the connection.
         curl_close($ch);
-        // Return the result
+        // Return the result.
         return json_decode($result, true);
     }
 }
