@@ -22,11 +22,10 @@ require_once($CFG->libdir . '/eventslib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 
 function booking_cron() {
-    global $DB, $USER, $CFG;
+    global $DB;
 
     mtrace('Starting cron for Booking ...');
 
-    $now = time();
     $toprocess = $DB->get_records_sql(
             'SELECT bo.id, bo.coursestarttime, b.daystonotify, b.daystonotify2, bo.sent, bo.sent2
             FROM {booking_options} bo
@@ -79,7 +78,7 @@ function booking_cron() {
 }
 
 function booking_get_coursemodule_info($cm) {
-    global $CFG, $DB;
+    global $CFG;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
 
     $tags = new booking_tags($cm);
@@ -1545,7 +1544,7 @@ function booking_sendreminderemail($selectedusers, $booking, $cmid, $optionid) {
 }
 
 // Send mail to all teachers - pollurlteachers.
-function booking_sendpollurlteachers($booking, $cmid, $optionid) {
+function booking_sendpollurlteachers(\mod_booking\booking_option $booking, $cmid, $optionid) {
     global $DB, $USER;
 
     $returnval = true;
@@ -1557,7 +1556,7 @@ function booking_sendpollurlteachers($booking, $cmid, $optionid) {
         $userdata = $DB->get_record('user', array('id' => $tuser->userid));
 
         $params = booking_generate_email_params($booking->booking, $booking->option, $userdata,
-                $cmid);
+                $cmid, $booking->optiontimes);
 
         $pollurlmessage = booking_get_email_body($booking->booking, 'pollurlteacherstext',
                 'pollurlteacherstextmessage', $params);
@@ -1583,23 +1582,21 @@ function booking_sendpollurlteachers($booking, $cmid, $optionid) {
 }
 
 // Send mail to all users - pollurl.
-function booking_sendpollurl($attemptidsarray, $booking, $cmid, $optionid) {
+function booking_sendpollurl($userids, \mod_booking\booking_option $booking, $cmid, $optionid) {
     global $DB, $USER;
 
     $returnval = true;
 
     $sender = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));
 
-    foreach ($attemptidsarray as $suser) {
-        $tuser = $DB->get_record('user', array('id' => $suser));
+    foreach ($userids as $userid) {
+        $tuser = $DB->get_record('user', array('id' => $userid));
 
-        $params = booking_generate_email_params($booking->booking, $booking->option, $tuser, $cmid);
+        $params = booking_generate_email_params($booking->booking, $booking->option, $tuser, $cmid, $booking->optiontimes);
 
         $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext',
                 'pollurltextmessage', $params);
         $booking->booking->pollurltext = $pollurlmessage;
-        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext',
-                'pollurltextmessage', $params);
 
         $eventdata = new stdClass();
         $eventdata->modulename = 'booking';
@@ -1694,7 +1691,7 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
             $ruser = $DB->get_record('user', array('id' => $record->id));
 
             $params = booking_generate_email_params($bookingdata->booking, $bookingdata->option,
-                    $ruser, $cm->id);
+                    $ruser, $cm->id, $bookingdata->optiontimes);
             $pollurlmessage = booking_get_email_body($bookingdata->booking, 'notifyemail',
                     'notifyemaildefaultmessage', $params);
 
@@ -1860,95 +1857,6 @@ function booking_reset_userdata($data) {
 }
 
 /**
- * Event that sends confirmation notification after user successfully booked TODO this should be rewritten for moodle 2.6 onwards
- *
- * @param object $eventdata data of user and users booking details
- * @return bool
- */
-function booking_send_confirm_message($eventdata) {
-    global $DB, $CFG, $USER;
-    $cmid = $eventdata->cmid;
-    $optionid = $eventdata->optionid;
-    $user = $eventdata->user;
-
-    // Used to store the ical attachment (if required).
-    $attachname = '';
-    $attachment = '';
-
-    $user = $DB->get_record('user', array('id' => $user->id));
-    $bookingmanager = $DB->get_record('user',
-            array('username' => $eventdata->booking->bookingmanager));
-    $data = booking_generate_email_params($eventdata->booking,
-            $eventdata->booking->option[$optionid], $user, $cmid);
-
-    $cansend = true;
-
-    if ($data->status == get_string('booked', 'booking')) {
-        $subject = get_string('confirmationsubject', 'booking', $data);
-        $subjectmanager = get_string('confirmationsubjectbookingmanager', 'booking', $data);
-        $message = booking_get_email_body($eventdata->booking, 'bookedtext', 'confirmationmessage',
-                $data);
-
-        // Generate ical attachment to go with the message.
-        // Check if ical attachments enabled.
-        if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
-            $ical = new mod_booking\ical($eventdata->booking, $eventdata->booking->option[$optionid],
-                    $user, $bookingmanager);
-            if ($attachment = $ical->get_attachment()) {
-                $attachname = $ical->get_name();
-            }
-        }
-    } else if ($data->status == get_string('onwaitinglist', 'booking')) {
-        $subject = get_string('confirmationsubjectwaitinglist', 'booking', $data);
-        $subjectmanager = get_string('confirmationsubjectwaitinglistmanager', 'booking', $data);
-        $message = booking_get_email_body($eventdata->booking, 'waitingtext',
-                'confirmationmessagewaitinglist', $data);
-    } else {
-        // TODO: should never be reached.
-        $subject = "test";
-        $subjectmanager = "tester";
-        $message = "message";
-
-        $cansend = false;
-    }
-    $messagehtml = text_to_html($message, false, false, true);
-    $errormessage = get_string('error:failedtosendconfirmation', 'booking', $data);
-    $errormessagehtml = text_to_html($errormessage, false, false, true);
-    $user->mailformat = FORMAT_HTML; // Always send HTML version as well.
-
-    $messagedata = new stdClass();
-    $messagedata->userfrom = $bookingmanager;
-    if ($eventdata->booking->sendmailtobooker) {
-        $messagedata->userto = $DB->get_record('user', array('id' => $USER->id));
-    } else {
-        $messagedata->userto = $DB->get_record('user', array('id' => $user->id));
-    }
-    $messagedata->subject = $subject;
-    $messagedata->messagetext = format_text_email($message, FORMAT_HTML);
-    $messagedata->messagehtml = $messagehtml;
-    $messagedata->attachment = $attachment;
-    $messagedata->attachname = $attachname;
-
-    if ($cansend) {
-        $sendtask = new mod_booking\task\send_confirmation_mails();
-        $sendtask->set_custom_data($messagedata);
-        \core\task\manager::queue_adhoc_task($sendtask);
-    }
-
-    if ($eventdata->booking->copymail) {
-        $messagedata->userto = $bookingmanager;
-        $messagedata->subject = $subjectmanager;
-
-        if ($cansend) {
-            $sendtask = new mod_booking\task\send_confirmation_mails();
-            $sendtask->set_custom_data($messagedata);
-            \core\task\manager::queue_adhoc_task($sendtask);
-        }
-    }
-    return true;
-}
-
-/**
  *
  * @param number $seconds
  */
@@ -1974,7 +1882,7 @@ function booking_pretty_duration($seconds) {
  * @param int $cmid
  * @return stdClass data to be sent via mail
  */
-function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid) {
+function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid, $optiontimes = array()) {
     global $CFG;
 
     $params = new stdClass();
@@ -2031,15 +1939,18 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
 
     $val = '';
 
-    if (!empty($option->optiontimes)) {
-        $times = explode(',', $option->optiontimes);
+    if (!empty($optiontimes)) {
+        $times = explode(',', trim($optiontimes, ','));
+        $i = 1;
         foreach ($times as $time) {
             $slot = explode('-', $time);
             $tmpdate = new stdClass();
-            $tmpdate->leftdate = userdate($slot[0], get_string('strftimedatetime', 'langconfig'));
-            $tmpdate->righttdate = userdate($slot[1], get_string('strftimetime', 'langconfig'));
-
-            $val .= get_string('leftandrightdate', 'booking', $tmpdate) . '<br>';
+            $tmpdate->number = $i;
+            $tmpdate->date = userdate($slot[0], get_string('strftimedate', 'langconfig'));
+            $tmpdate->starttime = userdate($slot[0], get_string('strftimetime', 'langconfig'));
+            $tmpdate->endtime = userdate($slot[1], get_string('strftimetime', 'langconfig'));
+            $val .= get_string('optiondatesmessage', 'mod_booking', $tmpdate) . '<br><br>';
+            $i++;
         }
     }
 

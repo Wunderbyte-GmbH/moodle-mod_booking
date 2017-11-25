@@ -42,6 +42,9 @@ class booking_option extends booking {
     /** @var booking option config object */
     public $option = null;
 
+    /** @var booking option teachers defined in booking_teachers table */
+    public $teachers = array();
+
     /** @var number of answers */
     public $numberofanswers = null;
 
@@ -206,13 +209,19 @@ class booking_option extends booking {
         $this->option->pollurlteachers = $bu->get_body($params, 'pollurlteachers', $params, true);
     }
 
+    /**
+     * Get teachers from booking_teachers if not set
+     */
     public function get_teachers() {
         global $DB;
-        $this->option->teachers = $DB->get_records_sql(
-                'SELECT DISTINCT t.userid, u.firstname, u.lastname
+        if (empty($this->teachers)) {
+            $this->teachers = $DB->get_records_sql(
+                    'SELECT DISTINCT t.userid, u.firstname, u.lastname
                             FROM {booking_teachers} t
                        LEFT JOIN {user} u ON t.userid = u.id
                            WHERE t.optionid = ' . $this->optionid . '');
+        }
+        return $this->teachers;
     }
 
     /**
@@ -311,6 +320,46 @@ class booking_option extends booking {
     }
 
     /**
+     * Get all users on waitinglist as an array of objects
+     * booking_answer id as key, ->userid,
+     *
+     * @return array of userobjects $this->allusers key: booking_answers id
+     */
+    public function get_all_users_onwaitlist() {
+        if (empty($this->allusers)) {
+            $allusers = $this->get_all_users();
+        } else {
+            $allusers = $this->allusers;
+        }
+        foreach ($allusers as $baid => $user) {
+            if ($user->waitinglist == 1) {
+                $waitlistusers[$baid] = $user;
+            }
+        }
+        return $waitlistusers;
+    }
+
+    /**
+     * Get all users booked users (not aon waitlist) as an array of objects
+     * booking_answer id as key, ->userid,
+     *
+     * @return array of userobjects $this->allusers key: booking_answers id
+     */
+    public function get_all_users_booked() {
+        if (empty($this->allusers)) {
+            $allusers = $this->get_all_users();
+        } else {
+            $allusers = $this->allusers;
+        }
+        foreach ($allusers as $baid => $user) {
+            if ($user->waitinglist != 1) {
+                $waitlistusers[$baid] = $user;
+            }
+        }
+        return $bookedusers;
+    }
+
+    /**
      * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
      *
      * @param number $userid
@@ -402,7 +451,7 @@ class booking_option extends booking {
 
         $text = "";
 
-        $params = booking_generate_email_params($this->booking, $this->option, $USER, $this->cm->id);
+        $params = booking_generate_email_params($this->booking, $this->option, $USER, $this->cm->id, $this->optiontimes);
 
         if (in_array($this->user_status($userid), array(1, 2))) {
             $ac = $this->is_activity_completed($userid);
@@ -586,7 +635,7 @@ class booking_option extends booking {
         $event->trigger();
         $this->unenrol_user($user->id);
 
-        $params = booking_generate_email_params($this->booking, $this->option, $user, $this->cm->id);
+        $params = booking_generate_email_params($this->booking, $this->option, $user, $this->cm->id, $this->optiontimes);
 
         if ($userid == $USER->id) {
             // I cancelled the booking.
@@ -660,7 +709,7 @@ class booking_option extends booking {
                 if ($this->booking->sendmail == 1 || $this->booking->copymail) {
                     $newbookeduser = $DB->get_record('user', array('id' => $newuser->userid));
                     $params = booking_generate_email_params($this->booking, $this->option,
-                            $newbookeduser, $this->cm->id);
+                            $newbookeduser, $this->cm->id, $this->optiontimes);
                     $messagetextnewuser = booking_get_email_body($this->booking, 'statuschangetext',
                             'statuschangebookedmessage', $params);
                     $messagehtml = text_to_html($messagetextnewuser, false, false, true);
@@ -852,15 +901,94 @@ class booking_option extends booking {
 
         if ($this->booking->sendmail) {
             $eventdata = new \stdClass();
-            $eventdata->user = $user;
-            $eventdata->booking = $this->booking;
-            // TODO the next line is for backward compatibility only, delete when finished.
-            // refurbishing the module ;-).
-            $eventdata->booking->option[$this->optionid] = $this->option;
-            $eventdata->optionid = $this->optionid;
-            $eventdata->cmid = $this->cm->id;
-            // TODO replace.
-            booking_send_confirm_message($eventdata);
+            $this->send_confirm_message($user);
+        }
+        return true;
+    }
+
+    /**
+     * Event that sends confirmation notification after user successfully booked TODO this should be rewritten for moodle 2.6 onwards
+     *
+     * @param \stdClass $user user object
+     * @return bool
+     */
+    public function send_confirm_message($user) {
+        global $DB, $USER;
+        $cmid = $this->cm->id;
+        $optionid = $this->optionid;
+        // Used to store the ical attachment (if required).
+        $attachname = '';
+        $attachment = '';
+
+        $user = $DB->get_record('user', array('id' => $user->id));
+        $bookingmanager = $DB->get_record('user',
+                array('username' => $this->booking->bookingmanager));
+        $data = booking_generate_email_params($this->booking,
+                $this->option, $user, $cmid, $this->optiontimes);
+
+        $cansend = true;
+
+        if ($data->status == get_string('booked', 'booking')) {
+            $subject = get_string('confirmationsubject', 'booking', $data);
+            $subjectmanager = get_string('confirmationsubjectbookingmanager', 'booking', $data);
+            $message = booking_get_email_body($this->booking, 'bookedtext', 'confirmationmessage',
+                    $data);
+
+            // Generate ical attachment to go with the message.
+            // Check if ical attachments enabled.
+            if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
+                $ical = new \mod_booking\ical($this->booking, $this->option,
+                        $user, $bookingmanager);
+                if ($attachment = $ical->get_attachment()) {
+                    $attachname = $ical->get_name();
+                }
+            }
+        } else if ($data->status == get_string('onwaitinglist', 'booking')) {
+            $subject = get_string('confirmationsubjectwaitinglist', 'booking', $data);
+            $subjectmanager = get_string('confirmationsubjectwaitinglistmanager', 'booking', $data);
+            $message = booking_get_email_body($this->booking, 'waitingtext',
+                    'confirmationmessagewaitinglist', $data);
+        } else {
+            // TODO: should never be reached.
+            $subject = "test";
+            $subjectmanager = "tester";
+            $message = "message";
+
+            $cansend = false;
+        }
+        $messagehtml = text_to_html($message, false, false, true);
+        $errormessage = get_string('error:failedtosendconfirmation', 'booking', $data);
+        $errormessagehtml = text_to_html($errormessage, false, false, true);
+        $user->mailformat = FORMAT_HTML; // Always send HTML version as well.
+
+        $messagedata = new \stdClass();
+        $messagedata->userfrom = $bookingmanager;
+        if ($this->booking->sendmailtobooker) {
+            $messagedata->userto = $DB->get_record('user', array('id' => $USER->id));
+        } else {
+            $messagedata->userto = $DB->get_record('user', array('id' => $user->id));
+        }
+        $messagedata->subject = $subject;
+        $messagedata->messagetext = format_text_email($message, FORMAT_HTML);
+        $messagedata->messagehtml = $messagehtml;
+        $messagedata->attachment = $attachment;
+        $messagedata->attachname = $attachname;
+
+        if ($cansend) {
+            $sendtask = new \mod_booking\task\send_confirmation_mails();
+            $sendtask->set_custom_data($messagedata);
+            \core\task\manager::queue_adhoc_task($sendtask);
+        }
+
+        if ($this->booking->copymail) {
+            $messagedata->userto = $bookingmanager;
+            $messagedata->subject = $subjectmanager;
+
+            if ($cansend) {
+                $sendtask = new \mod_booking\task\send_confirmation_mails();
+                $sendtask->set_custom_data($messagedata);
+                \core\task\manager::queue_adhoc_task($sendtask);
+            }
         }
         return true;
     }

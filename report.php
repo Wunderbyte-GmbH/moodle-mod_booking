@@ -38,6 +38,7 @@ $orientation = optional_param('orientation', 'L', PARAM_ALPHA);
 $pdfsessions = optional_param('pdfsessions', 0, PARAM_INT);
 $pdftitle = optional_param('pdftitle', 1, PARAM_INT);
 $addemptyrows = optional_param('addemptyrows', 0, PARAM_INT);
+$includeteachers = optional_param('includeteachers', 0, PARAM_INT);
 
 // Search.
 $searchdate = optional_param('searchdate', 0, PARAM_INT);
@@ -164,7 +165,7 @@ $bookingdata = new \mod_booking\booking_option($cm->id, $optionid, $urlparams, $
 $bookingdata->urparams = $urlparams;
 $bookingdata->apply_tags();
 $bookingdata->get_url_params();
-$bookingdata->get_teachers();
+$optionteachers = $bookingdata->get_teachers();
 $paging = $bookingdata->booking->paginationnum;
 if ($paging < 1) {
     $paging = 25;
@@ -185,6 +186,7 @@ if ($action == 'downloadpdf') {
     $pdfoptions->title = $pdftitle;
     $pdfoptions->sessions = $pdfsessions;
     $pdfoptions->addemptyrows = $addemptyrows;
+    $pdfoptions->includeteachers = $includeteachers;
     $pdf = new mod_booking\signinsheet\generator($bookingdata , $pdfoptions);
     $pdf->download_signinsheet();
     die();
@@ -257,9 +259,7 @@ if (!$tableallbookings->is_downloading()) {
                     $allselectedusers[] = array_keys($value)[0];
                 }
             }
-
             booking_generatenewnumners($bookingdata->booking, $cm->id, $optionid, $allselectedusers);
-
             redirect($url, get_string('generaterecnumnotification', 'booking'), 5);
         }
 
@@ -268,7 +268,6 @@ if (!$tableallbookings->is_downloading()) {
             $res = $bookingdata->delete_responses_activitycompletion();
 
             $data = new stdClass();
-
             $data->all = count($res);
             $data->del = 0;
             foreach ($res as $value) {
@@ -276,7 +275,6 @@ if (!$tableallbookings->is_downloading()) {
                     $data->del++;
                 }
             }
-
             redirect($url, get_string('delnotificationactivitycompletion', 'booking', $data), 5);
         }
         $allselectedusers = array();
@@ -560,7 +558,7 @@ if (!$tableallbookings->is_downloading()) {
 
     $teachers = array();
 
-    foreach ($bookingdata->option->teachers as $value) {
+    foreach ($bookingdata->teachers as $value) {
         $teachers[] = html_writer::link(
                 new moodle_url('/user/profile.php', array('id' => $value->userid)),
                 "{$value->firstname} {$value->lastname}", array());

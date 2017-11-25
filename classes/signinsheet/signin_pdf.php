@@ -35,7 +35,9 @@ class signin_pdf extends \TCPDF {
         return $this->checkPageBreak($h, '', true);
     }
 
-    // Page footer.
+    /**
+     * Page footer
+     */
     public function footer() {
         // Position at 15 mm from bottom.
         $this->SetY(-20);

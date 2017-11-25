@@ -494,6 +494,7 @@ $string['optionsfields'] = 'Auf der Seite der Buchungsoptionsübersicht';
 $string['signinsheetfields'] = 'Auf der Unterschriftenliste (PDF-Download)';
 $string['signinonesession'] = 'Ausfgewählte Session-Zeiten auf der Unterschriftenliste anzeigen';
 $string['signinaddemptyrows'] = 'Anzahl an hinzuzufügenden leeren Zeilen, für Personen die sich nicht registriert haben';
+$string['includeteachers'] = 'Trainer/innen in Unterschriftenliste anführen';
 $string['choosepdftitle'] = 'Wählen Sie einen Titel für die Unterschriftenliste';
 $string['additionalfields'] = 'Zusätzliche Felder';
 $string['addtogroup'] = 'Nutzer/innen automatisch in Gruppe einschreiben';
@@ -768,9 +769,10 @@ $string['otherbookingsuccessfullysaved'] = 'Buchungsmöglichkeit gespeichert!';
 
 // optiondates.php
 $string['optiondatestime'] = 'Termine';
+$string['optiondatesmessage'] = 'Termin {$a->number}: {$a->date} <br> Von: {$a->starttime} <br> Bis: {$a->endtime}';
 $string['optiondatessuccessfullysaved'] = "Termin wurde bearbeitet";
 $string['optiondatessuccessfullydelete'] = "Termin wurde gelöscht";
-$string['leftandrightdate'] = '{$a->leftdate} zu {$a->righttdate}';
+$string['leftandrightdate'] = '{$a->leftdate} bis {$a->righttdate}';
 $string['editingoptiondate'] = 'Sie bearbeiten gerade diesen Termin';
 
 // File: settings.php

@@ -31,21 +31,21 @@
 <div class="card">
     <form data-region="booking-download-signinsheet-form" method="get" action="{{baseurl}}">
 		<div class="card-header"><h5 class="card-title">{{#str}}sign_in_sheet_download, mod_booking{{/str}}</h5></div>
-	    <div class="card-body py-4">
+	    <div class="card-body p-y-4">
 		    <input name="optionid" type="hidden" value="{{optionid}}">
 		    <input name="id" type="hidden" value="{{id}}">
 		    <input name="action" type="hidden" value="downloadpdf">
 		    <div class="container-fluid">
-			    <div class="row">
-				    <div class="col-xs-4 span4 col-4">
+			    <div class="row p-y-1">
+				    <div class="col-md-4 span4 col-4">
 					    <input id="signin-landscape" checked="checked" type="radio" class="m-r-1" name="orientation" value="L"/><label for="signin-landscape">{{#str}}pdflandscape, mod_booking{{/str}}</label><br>
 					    <input id="signin-portrait" type="radio" class="m-r-1" name="orientation" value="P"/><label for="signin-portrait">{{#str}}pdfportrait, mod_booking{{/str}}</label><br>
 				    </div>
-				    <div class="col-xs-4 span4 col-4">
+				    <div class="col-md-4 span4 col-4">
 					    <input id="signin-sort-firstname" checked="checked" type="radio" class="m-r-1" name="orderby" value="firstname"/><label for="signin-sort-firstname">{{#str}}sortbyfirstname, grades{{/str}}</label><br>
 					    <input id="signin-sort-lastname" type="radio" class="m-r-1" name="orderby" value="lastname"/><label for="signin-sort-lastname">{{#str}}sortbylastname, grades{{/str}}</label><br>
 					</div>
-					<div class="col-xs-4 span4 col-4">
+					<div class="col-md-4 span4 col-4">
 						<label for="addemptyrows">{{#str}}signinaddemptyrows, mod_booking{{/str}}</label>
 						<div>
 							<select name="addemptyrows" id="signin-addemptyrows" class="custom-select">
@@ -67,8 +67,8 @@
 						</div>
 					</div>
 				</div>
-				<div class="row">
-				    <div class="col-xs-6 span6 col-6">
+				<div class="row  p-y-1">
+				    <div class="col-md-6 span6 col-6">
 					    <label for="signin-pdftitle">{{#str}}choosepdftitle, mod_booking{{/str}}</label>
 					    <div>
 						    <select name="pdftitle" id="signin-pdftitle" class="custom-select">
@@ -78,7 +78,7 @@
 						    </select>
 					    </div>
 				    </div>
-				    <div class="col-xs-6 span6 col-6">
+				    <div class="col-md-6 span6 col-6">
 					    <label for="signin-onesession">{{#str}}signinonesession, mod_booking{{/str}}</label>
 					    <div>
 						    <select name="pdfsessions" id="signin-onesession" class="custom-select">
@@ -90,6 +90,14 @@
 					    </div>
 				    </div>
 			    </div>
+				{{#teachersexist}}
+				<div class="row  p-y-1">
+				<div class="col-md-12 span12 col-12">
+					<label for="includeteachers">{{#str}}includeteachers, mod_booking{{/str}}</label>
+					<input id="includeteachers" class="usercheckbox" name="includeteachers" value="1" type="checkbox">
+				</div>
+				</div>
+				{{/teachersexist}}
 		    </div>
 		</div>
 		<div class="card-footer"><button type="submit" class="btn btn-primary" name="downloadpdf" />{{#str}}download{{/str}}</button></div>
