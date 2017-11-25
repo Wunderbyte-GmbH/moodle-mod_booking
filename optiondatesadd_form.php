@@ -18,6 +18,11 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once("$CFG->libdir/formslib.php");
 
+/**
+ * Add option date form
+ * @author David Bogner
+ *
+ */
 class optiondatesadd_form extends moodleform {
 
     /**
@@ -45,11 +50,7 @@ class optiondatesadd_form extends moodleform {
                 get_string('minute', 'form'), $minutes);
         $mform->setType('endhour', PARAM_INT);
         $mform->setType('endminute', PARAM_INT);
-        $mform->addGroup($courseendtime, 'courseendtime', get_string('to'), ' ', false);
-
-        // Course module id.
-        $mform->addElement('hidden', 'id');
-        $mform->setType('id', PARAM_INT);
+        $mform->addGroup($courseendtime, 'endtime', get_string('to'), ' ', false);
 
         $mform->addElement('hidden', 'optiondateid');
         $mform->setType('optiondateid', PARAM_INT);
@@ -57,8 +58,6 @@ class optiondatesadd_form extends moodleform {
         $mform->addElement('hidden', 'bookingid');
         $mform->setType('bookingid', PARAM_INT);
 
-        $mform->addElement('hidden', 'optionid');
-        $mform->setType('optionid', PARAM_INT);
         if ($this->_customdata['optiondateid'] == '') {
             $mform->addElement('submit', 'submitbutton', get_string('add'));
         } else {
@@ -67,14 +66,27 @@ class optiondatesadd_form extends moodleform {
     }
 
     /**
+     * Validate start and end time
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      * @see moodleform::validation()
      */
     public function validation($data, $files) {
-        return array();
+        $errors = array();
+        $starttime = $data['coursestarttime'];
+        $date = date("Y-m-d", $data['coursestarttime']);
+        $endtime = strtotime($date . " {$data['endhour']}:{$data['endminute']}");
+        if ($endtime < $starttime) {
+            $errors['endtime'] = "Course end time must be after course start time";
+        }
+        return $errors;
     }
 
+    /**
+     *
+     * {@inheritDoc}
+     * @see moodleform::get_data()
+     */
     public function get_data() {
         $data = parent::get_data();
         return $data;
