@@ -680,6 +680,7 @@ $string['nousers'] = 'Keine Nutzer/innen!';
 $string['numrec'] = "Eintragsnummer.";
 $string['onlythisbookingurl'] = 'Nur dieser Buchungslink';
 $string['optionid'] = 'Option ID';
+$string['optiondates'] = 'Mehrere Termine pro Buchungsoption';
 $string['optionmenu'] = 'Diese Buchungsoption';
 $string['ratingsuccess'] = 'Die Bewrtungen wurden erfolgreich aktualisiert';
 $string['searchdate'] = 'Datum';
@@ -764,6 +765,13 @@ $string['selectoptioninotherbooking'] = "Auswahl";
 $string['otherbookinglimit'] = "Limit";
 $string['otherbookinglimit_help'] = "Anzahl der Nutzer/innen die von dieser Buchungsoption akzeptiert werden. 0 bedeutet unlimitiert.";
 $string['otherbookingsuccessfullysaved'] = 'Buchungsmöglichkeit gespeichert!';
+
+// optiondates.php
+$string['optiondatestime'] = 'Termine';
+$string['optiondatessuccessfullysaved'] = "Termin wurde bearbeitet";
+$string['optiondatessuccessfullydelete'] = "Termin wurde gelöscht";
+$string['leftandrightdate'] = '{$a->leftdate} zu {$a->righttdate}';
+$string['editingoptiondate'] = 'Sie bearbeiten gerade diesen Termin';
 
 // File: settings.php
 $string['customfield'] = 'Benutzerdefiniertes Feld, dessen Wert in den Buchungsoptionseinstellungen angegeben wird und in der Buchungsoptionsübersicht angezeigt wird';

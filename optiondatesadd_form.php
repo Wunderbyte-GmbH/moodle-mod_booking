@@ -13,31 +13,43 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.'); // It must be included from a Moodle page
-}
+
+defined('MOODLE_INTERNAL') || die();
 
 require_once("$CFG->libdir/formslib.php");
-
 
 class optiondatesadd_form extends moodleform {
 
     /**
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      * @see moodleform::definition()
      */
     public function definition() {
-
         $mform = $this->_form;
 
-        $mform->addElement('date_time_selector', 'coursestarttime',
-                get_string("coursestarttime", "booking"));
+        $mform->addElement('date_time_selector', 'coursestarttime', get_string('from'));
         $mform->setType('coursestarttime', PARAM_INT);
 
-        $mform->addElement('date_time_selector', 'courseendtime',
-                get_string("courseendtime", "booking"));
-        $mform->setType('courseendtime', PARAM_INT);
+        for ($i = 0; $i <= 23; $i++) {
+            $hours[$i] = sprintf("%02d", $i);
+        }
+        for ($i = 0; $i < 60; $i += 5) {
+            $minutes[$i] = sprintf("%02d", $i);
+        }
+
+        $courseendtime = array();
+        $courseendtime[] = & $mform->createElement('select', 'endhour', get_string('hour', 'form'),
+                $hours);
+        $courseendtime[] = & $mform->createElement('select', 'endminute',
+                get_string('minute', 'form'), $minutes);
+        $mform->setType('endhour', PARAM_INT);
+        $mform->setType('endminute', PARAM_INT);
+        $mform->addGroup($courseendtime, 'courseendtime', get_string('to'), ' ', false);
+
+        // Course module id.
+        $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
 
         $mform->addElement('hidden', 'optiondateid');
         $mform->setType('optiondateid', PARAM_INT);
@@ -47,8 +59,11 @@ class optiondatesadd_form extends moodleform {
 
         $mform->addElement('hidden', 'optionid');
         $mform->setType('optionid', PARAM_INT);
-
-        $this->add_action_buttons(true, get_string('savenewoptiondates', 'booking'));
+        if ($this->_customdata['optiondateid'] == '') {
+            $mform->addElement('submit', 'submitbutton', get_string('add'));
+        } else {
+            $mform->addElement('submit', 'submitbutton', get_string('savechanges'));
+        }
     }
 
     /**
@@ -62,7 +77,6 @@ class optiondatesadd_form extends moodleform {
 
     public function get_data() {
         $data = parent::get_data();
-
         return $data;
     }
 }
