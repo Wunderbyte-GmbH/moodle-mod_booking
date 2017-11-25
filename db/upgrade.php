@@ -44,12 +44,6 @@ function xmldb_booking_upgrade($oldversion) {
         // Launch rename field text.
         $dbman->rename_field($table, $field, 'intro');
 
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2011020401, 'booking');
-    }
-
-    if ($oldversion < 2011020401) {
-
         // Rename field format on table booking to format.
         $table = new xmldb_table('booking');
         $field = new xmldb_field('format', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL,
