@@ -30,7 +30,7 @@
 // The commands in here will all be database-neutral,
 // using the functions defined in lib/ddllib.php
 function xmldb_booking_upgrade($oldversion) {
-    global $CFG, $DB;
+    global $DB;
 
     $dbman = $DB->get_manager();
 
@@ -1206,9 +1206,9 @@ function xmldb_booking_upgrade($oldversion) {
     if ($oldversion < 2016051703) {
 
         // Course ids from all courses with booking instance
-        $courseids = $DB->get_records_sql('SELECT DISTINCT course FROM {booking}', array());
+        $courseids = $DB->get_fieldset_sql('SELECT DISTINCT course FROM {booking}', array());
 
-        foreach ($courseids as $courseid => $course) {
+        foreach ($courseids as $courseid) {
 
             // Delete all records made by now deleted users from booking_answers
             $deletedusers = $DB->get_fieldset_select('user', 'id', " deleted = 1");

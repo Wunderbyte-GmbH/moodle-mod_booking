@@ -679,6 +679,7 @@ $string['optionsfields'] = 'Fields on the booking options overview page';
 $string['signinsheetfields'] = 'Sign-in sheet fields (PDF)';
 $string['signinonesession'] = 'Display selected session time on the sign-in sheet';
 $string['signinaddemptyrows'] = 'Number of empty rows to add for people who did not sign up';
+$string['includeteachers'] = 'Include teachers in the sign-in sheet';
 $string['choosepdftitle'] = 'Select a title for the sign-in sheet';
 $string['addtogroup'] = 'Automatically enrol users in group';
 $string['addtogroup_help'] = 'Automatically enrol users in group - group will be created automatically with name "Bookin name - Option name"';
@@ -1002,6 +1003,7 @@ $string['otherbookingsuccessfullysaved'] = 'Rule saved!';
 
 // optiondates.php
 $string['optiondatestime'] = 'Session time';
+$string['optiondatesmessage'] = 'Session {$a->number}: {$a->date} <br> From: {$a->starttime} <br> To: {$a->endtime}';
 $string['optiondatessuccessfullysaved'] = "Session time was saved.";
 $string['optiondatessuccessfullydelete'] = "Session time was deleted.";
 $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';

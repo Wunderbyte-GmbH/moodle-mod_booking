@@ -56,6 +56,13 @@ class generator {
     public $teachers = array();
 
     /**
+     * add teachers?
+     *
+     * @var boolean
+     */
+    public $includeteachers = false;
+
+    /**
      * times for event
      *
      * @var string
@@ -84,14 +91,14 @@ class generator {
     public $colwidth;
 
     /**
-     * width of logo
+     * width of header logo
      *
      * @var number
      */
     public $w = 0;
 
     /**
-     * height of logo
+     * height of header logo
      *
      * @var number
      */
@@ -113,17 +120,32 @@ class generator {
     /**
      * signinsheet logo fetched from booking module setting
      * (admin level) as string
-     *
      * @var string
      */
     public $signinsheetlogo = '';
 
-    public $signinsheetlogofooter = '';
+    /**
+     * Use header logo or not
+     * @var boolean
+     */
+    protected $uselogo = false;
 
-    public $headerlogofile = false;
+    /**
+     * Teachers are being processes
+     * @var boolean
+     */
+    protected $processteachers = false;
 
+    /**
+     * user info fields to display in the sign in sheet table
+     * @var array
+     */
     public $allfields = array();
 
+    /**
+     * extra columns to display
+     * @var array
+     */
     public $extracols = array();
 
     /**
@@ -164,6 +186,7 @@ class generator {
         $this->title = $pdfoptions->title;
         $this->pdfsessions = $pdfoptions->sessions;
         $this->addemptyrows = $pdfoptions->addemptyrows;
+        $this->includeteachers = $pdfoptions->includeteachers;
 
         if ($this->orientation == "P") {
             $this->colwidth = 210;
@@ -171,8 +194,9 @@ class generator {
             $this->colwidth = 297;
         }
         $this->orderby = $pdfoptions->orderby;
-        if (!empty($this->bookingdata->option->teachers)) {
-            foreach ($this->bookingdata->option->teachers as $value) {
+        $teachers = $this->bookingdata->get_teachers();
+        if (!empty($teachers)) {
+            foreach ($teachers as $value) {
                 $this->teachers[] = "{$value->firstname} {$value->lastname}";
             }
         }
@@ -259,6 +283,22 @@ class generator {
             }
         }
 
+        if ($this->includeteachers) {
+            $teachers = $DB->get_records_sql(
+                    'SELECT u.id, ' . get_all_user_name_fields(true, 'u') . $userfields .
+                    '
+            FROM {booking_teachers} bt
+            LEFT JOIN {user} u ON u.id = bt.userid
+            WHERE bt.optionid = :optionid ' .
+                    $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
+                    array_merge($groupparams,
+                            array('optionid' => $this->bookingdata->option->id)));
+            foreach ($teachers as $teacher) {
+                $teacher->isteacher = true;
+                array_push($users, $teacher);
+            }
+        }
+
         $this->pdf->SetCreator(PDF_CREATOR);
         $this->pdf->setPrintHeader(true);
         $this->pdf->setPrintFooter(true);
@@ -284,10 +324,6 @@ class generator {
         $this->pdf->setCellPadding(1);
 
         $this->get_signinsheet_logo_footer();
-
-        // Get header and footer logo for signin sheet.
-        $fileuse = $this->get_signinsheet_logo();
-
         $this->set_page_header();
 
         $profilefields = explode(',', get_config('booking', 'custprofilefields'));
@@ -305,6 +341,9 @@ class generator {
             }
         }
         foreach ($users as $user) {
+            if (!isset($user->isteacher)) {
+                $user->isteacher = false;
+            }
             $profiletext = '';
             profile_load_custom_fields($user);
             $userprofile = $user->profile;
@@ -316,12 +355,12 @@ class generator {
                     }
                 }
             }
+            // The first time a teacher is processed a new page should be made.
+            if ($this->processteachers != $user->isteacher) {
+                $this->processteachers = true;
+                $this->set_table_headerrow();
+            }
             if ($this->pdf->go_to_newline(12)) {
-                if ($fileuse) {
-                    $this->pdf->SetXY(18, 18);
-                    $this->pdf->Image('@' . $this->signinsheetlogo, '', '', $this->w, $this->h, '',
-                            '', 'T', true, 150, 'R', false, false, 0, false, false, false);
-                }
                 $this->set_page_header();
             }
             $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 10);
@@ -388,7 +427,6 @@ class generator {
                         1);
             }
         }
-
         $this->pdf->Output($this->bookingdata->option->text . '.pdf', 'D');
     }
 
@@ -431,7 +469,6 @@ class generator {
      * @return boolean true if image is used false if not
      */
     public function get_signinsheet_logo() {
-        $fileuse = false;
         $fs = get_file_storage();
         $context = \context_module::instance($this->bookingdata->cm->id);
         $files = $fs->get_area_files($context->id, 'mod_booking', 'signinlogoheader',
@@ -444,24 +481,19 @@ class generator {
 
         if ($files) {
             $file = reset($files);
-
             $filepath = $file->get_filepath() . $file->get_filename();
             $imageinfo = $file->get_imageinfo();
-            $this->signinsheetlogo = $file->get_content();
+            $this->signinsheetlogo = $file;
             $filetype = str_replace('image/', '', $file->get_mimetype());
-            $this->pdf->SetXY(18, 18);
             $this->w = 0;
             $this->h = 20;
 
             if ($imageinfo['height'] > 20) {
                 $this->h = 20;
             }
-
-            $this->pdf->Image('@' . $this->signinsheetlogo, '', '', $this->w, $this->h, $filetype,
-                    '', 'T', true, 150, 'R', false, false, 1, false, false, false);
-            $fileuse = true;
+            $this->uselogo = true;
         }
-        return $fileuse;
+        return $this->uselogo;
     }
 
     /**
@@ -496,7 +528,12 @@ class generator {
      */
     public function set_page_header($extracols = array ()) {
         global $DB;
-
+        // Get header and footer logo for signin sheet.
+        if ($this->get_signinsheet_logo()) {
+            $this->pdf->SetXY(18, 18);
+            $this->pdf->Image('@' . $this->signinsheetlogo->get_content(), '', '', $this->w, $this->h, '', '', 'T',
+                    true, 150, 'R', false, false, 0, false, false, false);
+        }
         $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
         $this->pdf->Cell(0, 0, '', 0, 1, '', 0);
         $this->pdf->Ln();
@@ -546,8 +583,16 @@ class generator {
                 get_string('pdftodaydate', 'booking'), 0, 0, '', 0);
         $this->pdf->Cell(100, 0, "", "B", 1, '', 0, '', 1);
         $this->pdf->Ln();
+        $this->set_table_headerrow();
+    }
+
+    /**
+     * Setup the header row with the column headings for each column
+     */
+    public function set_table_headerrow () {
         $this->pdf->SetFont(PDF_FONT_NAME_MAIN, 'B', 12);
         $c = 0;
+        // Setup table header row.
         foreach ($this->allfields as $value) {
             $c++;
             $w = ($this->colwidth - PDF_MARGIN_LEFT - PDF_MARGIN_LEFT) / (count($this->allfields));
@@ -557,7 +602,11 @@ class generator {
                     $name = '';
                     break;
                 case 'fullname':
-                    $name = get_string('fullname', 'mod_booking');
+                    if ($this->processteachers) {
+                        $name = get_string('teachers', 'mod_booking') . " ";
+                    } else {
+                        $name = get_string('fullname', 'mod_booking');
+                    }
                     break;
                 case 'signature':
                     $name = get_string('signature', 'mod_booking');
@@ -606,7 +655,6 @@ class generator {
             }
             $this->pdf->Cell($w, 0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, '', 1);
         }
-
         $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
     }
 }

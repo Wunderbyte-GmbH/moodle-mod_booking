@@ -60,6 +60,9 @@ class signin_downloadform implements renderable, templatable {
     /** @var array $sessions */
     public $sessions = array();
 
+    /** @var boolean $teachersexist */
+    public $teachersexist = false;
+
     /**
      * Constructor
      *
@@ -73,11 +76,15 @@ class signin_downloadform implements renderable, templatable {
         $this->instanceoption = $data->booking->name;
         $this->sessions = array();
         foreach ($data->sessions as $session) {
-            $this->sessions[] = array ('coursestarttime' => userdate($session->coursestarttime), 'courseendtime' => userdate($session->courseendtime), 'id' => $session->id);
+            $this->sessions[] = array('coursestarttime' => userdate($session->coursestarttime),
+                'courseendtime' => userdate($session->courseendtime), 'id' => $session->id);
         }
-        $this->baseurl = $url->get_path(); // $data->booking->get_url_params();
+        $this->baseurl = $url->get_path();
         $this->id = $url->get_param('id');
         $this->optionid = $url->get_param('optionid');
+        if (!empty($data->teachers)) {
+            $this->teachersexist = true;
+        }
     }
 
     public function export_for_template(renderer_base $output) {
