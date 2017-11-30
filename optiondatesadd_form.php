@@ -29,7 +29,7 @@ class optiondatesadd_form extends moodleform {
      */
     public function definition() {
 
-        $mform = $this->_form; // Don't forget the underscore!
+        $mform = $this->_form;
 
         $mform->addElement('date_time_selector', 'coursestarttime',
                 get_string("coursestarttime", "booking"));

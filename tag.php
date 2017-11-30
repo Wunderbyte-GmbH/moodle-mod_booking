@@ -42,8 +42,7 @@ echo $OUTPUT->heading($tagname, 2);
 
 $records = $DB->get_records('tag_instance', array('tagid' => $tag->id, 'itemtype' => 'booking'));
 
-echo $OUTPUT->box_start('generalbox', 'tag-blogs'); // could use an id separate from tag-blogs, but would have to copy the css style to make it look
-                                                    // the same
+echo $OUTPUT->box_start('generalbox', 'tag-blogs');
 
 echo '<ul>';
 

@@ -47,7 +47,6 @@ $message = "<a href=\"categoryadd.php?courseid=$courseid\">" .
          get_string('addnewcategory', 'booking') . "</a>";
 echo $OUTPUT->box($message, 'box mdl-align');
 
-// Could use an id separate from tag-blogs, but would have to copy the css style to make it look the same.
 echo $OUTPUT->box_start('generalbox', 'tag-blogs');
 
 echo "<ul>";

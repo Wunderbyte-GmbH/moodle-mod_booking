@@ -34,8 +34,11 @@ $action = optional_param('action', '', PARAM_ALPHANUM);
 $confirm = optional_param('confirm', '', PARAM_INT);
 $page = optional_param('page', '0', PARAM_INT);
 $orderby = optional_param('orderby', 'lastname', PARAM_ALPHANUM);
+$orientation = optional_param('orientation', 'L', PARAM_ALPHA);
+$pdfsessions = optional_param('pdfsessions', 0, PARAM_INT);
+$pdftitle = optional_param('pdftitle', 1, PARAM_INT);
 
-// Search
+// Search.
 $searchdate = optional_param('searchdate', 0, PARAM_INT);
 $searchdateday = optional_param('searchdateday', null, PARAM_INT);
 $searchdatemonth = optional_param('searchdatemonth', null, PARAM_INT);
@@ -43,13 +46,13 @@ $searchdateyear = optional_param('searchdateyear', null, PARAM_INT);
 $searchfinished = optional_param('searchfinished', 0, PARAM_INT) - 1;
 $searchwaitinglist = optional_param('searchwaitinglist', 0, PARAM_INT) - 1;
 
-// from view.php
+// Params from view.php.
 $searchtext = optional_param('searchtext', '', PARAM_TEXT);
 $searchlocation = optional_param('searchlocation', '', PARAM_TEXT);
 $searchinstitution = optional_param('searchinstitution', '', PARAM_TEXT);
 $whichview = optional_param('whichview', '', PARAM_ALPHA);
 
-// form values
+// Form valus.
 $ratingarea = optional_param('ratingarea', '', PARAM_ALPHAEXT);
 $scaleid = optional_param('scaleid', '', PARAM_INT);
 $returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
@@ -139,6 +142,7 @@ if ($action !== '') {
     $urlparams['action'] = $action;
 }
 
+$baseurl = new moodle_url('/mod/booking/report.php', array('id' => $id, 'optionid' => $optionid));
 $url = new moodle_url('/mod/booking/report.php', $urlparams);
 $currenturl = new moodle_url('/mod/booking/report.php', $urlparams);
 
@@ -173,8 +177,13 @@ $event = \mod_booking\event\report_viewed::create(
         array('objectid' => $optionid, 'context' => context_module::instance($cm->id)));
 $event->trigger();
 
-if ($action == 'downloadsigninportrait' || $action == 'downloadsigninlandscape') {
-    $pdf = new mod_booking\signinsheet\generator($bookingdata , $action, array('orderby' => $orderby));
+if ($action == 'downloadpdf') {
+    $pdfoptions = new stdClass();
+    $pdfoptions->orientation = $orientation;
+    $pdfoptions->orderby = $orderby;
+    $pdfoptions->title = $pdftitle;
+    $pdfoptions->sessions = $pdfsessions;
+    $pdf = new mod_booking\signinsheet\generator($bookingdata , $pdfoptions);
     $pdf->download_signinsheet();
     die();
 }
@@ -218,7 +227,10 @@ $bookingdata->option->autoenrol = $bookingdata->booking->autoenrol;
 $tableallbookings = new \mod_booking\all_userbookings('mod_booking_all_users_sort_new', $bookingdata, $cm, $optionid);
 $tableallbookings->is_downloading($download, $bookingdata->option->text, $bookingdata->option->text);
 
-$tableallbookings->define_baseurl($currenturl);
+// Remove page number from url otherwise empty results are shown when searching via first/lastname letters.
+$tablebaseurl = $currenturl;
+$tablebaseurl->remove_params('page');
+$tableallbookings->define_baseurl($tablebaseurl);
 $tableallbookings->defaultdownloadformat = 'ods';
 $tableallbookings->sortable(true, 'firstname');
 if (has_capability('mod/booking:downloadresponses', $context)) {
@@ -304,7 +316,7 @@ if (!$tableallbookings->is_downloading()) {
             }
 
             redirect($url, get_string('delnotification', 'booking', $data), 5);
-        } else if (isset($_POST['subscribetocourse'])) { // subscription submitted
+        } else if (isset($_POST['subscribetocourse'])) { // Subscription submitted.
             if ($bookingdata->option->courseid != 0) {
                 foreach ($allselectedusers as $selecteduserid) {
                     $bookingdata->enrol_user($selecteduserid);
@@ -350,7 +362,7 @@ if (!$tableallbookings->is_downloading()) {
                     $rating->itemid = $baid;
                     $rating->rating = $_POST[$bookinganswerid];
                     $ratings[$baid] = $rating;
-                    // params valid for all ratings
+                    // Params valid for all ratings.
                     $params = new stdClass();
                     $params->contextid = $context->id;
                     $params->scaleid = $scaleid;
@@ -421,7 +433,7 @@ if (!$tableallbookings->is_downloading()) {
             }
         } else if (isset($_POST['changepresencestatus']) && (booking_check_if_teacher(
                 $bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
-            // Change presence status
+            // Change presence status.
             if (empty($allselectedusers)) {
                 redirect($url,
                         get_string('selectatleastoneuser', 'booking',
@@ -514,8 +526,7 @@ if (!$tableallbookings->is_downloading()) {
         $sqlvalues = array_merge($sqlvalues, $groupparams);
     }
 
-    // ALL USERS - START
-    // To make compatible MySQL and PostgreSQL - http://hyperpolyglot.org/db
+    // ALL USERS - START To make compatible MySQL and PostgreSQL - http://hyperpolyglot.org/db.
     $fields = 'ba.id, ' . get_all_user_name_fields(true, 'u') . ',
             u.username,
             u.institution,
@@ -537,7 +548,7 @@ if (!$tableallbookings->is_downloading()) {
     $tableallbookings->define_columns($columns);
     $tableallbookings->define_headers($headers);
 
-    // ALL USERS - STOP
+    // ALL USERS - STOP.
 
     echo $OUTPUT->header();
 
@@ -565,7 +576,6 @@ if (!$tableallbookings->is_downloading()) {
                     get_string('editteachers', 'booking'), array());
         }
 
-        // Fix for Travis CI complaining!!!!!!!!!!!!
         $haspollurl = (!empty($bookingdata->booking->pollurlteachers) || !empty($bookingdata->option->pollurlteachers));
 
         if (has_capability('mod/booking:communicate', context_module::instance($cm->id)) && $haspollurl) {
@@ -669,14 +679,14 @@ if (!$tableallbookings->is_downloading()) {
     $tableallbookings->query_db($paging, true);
     if ($bookingdata->booking->assessed != RATING_AGGREGATE_NONE &&
              !empty($tableallbookings->rawdata)) {
-        // Get all bookings from all booking options: only that guarantees correct use of rating
+        // Get all bookings from all booking options: only that guarantees correct use of rating.
 
         $ratingoptions = new stdClass();
         $ratingoptions->context = $bookingdata->get_context();
         $ratingoptions->component = 'mod_booking';
         $ratingoptions->ratingarea = 'bookingoption';
         $ratingoptions->items = $tableallbookings->rawdata;
-        $ratingoptions->aggregate = $bookingdata->booking->assessed; // the aggregation method
+        $ratingoptions->aggregate = $bookingdata->booking->assessed; // The aggregation method.
         $ratingoptions->scaleid = $bookingdata->booking->scale;
         $ratingoptions->userid = $USER->id;
         $ratingoptions->returnurl = "$CFG->wwwroot/mod/booking/report.php?id=$cm->id&optionid=$optionid";
@@ -686,7 +696,7 @@ if (!$tableallbookings->is_downloading()) {
         $rm = new rating_manager();
         $tableallbookings->rawdata = $rm->get_ratings($ratingoptions);
 
-        // Hidden input fields for the rating
+        // Hidden input fields for the rating.
         $ratinginputs = array();
         $ratinginputs['ratingarea'] = $ratingoptions->ratingarea;
         $ratinginputs['scaleid'] = $ratingoptions->scaleid;
@@ -695,8 +705,7 @@ if (!$tableallbookings->is_downloading()) {
         $ratinginputs['sesskey'] = sesskey();
         $tableallbookings->set_ratingoptions($ratinginputs);
 
-            // Set menu for modifying all ratings at once
-            // Get an example rating and modify it
+        // Set menu for modifying all ratings at once. Get an example rating and modify it.
         $newarray = array_values($tableallbookings->rawdata);
         $firstentry = array_shift($newarray);
 
@@ -750,36 +759,15 @@ if (!$tableallbookings->is_downloading()) {
     echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
             array('onclick' => 'copyToClipboard("' . $onlyoneurl . '"); return false;')) . ' | ';
 
-            echo html_writer::div( get_string('sign_in_sheet_download', 'mod_booking') . ": ", '');
-
-    $signinsheeturlp = new moodle_url('/mod/booking/report.php',
-            array('id' => $id, 'optionid' => $optionid, 'action' => 'downloadsigninportrait'));
-
-    $signinsheeturll = new moodle_url('/mod/booking/report.php',
-            array('id' => $id, 'optionid' => $optionid, 'action' => 'downloadsigninlandscape'));
-
-    $signinsheeturlp->param('orderby', 'firstname');
-    echo html_writer::link($signinsheeturlp, get_string('pdfportrait', 'mod_booking') . ": " . get_string('sortbyfirstname', 'grades') ,
-            array('target' => '_blank', 'class' => 'btn btn-default'));
-
-    $signinsheeturlp->param('orderby', 'lastname');
-    echo html_writer::link($signinsheeturlp, get_string('pdfportrait', 'mod_booking') . ": " . get_string('sortbylastname', 'grades') ,
-            array('target' => '_blank', 'class' => 'btn btn-default'));
-
-    $signinsheeturll->param('orderby', 'firstname');
-    echo html_writer::link($signinsheeturll, get_string('pdflandscape', 'mod_booking') . ": " . get_string('sortbyfirstname', 'grades') ,
-            array('target' => '_blank', 'class' => 'btn btn-default'));
-
-    $signinsheeturll->param('orderby', 'lastname');
-    echo html_writer::link($signinsheeturll, get_string('pdflandscape', 'mod_booking') . ": " . get_string('sortbylastname', 'grades') ,
-            array('target' => '_blank', 'class' => 'btn btn-default'));
-
     echo "<script>
   function copyToClipboard(text) {
-    window.prompt('" .
-             get_string('copytoclipboard', 'booking') . "', text);
+    window.prompt('" . get_string('copytoclipboard', 'booking') . "', text);
   }
 </script>";
+
+    $signinform = new mod_booking\output\signin_downloadform($bookingdata, $baseurl);
+    $renderer = $PAGE->get_renderer('mod_booking');
+    echo $renderer->render_signin_pdfdownloadform($signinform);
 
     echo $OUTPUT->footer();
 } else {

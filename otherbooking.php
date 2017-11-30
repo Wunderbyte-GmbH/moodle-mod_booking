@@ -23,7 +23,7 @@
 require_once("../../config.php");
 require_once("locallib.php");
 
-$id = required_param('id', PARAM_INT); // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 
 $url = new moodle_url('/mod/booking/otherbooking.php', array('id' => $id, 'optionid' => $optionid));

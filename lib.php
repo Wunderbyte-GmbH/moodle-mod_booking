@@ -97,8 +97,7 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
         array $options = array()) {
     global $CFG, $DB;
 
-    // Check the contextlevel is as expected - if your plugin is a block, this becomes
-    // CONTEXT_BLOCK, etc.
+    // Check the contextlevel is as expected - if your plugin is a block.
     if ($context->contextlevel != CONTEXT_MODULE) {
         return false;
     }
@@ -116,8 +115,7 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
         return false;
     }
 
-    // Make sure the user is logged in and has access to the module (plugins that are not course
-    // modules should leave out the 'cm' part).
+    // Make sure the user is logged in and has access to the module.
     require_login($course, true, $cm);
 
     // Leave this line out if you set the itemid to null in make_pluginfile_url (set $itemid to 0 instead).
@@ -280,17 +278,10 @@ function booking_comment_validate($commentparam) {
     }
     $context = context_module::instance($cm->id);
 
-    // validate context id
+    // Validate context id.
     if ($context->id != $commentparam->context->id) {
         throw new comment_exception('invalidcontext');
     }
-    // validation for comment deletion
-    /*
-     * if (!empty($comment_param->commentid)) { if ($comment = $DB->get_record('comments', array('id'=>$comment_param->commentid))) { if
-     * ($comment->commentarea != 'glossary_entry') { throw new comment_exception('invalidcommentarea'); } if ($comment->contextid !=
-     * $comment_param->context->id) { throw new comment_exception('invalidcontext'); } if ($comment->itemid != $comment_param->itemid) { throw new
-     * comment_exception('invalidcommentitemid'); } } else { throw new comment_exception('invalidcommentid'); } }
-     */
     return true;
 }
 
@@ -521,7 +512,7 @@ function booking_update_instance($booking) {
                 $option->maxanswers = $booking->limit[$key];
             }
             $option->timemodified = time();
-            if (isset($booking->optionid[$key]) && !empty($booking->optionid[$key])) { // existing booking record
+            if (isset($booking->optionid[$key]) && !empty($booking->optionid[$key])) { // Existing booking record.
                 $option->id = $booking->optionid[$key];
                 if (isset($value) && $value != '') {
                     $DB->update_record("booking_options", $option);
@@ -552,7 +543,6 @@ function booking_update_options($optionvalues) {
     require_once("$CFG->dirroot/mod/booking/locallib.php");
     require_once("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
     $customfields = \mod_booking\booking_option::get_customfield_settings();
-    $customfield = new stdClass();
     $bokingutils = new booking_utils();
 
     $booking = $DB->get_record('booking', array('id' => $optionvalues->bookingid));
@@ -633,7 +623,7 @@ function booking_update_options($optionvalues) {
                 if (isset($optionvalues->addtocalendar)) {
                     booking_option_add_to_cal($booking, $option, $optionvalues);
                 } else {
-                    // Delete event if exist
+                    // Delete event if exist.
                     $event = calendar_event::load($option->calendarid);
                     $event->delete(true);
 
@@ -667,7 +657,7 @@ function booking_update_options($optionvalues) {
 
             $DB->update_record("booking_options", $option);
 
-            // Check if custom field will be updated or newly created
+            // Check if custom field will be updated or newly created.
             if (!empty($customfields)) {
                 foreach ($customfields as $fieldcfgname => $field) {
                     if (isset($optionvalues->$fieldcfgname)) {
@@ -675,10 +665,12 @@ function booking_update_options($optionvalues) {
                                 array('bookingid' => $booking->id, 'optionid' => $option->id,
                                     'cfgname' => $fieldcfgname));
                         if ($customfieldid) {
+                            $customfield = new stdClass();
                             $customfield->id = $customfieldid;
                             $customfield->value = $optionvalues->$fieldcfgname;
                             $DB->update_record('booking_customfields', $customfield);
                         } else {
+                            $customfield = new stdClass();
                             $customfield->value = $optionvalues->$fieldcfgname;
                             $customfield->optionid = $option->id;
                             $customfield->bookingid = $booking->id;
@@ -720,7 +712,7 @@ function booking_update_options($optionvalues) {
             }
         }
 
-        // Save custom fields if there are any
+        // Save custom fields if there are any.
         if (!empty($customfields)) {
             foreach ($customfields as $fieldcfgname => $field) {
                 if (!empty($optionvalues->$fieldcfgname)) {
@@ -990,7 +982,7 @@ function booking_enrol_user($option, $booking, $userid) {
     }
 
     if (!$enrol = enrol_get_plugin('manual')) {
-        return; // No manual enrolment plugin
+        return; // No manual enrolment plugin.
     }
     if (!$instances = $DB->get_records('enrol',
             array('enrol' => 'manual', 'courseid' => $option->courseid,
@@ -1070,7 +1062,7 @@ function booking_check_unenrol_user($option, $booking, $userid) {
         return; // Manual enrolment not enabled.
     }
     if (!$enrol = enrol_get_plugin('manual')) {
-        return; // No manual enrolment plugin
+        return; // No manual enrolment plugin.
     }
     if (!$instances = $DB->get_records('enrol',
             array('enrol' => 'manual', 'courseid' => $option->courseid,
@@ -1081,7 +1073,7 @@ function booking_check_unenrol_user($option, $booking, $userid) {
         if (!is_null($option->groupid) && ($option->groupid > 0)) {
             $groupsofuser = groups_get_all_groups($option->courseid, $userid);
             $numberofgroups = count($groupsofuser);
-            // When user is member of only 1 group: unenrol from course otherwise remove from group
+            // When user is member of only 1 group: unenrol from course otherwise remove from group.
             if ($numberofgroups > 1) {
                 groups_remove_member($option->groupid, $userid);
                 return;
@@ -1110,7 +1102,7 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
 
     foreach ($selectedusers as $uid) {
         foreach ($uid as $ui) {
-            // TODO: Optimization of db query: instead of loop, one get_records query
+            // TODO: Optimization of db query: instead of loop, one get_records query.
             $userdata = $DB->get_record('booking_teachers',
                     array('optionid' => $optionid, 'userid' => $ui));
 
@@ -1158,7 +1150,7 @@ function booking_generatenewnumners($bookingdatabooking, $cmid, $optionid, $alls
         }
 
         foreach ($allselectedusers as $ui) {
-            // TODO: Optimize DB query: get_records instead of loop
+            // TODO: Optimize DB query: get_records instead of loop.
             $userdata = $DB->get_record('booking_answers',
                     array('optionid' => $optionid, 'userid' => $ui));
             $userdata->numrec = $recnum++;
@@ -1239,7 +1231,7 @@ function booking_get_user_grades($booking, $userid = 0) {
     $ratingoptions->component = 'mod_booking';
     $ratingoptions->ratingarea = 'bookingoption';
 
-    // need these to work backwards to get a context id. Is there a better way to get contextid from a module instance?
+    // Need these to work backwards to get a context id. Is there a better way to get contextid from a module instance.
     $ratingoptions->modulename = 'booking';
     $ratingoptions->moduleid = $booking->id;
     $ratingoptions->userid = $userid;
@@ -1292,7 +1284,7 @@ function booking_update_grades($booking, $userid = 0, $nullifnone = true) {
  */
 function booking_grade_item_update($booking, $grades = null) {
     global $CFG;
-    if (!function_exists('grade_update')) { // workaround for buggy PHP versions
+    if (!function_exists('grade_update')) { // Workaround for buggy PHP versions.
         require_once($CFG->libdir . '/gradelib.php');
     }
 
@@ -1519,7 +1511,7 @@ function booking_rate($ratings, $params) {
 
                 $newrating = new rating($ratingoptions);
                 $newrating->update_rating($rating->rating);
-            } else { // Delete the rating if the user set to "Rate..."
+            } else { // Delete the rating if the user set to "Rate...".
                 $options = new stdClass();
                 $options->contextid = $context->id;
                 $options->component = $component;
@@ -1780,20 +1772,20 @@ function booking_delete_instance($id) {
  */
 function booking_get_participants($bookingid) {
     global $CFG, $DB;
-    // Get students
+    // Get students.
     $students = $DB->get_records_sql(
             "SELECT DISTINCT u.id, u.id
             FROM {user} u,
             {booking_answers} a
             WHERE a.bookingid = '$bookingid' and
             u.id = a.userid");
-    // Return students array (it contains an array of unique users)
+    // Return students array (it contains an array of unique users).
     return ($students);
 }
 
 function booking_get_option_text($booking, $id) {
     global $DB, $USER;
-    // Returns text string which is the answer that matches the id
+    // Returns text string which is the answer that matches the id.
     if ($result = $DB->get_records_sql(
             "SELECT bo.text FROM {booking_options} bo
             LEFT JOIN {booking_answers} ba ON ba.optionid = bo.id
@@ -1922,7 +1914,7 @@ function booking_send_confirm_message($eventdata) {
     $messagehtml = text_to_html($message, false, false, true);
     $errormessage = get_string('error:failedtosendconfirmation', 'booking', $data);
     $errormessagehtml = text_to_html($errormessage, false, false, true);
-    $user->mailformat = FORMAT_HTML; // Always send HTML version as well
+    $user->mailformat = FORMAT_HTML; // Always send HTML version as well.
 
     $messagedata = new stdClass();
     $messagedata->userfrom = $bookingmanager;

@@ -20,9 +20,9 @@ if (!defined('AJAX_SCRIPT')) {
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
-$id = required_param('id', PARAM_INT); // Course Module ID
-$optionid = required_param('optionid', PARAM_INT); // Course Module ID
-$value = required_param('value', PARAM_INT); // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID.
+$optionid = required_param('optionid', PARAM_INT);
+$value = required_param('value', PARAM_INT);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
 require_course_login($course, false, $cm);
@@ -43,7 +43,7 @@ try {
         $DB->insert_record('booking_ratings', $record, false, false);
     }
 } catch (Exception $e) {
-    // I don't allow duplicates!
+    // I don't allow duplicates.
     $isinserted = true;
 }
 

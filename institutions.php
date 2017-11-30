@@ -52,8 +52,7 @@ $import = "<a href=\"institutioncsv.php?courseid=$courseid\">" .
          get_string('importcsvtitle', 'booking') . "</a>";
 echo $OUTPUT->box("{$message} | {$import}", 'box mdl-align');
 
-echo $OUTPUT->box_start('generalbox', 'tag-blogs'); // could use an id separate from tag-blogs, but would have to copy the css style to make it look
-                                                    // the same
+echo $OUTPUT->box_start('generalbox', 'tag-blogs');
 
 echo "<ul>";
 

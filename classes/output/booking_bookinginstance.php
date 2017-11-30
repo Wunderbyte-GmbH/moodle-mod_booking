@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains the definition for the renderable classes for the assignment
+ * This file contains the definition for the renderable classes for the booking instance
  *
  * @package   mod_booking
  * @copyright 2017 David Bogner {@link http://www.edulabs.org}
@@ -30,11 +30,13 @@ use renderer_base;
 use renderable;
 use templatable;
 
+
 /**
  * This class prepares data for displaying a booking instance
- * @package   mod_booking
+ *
+ * @package mod_booking
  * @copyright 2017 David Bogner {@link http://www.edulabs.org}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_bookinginstance implements renderable, templatable {
 
@@ -52,7 +54,8 @@ class booking_bookinginstance implements renderable, templatable {
 
     /**
      * Constructor
-     * @param int $coursemoduleid
+     *
+     * @param string $sort sort by course/user/my
      * @param \stdClass $data
      */
     public function __construct($sort, $data) {

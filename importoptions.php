@@ -218,7 +218,7 @@ if ($mform->is_cancelled()) {
 
         echo $OUTPUT->box(get_string('importfinished', 'booking'));
     } else {
-        // Not ok, write error!
+        // Not ok, write error.
         echo $OUTPUT->notification(get_string('wrongfile', 'booking'));
     }
 
@@ -226,10 +226,6 @@ if ($mform->is_cancelled()) {
 } else {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string("importcsvtitle", "booking"), 3, 'helptitle', 'uniqueid');
-
-    // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
-    // or on the first display of the form.
-    // displays the form.
     $mform->display();
 }
 

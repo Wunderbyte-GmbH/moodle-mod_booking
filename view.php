@@ -166,10 +166,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
     }
 } else if ($action == 'delbooking' and confirm_sesskey() and
          has_capability('mod/booking:choose', $context) and
-         ($booking->booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) { // print
-                                                                                                       // confirm
-                                                                                                       // delete
-                                                                                                       // form
+         ($booking->booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
     echo $OUTPUT->header();
 
     $bookingdata = new \mod_booking\booking_option($cm->id, $optionid);
@@ -193,7 +190,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
     die();
 }
 
-// before processing data user has to agree to booking policy and confirm booking
+// Before processing data user has to agree to booking policy and confirm booking.
 if ($form = data_submitted() && has_capability('mod/booking:choose', $context) && $download == '' &&
          confirm_sesskey() && $confirm != 1 && $answer) {
     booking_confirm_booking($answer, $USER, $cm, $url);
@@ -203,7 +200,7 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context) &
 $PAGE->set_title(format_string($booking->booking->name));
 $PAGE->set_heading($booking->booking->name);
 
-// Submit any new data if there is any
+// Submit any new data if there is any.
 if ($download == '' && $form = data_submitted() && has_capability('mod/booking:choose', $context)) {
     echo $OUTPUT->header();
     $timenow = time();
@@ -254,9 +251,8 @@ $myoptions = $DB->get_record_sql(
         "SELECT COUNT(*) AS myoptions FROM {booking_teachers} WHERE userid = :userid AND bookingid = :bookingid",
         array('userid' => $USER->id, 'bookingid' => $booking->id));
 
-$current = false; // Initialise for later
-                  // if user has already made a selection, show their selected answer.
-                  // Print the form
+// Initialise for later if user has already made a selection, show the selected answer.
+$current = false;
 $bookingopen = true;
 $timenow = time();
 
@@ -636,13 +632,13 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $tablealloptions->setup();
         $tablealloptions->query_db($paging, true);
 
-        // Prepare rawdata for adding teachers and times
+        // Prepare rawdata for adding teachers and times.
         foreach ($tablealloptions->rawdata as $optionid => $option) {
             $option->times = null;
             $option->teachers = "";
         }
 
-        // Add teachers to rawdata
+        // Add teachers to rawdata.
         $teachers = array();
         $tachernamesql = $DB->sql_fullname('u.firstname', 'u.lastname');
         $bookingoptionids = array_keys($tablealloptions->rawdata);

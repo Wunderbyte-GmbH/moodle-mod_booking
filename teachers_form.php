@@ -65,7 +65,7 @@ class mod_booking_teachers_form extends moodleform {
 
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
 
-        // hidden elements
+        // Hidden elements.
         $mform->addElement('hidden', 'id', $this->_customdata['id']);
         $mform->setType('id', PARAM_INT);
 

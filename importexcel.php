@@ -24,7 +24,7 @@ require_once("../../config.php");
 require_once("locallib.php");
 require_once('importexcel_form.php');
 
-$id = required_param('id', PARAM_INT); // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID.
 
 $url = new moodle_url('/mod/booking/importexcel.php', array('id' => $id));
 $urlredirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
@@ -52,7 +52,7 @@ $PAGE->set_pagelayout('standard');
 
 $mform = new importexcel_form($url);
 
-// Form processing and displaying is done here
+// Form processing and displaying is done here.
 if ($mform->is_cancelled()) {
     // Handle form cancel operation, if cancel button is present on form.
     redirect($urlredirect, '', 0);

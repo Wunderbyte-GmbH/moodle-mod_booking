@@ -70,10 +70,10 @@ class site_overview implements \renderable {
                 $this->usercourses);
         if (has_capability('moodle/site:config', \context_system::instance())) {
             $this->readresponsesprivilegeinstances = $this->allbookinginstanceobjects;
-            foreach ($this->readresponsesprivilegeinstances as $id => $bookinginstance) {
-                $optionids = \mod_booking\booking::get_all_optionids($id);
-                $this->readresponsesprivilegeinstances[$id]->optionids = $optionids;
-                $this->courseswithbookings[$bookinginstance->course][$bookinginstance->id] = $this->readresponsesprivilegeinstances[$id];
+            foreach ($this->readresponsesprivilegeinstances as $cmid => $bookinginstance) {
+                $optionids = \mod_booking\booking::get_all_optionids($bookinginstance->id);
+                $this->readresponsesprivilegeinstances[$cmid]->optionids = $optionids;
+                $this->courseswithbookings[$bookinginstance->course][$cmid] = $this->readresponsesprivilegeinstances[$cmid];
             }
         } else {
             foreach ($this->allbookinginstanceobjects as $booking) {
@@ -81,8 +81,8 @@ class site_overview implements \renderable {
                         \context_module::instance($booking->coursemodule))) {
                     $optionids = \mod_booking\booking::get_all_optionids($booking->id);
                     $booking->optionids = $optionids;
-                    $this->readresponsesprivilegeinstances[$booking->id] = $booking;
-                    $this->courseswithbookings[$booking->course][$booking->id] = $booking;
+                    $this->readresponsesprivilegeinstances[$booking->coursemodule] = $booking;
+                    $this->courseswithbookings[$booking->course][$booking->coursemodule] = $booking;
                 }
             }
         }
@@ -128,11 +128,13 @@ class site_overview implements \renderable {
 
     /**
      * Get opionids booked by $USER
-     * @return array of optionids
+     *
+     * @return array of optionids as keys and bookingids as values
      */
     public function get_my_optionids() {
         global $USER, $DB;
-        return $optionids = $DB->get_fieldset_select('booking_answers', 'optionid', "userid = {$USER->id}");
+        return $optionids = $DB->get_records_menu('booking_answers', array('userid' => $USER->id),
+                '', 'optionid, bookingid');
     }
 
     /**
@@ -196,9 +198,9 @@ class site_overview implements \renderable {
                 $attributemy = $boldtext;
                 break;
         }
+        $sorturl = new \moodle_url($url);
+        $sorturl->param('sort', 'user');
         if (!empty($this->readresponsesprivilegeinstances)) {
-            $sorturl = new \moodle_url($url);
-            $sorturl->param('sort', 'user');
             echo \html_writer::link($sorturl, get_string('sortbyuser', 'block_booking'),
                     $attributeuser);
             echo \html_writer::span("  //  ");
@@ -206,7 +208,6 @@ class site_overview implements \renderable {
                     $attributecourse);
             echo \html_writer::span("  //  ");
         }
-        $sorturl->param('sort', 'my');
         echo \html_writer::link($sorturl, get_string('showmybookingsonly', 'mod_booking'), $attributemy);
         $bookingoptions = $this->get_all_booking_option_instances();
 
@@ -224,12 +225,12 @@ class site_overview implements \renderable {
                     if ($sort == 'my' || !$sort) {
                         $firstelement = reset($allcoursebookings);
                         $output .= \html_writer::tag('h2', $this->usercourses[$firstelement->course]->fullname);
+                        $mybookings = $this->get_my_optionids();
                         foreach ($allcoursebookings as $booking) {
                             if (!empty($booking->optionids)) {
                                 $compare = \array_flip($booking->optionids);
                                 if ($sort === 'my') {
-                                    $mybookings = $this->get_my_optionids();
-                                    $compare = array_flip($mybookings);
+                                    $compare = array_intersect($mybookings, array($booking->id));
                                 }
                                 $booking->options = array_intersect_key($this->allbookingoptionobjects, $compare);
                             }
