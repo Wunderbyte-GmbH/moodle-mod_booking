@@ -84,9 +84,6 @@ if ($mform->is_cancelled()) {
 
 $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
-// this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
-// or on the first display of the form.
-
 $mform->set_data($defaultvalues);
 $mform->display();
 

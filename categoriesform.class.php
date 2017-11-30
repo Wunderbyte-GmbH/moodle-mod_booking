@@ -51,7 +51,6 @@ class mod_booking_categories_form extends moodleform {
 
         $mform = $this->_form;
 
-        // -------------------------------------------------------------------------------
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         $mform->addElement('text', 'name', get_string('categoryname', 'booking'),

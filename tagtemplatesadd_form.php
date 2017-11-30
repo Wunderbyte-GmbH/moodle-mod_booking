@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.'); // It must be included from a Moodle page
+    die('Direct access to this script is forbidden.'); // It must be included from a Moodle page.
 }
 
 require_once("$CFG->libdir/formslib.php");
@@ -29,13 +29,13 @@ class tagtemplatesadd_form extends moodleform {
      */
     public function definition() {
 
-        $mform = $this->_form; // Don't forget the underscore!
+        $mform = $this->_form; // Don't forget the underscore.
 
-        $mform->addElement('text', 'tag', get_string('tagtag', 'booking')); // Add elements to your form
-        $mform->setType('tag', PARAM_NOTAGS); // Set type of element
+        $mform->addElement('text', 'tag', get_string('tagtag', 'booking'));
+        $mform->setType('tag', PARAM_NOTAGS);
         $mform->addRule('tag', null, 'required', null, 'client');
 
-        $mform->addElement('editor', 'text', get_string('tagtext', 'booking'), null, null); // Add elements to your form
+        $mform->addElement('editor', 'text', get_string('tagtext', 'booking'), null, null);
         $mform->setType('text', PARAM_CLEANHTML);
         $mform->addRule('text', null, 'required', null, 'client');
 

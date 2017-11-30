@@ -142,7 +142,7 @@ class mod_booking_bookingform_form extends moodleform {
                 get_string('removeafterminutes', 'booking'), 0);
         $mform->setType('removeafterminutes', PARAM_INT);
 
-        // --- Advanced options ------------------------------------------------------------
+        // Advanced options.
         $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));
 
         $mform->addElement('editor', 'notificationtext', get_string('notificationtext', 'booking'));
@@ -160,7 +160,7 @@ class mod_booking_bookingform_form extends moodleform {
                 get_string('generatenewurl', 'booking'));
         $mform->disabledIf('generatenewurl', 'optionid', 'eq', -1);
 
-        // -------------------- Booking option text------------------------------
+        // Booking option text.
 
         $mform->addElement('header', 'bookingoptiontextheader',
                 get_string('bookingoptiontext', 'booking'));

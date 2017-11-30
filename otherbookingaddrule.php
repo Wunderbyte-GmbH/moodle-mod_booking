@@ -24,8 +24,8 @@ require_once("../../config.php");
 require_once("locallib.php");
 require_once('otherbookingaddrule_form.php');
 
-$id = required_param('id', PARAM_INT); // Course Module ID
-$optionid = required_param('optionid', PARAM_INT); // Option ID
+$id = required_param('id', PARAM_INT); // Course Module ID.
+$optionid = required_param('optionid', PARAM_INT);
 $bookingotherid = optional_param('bookingotherid', 0, PARAM_INT);
 $delete = optional_param('delete', 0, PARAM_INT);
 
@@ -60,12 +60,12 @@ $mform = new otherbookingaddrule_form($url->out(false),
         array('bookingotherid' => $bookingotherid, 'optionid' => $optionid));
 
 if ($mform->is_cancelled()) {
-    // Handle form cancel operation, if cancel button is present on form
+    // Handle form cancel operation, if cancel button is present on form.
     redirect($urlredirect, '', 0);
     die();
 } else if ($data = $mform->get_data()) {
 
-    // Add new record
+    // Add new record.
     $bookingother = new stdClass();
     $bookingother->id = $data->bookingotherid;
     $bookingother->optionid = $optionid;
@@ -91,9 +91,7 @@ if ($mform->is_cancelled()) {
         unset ($defaultvalues->id);
     }
 
-    // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
-    // or on the first display of the form.
-    // displays the form
+    // Processed if form submitted data not validated and form should be redisplayed or first form-display.
     $mform->set_data($defaultvalues);
     $mform->display();
 }

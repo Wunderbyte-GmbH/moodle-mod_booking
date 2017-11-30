@@ -1,0 +1,76 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/signin_downloadform
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-region
+
+    Context variables required for this template:
+    * see mod/booking/classes/output/signin_download.php
+
+    This template is initially hidden, and is only displayed after the current user info has been loaded.
+}}
+<div class="card">
+    <form data-region="booking-download-signinsheet-form" method="get" action="{{baseurl}}">
+		<div class="card-header"><h5 class="card-title">{{#str}}sign_in_sheet_download, mod_booking{{/str}}</h5></div>
+	    <div class="card-body">
+		    <input name="optionid" type="hidden" value="{{optionid}}">
+		    <input name="id" type="hidden" value="{{id}}">
+		    <input name="action" type="hidden" value="downloadpdf">
+		    <div class="container-fluid">
+			    <div class="row">
+				    <div class="col-xs-6 span6 col-6">
+					    <input id="signin-landscape" checked="checked" type="radio" class="m-r-1" name="orientation" value="L"/><label for="signin-landscape">{{#str}}pdflandscape, mod_booking{{/str}}</label><br>
+					    <input id="signin-portrait" type="radio" class="m-r-1" name="orientation" value="P"/><label for="signin-portrait">{{#str}}pdfportrait, mod_booking{{/str}}</label><br>
+				    </div>
+				    <div class="col-xs-6 span6 col-6">
+					    <input id="signin-sort-firstname" checked="checked" type="radio" class="m-r-1" name="orderby" value="firstname"/><label for="signin-sort-firstname">{{#str}}sortbyfirstname, grades{{/str}}</label><br>
+					    <input id="signin-sort-lastname" type="radio" class="m-r-1" name="orderby" value="lastname"/><label for="signin-sort-lastname">{{#str}}sortbylastname, grades{{/str}}</label><br>
+					</div>
+				</div>
+				<div class="row">
+				    <div class="col-xs-6 span6 col-6">
+					    <label for="signin-pdftitle">{{#str}}choosepdftitle, mod_booking{{/str}}</label>
+					    <div>
+						    <select name="pdftitle" id="signin-pdftitle" class="custom-select">
+						        <option value="1">{{titleinstanceoption}}</option>
+						        <option value="2">{{titleoption}}</option>
+						        <option value="3">{{instanceoption}}</option>
+						    </select>
+					    </div>
+				    </div>
+				    <div class="col-xs-6 span6 col-6">
+					    <label for="signin-onesession">{{#str}}signinonesession, mod_booking{{/str}}</label>
+					    <div>
+						    <select name="pdfsessions" id="signin-onesession" class="custom-select">
+						            <option value="0">{{#str}}all{{/str}}</option>
+						        {{#sessions}}
+						            <option value="{{id}}">{{coursestarttime}} - {{courseendtime}}</option>
+						        {{/sessions}}
+						    </select>
+					    </div>
+				    </div>
+			    </div>
+		    </div>
+		</div>
+		<div class="card-footer"><button type="submit" class="btn btn-primary" name="downloadpdf" />{{#str}}download{{/str}}</button></div>
+	</form>
+</div>
