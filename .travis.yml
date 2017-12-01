@@ -14,7 +14,6 @@ cache:
 # WARNING, PHP7 only works in Moodle 3.0.1 or later!
 php:
  - 5.4
- - 5.5
  - 5.6
  - 7.0
 
