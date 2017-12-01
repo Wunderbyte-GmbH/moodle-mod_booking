@@ -175,6 +175,13 @@ class generator {
     protected $pdfsessions = 0;
 
     /**
+     * Margin top of page
+     *
+     * @var integer
+     */
+    public $margintop = 12;
+
+    /**
      * Define basic variable values for signinsheet pdf
      *
      * @param \mod_booking\booking_option $bookingdata
@@ -302,9 +309,8 @@ class generator {
         $this->pdf->SetCreator(PDF_CREATOR);
         $this->pdf->setPrintHeader(true);
         $this->pdf->setPrintFooter(true);
-        $this->pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
         $this->pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-        $this->pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+        $this->pdf->SetHeaderMargin($this->margintop);
         $this->pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
         if ($this->title == 2) {
             $this->pdf->SetHeaderData('', 0, $this->bookingdata->option->text, '');
@@ -315,7 +321,6 @@ class generator {
             $this->pdf->SetHeaderData('', 0, $this->bookingdata->booking->name, '');
         }
         $this->pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-        $this->pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_LEFT);
         $this->pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
         $this->pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
         $this->pdf->setFontSubsetting(false);
@@ -530,7 +535,7 @@ class generator {
         global $DB;
         // Get header and footer logo for signin sheet.
         if ($this->get_signinsheet_logo()) {
-            $this->pdf->SetXY(18, 18);
+            $this->pdf->SetXY(18, $this->margintop + 13);
             $this->pdf->Image('@' . $this->signinsheetlogo->get_content(), '', '', $this->w, $this->h, '', '', 'T',
                     true, 150, 'R', false, false, 0, false, false, false);
         }
