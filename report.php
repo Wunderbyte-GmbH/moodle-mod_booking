@@ -319,7 +319,7 @@ if (!$tableallbookings->is_downloading()) {
         } else if (isset($_POST['subscribetocourse'])) { // Subscription submitted.
             if ($bookingdata->option->courseid != 0) {
                 foreach ($allselectedusers as $selecteduserid) {
-                    $bookingdata->enrol_user($selecteduserid);
+                    $bookingdata->enrol_user($selecteduserid, true);
                 }
                 redirect($url, get_string('userssuccessfullenrolled', 'booking'), 5);
             } else {

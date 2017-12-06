@@ -995,14 +995,17 @@ class booking_option extends booking {
 
     /**
      * Automatically enrol the user in the relevant course, if that setting is on and a course has been specified.
+     * Added option, to manualy enrol user, with a click of button.
      *
      * @param int $userid
      */
-    public function enrol_user($userid) {
+    public function enrol_user($userid, $manual = false) {
         global $DB;
 
-        if (!$this->booking->autoenrol) {
-            return; // Autoenrol not enabled.
+        if (!$manual){
+            if (!$this->booking->autoenrol) {
+                return; // Autoenrol not enabled.
+            }
         }
         if (!$this->option->courseid) {
             return; // No course specified.
