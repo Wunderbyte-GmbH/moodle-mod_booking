@@ -733,6 +733,8 @@ $string['startendtimeknown'] = 'Start and end time of course are known';
 $string['submitandaddnew'] = 'Save and add new';
 $string['waitinglisttaken'] = 'On the waiting list';
 $string['groupexists'] = 'The group already exists in the target course, please choose another name for the booking option';
+$string['groupdeleted'] = 'This booking instance creates groups automatically in the target course. But the group has been manually deleted in the target course. Activate the following checkbox in order to recreate the group';
+$string['recreategroup'] = 'Recreate group in the target course and enrol users in group';
 
 // importoptions.php
 $string['csvfile'] = 'CSV file';

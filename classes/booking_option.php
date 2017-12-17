@@ -353,7 +353,7 @@ class booking_option extends booking {
         }
         foreach ($allusers as $baid => $user) {
             if ($user->waitinglist != 1) {
-                $waitlistusers[$baid] = $user;
+                $bookedusers[$baid] = $user;
             }
         }
         return $bookedusers;
@@ -1001,8 +1001,7 @@ class booking_option extends booking {
      */
     public function enrol_user($userid, $manual = false) {
         global $DB;
-
-        if (!$manual){
+        if (!$manual) {
             if (!$this->booking->autoenrol) {
                 return; // Autoenrol not enabled.
             }

@@ -614,8 +614,11 @@ function booking_update_options($optionvalues) {
                 $option->sent2 = $DB->get_field('booking_options', 'sent2',
                         array('id' => $option->id));
             }
-
+            if (isset($optionvalues->recreategroup)) {
+                $option->recreategroup = $optionvalues->recreategroup;
+            }
             $option->groupid = $bokingutils->group($booking, $option);
+            unset($option->recreategroup);
 
             if ($option->calendarid > 0) {
                 // Event exists.
@@ -689,7 +692,11 @@ function booking_update_options($optionvalues) {
             booking_option_add_to_cal($booking, $option, $optionvalues);
         }
 
+        if (isset($optionvalues->recreategroup)) {
+            $option->recreategroup = $optionvalues->recreategroup;
+        }
         $option->groupid = $bokingutils->group($booking, $option);
+        unset($option->recreategroup);
 
         $id = $DB->insert_record("booking_options", $option);
 
