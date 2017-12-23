@@ -156,15 +156,6 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'enablepresence', get_string('enablepresence', 'booking'),
                 $menuoptions);
 
-        $mform->addElement('header', 'timerestricthdr', get_string('timerestrict', 'booking'));
-        $mform->addElement('checkbox', 'timerestrict', get_string('timerestrict', 'booking'));
-
-        $mform->addElement('date_time_selector', 'timeopen', get_string("bookingopen", "booking"));
-        $mform->disabledIf('timeopen', 'timerestrict');
-
-        $mform->addElement('date_time_selector', 'timeclose', get_string("bookingclose", "booking"));
-        $mform->disabledIf('timeclose', 'timerestrict');
-
         // Confirmation message.
         $mform->addElement('header', 'confirmation',
                 get_string('confirmationmessagesettings', 'booking'));
