@@ -1721,16 +1721,16 @@ function xmldb_booking_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018011100) {
-        
+
         // Define field removeuseronunenrol to be added to booking.
         $table = new xmldb_table('booking');
         $field = new xmldb_field('removeuseronunenrol', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'ratings');
-        
+
         // Conditionally launch add field removeuseronunenrol.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-        
+
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2018011100, 'booking');
     }
