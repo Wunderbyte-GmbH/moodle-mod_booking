@@ -185,10 +185,11 @@ class site_overview implements \renderable {
         $attributeuser = null;
         $attributecourse = null;
         $attributemy = null;
-        // Output sort links and heading.
+            // Output sort links and heading.
         $url = $PAGE->url;
+        $sorturl = new \moodle_url($url);
         switch ($sort) {
-            case null:
+            case 'course':
                 $attributecourse = $boldtext;
                 break;
             case 'user':
@@ -197,20 +198,24 @@ class site_overview implements \renderable {
             case 'my':
                 $attributemy = $boldtext;
                 break;
+            default:
+                $attributemy = $boldtext;
+                break;
         }
-        $sorturl = new \moodle_url($url);
-        $sorturl->param('sort', 'user');
         if (!empty($this->readresponsesprivilegeinstances)) {
+            $sorturl->param('sort', 'user');
             echo \html_writer::link($sorturl, get_string('sortbyuser', 'block_booking'),
                     $attributeuser);
             echo \html_writer::span("  //  ");
-            echo \html_writer::link($url, get_string('sortbycourse', 'block_booking'),
+            $sorturl->param('sort', 'course');
+            echo \html_writer::link($sorturl, get_string('sortbycourse', 'block_booking'),
                     $attributecourse);
             echo \html_writer::span("  //  ");
         }
-        echo \html_writer::link($sorturl, get_string('showmybookingsonly', 'mod_booking'), $attributemy);
+        $sorturl->param('sort', 'my');
+        echo \html_writer::link($sorturl, get_string('showmybookingsonly', 'mod_booking'),
+                $attributemy);
         $bookingoptions = $this->get_all_booking_option_instances();
-
         $output = '';
         $renderer = $PAGE->get_renderer('mod_booking');
         if ($sort === 'user') {
@@ -222,9 +227,10 @@ class site_overview implements \renderable {
             foreach (array_keys($this->courseswithbookings) as $courseid) {
                 $allcoursebookings = $this->all_bookingoptions_of_course($courseid);
                 if (!empty($allcoursebookings)) {
-                    if ($sort == 'my' || !$sort) {
+                    if ($sort == 'my' || $sort == 'course') {
                         $firstelement = reset($allcoursebookings);
-                        $output .= \html_writer::tag('h2', $this->usercourses[$firstelement->course]->fullname);
+                        $output .= \html_writer::tag('h2',
+                                $this->usercourses[$firstelement->course]->fullname);
                         $mybookings = $this->get_my_optionids();
                         foreach ($allcoursebookings as $booking) {
                             if (!empty($booking->optionids)) {
@@ -232,9 +238,11 @@ class site_overview implements \renderable {
                                 if ($sort === 'my') {
                                     $compare = array_intersect($mybookings, array($booking->id));
                                 }
-                                $booking->options = array_intersect_key($this->allbookingoptionobjects, $compare);
+                                $booking->options = array_intersect_key(
+                                        $this->allbookingoptionobjects, $compare);
                             }
-                            $bookingdata = new \mod_booking\output\booking_bookinginstance($sort, $booking);
+                            $bookingdata = new \mod_booking\output\booking_bookinginstance($sort,
+                                    $booking);
                             $output .= $renderer->render_bookings($bookingdata);
                         }
                     }

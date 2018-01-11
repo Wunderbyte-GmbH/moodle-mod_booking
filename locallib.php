@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+use mod_booking\booking_option;
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->libdir . '/tcpdf/tcpdf.php');
@@ -446,7 +447,8 @@ class booking_utils {
             $newgroupdata->description = $booking->name . ' - ' . $option->text;
             $newgroupdata->descriptionformat = FORMAT_HTML;
             // If group name already exists, do not create it a second time, it should be unique.
-            if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name) && !isset($option->id)) {
+            if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name) &&
+                     !isset($option->id)) {
                 throw new moodle_exception('groupexists', 'booking', $url->out());
             }
 
@@ -457,8 +459,20 @@ class booking_utils {
                     $newgroupdata->id = $groupid;
                 }
 
-                if (isset($newgroupdata->id)) {
+                if (isset($newgroupdata->id) && groups_group_exists($groupid)) {
                     groups_update_group($newgroupdata);
+                    return $newgroupdata->id;
+                } else if (isset($newgroupdata->id) && isset($option->recreategroup)) {
+                    $groupid = groups_create_group($newgroupdata);
+                    $bo = new booking_option($cm->id, $option->id);
+                    $users = $bo->get_all_users_booked();
+                    if (!empty($users)) {
+                        foreach ($users as $user) {
+                            groups_add_member($groupid, $user->userid);
+                        }
+                    }
+                    return $groupid;
+                } else if (isset($newgroupdata->id) && !isset($option->recreategroup)) {
                     return $newgroupdata->id;
                 } else {
                     return groups_create_group($newgroupdata);
