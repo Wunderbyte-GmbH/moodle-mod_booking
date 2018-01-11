@@ -715,7 +715,7 @@ $string['searchtag'] = 'Search tags';
 $string['showinapi'] = 'Show in API?';
 $string['whichview'] = 'Default view for booking options';
 $string['enablepresence'] = 'Enable presence';
-
+$string['removeuseronunenrol'] = 'Remove user from booking, when unenrol from course?';
 
 // editoptions.php
 $string['addeditbooking'] = 'Edit booking';

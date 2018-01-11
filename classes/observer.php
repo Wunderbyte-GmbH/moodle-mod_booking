@@ -74,7 +74,7 @@ class mod_booking_observer {
         $cp = (object) $event->other['userenrolment'];
         if ($cp->lastenrol) {
             $DB->delete_records_select('booking_answers',
-                    " userid = :userid AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course)",
+                    " userid = :userid AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course AND removeuseronunenrol = 1)",
                     array('userid' => $cp->userid, 'course' => $cp->courseid));
             $DB->delete_records_select('booking_teachers',
                     " userid = :userid AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course)",
