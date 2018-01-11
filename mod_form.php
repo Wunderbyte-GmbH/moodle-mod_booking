@@ -423,6 +423,8 @@ class mod_booking_mod_form extends moodleform_mod {
         );
         $mform->addElement('select', 'ratings', get_string('ratings', 'mod_booking'), $opts);
         $mform->setDefault('ratings', 0);
+
+        $mform->addElement('selectyesno', 'removeuseronunenrol', get_string("removeuseronunenrol", "booking"));
         // Category.
 
         $mform->addElement('header', 'categoryheader', get_string('category', 'booking'));
