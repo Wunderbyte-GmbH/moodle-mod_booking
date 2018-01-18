@@ -1086,7 +1086,7 @@ class booking_option extends booking {
      * @return false if not successful, true on success
      */
     public function delete_booking_option() {
-        global $DB;
+        global $DB, $USER;
         if (!$DB->record_exists("booking_options", array("id" => $this->optionid))) {
             return false;
         }
@@ -1104,7 +1104,7 @@ class booking_option extends booking {
         // Delete calendar entry, if any.
         $eventid = $DB->get_field('booking_options', 'calendarid', array('id' => $this->optionid));
         $eventexists = true;
-        if ($event->id > 0) {
+        if ($eventid > 0) {
             // Delete event if exist.
             try {
                 $event = \calendar_event::load($eventid);
@@ -1124,6 +1124,10 @@ class booking_option extends booking {
         if (!$DB->delete_records("booking_options", array("id" => $this->optionid))) {
             $result = false;
         }
+
+        $event = \mod_booking\event\bookingoption_deleted::create(array('context' => $this->context, 'objectid' => $this->optionid, 'userid' => $USER->id));
+        $event->trigger();
+
         return $result;
     }
 

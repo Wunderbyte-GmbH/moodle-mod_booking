@@ -119,7 +119,7 @@ if ($mform->is_cancelled()) {
             $fromform->limitanswers = 0;
         }
 
-        $nbooking = booking_update_options($fromform);
+        $nbooking = booking_update_options($fromform, $context);
 
         $bookingdata = new \mod_booking\booking_option($cm->id, $nbooking);
         $bookingdata->sync_waiting_list();

@@ -537,8 +537,8 @@ function booking_update_instance($booking) {
  * @param array $optionvalues
  * @return boolean|number optionid
  */
-function booking_update_options($optionvalues) {
-    global $DB, $CFG;
+function booking_update_options($optionvalues, $context) {
+    global $DB, $CFG, $USER;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
     require_once("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
     $customfields = \mod_booking\booking_option::get_customfield_settings();
@@ -658,6 +658,8 @@ function booking_update_options($optionvalues) {
             }
 
             $DB->update_record("booking_options", $option);
+            $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $option->id, 'userid' => $USER->id));
+            $event->trigger();
 
             // Check if custom field will be updated or newly created.
             if (!empty($customfields)) {
@@ -699,6 +701,9 @@ function booking_update_options($optionvalues) {
         unset($option->recreategroup);
 
         $id = $DB->insert_record("booking_options", $option);
+
+        $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $id, 'userid' => $USER->id));
+        $event->trigger();
 
         // URL shortnere - only if API key is entered.
         $gapik = get_config('booking', 'googleapikey');
