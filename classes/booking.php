@@ -235,6 +235,20 @@ class booking {
     }
 
     /**
+     * Get array of option names, to which user is booked.
+     *
+     * @param \stdClass $user
+     * @return array of option names
+     */
+    public function get_user_booking($user) {
+        global $DB;
+
+        $sql = 'SELECT DISTINCT bo.id, bo.text FROM {booking_answers} ba LEFT JOIN {booking_options} bo ON bo.id = ba.optionid WHERE ba.bookingid = ? AND ba.userid';
+
+        return $DB->get_records_sql($sql, array($this->id, $user->id));
+    }
+
+    /**
      * Get extra fields to display in report.php and view.php
      *
      * @return string[][]|array[]

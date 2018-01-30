@@ -62,12 +62,21 @@ foreach ($modinfo->instances['booking'] as $cm) {
     }
     if ($previoussectionname != $sectionname) {
         $printsection = $sectionname;
-        $table->data[] = array($printsection);
+        $table->data[] = array($printsection, '');
     }
 
     $context = context_module::instance($cm->id);
     $booking = new mod_booking\booking($cm->id);
-    $numberofbookings = $booking->get_user_booking_count($USER);
+    $bo = $booking->get_user_booking($USER);
+
+    $numberofbookings = '';
+    if (!empty($bo)) {
+        $numberofbookings = '<ul>';
+        foreach ($bo as $b) {
+            $numberofbookings .= "<li>{$b->text}</li>";
+        }
+        $numberofbookings .= '</ul>';
+    }
 
     // Calculate the href.
     if (!$cm->visible) {
