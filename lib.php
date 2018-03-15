@@ -919,7 +919,8 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                     new moodle_url('tagtemplates.php', array('id' => $cm->id)));
         }
         if (!is_null($optionid)) {
-            $connectedbooking = $DB->count_records('booking_other', array('optionid' => $optionid));
+            $option = $DB->get_record('booking_options', array('id' => $optionid));
+            $booking = $DB->get_record('booking', array('id' => $option->bookingid));
             $settingnode = $navref->add(get_string("optionmenu", "booking"), null,
                     navigation_node::TYPE_CONTAINER);
             $keys = $settingnode->parent->get_children_key_list();
@@ -946,7 +947,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                                 array('id' => $cm->id, 'optionid' => $optionid)));
             }
             if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) &&
-                     $connectedbooking > 0) {
+                    $booking->conectedbooking > 0) {
                 $settingnode->add(get_string('editotherbooking', 'booking'),
                         new moodle_url('/mod/booking/otherbooking.php',
                                 array('id' => $cm->id, 'optionid' => $optionid)));
