@@ -83,14 +83,21 @@ class site_overview implements \renderable {
                     $booking->optionids = $optionids;
                     $this->readresponsesprivilegeinstances[$booking->coursemodule] = $booking;
                     $this->courseswithbookings[$booking->course][$booking->coursemodule] = $booking;
+                } else {
+                    // Bookings of $USER
+                    $myoptionids = $this->get_my_optionids();
+                    $optionidsbkng = \array_intersect($myoptionids, array($booking->id));
+                    $booking->optionids = $optionidsbkng;
+                    if (\in_array($booking->id, $optionidsbkng)) {
+                        $this->courseswithbookings[$booking->course][$booking->coursemodule] = $booking;
+                    }
                 }
             }
         }
     }
 
     /**
-     * Returns all instances of \mod_booking\booking_option
-     * visible to $USER
+     * Returns all instances of \mod_booking\booking_option visible to $USER
      *
      * @return array \mod_booking\booking_option[]
      */
@@ -124,6 +131,7 @@ class site_overview implements \renderable {
             $cm = get_coursemodule_from_instance('booking', $option->bookingid);
             $this->mybookings[$option->optionid] = new \mod_booking\booking_option($cm->id, $option->optionid);
         }
+        return $this->mybookings;
     }
 
     /**
@@ -131,7 +139,7 @@ class site_overview implements \renderable {
      *
      * @return array of optionids as keys and bookingids as values
      */
-    public function get_my_optionids() {
+    public function get_my_optionids($optionid = null) {
         global $USER, $DB;
         return $optionids = $DB->get_records_menu('booking_answers', array('userid' => $USER->id),
                 '', 'optionid, bookingid');
@@ -179,13 +187,16 @@ class site_overview implements \renderable {
      * @param sort null for default sorting by course or 'user'
      * @return string rendered html
      */
-    public function display($sort = null) {
+    public function display($sort = 'my') {
         global $PAGE, $USER;
+        if (\is_null($sort)) {
+            $sort = 'my';
+        }
         $boldtext = array('style' => 'font-weight: bold;');
         $attributeuser = null;
         $attributecourse = null;
         $attributemy = null;
-            // Output sort links and heading.
+        // Output sort links and heading.
         $url = $PAGE->url;
         $sorturl = new \moodle_url($url);
         switch ($sort) {
@@ -234,12 +245,20 @@ class site_overview implements \renderable {
                         $mybookings = $this->get_my_optionids();
                         foreach ($allcoursebookings as $booking) {
                             if (!empty($booking->optionids)) {
-                                $compare = \array_flip($booking->optionids);
-                                if ($sort === 'my') {
-                                    $compare = array_intersect($mybookings, array($booking->id));
-                                }
                                 $booking->options = array_intersect_key(
-                                        $this->allbookingoptionobjects, $compare);
+                                        $this->allbookingoptionobjects, $booking->optionids);
+                                if ($sort === 'my') {
+                                    if (empty($this->allbookingoptionobjects)) {
+                                        $bkngoptionids = array_intersect($mybookings,
+                                                array($booking->id));
+                                        $optids = \array_keys($bkngoptionids);
+                                        foreach ($optids as $id) {
+                                            $bookingoptionobjects[$id] = new \mod_booking\booking_option(
+                                                    $booking->coursemodule, $id);
+                                        }
+                                        $booking->options = $bookingoptionobjects;
+                                    }
+                                }
                             }
                             $bookingdata = new \mod_booking\output\booking_bookinginstance($sort,
                                     $booking);
