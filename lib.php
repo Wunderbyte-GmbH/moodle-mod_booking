@@ -918,7 +918,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             $settingnode->add(get_string('tagtemplates', 'booking'),
                     new moodle_url('tagtemplates.php', array('id' => $cm->id)));
         }
-        if (!is_null($optionid)) {
+        if (!is_null($optionid) AND $optionid > 0) {
             $option = $DB->get_record('booking_options', array('id' => $optionid));
             $booking = $DB->get_record('booking', array('id' => $option->bookingid));
             $settingnode = $navref->add(get_string("optionmenu", "booking"), null,
