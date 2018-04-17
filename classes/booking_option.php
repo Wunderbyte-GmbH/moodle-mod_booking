@@ -675,7 +675,7 @@ class booking_option extends booking {
 
             $eventdata->userfrom = $bookingmanager;
             $eventdata->subject = $subject;
-            $eventdata->messagetext = $messagebody;
+            $eventdata->messagetext = strip_tags($messagebody);
             $eventdata->messagehtml = $messagehtml;
             $eventdata->attachment = $attachment;
             $eventdata->attachname = $attachname;
@@ -969,7 +969,7 @@ class booking_option extends booking {
             $messagedata->userto = $DB->get_record('user', array('id' => $user->id));
         }
         $messagedata->subject = $subject;
-        $messagedata->messagetext = format_text_email($message, FORMAT_HTML);
+        $messagedata->messagetext = strip_tags($message);
         $messagedata->messagehtml = $messagehtml;
         $messagedata->attachment = $attachment;
         $messagedata->attachname = $attachname;
