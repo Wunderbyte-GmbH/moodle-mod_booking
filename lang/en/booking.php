@@ -1025,6 +1025,10 @@ $string['pdftodaydate'] = 'Date: ';
 $string['booking:readallinstitutionusers'] = 'Show all users';
 
 // File: settings.php
+$string['icalcfg'] = 'Configuration of the ical attachements';
+$string['icalcfgdesc'] = 'Configure the ical.ics files that are attached to e-mail messages. These files alow adding the booking dates to the personal calendar.';
+$string['icalfieldlocation'] = 'Text to display in ical field location';
+$string['icalfieldlocationdesc'] = 'Choose from the dropdown list what what text should be used for the calendar field "location"';
 $string['customfield'] = 'Custom field to be set in the booking option settings. It will then be shown in the booking option overview.';
 $string['customfielddesc'] = 'After adding a custom field, you can define the value for the field in the booking option settings. The value will be shown in the booking option description.';
 $string['customfieldconfigure'] = 'Custom booking option fields';

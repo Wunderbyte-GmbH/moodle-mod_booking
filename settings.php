@@ -23,9 +23,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-
 require_once($CFG->dirroot . '/user/profile/lib.php');
-
 
 $ADMIN->add('modsettings',
         new admin_category('modbookingfolder', new lang_string('pluginname', 'mod_booking'),
@@ -33,6 +31,10 @@ $ADMIN->add('modsettings',
 
 $ADMIN->add('modbookingfolder', $settings);
 
+$settings->add(
+        new admin_setting_heading('mod_booking_icalcfg',
+                get_string('icalcfg', 'mod_booking'),
+                get_string('icalcfgdesc', 'mod_booking')));
 if ($ADMIN->fulltree) {
     $settings->add(
             new admin_setting_configcheckbox('booking/attachical',
@@ -47,13 +49,19 @@ if ($ADMIN->fulltree) {
                     get_string('icalcancel', 'mod_booking'),
                     get_string('icalcanceldesc', 'mod_booking'), 1));
 
+    $options = array( 1 => get_string('courseurl', 'hub'), 2 => get_string('location', 'mod_booking'), 3 => get_string('institution'), 4 => get_string('address') );
+    $settings->add(
+            new admin_setting_configselect('booking/icalfieldlocation',
+                    get_string('icalfieldlocation', 'mod_booking'),
+                    get_string('icalfieldlocationdesc', 'mod_booking'),
+                    1, $options));
+
     $name = 'booking/googleapikey';
     $visiblename = get_string('googleapikey', 'mod_booking');
     $description = get_string('googleapikey_desc', 'mod_booking');
     $setting = new admin_setting_configtext($name, $visiblename, $description, '');
     $settings->add($setting);
 
-    // The default here is feedback_comments (if it exists).
     $settings->add(
             new admin_setting_heading('mod_booking_signinsheet',
                     get_string('cfgsignin', 'mod_booking'),

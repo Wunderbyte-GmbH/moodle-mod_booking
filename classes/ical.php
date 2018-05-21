@@ -82,6 +82,20 @@ class ical {
         // Check if start and end dates exist.
         $coursedates = ($this->option->coursestarttime && $this->option->courseendtime);
         $sessiontimes = !empty($this->times);
+        // NOTE: Newlines are meant to be encoded with the literal sequence
+        // '\n'. But evolution presents a single line text field for location,
+        // and shows the newlines as [0x0A] junk. So we switch it for commas
+        // here. Remember commas need to be escaped too.
+        if ($this->option->courseid && (\get_config('booking', 'icalfieldlocation')  == 1)) {
+            $url = new \moodle_url('/course/view.php', array('id' => $this->option->courseid));
+            $this->location = $this->escape($url->out());
+        } else if (\get_config('booking', 'icalfieldlocation')  == 2){
+            $this->location = $this->option->location;
+        } else if (\get_config('booking', 'icalfieldlocation')  == 3){
+            $this->location = $this->option->institution;
+        } else if (\get_config('booking', 'icalfieldlocation')  == 4){
+            $this->location = $this->option->address;
+        }
         if ( ($coursedates OR $sessiontimes) ) {
             $this->datesareset = true;
             $this->user = $DB->get_record('user', array('id' => $user->id));
@@ -91,14 +105,6 @@ class ical {
             $this->dtstamp = $this->generate_timestamp($this->option->timemodified);
             $this->summary = $this->escape($this->booking->name);
             $this->description = $this->escape($this->option->text, true);
-            // NOTE: Newlines are meant to be encoded with the literal sequence
-            // '\n'. But evolution presents a single line text field for location,
-            // and shows the newlines as [0x0A] junk. So we switch it for commas
-            // here. Remember commas need to be escaped too.
-            if ($this->option->courseid) {
-                $url = new \moodle_url('/course/view.php', array('id' => $this->option->courseid));
-                $this->location = $this->escape($url->out());
-            }
             $urlbits = parse_url($CFG->wwwroot);
             $this->host = $urlbits['host'];
             $this->userfullname = \fullname($this->user);
