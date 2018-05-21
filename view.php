@@ -85,33 +85,32 @@ if (strlen($searchinstitution) > 0) {
 }
 
 $urlparams['searchname'] = "";
+$urlparams['searchsurname'] = "";
+
+$searchnyname = array();
+
 if (strlen($searchname) > 0) {
     $urlparams['searchname'] = $searchname;
+    $conditionsparams['searchname'] = "%{$searchname}%";
+    $searchnyname[] = 'u.firstname LIKE :searchname';
+}
+
+if (strlen($searchsurname) > 0) {
+    $urlparams['searchsurname'] = $searchsurname;
+    $conditionsparams['searchsurname'] = "%{$searchsurname}%";
+    $searchnyname[] = 'u.lastname LIKE :searchsurname';
+}
+
+if (!empty($searchnyname)) {
     $conditions[] = "bo.id IN (SELECT DISTINCT optionid
             FROM (SELECT userid, optionid
             FROM {booking_teachers}
             WHERE bookingid = :snbookingid1 UNION SELECT userid, optionid
             FROM {booking_answers} WHERE bookingid = :snbookingid2) AS un
             LEFT JOIN {user} u ON u.id = un.userid
-            WHERE u.firstname LIKE :searchname)";
-    $conditionsparams['searchname'] = "%{$searchname}%";
+            WHERE " . implode($searchnyname, ' AND ') . ")";
     $conditionsparams['snbookingid1'] = $booking->id;
     $conditionsparams['snbookingid2'] = $booking->id;
-}
-
-$urlparams['searchsurname'] = "";
-if (strlen($searchsurname) > 0) {
-    $urlparams['searchsurname'] = $searchsurname;
-    $conditions[] = "bo.id IN
-            (SELECT DISTINCT optionid
-                FROM (SELECT userid, optionid FROM {booking_teachers}
-                WHERE bookingid = :snbookingid3 UNION SELECT userid, optionid
-                FROM {booking_answers} WHERE bookingid = :snbookingid4) AS un
-            LEFT JOIN {user} u ON u.id = un.userid
-            WHERE u.lastname LIKE :searchsurname)";
-    $conditionsparams['searchsurname'] = "%{$searchsurname}%";
-    $conditionsparams['snbookingid3'] = $booking->id;
-    $conditionsparams['snbookingid4'] = $booking->id;
 }
 
 $urlparamssort = $urlparams;

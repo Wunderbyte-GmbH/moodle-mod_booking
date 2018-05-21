@@ -1735,5 +1735,18 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2018011100, 'booking');
     }
 
+    if ($oldversion < 2018040600) {
+
+        // Changing type of field institution on table booking_options to text.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('institution', XMLDB_TYPE_TEXT, null, null, null, null, null, 'location');
+
+        // Launch change of type for field institution.
+        $dbman->change_field_type($table, $field);
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2018040600, 'booking');
+    }
+
     return true;
 }
