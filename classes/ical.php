@@ -86,17 +86,17 @@ class ical {
         // '\n'. But evolution presents a single line text field for location,
         // and shows the newlines as [0x0A] junk. So we switch it for commas
         // here. Remember commas need to be escaped too.
-        if ($this->option->courseid && (\get_config('booking', 'icalfieldlocation')  == 1)) {
+        if ($this->option->courseid && (\get_config('booking', 'icalfieldlocation') == 1)) {
             $url = new \moodle_url('/course/view.php', array('id' => $this->option->courseid));
             $this->location = $this->escape($url->out());
-        } else if (\get_config('booking', 'icalfieldlocation')  == 2){
+        } else if (\get_config('booking', 'icalfieldlocation') == 2) {
             $this->location = $this->option->location;
-        } else if (\get_config('booking', 'icalfieldlocation')  == 3){
+        } else if (\get_config('booking', 'icalfieldlocation') == 3) {
             $this->location = $this->option->institution;
-        } else if (\get_config('booking', 'icalfieldlocation')  == 4){
+        } else if (\get_config('booking', 'icalfieldlocation') == 4) {
             $this->location = $this->option->address;
         }
-        if ( ($coursedates OR $sessiontimes) ) {
+        if (($coursedates or $sessiontimes)) {
             $this->datesareset = true;
             $this->user = $DB->get_record('user', array('id' => $user->id));
             // Date that this representation of the calendar information was created -

@@ -1,3 +1,6 @@
 2.1.2 (2016051906)
 Bug: Fixed version format for recording list so it works for formats used in non western countries.
 Bug: Fixed issue with user limit not being correctly enforced when default limit was updated and edition was not allowed. (This bug only affected sites making use of the user limit feature)
+2.3 Audrey Horne (2018052100)
+Bug fixes: Search for firstname and lastname, adding tags
+New feature: In Site adminstration for booking plugin choose what is used for the location string in the ical.ics file attached to e-mails
