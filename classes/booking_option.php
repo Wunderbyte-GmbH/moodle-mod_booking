@@ -675,7 +675,7 @@ class booking_option extends booking {
 
             $eventdata->userfrom = $bookingmanager;
             $eventdata->subject = $subject;
-            $eventdata->messagetext = $messagebody;
+            $eventdata->messagetext = format_text_email($messagebody, FORMAT_HTML);
             $eventdata->messagehtml = $messagehtml;
             $eventdata->attachment = $attachment;
             $eventdata->attachname = $attachname;
