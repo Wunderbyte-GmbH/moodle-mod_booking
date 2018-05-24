@@ -4,3 +4,6 @@ Bug: Fixed issue with user limit not being correctly enforced when default limit
 2.3 Audrey Horne (2018052100)
 Bug fixes: Search for firstname and lastname, adding tags
 New feature: In Site adminstration for booking plugin choose what is used for the location string in the ical.ics file attached to e-mails
+2.4 Audrey Horne (2018052400)
+New feature: Add comments to individual bookings in ther Manage responses area of the booking module.
+Readme updated

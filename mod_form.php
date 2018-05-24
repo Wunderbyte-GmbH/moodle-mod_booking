@@ -454,7 +454,8 @@ class mod_booking_mod_form extends moodleform_mod {
             'fullname' => get_string('fullname', 'mod_booking'),
             'timecreated' => get_string('timecreated', 'mod_booking'),
             'institution' => get_string('institution'),
-            'waitinglist' => get_string('searchwaitinglist', 'mod_booking')
+            'waitinglist' => get_string('searchwaitinglist', 'mod_booking'),
+            'notes' => get_string('notes', 'mod_booking')
         );
 
         $reportfields = array('optionid' => get_string("optionid", "booking"),
@@ -469,6 +470,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'completed' => get_string("searchfinished", "booking"),
             'waitinglist' => get_string("waitinglist", "booking"),
             'status' => get_string('presence', 'mod_booking'), 'groups' => get_string("group"),
+            'notes' => get_string('notes', 'mod_booking'),
             'idnumber' => get_string("idnumber"));
 
         $optionsfields = array('text' => get_string("select", "mod_booking"),

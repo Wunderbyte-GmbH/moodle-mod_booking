@@ -13,6 +13,21 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+namespace mod_booking\output;
+use mod_booking;
+use tabobject;
+use html_writer;
+use plugin_renderer_base;
+use moodle_url;
+use user_selector_base;
+use html_table_cell;
+use html_table;
+use html_table_row;
+use rating;
+use rating_manager;
+use popup_action;
+
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * A custom renderer class that extends the plugin_renderer_base and is used by the booking module.
@@ -21,7 +36,7 @@
  * @copyright 2014 David Bogner, Andraž Prinčič
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_booking_renderer extends plugin_renderer_base {
+class renderer extends plugin_renderer_base {
 
     // Prints tabs for options.
     public function print_booking_tabs($urlparams, $current = 'showactive', $mybookings = 0, $myoptions = 0) {
@@ -326,6 +341,19 @@ class mod_booking_renderer extends plugin_renderer_base {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/signin_downloadform', $data);
+        return $o;
+    }
+
+    /**
+     * Render the template for editing booking notes on the report page
+     *
+     * @param mod_booking\output\report_edit_bookingnotes $data
+     * @return string rendered html
+     */
+    public function render_report_edit_bookingnotes(mod_booking\output\report_edit_bookingnotes $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/edit_bookingnotes', $data);
         return $o;
     }
 }

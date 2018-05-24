@@ -1748,5 +1748,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2018040600, 'booking');
     }
 
+    if ($oldversion < 2018052101) {
+
+        // Add field notes to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('notes', XMLDB_TYPE_TEXT, null, null, null, null, null, 'status');
+
+        // Conditionally launch add field notes.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2018052101, 'booking');
+    }
+
     return true;
 }

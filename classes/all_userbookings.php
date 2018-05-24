@@ -21,6 +21,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_booking;
+use mod_booking\output\report_edit_bookingnotes;
 defined('MOODLE_INTERNAL') || die();
 require_once('../../lib/tablelib.php');
 
@@ -203,6 +204,17 @@ class all_userbookings extends \table_sql {
         }
     }
 
+    protected function col_notes($values) {
+        global $PAGE, $USER;
+        $data = array();
+        $data['baid'] = $values->id;
+        $data['note'] = $values->notes;
+        $data['editable'] = true;
+        $renderer = $PAGE->get_renderer('mod_booking');
+        $renderednote = new report_edit_bookingnotes($data);
+        return $renderer->render($renderednote);
+    }
+
     /**
      * This function is called for each data row to allow processing of columns which do not have a *_cols function.
      *
@@ -231,7 +243,7 @@ class all_userbookings extends \table_sql {
     /**
      *
      * {@inheritDoc}
-     * @see flexible_table::wrap_html_start()
+     * @see \flexible_table::wrap_html_start()
      */
     public function wrap_html_start() {
         echo '<form method="post" id="studentsform">' . "\n";
@@ -245,10 +257,11 @@ class all_userbookings extends \table_sql {
         }
     }
 
+
     /**
      *
      * {@inheritDoc}
-     * @see flexible_table::wrap_html_finish()
+     * @see \flexible_table::wrap_html_finish()
      */
     public function wrap_html_finish() {
         global $DB;

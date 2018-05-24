@@ -495,6 +495,10 @@ if (!$tableallbookings->is_downloading()) {
                 $columns[] = 'institution';
                 $headers[] = get_string('institution');
                 break;
+            case 'notes':
+                $columns[] = 'notes';
+                $headers[] = get_string('notes', 'mod_booking');
+                break;
             case 'waitinglist':
                 if ($bookingdata->option->limitanswers == 1 && $bookingdata->option->maxoverbooking > 0) {
                     $columns[] = 'waitinglist';
@@ -535,6 +539,7 @@ if (!$tableallbookings->is_downloading()) {
             ba.timecreated,
             ba.userid,
             ba.waitinglist,
+            ba.notes,
             \'\' otheroptions,
             ba.numrec' . $customfields;
     $from = ' {booking_answers} ba
@@ -812,6 +817,7 @@ if (!$tableallbookings->is_downloading()) {
                     ba.numrec,
                     ba.waitinglist AS waitinglist,
                     ba.status,
+                    ba.notes,
                     u.idnumber as idnumber
                     {$customfields}";
     $from = '{booking_answers} ba

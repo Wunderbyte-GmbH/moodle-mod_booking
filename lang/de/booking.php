@@ -242,6 +242,7 @@ $string['enrolledratings'] = 'Nur Eingeschriebene können bewerten';
 $string['completedratings'] = 'Nur diejenigen, die Aktivität abgeschlossen haben';
 $string['shorturl'] = 'Verkürzter Link zu dieser Buchungsoption';
 $string['generatenewurl'] = 'Neue Kurz-URL generieren';
+$string['notes'] = 'Anmerkungen zur Buchung';
 
 $string['pollurlteachers_help'] = 'Folgende Platzhalter können im Text verwendet werden:
 <ul>
