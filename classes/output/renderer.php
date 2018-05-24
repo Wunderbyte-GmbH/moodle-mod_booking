@@ -41,11 +41,11 @@ class renderer extends plugin_renderer_base {
     // Prints tabs for options.
     public function print_booking_tabs($urlparams, $current = 'showactive', $mybookings = 0, $myoptions = 0) {
 
-        // Output tabs
+        // Output tabs.
         $row = array();
 
         unset($urlparams['sort']);
-        $tmpurlparams = $urlparams; // "#goenrol"
+        $tmpurlparams = $urlparams;
 
         $tmpurlparams['whichview'] = 'myinstitution';
         $row[] = new tabobject('myinstitution',
@@ -123,7 +123,8 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
-     * This function generates HTML to display a subscriber overview, primarily used on the subscribers page if editing was turned off
+     * This function generates HTML to display a subscriber overview, primarily used on the
+     * subscribers page if editing was turned off
      *
      * @param array $users
      * @param object $booking
@@ -180,7 +181,7 @@ class renderer extends plugin_renderer_base {
             $items = array();
 
             foreach ($options as $optionid => $user) {
-                // if the user is visible in only one booking instance, than show the user otherwise do not show
+                // If the user is visible in only one booking instance, than show the user otherwise do not show.
                 if ($user->bookingvisible) {
                     // Waitinglist or regular.
                     if ($user->waitinglist == 0) {
@@ -229,15 +230,15 @@ class renderer extends plugin_renderer_base {
     public function render_rating(rating $rating) {
 
         if ($rating->settings->aggregationmethod == RATING_AGGREGATE_NONE) {
-            return null; // ratings are turned off
+            return null; // Ratings are turned off.
         }
 
         $ratingmanager = new rating_manager();
 
         $strrate = get_string("rate", "rating");
-        $ratinghtml = ''; // the string we'll return
+        $ratinghtml = ''; // The string we'll return.
 
-        // permissions check - can they view the aggregate?
+        // Permissions check - can they view the aggregate?
         if ($rating->user_can_view_aggregate()) {
 
             $aggregatelabel = $ratingmanager->get_aggregate_label(
@@ -272,21 +273,14 @@ class renderer extends plugin_renderer_base {
         }
 
         $formstart = null;
-        // if the item doesn't belong to the current user, the user has permission to rate
-        // and we're within the assessable period
+        // If the item doesn't belong to the current user, the user has permission to rate
+        // and we're within the assessable period.
         if ($rating->user_can_rate()) {
 
             $rateurl = $rating->get_rate_url();
-            // $inputs = $rateurl->params();
 
-            // start the rating form
+            // Start the rating form.
             $formstart .= html_writer::start_tag('div', array('class' => 'ratingform'));
-
-            // add the hidden inputs
-            /*
-             * foreach ($inputs as $name => $value) { $attributes = array('type' => 'hidden', 'class' => 'ratinginput', 'name' => $name, 'value' =>
-             * $value); $formstart .= html_writer::empty_tag('input', $attributes); }
-             */
 
             if (empty($ratinghtml)) {
                 $ratinghtml .= $strrate . ': ';
@@ -302,7 +296,7 @@ class renderer extends plugin_renderer_base {
                     $rating->rating, false, $scaleattrs);
 
             if (!$rating->settings->scale->isnumeric) {
-                // If a global scale, try to find current course ID from the context
+                // If a global scale, try to find current course ID from the context.
                 if (empty($rating->settings->scale->courseid) and
                          $coursecontext = $rating->context->get_course_context(false)) {
                     $courseid = $coursecontext->instanceid;

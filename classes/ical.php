@@ -100,8 +100,7 @@ class ical {
             $this->datesareset = true;
             $this->user = $DB->get_record('user', array('id' => $user->id));
             // Date that this representation of the calendar information was created -
-            // we use the time the option was last modified
-            // http://www.kanzaki.com/docs/ical/dtstamp.html
+            // See http://www.kanzaki.com/docs/ical/dtstamp.html.
             $this->dtstamp = $this->generate_timestamp($this->option->timemodified);
             $this->summary = $this->escape($this->booking->name);
             $this->description = $this->escape($this->option->text, true);
@@ -125,8 +124,8 @@ class ical {
             return '';
         }
 
-        // UIDs should be globally unique
-        $uid = md5($CFG->siteidentifier . $this->option->id . 'mod_booking_option') . '@' . $this->host; // Hostname for this moodle installation
+        // UIDs should be globally unique. @$this->host: Hostname for this moodle installation.
+        $uid = md5($CFG->siteidentifier . $this->option->id . 'mod_booking_option') . '@' . $this->host;
         $dtstart = $this->generate_timestamp($this->option->coursestarttime);
         $dtend = $this->generate_timestamp($this->option->courseendtime);
 

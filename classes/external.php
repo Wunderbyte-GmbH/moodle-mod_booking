@@ -76,7 +76,7 @@ class external extends external_api {
         $dataobject->id = $baid;
         $dataobject->notes = $note;
         $warnings = array();
-        // Check if entry exists in DB
+        // Check if entry exists in DB.
         if (!$DB->record_exists('booking_answers', array('id' => $dataobject->id))) {
             $warnings[] = 'Invalid booking';
         }

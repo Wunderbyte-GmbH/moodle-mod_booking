@@ -55,7 +55,8 @@ class teacher_added extends \core\event\base {
     }
 
     public function get_description() {
-        return "The user with id '$this->userid' added teacher with user id '$this->relateduserid' to the booking option with the option id
+        return "The user with id '$this->userid' added teacher with user id
+                '$this->relateduserid' to the booking option with the option id
         '$this->objectid'";
     }
 

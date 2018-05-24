@@ -63,7 +63,7 @@ class report_edit_bookingnotes implements renderable, templatable {
      */
     public function __construct(array $data) {
         $this->note = $data['note'];
-        if(empty($data['note'])){
+        if (empty($data['note'])) {
             $this->note = " ";
         }
         $this->displayvalue = $data['note'];
@@ -73,14 +73,10 @@ class report_edit_bookingnotes implements renderable, templatable {
 
     public function export_for_template(renderer_base $output) {
         if (!$this->editable) {
-            return array(
-                            'displayvalue' => (string)$this->displayvalue
-            );
+            return array('displayvalue' => (string) $this->displayvalue);
         }
 
-        return array(
-                        'note' => $this->note,
-                        'baid' => $this->baid
+        return array('note' => $this->note, 'baid' => $this->baid
         );
     }
 }

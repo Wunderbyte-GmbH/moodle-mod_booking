@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking\task;
 
+defined('MOODLE_INTERNAL') || die();
 
 class send_confirmation_mails extends \core\task\adhoc_task {
 

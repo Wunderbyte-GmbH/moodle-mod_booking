@@ -86,7 +86,7 @@ if ($edit === 0) {
     $subscribe = (bool) optional_param('subscribe', false, PARAM_RAW);
     $unsubscribe = (bool) optional_param('unsubscribe', false, PARAM_RAW);
     $addtogroup = optional_param('addtogroup', false, PARAM_RAW);
-    // It has to be one or the other, not both or neither
+    // It has to be one or the other, not both or neither.
     if (!($subscribe xor $unsubscribe)) {
         print_error('invalidaction');
     }

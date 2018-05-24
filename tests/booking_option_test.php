@@ -59,10 +59,10 @@ class mod_booking_booking_option_testcase extends advanced_testcase {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1));
 
-        // Create users
+        // Create users.
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
-        $user3 = $this->getDataGenerator()->create_user(); // Booking manager
+        $user3 = $this->getDataGenerator()->create_user(); // Booking manager.
 
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $user3->username;

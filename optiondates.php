@@ -56,7 +56,6 @@ if ($duplicate != '') {
             'bookingid, optionid, coursestarttime, courseendtime');
     $edit = $DB->insert_record("booking_optiondates", $record);
     booking_updatestartenddate($optionid);
-    // redirect($url, get_string('optiondatessuccessfullysaved', 'booking'), 5);
 }
 
 $mform = new optiondatesadd_form($url, array('optiondateid' => $edit));

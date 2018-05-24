@@ -38,7 +38,7 @@ defined('MOODLE_INTERNAL') || die();
 class bookingoption_booked extends \core\event\base {
 
     protected function init() {
-        $this->data['crud'] = 'c'; // c(reate), r(ead), u(pdate), d(elete)
+        $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'booking_answers';
     }

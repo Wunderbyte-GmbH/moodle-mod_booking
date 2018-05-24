@@ -13,9 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.'); // It must be included from a Moodle page
-}
+
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
 require_once($CFG->libdir . '/formslib.php');
@@ -506,25 +505,29 @@ class mod_booking_mod_form extends moodleform_mod {
                         'multiple' => true,
                         'noselectionstring' => get_string('responsesfields', 'booking'),
         );
-        $select = $mform->addElement('autocomplete', 'responsesfields', get_string('responsesfields', 'booking'), $responsesfields, $options);
+        $select = $mform->addElement('autocomplete', 'responsesfields',
+                get_string('responsesfields', 'booking'), $responsesfields, $options);
 
         $options = array(
                         'multiple' => true,
                         'noselectionstring' => get_string('reportfields', 'booking'),
         );
-        $select = $mform->addElement('autocomplete', 'reportfields', get_string('reportfields', 'booking'), $reportfields, $options);
+        $select = $mform->addElement('autocomplete', 'reportfields',
+                get_string('reportfields', 'booking'), $reportfields, $options);
 
         $options = array(
                         'multiple' => true,
                         'noselectionstring' => get_string('optionsfields', 'booking'),
         );
-        $select = $mform->addElement('autocomplete', 'optionsfields', get_string('optionsfields', 'booking'), $optionsfields, $options);
+        $select = $mform->addElement('autocomplete', 'optionsfields',
+                get_string('optionsfields', 'booking'), $optionsfields, $options);
 
         $options = array(
                         'multiple' => true,
                         'noselectionstring' => get_string('signinsheetfields', 'booking'),
         );
-        $select = $mform->addElement('autocomplete', 'signinsheetfields', get_string('signinsheetfields', 'booking'), $signinsheetfields, $options);
+        $select = $mform->addElement('autocomplete', 'signinsheetfields',
+                get_string('signinsheetfields', 'booking'), $signinsheetfields, $options);
 
         // Booking option text.
         $mform->addElement('header', 'bookingoptiontextheader',

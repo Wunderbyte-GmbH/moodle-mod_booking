@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  *
  * @package moodlecore
@@ -65,9 +64,9 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->course = $this->get_courseid();
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
-        // insert the booking record.
+        // Insert the booking record.
         $newitemid = $DB->insert_record('booking', $data);
-        // immediately after inserting "activity" record, call this.
+        // Immediately after inserting "activity" record, call this.
         $this->apply_activity_instance($newitemid);
     }
 
@@ -125,7 +124,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data = (object) $data;
         $data->course = $this->get_courseid();
         $DB->insert_record('booking_category', $data);
-        // No need to save this mapping as far as nothing depend on it
+        // No need to save this mapping as far as nothing depend on it.
     }
 
     protected function process_booking_tag($data) {

@@ -20,7 +20,7 @@ require_once("{$CFG->libdir}/tablelib.php");
 require_once("{$CFG->dirroot}/mod/booking/classes/all_options.php");
 require_once($CFG->dirroot . '/comment/lib.php');
 
-$id = required_param('id', PARAM_INT); // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID.
 $action = optional_param('action', '', PARAM_ALPHA);
 $download = optional_param('download', '', PARAM_ALPHA);
 $whichview = optional_param('whichview', '', PARAM_ALPHA);
@@ -137,7 +137,7 @@ $booking->get_url_params();
 $strbooking = get_string('modulename', 'booking');
 $strbookings = get_string('modulenameplural', 'booking');
 
-// check if data has been submitted to be processed
+// Check if data has been submitted to be processed.
 if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
          has_capability('mod/booking:choose', $context) and
          ($booking->booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
@@ -259,13 +259,15 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
     switch ($whichview) {
         case 'mybooking':
-            $conditions[] = "bo.id IN (SELECT optionid FROM {booking_answers} WHERE userid = :myuserid AND bookingid = :mybookingid)";
+            $conditions[] = "bo.id IN (SELECT optionid FROM {booking_answers}
+                             WHERE userid = :myuserid AND bookingid = :mybookingid)";
             $conditionsparams['myuserid'] = $USER->id;
             $conditionsparams['mybookingid'] = $booking->id;
             break;
 
         case 'myoptions':
-            $conditions[] = "bo.id IN (SELECT optionid FROM {booking_teachers} WHERE userid = :myuserid AND bookingid = :mybookingid)";
+            $conditions[] = "bo.id IN (SELECT optionid FROM {booking_teachers}
+                             WHERE userid = :myuserid AND bookingid = :mybookingid)";
             $conditionsparams['myuserid'] = $USER->id;
             $conditionsparams['mybookingid'] = $booking->id;
             break;
@@ -445,7 +447,6 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                 $hidden .= '<input value="' . $value . '" type="hidden" name="' . $key . '">';
             }
         }
-
         $labelbooking = (empty($booking->booking->lblbooking) ? get_string('booking', 'booking') : $booking->booking->lblbooking);
         $labellocation = (empty($booking->booking->lbllocation) ? get_string('location', 'booking') : $booking->booking->lbllocation);
         $labelinstitution = (empty($booking->booking->lblinstitution) ? get_string('institution') : $booking->booking->lblinstitution);

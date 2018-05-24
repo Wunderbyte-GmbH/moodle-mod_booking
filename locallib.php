@@ -13,11 +13,13 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('MOODLE_INTERNAL') || die();
+
 use mod_booking\booking_option;
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->libdir . '/tcpdf/tcpdf.php');
-
 
 /**
  * Abstract class used by booking subscriber selection controls
@@ -132,7 +134,9 @@ class booking_potential_user_selector extends booking_user_selector_base {
         global $DB, $USER;
 
         $onlygroupmembers = false;
-        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($this->course->id))) {
+        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS and
+                !has_capability('moodle/site:accessallgroups',
+                        \context_course::instance($this->course->id))) {
             $onlygroupmembers = true;
         }
 
@@ -228,7 +232,7 @@ class booking_existing_user_selector extends booking_user_selector_base {
     public function find_users($search) {
         global $DB, $USER;
 
-        // only active enrolled or everybody on the frontpage
+        // Only active enrolled or everybody on the frontpage.
         $fields = "SELECT " . $this->required_fields_sql("u");
         $countfields = 'SELECT COUNT(1)';
         list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
@@ -603,7 +607,9 @@ function booking_updatestartenddate($optionid) {
     global $DB;
 
     $result = $DB->get_record_sql(
-            'SELECT MIN(coursestarttime) AS coursestarttime, MAX(courseendtime) AS courseendtime FROM {booking_optiondates} WHERE optionid = ?',
+            'SELECT MIN(coursestarttime) AS coursestarttime, MAX(courseendtime) AS courseendtime
+             FROM {booking_optiondates}
+             WHERE optionid = ?',
             array($optionid));
 
     $save = new stdClass();

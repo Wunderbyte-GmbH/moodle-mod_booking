@@ -54,7 +54,8 @@ class teacher_removed extends \core\event\base {
     }
 
     public function get_description() {
-        return "The user with id '$this->userid' removed teacher with user id '$this->relateduserid' from the booking option with the option id
+        return "The user with id '$this->userid' removed teacher with user id
+                '$this->relateduserid' from the booking option with the option id
         '$this->objectid'";
     }
 

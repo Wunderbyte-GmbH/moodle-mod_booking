@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking\signinsheet;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->libdir . '/tcpdf/tcpdf.php');
 
 /**

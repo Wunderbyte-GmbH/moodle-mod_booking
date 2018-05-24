@@ -27,7 +27,7 @@ require_once("{$CFG->dirroot}/mod/booking/classes/all_userbookings.php");
 require_once("{$CFG->dirroot}/user/profile/lib.php");
 require_once($CFG->dirroot . '/rating/lib.php');
 
-$id = required_param('id', PARAM_INT); // moduleid
+$id = required_param('id', PARAM_INT); // Course module id.
 $optionid = required_param('optionid', PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
 $action = optional_param('action', '', PARAM_ALPHANUM);
@@ -284,9 +284,12 @@ if (!$tableallbookings->is_downloading()) {
                 $allselectedusers[] = array_keys($value)[0];
             }
 
-            // Check when separated groups are activated, that all users are the same group of current users.
-            if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
-                list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($course->id);
+            // Check when separated groups are activated, all users are same group of current user.
+            if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS and
+                    !has_capability('moodle/site:accessallgroups',
+                            \context_course::instance($course->id))) {
+                list($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql(
+                        $course->id);
                 $groupusers = $DB->get_fieldset_sql($groupsql, $groupparams);
                 $allselectedusers = array_intersect($groupusers, $allselectedusers);
             }
@@ -524,8 +527,10 @@ if (!$tableallbookings->is_downloading()) {
     $strbooking = get_string("modulename", "booking");
     $strbookings = get_string("modulenameplural", "booking");
     $strresponses = get_string("responses", "booking");
-    if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
-        list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($course->id);
+    if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS and
+            !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
+        list($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql(
+                $course->id);
         $addsqlwhere .= " AND u.id IN ($groupsql)";
         $sqlvalues = array_merge($sqlvalues, $groupparams);
     }
@@ -795,8 +800,10 @@ if (!$tableallbookings->is_downloading()) {
             strtolower($profilefield->shortname);
         }
     }
-    if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
-        list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($course->id);
+    if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS and
+            !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
+        list($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql(
+                $course->id);
         $addsqlwhere .= " AND u.id IN ($groupsql)";
         $sqlvalues = array_merge($sqlvalues, $groupparams);
     }

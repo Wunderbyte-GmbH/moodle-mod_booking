@@ -42,9 +42,9 @@ class GoogleUrlApi {
      * @return boolean|mixed
      */
     public function shorten($url) {
-        // Send information along
+        // Send information along.
         $response = $this->send($url);
-        // Return the result
+        // Return the result.
         return isset($response['id']) ? $response['id'] : false;
     }
 

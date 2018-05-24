@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
- * This page allows a user to subscribe/unsubscribe other users from a booking option TODO: upgrade logging, add logging for added/deleted users
+ * This page allows a user to subscribe/unsubscribe other users from a booking option
+ * TODO: upgrade logging, add logging for added/deleted users
  *
  * @author David Bogner davidbogner@gmail.com
  * @package mod/booking
@@ -22,8 +23,8 @@
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
-$id = required_param('id', PARAM_INT); // course_module ID
-$optionid = required_param('optionid', PARAM_INT); //
+$id = required_param('id', PARAM_INT); // Course_module ID.
+$optionid = required_param('optionid', PARAM_INT);
 $subscribe = optional_param('subscribe', false, PARAM_BOOL);
 $unsubscribe = optional_param('unsubscribe', false, PARAM_BOOL);
 $agree = optional_param('agree', false, PARAM_BOOL);
@@ -101,8 +102,10 @@ if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
                     if (!empty($notsubscribedusers)) {
                         foreach ($notsubscribedusers as $user) {
                             $result = $DB->get_records_sql(
-                                    'SELECT bo.text FROM {booking_answers} ba LEFT JOIN {booking_options} bo ON bo.id = ba.optionid WHERE ba.userid = ? AND
-                                        ba.bookingid = ?', array($user->id, $bookingoption->id));
+                                    'SELECT bo.text FROM {booking_answers} ba
+                                     LEFT JOIN {booking_options} bo ON bo.id = ba.optionid
+                                     WHERE ba.userid = ?
+                                     AND ba.bookingid = ?', array($user->id, $bookingoption->id));
                             $output .= "{$user->firstname} {$user->lastname}";
                             if (!empty($result)) {
                                 $r = array();

@@ -48,8 +48,8 @@ if ($ADMIN->fulltree) {
             new admin_setting_configcheckbox('booking/icalcancel',
                     get_string('icalcancel', 'mod_booking'),
                     get_string('icalcanceldesc', 'mod_booking'), 1));
-
-    $options = array( 1 => get_string('courseurl', 'hub'), 2 => get_string('location', 'mod_booking'), 3 => get_string('institution'), 4 => get_string('address') );
+    $options = array(1 => get_string('courseurl', 'hub'), 2 => get_string('location', 'mod_booking'),
+        3 => get_string('institution'), 4 => get_string('address'));
     $settings->add(
             new admin_setting_configselect('booking/icalfieldlocation',
                     get_string('icalfieldlocation', 'mod_booking'),

@@ -149,8 +149,12 @@ if ($mform->is_cancelled()) {
                     $bookingoptionname = $line[0];
                 }
                 $bookingoption = $DB->get_record_sql(
-                        'SELECT * FROM {booking_options} WHERE institution LIKE :institution AND text LIKE :text AND bookingid = :bookingid AND coursestarttime = :coursestarttime',
-                        array('institution' => $line[3], 'text' => $bookingoptionname,
+                        'SELECT * FROM {booking_options}
+                         WHERE institution LIKE :institution
+                         AND text LIKE :text
+                         AND bookingid = :bookingid
+                         AND coursestarttime = :coursestarttime',
+                         array('institution' => $line[3], 'text' => $bookingoptionname,
                             'bookingid' => $booking->id, 'coursestarttime' => $startdate));
 
                 if (empty($bookingoption)) {

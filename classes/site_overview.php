@@ -23,6 +23,7 @@
  */
 namespace mod_booking;
 
+defined('MOODLE_INTERNAL') || die();
 
 class site_overview implements \renderable {
 

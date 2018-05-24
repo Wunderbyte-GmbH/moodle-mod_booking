@@ -24,7 +24,8 @@ require_once($CFG->libdir . '/tcpdf/tcpdf.php');
 
 /**
  * Standard base class for mod_booking
- * Module was originally programmed for 1.9 but further adjustments should be made with new Moodle 2.X coding style using this base class.
+ * Module was originally programmed for 1.9 but further adjustments should be made with new
+ * Moodle 2.X coding style using this base class.
  *
  * @package mod_booking
  * @copyright 2013 David Bogner {@link http://www.edulabs.org}
@@ -75,9 +76,12 @@ class booking {
     /**
      * Constructor for the booking class
      *
-     * @param mixed $context context|null the course module context (or the course context if the coursemodule has not been created yet)
-     * @param mixed $coursemodule the current course module if it was already loaded - otherwise this class will load one from the context as required
-     * @param mixed $course the current course if it was already loaded - otherwise this class will load one from the context as required
+     * @param mixed $context context|null course module or course context if coursemodule not
+     *        created yet
+     * @param mixed $coursemodule current course module if it was already loaded - otherwise load
+     *        from the context as required
+     * @param mixed $course the current course if it was already loaded - otherwise this class will
+     *        load one from the context as required
      */
     public function __construct($cmid) {
         global $DB;
@@ -87,10 +91,11 @@ class booking {
         $this->id = $this->cm->instance;
         $this->context = \context_module::instance($cmid);
         $this->booking = $DB->get_record("booking", array("id" => $this->id));
-        // if the course has groups and I do not have the capability to see all groups, show only users of my groups
-        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS  &&
-                 !has_capability('moodle/site:accessallgroups', $this->context)) {
-                     list($sql, $params) = $this::booking_get_groupmembers_sql($this->course->id);
+        // If the course has groups and I do not have the capability to see all groups, show only
+        // users of my groups.
+        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS &&
+                !has_capability('moodle/site:accessallgroups', $this->context)) {
+            list($sql, $params) = $this::booking_get_groupmembers_sql($this->course->id);
             $this->groupmembers = $DB->execute($sql, $params);
         }
     }
@@ -119,11 +124,14 @@ class booking {
     }
 
     /**
-     * get all the user ids who are allowed to book capability mod/booking:choose available in $htis->canbookusers
+     * get all the user ids who are allowed to book capability mod/booking:choose available in
+     * $this->canbookusers
      */
     public function get_canbook_userids() {
-        // TODO check if course has guest access if not get all enrolled users and check with has_capability if user has right to book
-        // $this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose', 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '',
+        // TODO check if course has guest access if not get all enrolled users and check with
+        // has_capability if user has right to book
+        // $this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose',
+        // 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '',
         // '', true, true);
         $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id');
     }
@@ -182,7 +190,8 @@ class booking {
     public function get_all_optionids_of_teacher() {
         global $DB, $USER;
 
-        return $DB->get_fieldset_select('booking_teachers', 'optionid', "userid = {$USER->id} AND bookingid = {$this->booking->id}");
+        return $DB->get_fieldset_select('booking_teachers', 'optionid',
+                "userid = {$USER->id} AND bookingid = {$this->booking->id}");
     }
 
     /**
@@ -243,7 +252,12 @@ class booking {
     public function get_user_booking($user) {
         global $DB;
 
-        $sql = 'SELECT bo.id, bo.text FROM {booking_answers} ba LEFT JOIN {booking_options} bo ON bo.id = ba.optionid WHERE bo.bookingid = ? AND ba.userid = ?';
+        $sql = 'SELECT bo.id, bo.text
+                FROM {booking_answers} ba
+                LEFT JOIN {booking_options} bo
+                ON bo.id = ba.optionid
+                WHERE bo.bookingid = ?
+                AND ba.userid = ?';
 
         return $DB->get_records_sql($sql, array($this->booking->id, $user->id));
     }
@@ -337,7 +351,8 @@ class booking {
                     $headers[] = get_string("group");
                     break;
                 case 'idnumber':
-                    if ($DB->count_records_select('user', ' idnumber <> \'\'') > 0 && has_capability('moodle/site:viewuseridentity', $this->context)) {
+                    if ($DB->count_records_select('user', ' idnumber <> \'\'') > 0 &&
+                            has_capability('moodle/site:viewuseridentity', $this->context)) {
                         $columns[] = 'idnumber';
                         $headers[] = get_string("idnumber");
                     }

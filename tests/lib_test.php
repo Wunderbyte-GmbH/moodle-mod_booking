@@ -29,7 +29,7 @@ class mod_booking_lib_testcase extends advanced_testcase {
 
     }
 
-    // Test adding teacher to event and group
+    // Test adding teacher to event and group.
     public function test_booking_optionid_subscribe() {
 
         global $DB;
@@ -47,7 +47,8 @@ class mod_booking_lib_testcase extends advanced_testcase {
                         'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
                         'pollurlteacherstext' => array('text' => 'text'),
                         'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
-                        'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'course' => $course->id, 'bookingmanager' => $user->username);
+                        'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'course' => $course->id,
+                        'bookingmanager' => $user->username);
 
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);
 

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 require_once($CFG->libdir . '/formslib.php');
 
+defined('MOODLE_INTERNAL') || die();
 
 class mod_booking_bookingform_form extends moodleform {
 
@@ -31,11 +32,11 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('text', PARAM_CLEANHTML);
         }
 
-        // Add custom fields here
+        // Add custom fields here.
         $customfields = mod_booking\booking_option::get_customfield_settings();
         if (!empty($customfields)) {
             foreach ($customfields as $customfieldname => $customfieldarray) {
-                // TODO: Only textfield yet defined, extend when there are more types
+                // TODO: Only textfield yet defined, extend when there are more types.
                 if ($customfieldarray['type'] = "textfield") {
                     $mform->addElement('text', $customfieldname, $customfieldarray['value'],
                             array('size' => '64'));
@@ -77,7 +78,7 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('address', PARAM_CLEANHTML);
         }
 
-        // If booking option was deleted in target course provide checkbox to recreate group
+        // If booking option was deleted in target course provide checkbox to recreate group.
         if ($this->_customdata['optionid'] > 0) {
             $groupid = $DB->get_field('booking_options', 'groupid',
                     array('id' => $this->_customdata['optionid']));

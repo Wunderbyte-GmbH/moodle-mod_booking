@@ -505,7 +505,7 @@ class booking_option extends booking {
              ORDER BY ba.timemodified ASC";
         $params = array("bookingid" => $this->id, "optionid" => $this->optionid);
 
-        // It is possible that the cap mod/booking:choose has been revoked after the user has booked Therefore do not count them as booked users.
+        // mod/booking:choose may have been revoked after the user has booked: not count them as booked.
         $allanswers = $DB->get_records_sql($sql, $params);
         $this->bookedusers = array_intersect_key($allanswers, $this->canbookusers);
         // TODO offer users with according caps to delete excluded users from booking option.
@@ -649,7 +649,7 @@ class booking_option extends booking {
             $subject = get_string('deletedbookingsubject', 'booking', $params);
         }
 
-        // TODO: user might have been deleted
+        // TODO: user might have been deleted.
         $bookingmanager = $DB->get_record('user',
                 array('username' => $this->booking->bookingmanager));
 
@@ -850,9 +850,11 @@ class booking_option extends booking {
      *
      * @param \stdClass $user
      * @param number $frombookingid
-     * @param number $substractfromlimit this is used for transferring users from one option to another
-     * The number of bookings for the user has to be decreased by one, because, the user will be unsubscribed
-     * from the old booking option afterwards (which is not yet taken into account).
+     * @param number $substractfromlimit this is used for transferring users from one option to
+     *        another
+     *        The number of bookings for the user has to be decreased by one, because, the user will
+     *        be unsubscribed
+     *        from the old booking option afterwards (which is not yet taken into account).
      * @return boolean true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response($user, $frombookingid = 0, $substractfromlimit = 0) {
@@ -870,8 +872,7 @@ class booking_option extends booking {
 
         $underlimit = ($this->booking->maxperuser == 0);
         $underlimit = $underlimit ||
-        (($this->get_user_booking_count($user) - $substractfromlimit) < $this->booking->maxperuser);
-
+                (($this->get_user_booking_count($user) - $substractfromlimit) < $this->booking->maxperuser);
         if (!$underlimit) {
             return false;
         }
@@ -907,7 +908,8 @@ class booking_option extends booking {
     }
 
     /**
-     * Event that sends confirmation notification after user successfully booked TODO this should be rewritten for moodle 2.6 onwards
+     * Event that sends confirmation notification after user successfully booked TODO this should be
+     * rewritten for moodle 2.6 onwards
      *
      * @param \stdClass $user user object
      * @return bool
@@ -923,8 +925,8 @@ class booking_option extends booking {
         $user = $DB->get_record('user', array('id' => $user->id));
         $bookingmanager = $DB->get_record('user',
                 array('username' => $this->booking->bookingmanager));
-        $data = booking_generate_email_params($this->booking,
-                $this->option, $user, $cmid, $this->optiontimes);
+        $data = booking_generate_email_params($this->booking, $this->option, $user, $cmid,
+                $this->optiontimes);
 
         $cansend = true;
 
@@ -937,8 +939,7 @@ class booking_option extends booking {
             // Generate ical attachment to go with the message.
             // Check if ical attachments enabled.
             if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
-                $ical = new \mod_booking\ical($this->booking, $this->option,
-                        $user, $bookingmanager);
+                $ical = new \mod_booking\ical($this->booking, $this->option, $user, $bookingmanager);
                 if ($attachment = $ical->get_attachment()) {
                     $attachname = $ical->get_name();
                 }
@@ -1116,7 +1117,7 @@ class booking_option extends booking {
             }
         }
 
-        // Delete comments.
+            // Delete comments.
         $DB->delete_records("comments",
                 array('itemid' => $this->optionid, 'commentarea' => 'booking_option',
                     'contextid' => $this->context->id));
@@ -1125,7 +1126,9 @@ class booking_option extends booking {
             $result = false;
         }
 
-        $event = \mod_booking\event\bookingoption_deleted::create(array('context' => $this->context, 'objectid' => $this->optionid, 'userid' => $USER->id));
+        $event = \mod_booking\event\bookingoption_deleted::create(
+                array('context' => $this->context, 'objectid' => $this->optionid,
+                    'userid' => $USER->id));
         $event->trigger();
 
         return $result;

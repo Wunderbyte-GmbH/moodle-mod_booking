@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $functions = array(
         'mod_booking_update_bookingnotes' => array(
                 'classname'     => 'mod_booking\external',

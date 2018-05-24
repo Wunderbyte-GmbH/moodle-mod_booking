@@ -23,6 +23,9 @@
  * @copyright 2014 David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die();
+
 $observers = array(
     array('eventname' => '\core\event\course_module_updated',
         'callback' => 'mod_booking_observer::course_module_updated'),

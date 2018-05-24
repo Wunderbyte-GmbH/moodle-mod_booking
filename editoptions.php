@@ -114,7 +114,9 @@ if ($mform->is_cancelled()) {
     redirect($redirecturl, '', 0);
 } else if ($fromform = $mform->get_data()) {
     // Validated data.
-    if (confirm_sesskey() && (has_capability('mod/booking:updatebooking', $context) || has_capability('mod/booking:addeditownoption', $context))) {
+    if (confirm_sesskey() &&
+            (has_capability('mod/booking:updatebooking', $context) ||
+            has_capability('mod/booking:addeditownoption', $context))) {
         if (!isset($fromform->limitanswers)) {
             $fromform->limitanswers = 0;
         }
@@ -124,13 +126,13 @@ if ($mform->is_cancelled()) {
         $bookingdata = new \mod_booking\booking_option($cm->id, $nbooking);
         $bookingdata->sync_waiting_list();
 
-        if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 && !has_capability('mod/booking:updatebooking', $context)) {
+        if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 &&
+                !has_capability('mod/booking:updatebooking', $context)) {
             booking_optionid_subscribe($USER->id, $nbooking, $cm);
         }
 
         if (isset($fromform->submittandaddnew)) {
-            $redirecturl = new moodle_url('editoptions.php',
-                    array('id' => $cm->id, 'optionid' => -1));
+            $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
             redirect($redirecturl, get_string('changessaved'), 0);
         } else {
             $redirecturl = new moodle_url('report.php',
