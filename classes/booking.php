@@ -350,6 +350,10 @@ class booking {
                     $columns[] = 'groups';
                     $headers[] = get_string("group");
                     break;
+                case 'notes':
+                    $columns[] = 'notes';
+                    $headers[] = get_string('notes', 'mod_booking');
+                    break;
                 case 'idnumber':
                     if ($DB->count_records_select('user', ' idnumber <> \'\'') > 0 &&
                             has_capability('moodle/site:viewuseridentity', $this->context)) {

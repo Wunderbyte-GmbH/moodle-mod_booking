@@ -286,7 +286,7 @@ $string['enrolledratings'] = 'Only enrolled';
 $string['completedratings'] = 'Only with completed activity';
 $string['shorturl'] = 'Short URL of this option';
 $string['generatenewurl'] = 'Generate new short url';
-$string['notes'] = 'Notes added to a booking';
+$string['notes'] = 'Booking notes';
 
 $string['pollurlteachers_help'] = 'You can use any of the following placeholders in the text:
 <ul>

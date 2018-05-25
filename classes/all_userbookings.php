@@ -205,7 +205,10 @@ class all_userbookings extends \table_sql {
     }
 
     protected function col_notes($values) {
-        global $PAGE, $USER;
+        global $PAGE;
+        if ($this->is_downloading()) {
+            return $values->notes;
+        }
         $data = array();
         $data['baid'] = $values->id;
         $data['note'] = $values->notes;
