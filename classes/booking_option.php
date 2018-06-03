@@ -661,9 +661,7 @@ class booking_option extends booking {
             $attachment = '';
             if (\get_config('booking', 'icalcancel')) {
                 $ical = new \mod_booking\ical($this->booking, $this->option, $user, $bookingmanager);
-                if ($attachment = $ical->get_attachment(true)) {
-                    $attachname = $ical->get_name();
-                }
+                $attachments = $ical->get_attachments();
             }
             $messagehtml = text_to_html($messagebody, false, false, true);
 
@@ -677,7 +675,7 @@ class booking_option extends booking {
             $eventdata->subject = $subject;
             $eventdata->messagetext = format_text_email($messagebody, FORMAT_HTML);
             $eventdata->messagehtml = $messagehtml;
-            $eventdata->attachment = $attachment;
+            $eventdata->attachment = $attachments;
             $eventdata->attachname = $attachname;
             $sendtask = new \mod_booking\task\send_confirmation_mails();
             $sendtask->set_custom_data($eventdata);
@@ -936,13 +934,11 @@ class booking_option extends booking {
             $message = booking_get_email_body($this->booking, 'bookedtext', 'confirmationmessage',
                     $data);
 
-            // Generate ical attachment to go with the message.
+            // Generate ical attachments to go with the message.
             // Check if ical attachments enabled.
             if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
                 $ical = new \mod_booking\ical($this->booking, $this->option, $user, $bookingmanager);
-                if ($attachment = $ical->get_attachment()) {
-                    $attachname = $ical->get_name();
-                }
+                $attachments = $ical->get_attachments();
             }
         } else if ($data->status == get_string('onwaitinglist', 'booking')) {
             $subject = get_string('confirmationsubjectwaitinglist', 'booking', $data);
@@ -972,7 +968,7 @@ class booking_option extends booking {
         $messagedata->subject = $subject;
         $messagedata->messagetext = format_text_email($message, FORMAT_HTML);
         $messagedata->messagehtml = $messagehtml;
-        $messagedata->attachment = $attachment;
+        $messagedata->attachment = $attachments;
         $messagedata->attachname = $attachname;
 
         if ($cansend) {
