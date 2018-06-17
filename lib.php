@@ -727,6 +727,7 @@ function booking_update_options($optionvalues, $context) {
         if (!empty($customfields)) {
             foreach ($customfields as $fieldcfgname => $field) {
                 if (!empty($optionvalues->$fieldcfgname)) {
+                    $customfield = new stdClass();
                     $customfield->value = $optionvalues->$fieldcfgname;
                     $customfield->optionid = $id;
                     $customfield->bookingid = $booking->id;
@@ -1882,9 +1883,17 @@ function booking_sendpollurl($userids, \mod_booking\booking_option $booking, $cm
     return $returnval;
 }
 
-// Send custom message
+/**
+ * Send a custom message to one or more users.
+ *
+ * @param integer $optionid
+ * @param string $subject
+ * @param string $message
+ * @param array $uids
+ * @return boolean|mixed|number
+ */
 function booking_sendcustommessage($optionid, $subject, $message, $uids) {
-    global $DB, $USER;
+    global $DB, $USER, $CFG;
 
     $returnval = true;
 
@@ -1894,8 +1903,10 @@ function booking_sendcustommessage($optionid, $subject, $message, $uids) {
     $cm = get_coursemodule_from_instance('booking', $booking->id);
     foreach ($uids as $record) {
         $ruser = $DB->get_record('user', array('id' => $record));
-
-        $eventdata = new stdClass();
+        $eventdata = new \core\message\message();
+        if ($CFG->branch > 31) {
+            $eventdata->courseid = $cm->course;
+        }
         $eventdata->modulename = 'booking';
         $eventdata->userfrom = $USER;
         $eventdata->userto = $ruser;
@@ -1903,12 +1914,8 @@ function booking_sendcustommessage($optionid, $subject, $message, $uids) {
         $eventdata->fullmessage = $message;
         $eventdata->fullmessageformat = FORMAT_PLAIN;
         $eventdata->fullmessagehtml = '';
-        $eventdata->messagehtml = '';
-        $eventdata->messagetext = $message;
-        $eventdata->smallmessage = '';
         $eventdata->component = 'mod_booking';
         $eventdata->name = 'bookingconfirmation';
-
         $returnval = message_send($eventdata);
     }
 
