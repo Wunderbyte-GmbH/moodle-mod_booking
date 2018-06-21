@@ -1750,5 +1750,19 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2018052101, 'booking');
     }
 
+    if ($oldversion < 2018062100) {
+
+        // Define field additionalfields to be removed from booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('additionalfields', XMLDB_TYPE_TEXT, null, null, null, null, null,
+                'pollurltext');
+        // Conditionally launch drop field.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2018062100, 'booking');
+    }
     return true;
 }
