@@ -40,17 +40,19 @@ class renderer extends plugin_renderer_base {
 
     // Prints tabs for options.
     public function print_booking_tabs($urlparams, $current = 'showactive', $mybookings = 0, $myoptions = 0) {
-
+        global $USER;
         // Output tabs.
         $row = array();
 
         unset($urlparams['sort']);
         $tmpurlparams = $urlparams;
 
-        $tmpurlparams['whichview'] = 'myinstitution';
-        $row[] = new tabobject('myinstitution',
-                new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
-                get_string('showonlymyinstitutions', 'mod_booking'));
+        if (!empty($USER->institution)) {
+            $tmpurlparams['whichview'] = 'myinstitution';
+            $row[] = new tabobject('myinstitution',
+                    new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
+                    get_string('showonlymyinstitutions', 'mod_booking'));
+        }
         $tmpurlparams['whichview'] = 'showactive';
         $row[] = new tabobject('showactive',
                 new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),

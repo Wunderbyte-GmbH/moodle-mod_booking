@@ -428,16 +428,16 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             }
         }
 
-        echo $OUTPUT->box($booking->show_maxperuser($USER), 'box mdl-align');
+        echo $OUTPUT->box($booking->show_maxperuser($USER), 'mdl-align');
 
         $output = $PAGE->get_renderer('mod_booking');
         $output->print_booking_tabs($urlparams, $whichview, $mybookings->mybookings,
                 $myoptions->myoptions);
 
-        $search = '<a href="#" id="showHideSearch">' . get_string('search') . "</a>";
+        $search = '<a class="btn btn-default" href="#" id="showHideSearch">' . get_string('search') . "</a>";
 
         if ($whichview != 'showonlyone') {
-            echo $OUTPUT->box("{$search}", 'box mdl-align');
+            echo $OUTPUT->box("{$search}", 'booking-search mdl-align');
         }
 
         $hidden = "";
