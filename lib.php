@@ -1974,7 +1974,7 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
             $eventdata->component = 'mod_booking';
             $eventdata->name = 'bookingconfirmation';
             // $eventdata->modulename = 'booking';
-            if ($CFG->version >= 2016120500) {
+            if ($CFG->branch > 31) {
                 $eventdata->courseid = $bookingdata->booking->course;
             }
 
