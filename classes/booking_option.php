@@ -661,7 +661,7 @@ class booking_option extends booking {
             $attachment = '';
             if (\get_config('booking', 'icalcancel')) {
                 $ical = new \mod_booking\ical($this->booking, $this->option, $user, $bookingmanager);
-                $attachments = $ical->get_attachments();
+                $attachments = $ical->get_attachments(true);
             }
             $messagehtml = text_to_html($messagebody, false, false, true);
 
@@ -716,7 +716,7 @@ class booking_option extends booking {
                     $attachname = '';
                     $ical = new \mod_booking\ical($this->booking, $this->option, $newbookeduser,
                             $bookingmanager);
-                    if ($attachment = $ical->get_attachment()) {
+                    if ($attachment = $ical->get_attachments()) {
                         $attachname = $ical->get_name();
                     }
                     $eventdata->userto = $newbookeduser;

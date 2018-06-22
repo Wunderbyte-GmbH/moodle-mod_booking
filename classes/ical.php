@@ -241,10 +241,20 @@ class ical {
         $this->individualvevents[] = $vevent;
     }
 
+    /**
+     * Filename of attached ical file.
+     *
+     * @return string
+     */
     public function get_name() {
         return 'booking.ics';
     }
 
+    /**
+     * Format timestamp.
+     * @param integer $timestamp
+     * @return string
+     */
     protected function generate_timestamp($timestamp) {
         return gmdate('Ymd', $timestamp) . 'T' . gmdate('His', $timestamp) . 'Z';
     }
