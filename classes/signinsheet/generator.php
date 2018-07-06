@@ -175,6 +175,12 @@ class generator {
     protected $pdfsessions = 0;
 
     /**
+     * Width of the cell where teacher names are placed
+     * @var integer
+     */
+    protected $cellwidthteachers = 200;
+
+    /**
      * Margin top of page
      *
      * @var integer
@@ -197,8 +203,10 @@ class generator {
 
         if ($this->orientation == "P") {
             $this->colwidth = 210;
+            $this->cellwidthteachers = 125;
         } else {
             $this->colwidth = 297;
+            $this->cellwidthteachers = 200;
         }
         $this->orderby = $pdfoptions->orderby;
         $teachers = $this->bookingdata->get_teachers();
@@ -533,20 +541,16 @@ class generator {
      */
     public function set_page_header($extracols = array ()) {
         global $DB;
-        $cellwidth_teacher = 270;
         // Get header and footer logo for signin sheet.
         $this->pdf->SetXY(18, $this->margintop + 13);
         if ($this->get_signinsheet_logo()) {
-            $cellwidth_teacher = 200;
             $this->pdf->Image('@' . $this->signinsheetlogo->get_content(), '', '', $this->w, $this->h, '', '', 'T',
                     true, 150, 'R', false, false, 0, false, false, false);
         }
         $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
-        //$this->pdf->Cell(0, 0, '', 0, 1, '', 0);
         $this->pdf->Ln();
-
         $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 10);
-        $this->pdf->MultiCell($cellwidth_teacher, 0,
+        $this->pdf->MultiCell($this->cellwidthteachers, 0,
                 get_string('teachers', 'booking') . ": " . implode(', ', $this->teachers), 0, 1, '',
                 0);
         $this->pdf->Ln();
