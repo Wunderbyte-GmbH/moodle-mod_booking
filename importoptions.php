@@ -154,8 +154,19 @@ if ($mform->is_cancelled()) {
                          AND text LIKE :text
                          AND bookingid = :bookingid
                          AND coursestarttime = :coursestarttime',
-                         array('institution' => $line[3], 'text' => $bookingoptionname,
+                        array('institution' => $line[3], 'text' => $bookingoptionname,
                             'bookingid' => $booking->id, 'coursestarttime' => $startdate));
+
+                // Create institution if it does not exist.
+                $institutionname = mod_booking_fix_encoding($line[3]);
+                $instexists = $DB->record_exists('booking_institutions', array('course' => $course->id, "name" => $institutionname));
+                $instnameempty  = empty($institutionname);
+                if (!$instexists && !$instnameempty) {
+                    $institution = new stdClass();
+                    $institution->name = $institutionname;
+                    $institution->course = $course->id;
+                    $DB->insert_record("booking_institutions", $institution);
+                }
 
                 if (empty($bookingoption)) {
                     $bookingobject = new stdClass();
@@ -165,7 +176,7 @@ if ($mform->is_cancelled()) {
                     $bookingobject->courseid = $booking->course->id;
                     $bookingobject->coursestarttime = $startdate;
                     $bookingobject->courseendtime = $enddate;
-                    $bookingobject->institution = mod_booking_fix_encoding($line[3]);
+                    $bookingobject->institution = $institutionname;
                     $bookingobject->address = mod_booking_fix_encoding($line[4]);
                     $bookingobject->maxanswers = $line[8];
                     $bookingobject->maxoverbooking = $line[9];
