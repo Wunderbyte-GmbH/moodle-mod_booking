@@ -702,6 +702,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             }
         }
     } else {
+        // Downloading the data as CSV or similar.
         $columns = array();
         $headers = array();
 
@@ -748,6 +749,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                         tba.completed AS completed,
                         tba.status,
                         tba.numrec,
+                        tba.notes,
                         otherbookingoption.text AS otheroptions,
                         tba.waitinglist AS waitinglist,
                         tu.idnumber AS idnumber {$customfields}";
