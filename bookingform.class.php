@@ -82,7 +82,7 @@ class mod_booking_bookingform_form extends moodleform {
         if ($this->_customdata['optionid'] > 0) {
             $groupid = $DB->get_field('booking_options', 'groupid',
                     array('id' => $this->_customdata['optionid']));
-            if (!($groupid && groups_group_exists($groupid))) {
+            if (!empty($groupid) && groups_group_exists($groupid)) {
                 $mform->addElement('html',
                         '<div class="alert alert-warning">' .
                                  get_string('groupdeleted', 'mod_booking') . '</div>');

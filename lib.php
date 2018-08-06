@@ -694,13 +694,11 @@ function booking_update_options($optionvalues, $context) {
             booking_option_add_to_cal($booking, $option, $optionvalues);
         }
 
-        if (isset($optionvalues->recreategroup)) {
-            $option->recreategroup = $optionvalues->recreategroup;
-        }
-        $option->groupid = $bokingutils->group($booking, $option);
-        unset($option->recreategroup);
-
         $id = $DB->insert_record("booking_options", $option);
+        $option->id = $id;
+
+        $option->groupid = $bokingutils->group($booking, $option);
+        $DB->update_record('booking_options', $option);
 
         $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $id, 'userid' => $USER->id));
         $event->trigger();
