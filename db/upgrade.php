@@ -1778,5 +1778,15 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2018071601, 'booking');
     }
+
+    if ($oldversion < 2018080701) {
+        $sql = "DELETE bt FROM {booking_teachers} bt
+            LEFT JOIN
+                {booking_options} bo ON bo.id = bt.optionid
+            WHERE
+                bo.id IS NULL";
+        $DB->execute($sql);
+    }
+
     return true;
 }

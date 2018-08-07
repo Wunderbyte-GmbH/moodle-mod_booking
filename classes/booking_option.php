@@ -1098,6 +1098,11 @@ class booking_option extends booking {
             $result = false;
         }
 
+        if (!$DB->delete_records("booking_teachers",
+                array("bookingid" => $this->id, "optionid" => $this->optionid))) {
+            $result = false;
+        }
+
         // Delete calendar entry, if any.
         $eventid = $DB->get_field('booking_options', 'calendarid', array('id' => $this->optionid));
         $eventexists = true;

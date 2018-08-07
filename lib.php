@@ -2019,6 +2019,10 @@ function booking_delete_instance($id) {
         $result = false;
     }
 
+    if (!$DB->delete_records("booking_teachers", array("bookingid" => "$booking->id"))) {
+        $result = false;
+    }
+
     if (!$DB->delete_records("booking", array("id" => "$booking->id"))) {
         $result = false;
     }
