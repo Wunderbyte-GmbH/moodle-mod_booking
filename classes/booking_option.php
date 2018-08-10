@@ -75,6 +75,21 @@ class booking_option extends booking {
     /** @var array $sessions array of objects containing coursestarttime and courseendtime as object values */
     public $sessions = array();
 
+    /** @var boolean if I'm booked*/
+    public $iambooked = 0;
+
+    /** @var boolean if I'm on waiting list*/
+    public $onwaitinglist = 0;
+
+    /** @var boolean if I completed?*/
+    public $completed = 0;
+
+    /** @var int user on waiting list*/
+    public $waiting = 0;
+
+    /** @var int booked users*/
+    public $booked = 0;
+
     /**
      * Creates basic booking option
      *
@@ -83,7 +98,7 @@ class booking_option extends booking {
      * @param object $option option object
      */
     public function __construct($cmid, $optionid, $filters = array(), $page = 0, $perpage = 0, $getusers = true) {
-        global $DB;
+        global $DB, $USER;
         parent::__construct($cmid);
         $this->optionid = $optionid;
         $this->option = $DB->get_record('booking_options',
@@ -109,6 +124,24 @@ class booking_option extends booking {
         if ($getusers) {
             $this->get_users();
         }
+
+        $imbooked = $DB->get_record_sql("SELECT COUNT(*) imbooked FROM {booking_answers} WHERE optionid = :optionid AND userid = :userid AND waitinglist = 0",
+                array('optionid' => $optionid, 'userid' => $USER->id));
+        $this->iambooked = $imbooked->imbooked;
+
+        $onwaitinglist = $DB->get_record_sql("SELECT COUNT(*) onwaitinglist FROM {booking_answers} WHERE optionid = :optionid AND userid = :userid AND waitinglist = 1",
+                array('optionid' => $optionid, 'userid' => $USER->id));
+        $this->onwaitinglist = $onwaitinglist->onwaitinglist;
+
+        $completed = $DB->get_record_sql("SELECT COUNT(*) completed FROM {booking_answers} WHERE optionid = :optionid AND userid = :userid AND completed = 1",
+                array('optionid' => $optionid, 'userid' => $USER->id));
+        $this->completed = $completed->completed;
+
+        $waiting = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid AND waitinglist = 1", array('optionid' => $optionid));
+        $this->waiting = $waiting->rnum;
+
+        $booked = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid AND waitinglist = 0", array('optionid' => $optionid));
+        $this->booked = $booked->rnum;
     }
 
     /**
@@ -611,7 +644,7 @@ class booking_option extends booking {
      * @return true if booking was deleted successfully, otherwise false
      */
     public function user_delete_response($userid) {
-        global $USER, $DB;
+        global $USER, $DB, $CFG;
         $result = $DB->get_records('booking_answers',
                 array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0));
 
@@ -742,6 +775,7 @@ class booking_option extends booking {
         }
 
         // Remove activity completion.
+        require_once($CFG->libdir . '/completionlib.php');
         $course = $DB->get_record('course', array('id' => $this->booking->course));
         $completion = new \completion_info($course);
 

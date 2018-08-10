@@ -411,7 +411,6 @@ class all_options extends table_sql {
             }
 
             $url = new moodle_url('view.php', $buttonoptions);
-            $url->params(array('answer' => $values->id));
             $button = $OUTPUT->single_button($url,
                     (empty($values->btnbooknowname) ? get_string('booknow', 'booking') : $values->btnbooknowname),
                     'post');
@@ -468,11 +467,7 @@ class all_options extends table_sql {
         if (!$values->limitanswers) {
             return $button . $delete . $booked . get_string("unlimited", 'booking') . $manage;
         } else {
-            $places = new stdClass();
-            $places->maxanswers = $values->maxanswers;
-            $places->available = $values->maxanswers - $values->booked;
-            $places->maxoverbooking = $values->maxoverbooking;
-            $places->overbookingavailable = $values->maxoverbooking - $values->waiting;
+            $places = new \mod_booking\places($values->maxanswers, $values->maxanswers - $values->booked, $values->maxoverbooking, $values->maxoverbooking - $values->waiting);
 
             return $button . $delete . $booked .  "<div>" . get_string("placesavailable", "booking", $places) .
                      "</div><div>" . get_string("waitingplacesavailable", "booking", $places) . "</div>" . $manage;

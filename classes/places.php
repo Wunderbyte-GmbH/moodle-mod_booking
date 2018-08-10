@@ -13,20 +13,31 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+namespace mod_booking;
 
-/**
- *
- * @package mod_booking
- * @copyright 2012-2017 David Bogner <info@edulabs.org>, Andraž Prinčič <atletek@gmail.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2018082901;
-$plugin->requires = 2016052300; // Requires this Moodle version.
-// Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman, Piper Chapman.
-// Lois Wilkerson, Audrey Horne.
-$plugin->release = '3.2 Audrey Horne';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->cron = 5;
-$plugin->component = 'mod_booking';
+/**
+ * Util class.
+ *
+ * @package mod_booking
+ * @copyright 2018 Andraž Prinčič, David Bogner
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class places {
+
+    public $maxanswers = 0;
+
+    public $available = 0;
+
+    public $maxoverbooking = 0;
+
+    public $overbookingavailable = 0;
+
+    public function __construct($maxanswers, $available, $maxoverbooking, $overbookingavailable) {
+        $this->maxanswers = $maxanswers;
+        $this->available = $available;
+        $this->maxoverbooking = $maxoverbooking;
+        $this->overbookingavailable = $overbookingavailable;
+    }
+}

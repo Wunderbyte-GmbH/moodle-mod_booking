@@ -16,23 +16,23 @@
 
 /**
  * Web service for mod booking
- * @package    mod_booking
+ *
+ * @package mod_booking
  * @subpackage db
- * @since      Moodle 3.4
- * @copyright  2018 David Bogner
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since Moodle 3.4
+ * @copyright 2018 David Bogner
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
 
 $functions = array(
-        'mod_booking_update_bookingnotes' => array(
-                'classname'     => 'mod_booking\external',
-                'methodname'    => 'update_bookingnotes',
-                'description'   => 'Update the booking notes via AJAX',
-                'type'          => 'write',
-                'ajax'          => true,
-                'capabilities'  => 'mod/booking:readresponses',
-                'services'      => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
-        ),
-);
+    'mod_booking_update_bookingnotes' => array('classname' => 'mod_booking\external',
+        'methodname' => 'update_bookingnotes', 'description' => 'Update the booking notes via AJAX',
+        'type' => 'write', 'ajax' => true, 'capabilities' => 'mod/booking:readresponses',
+        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')),
+    'mod_booking_enrol_user' => array('classname' => 'mod_booking\external',
+        'methodname' => 'enrol_user', 'description' => 'Enrol user via AJAX', 'type' => 'write',
+        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')),
+    'mod_booking_unenrol_user' => array('classname' => 'mod_booking\external',
+        'methodname' => 'unenrol_user', 'description' => 'Unenrol user via AJAX', 'type' => 'write',
+        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')));

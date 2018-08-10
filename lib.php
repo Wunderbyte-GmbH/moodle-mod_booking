@@ -1356,7 +1356,8 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
     global $DB;
     list($course, $cm) = get_course_and_cm_from_cmid($cmid, "booking");
 
-    $completion = new completion_info($course);
+    require_once($CFG->libdir . '/completionlib.php');
+    $completion = new \completion_info($course);
 
     foreach ($selectedusers as $uid) {
         foreach ($uid as $ui) {
@@ -1437,10 +1438,11 @@ function booking_generatenewnumners($bookingdatabooking, $cmid, $optionid, $alls
  * @param number $optionid
  */
 function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) {
-    global $DB;
+    global $DB, $CFG;
 
     $course = $DB->get_record('course', array('id' => $booking->course));
-    $completion = new completion_info($course);
+    require_once($CFG->libdir . '/completionlib.php');
+    $completion = new \completion_info($course);
 
     $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
 

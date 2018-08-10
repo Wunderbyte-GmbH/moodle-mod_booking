@@ -23,6 +23,7 @@
 require_once("../../config.php");
 require_once("locallib.php");
 require_once('importexcel_form.php');
+require_once($CFG->libdir . '/completionlib.php');
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 
@@ -92,7 +93,7 @@ if ($mform->is_cancelled()) {
     if ($optionidpos > -1 && $useridpos > -1 && $completedpos > -1) {
         array_shift($csvarr);
 
-        $completion = new completion_info($course);
+        $completion = new \completion_info($course);
 
         foreach ($csvarr as $line) {
             if (count($line) >= 3) {

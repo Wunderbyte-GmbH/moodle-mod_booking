@@ -23,6 +23,7 @@
 require_once("../../config.php");
 require_once("locallib.php");
 require_once('institutioncsv_form.php');
+require_once($CFG->libdir . '/completionlib.php');
 
 $id = required_param('courseid', PARAM_INT); // Course Module ID.
 
@@ -47,7 +48,7 @@ $PAGE->set_pagelayout('standard');
 
 $mform = new institutioncsv_form($url);
 
-$completion = new completion_info($course);
+$completion = new \completion_info($course);
 
 // Form processing and displaying is done here.
 if ($mform->is_cancelled()) {

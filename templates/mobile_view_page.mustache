@@ -1,0 +1,76 @@
+<div>   
+
+    <ion-card>
+        <ion-card-header>
+            {{booking.booking.name}}
+        </ion-card-header>
+        <ion-card-content>
+            {{{booking.booking.intro}}}
+        </ion-card-content>
+    </ion-card>
+
+    <ion-grid class="core-user-communication-handlers grid ng-star-inserted">
+        <ion-row class="row ng-star-inserted" justify-content-between="" no-padding="">
+            <ion-col align-self-center="" class="col ng-star-inserted" text-center="">
+                <button ion-button block color="{{bcolorshowactive}}" core-site-plugins-new-content method="mobile_course_view" samePage="true" [args]="{cmid: {{cmid}}, courseid: {{courseid}}, whichview: 'showactive'}">
+                    {{ string.showactive }}
+                </button>                       
+            </ion-col>
+            <ion-col align-self-center="" class="col ng-star-inserted" text-center="">
+                <button ion-button block color="{{bcolorshowall}}" core-site-plugins-new-content method="mobile_course_view" samePage="true" [args]="{cmid: {{cmid}}, courseid: {{courseid}}, whichview: 'showall'}">
+                    {{ string.showallbookings }}
+                </button>
+            </ion-col>
+            <ion-col align-self-center="" class="col ng-star-inserted" text-center="">
+                <button ion-button block color="{{bcolormybooking}}" core-site-plugins-new-content method="mobile_course_view" samePage="true" [args]="{cmid: {{cmid}}, courseid: {{courseid}}, whichview: 'mybooking'}">
+                    {{ string.showmybookingsonly }}
+                </button>
+            </ion-col>
+        </ion-row>
+        <ion-row class="row" no-padding="">
+            <!---->
+        </ion-row>
+    </ion-grid>
+
+    <ion-searchbar [showCancelButton]="shouldShowCancel" [debounce]="1000" [(ngModel)]="CONTENT_OTHERDATA.searchstring" (ionInput)="updateContent({ cmid: {{cmid}}, courseid: {{courseid}}, whichview: '{{activeview}}', searchstring: CONTENT_OTHERDATA.searchstring})"></ion-searchbar>
+
+    {{#booking_option}}  
+        <ion-card>
+            <ion-card-header>
+                {{name}}
+            </ion-card-header>
+            <ion-card-content>
+                {{{text}}}
+                {{#button}}
+                <button ion-button block color="secondary" core-site-plugins-call-ws component="mod_booking" name="mod_booking_enrol_user" [params]="{ {{button.args}} }" samePage="true" confirmMessage confirmMessage="{{button.message}}" refreshOnSuccess="true">
+                        {{ button.text }}
+                    </button>
+                {{/button}}
+                {{#delete}}
+                <button ion-button block core-site-plugins-call-ws component="mod_booking" name="mod_booking_unenrol_user" [params]="{ {{delete.args}} }" samePage="true" confirmMessage="{{delete.cmessage}}" refreshOnSuccess="true">
+                        {{ delete.text }}
+                    </button>
+                {{/delete}}
+            </ion-card-content>
+        </ion-card>
+    {{/booking_option}}
+
+    <ion-grid class="core-user-communication-handlers grid ng-star-inserted">
+        <ion-row class="row ng-star-inserted" justify-content-between="" no-padding="">
+            <ion-col align-self-center="" class="col ng-star-inserted" text-center="">                
+                <button ion-button block color="light" core-site-plugins-new-content method="mobile_course_view" samePage="true" [args]="{cmid: {{cmid}}, courseid: {{courseid}}, pagnumber: {{btnnp.p}}, whichview: '{{activeview}}' }" useOtherData="">
+                    {{ string.previous }}
+                </button>                
+            </ion-col>
+            <ion-col align-self-center="" class="col ng-star-inserted" text-center="">                
+                <button ion-button block color="light" core-site-plugins-new-content method="mobile_course_view" samePage="true" [args]="{cmid: {{cmid}}, courseid: {{courseid}}, pagnumber: {{btnnp.n}}, whichview: '{{activeview}}' }" useOtherData="">
+                    {{ string.next }}
+                </button>
+            </ion-col>
+        </ion-row>
+        <ion-row class="row" no-padding="">
+            <!---->
+        </ion-row>
+    </ion-grid>
+
+</div>
