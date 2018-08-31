@@ -212,7 +212,7 @@ class booking {
      * @param number $bookingid
      * @return array of ids
      */
-    public function get_all_optionids($bookingid) {
+    static public function get_all_optionids($bookingid) {
         global $DB;
         return $DB->get_fieldset_select('booking_options', 'id', "bookingid = {$bookingid}");
     }
