@@ -593,6 +593,7 @@ function booking_update_options($optionvalues, $context) {
     $option->beforecompletedtext = $optionvalues->beforecompletedtext;
     $option->aftercompletedtext = $optionvalues->aftercompletedtext;
     $option->limitanswers = $optionvalues->limitanswers;
+    $option->duration = $optionvalues->duration;
     $option->timemodified = time();
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
              $optionvalues->optionid != -1) { // existing booking record

@@ -1788,5 +1788,20 @@ function xmldb_booking_upgrade($oldversion) {
         $DB->execute($sql);
     }
 
+    if ($oldversion < 2018090600) {
+
+        // Define field duration to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('duration', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0', 'shorturl');
+
+        // Conditionally launch add field duration.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2018090600, 'booking');
+    }
+
     return true;
 }

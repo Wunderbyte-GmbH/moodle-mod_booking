@@ -119,6 +119,10 @@ class mod_booking_bookingform_form extends moodleform {
         }
         $mform->addElement('select', 'courseid', get_string("choosecourse", "booking"), $coursearray);
 
+        $mform->addElement('duration', 'duration', get_string('bookingduration', 'booking'));
+        $mform->setType('duration', PARAM_INT);
+        $mform->setDefault('duration', 0);
+
         $mform->addElement('checkbox', 'startendtimeknown',
                 get_string('startendtimeknown', 'booking'));
 
