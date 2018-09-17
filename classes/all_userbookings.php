@@ -355,9 +355,9 @@ class all_userbookings extends \table_sql {
             }
 
             if ($this->bookingdata->booking->numgenerator) {
-                echo '<input type="submit" name="generaterecnum" value="' .
+                echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="generaterecnum" value="' .
                          get_string('generaterecnum', 'booking') . '" onclick="return confirm(\'' .
-                         get_string('generaterecnumareyousure', 'booking') . '\')"/>';
+                         get_string('generaterecnumareyousure', 'booking') . '\')"/></div>';
             }
 
             $connectedbooking = $DB->get_record("booking",
