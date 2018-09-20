@@ -1354,7 +1354,7 @@ function booking_check_if_teacher($option) {
  * @param number $optionid
  */
 function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $optionid) {
-    global $DB;
+    global $DB, $CFG;
     list($course, $cm) = get_course_and_cm_from_cmid($cmid, "booking");
 
     require_once($CFG->libdir . '/completionlib.php');
