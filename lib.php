@@ -593,6 +593,7 @@ function booking_update_options($optionvalues, $context) {
     $option->beforecompletedtext = $optionvalues->beforecompletedtext;
     $option->aftercompletedtext = $optionvalues->aftercompletedtext;
     $option->limitanswers = $optionvalues->limitanswers;
+    $option->duration = $optionvalues->duration;
     $option->timemodified = time();
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
              $optionvalues->optionid != -1) { // existing booking record
@@ -694,13 +695,11 @@ function booking_update_options($optionvalues, $context) {
             booking_option_add_to_cal($booking, $option, $optionvalues);
         }
 
-        if (isset($optionvalues->recreategroup)) {
-            $option->recreategroup = $optionvalues->recreategroup;
-        }
-        $option->groupid = $bokingutils->group($booking, $option);
-        unset($option->recreategroup);
-
         $id = $DB->insert_record("booking_options", $option);
+        $option->id = $id;
+
+        $option->groupid = $bokingutils->group($booking, $option);
+        $DB->update_record('booking_options', $option);
 
         $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $id, 'userid' => $USER->id));
         $event->trigger();
@@ -1355,10 +1354,11 @@ function booking_check_if_teacher($option) {
  * @param number $optionid
  */
 function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $optionid) {
-    global $DB;
+    global $DB, $CFG;
     list($course, $cm) = get_course_and_cm_from_cmid($cmid, "booking");
 
-    $completion = new completion_info($course);
+    require_once($CFG->libdir . '/completionlib.php');
+    $completion = new \completion_info($course);
 
     foreach ($selectedusers as $uid) {
         foreach ($uid as $ui) {
@@ -1439,10 +1439,11 @@ function booking_generatenewnumners($bookingdatabooking, $cmid, $optionid, $alls
  * @param number $optionid
  */
 function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) {
-    global $DB;
+    global $DB, $CFG;
 
     $course = $DB->get_record('course', array('id' => $booking->course));
-    $completion = new completion_info($course);
+    require_once($CFG->libdir . '/completionlib.php');
+    $completion = new \completion_info($course);
 
     $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
 
@@ -2018,6 +2019,10 @@ function booking_delete_instance($id) {
             array("$context->id", "$booking->id"));
 
     if (!$DB->delete_records("booking_options", array("bookingid" => "$booking->id"))) {
+        $result = false;
+    }
+
+    if (!$DB->delete_records("booking_teachers", array("bookingid" => "$booking->id"))) {
         $result = false;
     }
 

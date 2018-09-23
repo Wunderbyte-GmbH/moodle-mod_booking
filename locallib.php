@@ -447,8 +447,8 @@ class booking_utils {
             $option = $tags->option_replace($option);
             $newgroupdata = new stdClass();
             $newgroupdata->courseid = $option->courseid;
-            $newgroupdata->name = $booking->name . ' - ' . $option->text;
-            $newgroupdata->description = $booking->name . ' - ' . $option->text;
+            $newgroupdata->name = "{$booking->name} - {$option->text} ({$option->id})";
+            $newgroupdata->description = "{$booking->name} - {$option->text} ({$option->id})";
             $newgroupdata->descriptionformat = FORMAT_HTML;
             // If group name already exists, do not create it a second time, it should be unique.
             if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name) &&

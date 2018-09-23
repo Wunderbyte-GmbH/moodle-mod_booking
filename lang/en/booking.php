@@ -1056,6 +1056,9 @@ $string['numberrowsdesc'] = 'Number each row of the sign-in sheet. Number will b
 $string['multiicalfiles'] = 'Attach one ical file per date for MS Outlook 2010 compatibility';
 $string['multiicalfilesdesc'] = 'Only MS Outlook 2010 does not support multiple dates within one ical file. Previous and later version do support it (Ex. Outlook365). If you want to send MS Outlook compatible dates, then activate this option in order to attach multiple ical files (one per date/event)';
 
+// Mobile
+$string['next'] = 'Next';
+$string['previous'] = 'Previous';
 // Privacy API.
 $string['privacy:metadata:booking_answers'] = 'Represents a booking to an event';
 $string['privacy:metadata:booking_answers:userid'] = 'User that is booked for this event';

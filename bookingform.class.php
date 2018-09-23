@@ -54,12 +54,14 @@ class mod_booking_bookingform_form extends moodleform {
         }
 
         $institutions = $DB->get_records('booking_institutions', array('course' => $COURSE->id));
-        $instnames = array('' => '');
+        $instnames = array();
         foreach ($institutions as $id => $inst) {
             $instnames[$inst->name] = $inst->name;
         }
 
-        $mform->addElement('select', 'institution', new lang_string('institution'), $instnames);
+        $options = array('tags' => true);
+        $mform->addElement('autocomplete', 'institution', new lang_string('institution'), $instnames,
+            $options);
 
         $url = $CFG->wwwroot . '/mod/booking/institutions.php';
         if (isset($COURSE->id)) {
@@ -82,7 +84,7 @@ class mod_booking_bookingform_form extends moodleform {
         if ($this->_customdata['optionid'] > 0) {
             $groupid = $DB->get_field('booking_options', 'groupid',
                     array('id' => $this->_customdata['optionid']));
-            if (!($groupid && groups_group_exists($groupid))) {
+            if (!empty($groupid) && groups_group_exists($groupid)) {
                 $mform->addElement('html',
                         '<div class="alert alert-warning">' .
                                  get_string('groupdeleted', 'mod_booking') . '</div>');
@@ -116,6 +118,10 @@ class mod_booking_bookingform_form extends moodleform {
             $coursearray[$id] = $courseobject->shortname;
         }
         $mform->addElement('select', 'courseid', get_string("choosecourse", "booking"), $coursearray);
+
+        $mform->addElement('duration', 'duration', get_string('bookingduration', 'booking'));
+        $mform->setType('duration', PARAM_INT);
+        $mform->setDefault('duration', 0);
 
         $mform->addElement('checkbox', 'startendtimeknown',
                 get_string('startendtimeknown', 'booking'));

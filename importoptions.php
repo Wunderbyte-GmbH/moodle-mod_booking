@@ -23,6 +23,7 @@
 require_once("../../config.php");
 require_once("lib.php");
 require_once('importoptions_form.php');
+require_once($CFG->libdir . '/completionlib.php');
 
 function mod_booking_fix_encoding($instr) {
     $curencoding = mb_detect_encoding($instr);
@@ -61,7 +62,7 @@ $PAGE->set_pagelayout('standard');
 
 $mform = new importoptions_form($url);
 
-$completion = new completion_info($course);
+$completion = new \completion_info($course);
 
 // Form processing and displaying is done here.
 if ($mform->is_cancelled()) {
