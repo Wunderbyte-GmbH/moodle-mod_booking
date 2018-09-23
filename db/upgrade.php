@@ -1769,7 +1769,7 @@ function xmldb_booking_upgrade($oldversion) {
         // Define table booking_institutions to be created.
         $table = new xmldb_table('booking_institutions');
 
-        // The field to change.
+        // The field to change. Name ist changed from text to char.
         $field = new xmldb_field('name', XMLDB_TYPE_CHAR, '255', null, null, null, null);
 
         // Change the field type.
