@@ -177,7 +177,7 @@ class booking {
      *
      * @return array of booking options records
      */
-    public function get_all_options($limitfrom = 0, $limitnum = 0, $searchtext = '') {
+    public function get_all_options($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "bo.id") {
         global $DB;
 
         $limit = '';
@@ -189,7 +189,7 @@ class booking {
             $limit = " LIMIT {$limitfrom},{$limitnum}";
         }
 
-        return $DB->get_records_sql("SELECT bo.id FROM {booking_options} bo WHERE bo.bookingid = :bookingid {$search} {$limit}", $params);
+        return $DB->get_records_sql("SELECT {$fields} FROM {booking_options} bo WHERE bo.bookingid = :bookingid {$search} {$limit}", $params);
     }
 
     public function get_all_options_count($searchtext = '') {
