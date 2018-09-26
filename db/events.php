@@ -27,8 +27,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 $observers = array(
-    array('eventname' => '\core\event\course_module_updated',
-        'callback' => 'mod_booking_observer::course_module_updated'),
     array('eventname' => '\core\event\user_deleted',
         'callback' => 'mod_booking_observer::user_deleted'),
     array('eventname' => '\core\event\user_enrolment_deleted',

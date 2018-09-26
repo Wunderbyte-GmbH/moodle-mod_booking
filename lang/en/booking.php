@@ -1059,3 +1059,21 @@ $string['multiicalfilesdesc'] = 'Only MS Outlook 2010 does not support multiple 
 // Mobile
 $string['next'] = 'Next';
 $string['previous'] = 'Previous';
+// Privacy API.
+$string['privacy:metadata:booking_answers'] = 'Represents a booking to an event';
+$string['privacy:metadata:booking_answers:userid'] = 'User that is booked for this event';
+$string['privacy:metadata:booking_answers:bookingid'] = 'ID of the event';
+$string['privacy:metadata:booking_answers:optionid'] = 'Specifies which version of an event, eg summerterm or winterterm';
+$string['privacy:metadata:booking_answers:timemodified'] = 'Timestamp when booking was last modified';
+$string['privacy:metadata:booking_answers:timecreated'] = 'Timestamp when booking was created';
+$string['privacy:metadata:booking_answers:waitinglist'] = 'If this user is on a waitinglist';
+$string['privacy:metadata:booking_answers:status'] = 'Statusinfo for this booking';
+$string['privacy:metadata:booking_answers:notes'] = 'Additional notes';
+$string['privacy:metadata:booking_ratings'] = 'Represents your rating of an event';
+$string['privacy:metadata:booking_ratings:userid'] = 'User that rated this event';
+$string['privacy:metadata:booking_ratings:optionid'] = 'Which version of an event was rated';
+$string['privacy:metadata:booking_ratings:rate'] = 'Rate that was assigned';
+$string['privacy:metadata:booking_teachers'] = 'Represents the teacher of an event';
+$string['privacy:metadata:booking_teachers:userid'] = 'User that is teaching this event';
+$string['privacy:metadata:booking_teachers:optionid'] = 'Which version of an event is taught';
+$string['privacy:metadata:booking_teachers:completed'] = 'If task is completed';
