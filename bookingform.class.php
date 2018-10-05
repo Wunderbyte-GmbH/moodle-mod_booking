@@ -53,15 +53,8 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('location', PARAM_CLEANHTML);
         }
 
-        $institutions = $DB->get_records('booking_institutions', array('course' => $COURSE->id));
-        $instnames = array();
-        foreach ($institutions as $id => $inst) {
-            $instnames[$inst->name] = $inst->name;
-        }
-
-        $options = array('tags' => true);
-        $mform->addElement('autocomplete', 'institution', new lang_string('institution'), $instnames,
-            $options);
+        $mform->addElement('text', 'institution', new lang_string('institution'), array('size' => '264'));
+        $mform->setType('institution', PARAM_TEXT);
 
         $url = $CFG->wwwroot . '/mod/booking/institutions.php';
         if (isset($COURSE->id)) {
