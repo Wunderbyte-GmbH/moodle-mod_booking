@@ -949,10 +949,9 @@ class booking_option extends booking {
     public function send_confirm_message($user) {
         global $DB, $USER;
         $cmid = $this->cm->id;
-        $optionid = $this->optionid;
         // Used to store the ical attachment (if required).
         $attachname = '';
-        $attachment = '';
+        $attachments = array();
 
         $user = $DB->get_record('user', array('id' => $user->id));
         $bookingmanager = $DB->get_record('user',
