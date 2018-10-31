@@ -1780,11 +1780,10 @@ function xmldb_booking_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018080701) {
-        $sql = "DELETE bt FROM {booking_teachers} bt
-            LEFT JOIN
-                {booking_options} bo ON bo.id = bt.optionid
-            WHERE
-                bo.id IS NULL";
+        $sql = "DELETE FROM {booking_teachers} bt
+                WHERE bt.optionid NOT IN
+                (SELECT bo.id FROM {booking_options} bo
+                WHERE bo.id IS NOT NULL)";
         $DB->execute($sql);
     }
 
