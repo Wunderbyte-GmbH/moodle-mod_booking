@@ -610,7 +610,7 @@ if (!$tableallbookings->is_downloading()) {
              ($bookingdata->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate(
                     $bookingdata->option->coursestarttime, get_string('strftimedatetime')) . " - " .
              userdate($bookingdata->option->courseendtime, get_string('strftimedatetime'))) . " | " .
-             (empty($bookingdata->booking->lblteachname) ? get_string('teachers', 'booking') : $bookingdata->booking->lblteachname) .
+             (empty($bookingdata->booking->lblteachname) ? get_string('teachers', 'booking') . ': ' : $bookingdata->booking->lblteachname) .
              implode(', ', $teachers) . " {$linkst}</p>";
 
     $links = array();
