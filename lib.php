@@ -18,7 +18,6 @@ require_once($CFG->dirroot . '/calendar/lib.php');
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot . '/question/category_class.php');
 require_once($CFG->dirroot . '/group/lib.php');
-require_once($CFG->libdir . '/eventslib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 
 function booking_cron() {
