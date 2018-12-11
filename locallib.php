@@ -19,7 +19,6 @@ defined('MOODLE_INTERNAL') || die();
 use mod_booking\booking_option;
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
-require_once($CFG->libdir . '/tcpdf/tcpdf.php');
 
 /**
  * Abstract class used by booking subscriber selection controls
