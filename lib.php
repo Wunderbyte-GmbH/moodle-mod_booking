@@ -13,6 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+use mod_booking\booking_tags;
+use mod_booking\booking_utils;
+
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/calendar/lib.php');
 require_once($CFG->libdir . '/filelib.php');
@@ -595,13 +598,12 @@ function booking_update_options($optionvalues, $context) {
     $option->duration = $optionvalues->duration;
     $option->timemodified = time();
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
-             $optionvalues->optionid != -1) { // existing booking record
+             $optionvalues->optionid != -1) { // existing booking option record
         $option->id = $optionvalues->optionid;
         $option->shorturl = $optionvalues->shorturl;
         if (isset($optionvalues->text) && $optionvalues->text != '') {
             $option->calendarid = $DB->get_field('booking_options', 'calendarid',
                     array('id' => $option->id));
-            $groupid = $DB->get_field('booking_options', 'groupid', array('id' => $option->id));
             $coursestarttime = $DB->get_field('booking_options', 'coursestarttime',
                     array('id' => $option->id));
 
@@ -614,11 +616,9 @@ function booking_update_options($optionvalues, $context) {
                 $option->sent2 = $DB->get_field('booking_options', 'sent2',
                         array('id' => $option->id));
             }
-            if (isset($optionvalues->recreategroup)) {
-                $option->recreategroup = $optionvalues->recreategroup;
+            if (isset($optionvalues->addtogroup)) {
+                $option->groupid = $bokingutils->group($booking, $option);
             }
-            $option->groupid = $bokingutils->group($booking, $option);
-            unset($option->recreategroup);
 
             if ($option->calendarid > 0) {
                 // Event exists.

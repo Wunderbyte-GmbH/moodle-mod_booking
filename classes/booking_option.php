@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
+use mod_booking\booking_utils;
+use mod_booking\booking_tags;
+use stdClass;
+use moodle_url;
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -231,12 +235,12 @@ class booking_option extends booking {
     public function apply_tags() {
         parent::apply_tags();
 
-        $tags = new \booking_tags($this->cm);
+        $tags = new booking_tags($this->cm);
         $this->option = $tags->option_replace($this->option);
     }
 
     public function get_url_params() {
-        $bu = new \booking_utils();
+        $bu = new \mod_booking\booking_utils();
         $params = $bu->generate_params($this->booking, $this->option);
         $this->option->pollurl = $bu->get_body($params, 'pollurl', $params, true);
         $this->option->pollurlteachers = $bu->get_body($params, 'pollurlteachers', $params, true);
@@ -379,6 +383,7 @@ class booking_option extends booking {
      * @return array of userobjects $this->allusers key: booking_answers id
      */
     public function get_all_users_booked() {
+        $bookedusers = array();
         if (empty($this->allusers)) {
             $allusers = $this->get_all_users();
         } else {
@@ -1059,8 +1064,16 @@ class booking_option extends booking {
             $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
 
             if ($this->booking->addtogroup == 1) {
-                if (!is_null($this->option->groupid) && ($this->option->groupid > 0)) {
+                $groups = groups_get_all_groups($this->option->courseid);
+                if (!is_null($this->option->groupid) && ($this->option->groupid > 0) &&
+                        in_array($this->option->groupid, $groups)) {
                     groups_add_member($this->option->groupid, $userid);
+                } else {
+                    if ($groupid = $this->create_group()) {
+                        groups_add_member($groupid, $userid);
+                    } else {
+                        throw new \moodle_exception('groupexists', 'booking');
+                    }
                 }
             }
         }
@@ -1092,7 +1105,7 @@ class booking_option extends booking {
 
         if (!$instances = $DB->get_records('enrol',
                 array('enrol' => 'manual', 'courseid' => $this->option->courseid,
-                    'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
+                        'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
             return; // No manual enrolment instance on this course.
         }
         if ($this->booking->addtogroup == 1) {
@@ -1111,9 +1124,74 @@ class booking_option extends booking {
     }
 
     /**
+     * Create a new group for a booking option if it is not already created
+     * Return the id of the group.
+     *
+     * @return bool|\id of the group
+     * @throws \moodle_exception
+     */
+    public function create_group() {
+        global $DB;
+        $newgroupdata = self::generate_group_data($this->booking, $this->option);
+        if (isset($this->option->id)) {
+            $groupids = array_keys(groups_get_all_groups($this->option->courseid));
+            // If group name already exists, do not create it a second time, it should be unique.
+            if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name)) {
+                return $groupid;
+            }
+            if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name) &&
+                    !isset($this->option->id)) {
+                $url = new moodle_url('/mod/booking/view.php', array('id' => $this->cm->id));
+                throw new moodle_exception('groupexists', 'booking', $url->out());
+            }
+            if ($this->option->groupid > 0 && in_array($this->option->groupid, $groupids)) {
+                // Group has been created but renamed.
+                return $this->option->groupid;
+            } else if ($this->option->groupid > 0 && !in_array($this->option->groupid, $groupids)) {
+                // Group has been deleted and must be created and groupid updated in DB.
+                $data = new stdClass();
+                $data->id = $this->option->id;
+                $data->groupid = groups_create_group(self::generate_group_data($this->booking, $this->option));
+                if ($data->groupid) {
+                    $DB->update_record('booking_options', $data);
+                }
+                return $data->groupid;
+            }
+        } else {
+            // Option id is not yet set so return group id.
+            return groups_create_group($newgroupdata);
+        }
+        return false;
+    }
+
+    /**
+     * Generate data for creating the group.
+     *
+     * @return stdClass
+     */
+    public static function generate_group_data(stdClass $bookingsettings, stdClass $optionsettings) {
+        // Replace tags with content. This alters the booking settings so cloning them.
+        $booking = clone $bookingsettings;
+        $option = clone $optionsettings;
+        $modinfo = get_fast_modinfo($bookingsettings->course);
+        $tags = new booking_tags($modinfo->cms[$booking->id]);
+        $booking = $tags->booking_replace($booking);
+        $option = $tags->option_replace($option);
+        $newgroupdata = new stdClass();
+        $newgroupdata->courseid = $option->courseid;
+        $newgroupdata->name = "{$booking->name} - {$option->text} ({$option->id})";
+        $newgroupdata->description = "{$booking->name} - {$option->text} ({$option->id})";
+        $newgroupdata->descriptionformat = FORMAT_HTML;
+        return $newgroupdata;
+    }
+
+    /**
+     *
      * Deletes a booking option and the associated user answers
      *
-     * @return false if not successful, true on success
+     * @return bool false if not successful, true on success
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public function delete_booking_option() {
         global $DB, $USER;

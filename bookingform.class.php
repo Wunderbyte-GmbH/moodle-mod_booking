@@ -73,19 +73,6 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('address', PARAM_CLEANHTML);
         }
 
-        // If booking option was deleted in target course provide checkbox to recreate group.
-        if ($this->_customdata['optionid'] > 0) {
-            $groupid = $DB->get_field('booking_options', 'groupid',
-                    array('id' => $this->_customdata['optionid']));
-            if (!empty($groupid) && groups_group_exists($groupid)) {
-                $mform->addElement('html',
-                        '<div class="alert alert-warning">' .
-                                 get_string('groupdeleted', 'mod_booking') . '</div>');
-                $mform->addElement('checkbox', 'recreategroup',
-                        get_string('recreategroup', 'booking'));
-            }
-        }
-
         $mform->addElement('checkbox', 'limitanswers', get_string('limitanswers', 'booking'));
         $mform->addHelpButton('limitanswers', 'limitanswers', 'mod_booking');
 
