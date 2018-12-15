@@ -16,7 +16,6 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_tags;
 use html_writer;
 use moodle_exception;
 use moodle_url;
@@ -160,49 +159,5 @@ class booking_utils {
             }
         }
         return $text;
-    }
-
-    /**
-     * Create or update new group and return id of group.
-     *
-     * @param object $booking
-     * @param object $option
-     * @return int
-     */
-    public function group($bookingtmp = null, $optiontmp = null) {
-        global $DB;
-
-        $booking = clone $bookingtmp;
-        $option = clone $optiontmp;
-
-        if ($booking->addtogroup == 1 && $option->courseid > 0) {
-
-            $cm = get_coursemodule_from_instance('booking', $booking->id);
-            $url = new moodle_url('/mod/booking/view.php', array('id' => $cm->id));
-
-            $tags = new booking_tags($cm);
-            $booking = $tags->booking_replace($booking);
-            $option = $tags->option_replace($option);
-            $newgroupdata = new stdClass();
-            $newgroupdata->courseid = $option->courseid;
-            $newgroupdata->name = "{$booking->name} - {$option->text} ({$option->id})";
-            $newgroupdata->description = "{$booking->name} - {$option->text} ({$option->id})";
-            $newgroupdata->descriptionformat = FORMAT_HTML;
-            // If group name already exists, do not create it a second time, it should be unique.
-            if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name) &&
-                    !isset($option->id)) {
-                throw new moodle_exception('groupexists', 'booking', $url->out());
-            }
-
-            if (isset($option->id)) {
-                $bo = new booking_option($cm->id, $option->id);
-                $bo->create_group();
-            } else {
-                // New option, optionid not yet available.
-                return groups_create_group($newgroupdata);
-            }
-        } else {
-            return 0;
-        }
     }
 }

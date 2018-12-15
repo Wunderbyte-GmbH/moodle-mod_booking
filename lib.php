@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 use mod_booking\booking_tags;
-use mod_booking\booking_utils;
+use mod_booking\booking_option;
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/calendar/lib.php');
@@ -544,8 +544,6 @@ function booking_update_options($optionvalues, $context) {
     require_once("$CFG->dirroot/mod/booking/locallib.php");
     require_once("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
     $customfields = \mod_booking\booking_option::get_customfield_settings();
-    $bokingutils = new booking_utils();
-
     $booking = $DB->get_record('booking', array('id' => $optionvalues->bookingid));
 
     $option = new stdClass();
@@ -616,8 +614,9 @@ function booking_update_options($optionvalues, $context) {
                 $option->sent2 = $DB->get_field('booking_options', 'sent2',
                         array('id' => $option->id));
             }
-            if (isset($optionvalues->addtogroup)) {
-                $option->groupid = $bokingutils->group($booking, $option);
+            if (isset($booking->addtogroup) && $option->courseid > 0) {
+                $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
+                $option->groupid = $bo->create_group($booking, $option);
             }
 
             if ($option->calendarid > 0) {
@@ -695,10 +694,14 @@ function booking_update_options($optionvalues, $context) {
         }
 
         $id = $DB->insert_record("booking_options", $option);
-        $option->id = $id;
 
-        $option->groupid = $bokingutils->group($booking, $option);
-        $DB->update_record('booking_options', $option);
+        // Create group in target course if there is a course specified only.
+        if ($option->courseid > 0 && $booking->addtogroup) {
+            $option->id = $id;
+            $bo = new booking_option($context->instanceid, $id, array(), 0, 0, false);
+            $option->groupid = $bo->create_group($booking, $option);
+            $DB->update_record('booking_options', $option);
+        }
 
         $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $id, 'userid' => $USER->id));
         $event->trigger();

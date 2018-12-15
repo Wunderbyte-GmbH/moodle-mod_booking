@@ -1133,41 +1133,40 @@ class booking_option extends booking {
     public function create_group() {
         global $DB;
         $newgroupdata = self::generate_group_data($this->booking, $this->option);
-        if (isset($this->option->id)) {
-            $groupids = array_keys(groups_get_all_groups($this->option->courseid));
-            // If group name already exists, do not create it a second time, it should be unique.
-            if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name)) {
-                return $groupid;
-            }
-            if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name) &&
-                    !isset($this->option->id)) {
-                $url = new moodle_url('/mod/booking/view.php', array('id' => $this->cm->id));
-                throw new moodle_exception('groupexists', 'booking', $url->out());
-            }
-            if ($this->option->groupid > 0 && in_array($this->option->groupid, $groupids)) {
-                // Group has been created but renamed.
-                return $this->option->groupid;
-            } else if ($this->option->groupid > 0 && !in_array($this->option->groupid, $groupids)) {
-                // Group has been deleted and must be created and groupid updated in DB.
-                $data = new stdClass();
-                $data->id = $this->option->id;
-                $data->groupid = groups_create_group(self::generate_group_data($this->booking, $this->option));
-                if ($data->groupid) {
-                    $DB->update_record('booking_options', $data);
-                }
-                return $data->groupid;
-            }
-        } else {
-            // Option id is not yet set so return group id.
-            return groups_create_group($newgroupdata);
+        $groupids = array_keys(groups_get_all_groups($this->option->courseid));
+        // If group name already exists, do not create it a second time, it should be unique.
+        if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name)) {
+            return $groupid;
         }
+        if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name) &&
+                !isset($this->option->id)) {
+            $url = new moodle_url('/mod/booking/view.php', array('id' => $this->cm->id));
+            throw new moodle_exception('groupexists', 'booking', $url->out());
+        }
+        if ($this->option->groupid > 0 && in_array($this->option->groupid, $groupids)) {
+            // Group has been created but renamed.
+            return $this->option->groupid;
+        } else if (($this->option->groupid > 0 && !in_array($this->option->groupid, $groupids)) || $this->option->groupid == 0) {
+            // Group has been deleted and must be created and groupid updated in DB. Or group does not yet exist.
+            $data = new stdClass();
+            $data->id = $this->option->id;
+            $data->groupid = groups_create_group($newgroupdata);
+            if ($data->groupid) {
+                $DB->update_record('booking_options', $data);
+            }
+            return $data->groupid;
+        }
+
         return false;
     }
 
     /**
      * Generate data for creating the group.
      *
+     * @param stdClass $bookingsettings
+     * @param stdClass $optionsettings
      * @return stdClass
+     * @throws \moodle_exception
      */
     public static function generate_group_data(stdClass $bookingsettings, stdClass $optionsettings) {
         // Replace tags with content. This alters the booking settings so cloning them.
