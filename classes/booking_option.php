@@ -235,7 +235,7 @@ class booking_option extends booking {
     public function apply_tags() {
         parent::apply_tags();
 
-        $tags = new booking_tags($this->cm);
+        $tags = new booking_tags($this->cm->course);
         $this->option = $tags->option_replace($this->option);
     }
 
@@ -1172,8 +1172,7 @@ class booking_option extends booking {
         // Replace tags with content. This alters the booking settings so cloning them.
         $booking = clone $bookingsettings;
         $option = clone $optionsettings;
-        $modinfo = get_fast_modinfo($bookingsettings->course);
-        $tags = new booking_tags($modinfo->cms[$booking->id]);
+        $tags = new booking_tags($option->courseid);
         $booking = $tags->booking_replace($booking);
         $option = $tags->option_replace($option);
         $newgroupdata = new stdClass();

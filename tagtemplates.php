@@ -54,7 +54,7 @@ echo $OUTPUT->heading(get_string("tagtemplates", "booking"), 3, 'helptitle', 'un
 $table = new html_table();
 $table->head = array(get_string('tagtag', 'booking'), get_string('tagtext', 'booking'));
 
-$tags = new booking_tags($cm);
+$tags = new booking_tags($cm->course);
 
 $tagstable = array();
 

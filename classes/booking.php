@@ -107,7 +107,7 @@ class booking {
     }
 
     public function apply_tags() {
-        $tags = new \mod_booking\booking_tags($this->cm);
+        $tags = new \mod_booking\booking_tags($this->cm->course);
         $this->booking = $tags->booking_replace($this->booking);
     }
 

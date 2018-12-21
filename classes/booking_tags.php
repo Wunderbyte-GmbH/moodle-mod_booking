@@ -25,8 +25,6 @@ namespace mod_booking;
  */
 class booking_tags {
 
-    public $cm;
-
     public $tags;
 
     public $replaces;
@@ -41,11 +39,16 @@ class booking_tags {
 
     private $option;
 
-    public function __construct($cm) {
+    /**
+     * booking_tags constructor.
+     *
+     * @param integer $courseid
+     * @throws \dml_exception
+     */
+    public function __construct($courseid) {
         global $DB;
 
-        $this->cm = $cm;
-        $this->tags = $DB->get_records('booking_tags', array('courseid' => $this->cm->course));
+        $this->tags = $DB->get_records('booking_tags', array('courseid' => $courseid));
         $this->replaces = $this->prepare_replaces();
     }
 

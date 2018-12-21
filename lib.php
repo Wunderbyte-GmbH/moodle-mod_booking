@@ -79,18 +79,15 @@ function booking_cron() {
     return true;
 }
 
+/**
+ * @param course_module $cm
+ * @return cached_cm_info
+ */
 function booking_get_coursemodule_info($cm) {
-    global $CFG;
-    require_once("$CFG->dirroot/mod/booking/locallib.php");
-
-    $tags = new booking_tags($cm);
     $info = new cached_cm_info();
-
     $booking = new mod_booking\booking($cm->id);
     $booking->apply_tags();
-
     $info->name = $booking->booking->name;
-
     return $info;
 }
 
@@ -617,6 +614,12 @@ function booking_update_options($optionvalues, $context) {
             if (isset($booking->addtogroup) && $option->courseid > 0) {
                 $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
                 $option->groupid = $bo->create_group($booking, $option);
+                $booked = $bo->get_all_users_booked();
+                if (!empty($booked) && $booking->autoenrol) {
+                    foreach ($booked as $bookinganswer) {
+                        $bo->enrol_user($bookinganswer->userid);
+                    }
+                }
             }
 
             if ($option->calendarid > 0) {
