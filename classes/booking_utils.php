@@ -17,7 +17,6 @@
 namespace mod_booking;
 
 use html_writer;
-use moodle_exception;
 use moodle_url;
 use stdClass;
 

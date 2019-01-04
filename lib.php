@@ -201,14 +201,14 @@ function booking_supports($feature) {
 }
 
 /**
- * Running addtional permission check on plugin, for example, plugins may have switch to turn on/off comments option, this callback will affect UI
- * display, not like pluginname_comment_validate only throw exceptions.
+ * Running addtional permission check on plugin, for example, plugins may have switch to turn on/off comments option,
+ * this callback will affect UI display, not like pluginname_comment_validate only throw exceptions.
  *
  * @package mod_booking
  * @category comment
- * @param stdClass $comment_param { context => context the context object courseid => int course id cm => stdClass course module object commentarea =>
- *            string comment area itemid => int itemid }
+ * @param $commentparam
  * @return array
+ * @throws dml_exception
  */
 function booking_comment_permissions($commentparam) {
     global $DB, $USER;
@@ -546,10 +546,21 @@ function booking_update_options($optionvalues, $context) {
     $option = new stdClass();
     $option->bookingid = $optionvalues->bookingid;
     $option->text = trim($optionvalues->text);
-    $option->howmanyusers = $optionvalues->howmanyusers;
-    $option->removeafterminutes = $optionvalues->removeafterminutes;
-
-    $option->notificationtext = $optionvalues->notificationtext;
+    if (!isset($optionvalues->howmanyusers) || empty ($optionvalues->howmanyusers)) {
+        $option->howmanyusers = 0;
+    } else {
+        $option->howmanyusers = $optionvalues->howmanyusers;
+    }
+    if (!isset($optionvalues->removeafterminutes) || empty ($optionvalues->removeafterminutes)) {
+        $option->removeafterminutes = 0;
+    } else {
+        $option->removeafterminutes = $optionvalues->removeafterminutes;
+    }
+    if (!isset($optionvalues->notificationtext) || empty ($optionvalues->notificationtext)) {
+        $option->notificationtext = "";
+    } else {
+        $option->notificationtext = $optionvalues->notificationtext;
+    }
     $option->disablebookingusers = $optionvalues->disablebookingusers;
 
     $option->sent = 0;
@@ -593,7 +604,7 @@ function booking_update_options($optionvalues, $context) {
     $option->duration = $optionvalues->duration;
     $option->timemodified = time();
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
-             $optionvalues->optionid != -1) { // existing booking option record
+             $optionvalues->optionid != -1) { // Existing booking option record.
         $option->id = $optionvalues->optionid;
         $option->shorturl = $optionvalues->shorturl;
         if (isset($optionvalues->text) && $optionvalues->text != '') {
@@ -624,8 +635,9 @@ function booking_update_options($optionvalues, $context) {
 
             if ($option->calendarid > 0) {
                 // Event exists.
-                if (isset($optionvalues->addtocalendar)) {
-                    booking_option_add_to_cal($booking, $option, $optionvalues);
+                if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
+                    $option->calendarid = booking_option_add_to_cal($booking, $option);
+                    $option->addtocalendar = 1;
                 } else {
                     // Delete event if exist.
                     $event = calendar_event::load($option->calendarid);
@@ -638,8 +650,9 @@ function booking_update_options($optionvalues, $context) {
                 $option->addtocalendar = 0;
                 $option->calendarid = 0;
                 // Insert into calendar.
-                if (isset($optionvalues->addtocalendar)) {
-                    booking_option_add_to_cal($booking, $option, $optionvalues);
+                if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
+                    $option->calendarid = booking_option_add_to_cal($booking, $option);
+                    $option->addtocalendar = 1;
                 }
             }
 
@@ -660,7 +673,8 @@ function booking_update_options($optionvalues, $context) {
             }
 
             $DB->update_record("booking_options", $option);
-            $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $option->id, 'userid' => $USER->id));
+            $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $option->id,
+                'userid' => $USER->id));
             $event->trigger();
 
             // Check if custom field will be updated or newly created.
@@ -692,8 +706,9 @@ function booking_update_options($optionvalues, $context) {
         $option->addtocalendar = 0;
         $option->calendarid = 0;
         // Insert into calendar.
-        if (isset($optionvalues->addtocalendar)) {
-            booking_option_add_to_cal($booking, $option, $optionvalues);
+        if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
+            $option->calendarid = booking_option_add_to_cal($booking, $option);
+            $option->addtocalendar = 1;
         }
 
         $id = $DB->insert_record("booking_options", $option);
@@ -706,7 +721,8 @@ function booking_update_options($optionvalues, $context) {
             $DB->update_record('booking_options', $option);
         }
 
-        $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $id, 'userid' => $USER->id));
+        $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $id,
+            'userid' => $USER->id));
         $event->trigger();
 
         // URL shortnere - only if API key is entered.
@@ -747,9 +763,14 @@ function booking_update_options($optionvalues, $context) {
 /**
  * Add the booking option to the calendar
  *
+ * @param $booking
  * @param array $option
+ * @param $optionvalues
+ * @return int
+ * @throws coding_exception
+ * @throws dml_exception
  */
-function booking_option_add_to_cal($booking, $option, $optionvalues) {
+function booking_option_add_to_cal($booking, $option) {
     global $DB;
     $whereis = '';
     if (strlen($option->location) > 0) {
@@ -776,13 +797,13 @@ function booking_option_add_to_cal($booking, $option, $optionvalues) {
     if ($DB->record_exists("event", array('id' => $event->id))) {
         $calendarevent = calendar_event::load($event->id);
         $calendarevent->update($event);
-        $option->calendarid = $event->id;
-        $option->addtocalendar = $optionvalues->addtocalendar;
+        $calendarid = $event->id;
     } else {
         unset($event->id);
         $tmpevent = calendar_event::create($event);
-        $option->calendarid = $tmpevent->id;
+        $calendarid = $tmpevent->id;
     }
+    return $calendarid;
 }
 
 /**
@@ -1653,6 +1674,9 @@ function booking_rating_permissions($contextid, $component, $ratingarea) {
  *            who submitted the ratings. 0 to update all. [required] aggregation => int the aggregation method to apply when calculating grades ie
  *            RATING_AGGREGATE_AVERAGE [required]
  * @return boolean true if the rating is valid. Will throw rating_exception if not
+ * @throws coding_exception
+ * @throws dml_exception
+ * @throws rating_exception
  */
 function booking_rating_validate($params) {
     global $DB, $USER;
@@ -1727,6 +1751,10 @@ function booking_rating_validate($params) {
  *
  * @param stdClass $ratings
  * @param array $params
+ * @throws coding_exception
+ * @throws dml_exception
+ * @throws moodle_exception
+ * @throws require_login_exception
  */
 function booking_rate($ratings, $params) {
     global $CFG, $USER, $DB;
@@ -1804,13 +1832,28 @@ function booking_rate($ratings, $params) {
 }
 
 // END RATING AND GRADES.
-// Send reminder email.
+/**
+ * Send reminder email.
+ * @param $selectedusers
+ * @param $booking
+ * @param $cmid
+ * @param $optionid
+ * @throws coding_exception
+ */
 function booking_sendreminderemail($selectedusers, $booking, $cmid, $optionid) {
     booking_send_notification($optionid, get_string('notificationsubject', 'booking'),
             $selectedusers);
 }
 
-// Send mail to all teachers - pollurlteachers.
+/**
+ * Send mail to all teachers - pollurlteachers.
+ * @param booking_option $booking
+ * @param $cmid
+ * @param $optionid
+ * @return bool|mixed
+ * @throws coding_exception
+ * @throws dml_exception
+ */
 function booking_sendpollurlteachers(\mod_booking\booking_option $booking, $cmid, $optionid) {
     global $DB, $USER;
 
@@ -1848,7 +1891,17 @@ function booking_sendpollurlteachers(\mod_booking\booking_option $booking, $cmid
     return $returnval;
 }
 
-// Send mail to all users - pollurl.
+/**
+ * Send pollurl
+ *
+ * @param $userids
+ * @param booking_option $booking
+ * @param $cmid
+ * @param $optionid
+ * @return bool|mixed
+ * @throws coding_exception
+ * @throws dml_exception
+ */
 function booking_sendpollurl($userids, \mod_booking\booking_option $booking, $cmid, $optionid) {
     global $DB, $USER;
 
@@ -1928,6 +1981,14 @@ function booking_sendcustommessage($optionid, $subject, $message, $uids) {
     return $returnval;
 }
 
+/**
+ * @param $optionid
+ * @param $subject
+ * @param array $tousers
+ * @return bool|mixed
+ * @throws coding_exception
+ * @throws dml_exception
+ */
 function booking_send_notification($optionid, $subject, $tousers = array()) {
     global $DB, $USER, $CFG;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
@@ -2401,248 +2462,6 @@ function booking_show_subcategories($catid, $courseid) {
     }
 }
 
-
-/**
- * Abstract class used by booking subscriber selection controls
- *
- * @package mod-booking
- * @copyright 2014 Andraž Prinčič
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-abstract class booking_subscriber_selector_base extends user_selector_base {
-
-    /**
-     * The id of the booking this selector is being used for
-     *
-     * @var int
-     */
-    protected $optionid = null;
-
-    /**
-     * The context of the booking this selector is being used for
-     *
-     * @var object
-     */
-    protected $context = null;
-
-    /**
-     * The id of the current group
-     *
-     * @var int
-     */
-    protected $currentgroup = null;
-
-    /**
-     * Constructor method
-     *
-     * @param string $name
-     * @param array $options
-     */
-    public function __construct($name, $options) {
-        $options['accesscontext'] = $options['context'];
-        parent::__construct($name, $options);
-        if (isset($options['context'])) {
-            $this->context = $options['context'];
-        }
-        if (isset($options['currentgroup'])) {
-            $this->currentgroup = $options['currentgroup'];
-        }
-        if (isset($options['optionid'])) {
-            $this->optionid = $options['optionid'];
-        }
-    }
-
-    /**
-     * Returns an array of options to seralise and store for searches
-     *
-     * @return array
-     */
-    protected function get_options() {
-        global $CFG;
-        $options = parent::get_options();
-        $options['file'] = substr(__FILE__, strlen($CFG->dirroot . '/'));
-        $options['context'] = $this->context;
-        $options['currentgroup'] = $this->currentgroup;
-        $options['optionid'] = $this->optionid;
-        return $options;
-    }
-}
-
-
-/**
- * User selector control for removing subscribed users
- *
- * @package mod-booking
- * @copyright 2014 Andraž Prinčič
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class booking_existing_subscriber_selector extends booking_subscriber_selector_base {
-
-    /**
-     * Finds all subscribed users
-     *
-     * @param string $search
-     * @return array
-     */
-    public function find_users($search) {
-        global $DB;
-        list($wherecondition, $params) = $this->search_sql($search, 'u');
-        $params['optionid'] = $this->optionid;
-
-        // only active enrolled or everybody on the frontpage
-
-        list($esql, $eparams) = get_enrolled_sql($this->context, '', 0, true);
-        $fields = $this->required_fields_sql('u');
-        list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
-        $params = array_merge($params, $eparams, $sortparams);
-
-        $subscribers = $DB->get_records_sql(
-                "SELECT $fields
-                FROM {user} u
-                JOIN ($esql) je ON je.id = u.id
-                JOIN {booking_teachers} s ON s.userid = u.id
-                WHERE $wherecondition AND s.optionid = :optionid
-                ORDER BY $sort", $params);
-
-        return array(get_string("existingsubscribers", 'booking') => $subscribers);
-    }
-}
-
-
-/**
- * A user selector control for potential subscribers to the selected booking
- *
- * @package mod-booking
- * @copyright 2014 Andraž Prinčič
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class booking_potential_subscriber_selector extends booking_subscriber_selector_base {
-
-    /**
-     * If set to true EVERYONE in this course is force subscribed to this booking
-     *
-     * @var bool
-     */
-    protected $forcesubscribed = false;
-
-    /**
-     * Can be used to store existing subscribers so that they can be removed from the potential subscribers list
-     */
-    protected $existingsubscribers = array();
-
-    /**
-     * Constructor method
-     *
-     * @param string $name
-     * @param array $options
-     */
-    public function __construct($name, $options) {
-        parent::__construct($name, $options);
-        if (isset($options['forcesubscribed'])) {
-            $this->forcesubscribed = true;
-        }
-    }
-
-    /**
-     * Returns an arary of options for this control
-     *
-     * @return array
-     */
-    protected function get_options() {
-        $options = parent::get_options();
-        if ($this->forcesubscribed === true) {
-            $options['forcesubscribed'] = 1;
-        }
-        return $options;
-    }
-
-    /**
-     * Finds all potential users Potential subscribers are all enrolled users who are not already subscribed.
-     *
-     * @param string $search
-     * @return array
-     */
-    public function find_users($search) {
-        global $DB;
-
-        $whereconditions = array();
-        list($wherecondition, $params) = $this->search_sql($search, 'u');
-        if ($wherecondition) {
-            $whereconditions[] = $wherecondition;
-        }
-
-        if (!$this->forcesubscribed) {
-            $existingids = array();
-            foreach ($this->existingsubscribers as $group) {
-                foreach ($group as $user) {
-                    $existingids[$user->id] = 1;
-                }
-            }
-            if ($existingids) {
-                list($usertest, $userparams) = $DB->get_in_or_equal(array_keys($existingids),
-                        SQL_PARAMS_NAMED, 'existing', false);
-                $whereconditions[] = 'u.id ' . $usertest;
-                $params = array_merge($params, $userparams);
-            }
-        }
-
-        if ($whereconditions) {
-            $wherecondition = 'WHERE ' . implode(' AND ', $whereconditions);
-        }
-
-        list($esql, $eparams) = get_enrolled_sql($this->context, '', $this->currentgroup, true);
-        $params = array_merge($params, $eparams);
-
-        $fields = 'SELECT ' . $this->required_fields_sql('u');
-        $countfields = 'SELECT COUNT(u.id)';
-
-        $sql = " FROM {user} u
-        JOIN ($esql) je ON je.id = u.id
-        $wherecondition";
-
-        list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
-        $order = ' ORDER BY ' . $sort;
-
-        // Check to see if there are too many to show sensibly.
-        if (!$this->is_validating()) {
-            $potentialmemberscount = $DB->count_records_sql($countfields . $sql, $params);
-            if ($potentialmemberscount > $this->maxusersperpage) {
-                return $this->too_many_results($search, $potentialmemberscount);
-            }
-        }
-
-        // If not, show them.
-        $availableusers = $DB->get_records_sql($fields . $sql . $order,
-                array_merge($params, $sortparams));
-
-        if (empty($availableusers)) {
-            return array();
-        }
-
-        if ($this->forcesubscribed) {
-            return array(get_string("existingsubscribers", 'booking') => $availableusers);
-        } else {
-            return array(get_string("potentialsubscribers", 'booking') => $availableusers);
-        }
-    }
-
-    /**
-     * Sets the existing subscribers
-     *
-     * @param array $users
-     */
-    public function set_existing_subscribers(array $users) {
-        $this->existingsubscribers = $users;
-    }
-
-    /**
-     * Sets this booking as force subscribed or not
-     */
-    public function set_force_subscribed($setting = true) {
-        $this->forcesubscribed = true;
-    }
-}
-
 /**
  * Returns list of user objects that are subscribed to this booking
  *
@@ -2703,6 +2522,21 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
     unset($results[$CFG->siteguest]);
 
     return $results;
+}
+
+/**
+ * Fix encoding of CSV files for importing booking options.
+ *
+ * @param string $instr
+ * @return string
+ */
+function mod_booking_fix_encoding($instr) {
+    $curencoding = mb_detect_encoding($instr);
+    if ($curencoding == "UTF-8" && mb_check_encoding($instr, "UTF-8")) {
+        return $instr;
+    } else {
+        return utf8_encode($instr);
+    }
 }
 
 /**
