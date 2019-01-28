@@ -13,6 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+use mod_booking\existing_subscriber_selector;
+use mod_booking\potential_subscriber_selector;
+
 require_once("../../config.php");
 require_once("locallib.php");
 require_once("teachers_form.php");
@@ -43,9 +46,9 @@ $output = $PAGE->get_renderer('mod_booking');
 
 $currentgroup = groups_get_activity_group($cm);
 $options = array('optionid' => $optionid, 'currentgroup' => $currentgroup, 'context' => $context);
-$existingselector = new booking_existing_subscriber_selector('existingsubscribers', $options);
+$existingselector = new existing_subscriber_selector('existingsubscribers', $options);
 $existingselector->set_extra_fields(array('email'));
-$subscriberselector = new booking_potential_subscriber_selector('potentialsubscribers', $options);
+$subscriberselector = new potential_subscriber_selector('potentialsubscribers', $options);
 $subscriberselector->set_existing_subscribers($existingselector->find_users(''));
 $subscriberselector->set_extra_fields(array('email'));
 
