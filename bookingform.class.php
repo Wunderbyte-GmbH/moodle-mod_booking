@@ -53,13 +53,8 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('location', PARAM_CLEANHTML);
         }
 
-        $institutions = $DB->get_records('booking_institutions', array('course' => $COURSE->id));
-        $instnames = array('' => '');
-        foreach ($institutions as $id => $inst) {
-            $instnames[$inst->name] = $inst->name;
-        }
-
-        $mform->addElement('select', 'institution', new lang_string('institution'), $instnames);
+        $mform->addElement('text', 'institution', new lang_string('institution'), array('size' => '264'));
+        $mform->setType('institution', PARAM_TEXT);
 
         $url = $CFG->wwwroot . '/mod/booking/institutions.php';
         if (isset($COURSE->id)) {
@@ -76,19 +71,6 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('address', PARAM_TEXT);
         } else {
             $mform->setType('address', PARAM_CLEANHTML);
-        }
-
-        // If booking option was deleted in target course provide checkbox to recreate group.
-        if ($this->_customdata['optionid'] > 0) {
-            $groupid = $DB->get_field('booking_options', 'groupid',
-                    array('id' => $this->_customdata['optionid']));
-            if (!($groupid && groups_group_exists($groupid))) {
-                $mform->addElement('html',
-                        '<div class="alert alert-warning">' .
-                                 get_string('groupdeleted', 'mod_booking') . '</div>');
-                $mform->addElement('checkbox', 'recreategroup',
-                        get_string('recreategroup', 'booking'));
-            }
         }
 
         $mform->addElement('checkbox', 'limitanswers', get_string('limitanswers', 'booking'));
@@ -116,6 +98,10 @@ class mod_booking_bookingform_form extends moodleform {
             $coursearray[$id] = $courseobject->shortname;
         }
         $mform->addElement('select', 'courseid', get_string("choosecourse", "booking"), $coursearray);
+
+        $mform->addElement('duration', 'duration', get_string('bookingduration', 'booking'));
+        $mform->setType('duration', PARAM_INT);
+        $mform->setDefault('duration', 0);
 
         $mform->addElement('checkbox', 'startendtimeknown',
                 get_string('startendtimeknown', 'booking'));

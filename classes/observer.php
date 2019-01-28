@@ -29,27 +29,6 @@ defined('MOODLE_INTERNAL') || die();
 class mod_booking_observer {
 
     /**
-     * Observer for course_module_updated.
-     *
-     * @param \core\event\course_module_updated $event
-     * @return void
-     */
-    public static function course_module_updated(\core\event\course_module_updated $event) {
-        global $DB;
-
-        $visible = $DB->get_record('course_modules', array('id' => $event->contextinstanceid),
-                'visible');
-
-        $showhide = new stdClass();
-        $showhide->id = $event->other['instanceid'];
-        $showhide->showinapi = $visible->visible;
-
-        $DB->update_record("booking", $showhide);
-
-        return;
-    }
-
-    /**
      * Observer for the user_deleted event
      *
      * @param \core\event\user_deleted $event

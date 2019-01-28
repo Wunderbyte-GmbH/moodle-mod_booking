@@ -13,20 +13,23 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+if (!defined('AJAX_SCRIPT')) {
+    define('AJAX_SCRIPT', true);
+}
 
-/**
- *
- * @package mod_booking
- * @copyright 2012-2017 David Bogner <info@edulabs.org>, Andraž Prinčič <atletek@gmail.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../../config.php');
 
-$plugin->version = 2019010400;
-$plugin->requires = 2017111300; // Requires this Moodle version. Current: Moodle 3.4.
-// Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman, Piper Chapman.
-// Lois Wilkerson, Audrey Horne, Lorelai Gilmore.
-$plugin->release = '4.1 Lorelai Gilmore';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->cron = 5;
-$plugin->component = 'mod_booking';
+$id = required_param('id', PARAM_INT); // Course Module ID.
+
+list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
+require_course_login($course, false, $cm);
+
+echo $OUTPUT->header();
+
+$institutions = $DB->get_records('booking_institutions', array('course' => $COURSE->id));
+$instnames = array();
+foreach ($institutions as $id => $inst) {
+    $instnames[] = $inst->name;
+}
+
+echo json_encode($instnames);

@@ -63,11 +63,11 @@ class generator {
     public $includeteachers = false;
 
     /**
-     * times for event
+     * freesans for event
      *
      * @var string
      */
-    public $times;
+    public $freesans;
 
     /**
      * global cfg setting of booking module for custom fields
@@ -216,7 +216,7 @@ class generator {
             }
         }
 
-        $this->get_bookingoption_times();
+        $this->get_bookingoption_freesans();
         $cfgcustfields = get_config('booking', 'showcustfields');
         if ($cfgcustfields) {
             $this->cfgcustfields = explode(',', $cfgcustfields);
@@ -376,7 +376,7 @@ class generator {
             if ($this->pdf->go_to_newline(12)) {
                 $this->set_page_header();
             }
-            $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 10);
+            $this->pdf->SetFont('freesans', '', 10);
 
             $c = 0;
             if ($this->showrownumbers) {
@@ -444,15 +444,15 @@ class generator {
     }
 
     /**
-     * Get the times of the booking option
+     * Get the freesans of the booking option
      */
-    public function get_bookingoption_times() {
-        $this->times = get_string('datenotset', 'booking');
+    public function get_bookingoption_freesans() {
+        $this->freesans = get_string('datenotset', 'booking');
         if ($this->bookingdata->option->coursestarttime == 0) {
             return;
         } else {
-            if (empty($this->bookingdata->optiontimes)) {
-                $times = userdate($this->bookingdata->option->coursestarttime) . " - " .
+            if (empty($this->bookingdata->optionfreesans)) {
+                $freesans = userdate($this->bookingdata->option->coursestarttime) . " - " .
                          userdate($this->bookingdata->option->courseendtime);
             } else if ($this->pdfsessions == 0) {
                 $val = array();
@@ -464,15 +464,15 @@ class generator {
                             get_string('strftimetime', 'langconfig'));
                     $val[] = get_string('leftandrightdate', 'booking', $tmpdate);
                 }
-                $times = implode("\n\r", $val);
+                $freesans = implode("\n\r", $val);
             } else {
-                $times = userdate($this->bookingdata->sessions[$this->pdfsessions]->coursestarttime,
+                $freesans = userdate($this->bookingdata->sessions[$this->pdfsessions]->coursestarttime,
                         get_string('strftimedatetime', 'langconfig'));
-                $times .= ' - ' . userdate($this->bookingdata->sessions[$this->pdfsessions]->courseendtime,
+                $freesans .= ' - ' . userdate($this->bookingdata->sessions[$this->pdfsessions]->courseendtime,
                         get_string('strftimetime', 'langconfig'));
             }
         }
-        $this->times = $times;
+        $this->freesans = $freesans;
     }
 
     /**
@@ -547,9 +547,9 @@ class generator {
             $this->pdf->Image('@' . $this->signinsheetlogo->get_content(), '', '', $this->w, $this->h, '', '', 'T',
                     true, 150, 'R', false, false, 0, false, false, false);
         }
-        $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
+        $this->pdf->SetFont('freesans', '', 12);
         $this->pdf->Ln();
-        $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 10);
+        $this->pdf->SetFont('freesans', '', 10);
         $this->pdf->MultiCell($this->cellwidthteachers, 0,
                 get_string('teachers', 'booking') . ": " . implode(', ', $this->teachers), 0, 1, '',
                 0);
@@ -557,7 +557,7 @@ class generator {
 
         $this->pdf->MultiCell($this->pdf->GetStringWidth(get_string('pdfdate', 'booking')) + 5, 0,
                 get_string('pdfdate', 'booking'), 0, 1, '', 0);
-        $this->pdf->MultiCell(0, 0, $this->times, 0, 1, '', 1);
+        $this->pdf->MultiCell(0, 0, $this->freesans, 0, 1, '', 1);
 
         if (!empty($this->cfgcustfields)) {
             $customfields = \mod_booking\booking_option::get_customfield_settings();
@@ -601,7 +601,7 @@ class generator {
      * Setup the header row with the column headings for each column
      */
     public function set_table_headerrow () {
-        $this->pdf->SetFont(PDF_FONT_NAME_MAIN, 'B', 12);
+        $this->pdf->SetFont('freesans', 'B', 12);
         $c = 0;
         // Setup table header row.
         foreach ($this->allfields as $value) {
@@ -666,6 +666,6 @@ class generator {
             }
             $this->pdf->Cell($w, 0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, '', 1);
         }
-        $this->pdf->SetFont(PDF_FONT_NAME_MAIN, '', 12);
+        $this->pdf->SetFont('freesans', '', 12);
     }
 }

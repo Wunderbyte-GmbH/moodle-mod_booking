@@ -7,3 +7,8 @@ New feature: In Site adminstration for booking plugin choose what is used for th
 2.4 Audrey Horne (2018052400)
 New feature: Add comments to individual bookings in ther Manage responses area of the booking module.
 Readme updated
+2.4 Audrey Horne (2018101300)
+Added the user profile field city to the fields to display in various contexts. Fixed bug in autocompletion field for institutions. Added support for Moodle mobile.
+Implemented GDPR API. Added support for M3.5. Several bugfixes.
+3.9 Audrey Horne (2018121600)
+Fixed bug in automatic generation of groups in the related course.

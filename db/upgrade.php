@@ -1764,5 +1764,52 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2018062100, 'booking');
     }
+
+    if ($oldversion < 2018071601) {
+        // Define table booking_institutions to be created.
+        $table = new xmldb_table('booking_institutions');
+
+        // The field to change. Name ist changed from text to char.
+        $field = new xmldb_field('name', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+
+        // Change the field type.
+        $dbman->change_field_type($table, $field);
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2018071601, 'booking');
+    }
+
+    if ($oldversion < 2018080701) {
+        $ids = $DB->get_fieldset_sql('SELECT bo.id FROM mdl_booking_options bo WHERE bo.id > 0');
+        list($insql, $inparams) = $DB->get_in_or_equal($ids, SQL_PARAMS_NAMED);
+        if (count($ids) > 1) {
+            $sql = "DELETE FROM {booking_teachers}
+                WHERE optionid NOT $insql";
+            $DB->execute($sql, $inparams);
+        } else if (count($ids) == 1) {
+            $sql = "DELETE FROM {booking_teachers}
+                WHERE optionid !$insql";
+            $DB->execute($sql, $inparams);
+        } else if (empty($ids)) {
+            $sql = "DELETE FROM {booking_teachers}";
+            $DB->execute($sql);
+        }
+    }
+
+    if ($oldversion < 2018090600) {
+
+        // Define field duration to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('duration', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0', 'shorturl');
+
+        // Conditionally launch add field duration.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2018090600, 'booking');
+    }
+
     return true;
 }

@@ -20,6 +20,9 @@
  * @copyright 2014 Andraž Prinčič www.princic.net
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use mod_booking\booking_tags;
+
 require_once("../../config.php");
 require_once("locallib.php");
 
@@ -51,7 +54,7 @@ echo $OUTPUT->heading(get_string("tagtemplates", "booking"), 3, 'helptitle', 'un
 $table = new html_table();
 $table->head = array(get_string('tagtag', 'booking'), get_string('tagtext', 'booking'));
 
-$tags = new booking_tags($cm);
+$tags = new booking_tags($cm->course);
 
 $tagstable = array();
 

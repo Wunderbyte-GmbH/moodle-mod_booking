@@ -17,10 +17,8 @@ namespace mod_booking;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
-require_once($CFG->libdir . '/tcpdf/tcpdf.php');
 
 /**
  * Standard base class for mod_booking
@@ -109,7 +107,7 @@ class booking {
     }
 
     public function apply_tags() {
-        $tags = new \booking_tags($this->cm);
+        $tags = new \mod_booking\booking_tags($this->cm->course);
         $this->booking = $tags->booking_replace($this->booking);
     }
 
@@ -117,7 +115,7 @@ class booking {
      *
      */
     public function get_url_params() {
-        $bu = new \booking_utils();
+        $bu = new \mod_booking\booking_utils();
         $params = $bu->generate_params($this->booking);
         $this->booking->pollurl = $bu->get_body($this->booking, 'pollurl', $params);
         $this->booking->pollurlteachers = $bu->get_body($this->booking, 'pollurlteachers', $params);
@@ -155,20 +153,55 @@ class booking {
         return array($groupsql, $params);
     }
 
+    private function searchparameters($searchtext = '') {
+        global $DB;
+        $search = '';
+        $params = array();
+
+        if (!empty($searchtext)) {
+            $searchtext = $DB->sql_like_escape($searchtext);
+            $search = " AND ({$DB->sql_like('bo.text', ':text', false)} OR {$DB->sql_like('bo.location', ':location', false)}" .
+            " OR {$DB->sql_like('bo.institution', ':institution', false)})";
+            $params['text'] = "%{$searchtext}%";
+            $params['location'] = "%{$searchtext}%";
+            $params['institution'] = "%{$searchtext}%";
+        }
+
+        return array('params' => $params, 'query' => $search);
+    }
+
     /**
      * Get all booking options as an array of objects indexed by optionid
      *
      * @return array of booking options records
      */
-    public function get_all_options() {
+    public function get_all_options($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "bo.id") {
         global $DB;
-        if (empty($this->alloptions)) {
-            $this->alloptions = $DB->get_records('booking_options', array('bookingid' => $this->id));
-            if (!empty($this->optionids)) {
-                $this->optionids = array_keys($this->alloptions);
-            }
+
+        $limit = '';
+        $rsearch = self::searchparameters($searchtext);
+        $search = $rsearch['query'];
+        $params = array_merge(array('bookingid' => $this->id), $rsearch['params']);
+
+        if ($limitnum != 0) {
+            $limit = " LIMIT {$limitfrom},{$limitnum}";
         }
-        return $this->alloptions;
+
+        return $DB->get_records_sql("SELECT {$fields} FROM {booking_options} bo WHERE bo.bookingid = :bookingid {$search} {$limit}", $params);
+    }
+
+    public function get_all_options_count($searchtext = '') {
+        global $DB;
+
+        $search = '';
+        $params = array();
+
+        $rsearch = self::searchparameters($searchtext);
+
+        $search = $rsearch['query'];
+        $params = array_merge(array('bookingid' => $this->id), $rsearch['params']);
+
+        return $DB->count_records_sql("SELECT COUNT(*) FROM {booking_options} bo WHERE bo.bookingid = :bookingid {$search}", $params);
     }
 
     /**
@@ -183,6 +216,43 @@ class booking {
     }
 
     /**
+     * Get active booking option ids as an array of numbers.
+     *
+     * @param number $bookingid
+     * @return array of ids
+     */
+    public function get_active_optionids($bookingid, $limitfrom = 0, $limitnum = 0, $searchtext = '') {
+        global $DB;
+
+        $limit = '';
+        $rsearch = self::searchparameters($searchtext);
+        $search = $rsearch['query'];
+        $params = array_merge(array('bookingid' => $this->id, 'time' => time()), $rsearch['params']);
+
+        if ($limitnum != 0) {
+            $limit = " LIMIT {$limitfrom},{$limitnum}";
+        }
+
+        return $DB->get_records_sql("SELECT bo.id FROM {booking_options} bo WHERE bo.bookingid = :bookingid AND (bo.courseendtime > :time OR bo.courseendtime = 0)" .
+        " {$search} {$limit}", $params);
+    }
+
+    public function get_active_optionids_count($bookingid, $searchtext = '') {
+        global $DB;
+
+        $search = '';
+        $params = array();
+
+        $rsearch = self::searchparameters($searchtext);
+
+        $search = $rsearch['query'];
+        $params = array_merge(array('bookingid' => $this->id, 'time' => time()), $rsearch['params']);
+
+        return $DB->count_records_sql("SELECT COUNT(*) FROM {booking_options} bo WHERE bo.bookingid = :bookingid AND (bo.courseendtime > :time OR bo.courseendtime = 0)" .
+        " {$search}", $params);
+    }
+
+    /**
      * Get all booking option ids as an array of numbers - only where is teacher.
      *
      * @return array of ids
@@ -192,6 +262,42 @@ class booking {
 
         return $DB->get_fieldset_select('booking_teachers', 'optionid',
                 "userid = {$USER->id} AND bookingid = {$this->booking->id}");
+    }
+
+    /**
+     * Get all user booking option ids as an array of numbers.
+     *
+     * @return array of ids
+     */
+    public function get_my_bookingids($limitfrom = 0, $limitnum = 0, $searchtext= '') {
+        global $DB, $USER;
+
+        $limit = '';
+        $rsearch = self::searchparameters($searchtext);
+        $search = $rsearch['query'];
+        $params = array_merge(array('bookingid' => $this->id, 'userid' => $USER->id), $rsearch['params']);
+
+        if ($limitnum != 0) {
+            $limit = " LIMIT {$limitfrom},{$limitnum}";
+        }
+
+        return $DB->get_records_sql("SELECT ba.optionid id FROM {booking_options} bo LEFT JOIN {booking_answers} ba ON ba.optionid = bo.id WHERE" .
+                " ba.bookingid = :bookingid AND ba.userid = :userid {$search} {$limit}", $params);
+    }
+
+    public function get_my_bookingids_count($searchstring = '') {
+        global $DB, $USER;
+
+        $search = '';
+        $params = array();
+
+        $rsearch = self::searchparameters($searchstring);
+
+        $search = $rsearch['query'];
+        $params = array_merge(array('bookingid' => $this->id, 'userid' => $USER->id), $rsearch['params']);
+
+        return $DB->count_records_sql("SELECT COUNT(*) FROM {booking_options} bo LEFT JOIN {booking_answers} ba ON ba.optionid = bo.id" .
+                " WHERE ba.bookingid = :bookingid AND ba.userid = :userid {$search}", $params);
     }
 
     /**
@@ -331,6 +437,10 @@ class booking {
                 case 'email':
                     $columns[] = 'email';
                     $headers[] = get_string("email");
+                    break;
+                case 'city':
+                    $columns[] = 'city';
+                    $headers[] = get_string("city");
                     break;
                 case 'completed':
                     $columns[] = 'completed';

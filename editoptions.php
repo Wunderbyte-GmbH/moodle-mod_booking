@@ -24,6 +24,7 @@ $sesskey = optional_param('sesskey', '', PARAM_INT);
 
 $url = new moodle_url('/mod/booking/editoptions.php', array('id' => $id, 'optionid' => $optionid));
 $PAGE->set_url($url);
+$PAGE->requires->jquery_plugin('ui-css');
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 
@@ -148,4 +149,7 @@ if ($mform->is_cancelled()) {
     $mform->set_data($defaultvalues);
     $mform->display();
 }
+
+$PAGE->requires->js_call_amd('mod_booking/institutionautocomplete', 'init', array($id));
+
 echo $OUTPUT->footer();

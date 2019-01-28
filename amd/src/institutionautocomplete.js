@@ -1,4 +1,3 @@
-<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,18 +14,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Javascript controller for booking module
  *
+ * @module mod_booking/institutionautocomplete
  * @package mod_booking
- * @copyright 2012-2017 David Bogner <info@edulabs.org>, Andraž Prinčič <atletek@gmail.com>
+ * @copyright 2018 Andraž Prinčič <atletek@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since 3.1
  */
-defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2019010400;
-$plugin->requires = 2017111300; // Requires this Moodle version. Current: Moodle 3.4.
-// Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman, Piper Chapman.
-// Lois Wilkerson, Audrey Horne, Lorelai Gilmore.
-$plugin->release = '4.1 Lorelai Gilmore';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->cron = 5;
-$plugin->component = 'mod_booking';
+define(['jquery', "jqueryui", 'core/config'], function($, jqueryui, mdlconfig) {
+
+    return {
+        init: function(id) {
+            $.ajax({
+                url: mdlconfig.wwwroot + "/mod/booking/institutions_rest.php?id=" + id,
+                method: "POST",
+            }).done(function(data) {
+                $( "#id_institution" ).autocomplete( "option", "source", data );
+            });
+
+            $( "#id_institution" ).autocomplete();
+        }
+    };
+});
