@@ -502,6 +502,10 @@ if (!$tableallbookings->is_downloading()) {
                 $columns[] = 'notes';
                 $headers[] = get_string('notes', 'mod_booking');
                 break;
+            case 'city':
+                $columns[] = 'city';
+                $headers[] = get_string('city');
+                break;
             case 'waitinglist':
                 if ($bookingdata->option->limitanswers == 1 && $bookingdata->option->maxoverbooking > 0) {
                     $columns[] = 'waitinglist';
@@ -539,6 +543,7 @@ if (!$tableallbookings->is_downloading()) {
     $fields = 'ba.id, ' . get_all_user_name_fields(true, 'u') . ',
             u.username,
             u.institution,
+            u.city,
             ba.completed,
             ba.status,
             ba.timecreated,
@@ -605,7 +610,7 @@ if (!$tableallbookings->is_downloading()) {
              ($bookingdata->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate(
                     $bookingdata->option->coursestarttime, get_string('strftimedatetime')) . " - " .
              userdate($bookingdata->option->courseendtime, get_string('strftimedatetime'))) . " | " .
-             (empty($bookingdata->booking->lblteachname) ? get_string('teachers', 'booking') : $bookingdata->booking->lblteachname) .
+             (empty($bookingdata->booking->lblteachname) ? get_string('teachers', 'booking') . ': ' : $bookingdata->booking->lblteachname) .
              implode(', ', $teachers) . " {$linkst}</p>";
 
     $links = array();
@@ -820,6 +825,7 @@ if (!$tableallbookings->is_downloading()) {
                     u.lastname AS lastname,
                     u.username AS username,
                     u.email AS email,
+                    u.city,
                     ba.completed AS completed,
                     ba.numrec,
                     ba.waitinglist AS waitinglist,

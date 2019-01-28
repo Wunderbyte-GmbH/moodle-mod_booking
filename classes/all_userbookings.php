@@ -194,6 +194,13 @@ class all_userbookings extends \table_sql {
         return $completed;
     }
 
+    protected function col_city($values) {
+        if ($this->is_downloading()) {
+            return $values->city;
+        }
+        return  $values->city;
+    }
+
     protected function col_selected($values) {
         if (!$this->is_downloading()) {
             return '<input id="check' . $values->id .
