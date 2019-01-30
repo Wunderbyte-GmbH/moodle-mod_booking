@@ -37,10 +37,34 @@ class mod_booking_bookingform_form extends moodleform {
         if (!empty($customfields)) {
             foreach ($customfields as $customfieldname => $customfieldarray) {
                 // TODO: Only textfield yet defined, extend when there are more types.
-                if ($customfieldarray['type'] = "textfield") {
-                    $mform->addElement('text', $customfieldname, $customfieldarray['value'],
-                            array('size' => '64'));
-                    $mform->setType($customfieldname, PARAM_NOTAGS);
+                switch ($customfieldarray['type']) {
+                    case 'textfield':
+                        $mform->addElement('text', $customfieldname, $customfieldarray['value'],
+                        array('size' => '64'));
+                        $mform->setType($customfieldname, PARAM_NOTAGS);
+                        break;
+                    case 'select':
+                        $soptions = explode("\n", $customfieldarray['options']);
+                        $soptionselements = array();
+                        $soptionselements[] = '';
+                        foreach ($soptions as $key => $value) {
+                            $val = trim($value);
+                            $soptionselements["{$val}"] = $value;
+                        }
+                        $mform->addElement('select', $customfieldname, $customfieldarray['value'], $soptionselements);
+                        $mform->setType("{$customfieldname}", PARAM_TEXT);
+                        break;
+                    case 'multiselect':
+                        $soptions = explode("\n", $customfieldarray['options']);
+                        $soptionselements = array();
+                        foreach ($soptions as $key => $value) {
+                            $val = trim($value);
+                            $soptionselements["{$val}"] = $value;
+                        }
+                        $ms = $mform->addElement('select', $customfieldname, $customfieldarray['value'], $soptionselements);
+                        $ms->setMultiple(true);
+                        $mform->setType("{$customfieldname}", PARAM_TEXT);
+                        break;
                 }
             }
         }
@@ -252,6 +276,21 @@ class mod_booking_bookingform_form extends moodleform {
         }
 
         return $errors;
+    }
+
+    public function set_data($defaultvalues) {
+
+        $customfields = mod_booking\booking_option::get_customfield_settings();
+
+        if (!empty($customfields)) {
+            foreach ($customfields as $customfieldname => $customfieldarray) {
+                if ($customfieldarray['type'] == 'multiselect') {
+                    $defaultvalues->$customfieldname = explode("\n", (isset($defaultvalues->$customfieldname) ? $defaultvalues->$customfieldname : ''));
+                }
+            }
+        }
+
+        parent::set_data($defaultvalues);
     }
 
     public function get_data() {

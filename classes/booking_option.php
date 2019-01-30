@@ -1317,10 +1317,13 @@ class booking_option extends booking {
             foreach (array_keys($customfieldvals) as $customfieldname) {
                 $iscustomfield = \strpos($customfieldname, 'customfield');
                 $istype = \strpos($customfieldname, 'type');
-                if ($iscustomfield !== false && $istype === false) {
+                $isoptions = \strpos($customfieldname, 'options');
+                if ($iscustomfield !== false && $istype === false && $isoptions === false) {
                     $type = $customfieldname . "type";
+                    $options = $customfieldname . "options";
                     $values[$customfieldname]['value'] = $bkgconfig->$customfieldname;
                     $values[$customfieldname]['type'] = $bkgconfig->$type;
+                    $values[$customfieldname]['options'] = (isset($bkgconfig->$options) ? $bkgconfig->$options : '');
                 }
             }
         }

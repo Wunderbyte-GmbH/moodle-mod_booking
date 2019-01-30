@@ -310,7 +310,12 @@ class all_options extends table_sql {
             foreach ($customfields as $field) {
                 if (!empty($field->value)) {
                     $cfgvalue = $customfieldcfg[$field->cfgname]['value'];
-                    $output .= "<br> <b>$cfgvalue: </b>$field->value";
+                    if ($customfieldcfg[$field->cfgname]['type'] == 'multiselect') {
+                        $tmpdata = implode(", ", explode("\n", $field->value));
+                        $output .= "<br> <b>$cfgvalue: </b>$tmpdata";
+                    } else {
+                        $output .= "<br> <b>$cfgvalue: </b>$field->value";
+                    }
                 }
             }
         }

@@ -571,7 +571,8 @@ class generator {
                 foreach ($custfieldvalues as $record) {
                     if (!empty($record->value)) {
                         $this->pdf->Cell(0, 0,
-                                $customfields[$record->cfgname]['value'] . ": " . $record->value, 0,
+                                $customfields[$record->cfgname]['value'] . ": " .
+                                ($customfields[$record->cfgname]['type'] == 'multiselect' ? implode(", ", explode("\n", $record->value)) : $record->value), 0,
                                 1, '', 0, '', 1);
                     }
                 }

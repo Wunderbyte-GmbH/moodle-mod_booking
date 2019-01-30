@@ -687,11 +687,11 @@ function booking_update_options($optionvalues, $context) {
                         if ($customfieldid) {
                             $customfield = new stdClass();
                             $customfield->id = $customfieldid;
-                            $customfield->value = $optionvalues->$fieldcfgname;
+                            $customfield->value = (is_array($optionvalues->$fieldcfgname) ? implode("\n", $optionvalues->$fieldcfgname) : $optionvalues->$fieldcfgname);;
                             $DB->update_record('booking_customfields', $customfield);
                         } else {
                             $customfield = new stdClass();
-                            $customfield->value = $optionvalues->$fieldcfgname;
+                            $customfield->value = (is_array($optionvalues->$fieldcfgname) ? implode("\n", $optionvalues->$fieldcfgname) : $optionvalues->$fieldcfgname);
                             $customfield->optionid = $option->id;
                             $customfield->bookingid = $booking->id;
                             $customfield->cfgname = $fieldcfgname;
@@ -748,7 +748,7 @@ function booking_update_options($optionvalues, $context) {
             foreach ($customfields as $fieldcfgname => $field) {
                 if (!empty($optionvalues->$fieldcfgname)) {
                     $customfield = new stdClass();
-                    $customfield->value = $optionvalues->$fieldcfgname;
+                    $customfield->value = (is_array($optionvalues->$fieldcfgname) ? implode("\n", $optionvalues->$fieldcfgname) : $optionvalues->$fieldcfgname);;
                     $customfield->optionid = $id;
                     $customfield->bookingid = $booking->id;
                     $customfield->cfgname = $fieldcfgname;
