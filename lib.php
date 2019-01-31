@@ -13,11 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-use mod_booking\booking_tags;
 use mod_booking\booking_option;
 
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot . '/calendar/lib.php');
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot . '/question/category_class.php');
 require_once($CFG->dirroot . '/group/lib.php');
@@ -603,6 +601,11 @@ function booking_update_options($optionvalues, $context) {
     $option->limitanswers = $optionvalues->limitanswers;
     $option->duration = $optionvalues->duration;
     $option->timemodified = time();
+    if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
+        $option->addtocalendar = 1;
+    } else {
+        $option->addtocalendar = 0;
+    }
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
              $optionvalues->optionid != -1) { // Existing booking option record.
         $option->id = $optionvalues->optionid;
@@ -633,29 +636,6 @@ function booking_update_options($optionvalues, $context) {
                 }
             }
 
-            if ($option->calendarid > 0) {
-                // Event exists.
-                if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
-                    $option->calendarid = booking_option_add_to_cal($booking, $option);
-                    $option->addtocalendar = 1;
-                } else {
-                    // Delete event if exist.
-                    $event = calendar_event::load($option->calendarid);
-                    $event->delete(true);
-
-                    $option->addtocalendar = 0;
-                    $option->calendarid = 0;
-                }
-            } else {
-                $option->addtocalendar = 0;
-                $option->calendarid = 0;
-                // Insert into calendar.
-                if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
-                    $option->calendarid = booking_option_add_to_cal($booking, $option);
-                    $option->addtocalendar = 1;
-                }
-            }
-
             if (isset($optionvalues->generatenewurl) && $optionvalues->generatenewurl == 1) {
                 // URL shortnere - only if API key is entered.
                 $gapik = get_config('booking', 'googleapikey');
@@ -671,11 +651,6 @@ function booking_update_options($optionvalues, $context) {
                     }
                 }
             }
-
-            $DB->update_record("booking_options", $option);
-            $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $option->id,
-                'userid' => $USER->id));
-            $event->trigger();
 
             // Check if custom field will be updated or newly created.
             if (!empty($customfields)) {
@@ -700,17 +675,15 @@ function booking_update_options($optionvalues, $context) {
                     }
                 }
             }
+
+            $DB->update_record("booking_options", $option);
+            $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $option->id,
+                            'userid' => $USER->id));
+            $event->trigger();
+
             return $option->id;
         }
     } else if (isset($optionvalues->text) && $optionvalues->text != '') {
-        $option->addtocalendar = 0;
-        $option->calendarid = 0;
-        // Insert into calendar.
-        if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
-            $option->calendarid = booking_option_add_to_cal($booking, $option);
-            $option->addtocalendar = 1;
-        }
-
         $id = $DB->insert_record("booking_options", $option);
 
         // Create group in target course if there is a course specified only.
@@ -720,10 +693,6 @@ function booking_update_options($optionvalues, $context) {
             $option->groupid = $bo->create_group($booking, $option);
             $DB->update_record('booking_options', $option);
         }
-
-        $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $id,
-            'userid' => $USER->id));
-        $event->trigger();
 
         // URL shortnere - only if API key is entered.
         $gapik = get_config('booking', 'googleapikey');
@@ -756,54 +725,13 @@ function booking_update_options($optionvalues, $context) {
                 }
             }
         }
+
+        $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $id,
+                        'userid' => $USER->id));
+        $event->trigger();
+
         return $id;
     }
-}
-
-/**
- * Add the booking option to the calendar
- *
- * @param $booking
- * @param array $option
- * @param $optionvalues
- * @return int
- * @throws coding_exception
- * @throws dml_exception
- */
-function booking_option_add_to_cal($booking, $option) {
-    global $DB;
-    $whereis = '';
-    if (strlen($option->location) > 0) {
-        $whereis = '<p>' . get_string('location', 'booking') . ': ' . $option->location . '</p>';
-    }
-
-    $event = new stdClass();
-    $event->id = $option->calendarid;
-    $event->name = $option->text;
-    $event->description = $option->description . $whereis;
-    $event->courseid = $option->courseid;
-    if ($option->courseid == 0) {
-        $event->courseid = $booking->course;
-    }
-    $event->groupid = 0;
-    $event->userid = 0;
-    $event->modulename = 'booking';
-    $event->instance = $option->bookingid;
-    $event->eventtype = 'booking';
-    $event->timestart = $option->coursestarttime;
-    $event->visible = instance_is_visible('booking', $booking);
-    $event->timeduration = $option->courseendtime - $option->coursestarttime;
-
-    if ($DB->record_exists("event", array('id' => $event->id))) {
-        $calendarevent = calendar_event::load($event->id);
-        $calendarevent->update($event);
-        $calendarid = $event->id;
-    } else {
-        unset($event->id);
-        $tmpevent = calendar_event::create($event);
-        $calendarid = $tmpevent->id;
-    }
-    return $calendarid;
 }
 
 /**

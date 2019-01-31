@@ -30,5 +30,11 @@ $observers = array(
     array('eventname' => '\core\event\user_deleted',
         'callback' => 'mod_booking_observer::user_deleted'),
     array('eventname' => '\core\event\user_enrolment_deleted',
-        'callback' => 'mod_booking_observer::user_enrolment_deleted'));
-
+        'callback' => 'mod_booking_observer::user_enrolment_deleted'),
+    array('eventname' => '\mod_booking\event\bookingoption_updated',
+        'callback' => 'mod_booking_observer::bookingoption_updated'
+        ),
+    array('eventname' => '\mod_booking\event\bookingoption_created',
+        'callback' => 'mod_booking_observer::bookingoption_created'
+        )
+    );

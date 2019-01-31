@@ -24,7 +24,7 @@ defined('MOODLE_INTERNAL') || die();
 
 
 /**
- * Event observer for mod_forum.
+ * Event observer for mod_booking.
  */
 class mod_booking_observer {
 
@@ -60,5 +60,13 @@ class mod_booking_observer {
                     " userid = :userid AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course)",
                     array('userid' => $cp->userid, 'course' => $cp->courseid));
         }
+    }
+
+    public static function bookingoption_updated(\mod_booking\event\bookingoption_updated $event) {
+        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, 0);
+    }
+
+    public static function bookingoption_created(\mod_booking\event\bookingoption_created $event) {
+        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, 0);
     }
 }
