@@ -63,10 +63,25 @@ class mod_booking_observer {
     }
 
     public static function bookingoption_updated(\mod_booking\event\bookingoption_updated $event) {
-        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, 0);
+        global $DB;
+
+        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, 0, \mod_booking\calendar::TYPEOPTION);
+
+        $allteachers = $DB->get_records_sql('SELECT userid FROM {booking_teachers} WHERE optionid = ? AND calendarid > 0', array($event->objectid));
+        foreach ($allteachers as $key => $value) {
+            new \mod_booking\calendar($event->contextinstanceid, $event->objectid, $value->userid, \mod_booking\calendar::TYPETEACHERUPDATE);
+        }
     }
 
     public static function bookingoption_created(\mod_booking\event\bookingoption_created $event) {
-        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, 0);
+        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, 0, \mod_booking\calendar::TYPEOPTION);
+    }
+
+    public static function teacher_added(\mod_booking\event\teacher_added $event) {
+        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, \mod_booking\calendar::TYPETEACHERADD);
+    }
+
+    public static function teacher_removed(\mod_booking\event\teacher_removed $event) {
+        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, \mod_booking\calendar::TYPETEACHERREMOVE);
     }
 }

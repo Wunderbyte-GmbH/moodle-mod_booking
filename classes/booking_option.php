@@ -1201,9 +1201,8 @@ class booking_option extends booking {
             $result = false;
         }
 
-        if (!$DB->delete_records("booking_teachers",
-                array("bookingid" => $this->id, "optionid" => $this->optionid))) {
-            $result = false;
+        foreach ($this->get_teachers() as $teacher) {
+            booking_optionid_unsubscribe($teacher->userid, $this->optionid, $this->cm);
         }
 
         // Delete calendar entry, if any.

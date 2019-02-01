@@ -28,31 +28,68 @@ require_once($CFG->dirroot.'/calendar/lib.php');
  */
 class calendar {
 
+    const TYPEOPTION = 1;
+    const TYPEUSER = 2;
+    const TYPETEACHERADD = 3;
+    const TYPETEACHERREMOVE = 4;
+    const TYPETEACHERUPDATE = 5;
+
     private $optionid;
     private $userid;
     private $cmid;
+    private $type;
 
-    public function __construct($cmid, $optionid, $userid) {
+    public function __construct($cmid, $optionid, $userid, $type) {
         global $DB;
 
         $this->optionid = $optionid;
         $this->userid = $userid;
         $this->cmid = $cmid;
+        $this->type = $type;
 
         $bookingoption = new \mod_booking\booking_option($this->cmid, $this->optionid);
+        $newcalendarid = 0;
 
-        if ($this->userid == 0) {
-            $calendarid = 0;
-            if ($bookingoption->option->addtocalendar == 1) {
-                $calendarid = $this->booking_option_add_to_cal($bookingoption->booking, $bookingoption->option);
-            } else {
-                if ($bookingoption->option->calendarid > 0) {
-                    // Delete event if exist.
-                    $event = \calendar_event::load($bookingoption->option->calendarid);
-                    $event->delete(true);
+        switch ($this->type) {
+            case $this::TYPEOPTION:
+                if ($bookingoption->option->addtocalendar == 1) {
+                    $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking, $bookingoption->option, 0, $bookingoption->option->calendarid);
+                } else {
+                    if ($bookingoption->option->calendarid > 0) {
+                        if ($DB->record_exists("event", array('id' => $bookingoption->option->calendarid))) {
+                            // Delete event if exist.
+                            $event = \calendar_event::load($bookingoption->option->calendarid);
+                            $event->delete(true);
+                        }
+                    }
                 }
-            }
-            $DB->set_field("booking_options", 'calendarid', $calendarid, array('id' => $this->optionid));
+                $DB->set_field("booking_options", 'calendarid', $newcalendarid, array('id' => $this->optionid));
+                break;
+
+            case $this::TYPEUSER:
+                break;
+
+            case $this::TYPETEACHERADD:
+                $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking, $bookingoption->option, $this->userid, 0);
+                $DB->set_field("booking_teachers", 'calendarid', $newcalendarid, array('userid' => $this->userid, 'optionid' => $this->optionid));
+                break;
+
+            case $this::TYPETEACHERUPDATE:
+                $calendarid = $DB->get_field('booking_teachers', 'calendarid', array('userid' => $this->userid, 'optionid' => $this->optionid));
+                $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking, $bookingoption->option, $this->userid, $calendarid);
+                $DB->set_field("booking_teachers", 'calendarid', $newcalendarid, array('userid' => $this->userid, 'optionid' => $this->optionid));
+                break;
+
+            case $this::TYPETEACHERREMOVE:
+                $calendarid = $DB->get_field('booking_teachers', 'calendarid', array('userid' => $this->userid, 'optionid' => $this->optionid));
+
+                if ($calendarid > 0) {
+                    if ($DB->record_exists("event", array('id' => $calendarid))) {
+                        $event = \calendar_event::load($calendarid);
+                        $event->delete(true);
+                    }
+                }
+                break;
         }
     }
 
@@ -66,9 +103,13 @@ class calendar {
      * @throws coding_exception
      * @throws dml_exception
      */
-    private function booking_option_add_to_cal($booking, $option, $userid = 0) {
+    private function booking_option_add_to_cal($booking, $option, $userid = 0, $calendareventid) {
         global $DB;
         $whereis = '';
+
+        if ($option->courseendtime == 0 || $option->coursestarttime == 0) {
+            return 0;
+        }
 
         $customfields = $DB->get_records('booking_customfields', array('optionid' => $option->id));
         $customfieldcfg = \mod_booking\booking_option::get_customfield_settings();
@@ -100,13 +141,10 @@ class calendar {
         }
 
         $event = new \stdClass();
-        $event->id = $option->calendarid;
+        $event->id = $calendareventid;
         $event->name = $option->text;
         $event->description = $option->description . $whereis;
-        $event->courseid = $option->courseid;
-        if ($option->courseid == 0) {
-            $event->courseid = $booking->course;
-        }
+        $event->courseid = ($userid == 0 ? ($option->courseid == 0 ? $booking->course : $option->courseid) : 0);
         $event->groupid = 0;
         $event->userid = $userid;
         $event->modulename = 'booking';
@@ -115,17 +153,16 @@ class calendar {
         $event->timestart = $option->coursestarttime;
         $event->visible = instance_is_visible('booking', $booking);
         $event->timeduration = $option->courseendtime - $option->coursestarttime;
+        $event->timesort = $option->coursestarttime;
 
         if ($DB->record_exists("event", array('id' => $event->id))) {
             $calendarevent = \calendar_event::load($event->id);
             $calendarevent->update($event);
-            $calendarid = $event->id;
+            return $event->id;
         } else {
             unset($event->id);
             $tmpevent = \calendar_event::create($event);
-            $calendarid = $tmpevent->id;
+            return $tmpevent->id;
         }
-
-        return $calendarid;
     }
 }

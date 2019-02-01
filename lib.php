@@ -2008,16 +2008,11 @@ function booking_delete_instance($id) {
         $result = false;
     }
 
-    $DB->delete_records_select('comments',
-            "contextid = ? AND component='mod_booking' AND itemid IN (SELECT id FROM {booking_options} WHERE bookingid = ?)",
-            array("$context->id", "$booking->id"));
+    $alloptionsid = \mod_booking\booking::get_all_optionids($id);
 
-    if (!$DB->delete_records("booking_options", array("bookingid" => "$booking->id"))) {
-        $result = false;
-    }
-
-    if (!$DB->delete_records("booking_teachers", array("bookingid" => "$booking->id"))) {
-        $result = false;
+    foreach ($alloptionsid as $optionid) {
+        $bookingoption = new \mod_booking\booking_option($cm->id, $optionid);
+        $bookingoption->delete_booking_option();
     }
 
     if (!$DB->delete_records("booking", array("id" => "$booking->id"))) {
@@ -2366,7 +2361,8 @@ function booking_optionid_unsubscribe($userid, $optionid, $cm) {
 
     $event = \mod_booking\event\teacher_removed::create(
             array('relateduserid' => $userid, 'objectid' => $optionid,
-                'context' => context_module::instance($cm->id)));
+                'context' => context_module::instance($cm->id)
+            ));
     $event->trigger();
 
     return ($DB->delete_records('booking_teachers',

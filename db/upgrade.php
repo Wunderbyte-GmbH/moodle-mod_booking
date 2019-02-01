@@ -1811,5 +1811,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2018090600, 'booking');
     }
 
+    if ($oldversion < 2019020100) {
+
+        // Define field calendarid to be added to booking_teachers.
+        $table = new xmldb_table('booking_teachers');
+        $field = new xmldb_field('calendarid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'completed');
+
+        // Conditionally launch add field calendarid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2019020100, 'booking');
+    }
+
     return true;
 }
