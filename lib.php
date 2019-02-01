@@ -2325,18 +2325,20 @@ function booking_optionid_subscribe($userid, $optionid, $cm, $groupid = '') {
         return true;
     }
 
-    $option = $DB->get_record("booking_options", array("id" => $optionid));
+    $option = new \mod_booking\booking_option($cm->id, $optionid);
 
     $sub = new stdClass();
     $sub->userid = $userid;
     $sub->optionid = $optionid;
-    $sub->bookingid = $option->bookingid;
+    $sub->bookingid = $option->booking->id;
 
     $inserted = $DB->insert_record("booking_teachers", $sub);
 
     if (!empty($groupid)) {
         groups_add_member($groupid, $userid);
     }
+
+    $option->enrol_user($userid);
 
     if ($inserted) {
         $event = \mod_booking\event\teacher_added::create(
