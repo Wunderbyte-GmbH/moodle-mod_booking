@@ -345,8 +345,19 @@ class booking {
         if (!empty($this->userbookings)) {
             return $this->userbookings;
         }
-        return $this->userbookings = $DB->count_records('booking_answers',
-                array('bookingid' => $this->id, 'userid' => $user->id));
+
+        $activebookingcount = $DB->count_records_sql("SELECT
+    COUNT(*)
+FROM
+    {booking_answers} ba
+        LEFT JOIN
+    {booking_options} bo ON bo.id = ba.optionid
+WHERE
+    ba.bookingid = ? AND ba.userid = ?
+        AND (bo.courseendtime = 0
+        OR bo.courseendtime > ?)", array($this->id, $user->id, time()));
+
+        return $activebookingcount;
     }
 
     /**
