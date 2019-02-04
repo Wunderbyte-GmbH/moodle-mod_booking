@@ -280,6 +280,15 @@ class all_options extends table_sql {
         $output = '';
         $output .= \html_writer::tag('h4', $values->text);
 
+        $style = 'display: none;';
+        $th = '';
+        $ts = '"display: none;"';
+        if (isset($_GET['whichview']) && $_GET['whichview'] == 'showonlyone') {
+            $style = '';
+            $th = '"display: none;"';
+            $ts = '';
+        }
+
         if (strlen($values->address) > 0) {
             $output .= \html_writer::empty_tag('br');
             $output .= $values->address;
@@ -296,7 +305,16 @@ class all_options extends table_sql {
         }
 
         if (!empty($values->description)) {
-            $output .= \html_writer::div($values->description, 'description');
+            $showhidetext = '<span id="showtextdes' . $values->id . '" style=' . $th . '>' . get_string(
+                    'showdescription', "mod_booking") . '</span><span id="hidetextdes' . $values->id . '" style=' . $ts . '>' . get_string(
+                            'hidedescription', "mod_booking") . '</span>';
+
+            $output .= '<br><a href="#" class="showHideOptionText" data-id="des' . $values->id . '">' .
+                    $showhidetext . "</a>";
+                    $output .= \html_writer::div($values->description, 'optiontext',
+                            array('style' => $style, 'id' => 'optiontextdes' . $values->id));
+
+            //$output .= \html_writer::div($values->description, 'description');
         }
 
         $output .= (!empty($values->teachers) ? " <br />" .
@@ -324,15 +342,6 @@ class all_options extends table_sql {
         $texttoshow = "";
         $bookingdata = new \mod_booking\booking_option($this->cm->id, $values->id);
         $texttoshow = $bookingdata->get_option_text();
-
-        $style = 'display: none;';
-        $th = '';
-        $ts = '"display: none;"';
-        if (isset($_GET['whichview']) && $_GET['whichview'] == 'showonlyone') {
-            $style = '';
-            $th = '"display: none;"';
-            $ts = '';
-        }
 
         $showhidetext = '<span id="showtext' . $values->id . '" style=' . $th . '>' . get_string(
                 'showdescription', "mod_booking") . '</span><span id="hidetext' . $values->id . '" style=' . $ts . '>' . get_string(
