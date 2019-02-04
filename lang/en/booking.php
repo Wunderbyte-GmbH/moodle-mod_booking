@@ -189,7 +189,6 @@ $string['showallbookings'] = 'All bookings';
 $string['showmybookingsonly'] = 'My bookings';
 $string['showactive'] = 'Active bookings';
 $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
-$string['deletebookingoption'] = 'Delete this booking option';
 $string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option?';
 $string['norighttobook'] = 'Booking is not possible for your user role. Please contact the site administrator to give you the appropriate rights or sign in.';
 $string['createdby'] = 'Booking module created by edulabs.org';
@@ -739,6 +738,7 @@ $string['waitinglisttaken'] = 'On the waiting list';
 $string['groupexists'] = 'The group already exists in the target course, please choose another name for the booking option';
 $string['groupdeleted'] = 'This booking instance creates groups automatically in the target course. But the group has been manually deleted in the target course. Activate the following checkbox in order to recreate the group';
 $string['recreategroup'] = 'Recreate group in the target course and enrol users in group';
+$string['copy'] = ' - Copy';
 
 // importoptions.php
 $string['csvfile'] = 'CSV file';

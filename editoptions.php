@@ -50,7 +50,9 @@ if ($optionid == -1) {
     $defaultvalues = $booking->booking;
     if ($copyoptionid != '') {
         if ($defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid))) {
+            $defaultvalues->text = $defaultvalues->text . get_string('copy', 'booking');
             $defaultvalues->optionid = -1;
+            $defaultvalues->bookingname = $booking->booking->name;
             $defaultvalues->bookingid = $cm->instance;
             $defaultvalues->id = $cm->id;
             $defaultvalues->description = array('text' => $defaultvalues->description,
@@ -75,7 +77,6 @@ if ($optionid == -1) {
     $defaultvalues->optionid = -1;
     $defaultvalues->bookingid = $booking->booking->id;
     $defaultvalues->id = $cm->id;
-    $defaultvalues->text = '';
 } else if ($defaultvalues = $DB->get_record('booking_options', array('bookingid' => $booking->booking->id, 'id' => $optionid))) {
     $defaultvalues->optionid = $optionid;
     $defaultvalues->bookingname = $booking->booking->name;

@@ -115,6 +115,12 @@ class all_options extends table_sql {
                         $OUTPUT->pix_icon('t/delete',
                                 get_string('deletebookingoption', 'mod_booking')) .
                                  get_string('deletebookingoption', 'mod_booking')) . '</div>';
+                        $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
+                                         new moodle_url('/mod/booking/editoptions.php',
+                                                 array('id' => $this->cm->id, 'optionid' => -1, 'copyoptionid' => $values->id)),
+                                         $OUTPUT->pix_icon('t/copy',
+                                                 get_string('duplicatebooking', 'mod_booking')) .
+                                         get_string('duplicatebooking', 'mod_booking')) . '</div>';
             }
         } else {
             if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability(
@@ -166,6 +172,14 @@ class all_options extends table_sql {
                                 array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/delete'),
                                     'alt' => get_string('deletebookingoption', 'mod_booking'))) .
                                  get_string('deletebookingoption', 'mod_booking')) . '</div>';
+
+                         $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
+                                 new moodle_url('/mod/booking/editoptions.php',
+                                         array('id' => $this->cm->id, 'optionid' => -1, 'copyoptionid' => $values->id)),
+                                 \html_writer::empty_tag('img',
+                                         array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/copy'),
+                                                         'alt' => get_string('duplicatebooking', 'mod_booking'))) .
+                                 get_string('duplicatebooking', 'mod_booking')) . '</div>';
             }
         }
         if (!empty($ddoptions)) {
@@ -313,8 +327,6 @@ class all_options extends table_sql {
                     $showhidetext . "</a>";
                     $output .= \html_writer::div($values->description, 'optiontext',
                             array('style' => $style, 'id' => 'optiontextdes' . $values->id));
-
-            //$output .= \html_writer::div($values->description, 'description');
         }
 
         $output .= (!empty($values->teachers) ? " <br />" .
