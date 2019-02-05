@@ -560,7 +560,6 @@ function booking_update_options($optionvalues, $context) {
         $option->notificationtext = $optionvalues->notificationtext;
     }
     $option->disablebookingusers = $optionvalues->disablebookingusers;
-
     $option->sent = 0;
     $option->sent2 = 0;
 
@@ -625,16 +624,6 @@ function booking_update_options($optionvalues, $context) {
                 $option->sent2 = $DB->get_field('booking_options', 'sent2',
                         array('id' => $option->id));
             }
-            if (isset($booking->addtogroup) && $option->courseid > 0) {
-                $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
-                $option->groupid = $bo->create_group($booking, $option);
-                $booked = $bo->get_all_users_booked();
-                if (!empty($booked) && $booking->autoenrol) {
-                    foreach ($booked as $bookinganswer) {
-                        $bo->enrol_user($bookinganswer->userid);
-                    }
-                }
-            }
 
             if (isset($optionvalues->generatenewurl) && $optionvalues->generatenewurl == 1) {
                 // URL shortnere - only if API key is entered.
@@ -677,6 +666,19 @@ function booking_update_options($optionvalues, $context) {
             }
 
             $DB->update_record("booking_options", $option);
+
+            if (isset($booking->addtogroup) && $option->courseid > 0) {
+                $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
+                $option->groupid = $bo->create_group($booking, $option);
+                $DB->set_field("booking_options", 'groupid', $option->groupid, array('id' => $option->id));
+                $booked = $bo->get_all_users_booked();
+                if (!empty($booked) && $booking->autoenrol) {
+                    foreach ($booked as $bookinganswer) {
+                        $bo->enrol_user($bookinganswer->userid);
+                    }
+                }
+            }
+
             $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $option->id,
                             'userid' => $USER->id));
             $event->trigger();

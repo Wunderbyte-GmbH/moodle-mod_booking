@@ -1080,3 +1080,7 @@ $string['privacy:metadata:booking_teachers'] = 'Represents the teacher of an eve
 $string['privacy:metadata:booking_teachers:userid'] = 'User that is teaching this event';
 $string['privacy:metadata:booking_teachers:optionid'] = 'Which version of an event is taught';
 $string['privacy:metadata:booking_teachers:completed'] = 'If task is completed';
+
+// calendar.php
+$string['usercalendarentry'] = 'You are booked for this <a href="{$a}">session</a>.';
+$string['bookingoptioncalendarentry'] = 'Go to <a href="{$a}">booking option</a>.';

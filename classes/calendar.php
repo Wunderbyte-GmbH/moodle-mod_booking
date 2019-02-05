@@ -104,12 +104,16 @@ class calendar {
      * @throws dml_exception
      */
     private function booking_option_add_to_cal($booking, $option, $userid = 0, $calendareventid) {
-        global $DB;
+        global $DB, $CFG;
         $whereis = '';
 
         if ($option->courseendtime == 0 || $option->coursestarttime == 0) {
             return 0;
         }
+
+        $timestart = userdate($option->coursestarttime, get_string('strftimedatetime'));
+        $timefinish = userdate($option->courseendtime, get_string('strftimedatetime'));
+        $whereis .= "<p><b>$timestart &ndash; $timefinish</b></p>";
 
         $customfields = $DB->get_records('booking_customfields', array('optionid' => $option->id));
         $customfieldcfg = \mod_booking\booking_option::get_customfield_settings();
@@ -140,22 +144,39 @@ class calendar {
             $whereis .= '<p><b>' . get_string('address', 'booking') . '</b>: ' . $option->address. '</p>';
         }
 
+        if ($userid > 0) {
+            // Add to user calendar
+            $courseid = 0;
+            $modulename = 0;
+            $visible = 1;
+            $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
+            $whereis .= get_string("usercalendarentry", 'booking', $linkurl);
+        } else {
+            // Event calendar
+            $courseid = ($option->courseid == 0 ? $booking->course : $option->courseid);
+            $modulename = ($courseid == $booking->course ? 'booking' : 0);
+            $visible = instance_is_visible('booking', $booking);
+            $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
+            $whereis .= get_string("bookingoptioncalendarentry", 'booking', $linkurl);
+        }
+
         $event = new \stdClass();
         $event->id = $calendareventid;
         $event->name = $option->text;
         $event->description = $option->description . $whereis;
-        $event->courseid = ($userid == 0 ? ($option->courseid == 0 ? $booking->course : $option->courseid) : 0);
+        $event->format = FORMAT_HTML;
+        $event->courseid = $courseid;
         $event->groupid = 0;
         $event->userid = $userid;
-        $event->modulename = 'booking';
+        $event->modulename = $modulename;
         $event->instance = $option->bookingid;
         $event->eventtype = 'booking';
         $event->timestart = $option->coursestarttime;
-        $event->visible = instance_is_visible('booking', $booking);
+        $event->visible = $visible;
         $event->timeduration = $option->courseendtime - $option->coursestarttime;
         $event->timesort = $option->coursestarttime;
 
-        if ($DB->record_exists("event", array('id' => $event->id))) {
+        if ($calendareventid > 0 && $DB->record_exists("event", array('id' => $event->id))) {
             $calendarevent = \calendar_event::load($event->id);
             $calendarevent->update($event);
             return $event->id;
