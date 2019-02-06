@@ -405,21 +405,21 @@ class booking_option extends booking {
     public function user_status($userid = null) {
         global $DB, $USER;
         $booked = false;
-        if (\is_null($userid)) {
+        if (is_null($userid)) {
             $userid = $USER->id;
         }
-        if (empty($this->allusers)) {
-            $booked = $DB->get_field('booking_answers', 'waitinglist',
-                    array('optionid' => $this->optionid, 'userid' => $userid));
-        } else {
-            foreach ($this->allusers as $user) {
-                if ($userid == $user->userid) {
-                    $booked = $user->waitinglist;
-                    break;
-                }
-            }
-        }
+
+        $booked = $DB->get_field('booking_answers', 'waitinglist',
+                array('optionid' => $this->optionid, 'userid' => $userid));
+
+
+
         if ($booked === false) {
+            // Check, if it's in teachers table
+            if ($DB->get_field('booking_teachers', 'id',
+                    array('optionid' => $this->optionid, 'userid' => $userid)) !== false) {
+                return 2;
+            }
             return 0;
         } else if ($booked === "0") {
             return 2;
@@ -1055,10 +1055,8 @@ class booking_option extends booking {
         }
 
         $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-
         if ($this->user_status($userid) === 2) {
             $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
-
             if ($this->booking->addtogroup == 1) {
                 $groups = groups_get_all_groups($this->option->courseid);
                 if (!is_null($this->option->groupid) && ($this->option->groupid > 0) &&

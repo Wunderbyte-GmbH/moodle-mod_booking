@@ -156,7 +156,7 @@ class calendar {
             // Event calendar
             $courseid = ($option->courseid == 0 ? $booking->course : $option->courseid);
             $modulename = ($courseid == $booking->course ? 'booking' : 0);
-            $instance = ($courseid == $option->bookingid ? 'booking' : 0);
+            $instance = ($courseid == $booking->course ? $option->bookingid : 0);
             $visible = instance_is_visible('booking', $booking);
             $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
             $whereis .= get_string("bookingoptioncalendarentry", 'booking', $linkurl);
