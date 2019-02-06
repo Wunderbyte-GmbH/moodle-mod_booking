@@ -163,6 +163,11 @@ class mod_booking_bookingform_form extends moodleform {
                 0);
         $mform->setType('removeafterminutes', PARAM_INT);
 
+        $mform->addElement('filemanager', 'myfilemanageroption',
+                get_string('bookingattachment', 'booking'), null,
+                array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
+                                'accepted_types' => array('*')));
+
         // Advanced options.
         $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));
 

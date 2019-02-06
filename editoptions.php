@@ -98,6 +98,13 @@ if ($optionid == -1) {
         $defaultvalues->startendtimeknown = "checked";
     }
 
+    $draftitemid = file_get_submitted_draft_itemid('myfilemanageroption');
+
+    file_prepare_draft_area($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption', $optionid,
+            array('subdirs' => false, 'maxfiles' => 50, 'accepted_types' => array('*'), 'maxbytes' => 0));
+
+    $defaultvalues->myfilemanageroption = $draftitemid;
+
     // Defaults for customfields.
     $cfdefaults = $DB->get_records('booking_customfields', array('optionid' => $optionid));
     $customfields = \mod_booking\booking_option::get_customfield_settings();
@@ -124,6 +131,11 @@ if ($mform->is_cancelled()) {
         }
 
         $nbooking = booking_update_options($fromform, $context);
+
+        if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
+            file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
+                    $nbooking, array('subdirs' => false, 'maxfiles' => 50));
+        }
 
         $bookingdata = new \mod_booking\booking_option($cm->id, $nbooking);
         $bookingdata->sync_waiting_list();

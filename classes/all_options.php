@@ -290,7 +290,7 @@ class all_options extends table_sql {
     }
 
     protected function col_text($values) {
-        global $DB;
+        global $DB, $CFG;
         $output = '';
         $output .= \html_writer::tag('h4', $values->text);
 
@@ -375,6 +375,27 @@ class all_options extends table_sql {
         $options->showcount = true;
         $comment = new comment($options);
         $output .= "<div>" . $comment->output(true) . "</div>";
+
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($this->context->id, 'mod_booking', 'myfilemanageroption',
+                $values->id);
+
+        if (count($files) > 0) {
+            $output .= html_writer::start_tag('div');
+            $output .= html_writer::tag('label', get_string("attachedfiles", "booking") . ': ',
+                    array('class' => 'bold'));
+
+            foreach ($files as $file) {
+                if ($file->get_filesize() > 0) {
+                    $filename = $file->get_filename();
+                    $furl = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(),
+                            $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename(), false);
+                    $out[] = html_writer::link($furl, $filename);
+                }
+            }
+            $output .= html_writer::tag('span', implode(', ', $out));
+            $output .= html_writer::end_tag('div');
+        }
 
         return $output;
     }

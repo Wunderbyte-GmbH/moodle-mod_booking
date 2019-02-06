@@ -412,8 +412,6 @@ class booking_option extends booking {
         $booked = $DB->get_field('booking_answers', 'waitinglist',
                 array('optionid' => $this->optionid, 'userid' => $userid));
 
-
-
         if ($booked === false) {
             // Check, if it's in teachers table
             if ($DB->get_field('booking_teachers', 'id',
