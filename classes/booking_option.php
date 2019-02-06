@@ -1028,7 +1028,7 @@ class booking_option extends booking {
      *
      * @param int $userid
      */
-    public function enrol_user($userid, $manual = false) {
+    public function enrol_user($userid, $manual = false, $roleid = 0) {
         global $DB;
         if (!$manual) {
             if (!$this->booking->autoenrol) {
@@ -1054,7 +1054,7 @@ class booking_option extends booking {
 
         $instance = reset($instances); // Use the first manual enrolment plugin in the course.
         if ($this->user_status($userid) === 2) {
-            $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
+            $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid)); // Enrol using the default role.
             if ($this->booking->addtogroup == 1) {
                 $groups = groups_get_all_groups($this->option->courseid);
                 if (!is_null($this->option->groupid) && ($this->option->groupid > 0) &&

@@ -579,6 +579,21 @@ class mod_booking_mod_form extends moodleform_mod {
                 get_string('conectedbooking', 'mod_booking'), $opts);
         $mform->setDefault('conectedbooking', 0);
         $mform->addHelpButton('conectedbooking', 'conectedbooking', 'mod_booking');
+
+        // Teachers
+        $mform->addElement('header', 'teachers',
+                get_string('teachers', 'booking'));
+
+        $teacherroleid = array(0 => '');
+
+        $allroles = $DB->get_records('role');
+        foreach ($allroles as $value) {
+            $teacherroleid[$value->id] = $value->shortname;
+        }
+
+        $mform->addElement('select', 'teacherroleid', get_string('teacherroleid', 'mod_booking'), $teacherroleid);
+        $mform->setDefault('teacherroleid', 0);
+
         $this->standard_grading_coursemodule_elements();
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();

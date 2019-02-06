@@ -1826,5 +1826,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019020100, 'booking');
     }
 
+    if ($oldversion < 2019020600) {
+
+        // Define field teacherroleid to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('teacherroleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'removeuseronunenrol');
+
+        // Conditionally launch add field teacherroleid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2019020600, 'booking');
+    }
+
     return true;
 }

@@ -140,6 +140,7 @@ $string['showhelpfullnavigationlinks_helt'] = 'Show "Go to registration" and "Go
 $string['disabled'] = 'Disabled';
 $string['completionmodule'] = 'Activity completed';
 $string['completionmodule_help'] = 'Delete all users, that completed this activity. Users will be deleted with a click of button on report page!';
+$string['teacherroleid'] = 'Default role for teacher';
 
 // Categories
 $string['category'] = 'Category';
