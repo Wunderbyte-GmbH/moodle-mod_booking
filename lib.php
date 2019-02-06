@@ -2341,7 +2341,6 @@ function booking_optionid_subscribe($userid, $optionid, $cm, $groupid = '') {
     }
 
     $option->enrol_user($userid);
-
     if ($inserted) {
         $event = \mod_booking\event\teacher_added::create(
                 array('relateduserid' => $userid, 'objectid' => $optionid,
