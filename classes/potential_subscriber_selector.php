@@ -66,7 +66,7 @@ class potential_subscriber_selector extends subscriber_selector_base {
     }
 
     /**
-     * Finds all potential users Potential subscribers are all enrolled users who are not already subscribed.
+     * Finds all potential users (teachers). Potential subscribers are all, who are not already subscribed.
      *
      * @param string $search
      * @return array
@@ -99,14 +99,10 @@ class potential_subscriber_selector extends subscriber_selector_base {
             $wherecondition = 'WHERE ' . implode(' AND ', $whereconditions);
         }
 
-        list($esql, $eparams) = get_enrolled_sql($this->context, '', $this->currentgroup, true);
-        $params = array_merge($params, $eparams);
-
         $fields = 'SELECT ' . $this->required_fields_sql('u');
         $countfields = 'SELECT COUNT(u.id)';
 
         $sql = " FROM {user} u
-        JOIN ($esql) je ON je.id = u.id
         $wherecondition";
 
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
