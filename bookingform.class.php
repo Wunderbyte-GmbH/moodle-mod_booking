@@ -77,7 +77,7 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('location', PARAM_CLEANHTML);
         }
 
-        $mform->addElement('text', 'institution', new lang_string('institution'), array('size' => '264'));
+        $mform->addElement('text', 'institution', new lang_string('institution'), array('size' => '64'));
         $mform->setType('institution', PARAM_TEXT);
 
         $url = $CFG->wwwroot . '/mod/booking/institutions.php';

@@ -2427,12 +2427,10 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
     }
 
     // Only active enrolled users or everybody on the frontpage.
-    list($esql, $params) = get_enrolled_sql($context, '', $groupid, true);
     $params['optionid'] = $optionid;
     $results = $DB->get_records_sql(
             "SELECT $fields
                     FROM {user} u
-                    JOIN ($esql) je ON je.id = u.id
                     JOIN {booking_teachers} s ON s.userid = u.id
                     WHERE s.optionid = :optionid
                     ORDER BY u.email ASC", $params);
