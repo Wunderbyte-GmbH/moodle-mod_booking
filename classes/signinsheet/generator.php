@@ -624,7 +624,7 @@ class generator {
                     $name = get_string('signature', 'mod_booking');
                     break;
                 case 'institution':
-                    $name = get_string('institution');
+                    $name = get_string('institution', 'booking');
                     break;
                 case 'description':
                     $name = get_string('description');

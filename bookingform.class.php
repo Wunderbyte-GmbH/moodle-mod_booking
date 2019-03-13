@@ -32,6 +32,8 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('text', PARAM_CLEANHTML);
         }
 
+        $booking = new mod_booking\booking($this->_customdata['cmid']);
+
         // Add custom fields here.
         $customfields = mod_booking\booking_option::get_customfield_settings();
         if (!empty($customfields)) {
@@ -77,7 +79,8 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('location', PARAM_CLEANHTML);
         }
 
-        $mform->addElement('text', 'institution', new lang_string('institution'), array('size' => '64'));
+        $mform->addElement('text', 'institution', (empty($booking->booking->lblinstitution) ? get_string('institution', 'booking') : $booking->booking->lblinstitution),
+            array('size' => '64'));
         $mform->setType('institution', PARAM_TEXT);
 
         $url = $CFG->wwwroot . '/mod/booking/institutions.php';

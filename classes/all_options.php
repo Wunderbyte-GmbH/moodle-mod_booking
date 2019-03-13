@@ -314,7 +314,7 @@ class all_options extends table_sql {
         }
         if (strlen($values->institution) > 0) {
             $output .= \html_writer::empty_tag('br');
-            $output .= (empty($this->booking->booking->lblinstitution) ? get_string('institution') : $this->booking->booking->lblinstitution) . ': ' .
+            $output .= (empty($this->booking->booking->lblinstitution) ? get_string('institution', 'booking') : $this->booking->booking->lblinstitution) . ': ' .
                      $values->institution;
         }
 

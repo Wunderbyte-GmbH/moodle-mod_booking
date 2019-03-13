@@ -452,7 +452,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'numrec' => get_string('numrec', 'mod_booking'),
             'fullname' => get_string('fullname', 'mod_booking'),
             'timecreated' => get_string('timecreated', 'mod_booking'),
-            'institution' => get_string('institution'),
+            'institution' => get_string('institution', 'mod_booking'),
             'waitinglist' => get_string('searchwaitinglist', 'mod_booking'),
             'city' => new lang_string('city'),
             'notes' => get_string('notes', 'mod_booking')
@@ -480,7 +480,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $signinsheetfields = array('fullname' => get_string('fullname', 'mod_booking'),
             'signature' => get_string('signature', 'mod_booking'),
-            'institution' => new lang_string('institution'),
+            'institution' => get_string("institution", "booking"),
             'description' => new lang_string('description'),
             'city' => new lang_string('city'),
             'country' => new lang_string('country'),

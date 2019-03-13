@@ -165,7 +165,8 @@ class mobile {
             $text .= (empty($booking->booking->lbllocation) ? get_string('location', 'booking') : $booking->booking->lbllocation) . ': ' . $values->option->location . "<br>";
         }
         if (strlen($values->option->institution) > 0) {
-            $text .= (empty($booking->booking->lblinstitution) ? get_string('institution') : $booking->booking->lblinstitution) . ': ' . $values->option->institution . "<br>";
+            $text .= (empty($booking->booking->lblinstitution) ? get_string('institution', 'booking') : $booking->booking->lblinstitution) . ': ' .
+            $values->option->institution . "<br>";
         }
 
         if (!empty($values->option->description)) {
