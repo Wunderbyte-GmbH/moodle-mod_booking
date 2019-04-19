@@ -40,8 +40,12 @@ $observers = array(
     array('eventname' => '\mod_booking\event\teacher_added',
         'callback' => 'mod_booking_observer::teacher_added'
         ),
-                array(
-                                'eventname' => '\mod_booking\event\teacher_removed',
-                                'callback' => 'mod_booking_observer::teacher_removed'
-                )
+    array(
+        'eventname' => '\mod_booking\event\teacher_removed',
+        'callback' => 'mod_booking_observer::teacher_removed'
+        ),
+    array(
+        'eventname' => '\mod_booking\event\custom_field_changed',
+        'callback' => 'mod_booking_observer::custom_field_changed'
+        )
     );
