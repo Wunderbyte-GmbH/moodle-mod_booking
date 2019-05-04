@@ -624,7 +624,8 @@ function booking_update_options($optionvalues, $context) {
             }
             if (isset($booking->addtogroup) && $option->courseid > 0) {
                 $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
-                $option->groupid = $bo->create_group($booking, $option);
+                $bo->option->courseid = $option->courseid;
+                $option->groupid = $bo->create_group();
                 $booked = $bo->get_all_users_booked();
                 if (!empty($booked) && $booking->autoenrol) {
                     foreach ($booked as $bookinganswer) {
