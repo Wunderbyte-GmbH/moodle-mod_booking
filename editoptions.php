@@ -71,6 +71,7 @@ if ($optionid == -1) {
             }
         }
     }
+    $defaultvalues->duration = 3600;
     $defaultvalues->bookingname = $booking->booking->name;
     $defaultvalues->optionid = -1;
     $defaultvalues->bookingid = $booking->booking->id;
