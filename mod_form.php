@@ -507,29 +507,38 @@ class mod_booking_mod_form extends moodleform_mod {
                         'multiple' => true,
                         'noselectionstring' => get_string('responsesfields', 'booking'),
         );
-        $select = $mform->addElement('autocomplete', 'responsesfields',
+        $mform->addElement('autocomplete', 'responsesfields',
                 get_string('responsesfields', 'booking'), $responsesfields, $options);
+        $mform->setType('responsesfields', PARAM_NOTAGS);
+        $mform->setDefault('responsesfields', $options);
 
         $options = array(
                         'multiple' => true,
                         'noselectionstring' => get_string('reportfields', 'booking'),
         );
-        $select = $mform->addElement('autocomplete', 'reportfields',
+        $mform->addElement('autocomplete', 'reportfields',
                 get_string('reportfields', 'booking'), $reportfields, $options);
+        $mform->setType('reportfields', PARAM_NOTAGS);
+        $mform->setDefault('reportfields', $options);
 
         $options = array(
                         'multiple' => true,
                         'noselectionstring' => get_string('optionsfields', 'booking'),
         );
-        $select = $mform->addElement('autocomplete', 'optionsfields',
+        $mform->addElement('autocomplete', 'optionsfields',
                 get_string('optionsfields', 'booking'), $optionsfields, $options);
+        $mform->setType('optionsfields', PARAM_NOTAGS);
+        $mform->setDefault('optionsfields', $options);
 
         $options = array(
                         'multiple' => true,
                         'noselectionstring' => get_string('signinsheetfields', 'booking'),
         );
-        $select = $mform->addElement('autocomplete', 'signinsheetfields',
+        $mform->addElement('autocomplete', 'signinsheetfields',
                 get_string('signinsheetfields', 'booking'), $signinsheetfields, $options);
+        $mform->setType('signinsheetfields', PARAM_NOTAGS);
+        $mform->setDefault('signinsheetfields', $options);
+
 
         // Booking option text.
         $mform->addElement('header', 'bookingoptiontextheader',

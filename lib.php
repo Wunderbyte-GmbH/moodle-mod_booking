@@ -356,7 +356,6 @@ function booking_add_instance($booking) {
         $booking->signinsheetfields = null;
     }
 
-
     // Copy the text fields out.
     $booking->bookedtext = $booking->bookedtext['text'];
     $booking->waitingtext = $booking->waitingtext['text'];
