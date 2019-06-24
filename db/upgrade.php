@@ -1780,20 +1780,23 @@ function xmldb_booking_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018080701) {
-        $ids = $DB->get_fieldset_sql('SELECT bo.id FROM mdl_booking_options bo WHERE bo.id > 0');
-        list($insql, $inparams) = $DB->get_in_or_equal($ids, SQL_PARAMS_NAMED);
-        if (count($ids) > 1) {
-            $sql = "DELETE FROM {booking_teachers}
-                WHERE optionid NOT $insql";
-            $DB->execute($sql, $inparams);
-        } else if (count($ids) == 1) {
-            $sql = "DELETE FROM {booking_teachers}
-                WHERE optionid !$insql";
-            $DB->execute($sql, $inparams);
-        } else if (empty($ids)) {
+        $ids = $DB->get_fieldset_sql('SELECT bo.id FROM {booking_options} bo WHERE bo.id > 0');
+        if (!empty($ids)) {
+            list($insql, $inparams) = $DB->get_in_or_equal($ids, SQL_PARAMS_NAMED);
+            if (count($ids) > 1) {
+                $sql = "DELETE FROM {booking_teachers}
+                    WHERE optionid NOT $insql";
+                $DB->execute($sql, $inparams);
+            } else if (count($ids) == 1) {
+                $sql = "DELETE FROM {booking_teachers}
+                    WHERE optionid !$insql";
+                $DB->execute($sql, $inparams);
+            }
+        } else {
             $sql = "DELETE FROM {booking_teachers}";
             $DB->execute($sql);
         }
+        upgrade_mod_savepoint(true, 2018080701, 'booking');
     }
 
     if ($oldversion < 2018090600) {
