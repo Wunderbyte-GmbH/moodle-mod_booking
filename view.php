@@ -449,7 +449,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         }
         $labelbooking = (empty($booking->booking->lblbooking) ? get_string('booking', 'booking') : $booking->booking->lblbooking);
         $labellocation = (empty($booking->booking->lbllocation) ? get_string('location', 'booking') : $booking->booking->lbllocation);
-        $labelinstitution = (empty($booking->booking->lblinstitution) ? get_string('institution') : $booking->booking->lblinstitution);
+        $labelinstitution = (empty($booking->booking->lblinstitution) ? get_string('institution', 'booking') : $booking->booking->lblinstitution);
         $labelsearchname = (empty($booking->booking->lblname) ? get_string('searchname', 'booking') : $booking->booking->lblname);
         $labelsearchsurname = (empty($booking->booking->lblsurname) ? get_string('searchsurname',
                 'booking') : $booking->booking->lblsurname);
@@ -584,8 +584,12 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
+                    LEFT JOIN
+                        {booking_options} bo ON bo.id = ba.optionid
                    WHERE ba.bookingid = b.id
-                     AND ba.userid = :userid2) AS bookinggetuserbookingcount,
+                     AND ba.userid = :userid2
+                    AND (bo.courseendtime = 0
+                    OR bo.courseendtime > :timestampnow)) AS bookinggetuserbookingcount,
                          b.cancancelbook,
                          bo.disablebookingusers,
 
@@ -614,6 +618,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $conditionsparams['userid'] = $USER->id;
         $conditionsparams['userid1'] = $USER->id;
         $conditionsparams['userid2'] = $USER->id;
+        $conditionsparams['timestampnow'] = time();
         $conditionsparams['userid3'] = $USER->id;
         $conditionsparams['userid4'] = $USER->id;
         $conditionsparams['userid5'] = $USER->id;

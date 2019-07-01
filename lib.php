@@ -13,11 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-use mod_booking\booking_tags;
 use mod_booking\booking_option;
 
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot . '/calendar/lib.php');
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot . '/question/category_class.php');
 require_once($CFG->dirroot . '/group/lib.php');
@@ -101,15 +99,7 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
     }
 
     // Make sure the filearea is one of those used by the plugin.
-    if ($filearea !== 'myfilemanager') {
-        return false;
-    }
-
-    if ($filearea !== 'signinlogoheader') {
-        return false;
-    }
-
-    if ($filearea !== 'signinlogofooter') {
+    if ($filearea !== 'myfilemanager' && $filearea !== 'myfilemanageroption' && $filearea !== 'signinlogoheader' && $filearea !== 'signinlogofooter') {
         return false;
     }
 
@@ -625,6 +615,11 @@ function booking_update_options($optionvalues, $context) {
     $option->limitanswers = $optionvalues->limitanswers;
     $option->duration = $optionvalues->duration;
     $option->timemodified = time();
+    if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
+        $option->addtocalendar = 1;
+    } else {
+        $option->addtocalendar = 0;
+    }
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
              $optionvalues->optionid != -1) { // Existing booking option record.
         $option->id = $optionvalues->optionid;
@@ -644,40 +639,6 @@ function booking_update_options($optionvalues, $context) {
                 $option->sent2 = $DB->get_field('booking_options', 'sent2',
                         array('id' => $option->id));
             }
-            if (isset($booking->addtogroup) && $option->courseid > 0) {
-                $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
-                $bo->option->courseid = $option->courseid;
-                $option->groupid = $bo->create_group();
-                $booked = $bo->get_all_users_booked();
-                if (!empty($booked) && $booking->autoenrol) {
-                    foreach ($booked as $bookinganswer) {
-                        $bo->enrol_user($bookinganswer->userid);
-                    }
-                }
-            }
-
-            if ($option->calendarid > 0) {
-                // Event exists.
-                if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
-                    $option->calendarid = booking_option_add_to_cal($booking, $option);
-                    $option->addtocalendar = 1;
-                } else {
-                    // Delete event if exist.
-                    $event = calendar_event::load($option->calendarid);
-                    $event->delete(true);
-
-                    $option->addtocalendar = 0;
-                    $option->calendarid = 0;
-                }
-            } else {
-                $option->addtocalendar = 0;
-                $option->calendarid = 0;
-                // Insert into calendar.
-                if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
-                    $option->calendarid = booking_option_add_to_cal($booking, $option);
-                    $option->addtocalendar = 1;
-                }
-            }
 
             if (isset($optionvalues->generatenewurl) && $optionvalues->generatenewurl == 1) {
                 // URL shortnere - only if API key is entered.
@@ -695,11 +656,6 @@ function booking_update_options($optionvalues, $context) {
                 }
             }
 
-            $DB->update_record("booking_options", $option);
-            $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $option->id,
-                'userid' => $USER->id));
-            $event->trigger();
-
             // Check if custom field will be updated or newly created.
             if (!empty($customfields)) {
                 foreach ($customfields as $fieldcfgname => $field) {
@@ -710,11 +666,11 @@ function booking_update_options($optionvalues, $context) {
                         if ($customfieldid) {
                             $customfield = new stdClass();
                             $customfield->id = $customfieldid;
-                            $customfield->value = $optionvalues->$fieldcfgname;
+                            $customfield->value = (is_array($optionvalues->$fieldcfgname) ? implode("\n", $optionvalues->$fieldcfgname) : $optionvalues->$fieldcfgname);;
                             $DB->update_record('booking_customfields', $customfield);
                         } else {
                             $customfield = new stdClass();
-                            $customfield->value = $optionvalues->$fieldcfgname;
+                            $customfield->value = (is_array($optionvalues->$fieldcfgname) ? implode("\n", $optionvalues->$fieldcfgname) : $optionvalues->$fieldcfgname);
                             $customfield->optionid = $option->id;
                             $customfield->bookingid = $booking->id;
                             $customfield->cfgname = $fieldcfgname;
@@ -723,17 +679,28 @@ function booking_update_options($optionvalues, $context) {
                     }
                 }
             }
+
+            $DB->update_record("booking_options", $option);
+
+            if (isset($booking->addtogroup) && $option->courseid > 0) {
+                $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
+                $bo->option->courseid = $option->courseid;
+                $option->groupid = $bo->create_group();
+                $booked = $bo->get_all_users_booked();
+                if (!empty($booked) && $booking->autoenrol) {
+                    foreach ($booked as $bookinganswer) {
+                        $bo->enrol_user($bookinganswer->userid);
+                    }
+                }
+            }
+
+            $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $option->id,
+                            'userid' => $USER->id));
+            $event->trigger();
+
             return $option->id;
         }
     } else if (isset($optionvalues->text) && $optionvalues->text != '') {
-        $option->addtocalendar = 0;
-        $option->calendarid = 0;
-        // Insert into calendar.
-        if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
-            $option->calendarid = booking_option_add_to_cal($booking, $option);
-            $option->addtocalendar = 1;
-        }
-
         $id = $DB->insert_record("booking_options", $option);
 
         // Create group in target course if there is a course specified only.
@@ -743,10 +710,6 @@ function booking_update_options($optionvalues, $context) {
             $option->groupid = $bo->create_group($booking, $option);
             $DB->update_record('booking_options', $option);
         }
-
-        $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $id,
-            'userid' => $USER->id));
-        $event->trigger();
 
         // URL shortnere - only if API key is entered.
         $gapik = get_config('booking', 'googleapikey');
@@ -771,7 +734,7 @@ function booking_update_options($optionvalues, $context) {
             foreach ($customfields as $fieldcfgname => $field) {
                 if (!empty($optionvalues->$fieldcfgname)) {
                     $customfield = new stdClass();
-                    $customfield->value = $optionvalues->$fieldcfgname;
+                    $customfield->value = (is_array($optionvalues->$fieldcfgname) ? implode("\n", $optionvalues->$fieldcfgname) : $optionvalues->$fieldcfgname);;
                     $customfield->optionid = $id;
                     $customfield->bookingid = $booking->id;
                     $customfield->cfgname = $fieldcfgname;
@@ -779,54 +742,13 @@ function booking_update_options($optionvalues, $context) {
                 }
             }
         }
+
+        $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $id,
+                        'userid' => $USER->id));
+        $event->trigger();
+
         return $id;
     }
-}
-
-/**
- * Add the booking option to the calendar
- *
- * @param $booking
- * @param array $option
- * @param $optionvalues
- * @return int
- * @throws coding_exception
- * @throws dml_exception
- */
-function booking_option_add_to_cal($booking, $option) {
-    global $DB;
-    $whereis = '';
-    if (strlen($option->location) > 0) {
-        $whereis = '<p>' . get_string('location', 'booking') . ': ' . $option->location . '</p>';
-    }
-
-    $event = new stdClass();
-    $event->id = $option->calendarid;
-    $event->name = $option->text;
-    $event->description = $option->description . $whereis;
-    $event->courseid = $option->courseid;
-    if ($option->courseid == 0) {
-        $event->courseid = $booking->course;
-    }
-    $event->groupid = 0;
-    $event->userid = 0;
-    $event->modulename = 'booking';
-    $event->instance = $option->bookingid;
-    $event->eventtype = 'booking';
-    $event->timestart = $option->coursestarttime;
-    $event->visible = instance_is_visible('booking', $booking);
-    $event->timeduration = $option->courseendtime - $option->coursestarttime;
-
-    if ($DB->record_exists("event", array('id' => $event->id))) {
-        $calendarevent = calendar_event::load($event->id);
-        $calendarevent->update($event);
-        $calendarid = $event->id;
-    } else {
-        unset($event->id);
-        $tmpevent = calendar_event::create($event);
-        $calendarid = $tmpevent->id;
-    }
-    return $calendarid;
 }
 
 /**
@@ -2103,16 +2025,11 @@ function booking_delete_instance($id) {
         $result = false;
     }
 
-    $DB->delete_records_select('comments',
-            "contextid = ? AND component='mod_booking' AND itemid IN (SELECT id FROM {booking_options} WHERE bookingid = ?)",
-            array("$context->id", "$booking->id"));
+    $alloptionsid = \mod_booking\booking::get_all_optionids($id);
 
-    if (!$DB->delete_records("booking_options", array("bookingid" => "$booking->id"))) {
-        $result = false;
-    }
-
-    if (!$DB->delete_records("booking_teachers", array("bookingid" => "$booking->id"))) {
-        $result = false;
+    foreach ($alloptionsid as $optionid) {
+        $bookingoption = new \mod_booking\booking_option($cm->id, $optionid);
+        $bookingoption->delete_booking_option();
     }
 
     if (!$DB->delete_records("booking", array("id" => "$booking->id"))) {
@@ -2425,12 +2342,12 @@ function booking_optionid_subscribe($userid, $optionid, $cm, $groupid = '') {
         return true;
     }
 
-    $option = $DB->get_record("booking_options", array("id" => $optionid));
+    $option = new \mod_booking\booking_option($cm->id, $optionid);
 
     $sub = new stdClass();
     $sub->userid = $userid;
     $sub->optionid = $optionid;
-    $sub->bookingid = $option->bookingid;
+    $sub->bookingid = $option->booking->id;
 
     $inserted = $DB->insert_record("booking_teachers", $sub);
 
@@ -2438,6 +2355,7 @@ function booking_optionid_subscribe($userid, $optionid, $cm, $groupid = '') {
         groups_add_member($groupid, $userid);
     }
 
+    $option->enrol_user($userid, false, $option->booking->teacherroleid);
     if ($inserted) {
         $event = \mod_booking\event\teacher_added::create(
                 array('relateduserid' => $userid, 'objectid' => $optionid,
@@ -2461,7 +2379,8 @@ function booking_optionid_unsubscribe($userid, $optionid, $cm) {
 
     $event = \mod_booking\event\teacher_removed::create(
             array('relateduserid' => $userid, 'objectid' => $optionid,
-                'context' => context_module::instance($cm->id)));
+                'context' => context_module::instance($cm->id)
+            ));
     $event->trigger();
 
     return ($DB->delete_records('booking_teachers',
@@ -2531,12 +2450,10 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
     }
 
     // Only active enrolled users or everybody on the frontpage.
-    list($esql, $params) = get_enrolled_sql($context, '', $groupid, true);
     $params['optionid'] = $optionid;
     $results = $DB->get_records_sql(
             "SELECT $fields
                     FROM {user} u
-                    JOIN ($esql) je ON je.id = u.id
                     JOIN {booking_teachers} s ON s.userid = u.id
                     WHERE s.optionid = :optionid
                     ORDER BY u.email ASC", $params);

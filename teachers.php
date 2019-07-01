@@ -144,5 +144,6 @@ if (empty($USER->subscriptionsediting)) {
     $mform->display();
 } else {
     echo $output->subscriber_selection_form($existingselector, $subscriberselector, $course->id);
+
 }
 echo $output->footer();

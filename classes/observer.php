@@ -24,7 +24,7 @@ defined('MOODLE_INTERNAL') || die();
 
 
 /**
- * Event observer for mod_forum.
+ * Event observer for mod_booking.
  */
 class mod_booking_observer {
 
@@ -60,5 +60,49 @@ class mod_booking_observer {
                     " userid = :userid AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course)",
                     array('userid' => $cp->userid, 'course' => $cp->courseid));
         }
+    }
+
+    public static function bookingoption_updated(\mod_booking\event\bookingoption_updated $event) {
+        global $DB;
+
+        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, 0, \mod_booking\calendar::TYPEOPTION);
+
+        $allteachers = $DB->get_records_sql('SELECT userid FROM {booking_teachers} WHERE optionid = ? AND calendarid > 0', array($event->objectid));
+        foreach ($allteachers as $key => $value) {
+            new \mod_booking\calendar($event->contextinstanceid, $event->objectid, $value->userid, \mod_booking\calendar::TYPETEACHERUPDATE);
+        }
+    }
+
+    public static function custom_field_changed(\mod_booking\event\custom_field_changed $event) {
+        global $DB;
+
+        $alloptions = $DB->get_records_sql('SELECT id, bookingid FROM {booking_options} WHERE addtocalendar = 1 AND calendarid > 0');
+
+        foreach ($alloptions as $key => $value) {
+            $tmpcmid = $DB->get_record_sql(
+                "SELECT cm.id FROM {course_modules} cm
+                JOIN {modules} md ON md.id = cm.module
+                JOIN {booking} m ON m.id = cm.instance
+                WHERE md.name = 'booking' AND cm.instance = ?", array($value->bookingid));
+
+                new \mod_booking\calendar($tmpcmid->id, $value->id, 0, \mod_booking\calendar::TYPEOPTION);
+
+                $allteachers = $DB->get_records_sql('SELECT userid FROM {booking_teachers} WHERE optionid = ? AND calendarid > 0', array($value->id));
+            foreach ($allteachers as $keyt => $valuet) {
+                new \mod_booking\calendar($tmpcmid->id, $value->id, $valuet->userid, \mod_booking\calendar::TYPETEACHERUPDATE);
+            }
+        }
+    }
+
+    public static function bookingoption_created(\mod_booking\event\bookingoption_created $event) {
+        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, 0, \mod_booking\calendar::TYPEOPTION);
+    }
+
+    public static function teacher_added(\mod_booking\event\teacher_added $event) {
+        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, \mod_booking\calendar::TYPETEACHERADD);
+    }
+
+    public static function teacher_removed(\mod_booking\event\teacher_removed $event) {
+        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, \mod_booking\calendar::TYPETEACHERREMOVE);
     }
 }

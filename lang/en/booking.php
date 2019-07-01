@@ -140,6 +140,7 @@ $string['showhelpfullnavigationlinks_helt'] = 'Show \'Go to registration\' and \
 $string['disabled'] = 'Disabled';
 $string['completionmodule'] = 'Activity completed';
 $string['completionmodule_help'] = 'Delete all users, that completed this activity. Users will be deleted with a click of button on report page!';
+$string['teacherroleid'] = 'Default role for teacher';
 
 // Categories
 $string['category'] = 'Category';
@@ -189,7 +190,6 @@ $string['showallbookings'] = 'All bookings';
 $string['showmybookingsonly'] = 'My bookings';
 $string['showactive'] = 'Active bookings';
 $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
-$string['deletebookingoption'] = 'Delete this booking option';
 $string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option?';
 $string['norighttobook'] = 'Booking is not possible for your user role. Please contact the site administrator to give you the appropriate rights or sign in.';
 $string['createdby'] = 'Booking module created by edulabs.org';
@@ -739,6 +739,7 @@ $string['waitinglisttaken'] = 'On the waiting list';
 $string['groupexists'] = 'The group already exists in the target course, please choose another name for the booking option';
 $string['groupdeleted'] = 'This booking instance creates groups automatically in the target course. But the group has been manually deleted in the target course. Activate the following checkbox in order to recreate the group';
 $string['recreategroup'] = 'Recreate group in the target course and enrol users in group';
+$string['copy'] = ' - Copy';
 
 // importoptions.php
 $string['csvfile'] = 'CSV file';
@@ -1036,6 +1037,9 @@ $string['customfieldconfigure'] = 'Custom booking option fields';
 $string['customfielddef'] = 'Custom booking option field';
 $string['customfieldtype'] = 'Field type';
 $string['textfield'] = 'Single line text input';
+$string['selectfield'] = 'Drop-down list';
+$string['multiselect'] = 'Multiple selection';
+$string['customfieldoptions'] = 'List of possible values';
 $string['delcustfield'] = 'Delete this field and all associated field settings in the booking options';
 $string['signinlogo'] = 'Logo to display on the sign-in sheet';
 $string['cfgsignin'] = 'Sign-In Sheet Configuration';
@@ -1077,3 +1081,7 @@ $string['privacy:metadata:booking_teachers'] = 'Represents the teacher of an eve
 $string['privacy:metadata:booking_teachers:userid'] = 'User that is teaching this event';
 $string['privacy:metadata:booking_teachers:optionid'] = 'Which version of an event is taught';
 $string['privacy:metadata:booking_teachers:completed'] = 'If task is completed';
+
+// calendar.php
+$string['usercalendarentry'] = 'You are booked for this <a href="{$a}">session</a>.';
+$string['bookingoptioncalendarentry'] = 'Go to <a href="{$a}">booking option</a>.';

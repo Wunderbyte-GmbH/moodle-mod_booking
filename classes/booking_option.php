@@ -406,21 +406,19 @@ class booking_option extends booking {
     public function user_status($userid = null) {
         global $DB, $USER;
         $booked = false;
-        if (\is_null($userid)) {
+        if (is_null($userid)) {
             $userid = $USER->id;
         }
-        if (empty($this->allusers)) {
-            $booked = $DB->get_field('booking_answers', 'waitinglist',
-                    array('optionid' => $this->optionid, 'userid' => $userid));
-        } else {
-            foreach ($this->allusers as $user) {
-                if ($userid == $user->userid) {
-                    $booked = $user->waitinglist;
-                    break;
-                }
-            }
-        }
+
+        $booked = $DB->get_field('booking_answers', 'waitinglist',
+                array('optionid' => $this->optionid, 'userid' => $userid));
+
         if ($booked === false) {
+            // Check, if it's in teachers table
+            if ($DB->get_field('booking_teachers', 'id',
+                    array('optionid' => $this->optionid, 'userid' => $userid)) !== false) {
+                return 2;
+            }
             return 0;
         } else if ($booked === "0") {
             return 2;
@@ -1031,7 +1029,7 @@ class booking_option extends booking {
      *
      * @param int $userid
      */
-    public function enrol_user($userid, $manual = false) {
+    public function enrol_user($userid, $manual = false, $roleid = 0) {
         global $DB;
         if (!$manual) {
             if (!$this->booking->autoenrol) {
@@ -1056,10 +1054,8 @@ class booking_option extends booking {
         }
 
         $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-
         if ($this->user_status($userid) === 2) {
-            $enrol->enrol_user($instance, $userid, $instance->roleid); // Enrol using the default role.
-
+            $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid)); // Enrol using the default role.
             if ($this->booking->addtogroup == 1) {
                 $groups = groups_get_all_groups($this->option->courseid);
                 if (!is_null($this->option->groupid) && ($this->option->groupid > 0) &&
@@ -1202,9 +1198,8 @@ class booking_option extends booking {
             $result = false;
         }
 
-        if (!$DB->delete_records("booking_teachers",
-                array("bookingid" => $this->id, "optionid" => $this->optionid))) {
-            $result = false;
+        foreach ($this->get_teachers() as $teacher) {
+            booking_optionid_unsubscribe($teacher->userid, $this->optionid, $this->cm);
         }
 
         // Delete calendar entry, if any.
@@ -1318,10 +1313,13 @@ class booking_option extends booking {
             foreach (array_keys($customfieldvals) as $customfieldname) {
                 $iscustomfield = \strpos($customfieldname, 'customfield');
                 $istype = \strpos($customfieldname, 'type');
-                if ($iscustomfield !== false && $istype === false) {
+                $isoptions = \strpos($customfieldname, 'options');
+                if ($iscustomfield !== false && $istype === false && $isoptions === false) {
                     $type = $customfieldname . "type";
+                    $options = $customfieldname . "options";
                     $values[$customfieldname]['value'] = $bkgconfig->$customfieldname;
                     $values[$customfieldname]['type'] = $bkgconfig->$type;
+                    $values[$customfieldname]['options'] = (isset($bkgconfig->$options) ? $bkgconfig->$options : '');
                 }
             }
         }

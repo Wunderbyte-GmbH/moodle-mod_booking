@@ -32,15 +32,41 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('text', PARAM_CLEANHTML);
         }
 
+        $booking = new mod_booking\booking($this->_customdata['cmid']);
+
         // Add custom fields here.
         $customfields = mod_booking\booking_option::get_customfield_settings();
         if (!empty($customfields)) {
             foreach ($customfields as $customfieldname => $customfieldarray) {
                 // TODO: Only textfield yet defined, extend when there are more types.
-                if ($customfieldarray['type'] = "textfield") {
-                    $mform->addElement('text', $customfieldname, $customfieldarray['value'],
-                            array('size' => '64'));
-                    $mform->setType($customfieldname, PARAM_NOTAGS);
+                switch ($customfieldarray['type']) {
+                    case 'textfield':
+                        $mform->addElement('text', $customfieldname, $customfieldarray['value'],
+                        array('size' => '64'));
+                        $mform->setType($customfieldname, PARAM_NOTAGS);
+                        break;
+                    case 'select':
+                        $soptions = explode("\n", $customfieldarray['options']);
+                        $soptionselements = array();
+                        $soptionselements[] = '';
+                        foreach ($soptions as $key => $value) {
+                            $val = trim($value);
+                            $soptionselements["{$val}"] = $value;
+                        }
+                        $mform->addElement('select', $customfieldname, $customfieldarray['value'], $soptionselements);
+                        $mform->setType("{$customfieldname}", PARAM_TEXT);
+                        break;
+                    case 'multiselect':
+                        $soptions = explode("\n", $customfieldarray['options']);
+                        $soptionselements = array();
+                        foreach ($soptions as $key => $value) {
+                            $val = trim($value);
+                            $soptionselements["{$val}"] = $value;
+                        }
+                        $ms = $mform->addElement('select', $customfieldname, $customfieldarray['value'], $soptionselements);
+                        $ms->setMultiple(true);
+                        $mform->setType("{$customfieldname}", PARAM_TEXT);
+                        break;
                 }
             }
         }
@@ -53,7 +79,8 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('location', PARAM_CLEANHTML);
         }
 
-        $mform->addElement('text', 'institution', new lang_string('institution'), array('size' => '264'));
+        $mform->addElement('text', 'institution', (empty($booking->booking->lblinstitution) ? get_string('institution', 'booking') : $booking->booking->lblinstitution),
+            array('size' => '64'));
         $mform->setType('institution', PARAM_TEXT);
 
         $url = $CFG->wwwroot . '/mod/booking/institutions.php';
@@ -138,6 +165,11 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->addElement('text', 'removeafterminutes', get_string('removeafterminutes', 'booking'),
                 0);
         $mform->setType('removeafterminutes', PARAM_INT);
+
+        $mform->addElement('filemanager', 'myfilemanageroption',
+                get_string('bookingattachment', 'booking'), null,
+                array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
+                                'accepted_types' => array('*')));
 
         // Advanced options.
         $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));
@@ -252,6 +284,21 @@ class mod_booking_bookingform_form extends moodleform {
         }
 
         return $errors;
+    }
+
+    public function set_data($defaultvalues) {
+
+        $customfields = mod_booking\booking_option::get_customfield_settings();
+
+        if (!empty($customfields)) {
+            foreach ($customfields as $customfieldname => $customfieldarray) {
+                if ($customfieldarray['type'] == 'multiselect') {
+                    $defaultvalues->$customfieldname = explode("\n", (isset($defaultvalues->$customfieldname) ? $defaultvalues->$customfieldname : ''));
+                }
+            }
+        }
+
+        parent::set_data($defaultvalues);
     }
 
     public function get_data() {

@@ -115,6 +115,12 @@ class all_options extends table_sql {
                         $OUTPUT->pix_icon('t/delete',
                                 get_string('deletebookingoption', 'mod_booking')) .
                                  get_string('deletebookingoption', 'mod_booking')) . '</div>';
+                        $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
+                                         new moodle_url('/mod/booking/editoptions.php',
+                                                 array('id' => $this->cm->id, 'optionid' => -1, 'copyoptionid' => $values->id)),
+                                         $OUTPUT->pix_icon('t/copy',
+                                                 get_string('duplicatebooking', 'mod_booking')) .
+                                         get_string('duplicatebooking', 'mod_booking')) . '</div>';
             }
         } else {
             if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability(
@@ -166,6 +172,14 @@ class all_options extends table_sql {
                                 array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/delete'),
                                     'alt' => get_string('deletebookingoption', 'mod_booking'))) .
                                  get_string('deletebookingoption', 'mod_booking')) . '</div>';
+
+                         $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
+                                 new moodle_url('/mod/booking/editoptions.php',
+                                         array('id' => $this->cm->id, 'optionid' => -1, 'copyoptionid' => $values->id)),
+                                 \html_writer::empty_tag('img',
+                                         array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/copy'),
+                                                         'alt' => get_string('duplicatebooking', 'mod_booking'))) .
+                                 get_string('duplicatebooking', 'mod_booking')) . '</div>';
             }
         }
         if (!empty($ddoptions)) {
@@ -276,9 +290,18 @@ class all_options extends table_sql {
     }
 
     protected function col_text($values) {
-        global $DB;
+        global $DB, $CFG;
         $output = '';
         $output .= \html_writer::tag('h4', $values->text);
+
+        $style = 'display: none;';
+        $th = '';
+        $ts = '"display: none;"';
+        if (isset($_GET['whichview']) && $_GET['whichview'] == 'showonlyone') {
+            $style = '';
+            $th = '"display: none;"';
+            $ts = '';
+        }
 
         if (strlen($values->address) > 0) {
             $output .= \html_writer::empty_tag('br');
@@ -291,12 +314,19 @@ class all_options extends table_sql {
         }
         if (strlen($values->institution) > 0) {
             $output .= \html_writer::empty_tag('br');
-            $output .= (empty($this->booking->booking->lblinstitution) ? get_string('institution') : $this->booking->booking->lblinstitution) . ': ' .
+            $output .= (empty($this->booking->booking->lblinstitution) ? get_string('institution', 'booking') : $this->booking->booking->lblinstitution) . ': ' .
                      $values->institution;
         }
 
         if (!empty($values->description)) {
-            $output .= \html_writer::div($values->description, 'description');
+            $showhidetext = '<span id="showtextdes' . $values->id . '" style=' . $th . '>' . get_string(
+                    'showdescription', "mod_booking") . '</span><span id="hidetextdes' . $values->id . '" style=' . $ts . '>' . get_string(
+                            'hidedescription', "mod_booking") . '</span>';
+
+            $output .= '<br><a href="#" class="showHideOptionText" data-id="des' . $values->id . '">' .
+                    $showhidetext . "</a>";
+                    $output .= \html_writer::div($values->description, 'optiontext',
+                            array('style' => $style, 'id' => 'optiontextdes' . $values->id));
         }
 
         $output .= (!empty($values->teachers) ? " <br />" .
@@ -310,7 +340,12 @@ class all_options extends table_sql {
             foreach ($customfields as $field) {
                 if (!empty($field->value)) {
                     $cfgvalue = $customfieldcfg[$field->cfgname]['value'];
-                    $output .= "<br> <b>$cfgvalue: </b>$field->value";
+                    if ($customfieldcfg[$field->cfgname]['type'] == 'multiselect') {
+                        $tmpdata = implode(", ", explode("\n", $field->value));
+                        $output .= "<br> <b>$cfgvalue: </b>$tmpdata";
+                    } else {
+                        $output .= "<br> <b>$cfgvalue: </b>$field->value";
+                    }
                 }
             }
         }
@@ -319,15 +354,6 @@ class all_options extends table_sql {
         $texttoshow = "";
         $bookingdata = new \mod_booking\booking_option($this->cm->id, $values->id);
         $texttoshow = $bookingdata->get_option_text();
-
-        $style = 'display: none;';
-        $th = '';
-        $ts = '"display: none;"';
-        if (isset($_GET['whichview']) && $_GET['whichview'] == 'showonlyone') {
-            $style = '';
-            $th = '"display: none;"';
-            $ts = '';
-        }
 
         $showhidetext = '<span id="showtext' . $values->id . '" style=' . $th . '>' . get_string(
                 'showdescription', "mod_booking") . '</span><span id="hidetext' . $values->id . '" style=' . $ts . '>' . get_string(
@@ -349,6 +375,27 @@ class all_options extends table_sql {
         $options->showcount = true;
         $comment = new comment($options);
         $output .= "<div>" . $comment->output(true) . "</div>";
+
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($this->context->id, 'mod_booking', 'myfilemanageroption',
+                $values->id);
+
+        if (count($files) > 0) {
+            $output .= html_writer::start_tag('div');
+            $output .= html_writer::tag('label', get_string("attachedfiles", "booking") . ': ',
+                    array('class' => 'bold'));
+
+            foreach ($files as $file) {
+                if ($file->get_filesize() > 0) {
+                    $filename = $file->get_filename();
+                    $furl = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(),
+                            $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename(), false);
+                    $out[] = html_writer::link($furl, $filename);
+                }
+            }
+            $output .= html_writer::tag('span', implode(', ', $out));
+            $output .= html_writer::end_tag('div');
+        }
 
         return $output;
     }

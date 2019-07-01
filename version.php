@@ -28,5 +28,5 @@ $plugin->requires = 2017111300; // Requires this Moodle version. Current: Moodle
 // Lois Wilkerson, Audrey Horne, Lorelai Gilmore.
 $plugin->release = '4.3 Lorelai Gilmore';
 $plugin->maturity = MATURITY_STABLE;
-$plugin->cron = 5;
+$plugin->cron = 60;
 $plugin->component = 'mod_booking';

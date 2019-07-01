@@ -496,7 +496,7 @@ if (!$tableallbookings->is_downloading()) {
                 break;
             case 'institution':
                 $columns[] = 'institution';
-                $headers[] = get_string('institution');
+                $headers[] = (empty($bookingdata->booking->lblinstitution) ? get_string('institution', 'booking') : $bookingdata->booking->lblinstitution);
                 break;
             case 'notes':
                 $columns[] = 'notes';

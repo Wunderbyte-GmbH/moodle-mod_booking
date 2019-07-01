@@ -43,14 +43,16 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
     print_error('nopermissions');
 }
 
-$mform = new mod_booking_bookingform_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid));
+$mform = new mod_booking_bookingform_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id));
 
 if ($optionid == -1) {
     // Adding new booking option - default values.
     $defaultvalues = $booking->booking;
     if ($copyoptionid != '') {
         if ($defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid))) {
+            $defaultvalues->text = $defaultvalues->text . get_string('copy', 'booking');
             $defaultvalues->optionid = -1;
+            $defaultvalues->bookingname = $booking->booking->name;
             $defaultvalues->bookingid = $cm->instance;
             $defaultvalues->id = $cm->id;
             $defaultvalues->description = array('text' => $defaultvalues->description,
@@ -76,7 +78,6 @@ if ($optionid == -1) {
     $defaultvalues->optionid = -1;
     $defaultvalues->bookingid = $booking->booking->id;
     $defaultvalues->id = $cm->id;
-    $defaultvalues->text = '';
 } else if ($defaultvalues = $DB->get_record('booking_options', array('bookingid' => $booking->booking->id, 'id' => $optionid))) {
     $defaultvalues->optionid = $optionid;
     $defaultvalues->bookingname = $booking->booking->name;
@@ -97,6 +98,13 @@ if ($optionid == -1) {
     if ($defaultvalues->coursestarttime) {
         $defaultvalues->startendtimeknown = "checked";
     }
+
+    $draftitemid = file_get_submitted_draft_itemid('myfilemanageroption');
+
+    file_prepare_draft_area($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption', $optionid,
+            array('subdirs' => false, 'maxfiles' => 50, 'accepted_types' => array('*'), 'maxbytes' => 0));
+
+    $defaultvalues->myfilemanageroption = $draftitemid;
 
     // Defaults for customfields.
     $cfdefaults = $DB->get_records('booking_customfields', array('optionid' => $optionid));
@@ -124,6 +132,11 @@ if ($mform->is_cancelled()) {
         }
 
         $nbooking = booking_update_options($fromform, $context);
+
+        if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
+            file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
+                    $nbooking, array('subdirs' => false, 'maxfiles' => 50));
+        }
 
         $bookingdata = new \mod_booking\booking_option($cm->id, $nbooking);
         $bookingdata->sync_waiting_list();
