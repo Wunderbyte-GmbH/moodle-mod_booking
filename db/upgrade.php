@@ -1841,5 +1841,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019020600, 'booking');
     }
 
+    if ($oldversion < 2019070200) {
+
+        // Define field allowupdatedays to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('allowupdatedays', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'teacherroleid');
+
+        // Conditionally launch add field allowupdatedays.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2019070200, 'booking');
+    }
+
     return true;
 }

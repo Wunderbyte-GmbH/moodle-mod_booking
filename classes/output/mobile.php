@@ -227,6 +227,12 @@ class mobile {
                                 'args' => "optionid: {$values->option->id}, cmid: {$cm->id}, courseid: {$courseid}",
                     'cmessage' => "{$cmessage}"
                 );
+
+                if ($values->option->coursestarttime > 0 && $values->booking->allowupdatedays > 0) {
+                    if (time() > strtotime("-{$values->booking->allowupdatedays} day", $values->option->coursestarttime)) {
+                        $delete = array();
+                    }
+                }
             }
 
             if ($values->onwaitinglist) {
