@@ -349,7 +349,8 @@ class booking_option extends booking {
             $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, $userfields
                       FROM {booking_answers} ba
                       JOIN {user} u ON u.id = ba.userid
-                     WHERE ba.optionid = :optionid";
+                     WHERE ba.optionid = :optionid
+                     AND u.deleted = 0";
             $this->allusers = $DB->get_records_sql($sql, $params);
         }
         return $this->allusers;

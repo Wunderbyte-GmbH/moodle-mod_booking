@@ -308,14 +308,20 @@ function booking_add_instance($booking) {
 
     if (isset($booking->responsesfields) && count($booking->responsesfields) > 0) {
         $booking->responsesfields = implode(',', $booking->responsesfields);
+    } else {
+        $booking->responsesfields = null;
     }
 
     if (isset($booking->additionalfields) && count($booking->additionalfields) > 0) {
         $booking->additionalfields = implode(',', $booking->additionalfields);
+    } else {
+        $booking->additionalfields = null;
     }
 
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
         $booking->categoryid = implode(',', $booking->categoryid);
+    } else {
+        $booking->categoryid = null;
     }
 
     if (empty($booking->timerestrict)) {
@@ -324,14 +330,20 @@ function booking_add_instance($booking) {
 
     if (isset($booking->reportfields) && count($booking->reportfields) > 0) {
         $booking->reportfields = implode(',', $booking->reportfields);
+    } else {
+        $booking->reportfields = null;
     }
 
     if (isset($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
+    } else {
+        $booking->optionsfields = null;
     }
 
     if (isset($booking->signinsheetfields) && count($booking->signinsheetfields) > 0) {
         $booking->signinsheetfields = implode(',', $booking->signinsheetfields);
+    } else {
+        $booking->signinsheetfields = null;
     }
 
     // Copy the text fields out.
@@ -419,22 +431,32 @@ function booking_update_instance($booking) {
 
     if (isset($booking->responsesfields) && count($booking->responsesfields) > 0) {
         $booking->responsesfields = implode(',', $booking->responsesfields);
+    } else {
+        $booking->responsesfields = null;
     }
 
     if (isset($booking->reportfields) && count($booking->reportfields) > 0) {
         $booking->reportfields = implode(',', $booking->reportfields);
+    } else {
+        $booking->reportfields = null;
     }
 
     if (isset($booking->signinsheetfields) && count($booking->signinsheetfields) > 0) {
         $booking->signinsheetfields = implode(',', $booking->signinsheetfields);
+    } else {
+        $booking->signinsheetfields = null;
     }
 
     if (isset($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
+    } else {
+        $booking->optionsfields = null;
     }
 
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
         $booking->categoryid = implode(',', $booking->categoryid);
+    } else {
+        $booking->categoryid = null;
     }
 
     if (empty($booking->assessed)) {
@@ -615,6 +637,40 @@ function booking_update_options($optionvalues, $context) {
                         array('id' => $option->id));
                 $option->sent2 = $DB->get_field('booking_options', 'sent2',
                         array('id' => $option->id));
+            }
+            if (isset($booking->addtogroup) && $option->courseid > 0) {
+                $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
+                $bo->option->courseid = $option->courseid;
+                $option->groupid = $bo->create_group();
+                $booked = $bo->get_all_users_booked();
+                if (!empty($booked) && $booking->autoenrol) {
+                    foreach ($booked as $bookinganswer) {
+                        $bo->enrol_user($bookinganswer->userid);
+                    }
+                }
+            }
+
+            if ($option->calendarid > 0) {
+                // Event exists.
+                if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
+                    $option->calendarid = booking_option_add_to_cal($booking, $option);
+                    $option->addtocalendar = 1;
+                } else {
+                    // Delete event if exist.
+                    $event = calendar_event::load($option->calendarid);
+                    $event->delete(true);
+
+                    $option->addtocalendar = 0;
+                    $option->calendarid = 0;
+                }
+            } else {
+                $option->addtocalendar = 0;
+                $option->calendarid = 0;
+                // Insert into calendar.
+                if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
+                    $option->calendarid = booking_option_add_to_cal($booking, $option);
+                    $option->addtocalendar = 1;
+                }
             }
 
             if (isset($optionvalues->generatenewurl) && $optionvalues->generatenewurl == 1) {
