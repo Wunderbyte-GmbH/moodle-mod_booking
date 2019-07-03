@@ -885,6 +885,19 @@ function booking_get_user_booking_count($booking, $user) {
 }
 
 /**
+ * Extend booking user navigation
+ */
+function booking_myprofile_navigation(core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
+    if ($iscurrentuser) {
+        $url = new moodle_url('/mod/booking/mybookings.php');
+        $string = get_string('mybookings', 'mod_booking');
+        $node = new core_user\output\myprofile\node('miscellaneous', 'booking', $string, null, $url);
+
+        $tree->add_node($node);
+    }
+}
+
+/**
  * Extend booking navigation settings
  *
  * @param settings_navigation $settings

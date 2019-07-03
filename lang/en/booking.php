@@ -211,7 +211,6 @@ $string['placesavailable'] = 'Places available: {$a->available} of {$a->maxanswe
 $string['pollurl'] = 'Poll url';
 $string['pollurlteachers'] = 'Teachers poll url';
 $string['select'] = 'Selection';
-$string['showactive'] = 'Active bookings';
 $string['showallbookings'] = 'All bookings';
 $string['starttimenotset'] = 'Start date not set';
 $string['subscribetocourse'] = 'Enrol users in the course';
@@ -972,6 +971,7 @@ $string['users'] = '<< Manage responses';
 
 // lib.php
 $string['pollstrftimedate'] = '%Y-%m-%d';
+$string['mybookings'] = 'My bookings';
 
 // all_users.php
 $string['completed'] = 'Completed';
@@ -1087,3 +1087,8 @@ $string['privacy:metadata:booking_teachers:completed'] = 'If task is completed';
 // calendar.php
 $string['usercalendarentry'] = 'You are booked for this <a href="{$a}">session</a>.';
 $string['bookingoptioncalendarentry'] = 'Go to <a href="{$a}">booking option</a>.';
+
+// mybookings.php
+$string['active'] = "Active";
+$string['terminated'] = "Terminated";
+$string['notstarted'] = "Not yet started";

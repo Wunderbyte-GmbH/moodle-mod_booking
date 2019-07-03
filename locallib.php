@@ -335,3 +335,20 @@ function booking_updatestartenddate($optionid) {
 
     $DB->update_record("booking_options", $save);
 }
+
+/**
+ * Get booking option status
+ */
+function booking_getoptionstatus($starttime = 0, $endtime = 0) {
+    if ($starttime == 0 && $endtime == 0) {
+        return get_string('active', 'booking');
+    } else if ($starttime > time() && $endtime < time()) {
+        return get_string('active', 'booking');
+    } else if ($endtime > time()) {
+        return get_string('terminated', 'booking');
+    } else if ($starttime < time()) {
+        return get_string('notstarted', 'booking');
+    }
+
+    return "";
+}
