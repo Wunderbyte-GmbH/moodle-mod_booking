@@ -122,7 +122,8 @@ class mod_booking_bookingform_form extends moodleform {
         $coursearray[0] = get_string('donotselectcourse', 'booking');
         $totalcount = 1;
         // TODO: Using  moodle/course:viewhiddenactivities is not 100% accurate for finding teacher/non-editing teacher at least.
-        $allcourses = get_courses_search(array(),'c.shortname ASC',0, 9999999, $totalcount, array('moodle/course:viewhiddenactivities'));
+        $allcourses = get_courses_search(array(), 'c.shortname ASC', 0, 9999999,
+            $totalcount, array('moodle/course:viewhiddenactivities'));
 
         // Old code: $allcourses = $DB->get_records_select('course', 'id > 0', array(), 'id', 'id, shortname');
         foreach ($allcourses as $id => $courseobject) {
@@ -321,6 +322,7 @@ class mod_booking_bookingform_form extends moodleform {
             $data->beforecompletedtext = $data->beforecompletedtext['text'];
             $data->aftercompletedtext = $data->aftercompletedtext['text'];
         }
+
         return $data;
     }
 

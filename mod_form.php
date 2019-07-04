@@ -180,9 +180,9 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // Booking manager.
         $contextbooking = $this->get_context();
-        $potentials1 = get_users_by_capability($contextbooking,'mod/booking:readresponses',
+        $potentials1 = get_users_by_capability($contextbooking, 'mod/booking:readresponses',
             'u.id, u.firstname, u.lastname, u.username, u.email');
-        $potentials2 = get_users_by_capability($contextbooking,'moodle/course:update',
+        $potentials2 = get_users_by_capability($contextbooking, 'moodle/course:update',
             'u.id, u.firstname, u.lastname, u.username, u.email');
         $potentialmanagers = array_merge ($potentials1, $potentials2);
         foreach ($potentialmanagers as $id => $potentialmanager) {
@@ -759,6 +759,16 @@ class mod_booking_mod_form extends moodleform_mod {
         if ($data) {
             $data->bookingpolicyformat = $data->bookingpolicy['format'];
             $data->bookingpolicy = $data->bookingpolicy['text'];
+
+            if (!empty($data->enablecompletion)) {
+                // Turn off completion settings if the checkboxes aren't ticked
+                $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
+                if (empty($data->enablecompletion) || !$autocompletion) {
+                    $data->enablecompletion = 0;
+                }
+            } else {
+                $data->enablecompletion = 0;
+            }
         }
 
         return $data;
