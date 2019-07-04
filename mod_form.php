@@ -593,14 +593,15 @@ class mod_booking_mod_form extends moodleform_mod {
                 get_string('teachers', 'booking'));
 
         $teacherroleid = array(0 => '');
-
-        $allroles = $DB->get_records('role');
-        foreach ($allroles as $value) {
-            $teacherroleid[$value->id] = $value->shortname;
+        $allrolenames = role_get_names();
+        $assignableroles = get_roles_for_contextlevels(CONTEXT_COURSE);
+        foreach ($allrolenames as $value) {
+            if (in_array($value->id, $assignableroles)) {
+                $teacherroleid[$value->id] = $value->localname;
+            }
         }
-
         $mform->addElement('select', 'teacherroleid', get_string('teacherroleid', 'mod_booking'), $teacherroleid);
-        $mform->setDefault('teacherroleid', 0);
+        $mform->setDefault('teacherroleid', 3);
 
         $this->standard_grading_coursemodule_elements();
         $this->standard_coursemodule_elements();
