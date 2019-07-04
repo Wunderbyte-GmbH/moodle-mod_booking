@@ -754,6 +754,16 @@ class mod_booking_mod_form extends moodleform_mod {
         if ($data) {
             $data->bookingpolicyformat = $data->bookingpolicy['format'];
             $data->bookingpolicy = $data->bookingpolicy['text'];
+
+            if (!empty($data->enablecompletion)) {
+                // Turn off completion settings if the checkboxes aren't ticked
+                $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
+                if (empty($data->enablecompletion) || !$autocompletion) {
+                    $data->enablecompletion = 0;
+                }
+            } else {
+                $data->enablecompletion = 0;
+            }
         }
 
         return $data;

@@ -314,10 +314,14 @@ class all_userbookings extends \table_sql {
         if (booking_check_if_teacher($this->bookingdata->option) ||
                  has_capability('mod/booking:updatebooking',
                         \context_module::instance($this->cm->id))) {
-            echo '<div class="singlebutton"><input type="submit"  class="btn btn-secondary" name="activitycompletion" value="' .
-             (empty($this->bookingdata->booking->btncacname) ? get_string(
-                    'confirmactivitycompletion', 'booking') : $this->bookingdata->booking->btncacname) .
-             '" /></div>';
+                            $course = $DB->get_record('course', array('id' => $this->bookingdata->booking->course));
+                            $completion = new \completion_info($course);
+            if ($completion->is_enabled($this->cm) == COMPLETION_TRACKING_AUTOMATIC && $this->bookingdata->booking->enablecompletion) {
+                echo '<div class="singlebutton"><input type="submit"  class="btn btn-secondary" name="activitycompletion" value="' .
+                (empty($this->bookingdata->booking->btncacname) ? get_string(
+                'confirmactivitycompletion', 'booking') : $this->bookingdata->booking->btncacname) .
+                '" /></div>';
+            }
 
             // Output rating button.
             if (has_capability('moodle/rating:rate', \context_module::instance($this->cm->id)) &&

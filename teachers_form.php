@@ -56,10 +56,16 @@ class mod_booking_teachers_form extends moodleform {
                 '<span class="bookinglabelname">' . get_string('withselected', 'booking') . '</span>');
 
         if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-            $buttonarray[] = &$mform->createElement("submit", 'activitycompletion',
+            $bookingoption = new \mod_booking\booking_option($cm->id, $this->_customdata['option']->id, array(), 0, 0, false);
+
+            $course = $DB->get_record('course', array('id' => $bookingoption->booking->course));
+            $completion = new \completion_info($course);
+            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $bookingoption->booking->enablecompletion) {
+                $buttonarray[] = &$mform->createElement("submit", 'activitycompletion',
                     get_string('confirmactivitycompletion', 'booking'));
+            }
             $buttonarray[] = &$mform->createElement("submit", 'turneditingon',
-                    get_string('turneditingon'));
+                get_string('turneditingon'));
         }
 
         $buttonarray[] = &$mform->createElement('cancel');

@@ -314,6 +314,7 @@ class mod_booking_bookingform_form extends moodleform {
             $data->beforecompletedtext = $data->beforecompletedtext['text'];
             $data->aftercompletedtext = $data->aftercompletedtext['text'];
         }
+
         return $data;
     }
 
