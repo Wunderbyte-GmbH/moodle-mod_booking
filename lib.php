@@ -963,6 +963,17 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                         new moodle_url('/mod/booking/optiondates.php',
                                 array('id' => $cm->id, 'optionid' => $optionid)));
             }
+            if (has_capability ( 'mod/booking:subscribeusers', $context ) || booking_check_if_teacher ($option, $USER )) {
+                $settingnode->add(get_string('bookotherusers', 'booking'),
+                        new moodle_url('/mod/booking/subscribeusers.php',
+                                array('id' => $cm->id, 'optionid' => $optionid)));
+                $completion = new \completion_info($course);
+                if ($completion->is_enabled($cm)) {
+                    $settingnode->add(get_string('bookuserswithoutcompletedactivity', 'booking'),
+                            new moodle_url('/mod/booking/subscribeusersctivity.php',
+                                    array('id' => $cm->id, 'optionid' => $optionid)));
+                }
+            }
             if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) &&
                     $booking->conectedbooking > 0) {
                 $settingnode->add(get_string('editotherbooking', 'booking'),

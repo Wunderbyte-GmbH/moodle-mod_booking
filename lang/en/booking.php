@@ -972,6 +972,7 @@ $string['users'] = '<< Manage responses';
 // lib.php
 $string['pollstrftimedate'] = '%Y-%m-%d';
 $string['mybookings'] = 'My bookings';
+$string['bookuserswithoutcompletedactivity'] = "Book users without completed activity";
 
 // all_users.php
 $string['completed'] = 'Completed';
@@ -1092,3 +1093,8 @@ $string['bookingoptioncalendarentry'] = 'Go to <a href="{$a}">booking option</a>
 $string['active'] = "Active";
 $string['terminated'] = "Terminated";
 $string['notstarted'] = "Not yet started";
+
+// subscribeusersctivity.php
+$string['transefusers'] = "Transfer users";
+$string['transferhelp'] = 'Transfer users, that have not completed activity from selected option to {$a}.';
+$string['sucesfullytransfered'] = 'Users were sucesfully transfered.';
