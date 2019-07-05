@@ -179,8 +179,18 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('daystonotify2', 'daystonotify', 'booking');
 
         // Booking manager.
-        $mform->addElement('text', 'bookingmanager',
-                get_string('usernameofbookingmanager', 'booking'));
+        $contextbooking = $this->get_context();
+        $potentials1 = get_users_by_capability($contextbooking,'mod/booking:readresponses',
+            'u.id, u.firstname, u.lastname, u.username, u.email');
+        $potentials2 = get_users_by_capability($contextbooking,'moodle/course:update',
+            'u.id, u.firstname, u.lastname, u.username, u.email');
+        $potentialmanagers = array_merge ($potentials1, $potentials2);
+        foreach ($potentialmanagers as $id => $potentialmanager) {
+            $choosepotentialmanager[$potentialmanager->username] = $potentialmanager->firstname . ' ' . $potentialmanager->lastname . ' (' .
+            $potentialmanager->email . ')';
+        }
+        $mform->addElement('autocomplete', 'bookingmanager',
+                get_string('usernameofbookingmanager', 'booking'), $choosepotentialmanager);
         $mform->addHelpButton('bookingmanager', 'usernameofbookingmanager', 'booking');
         $mform->setType('bookingmanager', PARAM_TEXT);
         $mform->setDefault('bookingmanager', $USER->username);
