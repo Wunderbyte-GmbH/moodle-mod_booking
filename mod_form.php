@@ -179,8 +179,18 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('daystonotify2', 'daystonotify', 'booking');
 
         // Booking manager.
-        $mform->addElement('text', 'bookingmanager',
-                get_string('usernameofbookingmanager', 'booking'));
+        $contextbooking = $this->get_context();
+        $potentials1 = get_users_by_capability($contextbooking, 'mod/booking:readresponses',
+            'u.id, u.firstname, u.lastname, u.username, u.email');
+        $potentials2 = get_users_by_capability($contextbooking, 'moodle/course:update',
+            'u.id, u.firstname, u.lastname, u.username, u.email');
+        $potentialmanagers = array_merge ($potentials1, $potentials2);
+        foreach ($potentialmanagers as $id => $potentialmanager) {
+            $choosepotentialmanager[$potentialmanager->username] = $potentialmanager->firstname . ' ' . $potentialmanager->lastname . ' (' .
+            $potentialmanager->email . ')';
+        }
+        $mform->addElement('autocomplete', 'bookingmanager',
+                get_string('usernameofbookingmanager', 'booking'), $choosepotentialmanager);
         $mform->addHelpButton('bookingmanager', 'usernameofbookingmanager', 'booking');
         $mform->setType('bookingmanager', PARAM_TEXT);
         $mform->setDefault('bookingmanager', $USER->username);
@@ -599,14 +609,15 @@ class mod_booking_mod_form extends moodleform_mod {
                 get_string('teachers', 'booking'));
 
         $teacherroleid = array(0 => '');
-
-        $allroles = $DB->get_records('role');
-        foreach ($allroles as $value) {
-            $teacherroleid[$value->id] = $value->shortname;
+        $allrolenames = role_get_names();
+        $assignableroles = get_roles_for_contextlevels(CONTEXT_COURSE);
+        foreach ($allrolenames as $value) {
+            if (in_array($value->id, $assignableroles)) {
+                $teacherroleid[$value->id] = $value->localname;
+            }
         }
-
         $mform->addElement('select', 'teacherroleid', get_string('teacherroleid', 'mod_booking'), $teacherroleid);
-        $mform->setDefault('teacherroleid', 0);
+        $mform->setDefault('teacherroleid', 3);
 
         $this->standard_grading_coursemodule_elements();
         $this->standard_coursemodule_elements();

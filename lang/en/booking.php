@@ -140,7 +140,7 @@ $string['showhelpfullnavigationlinks_helt'] = 'Show \'Go to registration\' and \
 $string['disabled'] = 'Disabled';
 $string['completionmodule'] = 'Activity completed';
 $string['completionmodule_help'] = 'Delete all users, that completed this activity. Users will be deleted with a click of button on report page!';
-$string['teacherroleid'] = 'Default role for teacher';
+$string['teacherroleid'] = 'Subscribe teacher with that role to the course';
 
 // Categories
 $string['category'] = 'Category';
@@ -265,7 +265,7 @@ $string['sendconfirmmailtobookingmanger'] = 'Send confirmation e-mail to booking
 $string['allowdelete'] = 'Allow users to cancel their booking themselves';
 $string['bookingpolicy'] = 'Booking policy';
 $string['confirmationmessagesettings'] = 'Confirmation e-mail settings';
-$string['usernameofbookingmanager'] = 'Username of the booking manager';
+$string['usernameofbookingmanager'] = 'Choose a booking manager';
 $string['usernameofbookingmanager_help'] = 'Username of the user who will be displayed in the "From" field of the confirmation notifications. If the option "Send confirmation e-mail to booking manager" is enabled, this is the user who receives a copy of the confirmation notifications.';
 $string['bookingmanagererror'] = 'The username entered is not valid. Either it does not exist or there are more then one users with this username (example: if you have mnet and local authentication enabled)';
 $string['autoenrol'] = 'Automatically enrol users';

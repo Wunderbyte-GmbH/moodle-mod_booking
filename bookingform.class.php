@@ -120,11 +120,19 @@ class mod_booking_bookingform_form extends moodleform {
 
         $coursearray = array();
         $coursearray[0] = get_string('donotselectcourse', 'booking');
-        $allcourses = $DB->get_records_select('course', 'id > 0', array(), 'id', 'id, shortname');
+        $totalcount = 1;
+        // TODO: Using  moodle/course:viewhiddenactivities is not 100% accurate for finding teacher/non-editing teacher at least.
+        $allcourses = get_courses_search(array(), 'c.shortname ASC', 0, 9999999,
+            $totalcount, array('moodle/course:viewhiddenactivities'));
+
+        // Old code: $allcourses = $DB->get_records_select('course', 'id > 0', array(), 'id', 'id, shortname');
         foreach ($allcourses as $id => $courseobject) {
             $coursearray[$id] = $courseobject->shortname;
         }
-        $mform->addElement('select', 'courseid', get_string("choosecourse", "booking"), $coursearray);
+        $options = array(
+            'noselectionstring' => get_string('donotselectcourse', 'booking'),
+        );
+        $mform->addElement('autocomplete', 'courseid', get_string("choosecourse", "booking"), $coursearray, $options);
 
         $mform->addElement('duration', 'duration', get_string('bookingduration', 'booking'));
         $mform->setType('duration', PARAM_INT);
