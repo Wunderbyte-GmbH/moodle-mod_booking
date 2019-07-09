@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 require_once("../../config.php");
 require_once("locallib.php");
+require_once("classes/utils/db.php");
 
 $url = new moodle_url('/mod/booking/mybookings.php');
 $PAGE->set_url($url);
@@ -36,38 +37,8 @@ echo $OUTPUT->heading(get_string('mybookings', 'mod_booking'));
 
 echo $OUTPUT->box_start();
 
-$sql = "SELECT
-ba.id,
-c.id courseid,
-c.fullname,
-b.id bookingid,
-b.name,
-bo.text,
-bo.id optionid,
-bo.coursestarttime,
-bo.courseendtime,
-cm.id cmid
-FROM
-{booking_answers} ba
-    LEFT JOIN
-{booking_options} bo ON ba.optionid = bo.id
-    LEFT JOIN
-{booking} b ON b.id = bo.bookingid
-    LEFT JOIN
-{course} c ON c.id = b.course
-    LEFT JOIN
-    {course_modules} cm ON cm.module = (SELECT
-            id
-        FROM
-            {modules}
-        WHERE
-            name = 'booking')
-        AND instance = b.id
-WHERE
-    userid = ?
-ORDER BY c.id ASC, b.id ASC , bo.id ASC";
-
-$mybookings = $DB->get_records_sql($sql, array($USER->id), 0, 0);
+$dbutill = new \mod_booking\classes\utils\db();
+$mybookings = $dbutill->mybookings();
 $cid = -1;
 $bid = -1;
 

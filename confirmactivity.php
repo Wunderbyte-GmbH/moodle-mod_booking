@@ -22,8 +22,7 @@
  */
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
-require_once($CFG->dirroot . '/mod/booking/classes/form/subscribeusersctivity.php');
-require_once("classes/utils/db.php");
+require_once($CFG->dirroot . '/mod/booking/classes/form/confirmactivity.php');
 
 $id = required_param('id', PARAM_INT); // Course_module ID.
 $optionid = required_param('optionid', PARAM_INT);
@@ -37,28 +36,46 @@ $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
 
 $bookingoption = new \mod_booking\booking_option($id, $optionid);
-$url = new moodle_url('/mod/booking/subscribeusersctivity.php', array('id' => $id, 'optionid' => $optionid));
+$url = new moodle_url('/mod/booking/confirmactivity.php', array('id' => $id, 'optionid' => $optionid));
 $backurl = new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid));
 $errorurl = new moodle_url('/mod/booking/view.php', array('id' => $id));
 
 if (!booking_check_if_teacher ( $bookingoption->option, $USER )) {
-    if (!(has_capability('mod/booking:subscribeusers', $context) || has_capability('moodle/site:accessallgroups', $context))) {
+    if (!(has_capability('mod/booking:readresponses', $context) || has_capability('moodle/site:accessallgroups', $context))) {
         throw new moodle_exception('nopermissions', 'core', $errorurl, get_string('bookotherusers', 'mod_booking'));
     }
 }
 
-$mform = new \mod_booking\form\subscribeusersctivity($url, array('optionid' => $optionid, 'bookingid' => $bookingoption->booking->id));
+$mform = new \mod_booking\form\confirmactivity($url, array('course' => $course,
+    'optionid' => $optionid, 'bookingid' => $bookingoption->booking->id));
 
 if ($mform->is_cancelled()) {
     redirect($backurl, '', 0);
 } else if ($fromform = $mform->get_data()) {
-    $dbutill = new \mod_booking\classes\utils\db();
-    $totransfer = $dbutill->getusersactivity($id, $fromform->bookingoption, false);
 
-    $oldbookingoption = new \mod_booking\booking_option($id, $fromform->bookingoption);
-    $oldbookingoption->transfer_users_to_otheroption($optionid, $totransfer);
+    switch ($fromform->whichtype) {
+        case 0: // Activity.
+            if (!empty($fromform->activity)) {
+                $dbutill = new \mod_booking\classes\utils\db();
+                $users = $dbutill->getusersactivity($fromform->activity, $optionid, true);
+                foreach ($users as $key => $user) {
+                    $bookingoption->confirmactivity($user);
+                }
+            }
+            break;
 
-    redirect($backurl, get_string('sucesfullytransfered', 'booking'), 0);
+        case 1: // Badges.
+            if (!empty($fromform->certid)) {
+                $dbutill = new \mod_booking\classes\utils\db();
+                $users = $dbutill->getusersbadges($fromform->certid, $optionid);
+                foreach ($users as $key => $user) {
+                    $bookingoption->confirmactivity($user);
+                }
+            }
+            break;
+    }
+
+        redirect($backurl, get_string('sucesfullcompleted', 'booking'), 0);
 }
 
 $PAGE->set_url($url);

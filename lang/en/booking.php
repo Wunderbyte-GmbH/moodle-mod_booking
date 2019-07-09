@@ -1098,3 +1098,6 @@ $string['notstarted'] = "Not yet started";
 $string['transefusers'] = "Transfer users";
 $string['transferhelp'] = 'Transfer users, that have not completed activity from selected option to {$a}.';
 $string['sucesfullytransfered'] = 'Users were sucesfully transfered.';
+
+$string['confirmactivtyfrom'] = 'Confirm activity from';
+$string['sucesfullcompleted'] = 'Activity was sucesfully completed for users.';
