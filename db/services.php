@@ -35,4 +35,27 @@ $functions = array(
         'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')),
     'mod_booking_unenrol_user' => array('classname' => 'mod_booking\external',
         'methodname' => 'unenrol_user', 'description' => 'Unenrol user via AJAX', 'type' => 'write',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')));
+        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')),
+    'mod_booking_bookings' => array(
+        'classname'   => 'mod_booking_external',
+        'methodname'  => 'bookings',
+        'classpath'   => 'mod/booking/externallib.php',
+        'description' => 'Return bookings for course id.',
+        'type'        => 'read',
+    ),
+    'mod_booking_categories' => array(
+        'classname'   => 'mod_booking_external',
+        'methodname'  => 'categories',
+        'classpath'   => 'mod/booking/externallib.php',
+        'description' => 'Return categories for course id.',
+        'type'        => 'read',
+    )
+);
+
+$services = array(
+    'Booking module API' => array( // Very importnant, don't rename or will broke local_bookingapi plugin!!!
+        'functions' => array ('mod_booking_bookings', 'mod_booking_categories'),
+        'restrictedusers' => 0,
+        'enabled' => 1,
+    )
+);
