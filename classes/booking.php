@@ -455,7 +455,7 @@ WHERE
                     break;
                 case 'completed':
                     $columns[] = 'completed';
-                    $headers[] = get_string("searchfinished", "booking");
+                    $headers[] = get_string("completed", "booking");
                     break;
                 case 'waitinglist':
                     $columns[] = 'waitinglist';

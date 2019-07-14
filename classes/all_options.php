@@ -443,7 +443,7 @@ class all_options extends table_sql {
             }
 
             if ($values->completed) {
-                $completed = '<div class="">' . get_string('activitycompleted', 'mod_booking') . '<span class="fa fa-check float-right"> </span> </div>';
+                $completed = '<div class="">' . get_string('completed', 'mod_booking') . '<span class="fa fa-check float-right"> </span> </div>';
             } else {
                 $completed = '';
             }

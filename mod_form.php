@@ -456,7 +456,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $tmpaddfields = $DB->get_records('user_info_field', array());
 
-        $responsesfields = array('completed' => get_string('activitycompleted', 'mod_booking'),
+        $responsesfields = array('completed' => get_string('completed', 'mod_booking'),
             'status' => get_string('presence', 'mod_booking'),
             'rating' => get_string('rating', 'core_rating'),
             'numrec' => get_string('numrec', 'mod_booking'),
@@ -478,7 +478,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'numrec' => get_string("numrec", "booking"), 'userid' => get_string("userid", "booking"),
             'username' => get_string("username"), 'firstname' => get_string("firstname"),
             'lastname' => get_string("lastname"), 'email' => get_string("email"),
-            'completed' => get_string("searchfinished", "booking"),
+            'completed' => get_string("completed", "mod_booking"),
             'waitinglist' => get_string("waitinglist", "booking"),
             'status' => get_string('presence', 'mod_booking'), 'groups' => get_string("group"),
             'notes' => get_string('notes', 'mod_booking'),

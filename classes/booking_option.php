@@ -273,9 +273,9 @@ class booking_option extends booking {
         $options = "ba.optionid = :optionid";
         $params['optionid'] = $this->optionid;
 
-        if (isset($this->filters['searchfinished']) && strlen($this->filters['searchfinished']) > 0) {
+        if (isset($this->filters['searchcompleted']) && strlen($this->filters['searchcompleted']) > 0) {
             $options .= " AND ba.completed = :completed";
-            $params['completed'] = $this->filters['searchfinished'];
+            $params['completed'] = $this->filters['searchcompleted'];
         }
         if (isset($this->filters['searchdate']) && $this->filters['searchdate'] == 1) {
             $beginofday = strtotime(

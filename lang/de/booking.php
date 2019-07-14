@@ -691,7 +691,6 @@ $string['optiondates'] = 'Mehrere Termine pro Buchungsoption';
 $string['optionmenu'] = 'Diese Buchungsoption';
 $string['ratingsuccess'] = 'Die Bewrtungen wurden erfolgreich aktualisiert';
 $string['searchdate'] = 'Datum';
-$string['searchfinished'] = 'Kurs abgeschlossen';
 $string['searchname'] = 'Vorname';
 $string['searchsurname'] = 'Nachname';
 $string['selectatleastoneuser'] = 'Mindestens 1 Nutzer/in auswählen!';

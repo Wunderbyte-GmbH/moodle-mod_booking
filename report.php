@@ -45,7 +45,7 @@ $searchdate = optional_param('searchdate', 0, PARAM_INT);
 $searchdateday = optional_param('searchdateday', null, PARAM_INT);
 $searchdatemonth = optional_param('searchdatemonth', null, PARAM_INT);
 $searchdateyear = optional_param('searchdateyear', null, PARAM_INT);
-$searchfinished = optional_param('searchfinished', 0, PARAM_INT) - 1;
+$searchcompleted = optional_param('searchcompleted', 0, PARAM_INT) - 1;
 $searchwaitinglist = optional_param('searchwaitinglist', 0, PARAM_INT) - 1;
 
 // Params from view.php.
@@ -103,10 +103,10 @@ if ($searchdate == 1) {
     $searching = true;
 }
 
-$urlparams['searchfinished'] = "";
-if ($searchfinished > -1) {
-    $urlparams['searchfinished'] = $searchfinished + 1;
-    $sqlvalues['completed'] = $searchfinished;
+$urlparams['searchcompleted'] = "";
+if ($searchcompleted > -1) {
+    $urlparams['searchcompleted'] = $searchcompleted + 1;
+    $sqlvalues['completed'] = $searchcompleted;
     $addsqlwhere .= ' AND ba.completed = :completed ';
     $searching = true;
 }
@@ -466,7 +466,7 @@ if (!$tableallbookings->is_downloading()) {
         switch ($value) {
             case 'completed':
                 $columns[] = 'completed';
-                $headers[] = get_string('activitycompleted', 'mod_booking');
+                $headers[] = get_string('completed', 'mod_booking');
                 break;
             case 'status':
                 if ($bookingdata->booking->enablepresence) {
@@ -637,7 +637,7 @@ if (!$tableallbookings->is_downloading()) {
     $hidden = "";
 
     foreach ($urlparams as $key => $value) {
-        $arr = array('searchdate', 'searchfinished');
+        $arr = array('searchdate', 'searchcompleted');
         if (!in_array($key, $arr)) {
             $hidden .= '<input value="' . $value . '" type="hidden" name="' . $key . '">';
         }
@@ -654,11 +654,11 @@ if (!$tableallbookings->is_downloading()) {
     $rowclasses[] = "";
 
     $row = new html_table_row(
-            array(get_string('searchfinished', "booking"),
+            array(get_string('completed', 'mod_booking'),
                 html_writer::select(
                         array('1' => get_string('no', "booking"),
-                            '2' => get_string('yes', "booking")), 'searchfinished',
-                        $urlparams['searchfinished']), "", ""));
+                            '2' => get_string('yes', "booking")), 'searchcompleted',
+                        $urlparams['searchcompleted']), "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 

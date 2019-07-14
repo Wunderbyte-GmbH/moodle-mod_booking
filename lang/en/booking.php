@@ -865,7 +865,6 @@ Course:   {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
 
 // report.php
-$string['activitycompleted'] = 'Activity completed';
 $string['addteachers'] = 'Add teachers';
 $string['allmailssend'] = 'All e-mails to the users have been sent!';
 $string['associatedcourse'] = 'Associated course';
@@ -893,7 +892,6 @@ $string['optiondates'] = 'Multiple dates session';
 $string['optionid'] = 'Option ID';
 $string['optionmenu'] = 'This booking option';
 $string['searchdate'] = 'Date';
-$string['searchfinished'] = 'Course completed';
 $string['searchname'] = 'First name';
 $string['searchsurname'] = 'Last name';
 $string['yes'] = 'Yes';
@@ -930,7 +928,6 @@ $string['numrec'] = "Rec. num.";
 $string['generaterecnum'] = "Generate numbers";
 $string['generaterecnumareyousure'] = "This will generate new numbers and permanently delete the old one!";
 $string['generaterecnumnotification'] = "New numbers have been generated.";
-$string['activitycompleted'] = 'Activity completed';
 $string['waitinglist'] = 'Waiting list';
 $string['searchwaitinglist'] = 'On waiting list';
 $string['ratingsuccess'] = 'The ratings were successfully updated';

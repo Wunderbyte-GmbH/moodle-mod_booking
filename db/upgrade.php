@@ -1814,7 +1814,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2018090600, 'booking');
     }
 
-    if ($oldversion < 2019070503) {
+    if ($oldversion < 2019071400) {
 
         // Define field calendarid to be added to booking_teachers.
         $table = new xmldb_table('booking_teachers');
@@ -1835,10 +1835,10 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2019070503, 'booking');
+        upgrade_mod_savepoint(true, 2019071400, 'booking');
     }
 
-    if ($oldversion < 2019071302) {
+    if ($oldversion < 2019071401) {
 
         // Define field enrolmentstatus to be added to booking_options.
         $table = new xmldb_table('booking_options');
@@ -1850,7 +1850,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2019071302, 'booking');
+        upgrade_mod_savepoint(true, 2019071401, 'booking');
     }
 
     return true;
