@@ -608,6 +608,11 @@ function booking_update_options($optionvalues, $context) {
         $option->courseendtime = 0;
     }
 
+    if (isset($optionvalues->enrolmentstatus)) {
+        $option->enrolmentstatus = $optionvalues->enrolmentstatus;
+    } else {
+        $option->enrolmentstatus = 0;
+    }
     $option->description = $optionvalues->description;
     $option->beforebookedtext = $optionvalues->beforebookedtext;
     $option->beforecompletedtext = $optionvalues->beforecompletedtext;
@@ -689,7 +694,7 @@ function booking_update_options($optionvalues, $context) {
                 $booked = $bo->get_all_users_booked();
                 if (!empty($booked) && $booking->autoenrol) {
                     foreach ($booked as $bookinganswer) {
-                        $bo->enrol_user($bookinganswer->userid);
+                        $bo->enrol_user_coursestart($bookinganswer->userid);
                     }
                 }
             }

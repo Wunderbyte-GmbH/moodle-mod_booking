@@ -740,6 +740,8 @@ $string['groupexists'] = 'The group already exists in the target course, please 
 $string['groupdeleted'] = 'This booking instance creates groups automatically in the target course. But the group has been manually deleted in the target course. Activate the following checkbox in order to recreate the group';
 $string['recreategroup'] = 'Recreate group in the target course and enrol users in group';
 $string['copy'] = ' - Copy';
+$string['enrolmentstatus'] = 'Do not enrol users immediately but only at course start time';
+
 
 // importoptions.php
 $string['csvfile'] = 'CSV file';

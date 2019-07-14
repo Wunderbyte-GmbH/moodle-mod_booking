@@ -79,6 +79,12 @@ class mod_booking_observer {
         }
     }
 
+    /**
+     * Change calendar entry when custom field is changed.
+     *
+     * @param \mod_booking\event\custom_field_changed $event
+     * @throws dml_exception
+     */
     public static function custom_field_changed(\mod_booking\event\custom_field_changed $event) {
         global $DB;
 

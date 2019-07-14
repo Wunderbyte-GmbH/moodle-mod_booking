@@ -451,6 +451,11 @@ class booking_option extends booking {
         }
     }
 
+    /**
+     * Return if user can rate.
+     *
+     * @return bool
+     */
     public function can_rate() {
         global $USER;
 
@@ -481,6 +486,12 @@ class booking_option extends booking {
         return false;
     }
 
+    /**
+     * Get text for depending on status of users booking.
+     *
+     * @param null $userid
+     * @return string
+     */
     public function get_option_text($userid = null) {
         global $USER;
 
@@ -593,6 +604,9 @@ class booking_option extends booking {
 
     /**
      * Mass delete all users with activity completion.
+     *
+     * @return array
+     * @throws \dml_exception
      */
     public function delete_responses_activitycompletion() {
         global $DB;
@@ -736,8 +750,7 @@ class booking_option extends booking {
 
                 $newuser->waitinglist = 0;
                 $DB->update_record("booking_answers", $newuser);
-
-                $this->enrol_user($newuser->userid);
+                $this->enrol_user_coursestart($newuser->userid);
 
                 if ($this->booking->sendmail == 1 || $this->booking->copymail) {
                     $newbookeduser = $DB->get_record('user', array('id' => $newuser->userid));
@@ -850,7 +863,7 @@ class booking_option extends booking {
                 if ($value->waitinglist != 0) {
                     $value->waitinglist = 0;
                     $DB->update_record("booking_answers", $value);
-                    $this->enrol_user($value->userid);
+                    $this->enrol_user_coursestart($value->userid);
                 }
             }
 
@@ -875,6 +888,19 @@ class booking_option extends booking {
         } else {
             $DB->execute("UPDATE {booking_answers} SET waitinglist = 0 WHERE optionid = :optionid",
                     array('optionid' => $this->optionid));
+        }
+    }
+
+    /**
+     * Enrol users only if either course has already started or booking option is set to immediately enrol users.
+     *
+     * @param int $userid
+     * @throws \moodle_exception
+     */
+    public function enrol_user_coursestart($userid) {
+        if ($this->option->enrolmentstatus == 2 OR
+            ($this->option->enrolmentstatus < 2 AND $this->option->coursestarttime < time())) {
+            $this->enrol_user($userid);
         }
     }
 
@@ -924,7 +950,7 @@ class booking_option extends booking {
             if (!$DB->insert_record("booking_answers", $newanswer)) {
                 new \moodle_exception("dmlwriteexception");
             }
-            $this->enrol_user($newanswer->userid);
+            $this->enrol_user_coursestart($newanswer->userid);
         }
 
         $event = event\bookingoption_booked::create(

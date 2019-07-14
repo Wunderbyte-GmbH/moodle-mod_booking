@@ -149,8 +149,13 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->setType('coursestarttime', PARAM_INT);
         $mform->disabledIf('coursestarttime', 'startendtimeknown', 'notchecked');
 
+        $mform->addElement('advcheckbox', 'enrolmentstatus', get_string('enrolmentstatus', 'mod_booking'),
+            '', array('group' => 1), array(2, 0));
+        $mform->setType('enrolmentstatus', PARAM_INT);
+        $mform->disabledIf('enrolmentstatus', 'startendtimeknown', 'notchecked');
+
         $mform->addElement('date_time_selector', 'courseendtime',
-                get_string("courseendtime", "booking"));
+            get_string("courseendtime", "booking"));
         $mform->setType('courseendtime', PARAM_INT);
         $mform->disabledIf('courseendtime', 'startendtimeknown', 'notchecked');
 

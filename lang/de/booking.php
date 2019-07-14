@@ -549,6 +549,9 @@ $string['waitinglisttaken'] = 'Auf der Warteliste';
 $string['groupexists'] = 'Die Gruppe existiert bereits im Zielkurs. Bitte verwenden Sie einen anderen Namen für die Buchungsoption';
 $string['groupdeleted'] = 'Diese Buchung erstellt automatisch Gruppen im Zielkurs. Aber die Gruppe wurde im Zielkurs manuell gelöscht. Aktivieren Sie folgende Checkbox, um die Gruppe erneut zu erstellen';
 $string['recreategroup'] = 'Gruppe erneut anlegen und Nutzer/innen der Gruppe zuordnen';
+$string['copy'] = ' - Kopieren';
+$string['enrolmentstatus'] = 'Nutzer/innen nicht sofort in Kurs einschreiben sondern erst zu Kursbeginn';
+
 
 // importoptions.php
 $string['csvfile'] = 'CSV Datei';
