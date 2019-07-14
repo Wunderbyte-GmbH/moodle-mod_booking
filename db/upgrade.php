@@ -1827,7 +1827,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field teacherroleid to be added to booking.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('teacherroleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'removeuseronunenrol');
+        $field = new xmldb_field('teacherroleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '3', 'removeuseronunenrol');
 
         // Conditionally launch add field teacherroleid.
         if (!$dbman->field_exists($table, $field)) {

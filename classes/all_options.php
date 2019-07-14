@@ -442,12 +442,17 @@ class all_options extends table_sql {
                         'post');
             }
 
-            if ($values->waitinglist) {
-                $booked = '<div class="alert alert-info">' . get_string('onwaitinglist', 'booking') . '</div>';
-            } else if ($inpast) {
-                $booked = '<div class="alert alert-success">' . get_string('bookedpast', 'booking') . '</div>';
+            if ($values->completed) {
+                $completed = '<div class="">' . get_string('activitycompleted', 'mod_booking') . '<span class="fa fa-check float-right"> </span> </div>';
             } else {
-                $booked = '<div class="alert alert-success">' . get_string('booked', 'booking') . '</div>';
+                $completed = '';
+            }
+            if ($values->waitinglist) {
+                $booked .= '<div class="alert alert-info">' . get_string('onwaitinglist', 'booking') . '</div>';
+            } else if ($inpast) {
+                $booked .= '<div class="alert alert-success">' . get_string('bookedpast', 'booking') . '</div>';
+            } else {
+                $booked .= '<div class="alert alert-success">' . get_string('booked', 'booking') . $completed . '</div>';
             }
         } else {
             $buttonoptions = array('answer' => $values->id, 'id' => $this->cm->id,
