@@ -372,6 +372,7 @@ class all_options extends table_sql {
         $options->cm = $this->cm;
         $options->itemid = $values->id;
         $options->component = 'mod_booking';
+        $options->client_id = "client_{$values->id}";
         $options->showcount = true;
         $comment = new comment($options);
         $output .= "<div>" . $comment->output(true) . "</div>";
