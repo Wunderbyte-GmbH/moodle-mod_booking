@@ -315,11 +315,10 @@ class all_userbookings extends \table_sql {
                  has_capability('mod/booking:updatebooking',
                         \context_module::instance($this->cm->id))) {
                             $course = $DB->get_record('course', array('id' => $this->bookingdata->booking->course));
-                            $completion = new \completion_info($course);
-            if ($completion->is_enabled($this->cm) == COMPLETION_TRACKING_AUTOMATIC && $this->bookingdata->booking->enablecompletion) {
+            if (strpos($this->bookingdata->booking->responsesfields, 'completed') !== false) {
                 echo '<div class="singlebutton"><input type="submit"  class="btn btn-secondary" name="activitycompletion" value="' .
                 (empty($this->bookingdata->booking->btncacname) ? get_string(
-                'confirmactivitycompletion', 'booking') : $this->bookingdata->booking->btncacname) .
+                'confirmoptioncompletion', 'booking') : $this->bookingdata->booking->btncacname) .
                 '" /></div>';
             }
 

@@ -273,6 +273,16 @@ function booking_comment_validate($commentparam) {
     return true;
 }
 
+/**
+ * Calculate completion state.
+ *
+ * @param $course
+ * @param $cm
+ * @param $userid
+ * @param $type
+ * @return bool
+ * @throws dml_exception
+ */
 function booking_get_completion_state($course, $cm, $userid, $type) {
     global $CFG, $DB;
 

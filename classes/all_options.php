@@ -451,7 +451,7 @@ class all_options extends table_sql {
             if ($values->waitinglist) {
                 $booked .= '<div class="alert alert-info">' . get_string('onwaitinglist', 'booking') . '</div>';
             } else if ($inpast) {
-                $booked .= '<div class="alert alert-success">' . get_string('bookedpast', 'booking') . '</div>';
+                $booked .= '<div class="alert alert-success">' . get_string('bookedpast', 'booking') . $completed . '</div>';
             } else {
                 $booked .= '<div class="alert alert-success">' . get_string('booked', 'booking') . $completed . '</div>';
             }
@@ -491,7 +491,7 @@ class all_options extends table_sql {
 
         // Check if user has right to book.
         if (!has_capability('mod/booking:choose', $this->context, $USER->id, false)) {
-            $button = get_string('havetologin', 'booking') . "<br />";
+            $button = get_string('norighttobook', 'booking') . "<br />";
         }
 
         if (has_capability('mod/booking:readresponses', $this->context) || $values->isteacher) {

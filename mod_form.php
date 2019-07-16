@@ -383,7 +383,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setType('showhelpfullnavigationlinks', PARAM_INT);
 
         if ($COURSE->enablecompletion > 0) {
-            $opts = array(-1 => get_string('disabled', 'mod_booking'));
+            $opts = array(-1 => get_string('disable'));
 
             $result = $DB->get_records_sql(
                     'SELECT cm.id, cm.course, cm.module, cm.instance, m.name

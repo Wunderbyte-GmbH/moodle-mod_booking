@@ -62,7 +62,7 @@ class mod_booking_teachers_form extends moodleform {
             $completion = new \completion_info($course);
             if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $bookingoption->booking->enablecompletion) {
                 $buttonarray[] = &$mform->createElement("submit", 'activitycompletion',
-                    get_string('confirmactivitycompletion', 'booking'));
+                    get_string('confirmoptioncompletion', 'booking'));
             }
             $buttonarray[] = &$mform->createElement("submit", 'turneditingon',
                 get_string('turneditingon'));
