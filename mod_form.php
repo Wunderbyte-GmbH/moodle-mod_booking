@@ -91,14 +91,7 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         $mform->addRule('eventtype', null, 'required', null, 'client');
 
-        $versionmajor = booking_get_moodle_version_major();
-        if ($versionmajor < '2015051100') {
-            // This is valid before v2.9.
-            $this->add_intro_editor(false, get_string('bookingtext', 'booking'));
-        } else {
-            // This is valid after v2.9.
-            $this->standard_intro_elements(get_string('bookingtext', 'booking'));
-        }
+        $this->standard_intro_elements(get_string('bookingtext', 'booking'));
 
         $mform->addElement('text', 'duration', get_string('bookingduration', 'booking'),
                 array('size' => '64'));
@@ -645,12 +638,7 @@ class mod_booking_mod_form extends moodleform_mod {
             file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'signinlogofooter',
                     $this->current->id, $options);
             $defaultvalues['signinlogofooter'] = $draftitemid;
-
-            if ($CFG->branch >= 31) {
-                core_tag_tag::get_item_tags_array('mod_booking', 'booking', $this->current->id);
-            } else {
-                $defaultvalues['tags'] = tag_get_tags_array('booking', $this->current->id);
-            }
+            core_tag_tag::get_item_tags_array('mod_booking', 'booking', $this->current->id);
         } else {
             $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
             file_prepare_draft_area($draftitemid, null, 'mod_booking', 'myfilemanager', 0, $options);

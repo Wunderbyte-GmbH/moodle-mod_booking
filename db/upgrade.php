@@ -33,7 +33,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Rename field format on table booking to format.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('format', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL,
+        $field = new xmldb_field('format', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL,
                 null, '0', 'intro');
 
         // Launch rename field format.

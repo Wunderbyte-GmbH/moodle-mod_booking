@@ -32,7 +32,7 @@ require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
 
 if (!$booking = new \mod_booking\booking($cm->id)) {
-    error("Course module is incorrect");
+    throw new invalid_parameter_exception("Course module id is incorrect");
 }
 
 if (!$context = context_module::instance($cm->id)) {

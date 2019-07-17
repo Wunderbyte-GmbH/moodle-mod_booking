@@ -78,7 +78,7 @@ function booking_cron() {
 }
 
 /**
- * @param course_module $cm
+ * @param stdClass $cm
  * @return cached_cm_info
  */
 function booking_get_coursemodule_info($cm) {
@@ -89,9 +89,22 @@ function booking_get_coursemodule_info($cm) {
     return $info;
 }
 
-function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload,
-        array $options = array()) {
-    global $CFG, $DB;
+/**
+ *  Callback checking permissions and preparing the file for serving plugin files, see File API.
+ *
+ * @param $course
+ * @param $cm
+ * @param $context
+ * @param $filearea
+ * @param $args
+ * @param $forcedownload
+ * @param array $options
+ * @return bool
+ * @throws coding_exception
+ * @throws moodle_exception
+ * @throws require_login_exception
+ */
+function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
 
     // Check the contextlevel is as expected - if your plugin is a block.
     if ($context->contextlevel != CONTEXT_MODULE) {
@@ -145,6 +158,16 @@ function booking_user_outline($course, $user, $mod, $booking) {
     return null;
 }
 
+/**
+ * Callback for the "Complete" report - prints the activity summary for the given user.
+ *
+ * @param $course
+ * @param $user
+ * @param $mod
+ * @param $booking
+ * @throws coding_exception
+ * @throws dml_exception
+ */
 function booking_user_complete($course, $user, $mod, $booking) {
     global $DB;
     if ($answer = $DB->get_record('booking_answers',
@@ -165,8 +188,6 @@ function booking_supports($feature) {
         case FEATURE_GROUPS:
             return true;
         case FEATURE_GROUPINGS:
-            return false;
-        case FEATURE_GROUPMEMBERSONLY:
             return false;
         case FEATURE_MOD_INTRO:
             return true;
@@ -397,12 +418,7 @@ function booking_add_instance($booking) {
                 $booking->id, array('subdirs' => false, 'maxfiles' => 1));
     }
 
-    if ($CFG->branch < 31) {
-        tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
-    } else {
-        core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context,
-                $booking->tags);
-    }
+    core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
 
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {
@@ -479,13 +495,7 @@ function booking_update_instance($booking) {
     }
 
     $arr = array();
-
-    if ($CFG->branch >= 31) {
-        core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context,
-                $booking->tags);
-    } else {
-        tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
-    }
+    core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
 
     file_save_draft_area_files($booking->signinlogoheader, $context->id, 'mod_booking',
             'signinlogoheader', $booking->id, array('subdirs' => false, 'maxfiles' => 1));
@@ -2047,25 +2057,6 @@ function booking_delete_instance($id) {
     return $result;
 }
 
-/**
- * Returns the users with data in one booking (users with records in booking_answers, students)
- *
- * @param int bookingid booking id of booking instance
- * @return array of students
- */
-function booking_get_participants($bookingid) {
-    global $CFG, $DB;
-    // Get students.
-    $students = $DB->get_records_sql(
-            "SELECT DISTINCT u.id, u.id
-            FROM {user} u,
-            {booking_answers} a
-            WHERE a.bookingid = '$bookingid' and
-            u.id = a.userid");
-    // Return students array (it contains an array of unique users).
-    return ($students);
-}
-
 function booking_get_option_text($booking, $id) {
     global $DB, $USER;
     // Returns text string which is the answer that matches the id.
@@ -2085,16 +2076,9 @@ function booking_get_option_text($booking, $id) {
     }
 }
 
-function booking_get_view_actions() {
-    return array('view', 'view all', 'report');
-}
-
-function booking_get_post_actions() {
-    return array('choose', 'choose again');
-}
-
 /**
- * Implementation of the function for printing the form elements that control whether the course reset functionality affects the booking.
+ * Implementation of the function for printing the form elements that control whether the course reset
+ * functionality affects the booking.
  *
  * @param $mform form passed by reference
  */
@@ -2485,15 +2469,4 @@ function mod_booking_fix_encoding($instr) {
     } else {
         return utf8_encode($instr);
     }
-}
-
-/**
- * get moodle major version
- *
- * @return string moodle version
- */
-function booking_get_moodle_version_major() {
-    global $CFG;
-    $versionarray = explode('.', $CFG->version);
-    return $versionarray[0];
 }

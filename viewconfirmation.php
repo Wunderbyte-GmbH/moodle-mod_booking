@@ -35,7 +35,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 require_course_login($course, false, $cm);
 
 if (!$booking = new mod_booking\booking_option($id, $optionid, array(), 0, 0, false)) {
-    error("Course module is incorrect");
+    throw new invalid_parameter_exception("Course module id is incorrect");
 }
 
 if (!$context = context_module::instance($cm->id)) {

@@ -362,11 +362,9 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             foreach ($files as $file) {
                 if ($file->get_filesize() > 0) {
                     $filename = $file->get_filename();
-                    $furl = file_encode_url($CFG->wwwroot . '/pluginfile.php',
-                            '/' . $file->get_contextid() . '/' . $file->get_component() . '/' .
-                                     $file->get_filearea() . '/' . $file->get_itemid() . '/' .
-                                     $file->get_filename());
-                    $out[] = html_writer::link($furl, $filename);
+                    $url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(),
+                        $file->get_itemid(), $file->get_filepath(), $file->get_filename(), true);
+                    $out[] = html_writer::link($url, $filename);
                 }
             }
             echo html_writer::tag('span', implode(', ', $out));
