@@ -22,11 +22,11 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2019071401;
+$plugin->version = 2019071700;
 $plugin->requires = 2017111300; // Requires this Moodle version. Current: Moodle 3.4.
 // Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman, Piper Chapman.
 // Lois Wilkerson, Audrey Horne, Lorelai Gilmore.
-$plugin->release = '4.4 Lorelai Gilmore';
+$plugin->release = '4.5 Lorelai Gilmore';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->cron = 60;
 $plugin->component = 'mod_booking';

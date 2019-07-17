@@ -614,14 +614,6 @@ if (!$tableallbookings->is_downloading()) {
              implode(', ', $teachers) . " {$linkst}</p>";
 
     $links = array();
-    if (has_capability ( 'mod/booking:subscribeusers', $context ) || booking_check_if_teacher ( $bookingdata->option, $USER )) {
-        $links [] = html_writer::link ( new moodle_url ( '/mod/booking/subscribeusers.php', array (
-                'id' => $cm->id,
-                'optionid' => $optionid
-        ) ), get_string ( 'bookotherusers', 'booking' ), array (
-                'style' => 'float:right;'
-        ) );
-    }
 
     $links[] = '<a href="#" style="float:right;" id="showHideSearch">' . get_string('search') .
              '</a>';
@@ -673,9 +665,9 @@ if (!$tableallbookings->is_downloading()) {
 
     $row = new html_table_row(
             array("",
-                '<input type="submit" id="searchButton" value="' . get_string('search') .
-                         '"><input id="buttonclear" type="button" value="' .
-                         get_string('reset', 'booking') . '">', "", ""));
+                '<div class="singlebutton"><input class="btn btn-primary" type="submit" id="searchButton" value="' .
+                get_string('search') . '"></div><div class="singlebutton"><input class="btn btn-secondary" id="buttonclear"
+                type="button" value="' . get_string('reset', 'booking') . '"></div>', "", ""));
     $tabledata[] = $row;
     $rowclasses[] = "";
 

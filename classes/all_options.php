@@ -435,12 +435,19 @@ class all_options extends table_sql {
         // I'm booked or not.
         if ($values->iambooked) {
             if ($values->allowupdate and $status != 'closed' and $values->completed != 1) {
+
                 $buttonoptions = array('id' => $this->cm->id, 'action' => 'delbooking',
                     'optionid' => $values->id, 'sesskey' => $USER->sesskey);
                 $url = new moodle_url('view.php', $buttonoptions);
                 $delete = $OUTPUT->single_button($url,
                         (empty($values->btncancelname) ? get_string('cancelbooking', 'booking') : $values->btncancelname),
                         'post');
+
+                if ($values->coursestarttime > 0 && $values->allowupdatedays > 0) {
+                    if (time() > strtotime("-{$values->allowupdatedays} day", $values->coursestarttime)) {
+                        $delete = "";
+                    }
+                }
             }
 
             if ($values->completed) {

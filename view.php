@@ -547,7 +547,6 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                          bo.limitanswers,
                          bo.maxanswers,
                          bo.maxoverbooking,
-
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
@@ -567,6 +566,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                    WHERE ba.optionid = bo.id
                      AND ba.userid = :userid) AS iambooked,
                          b.allowupdate,
+                         b.allowupdatedays,
                          bo.bookingclosingtime,
                          b.btncancelname,
 

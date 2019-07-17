@@ -22,7 +22,6 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-
 /**
  * Event observer for mod_booking.
  */
@@ -106,14 +105,29 @@ class mod_booking_observer {
         }
     }
 
+    /**
+     * When new booking option is created, we insert new calendar entry.
+     *
+     * @param \mod_booking\event\bookingoption_created $event
+     */
     public static function bookingoption_created(\mod_booking\event\bookingoption_created $event) {
         new \mod_booking\calendar($event->contextinstanceid, $event->objectid, 0, \mod_booking\calendar::TYPEOPTION);
     }
 
+    /**
+     * When we add teacher to booking option, we also add calendar event to their calendar.
+     *
+     * @param \mod_booking\event\teacher_added $event
+     */
     public static function teacher_added(\mod_booking\event\teacher_added $event) {
         new \mod_booking\calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, \mod_booking\calendar::TYPETEACHERADD);
     }
 
+    /**
+     * When teacher is removed from booking option we delete their calendar records.
+     *
+     * @param \mod_booking\event\teacher_removed $event
+     */
     public static function teacher_removed(\mod_booking\event\teacher_removed $event) {
         new \mod_booking\calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, \mod_booking\calendar::TYPETEACHERREMOVE);
     }

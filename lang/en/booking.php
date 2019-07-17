@@ -251,6 +251,8 @@ $string['errorpagination'] = 'Please enter a number bigger than 0';
 $string['notconectedbooking'] = 'Not connected';
 $string['conectedbooking_help'] = 'Booking instance eligible for transferring booked users. You can define from which option within the selected booking instance and how many users you will accept.';
 $string['cancancelbook'] = 'Allow user to cancel or book their booking when it is started?';
+$string['cancancelbookdays'] = 'Disallow users to cancel their booking n days before start';
+$string['cancancelbookdaysno'] = "Don't limit";
 $string['addtocalendar'] = 'Add to calendar';
 $string['limitanswers'] = 'Limit the number of participants';
 $string['maxparticipantsnumber'] = 'Max. number of participants';
@@ -966,6 +968,8 @@ $string['users'] = '<< Manage responses';
 
 // lib.php
 $string['pollstrftimedate'] = '%Y-%m-%d';
+$string['mybookings'] = 'My bookings';
+$string['bookuserswithoutcompletedactivity'] = "Book users without completed activity";
 
 // all_users.php
 $string['completed'] = 'Completed';
@@ -1081,3 +1085,16 @@ $string['privacy:metadata:booking_teachers:completed'] = 'If task is completed';
 // calendar.php
 $string['usercalendarentry'] = 'You are booked for this <a href="{$a}">session</a>.';
 $string['bookingoptioncalendarentry'] = 'Go to <a href="{$a}">booking option</a>.';
+
+// mybookings.php
+$string['active'] = "Active";
+$string['terminated'] = "Terminated";
+$string['notstarted'] = "Not yet started";
+
+// subscribeusersctivity.php
+$string['transefusers'] = "Transfer users";
+$string['transferhelp'] = 'Transfer users, that have not completed activity from selected option to {$a}.';
+$string['sucesfullytransfered'] = 'Users were sucesfully transfered.';
+
+$string['confirmactivtyfrom'] = 'Confirm activity from';
+$string['sucesfullcompleted'] = 'Activity was sucesfully completed for users.';

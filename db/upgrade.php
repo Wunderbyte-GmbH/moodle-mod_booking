@@ -1838,19 +1838,28 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019071400, 'booking');
     }
 
-    if ($oldversion < 2019071401) {
+    if ($oldversion < 2019071700) {
 
         // Define field enrolmentstatus to be added to booking_options.
         $table = new xmldb_table('booking_options');
         $field = new xmldb_field('enrolmentstatus', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '2', 'courseendtime');
 
-        // Conditionally launch add field calendarid.
+        // Conditionally launch add field teacherroleid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field allowupdatedays to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('allowupdatedays', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'teacherroleid');
+
+        // Conditionally launch add field allowupdatedays.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2019071401, 'booking');
+        upgrade_mod_savepoint(true, 2019071700, 'booking');
     }
 
     return true;

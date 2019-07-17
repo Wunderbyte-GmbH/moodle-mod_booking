@@ -1351,4 +1351,43 @@ class booking_option extends booking {
         }
         return $values;
     }
+
+    /**
+     * Confirm activity for selected user.
+     *
+     * @param userid
+     */
+    public function confirmactivity($userid = null) {
+        global $CFG, $DB;
+        require_once($CFG->libdir . '/completionlib.php');
+        $course = $DB->get_record('course', array('id' => $this->cm->course));
+        $completion = new \completion_info($course);
+        $cm = get_coursemodule_from_id('booking', $this->cm->id, 0, false, MUST_EXIST);
+
+        $suser = null;
+
+        foreach ($this->users as $key => $value) {
+            if ($value->userid == $userid) {
+                $suser = $key;
+                break;
+            }
+        }
+
+        if (is_null($suser)) {
+            return;
+        }
+
+        if ($this->users[$suser]->completed == 0) {
+            $userdata = $DB->get_record('booking_answers',
+            array('optionid' => $this->optionid, 'userid' => $userid));
+            $userdata->completed = '1';
+            $userdata->timemodified = time();
+
+            $DB->update_record('booking_answers', $userdata);
+
+            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $this->booking->enablecompletion) {
+                $completion->update_state($cm, COMPLETION_COMPLETE, $userid);
+            }
+        }
+    }
 }

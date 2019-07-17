@@ -253,15 +253,15 @@ function booking_comment_validate($commentparam) {
         throw new comment_exception('invalidcommentitemid');
     }
     if ($record->id) {
-        $glossary = $DB->get_record('booking', array('id' => $record->bookingid));
+        $booking = $DB->get_record('booking', array('id' => $record->bookingid));
     }
-    if (!$glossary) {
+    if (!$booking) {
         throw new comment_exception('invalidid', 'data');
     }
-    if (!$course = $DB->get_record('course', array('id' => $glossary->course))) {
+    if (!$course = $DB->get_record('course', array('id' => $booking->course))) {
         throw new comment_exception('coursemisconf');
     }
-    if (!$cm = get_coursemodule_from_instance('booking', $glossary->id, $course->id)) {
+    if (!$cm = get_coursemodule_from_instance('booking', $booking->id, $course->id)) {
         throw new comment_exception('invalidcoursemodule');
     }
     $context = context_module::instance($cm->id);
@@ -655,6 +655,18 @@ function booking_update_options($optionvalues, $context) {
                         array('id' => $option->id));
             }
 
+            if (isset($booking->addtogroup) && $option->courseid > 0) {
+                $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
+                $bo->option->courseid = $option->courseid;
+                $option->groupid = $bo->create_group();
+                $booked = $bo->get_all_users_booked();
+                if (!empty($booked) && $booking->autoenrol) {
+                    foreach ($booked as $bookinganswer) {
+                        $bo->enrol_user($bookinganswer->userid);
+                    }
+                }
+            }
+
             if (isset($optionvalues->generatenewurl) && $optionvalues->generatenewurl == 1) {
                 // URL shortnere - only if API key is entered.
                 $gapik = get_config('booking', 'googleapikey');
@@ -779,9 +791,9 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
     global $DB;
     $option = $DB->get_record('booking_options', array('id' => $optionid));
     $current = $DB->get_record('booking_answers',
-            array('bookingid' => $bookingid, 'userid' => $userid, 'optionid' => $optionid));
+        array('bookingid' => $bookingid, 'userid' => $userid, 'optionid' => $optionid));
     $allresponses = $DB->get_records_select('booking_answers',
-            "bookingid = $bookingid AND optionid = $optionid", array(), 'timemodified', 'userid');
+        "bookingid = $bookingid AND optionid = $optionid", array(), 'timemodified', 'userid');
 
     $context = context_module::instance($cmid);
     $sortedresponses = array();
@@ -816,6 +828,19 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
 }
 
 /**
+ * Extend booking user navigation
+ */
+function booking_myprofile_navigation(core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
+    if ($iscurrentuser) {
+        $url = new moodle_url('/mod/booking/mybookings.php');
+        $string = get_string('mybookings', 'mod_booking');
+        $node = new core_user\output\myprofile\node('miscellaneous', 'booking', $string, null, $url);
+
+        $tree->add_node($node);
+    }
+}
+
+/**
  * Extend booking navigation settings
  *
  * @param settings_navigation $settings
@@ -823,7 +848,7 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
  * @return void
  */
 function booking_extend_settings_navigation(settings_navigation $settings, navigation_node $navref) {
-    global $PAGE, $DB;
+    global $PAGE, $DB, $USER;
 
     $cm = $PAGE->cm;
     if (!$cm) {
@@ -880,6 +905,25 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 $settingnode->add(get_string('optiondates', 'booking'),
                         new moodle_url('/mod/booking/optiondates.php',
                                 array('id' => $cm->id, 'optionid' => $optionid)));
+            }
+            if (has_capability ( 'mod/booking:subscribeusers', $context ) || booking_check_if_teacher ($option, $USER )) {
+                $settingnode->add(get_string('bookotherusers', 'booking'),
+                        new moodle_url('/mod/booking/subscribeusers.php',
+                                array('id' => $cm->id, 'optionid' => $optionid)));
+                $completion = new \completion_info($course);
+                if ($completion->is_enabled($cm)) {
+                    $settingnode->add(get_string('bookuserswithoutcompletedactivity', 'booking'),
+                            new moodle_url('/mod/booking/subscribeusersctivity.php',
+                                    array('id' => $cm->id, 'optionid' => $optionid)));
+                }
+            }
+            if (has_capability ( 'mod/booking:readresponses', $context ) || booking_check_if_teacher ($option, $USER )) {
+                $completion = new \completion_info($course);
+                if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $booking->enablecompletion) {
+                    $settingnode->add(get_string('confirmactivitycompletion', 'booking'),
+                        new moodle_url('/mod/booking/confirmactivity.php',
+                                array('id' => $cm->id, 'optionid' => $optionid)));
+                }
             }
             if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) &&
                     $booking->conectedbooking > 0) {
@@ -1666,7 +1710,7 @@ function booking_rating_validate($params) {
  * @throws require_login_exception
  */
 function booking_rate($ratings, $params) {
-    global $CFG, $USER, $DB;
+    global $CFG, $USER, $DB, $OUTPUT;
     require_once($CFG->dirroot . '/rating/lib.php');
 
     $contextid = $params->contextid;
