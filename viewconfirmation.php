@@ -57,13 +57,13 @@ if (!$answer) {
     echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id' => $course->id)));
     echo $OUTPUT->footer();
 }
-$bookingmanager = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));
-$data = booking_generate_email_params($booking->booking, $booking->option, $user, $cm->id, $booking->optiontimes);
+$bookingmanager = $DB->get_record('user', array('username' => $booking->settings->bookingmanager));
+$data = booking_generate_email_params($booking->settings, $booking->option, $user, $cm->id, $booking->optiontimes);
 
 if ($answer->waitinglist == 1) {
-    $message = booking_get_email_body($booking->booking, 'waitingtext', 'confirmationmessage', $data);
+    $message = booking_get_email_body($booking->settings, 'waitingtext', 'confirmationmessage', $data);
 } else {
-    $message = booking_get_email_body($booking->booking, 'bookedtext', 'confirmationmessagewaitinglist', $data);
+    $message = booking_get_email_body($booking->settings, 'bookedtext', 'confirmationmessagewaitinglist', $data);
 }
 
 echo "{$message}";

@@ -79,7 +79,7 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('location', PARAM_CLEANHTML);
         }
 
-        $mform->addElement('text', 'institution', (empty($booking->booking->lblinstitution) ? get_string('institution', 'booking') : $booking->booking->lblinstitution),
+        $mform->addElement('text', 'institution', (empty($booking->settings->lblinstitution) ? get_string('institution', 'booking') : $booking->settings->lblinstitution),
             array('size' => '64'));
         $mform->setType('institution', PARAM_TEXT);
 

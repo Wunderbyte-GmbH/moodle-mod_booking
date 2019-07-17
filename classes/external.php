@@ -139,7 +139,7 @@ class external extends external_api {
         $bookingdata->apply_tags();
         if ($bookingdata->user_submit_response($USER)) {
             $contents = get_string('bookingsaved', 'booking');
-            if ($bookingdata->booking->sendmail) {
+            if ($bookingdata->settings->sendmail) {
                 $contents .= "<br />" . get_string('mailconfirmationsent', 'booking') . ".";
             }
         } else if (is_numeric($answer)) {

@@ -47,7 +47,7 @@ if (!$context = context_module::instance($cm->id)) {
 require_capability('mod/booking:updatebooking', $context);
 
 $PAGE->navbar->add(get_string("importexceltitle", "booking"));
-$PAGE->set_title(format_string($booking->booking->name));
+$PAGE->set_title(format_string($booking->settings->name));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('standard');
 
@@ -106,12 +106,12 @@ if ($mform->is_cancelled()) {
                     $user->timemodified = time();
                     $DB->update_record('booking_answers', $user, false);
 
-                    if ($completion->is_enabled($cm) && $booking->booking->enablecompletion &&
+                    if ($completion->is_enabled($cm) && $booking->settings->enablecompletion &&
                              $user->completed == 0) {
                         $completion->update_state($cm, COMPLETION_INCOMPLETE, $user->userid);
                     }
 
-                    if ($completion->is_enabled($cm) && $booking->booking->enablecompletion &&
+                    if ($completion->is_enabled($cm) && $booking->settings->enablecompletion &&
                              $user->completed == 1) {
                         $completion->update_state($cm, COMPLETION_COMPLETE, $user->userid);
                     }

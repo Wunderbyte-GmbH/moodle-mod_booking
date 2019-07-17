@@ -47,12 +47,12 @@ $mform = new mod_booking_bookingform_form(null, array('bookingid' => $cm->instan
 
 if ($optionid == -1) {
     // Adding new booking option - default values.
-    $defaultvalues = $booking->booking;
+    $defaultvalues = $booking->settings;
     if ($copyoptionid != '') {
         if ($defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid))) {
             $defaultvalues->text = $defaultvalues->text . get_string('copy', 'booking');
             $defaultvalues->optionid = -1;
-            $defaultvalues->bookingname = $booking->booking->name;
+            $defaultvalues->bookingname = $booking->settings->name;
             $defaultvalues->bookingid = $cm->instance;
             $defaultvalues->id = $cm->id;
             $defaultvalues->description = array('text' => $defaultvalues->description,
@@ -74,13 +74,13 @@ if ($optionid == -1) {
         }
     }
     $defaultvalues->duration = 3600;
-    $defaultvalues->bookingname = $booking->booking->name;
+    $defaultvalues->bookingname = $booking->settings->name;
     $defaultvalues->optionid = -1;
-    $defaultvalues->bookingid = $booking->booking->id;
+    $defaultvalues->bookingid = $booking->settings->id;
     $defaultvalues->id = $cm->id;
-} else if ($defaultvalues = $DB->get_record('booking_options', array('bookingid' => $booking->booking->id, 'id' => $optionid))) {
+} else if ($defaultvalues = $DB->get_record('booking_options', array('bookingid' => $booking->settings->id, 'id' => $optionid))) {
     $defaultvalues->optionid = $optionid;
-    $defaultvalues->bookingname = $booking->booking->name;
+    $defaultvalues->bookingname = $booking->settings->name;
     $defaultvalues->description = array('text' => $defaultvalues->description,
         'format' => FORMAT_HTML);
     $defaultvalues->notificationtext = array('text' => $defaultvalues->notificationtext,
@@ -156,7 +156,7 @@ if ($mform->is_cancelled()) {
         }
     }
 } else {
-    $PAGE->set_title(format_string($booking->booking->name));
+    $PAGE->set_title(format_string($booking->settings->name));
     $PAGE->set_heading($course->fullname);
     echo $OUTPUT->header();
 

@@ -79,7 +79,7 @@ if ($edit === 0) {
                 redirect($url, get_string('selectatleastoneuser', 'booking'), 5);
             }
 
-            booking_activitycompletion_teachers($selectedusers, $booking->booking, $cm->id,
+            booking_activitycompletion_teachers($selectedusers, $booking->settings, $cm->id,
                     $optionid);
             redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);
         }

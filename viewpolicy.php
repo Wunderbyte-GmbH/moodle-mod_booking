@@ -20,7 +20,7 @@ $id = required_param('id', PARAM_INT);
 $booking = new \mod_booking\booking($id);
 $booking->apply_tags();
 
-$context = context_course::instance($booking->booking->course);
+$context = context_course::instance($booking->settings->course);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 
@@ -36,7 +36,7 @@ echo $OUTPUT->heading(get_string("bookingpolicy", "booking"), 2);
 
 echo $OUTPUT->box_start('generalbox', 'tag-blogs'); // Could use an id separate from tag-blogs, but looks the same with that id.
 
-echo $booking->booking->bookingpolicy;
+echo $booking->settings->bookingpolicy;
 
 echo $OUTPUT->box_end();
 

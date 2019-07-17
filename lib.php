@@ -85,7 +85,7 @@ function booking_get_coursemodule_info($cm) {
     $info = new cached_cm_info();
     $booking = new mod_booking\booking($cm->id);
     $booking->apply_tags();
-    $info->name = $booking->booking->name;
+    $info->name = $booking->settings->name;
     return $info;
 }
 
@@ -813,57 +813,6 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
         return $status;
     }
     return get_string('notbooked', 'booking');
-}
-
-/**
- * Display a message about the maximum nubmer of bookings this user is allowed to make
- *
- * @param object $booking
- * @param object $user
- * @return string
- */
-function booking_show_maxperuser($booking, $user) {
-    global $USER;
-
-    $warning = '';
-
-    if (!empty($booking->booking->banusernames)) {
-        $disabledusernames = explode(',', $booking->booking->banusernames);
-
-        foreach ($disabledusernames as $value) {
-            if (strpos($USER->username, trim($value)) !== false) {
-                $warning = html_writer::tag('p', get_string('banusernameswarning', 'mod_booking'));
-            }
-        }
-    }
-
-    if (!$booking->booking->maxperuser) {
-        return $warning; // No per-user limits.
-    }
-
-    $outdata = new stdClass();
-    $outdata->limit = $booking->booking->maxperuser;
-    $outdata->count = booking_get_user_booking_count($booking, $user);
-    $outdata->eventtype = $booking->booking->eventtype;
-
-    $warning .= html_writer::tag('p', get_string('maxperuserwarning', 'mod_booking', $outdata));
-    return $warning;
-}
-
-/**
- * Determins the number of bookings that a single user has already made in all booking options
- *
- * @param object $booking
- * @param object $user
- * @return number of bookings made by user
- */
-function booking_get_user_booking_count($booking, $user) {
-    global $DB;
-
-    $result = $DB->get_records('booking_answers',
-            array('bookingid' => $booking->id, 'userid' => $user->id));
-
-    return count($result);
 }
 
 /**
@@ -1820,18 +1769,18 @@ function booking_sendpollurlteachers(\mod_booking\booking_option $booking, $cmid
     $returnval = true;
 
     $teachers = $DB->get_records("booking_teachers",
-            array("optionid" => $optionid, 'bookingid' => $booking->booking->id));
+            array("optionid" => $optionid, 'bookingid' => $booking->settings->id));
 
     foreach ($teachers as $tuser) {
         $userdata = $DB->get_record('user', array('id' => $tuser->userid));
 
-        $params = booking_generate_email_params($booking->booking, $booking->option, $userdata,
+        $params = booking_generate_email_params($booking->settings, $booking->option, $userdata,
                 $cmid, $booking->optiontimes);
 
-        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurlteacherstext',
+        $pollurlmessage = booking_get_email_body($booking->settings, 'pollurlteacherstext',
                 'pollurlteacherstextmessage', $params);
-        $booking->booking->pollurlteacherstext = $pollurlmessage;
-        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurlteacherstext',
+        $booking->settings->pollurlteacherstext = $pollurlmessage;
+        $pollurlmessage = booking_get_email_body($booking->settings, 'pollurlteacherstext',
                 'pollurlteacherstextmessage', $params);
 
         $eventdata = new stdClass();
@@ -1867,16 +1816,16 @@ function booking_sendpollurl($userids, \mod_booking\booking_option $booking, $cm
 
     $returnval = true;
 
-    $sender = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));
+    $sender = $DB->get_record('user', array('username' => $booking->settings->bookingmanager));
 
     foreach ($userids as $userid) {
         $tuser = $DB->get_record('user', array('id' => $userid));
 
-        $params = booking_generate_email_params($booking->booking, $booking->option, $tuser, $cmid, $booking->optiontimes);
+        $params = booking_generate_email_params($booking->settings, $booking->option, $tuser, $cmid, $booking->optiontimes);
 
-        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext',
+        $pollurlmessage = booking_get_email_body($booking->settings, 'pollurltext',
                 'pollurltextmessage', $params);
-        $booking->booking->pollurltext = $pollurlmessage;
+        $booking->settings->pollurltext = $pollurlmessage;
 
         $eventdata = new stdClass();
         $eventdata->modulename = 'booking';
@@ -1984,9 +1933,9 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
         foreach ($allusers as $record) {
             $ruser = $DB->get_record('user', array('id' => $record->id));
 
-            $params = booking_generate_email_params($bookingdata->booking, $bookingdata->option,
+            $params = booking_generate_email_params($bookingdata->settings, $bookingdata->option,
                     $ruser, $cm->id, $bookingdata->optiontimes);
-            $pollurlmessage = booking_get_email_body($bookingdata->booking, 'notifyemail',
+            $pollurlmessage = booking_get_email_body($bookingdata->settings, 'notifyemail',
                     'notifyemaildefaultmessage', $params);
 
             $eventdata = new \core\message\message();
@@ -2002,7 +1951,7 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
             $eventdata->name = 'bookingconfirmation';
             // $eventdata->modulename = 'booking';
             if ($CFG->branch > 31) {
-                $eventdata->courseid = $bookingdata->booking->course;
+                $eventdata->courseid = $bookingdata->settings->course;
             }
 
             $returnval = message_send($eventdata);
@@ -2362,7 +2311,7 @@ function booking_optionid_subscribe($userid, $optionid, $cm, $groupid = '') {
     $sub = new stdClass();
     $sub->userid = $userid;
     $sub->optionid = $optionid;
-    $sub->bookingid = $option->booking->id;
+    $sub->bookingid = $option->settings->id;
 
     $inserted = $DB->insert_record("booking_teachers", $sub);
 
@@ -2370,7 +2319,7 @@ function booking_optionid_subscribe($userid, $optionid, $cm, $groupid = '') {
         groups_add_member($groupid, $userid);
     }
 
-    $option->enrol_user($userid, false, $option->booking->teacherroleid);
+    $option->enrol_user($userid, false, $option->settings->teacherroleid);
     if ($inserted) {
         $event = \mod_booking\event\teacher_added::create(
                 array('relateduserid' => $userid, 'objectid' => $optionid,

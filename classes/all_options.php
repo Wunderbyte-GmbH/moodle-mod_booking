@@ -310,11 +310,11 @@ class all_options extends table_sql {
 
         if (strlen($values->location) > 0) {
             $output .= \html_writer::empty_tag('br');
-            $output .= (empty($this->booking->booking->lbllocation) ? get_string('location', 'booking') : $this->booking->booking->lbllocation). ': ' . $values->location;
+            $output .= (empty($this->booking->settings->lbllocation) ? get_string('location', 'booking') : $this->booking->settings->lbllocation). ': ' . $values->location;
         }
         if (strlen($values->institution) > 0) {
             $output .= \html_writer::empty_tag('br');
-            $output .= (empty($this->booking->booking->lblinstitution) ? get_string('institution', 'booking') : $this->booking->booking->lblinstitution) . ': ' .
+            $output .= (empty($this->booking->settings->lblinstitution) ? get_string('institution', 'booking') : $this->booking->settings->lblinstitution) . ': ' .
                      $values->institution;
         }
 
@@ -330,7 +330,7 @@ class all_options extends table_sql {
         }
 
         $output .= (!empty($values->teachers) ? " <br />" .
-                 (empty($this->booking->booking->lblteachname) ? get_string('teachers', 'booking') : $this->booking->booking->lblteachname) .
+                 (empty($this->booking->settings->lblteachname) ? get_string('teachers', 'booking') : $this->booking->settings->lblteachname) .
                  ": " . $values->teachers : '');
 
         // Custom fields.
@@ -459,7 +459,7 @@ class all_options extends table_sql {
             $buttonoptions = array('answer' => $values->id, 'id' => $this->cm->id,
                 'sesskey' => $USER->sesskey);
 
-            if (empty($this->booking->booking->bookingpolicy)) {
+            if (empty($this->booking->settings->bookingpolicy)) {
                 $buttonoptions['confirm'] = 1;
             }
 
@@ -479,8 +479,8 @@ class all_options extends table_sql {
             $delete = '';
         }
 
-        if (!empty($this->booking->booking->banusernames)) {
-            $disabledusernames = explode(',', $this->booking->booking->banusernames);
+        if (!empty($this->booking->settings->banusernames)) {
+            $disabledusernames = explode(',', $this->booking->settings->banusernames);
 
             foreach ($disabledusernames as $value) {
                 if (strpos($USER->username, trim($value)) !== false) {
@@ -505,7 +505,7 @@ class all_options extends table_sql {
             get_string("viewallresponses", "booking", $numberofresponses) . "</a>";
         }
 
-        if ($this->booking->booking->ratings > 0) {
+        if ($this->booking->settings->ratings > 0) {
             $manage .= '<div><select class="starrating" id="rate' . $values->id .
             '" data-current-rating="' . $values->myrating . '" data-itemid="' .
             $values->id. '">

@@ -55,8 +55,8 @@ if (!empty($action)) {
 if (!empty($whichview)) {
     $urlparams['whichview'] = $whichview;
 } else {
-    $urlparams['whichview'] = $booking->booking->whichview;
-    $whichview = $booking->booking->whichview;
+    $urlparams['whichview'] = $booking->settings->whichview;
+    $whichview = $booking->settings->whichview;
 }
 
 if ($optionid > 0) {
@@ -140,7 +140,7 @@ $strbookings = get_string('modulenameplural', 'booking');
 // Check if data has been submitted to be processed.
 if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
          has_capability('mod/booking:choose', $context) and
-         ($booking->booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
+         ($booking->settings->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
     $bookingdata = new \mod_booking\booking_option($cm->id, $optionid);
     $bookingdata->apply_tags();
 
@@ -165,7 +165,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
     }
 } else if ($action == 'delbooking' and confirm_sesskey() and
          has_capability('mod/booking:choose', $context) and
-         ($booking->booking->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
+         ($booking->settings->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
     echo $OUTPUT->header();
 
     $bookingdata = new \mod_booking\booking_option($cm->id, $optionid);
@@ -196,8 +196,8 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context) &
     die();
 }
 
-$PAGE->set_title(format_string($booking->booking->name));
-$PAGE->set_heading($booking->booking->name);
+$PAGE->set_title(format_string($booking->settings->name));
+$PAGE->set_heading($booking->settings->name);
 $PAGE->requires->strings_for_js(['commentscount', 'addcomment', 'deletecommentbyon'], 'moodle');
 
 // Submit any new data if there is any.
@@ -212,7 +212,7 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
         $bookingdata->apply_tags();
         if ($bookingdata->user_submit_response($USER)) {
             $contents = get_string('bookingsaved', 'booking');
-            if ($booking->booking->sendmail) {
+            if ($booking->settings->sendmail) {
                 $contents .= "<br />" . get_string('mailconfirmationsent', 'booking') . ".";
             }
             $contents .= $OUTPUT->single_button($url,
@@ -298,7 +298,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
     }
 
     $tablealloptions = new all_options('mod_booking_all_options', $booking, $cm, $context);
-    $tablealloptions->is_downloading($download, $booking->booking->name, $booking->booking->name);
+    $tablealloptions->is_downloading($download, $booking->settings->name, $booking->settings->name);
 
     $tablealloptions->define_baseurl($sorturl);
     $tablealloptions->defaultdownloadformat = 'ods';
@@ -317,42 +317,42 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         echo '<div class="clearer"></div>';
 
-        if ($booking->booking->showhelpfullnavigationlinks) {
+        if ($booking->settings->showhelpfullnavigationlinks) {
             echo $html = html_writer::tag('div',
                     '<a id="gotop" href="#goenrol">' . get_string('goenrol', 'booking') . '</a>',
                     array('style' => 'width:100%; font-weight: bold; text-align: right;'));
-            echo html_writer::tag('div', format_module_intro('booking', $booking->booking, $cm->id),
+            echo html_writer::tag('div', format_module_intro('booking', $booking->settings, $cm->id),
                     array('class' => 'intro'));
         }
 
-        if (!empty($booking->booking->duration)) {
+        if (!empty($booking->settings->duration)) {
             echo html_writer::start_tag('div');
             echo html_writer::tag('label', get_string('eventduration', 'booking') . ': ',
                     array('class' => 'bold'));
-            echo html_writer::tag('span', $booking->booking->duration);
+            echo html_writer::tag('span', $booking->settings->duration);
             echo html_writer::end_tag('div');
         }
 
-        if (!empty($booking->booking->points) && ($booking->booking->points != 0)) {
+        if (!empty($booking->settings->points) && ($booking->settings->points != 0)) {
             echo html_writer::start_tag('div');
             echo html_writer::tag('label', get_string('eventpoints', 'booking') . ': ',
                     array('class' => 'bold'));
-            echo html_writer::tag('span', $booking->booking->points);
+            echo html_writer::tag('span', $booking->settings->points);
             echo html_writer::end_tag('div');
         }
 
-        if (!empty($booking->booking->organizatorname)) {
+        if (!empty($booking->settings->organizatorname)) {
             echo html_writer::start_tag('div');
             echo html_writer::tag('label', get_string('organizatorname', 'booking') . ': ',
                     array('class' => 'bold'));
-            echo html_writer::tag('span', $booking->booking->organizatorname);
+            echo html_writer::tag('span', $booking->settings->organizatorname);
             echo html_writer::end_tag('div');
         }
 
         $out = array();
         $fs = get_file_storage();
         $files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanager',
-                $booking->booking->id);
+                $booking->settings->id);
 
         if (count($files) > 0) {
             echo html_writer::start_tag('div');
@@ -373,12 +373,12 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             echo html_writer::end_tag('div');
         }
         if (!empty($CFG->usetags)) {
-            $tags = core_tag_tag::get_item_tags('mod_booking', 'booking', $booking->booking->id);
+            $tags = core_tag_tag::get_item_tags('mod_booking', 'booking', $booking->settings->id);
             echo $OUTPUT->tag_list($tags, null, 'booking-tags');
         }
 
-        if ($booking->booking->categoryid != '0' && $booking->booking->categoryid != '') {
-            $categoryies = explode(',', $booking->booking->categoryid);
+        if ($booking->settings->categoryid != '0' && $booking->settings->categoryid != '') {
+            $categoryies = explode(',', $booking->settings->categoryid);
 
             if (count($categoryies) > 0) {
                 $links = array();
@@ -397,31 +397,31 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             }
         }
 
-        if (strlen($booking->booking->bookingpolicy) > 0) {
+        if (strlen($booking->settings->bookingpolicy) > 0) {
             $link = new moodle_url('/mod/booking/viewpolicy.php', array('id' => $cm->id));
             echo $OUTPUT->action_link($link, get_string("bookingpolicy", "booking"),
                     new popup_action('click', $link));
         }
 
-        if ($booking->booking->showhelpfullnavigationlinks) {
+        if ($booking->settings->showhelpfullnavigationlinks) {
             echo $html = html_writer::tag('div',
                     '<a id="goenrol" href="#gotop">' . get_string('gotop', 'booking') . '</a>',
                     array('style' => 'width:100%; font-weight: bold; text-align: right;'));
         }
 
-        if ($booking->booking->timeclose != 0) {
-            if ($booking->booking->timeopen > $timenow &&
+        if ($booking->settings->timeclose != 0) {
+            if ($booking->settings->timeopen > $timenow &&
                      !has_capability('mod/booking:updatebooking', $context)) {
                 echo $OUTPUT->box(
                         get_string("notopenyet", "booking",
-                                userdate($booking->booking->timeopen, get_string('strftimedate'))),
+                                userdate($booking->settings->timeopen, get_string('strftimedate'))),
                         "center");
                 echo $OUTPUT->footer();
                 exit();
-            } else if ($booking->booking->timeclose < $timenow &&
+            } else if ($booking->settings->timeclose < $timenow &&
                      !has_capability('mod/booking:updatebooking', $context)) {
                 echo $OUTPUT->box(
-                        get_string("expired", "booking", userdate($booking->booking->timeclose)),
+                        get_string("expired", "booking", userdate($booking->settings->timeclose)),
                         "center");
                 $bookingopen = false;
                 echo $OUTPUT->footer();
@@ -448,12 +448,12 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                 $hidden .= '<input value="' . $value . '" type="hidden" name="' . $key . '">';
             }
         }
-        $labelbooking = (empty($booking->booking->lblbooking) ? get_string('booking', 'booking') : $booking->booking->lblbooking);
-        $labellocation = (empty($booking->booking->lbllocation) ? get_string('location', 'booking') : $booking->booking->lbllocation);
-        $labelinstitution = (empty($booking->booking->lblinstitution) ? get_string('institution', 'booking') : $booking->booking->lblinstitution);
-        $labelsearchname = (empty($booking->booking->lblname) ? get_string('searchname', 'booking') : $booking->booking->lblname);
-        $labelsearchsurname = (empty($booking->booking->lblsurname) ? get_string('searchsurname',
-                'booking') : $booking->booking->lblsurname);
+        $labelbooking = (empty($booking->settings->lblbooking) ? get_string('booking', 'booking') : $booking->settings->lblbooking);
+        $labellocation = (empty($booking->settings->lbllocation) ? get_string('location', 'booking') : $booking->settings->lbllocation);
+        $labelinstitution = (empty($booking->settings->lblinstitution) ? get_string('institution', 'booking') : $booking->settings->lblinstitution);
+        $labelsearchname = (empty($booking->settings->lblname) ? get_string('searchname', 'booking') : $booking->settings->lblname);
+        $labelsearchsurname = (empty($booking->settings->lblsurname) ? get_string('searchsurname',
+                'booking') : $booking->settings->lblsurname);
 
         $row = new html_table_row(
                 array($labelbooking,
@@ -506,7 +506,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         }
         echo html_writer::tag('form', html_writer::table($table));
 
-        $optionsfields = explode(',', $booking->booking->optionsfields);
+        $optionsfields = explode(',', $booking->settings->optionsfields);
 
         foreach ($optionsfields as $value) {
             switch ($value) {
@@ -623,7 +623,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $conditionsparams['userid3'] = $USER->id;
         $conditionsparams['userid4'] = $USER->id;
         $conditionsparams['userid5'] = $USER->id;
-        $conditionsparams['bookingid'] = $booking->booking->id;
+        $conditionsparams['bookingid'] = $booking->settings->id;
 
         $tablealloptions->set_sql($fields, $from, $where, $conditionsparams);
 
@@ -631,7 +631,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $tablealloptions->define_headers($headers);
         unset($tablealloptions->attributes['cellspacing']);
 
-        $paging = $booking->booking->paginationnum;
+        $paging = $booking->settings->paginationnum;
         if ($paging == 0) {
             $paging = 25;
         }
@@ -771,7 +771,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $conditionsparams['userid1'] = $USER->id;
         $conditionsparams['userid2'] = $USER->id;
         $conditionsparams['userid3'] = $USER->id;
-        $conditionsparams['bookingid'] = $booking->booking->id;
+        $conditionsparams['bookingid'] = $booking->settings->id;
         $conditionsparams['tcourseid'] = $course->id;
         $tablealloptions->define_columns($columns);
         $tablealloptions->define_headers($headers);
