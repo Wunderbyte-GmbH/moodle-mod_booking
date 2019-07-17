@@ -20,7 +20,7 @@ defined('MOODLE_INTERNAL') || die();
 class mod_booking_bookingform_form extends moodleform {
 
     public function definition() {
-        global $CFG, $DB, $COURSE;
+        global $CFG, $COURSE;
         $mform = & $this->_form;
         $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -276,6 +276,7 @@ class mod_booking_bookingform_form extends moodleform {
     }
 
     public function validation($data, $files) {
+        global $DB;
         $errors = parent::validation($data, $files);
 
         if (strlen($data['pollurl']) > 0) {
@@ -294,6 +295,22 @@ class mod_booking_bookingform_form extends moodleform {
         $groupid = groups_get_group_by_name($data['courseid'], $groupname);
         if ($groupid && $data['optionid'] == 0) {
             $errors['text'] = get_string('groupexists', 'booking');
+        }
+
+        if ($data['optionid'] == -1) {
+            // To prevent duplicate option names when creating a new booking option.
+            if ($DB->record_exists('booking_options', array('text' => $data['text'], 'bookingid' => $data['bookingid']))) {
+                $errors['text'] = get_string('duplicatename', 'mod_booking');
+            }
+        } else {
+            // To prevent duplicate option names when updating existing booking options.
+            $sql = "SELECT 'id'
+                    FROM {booking_options} bo
+                    WHERE bo.text = ? AND bo.bookingid = ? AND bo.id <> ?";
+            $params = array($data['text'], $data['bookingid'], $data['optionid']);
+            if ($DB->record_exists_sql($sql, $params)) {
+                $errors['text'] = get_string('duplicatename', 'mod_booking');
+            }
         }
 
         return $errors;

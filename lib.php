@@ -930,7 +930,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             if (has_capability ( 'mod/booking:readresponses', $context ) || booking_check_if_teacher ($option, $USER )) {
                 $completion = new \completion_info($course);
                 if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $booking->enablecompletion) {
-                    $settingnode->add(get_string('confirmactivitycompletion', 'booking'),
+                    $settingnode->add(get_string('activitycompletion', 'completion'),
                         new moodle_url('/mod/booking/confirmactivity.php',
                                 array('id' => $cm->id, 'optionid' => $optionid)));
                 }

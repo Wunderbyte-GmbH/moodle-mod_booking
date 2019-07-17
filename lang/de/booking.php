@@ -120,7 +120,7 @@ $string['showhelpfullnavigationlinks_help'] = 'Zeige \'Zu den Buchungen\' and \'
 $string['completionmodule'] = 'Aktiviere Massenlöschung von getätigten Buchungen basierend auf den Aktivitätsabschluss einer Kursaktivität';
 $string['completionmodule_help'] = 'Button zum Löschen aller Buchungen anzeigen, wenn eine andere Kursaktivität abgeschlossen wurde. Die Buchungen von Benutzern werden mit einem Klick auf einen Button auf der Berichtsseite gelöscht! Nur Aktivitäten mit aktiviertem Abschluss können aus der Liste ausgewählt werden.';
 $string['teacherroleid'] = 'Wähle folgende Rolle, um Lehrkräfte in den Kurs einzuschreiben.';
-
+$string['bookingoptiontitle'] = 'Bezeichnung für die Buchungsoption';
 
 // Categories
 $string['category'] = 'Kategorie';
@@ -558,7 +558,7 @@ $string['groupdeleted'] = 'Diese Buchung erstellt automatisch Gruppen im Zielkur
 $string['recreategroup'] = 'Gruppe erneut anlegen und Nutzer/innen der Gruppe zuordnen';
 $string['copy'] = ' - Kopieren';
 $string['enrolmentstatus'] = 'Nutzer/innen nicht sofort in Kurs einschreiben sondern erst zu Kursbeginn';
-
+$string['duplicatename'] = 'Diese Bezeichnung für eine Buchungsoption existiert bereits. Bitte wählen Sie eine andere.';
 
 // importoptions.php
 $string['csvfile'] = 'CSV Datei';

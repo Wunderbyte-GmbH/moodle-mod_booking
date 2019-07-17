@@ -1862,5 +1862,19 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019071700, 'booking');
     }
 
+    if ($oldversion < 2019071701) {
+
+        // Change title of booking option to char
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('text', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'bookingid');
+
+        // Conditionally launch add field teacherroleid.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_type($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2019071701, 'booking');
+    }
     return true;
 }
