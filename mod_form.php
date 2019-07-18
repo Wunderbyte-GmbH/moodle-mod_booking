@@ -173,12 +173,14 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // Booking manager.
         $contextbooking = $this->get_context();
+        $choosepotentialmanager = [];
+        $potentials[$USER->id] = $USER;
         $potentials1 = get_users_by_capability($contextbooking, 'mod/booking:readresponses',
             'u.id, u.firstname, u.lastname, u.username, u.email');
         $potentials2 = get_users_by_capability($contextbooking, 'moodle/course:update',
             'u.id, u.firstname, u.lastname, u.username, u.email');
-        $potentialmanagers = array_merge ($potentials1, $potentials2);
-        foreach ($potentialmanagers as $id => $potentialmanager) {
+        $potentialmanagers = array_merge ($potentials1, $potentials2, $potentials);
+        foreach ($potentialmanagers as $potentialmanager) {
             $choosepotentialmanager[$potentialmanager->username] = $potentialmanager->firstname . ' ' . $potentialmanager->lastname . ' (' .
             $potentialmanager->email . ')';
         }
