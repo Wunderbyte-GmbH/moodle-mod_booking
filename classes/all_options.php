@@ -414,7 +414,7 @@ class all_options extends table_sql {
         global $OUTPUT, $USER;
 
         $delete = '';
-        $status = '';
+        $availabibility = '';
         $button = '';
         $booked = '';
         $manage = '';
@@ -423,18 +423,18 @@ class all_options extends table_sql {
         $underlimit = ($values->maxperuser == 0);
         $underlimit = $underlimit || ($values->bookinggetuserbookingcount < $values->maxperuser);
         if (!$values->limitanswers) {
-            $status = "available";
+            $availabibility = "available";
         } else if (($values->waiting + $values->booked) >= ($values->maxanswers + $values->maxoverbooking)) {
-            $status = "full";
+            $availabibility = "full";
         }
 
         if (time() > $values->bookingclosingtime and $values->bookingclosingtime != 0) {
-            $status = "closed";
+            $availabibility = "closed";
         }
 
         // I'm booked or not.
         if ($values->iambooked) {
-            if ($values->allowupdate and $status != 'closed' and $values->completed != 1) {
+            if ($values->allowupdate and $availabibility != 'closed' and $values->completed != 1) {
 
                 $buttonoptions = array('id' => $this->cm->id, 'action' => 'delbooking',
                     'optionid' => $values->id, 'sesskey' => $USER->sesskey);
@@ -450,17 +450,24 @@ class all_options extends table_sql {
                 }
             }
 
-            if ($values->completed) {
+            if (!empty($values->completed)) {
                 $completed = '<div class="">' . get_string('completed', 'mod_booking') . '<span class="fa fa-check float-right"> </span> </div>';
             } else {
                 $completed = '';
             }
+
+            if (!empty($values->status)) {
+                $status = '<div class="">' . get_string('presence', 'mod_booking') .
+                    '<span class="badge badge-default float-right">' . $this->col_status($values) . '</span> </div>';
+            } else {
+                $status = '';
+            }
             if ($values->waitinglist) {
                 $booked .= '<div class="alert alert-info">' . get_string('onwaitinglist', 'booking') . '</div>';
             } else if ($inpast) {
-                $booked .= '<div class="alert alert-success">' . get_string('bookedpast', 'booking') . $completed . '</div>';
+                $booked .= '<div class="alert alert-success">' . get_string('bookedpast', 'booking') . $completed . $status . '</div>';
             } else {
-                $booked .= '<div class="alert alert-success">' . get_string('booked', 'booking') . $completed . '</div>';
+                $booked .= '<div class="alert alert-success">' . get_string('booked', 'booking') . $completed . $status . '</div>';
             }
         } else {
             $buttonoptions = array('answer' => $values->id, 'id' => $this->cm->id,
@@ -476,7 +483,7 @@ class all_options extends table_sql {
                     'post');
         }
 
-        if (($values->limitanswers && ($status == "full")) || ($status == "closed") || !$underlimit || $values->disablebookingusers) {
+        if (($values->limitanswers && ($availabibility == "full")) || ($availabibility == "closed") || !$underlimit || $values->disablebookingusers) {
             $button = '';
         }
 

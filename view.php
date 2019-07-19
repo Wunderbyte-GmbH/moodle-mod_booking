@@ -574,6 +574,12 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                      AND ba.completed = 1
                      AND ba.userid = :userid4) AS completed,
 
+                  (SELECT status
+                   FROM {booking_answers} ba
+                   WHERE ba.optionid = bo.id
+                     AND ba.status > 0
+                     AND ba.userid = :userid6) AS status,
+
                   (SELECT DISTINCT(ba.waitinglist)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
@@ -621,6 +627,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $conditionsparams['userid3'] = $USER->id;
         $conditionsparams['userid4'] = $USER->id;
         $conditionsparams['userid5'] = $USER->id;
+        $conditionsparams['userid6'] = $USER->id;
         $conditionsparams['bookingid'] = $booking->settings->id;
 
         $tablealloptions->set_sql($fields, $from, $where, $conditionsparams);
