@@ -26,7 +26,10 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2014 David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_option extends booking {
+class booking_option {
+
+    /** @var booking object  */
+    public $booking = null;
 
     /** @var array of stdClass objects including status: key is booking_answer id $allusers->userid, $allusers->waitinglist */
     protected $allusers = array();
@@ -40,6 +43,7 @@ class booking_option extends booking {
     /** @var array of users subscribeable to booking option if groups enabled, members of groups user has access to */
     public $potentialusers = array();
 
+    /** @var integer id of the booking option in table booking_options */
     public $optionid = null;
 
     /** @var booking option config object */
@@ -102,10 +106,11 @@ class booking_option extends booking {
      */
     public function __construct($cmid, $optionid, $filters = array(), $page = 0, $perpage = 0, $getusers = true) {
         global $DB, $USER;
-        parent::__construct($cmid);
+
+        $this->booking = new booking($cmid);
         $this->optionid = $optionid;
         $this->option = $DB->get_record('booking_options',
-                array('id' => $optionid, 'bookingid' => $this->id), '*', MUST_EXIST);
+                array('id' => $optionid, 'bookingid' => $this->booking->id), '*', MUST_EXIST);
         $times = $DB->get_records_sql(
                 "SELECT id, coursestarttime, courseendtime
                    FROM {booking_optiondates}
@@ -191,7 +196,7 @@ class booking_option extends booking {
             }
 
             $connectedbooking = $DB->get_record("booking",
-                    array('conectedbooking' => $this->settings->id), 'id', IGNORE_MULTIPLE);
+                    array('conectedbooking' => $this->booking->settings->id), 'id', IGNORE_MULTIPLE);
 
             if ($connectedbooking) {
 
@@ -232,15 +237,14 @@ class booking_option extends booking {
      * @see booking::apply_tags()
      */
     public function apply_tags() {
-        parent::apply_tags();
-
-        $tags = new booking_tags($this->cm->course);
+        $this->booking->apply_tags();
+        $tags = new booking_tags($this->booking->cm->course);
         $this->option = $tags->option_replace($this->option);
     }
 
     public function get_url_params() {
         $bu = new booking_utils();
-        $params = $bu->generate_params($this->settings, $this->option);
+        $params = $bu->generate_params($this->booking->settings, $this->option);
         $this->option->pollurl = $bu->get_body($params, 'pollurl', $params, true);
         $this->option->pollurlteachers = $bu->get_body($params, 'pollurlteachers', $params, true);
     }
@@ -295,11 +299,11 @@ class booking_option extends booking {
             $options .= " AND u.lastname LIKE :searchsurname";
             $params['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
         }
-        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS and
+        if (groups_get_activity_groupmode($this->booking->cm) == SEPARATEGROUPS and
                  !has_capability('moodle/site:accessallgroups',
-                        \context_course::instance($this->course->id))) {
+                        \context_course::instance($this->booking->course->id))) {
             list($groupsql, $groupparams) = booking::booking_get_groupmembers_sql(
-                    $this->course->id);
+                    $this->booking->course->id);
             $options .= " AND u.id IN ($groupsql)";
             $params = array_merge($params, $groupparams);
         }
@@ -459,15 +463,15 @@ class booking_option extends booking {
     public function can_rate() {
         global $USER;
 
-        if ($this->settings->ratings == 0) {
+        if ($this->booking->settings->ratings == 0) {
             return false;
         }
 
-        if ($this->settings->ratings == 1) {
+        if ($this->booking->settings->ratings == 1) {
             return true;
         }
 
-        if ($this->settings->ratings == 2) {
+        if ($this->booking->settings->ratings == 2) {
             if (in_array($this->user_status($USER->id), array(1, 2))) {
                 return true;
             } else {
@@ -475,7 +479,7 @@ class booking_option extends booking {
             }
         }
 
-        if ($this->settings->ratings == 3) {
+        if ($this->booking->settings->ratings == 3) {
             if ($this->is_activity_completed($USER->id)) {
                 return true;
             } else {
@@ -497,28 +501,28 @@ class booking_option extends booking {
 
         $text = "";
 
-        $params = booking_generate_email_params($this->settings, $this->option, $USER, $this->cm->id, $this->optiontimes);
+        $params = booking_generate_email_params($this->booking->settings, $this->option, $USER, $this->booking->cm->id, $this->optiontimes);
 
         if (in_array($this->user_status($userid), array(1, 2))) {
             $ac = $this->is_activity_completed($userid);
             if ($ac == 1) {
                 if (!empty($this->option->aftercompletedtext)) {
                     $text = $this->option->aftercompletedtext;
-                } else if (!empty($this->settings->aftercompletedtext)) {
-                    $text = $this->settings->aftercompletedtext;
+                } else if (!empty($this->booking->settings->aftercompletedtext)) {
+                    $text = $this->booking->settings->aftercompletedtext;
                 }
             } else {
                 if (!empty($this->option->beforecompletedtext)) {
                     $text = $this->option->beforecompletedtext;
-                } else if (!empty($this->settings->beforecompletedtext)) {
-                    $text = $this->settings->beforecompletedtext;
+                } else if (!empty($this->booking->settings->beforecompletedtext)) {
+                    $text = $this->booking->settings->beforecompletedtext;
                 }
             }
         } else {
             if (!empty($this->option->beforebookedtext)) {
                 $text = $this->option->beforebookedtext;
-            } else if (!empty($this->settings->beforebookedtext)) {
-                $text = $this->settings->beforebookedtext;
+            } else if (!empty($this->booking->settings->beforebookedtext)) {
+                $text = $this->booking->settings->beforebookedtext;
             }
         }
 
@@ -537,8 +541,8 @@ class booking_option extends booking {
     public function update_booked_users() {
         global $DB, $USER;
 
-        if (empty($this->canbookusers)) {
-            $this->get_canbook_userids();
+        if (empty($this->booking->canbookusers)) {
+            $this->booking->get_canbook_userids();
         }
 
         $mainuserfields = \user_picture::fields('u', null);
@@ -549,17 +553,17 @@ class booking_option extends booking {
                   AND ba.bookingid = :bookingid
                   AND ba.optionid = :optionid
              ORDER BY ba.timemodified ASC";
-        $params = array("bookingid" => $this->id, "optionid" => $this->optionid);
+        $params = array("bookingid" => $this->booking->id, "optionid" => $this->optionid);
 
         // mod/booking:choose may have been revoked after the user has booked: not count them as booked.
         $allanswers = $DB->get_records_sql($sql, $params);
-        $this->bookedusers = array_intersect_key($allanswers, $this->canbookusers);
+        $this->bookedusers = array_intersect_key($allanswers, $this->booking->canbookusers);
         // TODO offer users with according caps to delete excluded users from booking option.
         $this->numberofanswers = count($this->bookedusers);
-        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS and
+        if (groups_get_activity_groupmode($this->booking->cm) == SEPARATEGROUPS and
                  !has_capability('moodle/site:accessallgroups',
-                        \context_course::instance($this->course->id))) {
-            $mygroups = groups_get_all_groups($this->course->id, $USER->id);
+                        \context_course::instance($this->booking->course->id))) {
+            $mygroups = groups_get_all_groups($this->booking->course->id, $USER->id);
             $mygroupids = array_keys($mygroups);
             list($insql, $inparams) = $DB->get_in_or_equal($mygroupids, SQL_PARAMS_NAMED, 'grp', true, -1);
 
@@ -573,11 +577,11 @@ class booking_option extends booking {
             GROUP BY u.id
             ORDER BY ba.timemodified ASC";
             $groupmembers = $DB->get_records_sql($sql, array_merge($params, $inparams));
-            $this->bookedvisibleusers = array_intersect_key($groupmembers, $this->canbookusers);
+            $this->bookedvisibleusers = array_intersect_key($groupmembers, $this->booking->canbookusers);
         } else {
             $this->bookedvisibleusers = $this->bookedusers;
         }
-        $this->potentialusers = array_diff_key($this->canbookusers, $this->bookedvisibleusers);
+        $this->potentialusers = array_diff_key($this->booking->canbookusers, $this->bookedvisibleusers);
         $this->sort_answers();
     }
 
@@ -587,7 +591,7 @@ class booking_option extends booking {
     public function sort_answers() {
         if (!empty($this->bookedusers) && null != $this->option) {
             foreach ($this->bookedusers as $rank => $userobject) {
-                $userobject->bookingcmid = $this->cm->id;
+                $userobject->bookingcmid = $this->booking->cm->id;
                 if (!$this->option->limitanswers) {
                     $userobject->booked = 'booked';
                 }
@@ -614,7 +618,7 @@ class booking_option extends booking {
         $ud = array();
         $oud = array();
         $users = $DB->get_records('course_modules_completion',
-                array('coursemoduleid' => $this->settings->completionmodule));
+                array('coursemoduleid' => $this->booking->settings->completionmodule));
         $ousers = $DB->get_records('booking_answers', array('optionid' => $this->optionid));
 
         foreach ($users as $u) {
@@ -679,42 +683,42 @@ class booking_option extends booking {
         // Log deletion of user.
         $event = event\booking_cancelled::create(
                 array('objectid' => $this->optionid,
-                    'context' => \context_module::instance($this->cm->id),
+                    'context' => \context_module::instance($this->booking->cm->id),
                     'relateduserid' => $user->id, 'other' => array('userid' => $user->id)));
         $event->trigger();
         $this->unenrol_user($user->id);
 
-        $params = booking_generate_email_params($this->settings, $this->option, $user, $this->cm->id, $this->optiontimes);
+        $params = booking_generate_email_params($this->booking->settings, $this->option, $user, $this->booking->cm->id, $this->optiontimes);
 
         if ($userid == $USER->id) {
             // I cancelled the booking.
-            $messagebody = booking_get_email_body($this->settings, 'userleave',
+            $messagebody = booking_get_email_body($this->booking->settings, 'userleave',
                     'userleavebookedmessage', $params);
             $subject = get_string('userleavebookedsubject', 'booking', $params);
         } else {
             // Booking manager cancelled the booking.
-            $messagebody = booking_get_email_body($this->settings, 'deletedtext',
+            $messagebody = booking_get_email_body($this->booking->settings, 'deletedtext',
                     'deletedbookingmessage', $params);
             $subject = get_string('deletedbookingsubject', 'booking', $params);
         }
 
         // TODO: user might have been deleted.
         $bookingmanager = $DB->get_record('user',
-                array('username' => $this->settings->bookingmanager));
+                array('username' => $this->booking->settings->bookingmanager));
 
-        $eventdata = new \stdClass();
+        $eventdata = new stdClass();
 
-        if ($this->settings->sendmail) {
+        if ($this->booking->settings->sendmail) {
             // Generate ical attachment to go with the message.
             $attachname = '';
             $attachment = '';
             if (\get_config('booking', 'icalcancel')) {
-                $ical = new ical($this->settings, $this->option, $user, $bookingmanager);
+                $ical = new ical($this->booking->settings, $this->option, $user, $bookingmanager);
                 $attachments = $ical->get_attachments(true);
             }
             $messagehtml = text_to_html($messagebody, false, false, true);
 
-            if (isset($this->settings->sendmailtobooker) && $this->settings->sendmailtobooker) {
+            if (isset($this->booking->settings->sendmailtobooker) && $this->booking->settings->sendmailtobooker) {
                 $eventdata->userto = $USER;
             } else {
                 $eventdata->userto = $user;
@@ -730,7 +734,7 @@ class booking_option extends booking {
             $sendtask->set_custom_data($eventdata);
             \core\task\manager::queue_adhoc_task($sendtask);
 
-            if ($this->settings->copymail) {
+            if ($this->booking->settings->copymail) {
                 $eventdata->userto = $bookingmanager;
                 $sendtask = new task\send_confirmation_mails();
                 $sendtask->set_custom_data($eventdata);
@@ -752,17 +756,17 @@ class booking_option extends booking {
                 $DB->update_record("booking_answers", $newuser);
                 $this->enrol_user_coursestart($newuser->userid);
 
-                if ($this->settings->sendmail == 1 || $this->settings->copymail) {
+                if ($this->booking->settings->sendmail == 1 || $this->booking->settings->copymail) {
                     $newbookeduser = $DB->get_record('user', array('id' => $newuser->userid));
-                    $params = booking_generate_email_params($this->settings, $this->option,
-                            $newbookeduser, $this->cm->id, $this->optiontimes);
-                    $messagetextnewuser = booking_get_email_body($this->settings, 'statuschangetext',
+                    $params = booking_generate_email_params($this->booking->settings, $this->option,
+                            $newbookeduser, $this->booking->cm->id, $this->optiontimes);
+                    $messagetextnewuser = booking_get_email_body($this->booking->settings, 'statuschangetext',
                             'statuschangebookedmessage', $params);
                     $messagehtml = text_to_html($messagetextnewuser, false, false, true);
 
                     // Generate ical attachment to go with the message.
                     $attachname = '';
-                    $ical = new ical($this->settings, $this->option, $newbookeduser,
+                    $ical = new ical($this->booking->settings, $this->option, $newbookeduser,
                             $bookingmanager);
                     if ($attachment = $ical->get_attachments()) {
                         $attachname = $ical->get_name();
@@ -774,12 +778,12 @@ class booking_option extends booking {
                     $eventdata->messagehtml = $messagehtml;
                     $eventdata->attachment = $attachment;
                     $eventdata->attachname = $attachname;
-                    if ($this->settings->sendmail == 1) {
+                    if ($this->booking->settings->sendmail == 1) {
                         $sendtask = new task\send_confirmation_mails();
                         $sendtask->set_custom_data($eventdata);
                         \core\task\manager::queue_adhoc_task($sendtask);
                     }
-                    if ($this->settings->copymail) {
+                    if ($this->booking->settings->copymail) {
                         $eventdata->userto = $bookingmanager;
                         $sendtask = new task\send_confirmation_mails();
                         $sendtask->set_custom_data($eventdata);
@@ -790,11 +794,11 @@ class booking_option extends booking {
         }
 
         // Remove activity completion.
-        $course = $DB->get_record('course', array('id' => $this->settings->course));
+        $course = $DB->get_record('course', array('id' => $this->booking->settings->course));
         $completion = new completion_info($course);
 
-        if ($completion->is_enabled($this->cm) && $this->settings->enablecompletion) {
-            $completion->update_state($this->cm, COMPLETION_INCOMPLETE, $userid);
+        if ($completion->is_enabled($this->booking->cm) && $this->booking->settings->enablecompletion) {
+            $completion->update_state($this->booking->cm, COMPLETION_INCOMPLETE, $userid);
         }
 
         return true;
@@ -805,17 +809,17 @@ class booking_option extends booking {
      *
      * @param number $newoption
      * @param array of numbers $userids
-     * @return \stdClass transferred->success = true/false, transferred->no[] errored users,
+     * @return stdClass transferred->success = true/false, transferred->no[] errored users,
      *         $transferred->yes transferred users
      */
     public function transfer_users_to_otheroption($newoption, $userids) {
         global $DB;
-        $transferred = new \stdClass();
+        $transferred = new stdClass();
         $transferred->yes = array(); // Successfully transferred users.
         $transferred->no = array(); // Errored users.
         $transferred->success = false;
-        $otheroption = new booking_option($this->cm->id, $newoption);
-        if (!empty($userids) && (has_capability('mod/booking:subscribeusers', $this->context) || booking_check_if_teacher(
+        $otheroption = new booking_option($this->booking->cm->id, $newoption);
+        if (!empty($userids) && (has_capability('mod/booking:subscribeusers', $this->booking->get_context()) || booking_check_if_teacher(
                 $otheroption->option))) {
             $transferred->success = true;
             list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, "limit_");
@@ -907,7 +911,7 @@ class booking_option extends booking {
     /**
      * Subscribe a user to a booking option
      *
-     * @param \stdClass $user
+     * @param stdClass $user
      * @param number $frombookingid
      * @param number $substractfromlimit this is used for transferring users from one option to
      *        another
@@ -929,17 +933,17 @@ class booking_option extends booking {
             return false;
         }
 
-        $underlimit = ($this->settings->maxperuser == 0);
+        $underlimit = ($this->booking->settings->maxperuser == 0);
         $underlimit = $underlimit ||
-                (($this->get_user_booking_count($user) - $substractfromlimit) < $this->settings->maxperuser);
+                (($this->booking->get_user_booking_count($user) - $substractfromlimit) < $this->booking->settings->maxperuser);
         if (!$underlimit) {
             return false;
         }
         $currentanswerid = $DB->get_field('booking_answers', 'id',
                 array('userid' => $user->id, 'optionid' => $this->optionid));
         if (!$currentanswerid) {
-            $newanswer = new \stdClass();
-            $newanswer->bookingid = $this->id;
+            $newanswer = new stdClass();
+            $newanswer->bookingid = $this->booking->id;
             $newanswer->frombookingid = $frombookingid;
             $newanswer->userid = $user->id;
             $newanswer->optionid = $this->optionid;
@@ -955,11 +959,11 @@ class booking_option extends booking {
 
         $event = event\bookingoption_booked::create(
                 array('objectid' => $this->optionid,
-                    'context' => \context_module::instance($this->cm->id),
+                    'context' => \context_module::instance($this->booking->cm->id),
                     'relateduserid' => $user->id, 'other' => array('userid' => $user->id)));
         $event->trigger();
 
-        if ($this->settings->sendmail) {
+        if ($this->booking->settings->sendmail) {
             $this->send_confirm_message($user);
         }
         return true;
@@ -969,20 +973,20 @@ class booking_option extends booking {
      * Event that sends confirmation notification after user successfully booked TODO this should be
      * rewritten for moodle 2.6 onwards
      *
-     * @param \stdClass $user user object
+     * @param stdClass $user user object
      * @return bool
      */
     public function send_confirm_message($user) {
         global $DB, $USER;
-        $cmid = $this->cm->id;
+        $cmid = $this->booking->cm->id;
         // Used to store the ical attachment (if required).
         $attachname = '';
         $attachments = array();
 
         $user = $DB->get_record('user', array('id' => $user->id));
         $bookingmanager = $DB->get_record('user',
-                array('username' => $this->settings->bookingmanager));
-        $data = booking_generate_email_params($this->settings, $this->option, $user, $cmid,
+                array('username' => $this->booking->settings->bookingmanager));
+        $data = booking_generate_email_params($this->booking->settings, $this->option, $user, $cmid,
                 $this->optiontimes);
 
         $cansend = true;
@@ -990,19 +994,19 @@ class booking_option extends booking {
         if ($data->status == get_string('booked', 'booking')) {
             $subject = get_string('confirmationsubject', 'booking', $data);
             $subjectmanager = get_string('confirmationsubjectbookingmanager', 'booking', $data);
-            $message = booking_get_email_body($this->settings, 'bookedtext', 'confirmationmessage',
+            $message = booking_get_email_body($this->booking->settings, 'bookedtext', 'confirmationmessage',
                     $data);
 
             // Generate ical attachments to go with the message.
             // Check if ical attachments enabled.
             if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
-                $ical = new ical($this->settings, $this->option, $user, $bookingmanager);
+                $ical = new ical($this->booking->settings, $this->option, $user, $bookingmanager);
                 $attachments = $ical->get_attachments();
             }
         } else if ($data->status == get_string('onwaitinglist', 'booking')) {
             $subject = get_string('confirmationsubjectwaitinglist', 'booking', $data);
             $subjectmanager = get_string('confirmationsubjectwaitinglistmanager', 'booking', $data);
-            $message = booking_get_email_body($this->settings, 'waitingtext',
+            $message = booking_get_email_body($this->booking->settings, 'waitingtext',
                     'confirmationmessagewaitinglist', $data);
         } else {
             // TODO: should never be reached.
@@ -1017,9 +1021,9 @@ class booking_option extends booking {
         $errormessagehtml = text_to_html($errormessage, false, false, true);
         $user->mailformat = FORMAT_HTML; // Always send HTML version as well.
 
-        $messagedata = new \stdClass();
+        $messagedata = new stdClass();
         $messagedata->userfrom = $bookingmanager;
-        if ($this->settings->sendmailtobooker) {
+        if ($this->booking->settings->sendmailtobooker) {
             $messagedata->userto = $DB->get_record('user', array('id' => $USER->id));
         } else {
             $messagedata->userto = $DB->get_record('user', array('id' => $user->id));
@@ -1036,7 +1040,7 @@ class booking_option extends booking {
             \core\task\manager::queue_adhoc_task($sendtask);
         }
 
-        if ($this->settings->copymail) {
+        if ($this->booking->settings->copymail) {
             $messagedata->userto = $bookingmanager;
             $messagedata->subject = $subjectmanager;
 
@@ -1058,7 +1062,7 @@ class booking_option extends booking {
     public function enrol_user($userid, $manual = false, $roleid = 0) {
         global $DB;
         if (!$manual) {
-            if (!$this->settings->autoenrol) {
+            if (!$this->booking->settings->autoenrol) {
                 return; // Autoenrol not enabled.
             }
         }
@@ -1082,7 +1086,7 @@ class booking_option extends booking {
         $instance = reset($instances); // Use the first manual enrolment plugin in the course.
         if ($this->user_status($userid) === 2) {
             $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid)); // Enrol using the default role.
-            if ($this->settings->addtogroup == 1) {
+            if ($this->booking->settings->addtogroup == 1) {
                 $groups = groups_get_all_groups($this->option->courseid);
                 if (!is_null($this->option->groupid) && ($this->option->groupid > 0) &&
                         in_array($this->option->groupid, $groups)) {
@@ -1107,7 +1111,7 @@ class booking_option extends booking {
     public function unenrol_user($userid) {
         global $DB;
 
-        if (!$this->settings->autoenrol) {
+        if (!$this->booking->settings->autoenrol) {
             return; // Autoenrol not enabled.
         }
         if (!$this->option->courseid) {
@@ -1125,7 +1129,7 @@ class booking_option extends booking {
                         'status' => ENROL_INSTANCE_ENABLED), 'sortorder,id ASC')) {
             return; // No manual enrolment instance on this course.
         }
-        if ($this->settings->addtogroup == 1) {
+        if ($this->booking->settings->addtogroup == 1) {
             if (!is_null($this->option->groupid) && ($this->option->groupid > 0)) {
                 $groupsofuser = groups_get_all_groups($this->option->courseid, $userid);
                 $numberofgroups = count($groupsofuser);
@@ -1149,7 +1153,7 @@ class booking_option extends booking {
      */
     public function create_group() {
         global $DB;
-        $newgroupdata = self::generate_group_data($this->settings, $this->option);
+        $newgroupdata = self::generate_group_data($this->booking->settings, $this->option);
         $groupids = array_keys(groups_get_all_groups($this->option->courseid));
         // If group name already exists, do not create it a second time, it should be unique.
         if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name)) {
@@ -1157,7 +1161,7 @@ class booking_option extends booking {
         }
         if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name) &&
                 !isset($this->option->id)) {
-            $url = new moodle_url('/mod/booking/view.php', array('id' => $this->cm->id));
+            $url = new moodle_url('/mod/booking/view.php', array('id' => $this->booking->cm->id));
             throw new \moodle_exception('groupexists', 'booking', $url->out());
         }
         if ($this->option->groupid > 0 && in_array($this->option->groupid, $groupids)) {
@@ -1220,12 +1224,12 @@ class booking_option extends booking {
             $this->unenrol_user($answer->userid); // Unenrol any users enrolled via this option.
         }
         if (!$DB->delete_records("booking_answers",
-                array("bookingid" => $this->id, "optionid" => $this->optionid))) {
+                array("bookingid" => $this->booking->id, "optionid" => $this->optionid))) {
             $result = false;
         }
 
         foreach ($this->get_teachers() as $teacher) {
-            booking_optionid_unsubscribe($teacher->userid, $this->optionid, $this->cm);
+            booking_optionid_unsubscribe($teacher->userid, $this->optionid, $this->booking->cm);
         }
 
         // Delete calendar entry, if any.
@@ -1246,14 +1250,14 @@ class booking_option extends booking {
             // Delete comments.
         $DB->delete_records("comments",
                 array('itemid' => $this->optionid, 'commentarea' => 'booking_option',
-                    'contextid' => $this->context->id));
+                    'contextid' => $this->booking->get_context()->id));
 
         if (!$DB->delete_records("booking_options", array("id" => $this->optionid))) {
             $result = false;
         }
 
         $event = event\bookingoption_deleted::create(
-                array('context' => $this->context, 'objectid' => $this->optionid,
+                array('context' => $this->booking->get_context(), 'objectid' => $this->optionid,
                     'userid' => $USER->id));
         $event->trigger();
 
@@ -1360,9 +1364,9 @@ class booking_option extends booking {
     public function confirmactivity($userid = null) {
         global $CFG, $DB;
         require_once($CFG->libdir . '/completionlib.php');
-        $course = $DB->get_record('course', array('id' => $this->cm->course));
-        $completion = new \completion_info($course);
-        $cm = get_coursemodule_from_id('booking', $this->cm->id, 0, false, MUST_EXIST);
+        $course = $DB->get_record('course', array('id' => $this->booking->cm->course));
+        $completion = new completion_info($course);
+        $cm = get_coursemodule_from_id('booking', $this->booking->cm->id, 0, false, MUST_EXIST);
 
         $suser = null;
 

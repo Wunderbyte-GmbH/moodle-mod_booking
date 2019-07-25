@@ -71,9 +71,9 @@ class signin_downloadform implements renderable, templatable {
      * @param \moodle_url $url baseurl
      */
     public function __construct(\mod_booking\booking_option $data, $url) {
-        $this->titleinstanceoption = $data->settings->name . ' - ' . $data->option->text;
+        $this->titleinstanceoption = $data->booking->settings->name . ' - ' . $data->option->text;
         $this->titleoption = $data->option->text;
-        $this->instanceoption = $data->settings->name;
+        $this->instanceoption = $data->booking->settings->name;
         $this->sessions = array();
         foreach ($data->sessions as $session) {
             $this->sessions[] = array('coursestarttime' => userdate($session->coursestarttime),
