@@ -124,7 +124,6 @@ $PAGE->set_heading($COURSE->fullname);
 
 if (has_capability('mod/booking:updatebooking', $context)) {
     $USER->subscriptionsediting = $edit;
-    $PAGE->set_button(booking_update_subscriptions_button($id, $optionid));
 } else {
     unset($USER->subscriptionsediting);
 }

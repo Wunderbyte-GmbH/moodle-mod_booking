@@ -2293,24 +2293,6 @@ function booking_get_extra_capabilities() {
     return array('moodle/site:accessallgroups');
 }
 
-function booking_update_subscriptions_button($id, $optionid) {
-    global $CFG, $USER;
-
-    if (!empty($USER->subscriptionsediting)) {
-        $string = get_string('turneditingoff');
-        $edit = "0";
-    } else {
-        $string = get_string('turneditingon');
-        $edit = "1";
-    }
-
-    return "<form method=\"get\" action=\"$CFG->wwwroot/mod/booking/teachers.php\">" .
-             "<input type=\"hidden\" name=\"id\" value=\"$id\" />" .
-             "<input type=\"hidden\" name=\"optionid\" value=\"$optionid\" />" .
-             "<input type=\"hidden\" name=\"edit\" value=\"$edit\" />" .
-             "<input type=\"submit\" value=\"$string\" /></form>";
-}
-
 /**
  * Adds user to the subscriber list
  *
