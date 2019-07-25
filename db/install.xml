@@ -97,13 +97,14 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="text" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="text" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="maxanswers" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="maxoverbooking" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="bookingclosingtime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="coursestarttime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="courseendtime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="enrolmentstatus" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="2" SEQUENCE="false" COMMENT="0 enrol at coursestart; 1 enrolment done; 2 immediately enrol"/>
         <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="descriptionformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="limitanswers" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>

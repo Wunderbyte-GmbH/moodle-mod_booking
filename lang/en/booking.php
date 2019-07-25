@@ -81,8 +81,7 @@ $string['fillinatleastoneoption'] = 'You need to provide at least two possible a
 $string['full'] = 'Full';
 $string['goenrol'] = 'Go to registration';
 $string['gotop'] = 'Go to top';
-$string['havetologin'] = 'You have to log in before you can submit your booking';
-$string['infonobookingoption'] = 'Please use the block {$a} in order to add your first booking option';
+$string['infonobookingoption'] = 'In order to add a booking option please use the settings block or the settings-icon on top of the page';
 $string['limit'] = 'Limit';
 $string['modulename'] = 'Booking';
 $string['modulenameplural'] = 'Bookings';
@@ -125,7 +124,7 @@ $string['btnbooknowname'] = 'Name of button: Book now';
 $string['btncacname'] = 'Name of button: Confirm activity completion';
 $string['btncancelname'] = 'Name of button: Cancel booking';
 $string['disablebookingusers'] = 'Disable booking of users - hide Book now button.';
-$string['howmanyusers'] = 'How many users you can book?';
+$string['howmanyusers'] = 'Max. number of users a teacher assigned to the option can book';
 $string['howmanyusers_help'] = '';
 $string['institution'] = 'Institution';
 $string['lblsputtname'] = 'Name of label: Send poll url to teachers';
@@ -136,11 +135,11 @@ $string['removeafterminutes'] = 'Remove activity completion after N minutes';
 $string['banusernames'] = 'Ban usernames';
 $string['banusernames_help'] = 'To limit which usernames can`t apply just write in this field, and separate with coma. To ban usernames, that end with gmail.com and yahoo.com just write: gmail.com, yahoo.com';
 $string['showhelpfullnavigationlinks'] = 'Show navigation links.';
-$string['showhelpfullnavigationlinks_helt'] = 'Show \'Go to registration\' and \'Go to top\' links.';
-$string['disabled'] = 'Disabled';
-$string['completionmodule'] = 'Activity completed';
-$string['completionmodule_help'] = 'Delete all users, that completed this activity. Users will be deleted with a click of button on report page!';
+$string['showhelpfullnavigationlinks_help'] = 'Show \'Go to registration\' and \'Go to top\' links.';
+$string['completionmodule'] = 'Upon completion of the selected course activity, enable bulk deletion of user bookings';
+$string['completionmodule_help'] = 'Display bulk deletion button for booking answers, if another course module has been completed. The bookings of users will be deleted with a click of a button on the report page! Only activities with completion enabled can be selected from the list.';
 $string['teacherroleid'] = 'Subscribe teacher with that role to the course';
+$string['bookingoptiontitle'] = 'Booking option title';
 
 // Categories
 $string['category'] = 'Category';
@@ -191,7 +190,7 @@ $string['showmybookingsonly'] = 'My bookings';
 $string['showactive'] = 'Active bookings';
 $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
 $string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option?';
-$string['norighttobook'] = 'Booking is not possible for your user role. Please contact the site administrator to give you the appropriate rights or sign in.';
+$string['norighttobook'] = 'Booking is not possible for your user role. Please contact the site administrator to give you the appropriate rights or enrol/sign in.';
 $string['createdby'] = 'Booking module created by edulabs.org';
 $string['maxperuserwarning'] = 'You currently have used {$a->count} out of {$a->limit} maximum available bookings ({$a->eventtype}) for your user account';
 $string['bookedpast'] = 'Booked (course terminated)';
@@ -203,7 +202,6 @@ $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mai
 $string['managebooking'] = 'Manage';
 $string['mustfilloutuserinfobeforebooking'] = 'Befor proceeding to the booking form, please fill in some personal booking information';
 $string['nobookingselected'] = 'No booking option selected';
-$string['norighttobook'] = 'Booking is not possible for your user role. Please contact the site administrator to give you the appropriate rights or sign in.';
 $string['notbooked'] = 'Not yet booked';
 $string['onwaitinglist'] = 'You are on the waiting list';
 $string['organizatorname'] = 'Organizer name';
@@ -211,6 +209,7 @@ $string['placesavailable'] = 'Places available: {$a->available} of {$a->maxanswe
 $string['pollurl'] = 'Poll url';
 $string['pollurlteachers'] = 'Teachers poll url';
 $string['select'] = 'Selection';
+$string['showactive'] = 'Active bookings';
 $string['showallbookings'] = 'All bookings';
 $string['starttimenotset'] = 'Start date not set';
 $string['subscribetocourse'] = 'Enrol users in the course';
@@ -723,7 +722,7 @@ $string['enablepresence'] = 'Enable presence';
 $string['removeuseronunenrol'] = 'Remove user from booking, when unenrol from course?';
 
 // editoptions.php
-$string['addeditbooking'] = 'Edit booking';
+$string['addeditbooking'] = 'Edit booking option';
 $string['addnewbookingoption'] = 'Add a new booking option';
 $string['choosecourse'] = 'Choose a course';
 $string['courseendtime'] = 'End time of the course';
@@ -741,6 +740,8 @@ $string['groupexists'] = 'The group already exists in the target course, please 
 $string['groupdeleted'] = 'This booking instance creates groups automatically in the target course. But the group has been manually deleted in the target course. Activate the following checkbox in order to recreate the group';
 $string['recreategroup'] = 'Recreate group in the target course and enrol users in group';
 $string['copy'] = ' - Copy';
+$string['enrolmentstatus'] = 'Do not enrol users immediately but only at course start time';
+$string['duplicatename'] = 'This booking option name already exists. Please choose another one.';
 
 // importoptions.php
 $string['csvfile'] = 'CSV file';
@@ -864,7 +865,6 @@ Course:   {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
 
 // report.php
-$string['activitycompleted'] = 'Activity completed';
 $string['addteachers'] = 'Add teachers';
 $string['allmailssend'] = 'All e-mails to the users have been sent!';
 $string['associatedcourse'] = 'Associated course';
@@ -892,7 +892,6 @@ $string['optiondates'] = 'Multiple dates session';
 $string['optionid'] = 'Option ID';
 $string['optionmenu'] = 'This booking option';
 $string['searchdate'] = 'Date';
-$string['searchfinished'] = 'Course completed';
 $string['searchname'] = 'First name';
 $string['searchsurname'] = 'Last name';
 $string['yes'] = 'Yes';
@@ -929,7 +928,6 @@ $string['numrec'] = "Rec. num.";
 $string['generaterecnum'] = "Generate numbers";
 $string['generaterecnumareyousure'] = "This will generate new numbers and permanently delete the old one!";
 $string['generaterecnumnotification'] = "New numbers have been generated.";
-$string['activitycompleted'] = 'Activity completed';
 $string['waitinglist'] = 'Waiting list';
 $string['searchwaitinglist'] = 'On waiting list';
 $string['ratingsuccess'] = 'The ratings were successfully updated';
@@ -959,8 +957,8 @@ $string['userssucesfullygetnewpresencestatus'] = 'Presence status for selected u
 // Send message
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';
 $string['booking:communicate'] = 'Can communicate';
-$string['confirmactivitycompletion'] = 'Confirm activity completion';
-$string['enablecompletion'] = 'Enable manual activity completion in booking option responses';
+$string['confirmoptioncompletion'] = 'Confirm completion';
+$string['enablecompletion'] = 'At least one of the booked options has to be marked as completed';
 $string['enablecompletiongroup'] = 'Manual activity completion';
 $string['messagesend'] = 'Your message has been sent.';
 $string['messagesubject'] = 'Subject';

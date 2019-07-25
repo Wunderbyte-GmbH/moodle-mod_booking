@@ -41,7 +41,7 @@ require_capability('mod/booking:updatebooking', $context);
 
 $PAGE->navbar->add(get_string("importcsvtitle", "booking"));
 $booking = new \mod_booking\booking($cm->id);
-$PAGE->set_title(format_string($booking->booking->name));
+$PAGE->set_title(format_string($booking->settings->name));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('standard');
 
@@ -93,7 +93,7 @@ if ($mform->is_cancelled()) {
                 $startdate = 0;
                 $enddate = 0;
 
-                $bookingoptionname = $booking->booking->name;
+                $bookingoptionname = $booking->settings->name;
 
                 if (trim($line[1]) != 0) {
                     $startdate = date_create_from_format("!" . $fromform->dateparseformat, $line[1]);
@@ -227,12 +227,12 @@ if ($mform->is_cancelled()) {
                             array(), 0, 0, false);
                         $bookingdata->user_submit_response($user);
 
-                        if ($completion->is_enabled($cm) && $bookingdata->booking->enablecompletion &&
+                        if ($completion->is_enabled($cm) && $bookingdata->settings->enablecompletion &&
                             $line[7] == 0) {
                             $completion->update_state($cm, COMPLETION_INCOMPLETE, $user->id);
                         }
 
-                        if ($completion->is_enabled($cm) && $bookingdata->booking->enablecompletion &&
+                        if ($completion->is_enabled($cm) && $bookingdata->settings->enablecompletion &&
                             $line[7] == 1) {
                             $completion->update_state($cm, COMPLETION_COMPLETE, $user->id);
                         }

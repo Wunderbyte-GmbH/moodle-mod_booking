@@ -91,14 +91,7 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         $mform->addRule('eventtype', null, 'required', null, 'client');
 
-        $versionmajor = booking_get_moodle_version_major();
-        if ($versionmajor < '2015051100') {
-            // This is valid before v2.9.
-            $this->add_intro_editor(false, get_string('bookingtext', 'booking'));
-        } else {
-            // This is valid after v2.9.
-            $this->standard_intro_elements(get_string('bookingtext', 'booking'));
-        }
+        $this->standard_intro_elements(get_string('bookingtext', 'booking'));
 
         $mform->addElement('text', 'duration', get_string('bookingduration', 'booking'),
                 array('size' => '64'));
@@ -180,12 +173,14 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // Booking manager.
         $contextbooking = $this->get_context();
+        $choosepotentialmanager = [];
+        $potentials[$USER->id] = $USER;
         $potentials1 = get_users_by_capability($contextbooking, 'mod/booking:readresponses',
             'u.id, u.firstname, u.lastname, u.username, u.email');
         $potentials2 = get_users_by_capability($contextbooking, 'moodle/course:update',
             'u.id, u.firstname, u.lastname, u.username, u.email');
-        $potentialmanagers = array_merge ($potentials1, $potentials2);
-        foreach ($potentialmanagers as $id => $potentialmanager) {
+        $potentialmanagers = array_merge ($potentials1, $potentials2, $potentials);
+        foreach ($potentialmanagers as $potentialmanager) {
             $choosepotentialmanager[$potentialmanager->username] = $potentialmanager->firstname . ' ' . $potentialmanager->lastname . ' (' .
             $potentialmanager->email . ')';
         }
@@ -389,7 +384,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setType('showhelpfullnavigationlinks', PARAM_INT);
 
         if ($COURSE->enablecompletion > 0) {
-            $opts = array(-1 => get_string('disabled', 'mod_booking'));
+            $opts = array(-1 => get_string('disable'));
 
             $result = $DB->get_records_sql(
                     'SELECT cm.id, cm.course, cm.module, cm.instance, m.name
@@ -462,7 +457,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $tmpaddfields = $DB->get_records('user_info_field', array());
 
-        $responsesfields = array('completed' => get_string('activitycompleted', 'mod_booking'),
+        $responsesfields = array('completed' => get_string('completed', 'mod_booking'),
             'status' => get_string('presence', 'mod_booking'),
             'rating' => get_string('rating', 'core_rating'),
             'numrec' => get_string('numrec', 'mod_booking'),
@@ -484,7 +479,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'numrec' => get_string("numrec", "booking"), 'userid' => get_string("userid", "booking"),
             'username' => get_string("username"), 'firstname' => get_string("firstname"),
             'lastname' => get_string("lastname"), 'email' => get_string("email"),
-            'completed' => get_string("searchfinished", "booking"),
+            'completed' => get_string("completed", "mod_booking"),
             'waitinglist' => get_string("waitinglist", "booking"),
             'status' => get_string('presence', 'mod_booking'), 'groups' => get_string("group"),
             'notes' => get_string('notes', 'mod_booking'),
@@ -645,12 +640,7 @@ class mod_booking_mod_form extends moodleform_mod {
             file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'signinlogofooter',
                     $this->current->id, $options);
             $defaultvalues['signinlogofooter'] = $draftitemid;
-
-            if ($CFG->branch >= 31) {
-                core_tag_tag::get_item_tags_array('mod_booking', 'booking', $this->current->id);
-            } else {
-                $defaultvalues['tags'] = tag_get_tags_array('booking', $this->current->id);
-            }
+            core_tag_tag::get_item_tags_array('mod_booking', 'booking', $this->current->id);
         } else {
             $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
             file_prepare_draft_area($draftitemid, null, 'mod_booking', 'myfilemanager', 0, $options);

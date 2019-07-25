@@ -57,11 +57,11 @@ $PAGE->set_url($url);
 $PAGE->set_title(get_string('modulename', 'booking'));
 $PAGE->set_heading($COURSE->fullname);
 $PAGE->navbar->add(get_string('booking:subscribeusers', 'booking'), $url);
-if (!$agree && (!empty($bookingoption->booking->bookingpolicy))) {
+if (!$agree && (!empty($bookingoption->settings->bookingpolicy))) {
     echo $OUTPUT->header();
     $alright = false;
     $message = "<p><b>" . get_string('agreetobookingpolicy', 'booking') . ":</b></p>";
-    $message .= "<p>" . $bookingoption->booking->bookingpolicy . "<p>";
+    $message .= "<p>" . $bookingoption->settings->bookingpolicy . "<p>";
     $continueurl = new moodle_url($PAGE->url->out(false, array('agree' => 1)));
     $continue = new single_button($continueurl, get_string('continue'), 'get');
     $cancel = new single_button($errorurl, get_string('cancel'), 'get');

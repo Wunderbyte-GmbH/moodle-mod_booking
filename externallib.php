@@ -127,24 +127,24 @@ class mod_booking_external extends external_api {
             if (strcmp($cm->visible, "1") == 0) {
                 $bookingdata = new \mod_booking\booking($cm->id);
 
-                if ($bookingdata->booking->showinapi == "1") {
+                if ($bookingdata->settings->showinapi == "1") {
                     $bookingdata->apply_tags();
                     $context = context_module::instance($cm->id);
 
-                    $bookingdata->booking->intro = file_rewrite_pluginfile_urls($bookingdata->booking->intro,
+                    $bookingdata->settings->intro = file_rewrite_pluginfile_urls($bookingdata->settings->intro,
                         'pluginfile.php', $context->id, 'mod_booking', 'intro', null);
 
-                    $manager = $DB->get_record('user', array('username' => $bookingdata->booking->bookingmanager));
+                    $manager = $DB->get_record('user', array('username' => $bookingdata->settings->bookingmanager));
 
-                    $ret['id'] = $bookingdata->booking->id;
+                    $ret['id'] = $bookingdata->settings->id;
                     $ret['cm'] = $bookingdata->cm->id;
-                    $ret['timemodified'] = $bookingdata->booking->timemodified;
-                    $ret['name'] = $bookingdata->booking->name;
-                    $ret['intro'] = $bookingdata->booking->intro;
-                    $ret['duration'] = $bookingdata->booking->duration;
-                    $ret['points'] = $bookingdata->booking->points;
-                    $ret['organizatorname'] = $bookingdata->booking->organizatorname;
-                    $ret['eventtype'] = $bookingdata->booking->eventtype;
+                    $ret['timemodified'] = $bookingdata->settings->timemodified;
+                    $ret['name'] = $bookingdata->settings->name;
+                    $ret['intro'] = $bookingdata->settings->intro;
+                    $ret['duration'] = $bookingdata->settings->duration;
+                    $ret['points'] = $bookingdata->settings->points;
+                    $ret['organizatorname'] = $bookingdata->settings->organizatorname;
+                    $ret['eventtype'] = $bookingdata->settings->eventtype;
                     $ret['bookingmanagerid'] = $manager->id;
                     $ret['bookingmanagername'] = $manager->firstname;
                     $ret['bookingmanagersurname'] = $manager->lastname;
@@ -154,8 +154,8 @@ class mod_booking_external extends external_api {
                     $ret['categories'] = array();
                     $ret['options'] = array();
 
-                    if ($bookingdata->booking->categoryid != '0' && $bookingdata->booking->categoryid != '') {
-                        $categoryies = explode(',', $bookingdata->booking->categoryid);
+                    if ($bookingdata->settings->categoryid != '0' && $bookingdata->settings->categoryid != '') {
+                        $categoryies = explode(',', $bookingdata->settings->categoryid);
 
                         if (!empty($categoryies) && count($categoryies) > 0) {
                             foreach ($categoryies as $category) {

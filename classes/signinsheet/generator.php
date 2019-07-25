@@ -222,7 +222,7 @@ class generator {
             $this->cfgcustfields = explode(',', $cfgcustfields);
         }
 
-        $this->allfields = explode(',', $this->bookingdata->booking->signinsheetfields);
+        $this->allfields = explode(',', $this->bookingdata->settings->signinsheetfields);
         if (get_config('booking', 'numberrows') == 1) {
             $this->showrownumbers = true;
             $this->rownumber = 0;
@@ -324,9 +324,9 @@ class generator {
             $this->pdf->SetHeaderData('', 0, $this->bookingdata->option->text, '');
         } else if ($this->title == 1) {
             $this->pdf->SetHeaderData('', 0,
-                    $this->bookingdata->booking->name . ': ' . $this->bookingdata->option->text, '');
+                    $this->bookingdata->settings->name . ': ' . $this->bookingdata->option->text, '');
         } else {
-            $this->pdf->SetHeaderData('', 0, $this->bookingdata->booking->name, '');
+            $this->pdf->SetHeaderData('', 0, $this->bookingdata->settings->name, '');
         }
         $this->pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
         $this->pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
@@ -485,7 +485,7 @@ class generator {
         $fs = get_file_storage();
         $context = \context_module::instance($this->bookingdata->cm->id);
         $files = $fs->get_area_files($context->id, 'mod_booking', 'signinlogoheader',
-                $this->bookingdata->booking->id, 'sortorder,filepath,filename', false);
+                $this->bookingdata->settings->id, 'sortorder,filepath,filename', false);
 
         if (!$files) {
             $files = $fs->get_area_files(\context_system::instance()->id, 'booking',
@@ -520,7 +520,7 @@ class generator {
         $fs = get_file_storage();
         $context = \context_module::instance($this->bookingdata->cm->id);
         $files = $fs->get_area_files($context->id, 'mod_booking', 'signinlogofooter',
-                $this->bookingdata->booking->id, 'sortorder,filepath,filename', false);
+                $this->bookingdata->settings->id, 'sortorder,filepath,filename', false);
 
         if (!$files) {
             $files = $fs->get_area_files(\context_system::instance()->id, 'booking',

@@ -78,20 +78,33 @@ function booking_cron() {
 }
 
 /**
- * @param course_module $cm
+ * @param stdClass $cm
  * @return cached_cm_info
  */
 function booking_get_coursemodule_info($cm) {
     $info = new cached_cm_info();
     $booking = new mod_booking\booking($cm->id);
     $booking->apply_tags();
-    $info->name = $booking->booking->name;
+    $info->name = $booking->settings->name;
     return $info;
 }
 
-function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload,
-        array $options = array()) {
-    global $CFG, $DB;
+/**
+ *  Callback checking permissions and preparing the file for serving plugin files, see File API.
+ *
+ * @param $course
+ * @param $cm
+ * @param $context
+ * @param $filearea
+ * @param $args
+ * @param $forcedownload
+ * @param array $options
+ * @return bool
+ * @throws coding_exception
+ * @throws moodle_exception
+ * @throws require_login_exception
+ */
+function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
 
     // Check the contextlevel is as expected - if your plugin is a block.
     if ($context->contextlevel != CONTEXT_MODULE) {
@@ -145,6 +158,16 @@ function booking_user_outline($course, $user, $mod, $booking) {
     return null;
 }
 
+/**
+ * Callback for the "Complete" report - prints the activity summary for the given user.
+ *
+ * @param $course
+ * @param $user
+ * @param $mod
+ * @param $booking
+ * @throws coding_exception
+ * @throws dml_exception
+ */
 function booking_user_complete($course, $user, $mod, $booking) {
     global $DB;
     if ($answer = $DB->get_record('booking_answers',
@@ -165,8 +188,6 @@ function booking_supports($feature) {
         case FEATURE_GROUPS:
             return true;
         case FEATURE_GROUPINGS:
-            return false;
-        case FEATURE_GROUPMEMBERSONLY:
             return false;
         case FEATURE_MOD_INTRO:
             return true;
@@ -253,15 +274,15 @@ function booking_comment_validate($commentparam) {
         throw new comment_exception('invalidcommentitemid');
     }
     if ($record->id) {
-        $glossary = $DB->get_record('booking', array('id' => $record->bookingid));
+        $booking = $DB->get_record('booking', array('id' => $record->bookingid));
     }
-    if (!$glossary) {
+    if (!$booking) {
         throw new comment_exception('invalidid', 'data');
     }
-    if (!$course = $DB->get_record('course', array('id' => $glossary->course))) {
+    if (!$course = $DB->get_record('course', array('id' => $booking->course))) {
         throw new comment_exception('coursemisconf');
     }
-    if (!$cm = get_coursemodule_from_instance('booking', $glossary->id, $course->id)) {
+    if (!$cm = get_coursemodule_from_instance('booking', $booking->id, $course->id)) {
         throw new comment_exception('invalidcoursemodule');
     }
     $context = context_module::instance($cm->id);
@@ -273,6 +294,16 @@ function booking_comment_validate($commentparam) {
     return true;
 }
 
+/**
+ * Calculate completion state.
+ *
+ * @param $course
+ * @param $cm
+ * @param $userid
+ * @param $type
+ * @return bool
+ * @throws dml_exception
+ */
 function booking_get_completion_state($course, $cm, $userid, $type) {
     global $CFG, $DB;
 
@@ -387,12 +418,7 @@ function booking_add_instance($booking) {
                 $booking->id, array('subdirs' => false, 'maxfiles' => 1));
     }
 
-    if ($CFG->branch < 31) {
-        tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
-    } else {
-        core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context,
-                $booking->tags);
-    }
+    core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
 
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {
@@ -469,13 +495,7 @@ function booking_update_instance($booking) {
     }
 
     $arr = array();
-
-    if ($CFG->branch >= 31) {
-        core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context,
-                $booking->tags);
-    } else {
-        tag_set('booking', $booking->id, $booking->tags, 'mod_booking', $context->id);
-    }
+    core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
 
     file_save_draft_area_files($booking->signinlogoheader, $context->id, 'mod_booking',
             'signinlogoheader', $booking->id, array('subdirs' => false, 'maxfiles' => 1));
@@ -608,6 +628,11 @@ function booking_update_options($optionvalues, $context) {
         $option->courseendtime = 0;
     }
 
+    if (isset($optionvalues->enrolmentstatus)) {
+        $option->enrolmentstatus = $optionvalues->enrolmentstatus;
+    } else {
+        $option->enrolmentstatus = 0;
+    }
     $option->description = $optionvalues->description;
     $option->beforebookedtext = $optionvalues->beforebookedtext;
     $option->beforecompletedtext = $optionvalues->beforecompletedtext;
@@ -649,29 +674,6 @@ function booking_update_options($optionvalues, $context) {
                     foreach ($booked as $bookinganswer) {
                         $bo->enrol_user($bookinganswer->userid);
                     }
-                }
-            }
-
-            if ($option->calendarid > 0) {
-                // Event exists.
-                if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
-                    $option->calendarid = booking_option_add_to_cal($booking, $option);
-                    $option->addtocalendar = 1;
-                } else {
-                    // Delete event if exist.
-                    $event = calendar_event::load($option->calendarid);
-                    $event->delete(true);
-
-                    $option->addtocalendar = 0;
-                    $option->calendarid = 0;
-                }
-            } else {
-                $option->addtocalendar = 0;
-                $option->calendarid = 0;
-                // Insert into calendar.
-                if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
-                    $option->calendarid = booking_option_add_to_cal($booking, $option);
-                    $option->addtocalendar = 1;
                 }
             }
 
@@ -724,7 +726,7 @@ function booking_update_options($optionvalues, $context) {
                 $booked = $bo->get_all_users_booked();
                 if (!empty($booked) && $booking->autoenrol) {
                     foreach ($booked as $bookinganswer) {
-                        $bo->enrol_user($bookinganswer->userid);
+                        $bo->enrol_user_coursestart($bookinganswer->userid);
                     }
                 }
             }
@@ -799,9 +801,9 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
     global $DB;
     $option = $DB->get_record('booking_options', array('id' => $optionid));
     $current = $DB->get_record('booking_answers',
-            array('bookingid' => $bookingid, 'userid' => $userid, 'optionid' => $optionid));
+        array('bookingid' => $bookingid, 'userid' => $userid, 'optionid' => $optionid));
     $allresponses = $DB->get_records_select('booking_answers',
-            "bookingid = $bookingid AND optionid = $optionid", array(), 'timemodified', 'userid');
+        "bookingid = $bookingid AND optionid = $optionid", array(), 'timemodified', 'userid');
 
     $context = context_module::instance($cmid);
     $sortedresponses = array();
@@ -836,57 +838,6 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
 }
 
 /**
- * Display a message about the maximum nubmer of bookings this user is allowed to make
- *
- * @param object $booking
- * @param object $user
- * @return string
- */
-function booking_show_maxperuser($booking, $user) {
-    global $USER;
-
-    $warning = '';
-
-    if (!empty($booking->booking->banusernames)) {
-        $disabledusernames = explode(',', $booking->booking->banusernames);
-
-        foreach ($disabledusernames as $value) {
-            if (strpos($USER->username, trim($value)) !== false) {
-                $warning = html_writer::tag('p', get_string('banusernameswarning', 'mod_booking'));
-            }
-        }
-    }
-
-    if (!$booking->booking->maxperuser) {
-        return $warning; // No per-user limits.
-    }
-
-    $outdata = new stdClass();
-    $outdata->limit = $booking->booking->maxperuser;
-    $outdata->count = booking_get_user_booking_count($booking, $user);
-    $outdata->eventtype = $booking->booking->eventtype;
-
-    $warning .= html_writer::tag('p', get_string('maxperuserwarning', 'mod_booking', $outdata));
-    return $warning;
-}
-
-/**
- * Determins the number of bookings that a single user has already made in all booking options
- *
- * @param object $booking
- * @param object $user
- * @return number of bookings made by user
- */
-function booking_get_user_booking_count($booking, $user) {
-    global $DB;
-
-    $result = $DB->get_records('booking_answers',
-            array('bookingid' => $booking->id, 'userid' => $user->id));
-
-    return count($result);
-}
-
-/**
  * Extend booking user navigation
  */
 function booking_myprofile_navigation(core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
@@ -907,7 +858,7 @@ function booking_myprofile_navigation(core_user\output\myprofile\tree $tree, $us
  * @return void
  */
 function booking_extend_settings_navigation(settings_navigation $settings, navigation_node $navref) {
-    global $PAGE, $DB;
+    global $PAGE, $DB, $USER;
 
     $cm = $PAGE->cm;
     if (!$cm) {
@@ -974,14 +925,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                     $settingnode->add(get_string('bookuserswithoutcompletedactivity', 'booking'),
                             new moodle_url('/mod/booking/subscribeusersctivity.php',
                                     array('id' => $cm->id, 'optionid' => $optionid)));
-                }
-            }
-            if (has_capability ( 'mod/booking:readresponses', $context ) || booking_check_if_teacher ($option, $USER )) {
-                $completion = new \completion_info($course);
-                if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $booking->enablecompletion) {
-                    $settingnode->add(get_string('confirmactivitycompletion', 'booking'),
-                        new moodle_url('/mod/booking/confirmactivity.php',
-                                array('id' => $cm->id, 'optionid' => $optionid)));
                 }
             }
             if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) &&
@@ -1769,7 +1712,7 @@ function booking_rating_validate($params) {
  * @throws require_login_exception
  */
 function booking_rate($ratings, $params) {
-    global $CFG, $USER, $DB;
+    global $CFG, $USER, $DB, $OUTPUT;
     require_once($CFG->dirroot . '/rating/lib.php');
 
     $contextid = $params->contextid;
@@ -1872,18 +1815,18 @@ function booking_sendpollurlteachers(\mod_booking\booking_option $booking, $cmid
     $returnval = true;
 
     $teachers = $DB->get_records("booking_teachers",
-            array("optionid" => $optionid, 'bookingid' => $booking->booking->id));
+            array("optionid" => $optionid, 'bookingid' => $booking->settings->id));
 
     foreach ($teachers as $tuser) {
         $userdata = $DB->get_record('user', array('id' => $tuser->userid));
 
-        $params = booking_generate_email_params($booking->booking, $booking->option, $userdata,
+        $params = booking_generate_email_params($booking->settings, $booking->option, $userdata,
                 $cmid, $booking->optiontimes);
 
-        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurlteacherstext',
+        $pollurlmessage = booking_get_email_body($booking->settings, 'pollurlteacherstext',
                 'pollurlteacherstextmessage', $params);
-        $booking->booking->pollurlteacherstext = $pollurlmessage;
-        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurlteacherstext',
+        $booking->settings->pollurlteacherstext = $pollurlmessage;
+        $pollurlmessage = booking_get_email_body($booking->settings, 'pollurlteacherstext',
                 'pollurlteacherstextmessage', $params);
 
         $eventdata = new stdClass();
@@ -1919,16 +1862,16 @@ function booking_sendpollurl($userids, \mod_booking\booking_option $booking, $cm
 
     $returnval = true;
 
-    $sender = $DB->get_record('user', array('username' => $booking->booking->bookingmanager));
+    $sender = $DB->get_record('user', array('username' => $booking->settings->bookingmanager));
 
     foreach ($userids as $userid) {
         $tuser = $DB->get_record('user', array('id' => $userid));
 
-        $params = booking_generate_email_params($booking->booking, $booking->option, $tuser, $cmid, $booking->optiontimes);
+        $params = booking_generate_email_params($booking->settings, $booking->option, $tuser, $cmid, $booking->optiontimes);
 
-        $pollurlmessage = booking_get_email_body($booking->booking, 'pollurltext',
+        $pollurlmessage = booking_get_email_body($booking->settings, 'pollurltext',
                 'pollurltextmessage', $params);
-        $booking->booking->pollurltext = $pollurlmessage;
+        $booking->settings->pollurltext = $pollurlmessage;
 
         $eventdata = new stdClass();
         $eventdata->modulename = 'booking';
@@ -2036,9 +1979,9 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
         foreach ($allusers as $record) {
             $ruser = $DB->get_record('user', array('id' => $record->id));
 
-            $params = booking_generate_email_params($bookingdata->booking, $bookingdata->option,
+            $params = booking_generate_email_params($bookingdata->settings, $bookingdata->option,
                     $ruser, $cm->id, $bookingdata->optiontimes);
-            $pollurlmessage = booking_get_email_body($bookingdata->booking, 'notifyemail',
+            $pollurlmessage = booking_get_email_body($bookingdata->settings, 'notifyemail',
                     'notifyemaildefaultmessage', $params);
 
             $eventdata = new \core\message\message();
@@ -2054,7 +1997,7 @@ function booking_send_notification($optionid, $subject, $tousers = array()) {
             $eventdata->name = 'bookingconfirmation';
             // $eventdata->modulename = 'booking';
             if ($CFG->branch > 31) {
-                $eventdata->courseid = $bookingdata->booking->course;
+                $eventdata->courseid = $bookingdata->settings->course;
             }
 
             $returnval = message_send($eventdata);
@@ -2106,25 +2049,6 @@ function booking_delete_instance($id) {
     return $result;
 }
 
-/**
- * Returns the users with data in one booking (users with records in booking_answers, students)
- *
- * @param int bookingid booking id of booking instance
- * @return array of students
- */
-function booking_get_participants($bookingid) {
-    global $CFG, $DB;
-    // Get students.
-    $students = $DB->get_records_sql(
-            "SELECT DISTINCT u.id, u.id
-            FROM {user} u,
-            {booking_answers} a
-            WHERE a.bookingid = '$bookingid' and
-            u.id = a.userid");
-    // Return students array (it contains an array of unique users).
-    return ($students);
-}
-
 function booking_get_option_text($booking, $id) {
     global $DB, $USER;
     // Returns text string which is the answer that matches the id.
@@ -2144,16 +2068,9 @@ function booking_get_option_text($booking, $id) {
     }
 }
 
-function booking_get_view_actions() {
-    return array('view', 'view all', 'report');
-}
-
-function booking_get_post_actions() {
-    return array('choose', 'choose again');
-}
-
 /**
- * Implementation of the function for printing the form elements that control whether the course reset functionality affects the booking.
+ * Implementation of the function for printing the form elements that control whether the course reset
+ * functionality affects the booking.
  *
  * @param $mform form passed by reference
  */
@@ -2414,7 +2331,7 @@ function booking_optionid_subscribe($userid, $optionid, $cm, $groupid = '') {
     $sub = new stdClass();
     $sub->userid = $userid;
     $sub->optionid = $optionid;
-    $sub->bookingid = $option->booking->id;
+    $sub->bookingid = $option->settings->id;
 
     $inserted = $DB->insert_record("booking_teachers", $sub);
 
@@ -2422,7 +2339,7 @@ function booking_optionid_subscribe($userid, $optionid, $cm, $groupid = '') {
         groups_add_member($groupid, $userid);
     }
 
-    $option->enrol_user($userid, false, $option->booking->teacherroleid);
+    $option->enrol_user($userid, false, $option->settings->teacherroleid);
     if ($inserted) {
         $event = \mod_booking\event\teacher_added::create(
                 array('relateduserid' => $userid, 'objectid' => $optionid,
@@ -2544,15 +2461,4 @@ function mod_booking_fix_encoding($instr) {
     } else {
         return utf8_encode($instr);
     }
-}
-
-/**
- * get moodle major version
- *
- * @return string moodle version
- */
-function booking_get_moodle_version_major() {
-    global $CFG;
-    $versionarray = explode('.', $CFG->version);
-    return $versionarray[0];
 }

@@ -18,8 +18,10 @@ namespace mod_booking\output;
 defined('MOODLE_INTERNAL') || die();
 
 use context_module;
-use mod_booking\places;
-
+use context;
+use mod_booking\booking;
+use mod_booking\booking_option;
+use stdClass;
 
 /**
  * Mobile output class for booking
@@ -63,11 +65,11 @@ class mobile {
 
         $context = context_module::instance($cm->id);
 
-        $booking = new \mod_booking\booking($cm->id);
+        $booking = new booking($cm->id);
 
-        $paging = $booking->booking->paginationnum;
+        $paging = $booking->settings->paginationnum;
         if (!isset($whichview)) {
-            $whichview = $booking->booking->whichview;
+            $whichview = $booking->settings->whichview;
         }
 
         if ($paging == 0) {
@@ -122,6 +124,12 @@ class mobile {
         );
     }
 
+    /**
+     * TODO: What does it do?
+     * @param $allpages
+     * @param $pagnumber
+     * @return array
+     */
     public static function npbuttons($allpages, $pagnumber) {
         $p = 0;
         $n = 0;
@@ -139,11 +147,22 @@ class mobile {
         );
     }
 
-    public static function prepare_options_array($bookingoptions, $booking, $context, $cm, $courseid) {
+    /**
+     * TODO: What does it do?
+     *
+     * @param $bookingoptions
+     * @param booking $booking
+     * @param context $context
+     * @param stdClass $cm
+     * @param $courseid
+     * @return array
+     * @throws \coding_exception
+     */
+    public static function prepare_options_array($bookingoptions, booking $booking, context $context, stdClass $cm, $courseid) {
         $options = array();
 
         foreach ($bookingoptions as $key => $value) {
-            $option = new \mod_booking\booking_option($cm->id,
+            $option = new booking_option($cm->id,
                     (is_object($value) ? $value->id : $value));
             $option->get_teachers();
             $options[] = self::prepare_options($option, $booking, $context, $cm, $courseid);
@@ -152,7 +171,18 @@ class mobile {
         return $options;
     }
 
-    public static function prepare_options($values, $booking, $context, $cm, $courseid) {
+    /**
+     * Prepare booking options for output on mobile.
+     *
+     * @param $values
+     * @param booking $booking
+     * @param context $context
+     * @param stdClass $cm
+     * @param $courseid
+     * @return array
+     * @throws \coding_exception
+     */
+    public static function prepare_options($values, booking $booking, context $context, stdClass $cm, $courseid) {
         global $USER;
 
         $text = '';
@@ -162,10 +192,10 @@ class mobile {
         }
 
         if (strlen($values->option->location) > 0) {
-            $text .= (empty($booking->booking->lbllocation) ? get_string('location', 'booking') : $booking->booking->lbllocation) . ': ' . $values->option->location . "<br>";
+            $text .= (empty($booking->settings->lbllocation) ? get_string('location', 'booking') : $booking->settings->lbllocation) . ': ' . $values->option->location . "<br>";
         }
         if (strlen($values->option->institution) > 0) {
-            $text .= (empty($booking->booking->lblinstitution) ? get_string('institution', 'booking') : $booking->booking->lblinstitution) . ': ' .
+            $text .= (empty($booking->settings->lblinstitution) ? get_string('institution', 'booking') : $booking->settings->lblinstitution) . ': ' .
             $values->option->institution . "<br>";
         }
 
@@ -183,8 +213,8 @@ class mobile {
                     $values->option->courseendtime);
         }
 
-        $text .= (!empty($values->teachers) ? "<br>" . (empty($booking->booking->lblteachname) ? get_string(
-                'teachers', 'booking') : $booking->booking->lblteachname) . ": " . implode(', ',
+        $text .= (!empty($values->teachers) ? "<br>" . (empty($booking->settings->lblteachname) ? get_string(
+                'teachers', 'booking') : $booking->settings->lblteachname) . ": " . implode(', ',
                 $teachers) : '');
 
         $delete = array();
@@ -193,7 +223,7 @@ class mobile {
         $booked = '';
         $inpast = $values->option->courseendtime && ($values->option->courseendtime < time());
 
-        $underlimit = ($booking->booking->maxperuser == 0);
+        $underlimit = ($booking->settings->maxperuser == 0);
         $underlimit = $underlimit || ($values->option->bookinggetuserbookingcount < $values->option->maxperuser);
 
         if (!$values->option->limitanswers) {
@@ -209,7 +239,7 @@ class mobile {
 
         // I'm booked or not.
         if ($values->iambooked) {
-            if ($booking->booking->allowupdate and $status != 'closed' and $values->completed != 1) {
+            if ($booking->settings->allowupdate and $status != 'closed' and $values->completed != 1) {
                 // TO-DO: Naredi gumb za izpis iz opcije.
                 $deletemessage = $values->option->text;
 
@@ -250,11 +280,11 @@ class mobile {
                         $values->option->courseendtime, get_string('strftimedatetime'));
             }
             $message .= '<br><br>' . get_string('confirmbookingoffollowing', 'booking');
-            if (!empty($booking->booking->bookingpolicy)) {
+            if (!empty($booking->settings->bookingpolicy)) {
                 $message .= "<br><br>" . get_string('agreetobookingpolicy', 'booking');
-                $message .= "<br>" . $booking->booking->bookingpolicy;
+                $message .= "<br>" . $booking->settings->bookingpolicy;
             }
-            $bnow = (empty($booking->booking->btnbooknowname) ? get_string('booknow', 'booking') : $booking->booking->btnbooknowname);
+            $bnow = (empty($booking->settings->btnbooknowname) ? get_string('booknow', 'booking') : $booking->settings->btnbooknowname);
             $button = array(
                 'text' => $bnow,
                             'args' => "answer: {$values->option->id}, id: {$cm->id}, courseid: {$courseid}",
@@ -266,13 +296,13 @@ class mobile {
             $button = array();
         }
 
-        if ($booking->booking->cancancelbook == 0 && $values->option->courseendtime > 0 && $values->option->courseendtime < time()) {
+        if ($booking->settings->cancancelbook == 0 && $values->option->courseendtime > 0 && $values->option->courseendtime < time()) {
             $button = array();
             $delete = array();
         }
 
-        if (!empty($booking->booking->banusernames)) {
-            $disabledusernames = explode(',', $booking->booking->banusernames);
+        if (!empty($booking->settings->banusernames)) {
+            $disabledusernames = explode(',', $booking->settings->banusernames);
 
             foreach ($disabledusernames as $value) {
                 if (strpos($USER->username, trim($value)) !== false) {
@@ -282,7 +312,7 @@ class mobile {
         }
 
         if ($values->option->limitanswers) {
-            $places = new \mod_booking\places($values->option->maxanswers,
+            $places = new places($values->option->maxanswers,
                     $values->option->maxanswers - $values->booked, $values->option->maxoverbooking,
                     $values->option->maxoverbooking - $values->waiting);
         }

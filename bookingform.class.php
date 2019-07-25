@@ -20,7 +20,7 @@ defined('MOODLE_INTERNAL') || die();
 class mod_booking_bookingform_form extends moodleform {
 
     public function definition() {
-        global $CFG, $DB, $COURSE;
+        global $CFG, $COURSE;
         $mform = & $this->_form;
         $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -79,7 +79,7 @@ class mod_booking_bookingform_form extends moodleform {
             $mform->setType('location', PARAM_CLEANHTML);
         }
 
-        $mform->addElement('text', 'institution', (empty($booking->booking->lblinstitution) ? get_string('institution', 'booking') : $booking->booking->lblinstitution),
+        $mform->addElement('text', 'institution', (empty($booking->settings->lblinstitution) ? get_string('institution', 'booking') : $booking->settings->lblinstitution),
             array('size' => '64'));
         $mform->setType('institution', PARAM_TEXT);
 
@@ -149,8 +149,13 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->setType('coursestarttime', PARAM_INT);
         $mform->disabledIf('coursestarttime', 'startendtimeknown', 'notchecked');
 
+        $mform->addElement('advcheckbox', 'enrolmentstatus', get_string('enrolmentstatus', 'mod_booking'),
+            '', array('group' => 1), array(2, 0));
+        $mform->setType('enrolmentstatus', PARAM_INT);
+        $mform->disabledIf('enrolmentstatus', 'startendtimeknown', 'notchecked');
+
         $mform->addElement('date_time_selector', 'courseendtime',
-                get_string("courseendtime", "booking"));
+            get_string("courseendtime", "booking"));
         $mform->setType('courseendtime', PARAM_INT);
         $mform->disabledIf('courseendtime', 'startendtimeknown', 'notchecked');
 
@@ -271,6 +276,7 @@ class mod_booking_bookingform_form extends moodleform {
     }
 
     public function validation($data, $files) {
+        global $DB;
         $errors = parent::validation($data, $files);
 
         if (strlen($data['pollurl']) > 0) {
@@ -289,6 +295,22 @@ class mod_booking_bookingform_form extends moodleform {
         $groupid = groups_get_group_by_name($data['courseid'], $groupname);
         if ($groupid && $data['optionid'] == 0) {
             $errors['text'] = get_string('groupexists', 'booking');
+        }
+
+        if ($data['optionid'] == -1) {
+            // To prevent duplicate option names when creating a new booking option.
+            if ($DB->record_exists('booking_options', array('text' => $data['text'], 'bookingid' => $data['bookingid']))) {
+                $errors['text'] = get_string('duplicatename', 'mod_booking');
+            }
+        } else {
+            // To prevent duplicate option names when updating existing booking options.
+            $sql = "SELECT 'id'
+                    FROM {booking_options} bo
+                    WHERE bo.text = ? AND bo.bookingid = ? AND bo.id <> ?";
+            $params = array($data['text'], $data['bookingid'], $data['optionid']);
+            if ($DB->record_exists_sql($sql, $params)) {
+                $errors['text'] = get_string('duplicatename', 'mod_booking');
+            }
         }
 
         return $errors;

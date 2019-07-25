@@ -125,37 +125,6 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
-     * This function generates HTML to display a subscriber overview, primarily used on the
-     * subscribers page if editing was turned off
-     *
-     * @param array $users
-     * @param object $booking
-     * @param object $option
-     * @return string
-     */
-    public function subscriber_overview($users, $option, $course) {
-        $output = '';
-        if (!$users || !is_array($users) || count($users) === 0) {
-            $output .= $this->output->heading(get_string("nosubscribers", "booking"));
-        } else {
-            $output .= $this->output->heading(
-                    get_string("subscribersto", "booking", "'" . format_string($option->text) . "'"));
-            $table = new html_table();
-            $table->cellpadding = 5;
-            $table->cellspacing = 5;
-            $table->tablealign = 'center';
-            $table->data = array();
-            foreach ($users as $user) {
-                $table->data[] = array(
-                    $this->output->user_picture($user, array('courseid' => $course->id)),
-                    fullname($user), $user->email);
-            }
-            $output .= html_writer::table($table);
-        }
-        return $output;
-    }
-
-    /**
      * This is used to display a control containing all of the subscribed users so that it can be searched
      *
      * @param user_selector_base $existingusers

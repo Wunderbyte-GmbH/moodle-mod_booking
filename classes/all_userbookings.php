@@ -276,7 +276,7 @@ class all_userbookings extends \table_sql {
     public function wrap_html_finish() {
         global $DB;
         echo '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
-        if (!$this->bookingdata->booking->autoenrol &&
+        if (!$this->bookingdata->settings->autoenrol &&
                  has_capability('mod/booking:communicate', \context_module::instance($this->cm->id)) &&
                  $this->bookingdata->option->courseid > 0) {
             echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="subscribetocourse" value="' .
@@ -286,11 +286,11 @@ class all_userbookings extends \table_sql {
         if (has_capability('mod/booking:deleteresponses', \context_module::instance($this->cm->id))) {
             echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="deleteusers" value="' .
                      get_string('booking:deleteresponses', 'booking') . '" /></div>';
-            if ($this->bookingdata->booking->completionmodule > 0) {
+            if ($this->bookingdata->settings->completionmodule > 0) {
                 $result = $DB->get_record_sql(
                         'SELECT cm.id, cm.course, cm.module, cm.instance, m.name
                 FROM {course_modules} cm LEFT JOIN {modules} m ON m.id = cm.module WHERE cm.id = ?',
-                        array($this->bookingdata->booking->completionmodule));
+                        array($this->bookingdata->settings->completionmodule));
                 $dynamicactivitymodulesdata = $DB->get_record($result->name,
                         array('id' => $result->instance));
                 echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="deleteusersactivitycompletion" value="' .
@@ -314,18 +314,17 @@ class all_userbookings extends \table_sql {
         if (booking_check_if_teacher($this->bookingdata->option) ||
                  has_capability('mod/booking:updatebooking',
                         \context_module::instance($this->cm->id))) {
-                            $course = $DB->get_record('course', array('id' => $this->bookingdata->booking->course));
-                            $completion = new \completion_info($course);
-            if ($completion->is_enabled($this->cm) == COMPLETION_TRACKING_AUTOMATIC && $this->bookingdata->booking->enablecompletion) {
+                            $course = $DB->get_record('course', array('id' => $this->bookingdata->settings->course));
+            if (strpos($this->bookingdata->settings->responsesfields, 'completed') !== false) {
                 echo '<div class="singlebutton"><input type="submit"  class="btn btn-secondary" name="activitycompletion" value="' .
-                (empty($this->bookingdata->booking->btncacname) ? get_string(
-                'confirmactivitycompletion', 'booking') : $this->bookingdata->booking->btncacname) .
+                (empty($this->bookingdata->settings->btncacname) ? get_string(
+                'confirmoptioncompletion', 'booking') : $this->bookingdata->settings->btncacname) .
                 '" /></div>';
             }
 
             // Output rating button.
             if (has_capability('moodle/rating:rate', \context_module::instance($this->cm->id)) &&
-                     $this->bookingdata->booking->assessed != 0) {
+                     $this->bookingdata->settings->assessed != 0) {
                 $ratingbutton = '<div class="singlebutton">' . \html_writer::start_tag('span', array('class' => "ratingsubmit"));
                 $attributes = array('type' => 'submit', 'class' => 'postratingmenusubmit btn btn-secondary',
                     'id' => 'postratingsubmit', 'name' => 'postratingsubmit',
@@ -365,14 +364,14 @@ class all_userbookings extends \table_sql {
                 }
             }
 
-            if ($this->bookingdata->booking->numgenerator) {
+            if ($this->bookingdata->settings->numgenerator) {
                 echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="generaterecnum" value="' .
                          get_string('generaterecnum', 'booking') . '" onclick="return confirm(\'' .
                          get_string('generaterecnumareyousure', 'booking') . '\')"/></div>';
             }
 
             $connectedbooking = $DB->get_record("booking",
-                    array('conectedbooking' => $this->bookingdata->booking->id), 'id',
+                    array('conectedbooking' => $this->bookingdata->settings->id), 'id',
                     IGNORE_MULTIPLE);
 
             if ($connectedbooking) {
@@ -400,8 +399,8 @@ class all_userbookings extends \table_sql {
                     echo \html_writer::select($options, 'selectoptionid', '');
 
                     $label = (empty(
-                            $this->bookingdata->booking->booktootherbooking) ? get_string(
-                            'booktootherbooking', 'booking') : $this->bookingdata->booking->booktootherbooking);
+                            $this->bookingdata->settings->booktootherbooking) ? get_string(
+                            'booktootherbooking', 'booking') : $this->bookingdata->settings->booktootherbooking);
 
                     echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="booktootherbooking" value="' .
                              $label . '" /></div>';
@@ -425,8 +424,8 @@ class all_userbookings extends \table_sql {
                         echo \html_writer::select($options, 'selectoptionid', '');
 
                         $label = (empty(
-                                $this->bookingdata->booking->booktootherbooking) ? get_string(
-                                'booktootherbooking', 'booking') : $this->bookingdata->booking->booktootherbooking);
+                                $this->bookingdata->settings->booktootherbooking) ? get_string(
+                                'booktootherbooking', 'booking') : $this->bookingdata->settings->booktootherbooking);
 
                         echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="booktootherbooking" value="' .
                                  $label . '" /></div>';
@@ -434,7 +433,7 @@ class all_userbookings extends \table_sql {
                 }
             }
 
-            if ($this->bookingdata->booking->enablepresence) {
+            if ($this->bookingdata->settings->enablepresence) {
                 // Change presence status.
                 // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed.
                 echo "<br>";

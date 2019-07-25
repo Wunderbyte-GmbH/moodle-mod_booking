@@ -304,7 +304,7 @@ function booking_confirm_booking($optionid, $user, $cm, $url) {
     $message = "<h2>" . get_string('confirmbookingoffollowing', 'booking') . "</h2>" .
              $requestedcourse;
     $message .= "<p><b>" . get_string('agreetobookingpolicy', 'booking') . ":</b></p>";
-    $message .= "<p>" . $option->booking->bookingpolicy . "<p>";
+    $message .= "<p>" . $option->settings->bookingpolicy . "<p>";
     echo $OUTPUT->confirm($message, new moodle_url('/mod/booking/view.php', $optionidarray), $url);
     echo $OUTPUT->footer();
 }

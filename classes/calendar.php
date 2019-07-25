@@ -53,7 +53,7 @@ class calendar {
         switch ($this->type) {
             case $this::TYPEOPTION:
                 if ($bookingoption->option->addtocalendar == 1) {
-                    $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking, $bookingoption->option, 0, $bookingoption->option->calendarid);
+                    $newcalendarid = $this->booking_option_add_to_cal($bookingoption->settings, $bookingoption->option, 0, $bookingoption->option->calendarid);
                 } else {
                     if ($bookingoption->option->calendarid > 0) {
                         if ($DB->record_exists("event", array('id' => $bookingoption->option->calendarid))) {
@@ -70,13 +70,13 @@ class calendar {
                 break;
 
             case $this::TYPETEACHERADD:
-                $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking, $bookingoption->option, $this->userid, 0);
+                $newcalendarid = $this->booking_option_add_to_cal($bookingoption->settings, $bookingoption->option, $this->userid, 0);
                 $DB->set_field("booking_teachers", 'calendarid', $newcalendarid, array('userid' => $this->userid, 'optionid' => $this->optionid));
                 break;
 
             case $this::TYPETEACHERUPDATE:
                 $calendarid = $DB->get_field('booking_teachers', 'calendarid', array('userid' => $this->userid, 'optionid' => $this->optionid));
-                $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking, $bookingoption->option, $this->userid, $calendarid);
+                $newcalendarid = $this->booking_option_add_to_cal($bookingoption->settings, $bookingoption->option, $this->userid, $calendarid);
                 $DB->set_field("booking_teachers", 'calendarid', $newcalendarid, array('userid' => $this->userid, 'optionid' => $this->optionid));
                 break;
 

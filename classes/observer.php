@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 class mod_booking_observer {
 
     /**
-     * Observer for the user_deleted event.
+     * Observer for the user_deleted event
      *
      * @param \core\event\user_deleted $event
      */
@@ -79,9 +79,10 @@ class mod_booking_observer {
     }
 
     /**
-     * When custom field is renamed, we need to regenerate calendar recors.
+     * Change calendar entry when custom field is changed.
      *
      * @param \mod_booking\event\custom_field_changed $event
+     * @throws dml_exception
      */
     public static function custom_field_changed(\mod_booking\event\custom_field_changed $event) {
         global $DB;
