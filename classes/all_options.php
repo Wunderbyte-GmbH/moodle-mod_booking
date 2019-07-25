@@ -366,17 +366,6 @@ class all_options extends table_sql {
                     array('style' => $style, 'id' => 'optiontext' . $values->id));
         }
 
-        $options = new stdClass();
-        $options->area = 'booking_option';
-        $options->context = $this->context;
-        $options->cm = $this->cm;
-        $options->itemid = $values->id;
-        $options->component = 'mod_booking';
-        $options->client_id = "client_{$values->id}";
-        $options->showcount = true;
-        $comment = new comment($options);
-        $output .= "<div>" . $comment->output(true) . "</div>";
-
         $fs = get_file_storage();
         $files = $fs->get_area_files($this->context->id, 'mod_booking', 'myfilemanageroption',
                 $values->id);
@@ -397,6 +386,17 @@ class all_options extends table_sql {
             $output .= html_writer::tag('span', implode(', ', $out));
             $output .= html_writer::end_tag('div');
         }
+
+        $options = new stdClass();
+        $options->area = 'booking_option';
+        $options->context = $this->context;
+        $options->cm = $this->cm;
+        $options->itemid = $values->id;
+        $options->component = 'mod_booking';
+        $options->client_id = "client_{$values->id}";
+        $options->showcount = true;
+        $comment = new comment($options);
+        $output .= $comment->output(true);
 
         return $output;
     }

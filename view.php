@@ -198,7 +198,6 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context) &
 
 $PAGE->set_title(format_string($booking->settings->name));
 $PAGE->set_heading($booking->settings->name);
-$PAGE->requires->strings_for_js(['commentscount', 'addcomment', 'deletecommentbyon'], 'moodle');
 
 // Submit any new data if there is any.
 if ($download == '' && $form = data_submitted() && has_capability('mod/booking:choose', $context)) {
@@ -313,6 +312,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
     $headers = array();
 
     if (!$tablealloptions->is_downloading()) {
+        comment::init();
         echo $OUTPUT->header();
 
         echo '<div class="clearer"></div>';
