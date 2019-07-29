@@ -1097,6 +1097,8 @@ $string['transefusers'] = "Transfer users";
 $string['transferhelp'] = 'Transfer users, that have not completed activity from selected option to {$a}.';
 $string['sucesfullytransfered'] = 'Users were sucesfully transfered.';
 
-$string['confirmactivtyfrom'] = 'Confirm activity from';
+$string['confirmactivtyfrom'] = 'Confirm users activity from';
 $string['sucesfullcompleted'] = 'Activity was sucesfully completed for users.';
 $string['enablecompletion'] = 'Count of entries';
+$string['confirmuserswith'] = 'Confirm users who completed activity or received badge';
+$string['confirmusers'] = 'Confirm users activity';

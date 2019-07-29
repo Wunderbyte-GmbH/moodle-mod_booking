@@ -927,6 +927,13 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                                     array('id' => $cm->id, 'optionid' => $optionid)));
                 }
             }
+            if (has_capability ( 'mod/booking:readresponses', $context ) || booking_check_if_teacher ($option, $USER )) {
+                $completion = new \completion_info($course);
+                if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $booking->enablecompletion > 0) {
+                    $settingnode->add(get_string('confirmuserswith', 'booking'),
+                    new moodle_url('/mod/booking/confirmactivity.php', array('id' => $cm->id, 'optionid' => $optionid)));
+                }
+            }
             if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) &&
                     $booking->conectedbooking > 0) {
                 $settingnode->add(get_string('editotherbooking', 'booking'),
