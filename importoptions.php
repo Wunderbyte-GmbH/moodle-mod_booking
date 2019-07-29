@@ -227,13 +227,14 @@ if ($mform->is_cancelled()) {
                             array(), 0, 0, false);
                         $bookingdata->user_submit_response($user);
 
-                        if ($completion->is_enabled($cm) && $bookingdata->booking->settings->enablecompletion &&
-                            $line[7] == 0) {
+                        $countcompleted = $DB->count_records('booking_answers',
+                            array('bookingid' => $booking->id, 'userid' => $user->id, 'completed' => '1'));
+
+                        if ($completion->is_enabled($cm) && $bookingdata->booking->settings->enablecompletion > $countcompleted) {
                             $completion->update_state($cm, COMPLETION_INCOMPLETE, $user->id);
                         }
 
-                        if ($completion->is_enabled($cm) && $bookingdata->booking->settings->enablecompletion &&
-                            $line[7] == 1) {
+                        if ($completion->is_enabled($cm) && $bookingdata->booking->settings->enablecompletion <= $countcompleted) {
                             $completion->update_state($cm, COMPLETION_COMPLETE, $user->id);
                         }
                     }

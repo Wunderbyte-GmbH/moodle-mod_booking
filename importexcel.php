@@ -106,13 +106,14 @@ if ($mform->is_cancelled()) {
                     $user->timemodified = time();
                     $DB->update_record('booking_answers', $user, false);
 
-                    if ($completion->is_enabled($cm) && $booking->settings->enablecompletion &&
-                             $user->completed == 0) {
+                    $countcompleted = $DB->count_records('booking_answers',
+                        array('bookingid' => $cm->instance, 'userid' => $line[$useridpos], 'completed' => '1'));
+
+                    if ($completion->is_enabled($cm) && $booking->settings->enablecompletion > $countcompleted) {
                         $completion->update_state($cm, COMPLETION_INCOMPLETE, $user->userid);
                     }
 
-                    if ($completion->is_enabled($cm) && $booking->settings->enablecompletion &&
-                             $user->completed == 1) {
+                    if ($completion->is_enabled($cm) && $booking->settings->enablecompletion <= $countcompleted) {
                         $completion->update_state($cm, COMPLETION_COMPLETE, $user->userid);
                     }
                 }

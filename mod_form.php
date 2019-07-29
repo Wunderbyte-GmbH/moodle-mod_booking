@@ -51,16 +51,22 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform = & $this->_form;
 
         $group = array();
-        $group[] = & $mform->createElement('checkbox', 'enablecompletion', ' ',
+        $group[] = & $mform->createElement('checkbox', 'enablecompletionenabled', '',
                 get_string('enablecompletion', 'booking'));
+        $group[] = $mform->createElement('text', 'enablecompletion',
+                get_string('enablecompletion', 'booking'), array('size' => '1'));
+
         $mform->addGroup($group, 'enablecompletiongroup',
                 get_string('enablecompletiongroup', 'booking'), array(' '), false);
+        $mform->disabledIf('enablecompletion', 'enablecompletionenabled', 'notchecked');
+        $mform->setDefault('enablecompletion', 1);
+        $mform->setType('enablecompletion', PARAM_INT);
 
         return array('enablecompletiongroup');
     }
 
     public function completion_rule_enabled($data) {
-        return !empty($data['enablecompletion']);
+        return !empty($data['enablecompletion'] != 0);
     }
 
     public function definition() {
@@ -625,6 +631,11 @@ class mod_booking_mod_form extends moodleform_mod {
         $options = array('subdirs' => false, 'maxfiles' => 50, 'accepted_types' => array('*'),
             'maxbytes' => 0);
 
+        $defaultvalues['enablecompletionenabled'] = !empty($defaultvalues['enablecompletion']) ? 1 : 0;
+        if (empty($defaultvalues['enablecompletion'])) {
+            $defaultvalues['enablecompletion'] = 1;
+        }
+
         if ($this->current->instance) {
             $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
             file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'myfilemanager',
@@ -750,21 +761,29 @@ class mod_booking_mod_form extends moodleform_mod {
         return $errors;
     }
 
+    /**
+     * Allows modules to modify the data returned by form get_data().
+     * This method is also called in the bulk activity completion form.
+     *
+     * Only available on moodleform_mod.
+     *
+     * @param stdClass $data the form data to be modified.
+     */
+    public function data_postprocessing($data) {
+        parent::data_postprocessing($data);
+        if (!empty($data->completionunlocked)) {
+            $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
+            if (empty($data->enablecompletionenabled) || !$autocompletion) {
+                $data->enablecompletion = 0;
+            }
+        }
+    }
+
     public function get_data() {
         $data = parent::get_data();
         if ($data) {
             $data->bookingpolicyformat = $data->bookingpolicy['format'];
             $data->bookingpolicy = $data->bookingpolicy['text'];
-
-            if (!empty($data->enablecompletion)) {
-                // Turn off completion settings if the checkboxes aren't ticked
-                $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
-                if (empty($data->enablecompletion) || !$autocompletion) {
-                    $data->enablecompletion = 0;
-                }
-            } else {
-                $data->enablecompletion = 0;
-            }
         }
 
         return $data;

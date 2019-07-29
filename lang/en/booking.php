@@ -959,7 +959,7 @@ $string['activitycompletionsuccess'] = 'All selected users have been marked for 
 $string['booking:communicate'] = 'Can communicate';
 $string['confirmoptioncompletion'] = 'Confirm completion';
 $string['enablecompletion'] = 'At least one of the booked options has to be marked as completed';
-$string['enablecompletiongroup'] = 'Manual activity completion';
+$string['enablecompletiongroup'] = 'Require entries';
 $string['messagesend'] = 'Your message has been sent.';
 $string['messagesubject'] = 'Subject';
 $string['messagetext'] = 'Message';
@@ -1099,3 +1099,4 @@ $string['sucesfullytransfered'] = 'Users were sucesfully transfered.';
 
 $string['confirmactivtyfrom'] = 'Confirm activity from';
 $string['sucesfullcompleted'] = 'Activity was sucesfully completed for users.';
+$string['enablecompletion'] = 'Count of entries';

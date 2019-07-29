@@ -797,7 +797,10 @@ class booking_option {
         $course = $DB->get_record('course', array('id' => $this->booking->settings->course));
         $completion = new completion_info($course);
 
-        if ($completion->is_enabled($this->booking->cm) && $this->booking->settings->enablecompletion) {
+        $countcompleted = $DB->count_records('booking_answers',
+                array('bookingid' => $this->booking->settings->id, 'userid' => $$user->id, 'completed' => '1'));
+
+        if ($completion->is_enabled($this->booking->cm) && $this->booking->settings->enablecompletion < $countcompleted) {
             $completion->update_state($this->booking->cm, COMPLETION_INCOMPLETE, $userid);
         }
 
@@ -1389,7 +1392,10 @@ class booking_option {
 
             $DB->update_record('booking_answers', $userdata);
 
-            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $this->booking->enablecompletion) {
+            $countcompleted = $DB->count_records('booking_answers',
+                array('bookingid' => $this->booking->id, 'userid' => $userid, 'completed' => '1'));
+
+            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $this->booking->enablecompletion <= $countcompleted) {
                 $completion->update_state($cm, COMPLETION_COMPLETE, $userid);
             }
         }
