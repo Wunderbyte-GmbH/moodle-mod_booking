@@ -79,7 +79,7 @@ if ($edit === 0) {
                 redirect($url, get_string('selectatleastoneuser', 'booking'), 5);
             }
 
-            booking_activitycompletion_teachers($selectedusers, $booking->settings, $cm->id,
+            booking_activitycompletion_teachers($selectedusers, $booking->booking->settings, $cm->id,
                     $optionid);
             redirect($url, get_string('activitycompletionsuccess', 'booking'), 5);
         }
@@ -124,7 +124,6 @@ $PAGE->set_heading($COURSE->fullname);
 
 if (has_capability('mod/booking:updatebooking', $context)) {
     $USER->subscriptionsediting = $edit;
-    $PAGE->set_button(booking_update_subscriptions_button($id, $optionid));
 } else {
     unset($USER->subscriptionsediting);
 }
