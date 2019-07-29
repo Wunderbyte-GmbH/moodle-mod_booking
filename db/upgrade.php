@@ -1876,5 +1876,19 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2019071701, 'booking');
     }
+
+    if ($oldversion < 2019072900) {
+
+        // Changing precision of field enablecompletion on table booking to (3).
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('enablecompletion', XMLDB_TYPE_INTEGER, '3', null, null, null, '1', 'userleave');
+
+        // Launch change of precision for field enablecompletion.
+        $dbman->change_field_precision($table, $field);
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2019072900, 'booking');
+    }
+
     return true;
 }
