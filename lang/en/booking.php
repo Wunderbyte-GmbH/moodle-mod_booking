@@ -33,6 +33,7 @@ $string['addusertogroup'] = 'Add user to group: ';
 
 // view.php
 $string['addmorebookings'] = 'Add more bookings';
+$string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
 $string['answered'] = 'Answered';
 $string['attachical'] = 'Attach single ical event per booking';
@@ -139,7 +140,7 @@ $string['showhelpfullnavigationlinks_help'] = 'Show \'Go to registration\' and \
 $string['completionmodule'] = 'Upon completion of the selected course activity, enable bulk deletion of user bookings';
 $string['completionmodule_help'] = 'Display bulk deletion button for booking answers, if another course module has been completed. The bookings of users will be deleted with a click of a button on the report page! Only activities with completion enabled can be selected from the list.';
 $string['teacherroleid'] = 'Subscribe teacher with that role to the course';
-$string['bookingoptiontitle'] = 'Booking option title';
+$string['bookingoptionname'] = 'Booking option name';
 
 // Categories
 $string['category'] = 'Category';
@@ -751,9 +752,11 @@ $string['dateparseformat_help'] = 'Please, use date format like specified in CSV
 $string['defaultdateformat'] = 'j.n.Y H:i:s';
 $string['importcsvtitle'] = 'Import CSV';
 $string['importfinished'] = 'Importing finished!';
-$string['noteacherfound'] = 'No teacher found in line {$a}: ';
+$string['noteacherfound'] = 'The user specified as teacher on line {$a} does not exist on the platform.';
 $string['nouserfound'] = 'No user found: ';
-$string['wrongfile'] = 'Wrong file!';
+$string['import_failed'] = 'The import failed du to following reason: ';
+$string['import_partial'] = 'The import was only partially completed. There were problems with following lines and they were not imported: ';
+$string['importinfo'] = 'Import info: You can use the following columns in the csv upload (Explanation in parenthesis)';
 
 // Confirmation mail
 $string['days'] = '{$a} days';

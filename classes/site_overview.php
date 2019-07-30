@@ -173,7 +173,7 @@ class site_overview implements \renderable {
                 $user->courseid = $bookingoptionswithdata->course->id;
                 $user->coursename = $bookingoptionswithdata->course->fullname;
                 $user->bookingtitle = $bookingoptionswithdata->booking->name;
-                $user->bookingoptiontitle = $bookingoptionswithdata->option->text;
+                $user->bookingoptionname = $bookingoptionswithdata->option->text;
                 $user->bookingvisible = $bookingoptionswithdata->cm->visible;
                 $user->cmid = $bookingoptionswithdata->cm->id;
                 $userstoprint[$user->id][$bookingoptionswithdata->optionid] = $user;

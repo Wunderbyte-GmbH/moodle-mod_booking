@@ -120,7 +120,7 @@ $string['showhelpfullnavigationlinks_help'] = 'Zeige \'Zu den Buchungen\' and \'
 $string['completionmodule'] = 'Aktiviere Massenlöschung von getätigten Buchungen basierend auf den Aktivitätsabschluss einer Kursaktivität';
 $string['completionmodule_help'] = 'Button zum Löschen aller Buchungen anzeigen, wenn eine andere Kursaktivität abgeschlossen wurde. Die Buchungen von Benutzern werden mit einem Klick auf einen Button auf der Berichtsseite gelöscht! Nur Aktivitäten mit aktiviertem Abschluss können aus der Liste ausgewählt werden.';
 $string['teacherroleid'] = 'Wähle folgende Rolle, um Lehrkräfte in den Kurs einzuschreiben.';
-$string['bookingoptiontitle'] = 'Bezeichnung für die Buchungsoption';
+$string['bookingoptionname'] = 'Bezeichnung der Buchungsoption';
 
 // Categories
 $string['category'] = 'Kategorie';
@@ -568,9 +568,11 @@ $string['dateparseformat_help'] = 'Bitte Datum so wie es im CSV definiert wurde 
 $string['defaultdateformat'] = 'j.n.Y H:i:s';
 $string['importcsvtitle'] = 'CSV-Datei importieren';
 $string['importfinished'] = 'Importieren beendet!';
-$string['noteacherfound'] = 'Kein/e Trainer/in gefunden: ';
+$string['noteacherfound'] = 'Die Nutzer/in die in Zeile {$a} in der Spalte für teacher angeführt wurde, existiert nicht auf der Plattform';
 $string['nouserfound'] = 'Kein/e User/in gefunden: ';
-$string['wrongfile'] = 'Falsche Datei!';
+$string['import_failed'] = 'Der CSV-Import wurde aufgrund folgendes Fehlers nicht durchgeführt: ';
+$string['import_partial'] = 'Der CSV-Import wurde nur teilweise durchgeführt. Bei folgenden Zeilen traten Fehler auf und sie wurden nicht importiert: ';
+$string['importinfo'] = 'Import info: Folgende Spalten können importiert werden (Erklärung des Spaltennamens in Klammern)';
 
 // Confirmation mail
 $string['days'] = '{$a} Tage';

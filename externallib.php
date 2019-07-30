@@ -92,7 +92,7 @@ class mod_booking_external extends external_api {
 
                     $returns[] = $cat;
 
-                    $returns = array_merge($returns, showSubCategories($subcat->id, $DB, $courseid));
+                    $returns = array_merge($returns, mod_booking_showsubcategories($subcat->id, $DB, $courseid));
                 }
             }
         }
