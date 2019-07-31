@@ -140,6 +140,11 @@ $string['completionmodule'] = 'Upon completion of the selected course activity, 
 $string['completionmodule_help'] = 'Display bulk deletion button for booking answers, if another course module has been completed. The bookings of users will be deleted with a click of a button on the report page! Only activities with completion enabled can be selected from the list.';
 $string['teacherroleid'] = 'Subscribe teacher with that role to the course';
 $string['bookingoptiontitle'] = 'Booking option title';
+$string['addastemplate'] = 'Add as template';
+$string['notemplate'] = 'Do not use as template';
+$string['astemplate'] = 'Use as template in this course';
+$string['asglobaltemplate'] = 'Use as global template';
+$string['templatedeleted'] = 'Template was deleted!';
 
 // Categories
 $string['category'] = 'Category';
@@ -724,6 +729,7 @@ $string['removeuseronunenrol'] = 'Remove user from booking, when unenrol from co
 // editoptions.php
 $string['addeditbooking'] = 'Edit booking option';
 $string['addnewbookingoption'] = 'Add a new booking option';
+$string['addnewbookingoptionfromtemplate'] = 'Add a new booking option from template';
 $string['choosecourse'] = 'Choose a course';
 $string['courseendtime'] = 'End time of the course';
 $string['coursestarttime'] = 'Start time of the course';
@@ -742,6 +748,7 @@ $string['recreategroup'] = 'Recreate group in the target course and enrol users 
 $string['copy'] = ' - Copy';
 $string['enrolmentstatus'] = 'Do not enrol users immediately but only at course start time';
 $string['duplicatename'] = 'This booking option name already exists. Please choose another one.';
+$string['newtemplatesaved'] = 'New template for booking option was saved.';
 
 // importoptions.php
 $string['csvfile'] = 'CSV file';
@@ -1026,6 +1033,7 @@ $string['pdfsignature'] = "Signature";
 $string['pdftodaydate'] = 'Date: ';
 
 $string['booking:readallinstitutionusers'] = 'Show all users';
+$string['booking:createnewtemplate'] = 'Can create templates';
 
 // File: settings.php
 $string['icalcfg'] = 'Configuration of the ical attachements';
@@ -1102,3 +1110,10 @@ $string['sucesfullcompleted'] = 'Activity was sucesfully completed for users.';
 $string['enablecompletion'] = 'Count of entries';
 $string['confirmuserswith'] = 'Confirm users who completed activity or received badge';
 $string['confirmusers'] = 'Confirm users activity';
+
+// optiontemplatessettings.php
+$string['optiontemplatessettings'] = 'Booking option templates';
+$string['defaulttemplate'] = 'Default template';
+$string['defaulttemplatedesc'] = 'Default booking option teplate, when creatting new booking option.';
+$string['dontuse'] = 'Don\'t use template';
+$string['bookingoptionsfromtemplatemenu'] = 'New booking option from template';

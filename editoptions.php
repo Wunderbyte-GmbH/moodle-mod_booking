@@ -43,7 +43,7 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
     print_error('nopermissions');
 }
 
-$mform = new mod_booking_bookingform_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id));
+$mform = new mod_booking_bookingform_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context));
 
 if ($optionid == -1) {
     // Adding new booking option - default values.
@@ -131,11 +131,21 @@ if ($mform->is_cancelled()) {
             $fromform->limitanswers = 0;
         }
 
-        $nbooking = booking_update_options($fromform, $context);
+        $nbooking = booking_update_options($fromform, $context, $cm);
 
         if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
             file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
                     $nbooking, array('subdirs' => false, 'maxfiles' => 50));
+        }
+
+        if (isset($fromform->addastemplate) && in_array($fromform->addastemplate, array(1, 2))) {
+            if (isset($fromform->submittandaddnew)) {
+                $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
+            } else {
+                $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
+            }
+
+            redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
         }
 
         $bookingdata = new \mod_booking\booking_option($cm->id, $nbooking);

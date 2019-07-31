@@ -130,9 +130,30 @@ if ($ADMIN->fulltree) {
         $setting = new admin_setting_configtext($name, $visiblename, $description, '');
         $settings->add($setting);
     }
+
+    $settings->add(
+        new admin_setting_heading('optiontemplatessettings_heading',
+                get_string('optiontemplatessettings', 'mod_booking'), ''));
+
+        $alltemplates = array('' => get_string('dontuse', 'booking'));
+        $alloptontemplates = $DB->get_records('booking_options', array('bookingid' => 0, 'courseid' => 0), '', $fields = 'id, text', 0, 0);
+
+    foreach ($alloptontemplates as $key => $value) {
+            $alltemplates[$value->id] = $value->text;
+    }
+
+    $settings->add(
+             new admin_setting_configselect('booking/defaulttemplate',
+                        get_string('defaulttemplate', 'mod_booking'),
+                        get_string('defaulttemplatedesc', 'mod_booking'),
+                        1, $alltemplates));
 }
 $ADMIN->add('modbookingfolder',
         new admin_externalpage('modbookingcustomfield',
                 get_string('customfieldconfigure', 'mod_booking'),
                 new moodle_url('/mod/booking/customfieldsettings.php')));
+$ADMIN->add('modbookingfolder',
+        new admin_externalpage('optiontemplatessettings',
+                get_string('optiontemplatessettings', 'mod_booking'),
+                new moodle_url('/mod/booking/optiontemplatessettings.php')));
 $settings = null;

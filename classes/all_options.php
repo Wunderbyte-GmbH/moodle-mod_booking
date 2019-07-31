@@ -48,64 +48,52 @@ class all_options extends table_sql {
         $ret = '<div class="menubar" id="action-menu-' . $values->id. '-menubar" role="menubar">';
 
         if ($values->iambooked) {
-            if ($CFG->branch >= 33) {
-                $ret .= \html_writer::link(
-                        new moodle_url('/mod/booking/viewconfirmation.php',
-                                array('id' => $this->cm->id, 'optionid' => $values->id)),
-                        $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')),
-                        array('target' => '_blank'));
-            } else {
-                $ret .= \html_writer::link(
-                        new moodle_url('/mod/booking/viewconfirmation.php',
-                                array('id' => $this->cm->id, 'optionid' => $values->id)),
-                        \html_writer::empty_tag('img',
-                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/print'),
-                                    'alt' => get_string('bookedtext', 'mod_booking'))),
-                        array('target' => '_blank'));
-            }
+            $ret .= \html_writer::link(
+                    new moodle_url('/mod/booking/viewconfirmation.php',
+                            array('id' => $this->cm->id, 'optionid' => $values->id)),
+                    $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')),
+                    array('target' => '_blank'));
         }
 
-        if ($CFG->branch >= 33) {
-            if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability(
-                    'mod/booking:addeditownoption', $this->context) &&
-                     booking_check_if_teacher($values))) {
-                $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
-                        new moodle_url('/mod/booking/editoptions.php',
-                                array('id' => $this->cm->id, 'optionid' => $values->id)),
-                        $OUTPUT->pix_icon('t/edit', get_string('updatebooking', 'mod_booking')) .
-                         get_string('updatebooking', 'mod_booking')) . '</div>';
-                // Book teachers.
-                if (has_capability('mod/booking:updatebooking', $this->context)) {
-                    $onlyoneurl = new moodle_url('/mod/booking/teachers.php',
-                            array('id' => $this->cm->id, 'optionid' => $values->id));
-                    $ddoptions[] = '<div class="dropdown-item">' .
-                            html_writer::link($onlyoneurl,
-                                    $OUTPUT->pix_icon('t/edit',
-                                            get_string('editteacherslink', 'mod_booking')) .
-                                    get_string('editteacherslink', 'mod_booking')) . '</div>';
-                }
-                // Book other users.
-                if (has_capability('mod/booking:subscribeusers', $this->context) ||
-                         booking_check_if_teacher($values, $USER)) {
-                    $onlyoneurl = new moodle_url('/mod/booking/subscribeusers.php',
-                            array('id' => $this->cm->id, 'optionid' => $values->id));
-                    $ddoptions[] = '<div class="dropdown-item">' .
-                             html_writer::link($onlyoneurl,
-                                    $OUTPUT->pix_icon('t/edit',
-                                            get_string('bookotherusers', 'mod_booking')) .
-                                     get_string('bookotherusers', 'mod_booking')) . '</div>';
-                }
-                // Show only one option.
-                $onlyoneurl = new moodle_url('/mod/booking/view.php',
-                        array('id' => $this->cm->id, 'optionid' => $values->id,
-                            'action' => 'showonlyone', 'whichview' => 'showonlyone'));
-                $onlyoneurl->set_anchor('goenrol');
+        if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability(
+                'mod/booking:addeditownoption', $this->context) &&
+                    booking_check_if_teacher($values))) {
+            $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
+                    new moodle_url('/mod/booking/editoptions.php',
+                            array('id' => $this->cm->id, 'optionid' => $values->id)),
+                    $OUTPUT->pix_icon('t/edit', get_string('updatebooking', 'mod_booking')) .
+                        get_string('updatebooking', 'mod_booking')) . '</div>';
+            // Book teachers.
+            if (has_capability('mod/booking:updatebooking', $this->context)) {
+                $onlyoneurl = new moodle_url('/mod/booking/teachers.php',
+                        array('id' => $this->cm->id, 'optionid' => $values->id));
                 $ddoptions[] = '<div class="dropdown-item">' .
-                         html_writer::link($onlyoneurl,
+                        html_writer::link($onlyoneurl,
                                 $OUTPUT->pix_icon('t/edit',
-                                        get_string('onlythisbookingurl', 'mod_booking')) .
-                                 get_string('onlythisbookingurl', 'mod_booking')) . '</div>';
+                                        get_string('editteacherslink', 'mod_booking')) .
+                                get_string('editteacherslink', 'mod_booking')) . '</div>';
             }
+            // Book other users.
+            if (has_capability('mod/booking:subscribeusers', $this->context) ||
+                        booking_check_if_teacher($values, $USER)) {
+                $onlyoneurl = new moodle_url('/mod/booking/subscribeusers.php',
+                        array('id' => $this->cm->id, 'optionid' => $values->id));
+                $ddoptions[] = '<div class="dropdown-item">' .
+                            html_writer::link($onlyoneurl,
+                                $OUTPUT->pix_icon('t/edit',
+                                        get_string('bookotherusers', 'mod_booking')) .
+                                    get_string('bookotherusers', 'mod_booking')) . '</div>';
+            }
+            // Show only one option.
+            $onlyoneurl = new moodle_url('/mod/booking/view.php',
+                    array('id' => $this->cm->id, 'optionid' => $values->id,
+                        'action' => 'showonlyone', 'whichview' => 'showonlyone'));
+            $onlyoneurl->set_anchor('goenrol');
+            $ddoptions[] = '<div class="dropdown-item">' .
+                        html_writer::link($onlyoneurl,
+                            $OUTPUT->pix_icon('t/edit',
+                                    get_string('onlythisbookingurl', 'mod_booking')) .
+                                get_string('onlythisbookingurl', 'mod_booking')) . '</div>';
 
             if (has_capability('mod/booking:updatebooking', $this->context)) {
                 $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
@@ -122,95 +110,20 @@ class all_options extends table_sql {
                                                  get_string('duplicatebooking', 'mod_booking')) .
                                          get_string('duplicatebooking', 'mod_booking')) . '</div>';
             }
-        } else {
-            if (has_capability('mod/booking:updatebooking', $this->context) || (has_capability(
-                    'mod/booking:addeditownoption', $this->context) &&
-                     booking_check_if_teacher($values))) {
-                $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
-                        new moodle_url('/mod/booking/editoptions.php',
-                                array('id' => $this->cm->id, 'optionid' => $values->id)),
-                        \html_writer::empty_tag('img',
-                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'),
-                                    'alt' => get_string('updatebooking', 'mod_booking'))) .
-                         get_string('updatebooking', 'mod_booking')) . '</div>';
-                        if (has_capability('mod/booking:updatebooking', $this->context)) {
-                            $onlyoneurl = new moodle_url('/mod/booking/teachers.php',
-                                    array('id' => $this->cm->id, 'optionid' => $values->id));
-                            $ddoptions[] = '<div class="dropdown-item">' . html_writer::link($onlyoneurl,
-                                \html_writer::empty_tag('img',
-                                    array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'),
-                                        'alt' => get_string('editteachers', 'mod_booking'))) .
-                                     get_string('editteachers', 'mod_booking')) . '</div>';
-                        }
-                        if (has_capability('mod/booking:subscribeusers', $this->context) ||
-                         booking_check_if_teacher($values, $USER)) {
-                            $onlyoneurl = new moodle_url('/mod/booking/subscribeusers.php',
-                                array('id' => $this->cm->id, 'optionid' => $values->id));
-                            $ddoptions[] = '<div class="dropdown-item">' . html_writer::link($onlyoneurl,
-                                \html_writer::empty_tag('img',
-                                    array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'),
-                                        'alt' => get_string('bookotherusers', 'mod_booking'))) .
-                                     get_string('bookotherusers', 'mod_booking')) . '</div>';
-                        }
-                        $onlyoneurl = new moodle_url('/mod/booking/view.php',
-                            array('id' => $this->cm->id, 'optionid' => $values->id,
-                                'action' => 'showonlyone', 'whichview' => 'showonlyone'));
-                        $onlyoneurl->set_anchor('goenrol');
-                        $ddoptions[] = '<div class="dropdown-item">' . html_writer::link($onlyoneurl,
-                            \html_writer::empty_tag('img',
-                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/edit'),
-                                    'alt' => get_string('updatebooking', 'mod_booking'))) .
-                                 get_string('onlythisbookingurl', 'mod_booking')) . '</div>';
-            }
-
-            if (has_capability('mod/booking:updatebooking', $this->context)) {
-                $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
-                        new moodle_url('/mod/booking/report.php',
-                                array('id' => $this->cm->id, 'optionid' => $values->id,
-                                    'action' => 'deletebookingoption', 'sesskey' => sesskey())),
-                        \html_writer::empty_tag('img',
-                                array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/delete'),
-                                    'alt' => get_string('deletebookingoption', 'mod_booking'))) .
-                                 get_string('deletebookingoption', 'mod_booking')) . '</div>';
-
-                         $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
-                                 new moodle_url('/mod/booking/editoptions.php',
-                                         array('id' => $this->cm->id, 'optionid' => -1, 'copyoptionid' => $values->id)),
-                                 \html_writer::empty_tag('img',
-                                         array('class' => 'icon', 'src' => $OUTPUT->pix_url('t/copy'),
-                                                         'alt' => get_string('duplicatebooking', 'mod_booking'))) .
-                                 get_string('duplicatebooking', 'mod_booking')) . '</div>';
-            }
         }
         if (!empty($ddoptions)) {
-            if ($CFG->branch >= 33) {
-                $ret .= '<div class="dropdown d-inline">
-                        <a href="' .
-                        new moodle_url('/mod/booking/editoptions.php',
-                                array('id' => $this->cm->id, 'optionid' => $values->id)) .
-                        '" id="action-menu-toggle-' . $values->id . '" title="" role="button" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">' . $OUTPUT->pix_icon(
-                                't/edit', get_string('settings', 'moodle')) .
-                        '</a>
-                        <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' .
-                        $values->id .
-                        '-menu" data-rel="menu-content"
-                            aria-labelledby="action-menu-toggle-3" role="menu" data-align="tr-br">';
-            } else {
-                $ret .= '<div class="dropdown d-inline">
-                        <a href="' .
-                        new moodle_url('/mod/booking/editoptions.php',
-                                array('id' => $this->cm->id, 'optionid' => $values->id)) .
-                        '" id="action-menu-toggle-' . $values->id .
-                        '" title="" role="button" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false"><img class="icon " alt="" src="' . $OUTPUT->pix_url(
-                                't/edit') .
-                        '"></a>
-                        <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' .
-                        $values->id .
-                        '-menu" data-rel="menu-content"
-                            aria-labelledby="action-menu-toggle-3" role="menu" data-align="tr-br">';
-            }
+            $ret .= '<div class="dropdown d-inline">
+                    <a href="' .
+                    new moodle_url('/mod/booking/editoptions.php',
+                            array('id' => $this->cm->id, 'optionid' => $values->id)) .
+                    '" id="action-menu-toggle-' . $values->id . '" title="" role="button" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">' . $OUTPUT->pix_icon(
+                            't/edit', get_string('settings', 'moodle')) .
+                    '</a>
+                    <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' .
+                    $values->id .
+                    '-menu" data-rel="menu-content"
+                        aria-labelledby="action-menu-toggle-3" role="menu" data-align="tr-br">';
             $ret .= implode($ddoptions);
             $ret .= '</div></div>';
         }

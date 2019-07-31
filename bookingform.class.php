@@ -202,7 +202,6 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->disabledIf('generatenewurl', 'optionid', 'eq', -1);
 
         // Booking option text.
-
         $mform->addElement('header', 'bookingoptiontextheader',
                 get_string('bookingoptiontext', 'booking'));
 
@@ -220,6 +219,23 @@ class mod_booking_bookingform_form extends moodleform {
                 get_string("aftercompletedtext", "booking"), null, null);
         $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
         $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
+
+        // Templates - only visible when adding new.
+        if ($this->_customdata['optionid'] == -1) {
+            if (has_capability ( 'mod/booking:createnewtemplate', $this->_customdata['context'] )) {
+                $mform->addElement('header', 'templateheader',
+                        get_string('addastemplate', 'booking'));
+                $addastemplate = array(
+                    0 => get_string('notemplate', 'booking'),
+                    1 => get_string('astemplate', 'booking'),
+                    2 => get_string('asglobaltemplate', 'booking')
+                );
+                $mform->addElement('select', 'addastemplate', get_string('addastemplate', 'booking'),
+                        $addastemplate);
+                $mform->setType('addastemplate', PARAM_INT);
+                $mform->setDefault('addastemplate', 0);
+            }
+        }
 
         // Hidden elements.
         $mform->addElement('hidden', 'id');

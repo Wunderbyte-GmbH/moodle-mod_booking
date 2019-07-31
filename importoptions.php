@@ -193,7 +193,7 @@ if ($mform->is_cancelled()) {
                     $bookingobject->aftercompletedtext = "";
                     $bookingobject->duration = 0;
 
-                    $optionid = booking_update_options($bookingobject, $context);
+                    $optionid = booking_update_options($bookingobject, $context, $cm);
 
                     $bookingobject->id = $optionid;
                     $bookingoption = $bookingobject;
