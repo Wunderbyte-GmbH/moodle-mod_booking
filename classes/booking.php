@@ -403,7 +403,7 @@ WHERE
                     break;
                 case 'booking':
                     $columns[] = 'booking';
-                    $headers[] = get_string("booking", "booking");
+                    $headers[] = get_string("bookingoptionname", "booking");
                     break;
                 case 'institution':
                     if (has_capability('moodle/site:viewuseridentity', $this->context)) {

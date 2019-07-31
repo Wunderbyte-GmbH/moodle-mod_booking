@@ -170,7 +170,7 @@ class renderer extends plugin_renderer_base {
                     $courselink = html_writer::link($bookingcourseurl,
                             $user->coursename);
                     $html = html_writer::span(
-                            $user->bookingoptiontitle .
+                            $user->bookingoptionname .
                                      " $bookinglink.  $courselink $bookingstatus");
                     $items[] = $html;
                 }

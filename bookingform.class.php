@@ -24,7 +24,7 @@ class mod_booking_bookingform_form extends moodleform {
         $mform = & $this->_form;
         $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
         $mform->addElement('header', 'general', get_string('general', 'form'));
-        $mform->addElement('text', 'text', get_string('booking', 'booking'), array('size' => '64'));
+        $mform->addElement('text', 'text', get_string('bookingoptionname', 'booking'), array('size' => '64'));
         $mform->addRule('text', get_string('required'), 'required', null, 'client');
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('text', PARAM_TEXT);
@@ -173,10 +173,12 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->addHelpButton('pollurlteachers', 'pollurlteachers', 'mod_booking');
 
         $mform->addElement('text', 'howmanyusers', get_string('howmanyusers', 'booking'), 0);
+        $mform->addRule('howmanyusers', get_string('err_numeric', 'form'), 'numeric', null, 'client');
         $mform->setType('howmanyusers', PARAM_INT);
 
         $mform->addElement('text', 'removeafterminutes', get_string('removeafterminutes', 'booking'),
                 0);
+        $mform->addRule('removeafterminutes', get_string('err_numeric', 'form'), 'numeric', null, 'client');
         $mform->setType('removeafterminutes', PARAM_INT);
 
         $mform->addElement('filemanager', 'myfilemanageroption',

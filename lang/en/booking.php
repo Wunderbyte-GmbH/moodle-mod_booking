@@ -33,6 +33,7 @@ $string['addusertogroup'] = 'Add user to group: ';
 
 // view.php
 $string['addmorebookings'] = 'Add more bookings';
+$string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
 $string['answered'] = 'Answered';
 $string['attachical'] = 'Attach single ical event per booking';
@@ -145,6 +146,7 @@ $string['notemplate'] = 'Do not use as template';
 $string['astemplate'] = 'Use as template in this course';
 $string['asglobaltemplate'] = 'Use as global template';
 $string['templatedeleted'] = 'Template was deleted!';
+$string['bookingoptionname'] = 'Booking option name';
 
 // Categories
 $string['category'] = 'Category';
@@ -758,9 +760,11 @@ $string['dateparseformat_help'] = 'Please, use date format like specified in CSV
 $string['defaultdateformat'] = 'j.n.Y H:i:s';
 $string['importcsvtitle'] = 'Import CSV';
 $string['importfinished'] = 'Importing finished!';
-$string['noteacherfound'] = 'No teacher found in line {$a}: ';
+$string['noteacherfound'] = 'The user specified as teacher on line {$a} does not exist on the platform.';
 $string['nouserfound'] = 'No user found: ';
-$string['wrongfile'] = 'Wrong file!';
+$string['import_failed'] = 'The import failed du to following reason: ';
+$string['import_partial'] = 'The import was only partially completed. There were problems with following lines and they were not imported: ';
+$string['importinfo'] = 'Import info: You can use the following columns in the csv upload (Explanation in parenthesis)';
 
 // Confirmation mail
 $string['days'] = '{$a} days';

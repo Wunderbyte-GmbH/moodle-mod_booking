@@ -382,9 +382,10 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                 $links = array();
                 foreach ($categoryies as $category) {
                     $tmpcat = $DB->get_record('booking_category', array('id' => $category));
-                    $surl = new moodle_url('category.php',
-                            array('id' => $id, 'category' => $tmpcat->id));
-                    $links[] = html_writer::link($surl, $tmpcat->name, array());
+                    if ($tmpcat) {
+                        $surl = new moodle_url('category.php', array('id' => $id, 'category' => $tmpcat->id));
+                        $links[] = html_writer::link($surl, $tmpcat->name, array());
+                    }
                 }
 
                 echo html_writer::start_tag('div');
@@ -755,6 +756,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                         tba.numrec AS numrec,
                         tu.firstname AS firstname,
                         tu.lastname AS lastname,
+                        tu.city AS city,
                         tu.username AS username,
                         tu.email AS email,
                         tba.completed AS completed,
@@ -768,7 +770,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                 JOIN {user} tu ON tu.id = tba.userid
                 JOIN {booking_options} tbo ON tbo.id = tba.optionid
                 LEFT JOIN {booking_options} otherbookingoption ON otherbookingoption.id = tba.frombookingid';
-        $where = 'tba.optionid IN (SELECT DISTINCT bo.id FROM {booking} b
+        $where = 'tu.deleted = 0 AND tu.suspended = 0 AND tba.optionid IN (SELECT DISTINCT bo.id FROM {booking} b
                                     LEFT JOIN {booking_options} bo ON bo.bookingid = b.id WHERE b.id = :bookingid ' .
                  (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions)) . ')';
 
