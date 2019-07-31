@@ -565,7 +565,8 @@ function booking_update_instance($booking) {
 /**
  * Update the booking option settings when adding and modifying a single booking option
  *
- * @param array $optionvalues
+ * @param object $optionvalues
+ * @param context_module $context
  * @return boolean|number optionid
  */
 function booking_update_options($optionvalues, $context, $cm) {
@@ -2473,19 +2474,4 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
     unset($results[$CFG->siteguest]);
 
     return $results;
-}
-
-/**
- * Fix encoding of CSV files for importing booking options.
- *
- * @param string $instr
- * @return string
- */
-function mod_booking_fix_encoding($instr) {
-    $curencoding = mb_detect_encoding($instr);
-    if ($curencoding == "UTF-8" && mb_check_encoding($instr, "UTF-8")) {
-        return $instr;
-    } else {
-        return utf8_encode($instr);
-    }
 }

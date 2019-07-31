@@ -476,7 +476,7 @@ class mod_booking_mod_form extends moodleform_mod {
         );
 
         $reportfields = array('optionid' => get_string("optionid", "booking"),
-            'booking' => get_string("booking", "booking"),
+            'booking' => get_string("bookingoptionname", "booking"),
             'institution' => get_string("institution", "booking"),
             'location' => get_string("location", "booking"),
             'coursestarttime' => get_string("coursestarttime", "booking"),
