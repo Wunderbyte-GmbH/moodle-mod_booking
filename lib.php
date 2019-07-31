@@ -312,15 +312,15 @@ function booking_get_completion_state($course, $cm, $userid, $type) {
         throw new Exception("Can't find booking {$cm->instance}");
     }
 
-    if ($booking->enablecompletion) {
-        $user = $DB->get_record('booking_answers',
+    if ($booking->enablecompletion > 0) {
+        $user = $DB->count_records('booking_answers',
                 array('bookingid' => $booking->id, 'userid' => $userid, 'completed' => '1'));
 
-        if ($user === false) {
-            return false;
-        } else {
+        if ($booking->enablecompletion <= $user) {
             return true;
         }
+
+        return false;
     } else {
         return $type;
     }
@@ -928,6 +928,13 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                                     array('id' => $cm->id, 'optionid' => $optionid)));
                 }
             }
+            if (has_capability ( 'mod/booking:readresponses', $context ) || booking_check_if_teacher ($option, $USER )) {
+                $completion = new \completion_info($course);
+                if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $booking->enablecompletion > 0) {
+                    $settingnode->add(get_string('confirmuserswith', 'booking'),
+                    new moodle_url('/mod/booking/confirmactivity.php', array('id' => $cm->id, 'optionid' => $optionid)));
+                }
+            }
             if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) &&
                     $booking->conectedbooking > 0) {
                 $settingnode->add(get_string('editotherbooking', 'booking'),
@@ -1352,16 +1359,20 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
                 $userdata->completed = '0';
 
                 $DB->update_record('booking_teachers', $userdata);
+                $countcomplete = $DB->count_records('booking_teachers',
+                    array('bookingid' => $booking->id, 'userid' => $ui, 'completed' => '1'));
 
-                if ($completion->is_enabled($cm) && $booking->enablecompletion) {
+                if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcomplete) {
                     $completion->update_state($cm, COMPLETION_INCOMPLETE, $ui);
                 }
             } else {
                 $userdata->completed = '1';
 
                 $DB->update_record('booking_teachers', $userdata);
+                $countcomplete = $DB->count_records('booking_teachers',
+                    array('bookingid' => $booking->id, 'userid' => $ui, 'completed' => '1'));
 
-                if ($completion->is_enabled($cm) && $booking->enablecompletion) {
+                if ($completion->is_enabled($cm) && $booking->enablecompletion <= $countcomplete) {
                     $completion->update_state($cm, COMPLETION_COMPLETE, $ui);
                 }
             }
@@ -1438,8 +1449,10 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             $userdata->timemodified = time();
 
             $DB->update_record('booking_answers', $userdata);
+            $countcomplete = $DB->count_records('booking_answers',
+                    array('bookingid' => $booking->id, 'userid' => $ui, 'completed' => '1'));
 
-            if ($completion->is_enabled($cm) && $booking->enablecompletion) {
+            if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcomplete) {
                 $completion->update_state($cm, COMPLETION_INCOMPLETE, $ui);
             }
         } else {
@@ -1447,8 +1460,10 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             $userdata->timemodified = time();
 
             $DB->update_record('booking_answers', $userdata);
+            $countcomplete = $DB->count_records('booking_answers',
+                    array('bookingid' => $booking->id, 'userid' => $ui, 'completed' => '1'));
 
-            if ($completion->is_enabled($cm) && $booking->enablecompletion) {
+            if ($completion->is_enabled($cm) && $booking->enablecompletion <= $countcomplete) {
                 $completion->update_state($cm, COMPLETION_COMPLETE, $ui);
             }
         }

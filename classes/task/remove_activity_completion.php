@@ -54,7 +54,10 @@ class remove_activity_completion extends \core\task\scheduled_task {
 
             $DB->update_record('booking_answers', $userdata);
 
-            if ($completion->is_enabled($cm) && $booking->enablecompletion) {
+            $countcompleted = $DB->count_records('booking_answers',
+                array('bookingid' => $value->bookingid, 'userid' => $userdata->userid, 'completed' => '1'));
+
+            if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcompleted) {
                 $completion->update_state($cm, COMPLETION_INCOMPLETE, $userdata->userid);
             }
         }

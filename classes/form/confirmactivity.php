@@ -50,7 +50,7 @@ class confirmactivity extends \moodleform {
         $mform->disabledIf('activity', 'whichtype', 'eq', 1);
 
         $buttonarray = array();
-        $buttonarray[] = $mform->createElement('submit', 'submitbutton', get_string('confirmactivitycompletion', 'booking'));
+        $buttonarray[] = $mform->createElement('submit', 'submitbutton', get_string('confirmusers', 'booking'));
         $buttonarray[] = $mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', ' ', false);
     }
