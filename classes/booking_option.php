@@ -109,8 +109,7 @@ class booking_option {
 
         $this->booking = new booking($cmid);
         $this->optionid = $optionid;
-        $this->option = $DB->get_record('booking_options',
-                array('id' => $optionid, 'bookingid' => $this->booking->id), '*', MUST_EXIST);
+        $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', MUST_EXIST);
         $times = $DB->get_records_sql(
                 "SELECT id, coursestarttime, courseendtime
                    FROM {booking_optiondates}

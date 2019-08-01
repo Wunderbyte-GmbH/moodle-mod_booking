@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
- * This page allows a user to subscribe/unsubscribe other users from a booking option
- * TODO: upgrade logging, add logging for added/deleted users
+ * This page allows to confirm user as completet if has received certaion badge
+ * or completed certain activity.
  *
  * @author Andraž Prinčič atletek@gmail.com
  * @package mod/booking

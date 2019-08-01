@@ -79,7 +79,6 @@ if ($mform->is_cancelled()) {
         // Not ok, write error.
         $output = get_string('import_failed', 'booking');
         $output .= $importer->get_error();
-        echo $OUTPUT->single_button();
         echo $OUTPUT->notification($output);
         echo $continue;
     }
