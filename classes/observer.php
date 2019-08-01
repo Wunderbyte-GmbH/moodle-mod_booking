@@ -48,16 +48,26 @@ class mod_booking_observer {
      */
     public static function user_enrolment_deleted(\core\event\user_enrolment_deleted $event) {
         global $DB;
-
         $cp = (object) $event->other['userenrolment'];
         if ($cp->lastenrol) {
-            $DB->delete_records_select('booking_answers',
-                    " userid = :userid
-                      AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course AND removeuseronunenrol = 1)",
-                    array('userid' => $cp->userid, 'course' => $cp->courseid));
-            $DB->delete_records_select('booking_teachers',
-                    " userid = :userid AND bookingid IN ( SELECT id FROM {booking} WHERE course = :course)",
-                    array('userid' => $cp->userid, 'course' => $cp->courseid));
+            $sql = 'SELECT bo.id, bo.bookingid
+            FROM {booking_options} bo
+            JOIN {booking} b ON bo.bookingid = b.id
+            WHERE bo.courseid = :courseid
+            AND b.removeuseronunenrol = 1';
+            $params = ['courseid' => $cp->courseid];
+            $options = $DB->get_records_sql($sql, $params);
+            if (!empty($options)) {
+                foreach ($options as $option) {
+                    $bo = \mod_booking\booking_option::create_option_from_optionid($option->id, $option->bookingid);
+                    $bo->user_delete_response($cp->userid);
+                }
+                $optionids = array_keys($options);
+                list ($insql, $inparams) = $DB->get_in_or_equal($optionids, SQL_PARAMS_NAMED);
+                $inparams['userid'] = $cp->userid;
+                $DB->delete_records_select('booking_teachers',
+                    "userid = :userid AND optionid $insql", $inparams);
+            }
         }
     }
 

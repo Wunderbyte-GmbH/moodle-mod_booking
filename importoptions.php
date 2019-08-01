@@ -24,7 +24,6 @@
 namespace mod_booking;
 require_once("../../config.php");
 require_once("lib.php");
-require_once('importoptions_form.php');
 require_once($CFG->libdir . '/completionlib.php');
 
 use mod_booking\form\importoptions_form;
