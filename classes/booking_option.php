@@ -132,7 +132,7 @@ class booking_option {
         if ($getusers) {
             $this->get_users();
         }
-
+        // TODO: A lot of DB queries: put into fewer queries. Only get this, when necessary. Maybe create a separate class for managing booking answers.
         $imbooked = $DB->get_record_sql("SELECT COUNT(*) imbooked FROM {booking_answers} WHERE optionid = :optionid AND userid = :userid AND waitinglist = 0",
                 array('optionid' => $optionid, 'userid' => $USER->id));
         $this->iambooked = $imbooked->imbooked;
@@ -150,6 +150,25 @@ class booking_option {
 
         $booked = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid AND waitinglist = 0", array('optionid' => $optionid));
         $this->booked = $booked->rnum;
+    }
+
+    /**
+     * Returns a booking_option object when optionid is passed along. Saves db query when booking id is given as well.
+     * TODO: cache this.
+     *
+     * @param $optionid
+     * @param integer $boid booking id
+     * @return booking_option
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public static function create_option_from_optionid($optionid, $boid = null) {
+        global $DB;
+        if (is_null($boid)) {
+            $boid = $DB->get_field('booking_options', 'bookingid', ['optionid' => $optionid]);
+        }
+        $cm = get_coursemodule_from_instance('booking', $boid);
+        return new booking_option($cm->id, $optionid);
     }
 
     /**
