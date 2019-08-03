@@ -73,10 +73,8 @@ class mod_booking_mod_form extends moodleform_mod {
         global $CFG, $DB, $COURSE, $USER;
 
         $context = context_system::instance();
-
         $mform = &$this->_form;
 
-        // -------------------------------------------------------------------------------
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         $mform->addElement('text', 'name', get_string('bookingname', 'booking'),
@@ -129,30 +127,23 @@ class mod_booking_mod_form extends moodleform_mod {
         $menuoptions[0] = get_string('disable');
         $menuoptions[1] = get_string('enable');
 
-        // Default settings for booking options.
-        $mform->addElement('header', 'limitanswer', get_string('defaultbookingoption', 'booking'));
-
-        $mform->addElement('select', 'limitanswers', get_string('limitanswers', 'booking'),
-                $menuoptions);
-
-        $mform->addElement('text', 'maxanswers', get_string('maxparticipantsnumber', 'booking'), 0);
-        $mform->disabledIf('maxanswers', 'limitanswers', 0);
-        $mform->setType('maxanswers', PARAM_INT);
-
-        $mform->addElement('text', 'maxoverbooking', get_string('maxoverbooking', 'booking'), 0);
-        $mform->disabledIf('maxoverbooking', 'limitanswers', 0);
-        $mform->setType('maxoverbooking', PARAM_INT);
-
         $whichviewopts = array('mybooking' => get_string('showmybookingsonly', 'mod_booking'),
             'myoptions' => get_string('myoptions', 'mod_booking'),
             'showall' => get_string('showallbookings', 'mod_booking'),
             'showactive' => get_string('showactive', 'mod_booking'),
             'myinstitution' => get_string('showonlymyinstitutions', 'mod_booking'));
         $mform->addElement('select', 'whichview', get_string('whichview', 'mod_booking'),
-                $whichviewopts);
+            $whichviewopts);
 
         $mform->addElement('select', 'enablepresence', get_string('enablepresence', 'booking'),
                 $menuoptions);
+
+        // Choose default template.
+        $alloptontemplates = $DB->get_records_menu('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
+        $alloptontemplates[0] = get_string('dontuse', 'booking');
+        $mform->addElement('select', 'templateid', get_string('defaulttemplate', 'booking'),
+            $alloptontemplates);
+        $mform->setDefault('templateid', 0);
 
         // Confirmation message.
         $mform->addElement('header', 'confirmation',
@@ -198,7 +189,6 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addRule('bookingmanager', null, 'required', null, 'client');
 
         // Add the fields to allow editing of the default text.
-        $context = context_system::instance();
         $editoroptions = array('subdirs' => false, 'maxfiles' => 0, 'maxbytes' => 0,
             'trusttext' => false, 'context' => $context);
         $fieldmapping = (object) array('status' => '{status}', 'participant' => '{participant}',
@@ -625,6 +615,11 @@ class mod_booking_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
+    /**
+     * Set defaults and prepare data for form.
+     *
+     * @param array $defaultvalues
+     */
     public function data_preprocessing(&$defaultvalues) {
         global $CFG;
         parent::data_preprocessing($defaultvalues);

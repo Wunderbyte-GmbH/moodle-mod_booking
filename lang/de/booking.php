@@ -42,9 +42,10 @@ $string['booking:sendpollurl'] = 'Umfragelink senden';
 $string['booking:sendpollurltoteachers'] = 'Umfragelink and Trainer/innen senden';
 $string['booking:subscribeusers'] = 'Für andere Teilnehmer/innen Buchungen durchführen';
 $string['booking:updatebooking'] = 'Buchungen verwalten';
-$string['booking:viewallratings'] = 'View all raw ratings given by individuals';
-$string['booking:viewanyrating'] = 'View total ratings that anyone received';
-$string['booking:viewrating'] = 'View the total rating you received';
+$string['booking:viewallratings'] = 'Alle Bewertungen sehen';
+$string['booking:viewanyrating'] = 'Alle Bewertungen sehen';
+$string['booking:viewrating'] = 'Gesamtbewertung sehen';
+$string['booking:manageoptiontemplates'] = 'Kann Buchungsoptionsvorlagen erstellen';
 $string['bookingclose'] = 'Bis';
 $string['bookingfull'] = 'Ausgebucht';
 $string['bookingname'] = 'Buchungsbezeichnung';
@@ -121,6 +122,12 @@ $string['completionmodule'] = 'Aktiviere Massenlöschung von getätigten Buchung
 $string['completionmodule_help'] = 'Button zum Löschen aller Buchungen anzeigen, wenn eine andere Kursaktivität abgeschlossen wurde. Die Buchungen von Benutzern werden mit einem Klick auf einen Button auf der Berichtsseite gelöscht! Nur Aktivitäten mit aktiviertem Abschluss können aus der Liste ausgewählt werden.';
 $string['teacherroleid'] = 'Wähle folgende Rolle, um Lehrkräfte in den Kurs einzuschreiben.';
 $string['bookingoptionname'] = 'Bezeichnung der Buchungsoption';
+$string['bookingoptiontitle'] = 'Bezeichnung der Buchungsoption';
+$string['addastemplate'] = 'Als Vorlage hinzufügen';
+$string['notemplate'] = 'Nicht als Vorlage benutzen';
+$string['astemplate'] = 'Als Vorlage in diesem Kurs hinzufügen';
+$string['asglobaltemplate'] = 'Als globale Vorlage hinzufügen';
+$string['templatedeleted'] = 'Vorlage wurde gelöscht!';
 
 // Categories
 $string['category'] = 'Kategorie';
@@ -541,6 +548,7 @@ $string['showinapi'] = 'In API anzeigen?';
 // editoptions.php
 $string['addeditbooking'] = 'Buchung bearbeiten';
 $string['addnewbookingoption'] = 'Neue Buchungsoption hinzufügen';
+$string['addnewbookingoptionfromtemplate'] = 'Neue Buchungsoption von Vorlage erstellen';
 $string['choosecourse'] = 'Einen Kurs auswählen';
 $string['courseendtime'] = 'Kursende';
 $string['coursestarttime'] = 'Kursbeginn';
@@ -559,6 +567,7 @@ $string['recreategroup'] = 'Gruppe erneut anlegen und Nutzer/innen der Gruppe zu
 $string['copy'] = ' - Kopieren';
 $string['enrolmentstatus'] = 'Nutzer/innen nicht sofort in Kurs einschreiben sondern erst zu Kursbeginn';
 $string['duplicatename'] = 'Diese Bezeichnung für eine Buchungsoption existiert bereits. Bitte wählen Sie eine andere.';
+$string['newtemplatesaved'] = 'Neue Buchungsoptionsvorlage wurde gespeichert.';
 
 // importoptions.php
 $string['csvfile'] = 'CSV Datei';
@@ -813,6 +822,16 @@ $string['numberrows'] = 'Zeilen nummerieren';
 $string['numberrowsdesc'] = 'Nummerierung der Zeilen in der Unterschriftenliste aktivieren. Die Nummer wird links des Namens dargestellt';
 $string['multiicalfiles'] = 'Pro Event/Termin eine ical-Datei anhängen um Kompatibilität mit MS Outlook 2010 zu gewährleisten.';
 $string['multiicalfilesdesc'] = 'MS Outlook unterstützt keine Mehrfach-Termine in einer-Datei. Um mehrere Termine auch in Outlook importieren zu können, muss pro Termin eine Datei angehängt werden. Es werden dann in einem Mail mehrere ical-Dateien angehängt.';
+
+// optiontemplatessettings.php
+$string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
+$string['defaulttemplate'] = 'Standard-Vorlage';
+$string['defaulttemplatedesc'] = 'Standard-Vorlage für neue Buchungsoptionen';
+$string['dontuse'] = 'Vorlage nicht verwenden';
+$string['bookingoptionsfromtemplatemenu'] = 'Neue Buchungsoption von Vorlage erstellen';
+$string['manageoptiontemplates'] = 'Buchungsoptionsvorlagen verwalten';
+$string['usedinbookinginstances'] = 'Die Vorlage wird in folgenden Buchungsinstanzen verwendet';
+$string['optiontemplatename'] = 'Vorlagenname der Buchungsoption';
 
 // locallib.php
 $string['pdfdate'] = 'Buchungsdaten: ';

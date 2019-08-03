@@ -18,36 +18,39 @@
  * Global settings
  *
  * @package mod_booking
- * @copyright 2017 David Bogner, http://www.edulabs.org
+ * @copyright 2019 David Bogner, http://www.edulabs.org
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+use mod_booking\optiontemplatessettings_table;
+
 require_once('../../config.php');
 require_once($CFG->libdir . '/tablelib.php');
 require_once($CFG->libdir . '/adminlib.php');
-require_once('classes/optiontemplatessettings_table.php');
 
+$id = required_param('id', PARAM_INT); // Course module id.
+$optionid = optional_param('optionid', 0, PARAM_INT);
+$action = optional_param('action', 0, PARAM_ALPHANUM);
+list($course, $cm) = get_course_and_cm_from_cmid($id);
 // No guest autologin.
-require_login(0, false);
+require_course_login($course, false);
+$pageurl = new moodle_url('/mod/booking/optiontemplatessettings.php',  array('id' => $id, 'optionid' => $optionid));
 
-$id = optional_param('id', 0, PARAM_INT);
-
-$pageurl = new moodle_url('/mod/booking/optiontemplatessettings.php');
-
-if ($id > 0) {
-    $DB->delete_records('booking_options', array('id' => $id));
+if (($action === 'delete') AND ($optionid > 0)) {
+    $DB->delete_records('booking_options', array('id' => $optionid));
     redirect($pageurl, get_string('templatedeleted', 'booking'), 5);
 }
 
-$table = new optiontemplatessettings_table('optiontemplatessettings');
-$table->set_sql('bo.id id, bo.text name, bo.courseid courseid, c.fullname coursename',
-"{booking_options} bo LEFT JOIN {course} c ON c.id = bo.courseid", 'bookingid = 0');
+$table = new optiontemplatessettings_table('optiontemplatessettings', $id);
+$fields = 'bo.id AS optionid, bo.text AS name, bo.bookingid AS bookingid';
+$table->set_sql($fields,
+    "{booking_options} bo", 'bo.bookingid = 0');
 
-$table->define_baseurl("$CFG->wwwroot/mod/booking/optiontemplatessettings.php");
+$table->define_baseurl($pageurl);
 
 $PAGE->set_url($pageurl);
-admin_externalpage_setup('optiontemplatessettings', '', null, '', array('pagelayout' => 'report'));
 $PAGE->set_title(
         format_string($SITE->shortname) . ': ' . get_string('optiontemplatessettings', 'booking'));
+$PAGE->navbar->add(get_string('optiontemplatessettings', 'booking'), $pageurl);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('optiontemplatessettings', 'booking'));

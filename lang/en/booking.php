@@ -751,6 +751,9 @@ $string['copy'] = ' - Copy';
 $string['enrolmentstatus'] = 'Do not enrol users immediately but only at course start time';
 $string['duplicatename'] = 'This booking option name already exists. Please choose another one.';
 $string['newtemplatesaved'] = 'New template for booking option was saved.';
+$string['manageoptiontemplates'] = 'Manage booking option templates';
+$string['usedinbookinginstances'] = 'Template is used in following booking instances';
+$string['optiontemplatename'] = 'Option template name';
 
 // importoptions.php
 $string['csvfile'] = 'CSV file';
@@ -1035,9 +1038,8 @@ $string['pdfroom'] = 'Room: ';
 $string['pdfstudentname'] = "Student Name";
 $string['pdfsignature'] = "Signature";
 $string['pdftodaydate'] = 'Date: ';
-
 $string['booking:readallinstitutionusers'] = 'Show all users';
-$string['booking:createnewtemplate'] = 'Can create templates';
+$string['booking:manageoptiontemplates'] = 'Can create templates';
 
 // File: settings.php
 $string['icalcfg'] = 'Configuration of the ical attachements';
