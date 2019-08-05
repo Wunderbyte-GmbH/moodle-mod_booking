@@ -565,6 +565,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                          
                   (SELECT bo.maxanswers - booked ) AS availableplaces,
 
+                  (SELECT bo.maxanswers - booked ) AS availableplaces,
+
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
