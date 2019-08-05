@@ -83,6 +83,11 @@ class csv_import {
      */
     protected $additionalfields = [];
 
+    /**
+     * @var array of objects
+     */
+    protected $customfields = [];
+
     public function __construct(booking $booking) {
         global $DB, $CFG;
         $this->columns = $DB->get_columns('booking_options');
@@ -106,10 +111,10 @@ class csv_import {
         $this->additionalfields[] = 'name';
         $this->additionalfields[] = 'startdate';
         $this->additionalfields[] = 'enddate';
-        $customfields = booking_option::get_customfield_settings();
+        $this->customfields = booking_option::get_customfield_settings();
         // TODO: now only possible add fields of type text, select multiselect still to implement.
         // Add customfields.
-        foreach ($customfields as $customfield) {
+        foreach ($this->customfields as $customfield) {
             if ($customfield['type'] == 'textfield') {
                 $this->additionalfields[] = $customfield['value'];
             }
@@ -279,8 +284,14 @@ class csv_import {
      */
     protected function prepare_data($column, $value, &$bookingoption) {
         global $DB;
+        // Prepare custom fields:
+        foreach ($this->customfields as $key => $customfield) {
+            if ($customfield['value'] == $column) {
+                $bookingoption->{$key} = $value;
+            }
+        }
         // Check if column is in bookingoption fields, otherwise it is user data.
-        if (array_key_exists($column, $this->columns)) {
+        if (array_key_exists($column, $this->columns) || in_array($column, $this->additionalfields)) {
             switch ($column) {
                 case 'text':
                 case 'description':
