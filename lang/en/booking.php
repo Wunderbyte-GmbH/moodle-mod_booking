@@ -147,6 +147,10 @@ $string['astemplate'] = 'Use as template in this course';
 $string['asglobaltemplate'] = 'Use as global template';
 $string['templatedeleted'] = 'Template was deleted!';
 $string['bookingoptionname'] = 'Booking option name';
+$string['recurringheader'] = 'Recurring options';
+$string['repeatthisbooking'] = 'Repeat this option';
+$string['howmanytimestorepeat'] = 'How many times to repeat?';
+$string['howoftentorepeat'] = 'How often to repeat?';
 
 // Categories
 $string['category'] = 'Category';

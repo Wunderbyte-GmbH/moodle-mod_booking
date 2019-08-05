@@ -222,7 +222,7 @@ class mod_booking_bookingform_form extends moodleform {
         $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
         $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
 
-        // Templates - only visible when adding new.
+        // Templates and recurring 'events' - only visible when adding new.
         if ($this->_customdata['optionid'] == -1) {
             if (has_capability ( 'mod/booking:createnewtemplate', $this->_customdata['context'] )) {
                 $mform->addElement('header', 'templateheader',
@@ -237,6 +237,29 @@ class mod_booking_bookingform_form extends moodleform {
                 $mform->setType('addastemplate', PARAM_INT);
                 $mform->setDefault('addastemplate', 0);
             }
+
+            $mform->addElement('header', 'recurringheader',
+                        get_string('recurringheader', 'booking'));
+            $mform->addElement('checkbox', 'repeatthisbooking',
+                        get_string('repeatthisbooking', 'booking'));
+            $mform->disabledIf('repeatthisbooking', 'startendtimeknown', 'notchecked');
+            $mform->addElement('text', 'howmanytimestorepeat',
+                        get_string('howmanytimestorepeat', 'booking'));
+            $mform->setType('howmanytimestorepeat', PARAM_INT);
+            $mform->setDefault('howmanytimestorepeat', 1);
+            $mform->disabledIf('howmanytimestorepeat', 'startendtimeknown', 'notchecked');
+            $mform->disabledIf('howmanytimestorepeat', 'repeatthisbooking', 'notchecked');
+            $howoften = [
+                86400 => get_string('day'),
+                604800 => get_string('week'),
+                2592000 => get_string('month')
+            ];
+            $mform->addElement('select', 'howoftentorepeat', get_string('howoftentorepeat', 'booking'),
+                        $howoften);
+            $mform->setType('howoftentorepeat', PARAM_INT);
+            $mform->setDefault('howoftentorepeat', 86400);
+            $mform->disabledIf('howoftentorepeat', 'startendtimeknown', 'notchecked');
+            $mform->disabledIf('howoftentorepeat', 'repeatthisbooking', 'notchecked');
         }
 
         // Hidden elements.

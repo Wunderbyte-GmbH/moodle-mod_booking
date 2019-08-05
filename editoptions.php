@@ -156,6 +156,12 @@ if ($mform->is_cancelled()) {
             booking_optionid_subscribe($USER->id, $nbooking, $cm);
         }
 
+        // Recurring
+        if ($optionid == -1 && isset($fromform->startendtimeknown) && $fromform->startendtimeknown == 1 &&
+            isset($fromform->repeatthisbooking) && $fromform->repeatthisbooking == 1 && $fromform->howmanytimestorepeat > 0)  {
+            // Add logic for recurring!
+        }
+
         if (isset($fromform->submittandaddnew)) {
             $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
             redirect($redirecturl, get_string('changessaved'), 0);
