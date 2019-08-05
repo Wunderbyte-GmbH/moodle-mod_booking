@@ -19,9 +19,6 @@
         <FIELD NAME="bookingpolicyformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timeopen" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timeclose" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="limitanswers" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="maxanswers" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="maxoverbooking" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="autoenrol" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Automatically enrol / unenrol users to/from courses as soon as booking are made / cancelled"/>
         <FIELD NAME="bookedtext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a successful booking is made"/>
@@ -73,9 +70,9 @@
         <FIELD NAME="daystonotify2" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="enablepresence" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="completionmodule" TYPE="int" LENGTH="20" NOTNULL="false" DEFAULT="-1" SEQUENCE="false"/>
-        <FIELD NAME="responsesfields" TYPE="char" LENGTH="1333" NOTNULL="false" DEFAULT="completed,status,rating,numrec,fullname,timecreated,institution,waitinglist" SEQUENCE="false"/>
-        <FIELD NAME="reportfields" TYPE="char" LENGTH="1333" NOTNULL="false" DEFAULT="booking,location,coursestarttime,courseendtime,firstname,lastname" SEQUENCE="false"/>
-        <FIELD NAME="optionsfields" TYPE="char" LENGTH="1333" NOTNULL="false" DEFAULT="text,coursestarttime,maxanswers" SEQUENCE="false"/>
+        <FIELD NAME="responsesfields" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="completed,status,rating,numrec,fullname,timecreated,institution,waitinglist" SEQUENCE="false"/>
+        <FIELD NAME="reportfields" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="booking,location,coursestarttime,courseendtime,firstname,lastname" SEQUENCE="false"/>
+        <FIELD NAME="optionsfields" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="text,coursestarttime,maxanswers" SEQUENCE="false"/>
         <FIELD NAME="beforebookedtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="beforecompletedtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="aftercompletedtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
@@ -85,12 +82,15 @@
         <FIELD NAME="removeuseronunenrol" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Remove user from booking, when it's unenrooled from course."/>
         <FIELD NAME="teacherroleid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="allowupdatedays" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="How many days before closing unenrolment."/>
+        <FIELD NAME="templateid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="defaultoptionsort" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="text" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+        <INDEX NAME="templateid" UNIQUE="false" FIELDS="templateid" COMMENT="The templateid used as default for options."/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="booking_options" COMMENT="Defines booking options">

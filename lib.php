@@ -355,6 +355,12 @@ function booking_add_instance($booking) {
         $booking->categoryid = null;
     }
 
+    if (isset($booking->templateid) && $booking->templateid > 0) {
+        $booking->templateid = $booking->templateid;
+    } else {
+        $booking->templateid = 0;
+    }
+
     if (empty($booking->timerestrict)) {
         $booking->timeopen = $booking->timeclose = 0;
     }
@@ -473,6 +479,12 @@ function booking_update_instance($booking) {
         $booking->signinsheetfields = null;
     }
 
+    if (isset($booking->templateid) && $booking->templateid > 0) {
+        $booking->templateid = $booking->templateid;
+    } else {
+        $booking->templateid = 0;
+    }
+
     if (isset($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
     } else {
@@ -574,22 +586,21 @@ function booking_update_options($optionvalues, $context, $cm) {
     require_once("$CFG->dirroot/mod/booking/locallib.php");
     require_once("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
     $customfields = \mod_booking\booking_option::get_customfield_settings();
-    $booking = $DB->get_record('booking', array('id' => $optionvalues->bookingid));
+    if (!($booking = $DB->get_record('booking', array('id' => $optionvalues->bookingid)))) {
+        $booking = new stdClass();
+        $booking->id = 0;
+    }
 
     $option = new stdClass();
     $option->bookingid = $optionvalues->bookingid;
     $option->courseid = $optionvalues->courseid;
 
-    if (isset($optionvalues->addastemplate) && $optionvalues->addastemplate > 0) {
+    if (isset($optionvalues->addastemplate) && $optionvalues->addastemplate == 1) {
         $option->bookingid = 0;
-        switch ($optionvalues->addastemplate) {
-            case 1:
-                $option->courseid = $cm->course;
-                break;
-            case 2:
-                $option->courseid = 0;
-                break;
-        }
+    }
+
+    if (isset($optionvalues->parentid)) {
+        $option->parentid = $optionvalues->parentid;
     }
 
     $option->text = trim($optionvalues->text);
@@ -889,13 +900,21 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
     if (has_capability('mod/booking:updatebooking', $context) ||
              has_capability('mod/booking:addeditownoption', $context)) {
+
         $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null,
                 navigation_node::TYPE_CONTAINER);
 
+        if (has_capability('mod/booking:manageoptiontemplates', $context)) {
+            $settingnode->add(get_string("manageoptiontemplates", "mod_booking"),
+                new moodle_url('optiontemplatessettings.php', array('id' => $cm->id)));
+        }
+
         $urlparam = array('id' => $cm->id, 'optionid' => -1);
-        $dtemplate = get_config('booking', 'defaulttemplate');
-        if (!empty($dtemplate)) {
-            $urlparam['copyoptionid'] = $dtemplate;
+        if (!$templatedid = $DB->get_field('booking', 'templateid', ['id' => $cm->instance])) {
+            $templatedid = get_config('booking', 'defaulttemplate');
+        }
+        if (!empty($templatedid) && $DB->record_exists('booking_options', ['id' => $templatedid])) {
+            $urlparam['copyoptionid'] = $templatedid;
         }
         $settingnode->add(get_string('addnewbookingoption', 'booking'),
                 new moodle_url('editoptions.php', $urlparam));
@@ -909,11 +928,11 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                     new moodle_url('tagtemplates.php', array('id' => $cm->id)));
         }
 
-        $alloptontemplates = $DB->get_records('booking_options', array('bookingid' => 0, 'courseid' => array(0, $cm->course)), '', $fields = 'id, text', 0, 0);
-        if (!empty($alloptontemplates)) {
+        $alloptiontemplates = $DB->get_records('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
+        if (!empty($alloptiontemplates)) {
             $settingnode = $navref->add(get_string("bookingoptionsfromtemplatemenu", "booking"), null,
             navigation_node::TYPE_CONTAINER);
-            foreach ($alloptontemplates as $key => $value) {
+            foreach ($alloptiontemplates as $key => $value) {
                 $settingnode->add($value->text,
                 new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1, 'copyoptionid' => $value->id)));
             }

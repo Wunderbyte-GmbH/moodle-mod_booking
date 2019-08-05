@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 require_once("../../config.php");
 require_once("locallib.php");
-require_once("bookingform.class.php");
+
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
@@ -43,11 +43,10 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
     print_error('nopermissions');
 }
 
-$mform = new mod_booking_bookingform_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context));
+$mform = new mod_booking\form\option_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context));
 
 if ($optionid == -1) {
     // Adding new booking option - default values.
-    $defaultvalues = $booking->settings;
     if ($copyoptionid != '') {
         if ($defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid))) {
             $defaultvalues->text = $defaultvalues->text . get_string('copy', 'booking');
@@ -55,66 +54,19 @@ if ($optionid == -1) {
             $defaultvalues->bookingname = $booking->settings->name;
             $defaultvalues->bookingid = $cm->instance;
             $defaultvalues->id = $cm->id;
-            $defaultvalues->description = array('text' => $defaultvalues->description,
-                'format' => FORMAT_HTML);
-            $defaultvalues->notificationtext = array('text' => $defaultvalues->notificationtext,
-                'format' => FORMAT_HTML);
-            $defaultvalues->beforebookedtext = array('text' => $defaultvalues->beforebookedtext,
-                            'format' => FORMAT_HTML);
-            $defaultvalues->beforecompletedtext = array('text' => $defaultvalues->beforecompletedtext,
-                            'format' => FORMAT_HTML);
-            $defaultvalues->aftercompletedtext = array('text' => $defaultvalues->aftercompletedtext,
-                            'format' => FORMAT_HTML);
-            if ($defaultvalues->bookingclosingtime) {
-                $defaultvalues->restrictanswerperiod = "checked";
-            }
-            if ($defaultvalues->coursestarttime) {
-                $defaultvalues->startendtimeknown = "checked";
-            }
         }
+    } else {
+        $defaultvalues = new stdClass;
+        $defaultvalues->duration = 3600;
+        $defaultvalues->bookingname = $booking->settings->name;
+        $defaultvalues->optionid = -1;
+        $defaultvalues->bookingid = $booking->settings->id;
+        $defaultvalues->id = $cm->id;
     }
-    $defaultvalues->duration = 3600;
-    $defaultvalues->bookingname = $booking->settings->name;
-    $defaultvalues->optionid = -1;
-    $defaultvalues->bookingid = $booking->settings->id;
-    $defaultvalues->id = $cm->id;
 } else if ($defaultvalues = $DB->get_record('booking_options', array('bookingid' => $booking->settings->id, 'id' => $optionid))) {
     $defaultvalues->optionid = $optionid;
     $defaultvalues->bookingname = $booking->settings->name;
-    $defaultvalues->description = array('text' => $defaultvalues->description,
-        'format' => FORMAT_HTML);
-    $defaultvalues->notificationtext = array('text' => $defaultvalues->notificationtext,
-        'format' => FORMAT_HTML);
-    $defaultvalues->beforebookedtext = array('text' => $defaultvalues->beforebookedtext,
-                    'format' => FORMAT_HTML);
-    $defaultvalues->beforecompletedtext = array('text' => $defaultvalues->beforecompletedtext,
-                    'format' => FORMAT_HTML);
-    $defaultvalues->aftercompletedtext = array('text' => $defaultvalues->aftercompletedtext,
-                    'format' => FORMAT_HTML);
     $defaultvalues->id = $cm->id;
-    if ($defaultvalues->bookingclosingtime) {
-        $defaultvalues->restrictanswerperiod = "checked";
-    }
-    if ($defaultvalues->coursestarttime) {
-        $defaultvalues->startendtimeknown = "checked";
-    }
-
-    $draftitemid = file_get_submitted_draft_itemid('myfilemanageroption');
-
-    file_prepare_draft_area($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption', $optionid,
-            array('subdirs' => false, 'maxfiles' => 50, 'accepted_types' => array('*'), 'maxbytes' => 0));
-
-    $defaultvalues->myfilemanageroption = $draftitemid;
-
-    // Defaults for customfields.
-    $cfdefaults = $DB->get_records('booking_customfields', array('optionid' => $optionid));
-    $customfields = \mod_booking\booking_option::get_customfield_settings();
-    if (!empty($cfdefaults)) {
-        foreach ($cfdefaults as $defaultval) {
-            $cfgvalue = $defaultval->cfgname;
-            $defaultvalues->$cfgvalue = $defaultval->value;
-        }
-    }
 } else {
     print_error('This booking option does not exist');
 }
@@ -138,13 +90,14 @@ if ($mform->is_cancelled()) {
                     $nbooking, array('subdirs' => false, 'maxfiles' => 50));
         }
 
-        if (isset($fromform->addastemplate) && in_array($fromform->addastemplate, array(1, 2))) {
+        if (isset($fromform->addastemplate) && $fromform->addastemplate == 1) {
+            $fromform->bookingid = 0;
+            $nbooking = booking_update_options($fromform, $context, $cm);
             if (isset($fromform->submittandaddnew)) {
                 $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
             } else {
                 $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
             }
-
             redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
         }
 
@@ -158,8 +111,40 @@ if ($mform->is_cancelled()) {
 
         // Recurring
         if ($optionid == -1 && isset($fromform->startendtimeknown) && $fromform->startendtimeknown == 1 &&
-            isset($fromform->repeatthisbooking) && $fromform->repeatthisbooking == 1 && $fromform->howmanytimestorepeat > 0)  {
-            // Add logic for recurring!
+            isset($fromform->repeatthisbooking) && $fromform->repeatthisbooking == 1 && $fromform->howmanytimestorepeat > 0) {
+
+            $fromform->parentid = $nbooking;
+            $name = $fromform->text;
+
+            $restrictanswerperiod = 0;
+            if (isset($fromform->restrictanswerperiod) && $fromform->restrictanswerperiod) {
+                $restrictanswerperiod = $fromform->coursestarttime - $fromform->bookingclosingtime;
+            }
+
+            for ($i = 0; $i < $fromform->howmanytimestorepeat; $i++) {
+                $fromform->text = $name . " #" . ($i + 2);
+                $fromform->coursestarttime = $fromform->coursestarttime + $fromform->howoftentorepeat;
+                $fromform->courseendtime = $fromform->courseendtime + $fromform->howoftentorepeat;
+
+                if ($restrictanswerperiod != 0) {
+                    $fromform->bookingclosingtime = $fromform->coursestarttime + $restrictanswerperiod;
+                }
+
+                $nbooking = booking_update_options($fromform, $context, $cm);
+
+                if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
+                    file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
+                            $nbooking, array('subdirs' => false, 'maxfiles' => 50));
+                }
+
+                $bookingdata = new \mod_booking\booking_option($cm->id, $nbooking);
+                $bookingdata->sync_waiting_list();
+
+                if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 &&
+                        !has_capability('mod/booking:updatebooking', $context)) {
+                    booking_optionid_subscribe($USER->id, $nbooking, $cm);
+                }
+            }
         }
 
         if (isset($fromform->submittandaddnew)) {

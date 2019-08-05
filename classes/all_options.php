@@ -20,6 +20,10 @@
  * @copyright 2016 Andraž Prinčič <atletek@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use mod_booking\booking;
+use mod_booking\places;
+
 defined('MOODLE_INTERNAL') || die();
 
 class all_options extends table_sql {
@@ -30,11 +34,18 @@ class all_options extends table_sql {
 
     public $context = null;
 
-    public function __construct($uniqueid, \mod_booking\booking $booking, $cm, $context) {
+    /**
+     * all_options constructor.
+     *
+     * @param string $uniqueid
+     * @param booking $booking
+     * @param object $cm course module object
+     * @param context $context
+     */
+    public function __construct($uniqueid, booking $booking, $cm, context $context) {
         parent::__construct($uniqueid);
 
         $this->collapsible(true);
-        $this->sortable(true);
         $this->pageable(true);
         $this->booking = $booking;
         $this->cm = $cm;
@@ -42,7 +53,7 @@ class all_options extends table_sql {
     }
 
     protected function col_id($values) {
-        global $OUTPUT, $CFG, $USER;
+        global $OUTPUT, $USER;
 
         $ddoptions = array();
         $ret = '<div class="menubar" id="action-menu-' . $values->id. '-menubar" role="menubar">';
@@ -323,7 +334,7 @@ class all_options extends table_sql {
         return $output;
     }
 
-    protected function col_maxanswers($values) {
+    protected function col_availableplaces($values) {
         global $OUTPUT, $USER;
 
         $delete = '';
@@ -447,9 +458,8 @@ class all_options extends table_sql {
         if (!$values->limitanswers) {
             return $button . $delete . $booked . get_string("unlimited", 'booking') . $manage;
         } else {
-            $places = new \mod_booking\places($values->maxanswers, $values->maxanswers - $values->booked, $values->maxoverbooking, $values->maxoverbooking - $values->waiting);
-
-            return $button . $delete . $booked .  "<div>" . get_string("placesavailable", "booking", $places) .
+            $places = new places($values->maxanswers, $values->availableplaces, $values->maxoverbooking, $values->maxoverbooking - $values->waiting);
+            return $button . $delete . $booked .  "<div>" . get_string("availableplaces", "booking", $places) .
                      "</div><div>" . get_string("waitingplacesavailable", "booking", $places) . "</div>" . $manage;
         }
     }
