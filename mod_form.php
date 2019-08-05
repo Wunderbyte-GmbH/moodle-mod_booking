@@ -123,10 +123,7 @@ class mod_booking_mod_form extends moodleform_mod {
                 array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
                     'accepted_types' => array('*')));
 
-        $menuoptions = array();
-        $menuoptions[0] = get_string('disable');
-        $menuoptions[1] = get_string('enable');
-
+        // Default view for option overview.
         $whichviewopts = array('mybooking' => get_string('showmybookingsonly', 'mod_booking'),
             'myoptions' => get_string('myoptions', 'mod_booking'),
             'showall' => get_string('showallbookings', 'mod_booking'),
@@ -135,14 +132,27 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'whichview', get_string('whichview', 'mod_booking'),
             $whichviewopts);
 
+        // Select sort order for options overview.
+        $sortposibilities = [];
+        $sortposibilities['text'] = get_string('bookingoptionname', 'mod_booking');
+        $sortposibilities['coursestarttime'] = get_string('coursestarttime', 'mod_booking');
+        $sortposibilities['availableplaces'] = get_string('availability');
+        $mform->addElement('select', 'defaultoptionsort', get_string('sortby'),
+            $sortposibilities);
+        $mform->setDefault('defaultoptionsort', 'text');
+
+        // Presence tracking.
+        $menuoptions = array();
+        $menuoptions[0] = get_string('disable');
+        $menuoptions[1] = get_string('enable');
         $mform->addElement('select', 'enablepresence', get_string('enablepresence', 'booking'),
                 $menuoptions);
 
         // Choose default template.
-        $alloptontemplates = $DB->get_records_menu('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
-        $alloptontemplates[0] = get_string('dontuse', 'booking');
+        $alloptiontemplates = $DB->get_records_menu('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
+        $alloptiontemplates[0] = get_string('dontuse', 'booking');
         $mform->addElement('select', 'templateid', get_string('defaulttemplate', 'booking'),
-            $alloptontemplates);
+            $alloptiontemplates);
         $mform->setDefault('templateid', 0);
 
         // Confirmation message.
