@@ -1921,5 +1921,28 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2019080303, 'booking');
     }
+
+    if ($oldversion < 2019080400) {
+        // Add field for default template used for booking options of the booking instance.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('defaultoptionsort', XMLDB_TYPE_CHAR, '255', null, null, null, 'text', 'templateid');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $field = new xmldb_field('responsesfields', XMLDB_TYPE_CHAR, '255', null, null, null,
+            'completed,status,rating,numrec,fullname,timecreated,institution,waitinglist',
+            'completionmodule');
+        $dbman->change_field_precision($table, $field);
+        $field = new xmldb_field('reportfields', XMLDB_TYPE_CHAR, '255', null, null, null,
+            'booking,location,coursestarttime,courseendtime,firstname,lastname',
+            'responsesfields');
+        $dbman->change_field_precision($table, $field);
+        $field = new xmldb_field('optionsfields', XMLDB_TYPE_CHAR, '255', null, null, null,
+            'text,coursestarttime,maxanswers', 'reportfields');
+        $dbman->change_field_precision($table, $field);
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2019080400, 'booking');
+    }
     return true;
 }

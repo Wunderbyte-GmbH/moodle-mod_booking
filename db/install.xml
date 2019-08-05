@@ -70,9 +70,9 @@
         <FIELD NAME="daystonotify2" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="enablepresence" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="completionmodule" TYPE="int" LENGTH="20" NOTNULL="false" DEFAULT="-1" SEQUENCE="false"/>
-        <FIELD NAME="responsesfields" TYPE="char" LENGTH="1333" NOTNULL="false" DEFAULT="completed,status,rating,numrec,fullname,timecreated,institution,waitinglist" SEQUENCE="false"/>
-        <FIELD NAME="reportfields" TYPE="char" LENGTH="1333" NOTNULL="false" DEFAULT="booking,location,coursestarttime,courseendtime,firstname,lastname" SEQUENCE="false"/>
-        <FIELD NAME="optionsfields" TYPE="char" LENGTH="1333" NOTNULL="false" DEFAULT="text,coursestarttime,maxanswers" SEQUENCE="false"/>
+        <FIELD NAME="responsesfields" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="completed,status,rating,numrec,fullname,timecreated,institution,waitinglist" SEQUENCE="false"/>
+        <FIELD NAME="reportfields" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="booking,location,coursestarttime,courseendtime,firstname,lastname" SEQUENCE="false"/>
+        <FIELD NAME="optionsfields" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="text,coursestarttime,maxanswers" SEQUENCE="false"/>
         <FIELD NAME="beforebookedtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="beforecompletedtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="aftercompletedtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
@@ -83,6 +83,7 @@
         <FIELD NAME="teacherroleid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="allowupdatedays" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="How many days before closing unenrolment."/>
         <FIELD NAME="templateid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="defaultoptionsort" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="text" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
