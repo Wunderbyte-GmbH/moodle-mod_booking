@@ -199,7 +199,7 @@ $string['waitingplacesavailable'] = 'Verf체gbare Wartelistenpl채tze:  {$a->overb
 $string['waitspaceavailable'] = 'Wartelistenpl채tze verf체gbar';
 $string['duplicatebooking'] = 'Diese Buchungsoption duplizieren';
 $string['showmybookingsonly'] = 'Meine Buchungen anzeigen';
-
+$string['moveoptionto'] = 'Buchungsoption in andere Buchungsinstanz verschieben';
 
 // tag templates
 $string['cancel'] = 'Abbrechen';
@@ -728,6 +728,7 @@ $string['toomuchusersbooked'] = 'Maximale Anzahl an Benutzern, die Sie buchen k�
 $string['transfer'] = 'Umbuchen';
 $string['transferheading'] = 'Ausgew채hlte Nutzer/innen in die ausgew채hlte Buchungsoption umbuchen';
 $string['transfersuccess'] = 'Die Nutzer/innen wurden erfolgreich umgebucht';
+$string['transferoptionsuccess'] = 'Die Buchungsoption und die registrierten Nutzer/innen wurden erfolgreich umgebucht';
 $string['transferproblem'] = 'Die folgenden Nuther/innen konnten aufgrund einer limitierten Anzahl an Pl채tzen der Buchungsoption oder aufgrund individueller Limitierungen seitens des/der Nutzer/in nicht umgebucht werden: {$a}';
 $string['userssuccessfullenrolled'] = 'Alle Nutzer/innen wurden erfolgreich eingeschrieben!';
 $string['userssuccessfullybooked'] = 'Alle Nutzer/innen wurden erfolgreich in die andere Buchungsoption eingeschrieben.';

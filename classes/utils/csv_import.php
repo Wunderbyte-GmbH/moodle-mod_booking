@@ -196,7 +196,7 @@ class csv_import {
                     }
                 }
                 if ($optionid === false) {
-                    $optionid = booking_update_options($bookingoption, $this->booking->get_context(), $this->booking->cm);
+                    $optionid = booking_update_options($bookingoption, $this->booking->get_context());
                 }
                 // Set the option id again in order to use it in prepare_data for user data.
                 $bookingoption->id = $optionid;

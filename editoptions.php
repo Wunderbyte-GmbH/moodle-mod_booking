@@ -82,7 +82,7 @@ if ($mform->is_cancelled()) {
             $fromform->limitanswers = 0;
         }
 
-        $nbooking = booking_update_options($fromform, $context, $cm);
+        $nbooking = booking_update_options($fromform, $context);
 
         if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
             file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
@@ -91,7 +91,7 @@ if ($mform->is_cancelled()) {
 
         if (isset($fromform->addastemplate) && $fromform->addastemplate == 1) {
             $fromform->bookingid = 0;
-            $nbooking = booking_update_options($fromform, $context, $cm);
+            $nbooking = booking_update_options($fromform, $context);
             if (isset($fromform->submittandaddnew)) {
                 $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
             } else {

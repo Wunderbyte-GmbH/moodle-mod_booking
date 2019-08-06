@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
 use completion_info;
+use context_module;
+use invalid_parameter_exception;
 use stdClass;
 use moodle_url;
 defined('MOODLE_INTERNAL') || die();
@@ -101,8 +103,11 @@ class booking_option {
      * Creates basic booking option
      *
      * @param int $cmid cmid
-     * @param int $optionid
-     * @param object $option option object
+     * @param int $optionid id of table booking_options
+     * @param array $filters
+     * @param int $page the current page
+     * @param int $perpage options per page
+     * @param bool $getusers Get booked users via DB query
      */
     public function __construct($cmid, $optionid, $filters = array(), $page = 0, $perpage = 0, $getusers = true) {
         global $DB, $USER;
@@ -361,18 +366,20 @@ class booking_option {
      * Get all answers (bookings) as an array of objects
      * booking_answer id as key, ->userid, ->waitinglist
      *
-     * @return array of userobjects $this->allusers key: booking_answers id
+     * @return array of objects
+     * @throws \dml_exception
      */
     public function get_all_users() {
         global $DB;
         if (empty($this->allusers)) {
             $userfields = \user_picture::fields('u');
             $params = array('optionid' => $this->optionid);
-            $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, $userfields
+            $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated, $userfields
                       FROM {booking_answers} ba
                       JOIN {user} u ON u.id = ba.userid
                      WHERE ba.optionid = :optionid
-                     AND u.deleted = 0";
+                     AND u.deleted = 0
+                     ORDER BY ba.timecreated ASC";
             $this->allusers = $DB->get_records_sql($sql, $params);
         }
         return $this->allusers;
@@ -1346,6 +1353,68 @@ class booking_option {
         } else {
             return 0;
         }
+    }
+
+    /**
+     * Check if at least one user already completed the option. When yes, deleting users is not possible.
+     *
+     * @return bool
+     * @throws \dml_exception
+     */
+    public function user_completed_option() {
+        global $DB;
+        return $DB->count_records_select('booking_answers', 'optionid = :optionid AND completed = 1', ['optionid' => $this->optionid]);
+    }
+
+    /**
+     * Transfer the booking option including users to another booking option of the same course.
+     *
+     * @param $targetcmid
+     * @return string error message, empty if no error.
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     * @throws invalid_parameter_exception
+     */
+    public function move_option_otherbookinginstance($targetcmid) {
+        $error = '';
+        list($targetcourse, $targetcm) = get_course_and_cm_from_cmid($targetcmid, 'booking');
+        if ($this->booking->course->id !== $targetcourse->id) {
+            throw new invalid_parameter_exception("Target booking instance must be in same course");
+        }
+        $targetbooking = new booking($targetcmid);
+        $targetcontext = context_module::instance($targetcmid);
+        // Get users of source option.
+        // Check for completion errors on unsubscribe.
+        if ($this->user_completed_option()) {
+            $error = 'You can not move options, when at least one user has the status completed for the option.
+            You have to remove the completion status before moving the booking option to another booking instance.';
+            return $error;
+        }
+        // Create target option.
+        $newoption = $this->option;
+        $newoption->id = -1;
+        $newoption->bookingid = $targetbooking->id;
+        $newoptionid = booking_update_options($newoption, $targetcontext);
+        // Subscribe users.
+        $newoption = new booking_option($targetcmid, $newoptionid);
+        $users = $this->get_all_users();
+        // Unsubscribe users from option.
+        $failed = [];
+        foreach ($users as $user) {
+            $this->user_delete_response($user->userid);
+            if (!$newoption->user_submit_response($user)) {
+                $failed[$user->userid] = $user->firstname . ' ' . $user->lastname . ' (' . $user->email . ')';
+            }
+        }
+        if (!empty($failed)) {
+            $error .= 'The following users could not be registered to the new booking option:';
+            $error .= \html_writer::empty_tag('br');
+            $error .= \html_writer::alist($failed);
+        }
+        // Remove source option.
+        $this->delete_booking_option();
+        return $error;
     }
 
     /**
