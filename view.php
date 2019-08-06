@@ -563,7 +563,10 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                          bo.location,
                          bo.institution,
 
-                  (SELECT bo.maxanswers - booked ) AS availableplaces,
+                  (SELECT bo.maxanswers - (SELECT COUNT(*)
+                   FROM {booking_answers} ba
+                   WHERE ba.optionid = bo.id
+                     AND ba.waitinglist = 0)) AS availableplaces,
 
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
