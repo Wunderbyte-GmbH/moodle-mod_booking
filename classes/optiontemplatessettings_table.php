@@ -62,7 +62,7 @@ class optiontemplatessettings_table extends table_sql {
         $output = '';
         if (!empty($this->bookinginstances)) {
             foreach ($this->bookinginstances as $instance) {
-                if ($instance->templateid = $values->optionid) {
+                if ($instance->templateid == $values->optionid) {
                     list($course, $cm) = get_course_and_cm_from_cmid($instance->id);
                     $url = new moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
                     $linktobinstance = \html_writer::link($url, $instance->name);
