@@ -1966,5 +1966,28 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2019080400, 'booking');
     }
+
+    if ($oldversion < 2019080600) {
+
+        // Define table booking_instancetemplate to be created.
+        $table = new xmldb_table('booking_instancetemplate');
+
+        // Adding fields to table booking_instancetemplate.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('template', XMLDB_TYPE_BINARY, null, null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table booking_instancetemplate.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for booking_instancetemplate.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2019080600, 'booking');
+    }
+
     return true;
 }

@@ -13,20 +13,26 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+namespace mod_booking\form;
 
-/**
- *
- * @package mod_booking
- * @copyright 2012-2019 David Bogner <info@edulabs.org>, Andraž Prinčič <atletek@gmail.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+use moodleform;
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2019080900;
-$plugin->requires = 2017111300; // Requires this Moodle version. Current: Moodle 3.4.
-// Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman, Piper Chapman.
-// Lois Wilkerson, Audrey Horne, Lorelai Gilmore.
-$plugin->release = '4.5 Lorelai Gilmore';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->cron = 60;
-$plugin->component = 'mod_booking';
+class instancetemplateadd_form extends moodleform {
+
+    public function definition() {
+        global $CFG;
+        $mform = & $this->_form;
+        $mform->addElement('header', '', get_string('instancetemplate', 'booking'));
+        $mform->addElement('text', 'name', get_string('name'), array('size' => '128'));
+        $mform->addRule('name', get_string('required'), 'required', null, 'client');
+        if (!empty($CFG->formatstringstriptags)) {
+            $mform->setType('name', PARAM_TEXT);
+        } else {
+            $mform->setType('name', PARAM_CLEANHTML);
+        }
+
+        $this->add_action_buttons();
+    }
+}

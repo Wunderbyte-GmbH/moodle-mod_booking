@@ -901,6 +901,17 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     if (has_capability('mod/booking:updatebooking', $context) ||
              has_capability('mod/booking:addeditownoption', $context)) {
 
+        if (has_capability('mod/booking:manageoptiontemplates', $context)) {
+            $settingnode = $navref->add(get_string("thisinstance", "booking"), null,
+                navigation_node::TYPE_CONTAINER);
+
+            $settingnode->add(get_string("saveinstanceastemplate", "mod_booking"),
+                new moodle_url('instancetemplateadd.php', array('id' => $cm->id)));
+
+                $settingnode->add(get_string("managebookinginstancetemplates", "mod_booking"),
+                new moodle_url('bookinginstancetemplatessettings.php', array('id' => $cm->id)));
+        }
+
         $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null,
                 navigation_node::TYPE_CONTAINER);
 

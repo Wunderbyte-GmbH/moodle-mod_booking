@@ -49,6 +49,13 @@ $functions = array(
         'classpath'   => 'mod/booking/externallib.php',
         'description' => 'Return categories for course id.',
         'type'        => 'read',
+    ),
+    'mod_booking_instancetemplate' => array(
+        'classname' => 'mod_booking\external',
+        'methodname' => 'instancetemplate',
+        'description' => 'Read booking instance template.',
+        'type' => 'read',
+        'ajax' => true
     )
 );
 

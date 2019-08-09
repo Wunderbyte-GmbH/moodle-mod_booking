@@ -70,12 +70,22 @@ class mod_booking_mod_form extends moodleform_mod {
     }
 
     public function definition() {
-        global $CFG, $DB, $COURSE, $USER;
+        global $CFG, $DB, $COURSE, $USER, $PAGE;
 
         $context = context_system::instance();
         $mform = &$this->_form;
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
+
+        $bookininstancetemplates = array('' => '');
+        $bookinginstances = $DB->get_records('booking_instancetemplate', array(), '', 'id, name', 0, 0);
+
+        foreach ($bookinginstances as $key => $value) {
+            $bookininstancetemplates[$value->id] = $value->name;
+        }
+
+        $mform->addElement('select', 'instancetemplateid', get_string('populatefromtemplate', 'booking'),
+            $bookininstancetemplates);
 
         $mform->addElement('text', 'name', get_string('bookingname', 'booking'),
                 array('size' => '64'));
@@ -623,6 +633,8 @@ class mod_booking_mod_form extends moodleform_mod {
         $this->standard_grading_coursemodule_elements();
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
+
+        $PAGE->requires->js_call_amd('mod_booking/bookinginstancetemplateselect', 'init');
     }
 
     /**
