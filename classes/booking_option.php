@@ -19,7 +19,9 @@ use context_module;
 use invalid_parameter_exception;
 use stdClass;
 use moodle_url;
+use calendar_event;
 defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot.'/calendar/lib.php');
 
 /**
  * Managing a single booking option

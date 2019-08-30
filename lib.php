@@ -974,10 +974,12 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                                     array('id' => $cm->id, 'optionid' => $optionid)));
                 }
             }
-            if (has_capability('mod/booking:updatebooking', $contextcourse)) {
+            $modinfo = get_fast_modinfo($course);
+            $bookinginstances = isset($modinfo->instances['booking']) ? count($modinfo->instances['booking']) : 0;
+            if (has_capability('mod/booking:updatebooking', $contextcourse) && $bookinginstances > 1) {
                 $settingnode->add(get_string('moveoptionto', 'booking'),
                     new moodle_url('/mod/booking/moveoption.php',
-                        array('id' => $cm->id, 'optionid' => $optionid)));
+                        array('id' => $cm->id, 'optionid' => $optionid, 'sesskey' => sesskey())));
             }
             if (has_capability ( 'mod/booking:readresponses', $context ) || booking_check_if_teacher ($option, $USER )) {
                 $completion = new \completion_info($course);
