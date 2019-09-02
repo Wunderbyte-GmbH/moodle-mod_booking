@@ -45,7 +45,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             id: $("#id_instancetemplateid").val()
                         },
                         done: function(data) {
-                            var obj = jQuery.parseJSON(data.template);
+                            var obj = $.parseJSON(data.template);
 
                             // General
                             $("#id_name").val(obj.name);
@@ -67,7 +67,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $('#id_sendmailtobooker').val(obj.sendmailtobooker);
                             $('#id_daystonotify').val(obj.daystonotify);
                             $('#id_daystonotify2').val(obj.daystonotify2);
-                            $('#id_bookingmanager').val(obj.bookingmanager);
+                            // $('#id_bookingmanager').val(obj.bookingmanager);
                             $('#id_bookedtexteditable').text(obj.bookedtext);
                             $('#id_waitingtexteditable').text(obj.waitingtext);
                             $('#id_notifyemaileditable').text(obj.notifyemail);
@@ -115,7 +115,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $("#id_categoryid").val(JSON.parse("[" + obj.categoryid + "]"));
 
                             // Fields to display in different contexts
-                            //$("#id_signinsheetfields").val(JSON.parse("[" + obj.signinsheetfields + "]")).change();
+                            // $("#id_signinsheetfields").val(JSON.parse("[" + obj.signinsheetfields + "]")).change();
 
                             // TO-DO :Create backup!
                             // TO-DO: Fields still to add:
@@ -145,11 +145,6 @@ define(['jquery', 'core/ajax'], function($, ajax) {
 
                             // Ratings
                             $('#id_assessed').val(obj.assessed);
-
-                            //$('#id_').val(obj.);
-                        },
-                        fail: function(ex) {
-                            console.log(ex);
                         }
                     }], true);
                 }

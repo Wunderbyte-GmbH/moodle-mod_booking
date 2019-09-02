@@ -53,7 +53,7 @@ if ($mform->is_cancelled()) {
     $instance = $DB->get_record("course_modules", array('id' => $id), 'instance');
     $booking = $DB->get_record("booking", array('id' => $instance->instance));
 
-    $newtemplate = new stdClass() ;
+    $newtemplate = new stdClass();
     $newtemplate->name = $data->name;
     $newtemplate->template = json_encode((array) $booking);
 
@@ -63,7 +63,6 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->header();
 
     $defaultvalues = new stdClass();
-    //$mform->set_data($defaultvalues);
     $mform->display();
 }
 
