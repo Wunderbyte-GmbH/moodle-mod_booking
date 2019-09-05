@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 require_once("../../config.php");
 require_once("locallib.php");
-require_once("classes/utils/db.php");
+
+use mod_booking\utils\db;
 
 $url = new moodle_url('/mod/booking/mybookings.php');
 $PAGE->set_url($url);
@@ -37,7 +38,7 @@ echo $OUTPUT->heading(get_string('mybookings', 'mod_booking'));
 
 echo $OUTPUT->box_start();
 
-$dbutill = new \mod_booking\classes\utils\db();
+$dbutill = new db();
 $mybookings = $dbutill->mybookings();
 $cid = -1;
 $bid = -1;
