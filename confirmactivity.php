@@ -24,6 +24,8 @@ require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->dirroot . '/mod/booking/classes/form/confirmactivity.php');
 
+use mod_booking\utils\db;
+
 $id = required_param('id', PARAM_INT); // Course_module ID.
 $optionid = required_param('optionid', PARAM_INT);
 
@@ -56,7 +58,7 @@ if ($mform->is_cancelled()) {
     switch ($fromform->whichtype) {
         case 0: // Activity.
             if (!empty($fromform->activity)) {
-                $dbutill = new \mod_booking\classes\utils\db();
+                $dbutill = new db();
                 $users = $dbutill->getusersactivity($fromform->activity, $optionid, true);
                 foreach ($users as $key => $user) {
                     $bookingoption->confirmactivity($user);
@@ -66,7 +68,7 @@ if ($mform->is_cancelled()) {
 
         case 1: // Badges.
             if (!empty($fromform->certid)) {
-                $dbutill = new \mod_booking\classes\utils\db();
+                $dbutill = new db();
                 $users = $dbutill->getusersbadges($fromform->certid, $optionid);
                 foreach ($users as $key => $user) {
                     $bookingoption->confirmactivity($user);

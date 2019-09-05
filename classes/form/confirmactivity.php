@@ -19,7 +19,8 @@ namespace mod_booking\form;
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
-require_once("classes/utils/db.php");
+
+use mod_booking\utils\db;
 
 class confirmactivity extends \moodleform {
     public function definition() {
@@ -32,7 +33,7 @@ class confirmactivity extends \moodleform {
         $radioarray[] = $mform->createElement('radio', 'whichtype', '', get_string('activity'), 0, array());
         $mform->addGroup($radioarray, 'radioar', get_string('confirmactivtyfrom', 'booking'), array(' '), false);
 
-        $dbutill = new \mod_booking\classes\utils\db();
+        $dbutill = new db();
         $badges = $dbutill->getbadges($this->_customdata['course']->id);
 
         $mform->addElement('select', 'certid', get_string('badges'), $badges);
