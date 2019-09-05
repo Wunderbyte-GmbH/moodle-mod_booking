@@ -132,7 +132,7 @@ class csv_import {
      */
     public function process_data($csvcontent, $formdata = null) {
         global $DB;
-        $this->error = get_string('import_failed', 'mod_booking');
+        $this->error = '';
         $this->formdata = $formdata;
         $iid = csv_import_reader::get_new_iid('modbooking');
         $cir = new csv_import_reader($iid, 'modbooking');
@@ -196,7 +196,7 @@ class csv_import {
                     }
                 }
                 if ($optionid === false) {
-                    $optionid = booking_update_options($bookingoption, $this->booking->get_context(), $this->booking->cm);
+                    $optionid = booking_update_options($bookingoption, $this->booking->get_context());
                 }
                 // Set the option id again in order to use it in prepare_data for user data.
                 $bookingoption->id = $optionid;
@@ -398,22 +398,17 @@ class csv_import {
      * @return string empty if ok, errormsg if fieldname not correct in csv file.
      */
     protected function validate_fieldnames() {
+        $error = '';
         // Validate fieldnames. If a field is not found error is returned.
         if (in_array('useremail', $this->fieldnames) AND in_array('user_username', $this->fieldnames)) {
-            $this->error = "CSV was not imported. Reason: You must not set useremail AND user_username. Choose only one of them.";
-            return $this->error;
+            $error .= "CSV was not imported. Reason: You must not set useremail AND user_username. Choose only one of them.";
         }
         foreach ($this->fieldnames as $fieldname) {
             if (!array_key_exists($fieldname, $this->columns) AND !in_array($fieldname, $this->additionalfields)) {
-                $this->error = "CSV was not imported. Reason: Invalid booking option setting in csv: {$fieldname}";
-                return $this->error;
-            }
-            if (!array_key_exists($fieldname, $this->columns) AND !in_array($fieldname, $this->additionalfields)) {
-                $this->error = "CSV was not imported. Reason: Invalid booking option setting in csv: {$fieldname}";
-                return $this->error;
+                $error .= "CSV was not imported. Reason: Invalid booking option setting in csv: {$fieldname}";
             }
         }
-        return '';
+        return $error;
     }
 
     /**

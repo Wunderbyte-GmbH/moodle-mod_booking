@@ -36,7 +36,8 @@ class option_form extends moodleform {
             $mform->setType('text', PARAM_CLEANHTML);
         }
         if (isset($this->_customdata['cmid'])) {
-            $booking = new booking($this->_customdata['cmid']);
+            $cmid = $this->_customdata['cmid'];
+            $booking = new booking($cmid);
         }
         // Add custom fields here.
         $customfields = booking_option::get_customfield_settings();
@@ -269,13 +270,13 @@ class option_form extends moodleform {
         }
 
         // Hidden elements.
-        $mform->addElement('hidden', 'id');
+        $mform->addElement('hidden', 'id', $cmid);
         $mform->setType('id', PARAM_INT);
 
-        $mform->addElement('hidden', 'bookingid');
+        $mform->addElement('hidden', 'bookingid', $this->_customdata['bookingid']);
         $mform->setType('bookingid', PARAM_INT);
 
-        $mform->addElement('hidden', 'optionid');
+        $mform->addElement('hidden', 'optionid', $this->_customdata['optionid']);
         $mform->setType('optionid', PARAM_INT);
 
         $mform->addElement('hidden', 'bookingname');

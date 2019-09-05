@@ -121,6 +121,15 @@ class all_options extends table_sql {
                                                  get_string('duplicatebooking', 'mod_booking')) .
                                          get_string('duplicatebooking', 'mod_booking')) . '</div>';
             }
+            $modinfo = get_fast_modinfo($this->booking->course);
+            $bookinginstances = isset($modinfo->instances['booking']) ? count($modinfo->instances['booking']) : 0;
+            if (has_capability('mod/booking:updatebooking', context_course::instance($this->booking->course->id)) && $bookinginstances > 1) {
+                $ddoptions[] = '<div class="dropdown-item">' . \html_writer::link(
+                        new moodle_url('/mod/booking/moveoption.php',
+                            array('id' => $this->cm->id, 'optionid' => $values->id, 'sesskey' => sesskey())),
+                        $OUTPUT->pix_icon('t/move', get_string('moveoptionto', 'booking')) .
+                        get_string('moveoptionto', 'booking')) . '</div>';
+            }
         }
         if (!empty($ddoptions)) {
             $ret .= '<div class="dropdown d-inline">

@@ -16,7 +16,6 @@
 require_once("../../config.php");
 require_once("locallib.php");
 
-
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $copyoptionid = optional_param('copyoptionid', '', PARAM_ALPHANUM);
@@ -45,30 +44,18 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
 
 $mform = new mod_booking\form\option_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context));
 
-if ($optionid == -1) {
+if ($optionid == -1 && $copyoptionid != '') {
     // Adding new booking option - default values.
-    if ($copyoptionid != '') {
-        if ($defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid))) {
-            $defaultvalues->text = $defaultvalues->text . get_string('copy', 'booking');
-            $defaultvalues->optionid = -1;
-            $defaultvalues->bookingname = $booking->settings->name;
-            $defaultvalues->bookingid = $cm->instance;
-            $defaultvalues->id = $cm->id;
-        }
-    } else {
-        $defaultvalues = new stdClass;
-        $defaultvalues->duration = 3600;
-        $defaultvalues->bookingname = $booking->settings->name;
-        $defaultvalues->optionid = -1;
-        $defaultvalues->bookingid = $booking->settings->id;
-        $defaultvalues->id = $cm->id;
-    }
-} else if ($defaultvalues = $DB->get_record('booking_options', array('bookingid' => $booking->settings->id, 'id' => $optionid))) {
+    $defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid));
+    $defaultvalues->text = $defaultvalues->text . get_string('copy', 'booking');
+    $defaultvalues->optionid = -1;
+    $defaultvalues->bookingname = $booking->settings->name;
+    $defaultvalues->bookingid = $cm->instance;
+    $defaultvalues->id = $cm->id;
+} else if ($optionid > 0 && $defaultvalues = $DB->get_record('booking_options', array('bookingid' => $booking->settings->id, 'id' => $optionid))) {
     $defaultvalues->optionid = $optionid;
     $defaultvalues->bookingname = $booking->settings->name;
     $defaultvalues->id = $cm->id;
-} else {
-    print_error('This booking option does not exist');
 }
 
 if ($mform->is_cancelled()) {
@@ -83,7 +70,7 @@ if ($mform->is_cancelled()) {
             $fromform->limitanswers = 0;
         }
 
-        $nbooking = booking_update_options($fromform, $context, $cm);
+        $nbooking = booking_update_options($fromform, $context);
 
         if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
             file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
@@ -92,7 +79,7 @@ if ($mform->is_cancelled()) {
 
         if (isset($fromform->addastemplate) && $fromform->addastemplate == 1) {
             $fromform->bookingid = 0;
-            $nbooking = booking_update_options($fromform, $context, $cm);
+            $nbooking = booking_update_options($fromform, $context);
             if (isset($fromform->submittandaddnew)) {
                 $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
             } else {
@@ -160,8 +147,9 @@ if ($mform->is_cancelled()) {
     $PAGE->set_title(format_string($booking->settings->name));
     $PAGE->set_heading($course->fullname);
     echo $OUTPUT->header();
-
-    $mform->set_data($defaultvalues);
+    if (isset($defaultvalues)) {
+        $mform->set_data($defaultvalues);
+    }
     $mform->display();
 }
 

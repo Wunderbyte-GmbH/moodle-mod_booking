@@ -234,6 +234,7 @@ $string['waitingplacesavailable'] = 'Waiting list places available: {$a->overboo
 $string['waitspaceavailable'] = 'Places on waiting list available';
 $string['banusernameswarning'] = "Your username is banned so you can't book.";
 $string['duplicatebooking'] = 'Duplicate this booking option';
+$string['moveoptionto'] = 'Move booking option to other booking instance';
 
 // tag templates
 $string['cancel'] = 'Cancel';
@@ -925,6 +926,7 @@ $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';
 $string['transfer'] = 'Transfer';
 $string['transferheading'] = 'Transfer selected users to the selected booking option';
 $string['transfersuccess'] = 'The users have successfully been transferred to the new booking option';
+$string['transferoptionsuccess'] = 'The booking option and the users have successfully been transferred.';
 $string['transferproblem'] = 'The following could not be transferred due to booking option limitation or user limitation: {$a}';
 $string['searchwaitinglist'] = 'On waiting list';
 $string['selectatleastoneuser'] = 'Please, select at least 1 user!';
