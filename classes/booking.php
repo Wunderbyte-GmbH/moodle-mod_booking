@@ -74,12 +74,9 @@ class booking {
     /**
      * Constructor for the booking class
      *
-     * @param mixed $context context|null course module or course context if coursemodule not
-     *        created yet
-     * @param mixed $coursemodule current course module if it was already loaded - otherwise load
-     *        from the context as required
-     * @param mixed $course the current course if it was already loaded - otherwise this class will
-     *        load one from the context as required
+     * @param $cmid
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public function __construct($cmid) {
         global $DB;

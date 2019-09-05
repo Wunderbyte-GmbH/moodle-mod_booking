@@ -581,7 +581,7 @@ function booking_update_instance($booking) {
  * @param context_module $context
  * @return boolean|number optionid
  */
-function booking_update_options($optionvalues, $context, $cm) {
+function booking_update_options($optionvalues, $context) {
     global $DB, $CFG, $USER;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
     require_once("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
@@ -892,6 +892,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
     $context = $cm->context;
     $course = $PAGE->course;
+    $contextcourse = context_course::instance($course->id);
     $optionid = $PAGE->url->get_param('optionid');
 
     if (!$course) {
@@ -987,6 +988,13 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                             new moodle_url('/mod/booking/subscribeusersctivity.php',
                                     array('id' => $cm->id, 'optionid' => $optionid)));
                 }
+            }
+            $modinfo = get_fast_modinfo($course);
+            $bookinginstances = isset($modinfo->instances['booking']) ? count($modinfo->instances['booking']) : 0;
+            if (has_capability('mod/booking:updatebooking', $contextcourse) && $bookinginstances > 1) {
+                $settingnode->add(get_string('moveoptionto', 'booking'),
+                    new moodle_url('/mod/booking/moveoption.php',
+                        array('id' => $cm->id, 'optionid' => $optionid, 'sesskey' => sesskey())));
             }
             if (has_capability ( 'mod/booking:readresponses', $context ) || booking_check_if_teacher ($option, $USER )) {
                 $completion = new \completion_info($course);
