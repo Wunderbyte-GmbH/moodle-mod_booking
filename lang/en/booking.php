@@ -1108,6 +1108,7 @@ $string['usercalendarentry'] = 'You are booked for this <a href="{$a}">session</
 $string['bookingoptioncalendarentry'] = 'Go to <a href="{$a}">booking option</a>.';
 
 // mybookings.php
+$string['status'] = 'Status';
 $string['active'] = "Active";
 $string['terminated'] = "Terminated";
 $string['notstarted'] = "Not yet started";

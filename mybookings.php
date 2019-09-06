@@ -43,28 +43,40 @@ $mybookings = $dbutill->mybookings();
 $cid = -1;
 $bid = -1;
 
+$table = new html_table();
+$table->head = array(get_string('course'), get_string('booking', 'booking'), get_string('bookingoptionsmenu', 'booking'),
+    get_string('status', 'booking'), get_string('coursestarttime', 'booking'));
+
 foreach ($mybookings as $key => $value) {
-    if ($bid != -1 && $bid != $value->bookingid) {
-        echo "</ul>";
-    }
+    $coursename = '';
+    $bookingname = '';
+    $startdate = '';
+
     if ($cid != $value->courseid) {
         $courseurl = new moodle_url("/course/view.php?id={$value->courseid}");
-        echo "<h2><a href='{$courseurl}'>{$value->fullname}</a></h2>";
+        $coursename = "<a href='{$courseurl}'>{$value->fullname}</a>";
     }
 
     if ($bid != $value->bookingid) {
         $bookingurl = new moodle_url("/mod/booking/view.php?id={$value->cmid}");
-        echo "<h3><a href='{$bookingurl}'>{$value->name}</a></h3>";
-        echo "<ul>";
+        $bookingname = "<a href='{$bookingurl}'>{$value->name}</a>";
     }
 
     $optionstatus = booking_getoptionstatus($value->coursestarttime, $value->courseendtime);
     $optionurl = new moodle_url("/mod/booking/view.php?id={$value->cmid}&optionid={$value->optionid}&action=showonlyone&whichview=showonlyone#goenrol");
-    echo "<li>[{$optionstatus}] <a href='{$optionurl}'>{$value->text}</a></li>";
+    $optionname = "<a href='{$optionurl}'>{$value->text}</a>";
+
+    if ($value->coursestarttime != 0) {
+        $startdate = userdate($value->coursestarttime, get_string('strftimedatetime'));
+    }
+
+    $table->data[] = array($coursename, $bookingname, $optionname, $optionstatus, $startdate);
 
     $cid = $value->courseid;
     $bid = $value->bookingid;
 }
+
+echo html_writer::table($table);
 
 echo $OUTPUT->box_end();
 
