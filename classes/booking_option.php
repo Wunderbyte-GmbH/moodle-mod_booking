@@ -1486,7 +1486,7 @@ class booking_option {
             $countcompleted = $DB->count_records('booking_answers',
                 array('bookingid' => $this->booking->id, 'userid' => $userid, 'completed' => '1'));
 
-            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $this->booking->enablecompletion <= $countcompleted) {
+            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $this->booking->settings->enablecompletion <= $countcompleted) {
                 $completion->update_state($cm, COMPLETION_COMPLETE, $userid);
             }
         }
