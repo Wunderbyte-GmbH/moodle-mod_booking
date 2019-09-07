@@ -1922,7 +1922,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019080303, 'booking');
     }
 
-    if ($oldversion < 2019080400) {
+    if ($oldversion < 2019090602) {
         // Add field for default template used for booking options of the booking instance.
         $table = new xmldb_table('booking');
         $field = new xmldb_field('defaultoptionsort', XMLDB_TYPE_CHAR, '255', null, null, null, 'text', 'templateid');
@@ -1933,16 +1933,29 @@ function xmldb_booking_upgrade($oldversion) {
             'completed,status,rating,numrec,fullname,timecreated,institution,waitinglist',
             'completionmodule');
         $dbman->change_field_precision($table, $field);
-        $field = new xmldb_field('reportfields', XMLDB_TYPE_CHAR, '255', null, null, null,
-            'booking,location,coursestarttime,courseendtime,firstname,lastname',
-            'responsesfields');
-        $dbman->change_field_precision($table, $field);
+        $field = new xmldb_field('reportfields', XMLDB_TYPE_TEXT, 'small', null, null, null, null, 'responsesfields');
+        $dbman->change_field_type($table, $field);
         $field = new xmldb_field('optionsfields', XMLDB_TYPE_CHAR, '255', null, null, null,
             'text,coursestarttime,maxanswers', 'reportfields');
         $dbman->change_field_precision($table, $field);
-
+        $field = new xmldb_field('signinsheetfields', XMLDB_TYPE_TEXT, 'small', null, null, null,
+            null, 'aftercompletedtext');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_type($table, $field);
+        }
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2019080400, 'booking');
+        upgrade_mod_savepoint(true, 2019090602, 'booking');
+    }
+
+    if ($oldversion < 2019090800) {
+        // Add field for views to show in view.php.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('showviews', XMLDB_TYPE_CHAR, '255', null, null, null, 'mybooking,myoptions,showall,showactive,myinstitution', 'defaultoptionsort');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2019090800, 'booking');
     }
     return true;
 }

@@ -434,7 +434,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         $output = $PAGE->get_renderer('mod_booking');
         $output->print_booking_tabs($urlparams, $whichview, $mybookings->mybookings,
-                $myoptions->myoptions);
+                $myoptions->myoptions, $booking);
 
         $search = '<a class="btn btn-default" href="#" id="showHideSearch">' . get_string('search') . "</a>";
 

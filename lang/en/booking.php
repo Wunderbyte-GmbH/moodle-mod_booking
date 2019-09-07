@@ -87,7 +87,7 @@ $string['limit'] = 'Limit';
 $string['modulename'] = 'Booking';
 $string['modulenameplural'] = 'Bookings';
 $string['mustchooseone'] = 'You must choose an option before saving. Nothing was saved.';
-$string['myoptions'] = 'My options ({$a})';
+$string['myoptions'] = 'Options I manage';
 $string['noguestchoose'] = 'Sorry, guests are not allowed to enter data';
 $string['noresultsviewable'] = 'The results are not currently viewable.';
 $string['nosubscribers'] = 'There are no teachers assigned!';
@@ -726,8 +726,10 @@ $string['reset'] = 'Reset';
 $string['searchtag'] = 'Search tags';
 $string['showinapi'] = 'Show in API?';
 $string['whichview'] = 'Default view for booking options';
+$string['whichviewerror'] = 'You have to include the default view in: Views to show in the booking options overview';
+$string['showviews'] = 'Views to show on in the booking options overview';
 $string['enablepresence'] = 'Enable presence';
-$string['removeuseronunenrol'] = 'Remove user from booking, when unenrol from course?';
+$string['removeuseronunenrol'] = 'Remove user from booking upon unenrolment from associated course?';
 
 // editoptions.php
 $string['addeditbooking'] = 'Edit booking option';

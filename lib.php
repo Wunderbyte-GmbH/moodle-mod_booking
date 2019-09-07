@@ -365,6 +365,12 @@ function booking_add_instance($booking) {
         $booking->timeopen = $booking->timeclose = 0;
     }
 
+    if (isset($booking->showviews) && count($booking->showviews) > 0) {
+        $booking->showviews = implode(',', $booking->showviews);
+    } else {
+        $booking->showviews = '';
+    }
+
     if (isset($booking->reportfields) && count($booking->reportfields) > 0) {
         $booking->reportfields = implode(',', $booking->reportfields);
     } else {
@@ -460,6 +466,12 @@ function booking_update_instance($booking) {
     $booking->timemodified = time();
     $cm = get_coursemodule_from_instance('booking', $booking->id);
     $context = context_module::instance($cm->id);
+
+    if (isset($booking->showviews) && count($booking->showviews) > 0) {
+        $booking->showviews = implode(',', $booking->showviews);
+    } else {
+        $booking->showviews = '';
+    }
 
     if (isset($booking->responsesfields) && count($booking->responsesfields) > 0) {
         $booking->responsesfields = implode(',', $booking->responsesfields);

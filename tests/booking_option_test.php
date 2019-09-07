@@ -55,7 +55,7 @@ class mod_booking_booking_option_testcase extends advanced_testcase {
             'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
             'pollurlteacherstext' => array('text' => 'text'),
             'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
-                        'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2);
+                        'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2, 'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution']);
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1));
 
