@@ -223,10 +223,9 @@ class all_options extends table_sql {
     }
 
     protected function col_text($values) {
-        global $DB, $CFG;
+        global $DB;
         $output = '';
-        $output .= \html_writer::tag('h4', $values->text);
-
+        $output .= \html_writer::tag('h4', format_string($values->text, true, $this->booking->settings->course));
         $style = 'display: none;';
         $th = '';
         $ts = '"display: none;"';
@@ -258,7 +257,7 @@ class all_options extends table_sql {
 
             $output .= '<br><a href="#" class="showHideOptionText" data-id="des' . $values->id . '">' .
                     $showhidetext . "</a>";
-                    $output .= \html_writer::div($values->description, 'optiontext',
+                    $output .= \html_writer::div(format_text($values->description, FORMAT_HTML), 'optiontext',
                             array('style' => $style, 'id' => 'optiontextdes' . $values->id));
         }
 
