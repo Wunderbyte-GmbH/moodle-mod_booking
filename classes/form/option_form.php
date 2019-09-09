@@ -24,10 +24,21 @@ defined('MOODLE_INTERNAL') || die();
 class option_form extends moodleform {
 
     public function definition() {
-        global $CFG, $COURSE;
+        global $CFG, $COURSE, $DB, $PAGE;
         $mform = & $this->_form;
         $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
         $mform->addElement('header', 'general', get_string('general', 'form'));
+
+        $optiontemplates = array('' => '');
+        $alloptiontemplates = $DB->get_records('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
+
+        foreach ($alloptiontemplates as $key => $value) {
+            $optiontemplates[$value->id] = $value->text;
+        }
+
+        $mform->addElement('select', 'optiontemplateid', get_string('populatefromtemplate', 'booking'),
+            $optiontemplates);
+
         $mform->addElement('text', 'text', get_string('bookingoptionname', 'booking'), array('size' => '64'));
         $mform->addRule('text', get_string('required'), 'required', null, 'client');
         if (!empty($CFG->formatstringstriptags)) {
@@ -291,6 +302,8 @@ class option_form extends moodleform {
         $buttonarray[] = &$mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
         $mform->closeHeaderBefore('buttonar');
+
+        $PAGE->requires->js_call_amd('mod_booking/optionstemplateselect', 'init');
     }
 
     protected function data_preprocessing(&$defaultvalues) {

@@ -16,6 +16,8 @@
 require_once("../../config.php");
 require_once("locallib.php");
 
+use mod_booking\form\option_form;
+
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $copyoptionid = optional_param('copyoptionid', '', PARAM_ALPHANUM);
@@ -42,7 +44,7 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
     print_error('nopermissions');
 }
 
-$mform = new mod_booking\form\option_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context));
+$mform = new option_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context));
 
 if ($optionid == -1 && $copyoptionid != '') {
     // Adding new booking option - default values.

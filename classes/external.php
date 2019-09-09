@@ -61,7 +61,7 @@ class external extends external_api {
     /**
      * Get instance template.
      *
-     * @param integer $id     *
+     * @param integer $id
      * @return string
      */
     public static function instancetemplate($id) {
@@ -95,6 +95,63 @@ class external extends external_api {
      * @since Moodle 3.0
      */
     public static function instancetemplate_returns() {
+        return new external_single_structure(
+                array('id' => new external_value(PARAM_INT, 'Template id.'),
+                    'name' => new \external_value(PARAM_TEXT, 'Template name.'),
+                    'template' => new \external_value(PARAM_RAW), 'JSON serialized template data.'));
+    }
+
+    /**
+     * Describes the parameters for optiontemplate.
+     *
+     * @return external_function_parameters
+     */
+    public static function optiontemplate_parameters() {
+        return new external_function_parameters(
+            array(
+                'id' => new external_value(PARAM_INT, 'optiontemplate id',
+                'ID of option template.', VALUE_REQUIRED, 0)
+            )
+        );
+    }
+
+    /**
+     * Get instance template.
+     *
+     * @param integer $id
+     * @return string
+     */
+    public static function optiontemplate($id) {
+        global $DB;
+        $params = self::validate_parameters(self::optiontemplate_parameters(),
+                array('id' => $id)
+            );
+
+        $template = $DB->get_record("booking_options", array('id' => $id), '*', IGNORE_MISSING);
+
+        return array(
+            'id' => $id,
+            'name' => $template->text,
+            'template' => json_encode($template)
+        );
+    }
+
+    /**
+     * Expose to AJAX
+     *
+     * @return boolean
+     */
+    public static function optiontemplate_is_allowed_from_ajax() {
+        return true;
+    }
+
+    /**
+     * Returns description of method result value
+     *
+     * @return \external_single_structure
+     * @since Moodle 3.0
+     */
+    public static function optiontemplate_returns() {
         return new external_single_structure(
                 array('id' => new external_value(PARAM_INT, 'Template id.'),
                     'name' => new \external_value(PARAM_TEXT, 'Template name.'),

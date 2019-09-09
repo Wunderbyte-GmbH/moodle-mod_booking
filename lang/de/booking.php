@@ -829,7 +829,6 @@ $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
 $string['defaulttemplate'] = 'Standard-Vorlage';
 $string['defaulttemplatedesc'] = 'Standard-Vorlage für neue Buchungsoptionen';
 $string['dontuse'] = 'Vorlage nicht verwenden';
-$string['bookingoptionsfromtemplatemenu'] = 'Neue Buchungsoption von Vorlage erstellen';
 $string['manageoptiontemplates'] = 'Buchungsoptionsvorlagen verwalten';
 $string['usedinbookinginstances'] = 'Die Vorlage wird in folgenden Buchungsinstanzen verwendet';
 $string['optiontemplatename'] = 'Vorlagenname der Buchungsoption';

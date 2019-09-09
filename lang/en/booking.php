@@ -1129,7 +1129,6 @@ $string['optiontemplatessettings'] = 'Booking option templates';
 $string['defaulttemplate'] = 'Default template';
 $string['defaulttemplatedesc'] = 'Default booking option teplate, when creatting new booking option.';
 $string['dontuse'] = 'Don\'t use template';
-$string['bookingoptionsfromtemplatemenu'] = 'New booking option from template';
 
 // instancetemplateadd.php
 $string['saveinstanceastemplate'] = 'Add booking instance to template';

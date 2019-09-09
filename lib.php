@@ -940,16 +940,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                     new moodle_url('tagtemplates.php', array('id' => $cm->id)));
         }
 
-        $alloptiontemplates = $DB->get_records('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
-        if (!empty($alloptiontemplates)) {
-            $settingnode = $navref->add(get_string("bookingoptionsfromtemplatemenu", "booking"), null,
-            navigation_node::TYPE_CONTAINER);
-            foreach ($alloptiontemplates as $key => $value) {
-                $settingnode->add($value->text,
-                new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1, 'copyoptionid' => $value->id)));
-            }
-        }
-
         if (!is_null($optionid) AND $optionid > 0) {
             $option = $DB->get_record('booking_options', array('id' => $optionid));
             $booking = $DB->get_record('booking', array('id' => $option->bookingid));
