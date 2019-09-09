@@ -50,7 +50,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             // General
                             $("#id_name").val(obj.name);
                             $("#id_eventtype").val(obj.eventtype);
-                            $("#id_introeditoreditable").text(obj.intro);
+                            $("#id_introeditoreditable").html(obj.intro);
                             $('#id_duration').val(obj.duration);
                             $('#id_points').val(obj.points);
                             $('#id_organizatorname').val(obj.organizatorname);
@@ -68,15 +68,15 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $('#id_daystonotify').val(obj.daystonotify);
                             $('#id_daystonotify2').val(obj.daystonotify2);
                             // $('#id_bookingmanager').val(obj.bookingmanager);
-                            $('#id_bookedtexteditable').text(obj.bookedtext);
-                            $('#id_waitingtexteditable').text(obj.waitingtext);
-                            $('#id_notifyemaileditable').text(obj.notifyemail);
-                            $('#id_statuschangetexteditable').text(obj.statuschangetext);
-                            $('#id_userleaveeditable').text(obj.userleave);
-                            $('#id_deletedtexteditable').text(obj.deletedtext);
-                            $('#id_pollurltexteditable').text(obj.pollurltext);
-                            $('#id_pollurlteacherstexteditable').text(obj.pollurlteacherstext);
-                            $('#id_notificationtexteditable').text(obj.notificationtext);
+                            $('#id_bookedtexteditable').html(obj.bookedtext);
+                            $('#id_waitingtexteditable').html(obj.waitingtext);
+                            $('#id_notifyemaileditable').html(obj.notifyemail);
+                            $('#id_statuschangetexteditable').html(obj.statuschangetext);
+                            $('#id_userleaveeditable').html(obj.userleave);
+                            $('#id_deletedtexteditable').html(obj.deletedtext);
+                            $('#id_pollurltexteditable').html(obj.pollurltext);
+                            $('#id_pollurlteacherstexteditable').html(obj.pollurlteacherstext);
+                            $('#id_notificationtexteditable').html(obj.notificationtext);
 
                             // Custom labels
                             $('#id_btncacname').val(obj.btncacname);
@@ -94,7 +94,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $('#id_lblnumofusers').val(obj.lblnumofusers);
 
                             // Miscellaneous settings
-                            $('#id_bookingpolicyeditable').text(obj.bookingpolicy);
+                            $('#id_bookingpolicyeditable').html(obj.bookingpolicy);
                             $('#id_cancancelbook').val(obj.cancancelbook);
                             $('#id_allowupdate').val(obj.allowupdate);
                             $('#id_allowupdatedays').val(obj.allowupdatedays);
@@ -133,9 +133,9 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             // - timeopen
 
                             // Booking option text depending on booking status
-                            $('#id_beforecompletedtexteditable').text(obj.beforecompletedtext);
-                            $('#id_aftercompletedtexteditable').text(obj.aftercompletedtext);
-                            $('#id_beforebookedtexteditable').text(obj.beforebookedtext);
+                            $('#id_beforecompletedtexteditable').html(obj.beforecompletedtext);
+                            $('#id_aftercompletedtexteditable').html(obj.aftercompletedtext);
+                            $('#id_beforebookedtexteditable').html(obj.beforebookedtext);
 
                             // Connected booking
                             $('#id_conectedbooking').val(obj.conectedbooking);
