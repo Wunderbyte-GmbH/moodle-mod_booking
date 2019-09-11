@@ -23,6 +23,7 @@
 
 use mod_booking\booking;
 use mod_booking\places;
+use mod_booking\booking_tags;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -33,6 +34,8 @@ class all_options extends table_sql {
     public $cm = null;
 
     public $context = null;
+
+    public $tags = null;
 
     /**
      * all_options constructor.
@@ -50,6 +53,7 @@ class all_options extends table_sql {
         $this->booking = $booking;
         $this->cm = $cm;
         $this->context = $context;
+        $this->tags = new booking_tags($cm->course);
     }
 
     protected function col_id($values) {
@@ -252,6 +256,7 @@ class all_options extends table_sql {
         }
 
         if (!empty($values->description)) {
+            $values->description = $this->tags->tag_replaces($values->description);
             $showhidetext = '<span id="showtextdes' . $values->id . '" style=' . $th . '>' . get_string(
                     'showdescription', "mod_booking") . '</span><span id="hidetextdes' . $values->id . '" style=' . $ts . '>' . get_string(
                             'hidedescription', "mod_booking") . '</span>';
@@ -287,6 +292,7 @@ class all_options extends table_sql {
         $texttoshow = "";
         $bookingdata = new \mod_booking\booking_option($this->cm->id, $values->id);
         $texttoshow = $bookingdata->get_option_text();
+        $texttoshow = $this->tags->tag_replaces($texttoshow);
 
         $showhidetext = '<span id="showtext' . $values->id . '" style=' . $th . '>' . get_string(
                 'showdescription', "mod_booking") . '</span><span id="hidetext' . $values->id . '" style=' . $ts . '>' . get_string(
