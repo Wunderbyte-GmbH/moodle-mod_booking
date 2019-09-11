@@ -1196,6 +1196,8 @@ class booking_option {
         }
         if ($this->option->groupid > 0 && in_array($this->option->groupid, $groupids)) {
             // Group has been created but renamed.
+            $newgroupdata->id = $this->option->groupid;
+            groups_update_group($newgroupdata);
             return $this->option->groupid;
         } else if (($this->option->groupid > 0 && !in_array($this->option->groupid, $groupids)) || $this->option->groupid == 0) {
             // Group has been deleted and must be created and groupid updated in DB. Or group does not yet exist.
