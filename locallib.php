@@ -290,6 +290,7 @@ function booking_confirm_booking($optionid, $user, $cm, $url) {
     echo $OUTPUT->header();
 
     $option = new \mod_booking\booking_option($cm->id, $optionid, array(), 0, 0, false);
+    $option->apply_tags();
 
     $optionidarray['answer'] = $optionid;
     $optionidarray['confirm'] = 1;
