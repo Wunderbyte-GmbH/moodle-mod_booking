@@ -37,7 +37,8 @@ class mybookings_table extends table_sql {
         $this->define_columns($columns);
 
         // Define the titles of columns to show in header.
-        $headers = array(get_string('booking', 'booking'), get_string('bookingoptionsmenu', 'booking'), get_string('status', 'booking'), get_string('coursestarttime', 'booking'));
+        $headers = array(get_string('mybookingsbooking', 'booking'), get_string('mybookingsoption', 'booking'),
+            get_string('status', 'booking'), get_string('coursestarttime', 'booking'));
         $this->define_headers($headers);
     }
 

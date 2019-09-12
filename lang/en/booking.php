@@ -1138,3 +1138,7 @@ $string['bookinginstancetemplatessettings'] = 'Booking instance templates';
 $string['bookinginstancetemplatename'] = 'Booking instance template name';
 $string['managebookinginstancetemplates'] = 'Manage booking instance templates';
 $string['populatefromtemplate'] = 'Populate from template';
+
+// mybookings
+$string['mybookingsbooking'] = 'Booking (Course)';
+$string['mybookingsoption'] = 'Option';
