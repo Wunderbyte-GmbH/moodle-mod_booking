@@ -22,9 +22,9 @@
  */
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
-require_once($CFG->dirroot . '/mod/booking/classes/form/confirmactivity.php');
 
 use mod_booking\utils\db;
+use mod_booking\form\confirmactivity;
 
 $id = required_param('id', PARAM_INT); // Course_module ID.
 $optionid = required_param('optionid', PARAM_INT);
@@ -48,7 +48,7 @@ if (!booking_check_if_teacher ( $bookingoption->option, $USER )) {
     }
 }
 
-$mform = new \mod_booking\form\confirmactivity($url, array('course' => $course,
+$mform = new confirmactivity($url, array('course' => $course,
     'optionid' => $optionid, 'bookingid' => $bookingoption->booking->id));
 
 if ($mform->is_cancelled()) {

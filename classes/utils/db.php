@@ -108,7 +108,7 @@ class db {
         }
 
         if ($completed) {
-            return array_intersect_key($oud, $ud);
+            return array_intersect($oud, $ud);
         } else {
             return array_diff($oud, $ud);
         }
@@ -138,6 +138,6 @@ class db {
             $oud[] = $u->userid;
         }
 
-        return array_intersect_key($oud, $ud);
+        return array_intersect($oud, $ud);
     }
 }
