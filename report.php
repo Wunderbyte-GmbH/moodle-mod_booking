@@ -151,6 +151,7 @@ $currenturl = new moodle_url('/mod/booking/report.php', $urlparams);
 $PAGE->set_url($url);
 $PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup');
 $PAGE->force_settings_menu(true);
+$PAGE->requires->js_call_amd('mod_booking/signinsheetdownload', 'init');
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 
@@ -762,7 +763,10 @@ if (!$tableallbookings->is_downloading()) {
         echo " ({$bookingdata->option->shorturl})";
     }
     echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
-            array('onclick' => 'copyToClipboard("' . $onlyoneurl . '"); return false;')) . ' | ';
+            array('onclick' => 'copyToClipboard("' . $onlyoneurl . '"); return false;'));
+
+    echo ' | ' . html_writer::link($onlyoneurl, get_string('sign_in_sheet_download_show', 'booking'),
+            array('id' => 'sign_in_sheet_download_show'));
 
     echo "<script>
   function copyToClipboard(text) {
