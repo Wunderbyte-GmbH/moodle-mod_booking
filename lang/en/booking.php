@@ -246,6 +246,7 @@ $string['tagtext'] = 'Text';
 $string['wrongdataallfields'] = 'Please, fill out all fields!';
 $string['tagsuccessfullysaved'] = 'Tag was saved.';
 $string['edittag'] = 'Edit';
+$string['tagdeleted'] = 'Tag template was deleted!';
 
 // all_options
 $string['showdescription'] = 'Show description';

@@ -27,6 +27,8 @@ require_once("../../config.php");
 require_once("locallib.php");
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
+$tagid = optional_param('tagid', 0, PARAM_INT);
+$action = optional_param('action', '', PARAM_ALPHANUM);
 
 $url = new moodle_url('/mod/booking/tagtemplates.php', array('id' => $id));
 $urlredirect = new moodle_url('/mod/booking/view.php', array('id' => $id));
@@ -43,6 +45,11 @@ if (!$context = context_module::instance($cm->id)) {
 
 require_capability('mod/booking:updatebooking', $context);
 
+if (($action === 'delete') AND ($tagid > 0)) {
+    $DB->delete_records('booking_tags', array('id' => $tagid));
+    redirect($url, get_string('tagdeleted', 'booking'), 5);
+}
+
 $PAGE->navbar->add(get_string("tagtemplates", "booking"));
 $PAGE->set_title(format_string(get_string("tagtemplates", "booking")));
 $PAGE->set_heading(get_string("tagtemplates", "booking"));
@@ -52,7 +59,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("tagtemplates", "booking"), 3, 'helptitle', 'uniqueid');
 
 $table = new html_table();
-$table->head = array(get_string('tagtag', 'booking'), get_string('tagtext', 'booking'));
+$table->head = array(get_string('tagtag', 'booking'), get_string('tagtext', 'booking'), '');
 
 $tags = new booking_tags($cm->course);
 
@@ -61,7 +68,8 @@ $tagstable = array();
 foreach ($tags->get_all_tags() as $tag) {
 
     $edit = new moodle_url('tagtemplatesadd.php', array('id' => $cm->id, 'tagid' => $tag->id));
-    $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get');
+    $delete = new moodle_url('tagtemplates.php', array('id' => $id, 'tagid' => $tag->id, 'action' => 'delete'));
+    $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get') . $OUTPUT->single_button($delete, get_string('delete'), 'get');
 
     $tagstable[] = array("[{$tag->tag}]", nl2br($tag->text),
         html_writer::tag('span', $button,
