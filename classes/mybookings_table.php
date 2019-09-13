@@ -40,6 +40,7 @@ class mybookings_table extends table_sql {
         $headers = array(get_string('mybookingsbooking', 'booking'), get_string('mybookingsoption', 'booking'),
             get_string('status', 'booking'), get_string('coursestarttime', 'booking'));
         $this->define_headers($headers);
+        $this->no_sorting('status');
     }
 
     protected function col_coursestarttime($values) {
