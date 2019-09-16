@@ -916,6 +916,9 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null,
                 navigation_node::TYPE_CONTAINER);
 
+        $settingnode->add(get_string('addnewbookingoption', 'booking'),
+                new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => $optionid)));
+
         if (has_capability('mod/booking:manageoptiontemplates', $context)) {
             $settingnode->add(get_string("manageoptiontemplates", "mod_booking"),
                 new moodle_url('optiontemplatessettings.php', array('id' => $cm->id)));
@@ -928,16 +931,14 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         if (!empty($templatedid) && $DB->record_exists('booking_options', ['id' => $templatedid])) {
             $urlparam['copyoptionid'] = $templatedid;
         }
-        $settingnode->add(get_string('addnewbookingoption', 'booking'),
-                new moodle_url('editoptions.php', $urlparam));
 
         if (has_capability('mod/booking:updatebooking', $context)) {
             $settingnode->add(get_string('importcsvbookingoption', 'booking'),
                     new moodle_url('importoptions.php', array('id' => $cm->id)));
-            $settingnode->add(get_string('importexcelbutton', 'booking'),
-                    new moodle_url('importexcel.php', array('id' => $cm->id)));
             $settingnode->add(get_string('tagtemplates', 'booking'),
                     new moodle_url('tagtemplates.php', array('id' => $cm->id)));
+            $settingnode->add(get_string('importexcelbutton', 'booking'),
+                    new moodle_url('importexcel.php', array('id' => $cm->id)));
         }
 
         if (!is_null($optionid) AND $optionid > 0) {
@@ -963,11 +964,19 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 $settingnode->add(get_string('deletebookingoption', 'booking'),
                         new moodle_url('/mod/booking/report.php',
                                 array('id' => $cm->id, 'optionid' => $optionid,
-                                    'action' => 'deletebookingoption', 'sesskey' => sesskey())));
+                                    'action' => 'deletebookingoption')));
                 $settingnode->add(get_string('optiondates', 'booking'),
                         new moodle_url('/mod/booking/optiondates.php',
                                 array('id' => $cm->id, 'optionid' => $optionid)));
             }
+
+            if (has_capability('mod/booking:manageoptiontemplates', $context)) {
+                $settingnode->add(get_string('copytotemplate', 'booking'),
+                            new moodle_url('/mod/booking/report.php',
+                                    array('id' => $cm->id, 'optionid' => $optionid,
+                                        'action' => 'copytotemplate', 'sesskey' => sesskey())));
+            }
+
             if (has_capability ( 'mod/booking:subscribeusers', $context ) || booking_check_if_teacher ($option, $USER )) {
                 $settingnode->add(get_string('bookotherusers', 'booking'),
                         new moodle_url('/mod/booking/subscribeusers.php',

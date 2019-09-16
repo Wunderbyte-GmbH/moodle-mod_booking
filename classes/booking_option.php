@@ -1489,4 +1489,18 @@ class booking_option {
             }
         }
     }
+
+    /**
+     * Copy this booking option to template.
+     */
+    public function copytotemplate() {
+        global $DB;
+
+        $option = $DB->get_record('booking_options', array('id' => $this->optionid));
+
+        unset($option->id);
+        $option->bookingid = 0;
+
+        $DB->insert_record("booking_options", $option);
+    }
 }
