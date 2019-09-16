@@ -51,6 +51,12 @@ class mybookings_table extends table_sql {
         return userdate($values->coursestarttime);
     }
 
+    protected function col_text($values) {
+        $optionurl = new moodle_url("/mod/booking/view.php?id={$values->cmid}&optionid={$values->optionid}&action=showonlyone&whichview=showonlyone#goenrol");
+
+        return "<a href='{$optionurl}'>{$values->text}</a>";
+    }
+
     protected function col_name($values) {
         $bookingurl = new moodle_url("/mod/booking/view.php?id={$values->cmid}");
         $courseurl = new moodle_url("/course/view.php?id={$values->courseid}");
