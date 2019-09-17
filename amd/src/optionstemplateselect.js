@@ -52,12 +52,20 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $("#id_location").val(obj.location);
                             $("#id_institution").val(obj.institution);
                             $("#id_address").val(obj.address);
-                            $("#id_limitanswers").prop("checked", (obj.limitanswers == 0 ? false : true));
+                            if ($('#id_limitanswers').is(':checked') != (obj.bookingclosingtime == 0 ? false : true)) {
+                                $("#id_limitanswers").trigger('click');
+                            }
                             $("#id_maxanswers").val(obj.maxanswers);
                             $("#id_maxoverbooking").val(obj.maxoverbooking);
-                            $("#id_restrictanswerperiod").prop("checked", (obj.restrictanswerperiod == 0 ? false : true));
-                            $("#id_startendtimeknown").prop("checked", (obj.startendtimeknown == 0 ? false : true));
-                            $("#id_addtocalendar").prop("checked", (obj.addtocalendar == 0 ? false : true));
+                            if ($('#id_restrictanswerperiod').is(':checked') != (obj.bookingclosingtime == 0 ? false : true)) {
+                                $("#id_restrictanswerperiod").trigger('click');
+                            }
+                            if ($('#id_startendtimeknown').is(':checked') != (obj.coursestarttime == 0 ? false : true)) {
+                                $("#id_startendtimeknown").trigger('click');
+                            }
+                            if ($('#id_addtocalendar').is(':checked') != (obj.addtocalendar == 0 ? false : true)) {
+                                $("#id_addtocalendar").trigger('click');
+                            }
 
                             var x = obj.duration;
                             switch (true) {
@@ -83,7 +91,9 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                                     break;
                             }
 
-                            $("#id_enrolmentstatus").prop("checked", (obj.enrolmentstatus == 0 ? false : true));
+                            if ($('#id_enrolmentstatus').is(':checked') != (obj.enrolmentstatus == 0 ? false : true)) {
+                                $("#id_enrolmentstatus").trigger('click');
+                            }
                             $("#id_descriptioneditable").html(obj.description);
                             $("#id_pollurl").val(obj.pollurl);
                             $("#id_pollurlteachers").val(obj.pollurlteachers);
