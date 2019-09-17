@@ -206,6 +206,7 @@ class renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_rating(rating $rating) {
+        global $OUTPUT;
 
         if ($rating->settings->aggregationmethod == RATING_AGGREGATE_NONE) {
             return null; // Ratings are turned off.
@@ -281,7 +282,7 @@ class renderer extends plugin_renderer_base {
                 } else {
                     $courseid = $rating->settings->scale->courseid;
                 }
-                $ratinghtml .= $this->help_icon_scale($courseid, $rating->settings->scale);
+                $ratinghtml .= $OUTPUT->help_icon_scale($courseid, $rating->settings->scale);
             }
             $ratinghtml .= html_writer::end_tag('div');
         }

@@ -1043,7 +1043,7 @@ $string['pdfstudentname'] = "Student Name";
 $string['pdfsignature'] = "Signature";
 $string['pdftodaydate'] = 'Date: ';
 $string['booking:readallinstitutionusers'] = 'Show all users';
-$string['booking:manageoptiontemplates'] = 'Can create templates';
+$string['manageoptiontemplates'] = 'Can create templates';
 
 // File: settings.php
 $string['icalcfg'] = 'Configuration of the ical attachements';
