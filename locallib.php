@@ -341,12 +341,12 @@ function booking_updatestartenddate($optionid) {
  */
 function booking_getoptionstatus($starttime = 0, $endtime = 0) {
     if ($starttime == 0 && $endtime == 0) {
+        return '';
+    } else if ($starttime < time() && $endtime > time()) {
         return get_string('active', 'booking');
-    } else if ($starttime > time() && $endtime < time()) {
-        return get_string('active', 'booking');
-    } else if ($endtime > time()) {
+    } else if ($endtime < time()) {
         return get_string('terminated', 'booking');
-    } else if ($starttime < time()) {
+    } else if ($starttime > time()) {
         return get_string('notstarted', 'booking');
     }
 
