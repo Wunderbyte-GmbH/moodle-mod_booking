@@ -243,7 +243,7 @@ $string['wrongdataallfields'] = 'Please, fill out all fields!';
 $string['tagsuccessfullysaved'] = 'Tag was saved.';
 $string['edittag'] = 'Edit';
 
-// all_options
+// mod_booking\all_options
 $string['showdescription'] = 'Show description';
 $string['hidedescription'] = 'Hide description';
 $string['editteacherslink'] = 'Edit teachers';

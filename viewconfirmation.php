@@ -43,7 +43,7 @@ if (!$context = context_module::instance($cm->id)) {
 }
 
 $PAGE->navbar->add(get_string("bookedtext", "booking"));
-$PAGE->set_title(format_string(get_string("bookedtext", "booking")));
+$PAGE->set_title(get_string("bookedtext", "booking"));
 $PAGE->set_heading(get_string("bookedtext", "booking"));
 $PAGE->set_pagelayout('standard');
 

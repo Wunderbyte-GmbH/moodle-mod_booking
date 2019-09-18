@@ -209,8 +209,8 @@ if ($action == 'deletebookingoption' && $confirm == 1 &&
 }
 
 $PAGE->navbar->add($bookingdata->option->text);
-$PAGE->set_title(format_string($bookingdata->booking->settings->name) . ": " . $bookingdata->option->text);
-$PAGE->set_heading($course->fullname);
+$PAGE->set_title(format_string($bookingdata->booking->settings->name) . ": " . format_string($bookingdata->option->text));
+$PAGE->set_heading(format_string($course->fullname));
 
 if (isset($action) && $action == 'sendpollurlteachers' &&
          has_capability('mod/booking:communicate', $context)) {
@@ -567,7 +567,7 @@ if (!$tableallbookings->is_downloading()) {
 
     echo $OUTPUT->heading(
             html_writer::link(new moodle_url('/mod/booking/view.php', array('id' => $cm->id)),
-                    $bookingdata->booking->settings->name) . ' > ' . $bookingdata->option->text, 4);
+                    format_string($bookingdata->booking->settings->name)) . ' > ' . format_string($bookingdata->option->text), 4);
 
     $teachers = array();
 

@@ -338,6 +338,11 @@ function booking_updatestartenddate($optionid) {
 
 /**
  * Get booking option status
+ *
+ * @param int $starttime
+ * @param int $endtime
+ * @return string
+ * @throws coding_exception
  */
 function booking_getoptionstatus($starttime = 0, $endtime = 0) {
     if ($starttime == 0 && $endtime == 0) {

@@ -22,6 +22,8 @@
  */
 namespace mod_booking;
 use mod_booking\output\report_edit_bookingnotes;
+use html_writer;
+use moodle_url;
 defined('MOODLE_INTERNAL') || die();
 require_once('../../lib/tablelib.php');
 
@@ -32,8 +34,14 @@ require_once('../../lib/tablelib.php');
  */
 class all_userbookings extends \table_sql {
 
+    /**
+     * @var booking_option|null
+     */
     public $bookingdata = null;
 
+    /**
+     * @var \   course_module|\stdClass|null
+     */
     public $cm = null;
 
     public $db = null;
@@ -56,7 +64,7 @@ class all_userbookings extends \table_sql {
      * @param int $uniqueid all tables have to have a unique id, this is used as a key when
      * storing table properties like sort order in the session.
      */
-    public function __construct($uniqueid, \mod_booking\booking_option $bookingdata, $cm, $optionid) {
+    public function __construct($uniqueid, booking_option $bookingdata, $cm, $optionid) {
         parent::__construct($uniqueid);
 
         $this->collapsible(true);
@@ -122,12 +130,12 @@ class all_userbookings extends \table_sql {
 
     public function col_fullname($values) {
         if (empty($values->otheroptions)) {
-            return \html_writer::link(
-                    new \moodle_url('/user/profile.php', array('id' => $values->userid)),
+            return html_writer::link(
+                    new moodle_url('/user/profile.php', array('id' => $values->userid)),
                     "{$values->firstname} {$values->lastname} ({$values->username})", array());
         } else {
-            return \html_writer::link(
-                    new \moodle_url('/user/profile.php', array('id' => $values->userid)),
+            return html_writer::link(
+                    new moodle_url('/user/profile.php', array('id' => $values->userid)),
                     "{$values->firstname} {$values->lastname} ({$values->username})", array()) .
                      "&nbsp;({$values->otheroptions})";
         }
@@ -158,7 +166,7 @@ class all_userbookings extends \table_sql {
         $output = '';
         $renderer = $PAGE->get_renderer('mod_booking');
         if (!empty($values->rating)) {
-            $output .= \html_writer::tag('div', $renderer->render($values->rating),
+            $output .= html_writer::tag('div', $renderer->render($values->rating),
                     array('class' => 'booking-option-rating'));
         }
         return $output;
@@ -262,7 +270,7 @@ class all_userbookings extends \table_sql {
             foreach ($ratingoptions as $name => $value) {
                 $attributes = array('type' => 'hidden', 'class' => 'ratinginput', 'name' => $name,
                     'value' => $value);
-                echo \html_writer::empty_tag('input', $attributes);
+                echo html_writer::empty_tag('input', $attributes);
             }
         }
     }
@@ -325,12 +333,12 @@ class all_userbookings extends \table_sql {
             // Output rating button.
             if (has_capability('moodle/rating:rate', \context_module::instance($this->cm->id)) &&
                      $this->bookingdata->booking->settings->assessed != 0) {
-                $ratingbutton = '<div class="singlebutton">' . \html_writer::start_tag('span', array('class' => "ratingsubmit"));
+                $ratingbutton = '<div class="singlebutton">' . html_writer::start_tag('span', array('class' => "ratingsubmit"));
                 $attributes = array('type' => 'submit', 'class' => 'postratingmenusubmit btn btn-secondary',
                     'id' => 'postratingsubmit', 'name' => 'postratingsubmit',
                     'value' => s(get_string('rate', 'rating')));
-                $ratingbutton .= \html_writer::empty_tag('input', $attributes);
-                $ratingbutton .= \html_writer::end_span() . '</div>';
+                $ratingbutton .= html_writer::empty_tag('input', $attributes);
+                $ratingbutton .= html_writer::end_span() . '</div>';
                 echo $ratingbutton;
             }
 
@@ -350,16 +358,16 @@ class all_userbookings extends \table_sql {
                     list($insql, $inparams) = $DB->get_in_or_equal($optionids);
                     $options = $DB->get_records_select_menu('booking_options', "id {$insql}",
                             $inparams, '', 'id,text');
-                    $optionbutton = '<div class="singlebutton">' . \html_writer::start_tag('span',
+                    $optionbutton = '<div class="singlebutton">' . html_writer::start_tag('span',
                             array('class' => "transfersubmit"));
-                    echo \html_writer::div(get_string('transferheading', 'mod_booking'));
-                    echo $dropdown = \html_writer::select($options, 'transferoption');
+                    echo html_writer::div(get_string('transferheading', 'mod_booking'));
+                    echo $dropdown = html_writer::select($options, 'transferoption');
                     $attributes = array('type' => 'submit',
                         'class' => 'transfersubmit btn btn-secondary', 'id' => 'transfersubmit',
                         'name' => 'transfersubmit',
                         'value' => s(get_string('transfer', 'mod_booking')));
-                    $optionbutton .= \html_writer::empty_tag('input', $attributes);
-                    $optionbutton .= \html_writer::end_span() . '</div>';
+                    $optionbutton .= html_writer::empty_tag('input', $attributes);
+                    $optionbutton .= html_writer::end_span() . '</div>';
                     echo $optionbutton;
                 }
             }
@@ -396,7 +404,7 @@ class all_userbookings extends \table_sql {
 
                     echo "<br>";
 
-                    echo \html_writer::select($options, 'selectoptionid', '');
+                    echo html_writer::select($options, 'selectoptionid', '');
 
                     $label = (empty(
                             $this->bookingdata->booking->settings->booktootherbooking) ? get_string(
@@ -421,7 +429,7 @@ class all_userbookings extends \table_sql {
 
                         echo "<br>";
 
-                        echo \html_writer::select($options, 'selectoptionid', '');
+                        echo html_writer::select($options, 'selectoptionid', '');
 
                         $label = (empty(
                                 $this->bookingdata->booking->settings->booktootherbooking) ? get_string(
@@ -444,7 +452,7 @@ class all_userbookings extends \table_sql {
                     3 => get_string('status_noshow', 'booking'),
                     4 => get_string('status_failed', 'booking'));
 
-                echo \html_writer::select($presences, 'selectpresencestatus', '');
+                echo html_writer::select($presences, 'selectpresencestatus', '');
 
                 echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="changepresencestatus" value="' .
                          get_string('confirmpresence', 'booking') . '" /></div>';

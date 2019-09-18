@@ -1413,8 +1413,8 @@ class booking_option {
         }
         if (!empty($failed)) {
             $error .= 'The following users could not be registered to the new booking option:';
-            $error .= \html_writer::empty_tag('br');
-            $error .= \html_writer::alist($failed);
+            $error .= html_writer::empty_tag('br');
+            $error .= html_writer::alist($failed);
         }
         // Remove source option.
         $this->delete_booking_option();

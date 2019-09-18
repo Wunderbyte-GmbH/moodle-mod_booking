@@ -13,11 +13,13 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+use mod_booking\all_options;
+use mod_booking\booking;
+
 require_once("../../config.php");
 require_once("locallib.php");
 require_once($CFG->libdir . '/completionlib.php');
 require_once("{$CFG->libdir}/tablelib.php");
-require_once("{$CFG->dirroot}/mod/booking/classes/all_options.php");
 require_once($CFG->dirroot . '/comment/lib.php');
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
@@ -46,7 +48,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
 require_course_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 
-$booking = new \mod_booking\booking($cm->id);
+$booking = new booking($cm->id);
 
 if (!empty($action)) {
     $urlparams['action'] = $action;

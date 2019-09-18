@@ -19,6 +19,7 @@ use csv_import_reader;
 use mod_booking\booking;
 use stdClass;
 use mod_booking\booking_option;
+use html_writer;
 
 if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.');
@@ -137,11 +138,11 @@ class csv_import {
         $iid = csv_import_reader::get_new_iid('modbooking');
         $cir = new csv_import_reader($iid, 'modbooking');
 
-        $delimiter = !empty($options['delimiter']) ? $options['delimiter'] : $this->delimiter;
-        $enclosure = !empty($options['enclosure']) ? $options['enclosure'] : $this->enclosure;
-        $encoding = !empty($options['encoding']) ? $options['encoding'] : $this->encoding;
-        $updateexisting = !empty($options['updateexisting']) ? $options['updateexisting'] : false;
-        $readcount = $cir->load_csv_content($csvcontent, $encoding, $delimiter, $enclosure);
+        $delimiter = !empty($this->formdata->delimiter_name) ? $this->formdata->delimiter_name : 'comma';
+        $enclosure = !empty($this->formdata->enclosure) ? $this->formdata->enclosure : '"';
+        $encoding = !empty($this->formdata->encoding) ? $this->formdata->encoding : 'utf-8';
+        $updateexisting = !empty($this->formdata->updateexisting) ? $this->formdata->updateexisting : false;
+        $readcount = $cir->load_csv_content($csvcontent, $encoding, $delimiter, null, $enclosure);
 
         if (empty($readcount)) {
             $this->error .= $cir->get_error();
@@ -234,7 +235,7 @@ class csv_import {
                 }
                 if (isset($userdata['user_username'])) {
                     $user = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
-                        'username' => $userdata['username']), 'id', IGNORE_MULTIPLE);
+                        'username' => $userdata['user_username']), 'id', IGNORE_MULTIPLE);
                     if ($user !== false) {
                         $option = new booking_option($this->booking->cm->id, $optionid,
                             array(), 0, 0, false);
@@ -269,7 +270,7 @@ class csv_import {
      * @param $errorstring
      */
     protected function add_csverror($errorstring, $i) {
-        $this->csverrors .= \html_writer::empty_tag('br');
+        $this->csverrors .= html_writer::empty_tag('br');
         $this->csverrors .= "Error in line $i: ";
         $this->csverrors .= $errorstring;
     }
@@ -419,7 +420,7 @@ class csv_import {
     public function display_importinfo() {
         $importinfo = "";
         foreach ($this->columns as $column) {
-            $importinfo .= \html_writer::empty_tag('br');
+            $importinfo .= html_writer::empty_tag('br');
             $importinfo .= $column->name;
             switch ($column->name) {
                 case 'text':
@@ -434,7 +435,7 @@ class csv_import {
             }
         }
         foreach ($this->additionalfields as $additionalfield) {
-            $importinfo .= \html_writer::empty_tag('br');
+            $importinfo .= html_writer::empty_tag('br');
             $importinfo .= $additionalfield;
 
             switch ($additionalfield) {

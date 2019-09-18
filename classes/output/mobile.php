@@ -200,7 +200,7 @@ class mobile {
         }
 
         if (!empty($values->option->description)) {
-            $text .= $values->option->description;
+            $text .= format_text($values->option->description);
         }
 
         $teachers = array();
