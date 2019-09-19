@@ -534,22 +534,22 @@ class booking_option {
             $ac = $this->is_activity_completed($userid);
             if ($ac == 1) {
                 if (!empty($this->option->aftercompletedtext)) {
-                    $text = $this->option->aftercompletedtext;
+                    $text = format_text($this->option->aftercompletedtext, FORMAT_HTML, $this->booking->course->id);
                 } else if (!empty($this->booking->settings->aftercompletedtext)) {
-                    $text = $this->booking->settings->aftercompletedtext;
+                    $text = format_text($this->booking->settings->aftercompletedtext, FORMAT_HTML, $this->booking->course->id);
                 }
             } else {
                 if (!empty($this->option->beforecompletedtext)) {
-                    $text = $this->option->beforecompletedtext;
+                    $text = format_text($this->option->beforecompletedtext, FORMAT_HTML, $this->booking->course->id);
                 } else if (!empty($this->booking->settings->beforecompletedtext)) {
-                    $text = $this->booking->settings->beforecompletedtext;
+                    $text = format_text($this->booking->settings->beforecompletedtext, FORMAT_HTML, $this->booking->course->id);
                 }
             }
         } else {
             if (!empty($this->option->beforebookedtext)) {
-                $text = $this->option->beforebookedtext;
+                $text = format_text($this->option->beforebookedtext, FORMAT_HTML, $this->booking->course->id);
             } else if (!empty($this->booking->settings->beforebookedtext)) {
-                $text = $this->booking->settings->beforebookedtext;
+                $text = format_text($this->booking->settings->beforebookedtext, FORMAT_HTML, $this->booking->course->id);
             }
         }
 
