@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<libraries>
+    <library>
+        <location>OpenTBS</location>
+        <name>OpenTBS</name>
+        <version>1.10.0</version>
+        <license>LGPL</license>
+        <licenseversion>3.0</licenseversion>
+    </library>
+</libraries>
