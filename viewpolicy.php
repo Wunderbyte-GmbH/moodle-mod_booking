@@ -13,11 +13,13 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+use mod_booking\booking;
+
 require_once('../../config.php');
 require_once("$CFG->dirroot/mod/booking/locallib.php");
 $id = required_param('id', PARAM_INT);
 
-$booking = new \mod_booking\booking($id);
+$booking = new booking($id);
 $booking->apply_tags();
 
 $context = context_course::instance($booking->settings->course);
@@ -36,7 +38,7 @@ echo $OUTPUT->heading(get_string("bookingpolicy", "booking"), 2);
 
 echo $OUTPUT->box_start('generalbox', 'tag-blogs'); // Could use an id separate from tag-blogs, but looks the same with that id.
 
-echo $booking->settings->bookingpolicy;
+echo format_text($booking->settings->bookingpolicy);
 
 echo $OUTPUT->box_end();
 

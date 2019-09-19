@@ -215,9 +215,9 @@ if ($action == 'deletebookingoption' && $confirm == 1 &&
     die();
 }
 
-$PAGE->navbar->add($bookingdata->option->text);
-$PAGE->set_title(format_string($bookingdata->booking->settings->name) . ": " . $bookingdata->option->text);
-$PAGE->set_heading($course->fullname);
+$PAGE->navbar->add(format_string($bookingdata->option->text));
+$PAGE->set_title(format_string($bookingdata->booking->settings->name) . ": " . format_string($bookingdata->option->text));
+$PAGE->set_heading(format_string($course->fullname));
 
 if (isset($action) && $action == 'sendpollurlteachers' &&
          has_capability('mod/booking:communicate', $context)) {
@@ -234,7 +234,7 @@ $bookingdata->option->cmid = $cm->id;
 $bookingdata->option->autoenrol = $bookingdata->booking->settings->autoenrol;
 
 $tableallbookings = new \mod_booking\all_userbookings('mod_booking_all_users_sort_new', $bookingdata, $cm, $optionid);
-$tableallbookings->is_downloading($download, $bookingdata->option->text, $bookingdata->option->text);
+$tableallbookings->is_downloading($download, format_string($bookingdata->option->text), format_string($bookingdata->option->text));
 
 // Remove page number from url otherwise empty results are shown when searching via first/lastname letters.
 $tablebaseurl = $currenturl;
@@ -574,7 +574,7 @@ if (!$tableallbookings->is_downloading()) {
 
     echo $OUTPUT->heading(
             html_writer::link(new moodle_url('/mod/booking/view.php', array('id' => $cm->id)),
-                    $bookingdata->booking->settings->name) . ' > ' . $bookingdata->option->text, 4);
+                    format_string($bookingdata->booking->settings->name)) . ' > ' . format_string($bookingdata->option->text), 4);
 
     $teachers = array();
 
@@ -741,7 +741,7 @@ if (!$tableallbookings->is_downloading()) {
             foreach ($tableallbookings->rawdata as $answer) {
                 foreach ($otheroptions as $option) {
                     if ($answer->userid == $option->userid) {
-                        $answer->otheroptions .= $option->text . ", ";
+                        $answer->otheroptions .= format_string($option->text) . ", ";
                     }
                 }
                 $answer->otheroptions = trim($answer->otheroptions, ', ');

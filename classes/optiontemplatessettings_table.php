@@ -65,8 +65,8 @@ class optiontemplatessettings_table extends table_sql {
                 if ($instance->templateid == $values->optionid) {
                     list($course, $cm) = get_course_and_cm_from_cmid($instance->id);
                     $url = new moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
-                    $linktobinstance = \html_writer::link($url, $instance->name);
-                    $newline = \html_writer::empty_tag('br');
+                    $linktobinstance = html_writer::link($url, $instance->name);
+                    $newline = html_writer::empty_tag('br');
                     $output .= $linktobinstance . $newline;
                 }
             }

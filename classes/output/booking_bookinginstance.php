@@ -68,7 +68,7 @@ class booking_bookinginstance implements renderable, templatable {
             foreach ($data->options as $option) {
                 $params = array('id' => $this->coursemoduleid, 'optionid' => $option->option->id);
                 $url = new \moodle_url("/mod/booking/report.php", $params);
-                $link = \html_writer::link($url, $option->option->text,
+                $link = html_writer::link($url, $option->option->text,
                         array('class' => 'btn btn-secondary'));
                 $regulars = array();
                 $waiting = array();

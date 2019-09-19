@@ -29,7 +29,7 @@ $mybookingsurl = new moodle_url('/mod/booking/mybookings.php');
 $PAGE->navbar->add(get_string('mybookings', 'mod_booking'), $mybookingsurl);
 
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_title($course->fullname);
+$PAGE->set_title(format_string($course->fullname));
 $PAGE->set_heading(fullname($USER));
 
 echo $OUTPUT->header();

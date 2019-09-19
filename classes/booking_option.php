@@ -534,22 +534,22 @@ class booking_option {
             $ac = $this->is_activity_completed($userid);
             if ($ac == 1) {
                 if (!empty($this->option->aftercompletedtext)) {
-                    $text = $this->option->aftercompletedtext;
+                    $text = format_text($this->option->aftercompletedtext, FORMAT_HTML, $this->booking->course->id);
                 } else if (!empty($this->booking->settings->aftercompletedtext)) {
-                    $text = $this->booking->settings->aftercompletedtext;
+                    $text = format_text($this->booking->settings->aftercompletedtext, FORMAT_HTML, $this->booking->course->id);
                 }
             } else {
                 if (!empty($this->option->beforecompletedtext)) {
-                    $text = $this->option->beforecompletedtext;
+                    $text = format_text($this->option->beforecompletedtext, FORMAT_HTML, $this->booking->course->id);
                 } else if (!empty($this->booking->settings->beforecompletedtext)) {
-                    $text = $this->booking->settings->beforecompletedtext;
+                    $text = format_text($this->booking->settings->beforecompletedtext, FORMAT_HTML, $this->booking->course->id);
                 }
             }
         } else {
             if (!empty($this->option->beforebookedtext)) {
-                $text = $this->option->beforebookedtext;
+                $text = format_text($this->option->beforebookedtext, FORMAT_HTML, $this->booking->course->id);
             } else if (!empty($this->booking->settings->beforebookedtext)) {
-                $text = $this->booking->settings->beforebookedtext;
+                $text = format_text($this->booking->settings->beforebookedtext, FORMAT_HTML, $this->booking->course->id);
             }
         }
 
@@ -1196,6 +1196,8 @@ class booking_option {
         }
         if ($this->option->groupid > 0 && in_array($this->option->groupid, $groupids)) {
             // Group has been created but renamed.
+            $newgroupdata->id = $this->option->groupid;
+            groups_update_group($newgroupdata);
             return $this->option->groupid;
         } else if (($this->option->groupid > 0 && !in_array($this->option->groupid, $groupids)) || $this->option->groupid == 0) {
             // Group has been deleted and must be created and groupid updated in DB. Or group does not yet exist.
@@ -1411,8 +1413,8 @@ class booking_option {
         }
         if (!empty($failed)) {
             $error .= 'The following users could not be registered to the new booking option:';
-            $error .= \html_writer::empty_tag('br');
-            $error .= \html_writer::alist($failed);
+            $error .= html_writer::empty_tag('br');
+            $error .= html_writer::alist($failed);
         }
         // Remove source option.
         $this->delete_booking_option();

@@ -120,12 +120,12 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'),
                 array('size' => '64'));
-        $mform->setType('pollurl', PARAM_TEXT);
+        $mform->setType('pollurl', PARAM_URL);
         $mform->addHelpButton('pollurl', 'pollurl', 'mod_booking');
 
         $mform->addElement('text', 'pollurlteachers',
                 get_string('bookingpollurlteachers', 'booking'), array('size' => '64'));
-        $mform->setType('pollurlteachers', PARAM_TEXT);
+        $mform->setType('pollurlteachers', PARAM_URL);
         $mform->addHelpButton('pollurlteachers', 'pollurlteachers', 'mod_booking');
 
         $mform->addElement('filemanager', 'myfilemanager',
@@ -133,14 +133,26 @@ class mod_booking_mod_form extends moodleform_mod {
                 array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
                     'accepted_types' => array('*')));
 
-        // Default view for option overview.
         $whichviewopts = array('mybooking' => get_string('showmybookingsonly', 'mod_booking'),
             'myoptions' => get_string('myoptions', 'mod_booking'),
             'showall' => get_string('showallbookings', 'mod_booking'),
             'showactive' => get_string('showactive', 'mod_booking'),
             'myinstitution' => get_string('showonlymyinstitutions', 'mod_booking'));
+
+        // View selections to show on booking options overview.
+        $options = array(
+            'multiple' => true
+        );
+        $mform->addElement('autocomplete', 'showviews',
+            get_string('showviews', 'booking'), $whichviewopts, $options);
+        $mform->setType('showviews', PARAM_TAGLIST);
+        $defaults = array_keys($whichviewopts);
+        $mform->setDefault('showviews', $defaults);
+
+        // Default view for option overview.
         $mform->addElement('select', 'whichview', get_string('whichview', 'mod_booking'),
             $whichviewopts);
+        $mform->setType('whichview', PARAM_TAGLIST);
 
         // Select sort order for options overview.
         $sortposibilities = [];
@@ -537,7 +549,8 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('autocomplete', 'responsesfields',
                 get_string('responsesfields', 'booking'), $responsesfields, $options);
         $mform->setType('responsesfields', PARAM_NOTAGS);
-        $mform->setDefault('responsesfields', $options);
+        $defaults = array_keys($responsesfields);
+        $mform->setDefault('responsesfields', $defaults);
 
         $options = array(
                         'multiple' => true,
@@ -546,7 +559,8 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('autocomplete', 'reportfields',
                 get_string('reportfields', 'booking'), $reportfields, $options);
         $mform->setType('reportfields', PARAM_NOTAGS);
-        $mform->setDefault('reportfields', $options);
+        $defaults = array_keys($reportfields);
+        $mform->setDefault('reportfields', $defaults);
 
         $options = array(
                         'multiple' => true,
@@ -555,7 +569,8 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('autocomplete', 'optionsfields',
                 get_string('optionsfields', 'booking'), $optionsfields, $options);
         $mform->setType('optionsfields', PARAM_NOTAGS);
-        $mform->setDefault('optionsfields', $options);
+        $defaults = array_keys($optionsfields);
+        $mform->setDefault('optionsfields', $defaults);
 
         $options = array(
                         'multiple' => true,
@@ -564,7 +579,8 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('autocomplete', 'signinsheetfields',
                 get_string('signinsheetfields', 'booking'), $signinsheetfields, $options);
         $mform->setType('signinsheetfields', PARAM_NOTAGS);
-        $mform->setDefault('signinsheetfields', $options);
+        $defaults = array_keys($signinsheetfields);
+        $mform->setDefault('signinsheetfields', $defaults);
 
         // Booking option text.
         $mform->addElement('header', 'bookingoptiontextheader',
@@ -757,6 +773,10 @@ class mod_booking_mod_form extends moodleform_mod {
         $errors = parent::validation($data, $files);
         if ($DB->count_records('user', array('username' => $data['bookingmanager'])) != 1) {
             $errors['bookingmanager'] = get_string('bookingmanagererror', 'booking');
+        }
+
+        if (!in_array($data['whichview'], $data['showviews'])) {
+            $errors['whichview'] = get_string('whichviewerror', 'booking');
         }
 
         if (strlen($data['pollurl']) > 0) {

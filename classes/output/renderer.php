@@ -39,7 +39,7 @@ defined('MOODLE_INTERNAL') || die();
 class renderer extends plugin_renderer_base {
 
     // Prints tabs for options.
-    public function print_booking_tabs($urlparams, $current = 'showactive', $mybookings = 0, $myoptions = 0) {
+    public function print_booking_tabs($urlparams, $current = 'showactive', $mybookings = 0, $myoptions = 0, mod_booking\booking $booking) {
         global $USER;
         // Output tabs.
         $row = array();
@@ -47,26 +47,33 @@ class renderer extends plugin_renderer_base {
         unset($urlparams['sort']);
         $tmpurlparams = $urlparams;
 
-        if (!empty($USER->institution)) {
+        $showviews = explode(',', $booking->settings->showviews);
+        if (!empty($USER->institution) && in_array('myinstitution', $showviews)) {
             $tmpurlparams['whichview'] = 'myinstitution';
             $row[] = new tabobject('myinstitution',
                     new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
                     get_string('showonlymyinstitutions', 'mod_booking'));
         }
-        $tmpurlparams['whichview'] = 'showactive';
-        $row[] = new tabobject('showactive',
+        if (in_array('showactive', $showviews)) {
+            $tmpurlparams['whichview'] = 'showactive';
+            $row[] = new tabobject('showactive',
                 new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
                 get_string('showactive', 'mod_booking'));
-        $tmpurlparams['whichview'] = 'showall';
-        $row[] = new tabobject('showall',
+        }
+        if (in_array('showall', $showviews)) {
+            $tmpurlparams['whichview'] = 'showall';
+            $row[] = new tabobject('showall',
                 new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
                 get_string('showallbookings', 'mod_booking'));
-        $tmpurlparams['whichview'] = 'mybooking';
-        $row[] = new tabobject('mybooking',
+        }
+        if (in_array('mybooking', $showviews)) {
+            $tmpurlparams['whichview'] = 'mybooking';
+            $row[] = new tabobject('mybooking',
                 new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
                 get_string('showmybookingsonly', 'mod_booking'));
+        }
 
-        if ($myoptions > 0) {
+        if ($myoptions > 0 && in_array('myoptions', $showviews)) {
             $tmpurlparams['whichview'] = 'myoptions';
             $row[] = new tabobject('myoptions',
                     new moodle_url('/mod/booking/view.php', $tmpurlparams, "goenrol"),
@@ -199,6 +206,7 @@ class renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_rating(rating $rating) {
+        global $OUTPUT;
 
         if ($rating->settings->aggregationmethod == RATING_AGGREGATE_NONE) {
             return null; // Ratings are turned off.
@@ -274,7 +282,7 @@ class renderer extends plugin_renderer_base {
                 } else {
                     $courseid = $rating->settings->scale->courseid;
                 }
-                $ratinghtml .= $this->help_icon_scale($courseid, $rating->settings->scale);
+                $ratinghtml .= $OUTPUT->help_icon_scale($courseid, $rating->settings->scale);
             }
             $ratinghtml .= html_writer::end_tag('div');
         }

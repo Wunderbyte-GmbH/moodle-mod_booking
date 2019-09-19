@@ -165,7 +165,7 @@ class calendar {
         $event = new \stdClass();
         $event->id = $calendareventid;
         $event->name = $option->text;
-        $event->description = $option->description . $whereis;
+        $event->description = format_text($option->description, FORMAT_HTML) . $whereis;
         $event->format = FORMAT_HTML;
         $event->courseid = $courseid;
         $event->groupid = 0;

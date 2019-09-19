@@ -52,7 +52,7 @@ class mod_booking_events_testcase extends advanced_testcase {
                         'deletedtext' => array('text' => 'text'), 'pollurltext' => array('text' => 'text'),
                         'pollurlteacherstext' => array('text' => 'text'),
                         'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
-                        'bookingpolicy' => 'bookingpolicy', 'tags' => '');
+                        'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution']);
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
         $user1 = $this->getDataGenerator()->create_user();

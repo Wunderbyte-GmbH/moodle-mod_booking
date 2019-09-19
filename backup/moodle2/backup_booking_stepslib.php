@@ -18,7 +18,7 @@
  *
  * @package moodlecore
  * @subpackage backup-moodle2
- * @copyright 2010 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
+ * @copyright 2012 onwards David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -50,7 +50,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'paginationnum', 'daystonotify', 'daystonotify2', 'notifyemail', 'assessed',
                     'assesstimestart', 'assesstimefinish', 'scale', 'enablepresence',
                     'responsesfields', 'reportfields', 'beforebookedtext', 'beforecompletedtext',
-                    'aftercompletedtext', 'comments', 'allowupdatedays'));
+                    'aftercompletedtext', 'signinsheetfields', 'comments', 'ratings', 'removeuseronunenrol',
+                    'teacherroleid', 'allowupdatedays', 'ratings', 'templateid', 'defaultoptionsort', 'showviews'));
 
         $options = new backup_nested_element('options');
         $option = new backup_nested_element('option', array('id'),

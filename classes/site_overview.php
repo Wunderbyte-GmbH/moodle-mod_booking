@@ -216,16 +216,16 @@ class site_overview implements \renderable {
         }
         if (!empty($this->readresponsesprivilegeinstances)) {
             $sorturl->param('sort', 'user');
-            echo \html_writer::link($sorturl, get_string('sortbyuser', 'block_booking'),
+            echo html_writer::link($sorturl, get_string('sortbyuser', 'block_booking'),
                     $attributeuser);
-            echo \html_writer::span("  //  ");
+            echo html_writer::span("  //  ");
             $sorturl->param('sort', 'course');
-            echo \html_writer::link($sorturl, get_string('sortbycourse', 'block_booking'),
+            echo html_writer::link($sorturl, get_string('sortbycourse', 'block_booking'),
                     $attributecourse);
-            echo \html_writer::span("  //  ");
+            echo html_writer::span("  //  ");
         }
         $sorturl->param('sort', 'my');
-        echo \html_writer::link($sorturl, get_string('showmybookingsonly', 'mod_booking'),
+        echo html_writer::link($sorturl, get_string('showmybookingsonly', 'mod_booking'),
                 $attributemy);
         $bookingoptions = $this->get_all_booking_option_instances();
         $output = '';
@@ -241,7 +241,7 @@ class site_overview implements \renderable {
                 if (!empty($allcoursebookings)) {
                     if ($sort == 'my' || $sort == 'course') {
                         $firstelement = reset($allcoursebookings);
-                        $output .= \html_writer::tag('h2',
+                        $output .= html_writer::tag('h2',
                                 $this->usercourses[$firstelement->course]->fullname);
                         $mybookings = $this->get_my_optionids();
                         foreach ($allcoursebookings as $booking) {

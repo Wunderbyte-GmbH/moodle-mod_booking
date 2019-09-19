@@ -30,6 +30,7 @@ use mod_booking\form\importoptions_form;
 use mod_booking\utils\csv_import;
 use moodle_url;
 use context_module;
+use html_writer;
 global $OUTPUT;
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
@@ -64,21 +65,20 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string("importcsvtitle", "mod_booking"), 3, 'helptitle', 'uniqueid');
     $continue = $OUTPUT->single_button($urlredirect, get_string("continue"), 'get');
-
     $csvfile = $mform->get_file_content('csvfile');
 
     if ($importer->process_data($csvfile, $fromform)) {
         echo $OUTPUT->notification(get_string('importfinished', 'booking'), 'notifysuccess');
         if (!empty($importer->get_line_errors())) {
             $output = get_string('import_partial', 'mod_booking');
-            $output .= \html_writer::div($importer->get_line_errors());
+            $output .= html_writer::div($importer->get_line_errors());
             echo $OUTPUT->notification($output);
         }
         echo $continue;
     } else {
         // Not ok, write error.
         $output = get_string('import_failed', 'booking');
-        $output .= $importer->get_error();
+        $output .= $importer->get_error() . '<br>';
         echo $OUTPUT->notification($output);
         echo $continue;
     }

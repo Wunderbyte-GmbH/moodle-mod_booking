@@ -87,7 +87,7 @@ $string['limit'] = 'Limit';
 $string['modulename'] = 'Booking';
 $string['modulenameplural'] = 'Bookings';
 $string['mustchooseone'] = 'You must choose an option before saving. Nothing was saved.';
-$string['myoptions'] = 'My options ({$a})';
+$string['myoptions'] = 'Options I manage';
 $string['noguestchoose'] = 'Sorry, guests are not allowed to enter data';
 $string['noresultsviewable'] = 'The results are not currently viewable.';
 $string['nosubscribers'] = 'There are no teachers assigned!';
@@ -248,7 +248,7 @@ $string['tagsuccessfullysaved'] = 'Tag was saved.';
 $string['edittag'] = 'Edit';
 $string['tagdeleted'] = 'Tag template was deleted!';
 
-// all_options
+// mod_booking\all_options
 $string['showdescription'] = 'Show description';
 $string['hidedescription'] = 'Hide description';
 $string['editteacherslink'] = 'Edit teachers';
@@ -731,8 +731,10 @@ $string['reset'] = 'Reset';
 $string['searchtag'] = 'Search tags';
 $string['showinapi'] = 'Show in API?';
 $string['whichview'] = 'Default view for booking options';
+$string['whichviewerror'] = 'You have to include the default view in: Views to show in the booking options overview';
+$string['showviews'] = 'Views to show on in the booking options overview';
 $string['enablepresence'] = 'Enable presence';
-$string['removeuseronunenrol'] = 'Remove user from booking, when unenrol from course?';
+$string['removeuseronunenrol'] = 'Remove user from booking upon unenrolment from associated course?';
 
 // editoptions.php
 $string['addeditbooking'] = 'Edit booking option';
@@ -1047,7 +1049,7 @@ $string['pdfstudentname'] = "Student Name";
 $string['pdfsignature'] = "Signature";
 $string['pdftodaydate'] = 'Date: ';
 $string['booking:readallinstitutionusers'] = 'Show all users';
-$string['booking:manageoptiontemplates'] = 'Can create templates';
+$string['manageoptiontemplates'] = 'Can create templates';
 
 // File: settings.php
 $string['icalcfg'] = 'Configuration of the ical attachements';
