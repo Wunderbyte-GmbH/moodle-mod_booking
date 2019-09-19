@@ -176,7 +176,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
     $options = array('id' => $cm->id, 'action' => 'delbooking', 'confirm' => 1,
         'optionid' => $optionid, 'sesskey' => $USER->sesskey);
 
-    $deletemessage = $bookingdata->option->text;
+    $deletemessage = format_string($bookingdata->option->text);
 
     if ($bookingdata->option->coursestarttime != 0) {
         $deletemessage .= "<br />" .
@@ -222,7 +222,7 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
             echo $OUTPUT->footer();
             die();
         } else if (is_numeric($answer)) {
-            $contents = get_string('bookingmeanwhilefull', 'booking') . " " . $bookingdata->option->text;
+            $contents = get_string('bookingmeanwhilefull', 'booking') . " " . format_string($bookingdata->option->text);
             $contents .= $OUTPUT->single_button($url,
                     get_string('continue'), 'get');
             echo $OUTPUT->box($contents, 'box generalbox', 'notice');
