@@ -241,7 +241,7 @@ class mobile {
         if ($values->iambooked) {
             if ($booking->settings->allowupdate and $status != 'closed' and $values->completed != 1) {
                 // TO-DO: Naredi gumb za izpis iz opcije.
-                $deletemessage = $values->option->text;
+                $deletemessage = format_string($values->option->text);
 
                 if ($values->option->coursestarttime != 0) {
                     $deletemessage .= "<br />" . userdate($values->option->coursestarttime,
