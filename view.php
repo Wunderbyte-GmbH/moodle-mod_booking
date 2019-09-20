@@ -199,7 +199,7 @@ if ($form = data_submitted() && has_capability('mod/booking:choose', $context) &
 }
 
 $PAGE->set_title(format_string($booking->settings->name));
-$PAGE->set_heading($booking->settings->name);
+$PAGE->set_heading(format_string($booking->settings->name));
 
 // Submit any new data if there is any.
 if ($download == '' && $form = data_submitted() && has_capability('mod/booking:choose', $context)) {
