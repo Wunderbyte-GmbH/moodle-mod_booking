@@ -768,7 +768,7 @@ $string['importcsvtitle'] = 'Import CSV';
 $string['importfinished'] = 'Importing finished!';
 $string['noteacherfound'] = 'The user specified as teacher on line {$a} does not exist on the platform.';
 $string['nouserfound'] = 'No user found: ';
-$string['import_failed'] = 'The import failed du to following reason: ';
+$string['import_failed'] = 'The import failed due to following reason: ';
 $string['import_partial'] = 'The import was only partially completed. There were problems with following lines and they were not imported: ';
 $string['importinfo'] = 'Import info: You can use the following columns in the csv upload (Explanation in parenthesis)';
 
