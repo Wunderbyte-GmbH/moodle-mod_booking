@@ -29,6 +29,10 @@ use stdClass;
  */
 class booking_utils {
 
+    public function get_pretty_duration($seconds) {
+        return $this->pretty_duration($seconds);
+    }
+
     private function pretty_duration($seconds) {
         $measures = array('days' => 24 * 60 * 60, 'hours' => 60 * 60, 'minutes' => 60);
         $durationparts = array();

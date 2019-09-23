@@ -342,6 +342,16 @@ class all_userbookings extends \table_sql {
                 echo $ratingbutton;
             }
 
+            if (!empty($this->bookingdata->booking->settings->customteplateid)) {
+                $customreport = '<div class="singlebutton">' . html_writer::start_tag('span', array('class' => "customreport"));
+                $attributes = array('type' => 'submit', 'class' => 'postratingmenusubmit btn btn-secondary',
+                    'id' => 'postcustomreport', 'name' => 'postcustomreport',
+                    'value' => s(get_string('customreportprint', 'booking')));
+                $customreport .= html_writer::empty_tag('input', $attributes);
+                $customreport .= html_writer::end_span() . '</div>';
+                echo $customreport;
+            }
+
             // Output transfer users to other option.
             if (has_capability('mod/booking:subscribeusers',
                     \context_module::instance($this->cm->id)) || booking_check_if_teacher(

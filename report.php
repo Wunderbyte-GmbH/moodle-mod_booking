@@ -255,6 +255,11 @@ if (!$tableallbookings->is_downloading()) {
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
 
+        if (isset($_POST['postcustomreport'])) {
+            $bookingdata->printcustomreport();
+            redirect($url, '', '');
+        }
+
         $allselectedusers = array();
 
         if (isset($_POST['generaterecnum']) && (booking_check_if_teacher($bookingdata->option,

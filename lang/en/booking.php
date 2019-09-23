@@ -1147,3 +1147,12 @@ $string['populatefromtemplate'] = 'Populate from template';
 // mybookings
 $string['mybookingsbooking'] = 'Booking (Course)';
 $string['mybookingsoption'] = 'Option';
+
+// Custom report templates
+$string['managecustomreporttemplates'] = 'Manage custom report templates';
+$string['customreporttemplates'] = 'Custom report templates';
+$string['customreporttemplate'] = 'Custom report template';
+$string['addnewreporttemplate'] = 'Add new report template';
+$string['templatefile'] = 'Template file';
+$string['templatesuccessfullysaved'] = 'Template was saved.';
+$string['customreportprint'] = 'Print report';

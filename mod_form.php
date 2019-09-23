@@ -646,6 +646,20 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'teacherroleid', get_string('teacherroleid', 'mod_booking'), $teacherroleid);
         $mform->setDefault('teacherroleid', 3);
 
+        // Custom report templates.
+        $mform->addElement('header', 'customreporttemplates',
+                get_string('customreporttemplates', 'booking'));
+
+        $customreporttemplates = array('' => '');
+        $reporttemplatesdata = $DB->get_records('booking_customreport', array('course' => $COURSE->id), '', 'id, name', 0, 0);
+
+        foreach ($reporttemplatesdata as $key => $value) {
+            $customreporttemplates[$value->id] = $value->name;
+        }
+
+        $mform->addElement('select', 'customteplateid', get_string('customreporttemplate', 'booking'), $customreporttemplates);
+
+        // Standard Moodle form elements.
         $this->standard_grading_coursemodule_elements();
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
