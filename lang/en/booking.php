@@ -1155,4 +1155,4 @@ $string['customreporttemplate'] = 'Custom report template';
 $string['addnewreporttemplate'] = 'Add new report template';
 $string['templatefile'] = 'Template file';
 $string['templatesuccessfullysaved'] = 'Template was saved.';
-$string['customreportprint'] = 'Print report';
+$string['customdownloadreport'] = 'Download report';
