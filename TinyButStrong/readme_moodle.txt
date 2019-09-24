@@ -13,4 +13,5 @@ Installation
 ------------
 1) Download the latest version of TinyButStrong from the url above.
 2) Unzip the files into this directory.
+3) Remove examples directory.
 4) Make a note below of any changes made.
