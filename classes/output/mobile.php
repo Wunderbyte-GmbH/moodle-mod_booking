@@ -282,7 +282,7 @@ class mobile {
             $message .= '<br><br>' . get_string('confirmbookingoffollowing', 'booking');
             if (!empty($booking->settings->bookingpolicy)) {
                 $message .= "<br><br>" . get_string('agreetobookingpolicy', 'booking');
-                $message .= "<br>" . $booking->settings->bookingpolicy;
+                $message .= "<br>" . format_text($booking->settings->bookingpolicy, FORMAT_HTML);
             }
             $bnow = (empty($booking->settings->btnbooknowname) ? get_string('booknow', 'booking') : $booking->settings->btnbooknowname);
             $button = array(

@@ -30,6 +30,7 @@ class option_form extends moodleform {
         $mform->addElement('header', 'general', get_string('general', 'form'));
         $mform->addElement('text', 'text', get_string('bookingoptionname', 'booking'), array('size' => '64'));
         $mform->addRule('text', get_string('required'), 'required', null, 'client');
+        $mform->addRule('text', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('text', PARAM_TEXT);
         } else {

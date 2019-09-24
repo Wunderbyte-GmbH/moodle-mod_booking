@@ -284,12 +284,19 @@ class booking_existing_user_selector extends booking_user_selector_base {
 
 /**
  * Outputs a confirm button on a separate page to confirm a booking.
+ *
+ * @param $optionid
+ * @param $user
+ * @param $cm
+ * @param $url
+ * @throws coding_exception
+ * @throws moodle_exception
  */
 function booking_confirm_booking($optionid, $user, $cm, $url) {
     global $OUTPUT;
     echo $OUTPUT->header();
 
-    $option = new \mod_booking\booking_option($cm->id, $optionid, array(), 0, 0, false);
+    $option = new booking_option($cm->id, $optionid, array(), 0, 0, false);
 
     $optionidarray['answer'] = $optionid;
     $optionidarray['confirm'] = 1;
@@ -304,7 +311,7 @@ function booking_confirm_booking($optionid, $user, $cm, $url) {
     $message = "<h2>" . get_string('confirmbookingoffollowing', 'booking') . "</h2>" .
              $requestedcourse;
     $message .= "<p><b>" . get_string('agreetobookingpolicy', 'booking') . ":</b></p>";
-    $message .= "<p>" . $option->booking->settings->bookingpolicy . "<p>";
+    $message .= "<p>" . format_text($option->booking->settings->bookingpolicy) . "<p>";
     echo $OUTPUT->confirm($message, new moodle_url('/mod/booking/view.php', $optionidarray), $url);
     echo $OUTPUT->footer();
 }
