@@ -1586,8 +1586,10 @@ class booking_option {
             $this->booking->settings->customteplateid, $file->get_filepath(), $file->get_filename());
         }
 
-        $filename = uniqid(rand(), false) . "." . pathinfo($file->get_filename(), PATHINFO_EXTENSION);
-        $tempfile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filename;
+        $ext = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
+        $filename = uniqid(rand(), false);
+
+        $tempfile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filename . ".{$ext}";
 
         $handle = fopen($tempfile, "w");
         fwrite($handle, $file->get_content());
@@ -1607,8 +1609,41 @@ class booking_option {
         $tbs->MergeBlock('users', $users);
         $tbs->MergeBlock('teachers', $teachers);
 
-        $tbs->Show();
+        $tbs->Show(OPENTBS_STRING);
+        $tempfilefull = $tbs->Source;
+
+        $fullfile = array(
+            'contextid' => $context->id, // ID of context
+            'component' => 'mod_booking',     // usually = table name
+            'filearea' => 'templatefile',     // usually = table name
+            'itemid' => 0,               // usually = ID of row in table
+            'filepath' => '/',           // any path beginning and ending in /
+            'filename' => "{$filename}.{$ext}"); // any filename
+
+        // Create file containing text 'hello world'
+        $newfile = $fs->create_file_from_string($fullfile, $tbs->Source);
+
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+
+        $converter = new \core_files\converter();
+        $conversion = $converter->start_conversion($newfile, 'pdf', true);
+
+        if ($conversion->get_destfile() !== false) {
+            header('Content-Disposition: attachment; filename="' . $conversion->get_destfile()->get_filename() . '.pdf"');
+            echo $conversion->get_destfile()->get_content();
+            $conversion->get_destfile()->delete();
+        } else {
+            header('Content-Disposition: attachment; filename="' . $newfile->get_filename() . '"');
+            echo $newfile->get_content();
+        }
 
         unlink($tempfile);
+        $newfile->delete();
+
+        exit();
     }
 }

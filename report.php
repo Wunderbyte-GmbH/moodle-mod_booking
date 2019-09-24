@@ -255,7 +255,6 @@ if (!$tableallbookings->is_downloading()) {
 
     if ($action == 'postcustomreport') {
         $bookingdata->printcustomreport();
-        redirect($url, '', '');
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
@@ -780,7 +779,7 @@ if (!$tableallbookings->is_downloading()) {
     if (!empty($bookingdata->booking->settings->customteplateid)) {
         echo ' | ' . html_writer::link(new moodle_url('/mod/booking/report.php',
                         array('id' => $cm->id, 'optionid' => $optionid, 'action' => 'postcustomreport')),
-                        get_string('customdownloadreport', 'booking'), array());
+                        get_string('customdownloadreport', 'booking'), array('target' => '_blank'));
     }
 
     echo "<script>
