@@ -61,7 +61,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
     echo $OUTPUT->header();
     $alright = false;
     $message = "<p><b>" . get_string('agreetobookingpolicy', 'booking') . ":</b></p>";
-    $message .= "<p>" . $bookingoption->booking->settings->bookingpolicy . "<p>";
+    $message .= "<p>" . format_text($bookingoption->booking->settings->bookingpolicy, FORMAT_HTML) . "<p>";
     $continueurl = new moodle_url($PAGE->url->out(false, array('agree' => 1)));
     $continue = new single_button($continueurl, get_string('continue'), 'get');
     $cancel = new single_button($errorurl, get_string('cancel'), 'get');
@@ -145,7 +145,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
     }
 }
 echo $OUTPUT->header();
-echo $OUTPUT->heading("{$bookingoption->option->text}", 3, 'helptitle', 'uniqueid');
+echo $OUTPUT->heading(format_string($bookingoption->option->text), 3, 'helptitle', 'uniqueid');
 
 echo html_writer::tag('div',
         html_writer::link(

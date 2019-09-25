@@ -241,7 +241,7 @@ class mobile {
         if ($values->iambooked) {
             if ($booking->settings->allowupdate and $status != 'closed' and $values->completed != 1) {
                 // TO-DO: Naredi gumb za izpis iz opcije.
-                $deletemessage = $values->option->text;
+                $deletemessage = format_string($values->option->text);
 
                 if ($values->option->coursestarttime != 0) {
                     $deletemessage .= "<br />" . userdate($values->option->coursestarttime,
@@ -282,7 +282,7 @@ class mobile {
             $message .= '<br><br>' . get_string('confirmbookingoffollowing', 'booking');
             if (!empty($booking->settings->bookingpolicy)) {
                 $message .= "<br><br>" . get_string('agreetobookingpolicy', 'booking');
-                $message .= "<br>" . $booking->settings->bookingpolicy;
+                $message .= "<br>" . format_text($booking->settings->bookingpolicy, FORMAT_HTML);
             }
             $bnow = (empty($booking->settings->btnbooknowname) ? get_string('booknow', 'booking') : $booking->settings->btnbooknowname);
             $button = array(

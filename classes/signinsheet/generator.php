@@ -321,12 +321,12 @@ class generator {
         $this->pdf->SetHeaderMargin($this->margintop);
         $this->pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
         if ($this->title == 2) {
-            $this->pdf->SetHeaderData('', 0, $this->bookingdata->option->text, '');
+            $this->pdf->SetHeaderData('', 0, format_string($this->bookingdata->option->text), '');
         } else if ($this->title == 1) {
             $this->pdf->SetHeaderData('', 0,
-                    $this->bookingdata->booking->settings->name . ': ' . $this->bookingdata->option->text, '');
+                    format_string($this->bookingdata->booking->settings->name) . ': ' . format_string($this->bookingdata->option->text), '');
         } else {
-            $this->pdf->SetHeaderData('', 0, $this->bookingdata->booking->settings->name, '');
+            $this->pdf->SetHeaderData('', 0, format_string($this->bookingdata->booking->settings->name, ''));
         }
         $this->pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
         $this->pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
@@ -440,7 +440,7 @@ class generator {
                         1);
             }
         }
-        $this->pdf->Output($this->bookingdata->option->text . '.pdf', 'D');
+        $this->pdf->Output(format_string($this->bookingdata->option->text) . '.pdf', 'D');
     }
 
     /**
@@ -581,13 +581,13 @@ class generator {
 
         if (!empty($this->bookingdata->option->address)) {
             $this->pdf->Cell(0, 0,
-                    get_string('pdflocation', 'booking') . $this->bookingdata->option->address, 0, 1,
+                    get_string('pdflocation', 'booking') . format_string($this->bookingdata->option->address), 0, 1,
                     '', 0, '', 1);
         }
 
         if (!empty($this->bookingdata->option->location)) {
             $this->pdf->Cell(0, 0,
-                    get_string('pdfroom', 'booking') . $this->bookingdata->option->location, 0, 1, '',
+                    get_string('pdfroom', 'booking') . format_string($this->bookingdata->option->location), 0, 1, '',
                     0, '', 1);
         }
         $this->pdf->Ln();
