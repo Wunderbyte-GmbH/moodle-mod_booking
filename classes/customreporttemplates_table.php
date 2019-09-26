@@ -33,16 +33,15 @@ class customreporttemplates_table extends table_sql {
      * @throws \coding_exception
      */
     public function __construct($uniqueid, $cmid) {
-        global $DB;
         parent::__construct($uniqueid);
         $this->cmid = $cmid;
 
         // Define the list of columns to show.
-        $columns = array('name', 'action');
+        $columns = array('name', 'file', 'action');
         $this->define_columns($columns);
 
         // Define the titles of columns to show in header.
-        $headers = array(get_string('name'), get_string('action'));
+        $headers = array(get_string('name'), get_string('file'), get_string('action'));
         $this->define_headers($headers);
     }
 
@@ -61,5 +60,17 @@ class customreporttemplates_table extends table_sql {
         $url = new moodle_url('/mod/booking/customreporttemplates.php', array('templateid' => $values->id, 'action' => 'delete', 'id' => $this->cmid));
         $output .= $OUTPUT->single_button($url, $delete, 'get');
         return $output;
+    }
+
+    public function col_file($values) {
+        $fs = get_file_storage();
+        $context = \context_module::instance($this->cmid);
+        $files = $fs->get_area_files($context->id, 'mod_booking', 'templatefile', $values->id);
+
+        $file = array_pop($files);
+        $url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(),
+            $file->get_filepath(), $file->get_filename(), false);
+
+        return \html_writer::link($url, $file->get_filename());
     }
 }

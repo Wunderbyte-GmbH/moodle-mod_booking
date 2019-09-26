@@ -112,7 +112,8 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
     }
 
     // Make sure the filearea is one of those used by the plugin.
-    if ($filearea !== 'myfilemanager' && $filearea !== 'myfilemanageroption' && $filearea !== 'signinlogoheader' && $filearea !== 'signinlogofooter') {
+    if ($filearea !== 'myfilemanager' && $filearea !== 'myfilemanageroption' && $filearea !== 'signinlogoheader' && $filearea !== 'signinlogofooter'
+        && $filearea !== 'templatefile') {
         return false;
     }
 
