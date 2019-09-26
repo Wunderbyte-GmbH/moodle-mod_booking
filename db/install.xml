@@ -70,9 +70,9 @@
         <FIELD NAME="daystonotify2" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="enablepresence" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="completionmodule" TYPE="int" LENGTH="20" NOTNULL="false" DEFAULT="-1" SEQUENCE="false"/>
-        <FIELD NAME="responsesfields" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="completed,status,rating,numrec,fullname,timecreated,institution,waitinglist" SEQUENCE="false"/>
+        <FIELD NAME="responsesfields" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="reportfields" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="optionsfields" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="text,coursestarttime,maxanswers" SEQUENCE="false"/>
+        <FIELD NAME="optionsfields" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="beforebookedtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="beforecompletedtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="aftercompletedtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>

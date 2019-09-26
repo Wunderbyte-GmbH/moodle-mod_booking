@@ -914,7 +914,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 navigation_node::TYPE_CONTAINER);
 
         if (has_capability('mod/booking:manageoptiontemplates', $context)) {
-            $settingnode->add(get_string("manageoptiontemplates", "mod_booking"),
+            $settingnode->add(get_string("canmanageoptiontemplates", "mod_booking"),
                 new moodle_url('optiontemplatessettings.php', array('id' => $cm->id)));
         }
 
