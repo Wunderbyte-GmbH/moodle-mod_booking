@@ -1920,21 +1920,15 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019080303, 'booking');
     }
 
-    if ($oldversion < 2019090800) {
-        // Add field for views to show in view.php.
-        $table = new xmldb_table('booking');
-        $field = new xmldb_field('showviews', XMLDB_TYPE_CHAR, '255', null, null, null, 'mybooking,myoptions,showall,showactive,myinstitution', 'defaultoptionsort');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2019090800, 'booking');
-    }
-
-    if ($oldversion < 2019092600) {
+    if ($oldversion < 2019092601) {
         // Add field for default template used for booking options of the booking instance.
         $table = new xmldb_table('booking');
         $field = new xmldb_field('defaultoptionsort', XMLDB_TYPE_CHAR, '255', null, null, null, 'text', 'templateid');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('showviews', XMLDB_TYPE_CHAR, '255', null, null, null, 'mybooking,myoptions,showall,showactive,myinstitution', 'defaultoptionsort');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -1956,7 +1950,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->change_field_type($table, $field);
         }
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2019092600, 'booking');
+        upgrade_mod_savepoint(true, 2019092601, 'booking');
     }
 
     return true;
