@@ -84,7 +84,7 @@ class mod_booking_observer {
 
         $allteachers = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid AND calendarid > 0', array( 'optionid' => $event->objectid));
         foreach ($allteachers as $key => $value) {
-            new \mod_booking\calendar($event->contextinstanceid, $event->objectid, $value->userid, \mod_booking\calendar::TYPETEACHERUPDATE);
+            new \mod_booking\calendar($event->contextinstanceid, $event->objectid, $value, \mod_booking\calendar::TYPETEACHERUPDATE);
         }
     }
 
