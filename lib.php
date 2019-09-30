@@ -2333,10 +2333,11 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
  */
 function booking_get_email_body($booking, $fieldname, $defaultname, $params) {
     if (empty($booking->$fieldname)) {
-        return get_string($defaultname, 'booking', $params);
+        $text = get_string($defaultname, 'booking', $params);
+    } else {
+        $text = $booking->$fieldname;
     }
 
-    $text = $booking->$fieldname;
     foreach ($params as $name => $value) {
         $text = str_replace('{' . $name . '}', $value, $text);
     }
