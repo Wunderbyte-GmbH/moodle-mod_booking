@@ -64,13 +64,19 @@ class customreporttemplates_table extends table_sql {
 
     public function col_file($values) {
         $fs = get_file_storage();
-        $context = \context_module::instance($this->cmid);
-        $files = $fs->get_area_files($context->id, 'mod_booking', 'templatefile', $values->id);
+        list($course, $cm) = get_course_and_cm_from_cmid($this->cmid);
+        $coursecontext = \context_course::instance($course->id);
+
+        $files = $fs->get_area_files($coursecontext->id, 'mod_booking', 'templatefile', $values->id);
 
         $file = array_pop($files);
-        $url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(),
-            $file->get_filepath(), $file->get_filename(), false);
+        if (!is_null($file)) {
+            $url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(),
+                $file->get_filepath(), $file->get_filename(), false);
 
-        return \html_writer::link($url, $file->get_filename());
+            return \html_writer::link($url, $file->get_filename());
+        }
+
+        return '';
     }
 }

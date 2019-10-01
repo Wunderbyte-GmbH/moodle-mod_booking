@@ -40,6 +40,11 @@ if (!$context = context_module::instance($cm->id)) {
     print_error('badcontext');
 }
 
+if (!$coursecontext = context_course::instance($course->id)) {
+    print_error('badcontext');
+}
+
+
 require_capability('mod/booking:manageoptiontemplates', $context);
 
 $PAGE->navbar->add(get_string("addnewreporttemplate", "booking"));
@@ -62,7 +67,7 @@ if ($mform->is_cancelled()) {
 
     $entryid = $DB->insert_record("booking_customreport", $template);
 
-    file_save_draft_area_files($data->templatefile, $context->id, 'mod_booking', 'templatefile',
+    file_save_draft_area_files($data->templatefile, $coursecontext->id, 'mod_booking', 'templatefile',
         $entryid, array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1));
 
     redirect($urlredirect, get_string('templatesuccessfullysaved', 'booking'), 5);

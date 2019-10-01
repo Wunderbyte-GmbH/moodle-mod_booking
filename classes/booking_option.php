@@ -1518,7 +1518,9 @@ class booking_option {
         $tbs->Plugin(TBS_INSTALL, OPENTBS_PLUGIN);
         $tbs->NoErr = true;
 
+        list($course, $cm) = get_course_and_cm_from_cmid($this->booking->cm->id);
         $context = \context_module::instance($this->booking->cm->id);
+        $coursecontext = \context_course::instance($course->id);
 
         $booking = array(
             'name' => $this->booking->settings->name,
@@ -1575,14 +1577,14 @@ class booking_option {
 
         $fs = get_file_storage();
 
-        $files = $fs->get_area_files($context->id, 'mod_booking', 'templatefile',
+        $files = $fs->get_area_files($coursecontext->id, 'mod_booking', 'templatefile',
             $this->booking->settings->customteplateid, 'sortorder,filepath,filename', false);
 
         if ($files) {
             $file = reset($files);
 
             // Get file
-            $file = $fs->get_file($context->id, 'mod_booking', 'templatefile',
+            $file = $fs->get_file($coursecontext->id, 'mod_booking', 'templatefile',
             $this->booking->settings->customteplateid, $file->get_filepath(), $file->get_filename());
         }
 
@@ -1613,7 +1615,7 @@ class booking_option {
         $tempfilefull = $tbs->Source;
 
         $fullfile = array(
-            'contextid' => $context->id, // ID of context
+            'contextid' => $coursecontext->id, // ID of context
             'component' => 'mod_booking',     // usually = table name
             'filearea' => 'templatefile',     // usually = table name
             'itemid' => 0,               // usually = ID of row in table

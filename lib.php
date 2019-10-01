@@ -107,7 +107,8 @@ function booking_get_coursemodule_info($cm) {
 function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
 
     // Check the contextlevel is as expected - if your plugin is a block.
-    if ($context->contextlevel != CONTEXT_MODULE) {
+    // We need context course if wee like to acces template files.
+    if (!in_array($context->contextlevel, array(CONTEXT_MODULE, CONTEXT_COURSE))) {
         return false;
     }
 
