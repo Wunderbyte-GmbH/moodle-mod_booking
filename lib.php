@@ -913,10 +913,17 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         return;
     }
 
-    if (has_capability('mod/booking:manageoptiontemplates', $context)) {
+    if (has_capability('mod/booking:manageoptiontemplates', $context) ||
+        has_capability('mod/booking:updatebooking', $context) ||
+        has_capability('mod/booking:addeditownoption', $context) ||
+        has_capability ( 'mod/booking:subscribeusers', $context ) ||
+        has_capability ( 'mod/booking:readresponses', $context ) ||
+        booking_check_if_teacher ($option, $USER )) {
         $settingnode = $navref->add(get_string("thisinstance", "booking"), null,
-            navigation_node::TYPE_CONTAINER);
+        navigation_node::TYPE_CONTAINER);
+    }
 
+    if (has_capability('mod/booking:manageoptiontemplates', $context)) {
         $settingnode->add(get_string("saveinstanceastemplate", "mod_booking"),
             new moodle_url('instancetemplateadd.php', array('id' => $cm->id)));
 
