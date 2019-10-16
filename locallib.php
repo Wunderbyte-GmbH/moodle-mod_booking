@@ -169,6 +169,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
 
         $sql = " FROM {user} u
         WHERE $searchcondition
+        AND u.suspended = 0
         AND u.id IN (SELECT nnn.id FROM ($esql) AS nnn WHERE nnn.id > 1)
         $groupsql
         AND u.id NOT IN (SELECT ba.userid FROM {booking_answers} ba WHERE ba.optionid = {$this->options['optionid']})";

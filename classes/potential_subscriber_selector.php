@@ -75,10 +75,13 @@ class potential_subscriber_selector extends subscriber_selector_base {
         global $DB;
 
         $whereconditions = array();
+
         list($wherecondition, $params) = $this->search_sql($search, 'u');
         if ($wherecondition) {
             $whereconditions[] = $wherecondition;
         }
+
+        $whereconditions[] = 'u.suspended = 0';
 
         if (!$this->forcesubscribed) {
             $existingids = array();
