@@ -136,7 +136,7 @@ class option_form extends moodleform {
             $coursearray[$id] = $courseobject->shortname;
         }
         // Remove this course from list.
-        unset($coursearray[$COURSE->id]);
+        // unset($coursearray[$COURSE->id]);
         $options = array(
             'noselectionstring' => get_string('donotselectcourse', 'booking'),
         );
