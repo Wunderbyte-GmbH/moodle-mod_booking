@@ -37,7 +37,7 @@ echo $OUTPUT->heading(get_string('mybookings', 'mod_booking'));
 
 echo $OUTPUT->box_start();
 
-$dbutill = new \mod_booking\classes\utils\db();
+$dbutill = new \mod_booking\utils\db();
 $mybookings = $dbutill->mybookings();
 $cid = -1;
 $bid = -1;
