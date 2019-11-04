@@ -32,6 +32,13 @@ $ADMIN->add('modsettings',
 $ADMIN->add('modbookingfolder', $settings);
 
 $settings->add(
+  new admin_setting_configcheckbox('booking/enrolself',
+          get_string('enrolself', 'mod_booking'),
+          get_string('enrolselfdesc', 'mod_booking')
+          , 0)
+  );
+
+$settings->add(
         new admin_setting_heading('mod_booking_icalcfg',
                 get_string('icalcfg', 'mod_booking'),
                 get_string('icalcfgdesc', 'mod_booking')));
