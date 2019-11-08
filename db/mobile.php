@@ -21,7 +21,7 @@ $addons = array(
         'handlers' => array(
             'coursebooking' => array(
                 'displaydata' => array(
-                    'icon' => $CFG->wwwroot . '/mod/booking/pix/icon.gif', 'class' => ''
+                    'icon' => $CFG->wwwroot . '/mod/booking/pix/icon.png', 'class' => ''
                 ),
                 'delegate' => 'CoreCourseModuleDelegate',
                 'method' => 'mobile_course_view',
