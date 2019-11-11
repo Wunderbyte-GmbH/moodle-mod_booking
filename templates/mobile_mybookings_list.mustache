@@ -1,0 +1,21 @@
+{{=<% %>=}}
+<div>
+<%#mybookings%>
+    <ion-card>
+        <ion-card-header>
+            <% text %>
+        </ion-card-header>
+        <ion-card-content>
+            <b>
+            {{ 'plugin.mod_booking.mybookingsbooking' | translate }}
+            </b> <% name %> (<% fullname %>) <br>
+            <b>
+            {{ 'plugin.mod_booking.status' | translate }}
+            </b> <% status %> <br>
+            <b>
+            {{ 'plugin.mod_booking.coursestarttime' | translate }}
+            </b> <% coursestarttime %>
+        </ion-card-content>
+    </ion-card>
+<%/mybookings%>
+</div>

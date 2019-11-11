@@ -23,6 +23,8 @@ use mod_booking\booking;
 use mod_booking\booking_option;
 use stdClass;
 
+require_once($CFG->dirroot . '/mod/booking/locallib.php');
+
 /**
  * Mobile output class for booking
  *
@@ -31,6 +33,69 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mobile {
+
+    /**
+     * Returns all my bookings view for mobile app.
+     *
+     * @param array $args Arguments from tool_mobile_get_content WS
+     * @return array HTML, javascript and otherdata
+     */
+    public static function mobile_mybookings_list($args) {
+        global $OUTPUT, $USER, $DB;
+
+        $mybookings = $DB->get_records_sql(
+        "SELECT ba.id id, c.id courseid, c.fullname fullname, b.id bookingid, b.name name, bo.text text, bo.id optionid,
+        bo.coursestarttime coursestarttime, bo.courseendtime courseendtime, cm.id cmid
+        FROM
+        {booking_answers} ba
+        LEFT JOIN
+    {booking_options} bo ON ba.optionid = bo.id
+        LEFT JOIN
+    {booking} b ON b.id = bo.bookingid
+        LEFT JOIN
+    {course} c ON c.id = b.course
+        LEFT JOIN
+        {course_modules} cm ON cm.module = (SELECT
+                id
+            FROM
+                {modules}
+            WHERE
+                name = 'booking')
+            WHERE instance = b.id AND ba.userid = {$USER->id} AND cm.visible = 1");
+
+        $outputdata = array();
+
+        foreach ($mybookings as $key => $value) {
+            $status = '';
+            $coursestarttime = '';
+
+            if ($value->coursestarttime > 0) {
+                $coursestarttime = userdate($value->coursestarttime);
+            }
+            $status = booking_getoptionstatus($value->coursestarttime, $value->courseendtime);
+
+            $outputdata[] = array(
+                'fullname' => $value->fullname,
+                'name' => $value->name,
+                'text' => $value->text,
+                'status' => $status,
+                'coursestarttime' => $coursestarttime
+            );
+        }
+
+        $data = array('mybookings' => $outputdata);
+
+        return array(
+            'templates' => array(
+                array(
+                    'id' => 'main',
+                    'html' => $OUTPUT->render_from_template('mod_booking/mobile_mybookings_list', $data)
+                )
+            ),
+            'javascript' => '',
+            'otherdata' => ''
+        );
+    }
 
     /**
      * Returns the booking course view for the mobile app.
