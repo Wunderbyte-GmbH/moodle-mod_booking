@@ -346,12 +346,12 @@ class all_userbookings extends \table_sql {
             if (has_capability('mod/booking:subscribeusers',
                     \context_module::instance($this->cm->id)) || booking_check_if_teacher(
                             $this->bookingdata->option)) {
-                echo "<br>";
                 if (has_capability('mod/booking:subscribeusers',
                         \context_module::instance($this->cm->id))) {
                             $optionids = \mod_booking\booking::get_all_optionids($this->bookingdata->booking->id);
                 } else {
-                    $optionids = $this->bookingdata->get_all_optionids_of_teacher();
+                    $nwbooking = new \mod_booking\booking($this->cm->id);
+                    $optionids = $nwbooking->get_all_optionids_of_teacher();
                 }
                 $optionids = array_values(array_diff($optionids, array($this->optionid)));
                 if (!empty($optionids)) {

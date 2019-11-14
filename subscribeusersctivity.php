@@ -43,7 +43,7 @@ $url = new moodle_url('/mod/booking/subscribeusersctivity.php', array('id' => $i
 $backurl = new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid));
 $errorurl = new moodle_url('/mod/booking/view.php', array('id' => $id));
 
-if (!booking_check_if_teacher ( $bookingoption->option, $USER )) {
+if (!booking_check_if_teacher ($bookingoption->option)) {
     if (!(has_capability('mod/booking:subscribeusers', $context) || has_capability('moodle/site:accessallgroups', $context))) {
         throw new moodle_exception('nopermissions', 'core', $errorurl, get_string('bookotherusers', 'mod_booking'));
     }

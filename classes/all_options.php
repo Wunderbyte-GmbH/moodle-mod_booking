@@ -99,7 +99,7 @@ class all_options extends table_sql {
             }
             // Book other users.
             if (has_capability('mod/booking:subscribeusers', $this->context) ||
-                booking_check_if_teacher($values, $USER)) {
+                booking_check_if_teacher($values)) {
                 $onlyoneurl = new moodle_url('/mod/booking/subscribeusers.php',
                     array('id' => $this->cm->id, 'optionid' => $values->id));
                 $ddoptions[] = '<div class="dropdown-item">' .

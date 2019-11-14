@@ -169,6 +169,7 @@ $paging = $bookingdata->booking->settings->paginationnum;
 if ($paging < 1) {
     $paging = 25;
 }
+
 if (!(booking_check_if_teacher($bookingdata->option) ||
          has_capability('mod/booking:readresponses', $context))) {
     require_capability('mod/booking:readresponses', $context);
@@ -260,8 +261,8 @@ if (!$tableallbookings->is_downloading()) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
         $allselectedusers = array();
 
-        if (isset($_POST['generaterecnum']) && (booking_check_if_teacher($bookingdata->option,
-                $USER) || has_capability('mod/booking:updatebooking', $context))) {
+        if (isset($_POST['generaterecnum']) && (booking_check_if_teacher($bookingdata->option)
+        || has_capability('mod/booking:updatebooking', $context))) {
             if (isset($_POST['user'])) {
                 foreach ($_POST['user'] as $value) {
                     $allselectedusers[] = array_keys($value)[0];
@@ -350,7 +351,7 @@ if (!$tableallbookings->is_downloading()) {
                         'uids' => serialize($allselectedusers)));
             redirect($sendmessageurl);
         } else if (isset($_POST['activitycompletion']) && (booking_check_if_teacher(
-                $bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
+                $bookingdata->option) || has_capability('mod/booking:readresponses', $context))) {
 
             booking_activitycompletion($allselectedusers, $bookingdata->booking->settings, $cm->id, $optionid);
             redirect($url,
@@ -358,7 +359,7 @@ if (!$tableallbookings->is_downloading()) {
                             'activitycompletionsuccess', 'booking') : $bookingdata->option->notificationtext),
                     5);
         } else if (isset($_POST['postratingsubmit']) && (booking_check_if_teacher(
-                $bookingdata->option, $USER) || has_capability('moodle/rating:rate', $context))) {
+                $bookingdata->option) || has_capability('moodle/rating:rate', $context))) {
 
             $allusers = $bookingdata->get_all_users();
             $bookedusers = array();
@@ -392,7 +393,7 @@ if (!$tableallbookings->is_downloading()) {
             booking_sendreminderemail($allselectedusers, $bookingdata->booking->settings, $cm->id, $optionid);
             redirect($url, get_string('sendreminderemailsuccess', 'booking'), 5);
         } else if (isset($_POST['booktootherbooking']) && (booking_check_if_teacher(
-                $bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
+                $bookingdata->option) || has_capability('mod/booking:readresponses', $context))) {
 
             if (!isset($_POST['selectoptionid']) || empty($_POST['selectoptionid'])) {
                 redirect($url, get_string('selectoptionid', 'booking'), 5);
@@ -443,7 +444,7 @@ if (!$tableallbookings->is_downloading()) {
                 redirect($url, get_string('transferproblem', 'mod_booking', $output), 5, 'error');
             }
         } else if (isset($_POST['changepresencestatus']) && (booking_check_if_teacher(
-                $bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
+                $bookingdata->option) || has_capability('mod/booking:readresponses', $context))) {
             // Change presence status.
             if (empty($allselectedusers)) {
                 redirect($url,

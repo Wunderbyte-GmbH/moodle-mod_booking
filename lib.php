@@ -909,6 +909,8 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     $contextcourse = context_course::instance($course->id);
     $optionid = $PAGE->url->get_param('optionid');
 
+    $option = new \mod_booking\booking_option($cm->id, $optionid);
+
     if (!$course) {
         return;
     }
@@ -918,7 +920,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         has_capability('mod/booking:addeditownoption', $context) ||
         has_capability ( 'mod/booking:subscribeusers', $context ) ||
         has_capability ( 'mod/booking:readresponses', $context ) ||
-        booking_check_if_teacher ($option, $USER )) {
+        booking_check_if_teacher ($option->option)) {
         $settingnode = $navref->add(get_string("thisinstance", "booking"), null,
         navigation_node::TYPE_CONTAINER);
     }
@@ -1007,7 +1009,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                                     'action' => 'copytotemplate', 'sesskey' => sesskey())));
         }
 
-        if (has_capability ( 'mod/booking:subscribeusers', $context ) || booking_check_if_teacher ($option, $USER )) {
+        if (has_capability ( 'mod/booking:subscribeusers', $context ) || booking_check_if_teacher ($option )) {
             $settingnode->add(get_string('bookotherusers', 'booking'),
                     new moodle_url('/mod/booking/subscribeusers.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
@@ -1025,7 +1027,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 new moodle_url('/mod/booking/moveoption.php',
                     array('id' => $cm->id, 'optionid' => $optionid, 'sesskey' => sesskey())));
         }
-        if (has_capability ( 'mod/booking:readresponses', $context ) || booking_check_if_teacher ($option, $USER )) {
+        if (has_capability ( 'mod/booking:readresponses', $context ) || booking_check_if_teacher ($option )) {
             $completion = new \completion_info($course);
             if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $booking->enablecompletion > 0) {
                 $settingnode->add(get_string('confirmuserswith', 'booking'),
