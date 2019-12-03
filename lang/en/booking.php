@@ -259,7 +259,7 @@ $string['conectedbooking'] = 'Connected booking';
 $string['errorpagination'] = 'Please enter a number bigger than 0';
 $string['notconectedbooking'] = 'Not connected';
 $string['conectedbooking_help'] = 'Booking instance eligible for transferring booked users. You can define from which option within the selected booking instance and how many users you will accept.';
-$string['cancancelbook'] = 'Allow user to cancel or book their booking when it is started?';
+$string['cancancelbook'] = 'Allow user to cancel the booking during the booking period?';
 $string['cancancelbookdays'] = 'Disallow users to cancel their booking n days before start';
 $string['cancancelbookdaysno'] = "Don't limit";
 $string['addtocalendar'] = 'Add to calendar';
@@ -975,7 +975,7 @@ $string['userssucesfullygetnewpresencestatus'] = 'Presence status for selected u
 // Send message
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';
 $string['booking:communicate'] = 'Can communicate';
-$string['confirmoptioncompletion'] = 'Confirm completion';
+$string['confirmoptioncompletion'] = '(Un)confirm completion status';
 $string['enablecompletion'] = 'At least one of the booked options has to be marked as completed';
 $string['enablecompletiongroup'] = 'Require entries';
 $string['messagesend'] = 'Your message has been sent.';
