@@ -629,7 +629,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                   WHERE br.optionid = bo.id
                     AND br.userid = :userid5) AS myrating
                 ";
-        $from = '{booking} b ' . 'LEFT JOIN {booking_options} bo ON bo.bookingid = b.id';
+        $from = "{booking} b LEFT JOIN {booking_options} bo ON bo.bookingid = b.id";
         $where = "b.id = :bookingid " .
                  (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions));
 

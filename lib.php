@@ -909,7 +909,9 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     $contextcourse = context_course::instance($course->id);
     $optionid = $PAGE->url->get_param('optionid');
 
-    $option = new \mod_booking\booking_option($cm->id, $optionid);
+    if (!is_null($optionid)) {
+        $option = new \mod_booking\booking_option($cm->id, $optionid);
+    }
 
     if (!$course) {
         return;
