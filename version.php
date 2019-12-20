@@ -22,11 +22,11 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2019092601;
+$plugin->version = 2019122000   ;
 $plugin->requires = 2018051700; // Requires this Moodle version. Current: Moodle 3.5.
 // Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman, Piper Chapman.
 // Lois Wilkerson, Audrey Horne, Lorelai Gilmore, Nairobi (Casa de Papel).
-$plugin->release = 'v5.7-Nairobi';
+$plugin->release = 'v5.8-Nairobi';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->cron = 60;
 $plugin->component = 'mod_booking';
