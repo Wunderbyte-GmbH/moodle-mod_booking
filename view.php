@@ -148,7 +148,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
 
     if ($bookingdata->user_delete_response($USER->id)) {
         echo $OUTPUT->header();
-        $contents = get_string('bookingdeleted', 'booking');
+        $contents = html_writer::tag('p', get_string('bookingdeleted', 'booking'));
         $options = array('id' => $cm->id);
         $contents .= $OUTPUT->single_button(new moodle_url('view.php', $options),
                 get_string('continue'), 'get');
