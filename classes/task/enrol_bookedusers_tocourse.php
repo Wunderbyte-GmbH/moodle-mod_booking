@@ -43,13 +43,18 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
         $now = time();
         $boids = $DB->get_records_select_menu('booking_options', $select, ['now' => $now], '', 'id, bookingid');
         foreach ($boids as $optionid => $bookingid) {
-            $cm = get_coursemodule_from_instance('booking', $bookingid);
+            if ($bookingid) {
+                $cm = get_coursemodule_from_instance('booking', $bookingid);
+            } else {
+                mtrace("WARNING: Failed to get booking instance from option id: $optionid");
+            }
             $boption = new booking_option($cm->id, $optionid);
             // Get all booked users of the relevant booking options.
             $bookedusers = $boption->get_all_users_booked();
             // Enrol all users to the course.
             foreach ($bookedusers as $bookeduser) {
                 $boption->enrol_user($bookeduser->userid);
+                mtrace("The user with the {$bookeduser->id} has been enrolled to the course {$boption->option->courseid}.");
             }
         }
         if (!empty($boids)) {
