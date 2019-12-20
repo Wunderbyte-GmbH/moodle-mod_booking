@@ -353,7 +353,7 @@ class all_userbookings extends \table_sql {
                         \context_module::instance($this->cm->id))) {
                             $optionids = \mod_booking\booking::get_all_optionids($this->bookingdata->booking->id);
                 } else {
-                    $optionids = $this->bookingdata->get_all_optionids_of_teacher();
+                    $optionids = \mod_booking\booking::get_all_optionids_of_teacher($this->bookingdata->booking->id);
                 }
                 $optionids = array_values(array_diff($optionids, array($this->optionid)));
                 if (!empty($optionids)) {

@@ -255,13 +255,14 @@ class booking {
     /**
      * Get all booking option ids as an array of numbers - only where is teacher.
      *
+     * @param integer bookingid
      * @return array of ids
      */
-    public function get_all_optionids_of_teacher() {
+    public static function get_all_optionids_of_teacher($bookingid) {
         global $DB, $USER;
 
         return $DB->get_fieldset_select('booking_teachers', 'optionid',
-                "userid = {$USER->id} AND bookingid = {$this->settings->id}");
+            "userid = {$USER->id} AND bookingid = $bookingid");
     }
 
     /**
