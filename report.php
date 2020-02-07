@@ -250,7 +250,7 @@ if (!$tableallbookings->is_downloading()) {
 
         $allselectedusers = array();
 
-        if (isset($_POST['generaterecnum']) && ($isteacher) || has_capability('mod/booking:updatebooking', $context)) {
+        if (isset($_POST['generaterecnum']) && (($isteacher) || has_capability('mod/booking:updatebooking', $context))) {
             if (isset($_POST['user'])) {
                 foreach ($_POST['user'] as $value) {
                     $allselectedusers[] = array_keys($value)[0];
