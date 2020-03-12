@@ -124,6 +124,7 @@ $string['advancedoptions'] = 'Advanced options';
 $string['btnbooknowname'] = 'Name of button: Book now';
 $string['btncacname'] = 'Name of button: Confirm activity completion';
 $string['btncancelname'] = 'Name of button: Cancel booking';
+$string['courseurl'] = 'Course URL';
 $string['disablebookingusers'] = 'Disable booking of users - hide Book now button.';
 $string['howmanyusers'] = 'Max. number of users a teacher assigned to the option can book';
 $string['howmanyusers_help'] = '';
