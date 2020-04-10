@@ -931,8 +931,10 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $settingnode->add(get_string("saveinstanceastemplate", "mod_booking"),
             new moodle_url('instancetemplateadd.php', array('id' => $cm->id)));
 
-        $settingnode->add(get_string("managebookinginstancetemplates", "mod_booking"),
-            new moodle_url('bookinginstancetemplatessettings.php', array('id' => $cm->id)));
+        if (has_capability('mod/booking:manageoptiontemplates', $context)) {
+            $settingnode->add(get_string("canmanageoptiontemplates", "mod_booking"),
+                new moodle_url('optiontemplatessettings.php', array('id' => $cm->id)));
+        }
 
         if (is_null($optionid)) {
             $settingnode->add(get_string("managecustomreporttemplates", "mod_booking"),

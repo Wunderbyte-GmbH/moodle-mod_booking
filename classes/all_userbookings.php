@@ -296,14 +296,16 @@ class all_userbookings extends \table_sql {
                      get_string('booking:deleteresponses', 'booking') . '" /></div>';
             if ($this->bookingdata->booking->settings->completionmodule > 0) {
                 $result = $DB->get_record_sql(
-                        'SELECT cm.id, cm.course, cm.module, cm.instance, m.name
+                    'SELECT cm.id, cm.course, cm.module, cm.instance, m.name
                 FROM {course_modules} cm LEFT JOIN {modules} m ON m.id = cm.module WHERE cm.id = ?',
-                        array($this->bookingdata->booking->settings->completionmodule));
-                $dynamicactivitymodulesdata = $DB->get_record($result->name,
+                    array($this->bookingdata->booking->settings->completionmodule));
+                if ($result) {
+                    $dynamicactivitymodulesdata = $DB->get_record($result->name,
                         array('id' => $result->instance));
-                echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="deleteusersactivitycompletion" value="' .
-                         get_string('deleteresponsesactivitycompletion', 'booking',
-                                 $dynamicactivitymodulesdata->name) . '" /></div>';
+                    echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="deleteusersactivitycompletion" value="' .
+                        get_string('deleteresponsesactivitycompletion', 'booking',
+                            $dynamicactivitymodulesdata->name) . '" /></div>';
+                }
             }
         }
 
@@ -350,8 +352,7 @@ class all_userbookings extends \table_sql {
                         \context_module::instance($this->cm->id))) {
                             $optionids = \mod_booking\booking::get_all_optionids($this->bookingdata->booking->id);
                 } else {
-                    $nwbooking = new \mod_booking\booking($this->cm->id);
-                    $optionids = $nwbooking->get_all_optionids_of_teacher();
+                    $optionids = \mod_booking\booking::get_all_optionids_of_teacher($this->bookingdata->booking->id);
                 }
                 $optionids = array_values(array_diff($optionids, array($this->optionid)));
                 if (!empty($optionids)) {
