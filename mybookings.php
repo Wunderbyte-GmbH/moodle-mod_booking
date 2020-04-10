@@ -38,29 +38,25 @@ echo $OUTPUT->heading(get_string('mybookings', 'mod_booking'));
 
 echo $OUTPUT->box_start();
 
-$dbutill = new \mod_booking\utils\db();
-$mybookings = $dbutill->mybookings();
-$cid = -1;
-$bid = -1;
-
-foreach ($mybookings as $key => $value) {
-    if ($bid != -1 && $bid != $value->bookingid) {
-        echo "</ul>";
-    }
-    if ($cid != $value->courseid) {
-        $courseurl = new moodle_url("/course/view.php?id={$value->courseid}");
-        echo "<h2><a href='{$courseurl}'>{$value->fullname}</a></h2>";
-    }
-
-    if ($bid != $value->bookingid) {
-        $bookingurl = new moodle_url("/mod/booking/view.php?id={$value->cmid}");
-        echo "<h3><a href='{$bookingurl}'>{$value->name}</a></h3>";
-        echo "<ul>";
-    }
-
-    $optionstatus = booking_getoptionstatus($value->coursestarttime, $value->courseendtime);
-    $optionurl = new moodle_url("/mod/booking/view.php?id={$value->cmid}&optionid={$value->optionid}&action=showonlyone&whichview=showonlyone#goenrol");
-    echo "<li>[{$optionstatus}] <a href='{$optionurl}'>{$value->text}</a></li>";
+$table = new mybookings_table('myvookings');
+$fields = 'ba.id id, c.id courseid, c.fullname fullname, b.id bookingid, b.name name, bo.text text, bo.id optionid,
+    bo.coursestarttime coursestarttime, bo.courseendtime courseendtime, cm.id cmid';
+$table->set_sql($fields,
+    "{booking_answers} ba
+    LEFT JOIN
+{booking_options} bo ON ba.optionid = bo.id
+    LEFT JOIN
+{booking} b ON b.id = bo.bookingid
+    LEFT JOIN
+{course} c ON c.id = b.course
+    LEFT JOIN
+    {course_modules} cm ON cm.module = (SELECT
+            id
+        FROM
+            {modules}
+        WHERE
+            name = 'booking')
+        AND instance = b.id", "userid = {$USER->id} AND cm.visible = 1");
 
 $table->define_baseurl($url);
 $table->out(25, true);
