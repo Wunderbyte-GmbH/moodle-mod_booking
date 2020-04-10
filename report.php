@@ -166,12 +166,11 @@ $bookingdata->apply_tags();
 $bookingdata->get_url_params();
 $optionteachers = $bookingdata->get_teachers();
 $paging = $bookingdata->booking->settings->paginationnum;
+$isteacher = booking_check_if_teacher($bookingdata->option);
 if ($paging < 1) {
     $paging = 25;
 }
-
-if (!(booking_check_if_teacher($bookingdata->option) ||
-         has_capability('mod/booking:readresponses', $context))) {
+if (!($isteacher) || has_capability('mod/booking:readresponses', $context)) {
     require_capability('mod/booking:readresponses', $context);
 }
 
@@ -261,8 +260,7 @@ if (!$tableallbookings->is_downloading()) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
         $allselectedusers = array();
 
-        if (isset($_POST['generaterecnum']) && (booking_check_if_teacher($bookingdata->option)
-        || has_capability('mod/booking:updatebooking', $context))) {
+        if (isset($_POST['generaterecnum']) && (($isteacher) || has_capability('mod/booking:updatebooking', $context))) {
             if (isset($_POST['user'])) {
                 foreach ($_POST['user'] as $value) {
                     $allselectedusers[] = array_keys($value)[0];
@@ -615,11 +613,17 @@ if (!$tableallbookings->is_downloading()) {
         $linkst = "(" . implode(", ", $linkst) . ")";
     }
 
+    if ($isteacher) {
+        $url = new moodle_url('/mod/booking/subscribeusers.php',
+            array('id' => $cm->id, 'optionid' => $optionid));
+        $linkst = $linkst . html_writer::link($url, html_writer::tag('p', get_string('bookotherusers', 'booking'), ['class' => 'btn btn-secondary']));
+    }
+
     echo "<p>" .
              ($bookingdata->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate(
                     $bookingdata->option->coursestarttime, get_string('strftimedatetime')) . " - " .
              userdate($bookingdata->option->courseendtime, get_string('strftimedatetime'))) . " | " .
-             (empty($bookingdata->booking->settings->lblteachname) ? get_string('teachers', 'booking') . ': ' : $bookingdata->booking->settings->lblteachname) .
+             (empty($bookingdata->booking->settings->lblteachname) ? get_string('teachers', 'booking') . ': ' : $bookingdata->booking->settings->lblteachname . ': ') .
              implode(', ', $teachers) . " {$linkst}</p>";
 
     $links = array();

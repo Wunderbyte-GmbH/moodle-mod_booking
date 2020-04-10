@@ -1867,8 +1867,6 @@ function xmldb_booking_upgrade($oldversion) {
         // Change title of booking option to char
         $table = new xmldb_table('booking_options');
         $field = new xmldb_field('text', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'bookingid');
-
-        // Conditionally launch add field teacherroleid.
         if ($dbman->field_exists($table, $field)) {
             $dbman->change_field_type($table, $field);
         }
@@ -1944,22 +1942,30 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019080303, 'booking');
     }
 
-    if ($oldversion < 2019091903) {
+    if ($oldversion < 2019092601) {
         // Add field for default template used for booking options of the booking instance.
         $table = new xmldb_table('booking');
         $field = new xmldb_field('defaultoptionsort', XMLDB_TYPE_CHAR, '255', null, null, null, 'text', 'templateid');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-        $field = new xmldb_field('responsesfields', XMLDB_TYPE_CHAR, '255', null, null, null,
-            'completed,status,rating,numrec,fullname,timecreated,institution,waitinglist',
-            'completionmodule');
-        $dbman->change_field_precision($table, $field);
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('showviews', XMLDB_TYPE_CHAR, '255', null, null, null, 'mybooking,myoptions,showall,showactive,myinstitution', 'defaultoptionsort');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $field = new xmldb_field('responsesfields', XMLDB_TYPE_TEXT, 'small', null, null, null, null, 'completionmodule');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_type($table, $field);
+        }
         $field = new xmldb_field('reportfields', XMLDB_TYPE_TEXT, 'small', null, null, null, null, 'responsesfields');
-        $dbman->change_field_type($table, $field);
-        $field = new xmldb_field('optionsfields', XMLDB_TYPE_CHAR, '255', null, null, null,
-            'text,coursestarttime,maxanswers', 'reportfields');
-        $dbman->change_field_precision($table, $field);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_type($table, $field);
+        }
+        $field = new xmldb_field('optionsfields', XMLDB_TYPE_TEXT, 'small', null, null, null, null, 'reportfields');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_type($table, $field);
+        }
         $field = new xmldb_field('signinsheetfields', XMLDB_TYPE_TEXT, 'small', null, null, null,
             null, 'aftercompletedtext');
         if ($dbman->field_exists($table, $field)) {
@@ -1989,47 +1995,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2019091903, 'booking');
-    }
-
-    if ($oldversion < 2019091904) {
-
-        // Define table booking_customreport to be created.
-        $table = new xmldb_table('booking_customreport');
-
-        // Adding fields to table booking_customreport.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('name', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null);
-
-        // Adding keys to table booking_customreport.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-
-        // Adding indexes to table booking_customreport.
-        $table->add_index('course', XMLDB_INDEX_NOTUNIQUE, ['course']);
-
-        // Conditionally launch create table for booking_customreport.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2019091904, 'booking');
-    }
-
-    if ($oldversion < 2019092000) {
-
-        // Define field customteplateid to be added to booking.
-        $table = new xmldb_table('booking');
-        $field = new xmldb_field('customteplateid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'showviews');
-
-        // Conditionally launch add field customteplateid.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2019092000, 'booking');
+        upgrade_mod_savepoint(true, 2019092601, 'booking');
     }
 
     return true;

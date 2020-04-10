@@ -17,6 +17,7 @@ namespace mod_booking;
 
 use moodle_url;
 use table_sql;
+use html_writer;
 
 class optiontemplatessettings_table extends table_sql {
 

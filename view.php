@@ -148,7 +148,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
 
     if ($bookingdata->user_delete_response($USER->id)) {
         echo $OUTPUT->header();
-        $contents = get_string('bookingdeleted', 'booking');
+        $contents = html_writer::tag('p', get_string('bookingdeleted', 'booking'));
         $options = array('id' => $cm->id);
         $contents .= $OUTPUT->single_button(new moodle_url('view.php', $options),
                 get_string('continue'), 'get');
@@ -212,9 +212,9 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
         $bookingdata = new \mod_booking\booking_option($cm->id, $answer, array(), 0, 0, false);
         $bookingdata->apply_tags();
         if ($bookingdata->user_submit_response($USER)) {
-            $contents = get_string('bookingsaved', 'booking');
+            $contents = html_writer::tag('p', get_string('bookingsaved', 'booking'));
             if ($booking->settings->sendmail) {
-                $contents .= "<br />" . get_string('mailconfirmationsent', 'booking') . ".";
+                $contents .= html_writer::tag('p', get_string('mailconfirmationsent', 'booking') . ".");
             }
             $contents .= $OUTPUT->single_button($url,
                     get_string('continue'), 'get');
