@@ -777,7 +777,7 @@ if (!$tableallbookings->is_downloading()) {
         echo " ({$bookingdata->option->shorturl})";
     }
     echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
-            array('onclick' => 'copyToClipboard("' . $onlyoneurl . '"); return false;'));
+            array('onclick' => 'copyToClipboard("' . htmlspecialchars_decode($onlyoneurl) . '"); return false;'));
 
     echo ' | ' . html_writer::link($onlyoneurl, get_string('sign_in_sheet_download_show', 'booking'),
             array('id' => 'sign_in_sheet_download_show'));
