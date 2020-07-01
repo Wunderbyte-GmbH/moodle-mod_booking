@@ -20,7 +20,7 @@ use mod_booking\form\option_form;
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
-$copyoptionid = optional_param('copyoptionid', '', PARAM_ALPHANUM);
+$copyoptionid = optional_param('copyoptionid', 0, PARAM_INT);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
 
 $url = new moodle_url('/mod/booking/editoptions.php', array('id' => $id, 'optionid' => $optionid));
@@ -46,7 +46,7 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
 
 $mform = new option_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context));
 
-if ($optionid == -1 && $copyoptionid != '') {
+if ($optionid == -1 && $copyoptionid != 0) {
     // Adding new booking option - default values.
     $defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid));
     $defaultvalues->text = $defaultvalues->text . get_string('copy', 'booking');
