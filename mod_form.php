@@ -660,6 +660,26 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('select', 'customteplateid', get_string('customreporttemplate', 'booking'), $customreporttemplates);
 
+        // Automatic option creation.
+        $mform->addElement('header', 'autcrheader',
+                get_string('autcrheader', 'booking'));
+
+        $mform->addElement('static', 'description', '', get_string('autcrwhatitis', 'booking'));
+
+        $cfields = $DB->get_records_menu('user_info_field', null, '', 'shortname, name', 0, 0);
+        $cftemplates = $DB->get_records_menu('booking_options', array('bookingid' => 0), '', 'id, text', 0, 0);
+
+        array_unshift($cfields, '');
+        array_unshift($cftemplates, '');
+
+        $mform->addElement('checkbox', 'autcractive', get_string('enable', 'booking'));
+        $mform->addElement('select', 'autcrprofile', get_string('customprofilefield', 'booking'), $cfields);
+        $mform->disabledIf('autcrprofile', 'autcractive');
+        $mform->addElement('text', 'autcrvalue', get_string('customprofilefieldvalue', 'booking'));
+        $mform->disabledIf('autcrvalue', 'autcractive');
+        $mform->addElement('select', 'autcrtemplate', get_string('optiontemplate', 'booking'), $cftemplates);
+        $mform->disabledIf('autcrtemplate', 'autcractive');
+
         // Standard Moodle form elements.
         $this->standard_grading_coursemodule_elements();
         $this->standard_coursemodule_elements();

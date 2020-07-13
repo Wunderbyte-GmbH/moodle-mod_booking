@@ -1157,3 +1157,11 @@ $string['templatefile'] = 'Template file';
 $string['templatesuccessfullysaved'] = 'Template was saved.';
 $string['customdownloadreport'] = 'Download report';
 $string['bookingoptionsfromtemplatemenu'] = 'New booking option from template';
+
+// Automatic option creation.
+$string['autcrheader'] = 'Automatic booking option creation';
+$string['autcrwhatitis'] = 'If this option is enabled it automaticly create a ne booking option and assing a person as teacher to it. It check a user profile field for certain value.';
+$string['enable'] = 'Enable';
+$string['customprofilefield'] = 'Custom profile field to check';
+$string['customprofilefieldvalue'] = 'Custom profile field value to check';
+$string['optiontemplate'] = 'Option template';

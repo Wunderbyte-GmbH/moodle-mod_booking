@@ -130,6 +130,8 @@ $urlcancel = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $sorturl = new moodle_url('/mod/booking/view.php', $urlparamssort);
 $sorturl->set_anchor('goenrol');
 
+$booking->checkautocreate();
+
 $PAGE->set_url($url);
 $PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup', array($id));
 
