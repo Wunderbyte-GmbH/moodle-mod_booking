@@ -504,6 +504,7 @@ class booking {
                     $bookingoption = $DB->get_record('booking_options', array('id' => $this->settings->autcrtemplate));
                     $bookingoption->text = "{$USER->institution} - " . fullname($USER);
                     $bookingoption->bookingid = $this->id;
+                    $bookingoption->description = (is_null($bookingoption->description) ? '' : $bookingoption->description);
                     unset($bookingoption->id);
 
                     $nrecid = $DB->insert_record('booking_options', $bookingoption, true, false);
