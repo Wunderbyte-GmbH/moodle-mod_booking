@@ -188,7 +188,7 @@ class booking {
             $limit = " LIMIT {$limitfrom},{$limitnum}";
         }
 
-        return $DB->get_records_sql("SELECT {$fields} FROM {booking_options} bo WHERE bo.bookingid = :bookingid {$search} {$limit}", $params);
+        return $DB->get_records_sql("SELECT {$fields} FROM {booking_options} bo WHERE bo.bookingid = :bookingid {$search} ORDER BY bo.coursestarttime ASC {$limit}", $params);
     }
 
     public function get_all_options_count($searchtext = '') {
