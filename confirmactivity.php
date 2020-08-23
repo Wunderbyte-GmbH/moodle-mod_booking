@@ -22,7 +22,9 @@
  */
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
-require_once($CFG->dirroot . '/mod/booking/classes/form/confirmactivity.php');
+
+use mod_booking\utils\db;
+use mod_booking\form\confirmactivity;
 
 $id = required_param('id', PARAM_INT); // Course_module ID.
 $optionid = required_param('optionid', PARAM_INT);
@@ -40,13 +42,13 @@ $url = new moodle_url('/mod/booking/confirmactivity.php', array('id' => $id, 'op
 $backurl = new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid));
 $errorurl = new moodle_url('/mod/booking/view.php', array('id' => $id));
 
-if (!booking_check_if_teacher ( $bookingoption->option, $USER )) {
+if (!booking_check_if_teacher ( $bookingoption->option )) {
     if (!(has_capability('mod/booking:readresponses', $context) || has_capability('moodle/site:accessallgroups', $context))) {
         throw new moodle_exception('nopermissions', 'core', $errorurl, get_string('bookotherusers', 'mod_booking'));
     }
 }
 
-$mform = new \mod_booking\form\confirmactivity($url, array('course' => $course,
+$mform = new confirmactivity($url, array('course' => $course,
     'optionid' => $optionid, 'bookingid' => $bookingoption->booking->id));
 
 if ($mform->is_cancelled()) {
@@ -56,7 +58,7 @@ if ($mform->is_cancelled()) {
     switch ($fromform->whichtype) {
         case 0: // Activity.
             if (!empty($fromform->activity)) {
-                $dbutill = new \mod_booking\classes\utils\db();
+                $dbutill = new db();
                 $users = $dbutill->getusersactivity($fromform->activity, $optionid, true);
                 foreach ($users as $key => $user) {
                     $bookingoption->confirmactivity($user);
@@ -66,7 +68,7 @@ if ($mform->is_cancelled()) {
 
         case 1: // Badges.
             if (!empty($fromform->certid)) {
-                $dbutill = new \mod_booking\classes\utils\db();
+                $dbutill = new db();
                 $users = $dbutill->getusersbadges($fromform->certid, $optionid);
                 foreach ($users as $key => $user) {
                     $bookingoption->confirmactivity($user);

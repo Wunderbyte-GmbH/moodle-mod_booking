@@ -151,6 +151,7 @@ $currenturl = new moodle_url('/mod/booking/report.php', $urlparams);
 $PAGE->set_url($url);
 $PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup');
 $PAGE->force_settings_menu(true);
+$PAGE->requires->js_call_amd('mod_booking/signinsheetdownload', 'init');
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 
@@ -188,6 +189,12 @@ if ($action == 'downloadpdf') {
     $pdf = new mod_booking\signinsheet\generator($bookingdata , $pdfoptions);
     $pdf->download_signinsheet();
     die();
+}
+
+if ($action == 'copytotemplate' && has_capability('mod/booking:manageoptiontemplates', $context) &&
+         confirm_sesskey()) {
+    $bookingdata->copytotemplate();
+    redirect($baseurl, get_string('copytotemplatesucesfull', 'booking'), 5);
 }
 
 if ($action == 'deletebookingoption' && $confirm == 1 &&
@@ -246,8 +253,11 @@ $tableallbookings->no_sorting('rating');
 
 if (!$tableallbookings->is_downloading()) {
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
+    if ($action == 'postcustomreport') {
+        $bookingdata->printcustomreport();
+    }
 
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
         $allselectedusers = array();
 
         if (isset($_POST['generaterecnum']) && (($isteacher) || has_capability('mod/booking:updatebooking', $context))) {
@@ -339,7 +349,7 @@ if (!$tableallbookings->is_downloading()) {
                         'uids' => serialize($allselectedusers)));
             redirect($sendmessageurl);
         } else if (isset($_POST['activitycompletion']) && (booking_check_if_teacher(
-                $bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
+                $bookingdata->option) || has_capability('mod/booking:readresponses', $context))) {
 
             booking_activitycompletion($allselectedusers, $bookingdata->booking->settings, $cm->id, $optionid);
             redirect($url,
@@ -347,7 +357,7 @@ if (!$tableallbookings->is_downloading()) {
                             'activitycompletionsuccess', 'booking') : $bookingdata->option->notificationtext),
                     5);
         } else if (isset($_POST['postratingsubmit']) && (booking_check_if_teacher(
-                $bookingdata->option, $USER) || has_capability('moodle/rating:rate', $context))) {
+                $bookingdata->option) || has_capability('moodle/rating:rate', $context))) {
 
             $allusers = $bookingdata->get_all_users();
             $bookedusers = array();
@@ -381,7 +391,7 @@ if (!$tableallbookings->is_downloading()) {
             booking_sendreminderemail($allselectedusers, $bookingdata->booking->settings, $cm->id, $optionid);
             redirect($url, get_string('sendreminderemailsuccess', 'booking'), 5);
         } else if (isset($_POST['booktootherbooking']) && (booking_check_if_teacher(
-                $bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
+                $bookingdata->option) || has_capability('mod/booking:readresponses', $context))) {
 
             if (!isset($_POST['selectoptionid']) || empty($_POST['selectoptionid'])) {
                 redirect($url, get_string('selectoptionid', 'booking'), 5);
@@ -432,7 +442,7 @@ if (!$tableallbookings->is_downloading()) {
                 redirect($url, get_string('transferproblem', 'mod_booking', $output), 5, 'error');
             }
         } else if (isset($_POST['changepresencestatus']) && (booking_check_if_teacher(
-                $bookingdata->option, $USER) || has_capability('mod/booking:readresponses', $context))) {
+                $bookingdata->option) || has_capability('mod/booking:readresponses', $context))) {
             // Change presence status.
             if (empty($allselectedusers)) {
                 redirect($url,
@@ -767,7 +777,15 @@ if (!$tableallbookings->is_downloading()) {
         echo " ({$bookingdata->option->shorturl})";
     }
     echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
-            array('onclick' => 'copyToClipboard("' . $onlyoneurl . '"); return false;')) . ' | ';
+            array('onclick' => 'copyToClipboard("' . htmlspecialchars_decode($onlyoneurl) . '"); return false;'));
+
+    echo ' | ' . html_writer::link($onlyoneurl, get_string('sign_in_sheet_download_show', 'booking'),
+            array('id' => 'sign_in_sheet_download_show'));
+    if (!empty($bookingdata->booking->settings->customteplateid)) {
+        echo ' | ' . html_writer::link(new moodle_url('/mod/booking/report.php',
+                        array('id' => $cm->id, 'optionid' => $optionid, 'action' => 'postcustomreport')),
+                        get_string('customdownloadreport', 'booking'), array('target' => '_blank'));
+    }
 
     echo "<script>
   function copyToClipboard(text) {

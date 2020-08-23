@@ -15,23 +15,37 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 defined('MOODLE_INTERNAL') || die();
 
-$addons = array(
-
-    "mod_booking" => array(
-        'handlers' => array(
-            'coursebooking' => array(
-                'displaydata' => array(
-                    'icon' => $CFG->wwwroot . '/mod/booking/pix/icon.gif', 'class' => ''
-                ),
-                'delegate' => 'CoreCourseModuleDelegate',
-                'method' => 'mobile_course_view',
-                'offlinefunctions' => array(
-                )
-            )
-        ),
-        'lang' => array(
-            array('pluginname', 'booking'),
-            array('showmybookingsonly', 'booking')
-        )
-    )
-);
+$addons = [
+    "mod_booking" => [
+        'handlers' => [
+            'coursebooking' => [
+                    'displaydata' => [
+                    'icon' => $CFG->wwwroot . '/mod/booking/pix/icon.png', 'class' => ''
+                    ],
+                    'delegate' => 'CoreCourseModuleDelegate',
+                    'method' => 'mobile_course_view',
+                    'offlinefunctions' => [
+                    ]
+            ],
+            'mybookingslist' => [ // Handler unique name (alphanumeric).
+                'displaydata' => [
+                    'title' => 'showmybookingsonly',
+                    'icon' => 'document',
+                    'class' => '',
+                ],
+                'delegate' => 'CoreMainMenuDelegate', // Delegate (where to display the link to the plugin)
+                'method' => 'mobile_mybookings_list', // Main function in \mod_certificate\output\mobile
+                'offlinefunctions' => [
+                ], // Function that needs to be downloaded for offline.
+            ]
+        ],
+        'lang' => [
+            ['pluginname', 'booking'],
+            ['showmybookingsonly', 'booking'],
+            ['showmybookingsonly', 'booking'],
+            ['mybookingsbooking', 'booking'],
+            ['status', 'booking'],
+            ['coursestarttime', 'booking']
+        ]
+    ]
+];

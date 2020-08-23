@@ -70,12 +70,22 @@ class mod_booking_mod_form extends moodleform_mod {
     }
 
     public function definition() {
-        global $CFG, $DB, $COURSE, $USER;
+        global $CFG, $DB, $COURSE, $USER, $PAGE;
 
         $context = context_system::instance();
         $mform = &$this->_form;
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
+
+        $bookininstancetemplates = array('' => '');
+        $bookinginstances = $DB->get_records('booking_instancetemplate', array(), '', 'id, name', 0, 0);
+
+        foreach ($bookinginstances as $key => $value) {
+            $bookininstancetemplates[$value->id] = $value->name;
+        }
+
+        $mform->addElement('select', 'instancetemplateid', get_string('populatefromtemplate', 'booking'),
+            $bookininstancetemplates);
 
         $mform->addElement('text', 'name', get_string('bookingname', 'booking'),
                 array('size' => '64'));
@@ -111,12 +121,12 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'),
                 array('size' => '64'));
-        $mform->setType('pollurl', PARAM_URL);
+        $mform->setType('pollurl', PARAM_TEXT);
         $mform->addHelpButton('pollurl', 'pollurl', 'mod_booking');
 
         $mform->addElement('text', 'pollurlteachers',
                 get_string('bookingpollurlteachers', 'booking'), array('size' => '64'));
-        $mform->setType('pollurlteachers', PARAM_URL);
+        $mform->setType('pollurlteachers', PARAM_TEXT);
         $mform->addHelpButton('pollurlteachers', 'pollurlteachers', 'mod_booking');
 
         $mform->addElement('filemanager', 'myfilemanager',
@@ -637,9 +647,45 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'teacherroleid', get_string('teacherroleid', 'mod_booking'), $teacherroleid);
         $mform->setDefault('teacherroleid', 3);
 
+        // Custom report templates.
+        $mform->addElement('header', 'customreporttemplates',
+                get_string('customreporttemplates', 'booking'));
+
+        $customreporttemplates = array('' => '');
+        $reporttemplatesdata = $DB->get_records('booking_customreport', array('course' => $COURSE->id), '', 'id, name', 0, 0);
+
+        foreach ($reporttemplatesdata as $key => $value) {
+            $customreporttemplates[$value->id] = $value->name;
+        }
+
+        $mform->addElement('select', 'customteplateid', get_string('customreporttemplate', 'booking'), $customreporttemplates);
+
+        // Automatic option creation.
+        $mform->addElement('header', 'autcrheader',
+                get_string('autcrheader', 'booking'));
+
+        $mform->addElement('static', 'description', '', get_string('autcrwhatitis', 'booking'));
+
+        $cfields = $DB->get_records_menu('user_info_field', null, '', 'shortname, name', 0, 0);
+        $cftemplates = $DB->get_records_menu('booking_options', array('bookingid' => 0), '', 'id, text', 0, 0);
+
+        array_unshift($cfields, '');
+        array_unshift($cftemplates, '');
+
+        $mform->addElement('checkbox', 'autcractive', get_string('enable', 'booking'));
+        $mform->addElement('select', 'autcrprofile', get_string('customprofilefield', 'booking'), $cfields);
+        $mform->disabledIf('autcrprofile', 'autcractive');
+        $mform->addElement('text', 'autcrvalue', get_string('customprofilefieldvalue', 'booking'));
+        $mform->disabledIf('autcrvalue', 'autcractive');
+        $mform->addElement('select', 'autcrtemplate', get_string('optiontemplate', 'booking'), $cftemplates);
+        $mform->disabledIf('autcrtemplate', 'autcractive');
+
+        // Standard Moodle form elements.
         $this->standard_grading_coursemodule_elements();
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
+
+        $PAGE->requires->js_call_amd('mod_booking/bookinginstancetemplateselect', 'init');
     }
 
     /**

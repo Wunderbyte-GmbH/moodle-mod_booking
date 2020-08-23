@@ -17,6 +17,7 @@ namespace mod_booking;
 
 use html_writer;
 use stdClass;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -187,7 +188,7 @@ class booking {
             $limit = " LIMIT {$limitfrom},{$limitnum}";
         }
 
-        return $DB->get_records_sql("SELECT {$fields} FROM {booking_options} bo WHERE bo.bookingid = :bookingid {$search} {$limit}", $params);
+        return $DB->get_records_sql("SELECT {$fields} FROM {booking_options} bo WHERE bo.bookingid = :bookingid {$search} ORDER BY bo.coursestarttime ASC {$limit}", $params);
     }
 
     public function get_all_options_count($searchtext = '') {
@@ -482,5 +483,49 @@ class booking {
             }
         }
         return array($columns, $headers, $userprofilefields);
+    }
+
+    /**
+     * Check, if auto create of option is enabled and do the logic.
+     *
+     * @return void
+     */
+    public function checkautocreate() {
+        global $USER, $DB;
+
+        if ($this->settings->autcractive && !empty($this->settings->autcrprofile) && !empty($this->settings->autcrvalue) && !empty($this->settings->autcrtemplate)) {
+            $customfields = profile_user_record($USER->id);
+
+            if (isset($customfields->{$this->settings->autcrprofile}) && $customfields->{$this->settings->autcrprofile} == $this->settings->autcrvalue) {
+
+                $nrec = $DB->count_records('booking_teachers', array('userid' => $USER->id, 'bookingid' => $this->id));
+
+                if ($nrec === 0) {
+                    $bookingoption = $DB->get_record('booking_options', array('id' => $this->settings->autcrtemplate));
+                    $bookingoption->text = "{$USER->institution} - " . fullname($USER);
+                    $bookingoption->bookingid = $this->id;
+                    $bookingoption->description = (is_null($bookingoption->description) ? '' : $bookingoption->description);
+                    unset($bookingoption->id);
+
+                    $nrecid = $DB->insert_record('booking_options', $bookingoption, true, false);
+
+                    $newteacher = new \stdClass;
+                    $newteacher->bookingid = $this->id;
+                    $newteacher->userid = $USER->id;
+                    $newteacher->optionid = $nrecid;
+                    $newteacher->completed = 0;
+
+                    $DB->insert_record('booking_teachers', $newteacher, false, false);
+                    $params = array(
+                        'id' => $this->cm->id,
+                        'optionid' => $nrecid
+                    );
+
+                    $url = new moodle_url('/mod/booking/report.php', $params);
+
+                    redirect($url);
+                }
+            }
+        }
     }
 }

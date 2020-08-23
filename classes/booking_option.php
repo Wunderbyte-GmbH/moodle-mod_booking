@@ -20,6 +20,7 @@ use invalid_parameter_exception;
 use stdClass;
 use moodle_url;
 use calendar_event;
+use mod_booking\booking_utils;
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/calendar/lib.php');
 
@@ -281,7 +282,7 @@ class booking_option {
         global $DB;
         if (empty($this->teachers)) {
             $this->teachers = $DB->get_records_sql(
-                    'SELECT DISTINCT t.userid, u.firstname, u.lastname
+                    'SELECT DISTINCT t.userid, u.firstname, u.lastname, u.email, u.institution
                             FROM {booking_teachers} t
                        LEFT JOIN {user} u ON t.userid = u.id
                            WHERE t.optionid = ' . $this->optionid . '');
@@ -376,7 +377,7 @@ class booking_option {
         if (empty($this->allusers)) {
             $userfields = \user_picture::fields('u');
             $params = array('optionid' => $this->optionid);
-            $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated, $userfields
+            $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated, $userfields, u.institution
                       FROM {booking_answers} ba
                       JOIN {user} u ON u.id = ba.userid
                      WHERE ba.optionid = :optionid
@@ -1490,5 +1491,161 @@ class booking_option {
                 $completion->update_state($cm, COMPLETION_COMPLETE, $userid);
             }
         }
+    }
+
+    /**
+     * Copy this booking option to template.
+     */
+    public function copytotemplate() {
+        global $DB;
+
+        $option = $DB->get_record('booking_options', array('id' => $this->optionid));
+
+        unset($option->id);
+        $option->bookingid = 0;
+
+        $DB->insert_record("booking_options", $option);
+    }
+
+    // Print custom report.
+    public function printcustomreport() {
+        global $CFG;
+
+        include_once($CFG->dirroot . '/mod/booking/TinyButStrong/tbs_class.php');
+        include_once($CFG->dirroot . '/mod/booking/OpenTBS/tbs_plugin_opentbs.php');
+
+        $tbs = new \clsTinyButStrong;
+        $tbs->Plugin(TBS_INSTALL, OPENTBS_PLUGIN);
+        $tbs->NoErr = true;
+
+        list($course, $cm) = get_course_and_cm_from_cmid($this->booking->cm->id);
+        $context = \context_module::instance($this->booking->cm->id);
+        $coursecontext = \context_course::instance($course->id);
+
+        $booking = array(
+            'name' => $this->booking->settings->name,
+            'eventtype' => $this->booking->settings->eventtype,
+            'duration' => $this->booking->settings->duration,
+            'organizatorname' => $this->booking->settings->organizatorname,
+            'pollurl' => $this->booking->settings->pollurl,
+            'pollurlteachers' => $this->booking->settings->pollurlteachers
+        );
+        $bu = new booking_utils();
+        $option = array(
+            'name' => $this->option->text,
+            'location' => $this->option->location,
+            'institution' => $this->option->institution,
+            'address' => $this->option->address,
+            'maxanswers' => $this->option->maxanswers,
+            'maxoverbooking' => $this->option->maxoverbooking,
+            'bookingclosingtime' => ($this->option->bookingclosingtime == 0 ? get_string('nodateset', 'booking') : userdate(
+                $this->option->bookingclosingtime, get_string('strftimedatetime'))),
+            'duration' => $bu->get_pretty_duration($this->option->duration),
+            'coursestarttime' => ($this->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate(
+                $this->option->coursestarttime, get_string('strftimedatetime'))),
+            'courseendtime' => ($this->option->courseendtime == 0 ? get_string('nodateset', 'booking') : userdate(
+                $this->option->courseendtime, get_string('strftimedatetime'))),
+            'pollurl' => $this->option->pollurl,
+            'pollurlteachers' => $this->option->pollurlteachers,
+            'shorturl' => $this->option->shorturl
+        );
+
+        $allusers = $this->get_all_users();
+        $allteachers = $this->get_teachers();
+
+        $users = array();
+        foreach ($allusers as $key => $value) {
+            $users[] = array(
+                'id' => $value->userid,
+                'firstname' => $value->firstname,
+                'lastname' => $value->lastname,
+                'email' => $value->email,
+                'institution' => $value->institution
+            );
+        }
+
+        $teachers = array();
+        foreach ($allteachers as $key => $value) {
+            $teachers[] = array(
+                'id' => $value->userid,
+                'firstname' => $value->firstname,
+                'lastname' => $value->lastname,
+                'email' => $value->email,
+                'institution' => $value->institution
+            );
+        }
+
+        $fs = get_file_storage();
+
+        $files = $fs->get_area_files($coursecontext->id, 'mod_booking', 'templatefile',
+            $this->booking->settings->customteplateid, 'sortorder,filepath,filename', false);
+
+        if ($files) {
+            $file = reset($files);
+
+            // Get file
+            $file = $fs->get_file($coursecontext->id, 'mod_booking', 'templatefile',
+            $this->booking->settings->customteplateid, $file->get_filepath(), $file->get_filename());
+        }
+
+        $ext = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
+        $filename = uniqid(rand(), false);
+
+        $tempfile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filename . ".{$ext}";
+
+        $handle = fopen($tempfile, "w");
+        fwrite($handle, $file->get_content());
+        fclose($handle);
+
+        $tbs->LoadTemplate($tempfile, OPENTBS_ALREADY_UTF8);
+
+        $tbs->PlugIn(OPENTBS_SELECT_MAIN);
+        $tbs->MergeField('booking', $booking);
+        $tbs->MergeField('option', $option);
+        $tbs->MergeBlock('users', $users);
+        $tbs->MergeBlock('teachers', $teachers);
+
+        $tbs->LoadTemplate('#styles.xml');
+        $tbs->MergeField('booking', $booking);
+        $tbs->MergeField('option', $option);
+        $tbs->MergeBlock('users', $users);
+        $tbs->MergeBlock('teachers', $teachers);
+
+        $tbs->Show(OPENTBS_STRING);
+        $tempfilefull = $tbs->Source;
+
+        $fullfile = array(
+            'contextid' => $coursecontext->id, // ID of context
+            'component' => 'mod_booking',     // usually = table name
+            'filearea' => 'templatefile',     // usually = table name
+            'itemid' => 0,               // usually = ID of row in table
+            'filepath' => '/',           // any path beginning and ending in /
+            'filename' => "{$filename}.{$ext}"); // any filename
+
+        // Create file containing text 'hello world'
+        $newfile = $fs->create_file_from_string($fullfile, $tbs->Source);
+
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+
+        $converter = new \core_files\converter();
+        $conversion = $converter->start_conversion($newfile, 'pdf', true);
+
+        if ($conversion->get_destfile() !== false) {
+            header('Content-Disposition: attachment; filename="' . $conversion->get_destfile()->get_filename() . '.pdf"');
+            echo $conversion->get_destfile()->get_content();
+            $conversion->get_destfile()->delete();
+        } else {
+            header('Content-Disposition: attachment; filename="' . $newfile->get_filename() . '"');
+            echo $newfile->get_content();
+        }
+
+        unlink($tempfile);
+        $newfile->delete();
+
+        exit();
     }
 }

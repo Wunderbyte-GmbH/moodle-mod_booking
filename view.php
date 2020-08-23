@@ -130,6 +130,8 @@ $urlcancel = new moodle_url('/mod/booking/view.php', array('id' => $id));
 $sorturl = new moodle_url('/mod/booking/view.php', $urlparamssort);
 $sorturl->set_anchor('goenrol');
 
+$booking->checkautocreate();
+
 $PAGE->set_url($url);
 $PAGE->requires->js_call_amd('mod_booking/view_actions', 'setup', array($id));
 
@@ -570,6 +572,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                    WHERE ba.optionid = bo.id
                      AND ba.waitinglist = 0)) AS availableplaces,
 
+                  (SELECT bo.maxanswers - booked ) AS availableplaces,
+
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
@@ -627,7 +631,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                   WHERE br.optionid = bo.id
                     AND br.userid = :userid5) AS myrating
                 ";
-        $from = '{booking} b ' . 'LEFT JOIN {booking_options} bo ON bo.bookingid = b.id';
+        $from = "{booking} b LEFT JOIN {booking_options} bo ON bo.bookingid = b.id";
         $where = "b.id = :bookingid " .
                  (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions));
 

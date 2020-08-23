@@ -24,10 +24,21 @@ defined('MOODLE_INTERNAL') || die();
 class option_form extends moodleform {
 
     public function definition() {
-        global $CFG, $COURSE;
+        global $CFG, $COURSE, $DB, $PAGE;
         $mform = & $this->_form;
         $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
         $mform->addElement('header', 'general', get_string('general', 'form'));
+
+        $optiontemplates = array('' => '');
+        $alloptiontemplates = $DB->get_records('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
+
+        foreach ($alloptiontemplates as $key => $value) {
+            $optiontemplates[$value->id] = $value->text;
+        }
+
+        $mform->addElement('select', 'optiontemplateid', get_string('populatefromtemplate', 'booking'),
+            $optiontemplates);
+
         $mform->addElement('text', 'text', get_string('bookingoptionname', 'booking'), array('size' => '64'));
         $mform->addRule('text', get_string('required'), 'required', null, 'client');
         $mform->addRule('text', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
@@ -228,6 +239,32 @@ class option_form extends moodleform {
         $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
         $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
 
+        // Templates and recurring 'events' - only visible when adding new.
+        if ($this->_customdata['optionid'] == -1) {
+            $mform->addElement('header', 'recurringheader',
+                        get_string('recurringheader', 'booking'));
+            $mform->addElement('checkbox', 'repeatthisbooking',
+                        get_string('repeatthisbooking', 'booking'));
+            $mform->disabledIf('repeatthisbooking', 'startendtimeknown', 'notchecked');
+            $mform->addElement('text', 'howmanytimestorepeat',
+                        get_string('howmanytimestorepeat', 'booking'));
+            $mform->setType('howmanytimestorepeat', PARAM_INT);
+            $mform->setDefault('howmanytimestorepeat', 1);
+            $mform->disabledIf('howmanytimestorepeat', 'startendtimeknown', 'notchecked');
+            $mform->disabledIf('howmanytimestorepeat', 'repeatthisbooking', 'notchecked');
+            $howoften = [
+                86400 => get_string('day'),
+                604800 => get_string('week'),
+                2592000 => get_string('month')
+            ];
+            $mform->addElement('select', 'howoftentorepeat', get_string('howoftentorepeat', 'booking'),
+                        $howoften);
+            $mform->setType('howoftentorepeat', PARAM_INT);
+            $mform->setDefault('howoftentorepeat', 86400);
+            $mform->disabledIf('howoftentorepeat', 'startendtimeknown', 'notchecked');
+            $mform->disabledIf('howoftentorepeat', 'repeatthisbooking', 'notchecked');
+        }
+
         // Templates - only visible when adding new.
         if (has_capability('mod/booking:manageoptiontemplates', $this->_customdata['context']) && $this->_customdata['bookingid'] != 0) {
             $mform->addElement('header', 'templateheader',
@@ -264,6 +301,8 @@ class option_form extends moodleform {
         $buttonarray[] = &$mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
         $mform->closeHeaderBefore('buttonar');
+
+        $PAGE->requires->js_call_amd('mod_booking/optionstemplateselect', 'init');
     }
 
     protected function data_preprocessing(&$defaultvalues) {
@@ -350,21 +389,21 @@ class option_form extends moodleform {
             }
         }
 
-        $defaultvalues->description = array('text' => $defaultvalues->description,
+        $defaultvalues->description = array('text' => (isset($defaultvalues->description) ? $defaultvalues->description : ''),
             'format' => FORMAT_HTML);
-        $defaultvalues->notificationtext = array('text' => $defaultvalues->notificationtext,
+        $defaultvalues->notificationtext = array('text' => (isset($defaultvalues->notificationtext) ? $defaultvalues->notificationtext : ''),
             'format' => FORMAT_HTML);
-        $defaultvalues->beforebookedtext = array('text' => $defaultvalues->beforebookedtext,
+        $defaultvalues->beforebookedtext = array('text' => (isset($defaultvalues->beforebookedtext) ? $defaultvalues->beforebookedtext : ''),
             'format' => FORMAT_HTML);
-        $defaultvalues->beforecompletedtext = array('text' => $defaultvalues->beforecompletedtext,
+        $defaultvalues->beforecompletedtext = array('text' => (isset($defaultvalues->beforecompletedtext) ? $defaultvalues->beforecompletedtext : ''),
             'format' => FORMAT_HTML);
-        $defaultvalues->aftercompletedtext = array('text' => $defaultvalues->aftercompletedtext,
+        $defaultvalues->aftercompletedtext = array('text' => (isset($defaultvalues->aftercompletedtext) ? $defaultvalues->aftercompletedtext : ''),
             'format' => FORMAT_HTML);
 
-        if ($defaultvalues->bookingclosingtime) {
+        if (isset($defaultvalues->bookingclosingtime) && $defaultvalues->bookingclosingtime) {
             $defaultvalues->restrictanswerperiod = "checked";
         }
-        if ($defaultvalues->coursestarttime) {
+        if (isset($defaultvalues->coursestarttime) && $defaultvalues->coursestarttime) {
             $defaultvalues->startendtimeknown = "checked";
         }
 

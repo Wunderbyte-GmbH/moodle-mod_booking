@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<libraries>
+    <library>
+        <location>TinyButStrong</location>
+        <name>TinyButStrong</name>
+        <version>3.11.0</version>
+        <license>LGPL</license>
+        <licenseversion>3.0</licenseversion>
+    </library>
+    <library>
+        <location>OpenTBS</location>
+        <name>OpenTBS</name>
+        <version>1.10.0</version>
+        <license>LGPL</license>
+        <licenseversion>3.0</licenseversion>
+    </library>
+</libraries>

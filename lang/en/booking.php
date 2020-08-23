@@ -147,6 +147,10 @@ $string['astemplate'] = 'Use as template in this course';
 $string['asglobaltemplate'] = 'Use as global template';
 $string['templatedeleted'] = 'Template was deleted!';
 $string['bookingoptionname'] = 'Booking option name';
+$string['recurringheader'] = 'Recurring options';
+$string['repeatthisbooking'] = 'Repeat this option';
+$string['howmanytimestorepeat'] = 'How many times to repeat?';
+$string['howoftentorepeat'] = 'How often to repeat?';
 
 // Categories
 $string['category'] = 'Category';
@@ -242,6 +246,7 @@ $string['tagtext'] = 'Text';
 $string['wrongdataallfields'] = 'Please, fill out all fields!';
 $string['tagsuccessfullysaved'] = 'Tag was saved.';
 $string['edittag'] = 'Edit';
+$string['tagdeleted'] = 'Tag template was deleted!';
 
 // mod_booking\all_options
 $string['showdescription'] = 'Show description';
@@ -913,8 +918,6 @@ $string['searchname'] = 'First name';
 $string['searchsurname'] = 'Last name';
 $string['yes'] = 'Yes';
 $string['no'] = 'No';
-$string['onlythisbookingurl'] = 'Link to this booking URL';
-$string['copyonlythisbookingurl'] = 'Copy this booking URL';
 $string['copypollurl'] = 'Copy poll URL';
 $string['gotobooking'] = '<< Bookings';
 $string['nousers'] = 'No users!';
@@ -957,6 +960,7 @@ $string['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
 $string['yes'] = 'Yes';
 $string['sendreminderemailsuccess'] = 'Notification e-mail has been sent!';
 $string['sign_in_sheet_download'] = 'Download Sign in Sheet';
+$string['sign_in_sheet_download_show'] = 'Show Sign in sheet download form';
 $string['status_complete'] = "Complete";
 $string['status_incomplete'] = "Incomplete";
 $string['status_noshow'] = "No show";
@@ -970,6 +974,8 @@ $string['userssuccessfullygetnewpresencestatus'] = 'All users have a new presenc
 $string['deleteresponsesactivitycompletion'] = 'Delete all users with completed activity: {$a}';
 $string['signature'] = 'Signature';
 $string['userssucesfullygetnewpresencestatus'] = 'Presence status for selected users successfully updated';
+$string['copytotemplate'] = 'Copy to template';
+$string['copytotemplatesucesfull'] = 'Booking option was sucesfully copied to template.';
 
 
 // Send message
@@ -1106,6 +1112,7 @@ $string['usercalendarentry'] = 'You are booked for this <a href="{$a}">session</
 $string['bookingoptioncalendarentry'] = 'Go to <a href="{$a}">booking option</a>.';
 
 // mybookings.php
+$string['status'] = 'Status';
 $string['active'] = "Active";
 $string['terminated'] = "Terminated";
 $string['notstarted'] = "Not yet started";
@@ -1126,4 +1133,35 @@ $string['optiontemplatessettings'] = 'Booking option templates';
 $string['defaulttemplate'] = 'Default template';
 $string['defaulttemplatedesc'] = 'Default booking option template, when creatting new booking option.';
 $string['dontuse'] = 'Don\'t use template';
+
+// instancetemplateadd.php
+$string['saveinstanceastemplate'] = 'Add booking instance to template';
+$string['thisinstance'] = 'This booking instance';
+$string['instancetemplate'] = 'Instance template';
+$string['instancesuccessfullysaved'] = 'This booking instance was sucesfully saved as template.';
+$string['bookinginstancetemplatessettings'] = 'Booking instance templates';
+$string['bookinginstancetemplatename'] = 'Booking instance template name';
+$string['managebookinginstancetemplates'] = 'Manage booking instance templates';
+$string['populatefromtemplate'] = 'Populate from template';
+
+// mybookings
+$string['mybookingsbooking'] = 'Booking (Course)';
+$string['mybookingsoption'] = 'Option';
+
+// Custom report templates
+$string['managecustomreporttemplates'] = 'Manage custom report templates';
+$string['customreporttemplates'] = 'Custom report templates';
+$string['customreporttemplate'] = 'Custom report template';
+$string['addnewreporttemplate'] = 'Add new report template';
+$string['templatefile'] = 'Template file';
+$string['templatesuccessfullysaved'] = 'Template was saved.';
+$string['customdownloadreport'] = 'Download report';
 $string['bookingoptionsfromtemplatemenu'] = 'New booking option from template';
+
+// Automatic option creation.
+$string['autcrheader'] = 'Automatic booking option creation';
+$string['autcrwhatitis'] = 'If this option is enabled it automaticly create a ne booking option and assing a person as teacher to it. It check a user profile field for certain value.';
+$string['enable'] = 'Enable';
+$string['customprofilefield'] = 'Custom profile field to check';
+$string['customprofilefieldvalue'] = 'Custom profile field value to check';
+$string['optiontemplate'] = 'Option template';

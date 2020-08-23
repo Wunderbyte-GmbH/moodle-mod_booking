@@ -44,7 +44,7 @@ $bookingoption = new \mod_booking\booking_option($id, $optionid);
 $url = new moodle_url('/mod/booking/subscribeusers.php', array('id' => $id, 'optionid' => $optionid, 'agree' => $agree));
 $errorurl = new moodle_url('/mod/booking/view.php', array('id' => $id));
 
-if (!booking_check_if_teacher ( $bookingoption->option, $USER )) {
+if (!booking_check_if_teacher ($bookingoption->option)) {
     if (!(has_capability('mod/booking:subscribeusers', $context) || has_capability('moodle/site:accessallgroups', $context))) {
         throw new moodle_exception('nopermissions', 'core', $errorurl, get_string('bookotherusers', 'mod_booking'));
     }
@@ -124,7 +124,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
                 print_error('invalidaction');
             }
         } else if ($unsubscribe && (has_capability('mod/booking:deleteresponses', $context) ||
-                 (booking_check_if_teacher($bookingoption->option, $USER)))) {
+                 (booking_check_if_teacher($bookingoption->option)))) {
             $users = $existingselector->get_selected_users();
             $unsubscribesuccess = true;
             foreach ($users as $user) {
@@ -134,7 +134,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
                 }
             }
         } else if ($unsubscribe && (!has_capability('mod/booking:deleteresponses', $context) ||
-                 (booking_check_if_teacher($bookingoption->option, $USER)))) {
+                 (booking_check_if_teacher($bookingoption->option)))) {
             print_error('nopermission', null, $url->out());
         }
         $subscriberselector->invalidate_selected_users();
@@ -160,7 +160,7 @@ if ($subscribesuccess || $unsubscribesuccess) {
     }
     if ($unsubscribesuccess &&
              (has_capability('mod/booking:deleteresponses', $context) ||
-             (booking_check_if_teacher($bookingoption->option, $USER)))) {
+             (booking_check_if_teacher($bookingoption->option)))) {
         echo $OUTPUT->container(get_string('allchangessave', 'booking'), 'important', 'notice');
     }
 }

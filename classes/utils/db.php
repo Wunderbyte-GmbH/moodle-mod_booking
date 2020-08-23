@@ -71,8 +71,8 @@ class db {
         global $DB;
 
         if (!empty($courseid)) {
-            $sql = 'SELECT b.id, b.name FROM {badge} b WHERE (b.courseid = :courseid OR b.courseid IS null) ' .
-                'AND (b.status = 1 OR b.status = 3) ORDER BY b.name ASC';
+            $sql = 'SELECT b.id, b.name FROM {badge} b WHERE ' .
+                'b.status = 1 OR b.status = 3 ORDER BY b.name ASC';
             $params = array();
             $params['courseid'] = $courseid;
 
@@ -108,7 +108,7 @@ class db {
         }
 
         if ($completed) {
-            return array_intersect_key($oud, $ud);
+            return array_intersect($oud, $ud);
         } else {
             return array_diff($oud, $ud);
         }
@@ -138,6 +138,6 @@ class db {
             $oud[] = $u->userid;
         }
 
-        return array_intersect_key($oud, $ud);
+        return array_intersect($oud, $ud);
     }
 }

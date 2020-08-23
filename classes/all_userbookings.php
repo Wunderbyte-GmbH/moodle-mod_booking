@@ -348,7 +348,6 @@ class all_userbookings extends \table_sql {
             if (has_capability('mod/booking:subscribeusers',
                     \context_module::instance($this->cm->id)) || booking_check_if_teacher(
                             $this->bookingdata->option)) {
-                echo "<br>";
                 if (has_capability('mod/booking:subscribeusers',
                         \context_module::instance($this->cm->id))) {
                             $optionids = \mod_booking\booking::get_all_optionids($this->bookingdata->booking->id);
@@ -358,12 +357,24 @@ class all_userbookings extends \table_sql {
                 $optionids = array_values(array_diff($optionids, array($this->optionid)));
                 if (!empty($optionids)) {
                     list($insql, $inparams) = $DB->get_in_or_equal($optionids);
-                    $options = $DB->get_records_select_menu('booking_options', "id {$insql}",
-                            $inparams, '', 'id,text');
-                    $optionbutton = '<div class="singlebutton">' . html_writer::start_tag('span',
+                    $options = $DB->get_records_select('booking_options', "id {$insql}",
+                            $inparams, '', 'id,text,coursestarttime,location');
+                    $transferto = array();
+                    foreach ($options as $key => $value) {
+                        $string = array();
+                        $string[] = $value->text;
+                        if ($value->coursestarttime != 0) {
+                            $string[] = userdate($value->coursestarttime);
+                        }
+                        if ($value->location != '') {
+                            $string[] = $value->location;
+                        }
+                        $transferto[$value->id] = implode($string, ', ');
+                    }
+                    $optionbutton = '<div class="singlebutton">' . \html_writer::start_tag('span',
                             array('class' => "transfersubmit"));
-                    echo html_writer::div(get_string('transferheading', 'mod_booking'));
-                    echo $dropdown = html_writer::select($options, 'transferoption');
+                    echo \html_writer::div(get_string('transferheading', 'mod_booking'));
+                    echo $dropdown = \html_writer::select($transferto, 'transferoption');
                     $attributes = array('type' => 'submit',
                         'class' => 'transfersubmit btn btn-secondary', 'id' => 'transfersubmit',
                         'name' => 'transfersubmit',

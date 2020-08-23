@@ -26,12 +26,20 @@ class subscribeusersctivity extends \moodleform {
 
         $mform = $this->_form; // Don't forget the underscore!
 
-        $bookingoptions = $DB->get_records_list("booking_options", "bookingid", array($this->_customdata['bookingid']), '', 'id, text', '', '');
+        $bookingoptions = $DB->get_records_list("booking_options", "bookingid", array($this->_customdata['bookingid']), '', 'id,text,coursestarttime,location', '', '');
 
         $values = array();
 
         foreach ($bookingoptions as $key => $value) {
-            $values[$value->id] = $value->text;
+            $string = array();
+            $string[] = $value->text;
+            if ($value->coursestarttime != 0) {
+                $string[] = userdate($value->coursestarttime);
+            }
+            if ($value->location != '') {
+                $string[] = $value->location;
+            }
+            $values[$value->id] = implode($string, ', ');
         }
 
         unset($values[$this->_customdata['optionid']]);

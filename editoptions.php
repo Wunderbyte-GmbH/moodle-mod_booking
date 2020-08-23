@@ -16,9 +16,11 @@
 require_once("../../config.php");
 require_once("locallib.php");
 
+use mod_booking\form\option_form;
+
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
-$copyoptionid = optional_param('copyoptionid', '', PARAM_ALPHANUM);
+$copyoptionid = optional_param('copyoptionid', 0, PARAM_INT);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
 
 $url = new moodle_url('/mod/booking/editoptions.php', array('id' => $id, 'optionid' => $optionid));
@@ -42,9 +44,9 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
     print_error('nopermissions');
 }
 
-$mform = new mod_booking\form\option_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context));
+$mform = new option_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context));
 
-if ($optionid == -1 && $copyoptionid != '') {
+if ($optionid == -1 && $copyoptionid != 0) {
     // Adding new booking option - default values.
     $defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid));
     $defaultvalues->text = $defaultvalues->text . get_string('copy', 'booking');
@@ -94,6 +96,44 @@ if ($mform->is_cancelled()) {
         if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 &&
                 !has_capability('mod/booking:updatebooking', $context)) {
             booking_optionid_subscribe($USER->id, $nbooking, $cm);
+        }
+
+        // Recurring
+        if ($optionid == -1 && isset($fromform->startendtimeknown) && $fromform->startendtimeknown == 1 &&
+            isset($fromform->repeatthisbooking) && $fromform->repeatthisbooking == 1 && $fromform->howmanytimestorepeat > 0) {
+
+            $fromform->parentid = $nbooking;
+            $name = $fromform->text;
+
+            $restrictanswerperiod = 0;
+            if (isset($fromform->restrictanswerperiod) && $fromform->restrictanswerperiod) {
+                $restrictanswerperiod = $fromform->coursestarttime - $fromform->bookingclosingtime;
+            }
+
+            for ($i = 0; $i < $fromform->howmanytimestorepeat; $i++) {
+                $fromform->text = $name . " #" . ($i + 2);
+                $fromform->coursestarttime = $fromform->coursestarttime + $fromform->howoftentorepeat;
+                $fromform->courseendtime = $fromform->courseendtime + $fromform->howoftentorepeat;
+
+                if ($restrictanswerperiod != 0) {
+                    $fromform->bookingclosingtime = $fromform->coursestarttime + $restrictanswerperiod;
+                }
+
+                $nbooking = booking_update_options($fromform, $context, $cm);
+
+                if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
+                    file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
+                            $nbooking, array('subdirs' => false, 'maxfiles' => 50));
+                }
+
+                $bookingdata = new \mod_booking\booking_option($cm->id, $nbooking);
+                $bookingdata->sync_waiting_list();
+
+                if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 &&
+                        !has_capability('mod/booking:updatebooking', $context)) {
+                    booking_optionid_subscribe($USER->id, $nbooking, $cm);
+                }
+            }
         }
 
         if (isset($fromform->submittandaddnew)) {

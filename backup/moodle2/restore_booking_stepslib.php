@@ -132,7 +132,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
         $data = (object) $data;
         $data->courseid = $this->get_courseid();
-        $DB->insert_record('booking_tags', $data);
+        // When duplicating this module instance, it duplicates also tags.
+        // There is no need to duplicate, so before inserting, check, if tag exists.
+        $nofrecords = $DB->count_records('booking_tags', ['courseid' => $data->courseid, 'tag' => $data->tag]);
+        if ($nofrecords == 0) {
+            $DB->insert_record('booking_tags', $data);
+        }
         // No need to save this mapping as far as nothing depend on it.
     }
 

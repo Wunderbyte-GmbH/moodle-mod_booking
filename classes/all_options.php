@@ -30,6 +30,9 @@ use html_writer;
 use moodle_url;
 use stdClass;
 use table_sql;
+use mod_booking\booking;
+use mod_booking\places;
+use mod_booking\booking_tags;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -40,6 +43,8 @@ class all_options extends table_sql {
     public $cm = null;
 
     public $context = null;
+
+    public $tags = null;
 
     /**
      * mod_booking\all_options constructor.
@@ -57,6 +62,7 @@ class all_options extends table_sql {
         $this->booking = $booking;
         $this->cm = $cm;
         $this->context = $context;
+        $this->tags = new booking_tags($cm->course);
     }
 
     protected function col_id($values) {
@@ -93,7 +99,7 @@ class all_options extends table_sql {
             }
             // Book other users.
             if (has_capability('mod/booking:subscribeusers', $this->context) ||
-                booking_check_if_teacher($values, $USER)) {
+                booking_check_if_teacher($values)) {
                 $onlyoneurl = new moodle_url('/mod/booking/subscribeusers.php',
                     array('id' => $this->cm->id, 'optionid' => $values->id));
                 $ddoptions[] = '<div class="dropdown-item">' .
@@ -258,6 +264,7 @@ class all_options extends table_sql {
         }
 
         if (!empty($values->description)) {
+            $values->description = $this->tags->tag_replaces($values->description);
             $showhidetext = '<span id="showtextdes' . $values->id . '" style=' . $th . '>' . get_string(
                     'showdescription', "mod_booking") . '</span><span id="hidetextdes' . $values->id . '" style=' . $ts . '>' .
                 get_string(
@@ -294,6 +301,7 @@ class all_options extends table_sql {
         $texttoshow = "";
         $bookingdata = new \mod_booking\booking_option($this->cm->id, $values->id);
         $texttoshow = $bookingdata->get_option_text();
+        $texttoshow = $this->tags->tag_replaces($texttoshow);
 
         $showhidetext = '<span id="showtext' . $values->id . '" style=' . $th . '>' . get_string(
                 'showdescription', "mod_booking") . '</span><span id="hidetext' . $values->id . '" style=' . $ts . '>' . get_string(
