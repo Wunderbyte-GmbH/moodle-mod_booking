@@ -346,7 +346,7 @@ if (!$tableallbookings->is_downloading()) {
 
             $sendmessageurl = new moodle_url('/mod/booking/sendmessage.php',
                     array('id' => $id, 'optionid' => $optionid,
-                        'uids' => serialize($allselectedusers)));
+                        'uids' => json_encode($allselectedusers)));
             redirect($sendmessageurl);
         } else if (isset($_POST['activitycompletion']) && (booking_check_if_teacher(
                 $bookingdata->option) || has_capability('mod/booking:readresponses', $context))) {
@@ -781,7 +781,7 @@ if (!$tableallbookings->is_downloading()) {
 
     echo ' | ' . html_writer::link($onlyoneurl, get_string('sign_in_sheet_download_show', 'booking'),
             array('id' => 'sign_in_sheet_download_show'));
-    if (!empty($bookingdata->booking->settings->customteplateid)) {
+    if (!empty($bookingdata->booking->settings->customtemplateid)) {
         echo ' | ' . html_writer::link(new moodle_url('/mod/booking/report.php',
                         array('id' => $cm->id, 'optionid' => $optionid, 'action' => 'postcustomreport')),
                         get_string('customdownloadreport', 'booking'), array('target' => '_blank'));

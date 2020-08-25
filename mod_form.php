@@ -658,7 +658,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $customreporttemplates[$value->id] = $value->name;
         }
 
-        $mform->addElement('select', 'customteplateid', get_string('customreporttemplate', 'booking'), $customreporttemplates);
+        $mform->addElement('select', 'customtemplateid', get_string('customreporttemplate', 'booking'), $customreporttemplates);
 
         // Automatic option creation.
         $mform->addElement('header', 'autcrheader',

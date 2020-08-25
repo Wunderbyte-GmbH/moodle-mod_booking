@@ -2024,7 +2024,7 @@ function booking_sendpollurl($userids, \mod_booking\booking_option $booking, $cm
  * @param array $uids
  * @return boolean|mixed|number
  */
-function booking_sendcustommessage($optionid, $subject, $message, $uids) {
+function booking_sendcustommessage(int $optionid, string $subject, string $message, array $uids) {
     global $DB, $USER, $CFG;
 
     $returnval = true;
@@ -2033,8 +2033,8 @@ function booking_sendcustommessage($optionid, $subject, $message, $uids) {
     $booking = $DB->get_record('booking', array('id' => $option->bookingid));
 
     $cm = get_coursemodule_from_instance('booking', $booking->id);
-    foreach ($uids as $record) {
-        $ruser = $DB->get_record('user', array('id' => $record));
+    foreach ($uids as $id) {
+        $ruser = $DB->get_record('user', array('id' => $id));
         $eventdata = new \core\message\message();
         if ($CFG->branch > 31) {
             $eventdata->courseid = $cm->course;
@@ -2050,7 +2050,6 @@ function booking_sendcustommessage($optionid, $subject, $message, $uids) {
         $eventdata->name = 'bookingconfirmation';
         $returnval = message_send($eventdata);
     }
-
     return $returnval;
 }
 

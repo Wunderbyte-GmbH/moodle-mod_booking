@@ -1578,14 +1578,14 @@ class booking_option {
         $fs = get_file_storage();
 
         $files = $fs->get_area_files($coursecontext->id, 'mod_booking', 'templatefile',
-            $this->booking->settings->customteplateid, 'sortorder,filepath,filename', false);
+            $this->booking->settings->customtemplateid, 'sortorder,filepath,filename', false);
 
         if ($files) {
             $file = reset($files);
 
             // Get file
             $file = $fs->get_file($coursecontext->id, 'mod_booking', 'templatefile',
-            $this->booking->settings->customteplateid, $file->get_filepath(), $file->get_filename());
+            $this->booking->settings->customtemplateid, $file->get_filepath(), $file->get_filename());
         }
 
         $ext = pathinfo($file->get_filename(), PATHINFO_EXTENSION);

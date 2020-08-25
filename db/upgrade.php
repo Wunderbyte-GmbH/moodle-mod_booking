@@ -2002,7 +2002,16 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field autcractive to be added to booking.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('autcractive', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'customteplateid');
+        $field = new xmldb_field('customtemplateid', XMLDB_TYPE_INTEGER, '10', null, null, null, null,'showviews');
+
+        // Conditionally launch add field autcractive.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field autcractive to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('autcractive', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'customtemplateid');
 
         // Conditionally launch add field autcractive.
         if (!$dbman->field_exists($table, $field)) {

@@ -17,16 +17,16 @@
 /**
  *
  * @package mod_booking
- * @copyright 2012-2019 David Bogner <info@edulabs.org>, Andraž Prinčič <atletek@gmail.com>
+ * @copyright 2012-2020 David Bogner <info@wunderbyte.at>, Andraž Prinčič <atletek@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2020071300;
-$plugin->requires = 2018051700; // Requires this Moodle version. Current: Moodle 3.5.
+$plugin->version = 2020082300;
+$plugin->requires = 2019111800; // Requires this Moodle version. Current: Moodle 3.8.
 // Famous female characters: Diane Selwyn, Eva Thörnblad, Alex Kirkman, Piper Chapman.
-// Lois Wilkerson, Audrey Horne, Lorelai Gilmore, Nairobi (Casa de Papel).
-$plugin->release = 'v5.9-Nairobi';
+// Lois Wilkerson, Audrey Horne, Lorelai Gilmore, Nairobi (Casa de Papel), Saga Norén.
+$plugin->release = 'v6.0-Norén';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->cron = 60;
 $plugin->component = 'mod_booking';

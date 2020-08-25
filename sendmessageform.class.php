@@ -39,10 +39,10 @@ class mod_booking_sendmessage_form extends moodleform {
         $mform->setType('message', PARAM_TEXT);
 
         $mform->addElement('hidden', 'optionid');
-        $mform->setType('optionid', PARAM_RAW);
+        $mform->setType('optionid', PARAM_INT);
 
         $mform->addElement('hidden', 'id');
-        $mform->setType('id', PARAM_RAW);
+        $mform->setType('id', PARAM_INT);
 
         $mform->addElement('hidden', 'uids');
         $mform->setType('uids', PARAM_RAW);
