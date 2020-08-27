@@ -2415,5 +2415,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022032500, 'booking');
     }
 
+    if ($oldversion < 2020082700) {
+
+        // Define field auth to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('auth', XMLDB_TYPE_CHAR, '264', null, null, null, null, 'autcrtemplate');
+
+        // Conditionally launch add field auth.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2020082700, 'booking');
+    }
+
     return true;
 }

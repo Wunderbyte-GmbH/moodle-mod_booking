@@ -326,6 +326,13 @@ class booking_utils {
             $button = '<div class="col-ap-norighttobook">' . get_string('norighttobook', 'booking') . "</div><br/>";
         }
 
+         // Check, if can book based on login method.
+         if (!empty($this->booking->settings->auth)) {
+            if ($this->booking->settings->auth != $USER->auth && !empty($button)) {
+                $button = get_string('wrongauth', 'booking') . "<br />";
+            }
+        }
+
         // We only run this if we are not on coursepage.
         if (!$coursepage) {
             if (has_capability('mod/booking:readresponses', $context) || $values->isteacher) {

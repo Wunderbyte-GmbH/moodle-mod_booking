@@ -852,6 +852,19 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'autcrtemplate', get_string('optiontemplate', 'booking'), $cftemplates);
         $mform->disabledIf('autcrtemplate', 'autcractive');
 
+        // Restricting access
+        $mform->addElement('header', 'autcrheader',
+                get_string('restrictheader', 'booking'));
+
+        $mform->addElement('static', 'description', '', get_string('restrictwhatitis', 'booking'));
+        $authmethods = get_enabled_auth_plugins(true);
+        $authmethodsarray = array();
+        $authmethodsarray[''] = get_string('authnorestriction', 'booking');
+        foreach ($authmethods as $key => $value) {
+            $authmethodsarray[$value] = $value;
+        }
+        $mform->addElement('select', 'auth', get_string('authrestrict', 'booking'), $authmethodsarray);
+
         // Standard Moodle form elements.
         $this->standard_grading_coursemodule_elements();
         $this->standard_coursemodule_elements();

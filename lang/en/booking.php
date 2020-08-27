@@ -1686,3 +1686,9 @@ $string['reoccurringdatestring_help'] = 'Enter a text in the following format:
 $string['add_optiondate_series'] = 'Create date series';
 $string['reoccurringdatestringerror'] = 'Enter a text in the following format:
     Day, HH:MM - HH:MM';
+// Restricting access
+$string['restrictheader'] = 'Restrict booking to login auth';
+$string['restrictwhatitis'] = 'If not empty, only users with certain auth type can book.';
+$string['authnorestriction'] = 'No restrictions';
+$string['authrestrict'] = 'Restrict access';
+$string['wrongauth'] = 'You don\'t have permission to book as you registered with wrong service.';
