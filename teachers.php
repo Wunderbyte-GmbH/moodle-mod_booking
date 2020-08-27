@@ -47,10 +47,8 @@ $output = $PAGE->get_renderer('mod_booking');
 $currentgroup = groups_get_activity_group($cm);
 $options = array('optionid' => $optionid, 'currentgroup' => $currentgroup, 'context' => $context);
 $existingselector = new existing_subscriber_selector('existingsubscribers', $options);
-$existingselector->set_extra_fields(array('email'));
 $subscriberselector = new potential_subscriber_selector('potentialsubscribers', $options);
 $subscriberselector->set_existing_subscribers($existingselector->find_users(''));
-$subscriberselector->set_extra_fields(array('email'));
 
 if ($edit === 0) {
     $option = $DB->get_record("booking_options", array("id" => $optionid));
