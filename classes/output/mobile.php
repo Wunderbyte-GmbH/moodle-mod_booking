@@ -417,7 +417,7 @@ class mobile {
                     'html' => $OUTPUT->render_from_template('mod_booking/mod_booking_manage_presence', $data),
                 ],
             ],
-            'javascript' => '',
+            'javascript' => file_get_contents($CFG->dirroot . '/mod/booking/mobile/js/presence.js'),
             'otherdata' => '',
         ];
     }

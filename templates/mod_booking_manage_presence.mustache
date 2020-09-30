@@ -6,13 +6,9 @@
         </ion-card-header>
         <ion-card-content>
             opis
+            <button ion-button icon-only (click)="callDone()">
+        <ion-icon name="funnel"></ion-icon>
+    </button>
         </ion-card-content>
     </ion-card>
 </div>
-
-<script>
-this.CoreUtilsProvider.scanQR().then((text) => {
-    // The variable "text" contains the value of the QR code.
-    console.log(text);
-});
-</script>
