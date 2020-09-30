@@ -398,7 +398,7 @@ class mobile {
     }
 
     public static function mod_booking_manage_presence($args) {
-        global $OUTPUT, $USER, $DB;
+        global $OUTPUT, $USER, $DB, $CFG;
 
         $args = (object) $args;
         $cm = get_coursemodule_from_id('booking', $args->cmid);
