@@ -1693,4 +1693,9 @@ $string['authnorestriction'] = 'No restrictions';
 $string['authrestrict'] = 'Restrict access';
 $string['wrongauth'] = 'You don\'t have permission to book as you registered with wrong service.';
 
+// Mobile.
 $string['managepresence'] = 'Manage presence';
+$string['alredyconfirmed'] = '{$a->lastname} {$a->firstname} alredy confirmed!';
+$string['usernotfound'] = 'User not found!';
+$string['userconfirmed'] = '{$a->lastname} {$a->firstname} confirmed.';
+$string['userconnotenroled'] = '{$a->lastname} {$a->firstname} not enrolled!';

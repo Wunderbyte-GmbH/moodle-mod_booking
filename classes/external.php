@@ -574,4 +574,53 @@ class external extends external_api {
     }
 
 
+     * Describes the parameters for confirm_user_parameters.
+     *
+     * @return external_function_parameters
+     */
+    public static function confirm_user_parameters() {
+        return new external_function_parameters(
+            array('cmid' => new external_value(PARAM_INT, 'cmid', 'CM ID', VALUE_REQUIRED, 0),
+                'optionid' => new external_value(PARAM_INT, 'Option id', 'Option id',
+                        VALUE_REQUIRED, 0),
+                'userid' => new external_value(PARAM_INT, 'User id', 'User id',
+                        VALUE_REQUIRED, 0)));
+    }
+
+    public static function confirm_user($cmid, $optionid, $userid) {
+        global $DB;
+
+        $countcompleted = $DB->count_records('booking_answers',
+                array('optionid' => $optionid, 'userid' => $userid, 'completed' => '1'));
+
+        $user = $DB->get_record('user', array('id' => $userid));
+
+        if (empty($user)) {
+            return array('message' => get_string('usernotfound', 'booking'));
+        }
+
+        if ($countcompleted === 1) {
+            return array('message' => get_string('alredyconfirmed', 'booking', $user));
+        }
+
+        $params = self::validate_parameters(self::confirm_user_parameters(),
+                array('cmid' => $cmid, 'optionid' => $optionid, 'userid' => $userid));
+
+        $bookingdata = new \mod_booking\booking_option($cmid, $optionid, array(), 0, 0, false);
+        $bookingdata->confirmactivity($userid);
+
+        $countcompleted = $DB->count_records('booking_answers',
+                array('optionid' => $optionid, 'userid' => $userid, 'completed' => '1'));
+
+        if ($countcompleted === 1) {
+            return array('message' => get_string('userconfirmed', 'booking', $user));
+        } else {
+            return array('message' => get_string('userconnotenroled', 'booking', $user));
+        }
+    }
+
+    public static function confirm_user_returns() {
+        return new external_single_structure(
+                array('message' => new \external_value(PARAM_TEXT, 'the updated note')));
+    }
 }
