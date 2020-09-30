@@ -45,7 +45,8 @@ $addons = [
             ['showmybookingsonly', 'booking'],
             ['mybookingsbooking', 'booking'],
             ['status', 'booking'],
-            ['coursestarttime', 'booking']
+            ['coursestarttime', 'booking'],
+            ['managepresence', 'booking']
         ]
     ]
 ];

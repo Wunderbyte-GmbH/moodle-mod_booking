@@ -1,4 +1,4 @@
-<div>   
+<div>
 
     <ion-card>
         <ion-card-header>
@@ -14,7 +14,7 @@
             <ion-col align-self-center="" class="col ng-star-inserted" text-center="">
                 <button ion-button block color="{{bcolorshowactive}}" core-site-plugins-new-content method="mobile_course_view" samePage="true" [args]="{cmid: {{cmid}}, courseid: {{courseid}}, whichview: 'showactive'}">
                     {{ string.showactive }}
-                </button>                       
+                </button>
             </ion-col>
             <ion-col align-self-center="" class="col ng-star-inserted" text-center="">
                 <button ion-button block color="{{bcolorshowall}}" core-site-plugins-new-content method="mobile_course_view" samePage="true" [args]="{cmid: {{cmid}}, courseid: {{courseid}}, whichview: 'showall'}">
@@ -34,7 +34,7 @@
 
     <ion-searchbar [showCancelButton]="shouldShowCancel" [debounce]="1000" [(ngModel)]="CONTENT_OTHERDATA.searchstring" (ionInput)="updateContent({ cmid: {{cmid}}, courseid: {{courseid}}, whichview: '{{activeview}}', searchstring: CONTENT_OTHERDATA.searchstring})"></ion-searchbar>
 
-    {{#booking_option}}  
+    {{#booking_option}}
         <ion-card>
             <ion-card-header>
                 {{name}}
@@ -51,18 +51,23 @@
                         {{ delete.text }}
                     </button>
                 {{/delete}}
+                {{#managepresence}}
+                    <button ion-button core-site-plugins-new-content title="123" component="mod_booking" method="mod_booking_manage_presence" [args]="{ {{managepresence.args}} }">
+                        {{ string.managepresence }}
+                    </button>
+                {{/managepresence}}
             </ion-card-content>
         </ion-card>
     {{/booking_option}}
 
     <ion-grid class="core-user-communication-handlers grid ng-star-inserted">
         <ion-row class="row ng-star-inserted" justify-content-between="" no-padding="">
-            <ion-col align-self-center="" class="col ng-star-inserted" text-center="">                
+            <ion-col align-self-center="" class="col ng-star-inserted" text-center="">
                 <button ion-button block color="light" core-site-plugins-new-content method="mobile_course_view" samePage="true" [args]="{cmid: {{cmid}}, courseid: {{courseid}}, pagnumber: {{btnnp.p}}, whichview: '{{activeview}}' }" useOtherData="">
                     {{ string.previous }}
-                </button>                
+                </button>
             </ion-col>
-            <ion-col align-self-center="" class="col ng-star-inserted" text-center="">                
+            <ion-col align-self-center="" class="col ng-star-inserted" text-center="">
                 <button ion-button block color="light" core-site-plugins-new-content method="mobile_course_view" samePage="true" [args]="{cmid: {{cmid}}, courseid: {{courseid}}, pagnumber: {{btnnp.n}}, whichview: '{{activeview}}' }" useOtherData="">
                     {{ string.next }}
                 </button>

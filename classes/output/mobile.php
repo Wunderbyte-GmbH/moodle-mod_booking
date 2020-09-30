@@ -173,7 +173,8 @@ class mobile {
                 'showallbookings' => get_string('showallbookings', 'booking'),
                 'showmybookingsonly' => get_string('showmybookingsonly', 'booking'),
                 'next' => get_string('next', 'booking'),
-                'previous' => get_string('previous', 'booking')
+                'previous' => get_string('previous', 'booking'),
+                'managepresence' => get_string('managepresence', 'booking')
             ), 'btnnp' => self::npbuttons($allpages, $pagnumber), 'bcolorshowall' => $bcolorshowall,
             'bcolorshowactive' => $bcolorshowactive, 'bcolormybooking' => $bcolormybooking
         );
@@ -288,6 +289,9 @@ class mobile {
         $status = '';
         $button = array();
         $booked = '';
+        $managepresence = array(
+            'args' => "optionid: {$values->option->id}, cmid: {$cm->id}, courseid: {$courseid}"
+        );
         $inpast = $values->option->courseendtime && ($values->option->courseendtime < time());
 
         $underlimit = ($booking->settings->maxperuser == 0);
@@ -389,7 +393,32 @@ class mobile {
 
         return array(
             'name' => $values->option->text, 'text' => $text, 'button' => $button,
-            'delete' => $delete
+            'delete' => $delete, 'managepresence' => $managepresence
         );
+    }
+
+    public static function mod_booking_manage_presence($args) {
+        global $OUTPUT, $USER, $DB;
+
+        $args = (object) $args;
+        $cm = get_coursemodule_from_id('booking', $args->cmid);
+
+        // Capabilities check.
+        require_login($args->courseid, false , $cm, true, true);
+
+        $context = context_module::instance($cm->id);
+
+        $data = array();
+
+        return [
+            'templates' => [
+                [
+                    'id' => 'main',
+                    'html' => $OUTPUT->render_from_template('mod_booking/mod_booking_manage_presence', $data),
+                ],
+            ],
+            'javascript' => '',
+            'otherdata' => '',
+        ];
     }
 }

@@ -1692,3 +1692,5 @@ $string['restrictwhatitis'] = 'If not empty, only users with certain auth type c
 $string['authnorestriction'] = 'No restrictions';
 $string['authrestrict'] = 'Restrict access';
 $string['wrongauth'] = 'You don\'t have permission to book as you registered with wrong service.';
+
+$string['managepresence'] = 'Manage presence';

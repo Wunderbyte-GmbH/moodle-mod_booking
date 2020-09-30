@@ -1,0 +1,18 @@
+<div>
+
+    <ion-card>
+        <ion-card-header>
+            {{ 'plugin.mod_booking.managepresence' | translate }}
+        </ion-card-header>
+        <ion-card-content>
+            opis
+        </ion-card-content>
+    </ion-card>
+</div>
+
+<script>
+this.CoreUtilsProvider.scanQR().then((text) => {
+    // The variable "text" contains the value of the QR code.
+    console.log(text);
+});
+</script>
