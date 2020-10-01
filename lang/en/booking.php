@@ -1699,3 +1699,5 @@ $string['alredyconfirmed'] = '{$a->lastname} {$a->firstname} alredy confirmed!';
 $string['usernotfound'] = 'User not found!';
 $string['userconfirmed'] = '{$a->lastname} {$a->firstname} confirmed.';
 $string['userconnotenroled'] = '{$a->lastname} {$a->firstname} not enrolled!';
+$string['wrongqrcode'] = 'Wrong QR code!';
+$string['confirmpresence'] = 'Confirm presence';

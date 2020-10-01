@@ -1,9 +1,23 @@
 var that = this;
 
 this.callDone = function() {
-    this.CoreUtilsProvider.scanQR().then((text) => {
-        // The variable "text" contains the value of the QR code.
-        that.CoreDomUtilsProvider.showToast(text);
-//        alert(text);
+    that.CoreUtilsProvider.scanQR().then((text) => {
+        if (typeof text !== 'undefined' && Number.isInteger(text)) {
+
+            return that.CoreSitesProvider.getSite().then(function(site) {
+
+                var params = {
+                    cmid: that.CONTENT_OTHERDATA.cmid,
+                    optionid: that.CONTENT_OTHERDATA.optionid,
+                    userid: text
+                };
+
+                return site.write('mod_booking_confirm_user', params).then(function(response) {
+                    that.CoreDomUtilsProvider.showToast(response.message);
+                });
+            });
+        } else {
+            that.CoreDomUtilsProvider.showToast(that.TranslateService.instant('plugin.mod_booking.wrongqrcode'));
+        }
     });
 };

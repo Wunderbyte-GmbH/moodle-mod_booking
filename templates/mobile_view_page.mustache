@@ -52,7 +52,7 @@
                     </button>
                 {{/delete}}
                 {{#managepresence}}
-                    <button ion-button core-site-plugins-new-content title="123" component="mod_booking" method="mod_booking_manage_presence" [args]="{ {{managepresence.args}} }">
+                    <button ion-button core-site-plugins-new-content title="{{name}}" component="mod_booking" method="mod_booking_manage_presence" [args]="{ {{managepresence.args}} }">
                         {{ string.managepresence }}
                     </button>
                 {{/managepresence}}

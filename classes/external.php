@@ -590,6 +590,9 @@ class external extends external_api {
     public static function confirm_user($cmid, $optionid, $userid) {
         global $DB;
 
+        $params = self::validate_parameters(self::confirm_user_parameters(),
+                array('cmid' => $cmid, 'optionid' => $optionid, 'userid' => $userid));
+
         $countcompleted = $DB->count_records('booking_answers',
                 array('optionid' => $optionid, 'userid' => $userid, 'completed' => '1'));
 
@@ -603,10 +606,7 @@ class external extends external_api {
             return array('message' => get_string('alredyconfirmed', 'booking', $user));
         }
 
-        $params = self::validate_parameters(self::confirm_user_parameters(),
-                array('cmid' => $cmid, 'optionid' => $optionid, 'userid' => $userid));
-
-        $bookingdata = new \mod_booking\booking_option($cmid, $optionid, array(), 0, 0, false);
+        $bookingdata = new \mod_booking\booking_option($cmid, $optionid, array(), 0, 0, true);
         $bookingdata->confirmactivity($userid);
 
         $countcompleted = $DB->count_records('booking_answers',
@@ -621,6 +621,6 @@ class external extends external_api {
 
     public static function confirm_user_returns() {
         return new external_single_structure(
-                array('message' => new \external_value(PARAM_TEXT, 'the updated note')));
+                array('message' => new external_value(PARAM_TEXT, 'the updated note')));
     }
 }

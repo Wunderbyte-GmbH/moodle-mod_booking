@@ -46,7 +46,9 @@ $addons = [
             ['mybookingsbooking', 'booking'],
             ['status', 'booking'],
             ['coursestarttime', 'booking'],
-            ['managepresence', 'booking']
+            ['managepresence', 'booking'],
+            ['wrongqrcode', 'booking'],
+            ['confirmpresence', 'booking']
         ]
     ]
 ];

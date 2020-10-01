@@ -78,7 +78,7 @@ $functions = array(
         'type' => 'read',
         'ajax' => true
     ),
-    'mod_booking_unenrol_user' => array(
+    'mod_booking_confirm_user' => array(
         'classname' => 'mod_booking\external',
         'methodname' => 'confirm_user',
         'description' => 'Confimr user from QR code.',

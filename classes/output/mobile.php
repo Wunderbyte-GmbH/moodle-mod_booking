@@ -408,7 +408,14 @@ class mobile {
 
         $context = context_module::instance($cm->id);
 
-        $data = array();
+        $data = array(
+            'cmid' => $cm->id,
+            'optionid' => $args->optionid,
+            'string' => array(
+                'managepresence' => get_string('managepresence', 'booking'),
+                'confirmpresence' => get_string('confirmpresence', 'booking')
+            )
+        );
 
         return [
             'templates' => [
@@ -418,7 +425,7 @@ class mobile {
                 ],
             ],
             'javascript' => file_get_contents($CFG->dirroot . '/mod/booking/mobile/js/presence.js'),
-            'otherdata' => '',
+            'otherdata' => $data,
         ];
     }
 }
