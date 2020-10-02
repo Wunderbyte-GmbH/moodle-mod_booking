@@ -289,9 +289,14 @@ class mobile {
         $status = '';
         $button = array();
         $booked = '';
-        $managepresence = array(
-            'args' => "optionid: {$values->option->id}, cmid: {$cm->id}, courseid: {$courseid}"
-        );
+        $isteacher = booking_check_if_teacher($values->option);
+        if (has_capability('mod/booking:readresponses', $context) || $isteacher) {
+            $managepresence = array(
+                'args' => "optionid: {$values->option->id}, cmid: {$cm->id}, courseid: {$courseid}"
+            );
+        } else {
+            $managepresence = array();
+        }
         $inpast = $values->option->courseendtime && ($values->option->courseendtime < time());
 
         $underlimit = ($booking->settings->maxperuser == 0);
@@ -393,12 +398,12 @@ class mobile {
 
         return array(
             'name' => $values->option->text, 'text' => $text, 'button' => $button,
-            'delete' => $delete, 'managepresence' => $managepresence
+            'delete' => $delete, 'managepresence' => $managepresence, 'optionid' => $values->option->id
         );
     }
 
     public static function mod_booking_manage_presence($args) {
-        global $OUTPUT, $USER, $DB, $CFG;
+        global $OUTPUT, $CFG;
 
         $args = (object) $args;
         $cm = get_coursemodule_from_id('booking', $args->cmid);
@@ -406,15 +411,9 @@ class mobile {
         // Capabilities check.
         require_login($args->courseid, false , $cm, true, true);
 
-        $context = context_module::instance($cm->id);
-
         $data = array(
-            'cmid' => $cm->id,
-            'optionid' => $args->optionid,
-            'string' => array(
-                'managepresence' => get_string('managepresence', 'booking'),
-                'confirmpresence' => get_string('confirmpresence', 'booking')
-            )
+            'cmid' => $args->cmid,
+            'optionid' => $args->optionid
         );
 
         return [

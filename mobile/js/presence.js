@@ -1,7 +1,7 @@
 var that = this;
 
 this.callDone = function() {
-    that.CoreUtilsProvider.scanQR().then((text) => {
+    that.CoreUtilsProvider.scanQR().then(function(text) {
         if (typeof text !== 'undefined' && Number.isInteger(text)) {
 
             return that.CoreSitesProvider.getSite().then(function(site) {
