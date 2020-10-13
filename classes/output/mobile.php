@@ -21,7 +21,6 @@ use context_module;
 use context;
 use mod_booking\booking;
 use mod_booking\booking_option;
-use mod_booking\places;
 use stdClass;
 
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
@@ -390,10 +389,16 @@ class mobile {
             }
         }
 
-        if ($values->option->limitanswers) {
-            $places = new places($values->option->maxanswers,
-                    $values->option->maxanswers - $values->booked, $values->option->maxoverbooking,
-                    $values->option->maxoverbooking - $values->waiting);
+        // Check if user has right to book.
+        if (!has_capability('mod/booking:choose', $context, $USER->id, false)) {
+            $button = array();
+        }
+
+        // Check, if can book based on login method.
+        if (!empty($booking->settings->auth)) {
+            if ($booking->settings->auth != $USER->auth && !empty($button)) {
+                $button = array();
+            }
         }
 
         return array(
