@@ -139,6 +139,13 @@ class mod_booking_external extends external_api {
 
                     $manager = $DB->get_record('user', array('username' => $bookingdata->settings->bookingmanager));
 
+                    $tags = core_tag_tag::get_item_tags_array('mod_booking', 'booking', $bookingdata->settings->id, core_tag_tag::BOTH_STANDARD_AND_NOT, 0, false);
+                    $tarr = array();
+
+                    foreach ($tags as $key => $value) {
+                        $tarr[] = $value;
+                    }
+
                     $ret['id'] = $bookingdata->settings->id;
                     $ret['cm'] = $bookingdata->cm->id;
                     $ret['timemodified'] = $bookingdata->settings->timemodified;
@@ -152,6 +159,7 @@ class mod_booking_external extends external_api {
                     $ret['bookingmanagername'] = $manager->firstname;
                     $ret['bookingmanagersurname'] = $manager->lastname;
                     $ret['bookingmanageremail'] = $manager->email;
+                    $ret['tags'] = implode(',', $tarr);
                     $ret['myfilemanager'] = external_util::get_area_files($context->id,
                         'mod_booking', 'myfilemanager', false, false);
                     $ret['categories'] = array();
@@ -273,6 +281,7 @@ class mod_booking_external extends external_api {
                     'bookingmanagername' => new external_value(PARAM_TEXT, 'Booking manager name'),
                     'bookingmanagersurname' => new external_value(PARAM_TEXT, 'Booking manager surname'),
                     'bookingmanageremail' => new external_value(PARAM_TEXT, 'Booking manager e-mail'),
+                    'tags' => new external_value(PARAM_TEXT, 'Tags.'),
                     'myfilemanager' => new external_files('Attachment', VALUE_OPTIONAL),
                     'categories' => new external_multiple_structure(new external_single_structure(
                         array(
