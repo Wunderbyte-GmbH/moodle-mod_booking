@@ -1420,6 +1420,7 @@ $string['googleapikey'] = 'Google API key';
 $string['googleapikey_desc'] = 'API key for Google URL Shortener. Get it here: https://developers.google.com/url-shortener/v1/getting_started#APIKey';
 $string['numberrows'] = 'Number rows';
 $string['numberrowsdesc'] = 'Number each row of the sign-in sheet. Number will be displayed left of the name in the same column';
+<<<<<<< HEAD
 $string['multiicalfiles'] = 'Attach one iCal file per date for MS Outlook 2010 compatibility';
 $string['multiicalfilesdesc'] = 'Only MS Outlook 2010 does not support multiple dates within one iCal file. Previous and later version do support it (Ex. Outlook365). If you want to send MS Outlook compatible dates, then activate this option in order to attach multiple iCal files (one per date/event)';
 
@@ -1456,6 +1457,14 @@ $string['addpricecategory_info'] = 'You can add another price category';
 $string['pricecategoryfieldoff'] = 'Do not show';
 $string['pricecategoryfield'] = 'User profile field for price category';
 $string['pricecategoryfielddesc'] = 'Choose the user profile field, which stores the price category identifier for each user.';
+=======
+$string['multiicalfiles'] = 'Attach one ical file per date for MS Outlook 2010 compatibility';
+$string['multiicalfilesdesc'] = 'Only MS Outlook 2010 does not support multiple dates within one ical file. Previous and later version do support it (Ex. Outlook365). If you want to send MS Outlook compatible dates, then activate this option in order to attach multiple ical files (one per date/event)';
+$string['remoteapicall'] = 'Remote API call';
+$string['remoteapikey'] = 'URL';
+$string['remoteapikey_desc'] = '{ID} - use this placeholder to replace it with booking id.';
+
+>>>>>>> 5b09682... Remote call function for API sync!
 
 // Mobile.
 $string['next'] = 'Next';
@@ -1701,3 +1710,5 @@ $string['userconfirmed'] = '{$a->lastname} {$a->firstname} confirmed.';
 $string['userconnotenroled'] = '{$a->lastname} {$a->firstname} not enrolled!';
 $string['wrongqrcode'] = 'Wrong QR code!';
 $string['confirmpresence'] = 'Confirm presence';
+
+$string['callremotesync'] = 'Call remote sync';

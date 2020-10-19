@@ -24,6 +24,7 @@ require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
+use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\booking_utils;
 use mod_booking\optiondates_handler;
@@ -1129,6 +1130,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     $course = $PAGE->course;
     $contextcourse = context_course::instance($course->id);
     $optionid = $PAGE->url->get_param('optionid');
+    $booking = new booking($cm->id);
 
     $bookingisteacher = false; // Set to false by default.
     if (!is_null($optionid) && $optionid > 0) {
@@ -1158,6 +1160,13 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             $settingnode->add(get_string("managecustomreporttemplates", "mod_booking"),
                 new moodle_url('customreporttemplates.php', array('id' => $cm->id)));
         }
+    }
+
+    $rurl = get_config('booking', 'remoteapikey');
+    if (!empty($rurl)) {
+        $rurl = str_replace('{ID}', $booking->settings->id, $rurl);
+        $settingnode->add(get_string('callremotesync', 'booking'),
+            $rurl . '" target="_blank"');
     }
 
     if (has_capability('mod/booking:updatebooking', $context) ||

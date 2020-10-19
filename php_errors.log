@@ -1,0 +1,25 @@
+[19-Oct-2020 15:28:00 Europe/Ljubljana] Default exception handler: Exception - syntax error, unexpected ')' Debug: 
+Error code: generalexceptionmessage
+* line 978 of /mod/booking/lib.php: ParseError thrown
+* line 20 of /mod/booking/view.php: call to require_once()
+
+[19-Oct-2020 15:45:15 Europe/Ljubljana] Default exception handler: Exception - Class 'booking' not found Debug: 
+Error code: generalexceptionmessage
+* line 912 of /mod/booking/lib.php: Error thrown
+* line 4677 of /lib/navigationlib.php: call to booking_extend_settings_navigation()
+* line 4147 of /lib/navigationlib.php: call to settings_navigation->load_module_settings()
+* line 759 of /lib/pagelib.php: call to settings_navigation->initialise()
+* line 820 of /lib/pagelib.php: call to moodle_page->magic_get_settingsnav()
+* line 3521 of /lib/navigationlib.php: call to moodle_page->__get()
+* line 4437 of /lib/outputrenderers.php: call to navbar->get_items()
+* line 42 of /theme/boost/layout/columns2.php: call to core_renderer->region_main_settings_menu()
+* line 1370 of /lib/outputrenderers.php: call to include()
+* line 1300 of /lib/outputrenderers.php: call to core_renderer->render_page_layout()
+* line 1961 of /lib/setuplib.php: call to core_renderer->header()
+* line 322 of /mod/booking/view.php: call to bootstrap_renderer->__call()
+
+[19-Oct-2020 15:47:04 Europe/Ljubljana] Default exception handler: Exception - syntax error, unexpected '$settingnode' (T_VARIABLE) Debug: 
+Error code: generalexceptionmessage
+* line 950 of /mod/booking/lib.php: ParseError thrown
+* line 20 of /mod/booking/view.php: call to require_once()
+

@@ -363,6 +363,16 @@ if ($ADMIN->fulltree) {
 
         // TODO: globalactivitycompletiontext is currently not implemented because activitycompletiontext isn't either.
     }
+
+    $settings->add(
+        new admin_setting_heading('remoteapicall_heading',
+        get_string('remoteapicall', 'mod_booking'), ''));
+
+        $name = 'booking/remoteapikey';
+        $visiblename = get_string('remoteapikey', 'mod_booking');
+        $description = get_string('remoteapikey_desc', 'mod_booking');
+        $setting = new admin_setting_configtext($name, $visiblename, $description, '');
+        $settings->add($setting);
 }
 
 $settings = null;
