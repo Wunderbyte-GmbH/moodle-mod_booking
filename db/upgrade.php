@@ -1982,43 +1982,6 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019092601, 'booking');
     }
 
-    if ($oldversion < 2020083100) {
-        // Define table booking_instancetemplate to be created.
-        $table = new xmldb_table('booking_instancetemplate');
-
-        // Adding fields to table booking_instancetemplate.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('name', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('template', XMLDB_TYPE_BINARY, null, null, XMLDB_NOTNULL, null, null);
-
-        // Adding keys to table booking_instancetemplate.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-
-        // Conditionally launch create table for booking_instancetemplate.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        // Define table booking_customreport to be created.
-        $table = new xmldb_table('booking_customreport');
-
-        // Adding fields to table booking_customreport.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('name', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null);
-
-        // Adding keys to table booking_customreport.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-        $table->add_index('course', XMLDB_INDEX_NOTUNIQUE, ['course']);
-
-        // Conditionally launch create table for booking_customreport.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2020082601, 'booking');
-    }
-
     // ========================================== Make upgrades from here for back compatibility. START ================================
 
     if ($oldversion < 2022032803) {
@@ -2081,6 +2044,39 @@ function xmldb_booking_upgrade($oldversion) {
 
             // Launch add key optiondateid.
             $dbman->add_key($table, $key);
+        }
+
+        // Define table booking_instancetemplate to be created.
+        $table = new xmldb_table('booking_instancetemplate');
+
+        // Adding fields to table booking_instancetemplate.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('template', XMLDB_TYPE_BINARY, null, null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table booking_instancetemplate.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for booking_instancetemplate.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table booking_customreport to be created.
+        $table = new xmldb_table('booking_customreport');
+
+        // Adding fields to table booking_customreport.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table booking_customreport.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('course', XMLDB_INDEX_NOTUNIQUE, ['course']);
+
+        // Conditionally launch create table for booking_customreport.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
         }
 
         // Define field eventid to be added to booking_optiondates.

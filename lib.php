@@ -1169,6 +1169,11 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             $rurl . '" target="_blank"');
     }
 
+    if (has_capability('mod/booking:updatebooking', $context)) {
+        $settingnode->add(get_string("reports", "mod_booking"),
+                new moodle_url('reports.php', array('id' => $cm->id)));
+    }
+
     if (has_capability('mod/booking:updatebooking', $context) ||
             has_capability('mod/booking:addeditownoption', $context)) {
         $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null,

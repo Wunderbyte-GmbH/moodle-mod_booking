@@ -2,7 +2,7 @@ var that = this;
 
 this.callDone = function() {
     that.CoreUtilsProvider.scanQR().then(function(text) {
-        if (typeof text !== 'undefined' && Number.isInteger(text)) {
+        if (typeof text !== 'undefined' && Number.isInteger(parseInt(text))) {
 
             return that.CoreSitesProvider.getSite().then(function(site) {
 
