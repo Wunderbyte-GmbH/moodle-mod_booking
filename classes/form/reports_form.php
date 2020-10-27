@@ -30,14 +30,16 @@ class reports_form extends moodleform {
 
         $reporttype = [
             1 => get_string('teachersreport', 'booking'),
-            // 2 => get_string('presencereport', 'booking')
+            2 => get_string('presencereport', 'booking')
         ];
 
         $mform = $this->_form;
 
-        $mform->addElement('date_time_selector', 'from', get_string('from'));
-        $mform->addElement('date_time_selector', 'to', get_string('to'));
         $mform->addElement('select', 'reporttype', get_string('reporttype', 'booking'), $reporttype);
+        $mform->addElement('date_time_selector', 'from', get_string('from'));
+        $mform->disabledIf('from', 'reporttype', 'neq', 1);
+        $mform->addElement('date_time_selector', 'to', get_string('to'));
+        $mform->disabledIf('to', 'reporttype', 'neq', 1);
 
         $this->add_action_buttons(true, get_string('showreport', 'booking'));
     }

@@ -22,10 +22,10 @@
  */
 require_once("../../config.php");
 require_once("locallib.php");
-require_once("$CFG->libdir/excellib.class.php");
 
 use mod_booking\form\reports_form;
 use mod_booking\booking;
+use mod_booking\reports;
 
 $id = required_param('id', PARAM_INT); // Course module id.
 
@@ -55,118 +55,8 @@ if ($mform->is_cancelled()) {
     redirect(new moodle_url('/mod/booking/view.php', $urlparams));
 } else if ($fromform = $mform->get_data()) {
     // In this case you process validated data. $mform->get_data() returns data posted in form.
-    $r = $DB->get_records_sql('SELECT bo.text, bo.coursestarttime, bo.courseendtime, bo.location, (select count(mba.id) from {booking_answers} mba where mba.optionid = bo.id)
-    numberofusers, mu.firstname, mu.lastname, mu.address, mu.city, mu.country FROM {booking_options} bo left join {booking_teachers} mbt on mbt.optionid = bo.id	left join {user}
-     mu on mu.id = mbt.userid  WHERE bo.bookingid = :bookingid AND bo.coursestarttime >= :coursestarttime AND bo.courseendtime <= :courseendtime',
-    ['bookingid' => $cm->instance, 'coursestarttime' => $fromform->from, 'courseendtime' => $fromform->to]);
-
-    $rcount = $DB->get_records_sql('SELECT mu.firstname, mu.lastname, count(mu.id) numberofcourses FROM {booking_options} bo left join {booking_teachers} mbt on mbt.optionid =
-    bo.id	left join {user} mu on mu.id = mbt.userid  WHERE bo.bookingid = :bookingid AND bo.coursestarttime >= :coursestarttime AND bo.courseendtime <= :courseendtime GROUP BY
-    mu.id',
-    ['bookingid' => $cm->instance, 'coursestarttime' => $fromform->from, 'courseendtime' => $fromform->to]);
-
-    // Calculate file name.
-    $downloadfilename = clean_filename("{$course->shortname} {$booking->settings->name} " . get_string('teachersreport', 'booking') . ".xls");
-    // Creating a workbook.
-    $workbook = new MoodleExcelWorkbook("-");
-
-    // Sending HTTP headers.
-    $workbook->send($downloadfilename);
-
-    $wsname = substr(get_string('teachersreport', 'booking'), 0, 31);
-    $myxls = $workbook->add_worksheet($wsname);
-
-    $checklistexportusercolumns = [
-      'text' => get_string('bookingoptionname', 'booking'),
-      'coursestarttime' => get_string("coursestarttime", "booking"),
-      'courseendtime' => get_string("courseendtime", "booking"),
-      'location' => get_string("location", "booking"),
-      'numberofusers' => get_string('responses', 'booking'),
-      'firstname' => get_string("firstname"),
-      'lastname' => get_string("lastname"),
-      'address' => get_string("address"),
-      'city' => get_string("city"),
-      'country' => get_string("country")
-    ];
-
-    $statiscitcheader = [
-      'firstname' => get_string("firstname"),
-      'lastname' => get_string("lastname"),
-      'numberofcourses' => get_string('numberofcourses', 'booking')
-    ];
-
-    // Print names of all the fields.
-    $col = 0;
-    $row = 0;
-    foreach ($checklistexportusercolumns as $field => $headerstr) {
-        $myxls->write_string($row, $col++, $headerstr);
-    }
-
-    $row++;
-
-    foreach ($r as $key => $value) {
-        $col = 0;
-        foreach ($value as $ckey => $cvalue) {
-            $out = '';
-
-            switch ($ckey) {
-                case 'coursestarttime':
-                case 'courseendtime':
-                    $myxls->write_string($row, $col, userdate($cvalue, get_string('strftimedatetime', 'core_langconfig')));
-                    break;
-
-                case 'numberofusers':
-                    $myxls->write_number($row, $col, $cvalue);
-                    break;
-
-                default:
-                    $myxls->write_string($row, $col, $cvalue);
-                    break;
-            }
-
-            $col++;
-        }
-
-        $row++;
-    }
-
-    $workbook->close();
-
-    $wsname = substr(get_string('statistics', 'booking'), 0, 31);
-    $myxls = $workbook->add_worksheet($wsname);
-
-    $col = 0;
-    $row = 0;
-    foreach ($statiscitcheader as $field => $headerstr) {
-        $myxls->write_string($row, $col++, $headerstr);
-    }
-
-    $row++;
-
-    foreach ($rcount as $key => $value) {
-        $col = 0;
-        foreach ($value as $ckey => $cvalue) {
-            $out = '';
-
-            switch ($ckey) {
-                case 'numberofcourses':
-                    $myxls->write_number($row, $col, $cvalue);
-                    break;
-
-                default:
-                    $myxls->write_string($row, $col, $cvalue);
-                    break;
-            }
-
-            $col++;
-        }
-
-        $row++;
-    }
-
-    $workbook->close();
-
-    exit;
+    $reports = new reports($fromform->reporttype, $fromform->from, $fromform->to, $course, $cm, $booking);
+    $reports->getreport();
 } else {
     $toform = array();
 
