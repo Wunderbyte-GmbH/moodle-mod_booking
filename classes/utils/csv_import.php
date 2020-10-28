@@ -547,7 +547,7 @@ class csv_import {
             $importinfo .= $column->name;
             switch ($column->name) {
                 case 'text':
-                    $importinfo .= ' (' . get_string('bookingoptionname', 'mod_booking') . ')';
+                    $importinfo .= ' (' . get_string('bookingoptionname', 'mod_booking') . ') <i class="icon fa fa-exclamation-circle text-danger fa-fw "></i>';
                     break;
                 case 'howmanyusers':
                     $importinfo .= ' (' . get_string('howmanyusers', 'mod_booking') . ')';
@@ -567,6 +567,17 @@ class csv_import {
                     break;
             }
         }
+
+        $importinfo .= html_writer::empty_tag('br');
+        $importinfo .= html_writer::empty_tag('br');
+
+        $importinfo .= "<h4>" . get_string('example', 'mod_booking') . "</h4>";
+        $importinfo .= "<pre>";
+        $importinfo .= "text,description,location,institution\n";
+        $importinfo .= "Option 1,Great learning opotrunity.,Room 1,School\n";
+        $importinfo .= "Option 2,Great learning opotrunity.,Room 2,School\n";
+        $importinfo .= "</pre>";
+
         return $importinfo;
     }
 

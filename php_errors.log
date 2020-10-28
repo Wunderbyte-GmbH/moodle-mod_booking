@@ -74,3 +74,9 @@ Error code: generalexceptionmessage
 * line ? of unknownfile: call to core_component::classloader()
 * line 303 of /mod/booking/view.php: call to spl_autoload_call()
 
+[28-Oct-2020 22:45:16 Europe/Ljubljana] Default exception handler: Exception - syntax error, unexpected '$importinfo' (T_VARIABLE) Debug: 
+Error code: generalexceptionmessage
+* line 453 of /mod/booking/classes/utils/csv_import.php: ParseError thrown
+* line ? of unknownfile: call to core_component::classloader()
+* line 55 of /mod/booking/importoptions.php: call to spl_autoload_call()
+
