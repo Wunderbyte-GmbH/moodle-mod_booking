@@ -62,3 +62,15 @@ Error code: generalexceptionmessage
 [27-Oct-2020 16:04:14 Europe/Ljubljana] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/atlet/www/moodle.piltek.com/lib/phpexcel/PHPExcel/Writer/Excel2007.php:394) in /home/atlet/www/moodle.piltek.com/lib/excellib.class.php on line 116
 [27-Oct-2020 16:04:14 Europe/Ljubljana] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/atlet/www/moodle.piltek.com/lib/phpexcel/PHPExcel/Writer/Excel2007.php:394) in /home/atlet/www/moodle.piltek.com/lib/excellib.class.php on line 125
 [27-Oct-2020 16:04:14 Europe/Ljubljana] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/atlet/www/moodle.piltek.com/lib/phpexcel/PHPExcel/Writer/Excel2007.php:394) in /home/atlet/www/moodle.piltek.com/lib/excellib.class.php on line 126
+[28-Oct-2020 21:59:06 Europe/Ljubljana] Default exception handler: Exception - syntax error, unexpected ';', expecting ',' or ')' Debug: 
+Error code: generalexceptionmessage
+* line 210 of /mod/booking/classes/all_options.php: ParseError thrown
+* line ? of unknownfile: call to core_component::classloader()
+* line 303 of /mod/booking/view.php: call to spl_autoload_call()
+
+[28-Oct-2020 22:08:33 Europe/Ljubljana] Default exception handler: Exception - syntax error, unexpected '}', expecting ';' Debug: 
+Error code: generalexceptionmessage
+* line 214 of /mod/booking/classes/all_options.php: ParseError thrown
+* line ? of unknownfile: call to core_component::classloader()
+* line 303 of /mod/booking/view.php: call to spl_autoload_call()
+
