@@ -120,6 +120,11 @@ class all_options extends table_sql {
                         $OUTPUT->pix_icon('t/edit',
                             get_string('bookotherusers', 'mod_booking')) .
                         get_string('bookotherusers', 'mod_booking')) . '</div>';
+                $ddoptions[] = '<div class="dropdown-item">' .
+                    html_writer::link(new moodle_url('/mod/booking/subscribegroup.php', array('id' => $this->cm->id, 'optionid' => $values->id)),
+                        $OUTPUT->pix_icon('t/edit',
+                            get_string('subscribegroup', 'mod_booking')) .
+                        get_string('subscribegroup', 'mod_booking')) . '</div>';
             }
             // Show only one option.
             $onlyoneurl = new moodle_url('/mod/booking/view.php',

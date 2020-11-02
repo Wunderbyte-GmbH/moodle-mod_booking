@@ -240,7 +240,6 @@ $string['norighttobook'] = 'Booking is not possible for your user role. Please c
 $string['createdby'] = 'Booking module created by Wunderbyte GmbH';
 $string['maxperuserwarning'] = 'You currently have used {$a->count} out of {$a->limit} maximum available bookings ({$a->eventtype}) for your user account';
 $string['bookedpast'] = 'Booked (course terminated)';
-$string['bookotherusers'] = 'Book other users';
 $string['attachedfiles'] = 'Attached files';
 $string['eventduration'] = 'Event duration';
 $string['eventpoints'] = 'Points';
@@ -1727,3 +1726,7 @@ $string['confirmedall'] = 'All confirmed';
 $string['confirmedallp'] = 'All confirmed %';
 $string['example'] = 'Example';
 $string['editdescription'] = 'Edit description';
+<<<<<<< HEAD
+=======
+$string['subscribegroup'] = 'Book users from group';
+>>>>>>> 87a0e91... Book users from gorup.

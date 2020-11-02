@@ -13,16 +13,23 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-require_once("../../config.php");
-require_once("locallib.php");
+/**
+ * This page allows a user to subscribe/unsubscribe other users from a booking option
+ * TODO: upgrade logging, add logging for added/deleted users
+ *
+ * @author David Bogner davidbogner@gmail.com
+ * @package mod/booking
+ */
+use mod_booking\booking_option;
+use mod_booking\form\subscribegroup_form;
 
-use mod_booking\form\editdescription_form;
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
-$id = required_param('id', PARAM_INT); // Course Module ID.
+$id = required_param('id', PARAM_INT); // Course_module ID.
 $optionid = required_param('optionid', PARAM_INT);
-$sesskey = optional_param('sesskey', '', PARAM_INT);
 
-$url = new moodle_url('/mod/booking/editdescription.php', array('id' => $id, 'optionid' => $optionid));
+$url = new moodle_url('/mod/booking/subscribegroup.php', array('id' => $id, 'optionid' => $optionid));
 $PAGE->set_url($url);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id);
@@ -37,28 +44,24 @@ if (!$context = context_module::instance($cm->id)) {
     print_error('badcontext');
 }
 
-if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mod/booking:addeditownoption', $context)) == false) {
+$option = new booking_option($cm->id, $optionid, array(), 0, 0, false);
+
+if ((has_capability('mod/booking:subscribeusers', $context) || booking_check_if_teacher($option)) == false) {
     print_error('nopermissions');
 }
 
-$mform = new editdescription_form($url, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context));
-
-if ($optionid > 0 && $defaultvalues = $DB->get_record('booking_options', array('bookingid' => $booking->settings->id, 'id' => $optionid))) {
-    $defaultvalues->optionid = $optionid;
-    $defaultvalues->bookingname = $booking->settings->name;
-    $defaultvalues->id = $cm->id;
-}
+$mform = new subscribegroup_form($url, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cm' => $cm, 'context' => $context));
 
 if ($mform->is_cancelled()) {
-    $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
+    $redirecturl = new moodle_url('report.php', array('id' => $cm->id, 'optionid' => $optionid));
     redirect($redirecturl, '', 0);
 } else if ($fromform = $mform->get_data()) {
 
-    $dataobject = (object) ['id' => $optionid, 'description' => $fromform->description];
+    if (isset($fromform->groupid) && !empty($fromform->groupid)) {
+        $option->book_from_group($fromform->groupid);
+    }
 
-    $DB->update_record('booking_options', $dataobject);
-
-    $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
+    $redirecturl = new moodle_url('report.php', array('id' => $cm->id, 'optionid' => $optionid));
     redirect($redirecturl, get_string('changessaved'), 0);
 } else {
     $PAGE->set_title(format_string($booking->settings->name));

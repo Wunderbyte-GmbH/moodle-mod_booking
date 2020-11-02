@@ -119,3 +119,147 @@ Error code: invalidrecord
 * line 120 of /mod/booking/classes/booking_option.php: call to moodle_database->get_record()
 * line 163 of /mod/booking/report.php: call to mod_booking\booking_option->__construct()
 
+[02-Nov-2020 21:53:06 Europe/Ljubljana] PHP Notice:  Trying to get property 'groupmode' of non-object in /home/atlet/www/moodle.piltek.com/lib/grouplib.php on line 821
+[02-Nov-2020 21:53:06 Europe/Ljubljana] PHP Notice:  Array to string conversion in /home/atlet/www/moodle.piltek.com/mod/booking/subscribegroup.php on line 53
+[02-Nov-2020 21:53:06 Europe/Ljubljana] PHP Notice:  Array to string conversion in /home/atlet/www/moodle.piltek.com/mod/booking/subscribegroup.php on line 54
+[02-Nov-2020 21:53:39 Europe/Ljubljana] PHP Notice:  Trying to get property 'groupmode' of non-object in /home/atlet/www/moodle.piltek.com/lib/grouplib.php on line 821
+[02-Nov-2020 21:53:54 Europe/Ljubljana] PHP Notice:  Trying to get property 'groupmode' of non-object in /home/atlet/www/moodle.piltek.com/lib/grouplib.php on line 821
+[02-Nov-2020 21:54:10 Europe/Ljubljana] PHP Notice:  Trying to get property 'groupmode' of non-object in /home/atlet/www/moodle.piltek.com/lib/grouplib.php on line 821
+[02-Nov-2020 21:54:20 Europe/Ljubljana] PHP Notice:  Trying to get property 'groupmode' of non-object in /home/atlet/www/moodle.piltek.com/lib/grouplib.php on line 821
+[02-Nov-2020 21:54:26 Europe/Ljubljana] PHP Notice:  Trying to get property 'groupmode' of non-object in /home/atlet/www/moodle.piltek.com/lib/grouplib.php on line 821
+[02-Nov-2020 21:55:53 Europe/Ljubljana] PHP Notice:  Trying to get property 'groupmode' of non-object in /home/atlet/www/moodle.piltek.com/lib/grouplib.php on line 821
+[02-Nov-2020 21:56:10 Europe/Ljubljana] PHP Notice:  Trying to get property 'groupmode' of non-object in /home/atlet/www/moodle.piltek.com/lib/grouplib.php on line 821
+[02-Nov-2020 22:05:58 Europe/Ljubljana] Default exception handler: Exception - Class 'editdescription_form' not found Debug: 
+Error code: generalexceptionmessage
+* line 53 of /mod/booking/subscribegroup.php: Error thrown
+
+[02-Nov-2020 22:12:37 Europe/Ljubljana] Default exception handler: Exception - Class 'editdescription_form' not found Debug: 
+Error code: generalexceptionmessage
+* line 53 of /mod/booking/subscribegroup.php: Error thrown
+
+[02-Nov-2020 22:13:39 Europe/Ljubljana] PHP Fatal error:  Class mod_booking\form\subscribegroup_form contains 1 abstract method and must therefore be declared abstract or implement the remaining methods (moodleform::definition) in /home/atlet/www/moodle.piltek.com/mod/booking/classes/form/subscribegroup_form.php on line 25
+[02-Nov-2020 22:14:59 Europe/Ljubljana] Default exception handler: Exception - syntax error, unexpected '&lt;', expecting end of file Debug: 
+Error code: generalexceptionmessage
+* line 27 of /mod/booking/classes/form/subscribegroup_form.php: ParseError thrown
+* line ? of unknownfile: call to core_component::classloader()
+* line 53 of /mod/booking/subscribegroup.php: call to spl_autoload_call()
+
+[02-Nov-2020 22:18:34 Europe/Ljubljana] PHP Notice:  Undefined variable: FORUM_TYPES in /home/atlet/www/moodle.piltek.com/mod/booking/classes/form/subscribegroup_form.php on line 35
+[02-Nov-2020 22:18:34 Europe/Ljubljana] PHP Notice:  Undefined variable: attributes in /home/atlet/www/moodle.piltek.com/mod/booking/classes/form/subscribegroup_form.php on line 35
+[02-Nov-2020 22:28:12 Europe/Ljubljana] Default exception handler: Exception - Call to undefined function mod_booking\user_submit_response() Debug: 
+Error code: generalexceptionmessage
+* line 1657 of /mod/booking/classes/booking_option.php: Error thrown
+* line 61 of /mod/booking/subscribegroup.php: call to mod_booking\booking_option->book_from_group()
+
+[02-Nov-2020 22:29:01 Europe/Ljubljana] PHP Notice:  Trying to get property 'id' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking_option.php on line 974
+[02-Nov-2020 22:29:01 Europe/Ljubljana] PHP Notice:  Trying to get property 'id' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking_option.php on line 979
+[02-Nov-2020 22:29:01 Europe/Ljubljana] Default exception handler: Error writing to database Debug: Column 'userid' cannot be null
+INSERT INTO mdl_booking_answers (bookingid,frombookingid,userid,optionid,timemodified,timecreated,waitinglist) VALUES(?,?,?,?,?,?,?)
+[array (
+  0 => '4',
+  1 => 0,
+  2 => NULL,
+  3 => 11,
+  4 => 1604352541,
+  5 => 1604352541,
+  6 => 0,
+)]
+Error code: dmlwriteexception
+* line 489 of /lib/dml/moodle_database.php: dml_write_exception thrown
+* line 1329 of /lib/dml/mysqli_native_moodle_database.php: call to moodle_database->query_end()
+* line 1375 of /lib/dml/mysqli_native_moodle_database.php: call to mysqli_native_moodle_database->insert_record_raw()
+* line 985 of /mod/booking/classes/booking_option.php: call to mysqli_native_moodle_database->insert_record()
+* line 1657 of /mod/booking/classes/booking_option.php: call to mod_booking\booking_option->user_submit_response()
+* line 61 of /mod/booking/subscribegroup.php: call to mod_booking\booking_option->book_from_group()
+
+[02-Nov-2020 22:30:18 Europe/Ljubljana] PHP Notice:  Trying to get property 'id' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking_option.php on line 974
+[02-Nov-2020 22:30:18 Europe/Ljubljana] PHP Notice:  Trying to get property 'id' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking_option.php on line 979
+[02-Nov-2020 22:30:18 Europe/Ljubljana] Default exception handler: Error writing to database Debug: Column 'userid' cannot be null
+INSERT INTO mdl_booking_answers (bookingid,frombookingid,userid,optionid,timemodified,timecreated,waitinglist) VALUES(?,?,?,?,?,?,?)
+[array (
+  0 => '4',
+  1 => 0,
+  2 => NULL,
+  3 => 11,
+  4 => 1604352618,
+  5 => 1604352618,
+  6 => 0,
+)]
+Error code: dmlwriteexception
+* line 489 of /lib/dml/moodle_database.php: dml_write_exception thrown
+* line 1329 of /lib/dml/mysqli_native_moodle_database.php: call to moodle_database->query_end()
+* line 1375 of /lib/dml/mysqli_native_moodle_database.php: call to mysqli_native_moodle_database->insert_record_raw()
+* line 985 of /mod/booking/classes/booking_option.php: call to mysqli_native_moodle_database->insert_record()
+* line 1657 of /mod/booking/classes/booking_option.php: call to mod_booking\booking_option->user_submit_response()
+* line 61 of /mod/booking/subscribegroup.php: call to mod_booking\booking_option->book_from_group()
+
+[02-Nov-2020 22:55:01 Europe/Ljubljana] Default exception handler: Exception - syntax error, unexpected ')' Debug: 
+Error code: generalexceptionmessage
+* line 247 of /mod/booking/classes/utils/csv_import.php: ParseError thrown
+* line ? of unknownfile: call to core_component::classloader()
+* line 55 of /mod/booking/importoptions.php: call to spl_autoload_call()
+
+[02-Nov-2020 22:55:07 Europe/Ljubljana] Default exception handler: Exception - syntax error, unexpected ')' Debug: 
+Error code: generalexceptionmessage
+* line 247 of /mod/booking/classes/utils/csv_import.php: ParseError thrown
+* line ? of unknownfile: call to core_component::classloader()
+* line 55 of /mod/booking/importoptions.php: call to spl_autoload_call()
+
+[02-Nov-2020 23:01:46 Europe/Ljubljana] PHP Notice:  Undefined index: bookfromgroup in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 105
+[02-Nov-2020 23:02:04 Europe/Ljubljana] PHP Notice:  Undefined index: bookfromgroup in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 105
+[02-Nov-2020 23:05:59 Europe/Ljubljana] PHP Warning:  print_r() expects at least 1 parameter, 0 given in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 249
+[02-Nov-2020 23:05:59 Europe/Ljubljana] PHP Notice:  Undefined variable: option in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 250
+[02-Nov-2020 23:05:59 Europe/Ljubljana] PHP Notice:  Trying to get property 'option' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 250
+[02-Nov-2020 23:05:59 Europe/Ljubljana] PHP Notice:  Trying to get property 'courseid' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 250
+[02-Nov-2020 23:06:16 Europe/Ljubljana] PHP Notice:  Undefined variable: option in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 249
+[02-Nov-2020 23:06:16 Europe/Ljubljana] PHP Notice:  Undefined variable: option in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 250
+[02-Nov-2020 23:06:16 Europe/Ljubljana] PHP Notice:  Trying to get property 'option' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 250
+[02-Nov-2020 23:06:16 Europe/Ljubljana] PHP Notice:  Trying to get property 'courseid' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 250
+[02-Nov-2020 23:08:09 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$courseid in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 251
+[02-Nov-2020 23:09:14 Europe/Ljubljana] PHP Notice:  Undefined variable: id in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 250
+[02-Nov-2020 23:09:14 Europe/Ljubljana] Default exception handler: Can't find data record in database. Debug: 
+                    SELECT c.*
+                      FROM {course_modules} cm
+                      JOIN {course} c ON c.id = cm.course
+                     WHERE cm.id = ?
+[array (
+  0 => 0,
+)]
+Error code: invalidrecordunknown
+* line 1574 of /lib/dml/moodle_database.php: dml_missing_record_exception thrown
+* line 2238 of /lib/modinfolib.php: call to moodle_database->get_record_sql()
+* line 250 of /mod/booking/classes/utils/csv_import.php: call to get_course_and_cm_from_cmid()
+* line 70 of /mod/booking/importoptions.php: call to mod_booking\utils\csv_import->process_data()
+
+[02-Nov-2020 23:09:25 Europe/Ljubljana] PHP Notice:  Undefined variable: cm in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 250
+[02-Nov-2020 23:09:25 Europe/Ljubljana] PHP Notice:  Trying to get property 'id' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 250
+[02-Nov-2020 23:09:25 Europe/Ljubljana] Default exception handler: Can't find data record in database. Debug: 
+                    SELECT c.*
+                      FROM {course_modules} cm
+                      JOIN {course} c ON c.id = cm.course
+                     WHERE cm.id = ?
+[array (
+  0 => 0,
+)]
+Error code: invalidrecordunknown
+* line 1574 of /lib/dml/moodle_database.php: dml_missing_record_exception thrown
+* line 2238 of /lib/modinfolib.php: call to moodle_database->get_record_sql()
+* line 250 of /mod/booking/classes/utils/csv_import.php: call to get_course_and_cm_from_cmid()
+* line 70 of /mod/booking/importoptions.php: call to mod_booking\utils\csv_import->process_data()
+
+[02-Nov-2020 23:09:33 Europe/Ljubljana] PHP Notice:  Undefined property: mod_booking\utils\csv_import::$cm in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 250
+[02-Nov-2020 23:09:33 Europe/Ljubljana] PHP Notice:  Trying to get property 'id' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/classes/utils/csv_import.php on line 250
+[02-Nov-2020 23:09:33 Europe/Ljubljana] Default exception handler: Can't find data record in database. Debug: 
+                    SELECT c.*
+                      FROM {course_modules} cm
+                      JOIN {course} c ON c.id = cm.course
+                     WHERE cm.id = ?
+[array (
+  0 => 0,
+)]
+Error code: invalidrecordunknown
+* line 1574 of /lib/dml/moodle_database.php: dml_missing_record_exception thrown
+* line 2238 of /lib/modinfolib.php: call to moodle_database->get_record_sql()
+* line 250 of /mod/booking/classes/utils/csv_import.php: call to get_course_and_cm_from_cmid()
+* line 70 of /mod/booking/importoptions.php: call to mod_booking\utils\csv_import->process_data()
+
