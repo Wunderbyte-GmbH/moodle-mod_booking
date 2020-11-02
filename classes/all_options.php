@@ -95,6 +95,11 @@ class all_options extends table_sql {
                         get_string('optiondates', 'booking')) .
                     get_string('optiondates', 'booking')) . '</div>';
 
+            $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
+                    new moodle_url('/mod/booking/editdescription.php',
+                        array('id' => $this->cm->id, 'optionid' => $values->id)),
+                    $OUTPUT->pix_icon('t/edit', get_string('editdescription', 'mod_booking')) .
+                    get_string('editdescription', 'mod_booking')) . '</div>';
             // Book teachers.
             if (has_capability('mod/booking:updatebooking', $this->context)) {
                 $onlyoneurl = new moodle_url('/mod/booking/teachers.php',

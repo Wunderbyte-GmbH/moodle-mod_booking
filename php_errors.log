@@ -80,3 +80,42 @@ Error code: generalexceptionmessage
 * line ? of unknownfile: call to core_component::classloader()
 * line 55 of /mod/booking/importoptions.php: call to spl_autoload_call()
 
+[02-Nov-2020 13:58:24 Europe/Ljubljana] Default exception handler: Exception - Class 'mod_booking\form\editdescription_form' not found Debug: 
+Error code: generalexceptionmessage
+* line 45 of /mod/booking/editdescription.php: Error thrown
+
+[02-Nov-2020 14:05:02 Europe/Ljubljana] Default exception handler: Exception - Class 'mod_booking\form\editdescription_form' not found Debug: 
+Error code: generalexceptionmessage
+* line 45 of /mod/booking/editdescription.php: Error thrown
+
+[02-Nov-2020 14:05:26 Europe/Ljubljana] PHP Warning:  Creating default object from empty value in /home/atlet/www/moodle.piltek.com/mod/booking/editdescription.php on line 47
+[02-Nov-2020 14:05:49 Europe/Ljubljana] PHP Warning:  Creating default object from empty value in /home/atlet/www/moodle.piltek.com/mod/booking/editdescription.php on line 47
+[02-Nov-2020 14:09:01 Europe/Ljubljana] Default exception handler: A required parameter (id) was missing Debug: 
+Error code: missingparam
+* line 494 of /lib/setuplib.php: moodle_exception thrown
+* line 569 of /lib/moodlelib.php: call to print_error()
+* line 21 of /mod/booking/editdescription.php: call to required_param()
+
+[02-Nov-2020 14:09:24 Europe/Ljubljana] Default exception handler: A required parameter (id) was missing Debug: 
+Error code: missingparam
+* line 494 of /lib/setuplib.php: moodle_exception thrown
+* line 569 of /lib/moodlelib.php: call to print_error()
+* line 21 of /mod/booking/editdescription.php: call to required_param()
+
+[02-Nov-2020 14:10:11 Europe/Ljubljana] Default exception handler: A required parameter (id) was missing Debug: 
+Error code: missingparam
+* line 494 of /lib/setuplib.php: moodle_exception thrown
+* line 569 of /lib/moodlelib.php: call to print_error()
+* line 21 of /mod/booking/editdescription.php: call to required_param()
+
+[02-Nov-2020 14:13:37 Europe/Ljubljana] PHP Notice:  Undefined variable: nbooking in /home/atlet/www/moodle.piltek.com/mod/booking/editdescription.php on line 63
+[02-Nov-2020 14:14:09 Europe/Ljubljana] Default exception handler: Can't find data record in database table booking_options. Debug: SELECT * FROM {booking_options} WHERE id = ?
+[array (
+  0 => 0,
+)]
+Error code: invalidrecord
+* line 1546 of /lib/dml/moodle_database.php: dml_missing_record_exception thrown
+* line 1522 of /lib/dml/moodle_database.php: call to moodle_database->get_record_select()
+* line 120 of /mod/booking/classes/booking_option.php: call to moodle_database->get_record()
+* line 163 of /mod/booking/report.php: call to mod_booking\booking_option->__construct()
+
