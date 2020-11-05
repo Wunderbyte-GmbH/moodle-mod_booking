@@ -143,10 +143,10 @@ class reports {
     private function teachersreport() {
         global $DB;
 
-        $r = $DB->get_records_sql('SELECT bo.text, bo.coursestarttime, bo.courseendtime, bo.location, (select count(mba.id) from {booking_answers} mba where mba.optionid = bo.id)
-            numberofusers, mu.firstname, mu.lastname, mu.address, mu.city, mu.country FROM {booking_options} bo left join {booking_teachers} mbt on mbt.optionid = bo.id
-            left join {user} mu on mu.id = mbt.userid  WHERE bo.bookingid = :bookingid AND bo.coursestarttime >= :coursestarttime AND bo.courseendtime <= :courseendtime',
-            ['bookingid' => $this->cm->instance, 'coursestarttime' => $this->from, 'courseendtime' => $this->to]);
+        $r = $DB->get_records_sql('SELECT bo.text, bo.coursestarttime, bo.courseendtime, bo.location, bo.address, mbt.distance, (select count(mba.id) from {booking_answers} mba
+            where mba.optionid = bo.id) numberofusers, mu.firstname, mu.lastname, mu.address, mu.city, mu.country FROM {booking_options} bo left join {booking_teachers} mbt on
+            mbt.optionid = bo.id left join {user} mu on mu.id = mbt.userid  WHERE bo.bookingid = :bookingid AND bo.coursestarttime >= :coursestarttime AND bo.courseendtime <=
+            :courseendtime', ['bookingid' => $this->cm->instance, 'coursestarttime' => $this->from, 'courseendtime' => $this->to]);
 
         $rcount = $DB->get_records_sql('SELECT mu.firstname, mu.lastname, count(mu.id) numberofcourses FROM {booking_options} bo left join {booking_teachers} mbt on mbt.optionid =
             bo.id	left join {user} mu on mu.id = mbt.userid  WHERE bo.bookingid = :bookingid AND bo.coursestarttime >= :coursestarttime AND bo.courseendtime <= :courseendtime
@@ -169,6 +169,8 @@ class reports {
         'coursestarttime' => get_string("coursestarttime", "booking"),
         'courseendtime' => get_string("courseendtime", "booking"),
         'location' => get_string("location", "booking"),
+        'address' => get_string("address", "booking"),
+        'distance' => get_string('distance', 'booking'),
         'numberofusers' => get_string('responses', 'booking'),
         'firstname' => get_string("firstname"),
         'lastname' => get_string("lastname"),
