@@ -1270,7 +1270,13 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         }
     }
 
-    $rurl = get_config('booking', 'remoteapikey');
+    $remoterul = $DB->get_record('booking_remoteapi', ['course' => $course->id]);
+    $rurl = '';
+
+    if (!empty($remoterul->url)) {
+        $rurl = $remoterul->url;
+    }
+
     if (!empty($rurl)) {
         $rurl = str_replace('{ID}', $booking->settings->id, $rurl);
         $settingnode->add(get_string('callremotesync', 'booking'),

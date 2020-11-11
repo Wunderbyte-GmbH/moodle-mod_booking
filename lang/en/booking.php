@@ -1457,9 +1457,18 @@ $string['pricecategoryfield'] = 'User profile field for price category';
 $string['pricecategoryfielddesc'] = 'Choose the user profile field, which stores the price category identifier for each user.';
 
 $string['remoteapicall'] = 'Remote API call';
+$string['addnewremoteapicall'] = 'Add new remote API call';
 $string['remoteapikey'] = 'URL';
 $string['remoteapikey_desc'] = '{ID} - use this placeholder to replace it with booking id.';
 // Mobile.
+$string['remoteapiurl'] = '';
+$string['remoteapiurl_help'] = '{ID} - use this placeholder to replace it with booking id.';
+$string['addeditremoteapicall'] = 'Add/edit remote API call';
+$string['fieldmandatory'] = 'This field is mandatory!';
+$string['onlyoneurl'] = 'Course can have only one remote API call url!';
+
+
+// Mobile
 $string['next'] = 'Next';
 $string['previous'] = 'Previous';
 // Privacy API.
@@ -1720,12 +1729,5 @@ $string['confirmedall'] = 'All confirmed';
 $string['confirmedallp'] = 'All confirmed %';
 $string['example'] = 'Example';
 $string['editdescription'] = 'Edit description';
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-$string['subscribegroup'] = 'Book users from group';
->>>>>>> 87a0e91... Book users from gorup.
-=======
 $string['subscribegroup'] = 'Book users from group';
 $string['distance'] = 'Distance';
->>>>>>> d62c9f9... Distance.

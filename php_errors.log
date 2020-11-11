@@ -292,3 +292,139 @@ Error code: generalexceptionmessage
 [05-Nov-2020 11:47:08 Europe/Ljubljana] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/atlet/www/moodle.piltek.com/lib/phpexcel/PHPExcel/Writer/Excel2007.php:394) in /home/atlet/www/moodle.piltek.com/lib/excellib.class.php on line 116
 [05-Nov-2020 11:47:08 Europe/Ljubljana] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/atlet/www/moodle.piltek.com/lib/phpexcel/PHPExcel/Writer/Excel2007.php:394) in /home/atlet/www/moodle.piltek.com/lib/excellib.class.php on line 125
 [05-Nov-2020 11:47:08 Europe/Ljubljana] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/atlet/www/moodle.piltek.com/lib/phpexcel/PHPExcel/Writer/Excel2007.php:394) in /home/atlet/www/moodle.piltek.com/lib/excellib.class.php on line 126
+[11-Nov-2020 21:59:41 Europe/Berlin] PHP Warning:  require(config.php): failed to open stream: No such file or directory in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 16
+[11-Nov-2020 21:59:41 Europe/Berlin] PHP Fatal error:  require(): Failed opening required 'config.php' (include_path='.:/usr/share/php') in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 16
+[11-Nov-2020 22:01:11 Europe/Berlin] PHP Warning:  require(config.php): failed to open stream: No such file or directory in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 16
+[11-Nov-2020 22:01:11 Europe/Berlin] PHP Fatal error:  require(): Failed opening required 'config.php' (include_path='.:/usr/share/php') in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 16
+[11-Nov-2020 22:01:13 Europe/Berlin] PHP Warning:  require(config.php): failed to open stream: No such file or directory in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 16
+[11-Nov-2020 22:01:13 Europe/Berlin] PHP Fatal error:  require(): Failed opening required 'config.php' (include_path='.:/usr/share/php') in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 16
+[11-Nov-2020 22:01:43 Europe/Berlin] PHP Warning:  require(config.php): failed to open stream: No such file or directory in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 16
+[11-Nov-2020 22:01:43 Europe/Berlin] PHP Fatal error:  require(): Failed opening required 'config.php' (include_path='.:/usr/share/php') in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 16
+[11-Nov-2020 22:01:44 Europe/Berlin] PHP Warning:  require(config.php): failed to open stream: No such file or directory in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 16
+[11-Nov-2020 22:01:44 Europe/Berlin] PHP Fatal error:  require(): Failed opening required 'config.php' (include_path='.:/usr/share/php') in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 16
+[11-Nov-2020 22:10:32 Europe/Ljubljana] Default exception handler: Error reading from database Debug: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'LIMIT 0, 1' at line 1
+SELECT mc.fullname, mbr.url FROM mdl_booking_remoteapi mbr left join mdl_course mc on mc.id = mbr.course WHERE  LIMIT 0, 1
+[array (
+)]
+Error code: dmlreadexception
+* line 486 of /lib/dml/moodle_database.php: dml_read_exception thrown
+* line 1245 of /lib/dml/mysqli_native_moodle_database.php: call to moodle_database->query_end()
+* line 1571 of /lib/dml/moodle_database.php: call to mysqli_native_moodle_database->get_records_sql()
+* line 1663 of /lib/tablelib.php: call to moodle_database->get_record_sql()
+* line 43 of /mod/booking/remoteapicall.php: call to table_sql->out()
+
+[11-Nov-2020 22:16:10 Europe/Ljubljana] PHP Notice:  Undefined variable: cm in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 47
+[11-Nov-2020 22:16:10 Europe/Ljubljana] PHP Notice:  Trying to get property 'id' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 47
+[11-Nov-2020 22:16:10 Europe/Ljubljana] PHP Notice:  Undefined variable: optionid in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 47
+[11-Nov-2020 22:19:38 Europe/Ljubljana] Default exception handler: Coding error detected, it must be fixed by a programmer: Invalid string identifier. The identifier cannot be empty. Please fix your get_string() call. Debug: 32767
+Error code: codingerror
+* line 7226 of /lib/moodlelib.php: coding_exception thrown
+* line 37 of /mod/booking/remoteapicall.php: call to get_string()
+
+[11-Nov-2020 22:29:43 Europe/Ljubljana] Default exception handler: Exception - syntax error, unexpected '$string' (T_VARIABLE) Debug: 
+Error code: generalexceptionmessage
+* line 1095 of /mod/booking/lang/en/booking.php: ParseError thrown
+* line 280 of /lib/classes/string_manager_standard.php: call to core_string_manager_standard->load_component_strings()
+* line 61 of /lib/classes/plugininfo/mod.php: call to core_string_manager_standard->string_exists()
+* line 142 of /lib/classes/plugininfo/base.php: call to core\plugininfo\mod->init_display_name()
+* line 97 of /lib/classes/plugininfo/base.php: call to core\plugininfo\base::make_plugin_instance()
+* line 395 of /lib/classes/plugin_manager.php: call to core\plugininfo\base::get_plugins()
+* line 43 of /admin/settings/plugins.php: call to core_plugin_manager->get_plugins_of_type()
+* line 8363 of /lib/adminlib.php: call to require()
+* line 8250 of /lib/adminlib.php: call to admin_get_root()
+* line 26 of /mod/booking/remoteapicall.php: call to admin_externalpage_setup()
+
+[11-Nov-2020 22:30:40 Europe/Ljubljana] Default exception handler: Exception - syntax error, unexpected '$string' (T_VARIABLE) Debug: 
+Error code: generalexceptionmessage
+* line 1095 of /mod/booking/lang/en/booking.php: ParseError thrown
+* line 280 of /lib/classes/string_manager_standard.php: call to core_string_manager_standard->load_component_strings()
+* line 61 of /lib/classes/plugininfo/mod.php: call to core_string_manager_standard->string_exists()
+* line 142 of /lib/classes/plugininfo/base.php: call to core\plugininfo\mod->init_display_name()
+* line 97 of /lib/classes/plugininfo/base.php: call to core\plugininfo\base::make_plugin_instance()
+* line 395 of /lib/classes/plugin_manager.php: call to core\plugininfo\base::get_plugins()
+* line 43 of /admin/settings/plugins.php: call to core_plugin_manager->get_plugins_of_type()
+* line 8363 of /lib/adminlib.php: call to require()
+* line 8250 of /lib/adminlib.php: call to admin_get_root()
+* line 33 of /mod/booking/remoteapicalladdedit.php: call to admin_externalpage_setup()
+
+[11-Nov-2020 22:36:17 Europe/Ljubljana] Default exception handler: Exception - Class 'mod_booking\form\remoteapicalladdedit_form' not found Debug: 
+Error code: generalexceptionmessage
+* line 38 of /mod/booking/remoteapicalladdedit.php: Error thrown
+
+[11-Nov-2020 22:37:22 Europe/Ljubljana] PHP Fatal error:  Class mod_booking\form\remoteapicalladdedit_form contains 1 abstract method and must therefore be declared abstract or implement the remaining methods (moodleform::definition) in /home/atlet/www/moodle.piltek.com/mod/booking/classes/form/remoteapicalladdedit_form.php on line 0
+[11-Nov-2020 22:37:58 Europe/Ljubljana] Default exception handler: Exception - syntax error, unexpected '...' (T_ELLIPSIS) Debug: 
+Error code: generalexceptionmessage
+* line 32 of /mod/booking/classes/form/remoteapicalladdedit_form.php: ParseError thrown
+* line ? of unknownfile: call to core_component::classloader()
+* line 38 of /mod/booking/remoteapicalladdedit.php: call to spl_autoload_call()
+
+[11-Nov-2020 22:44:11 Europe/Ljubljana] Default exception handler: Exception - syntax error, unexpected ';', expecting ',' or ')' Debug: 
+Error code: generalexceptionmessage
+* line 32 of /mod/booking/classes/form/remoteapicalladdedit_form.php: ParseError thrown
+* line ? of unknownfile: call to core_component::classloader()
+* line 38 of /mod/booking/remoteapicalladdedit.php: call to spl_autoload_call()
+
+[11-Nov-2020 22:45:13 Europe/Ljubljana] Default exception handler: Exception - syntax error, unexpected '-&gt;' (T_OBJECT_OPERATOR) Debug: 
+Error code: generalexceptionmessage
+* line 29 of /mod/booking/classes/form/remoteapicalladdedit_form.php: ParseError thrown
+* line ? of unknownfile: call to core_component::classloader()
+* line 38 of /mod/booking/remoteapicalladdedit.php: call to spl_autoload_call()
+
+[11-Nov-2020 22:52:40 Europe/Ljubljana] PHP Notice:  Undefined variable: toform in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicalladdedit.php on line 48
+[11-Nov-2020 22:52:49 Europe/Ljubljana] PHP Notice:  Undefined variable: toform in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicalladdedit.php on line 48
+[11-Nov-2020 22:53:04 Europe/Ljubljana] PHP Notice:  Undefined variable: toform in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicalladdedit.php on line 51
+[11-Nov-2020 23:03:59 Europe/Ljubljana] PHP Notice:  Undefined variable: data in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicalladdedit.php on line 48
+[11-Nov-2020 23:03:59 Europe/Ljubljana] PHP Notice:  Trying to get property 'id' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicalladdedit.php on line 48
+[11-Nov-2020 23:03:59 Europe/Ljubljana] PHP Notice:  Undefined variable: cm in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicalladdedit.php on line 49
+[11-Nov-2020 23:03:59 Europe/Ljubljana] PHP Notice:  Trying to get property 'course' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicalladdedit.php on line 49
+[11-Nov-2020 23:03:59 Europe/Ljubljana] PHP Notice:  Undefined variable: data in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicalladdedit.php on line 50
+[11-Nov-2020 23:03:59 Europe/Ljubljana] PHP Notice:  Trying to get property 'url' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicalladdedit.php on line 50
+[11-Nov-2020 23:03:59 Europe/Ljubljana] Default exception handler: Error writing to database Debug: Column 'course' cannot be null
+INSERT INTO mdl_booking_remoteapi (course,url) VALUES(?,?)
+[array (
+  0 => NULL,
+  1 => NULL,
+)]
+Error code: dmlwriteexception
+* line 489 of /lib/dml/moodle_database.php: dml_write_exception thrown
+* line 1329 of /lib/dml/mysqli_native_moodle_database.php: call to moodle_database->query_end()
+* line 1375 of /lib/dml/mysqli_native_moodle_database.php: call to mysqli_native_moodle_database->insert_record_raw()
+* line 55 of /mod/booking/remoteapicalladdedit.php: call to mysqli_native_moodle_database->insert_record()
+
+[11-Nov-2020 23:04:22 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$id in /home/atlet/www/moodle.piltek.com/lib/tablelib.php on line 873
+[11-Nov-2020 23:04:56 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$id in /home/atlet/www/moodle.piltek.com/lib/tablelib.php on line 873
+[11-Nov-2020 23:04:58 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$id in /home/atlet/www/moodle.piltek.com/lib/tablelib.php on line 873
+[11-Nov-2020 23:05:50 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$id in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicalladdedit.php on line 54
+[11-Nov-2020 23:05:50 Europe/Ljubljana] Default exception handler: Error writing to database Debug: Duplicate entry '1' for key 'mdl_bookremo_cou_uix'
+INSERT INTO mdl_booking_remoteapi (course,url) VALUES(?,?)
+[array (
+  0 => '1',
+  1 => 'neki',
+)]
+Error code: dmlwriteexception
+* line 489 of /lib/dml/moodle_database.php: dml_write_exception thrown
+* line 1329 of /lib/dml/mysqli_native_moodle_database.php: call to moodle_database->query_end()
+* line 1375 of /lib/dml/mysqli_native_moodle_database.php: call to mysqli_native_moodle_database->insert_record_raw()
+* line 57 of /mod/booking/remoteapicalladdedit.php: call to mysqli_native_moodle_database->insert_record()
+
+[11-Nov-2020 23:08:50 Europe/Berlin] PHP Parse error:  syntax error, unexpected ',' in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 43
+[11-Nov-2020 23:08:52 Europe/Berlin] PHP Parse error:  syntax error, unexpected ',' in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicall.php on line 43
+[11-Nov-2020 23:12:54 Europe/Ljubljana] Default exception handler: Exception - Class 'remoteapicall_table' not found Debug: 
+Error code: generalexceptionmessage
+* line 30 of /mod/booking/remoteapicall.php: Error thrown
+
+[11-Nov-2020 23:13:14 Europe/Ljubljana] Default exception handler: Exception - Class 'remoteapicall_table' not found Debug: 
+Error code: generalexceptionmessage
+* line 30 of /mod/booking/remoteapicall.php: Error thrown
+
+[11-Nov-2020 23:13:22 Europe/Ljubljana] Default exception handler: Exception - Class 'remoteapicall_table' not found Debug: 
+Error code: generalexceptionmessage
+* line 30 of /mod/booking/remoteapicall.php: Error thrown
+
+[11-Nov-2020 23:13:42 Europe/Ljubljana] PHP Fatal error:  Class 'mod_booking\table_sql' not found in /home/atlet/www/moodle.piltek.com/mod/booking/classes/remoteapicall_table.php on line 28
+[11-Nov-2020 23:14:42 Europe/Ljubljana] Default exception handler: Exception - Class 'mod_booking\remoteapicall_table' not found Debug: 
+Error code: generalexceptionmessage
+* line 30 of /mod/booking/remoteapicall.php: Error thrown
+
+[11-Nov-2020 23:16:17 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$username in /home/atlet/www/moodle.piltek.com/mod/booking/classes/remoteapicall_table.php on line 41
+[11-Nov-2020 23:20:12 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$id in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicalladdedit.php on line 52
