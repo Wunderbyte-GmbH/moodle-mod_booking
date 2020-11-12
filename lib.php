@@ -1280,7 +1280,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     if (!empty($rurl)) {
         $rurl = str_replace('{ID}', $booking->settings->id, $rurl);
         $settingnode->add(get_string('callremotesync', 'booking'),
-            $rurl . '" target="_blank"');
+            new moodle_url($rurl, null, '" target="_blank"'));
     }
 
     if (has_capability('mod/booking:updatebooking', $context)) {
