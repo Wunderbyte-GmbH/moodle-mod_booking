@@ -41,7 +41,7 @@ class remoteapicalladdedit_form extends \moodleform {
         $this->add_action_buttons();
     }
 
-    function validation($data, $files) {
+    public function validation($data, $files) {
         return array();
     }
 }

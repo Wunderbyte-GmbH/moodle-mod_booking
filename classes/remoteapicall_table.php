@@ -29,11 +29,11 @@ defined('MOODLE_INTERNAL') || die();
 
 class remoteapicall_table extends table_sql {
 
-    function __construct($uniqueid) {
+    public function __construct($uniqueid) {
         parent::__construct($uniqueid);
     }
 
-    function col_id($values) {
+    public function col_id($values) {
         // If the data is being downloaded than we don't want to show HTML.
         if ($this->is_downloading()) {
             return '';
