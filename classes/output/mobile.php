@@ -35,6 +35,21 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 class mobile {
 
     /**
+     * Returns the javascript needed to initialize responses in the app.
+     *
+     * @param  array $args Arguments from tool_mobile_get_content WS
+     * @return array javascript
+     */
+    public static function mobile_init($args) {
+        global $CFG;
+
+        return [
+            'templates' => [],
+            'javascript' => file_get_contents($CFG->dirroot . '/mod/booking/mobile/js/init.js'),
+        ];
+    }
+
+    /**
      * Returns all my bookings view for mobile app.
      *
      * @param array $args Arguments from tool_mobile_get_content WS

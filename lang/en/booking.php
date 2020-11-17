@@ -1731,3 +1731,7 @@ $string['example'] = 'Example';
 $string['editdescription'] = 'Edit description';
 $string['subscribegroup'] = 'Book users from group';
 $string['distance'] = 'Distance';
+<<<<<<< HEAD
+=======
+$string['offlinesyncedlater'] = 'You are offline. Your data will be submitet, when internet will be available.';
+>>>>>>> 78d71a1... Offline support for QR code.
