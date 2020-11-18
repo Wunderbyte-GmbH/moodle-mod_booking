@@ -428,3 +428,17 @@ Error code: generalexceptionmessage
 
 [11-Nov-2020 23:16:17 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$username in /home/atlet/www/moodle.piltek.com/mod/booking/classes/remoteapicall_table.php on line 41
 [11-Nov-2020 23:20:12 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$id in /home/atlet/www/moodle.piltek.com/mod/booking/remoteapicalladdedit.php on line 52
+[18-Nov-2020 22:06:14 Europe/Ljubljana] Default exception handler: Exception - Call to undefined method SimpleXMLElement::addChld() Debug: 
+Error code: generalexceptionmessage
+* line 41 of /mod/booking/templates.php: Error thrown
+
+[18-Nov-2020 22:07:31 Europe/Ljubljana] PHP Notice:  Undefined variable: options in /home/atlet/www/moodle.piltek.com/mod/booking/templates.php on line 47
+[18-Nov-2020 22:30:36 Europe/Ljubljana] Default exception handler: Exception - Class 'mod_booking\form\templates_form' not found Debug: 
+Error code: generalexceptionmessage
+* line 66 of /mod/booking/templates.php: Error thrown
+
+[18-Nov-2020 22:30:43 Europe/Ljubljana] PHP Notice:  Undefined variable: maxbytes in /home/atlet/www/moodle.piltek.com/mod/booking/classes/form/templates_form.php on line 30
+[18-Nov-2020 22:32:08 Europe/Ljubljana] PHP Notice:  Undefined variable: maxbytes in /home/atlet/www/moodle.piltek.com/mod/booking/classes/form/templates_form.php on line 30
+[18-Nov-2020 22:32:19 Europe/Ljubljana] PHP Notice:  Undefined variable: maxbytes in /home/atlet/www/moodle.piltek.com/mod/booking/classes/form/templates_form.php on line 30
+[18-Nov-2020 22:37:19 Europe/Ljubljana] PHP Warning:  Invalid argument supplied for foreach() in /home/atlet/www/moodle.piltek.com/mod/booking/templates.php on line 70
+[18-Nov-2020 22:37:37 Europe/Ljubljana] PHP Warning:  Invalid argument supplied for foreach() in /home/atlet/www/moodle.piltek.com/mod/booking/templates.php on line 72

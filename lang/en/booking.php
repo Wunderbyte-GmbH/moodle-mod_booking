@@ -1731,11 +1731,9 @@ $string['example'] = 'Example';
 $string['editdescription'] = 'Edit description';
 $string['subscribegroup'] = 'Book users from group';
 $string['distance'] = 'Distance';
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 $string['offlinesyncedlater'] = 'You are offline. Your data will be submitet, when internet will be available.';
->>>>>>> 78d71a1... Offline support for QR code.
-=======
-$string['offlinesyncedlater'] = 'You are offline. Your data will be submitet, when internet will be available.';
->>>>>>> 4f27413... Offline support for QR code.
+$string['templates'] = 'Templates';
+$string['donwloadtemplates'] = 'Download templates';
+$string['teplatefile'] = 'Templates file';
+$string['templatesinserted'] = 'Templates where inserted.';
+$string['templatesinsertederror'] = 'Error! Templates not inserted!';
