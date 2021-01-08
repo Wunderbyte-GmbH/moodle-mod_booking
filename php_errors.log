@@ -442,3 +442,6 @@ Error code: generalexceptionmessage
 [18-Nov-2020 22:32:19 Europe/Ljubljana] PHP Notice:  Undefined variable: maxbytes in /home/atlet/www/moodle.piltek.com/mod/booking/classes/form/templates_form.php on line 30
 [18-Nov-2020 22:37:19 Europe/Ljubljana] PHP Warning:  Invalid argument supplied for foreach() in /home/atlet/www/moodle.piltek.com/mod/booking/templates.php on line 70
 [18-Nov-2020 22:37:37 Europe/Ljubljana] PHP Warning:  Invalid argument supplied for foreach() in /home/atlet/www/moodle.piltek.com/mod/booking/templates.php on line 72
+[08-Jan-2021 00:22:12 Europe/Ljubljana] PHP Notice:  Undefined variable: option in /home/atlet/www/moodle.piltek.com/mod/booking/lib.php on line 980
+[08-Jan-2021 00:22:12 Europe/Ljubljana] PHP Notice:  Trying to get property 'option' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/lib.php on line 980
+[08-Jan-2021 00:22:12 Europe/Ljubljana] PHP Notice:  Trying to get property 'id' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/lib.php on line 1501
