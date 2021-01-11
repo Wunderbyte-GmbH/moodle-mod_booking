@@ -445,3 +445,4 @@ Error code: generalexceptionmessage
 [08-Jan-2021 00:22:12 Europe/Ljubljana] PHP Notice:  Undefined variable: option in /home/atlet/www/moodle.piltek.com/mod/booking/lib.php on line 980
 [08-Jan-2021 00:22:12 Europe/Ljubljana] PHP Notice:  Trying to get property 'option' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/lib.php on line 980
 [08-Jan-2021 00:22:12 Europe/Ljubljana] PHP Notice:  Trying to get property 'id' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/lib.php on line 1501
+[11-Jan-2021 23:55:00 Europe/Ljubljana] PHP Notice:  Undefined variable: settingnode in /home/atlet/www/moodle.piltek.com/mod/booking/lib.php on line 1004

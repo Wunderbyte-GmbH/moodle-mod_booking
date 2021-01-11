@@ -1277,13 +1277,12 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $rurl = $remoterul->url;
     }
 
-    if (!empty($rurl)) {
-        $rurl = str_replace('{ID}', $booking->settings->id, $rurl);
-        $settingnode->add(get_string('callremotesync', 'booking'),
-            new moodle_url($rurl, null, '" target="_blank"'));
-    }
-
     if (has_capability('mod/booking:updatebooking', $context)) {
+        if (!empty($rurl)) {
+            $rurl = str_replace('{ID}', $booking->settings->id, $rurl);
+            $settingnode->add(get_string('callremotesync', 'booking'),
+                new moodle_url($rurl, null, '" target="_blank"'));
+        }
         $settingnode->add(get_string("reports", "mod_booking"),
                 new moodle_url('reports.php', array('id' => $cm->id)));
     }
