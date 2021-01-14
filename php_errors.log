@@ -446,3 +446,11 @@ Error code: generalexceptionmessage
 [08-Jan-2021 00:22:12 Europe/Ljubljana] PHP Notice:  Trying to get property 'option' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/lib.php on line 980
 [08-Jan-2021 00:22:12 Europe/Ljubljana] PHP Notice:  Trying to get property 'id' of non-object in /home/atlet/www/moodle.piltek.com/mod/booking/lib.php on line 1501
 [11-Jan-2021 23:55:00 Europe/Ljubljana] PHP Notice:  Undefined variable: settingnode in /home/atlet/www/moodle.piltek.com/mod/booking/lib.php on line 1004
+[14-Jan-2021 11:04:39 Europe/Ljubljana] Default exception handler: Exception - syntax error, unexpected ')', expecting identifier (T_STRING) or variable (T_VARIABLE) or '{' or '$' Debug: 
+Error code: generalexceptionmessage
+* line 496 of /mod/booking/classes/booking.php: ParseError thrown
+* line ? of unknownfile: call to core_component::classloader()
+* line 51 of /mod/booking/view.php: call to spl_autoload_call()
+
+[14-Jan-2021 11:40:18 Europe/Ljubljana] PHP Warning:  Creating default object from empty value in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking.php on line 511
+[14-Jan-2021 11:40:18 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$description in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking.php on line 513

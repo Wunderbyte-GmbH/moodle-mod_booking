@@ -527,7 +527,7 @@ class booking {
             if (isset($customfields->{$this->settings->autcrprofile}) &&
                 $customfields->{$this->settings->autcrprofile} == $this->settings->autcrvalue) {
 
-                $nrec = $DB->count_records('booking_teachers', array('userid' => $USER->id, 'bookingid' => $this->id));
+                $nrec = $DB->count_records_sql("select count(mbt.id) from {booking_teachers} mbt left join {booking_options} mbo on mbo.id = mbt.optionid where mbt.userid = {$USER->id} and mbt.bookingid = {$this->id} and mbo.bookingid != 0");
 
                 if ($nrec === 0) {
                     $bookingoption = $DB->get_record('booking_options', array('id' => $this->settings->autcrtemplate));
