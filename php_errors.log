@@ -454,3 +454,11 @@ Error code: generalexceptionmessage
 
 [14-Jan-2021 11:40:18 Europe/Ljubljana] PHP Warning:  Creating default object from empty value in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking.php on line 511
 [14-Jan-2021 11:40:18 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$description in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking.php on line 513
+[14-Jan-2021 12:34:19 Europe/Ljubljana] PHP Warning:  Creating default object from empty value in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking.php on line 506
+[14-Jan-2021 12:34:19 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$description in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking.php on line 508
+[14-Jan-2021 12:44:47 Europe/Ljubljana] PHP Warning:  Creating default object from empty value in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking.php on line 506
+[14-Jan-2021 12:44:47 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$description in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking.php on line 508
+[14-Jan-2021 12:46:58 Europe/Ljubljana] PHP Warning:  Creating default object from empty value in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking.php on line 509
+[14-Jan-2021 12:46:58 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$description in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking.php on line 511
+[14-Jan-2021 12:54:19 Europe/Ljubljana] PHP Warning:  Creating default object from empty value in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking.php on line 506
+[14-Jan-2021 12:54:19 Europe/Ljubljana] PHP Notice:  Undefined property: stdClass::$description in /home/atlet/www/moodle.piltek.com/mod/booking/classes/booking.php on line 508

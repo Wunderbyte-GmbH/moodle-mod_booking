@@ -838,10 +838,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('static', 'description', '', get_string('autcrwhatitis', 'booking'));
 
         $cfields = $DB->get_records_menu('user_info_field', null, '', 'shortname, name', 0, 0);
-        $cftemplates = $DB->get_records_menu('booking_options', array('bookingid' => 0), '', 'id, text', 0, 0);
-
-        array_unshift($cfields, '');
-        array_unshift($cftemplates, '');
+        $cftemplates = $DB->get_records_menu('booking_options', ['bookingid' => 0], '', 'id, text', 0, 0);
 
         $mform->addElement('checkbox', 'autcractive', get_string('enable', 'booking'));
         $mform->addElement('select', 'autcrprofile', get_string('customprofilefield', 'booking'), $cfields);
