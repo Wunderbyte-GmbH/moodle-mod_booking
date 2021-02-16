@@ -1,0 +1,68 @@
+image: moodlehq/moodle-php-apache:7.4
+
+variables:
+    FF_NETWORK_PER_BUILD: 1
+    DB: "mariadb"
+    MOODLE_BRANCH: "MOODLE_39_STABLE"
+    MYSQL_ROOT_PASSWORD: "rootPassword"
+    PLUGIN_NAME: "mod_booking"
+
+cache:
+    paths:
+    - $HOME/.composer/cache
+
+stages:
+    - acceptance_testing
+
+.install: &install
+    before_script:
+        - apt update && apt install mariadb-client npm -y
+        
+        # Update node to current version
+        - npm install -g n
+        - n stable
+
+        - cd ..
+        - curl -sS https://getcomposer.org/installer | php
+        - mv composer.phar /usr/local/bin/composer
+        
+        # Clean ci folder
+        - rm -rf ./ci
+
+        # Install moodle-plugin-ci
+        - composer create-project --no-dev moodlehq/moodle-plugin-ci ci "3.0.*"
+        - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
+        - chmod u+x ci/bin/*
+
+        # Clean moodle folder
+        - rm -rf ./moodle
+
+        # Use moodle-plugin-ci to install moodle, setup basic config etc.
+        - moodle-plugin-ci install --repo https://github.com/moodle/moodle.git --db-type=mariadb --db-user=root --db-pass=$MYSQL_ROOT_PASSWORD --db-host=mariadb --plugin $CI_PROJECT_DIR -vvv
+
+        #- export CONTAINER="$( hostname -I | awk '{print $1}' )"
+
+acceptance_testing:
+    stage: acceptance_testing
+    
+    services:
+        - mariadb:latest
+        - name: selenium/standalone-firefox
+          alias: selenium
+    
+    <<: *install
+
+    script:
+        # Prepare for behat testing, dump selenium service URL into moodle config
+        - sed -i "s|http://localhost:4444/wd/hub|selenium:4444/wd/hub|g" ./moodle/config.php
+        - sed -i "s|http://localhost:8000|http://build:8000|g" ./moodle/config.php
+
+        # Serve the site
+        - cd moodle
+        - php -S "build:8000" > /dev/null 2>&1 &
+        - cd ..
+
+        # Use behat's own CLI to run tests (moodle-plugin-ci tries to force start Docker selenium server)
+        - php ./moodle/admin/tool/behat/cli/init.php
+        - php ./moodle/admin/tool/behat/cli/run.php --tags="@$PLUGIN_NAME"
+        
