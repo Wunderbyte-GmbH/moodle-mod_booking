@@ -51,7 +51,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'assesstimestart', 'assesstimefinish', 'scale', 'enablepresence',
                     'responsesfields', 'reportfields', 'beforebookedtext', 'beforecompletedtext',
                     'aftercompletedtext', 'signinsheetfields', 'comments', 'ratings', 'removeuseronunenrol',
-                    'teacherroleid', 'allowupdatedays', 'templateid', 'defaultoptionsort', 'showviews'));
+                    'teacherroleid', 'allowupdatedays', 'templateid', 'defaultoptionsort', 'showviews', 'customtemplateid',
+                    'autcractive', 'autcrprofile', 'autcrvalue', 'autcrtemplate'));
 
         $options = new backup_nested_element('options');
         $option = new backup_nested_element('option', array('id'),
@@ -62,12 +63,12 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'pollurlteachers', 'howmanyusers', 'pollsend', 'removeafterminutes',
                     'notificationtext', 'notificationtextformat', 'disablebookingusers',
                     'beforebookedtext', 'beforecompletedtext',
-                    'aftercompletedtext', 'shorturl', 'duration'));
+                    'aftercompletedtext', 'shorturl', 'duration', 'parentid'));
 
         $answers = new backup_nested_element('answers');
         $answer = new backup_nested_element('answer', array('id'),
                 array('bookingid', 'optionid', 'userid', 'timemodified', 'completed', 'timecreated',
-                    'waitinglist', 'frombookingid', 'numrec'));
+                    'waitinglist', 'frombookingid', 'numrec', 'status', 'notes'));
 
         $optiondates = new backup_nested_element('optiondates');
         $optiondate = new backup_nested_element('optiondate', array('id'),

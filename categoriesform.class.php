@@ -21,9 +21,8 @@ require_once($CFG->libdir . '/formslib.php');
 
 class mod_booking_categories_form extends moodleform {
 
-    private function show_sub_categories($catid, $dashes = '', $options) {
+    private function show_sub_categories($catid, $dashes = '', $options = []) {
         global $DB;
-        $options = array();
         $dashes .= '&nbsp;&nbsp;';
         $categories = $DB->get_records('booking_category', array('cid' => $catid));
         if (count((array) $categories) > 0) {
@@ -32,21 +31,20 @@ class mod_booking_categories_form extends moodleform {
                 $options = $this->show_sub_categories($category->id, $dashes, $options);
             }
         }
-
         return $options;
     }
 
     public function definition() {
         global $DB, $COURSE;
 
-        $categories = $DB->get_records('booking_category',
-                array('course' => $COURSE->id, 'cid' => 0));
+        // Get all root categories.
+        $categories = $DB->get_records('booking_category', ['course' => $COURSE->id, 'cid' => 0]);
 
         $options = array(0 => get_string('rootcategory', 'mod_booking'));
 
         foreach ($categories as $category) {
             $options[$category->id] = $category->name;
-            $options = $this->show_sub_categories($category->id, '', $DB, $options);
+            $options = $this->show_sub_categories($category->id, '', $options);
         }
 
         $mform = $this->_form;

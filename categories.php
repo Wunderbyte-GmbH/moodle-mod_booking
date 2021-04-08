@@ -35,6 +35,7 @@ $PAGE->set_heading($COURSE->fullname);
 
 $PAGE->set_title($title);
 
+// Get root categories.
 $categories = $DB->get_records('booking_category', array('course' => $courseid, 'cid' => 0));
 
 echo $OUTPUT->header();
@@ -59,7 +60,7 @@ foreach ($categories as $category) {
     echo "<li>$category->name - $editlink - $deletelink</li>";
     $subcategories = $DB->get_records('booking_category',
             array('course' => $courseid, 'cid' => $category->id));
-    if (count($subcategories) < 0) {
+    if (count($subcategories) > 0) {
         echo "<ul>";
         foreach ($subcategories as $subcat) {
             $editlink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$subcat->id\">" .

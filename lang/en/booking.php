@@ -161,7 +161,7 @@ $string['forcourse'] = 'for course';
 $string['addnewcategory'] = 'Add new category';
 $string['categoryname'] = 'Category name';
 $string['rootcategory'] = 'Root';
-$string['selectcategory'] = 'Select category';
+$string['selectcategory'] = 'Select parent category';
 $string['editcategory'] = 'Edit';
 $string['deletecategory'] = 'Delete';
 $string['deletesubcategory'] = 'Please, first delete all subcategories of this category!';
@@ -1050,7 +1050,7 @@ $string['pdfstudentname'] = "Student Name";
 $string['pdfsignature'] = "Signature";
 $string['pdftodaydate'] = 'Date: ';
 $string['booking:readallinstitutionusers'] = 'Show all users';
-$string['canmanageoptiontemplates'] = 'Can manage option templates';
+$string['manageoptiontemplates'] = 'Manage option templates';
 
 // File: settings.php
 $string['icalcfg'] = 'Configuration of the ical attachements';

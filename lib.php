@@ -932,7 +932,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             new moodle_url('instancetemplateadd.php', array('id' => $cm->id)));
 
         if (has_capability('mod/booking:manageoptiontemplates', $context)) {
-            $settingnode->add(get_string("canmanageoptiontemplates", "mod_booking"),
+            $settingnode->add(get_string("manageoptiontemplates", "mod_booking"),
                 new moodle_url('optiontemplatessettings.php', array('id' => $cm->id)));
         }
 
@@ -2412,7 +2412,7 @@ function booking_get_extra_capabilities() {
 }
 
 /**
- * Adds user to the subscriber list
+ * Adds user as teacher (booking manager) to a booking option
  *
  * @global object
  * @param int $userid

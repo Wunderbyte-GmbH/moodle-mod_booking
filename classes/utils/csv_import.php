@@ -208,10 +208,10 @@ class csv_import {
                 if (isset($userdata['teacheremail'])) {
                     $teacher = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
                         'email' => $userdata['teacheremail']), 'id', IGNORE_MULTIPLE);
-                    $teacherexists = $DB->get_record('booking_teachers',
+                    $teacherexists = $DB->record_exists('booking_teachers',
                         array('bookingid' => $this->booking->id, 'userid' => $teacher->id,
                             'optionid' => $optionid));
-                    if ($teacherexists === false AND $teacher !== false) {
+                    if ($teacherexists === false && $teacher !== false && $teacher->id > 0 && $optionid > 0) {
                         $newteacher = new stdClass();
                         $newteacher->bookingid = $this->booking->id;
                         $newteacher->userid = $teacher->id;

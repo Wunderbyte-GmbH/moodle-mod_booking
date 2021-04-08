@@ -71,7 +71,9 @@ class calendar {
 
             case $this::TYPETEACHERADD:
                 $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings, $bookingoption->option, $this->userid, 0);
-                $DB->set_field("booking_teachers", 'calendarid', $newcalendarid, array('userid' => $this->userid, 'optionid' => $this->optionid));
+                if ($newcalendarid) {
+                    $DB->set_field("booking_teachers", 'calendarid', $newcalendarid, array('userid' => $this->userid, 'optionid' => $this->optionid));
+                }
                 break;
 
             case $this::TYPETEACHERUPDATE:
@@ -99,7 +101,7 @@ class calendar {
      * @param $booking
      * @param array $option
      * @param $optionvalues
-     * @return int
+     * @return int calendarid
      * @throws coding_exception
      * @throws dml_exception
      */

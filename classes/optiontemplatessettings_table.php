@@ -60,15 +60,19 @@ class optiontemplatessettings_table extends table_sql {
      * @return string
      */
     public function col_options($values) {
+        global $DB;
         $output = '';
         if (!empty($this->bookinginstances)) {
             foreach ($this->bookinginstances as $instance) {
                 if ($instance->templateid == $values->optionid) {
-                    list($course, $cm) = get_course_and_cm_from_cmid($instance->id);
-                    $url = new moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
-                    $linktobinstance = html_writer::link($url, $instance->name);
-                    $newline = html_writer::empty_tag('br');
-                    $output .= $linktobinstance . $newline;
+                    // TODO: Replace DB query with something more performant.
+                    if($DB->record_exists('course_modules', ['id' => $instance->id])){
+                        list($course, $cm) = get_course_and_cm_from_cmid($instance->id);
+                        $url = new moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
+                        $linktobinstance = html_writer::link($url, $instance->name);
+                        $newline = html_writer::empty_tag('br');
+                        $output .= $linktobinstance . $newline;
+                    }
                 }
             }
         }
