@@ -36,13 +36,13 @@ $string['addmorebookings'] = 'Add more bookings';
 $string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
 $string['answered'] = 'Answered';
-$string['attachical'] = 'Attach single ical event per booking';
-$string['attachicaldesc'] = 'Email notifications will include an attached ical event, if this is enabled. The ical will include only one start time and one end time either defined
+$string['attachical'] = 'Attach single iCal event per booking';
+$string['attachicaldesc'] = 'Email notifications will include an attached iCal event, if this is enabled. The iCal will include only one start time and one end time either defined
 in the booking option settings or start time of the first session to end time of the last session';
-$string['attachicalsess'] = 'Attach all session dates as ical events';
-$string['attachicalsessdesc'] = 'Email notifications will include all session dates defined for a booking option as ical attachment.';
-$string['icalcancel'] = 'Include ical event when booking is cancelled as cancelled event';
-$string['icalcanceldesc'] = 'When a users cancels a booking or is removed from the booked users list, then attach an ical attachment as cancelled event.';
+$string['attachicalsess'] = 'Attach all session dates as iCal events';
+$string['attachicalsessdesc'] = 'Email notifications will include all session dates defined for a booking option as iCal attachment.';
+$string['icalcancel'] = 'Include iCal event when booking is cancelled as cancelled event';
+$string['icalcanceldesc'] = 'When a users cancels a booking or is removed from the booked users list, then attach an iCal attachment as cancelled event.';
 $string['booking'] = 'Booking';
 $string['booking:addinstance'] = 'Add new booking';
 $string['booking:choose'] = 'Book';
@@ -1053,9 +1053,9 @@ $string['booking:readallinstitutionusers'] = 'Show all users';
 $string['manageoptiontemplates'] = 'Manage option templates';
 
 // File: settings.php
-$string['icalcfg'] = 'Configuration of the ical attachements';
-$string['icalcfgdesc'] = 'Configure the ical.ics files that are attached to e-mail messages. These files alow adding the booking dates to the personal calendar.';
-$string['icalfieldlocation'] = 'Text to display in ical field location';
+$string['icalcfg'] = 'Configuration of the iCal attachements';
+$string['icalcfgdesc'] = 'Configure the iCal.ics files that are attached to e-mail messages. These files alow adding the booking dates to the personal calendar.';
+$string['icalfieldlocation'] = 'Text to display in iCal field location';
 $string['icalfieldlocationdesc'] = 'Choose from the dropdown list what what text should be used for the calendar field location';
 $string['customfield'] = 'Custom field to be set in the booking option settings. It will then be shown in the booking option overview.';
 $string['customfielddesc'] = 'After adding a custom field, you can define the value for the field in the booking option settings. The value will be shown in the booking option description.';
@@ -1083,8 +1083,8 @@ $string['googleapikey'] = 'Google API key';
 $string['googleapikey_desc'] = 'API key for Google URL Shortener. Get it here: https://developers.google.com/url-shortener/v1/getting_started#APIKey';
 $string['numberrows'] = 'Number rows';
 $string['numberrowsdesc'] = 'Number each row of the sign-in sheet. Number will be displayed left of the name in the same column';
-$string['multiicalfiles'] = 'Attach one ical file per date for MS Outlook 2010 compatibility';
-$string['multiicalfilesdesc'] = 'Only MS Outlook 2010 does not support multiple dates within one ical file. Previous and later version do support it (Ex. Outlook365). If you want to send MS Outlook compatible dates, then activate this option in order to attach multiple ical files (one per date/event)';
+$string['multiicalfiles'] = 'Attach one iCal file per date for MS Outlook 2010 compatibility';
+$string['multiicalfilesdesc'] = 'Only MS Outlook 2010 does not support multiple dates within one iCal file. Previous and later version do support it (Ex. Outlook365). If you want to send MS Outlook compatible dates, then activate this option in order to attach multiple iCal files (one per date/event)';
 
 // Mobile
 $string['next'] = 'Next';
