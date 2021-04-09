@@ -763,6 +763,8 @@ $string['newtemplatesaved'] = 'New template for booking option was saved.';
 $string['manageoptiontemplates'] = 'Manage booking option templates';
 $string['usedinbookinginstances'] = 'Template is used in following booking instances';
 $string['optiontemplatename'] = 'Option template name';
+$string['option_template_not_saved_no_valid_license'] = 'Booking option template could not be saved as template. 
+                                                  Upgrade to PRO version to save an unlimited number of templates.';
 
 // importoptions.php
 $string['csvfile'] = 'CSV file';
@@ -1053,6 +1055,12 @@ $string['booking:readallinstitutionusers'] = 'Show all users';
 $string['manageoptiontemplates'] = 'Manage option templates';
 
 // File: settings.php
+$string['licensekeycfg'] = 'Activate PRO version';
+$string['licensekeycfgdesc'] = 'With a PRO license you can create as many booking templates as you like.';
+$string['licensekey'] = 'PRO license key';
+$string['licensekeydesc'] = 'Upload a valid license key to activate the PRO version.';
+$string['license_activated'] = 'PRO version activated successfully.<br>(Expires: ';
+$string['license_invalid'] = 'Invalid license key';
 $string['icalcfg'] = 'Configuration of the iCal attachements';
 $string['icalcfgdesc'] = 'Configure the iCal.ics files that are attached to e-mail messages. These files alow adding the booking dates to the personal calendar.';
 $string['icalfieldlocation'] = 'Text to display in iCal field location';
@@ -1140,6 +1148,8 @@ $string['saveinstanceastemplate'] = 'Add booking instance to template';
 $string['thisinstance'] = 'This booking instance';
 $string['instancetemplate'] = 'Instance template';
 $string['instancesuccessfullysaved'] = 'This booking instance was sucesfully saved as template.';
+$string['instance_not_saved_no_valid_license'] = 'Booking instance could not be saved as template. 
+                                                  Upgrade to PRO version to save an unlimited number of templates.';
 $string['bookinginstancetemplatessettings'] = 'Booking instance templates';
 $string['bookinginstancetemplatename'] = 'Booking instance template name';
 $string['managebookinginstancetemplates'] = 'Manage booking instance templates';

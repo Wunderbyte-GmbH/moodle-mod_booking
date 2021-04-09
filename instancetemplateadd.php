@@ -23,6 +23,11 @@
 require_once("../../config.php");
 require_once("locallib.php");
 
+use \mod_booking\utils\wb_payment;
+use \core\output\notification;
+
+global $DB, $PAGE, $OUTPUT;
+
 $id = required_param('id', PARAM_INT); // Course Module ID.
 
 $url = new moodle_url('/mod/booking/instancetemplateadd.php', array('id' => $id));
@@ -46,20 +51,36 @@ $PAGE->set_pagelayout('standard');
 
 $mform = new mod_booking\form\instancetemplateadd_form($url);
 
+// count the number of instance templates
+$templates_data = $DB->get_records("booking_instancetemplate");
+$number_of_templates = count($templates_data);
+
 if ($mform->is_cancelled()) {
     // Handle form cancel operation, if cancel button is present on form.
     redirect($urlredirect, '', 0);
-} else if ($data = $mform->get_data()) {
-    $instance = $DB->get_record("course_modules", array('id' => $id), 'instance');
-    $booking = $DB->get_record("booking", array('id' => $instance->instance));
+}
+else if ($data = $mform->get_data()) {
+    // only allow generation of templates if it is either the first one
+    // ... OR the user has set a valid PRO licensekey in the config settings
+    if (wb_payment::is_currently_valid_licensekey() || $number_of_templates == 0) {
+        $instance = $DB->get_record("course_modules", array('id' => $id), 'instance');
+        $booking = $DB->get_record("booking", array('id' => $instance->instance));
 
-    $newtemplate = new stdClass();
-    $newtemplate->name = $data->name;
-    $newtemplate->template = json_encode((array) $booking);
+        $newtemplate = new stdClass();
+        $newtemplate->name = $data->name;
+        $newtemplate->template = json_encode((array) $booking);
 
-    $DB->insert_record("booking_instancetemplate", $newtemplate);
-    redirect($urlredirect, get_string('instancesuccessfullysaved', 'booking'), 5);
-} else {
+        $DB->insert_record("booking_instancetemplate", $newtemplate);
+        redirect($urlredirect, get_string('instancesuccessfullysaved', 'booking'), 5);
+    }
+    // if the user does not match the requirements he will be redirected to view.php
+    // ... with the corresponding message
+    else {
+        redirect($urlredirect, get_string('instance_not_saved_no_valid_license', 'booking'), 1, notification::NOTIFY_ERROR);
+    }
+
+}
+else {
     echo $OUTPUT->header();
 
     $defaultvalues = new stdClass();

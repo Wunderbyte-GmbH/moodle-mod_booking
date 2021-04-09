@@ -23,7 +23,12 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG, $ADMIN, $DB;
+
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
+
+use \mod_booking\utils\wb_payment;
 
 $ADMIN->add('modsettings',
         new admin_category('modbookingfolder', new lang_string('pluginname', 'mod_booking'),
@@ -31,11 +36,42 @@ $ADMIN->add('modsettings',
 
 $ADMIN->add('modbookingfolder', $settings);
 
-$settings->add(
-        new admin_setting_heading('mod_booking_icalcfg',
+if ($ADMIN->fulltree) {
+    $settings->add(
+        new admin_setting_heading('mod_booking_licensekeycfg',
+            get_string('licensekeycfg', 'mod_booking'),
+            get_string('licensekeycfgdesc', 'mod_booking')));
+
+    // Dynamically change the license info text
+    $licensekeydesc = get_string('licensekeydesc', 'mod_booking');
+
+    // get license key which has been set in text field
+    $pluginconfig = get_config('booking');
+    if (!empty($pluginconfig->licensekey)){
+        $licensekey = $pluginconfig->licensekey;
+
+        $expiration_date = wb_payment::decrypt_licensekey($licensekey);
+        if (!empty($expiration_date)){
+            $licensekeydesc = "<p style='color: green; font-weight: bold'>"
+                .get_string('license_activated', 'mod_booking')
+                .$expiration_date
+                .")</p>";
+        } else {
+            $licensekeydesc = "<p style='color: red; font-weight: bold'>"
+                .get_string('license_invalid', 'mod_booking')
+                ."</p>";
+        }
+    }
+
+
+    $settings->add(
+        new admin_setting_configtext('booking/licensekey',
+            get_string('licensekey', 'mod_booking'),
+            $licensekeydesc, ''));
+    $settings->add(
+            new admin_setting_heading('mod_booking_icalcfg',
                 get_string('icalcfg', 'mod_booking'),
                 get_string('icalcfgdesc', 'mod_booking')));
-if ($ADMIN->fulltree) {
     $settings->add(
             new admin_setting_configcheckbox('booking/attachical',
                     get_string('attachical', 'mod_booking'),
@@ -135,8 +171,8 @@ if ($ADMIN->fulltree) {
         new admin_setting_heading('optiontemplatessettings_heading',
                 get_string('optiontemplatessettings', 'mod_booking'), ''));
 
-        $alltemplates = array('' => get_string('dontuse', 'booking'));
-        $alloptiontemplates = $DB->get_records('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
+    $alltemplates = array('' => get_string('dontuse', 'booking'));
+    $alloptiontemplates = $DB->get_records('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
 
     foreach ($alloptiontemplates as $key => $value) {
             $alltemplates[$value->id] = $value->text;
@@ -148,6 +184,7 @@ if ($ADMIN->fulltree) {
                         get_string('defaulttemplatedesc', 'mod_booking'),
                         1, $alltemplates));
 }
+
 $ADMIN->add('modbookingfolder',
         new admin_externalpage('modbookingcustomfield',
                 get_string('customfieldconfigure', 'mod_booking'),

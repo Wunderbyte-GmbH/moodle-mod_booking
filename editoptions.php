@@ -17,6 +17,7 @@ require_once("../../config.php");
 require_once("locallib.php");
 
 use mod_booking\form\option_form;
+use \core\output\notification;
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
@@ -82,12 +83,18 @@ if ($mform->is_cancelled()) {
         if (isset($fromform->addastemplate) && $fromform->addastemplate == 1) {
             $fromform->bookingid = 0;
             $nbooking = booking_update_options($fromform, $context);
-            if (isset($fromform->submittandaddnew)) {
+            if ($nbooking === 'BOOKING_OPTION_NOT_CREATED') {
                 $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
-            } else {
-                $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
+                redirect($redirecturl, get_string('option_template_not_saved_no_valid_license', 'booking'), 0, notification::NOTIFY_ERROR);
             }
-            redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
+            else if (isset($fromform->submittandaddnew)) {
+                $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
+                redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
+            }
+            else {
+                $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
+                redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
+            }
         }
 
         $bookingdata = new \mod_booking\booking_option($cm->id, $nbooking);

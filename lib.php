@@ -16,10 +16,14 @@
 use mod_booking\booking_option;
 
 defined('MOODLE_INTERNAL') || die();
+global $CFG;
+
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot . '/question/category_class.php');
 require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
+
+use \mod_booking\utils\wb_payment;
 
 function booking_cron() {
     global $DB;
@@ -609,6 +613,7 @@ function booking_update_options($optionvalues, $context) {
     $option->bookingid = $optionvalues->bookingid;
     $option->courseid = $optionvalues->courseid;
 
+    // for global option templates, 0 is used as bookingid
     if (isset($optionvalues->addastemplate) && $optionvalues->addastemplate == 1) {
         $option->bookingid = 0;
     }
@@ -776,7 +781,24 @@ function booking_update_options($optionvalues, $context) {
 
             return $option->id;
         }
-    } else if (isset($optionvalues->text) && $optionvalues->text != '') {
+    }
+    // new booking option record
+    else if (isset($optionvalues->text) && $optionvalues->text != '') {
+
+        // if option "Use as global template" has been set
+        if (isset($optionvalues->addastemplate) && $optionvalues->addastemplate == 1) {
+
+            // (1) count the number of booking options templates
+            $option_templates_data = $DB->get_records("booking_options", ['bookingid' => 0]);
+            $number_of_option_templates = count($option_templates_data);
+
+            // (2) if the user has not activated a valid PRO license
+            // ... then only allow one booking option
+            if ($number_of_option_templates > 0 && !wb_payment::is_currently_valid_licensekey()) {
+                $db_record = $DB->get_record("booking_options", ['text' => $option->text]);
+                if (empty($db_record)) return 'BOOKING_OPTION_NOT_CREATED';
+            }
+        }
 
         //Fixed: record should not get inserted a 2nd time here:
         $db_record = $DB->get_record("booking_options", ['text' => $option->text]);
@@ -794,7 +816,7 @@ function booking_update_options($optionvalues, $context) {
             $DB->update_record('booking_options', $option);
         }
 
-        // URL shortnere - only if API key is entered.
+        // URL shortener - only if API key is entered.
         $gapik = get_config('booking', 'googleapikey');
         $option->shorturl = '';
         if (!empty($gapik)) {

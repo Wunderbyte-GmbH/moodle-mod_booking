@@ -573,6 +573,9 @@ $string['copy'] = ' - Kopieren';
 $string['enrolmentstatus'] = 'Nutzer/innen nicht sofort in Kurs einschreiben sondern erst zu Kursbeginn';
 $string['duplicatename'] = 'Diese Bezeichnung für eine Buchungsoption existiert bereits. Bitte wählen Sie eine andere.';
 $string['newtemplatesaved'] = 'Neue Buchungsoptionsvorlage wurde gespeichert.';
+$string['option_template_not_saved_no_valid_license'] = 'Buchungsoption konnte nicht als Vorlage gespeichert werden. 
+                                                  Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen 
+                                                  zu können.';
 
 // Importoptions.php.
 $string['csvfile'] = 'CSV Datei';
@@ -772,6 +775,19 @@ $string['importexceltitle'] = 'Aktivitätsabschluss importieren';
 // Importexcel_file.php.
 $string['excelfile'] = 'CSV Datei mit Aktivitätsabschluss';
 
+// instancetemplateadd.php
+$string['saveinstanceastemplate'] = 'Buchung als Vorlage hinzufügen';
+$string['thisinstance'] = 'Diese Buchung';
+$string['instancetemplate'] = 'Buchungsvorlage';
+$string['instancesuccessfullysaved'] = 'Diese Buchung wurde erfolgreich als Vorlage gespeichert.';
+$string['instance_not_saved_no_valid_license'] = 'Buchung konnte nicht als Vorlage gespeichert werden. 
+                                                  Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen 
+                                                  zu können.';
+$string['bookinginstancetemplatessettings'] = 'Buchungsvorlagen';
+$string['bookinginstancetemplatename'] = 'Name der Buchungsvorlage';
+$string['managebookinginstancetemplates'] = 'Buchungsvorlagen verwalten';
+$string['populatefromtemplate'] = 'Mit Buchungvorlage ausfüllen';
+
 // Institutions.php.
 $string['institutions'] = 'Institutionen';
 $string['addnewinstitution'] = 'Institution hinzufügen';
@@ -805,6 +821,12 @@ $string['leftandrightdate'] = '{$a->leftdate} bis {$a->righttdate}';
 $string['editingoptiondate'] = 'Sie bearbeiten gerade diesen Termin';
 
 // File: settings.php.
+$string['licensekeycfg'] = 'PRO-Version aktivieren';
+$string['licensekeycfgdesc'] = 'Mit einer PRO-Lizenz können Sie so viele Buchungsvorlagen erstellen wie Sie wollen.';
+$string['licensekey'] = 'PRO-Lizenz-Schlüssel';
+$string['licensekeydesc'] = 'Laden Sie hier einen gültigen Schlüssel hoch, um die PRO-Version zu aktivieren.';
+$string['license_activated'] = 'PRO-Version wurde erfolgreich aktiviert.<br>(Läuft ab am: ';
+$string['license_invalid'] = 'Ungültiger Lizenz-Schlüssel.';
 $string['icalcfg'] = 'iCal-Attachments konfigurieren';
 $string['icalcfgdesc'] = 'Konfigurieren Sie die iCal.ics-Dateien, die an E-Mails angehängt werden. Mit diesen Dateien können Sie Buchungstermine zum persönlichen Kalender hinzufügen.';
 $string['icalfieldlocation'] = 'Text, der im iCal-Feld angezeigt werden soll';
