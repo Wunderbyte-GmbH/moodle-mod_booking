@@ -805,6 +805,10 @@ $string['leftandrightdate'] = '{$a->leftdate} bis {$a->righttdate}';
 $string['editingoptiondate'] = 'Sie bearbeiten gerade diesen Termin';
 
 // File: settings.php.
+$string['icalcfg'] = 'iCal-Attachments konfigurieren';
+$string['icalcfgdesc'] = 'Konfigurieren Sie die iCal.ics-Dateien, die an E-Mails angehängt werden. Mit diesen Dateien können Sie Buchungstermine zum persönlichen Kalender hinzufügen.';
+$string['icalfieldlocation'] = 'Text, der im iCal-Feld angezeigt werden soll';
+$string['icalfieldlocationdesc'] = 'Wählen Sie aus der Dropdown-Liste, welcher Text für das Kalender-Feld verwendet werden soll.';
 $string['customfield'] = 'Benutzerdefiniertes Feld, dessen Wert in den Buchungsoptionseinstellungen angegeben wird und in der Buchungsoptionsübersicht angezeigt wird';
 $string['customfielddesc'] = 'Definieren Sie den Wert dieses Feldes in den Buchungsoptionseinstellungen.';
 $string['customfieldconfigure'] = 'Benutzerdefinierte Buchungsoptionsfelder';
@@ -824,6 +828,8 @@ $string['showcustomfields_desc'] = 'Wählen Sie die benutzerdefinierte Buchungso
 $string['signinextracols_heading'] = 'Zusätzliche Spalten auf der Unterschriftenliste';
 $string['signinextracols'] = 'Extra Spalte auf der Unterschriftenliste';
 $string['signinextracols_desc'] = 'Sie können bis zu 3 extra Spalten auf der Unterschriftenliste abbilden. Geben Sie den Titel der Spalte ein, oder lassen Sie das Feld leer, um keine extra Spalte anzuzeigen';
+$string['googleapikey'] = 'Google API key';
+$string['googleapikey_desc'] = 'API-Schlüssel für den Google URL Shortener. Holen Sie ihn sich hier: https://developers.google.com/url-shortener/v1/getting_started#APIKey';
 $string['numberrows'] = 'Zeilen nummerieren';
 $string['numberrowsdesc'] = 'Nummerierung der Zeilen in der Unterschriftenliste aktivieren. Die Nummer wird links des Namens dargestellt';
 $string['multiicalfiles'] = 'Pro Event/Termin eine iCal-Datei anhängen um Kompatibilität mit MS Outlook 2010 zu gewährleisten.';
