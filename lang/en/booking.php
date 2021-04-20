@@ -54,6 +54,7 @@ $string['booking:rate'] = 'Rate chosen booking options';
 $string['booking:sendpollurl'] = 'Send poll url';
 $string['booking:sendpollurltoteachers'] = 'Send poll url to teachers';
 $string['booking:subscribeusers'] = 'Make bookings for other users';
+$string['booking:subscribeusersgromgroup'] = 'Make bookings for other users - from groups.';
 $string['booking:updatebooking'] = 'Manage booking options';
 $string['booking:viewallratings'] = 'View all raw ratings given by individuals';
 $string['booking:viewanyrating'] = 'View total ratings that anyone received';

@@ -1254,6 +1254,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         has_capability('mod/booking:updatebooking', $context) ||
         has_capability('mod/booking:addeditownoption', $context) ||
         has_capability ( 'mod/booking:subscribeusers', $context ) ||
+        has_capability ( 'mod/booking:subscribeusersgromgroup', $context ) ||
         has_capability ( 'mod/booking:readresponses', $context ) ||
         $bookingisteacher) {
         $settingnode = $navref->add(get_string("thisinstance", "booking"), null,
@@ -1363,9 +1364,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             $settingnode->add(get_string('bookotherusers', 'booking'),
                     new moodle_url('/mod/booking/subscribeusers.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
-            $settingnode->add(get_string('subscribegroup', 'booking'),
-                    new moodle_url('/mod/booking/subscribegroup.php',
-                            array('id' => $cm->id, 'optionid' => $optionid)));
             $completion = new \completion_info($course);
             if ($completion->is_enabled($cm)) {
                 $settingnode->add(get_string('bookuserswithoutcompletedactivity', 'booking'),
@@ -1373,6 +1371,13 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                                 array('id' => $cm->id, 'optionid' => $optionid)));
             }
         }
+
+        if (has_capability('mod/booking:subscribeusersgromgroup', $context )) {
+            $settingnode->add(get_string('subscribegroup', 'booking'),
+                    new moodle_url('/mod/booking/subscribegroup.php',
+                            array('id' => $cm->id, 'optionid' => $optionid)));
+        }
+
         $modinfo = get_fast_modinfo($course);
         $bookinginstances = isset($modinfo->instances['booking']) ? count($modinfo->instances['booking']) : 0;
         if (has_capability('mod/booking:updatebooking', $contextcourse) && $bookinginstances > 1) {

@@ -46,7 +46,7 @@ if (!$context = context_module::instance($cm->id)) {
 
 $option = new booking_option($cm->id, $optionid, array(), 0, 0, false);
 
-if ((has_capability('mod/booking:subscribeusers', $context) || booking_check_if_teacher($option)) == false) {
+if (has_capability('mod/booking:subscribeusersgromgroup', $context)) {
     print_error('nopermissions');
 }
 
