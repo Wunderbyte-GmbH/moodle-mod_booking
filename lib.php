@@ -777,7 +777,14 @@ function booking_update_options($optionvalues, $context) {
             return $option->id;
         }
     } else if (isset($optionvalues->text) && $optionvalues->text != '') {
-        $id = $DB->insert_record("booking_options", $option);
+
+        //Fixed: record should not get inserted a 2nd time here:
+        $db_record = $DB->get_record("booking_options", ['text' => $option->text]);
+        if (empty($db_record)){
+            $id = $DB->insert_record("booking_options", $option);
+        } else {
+            $id = $db_record->id;
+        }
 
         // Create group in target course if there is a course specified only.
         if ($option->courseid > 0 && $booking->addtogroup) {
