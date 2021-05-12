@@ -916,8 +916,10 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     $contextcourse = context_course::instance($course->id);
     $optionid = $PAGE->url->get_param('optionid');
 
+    $booking_is_teacher = false; // set to false by default
     if (!is_null($optionid) && $optionid > 0) {
         $option = new \mod_booking\booking_option($cm->id, $optionid);
+        $booking_is_teacher = booking_check_if_teacher ($option->option);
     }
 
     if (!$course) {
@@ -929,7 +931,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         has_capability('mod/booking:addeditownoption', $context) ||
         has_capability ( 'mod/booking:subscribeusers', $context ) ||
         has_capability ( 'mod/booking:readresponses', $context ) ||
-        booking_check_if_teacher ($option->option)) {
+        $booking_is_teacher) {
         $settingnode = $navref->add(get_string("thisinstance", "booking"), null,
         navigation_node::TYPE_CONTAINER);
     }
