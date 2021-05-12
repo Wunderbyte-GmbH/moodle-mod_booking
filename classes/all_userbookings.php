@@ -369,7 +369,7 @@ class all_userbookings extends \table_sql {
                         if ($value->location != '') {
                             $string[] = $value->location;
                         }
-                        $transferto[$value->id] = implode($string, ', ');
+                        $transferto[$value->id] = implode(', ', $string);
                     }
                     $optionbutton = '<div class="singlebutton">' . \html_writer::start_tag('span',
                             array('class' => "transfersubmit"));
