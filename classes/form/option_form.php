@@ -161,6 +161,17 @@ class option_form extends moodleform {
         $mform->addElement('checkbox', 'addtocalendar', get_string('addtocalendar', 'booking'));
         $mform->disabledIf('addtocalendar', 'startendtimeknown', 'notchecked');
 
+        $caleventtypes = [
+            CALENDAR_EVENT_USER => get_string('caleventtypeuser', 'booking'),
+            CALENDAR_EVENT_GROUP => get_string('caleventtypegroup', 'booking'),
+            CALENDAR_EVENT_COURSE => get_string('caleventtypecourse', 'booking'),
+            CALENDAR_EVENT_COURSECAT => get_string('caleventtypecoursecat', 'booking'),
+            CALENDAR_EVENT_SITE => get_string('caleventtypesite', 'booking')
+        ];
+        $mform->addElement('select', 'caleventtype', get_string('caleventtype', 'booking'), $caleventtypes);
+        $mform->setDefault('caleventtype', CALENDAR_EVENT_USER);
+        $mform->disabledIf('caleventtype', 'startendtimeknown', 'notchecked');
+
         $mform->addElement('date_time_selector', 'coursestarttime',
                 get_string("coursestarttime", "booking"));
         $mform->setType('coursestarttime', PARAM_INT);
@@ -179,8 +190,7 @@ class option_form extends moodleform {
         $mform->addElement('editor', 'description', get_string('description'));
         $mform->setType('description', PARAM_CLEANHTML);
 
-        $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'),
-                array('size' => '64'));
+        $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'), array('size' => '64'));
         $mform->setType('pollurl', PARAM_TEXT);
         $mform->addHelpButton('pollurl', 'pollurl', 'mod_booking');
 
