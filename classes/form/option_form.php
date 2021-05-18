@@ -271,7 +271,7 @@ class option_form extends moodleform {
         }
 
         // Templates - only visible when adding new.
-        if (has_capability('mod/booking:manageoptiontemplates', $this->_customdata['context']) && $this->_customdata['bookingid'] != 0) {
+        if (has_capability('mod/booking:manageoptiontemplates', $this->_customdata['context']) && $this->_customdata['optionid'] < 1) {
             $mform->addElement('header', 'templateheader',
                 get_string('addastemplate', 'booking'));
             $addastemplate = array(
