@@ -689,6 +689,13 @@ function booking_update_options($optionvalues, $context) {
     } else {
         $option->addtocalendar = 0;
     }
+    // By default course events will be created.
+    // Only if a user selects site events the option will be set accordingly.
+    if (isset($optionvalues->caleventtype) && $optionvalues->caleventtype == CALENDAR_EVENT_SITE) {
+        $option->caleventtype = CALENDAR_EVENT_SITE;
+    } else {
+        $option->caleventtype = CALENDAR_EVENT_COURSE;
+    }
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
              $optionvalues->optionid != -1) { // Existing booking option record.
         $option->id = $optionvalues->optionid;

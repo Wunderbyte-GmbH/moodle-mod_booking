@@ -162,15 +162,12 @@ class option_form extends moodleform {
         $mform->disabledIf('addtocalendar', 'startendtimeknown', 'notchecked');
 
         $caleventtypes = [
-            CALENDAR_EVENT_USER => get_string('caleventtypeuser', 'booking'),
-            CALENDAR_EVENT_GROUP => get_string('caleventtypegroup', 'booking'),
             CALENDAR_EVENT_COURSE => get_string('caleventtypecourse', 'booking'),
-            CALENDAR_EVENT_COURSECAT => get_string('caleventtypecoursecat', 'booking'),
             CALENDAR_EVENT_SITE => get_string('caleventtypesite', 'booking')
         ];
         $mform->addElement('select', 'caleventtype', get_string('caleventtype', 'booking'), $caleventtypes);
-        $mform->setDefault('caleventtype', CALENDAR_EVENT_USER);
-        $mform->disabledIf('caleventtype', 'startendtimeknown', 'notchecked');
+        $mform->setDefault('caleventtype', CALENDAR_EVENT_COURSE);
+        $mform->hideif('caleventtype', 'addtocalendar', 'notchecked');
 
         $mform->addElement('date_time_selector', 'coursestarttime',
                 get_string("coursestarttime", "booking"));

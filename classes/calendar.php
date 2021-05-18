@@ -53,7 +53,21 @@ class calendar {
         switch ($this->type) {
             case $this::TYPEOPTION:
                 if ($bookingoption->option->addtocalendar == 1) {
-                    $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings, $bookingoption->option, 0, $bookingoption->option->calendarid);
+                    $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings,
+                        $bookingoption->option, 0, $bookingoption->option->calendarid);
+                    /*switch ($bookingoption->option->caleventtype) {
+                        // Global site Events.
+                        case CALENDAR_EVENT_SITE:
+                            $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings,
+                                $bookingoption->option, 0, $bookingoption->option->calendarid,
+                                CALENDAR_EVENT_SITE);
+                            break;
+                        // Course events are the default.
+                        default:
+                            $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings,
+                                $bookingoption->option, 0, $bookingoption->option->calendarid);
+                            break;
+                    }*/
                 } else {
                     if ($bookingoption->option->calendarid > 0) {
                         if ($DB->record_exists("event", array('id' => $bookingoption->option->calendarid))) {
@@ -105,7 +119,7 @@ class calendar {
      * @throws coding_exception
      * @throws dml_exception
      */
-    private function booking_option_add_to_cal($booking, $option, $userid = 0, $calendareventid) {
+    private function booking_option_add_to_cal($booking, $option, $userid = 0, $calendareventid, $optioncaltype = CALENDAR_EVENT_COURSE) {
         global $DB, $CFG;
         $whereis = '';
 
@@ -169,7 +183,10 @@ class calendar {
         $event->name = $option->text;
         $event->description = format_text($option->description, FORMAT_HTML) . $whereis;
         $event->format = FORMAT_HTML;
-        $event->courseid = $courseid;
+        // Only include course id in course events.
+        if ($optioncaltype === CALENDAR_EVENT_COURSE) {
+            $event->courseid = $courseid;
+        }
         $event->groupid = 0;
         $event->userid = $userid;
         $event->modulename = $modulename;
