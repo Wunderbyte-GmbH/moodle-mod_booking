@@ -684,18 +684,19 @@ function booking_update_options($optionvalues, $context) {
     $option->limitanswers = $optionvalues->limitanswers;
     $option->duration = $optionvalues->duration;
     $option->timemodified = time();
-    if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar) {
+
+    // Add to calendar option.
+    if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar == 1) {
+        // 1 ... Add to calendar as COURSE event.
         $option->addtocalendar = 1;
+    } else if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar == 2) {
+        // 2 ... Add to calendar as SITE event.
+        $option->addtocalendar = 2;
     } else {
+        // 0 ... Do not add to calendar.
         $option->addtocalendar = 0;
     }
-    // By default course events will be created.
-    // Only if a user selects site events the option will be set accordingly.
-    if (isset($optionvalues->caleventtype) && $optionvalues->caleventtype == CALENDAR_EVENT_SITE) {
-        $option->caleventtype = CALENDAR_EVENT_SITE;
-    } else {
-        $option->caleventtype = CALENDAR_EVENT_COURSE;
-    }
+
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
              $optionvalues->optionid != -1) { // Existing booking option record.
         $option->id = $optionvalues->optionid;

@@ -97,7 +97,7 @@ class mod_booking_observer {
     public static function custom_field_changed(\mod_booking\event\custom_field_changed $event) {
         global $DB;
 
-        $alloptions = $DB->get_records_sql('SELECT id, bookingid FROM {booking_options} WHERE addtocalendar = 1 AND calendarid > 0');
+        $alloptions = $DB->get_records_sql('SELECT id, bookingid FROM {booking_options} WHERE addtocalendar IN (1, 2) AND calendarid > 0');
 
         foreach ($alloptions as $key => $value) {
             $tmpcmid = $DB->get_record_sql(

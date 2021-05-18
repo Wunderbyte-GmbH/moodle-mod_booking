@@ -53,21 +53,13 @@ class calendar {
         switch ($this->type) {
             case $this::TYPEOPTION:
                 if ($bookingoption->option->addtocalendar == 1) {
+                    // Add to calendar as course event.
                     $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings,
                         $bookingoption->option, 0, $bookingoption->option->calendarid);
-                    /*switch ($bookingoption->option->caleventtype) {
-                        // Global site Events.
-                        case CALENDAR_EVENT_SITE:
-                            $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings,
-                                $bookingoption->option, 0, $bookingoption->option->calendarid,
-                                CALENDAR_EVENT_SITE);
-                            break;
-                        // Course events are the default.
-                        default:
-                            $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings,
-                                $bookingoption->option, 0, $bookingoption->option->calendarid);
-                            break;
-                    }*/
+                } else if ($bookingoption->option->addtocalendar == 2) {
+                    // Add to calendar as site event.
+                    $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings,
+                        $bookingoption->option, 0, $bookingoption->option->calendarid, 2);
                 } else {
                     if ($bookingoption->option->calendarid > 0) {
                         if ($DB->record_exists("event", array('id' => $bookingoption->option->calendarid))) {
@@ -119,7 +111,7 @@ class calendar {
      * @throws coding_exception
      * @throws dml_exception
      */
-    private function booking_option_add_to_cal($booking, $option, $userid = 0, $calendareventid, $optioncaltype = CALENDAR_EVENT_COURSE) {
+    private function booking_option_add_to_cal($booking, $option, $userid = 0, $calendareventid, $addtocalendar = 1) {
         global $DB, $CFG;
         $whereis = '';
 
@@ -179,18 +171,27 @@ class calendar {
         }
 
         $event = new \stdClass();
+        $event->component = 'mod_booking';
         $event->id = $calendareventid;
         $event->name = $option->text;
         $event->description = format_text($option->description, FORMAT_HTML) . $whereis;
         $event->format = FORMAT_HTML;
-        // Only include course id in course events.
-        if ($optioncaltype === CALENDAR_EVENT_COURSE) {
+
+        if ($addtocalendar == 2) {
+            // For site events use SITEID as courseid.
+            $event->type = CALENDAR_EVENT_TYPE_STANDARD;
+            $event->modulename = '';
+            $event->courseid = SITEID;
+            $event->categoryid = 0;
+            //$event->userid = 0;
+        } else {
+            // Only include course id in course events.
             $event->courseid = $courseid;
+            $event->userid = $userid;
+            $event->modulename = $modulename;
         }
-        $event->groupid = 0;
-        $event->userid = $userid;
-        $event->modulename = $modulename;
         $event->instance = $instance;
+        $event->groupid = 0;
         $event->eventtype = 'booking';
         $event->timestart = $option->coursestarttime;
         $event->visible = $visible;
