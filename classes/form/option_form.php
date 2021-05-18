@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking\form;
 
+use mod_booking\utils\wb_payment;
 use moodleform;
 use mod_booking\booking;
 use mod_booking\booking_option;
@@ -272,16 +273,24 @@ class option_form extends moodleform {
 
         // Templates - only visible when adding new.
         if (has_capability('mod/booking:manageoptiontemplates', $this->_customdata['context']) && $this->_customdata['optionid'] < 1) {
+
             $mform->addElement('header', 'templateheader',
                 get_string('addastemplate', 'booking'));
-            $addastemplate = array(
-                0 => get_string('notemplate', 'booking'),
-                1 => get_string('asglobaltemplate', 'booking')
-            );
-            $mform->addElement('select', 'addastemplate', get_string('addastemplate', 'booking'),
-                $addastemplate);
-            $mform->setType('addastemplate', PARAM_INT);
-            $mform->setDefault('addastemplate', 0);
+
+            $numberoftemplates = $DB->count_records('booking_options', array('bookingid' => 0));
+
+           if ($numberoftemplates < 1 || wb_payment::is_currently_valid_licensekey()) {
+               $addastemplate = array(
+                       0 => get_string('notemplate', 'booking'),
+                       1 => get_string('asglobaltemplate', 'booking')
+               );
+               $mform->addElement('select', 'addastemplate', get_string('addastemplate', 'booking'),
+                       $addastemplate);
+               $mform->setType('addastemplate', PARAM_INT);
+               $mform->setDefault('addastemplate', 0);
+           } else {
+               $mform->addElement('static', 'nolicense', get_string('licensekeycfgdesc', 'mod_booking'));
+           }
         }
 
         // Hidden elements.
