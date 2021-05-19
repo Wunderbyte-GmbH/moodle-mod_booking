@@ -179,19 +179,20 @@ class calendar {
 
         if ($addtocalendar == 2) {
             // For site events use SITEID as courseid.
-            $event->type = CALENDAR_EVENT_TYPE_STANDARD;
             $event->modulename = '';
             $event->courseid = SITEID;
             $event->categoryid = 0;
-            //$event->userid = 0;
+            /* TODO: Currently this will create calendar events of type "other events",
+            TODO: which also seem to be visible to every site user, however it should create events of type "site events".
+            TODO: find out how! https://docs.moodle.org/dev/Calendar_API */
         } else {
             // Only include course id in course events.
             $event->courseid = $courseid;
             $event->userid = $userid;
             $event->modulename = $modulename;
+            $event->groupid = 0;
         }
         $event->instance = $instance;
-        $event->groupid = 0;
         $event->eventtype = 'booking';
         $event->timestart = $option->coursestarttime;
         $event->visible = $visible;
