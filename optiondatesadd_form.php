@@ -52,6 +52,13 @@ class optiondatesadd_form extends moodleform {
         $mform->setType('endminute', PARAM_INT);
         $mform->addGroup($courseendtime, 'endtime', get_string('to'), ' ', false);
 
+        // In the future we might add additional custom fields.
+        $mform->addElement('text', 'customfieldname1', get_string('customfieldname1', 'booking'));
+        $mform->setType('customfieldname1', PARAM_TEXT);
+
+        $mform->addElement('text', 'customfieldvalue1', get_string('customfieldvalue1', 'booking'));
+        $mform->setType('customfieldvalue1', PARAM_RAW);
+
         $mform->addElement('hidden', 'optiondateid');
         $mform->setType('optiondateid', PARAM_INT);
 

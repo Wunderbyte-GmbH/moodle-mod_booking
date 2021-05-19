@@ -824,6 +824,10 @@ $string['optiondatessuccessfullydelete'] = "Termin wurde gelöscht";
 $string['leftandrightdate'] = '{$a->leftdate} bis {$a->righttdate}';
 $string['editingoptiondate'] = 'Sie bearbeiten gerade diesen Termin';
 
+// Optiondates_form.php.
+$string['customfieldname1'] = 'Benutzerdefiniertes Feld - Label';
+$string['customfieldvalue1'] = 'Benutzerdefiniertes Feld - Wert';
+
 // File: settings.php.
 $string['licensekeycfg'] = 'PRO-Version aktivieren';
 $string['licensekeycfgdesc'] = 'Mit einer PRO-Lizenz können Sie so viele Buchungsvorlagen erstellen wie Sie wollen.';

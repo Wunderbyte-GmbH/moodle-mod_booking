@@ -1048,6 +1048,10 @@ $string['optiondatessuccessfullydelete'] = "Session time was deleted.";
 $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
 $string['editingoptiondate'] = 'You are currently editing this session';
 
+// Optiondates_form.php.
+$string['customfieldname1'] = 'Custom field label';
+$string['customfieldvalue1'] = 'Custom field value';
+
 // locallib.php
 $string['pdfdate'] = 'Booking Date(s): ';
 $string['pdflocation'] = 'Location: ';

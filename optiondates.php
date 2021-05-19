@@ -48,6 +48,7 @@ require_capability('mod/booking:updatebooking', $context);
 if ($delete != '') {
     $DB->delete_records("booking_optiondates", array('optionid' => $optionid, 'id' => $delete));
     booking_updatestartenddate($optionid);
+    // TODO update custom fields.
     redirect($url, get_string('optiondatessuccessfullydelete', 'booking'), 5);
 }
 if ($duplicate != '') {
@@ -56,6 +57,7 @@ if ($duplicate != '') {
             'bookingid, optionid, coursestarttime, courseendtime');
     $edit = $DB->insert_record("booking_optiondates", $record);
     booking_updatestartenddate($optionid);
+    // TODO update custom fields.
 }
 
 $mform = new optiondatesadd_form($url, array('optiondateid' => $edit));
@@ -65,7 +67,7 @@ if ($mform->is_cancelled()) {
     redirect($url, '', 0);
     die();
 } else if ($data = $mform->get_data()) {
-
+    // TODO also insert / update custom fields in table booking_customfields
     $optiondate = new stdClass();
     $optiondate->id = $data->optiondateid;
     $optiondate->bookingid = $cm->instance;
@@ -80,6 +82,7 @@ if ($mform->is_cancelled()) {
     }
 
     booking_updatestartenddate($optionid);
+    // TODO update custom fields.
     redirect($url, get_string('optiondatessuccessfullysaved', 'booking'), 5);
 } else {
     $PAGE->navbar->add(get_string('optiondates', 'mod_booking'));
