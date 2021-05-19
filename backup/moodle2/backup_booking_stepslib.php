@@ -96,7 +96,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         $customfields = new backup_nested_element('customfields');
         $customfield = new backup_nested_element('customfield', array('id'),
-                array('bookingid', 'optionid', 'cfgname', 'value'));
+                array('bookingid', 'optionid', 'optiondateid', 'cfgname', 'value'));
 
         // Build the tree.
         $booking->add_child($options);

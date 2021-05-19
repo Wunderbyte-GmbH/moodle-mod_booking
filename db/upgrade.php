@@ -2072,5 +2072,23 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020082601, 'booking');
     }
 
+    if ($oldversion < 2021051901) {
+        // Define field optiondateid and its foreign key to be added to booking_customfields.
+        $table = new xmldb_table('booking_customfields');
+        $field = new xmldb_field('optiondateid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'optionid');
+        $key = new xmldb_key('optiondateid', XMLDB_KEY_FOREIGN, ['optiondateid'], 'booking_optiondates', ['id']);
+
+        // Conditionally launch add field optiondateid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+
+            // Launch add key optiondateid.
+            $dbman->add_key($table, $key);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2021051901, 'booking');
+    }
+
     return true;
 }
