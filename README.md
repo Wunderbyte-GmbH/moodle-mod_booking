@@ -5,7 +5,7 @@
 
 This Moodle plugin allows provides users the possibility to book moodle-courses or other offline courses or any other events. It 
 has powerful features in order to manage and create booking options. 
-Please contact info@edulabs.org for improvements bug reports etc.
+Please contact info@wunderbyte.at for improvements bug reports etc.
 
 ## What Does It Do?
 
@@ -13,7 +13,7 @@ The booking module provides an easy to setup tool to manage course and event boo
 Another usecase would be to offer a management system for bookings for your online courses in Moodle. You can define the max. number of participants, enrol all users automatically to the course and move users from the waitinglist to another booking option, when there is need for an additional course.
 The tool also offers the possibility for specific users to manage their own event and to subscribe users to a course. Also you can limit the max. number of bookings a single user can make.
 
-Interested in more features? [Contact us for a quote.](mailto:info@edulabs.org)
+Interested in more features? [Contact us for a quote.](mailto:info@wunderbyte.at)
 
 ## Features
 + Max number of participants
