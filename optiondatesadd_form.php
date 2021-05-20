@@ -31,7 +31,15 @@ class optiondatesadd_form extends moodleform {
      * @see moodleform::definition()
      */
     public function definition() {
+        global $DB;
+
         $mform = $this->_form;
+
+        $mform->addElement('hidden', 'optiondateid');
+        $mform->setType('optiondateid', PARAM_INT);
+
+        $mform->addElement('hidden', 'bookingid');
+        $mform->setType('bookingid', PARAM_INT);
 
         $mform->addElement('date_time_selector', 'coursestarttime', get_string('from'));
         $mform->setType('coursestarttime', PARAM_INT);
@@ -52,39 +60,43 @@ class optiondatesadd_form extends moodleform {
         $mform->setType('endminute', PARAM_INT);
         $mform->addGroup($courseendtime, 'endtime', get_string('to'), ' ', false);
 
-        // Add checkbox to add first customfield
-        $mform->addElement('checkbox', 'addcustomfield1', get_string('addcustomfield', 'booking'));
+        // Only allow creation of custom fields, when creating a new optiondate.
+        if (empty($this->_customdata['optiondateid'])) {
+            // Add checkbox to add first customfield
+            $mform->addElement('checkbox', 'addcustomfield1', get_string('addcustomfield', 'booking'));
 
-        // Between one to three custom fields are supported.
-        $i = 1;
-        $max = 3;
-        while ($i <= $max) {
-            $mform->addElement('text', 'customfieldname' . $i, get_string('customfieldname', 'booking'));
-            $mform->setType('customfieldname' . $i, PARAM_TEXT);
-            $mform->hideIf('customfieldname' . $i, 'addcustomfield' . $i, 'notchecked');
+            // Between one to three custom fields are supported.
+            $i = 1;
+            $max = 3;
+            while ($i <= $max) {
+                $mform->addElement('text', 'customfieldname' . $i, get_string('customfieldname', 'booking'));
+                $mform->setType('customfieldname' . $i, PARAM_TEXT);
+                $mform->hideIf('customfieldname' . $i, 'addcustomfield' . $i, 'notchecked');
 
-            $mform->addElement('text', 'customfieldvalue' . $i, get_string('customfieldvalue', 'booking'));
-            $mform->setType('customfieldvalue' . $i, PARAM_TEXT);
-            $mform->hideIf('customfieldvalue' . $i, 'addcustomfield' . $i, 'notchecked');
+                $mform->addElement('text', 'customfieldvalue' . $i, get_string('customfieldvalue', 'booking'));
+                $mform->setType('customfieldvalue' . $i, PARAM_TEXT);
+                $mform->hideIf('customfieldvalue' . $i, 'addcustomfield' . $i, 'notchecked');
 
-            // Show checkbox to add a custom field.
-            if ($i < $max) {
-                $mform->addElement('checkbox', 'addcustomfield' . ($i + 1), get_string('addcustomfield', 'booking'));
-                $mform->hideIf('addcustomfield' . ($i + 1), 'addcustomfield' . $i, 'notchecked');
+                // Show checkbox to add a custom field.
+                if ($i < $max) {
+                    $mform->addElement('checkbox', 'addcustomfield' . ($i + 1), get_string('addcustomfield', 'booking'));
+                    $mform->hideIf('addcustomfield' . ($i + 1), 'addcustomfield' . $i, 'notchecked');
+                }
+                ++$i;
             }
 
-            ++$i;
-        }
-
-        $mform->addElement('hidden', 'optiondateid');
-        $mform->setType('optiondateid', PARAM_INT);
-
-        $mform->addElement('hidden', 'bookingid');
-        $mform->setType('bookingid', PARAM_INT);
-
-        if ($this->_customdata['optiondateid'] == '') {
             $mform->addElement('submit', 'submitbutton', get_string('add'));
         } else {
+            // When editing an existing option date session only allow editing of already existing custom fields is allowed.
+            $customfields = $DB->get_records("booking_customfields", array('optiondateid' => $this->_customdata['optiondateid']));
+            $j = 1;
+            foreach ($customfields as $customfield) {
+                $mform->addElement('static', 'customfieldname' . $j, $customfield->cfgname);
+                $mform->addElement('text', 'customfieldvalue' . $j, get_string('customfieldvalue', 'booking'), $customfield->value);
+                $mform->setType('customfieldvalue' . $j, PARAM_TEXT);
+
+                $j++;
+            }
             $mform->addElement('submit', 'submitbutton', get_string('savechanges'));
         }
     }
