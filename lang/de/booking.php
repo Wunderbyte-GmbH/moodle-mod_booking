@@ -825,8 +825,9 @@ $string['leftandrightdate'] = '{$a->leftdate} bis {$a->righttdate}';
 $string['editingoptiondate'] = 'Sie bearbeiten gerade diesen Termin';
 
 // Optiondates_form.php.
-$string['customfieldname1'] = 'Benutzerdefiniertes Feld - Label';
-$string['customfieldvalue1'] = 'Benutzerdefiniertes Feld - Wert';
+$string['addcustomfield'] = 'Benutzerdefiniertes Feld hinzufügen';
+$string['customfieldname'] = 'Feldname';
+$string['customfieldvalue'] = 'Wert';
 
 // File: settings.php.
 $string['licensekeycfg'] = 'PRO-Version aktivieren';

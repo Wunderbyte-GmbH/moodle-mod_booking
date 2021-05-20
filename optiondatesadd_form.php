@@ -52,12 +52,29 @@ class optiondatesadd_form extends moodleform {
         $mform->setType('endminute', PARAM_INT);
         $mform->addGroup($courseendtime, 'endtime', get_string('to'), ' ', false);
 
-        // In the future we might add additional custom fields.
-        $mform->addElement('text', 'customfieldname1', get_string('customfieldname1', 'booking'));
-        $mform->setType('customfieldname1', PARAM_TEXT);
+        // Add checkbox to add first customfield
+        $mform->addElement('checkbox', 'addcustomfield1', get_string('addcustomfield', 'booking'));
 
-        $mform->addElement('text', 'customfieldvalue1', get_string('customfieldvalue1', 'booking'));
-        $mform->setType('customfieldvalue1', PARAM_RAW);
+        // Between one to three custom fields are supported.
+        $i = 1;
+        $max = 3;
+        while ($i <= $max) {
+            $mform->addElement('text', 'customfieldname' . $i, get_string('customfieldname', 'booking'));
+            $mform->setType('customfieldname' . $i, PARAM_TEXT);
+            $mform->hideIf('customfieldname' . $i, 'addcustomfield' . $i, 'notchecked');
+
+            $mform->addElement('text', 'customfieldvalue' . $i, get_string('customfieldvalue', 'booking'));
+            $mform->setType('customfieldvalue' . $i, PARAM_TEXT);
+            $mform->hideIf('customfieldvalue' . $i, 'addcustomfield' . $i, 'notchecked');
+
+            // Show checkbox to add a custom field.
+            if ($i < $max) {
+                $mform->addElement('checkbox', 'addcustomfield' . ($i + 1), get_string('addcustomfield', 'booking'));
+                $mform->hideIf('addcustomfield' . ($i + 1), 'addcustomfield' . $i, 'notchecked');
+            }
+
+            ++$i;
+        }
 
         $mform->addElement('hidden', 'optiondateid');
         $mform->setType('optiondateid', PARAM_INT);

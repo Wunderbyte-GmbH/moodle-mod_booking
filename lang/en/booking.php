@@ -1049,8 +1049,9 @@ $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
 $string['editingoptiondate'] = 'You are currently editing this session';
 
 // Optiondates_form.php.
-$string['customfieldname1'] = 'Custom field label';
-$string['customfieldvalue1'] = 'Custom field value';
+$string['addcustomfield'] = 'Add custom field';
+$string['customfieldname'] = 'Field name';
+$string['customfieldvalue'] = 'Value';
 
 // locallib.php
 $string['pdfdate'] = 'Booking Date(s): ';
