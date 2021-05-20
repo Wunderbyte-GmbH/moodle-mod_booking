@@ -33,6 +33,13 @@ class option_form extends moodleform {
         $optiontemplates = array('' => '');
         $alloptiontemplates = $DB->get_records('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
 
+        // if there is no license key and there is more than one template, we only use the first one
+        if (count($alloptiontemplates) > 1 && !wb_payment::is_currently_valid_licensekey()) {
+            $alloptiontemplates = [reset($alloptiontemplates)];
+            $mform->addElement('static', 'nolicense', get_string('licensekeycfg', 'mod_booking'), get_string('licensekeycfgdesc', 'mod_booking'));
+        }
+
+
         foreach ($alloptiontemplates as $key => $value) {
             $optiontemplates[$value->id] = $value->text;
         }
@@ -289,7 +296,7 @@ class option_form extends moodleform {
                $mform->setType('addastemplate', PARAM_INT);
                $mform->setDefault('addastemplate', 0);
            } else {
-               $mform->addElement('static', 'nolicense', get_string('licensekeycfgdesc', 'mod_booking'));
+               $mform->addElement('static', 'nolicense', get_string('licensekeycfg', 'mod_booking'), get_string('licensekeycfgdesc', 'mod_booking'));
            }
         }
 
