@@ -24,6 +24,8 @@ require_once("../../config.php");
 require_once("locallib.php");
 require_once('optiondatesadd_form.php');
 
+global $DB, $PAGE;
+
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $delete = optional_param('delete', '', PARAM_INT);
@@ -48,7 +50,7 @@ require_capability('mod/booking:updatebooking', $context);
 if ($delete != '') {
     $DB->delete_records("booking_optiondates", array('optionid' => $optionid, 'id' => $delete));
     booking_updatestartenddate($optionid);
-    // TODO update custom fields.
+    optiondate_deletecustomfields($delete);
     redirect($url, get_string('optiondatessuccessfullydelete', 'booking'), 5);
 }
 if ($duplicate != '') {
@@ -57,7 +59,7 @@ if ($duplicate != '') {
             'bookingid, optionid, coursestarttime, courseendtime');
     $edit = $DB->insert_record("booking_optiondates", $record);
     booking_updatestartenddate($optionid);
-    // TODO update custom fields.
+    optiondate_duplicatecustomfields($duplicate, $edit);
 }
 
 $mform = new optiondatesadd_form($url, array('optiondateid' => $edit));
@@ -67,7 +69,6 @@ if ($mform->is_cancelled()) {
     redirect($url, '', 0);
     die();
 } else if ($data = $mform->get_data()) {
-    // TODO also insert / update custom fields in table booking_customfields
     $optiondate = new stdClass();
     $optiondate->id = $data->optiondateid;
     $optiondate->bookingid = $cm->instance;
@@ -75,14 +76,34 @@ if ($mform->is_cancelled()) {
     $optiondate->coursestarttime = $data->coursestarttime;
     $date = date("Y-m-d", $data->coursestarttime);
     $optiondate->courseendtime = strtotime($date . " {$data->endhour}:{$data->endminute}");
+
     if ($optiondate->id != '') {
         $DB->update_record("booking_optiondates", $optiondate);
+        // TODO update custom fields.
     } else {
-        $DB->insert_record("booking_optiondates", $optiondate);
+        $optiondateid = $DB->insert_record("booking_optiondates", $optiondate);
+
+        // Retrieve available custom field data.
+        if (!empty($optiondateid)) {
+            // Currently there can be up to three custom fields.
+            for ($i = 1; $i <= 3; $i++) {
+                $customfieldnamex = 'customfieldname' . $i;
+                $customfieldvaluex = 'customfieldvalue' . $i;
+                // Only add custom fields if a name for the field was entered.
+                if (!empty($data->{$customfieldnamex})) {
+                    $customfield = new stdClass();
+                    $customfield->bookingid = $cm->instance;
+                    $customfield->optionid = $optionid;
+                    $customfield->optiondateid = $optiondateid;
+                    $customfield->cfgname = $data->{$customfieldnamex};
+                    $customfield->value = $data->{$customfieldvaluex};
+                    $DB->insert_record("booking_customfields", $customfield);
+                }
+            }
+        }
     }
 
     booking_updatestartenddate($optionid);
-    // TODO update custom fields.
     redirect($url, get_string('optiondatessuccessfullysaved', 'booking'), 5);
 } else {
     $PAGE->navbar->add(get_string('optiondates', 'mod_booking'));

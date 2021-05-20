@@ -345,6 +345,32 @@ function booking_updatestartenddate($optionid) {
 }
 
 /**
+ * Helper function to delete custom fields belonging to an option date.
+ * @param number $optiondateid id of the option date for which all custom fields will be deleted.
+ */
+function optiondate_deletecustomfields($optiondateid) {
+    global $DB;
+    // Delete all custom fields which belong to this optiondate.
+    $DB->delete_records("booking_customfields", array('optiondateid' => $optiondateid));
+}
+
+/**
+ * Helper function to duplicate custom fields belonging to an option date.
+ * @param number $optiondateid id of the option date for which all custom fields will be duplicated.
+ */
+function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
+    global $DB;
+    // Duplicate all custom fields which belong to this optiondate.
+    $customfields = $DB->get_records("booking_customfields", array('optiondateid' => $oldoptiondateid));
+    foreach ($customfields as $customfield) {
+        $customfield->optiondateid = $newoptiondateid;
+        $DB->insert_record("booking_customfields", $customfield);
+    }
+}
+
+// TODO: booking_updatecustomfields
+
+/**
  * Get booking option status
  *
  * @param int $starttime
