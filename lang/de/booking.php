@@ -830,6 +830,7 @@ $string['customfieldname'] = 'Feldname';
 $string['customfieldvalue'] = 'Wert';
 $string['deletecustomfield'] = 'Feld löschen?';
 $string['deletecustomfield_help'] = 'Achtung: Wenn Sie diese Checkbox aktivieren, wird das zugehörige Feld beim Speichern gelöscht!';
+$string['erroremptycustomfieldname'] = 'Ein Feld, das einen Wert hat, muss einen Namen haben. Geben sie bitte einen Feldnamen ein!';
 
 // File: settings.php.
 $string['licensekeycfg'] = 'PRO-Version aktivieren';

@@ -133,18 +133,29 @@ class optiondatesadd_form extends moodleform {
     }
 
     /**
-     * Validate start and end time
+     * Validate start and end time.
+     * Validate custom fields.
      *
      * {@inheritdoc}
      * @see moodleform::validation()
      */
     public function validation($data, $files) {
         $errors = array();
+        // Validate start and end time.
         $starttime = $data['coursestarttime'];
         $date = date("Y-m-d", $data['coursestarttime']);
         $endtime = strtotime($date . " {$data['endhour']}:{$data['endminute']}");
         if ($endtime < $starttime) {
             $errors['endtime'] = "Course end time must be after course start time";
+        }
+        // Validate custom fields.
+        for ($i = 1; $i < MAX_CUSTOM_FIELDS; $i++) {
+            $customfieldnamex = $data['customfieldname' . $i];
+            $customfieldvaluex = $data['customfieldvalue' . $i];
+            // If there is a field value, the field name is not allowed to be empty.
+            if (!empty($customfieldvaluex) && empty($customfieldnamex)) {
+                $errors['customfieldname' . $i] = get_string('erroremptycustomfieldname', 'booking');
+            }
         }
         return $errors;
     }

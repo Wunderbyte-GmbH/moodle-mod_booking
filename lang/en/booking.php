@@ -1054,6 +1054,7 @@ $string['customfieldname'] = 'Field name';
 $string['customfieldvalue'] = 'Value';
 $string['deletecustomfield'] = 'Delete custom field?';
 $string['deletecustomfield_help'] = 'Caution: Setting this checkbox will delete the associated custom field when saving.';
+$string['erroremptycustomfieldname'] = 'The name of a custom field with a value is not allowed to be empty. Please enter a field name!';
 
 // locallib.php
 $string['pdfdate'] = 'Booking Date(s): ';

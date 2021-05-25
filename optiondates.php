@@ -106,15 +106,16 @@ if ($mform->is_cancelled()) {
                         $DB->insert_record("booking_customfields", $customfield);
                     }
                 } else {
-                    // Get the id of the
+                    // Get the id of the existing custom field record.
+                    $customfieldid = $data->{$customfieldidx};
 
-                    // If it is an existing record...
                     if ($data->{$deletecustomfieldx} == 1) {
                         // If the checkbox to delete the field has been set, then delete from DB.
-                        $DB->delete_records("booking_customfields", );
+                        $DB->delete_records("booking_customfields", ["id" => $customfieldid]);
                     } else {
                         // Update the existing custom field.
-
+                        $customfield->id = $customfieldid;
+                        $DB->update_record("booking_customfields", $customfield);
                     }
                 }
             }
