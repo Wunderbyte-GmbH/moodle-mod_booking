@@ -205,24 +205,52 @@ class all_options extends table_sql {
         if ($values->coursestarttime == 0) {
             return get_string('datenotset', 'booking');
         } else {
-            if (is_null($values->times)) {
+            if (!isset($values->timeobjects)) {
                 return userdate($values->coursestarttime) . " -<br>" .
                     userdate($values->courseendtime);
             } else {
-                $val = '';
-                $times = explode(',', $values->times);
-                foreach ($times as $time) {
-                    $slot = explode('-', $time);
-                    $tmpdate = new stdClass();
-                    $tmpdate->leftdate = userdate($slot[0], get_string('strftimedatetime', 'langconfig'));
-                    $tmpdate->righttdate = userdate($slot[1], get_string('strftimetime', 'langconfig'));
-
-                    $val .= get_string('leftandrightdate', 'booking', $tmpdate) . '<br>';
-                }
-
-                return $val;
+                return $this->render_sessions_with_customfields($values);
             }
         }
+    }
+
+    /**
+     * Helper function to render multiple sessions data.
+     * @param stdClass $values an object containing the values that should be rendered
+     * @return string the rendered HTML of the session data containing dates and custom fields
+     */
+    protected function render_sessions_with_customfields($values) {
+        global $DB;
+
+        $val = ''; // The rendered HTML.
+        $customfieldshtml = '';
+
+        $timeobjects = $values->timeobjects;
+        foreach ($timeobjects as $timeobject) {
+            // Retrieve the custom field data.
+            if ($customfields = $DB->get_records("booking_customfields", ["optiondateid" => $timeobject->optiondateid])) {
+                $customfieldshtml .= '<ul>';
+                foreach ($customfields as $customfield) {
+                    $customfieldshtml .= '<li><i>' . $customfield->cfgname . ': </i>';
+                    $customfieldshtml .= $customfield->value . '</li>';
+                }
+                $customfieldshtml .= '</ul>';
+            } else {
+                $customfields = false;
+            }
+
+            $slot = explode('-', $timeobject->times);
+            $tmpdate = new stdClass();
+            $tmpdate->leftdate = userdate($slot[0], get_string('strftimedatetime', 'langconfig'));
+            $tmpdate->righttdate = userdate($slot[1], get_string('strftimetime', 'langconfig'));
+
+            $val .= get_string('leftandrightdate', 'booking', $tmpdate) . '<br>';
+
+            if ($customfields) {
+                $val .= $customfieldshtml;
+            }
+        }
+        return $val;
     }
 
     protected function col_courseendtime($values) {

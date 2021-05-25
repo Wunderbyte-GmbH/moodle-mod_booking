@@ -699,15 +699,15 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
             if (!empty($times)) {
                 foreach ($times as $time) {
-                    if (empty($optiontimes[$time->optionid])) {
-                        $optiontimes[$time->optionid] = $time->times;
-                    } else {
-                        $optiontimes[$time->optionid] .= ", " . $time->times;
-                    }
+                    // Optiondateid will be needed to render custom fields in all_options.php.
+                    $timeobject = new stdClass();
+                    $timeobject->optiondateid = $time->dateid;
+                    $timeobject->times = $time->times;
+                    $optiontimes[$time->optionid][] = $timeobject;
                 }
                 if (!empty($optiontimes)) {
-                    foreach ($optiontimes as $key => $time) {
-                        $tablealloptions->rawdata[$key]->times = $time;
+                    foreach ($optiontimes as $key => $timeobject) {
+                        $tablealloptions->rawdata[$key]->timeobjects = $timeobject;
                     }
                 }
             }
