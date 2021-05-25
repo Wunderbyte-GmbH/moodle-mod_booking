@@ -113,10 +113,12 @@ class optiondatesadd_form extends moodleform {
 
             $mform->addElement('text', 'customfieldname' . $counter, get_string('customfieldname', 'booking'));
             $mform->setType('customfieldname' . $counter, PARAM_TEXT);
+            $mform->setDefault('customfieldname' . $counter, '');
             $mform->hideIf('customfieldname' . $counter, 'addcustomfield' . $counter, 'notchecked');
 
             $mform->addElement('text', 'customfieldvalue' . $counter, get_string('customfieldvalue', 'booking'));
             $mform->setType('customfieldvalue' . $counter, PARAM_TEXT);
+            $mform->setDefault('customfieldvalue' . $counter, '');
             $mform->hideIf('customfieldvalue' . $counter, 'addcustomfield' . $counter, 'notchecked');
 
             // Set delete parameter to 0 for newly created fields, so they won't be deleted.
@@ -149,12 +151,16 @@ class optiondatesadd_form extends moodleform {
             $errors['endtime'] = "Course end time must be after course start time";
         }
         // Validate custom fields.
-        for ($i = 1; $i < MAX_CUSTOM_FIELDS; $i++) {
+        for ($i = 1; $i <= MAX_CUSTOM_FIELDS; $i++) {
             $customfieldnamex = $data['customfieldname' . $i];
             $customfieldvaluex = $data['customfieldvalue' . $i];
-            // If there is a field value, the field name is not allowed to be empty.
-            if (!empty($customfieldvaluex) && empty($customfieldnamex)) {
+            // The field name is not allowed to be empty if there is a value.
+            if (empty($customfieldnamex) && !empty($customfieldvaluex)) {
                 $errors['customfieldname' . $i] = get_string('erroremptycustomfieldname', 'booking');
+            }
+            // The field value is not allowed to be empty if there is a name.
+            if (empty($customfieldvaluex) && !empty($customfieldnamex)) {
+                $errors['customfieldvalue' . $i] = get_string('erroremptycustomfieldvalue', 'booking');
             }
         }
         return $errors;

@@ -26,8 +26,6 @@ require_once('optiondatesadd_form.php');
 
 global $DB, $PAGE, $OUTPUT;
 
-const MAX_CUSTOM_FIELDS = 3;
-
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $delete = optional_param('delete', '', PARAM_INT);
@@ -80,43 +78,41 @@ if ($mform->is_cancelled()) {
     $optiondate->courseendtime = strtotime($date . " {$data->endhour}:{$data->endminute}");
 
     if ($optiondate->id != '') {
-        $optiondateid = $DB->update_record("booking_optiondates", $optiondate);
+        $DB->update_record("booking_optiondates", $optiondate);
 
         // Retrieve available custom field data.
-        if (!empty($optiondateid)) {
-            // Currently there can be up to three custom fields.
-            for ($i = 1; $i <= MAX_CUSTOM_FIELDS; $i++) {
-                $customfieldidx = 'customfieldid' . $i;
-                $customfieldnamex = 'customfieldname' . $i;
-                $customfieldvaluex = 'customfieldvalue' . $i;
-                $deletecustomfieldx = 'deletecustomfield' . $i;
+        $max = 3; // Currently there can be up to three custom fields.
+        for ($i = 1; $i <= $max; $i++) {
+            $customfieldidx = 'customfieldid' . $i;
+            $customfieldnamex = 'customfieldname' . $i;
+            $customfieldvaluex = 'customfieldvalue' . $i;
+            $deletecustomfieldx = 'deletecustomfield' . $i;
 
-                // Create the customfield object.
-                $customfield = new stdClass();
-                $customfield->bookingid = $cm->instance;
-                $customfield->optionid = $optionid;
-                $customfield->optiondateid = $optiondateid;
-                $customfield->cfgname = $data->{$customfieldnamex};
-                $customfield->value = $data->{$customfieldvaluex};
+            // Create the customfield object.
+            $customfield = new stdClass();
+            $customfield->bookingid = $cm->instance;
+            $customfield->optionid = $optionid;
+            $customfield->optiondateid = $optiondate->id;
+            $customfield->cfgname = $data->{$customfieldnamex};
+            $customfield->value = $data->{$customfieldvaluex};
 
-                // If it is a newly added custom field then insert it into DB.
-                if ($data->{$customfieldidx} == 0) {
-                    // Only add custom fields if a name for the field was entered.
-                    if (!empty($data->{$customfieldnamex})) {
-                        $DB->insert_record("booking_customfields", $customfield);
-                    }
+            // If it is a newly added custom field then insert it into DB.
+            if ($data->{$customfieldidx} == 0) {
+                // Only add custom fields if a name for the field was entered.
+                if (!empty($data->{$customfieldnamex})) {
+                    $DB->insert_record("booking_customfields", $customfield);
+                }
+            } else {
+                // Get the id of the existing custom field record.
+                $customfieldid = $data->{$customfieldidx};
+
+                if ($data->{$deletecustomfieldx} == 1) {
+                    // If the checkbox to delete the field has been set, then delete from DB.
+                    $DB->delete_records("booking_customfields", ["id" => $customfieldid]);
                 } else {
-                    // Get the id of the existing custom field record.
-                    $customfieldid = $data->{$customfieldidx};
-
-                    if ($data->{$deletecustomfieldx} == 1) {
-                        // If the checkbox to delete the field has been set, then delete from DB.
-                        $DB->delete_records("booking_customfields", ["id" => $customfieldid]);
-                    } else {
-                        // Update the existing custom field.
-                        $customfield->id = $customfieldid;
-                        $DB->update_record("booking_customfields", $customfield);
-                    }
+                    // Update the existing custom field.
+                    $customfield->id = $customfieldid;
+                    $DB->update_record("booking_customfields", $customfield);
                 }
             }
         }
@@ -126,7 +122,8 @@ if ($mform->is_cancelled()) {
         // Retrieve available custom field data.
         if (!empty($optiondateid)) {
             // Currently there can be up to three custom fields.
-            for ($i = 1; $i <= MAX_CUSTOM_FIELDS; $i++) {
+            $max = 3;
+            for ($i = 1; $i <= $max; $i++) {
                 $customfieldnamex = 'customfieldname' . $i;
                 $customfieldvaluex = 'customfieldvalue' . $i;
                 // Only add custom fields if a name for the field was entered.
