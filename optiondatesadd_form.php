@@ -19,6 +19,8 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
+const MAX_CUSTOM_FIELDS = 3;
+
 /**
  * Add option date form
  * @author David Bogner
@@ -62,42 +64,71 @@ class optiondatesadd_form extends moodleform {
 
         // Only allow creation of custom fields, when creating a new optiondate.
         if (empty($this->_customdata['optiondateid'])) {
-            // Add checkbox to add first customfield
-            $mform->addElement('checkbox', 'addcustomfield1', get_string('addcustomfield', 'booking'));
-
-            // Between one to three custom fields are supported.
-            $i = 1;
-            $max = 3;
-            while ($i <= $max) {
-                $mform->addElement('text', 'customfieldname' . $i, get_string('customfieldname', 'booking'));
-                $mform->setType('customfieldname' . $i, PARAM_TEXT);
-                $mform->hideIf('customfieldname' . $i, 'addcustomfield' . $i, 'notchecked');
-
-                $mform->addElement('text', 'customfieldvalue' . $i, get_string('customfieldvalue', 'booking'));
-                $mform->setType('customfieldvalue' . $i, PARAM_TEXT);
-                $mform->hideIf('customfieldvalue' . $i, 'addcustomfield' . $i, 'notchecked');
-
-                // Show checkbox to add a custom field.
-                if ($i < $max) {
-                    $mform->addElement('checkbox', 'addcustomfield' . ($i + 1), get_string('addcustomfield', 'booking'));
-                    $mform->hideIf('addcustomfield' . ($i + 1), 'addcustomfield' . $i, 'notchecked');
-                }
-                ++$i;
-            }
-
+            $this->addcustomfields($mform);
             $mform->addElement('submit', 'submitbutton', get_string('add'));
         } else {
-            // When editing an existing option date session only allow editing of already existing custom fields is allowed.
+            // At first loop through already existing custom field records.
             $customfields = $DB->get_records("booking_customfields", array('optiondateid' => $this->_customdata['optiondateid']));
             $j = 1;
             foreach ($customfields as $customfield) {
-                $mform->addElement('static', 'customfieldname' . $j, $customfield->cfgname);
+                $mform->addElement('hidden', 'customfieldid' . $j, $customfield->id);
+                $mform->setType('customfieldid' . $j, PARAM_INT);
+
+                $mform->addElement('text', 'customfieldname' . $j, get_string('customfieldname', 'booking'));
+                $mform->setType('customfieldname' . $j, PARAM_TEXT);
+                $mform->setDefault('customfieldname' . $j, $customfield->cfgname);
+
                 $mform->addElement('text', 'customfieldvalue' . $j, get_string('customfieldvalue', 'booking'), $customfield->value);
                 $mform->setType('customfieldvalue' . $j, PARAM_TEXT);
+                $mform->setDefault('customfieldvalue' . $j, $customfield->value);
+
+                $mform->addElement('checkbox', 'deletecustomfield' . $j, get_string('deletecustomfield', 'booking'));
+                $mform->setDefault('deletecustomfield' . $j, 0);
+                $mform->addHelpButton('deletecustomfield' . $j, 'deletecustomfield', 'booking');
 
                 $j++;
             }
+            // Now, if there are less than the maximum number of custom fields allow adding additional ones.
+            if (count($customfields) < MAX_CUSTOM_FIELDS) {
+                // Between one to three custom fields are supported.
+                $start = count($customfields) + 1;
+                $this->addcustomfields($mform, $start);
+            }
             $mform->addElement('submit', 'submitbutton', get_string('savechanges'));
+        }
+    }
+
+    /**
+     * Helper function to create form elements for adding custom fields.
+     * @param int $counter if there already are existing custom fields start with the succeeding number
+     */
+    public function addcustomfields($mform, $counter = 1) {
+        // Add checkbox to add first customfield
+        $mform->addElement('checkbox', 'addcustomfield' . $counter, get_string('addcustomfield', 'booking'));
+
+        while ($counter <= MAX_CUSTOM_FIELDS) {
+            // New elements have a default customfieldid of 0.
+            $mform->addElement('hidden', 'customfieldid' . $counter, 0);
+            $mform->setType('customfieldid' . $counter, PARAM_INT);
+
+            $mform->addElement('text', 'customfieldname' . $counter, get_string('customfieldname', 'booking'));
+            $mform->setType('customfieldname' . $counter, PARAM_TEXT);
+            $mform->hideIf('customfieldname' . $counter, 'addcustomfield' . $counter, 'notchecked');
+
+            $mform->addElement('text', 'customfieldvalue' . $counter, get_string('customfieldvalue', 'booking'));
+            $mform->setType('customfieldvalue' . $counter, PARAM_TEXT);
+            $mform->hideIf('customfieldvalue' . $counter, 'addcustomfield' . $counter, 'notchecked');
+
+            // Set delete parameter to 0 for newly created fields, so they won't be deleted.
+            $mform->addElement('hidden', 'deletecustomfield' . $counter, 0);
+            $mform->setType('deletecustomfield' . $counter, PARAM_INT);
+
+            // Show checkbox to add a custom field.
+            if ($counter < MAX_CUSTOM_FIELDS) {
+                $mform->addElement('checkbox', 'addcustomfield' . ($counter + 1), get_string('addcustomfield', 'booking'));
+                $mform->hideIf('addcustomfield' . ($counter + 1), 'addcustomfield' . $counter, 'notchecked');
+            }
+            ++$counter;
         }
     }
 

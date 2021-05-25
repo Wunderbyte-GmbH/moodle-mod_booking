@@ -824,10 +824,12 @@ $string['optiondatessuccessfullydelete'] = "Termin wurde gelöscht";
 $string['leftandrightdate'] = '{$a->leftdate} bis {$a->righttdate}';
 $string['editingoptiondate'] = 'Sie bearbeiten gerade diesen Termin';
 
-// Optiondates_form.php.
+// Optiondatesadd_form.php.
 $string['addcustomfield'] = 'Benutzerdefiniertes Feld hinzufügen';
 $string['customfieldname'] = 'Feldname';
 $string['customfieldvalue'] = 'Wert';
+$string['deletecustomfield'] = 'Feld löschen?';
+$string['deletecustomfield_help'] = 'Achtung: Wenn Sie diese Checkbox aktivieren, wird das zugehörige Feld beim Speichern gelöscht!';
 
 // File: settings.php.
 $string['licensekeycfg'] = 'PRO-Version aktivieren';

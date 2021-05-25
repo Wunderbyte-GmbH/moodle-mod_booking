@@ -1048,10 +1048,12 @@ $string['optiondatessuccessfullydelete'] = "Session time was deleted.";
 $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
 $string['editingoptiondate'] = 'You are currently editing this session';
 
-// Optiondates_form.php.
+// Optiondatesadd_form.php.
 $string['addcustomfield'] = 'Add custom field';
 $string['customfieldname'] = 'Field name';
 $string['customfieldvalue'] = 'Value';
+$string['deletecustomfield'] = 'Delete custom field?';
+$string['deletecustomfield_help'] = 'Caution: Setting this checkbox will delete the associated custom field when saving.';
 
 // locallib.php
 $string['pdfdate'] = 'Booking Date(s): ';
