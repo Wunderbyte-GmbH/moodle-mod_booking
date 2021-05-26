@@ -295,15 +295,26 @@ class all_options extends table_sql {
 
         if (!empty($values->description)) {
             $values->description = $this->tags->tag_replaces($values->description);
-            $showhidetext = '<span id="showtextdes' . $values->id . '" style=' . $th . '>' . get_string(
-                    'showdescription', "mod_booking") . '</span><span id="hidetextdes' . $values->id . '" style=' . $ts . '>' .
-                get_string(
-                    'hidedescription', "mod_booking") . '</span>';
 
-            $output .= '<br><a href="#" class="showHideOptionText" data-id="des' . $values->id . '">' .
-                $showhidetext . "</a>";
-            $output .= html_writer::div(format_text($values->description, FORMAT_HTML), 'optiontext',
-                array('style' => $style, 'id' => 'optiontextdes' . $values->id));
+            // TODO: Decide whether to implement 'showfulldescription' as booking, option or global pluginconfig setting.
+            // TODO: Right now, it's hardcoded, we will implement this setting later.
+            $showfulldescription = 1;
+            if (isset($showfulldescription) && $showfulldescription == 1) {
+                // Show the full description without the show/hide link.
+                $output .= html_writer::div(format_text($values->description, FORMAT_HTML), 'optiontext',
+                    array('style' => '', 'id' => 'optiontextdes' . $values->id));
+            } else {
+                // Show the show/hide link (description hidden by default).
+                $showhidetext = '<span id="showtextdes' . $values->id . '" style=' . $th . '>' . get_string(
+                        'showdescription', "mod_booking") . '</span><span id="hidetextdes' . $values->id . '" style=' . $ts . '>' .
+                    get_string(
+                        'hidedescription', "mod_booking") . '</span>';
+
+                $output .= '<br><a href="#" class="showHideOptionText" data-id="des' . $values->id . '">' .
+                    $showhidetext . "</a>";
+                $output .= html_writer::div(format_text($values->description, FORMAT_HTML), 'optiontext',
+                    array('style' => $style, 'id' => 'optiontextdes' . $values->id));
+            }
         }
 
         $lblteach = $this->booking->settings->lblteachname;

@@ -178,6 +178,11 @@ class mod_booking_mod_form extends moodleform_mod {
             $alloptiontemplates);
         $mform->setDefault('templateid', 0);
 
+        // TODO: Show complete booking options decriptions or show/hide link to load dynamically.
+        // TODO: $mform->addElement('checkbox', 'showfulldescription', get_string('showfulldescription', 'booking'));
+        // TODO: $mform->setDefault('showfulldescription', 1);
+        // TODO: $mform->addHelpButton('showfulldescription', 'showfulldescription', 'booking');
+
         // Confirmation message.
         $mform->addElement('header', 'confirmation',
                 get_string('confirmationmessagesettings', 'booking'));

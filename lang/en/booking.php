@@ -1097,6 +1097,9 @@ $string['signincustfields'] = 'Custom profile fields';
 $string['signincustfields_desc'] = 'Select the custom profiles fields to be shown on the sign-in sheet';
 $string['showcustomfields'] = 'Custom booking option fields';
 $string['showcustomfields_desc'] = 'Select the custom booking option fields to be shown on the sign-in sheet';
+$string['showfulldescription'] = 'Show full description of booking options.';
+$string['showfulldescription_help'] = 'If you deactivate this checkbox, the booking option descriptions will be hidden by default.
+                                       They can still be loaded dynamically by clicking on "Show description".';
 $string['signinextracols_heading'] = 'Additional columns on the sign-in sheet';
 $string['signinextracols'] = 'Additional column';
 $string['signinextracols_desc'] = 'You can print up to 3 additional columns on the sign-in sheet. Fill in the column title or leave it blank for no additional column';
