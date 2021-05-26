@@ -65,7 +65,7 @@ class optiondatesadd_form extends moodleform {
         // Only allow creation of custom fields, when creating a new optiondate.
         if (empty($this->_customdata['optiondateid'])) {
             $this->addcustomfields($mform);
-            $mform->addElement('submit', 'submitbutton', get_string('add'));
+            $mform->addElement('submit', 'submitbutton', get_string('save'));
         } else {
             // At first loop through already existing custom field records.
             $customfields = $DB->get_records("booking_customfields", array('optiondateid' => $this->_customdata['optiondateid']));
@@ -78,8 +78,8 @@ class optiondatesadd_form extends moodleform {
                 $mform->setType('customfieldname' . $j, PARAM_TEXT);
                 $mform->setDefault('customfieldname' . $j, $customfield->cfgname);
 
-                $mform->addElement('text', 'customfieldvalue' . $j, get_string('customfieldvalue', 'booking'), $customfield->value);
-                $mform->setType('customfieldvalue' . $j, PARAM_TEXT);
+                $mform->addElement('textarea', 'customfieldvalue' . $j, get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
+                $mform->setType('customfieldvalue' . $j, PARAM_RAW);
                 $mform->setDefault('customfieldvalue' . $j, $customfield->value);
 
                 $mform->addElement('checkbox', 'deletecustomfield' . $j, get_string('deletecustomfield', 'booking'));
@@ -116,8 +116,8 @@ class optiondatesadd_form extends moodleform {
             $mform->setDefault('customfieldname' . $counter, '');
             $mform->hideIf('customfieldname' . $counter, 'addcustomfield' . $counter, 'notchecked');
 
-            $mform->addElement('text', 'customfieldvalue' . $counter, get_string('customfieldvalue', 'booking'));
-            $mform->setType('customfieldvalue' . $counter, PARAM_TEXT);
+            $mform->addElement('textarea', 'customfieldvalue' . $counter, get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
+            $mform->setType('customfieldvalue' . $counter, PARAM_RAW);
             $mform->setDefault('customfieldvalue' . $counter, '');
             $mform->hideIf('customfieldvalue' . $counter, 'addcustomfield' . $counter, 'notchecked');
 

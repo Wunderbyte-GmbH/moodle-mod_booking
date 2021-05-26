@@ -229,12 +229,11 @@ class all_options extends table_sql {
         foreach ($timeobjects as $timeobject) {
             // Retrieve the custom field data.
             if ($customfields = $DB->get_records("booking_customfields", ["optiondateid" => $timeobject->optiondateid])) {
-                $customfieldshtml .= '<ul>';
                 foreach ($customfields as $customfield) {
-                    $customfieldshtml .= '<li><i>' . $customfield->cfgname . ': </i>';
-                    $customfieldshtml .= $customfield->value . '</li>';
+                    $customfieldshtml .= '<i>' . $customfield->cfgname . ': </i>';
+                    $customfieldshtml .= $customfield->value . '<br>';
                 }
-                $customfieldshtml .= '</ul>';
+                $customfieldshtml .= '<br>';
             } else {
                 $customfields = false;
             }
@@ -248,6 +247,8 @@ class all_options extends table_sql {
 
             if ($customfields) {
                 $val .= $customfieldshtml;
+            } else {
+                $val .= "<br>";
             }
         }
         return $val;
