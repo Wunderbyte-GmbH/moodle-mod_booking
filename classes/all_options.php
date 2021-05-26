@@ -247,6 +247,7 @@ class all_options extends table_sql {
 
             if ($customfields) {
                 $val .= $customfieldshtml;
+                $customfieldshtml = ''; // Reset the custom fields HTML now.
             } else {
                 $val .= "<br>";
             }
