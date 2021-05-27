@@ -265,6 +265,11 @@ class all_options extends table_sql {
 
     protected function col_text($values) {
         global $DB;
+
+        // TODO: Decide whether to implement 'showfulldescription' as booking, option or global pluginconfig setting.
+        // TODO: Right now, it's hardcoded, we will implement this setting later.
+        $showfulldescription = 1;
+
         $output = '';
         $output .= html_writer::tag('h4', format_string($values->text, true, $this->booking->settings->course));
         $style = 'display: none;';
@@ -280,7 +285,6 @@ class all_options extends table_sql {
             $output .= html_writer::empty_tag('br');
             $output .= $values->address;
         }
-
         if (strlen($values->location) > 0) {
             $output .= html_writer::empty_tag('br');
             $lbllocation = $this->booking->settings->lbllocation;
@@ -296,9 +300,6 @@ class all_options extends table_sql {
         if (!empty($values->description)) {
             $values->description = $this->tags->tag_replaces($values->description);
 
-            // TODO: Decide whether to implement 'showfulldescription' as booking, option or global pluginconfig setting.
-            // TODO: Right now, it's hardcoded, we will implement this setting later.
-            $showfulldescription = 1;
             if (isset($showfulldescription) && $showfulldescription == 1) {
                 // Show the full description without the show/hide link.
                 $output .= html_writer::div(format_text($values->description, FORMAT_HTML), 'optiontext',
@@ -349,10 +350,17 @@ class all_options extends table_sql {
                 'hidedescription', "mod_booking") . '</span>';
 
         if (!empty($texttoshow)) {
-            $output .= '<br><a href="#" class="showHideOptionText" data-id="' . $values->id . '">' .
+            if (isset($showfulldescription) && $showfulldescription == 1) {
+                // Show the full description without the show/hide link.
+                $output .= html_writer::div($texttoshow, 'optiontext', array('style' => '',
+                    'id' => 'optiontext' . $values->id));
+            } else {
+                // Show the show/hide link (description hidden by default).
+                $output .= '<br><a href="#" class="showHideOptionText" data-id="' . $values->id . '">' .
                 $showhidetext . "</a>";
-            $output .= html_writer::div($texttoshow, 'optiontext',
-                array('style' => $style, 'id' => 'optiontext' . $values->id));
+                $output .= html_writer::div($texttoshow, 'optiontext', array('style' => $style,
+                                                                             'id' => 'optiontext' . $values->id));
+            }
         }
 
         $fs = get_file_storage();
