@@ -168,6 +168,11 @@ $string['deletesubcategory'] = 'Please, first delete all subcategories of this c
 $string['usedinbooking'] = 'You can\'t delete this category, because you\'re using it in booking!';
 $string['successfulldeleted'] = 'Category was deleted!';
 
+// Events.
+$string['bookingoptiondate_created'] = 'Booking option date created';
+$string['bookingoptiondate_updated'] = 'Booking option date updated';
+$string['custom_field_changed'] = 'Custom field changed';
+
 // view.php
 $string['agreetobookingpolicy'] = 'I have read and agree to the following booking policies';
 $string['allbookingoptions'] = 'Download users for all booking options';

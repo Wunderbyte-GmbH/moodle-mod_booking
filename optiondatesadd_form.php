@@ -43,6 +43,9 @@ class optiondatesadd_form extends moodleform {
         $mform->addElement('hidden', 'bookingid');
         $mform->setType('bookingid', PARAM_INT);
 
+        $mform->addElement('hidden', 'eventid');
+        $mform->setType('eventid', PARAM_INT);
+
         $mform->addElement('date_time_selector', 'coursestarttime', get_string('from'));
         $mform->setType('coursestarttime', PARAM_INT);
 

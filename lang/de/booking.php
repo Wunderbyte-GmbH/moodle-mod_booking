@@ -144,6 +144,11 @@ $string['deletesubcategory'] = 'Löschen Sie zuerst alle Unterkategorien dieser 
 $string['usedinbooking'] = 'Das Löschen dieser Kategorie/n ist nicht möglich, da sie verwendet werden!';
 $string['successfulldeleted'] = 'Kategorie wurde erfolgreich gelöscht!';
 
+// Events.
+$string['bookingoptiondate_created'] = 'Buchungsoptionsdatum erstellt';
+$string['bookingoptiondate_updated'] = 'Buchungsoptionsdatum geändert';
+$string['custom_field_changed'] = 'Benutzerdefiniertes Feld geändert';
+
 // View.php.
 $string['agreetobookingpolicy'] = 'Ich habe folgende Buchungsbedingungen gelesen und erkläre mich damit einverstanden';
 $string['allbookingoptions'] = 'Nutzer/innen für alle Buchungsmöglichkeiten herunterladen';

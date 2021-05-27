@@ -368,7 +368,27 @@ function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
     }
 }
 
-// TODO: booking_updatecustomfields
+/**
+ * Helper function to update calendar events after an option date (a session of a booking option) has been changed.
+ * @param $optiondate stdClass optiondate object
+ */
+function optiondate_updateevent($optiondate) {
+    global $DB;
+    if (!$event = $DB->get_record('event', ['id' => $optiondate->eventid])) {
+        return false;
+    } else {
+        $timestart = userdate($optiondate->coursestarttime, get_string('strftimedatetime'));
+        $timefinish = userdate($optiondate->courseendtime, get_string('strftimedatetime'));
+        $event->description = "<p><b>$timestart &ndash; $timefinish</b></p>";
+        // TODO: complete the description with link to booking option and custom field info
+
+        $event->timestart = $optiondate->coursestarttime;
+        $event->timeduration = $optiondate->courseendtime - $optiondate->coursestarttime;
+        $event->timesort = $optiondate->coursestarttime;
+
+        $DB->update_record('event', $event);
+    }
+}
 
 /**
  * Get booking option status

@@ -15,8 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
 
+use stdClass;
+
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
 require_once($CFG->dirroot.'/calendar/lib.php');
 
 /**
@@ -33,19 +36,22 @@ class calendar {
     const TYPETEACHERADD = 3;
     const TYPETEACHERREMOVE = 4;
     const TYPETEACHERUPDATE = 5;
+    const TYPEOPTIONDATE = 6;
 
     private $optionid;
     private $userid;
     private $cmid;
     private $type;
+    private $optiondateid;
 
-    public function __construct($cmid, $optionid, $userid, $type) {
+    public function __construct($cmid, $optionid, $userid, $type, $optiondateid = 0) {
         global $DB;
 
         $this->optionid = $optionid;
         $this->userid = $userid;
         $this->cmid = $cmid;
         $this->type = $type;
+        $this->optiondateid = $optiondateid;
 
         $bookingoption = new \mod_booking\booking_option($this->cmid, $this->optionid);
         $newcalendarid = 0;
@@ -68,6 +74,35 @@ class calendar {
                             $event->delete(true);
                         }
                     }
+                }
+                $DB->set_field("booking_options", 'calendarid', $newcalendarid, array('id' => $this->optionid));
+                break;
+
+            case $this::TYPEOPTIONDATE:
+                if ($bookingoption->option->addtocalendar == 1) {
+                    if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $this->optiondateid])) {
+                        $newcalendarid = $this->booking_optiondate_add_to_cal($bookingoption->booking->settings,
+                            $bookingoption->option, $optiondate, 0, $bookingoption->option->calendarid);
+                    } else {
+                        echo "ERROR: Calendar entry for option date could not be created.";
+                    }
+                } else if ($bookingoption->option->addtocalendar == 2) {
+                    if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $this->optiondateid])) {
+                        $newcalendarid = $this->booking_optiondate_add_to_cal($bookingoption->booking->settings,
+                            $bookingoption->option, $optiondate, 0, $bookingoption->option->calendarid,
+                            2);
+                    } else {
+                        echo "ERROR: Calendar entry for option date could not be created.";
+                    }
+                } else {
+                    // TODO: Load and delete the event if it should already exist.
+                    /*if ($bookingoption->option->calendarid > 0) {
+                        if ($DB->record_exists("event", array('id' => $bookingoption->option->calendarid))) {
+                            // Delete event if it already exists.
+                            $event = \calendar_event::load($bookingoption->option->calendarid);
+                            $event->delete(true);
+                        }
+                    }*/
                 }
                 $DB->set_field("booking_options", 'calendarid', $newcalendarid, array('id' => $this->optionid));
                 break;
@@ -102,11 +137,13 @@ class calendar {
     }
 
     /**
-     * Add the booking option to the calendar
+     * Add the booking option to the calendar.
      *
      * @param $booking
      * @param array $option
-     * @param $optionvalues
+     * @param numeric $userid
+     * @param numeric $calendareventid
+     * @param numeric $addtocalendar 0 = do not add, 1 = add as course event, 2 = add as global event.
      * @return int calendarid
      * @throws coding_exception
      * @throws dml_exception
@@ -170,7 +207,7 @@ class calendar {
             $whereis .= get_string("bookingoptioncalendarentry", 'booking', $linkurl);
         }
 
-        $event = new \stdClass();
+        $event = new stdClass();
         $event->component = 'mod_booking';
         $event->id = $calendareventid;
         $event->name = $option->text;
@@ -206,6 +243,128 @@ class calendar {
         } else {
             unset($event->id);
             $tmpevent = \calendar_event::create($event);
+            return $tmpevent->id;
+        }
+    }
+
+    /**
+     * Add a booking option date (session) to the calendar.
+     *
+     * @param stdClass $booking
+     * @param array $option
+     * @param array $optiondate
+     * @param numeric $userid
+     * @param numeric $calendareventid
+     * @param numeric $addtocalendar 0 = do not add, 1 = add as course event, 2 = add as global event.
+     * @return int calendarid
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    private function booking_optiondate_add_to_cal($booking, $option, $optiondate, $userid = 0, $calendareventid, $addtocalendar = 1) {
+        global $DB, $CFG;
+        $whereis = '';
+
+        if ($optiondate->courseendtime == 0 || $optiondate->coursestarttime == 0) {
+            return 0;
+        }
+
+        $timestart = userdate($optiondate->coursestarttime, get_string('strftimedatetime'));
+        $timefinish = userdate($optiondate->courseendtime, get_string('strftimedatetime'));
+        $whereis .= "<p><b>$timestart &ndash; $timefinish</b></p>";
+
+        // TODO optiondate custom fields
+        /*$customfields = $DB->get_records('booking_customfields', array('optionid' => $option->id));
+        $customfieldcfg = \mod_booking\booking_option::get_customfield_settings();
+
+        if ($customfields && !empty($customfieldcfg)) {
+            foreach ($customfields as $field) {
+                if (!empty($field->value)) {
+                    $cfgvalue = $customfieldcfg[$field->cfgname]['value'];
+                    if ($customfieldcfg[$field->cfgname]['type'] == 'multiselect') {
+                        $tmpdata = implode(", ", explode("\n", $field->value));
+                        $whereis .= "<p> <b>$cfgvalue: </b>$tmpdata</p>";
+                    } else {
+                        $whereis .= "<p> <b>$cfgvalue: </b>$field->value</p>";
+                    }
+                }
+            }
+        }
+
+        if (strlen($option->location) > 0) {
+            $whereis .= '<p><b>' . get_string('location', 'booking') . '</b>: ' . $option->location . '</p>';
+        }
+
+        if (strlen($option->institution) > 0) {
+            $whereis .= '<p><b>' . get_string('institution', 'booking') . '</b>: ' . $option->institution. '</p>';
+        }
+
+        if (strlen($option->address) > 0) {
+            $whereis .= '<p><b>' . get_string('address', 'booking') . '</b>: ' . $option->address. '</p>';
+        }
+        */
+
+        if ($userid > 0) {
+            // Add to user calendar
+            $courseid = 0;
+            $instance = 0;
+            $modulename = 0;
+            $visible = 1;
+            $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
+            $whereis .= get_string("usercalendarentry", 'booking', $linkurl);
+        } else {
+            // Event calendar
+            $courseid = ($option->courseid == 0 ? $booking->course : $option->courseid);
+            $modulename = ($courseid == $booking->course ? 'booking' : 0);
+            $instance = ($courseid == $booking->course ? $option->bookingid : 0);
+            $visible = instance_is_visible('booking', $booking);
+            $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
+            $whereis .= get_string("bookingoptioncalendarentry", 'booking', $linkurl);
+        }
+
+        $event = new stdClass();
+        $event->component = 'mod_booking';
+        $event->id = $calendareventid;
+        $event->name = $option->text;
+        $event->description = format_text($option->description, FORMAT_HTML) . $whereis;
+        $event->format = FORMAT_HTML;
+
+        if ($addtocalendar == 2) {
+            // For site events use SITEID as courseid.
+            $event->modulename = '';
+            $event->courseid = SITEID;
+            $event->categoryid = 0;
+            /* TODO: Currently this will create calendar events of type "other events",
+            TODO: which also seem to be visible to every site user, however it should create events of type "site events".
+            TODO: find out how! https://docs.moodle.org/dev/Calendar_API */
+        } else {
+            // Only include course id in course events.
+            $event->courseid = $courseid;
+            $event->userid = $userid;
+            $event->modulename = $modulename;
+            $event->groupid = 0;
+        }
+        $event->instance = $instance;
+        $event->eventtype = 'bookingsession';
+        $event->timestart = $optiondate->coursestarttime;
+        $event->visible = $visible;
+        $event->timeduration = $optiondate->courseendtime - $optiondate->coursestarttime;
+        $event->timesort = $optiondate->coursestarttime;
+
+        // Update if the record already exists.
+        if ($calendareventid > 0 && $DB->record_exists("event", array('id' => $optiondate->eventid))) {
+            $calendarevent = \calendar_event::load($optiondate->eventid);
+            $calendarevent->update($event);
+            return $optiondate->eventid;
+        } else {
+            // Create the calendar event.
+            unset($event->id);
+            $tmpevent = \calendar_event::create($event);
+
+            // Set the eventid in table booking_optiondates so the event can be identified later.
+            $optiondate->eventid = $tmpevent->id;
+            if (!empty($optiondate->eventid)) {
+                $DB->update_record('booking_optiondates', $optiondate);
+            }
             return $tmpevent->id;
         }
     }

@@ -1280,10 +1280,13 @@ class booking_option {
             }
         }
 
-            // Delete comments.
+        // Delete comments.
         $DB->delete_records("comments",
                 array('itemid' => $this->optionid, 'commentarea' => 'booking_option',
                     'contextid' => $this->booking->get_context()->id));
+
+        // Delete calendar events.
+        //TODO: $DB->delete_records("event...");
 
         if (!$DB->delete_records("booking_options", array("id" => $this->optionid))) {
             $result = false;

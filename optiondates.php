@@ -24,7 +24,7 @@ require_once("../../config.php");
 require_once("locallib.php");
 require_once('optiondatesadd_form.php');
 
-global $DB, $PAGE, $OUTPUT;
+global $DB, $PAGE, $OUTPUT, $USER;
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
@@ -56,7 +56,7 @@ if ($delete != '') {
 if ($duplicate != '') {
     $record = $DB->get_record("booking_optiondates",
             array('optionid' => $optionid, 'id' => $duplicate),
-            'bookingid, optionid, coursestarttime, courseendtime');
+            'bookingid, optionid, eventid, coursestarttime, courseendtime');
     $edit = $DB->insert_record("booking_optiondates", $record);
     booking_updatestartenddate($optionid);
     optiondate_duplicatecustomfields($duplicate, $edit);
@@ -73,6 +73,7 @@ if ($mform->is_cancelled()) {
     $optiondate->id = $data->optiondateid;
     $optiondate->bookingid = $cm->instance;
     $optiondate->optionid = $optionid;
+    $optiondate->eventid = $data->eventid;
     $optiondate->coursestarttime = $data->coursestarttime;
     $date = date("Y-m-d", $data->coursestarttime);
     $optiondate->courseendtime = strtotime($date . " {$data->endhour}:{$data->endminute}");
@@ -116,6 +117,8 @@ if ($mform->is_cancelled()) {
                 }
             }
         }
+        // If there is an associated calendar event, update the event too.
+        optiondate_updateevent($optiondate);
     } else {
         $optiondateid = $DB->insert_record("booking_optiondates", $optiondate);
 
@@ -138,6 +141,12 @@ if ($mform->is_cancelled()) {
                 }
             }
         }
+        // Add the newly created option date (session) to the calendar.
+        // The event stores optiondateid in event parameter objectid (which needs to be table primary key)...
+        // ... and optionid needs to be passed with parameter 'other' (which is an array).
+        $event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondateid,
+            'userid' => $USER->id, 'other' => ['optionid' => $optionid]));
+        $event->trigger();
     }
 
     booking_updatestartenddate($optionid);

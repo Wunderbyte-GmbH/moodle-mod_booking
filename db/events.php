@@ -31,12 +31,20 @@ $observers = array(
         'callback' => 'mod_booking_observer::user_deleted'),
     array('eventname' => '\core\event\user_enrolment_deleted',
         'callback' => 'mod_booking_observer::user_enrolment_deleted'),
-    array('eventname' => '\mod_booking\event\bookingoption_updated',
-        'callback' => 'mod_booking_observer::bookingoption_updated'
-        ),
     array('eventname' => '\mod_booking\event\bookingoption_created',
         'callback' => 'mod_booking_observer::bookingoption_created'
         ),
+    array('eventname' => '\mod_booking\event\bookingoption_updated',
+        'callback' => 'mod_booking_observer::bookingoption_updated'
+    ),
+    array('eventname' => '\mod_booking\event\bookingoptiondate_created',
+        'callback' => 'mod_booking_observer::bookingoptiondate_created'
+    ),
+    /* TODO:
+    array('eventname' => '\mod_booking\event\bookingoptiondate_updated',
+        'callback' => 'mod_booking_observer::bookingoptiondate_updated'
+    ),
+    */
     array('eventname' => '\mod_booking\event\teacher_added',
         'callback' => 'mod_booking_observer::teacher_added'
         ),

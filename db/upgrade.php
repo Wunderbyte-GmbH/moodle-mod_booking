@@ -2090,5 +2090,24 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2021051901, 'booking');
     }
 
+    if ($oldversion < 2021052700) {
+
+        // Define field eventid to be added to booking_optiondates.
+        $table = new xmldb_table('booking_optiondates');
+        $field = new xmldb_field('eventid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'optionid');
+        $key = new xmldb_key('fk_eventid', XMLDB_KEY_FOREIGN, ['eventid'], 'event', ['id']);
+
+        // Conditionally launch add field eventid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+
+            // Launch add key fk_eventid.
+            $dbman->add_key($table, $key);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2021052700, 'booking');
+    }
+
     return true;
 }
