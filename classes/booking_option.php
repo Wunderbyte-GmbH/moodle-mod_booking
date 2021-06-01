@@ -172,7 +172,7 @@ class booking_option {
     public static function create_option_from_optionid($optionid, $boid = null) {
         global $DB;
         if (is_null($boid)) {
-            $boid = $DB->get_field('booking_options', 'bookingid', ['optionid' => $optionid]);
+            $boid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid]);
         }
         $cm = get_coursemodule_from_instance('booking', $boid);
         return new booking_option($cm->id, $optionid);
