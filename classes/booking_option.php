@@ -1285,8 +1285,24 @@ class booking_option {
                 array('itemid' => $this->optionid, 'commentarea' => 'booking_option',
                     'contextid' => $this->booking->get_context()->id));
 
-        // Delete calendar events.
-        //TODO: $DB->delete_records("event...");
+        // Delete calendar events of sessions (option dates).
+        if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $this->optionid])) {
+            foreach ($optiondates as $record) {
+                if (!$DB->delete_records('event', ['id' => $record->eventid])) {
+                    $result = false;
+                }
+            }
+        }
+
+        // Delete custom fields belonging to the option.
+        if (!$DB->delete_records('booking_customfields', ['optionid' => $this->optionid])) {
+            $result = false;
+        }
+
+        // Delete sessions (option dates).
+        if (!$DB->delete_records('booking_optiondates', ['optionid' => $this->optionid])) {
+            $result = false;
+        }
 
         if (!$DB->delete_records("booking_options", array("id" => $this->optionid))) {
             $result = false;

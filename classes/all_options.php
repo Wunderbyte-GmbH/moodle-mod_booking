@@ -283,7 +283,7 @@ class all_options extends table_sql {
 
         if (strlen($values->address) > 0) {
             $output .= html_writer::empty_tag('br');
-            $output .= $values->address;
+            $output .= get_string('address', 'booking') . ': ' . $values->address;
         }
         if (strlen($values->location) > 0) {
             $output .= html_writer::empty_tag('br');

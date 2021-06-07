@@ -104,7 +104,6 @@ class calendar {
                         }
                     }*/
                 }
-                $DB->set_field("booking_options", 'calendarid', $newcalendarid, array('id' => $this->optionid));
                 break;
 
             case $this::TYPEUSER:
@@ -156,6 +155,11 @@ class calendar {
             return 0;
         }
 
+        // Do not add booking option to calendar, if there are multiple sessions.
+        if (!empty($DB->get_records('booking_optiondates', ['optionid' => $option->id]))) {
+            return 0;
+        }
+
         $timestart = userdate($option->coursestarttime, get_string('strftimedatetime'));
         $timefinish = userdate($option->courseendtime, get_string('strftimedatetime'));
         $whereis .= "<p><b>$timestart &ndash; $timefinish</b></p>";
@@ -178,15 +182,15 @@ class calendar {
         }
 
         if (strlen($option->location) > 0) {
-            $whereis .= '<p><b>' . get_string('location', 'booking') . '</b>: ' . $option->location . '</p>';
+            $whereis .= '<p><i>' . get_string('location', 'booking') . '</i>: ' . $option->location . '</p>';
         }
 
         if (strlen($option->institution) > 0) {
-            $whereis .= '<p><b>' . get_string('institution', 'booking') . '</b>: ' . $option->institution. '</p>';
+            $whereis .= '<p><i>' . get_string('institution', 'booking') . '</i>: ' . $option->institution. '</p>';
         }
 
         if (strlen($option->address) > 0) {
-            $whereis .= '<p><b>' . get_string('address', 'booking') . '</b>: ' . $option->address. '</p>';
+            $whereis .= '<p><i>' . get_string('address', 'booking') . '</i>: ' . $option->address. '</p>';
         }
 
         if ($userid > 0) {
@@ -196,7 +200,7 @@ class calendar {
             $modulename = 0;
             $visible = 1;
             $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
-            $whereis .= get_string("usercalendarentry", 'booking', $linkurl);
+            $whereis .= "<br>" . get_string("usercalendarentry", 'booking', $linkurl);
         } else {
             // Event calendar
             $courseid = ($option->courseid == 0 ? $booking->course : $option->courseid);
@@ -204,7 +208,7 @@ class calendar {
             $instance = ($courseid == $booking->course ? $option->bookingid : 0);
             $visible = instance_is_visible('booking', $booking);
             $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
-            $whereis .= get_string("bookingoptioncalendarentry", 'booking', $linkurl);
+            $whereis .= "<br>" . get_string("bookingoptioncalendarentry", 'booking', $linkurl);
         }
 
         $event = new stdClass();
@@ -251,8 +255,8 @@ class calendar {
      * Add a booking option date (session) to the calendar.
      *
      * @param stdClass $booking
-     * @param array $option
-     * @param array $optiondate
+     * @param stdClass $option
+     * @param stdClass $optiondate
      * @param numeric $userid
      * @param numeric $calendareventid
      * @param numeric $addtocalendar 0 = do not add, 1 = add as course event, 2 = add as global event.
@@ -262,46 +266,43 @@ class calendar {
      */
     private function booking_optiondate_add_to_cal($booking, $option, $optiondate, $userid = 0, $calendareventid, $addtocalendar = 1) {
         global $DB, $CFG;
-        $whereis = '';
+        $fulldescription = '';
 
         if ($optiondate->courseendtime == 0 || $optiondate->coursestarttime == 0) {
             return 0;
         }
 
+        // For multiple date sessions, hide the original booking option event.
+        if ($optionevent = $DB->get_record('event', ['id' => $option->calendarid])) {
+            $optionevent->visible = 0; // Hide the event.
+            $DB->update_record('event', $optionevent);
+        }
+
         $timestart = userdate($optiondate->coursestarttime, get_string('strftimedatetime'));
         $timefinish = userdate($optiondate->courseendtime, get_string('strftimedatetime'));
-        $whereis .= "<p><b>$timestart &ndash; $timefinish</b></p>";
+        $fulldescription .= "<p><b>$timestart &ndash; $timefinish</b></p>";
 
-        // TODO optiondate custom fields
-        /*$customfields = $DB->get_records('booking_customfields', array('optionid' => $option->id));
-        $customfieldcfg = \mod_booking\booking_option::get_customfield_settings();
+        $fulldescription .= "<p>" . format_text($option->description, FORMAT_HTML) . "</p>";
 
-        if ($customfields && !empty($customfieldcfg)) {
-            foreach ($customfields as $field) {
-                if (!empty($field->value)) {
-                    $cfgvalue = $customfieldcfg[$field->cfgname]['value'];
-                    if ($customfieldcfg[$field->cfgname]['type'] == 'multiselect') {
-                        $tmpdata = implode(", ", explode("\n", $field->value));
-                        $whereis .= "<p> <b>$cfgvalue: </b>$tmpdata</p>";
-                    } else {
-                        $whereis .= "<p> <b>$cfgvalue: </b>$field->value</p>";
-                    }
-                }
-            }
+        // Add rendered custom fields.
+        $customfieldshtml = get_rendered_customfields($optiondate->id);
+        if (!empty($customfieldshtml)) {
+            $fulldescription .= "<br>" . $customfieldshtml . "<br>";
+        } else {
+            $fulldescription .= "<br>";
         }
 
         if (strlen($option->location) > 0) {
-            $whereis .= '<p><b>' . get_string('location', 'booking') . '</b>: ' . $option->location . '</p>';
+            $fulldescription .= '<p><i>' . get_string('location', 'booking') . '</i>: ' . $option->location . '</p>';
         }
 
         if (strlen($option->institution) > 0) {
-            $whereis .= '<p><b>' . get_string('institution', 'booking') . '</b>: ' . $option->institution. '</p>';
+            $fulldescription .= '<p><i>' . get_string('institution', 'booking') . '</i>: ' . $option->institution. '</p>';
         }
 
         if (strlen($option->address) > 0) {
-            $whereis .= '<p><b>' . get_string('address', 'booking') . '</b>: ' . $option->address. '</p>';
+            $fulldescription .= '<p><i>' . get_string('address', 'booking') . '</i>: ' . $option->address. '</p>';
         }
-        */
 
         if ($userid > 0) {
             // Add to user calendar
@@ -310,7 +311,7 @@ class calendar {
             $modulename = 0;
             $visible = 1;
             $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
-            $whereis .= get_string("usercalendarentry", 'booking', $linkurl);
+            $fulldescription .= "<br>" . get_string("usercalendarentry", 'booking', $linkurl) . "<br><br>";
         } else {
             // Event calendar
             $courseid = ($option->courseid == 0 ? $booking->course : $option->courseid);
@@ -318,14 +319,14 @@ class calendar {
             $instance = ($courseid == $booking->course ? $option->bookingid : 0);
             $visible = instance_is_visible('booking', $booking);
             $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
-            $whereis .= get_string("bookingoptioncalendarentry", 'booking', $linkurl);
+            $fulldescription .= "<br>" . get_string("bookingoptioncalendarentry", 'booking', $linkurl) . "<br><br>";
         }
 
         $event = new stdClass();
         $event->component = 'mod_booking';
         $event->id = $calendareventid;
         $event->name = $option->text;
-        $event->description = format_text($option->description, FORMAT_HTML) . $whereis;
+        $event->description = $fulldescription;
         $event->format = FORMAT_HTML;
 
         if ($addtocalendar == 2) {

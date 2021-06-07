@@ -40,11 +40,6 @@ $observers = array(
     array('eventname' => '\mod_booking\event\bookingoptiondate_created',
         'callback' => 'mod_booking_observer::bookingoptiondate_created'
     ),
-    /* TODO:
-    array('eventname' => '\mod_booking\event\bookingoptiondate_updated',
-        'callback' => 'mod_booking_observer::bookingoptiondate_updated'
-    ),
-    */
     array('eventname' => '\mod_booking\event\teacher_added',
         'callback' => 'mod_booking_observer::teacher_added'
         ),

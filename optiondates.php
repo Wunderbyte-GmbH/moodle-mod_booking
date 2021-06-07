@@ -48,15 +48,45 @@ $optionid = $DB->get_field('booking_options', 'id',
 require_capability('mod/booking:updatebooking', $context);
 
 if ($delete != '') {
+    // If there is an associated calendar event, delete it first.
+    if ($optiondate = $DB->get_record('booking_optiondates', ['id' => $delete])) {
+        $DB->delete_records('event', ['id' => $optiondate->eventid]);
+    }
+
+    // Now we can delete the session.
     $DB->delete_records("booking_optiondates", array('optionid' => $optionid, 'id' => $delete));
+
+    // If there is no session left, then show the original booking option event again.
+    if (empty($DB->get_records('booking_optiondates', ['optionid' => $optionid]))) {
+        if ($calendarid = $DB->get_field('booking_options', 'calendarid', ['id' => $optionid])) {
+            if ($optionevent = $DB->get_record('event', ['id' => $calendarid])) {
+                $optionevent->visible = 1; // Show the event because there are no more sessions left.
+                $DB->update_record('event', $optionevent);
+            }
+        }
+    }
+
     booking_updatestartenddate($optionid);
+
+    // Delete associated custom fields.
     optiondate_deletecustomfields($delete);
+
     redirect($url, get_string('optiondatessuccessfullydelete', 'booking'), 5);
 }
 if ($duplicate != '') {
     $record = $DB->get_record("booking_optiondates",
             array('optionid' => $optionid, 'id' => $duplicate),
             'bookingid, optionid, eventid, coursestarttime, courseendtime');
+
+    // Create a new calendar entry for the duplicated event.
+    if ($calendarevent = $DB->get_record('event', ['id' => $record->eventid])) {
+        unset($calendarevent->id);
+        $neweventid = $DB->insert_record("event", $calendarevent);
+        $record->eventid = $neweventid;
+    } else {
+        $record->eventid = 0; // No calendar event found to duplicate.
+    }
+
     $edit = $DB->insert_record("booking_optiondates", $record);
     booking_updatestartenddate($optionid);
     optiondate_duplicatecustomfields($duplicate, $edit);
@@ -118,7 +148,7 @@ if ($mform->is_cancelled()) {
             }
         }
         // If there is an associated calendar event, update the event too.
-        optiondate_updateevent($optiondate);
+        optiondate_updateevent($optiondate, $cm->id);
     } else {
         $optiondateid = $DB->insert_record("booking_optiondates", $optiondate);
 

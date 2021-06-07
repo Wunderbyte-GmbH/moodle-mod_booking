@@ -19,6 +19,8 @@ require_once("locallib.php");
 use mod_booking\form\option_form;
 use \core\output\notification;
 
+global $DB, $OUTPUT, $PAGE, $USER;
+
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $copyoptionid = optional_param('copyoptionid', 0, PARAM_INT);

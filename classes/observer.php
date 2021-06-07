@@ -109,22 +109,6 @@ class mod_booking_observer {
     }
 
     /**
-     * TODO: Update calendar entry for teachers when a booking option date (session) is updated.
-     *
-     * @param \mod_booking\event\bookingoptiondate_updated $event
-     * @throws dml_exception
-     */
-    /* public static function bookingoptiondate_updated(\mod_booking\event\bookingoptiondate_updated $event) {
-        global $DB;
-        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, 0, \mod_booking\calendar::TYPEOPTIONDATE);
-
-        $allteachers = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid AND calendarid > 0', array( 'optionid' => $event->objectid));
-        foreach ($allteachers as $key => $value) {
-            new \mod_booking\calendar($event->contextinstanceid, $event->objectid, $value, \mod_booking\calendar::TYPETEACHERUPDATE);
-        }
-    } */
-
-    /**
      * Change calendar entry when custom field is changed.
      *
      * @param \mod_booking\event\custom_field_changed $event

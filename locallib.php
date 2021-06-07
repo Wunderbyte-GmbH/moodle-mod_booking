@@ -17,6 +17,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 use mod_booking\booking_option;
+global $CFG;
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
@@ -345,6 +346,28 @@ function booking_updatestartenddate($optionid) {
 }
 
 /**
+ * Helper function to render custom fields data of an option date session.
+ * @param numeric $optiondateid the id of the option date for which the custom fields should be rendered
+ * @return string the rendered HTML of the session's custom fields
+ */
+function get_rendered_customfields($optiondateid) {
+    global $DB;
+
+    $customfieldshtml = ''; // The rendered HTML.
+
+    if ($customfields = $DB->get_records("booking_customfields", ["optiondateid" => $optiondateid])) {
+        $customfieldshtml .= '<p>';
+        foreach ($customfields as $customfield) {
+            $customfieldshtml .= '<i>' . $customfield->cfgname . ': </i>';
+            $customfieldshtml .= $customfield->value . '<br>';
+        }
+        $customfieldshtml .= '</p>';
+    }
+
+    return $customfieldshtml;
+}
+
+/**
  * Helper function to delete custom fields belonging to an option date.
  * @param number $optiondateid id of the option date for which all custom fields will be deleted.
  */
@@ -372,21 +395,50 @@ function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
  * Helper function to update calendar events after an option date (a session of a booking option) has been changed.
  * @param $optiondate stdClass optiondate object
  */
-function optiondate_updateevent($optiondate) {
-    global $DB;
+function optiondate_updateevent($optiondate, $cmid) {
+    global $CFG, $DB;
     if (!$event = $DB->get_record('event', ['id' => $optiondate->eventid])) {
         return false;
     } else {
-        $timestart = userdate($optiondate->coursestarttime, get_string('strftimedatetime'));
-        $timefinish = userdate($optiondate->courseendtime, get_string('strftimedatetime'));
-        $event->description = "<p><b>$timestart &ndash; $timefinish</b></p>";
-        // TODO: complete the description with link to booking option and custom field info
+        $event->description = '';
+        if ($option = $DB->get_record('booking_options', ['id' => $optiondate->optionid])) {
+            $timestart = userdate($optiondate->coursestarttime, get_string('strftimedatetime'));
+            $timefinish = userdate($optiondate->courseendtime, get_string('strftimedatetime'));
+            $event->description .= "<p><b>$timestart &ndash; $timefinish</b></p>";
 
-        $event->timestart = $optiondate->coursestarttime;
-        $event->timeduration = $optiondate->courseendtime - $optiondate->coursestarttime;
-        $event->timesort = $optiondate->coursestarttime;
+            $event->description .= "<p>" . format_text($option->description, FORMAT_HTML) . "</p>";
 
-        $DB->update_record('event', $event);
+            // Add rendered custom fields.
+            $customfieldshtml = get_rendered_customfields($optiondate->id);
+            if (!empty($customfieldshtml)) {
+                $event->description .= "<br>" . $customfieldshtml . "<br>";
+            } else {
+                $event->description .= "<br>";
+            }
+
+            if (strlen($option->location) > 0) {
+                $event->description .= '<p><i>' . get_string('location', 'booking') . '</i>: ' . $option->location . '</p>';
+            }
+
+            if (strlen($option->institution) > 0) {
+                $event->description .= '<p><i>' . get_string('institution', 'booking') . '</i>: ' . $option->institution. '</p>';
+            }
+
+            if (strlen($option->address) > 0) {
+                $event->description .= '<p><i>' . get_string('address', 'booking') . '</i>: ' . $option->address. '</p>';
+            }
+
+            $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
+            $event->description .= "<br>" . get_string("bookingoptioncalendarentry", 'booking', $linkurl) . "<br><br>";
+
+            $event->timestart = $optiondate->coursestarttime;
+            $event->timeduration = $optiondate->courseendtime - $optiondate->coursestarttime;
+            $event->timesort = $optiondate->coursestarttime;
+
+            $DB->update_record('event', $event);
+        } else {
+            return false;
+        }
     }
 }
 
