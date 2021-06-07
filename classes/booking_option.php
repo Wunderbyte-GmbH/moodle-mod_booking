@@ -21,8 +21,12 @@ use stdClass;
 use moodle_url;
 use calendar_event;
 use mod_booking\booking_utils;
+
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot.'/calendar/lib.php');
+
+global $CFG;
+require_once($CFG->dirroot . '/calendar/lib.php');
+require_once($CFG->libdir . '/completionlib.php');
 
 /**
  * Managing a single booking option
