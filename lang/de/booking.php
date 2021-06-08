@@ -271,6 +271,8 @@ $string['shorturl'] = 'Verkürzter Link zu dieser Buchungsoption';
 $string['generatenewurl'] = 'Neue Kurz-URL generieren';
 $string['notes'] = 'Anmerkungen zur Buchung';
 
+$string['addnewlocation'] = "Neuen Ort hinzufügen";
+
 $string['pollurlteachers_help'] = 'Folgende Platzhalter können im Text verwendet werden:
 <ul>
 <li>{status}</li>
@@ -571,6 +573,9 @@ $string['choosecourse'] = 'Einen Kurs auswählen';
 $string['courseendtime'] = 'Kursende';
 $string['coursestarttime'] = 'Kursbeginn';
 $string['donotselectcourse'] = 'Kein Kurs ausgewählt';
+$string['donotselectinstitution'] = 'Keine Institution ausgewählt';
+$string['donotselectlocation'] = 'Kein Ort ausgewählt';
+$string['donotselecteventtype'] = 'Keine Ereignisart ausgewählt';
 $string['importcsvbookingoption'] = 'Buchungsoptionen via CSV-Datei importieren';
 $string['importexcelbutton'] = 'Aktivitätsabschluss importieren';
 $string['notificationtext'] = 'Benachrichtungstext bei Aktivitätsabschluss';

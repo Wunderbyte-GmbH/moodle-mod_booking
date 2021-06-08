@@ -311,6 +311,8 @@ $string['shorturl'] = 'Short URL of this option';
 $string['generatenewurl'] = 'Generate new short url';
 $string['notes'] = 'Booking notes';
 
+$string['addnewlocation'] = "Add new location";
+
 $string['pollurlteachers_help'] = 'You can use any of the following placeholders in the text:
 <ul>
 <li>{status}</li>
@@ -754,6 +756,9 @@ $string['choosecourse'] = 'Choose a course';
 $string['courseendtime'] = 'End time of the course';
 $string['coursestarttime'] = 'Start time of the course';
 $string['donotselectcourse'] = 'No course selected';
+$string['donotselectinstitution'] = 'No onstitution selected';
+$string['donotselectlocation'] = 'No location selected';
+$string['donotselecteventtype'] = 'No event type selected';
 $string['importcsvbookingoption'] = 'Import CSV with booking options';
 $string['importexcelbutton'] = 'Import activity completion';
 $string['notificationtext'] = 'Notification text shown on activity completion.';

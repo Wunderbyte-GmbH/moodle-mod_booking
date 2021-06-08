@@ -108,17 +108,32 @@ class option_form extends moodleform {
             }
         }
 
-        $mform->addElement('text', 'location', get_string('location', 'booking'),
-                array('size' => '64'));
+        $locationarray = $DB->get_fieldset_select('booking_options', 'location', '1 = 1');
+        $locationarray = array_unique($locationarray, SORT_STRING);
+        sort($locationarray);
+        $locationarray = array_merge([''], $locationarray);
+        $options = array(
+                'noselectionstring' => get_string('donotselectlocation', 'booking'),
+                'tags' => true
+        );
+        $mform->addElement('autocomplete', 'location', get_string('addnewlocation', 'booking'), $locationarray, $options);
+
+
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('location', PARAM_TEXT);
         } else {
             $mform->setType('location', PARAM_CLEANHTML);
         }
 
-        $mform->addElement('text', 'institution', (empty($booking->settings->lblinstitution) ? get_string('institution', 'booking') : $booking->settings->lblinstitution),
-            array('size' => '64'));
-        $mform->setType('institution', PARAM_TEXT);
+        $institutionarray = $DB->get_fieldset_select('booking_options', 'institution', '1 = 1');
+        $institutionarray = array_unique($institutionarray, SORT_STRING);
+        sort($institutionarray);
+        $institutionarray = array_merge([''], $institutionarray);
+        $options = array(
+                'noselectionstring' => get_string('donotselectinstitution', 'booking'),
+                'tags' => true
+        );
+        $mform->addElement('autocomplete', 'institution', get_string('addnewinstitution', 'booking'), $institutionarray, $options);
 
         $url = $CFG->wwwroot . '/mod/booking/institutions.php';
         if (isset($COURSE->id)) {
