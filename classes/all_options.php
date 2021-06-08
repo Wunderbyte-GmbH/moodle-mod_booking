@@ -87,6 +87,15 @@ class all_options extends table_sql {
                         array('id' => $this->cm->id, 'optionid' => $values->id)),
                     $OUTPUT->pix_icon('t/edit', get_string('updatebooking', 'mod_booking')) .
                     get_string('updatebooking', 'mod_booking')) . '</div>';
+
+            // Multiple dates session.
+            $ddoptions[] = '<div class="dropdown-item">' .
+                html_writer::link(new moodle_url('/mod/booking/optiondates.php',
+                    array('id' => $this->cm->id, 'optionid' => $values->id)),
+                    $OUTPUT->pix_icon('t/edit',
+                        get_string('optiondates', 'booking')) .
+                    get_string('optiondates', 'booking')) . '</div>';
+
             // Book teachers.
             if (has_capability('mod/booking:updatebooking', $this->context)) {
                 $onlyoneurl = new moodle_url('/mod/booking/teachers.php',

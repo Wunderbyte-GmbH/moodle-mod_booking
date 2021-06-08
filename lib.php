@@ -987,7 +987,8 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 navigation_node::TYPE_CONTAINER);
 
         $settingnode->add(get_string('addnewbookingoption', 'booking'),
-                new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => $optionid)));
+                new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => '')));
+                // Fixed: For a new booking option, optionid needs to be empty.
     }
 
     if (has_capability('mod/booking:manageoptiontemplates', $context)) {
