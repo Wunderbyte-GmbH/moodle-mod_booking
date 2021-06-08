@@ -16,6 +16,8 @@
 use mod_booking\all_options;
 use mod_booking\booking;
 
+global $DB, $CFG, $USER, $OUTPUT, $PAGE;
+
 require_once("../../config.php");
 require_once("locallib.php");
 require_once($CFG->libdir . '/completionlib.php');

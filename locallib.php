@@ -411,9 +411,7 @@ function optiondate_updateevent($optiondate, $cmid) {
             // Add rendered custom fields.
             $customfieldshtml = get_rendered_customfields($optiondate->id);
             if (!empty($customfieldshtml)) {
-                $event->description .= "<br>" . $customfieldshtml . "<br>";
-            } else {
-                $event->description .= "<br>";
+                $event->description .= "<p>" . $customfieldshtml . "</p>";
             }
 
             if (strlen($option->location) > 0) {
@@ -429,7 +427,7 @@ function optiondate_updateevent($optiondate, $cmid) {
             }
 
             $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
-            $event->description .= "<br>" . get_string("bookingoptioncalendarentry", 'booking', $linkurl) . "<br><br>";
+            $event->description .= "<p>" . get_string("bookingoptioncalendarentry", 'booking', $linkurl) . "</p>";
 
             $event->timestart = $optiondate->coursestarttime;
             $event->timeduration = $optiondate->courseendtime - $optiondate->coursestarttime;

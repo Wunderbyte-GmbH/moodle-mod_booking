@@ -998,6 +998,21 @@ class booking_option {
                     'relateduserid' => $user->id, 'other' => array('userid' => $user->id)));
         $event->trigger();
 
+        // Check if the option is a multidates session.
+        if (!$optiondates = $DB->get_records('booking_optiondates', ['optionid' => $this->optionid])) {
+            $optiondates = false;
+        }
+
+        //If the option has optiondates, then add the optiondate events to the user's calendar.
+        if ($optiondates) {
+            foreach ($optiondates as $optiondate) {
+                new \mod_booking\calendar($this->booking->cm->id, $this->optionid, $user->id, 6, $optiondate->id, 1);
+            }
+        } else {
+            // Else add the booking option event to the user's calendar.
+            new \mod_booking\calendar($this->booking->cm->id, $this->optionid, $user->id, 1, 0, 1);
+        }
+
         if ($this->booking->settings->sendmail) {
             $this->send_confirm_message($user);
         }
