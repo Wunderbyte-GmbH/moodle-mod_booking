@@ -59,6 +59,18 @@ class option_form extends moodleform {
             $cmid = $this->_customdata['cmid'];
             $booking = new booking($cmid);
         }
+        
+        // Add standard name here:
+        $eventtype = $booking->settings->eventtype;
+        if ($eventtype && strlen($eventtype) > 0) {
+            $eventtype = "- $eventtype ";
+        } else {
+            $eventtype = '';
+        }
+        $boptionname = "$COURSE->fullname $eventtype";
+        $mform->setDefault('text', $boptionname);
+
+
         // Add custom fields here.
         $customfields = booking_option::get_customfield_settings();
         if (!empty($customfields)) {
