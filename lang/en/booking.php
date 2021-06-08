@@ -1138,8 +1138,8 @@ $string['privacy:metadata:booking_teachers:optionid'] = 'Which version of an eve
 $string['privacy:metadata:booking_teachers:completed'] = 'If task is completed';
 
 // calendar.php
-$string['usercalendarentry'] = 'You are booked for this <a href="{$a}">session</a>.';
-$string['bookingoptioncalendarentry'] = 'Go to <a href="{$a}">booking option</a>.';
+$string['usercalendarentry'] = 'You are booked for <a href="{$a}">this session</a>.';
+$string['bookingoptioncalendarentry'] = '<a href="{$a}" class="btn btn-primary">Book now...</a>';
 
 // mybookings.php
 $string['status'] = 'Status';

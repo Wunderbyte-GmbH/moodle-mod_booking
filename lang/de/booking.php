@@ -129,6 +129,10 @@ $string['astemplate'] = 'Als Vorlage in diesem Kurs hinzufügen';
 $string['asglobaltemplate'] = 'Als globale Vorlage hinzufügen';
 $string['templatedeleted'] = 'Vorlage wurde gelöscht!';
 
+// calendar.php
+$string['usercalendarentry'] = 'Sie haben <a href="{$a}">diese Option</a> gebucht.';
+$string['bookingoptioncalendarentry'] = '<a href="{$a}" class="btn btn-primary">Jetzt buchen...</a>';
+
 // Categories.
 $string['category'] = 'Kategorie';
 $string['categories'] = 'Kategorien';
