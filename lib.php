@@ -682,7 +682,16 @@ function booking_update_options($optionvalues, $context) {
     $option->beforecompletedtext = $optionvalues->beforecompletedtext;
     $option->aftercompletedtext = $optionvalues->aftercompletedtext;
     $option->limitanswers = $optionvalues->limitanswers;
-    $option->duration = $optionvalues->duration;
+
+    if ((!$optionvalues->duration || $optionvalues->duration == 0)
+        && (isset($optionvalues->coursestarttime)
+    && isset($optionvalues->courseendtime))
+    && $delta = $optionvalues->courseendtime - $optionvalues->coursestarttime) {
+        $option->duration = $delta;
+    } else {
+        $option->duration = $optionvalues->duration;
+    }
+
     $option->timemodified = time();
 
     // Add to calendar option.
