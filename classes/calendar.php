@@ -155,7 +155,7 @@ class calendar {
      */
     private function booking_option_add_to_cal($booking, $option, $userid = 0, $calendareventid, $addtocalendar = 1) {
         global $DB, $CFG;
-        $whereis = '';
+        $fulldescription = '';
 
         if ($option->courseendtime == 0 || $option->coursestarttime == 0) {
             return 0;
@@ -168,7 +168,9 @@ class calendar {
 
         $timestart = userdate($option->coursestarttime, get_string('strftimedatetime'));
         $timefinish = userdate($option->courseendtime, get_string('strftimedatetime'));
-        $whereis .= "<p><b>$timestart &ndash; $timefinish</b></p>";
+        $fulldescription .= "<p><b>$timestart &ndash; $timefinish</b></p>";
+
+        $fulldescription .= "<p>" . format_text($option->description, FORMAT_HTML) . "</p>";
 
         $customfields = $DB->get_records('booking_customfields', array('optionid' => $option->id));
         $customfieldcfg = \mod_booking\booking_option::get_customfield_settings();
@@ -179,24 +181,24 @@ class calendar {
                     $cfgvalue = $customfieldcfg[$field->cfgname]['value'];
                     if ($customfieldcfg[$field->cfgname]['type'] == 'multiselect') {
                         $tmpdata = implode(", ", explode("\n", $field->value));
-                        $whereis .= "<p> <b>$cfgvalue: </b>$tmpdata</p>";
+                        $fulldescription .= "<p> <b>$cfgvalue: </b>$tmpdata</p>";
                     } else {
-                        $whereis .= "<p> <b>$cfgvalue: </b>$field->value</p>";
+                        $fulldescription .= "<p> <b>$cfgvalue: </b>$field->value</p>";
                     }
                 }
             }
         }
 
         if (strlen($option->location) > 0) {
-            $whereis .= '<p><i>' . get_string('location', 'booking') . '</i>: ' . $option->location . '</p>';
+            $fulldescription .= '<p><i>' . get_string('location', 'booking') . '</i>: ' . $option->location . '</p>';
         }
 
         if (strlen($option->institution) > 0) {
-            $whereis .= '<p><i>' . get_string('institution', 'booking') . '</i>: ' . $option->institution. '</p>';
+            $fulldescription .= '<p><i>' . get_string('institution', 'booking') . '</i>: ' . $option->institution. '</p>';
         }
 
         if (strlen($option->address) > 0) {
-            $whereis .= '<p><i>' . get_string('address', 'booking') . '</i>: ' . $option->address. '</p>';
+            $fulldescription .= '<p><i>' . get_string('address', 'booking') . '</i>: ' . $option->address. '</p>';
         }
 
         if ($userid > 0) {
@@ -206,7 +208,7 @@ class calendar {
             $modulename = 0;
             $visible = 1;
             $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
-            $whereis .= "<p>" . get_string("usercalendarentry", 'booking', $linkurl) . "</p>";
+            $fulldescription .= "<p>" . get_string("usercalendarentry", 'booking', $linkurl) . "</p>";
         } else {
             // Event calendar.
             $courseid = ($option->courseid == 0 ? $booking->course : $option->courseid);
@@ -214,7 +216,7 @@ class calendar {
             $instance = ($courseid == $booking->course ? $option->bookingid : 0);
             $visible = instance_is_visible('booking', $booking);
             $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
-            $whereis .= "<p>" . get_string("bookingoptioncalendarentry", 'booking', $linkurl) . "</p>";
+            $fulldescription .= "<p>" . get_string("bookingoptioncalendarentry", 'booking', $linkurl) . "</p>";
         }
 
         $event = new stdClass();
@@ -222,7 +224,7 @@ class calendar {
         $event->component = 'mod_booking';
         $event->id = $calendareventid;
         $event->name = $option->text;
-        $event->description = format_text($option->description, FORMAT_HTML) . $whereis;
+        $event->description = $fulldescription;
         $event->format = FORMAT_HTML;
 
         // First, check if it is no USER event.

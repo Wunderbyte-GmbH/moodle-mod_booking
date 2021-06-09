@@ -87,9 +87,16 @@ class mod_booking_observer {
      * @throws dml_exception
      */
     public static function bookingoption_updated(\mod_booking\event\bookingoption_updated $event) {
-        global $DB;
+        global $DB, $PAGE;
 
         new \mod_booking\calendar($event->contextinstanceid, $event->objectid, 0, \mod_booking\calendar::TYPEOPTION);
+
+        // If there are associated optiondates (sessions) then update their calendar events.
+        if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $event->objectid])) {
+            foreach ($optiondates as $optiondate) {
+                optiondate_updateevent($optiondate, $PAGE->cm->id);
+            }
+        }
 
         $allteachers = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid AND calendarid > 0', array( 'optionid' => $event->objectid));
         foreach ($allteachers as $key => $value) {
