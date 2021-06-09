@@ -206,7 +206,7 @@ class ical {
             $dtstart = $this->generate_timestamp($time->coursestarttime);
             $dtend = $this->generate_timestamp($time->courseendtime);
             $uid = md5($CFG->siteidentifier . $time->id . $this->option->id . 'mod_booking_option') . '@' . $this->host;
-            $this->add_vevent($uid, $dtstart, $dtend);
+            $this->add_vevent($uid, $dtstart, $dtend, $time);
         }
     }
 
@@ -218,11 +218,31 @@ class ical {
      * @param string $dtend
      * @return string $vevent vevent
      */
-    protected function add_vevent ($uid, $dtstart, $dtend) {
+    protected function add_vevent ($uid, $dtstart, $dtend, $time = false) {
+        global $DB;
+
+        $eventid = false;
+        if ($time) {
+            // If it's an option date, use the option date's eventid.
+            $eventid = $time->eventid;
+        } else {
+            // Use calendarid of the option if it's an optiondate.
+            $eventid = $this->option->calendarid;
+        }
+
+        // Get the HTML description of the event.
+        $fulldescription = '';
+        if ($eventid) {
+            if (!$fulldescription = $DB->get_field('event', 'description', ['id' => $eventid])) {
+                $fulldescription = '';
+            }
+        }
+
         $veventparts = array(
             "BEGIN:VEVENT",
             "CLASS:PUBLIC",
             "DESCRIPTION:{$this->description}",
+            "X-ALT-DESC;FMTTYPE=text/html:<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2//EN\">\n<HTML>{$fulldescription}</HTML>",
             "DTEND:{$dtend}",
             "DTSTAMP:{$this->dtstamp}",
             "DTSTART:{$dtstart}",
