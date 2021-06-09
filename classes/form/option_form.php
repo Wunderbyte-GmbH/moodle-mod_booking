@@ -108,16 +108,18 @@ class option_form extends moodleform {
             }
         }
 
-        $locationarray = $DB->get_fieldset_select('booking_options', 'location', '1 = 1');
-        $locationarray = array_unique($locationarray, SORT_STRING);
-        sort($locationarray);
-        $locationarray = array_merge([''], $locationarray);
+        $sql = 'SELECT DISTINCT location FROM {booking_options} ORDER BY location';
+        $locationarray = $DB->get_fieldset_sql($sql);
+
+        foreach ($locationarray as $item) {
+            $locationstrings[$item] = $item;
+        }
+
         $options = array(
                 'noselectionstring' => get_string('donotselectlocation', 'booking'),
                 'tags' => true
         );
-        $mform->addElement('autocomplete', 'location', get_string('addnewlocation', 'booking'), $locationarray, $options);
-
+        $mform->addElement('autocomplete', 'location', get_string('addnewlocation', 'booking'), $locationstrings, $options);
 
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('location', PARAM_TEXT);
@@ -125,15 +127,18 @@ class option_form extends moodleform {
             $mform->setType('location', PARAM_CLEANHTML);
         }
 
-        $institutionarray = $DB->get_fieldset_select('booking_options', 'institution', '1 = 1');
-        $institutionarray = array_unique($institutionarray, SORT_STRING);
-        sort($institutionarray);
-        $institutionarray = array_merge([''], $institutionarray);
+        $sql = 'SELECT DISTINCT institution FROM {booking_options} ORDER BY institution';
+        $institutionarray = $DB->get_fieldset_sql($sql);
+
+        foreach ($institutionarray as $item) {
+            $institutionstrings[$item] = $item;
+        }
+
         $options = array(
                 'noselectionstring' => get_string('donotselectinstitution', 'booking'),
                 'tags' => true
         );
-        $mform->addElement('autocomplete', 'institution', get_string('addnewinstitution', 'booking'), $institutionarray, $options);
+        $mform->addElement('autocomplete', 'institution', get_string('addnewinstitution', 'booking'), $institutionstrings, $options);
 
         $url = $CFG->wwwroot . '/mod/booking/institutions.php';
         if (isset($COURSE->id)) {

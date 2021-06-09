@@ -97,17 +97,20 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        $instance = $this->_instance;
+        $instance = (int)$this->_instance;
 
-        $eventtypearray = $DB->get_fieldset_select('booking', 'eventtype', "id = :instance", ['instance' => $instance]);
-        $eventtypearray = array_unique($eventtypearray, SORT_STRING);
-        sort($eventtypearray);
-        $eventtypearray = array_merge([''], $eventtypearray);
+        $sql = 'SELECT DISTINCT eventtype FROM {booking} ORDER BY eventtype';
+        $eventtypearray = $DB->get_fieldset_sql($sql);
+
+        foreach ($eventtypearray as $item) {
+            $eventstrings[$item] = $item;
+        }
+
         $options = array(
                 'noselectionstring' => get_string('donotselecteventtype', 'booking'),
                 'tags' => true
         );
-        $mform->addElement('autocomplete', 'eventtype', get_string('eventtype', 'booking'), $eventtypearray, $options);
+        $mform->addElement('autocomplete', 'eventtype', get_string('eventtype', 'booking'), $eventstrings, $options);
 
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('eventtype', PARAM_TEXT);
