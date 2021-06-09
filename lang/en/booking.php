@@ -1076,7 +1076,7 @@ $string['pdfsignature'] = "Signature";
 $string['pdftodaydate'] = 'Date: ';
 $string['booking:readallinstitutionusers'] = 'Show all users';
 $string['manageoptiontemplates'] = 'Manage option templates';
-$string['linkgotobookingoption'] = '<a href="{$a}" target="_blank">Show booking...</a>';
+$string['linkgotobookingoption'] = 'Go to booked option: {$a}</a>';
 
 // File: settings.php
 $string['licensekeycfg'] = 'Activate PRO version';

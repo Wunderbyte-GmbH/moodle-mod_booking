@@ -439,7 +439,8 @@ function get_rendered_eventdescription($option, $cmid, $optiondate = false, $boo
             break;
         case BOOKINGLINKPARAM_ICAL:
             $fulldescription .= "<p>" . get_string("linkgotobookingoption", 'booking', $linkurl) . "</p>";
-            $fulldescription = strip_tags($fulldescription); // Convert to plain text for ICAL.
+            // Convert to plain text for ICAL.
+            $fulldescription = preg_replace( "/\n\s+/", "\n", rtrim(html_entity_decode(strip_tags($fulldescription))));
             break;
     }
 
