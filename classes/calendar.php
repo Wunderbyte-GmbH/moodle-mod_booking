@@ -205,14 +205,12 @@ class calendar {
             // Add to user calendar.
             $courseid = 0;
             $instance = 0;
-            $modulename = 0;
             $visible = 1;
             $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
             $fulldescription .= "<p>" . get_string("usercalendarentry", 'booking', $linkurl) . "</p>";
         } else {
             // Event calendar.
             $courseid = ($option->courseid == 0 ? $booking->course : $option->courseid);
-            $modulename = ($courseid == $booking->course ? 'booking' : 0);
             $instance = ($courseid == $booking->course ? $option->bookingid : 0);
             $visible = instance_is_visible('booking', $booking);
             $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
@@ -222,6 +220,7 @@ class calendar {
         $event = new stdClass();
         $event->type = CALENDAR_EVENT_TYPE_STANDARD;
         $event->component = 'mod_booking';
+        $event->modulename = '';
         $event->id = $calendareventid;
         $event->name = $option->text;
         $event->description = $fulldescription;
@@ -232,7 +231,6 @@ class calendar {
             if ($addtocalendar == 2) {
                 // For site events use SITEID as courseid.
                 $event->eventtype = 'site';
-                $event->modulename = '';
                 $event->courseid = SITEID;
                 $event->categoryid = 0;
             } else {
@@ -240,7 +238,6 @@ class calendar {
                 $event->eventtype = 'course';
                 $event->courseid = $courseid;
                 $event->userid = 0;
-                $event->modulename = $modulename;
                 $event->groupid = 0;
             }
         } else {
@@ -248,7 +245,6 @@ class calendar {
             $event->eventtype = 'user';
             $event->courseid = 0;
             $event->userid = (int) $userid;
-            $event->modulename = $modulename;
             $event->groupid = 0;
         }
 
@@ -324,14 +320,12 @@ class calendar {
             // Add to user calendar.
             $courseid = 0;
             $instance = 0;
-            $modulename = 0;
             $visible = 1;
             $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
             $fulldescription .= "<p>" . get_string("usercalendarentry", 'booking', $linkurl) . "</p>";
         } else {
             // Event calendar.
             $courseid = ($option->courseid == 0 ? $booking->course : $option->courseid);
-            $modulename = ($courseid == $booking->course ? 'booking' : 0);
             $instance = ($courseid == $booking->course ? $option->bookingid : 0);
             $visible = instance_is_visible('booking', $booking);
             $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
@@ -341,6 +335,7 @@ class calendar {
         $event = new stdClass();
         $event->type = CALENDAR_EVENT_TYPE_STANDARD;
         $event->component = 'mod_booking';
+        $event->modulename = '';
         $event->id = $calendareventid;
         $event->name = $option->text;
         $event->description = $fulldescription;
@@ -350,7 +345,6 @@ class calendar {
             if ($addtocalendar == 2) {
                 // For site events use SITEID as courseid.
                 $event->eventtype = 'site';
-                $event->modulename = '';
                 $event->courseid = SITEID;
                 $event->categoryid = 0;
             } else {
@@ -358,7 +352,6 @@ class calendar {
                 $event->eventtype = 'course';
                 $event->courseid = $courseid;
                 $event->userid = 0;
-                $event->modulename = $modulename;
                 $event->groupid = 0;
             }
         } else {
@@ -366,7 +359,6 @@ class calendar {
             $event->eventtype = 'user';
             $event->courseid = 0;
             $event->userid = (int) $userid;
-            $event->modulename = $modulename;
             $event->groupid = 0;
         }
 

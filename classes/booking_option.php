@@ -743,7 +743,7 @@ class booking_option {
         if ($this->booking->settings->sendmail) {
             // Generate ical attachment to go with the message.
             $attachname = '';
-            $attachment = '';
+            $attachments = '';
             if (\get_config('booking', 'icalcancel')) {
                 $ical = new ical($this->booking->settings, $this->option, $user, $bookingmanager);
                 $attachments = $ical->get_attachments(true);

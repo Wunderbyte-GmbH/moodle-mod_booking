@@ -139,8 +139,7 @@ class ical {
         $icalmethod = ($cancel) ? 'CANCEL' : 'PUBLISH';
         if (!empty($this->times) && $this->attachicalsessions) {
             $this->get_vevents_from_optiondates();
-        }
-        if ($this->attachical && $this->option->coursestarttime) {
+        } else if ($this->attachical && $this->option->coursestarttime) {
             $this->add_vevent($uid, $dtstart, $dtend);
         }
         if ($this->onefileperevent) {
