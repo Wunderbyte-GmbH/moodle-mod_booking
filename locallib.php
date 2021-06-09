@@ -352,18 +352,13 @@ function booking_updatestartenddate($optionid) {
  */
 function get_rendered_customfields($optiondateid) {
     global $DB;
-
     $customfieldshtml = ''; // The rendered HTML.
-
     if ($customfields = $DB->get_records("booking_customfields", ["optiondateid" => $optiondateid])) {
-        $customfieldshtml .= '<p>';
         foreach ($customfields as $customfield) {
-            $customfieldshtml .= '<i>' . $customfield->cfgname . ': </i>';
-            $customfieldshtml .= $customfield->value . '<br>';
+            $customfieldshtml .= '<p><i>' . $customfield->cfgname . ': </i>';
+            $customfieldshtml .= $customfield->value . '</p>';
         }
-        $customfieldshtml .= '</p>';
     }
-
     return $customfieldshtml;
 }
 
