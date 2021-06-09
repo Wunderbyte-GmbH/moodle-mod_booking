@@ -17,6 +17,11 @@ namespace mod_booking;
 
 defined('MOODLE_INTERNAL') || die();
 
+const BOOKINGLINKPARAM_NONE = 0;
+const BOOKINGLINKPARAM_BOOK = 1;
+const BOOKINGLINKPARAM_USER = 2;
+const BOOKINGLINKPARAM_ICAL = 3;
+
 /**
  * Support class for generating ical items Note - this code is based on the ical code from mod_facetoface
  *
@@ -219,30 +224,23 @@ class ical {
      * @return string $vevent vevent
      */
     protected function add_vevent ($uid, $dtstart, $dtend, $time = false) {
-        global $DB;
+        global $DB, $PAGE;
 
         $eventid = false;
         if ($time) {
-            // If it's an option date, use the option date's eventid.
+            // If it's an option date (a session), use the option date's eventid.
             $eventid = $time->eventid;
+            $fulldescription = get_rendered_eventdescription($this->option, $PAGE->cm->id, $time, BOOKINGLINKPARAM_ICAL);
         } else {
-            // Use calendarid of the option if it's an optiondate.
+            // Use calendarid of the option if it's an option event.
             $eventid = $this->option->calendarid;
-        }
-
-        // Get the HTML description of the event.
-        $fulldescription = '';
-        if ($eventid) {
-            if (!$fulldescription = $DB->get_field('event', 'description', ['id' => $eventid])) {
-                $fulldescription = '';
-            }
+            $fulldescription = get_rendered_eventdescription($this->option, $PAGE->cm->id, false, BOOKINGLINKPARAM_ICAL);
         }
 
         $veventparts = array(
             "BEGIN:VEVENT",
             "CLASS:PUBLIC",
-            "DESCRIPTION:{$this->description}",
-            "X-ALT-DESC;FMTTYPE=text/html:<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2//EN\">\n<HTML>{$fulldescription}</HTML>",
+            "DESCRIPTION:{$fulldescription}",
             "DTEND:{$dtend}",
             "DTSTAMP:{$this->dtstamp}",
             "DTSTART:{$dtstart}",

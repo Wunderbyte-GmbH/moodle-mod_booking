@@ -155,7 +155,6 @@ class calendar {
      */
     private function booking_option_add_to_cal($booking, $option, $userid = 0, $calendareventid, $addtocalendar = 1) {
         global $DB, $CFG;
-        $fulldescription = '';
 
         if ($option->courseendtime == 0 || $option->coursestarttime == 0) {
             return 0;
@@ -166,55 +165,18 @@ class calendar {
             return 0;
         }
 
-        $timestart = userdate($option->coursestarttime, get_string('strftimedatetime'));
-        $timefinish = userdate($option->courseendtime, get_string('strftimedatetime'));
-        $fulldescription .= "<p><b>$timestart &ndash; $timefinish</b></p>";
-
-        $fulldescription .= "<p>" . format_text($option->description, FORMAT_HTML) . "</p>";
-
-        $customfields = $DB->get_records('booking_customfields', array('optionid' => $option->id));
-        $customfieldcfg = \mod_booking\booking_option::get_customfield_settings();
-
-        if ($customfields && !empty($customfieldcfg)) {
-            foreach ($customfields as $field) {
-                if (!empty($field->value)) {
-                    $cfgvalue = $customfieldcfg[$field->cfgname]['value'];
-                    if ($customfieldcfg[$field->cfgname]['type'] == 'multiselect') {
-                        $tmpdata = implode(", ", explode("\n", $field->value));
-                        $fulldescription .= "<p> <b>$cfgvalue: </b>$tmpdata</p>";
-                    } else {
-                        $fulldescription .= "<p> <b>$cfgvalue: </b>$field->value</p>";
-                    }
-                }
-            }
-        }
-
-        if (strlen($option->location) > 0) {
-            $fulldescription .= '<p><i>' . get_string('location', 'booking') . '</i>: ' . $option->location . '</p>';
-        }
-
-        if (strlen($option->institution) > 0) {
-            $fulldescription .= '<p><i>' . get_string('institution', 'booking') . '</i>: ' . $option->institution. '</p>';
-        }
-
-        if (strlen($option->address) > 0) {
-            $fulldescription .= '<p><i>' . get_string('address', 'booking') . '</i>: ' . $option->address. '</p>';
-        }
-
         if ($userid > 0) {
             // Add to user calendar.
             $courseid = 0;
             $instance = 0;
             $visible = 1;
-            $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
-            $fulldescription .= "<p>" . get_string("usercalendarentry", 'booking', $linkurl) . "</p>";
+            $fulldescription = get_rendered_eventdescription($option, $this->cmid, false, BOOKINGLINKPARAM_USER);
         } else {
             // Event calendar.
             $courseid = ($option->courseid == 0 ? $booking->course : $option->courseid);
             $instance = ($courseid == $booking->course ? $option->bookingid : 0);
             $visible = instance_is_visible('booking', $booking);
-            $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
-            $fulldescription .= "<p>" . get_string("bookingoptioncalendarentry", 'booking', $linkurl) . "</p>";
+            $fulldescription = get_rendered_eventdescription($option, $this->cmid, false, BOOKINGLINKPARAM_BOOK);
         }
 
         $event = new stdClass();
@@ -237,6 +199,7 @@ class calendar {
                 // Only include course id in course events.
                 $event->eventtype = 'course';
                 $event->courseid = $courseid;
+                $event->modulename = 'booking';
                 $event->userid = 0;
                 $event->groupid = 0;
             }
@@ -292,44 +255,18 @@ class calendar {
             $DB->update_record('event', $optionevent);
         }
 
-        $timestart = userdate($optiondate->coursestarttime, get_string('strftimedatetime'));
-        $timefinish = userdate($optiondate->courseendtime, get_string('strftimedatetime'));
-        $fulldescription .= "<p><b>$timestart &ndash; $timefinish</b></p>";
-
-        $fulldescription .= "<p>" . format_text($option->description, FORMAT_HTML) . "</p>";
-
-        // Add rendered custom fields.
-        $customfieldshtml = get_rendered_customfields($optiondate->id);
-        if (!empty($customfieldshtml)) {
-            $fulldescription .= "<p>" . $customfieldshtml . "</p>";
-        }
-
-        if (strlen($option->location) > 0) {
-            $fulldescription .= '<p><i>' . get_string('location', 'booking') . '</i>: ' . $option->location . '</p>';
-        }
-
-        if (strlen($option->institution) > 0) {
-            $fulldescription .= '<p><i>' . get_string('institution', 'booking') . '</i>: ' . $option->institution. '</p>';
-        }
-
-        if (strlen($option->address) > 0) {
-            $fulldescription .= '<p><i>' . get_string('address', 'booking') . '</i>: ' . $option->address. '</p>';
-        }
-
         if ($userid > 0) {
             // Add to user calendar.
             $courseid = 0;
             $instance = 0;
             $visible = 1;
-            $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
-            $fulldescription .= "<p>" . get_string("usercalendarentry", 'booking', $linkurl) . "</p>";
+            $fulldescription = get_rendered_eventdescription($option, $this->cmid, $optiondate, BOOKINGLINKPARAM_USER);
         } else {
             // Event calendar.
             $courseid = ($option->courseid == 0 ? $booking->course : $option->courseid);
             $instance = ($courseid == $booking->course ? $option->bookingid : 0);
             $visible = instance_is_visible('booking', $booking);
-            $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$this->cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
-            $fulldescription .= "<p>" . get_string("bookingoptioncalendarentry", 'booking', $linkurl) . "</p>";
+            $fulldescription = get_rendered_eventdescription($option, $this->cmid, $optiondate, BOOKINGLINKPARAM_BOOK);
         }
 
         $event = new stdClass();

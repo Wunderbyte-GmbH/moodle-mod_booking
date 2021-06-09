@@ -903,3 +903,4 @@ $string['pdfroom'] = 'Raum: ';
 $string['pdfstudentname'] = "Name Student/in";
 $string['pdfsignature'] = "Unterschrift";
 $string['pdftodaydate'] = 'Datum: ';
+$string['linkgotobookingoption'] = '<a href="{$a}" target="_blank">Buchung anzeigen...</a>';
