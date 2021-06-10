@@ -609,6 +609,14 @@ function booking_update_options($optionvalues, $context) {
         $booking->id = 0;
     }
 
+    // Get the original option to compare it for changes.
+    if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
+        $optionvalues->optionid != -1) {
+        if (!$originaloption = $DB->get_record('booking_options', ['id' => $optionvalues->optionid])) {
+            $originaloption = false;
+        }
+    }
+
     $option = new stdClass();
     $option->bookingid = $optionvalues->bookingid;
     $option->courseid = $optionvalues->courseid;
@@ -788,6 +796,29 @@ function booking_update_options($optionvalues, $context) {
                 if (!empty($booked) && $booking->autoenrol) {
                     foreach ($booked as $bookinganswer) {
                         $bo->enrol_user_coursestart($bookinganswer->userid);
+                    }
+                }
+            }
+
+            // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
+            $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
+            $bo->option->courseid = $option->courseid;
+            if ($bo->booking->settings->sendmail) {
+                // TODO: move this to a small helper function called option_has_changed
+                if ($originaloption->coursestarttime != $option->coursestarttime
+                    || $originaloption->courseendtime != $option->courseendtime
+                    || $originaloption->location != $option->location
+                    || $originaloption->institution != $option->institution
+                    || $originaloption->address != $option->address
+                    || $originaloption->description != $option->description) {
+                    $bookinganswers = $bo->get_all_users_booked();
+                    if (!empty($bookinganswers)) {
+                        foreach ($bookinganswers as $bookinganswer) {
+                            $bookeduser = $DB->get_record('user', ['id' => $bookinganswer->userid]);
+                            $bo->send_confirm_message($bookeduser, true);
+                            // TODO: instead of a confirm message send an "option changed" message
+                            // TODO: add custom text field for "option changed" message to instance settings
+                        }
                     }
                 }
             }

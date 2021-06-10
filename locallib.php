@@ -389,7 +389,7 @@ function get_rendered_eventdescription($option, $cmid, $optiondate = false, $boo
         // Add rendered custom fields.
         $customfieldshtml = get_rendered_customfields($optiondate->id);
         if (!empty($customfieldshtml)) {
-            $fulldescription .= "<p>" . $customfieldshtml . "</p>";
+            $fulldescription .= $customfieldshtml;
         }
     } else {
         // Create the description for a booking option event without sessions.
@@ -438,9 +438,9 @@ function get_rendered_eventdescription($option, $cmid, $optiondate = false, $boo
             $fulldescription .= "<p>" . get_string("usercalendarentry", 'booking', $linkurl) . "</p>";
             break;
         case BOOKINGLINKPARAM_ICAL:
-            $fulldescription .= "<p>" . get_string("linkgotobookingoption", 'booking', $linkurl) . "</p>";
+            $fulldescription .= "<br><p>" . get_string("linkgotobookingoption", 'booking', $linkurl) . "</p>";
             // Convert to plain text for ICAL.
-            $fulldescription = preg_replace( "/\n\s+/", "\n", rtrim(html_entity_decode(strip_tags($fulldescription))));
+            $fulldescription = rtrim(html_entity_decode(strip_tags(preg_replace( "/<br>|<\/p>/", "</p>\\n", $fulldescription))));
             break;
     }
 

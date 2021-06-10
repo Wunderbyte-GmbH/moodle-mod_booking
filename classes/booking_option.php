@@ -1020,13 +1020,18 @@ class booking_option {
     }
 
     /**
-     * Event that sends confirmation notification after user successfully booked TODO this should be
-     * rewritten for moodle 2.6 onwards
+     * Event that sends confirmation notification after user successfully booked.
+     *
+     * With the second param "optionchanged" set to true, this will send a notification mail to the user,
+     * informing him/her that the option event has changed and will include the updated ical.
+     *
+     * TODO this should be rewritten for moodle 2.6 onwards
      *
      * @param stdClass $user user object
+     * @param bool $optionchanged optional param used to inform the user of updates on the option
      * @return bool
      */
-    public function send_confirm_message($user) {
+    public function send_confirm_message($user, $optionchanged = false) {
         global $DB, $USER;
         $cmid = $this->booking->cm->id;
         // Used to store the ical attachment (if required).

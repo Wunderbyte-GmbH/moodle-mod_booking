@@ -109,7 +109,7 @@ class ical {
             // Date that this representation of the calendar information was created -
             // See http://www.kanzaki.com/docs/ical/dtstamp.html.
             $this->dtstamp = $this->generate_timestamp($this->option->timemodified);
-            $this->summary = $this->escape($this->booking->name);
+            $this->summary = $this->escape($this->booking->name . " - " . $this->option->text);
             $this->description = $this->escape($this->option->text, true);
             $urlbits = parse_url($CFG->wwwroot);
             $this->host = $urlbits['host'];
@@ -229,11 +229,9 @@ class ical {
         $eventid = false;
         if ($time) {
             // If it's an option date (a session), use the option date's eventid.
-            $eventid = $time->eventid;
             $fulldescription = get_rendered_eventdescription($this->option, $PAGE->cm->id, $time, BOOKINGLINKPARAM_ICAL);
         } else {
             // Use calendarid of the option if it's an option event.
-            $eventid = $this->option->calendarid;
             $fulldescription = get_rendered_eventdescription($this->option, $PAGE->cm->id, false, BOOKINGLINKPARAM_ICAL);
         }
 
