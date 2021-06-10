@@ -350,11 +350,17 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         }
 
         if (!empty($booking->settings->organizatorname)) {
-            echo html_writer::start_tag('div');
-            echo html_writer::tag('label', get_string('organizatorname', 'booking') . ': ',
-                    array('class' => 'bold'));
-            echo html_writer::tag('span', $booking->settings->organizatorname);
-            echo html_writer::end_tag('div');
+
+            if ($organizerid = (int)$booking->settings->organizatorname) {
+                $utils = new \mod_booking\booking_utils();
+                $utils->print_business_card($organizerid);
+            } else {
+                echo html_writer::start_tag('div');
+                echo html_writer::tag('label', get_string('organizatorname', 'booking') . ': ',
+                        array('class' => 'bold'));
+                echo html_writer::tag('span', $booking->settings->organizatorname);
+                echo html_writer::end_tag('div');
+            }
         }
 
         $out = array();

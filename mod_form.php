@@ -97,8 +97,6 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        $instance = (int)$this->_instance;
-
         $sql = 'SELECT DISTINCT eventtype FROM {booking} ORDER BY eventtype';
         $eventtypearray = $DB->get_fieldset_sql($sql);
 
@@ -128,9 +126,24 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('text', 'points', get_string('bookingpoints', 'booking'), 0);
         $mform->setType('points', PARAM_FLOAT);
 
-        $mform->addElement('text', 'organizatorname',
-                get_string('bookingorganizatorname', 'booking'), array('size' => '64'));
-        $mform->setType('organizatorname', PARAM_TEXT);
+        $coursecontext = context_course::instance($COURSE->id);
+
+        $teachers = get_enrolled_users($coursecontext, 'mod/booking:addinstance');
+
+        $teachersstring = [];
+        foreach ($teachers as $item) {
+            $teachersstring[$item->id] = "$item->firstname $item->lastname";
+        }
+
+        $options = array(
+                'tags' => true
+                //'noselectionstring' => get_string('donotselecteventtype', 'booking'),
+        );
+        $mform->addElement('autocomplete', 'organizatorname', get_string('organizatorname', 'booking'), $teachersstring, $options);
+
+        // $mform->addElement('text', 'organizatorname',
+        //        get_string('bookingorganizatorname', 'booking'), array('size' => '64'));
+        $mform->setType('organizatorname', PARAM_RAW);
 
         $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'),
                 array('size' => '64'));
