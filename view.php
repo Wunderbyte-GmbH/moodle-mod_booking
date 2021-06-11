@@ -352,8 +352,10 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         if (!empty($booking->settings->organizatorname)) {
 
             if ($organizerid = (int)$booking->settings->organizatorname) {
-                $utils = new \mod_booking\booking_utils();
-                $utils->print_business_card($organizerid);
+
+                $data = new \mod_booking\output\business_card($organizerid);
+                $output = $PAGE->get_renderer('mod_booking');
+                echo $output->render_business_card($data);
             } else {
                 echo html_writer::start_tag('div');
                 echo html_writer::tag('label', get_string('organizatorname', 'booking') . ': ',

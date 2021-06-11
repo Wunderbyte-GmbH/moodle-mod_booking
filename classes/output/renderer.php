@@ -329,4 +329,15 @@ class renderer extends plugin_renderer_base {
         $o .= $this->render_from_template('mod_booking/edit_bookingnotes', $data);
         return $o;
     }
+
+
+    /** function to print user picture plus text as html
+     * @param $userid
+     */
+    public function render_business_card(mod_booking\output\business_card $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/business_card', $data);
+        return $o;
+    }
 }
