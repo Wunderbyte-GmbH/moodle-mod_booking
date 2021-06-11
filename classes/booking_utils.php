@@ -178,6 +178,7 @@ class booking_utils {
         $imgurl = $userpic->get_url($PAGE);
         $attributes = ['class' => 'card-img-top userpicture'];
         $profileurl = new moodle_url('../../user/profile.php', ['id' => $user->id]);
+        $sendmessageurl = new moodle_url('../../message/index.php', ['id' => $user->id]);
 
         echo html_writer::start_tag('div', ['class' => 'container']);
         echo html_writer::start_tag('div', ['class' => 'row']);
@@ -187,6 +188,9 @@ class booking_utils {
         echo html_writer::start_tag('div', ['class' => 'col-10']);
         echo html_writer::tag('p', get_string('organizatorname', 'booking'), ['class' => 'card-text bold']);
         $content = html_writer::link($profileurl, "$user->firstname $user->lastname");
+        echo html_writer::tag('p', $content, ['class' => 'bold']);
+
+        $content = html_writer::link($sendmessageurl, get_string('sendmessage', 'message'));
         echo html_writer::tag('p', $content, ['class' => 'bold']);
         echo html_writer::end_tag('div');
         echo html_writer::end_tag('div');
