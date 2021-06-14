@@ -476,7 +476,7 @@ function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
  * @param $optiondate stdClass optiondate object
  */
 function optiondate_updateevent($optiondate, $cmid) {
-    global $CFG, $DB;
+    global $DB;
     if (!$event = $DB->get_record('event', ['id' => $optiondate->eventid])) {
         return false;
     } else {

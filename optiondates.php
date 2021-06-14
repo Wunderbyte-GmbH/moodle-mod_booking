@@ -81,7 +81,7 @@ if ($duplicate != '') {
     // Create a new calendar entry for the duplicated event.
     if ($calendarevent = $DB->get_record('event', ['id' => $record->eventid])) {
         unset($calendarevent->id);
-        $neweventid = $DB->insert_record("event", $calendarevent);
+        $neweventid = $DB->insert_record('event', $calendarevent);
         $record->eventid = $neweventid;
     } else {
         $record->eventid = 0; // No calendar event found to duplicate.
