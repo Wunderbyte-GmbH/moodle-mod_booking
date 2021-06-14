@@ -91,7 +91,7 @@ class booking_utils {
             }
             $courselink = '';
             if ($option->courseid) {
-                $courselink = new moodle_url('/course/view.php', array('id' => $option->courseid));
+                $courselink = new moodle_url($baseurl . '/course/view.php', array('id' => $option->courseid));
                 $courselink = html_writer::link($courselink, $courselink->out());
             }
 
@@ -162,5 +162,175 @@ class booking_utils {
             }
         }
         return $text;
+    }
+
+
+    /**
+     * Function to generate booking button, moved here from all_options to make it available also on coursepage and elsewhere
+     * @param $cm
+     * @param $booking
+     * @return string
+     * @throws \coding_exception
+     * @throws \moodle_exception
+     */
+    public function return_button_based_on_record($booking, $context, $values, $coursepage = false) {
+        global $OUTPUT, $USER, $baseurl;
+
+        $delete = '';
+        $availabibility = '';
+        $button = '';
+        $booked = '';
+        $manage = '';
+        $inpast = $values->courseendtime && ($values->courseendtime < time());
+
+        $underlimit = ($values->maxperuser == 0);
+        $underlimit = $underlimit || ($values->bookinggetuserbookingcount < $values->maxperuser);
+        if (!$values->limitanswers) {
+            $availabibility = "available";
+        } else if (($values->waiting + $values->booked) >= ($values->maxanswers + $values->maxoverbooking)) {
+            $availabibility = "full";
+        }
+
+        if (time() > $values->bookingclosingtime and $values->bookingclosingtime != 0) {
+            $availabibility = "closed";
+        }
+
+        // I'm booked or not.
+        if ($values->iambooked) {
+            if ($values->allowupdate and $availabibility != 'closed' and $values->completed != 1) {
+
+                if (!$coursepage) {
+                    $buttonoptions = array('id' => $booking->cm->id, 'action' => 'delbooking',
+                            'optionid' => $values->id, 'sesskey' => $USER->sesskey);
+                    $buttonmethod = 'post';
+                } else {
+                    $buttonoptions = array('id' => $booking->cm->id, 'action' => 'showonlyone',
+                            'whichview' => 'showonlyone',
+                            'optionid' => $values->id, 'sesskey' => $USER->sesskey);
+                    $buttonmethod = 'get';
+                }
+
+                $url = new moodle_url($baseurl . 'mod/booking/view.php', $buttonoptions);
+                $delete = $OUTPUT->single_button($url,
+                        (empty($values->btncancelname) ? get_string('cancelbooking', 'booking') : $values->btncancelname),
+                        $buttonmethod);
+
+                if ($values->coursestarttime > 0 && $values->allowupdatedays > 0) {
+                    if (time() > strtotime("-{$values->allowupdatedays} day", $values->coursestarttime)) {
+                        $delete = "";
+                    }
+                }
+            }
+
+            if (!empty($values->completed)) {
+                $completed = '<div class="">' . get_string('completed', 'mod_booking') .
+                        '<span class="fa fa-check float-right"> </span> </div>';
+            } else {
+                $completed = '';
+            }
+
+            if (!empty($values->status)) {
+                $status = '<div class="">' . get_string('presence', 'mod_booking') .
+                        '<span class="badge badge-default float-right">' . $this->col_status($values) . '</span> </div>';
+            } else {
+                $status = '';
+            }
+            if ($values->waitinglist) {
+                $booked .= '<div class="btn alert-info">' . get_string('onwaitinglist', 'booking') . '</div>';
+            } else if ($inpast) {
+                $booked .= '<div class="btn alert-success">' . get_string('bookedpast', 'booking') . $completed . $status .
+                        '</div>';
+            } else {
+                $booked .= '<div class="btn alert-success">' . get_string('booked', 'booking') . $completed . $status . '</div>';
+            }
+        } else {
+            if (!$coursepage) {
+                $buttonoptions = array('answer' => $values->id, 'id' => $booking->cm->id,
+                        'sesskey' => $USER->sesskey);
+                if (empty($this->booking->settings->bookingpolicy)) {
+                    $buttonoptions['confirm'] = 1;
+                }
+                $buttonmethod = 'post';
+            } else {
+                $buttonmethod = 'get';
+                $buttonoptions = array('id' => $booking->cm->id, 'action' => 'showonlyone',
+                        'whichview' => 'showonlyone',
+                        'optionid' => $values->id);
+            }
+
+
+            $url = new moodle_url($baseurl . '/mod/booking/view.php', $buttonoptions);
+
+            $button = $OUTPUT->single_button($url,
+                    (empty($values->btnbooknowname) ? get_string('booknow', 'booking') : $values->btnbooknowname),
+                    $buttonmethod);
+        }
+
+        if (($values->limitanswers && ($availabibility == "full")) || ($availabibility == "closed") || !$underlimit ||
+                $values->disablebookingusers) {
+            $button = '';
+        }
+
+        if ($values->cancancelbook == 0 && $values->courseendtime > 0 &&
+                $values->courseendtime < time()) {
+            $button = '';
+            $delete = '';
+        }
+
+        if (!empty($this->booking->settings->banusernames)) {
+            $disabledusernames = explode(',', $this->booking->settings->banusernames);
+
+            foreach ($disabledusernames as $value) {
+                if (strpos($USER->username, trim($value)) !== false) {
+                    $button = '';
+                }
+            }
+        }
+
+        // Check if user has right to book.
+        if (!has_capability('mod/booking:choose', $context, $USER->id, false)) {
+            $button = get_string('norighttobook', 'booking') . "<br />";
+        }
+
+        // We only run this if we are not on coursepage
+        if (!$coursepage) {
+            if (has_capability('mod/booking:readresponses', $context) || $values->isteacher) {
+                if (groups_get_activity_groupmode($booking->cm) == SEPARATEGROUPS
+                        AND !has_capability('moodle/site:accessallgroups', \context_course::instance($this->booking->course->id))) {
+                    $numberofresponses = $values->allbookedsamegroup;
+                } else {
+                    $numberofresponses = $values->waiting + $values->booked;
+                }
+                $manage = "<br><a href=\"report.php?id={$booking->cm->id}&optionid={$values->id}\">" .
+                        get_string("viewallresponses", "booking", $numberofresponses) . "</a>";
+            }
+            if ($booking->settings->ratings > 0) {
+                $manage .= '<div><select class="starrating" id="rate' . $values->id .
+                        '" data-current-rating="' . $values->myrating . '" data-itemid="' .
+                        $values->id . '">
+  <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+  <option value="4">4</option><option value="5">5</option></select></div>';
+                if (has_capability('mod/booking:readresponses', $context) || $values->isteacher) {
+                    $manage .= get_string('aggregateavg', 'rating') . ' ' . number_format(
+                                    (float) $values->rating, 2, '.', '') . " ({$values->ratingcount})";
+                }
+            }
+        }
+
+        if (!$coursepage) {
+            $limit = "<div>" . get_string("unlimited", 'booking') . "</div>";
+        } else {
+            $limit = '';
+        }
+
+
+        if (!$values->limitanswers) {
+            return $button . $delete . $booked . $limit . $manage;
+        } else {
+            $places = new places($values->maxanswers, $values->availableplaces, $values->maxoverbooking,
+                    $values->maxoverbooking - $values->waiting);
+            return $button . $delete . $booked . "<div>" . get_string("availableplaces", "booking", $places) .
+                    "</div><div>" . get_string("waitingplacesavailable", "booking", $places) . "</div>" . $manage;
+        }
     }
 }

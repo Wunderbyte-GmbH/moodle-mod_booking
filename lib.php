@@ -2646,3 +2646,25 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
 
     return $results;
 }
+
+
+/**
+ * This will the options list on the coursepage
+ *
+ * @param cm_info $cm
+ * @return void
+ */
+function mod_booking_cm_info_view(cm_info $cm) {
+    global $PAGE;
+
+    $html = '';
+
+    $data = new \mod_booking\output\coursepage_available_options($cm);
+    $output = $PAGE->get_renderer('mod_booking');
+    $html .= $output->render_coursepage_available_options($data);
+
+
+    if ($html !== '') {
+        $cm->set_content($html);
+    }
+}
