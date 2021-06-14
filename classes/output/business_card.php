@@ -40,7 +40,7 @@ use templatable;
  */
 class business_card implements renderable, templatable {
 
-    /** @var string $note the note as it is saved in db */
+    /** @var string $username the note as it is saved in db */
     public $username = null;
 
     /** @var string $userpictureurl */
@@ -67,7 +67,6 @@ class business_card implements renderable, templatable {
         $userpic = new \user_picture($user);
         $userpic->size = 200;
         $userpictureurl = $userpic->get_url($PAGE);
-        $attributes = ['class' => 'card-img-top userpicture'];
         $userprofileurl = new \moodle_url('../../user/profile.php', ['id' => $user->id]);
         $sendmessageurl = new \moodle_url('../../message/index.php', ['id' => $user->id]);
 
