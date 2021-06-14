@@ -257,6 +257,7 @@ $string['userleave'] = 'Nutzer/in hat Buchung storniert';
 $string['waitingtext'] = 'Wartelistenbestätigung';
 $string['statuschangetext'] = 'Statusänderungsbenachrichtigung';
 $string['deletedtext'] = 'Stornierungsbenachrichtigung';
+$string['bookingchangedtext'] = 'Benachrichtigung bei Änderungen an der Buchung (geht nur an User, die bereits gebucht haben).';
 $string['comments'] = 'Kommentare';
 $string['nocomments'] = 'Kommentare deaktiviert';
 $string['allcomments'] = 'Jede/r kann kommentieren';
@@ -418,6 +419,31 @@ $string['statuschangetext_help'] = 'Lassen Sie dieses Feld leer, um den Standard
 </ul>';
 
 $string['deletedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+<li>{teacher}</li>
+<li>{teacherN} - N ist die Trainernummer. Zum Beispiel: {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - QR Code der Userid einfügen</li>
+<li>{qr_username} - QR Code des Usernamen einfügen</li>
+</ul>';
+
+$string['bookingchangedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
 <li>{status}</li>
 <li>{participant}</li>
@@ -678,6 +704,13 @@ $string['deletedbookingusersubject'] = 'Stornobestätigung für {$a->title}';
 $string['deletedbookingusermessage'] = 'Guten Tag {$a->participant},
 
 Die Buchung für {$a->title} wurde erfolgreich storniert
+';
+
+$string['bookingchangedsubject'] = 'Änderungsbenachrichtigung für {$a->title}';
+$string['bookingchangedmessage'] = 'Es wurden Änderungen an der Buchung zu {$a->title} vorgenommen.
+Datum: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+
+Klicken Sie auf den folgenden Link um die Änderung(en) und eine Übersicht über alle Buchungen zu sehen: {$a->bookinglink}
 ';
 
 $string['error:failedtosendconfirmation'] = 'Folgender User hat kein Bestätigungsmail erhalten

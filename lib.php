@@ -401,6 +401,7 @@ function booking_add_instance($booking) {
     $booking->notifyemail = $booking->notifyemail['text'];
     $booking->statuschangetext = $booking->statuschangetext['text'];
     $booking->deletedtext = $booking->deletedtext['text'];
+    $booking->bookingchangedtext = $booking->bookingchangedtext['text'];
     $booking->pollurltext = $booking->pollurltext['text'];
     $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'];
     $booking->notificationtext = $booking->notificationtext['text'];
@@ -556,6 +557,7 @@ function booking_update_instance($booking) {
     $booking->notifyemail = $booking->notifyemail['text'];
     $booking->statuschangetext = $booking->statuschangetext['text'];
     $booking->deletedtext = $booking->deletedtext['text'];
+    $booking->bookingchangedtext = $booking->bookingchangedtext['text'];
     $booking->pollurltext = $booking->pollurltext['text'];
     $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'];
     $booking->notificationtext = $booking->notificationtext['text'];
@@ -804,20 +806,12 @@ function booking_update_options($optionvalues, $context) {
             $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
             $bo->option->courseid = $option->courseid;
             if ($bo->booking->settings->sendmail) {
-                // TODO: move this to a small helper function called option_has_changed
-                if ($originaloption->coursestarttime != $option->coursestarttime
-                    || $originaloption->courseendtime != $option->courseendtime
-                    || $originaloption->location != $option->location
-                    || $originaloption->institution != $option->institution
-                    || $originaloption->address != $option->address
-                    || $originaloption->description != $option->description) {
+                if (booking_option_has_changed($originaloption, $option)) {
                     $bookinganswers = $bo->get_all_users_booked();
                     if (!empty($bookinganswers)) {
                         foreach ($bookinganswers as $bookinganswer) {
                             $bookeduser = $DB->get_record('user', ['id' => $bookinganswer->userid]);
                             $bo->send_confirm_message($bookeduser, true);
-                            // TODO: instead of a confirm message send an "option changed" message
-                            // TODO: add custom text field for "option changed" message to instance settings
                         }
                     }
                 }
@@ -902,6 +896,24 @@ function booking_update_options($optionvalues, $context) {
 
         return $id;
     }
+}
+
+/**
+ * Helper function to compare two booking options and see if there have been changes
+ * in fields relevant for calendar events or ICAL files.
+ * @param $oldoption stdClass the original booking option object
+ * @param $newoption stdClass the new booking option object
+ * @return bool true if there have been relevant changes, false if not
+ */
+function booking_option_has_changed($oldoption, $newoption) {
+    if ($oldoption->coursestarttime != $newoption->coursestarttime
+        || $oldoption->courseendtime != $newoption->courseendtime
+        || $oldoption->location != $newoption->location
+        || $oldoption->institution != $newoption->institution
+        || $oldoption->address != $newoption->address
+        || $oldoption->description != $newoption->description) {
+        return true;
+    } else return false;
 }
 
 /**

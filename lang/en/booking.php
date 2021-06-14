@@ -297,6 +297,7 @@ $string['userleave'] = 'User has cancelled his/her own booking';
 $string['waitingtext'] = 'Waiting list confirmation';
 $string['statuschangetext'] = 'Status change message';
 $string['deletedtext'] = 'Cancelled booking message';
+$string['bookingchangedtext'] = 'Message to be sent when a booking option changes (will only be sent to users who have already booked).';
 $string['comments'] = 'Comments';
 $string['nocomments'] = 'Commenting disabled';
 $string['allcomments'] = 'Everybody can comment';
@@ -504,6 +505,34 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 </ul>';
 
 $string['deletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{email} - User email</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+<li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
+</ul>';
+
+$string['bookingchangedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
 <li>{status}</li>
 <li>{participant}</li>
@@ -868,10 +897,18 @@ Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 To view all your booked courses click on the following link: {$a->bookinglink}
 The associated course can be found here: {$a->courselink}
 ';
+
 $string['deletedbookingusersubject'] = 'Booking for {$a->title} cancelled';
 $string['deletedbookingusermessage'] = 'Hello {$a->participant},
 
 Your booking for {$a->title} ({$a->startdate} {$a->starttime}) has been cancelled.
+';
+
+$string['bookingchangedsubject'] = 'Change notification for {$a->title}';
+$string['bookingchangedmessage'] = 'There have been changes to your booking for {$a->title}.
+Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+
+To view the change(s) and all your booked courses click on the following link: {$a->bookinglink}
 ';
 
 $string['error:failedtosendconfirmation'] = 'The following user did not receive a confirmation mail

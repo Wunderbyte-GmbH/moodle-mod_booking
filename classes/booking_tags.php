@@ -33,7 +33,7 @@ class booking_tags {
             'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext');
 
     public $bookingchangetext = array('name', 'intro', 'bookingpolicy', 'bookedtext', 'notifyemail',
-            'waitingtext', 'statuschangetext', 'deletedtext', 'duration', 'organizatorname',
+            'waitingtext', 'statuschangetext', 'deletedtext', 'bookingchangedtext', 'duration', 'organizatorname',
             'pollurltext', 'eventtype', 'notificationtext', 'userleave', 'pollurlteacherstext',
             'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext');
 

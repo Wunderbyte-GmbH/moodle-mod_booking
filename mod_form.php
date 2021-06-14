@@ -315,6 +315,16 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('deletedtext', $default);
         $mform->addHelpButton('deletedtext', 'deletedtext', 'mod_booking');
 
+        // Message to be sent when fields relevant for a booking option calendar entry (or ical) change.
+        $mform->addElement('editor', 'bookingchangedtext', get_string('bookingchangedtext', 'booking'), null,
+            $editoroptions);
+        $default = array(
+            'text' => get_string('bookingchangedmessage', 'mod_booking', $fieldmapping),
+            'format' => FORMAT_HTML);
+        $default['text'] = str_replace("\n", '<br/>', $default['text']);
+        $mform->setDefault('bookingchangedtext', $default);
+        $mform->addHelpButton('bookingchangedtext', 'bookingchangedtext', 'mod_booking');
+
         $mform->addElement('editor', 'pollurltext', get_string('pollurltext', 'booking'), null,
                 $editoroptions);
         $default = array('text' => get_string('pollurltextmessage', 'mod_booking', $fieldmapping),

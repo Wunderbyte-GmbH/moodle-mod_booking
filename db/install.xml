@@ -25,6 +25,7 @@
         <FIELD NAME="waitingtext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a booking has been added to the waiting list"/>
         <FIELD NAME="statuschangetext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a booking status has changed"/>
         <FIELD NAME="deletedtext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The content of the email to send to the users when a booking has been cancelled"/>
+        <FIELD NAME="bookingchangedtext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Message text to be sent to booked users when a booking option (or session) has been changed."/>
         <FIELD NAME="maxperuser" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Maximum number of bookings that each user can make (reset when an event passes)"/>
         <FIELD NAME="sendmailtobooker" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Send mails to booker instead to booked users"/>
         <FIELD NAME="duration" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Duration - info field."/>

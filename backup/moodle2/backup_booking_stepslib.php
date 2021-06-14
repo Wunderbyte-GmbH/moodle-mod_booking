@@ -39,7 +39,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                 array('course', 'name', 'intro', 'introformat', 'bookingmanager', 'sendmail',
                     'copymail', 'allowupdate', 'bookingpolicy', 'bookingpolicyformat', 'timeopen',
                     'timeclose', 'timemodified',
-                    'autoenrol', 'bookedtext', 'waitingtext', 'statuschangetext', 'deletedtext',
+                    'autoenrol', 'bookedtext', 'waitingtext', 'statuschangetext', 'deletedtext', 'bookingchangedtext',
                     'maxperuser', 'sendmailtobooker', 'duration', 'points', 'organizatorname',
                     'pollurl', 'addtogroup', 'categoryid', 'pollurltext', 'eventtype',
                     'notificationtext', 'userleave', 'enablecompletion', 'pollurlteachers',

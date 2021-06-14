@@ -1046,7 +1046,19 @@ class booking_option {
 
         $cansend = true;
 
-        if ($data->status == get_string('booked', 'booking')) {
+        if ($optionchanged) {
+            // When there have been changes relevant to the calendar (or ical) entry, then inform the booked users.
+            $subject = get_string('bookingchangedsubject', 'booking', $data);
+            $message = booking_get_email_body($this->booking->settings, 'bookingchangedtext', 'bookingchangedmessage',
+                $data);
+
+            // Generate ical attachments to go with the message.
+            // Check if ical attachments enabled.
+            if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
+                $ical = new ical($this->booking->settings, $this->option, $user, $bookingmanager);
+                $attachments = $ical->get_attachments();
+            }
+        } else if ($data->status == get_string('booked', 'booking')) {
             $subject = get_string('confirmationsubject', 'booking', $data);
             $subjectmanager = get_string('confirmationsubjectbookingmanager', 'booking', $data);
             $message = booking_get_email_body($this->booking->settings, 'bookedtext', 'confirmationmessage',
@@ -1095,7 +1107,10 @@ class booking_option {
             \core\task\manager::queue_adhoc_task($sendtask);
         }
 
-        if ($this->booking->settings->copymail) {
+        // If the setting to send a copy to the booking manger has been enabled,
+        // then also send a copy to the booking manager.
+        // Do not send copies of change notifications to booking managers.
+        if ($this->booking->settings->copymail && !$optionchanged) {
             $messagedata->userto = $bookingmanager;
             $messagedata->subject = $subjectmanager;
 

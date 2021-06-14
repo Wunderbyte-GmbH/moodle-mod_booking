@@ -2109,5 +2109,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2021052700, 'booking');
     }
 
+    if ($oldversion < 2021061400) {
+
+        // Define field bookingchangedtext to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('bookingchangedtext', XMLDB_TYPE_TEXT, null, null, null, null, null, 'deletedtext');
+
+        // Conditionally launch add field bookingchangedtext.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2021061400, 'booking');
+    }
+
     return true;
 }
