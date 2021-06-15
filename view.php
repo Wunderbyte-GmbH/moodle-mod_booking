@@ -522,7 +522,11 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         echo html_writer::tag('form', html_writer::table($table));
 
         $optionsfields = explode(',', $booking->settings->optionsfields);
-        $optionsfields[] = 'availableplaces';
+
+        // Changes for bipedu only, Availalbeplaces at the start
+        // $optionsfields[] = 'availableplaces';
+        $optionsfields = array_merge(['availableplaces'], $optionsfields);
+
 
         foreach ($optionsfields as $value) {
             switch ($value) {
