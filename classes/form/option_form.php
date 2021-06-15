@@ -111,6 +111,7 @@ class option_form extends moodleform {
         $sql = 'SELECT DISTINCT location FROM {booking_options} ORDER BY location';
         $locationarray = $DB->get_fieldset_sql($sql);
 
+        $locationstrings = array();
         foreach ($locationarray as $item) {
             $locationstrings[$item] = $item;
         }
@@ -130,6 +131,7 @@ class option_form extends moodleform {
         $sql = 'SELECT DISTINCT institution FROM {booking_options} ORDER BY institution';
         $institutionarray = $DB->get_fieldset_sql($sql);
 
+        $institutionstrings = array();
         foreach ($institutionarray as $item) {
             $institutionstrings[$item] = $item;
         }
