@@ -125,7 +125,9 @@ if ($mform->is_cancelled()) {
             $customfield->optionid = $optionid;
             $customfield->optiondateid = $optiondate->id;
             $customfield->cfgname = $data->{$customfieldnamex};
-            $customfield->value = $data->{$customfieldvaluex};
+            if (isset($data->{$customfieldvaluex})) {
+                $customfield->value = $data->{$customfieldvaluex}['text']; // Access Text-Element of editor array
+            } else $customfield->value = '';
 
             // If it is a newly added custom field then insert it into DB.
             if ($data->{$customfieldidx} == 0) {
@@ -166,7 +168,7 @@ if ($mform->is_cancelled()) {
                     $customfield->optionid = $optionid;
                     $customfield->optiondateid = $optiondateid;
                     $customfield->cfgname = $data->{$customfieldnamex};
-                    $customfield->value = $data->{$customfieldvaluex};
+                    $customfield->value = $data->{$customfieldvaluex}['text'];
                     $DB->insert_record("booking_customfields", $customfield);
                 }
             }

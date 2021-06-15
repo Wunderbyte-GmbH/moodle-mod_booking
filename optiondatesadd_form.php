@@ -81,9 +81,19 @@ class optiondatesadd_form extends moodleform {
                 $mform->setType('customfieldname' . $j, PARAM_TEXT);
                 $mform->setDefault('customfieldname' . $j, $customfield->cfgname);
 
-                $mform->addElement('textarea', 'customfieldvalue' . $j, get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
+                // Workaround: hideIf does not work with element "editor", so we'll use a group with just one element (the editor) inside.
+                $editoroptions = array('subdirs' => false, 'maxfiles' => 0, 'maxbytes' => 0,
+                    'trusttext' => false, 'context' => context_system::instance());
+                $customfieldvalueeditor = $mform->createElement('editor', 'customfieldvalue' . $j,
+                    get_string('customfieldvalue', 'booking'), $editoroptions);
+                $customfieldvalueeditor->setValue(array('text' => $customfield->value, 'format' => FORMAT_HTML));
+
+                unset($customfieldarray);
+                $customfieldarray = array();
+                array_push($customfieldarray, $customfieldvalueeditor);
                 $mform->setType('customfieldvalue' . $j, PARAM_RAW);
-                $mform->setDefault('customfieldvalue' . $j, $customfield->value);
+                $mform->addGroup($customfieldarray, 'customfieldgroup' . $j, '', array(' '), false);
+                $mform->hideIf('customfieldgroup' . $j, 'addcustomfield' . $j, 'notchecked');
 
                 $mform->addElement('checkbox', 'deletecustomfield' . $j, get_string('deletecustomfield', 'booking'));
                 $mform->setDefault('deletecustomfield' . $j, 0);
@@ -119,10 +129,20 @@ class optiondatesadd_form extends moodleform {
             $mform->setDefault('customfieldname' . $counter, '');
             $mform->hideIf('customfieldname' . $counter, 'addcustomfield' . $counter, 'notchecked');
 
-            $mform->addElement('textarea', 'customfieldvalue' . $counter, get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
+            // Workaround: hideIf does not work with element "editor", so we'll use a group with just one element (the editor) inside.
+            $editoroptions = array('subdirs' => false, 'maxfiles' => 0, 'maxbytes' => 0,
+                'trusttext' => false, 'context' => context_system::instance());
+            $customfieldvalueeditor = $mform->createElement('editor', 'customfieldvalue' . $counter,
+                                                                get_string('customfieldvalue', 'booking'), $editoroptions);
+            $customfieldvalueeditor->setValue(array('text' => '', 'format' => FORMAT_HTML));
+
+            unset($customfieldarray);
+            $customfieldarray = array();
+            array_push($customfieldarray, $customfieldvalueeditor);
             $mform->setType('customfieldvalue' . $counter, PARAM_RAW);
-            $mform->setDefault('customfieldvalue' . $counter, '');
-            $mform->hideIf('customfieldvalue' . $counter, 'addcustomfield' . $counter, 'notchecked');
+            //$mform->setDefault('customfieldvalue' . $counter, '');
+            $mform->addGroup($customfieldarray, 'customfieldgroup' . $counter, '', array(' '), false);
+            $mform->hideIf('customfieldgroup' . $counter, 'addcustomfield' . $counter, 'notchecked');
 
             // Set delete parameter to 0 for newly created fields, so they won't be deleted.
             $mform->addElement('hidden', 'deletecustomfield' . $counter, 0);
@@ -156,7 +176,7 @@ class optiondatesadd_form extends moodleform {
         // Validate custom fields.
         for ($i = 1; $i <= MAX_CUSTOM_FIELDS; $i++) {
             $customfieldnamex = $data['customfieldname' . $i];
-            $customfieldvaluex = $data['customfieldvalue' . $i];
+            if (isset($data['customfieldvalue' . $i])) $customfieldvaluex = $data['customfieldvalue' . $i]['text'];
             // The field name is not allowed to be empty if there is a value.
             if (empty($customfieldnamex) && !empty($customfieldvaluex)) {
                 $errors['customfieldname' . $i] = get_string('erroremptycustomfieldname', 'booking');
