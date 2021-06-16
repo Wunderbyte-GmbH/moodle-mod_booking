@@ -907,10 +907,16 @@ $string['signincustfields'] = 'Anzuzeigende Profilfelder';
 $string['signincustfields_desc'] = 'Wählen Sie die Profilfelder, die auf der Unterschriftenliste abgedruckt werden sollen';
 $string['showcustomfields'] = 'Anzuzeigende benutzerdefnierte Buchungsoptionsfelder';
 $string['showcustomfields_desc'] = 'Wählen Sie die benutzerdefinierte Buchungsoptionfelder, die auf der Unterschriftenliste abgedruckt werden sollen';
+
 $string['showdescriptionmode'] = 'Wie sollen Beschreibungen angezeigt werden?';
 $string['showdescriptionmode_help'] = 'Sie können wählen, ob Beschreibungen erst durch Klick auf einen kleinen Info-Link oder direkt in der Tabelle angezeigt werden sollen.';
 $string['showdescriptioninline'] = 'Vollständige Beschreibungen direkt in der Tabelle';
 $string['showdescriptionmodal'] = 'Info-Links anzeigen (Standard)';
+
+$string['showlistoncoursepagelbl'] = 'Liste mit verfügbaren Buchungsoptionen auf Kursseite anzeigen';
+$string['showlistoncoursepagelbl_help'] = 'Wenn Sie diese Einstellung aktivieren, wird eine Liste mit allen verfügbaren Buchungsoptionen direkt auf der Kursseite unter dem Link der Buchungsinstanz angezeigt.';
+$string['showlistoncoursepage'] = 'Ja, Liste auf Kursseite anzeigen (Standard)';
+$string['hidelistoncoursepage'] = 'Nein, Liste nicht auf Kursseite anzeigen';
 
 $string['signinextracols_heading'] = 'Zusätzliche Spalten auf der Unterschriftenliste';
 $string['signinextracols'] = 'Extra Spalte auf der Unterschriftenliste';

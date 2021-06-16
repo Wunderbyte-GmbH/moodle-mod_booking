@@ -2651,22 +2651,24 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
 
 
 /**
- * This will the options list on the coursepage
+ * This will create the options list on the coursepage.
  *
  * @param cm_info $cm
  * @return void
  */
 function mod_booking_cm_info_view(cm_info $cm) {
     global $PAGE;
-
-    $html = '';
-
-    $data = new \mod_booking\output\coursepage_available_options($cm);
-    $output = $PAGE->get_renderer('mod_booking');
-    $html .= $output->render_coursepage_available_options($data);
-
-
-    if ($html !== '') {
-        $cm->set_content($html);
+    $booking = new mod_booking\booking($cm->id);
+    if (!empty($booking)) {
+        // Only show options list on course page if setting 'showlistoncoursepage' is activated.
+        if (isset($booking->settings->showlistoncoursepage) && $booking->settings->showlistoncoursepage == 1) {
+            $html = '';
+            $data = new \mod_booking\output\coursepage_available_options($cm);
+            $output = $PAGE->get_renderer('mod_booking');
+            $html .= $output->render_coursepage_available_options($data);
+            if ($html !== '') {
+                $cm->set_content($html);
+            }
+        }
     }
 }

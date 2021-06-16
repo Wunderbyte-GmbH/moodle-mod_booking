@@ -213,6 +213,15 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('showdescriptionmode', 'showdescriptionmode', 'booking');
         $mform->setType('showdescriptionmode', PARAM_INT);
 
+        // Choose if a list of available options should be shown right on the course page.
+        $listoncoursepageoptions = array();
+        $listoncoursepageoptions[0] = get_string('hidelistoncoursepage', 'booking');
+        $listoncoursepageoptions[1] = get_string('showlistoncoursepage', 'booking');
+        $mform->addElement('select', 'showlistoncoursepage', get_string('showlistoncoursepagelbl', 'booking'), $listoncoursepageoptions);
+        $mform->setDefault('showlistoncoursepage', 1); // List on course page is activated by default.
+        $mform->addHelpButton('showlistoncoursepage', 'showlistoncoursepagelbl', 'booking');
+        $mform->setType('showlistoncoursepage', PARAM_INT);
+
         // Confirmation message.
         $mform->addElement('header', 'confirmation',
                 get_string('confirmationmessagesettings', 'booking'));
