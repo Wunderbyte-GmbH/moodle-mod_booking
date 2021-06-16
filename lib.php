@@ -803,7 +803,7 @@ function booking_update_options($optionvalues, $context) {
             }
 
             // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
-            if (booking_option_has_changed($originaloption, $option)) {
+            if (booking_option_has_relevant_changes($originaloption, $option)) {
                 $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
                 $bo->option->courseid = $option->courseid;
                 if ($bo->booking->settings->sendmail) {
@@ -906,8 +906,9 @@ function booking_update_options($optionvalues, $context) {
  * @param $newoption stdClass the new booking option object
  * @return bool true if there have been relevant changes, false if not
  */
-function booking_option_has_changed($oldoption, $newoption) {
-    if ($oldoption->coursestarttime != $newoption->coursestarttime
+function booking_option_has_relevant_changes($oldoption, $newoption) {
+    if ($oldoption->text != $newoption->text
+        || $oldoption->coursestarttime != $newoption->coursestarttime
         || $oldoption->courseendtime != $newoption->courseendtime
         || $oldoption->location != $newoption->location
         || $oldoption->institution != $newoption->institution
