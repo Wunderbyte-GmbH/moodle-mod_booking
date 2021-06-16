@@ -1241,3 +1241,8 @@ $string['enable'] = 'Enable';
 $string['customprofilefield'] = 'Custom profile field to check';
 $string['customprofilefieldvalue'] = 'Custom profile field value to check';
 $string['optiontemplate'] = 'Option template';
+
+// link.php
+$string['bookingnotopenyet'] = 'Your event starts in {$a} minutes. The link you used will redirect you if you click it again within 15 minutes before.';
+$string['bookingpassed'] = 'Your event has endeded {$a} minutes ago.';
+$string['linknotvalid'] = 'The link seems to be broken.';

@@ -29,6 +29,17 @@ use stdClass;
  */
 class booking_utils {
 
+    /**
+     * @var int|null
+     */
+    public $minutestostart = null;
+
+    /**
+     * @var int|null
+     */
+    public $minutespassed = null;
+
+
     public function get_pretty_duration($seconds) {
         return $this->pretty_duration($seconds);
     }
@@ -53,7 +64,7 @@ class booking_utils {
      * @return stdClass data to be sent via mail
      */
     public function generate_params(stdClass $booking, stdClass $option = null) {
-        global $DB;
+        global $DB, $CFG;
 
         $params = new stdClass();
 
@@ -174,7 +185,7 @@ class booking_utils {
      * @throws \moodle_exception
      */
     public function return_button_based_on_record($booking, $context, $values, $coursepage = false) {
-        global $OUTPUT, $USER, $baseurl;
+        global $OUTPUT, $USER, $CFG;
 
         $delete = '';
         $availabibility = '';
@@ -182,6 +193,8 @@ class booking_utils {
         $booked = '';
         $manage = '';
         $inpast = $values->courseendtime && ($values->courseendtime < time());
+
+        $baseurl = $CFG->wwwroot;
 
         $underlimit = ($values->maxperuser == 0);
         $underlimit = $underlimit || ($values->bookinggetuserbookingcount < $values->maxperuser);
@@ -209,8 +222,7 @@ class booking_utils {
                             'optionid' => $values->id, 'sesskey' => $USER->sesskey);
                     $buttonmethod = 'get';
                 }
-
-                $url = new moodle_url($baseurl . 'mod/booking/view.php', $buttonoptions);
+                $url = new moodle_url($baseurl . '/mod/booking/view.php', $buttonoptions);
                 $delete = $OUTPUT->single_button($url,
                         (empty($values->btncancelname) ? get_string('cancelbooking', 'booking') : $values->btncancelname),
                         $buttonmethod);
@@ -333,4 +345,59 @@ class booking_utils {
                     "</div><div>" . get_string("waitingplacesavailable", "booking", $places) . "</div>" . $manage;
         }
     }
+
+    /**
+     * Function to return false if user has not yet the right to access conference
+     * Returns the link if the user has the right
+     * time before course start is hardcoded to 15 minutes
+     *
+     * @param $cmid
+     * @param $optionid
+     * @param $userid
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public function show_conference_link($cmid, $optionid, $userid) {
+
+        global $DB;
+
+        $context = \context_module::instance($cmid);
+
+        // Check if all the parameters are real.
+        if (!$booking = new booking($cmid)
+            || !$bookingoption = new booking_option($cmid, $optionid)) {
+            return false;
+        } else {
+
+            //$users = user_get_users_by_id([$userid]);
+            //$user = reset($users);
+
+            if (!$DB->record_exists('booking_answers', array('optionid' => $optionid, 'userid' => $userid))) {
+                return false;
+            }
+
+            $now = date();
+            $openingtime = strtotime("+15 minutes", $now);
+
+            // If now plus 15 minutes is smaller than coursestarttime, we return the link.
+            if ($bookingoption->coursestartime < $openingtime
+                && $bookingoption->courseendtime > $now) {
+                return true;
+            } else {
+
+                // If we return false here, we first have to calculate minutestostart
+                $delta = $bookingoption->coursestarttime - $now;
+
+                if ($delta < 0) {
+                    $this->minutespassed = - $delta / 60;
+                } else {
+                    $this->minutestostart = $delta / 60;
+                }
+
+                return false;
+            }
+        }
+    }
+
+
 }
