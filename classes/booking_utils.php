@@ -357,47 +357,107 @@ class booking_utils {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function show_conference_link($cmid, $optionid, $userid) {
+    public function show_conference_link($bookingoption, $userid, $sessionid = null) {
 
         global $DB;
 
-        $context = \context_module::instance($cmid);
-
-        // Check if all the parameters are real.
-        if (!$booking = new booking($cmid)
-            || !$bookingoption = new booking_option($cmid, $optionid)) {
+        if (!$DB->record_exists('booking_answers', array('optionid' => $bookingoption->optionid,
+                                                                'userid' => $userid,
+                                                                'waitinglist' => 0))) {
             return false;
+        }
+        $now = time();
+        $openingtime = strtotime("+15 minutes", $now);
+
+        if (!$sessionid) {
+            $start = $bookingoption->option->coursestarttime;
+            $end = $bookingoption->option->courseendtime;
         } else {
+            $start = $bookingoption->sessions[$sessionid]->coursestarttime;
+            $end = $bookingoption->sessions[$sessionid]->courseendtime;
+        }
 
-            //$users = user_get_users_by_id([$userid]);
-            //$user = reset($users);
+        // If now plus 15 minutes is smaller than coursestarttime, we return the link.
+        if ($start < $openingtime
+            && $end > $now) {
+            return true;
+        } else {
+            // If we return false here, we first have to calculate minutestostart
+            $delta = $start - $now;
 
-            if (!$DB->record_exists('booking_answers', array('optionid' => $optionid, 'userid' => $userid))) {
-                return false;
-            }
-
-            $now = date();
-            $openingtime = strtotime("+15 minutes", $now);
-
-            // If now plus 15 minutes is smaller than coursestarttime, we return the link.
-            if ($bookingoption->coursestartime < $openingtime
-                && $bookingoption->courseendtime > $now) {
-                return true;
+            if ($delta < 0) {
+                $this->minutespassed = - $delta / 60;
             } else {
-
-                // If we return false here, we first have to calculate minutestostart
-                $delta = $bookingoption->coursestarttime - $now;
-
-                if ($delta < 0) {
-                    $this->minutespassed = - $delta / 60;
-                } else {
-                    $this->minutestostart = $delta / 60;
-                }
-
-                return false;
+                $this->minutestostart = $delta / 60;
             }
+            return false;
         }
     }
 
+    /**
+     * Function to determine the way start and end date are displayed on course page
+     * Also, if there are no dates set, we return an empty string
+     * @param $optiondate
+     * @return string
+     */
+    public function return_string_from_dates($start, $end) {
+
+        // If start is 0, we return no dates
+        if ($start == 0 || $end == 0) {
+            return '';
+        }
+        $starttime = userdate($start, get_string('strftimedatetime'));
+        $endtime = userdate($end, get_string('strftimetime'));
+
+        return "$starttime - $endtime";
+    }
+
+    /**
+     * Helperfunction to return array with name - value items for mustache templates
+     * $fields must be records from booking_customfields
+     * @param $fields
+     * @return array
+     */
+    public function return_array_of_customfields($bookingoption, $fields, $sessionid = 0) {
+        $returnarray = [];
+        foreach ($fields as $field) {
+            $returnarray[] = $this->render_customfield_data($bookingoption, $field, $sessionid);
+        }
+        return $returnarray;
+    }
+
+    /** This function is meant to return the right name and value array for custom fields.
+     * This is the place to return buttons etc. for special name, keys, like teams-meeting or zoom meeting.
+     * @param $field
+     */
+    private function render_customfield_data($bookingoption, $field, $sessionid = 0) {
+
+        global $USER;
+
+        switch ($field->cfgname) {
+            case 'Teamsmeeting':
+                // If the session is not yet about to begin, we show placeholder
+                if (!$this->show_conference_link($bookingoption, $USER->id, $sessionid)) {
+                    return get_string('linknotavailableyet', 'mod_booking');
+                }
+                return [
+                        'name' => null,
+                        'value' => "<a href=$field->value class='btn btn-info'>$field->cfgname</a>"
+                ];
+            case 'Zoommeeting':
+                // If the session is not yet about to begin, we show placeholder
+                if (!$this->show_conference_link($bookingoption, $USER->id, $sessionid)) {
+                    return get_string('linknotavailableyet', 'mod_booking');
+                }
+                return [
+                        'name' => null,
+                        'value' => '<a href="' . $field->value . '" class="btn btn-warning">' . $field->cfgname . '</a>'
+                ];
+        }
+        return [
+                'name' => "$field->cfgname: ",
+                'value' => $field->value
+        ];
+    }
 
 }

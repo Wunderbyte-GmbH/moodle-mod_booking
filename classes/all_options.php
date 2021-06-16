@@ -273,6 +273,16 @@ class all_options extends table_sql {
     }
 
     protected function col_text($values) {
+
+        global $PAGE;
+
+        $data = new \mod_booking\output\bookingoption_description($this->booking, $values);
+        $output = $PAGE->get_renderer('mod_booking');
+        // We can go with the data from bookingoption_description directly to modal.
+        return $output->render_modal_info($data);
+
+
+        // All beneath is legacy.
         global $DB;
 
         // Get description mode (modal or inline) from instance settings.

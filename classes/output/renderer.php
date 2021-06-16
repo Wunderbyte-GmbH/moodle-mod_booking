@@ -332,7 +332,7 @@ class renderer extends plugin_renderer_base {
 
 
     /** function to print user picture plus text as html
-     * @param $userid
+     * @param $data
      */
     public function render_business_card(mod_booking\output\business_card $data) {
         $o = '';
@@ -341,6 +341,28 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /** function to print user picture plus text as html
+     * @param $data
+     */
+    public function render_bookingoption_description(mod_booking\output\bookingoption_description $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/bookingoption_description', $data);
+        return $o;
+    }
+
+    /** function to render bookingoption_description in template.
+     * This is actually nearly the same database as for bookingoption_description, only wrapped in a modal.
+     */
+    public function render_modal_info(mod_booking\output\bookingoption_description $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $data['modaltitle'] = $data['title'];
+        unset($data['title']);
+        $o .= $this->render_from_template('mod_booking/info_modal', $data);
+        return $o;
+    }
+    
 
    /**
     * @return string

@@ -37,7 +37,11 @@ if ($action !== 'join') {
 
 $bu = new \mod_booking\booking_utils();
 
-if ($link = $bu->show_conference_link($cm->id, $optionid, $userid)) {
+if (!$bookingoption = new \mod_booking\booking_option($cm->id, $optionid)) {
+    die();
+}
+
+if ($link = $bu->show_conference_link($$bookingoption, $userid)) {
     header("Location: https://www.wunderbyte.at");
     exit();
 } else {

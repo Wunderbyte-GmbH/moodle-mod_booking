@@ -46,6 +46,9 @@ class coursepage_available_options implements renderable, templatable {
     /** @var array */
     public $bookingoptions = [];
 
+    /** @var null booking_utils instance*/
+    public $bu = null;
+
     /**
      * Constructor to prepare the data for courspage booking options list
      *
@@ -56,6 +59,7 @@ class coursepage_available_options implements renderable, templatable {
         global $DB, $USER, $CFG;
 
         $booking = new booking($cm->id);
+        $this->bu = new booking_utils();
         $bookingid = $booking->id;
         $fields = "SELECT DISTINCT bo.id,
                          bo.text,
@@ -183,14 +187,14 @@ class coursepage_available_options implements renderable, templatable {
             // First we look if there are sessions for this option id
             foreach ($sessions as $session) {
                 if ($session->optionid == $record->id) {
-                    $datestring = self::return_string_from_dates($session->coursestarttime, $session->courseendtime);
+                    $datestring = $this->bu->return_string_from_dates($session->coursestarttime, $session->courseendtime);
                     $dates[] = ['datestring' => $datestring];
                 }
             }
 
             // If there were no sessions to be found, we take the normal option string
             if (count($dates) == 0) {
-                $datestring = self::return_string_from_dates($record->coursestarttime, $record->courseendtime);
+                $datestring = $this->bu->return_string_from_dates($record->coursestarttime, $record->courseendtime);
                 $dates[] = ['datestring' => $datestring];
             }
 
@@ -221,23 +225,5 @@ class coursepage_available_options implements renderable, templatable {
                 'bookinginstancename' => $this->bookinginstancename,
                 'bookingoptions' => $this->bookingoptions
         );
-    }
-
-    /**
-     * Function to determine the way start and end date are displayed on course page
-     * Also, if there are no dates set, we return an empty string
-     * @param $optiondate
-     * @return string
-     */
-    private static function return_string_from_dates($start, $end) {
-
-        // If start is 0, we return no dates
-        if ($start == 0 || $end == 0) {
-            return '';
-        }
-        $starttime = userdate($start, get_string('strftimedatetime'));
-        $endtime = userdate($end, get_string('strftimetime'));
-
-        return "$starttime - $endtime";
     }
 }

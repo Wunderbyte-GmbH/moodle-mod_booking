@@ -26,14 +26,9 @@ namespace mod_booking\output;
 
 defined('MOODLE_INTERNAL') || die();
 
-use mod_booking\booking_option;use mod_booking\booking_utils;use mod_booking\utils\db;use renderer_base;
+use mod_booking\booking_utils;use mod_booking\utils\db;use renderer_base;
 use renderable;
 use templatable;
-
-const BOOKINGLINKPARAM_NONE = 0;
-const BOOKINGLINKPARAM_BOOK = 1;
-const BOOKINGLINKPARAM_USER = 2;
-const BOOKINGLINKPARAM_ICAL = 3;
 
 
 /**
@@ -43,13 +38,13 @@ const BOOKINGLINKPARAM_ICAL = 3;
  * @copyright 2021 Georg Maißer {@link http://www.wunderbyte.at}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bookingoption_description implements renderable, templatable {
+class info_modal implements renderable, templatable {
 
-    /** @var string $title the title (column text) as it is saved in db */
-    public $title = null;
+    /** @var array from  */
+    public $bookingoption_description = null;
 
     /** @var string $description from DB */
-    public $description = null;
+    public $body = null;
 
     /** @var string $statusdescription depending on booking status */
     public $statusdescription = null;
@@ -81,33 +76,29 @@ class bookingoption_description implements renderable, templatable {
      *
      * @param \stdClass $data
      */
-    public function __construct($booking,
-            $bookingoption,
-            $bookingevent = null,
-            $bookinglinkparam = BOOKINGLINKPARAM_NONE,
-            $withcustomfields = true) {
+    public function __construct($booking, $bookingoption, $bookingevent = null, $bookinglinkparam = BOOKINGLINKPARAM_NONE) {
 
         global $DB, $CFG;
 
         $this->bu = new booking_utils();
-        $bookingoption = new booking_option($booking->cm->id, $bookingoption->id);
 
         // These fields can be gathered directly from DB.
-        $this->title = $bookingoption->option->text;
-        $this->location = $bookingoption->option->location;
-        $this->addresse = $bookingoption->option->address;
-        $this->institution = $bookingoption->option->institution;
-        // $this->duration = $bookingoption->option->duration;
-        $this->description = format_text($bookingoption->option->description, FORMAT_HTML);
+        $this->title = $bookingoption->text;
+        $this->location = $bookingoption->location;
+        $this->addresse = $bookingoption->address;
+        $this->institution = $bookingoption->institution;
+        $this->duration = $bookingoption->duration;
+        $this->description = format_text($bookingoption->description, FORMAT_HTML);
 
         // For these fields we do need some conversion.
         // For Description we need to know the booking status
-        $this->statusdescription = $bookingoption->get_option_text();
+
+        $this->statusdescription = $this->return_status_description($bookingoption);
 
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
 
-        $this->dates = $this->return_array_of_sessions($bookingoption, $bookingevent, $withcustomfields);
+        $this->dates = $this->return_array_of_sessions($bookingoption, $bookingevent);
 
     }
 
@@ -130,47 +121,67 @@ class bookingoption_description implements renderable, templatable {
      * @return array
      * @throws \dml_exception
      */
-    private function  return_array_of_sessions($bookingoption, $bookingevent = null, $withcustomfields = false) {
+    private function return_array_of_sessions($bookingoption, $bookingevent = null, $withcustomfields = false) {
 
         global $DB;
 
         // If we didn't set a $bookingevent (record from booking_optiondates) we retrieve all of them for this option.
         // Else, we only use the transmitted one.
         if (!$bookingevent) {
-            $sessions = $bookingoption->sessions;
+            $sessions = $DB->get_records('booking_optiondates', array('optionid' => $bookingoption->id));
         } else {
             $sessions = [$bookingevent];
         }
         $return = [];
 
         if (count($sessions) > 0) {
+            $customfields = $DB->get_records('booking_customfields', array('optionid' => $bookingoption->id));
             foreach ($sessions as $session) {
 
-
                 // Filter the matchin customfields.
-                $fields = $DB->get_records('booking_customfields', array(
-                        'optionid' => $bookingoption->optionid,
-                        'optiondateid' => $session->id
-                ));
+                $fields = array_filter($customfields, function($x) { $x->optiondateid == $session->id});
 
                 if ($withcustomfields) {
-                    $customfields = $this->bu->return_array_of_customfields($bookingoption, $fields, $session->id);
+                    $customfields = $this->bu->return_array_of_customfields($bookingoption, $fields);
                 } else {
-                    $customfields = [];
+                    $customfields = false;
                 }
 
-                $returnitem[] = [
-                        'datestring' => $this->bu->return_string_from_dates($session->coursestarttime, $session->courseendtime),
-                        'customfields' => $customfields
+                $returnitem = [
+                        'datesstring' => $this->bu->return_string_from_dates($session->coursestarttime, $session->coureendtime),
+                        'costumfields' => $customfields
                 ];
             }
         } else {
-            $returnitem[] = [
-                    'datesstring' => $this->bu->return_string_from_dates(
-                            $bookingoption->option->coursestarttime,
-                            $bookingoption->option->courseendtime)
+            $returnitem = [
+                    'datesstring' => $this->bu->return_string_from_dates($bookingoption->coursestarttime, $bookingoption->coureendtime)
             ];
         }
         return $returnitem;
     }
+
+    private function return_status_description($option) {
+
+        global $DB, $USER;
+
+        $sql = "
+            SELECT bo.id, ba.userid, ba.status, ba.completed, ba.waitinglist
+            FROM {booking_options} bo
+            INNER JOIN {booking_answers} ba
+            ON bo.id = ba.optionid
+            WHERE ba.userid = :userid
+            AND bo.id = :optionid
+        ";
+        $params = ['userid' => $USER->id,
+                'optionid' => $option->id];
+
+        if (!$record = $DB->get_record_sql($sql, $params)) {
+            return $option->beforebookedtext;
+        } else if (!$record->completed) {
+            return $option->beforecompletedtext;
+        } else {
+            return $option->aftercompletedtext;
+        }
+    }
+
 }

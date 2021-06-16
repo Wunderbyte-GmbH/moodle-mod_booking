@@ -1256,3 +1256,6 @@ $string['optiontemplate'] = 'Option template';
 $string['bookingnotopenyet'] = 'Your event starts in {$a} minutes. The link you used will redirect you if you click it again within 15 minutes before.';
 $string['bookingpassed'] = 'Your event has endeded {$a} minutes ago.';
 $string['linknotvalid'] = 'The link seems to be broken.';
+
+// booking_utils.php
+$string['linknotavailableyet'] = "15 minutes before start of the event, a button will be shown here.";
