@@ -223,7 +223,7 @@ class coursepage_available_options implements renderable, templatable {
     private static function return_string_from_dates($start, $end) {
 
         // If start is 0, we return no dates
-        if ($start == 0 || $end = 0) {
+        if ($start == 0 || $end == 0) {
             return '';
         }
         $starttime = userdate($start, get_string('strftimedatetime'));
