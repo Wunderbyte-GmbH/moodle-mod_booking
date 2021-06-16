@@ -41,6 +41,8 @@ class ical {
 
     protected $fromuser;
 
+    protected $updated;
+
     protected $tempfilename = '';
 
     protected $times = '';
@@ -77,13 +79,15 @@ class ical {
      * @param object $booking the booking activity details
      * @param object $option the option that is being booked
      * @param object $user the user the booking is for
+     * @param bool $updated if set to true, this will create an update ical (METHOD: REQUEST, SEQUENCE: 1)
      */
-    public function __construct($booking, $option, $user, $fromuser) {
+    public function __construct($booking, $option, $user, $fromuser, $updated = false) {
         global $DB, $CFG;
 
         $this->booking = $booking;
         $this->option = $option;
         $this->fromuser = $fromuser;
+        $this->updated = $updated;
         $this->times = $DB->get_records('booking_optiondates', array('optionid' => $option->id),
                 'coursestarttime ASC');
         // Check if start and end dates exist.
@@ -141,7 +145,16 @@ class ical {
             $this->role = 'NON-PARTICIPANT';
             $this->status = "\nSTATUS:CANCELLED";
         }
-        $icalmethod = ($cancel) ? 'CANCEL' : 'PUBLISH';
+
+        // Determine the correct iCal method.
+        if ($cancel) {
+            $icalmethod = 'CANCEL';
+        } else if ($this->updated) {
+            $icalmethod = 'REQUEST';
+        } else {
+            $icalmethod = 'PUBLISH';
+        }
+
         if (!empty($this->times) && $this->attachicalsessions) {
             $this->get_vevents_from_optiondates();
         } else if ($this->attachical && $this->option->coursestarttime) {
@@ -244,7 +257,7 @@ class ical {
             "DTSTART:{$dtstart}",
             "LOCATION:{$this->location}",
             "PRIORITY:5",
-            "SEQUENCE:0",
+            //"SEQUENCE:0",
             "SUMMARY:{$this->summary}",
             "TRANSP:OPAQUE{$this->status}",
             "ORGANIZER;CN={$this->fromuser->email}:MAILTO:{$this->fromuser->email}",
@@ -252,6 +265,13 @@ class ical {
             "UID:{$uid}",
             "END:VEVENT"
         );
+
+        // If the event has been updated then add SEQUENCE:1 before END:VEVENT.
+        if ($this->updated) {
+            $endVevent = array_pop($veventparts);
+            array_push($veventparts, "SEQUENCE:1", $endVevent);
+        }
+
         $vevent = implode("\r\n", $veventparts);
         $this->individualvevents[] = $vevent;
     }
