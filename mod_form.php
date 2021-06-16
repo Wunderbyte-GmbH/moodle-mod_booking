@@ -204,10 +204,14 @@ class mod_booking_mod_form extends moodleform_mod {
             $alloptiontemplates);
         $mform->setDefault('templateid', 0);
 
-        // TODO: Show complete booking options decriptions or show/hide link to load dynamically.
-        // TODO: $mform->addElement('checkbox', 'showfulldescription', get_string('showfulldescription', 'booking'));
-        // TODO: $mform->setDefault('showfulldescription', 1);
-        // TODO: $mform->addHelpButton('showfulldescription', 'showfulldescription', 'booking');
+        // Options to show booking descriptions (inline or via modal info links).
+        $descriptionmodes = array();
+        $descriptionmodes[0] = get_string('showdescriptionmodal', 'booking');
+        $descriptionmodes[1] = get_string('showdescriptioninline', 'booking');
+        $mform->addElement('select', 'showdescriptionmode', get_string('showdescriptionmode', 'booking'), $descriptionmodes);
+        $mform->setDefault('showdescriptionmode', 0); // Modal view is default.
+        $mform->addHelpButton('showdescriptionmode', 'showdescriptionmode', 'booking');
+        $mform->setType('showdescriptionmode', PARAM_INT);
 
         // Confirmation message.
         $mform->addElement('header', 'confirmation',

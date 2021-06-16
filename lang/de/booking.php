@@ -907,9 +907,11 @@ $string['signincustfields'] = 'Anzuzeigende Profilfelder';
 $string['signincustfields_desc'] = 'Wählen Sie die Profilfelder, die auf der Unterschriftenliste abgedruckt werden sollen';
 $string['showcustomfields'] = 'Anzuzeigende benutzerdefnierte Buchungsoptionsfelder';
 $string['showcustomfields_desc'] = 'Wählen Sie die benutzerdefinierte Buchungsoptionfelder, die auf der Unterschriftenliste abgedruckt werden sollen';
-$string['showfulldescription'] = 'Vollständige Beschreibung von Buchungsoptionen anzeigen.';
-$string['showfulldescription_help'] = 'Wird diese Option deaktiviert, werden die Beschreibungen von Buchungsoptionen standardmäßig ausgeblendet
-                                        und können per Mausklick dynamisch eingeblendet werden.';
+$string['showdescriptionmode'] = 'Wie sollen Beschreibungen angezeigt werden?';
+$string['showdescriptionmode_help'] = 'Sie können wählen, ob Beschreibungen erst durch Klick auf einen kleinen Info-Link oder direkt in der Tabelle angezeigt werden sollen.';
+$string['showdescriptioninline'] = 'Vollständige Beschreibungen direkt in der Tabelle';
+$string['showdescriptionmodal'] = 'Info-Links anzeigen (Standard)';
+
 $string['signinextracols_heading'] = 'Zusätzliche Spalten auf der Unterschriftenliste';
 $string['signinextracols'] = 'Extra Spalte auf der Unterschriftenliste';
 $string['signinextracols_desc'] = 'Sie können bis zu 3 extra Spalten auf der Unterschriftenliste abbilden. Geben Sie den Titel der Spalte ein, oder lassen Sie das Feld leer, um keine extra Spalte anzuzeigen';

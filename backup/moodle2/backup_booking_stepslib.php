@@ -51,8 +51,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'assesstimestart', 'assesstimefinish', 'scale', 'enablepresence',
                     'responsesfields', 'reportfields', 'beforebookedtext', 'beforecompletedtext',
                     'aftercompletedtext', 'signinsheetfields', 'comments', 'ratings', 'removeuseronunenrol',
-                    'teacherroleid', 'allowupdatedays', 'templateid', 'defaultoptionsort', 'showviews', 'customtemplateid',
-                    'autcractive', 'autcrprofile', 'autcrvalue', 'autcrtemplate'));
+                    'teacherroleid', 'allowupdatedays', 'templateid', 'showdescriptionmode', 'defaultoptionsort',
+                    'showviews', 'customtemplateid', 'autcractive', 'autcrprofile', 'autcrvalue', 'autcrtemplate'));
 
         $options = new backup_nested_element('options');
         $option = new backup_nested_element('option', array('id'),

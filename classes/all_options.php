@@ -275,9 +275,8 @@ class all_options extends table_sql {
     protected function col_text($values) {
         global $DB;
 
-        // TODO: Decide whether to implement 'showfulldescription' as booking, option or global pluginconfig setting.
-        // TODO: Right now, it's hardcoded, we will implement this setting later.
-        $showfulldescription = 1;
+        // Get description mode (modal or inline) from instance settings.
+        $showfulldescription = $this->booking->settings->showdescriptionmode;
 
         $output = '';
         $output .= html_writer::tag('h4', format_string($values->text, true, $this->booking->settings->course));
@@ -314,8 +313,27 @@ class all_options extends table_sql {
                 $output .= html_writer::div(format_text($values->description, FORMAT_HTML), 'optiontext',
                     array('style' => '', 'id' => 'optiontextdes' . $values->id));
             } else {
+                // Info links with modal are the default.
+                $output .= '<br><a href="#" data-toggle="modal" data-target="#descriptionModal"><i class="fa fa-info-circle fa-lg"></i></a>
+                            <div class="modal fade" id="descriptionModal" tabindex="-1" role="dialog" aria-labelledby="descriptionModalLabel" aria-hidden="true">
+                              <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="descriptionModalLabel">' . $values->text . '</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                      <span aria-hidden="true">&times;</span>
+                                    </button>
+                                  </div>
+                                  <div class="modal-body">' .
+                                    $values->description .
+                                  '</div>
+                                </div>
+                              </div>
+                            </div>';
+            }
+            //else {
                 // Show the show/hide link (description hidden by default).
-                $showhidetext = '<span id="showtextdes' . $values->id . '" style=' . $th . '>' . get_string(
+                /*$showhidetext = '<span id="showtextdes' . $values->id . '" style=' . $th . '>' . get_string(
                         'showdescription', "mod_booking") . '</span><span id="hidetextdes' . $values->id . '" style=' . $ts . '>' .
                     get_string(
                         'hidedescription', "mod_booking") . '</span>';
@@ -324,7 +342,7 @@ class all_options extends table_sql {
                     $showhidetext . "</a>";
                 $output .= html_writer::div(format_text($values->description, FORMAT_HTML), 'optiontext',
                     array('style' => $style, 'id' => 'optiontextdes' . $values->id));
-            }
+            }*/
         }
 
         $lblteach = $this->booking->settings->lblteachname;
