@@ -231,7 +231,7 @@ if ($mform->is_cancelled()) {
     $table->data = $timestable;
     echo html_writer::table($table);
 
-    $cancel = new moodle_url('report.php', array('id' => $cm->id, 'optionid' => $optionid));
+    $cancel = new moodle_url('view.php', array('id' => $cm->id));
     $defaultvalues = new stdClass();
     if ($edit != '') {
         $defaultvalues = $DB->get_record('booking_optiondates', array('id' => $edit), '*',

@@ -809,6 +809,9 @@ $string['optiontemplatename'] = 'Option template name';
 $string['option_template_not_saved_no_valid_license'] = 'Booking option template could not be saved as template. 
                                                   Upgrade to PRO version to save an unlimited number of templates.';
 
+// Option_form.php.
+$string['submitandgoback'] = 'Save and go back';
+
 // importoptions.php
 $string['csvfile'] = 'CSV file';
 $string['dateerror'] = 'Wrong date in line {$a}: ';

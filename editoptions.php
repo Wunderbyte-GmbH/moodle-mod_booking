@@ -149,8 +149,7 @@ if ($mform->is_cancelled()) {
             $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
             redirect($redirecturl, get_string('changessaved'), 0);
         } else {
-            $redirecturl = new moodle_url('report.php',
-                    array('id' => $cm->id, 'optionid' => $nbooking));
+            $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
             redirect($redirecturl, get_string('changessaved'), 0);
         }
     }

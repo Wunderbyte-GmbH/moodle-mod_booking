@@ -621,6 +621,9 @@ $string['option_template_not_saved_no_valid_license'] = 'Buchungsoption konnte n
                                                   Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen 
                                                   zu können.';
 
+// Option_form.php.
+$string['submitandgoback'] = 'Speichern und zurück';
+
 // Importoptions.php.
 $string['csvfile'] = 'CSV Datei';
 $string['dateerror'] = 'Falsche Datumsangabe in Zeile {$a}: ';
