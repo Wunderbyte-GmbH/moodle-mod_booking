@@ -53,7 +53,7 @@ class coursepage_available_options implements renderable, templatable {
      */
     public function __construct($cm) {
 
-        global $DB, $USER;
+        global $DB, $USER, $CFG;
 
         $booking = new booking($cm->id);
         $bookingid = $booking->id;
@@ -169,6 +169,8 @@ class coursepage_available_options implements renderable, templatable {
         $context = $booking->get_context();
         $utils = new booking_utils();
 
+        $baseurl = $CFG->wwwroot;
+
         // Run through all the bookingoptions for this instance
         foreach ($records as $record) {
 
@@ -194,10 +196,17 @@ class coursepage_available_options implements renderable, templatable {
 
             $button = $utils->return_button_based_on_record($booking, $context, $record, true);
 
+            $urlparams = array('id' => $booking->cm->id, 'action' => 'showonlyone',
+                    'whichview' => 'showonlyone',
+                    'optionid' => $record->id);
+            $url = new \moodle_url($baseurl . '/mod/booking/view.php', $urlparams);
+            $linkonoption = $url->out(false);
+
             $this->bookingoptions[] = [
                     'bookingoptionname' => $record->text,
                     'dates' => $dates,
-                    'button' => $button
+                    'button' => $button,
+                    'linktooption' => $linkonoption
             ];
         }
         $this->bookinginstancename = $booking->settings->name;
