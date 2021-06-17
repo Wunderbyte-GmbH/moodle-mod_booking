@@ -254,7 +254,7 @@ class all_options extends table_sql {
 
             $val .= get_string('leftandrightdate', 'booking', $tmpdate) . '<br>';
 
-            if ($customfields) {
+            if ($customfields && $this->booking->settings->showdescriptionmode == 1) {
                 $val .= $customfieldshtml;
                 $customfieldshtml = ''; // Reset the custom fields HTML now.
             } else {
@@ -276,10 +276,18 @@ class all_options extends table_sql {
 
         global $PAGE;
 
-        $data = new \mod_booking\output\bookingoption_description($this->booking, $values);
-        $output = $PAGE->get_renderer('mod_booking');
-        // We can go with the data from bookingoption_description directly to modal.
-        return $output->render_modal_info($data);
+        if ($this->booking->settings->showdescriptionmode == 0) {
+            $data = new \mod_booking\output\bookingoption_description($this->booking, $values);
+            $output = $PAGE->get_renderer('mod_booking');
+            // We can go with the data from bookingoption_description directly to modal.
+            return $output->render_modal_info($data);
+        } else {
+            $data = new \mod_booking\output\bookingoption_description($this->booking, $values);
+            $output = $PAGE->get_renderer('mod_booking');
+            // We can go with the data from bookingoption_description directly to modal.
+            return $output->render_bookingoption_description($data);
+        }
+
 
 
         // All beneath is legacy.
