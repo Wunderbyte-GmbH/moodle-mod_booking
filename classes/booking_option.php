@@ -1029,7 +1029,7 @@ class booking_option {
      *
      * @param stdClass $user user object
      * @param bool $optionchanged optional param used to inform the user of updates on the option
-     * @param array $arrayofchanges an array containing changes to render in the update message
+     * @param array $changes a string containing changes to be replaced in the update message
      * @return bool
      */
     public function send_confirm_message($user, $optionchanged = false, $changes = '') {
