@@ -1056,7 +1056,7 @@ class booking_option {
             // Generate ical attachments to go with the message.
             // Check if ical attachments enabled.
             if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
-                $ical = new ical($this->booking->settings, $this->option, $user, $bookingmanager);
+                $ical = new ical($this->booking->settings, $this->option, $user, $bookingmanager, true);
                 $attachments = $ical->get_attachments();
             }
         } else if ($data->status == get_string('booked', 'booking')) {
