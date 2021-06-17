@@ -803,25 +803,10 @@ function booking_update_options($optionvalues, $context) {
             }
 
             // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
-            if (booking_option_has_relevant_changes($originaloption, $option)) {
-                $changes = booking_option_get_changes($originaloption, $option);
+            if ($changes = booking_option_get_changes($originaloption, $option)) {
 
-                $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
-                $bo->option->courseid = $option->courseid;
-                if ($bo->booking->settings->sendmail) {
-                    $bookinganswers = $bo->get_all_users_booked();
-                    if (!empty($bookinganswers)) {
-                        foreach ($bookinganswers as $bookinganswer) {
-                            $bookeduser = $DB->get_record('user', ['id' => $bookinganswer->userid]);
-                            $bo->send_confirm_message($bookeduser, true, $changes);
-                        }
-                    }
-                }
-
-                // Also, we need to trigger the bookingoption_updated event, in order to update calendar entries.
-                $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $option->id,
-                    'userid' => $USER->id));
-                $event->trigger();
+               $bu = new \mod_booking\booking_utils();
+               $bu->react_on_changes($context->_instanceid, $bookingoption, $changes);
             }
 
             return $option->id;
@@ -961,9 +946,9 @@ function booking_option_get_changes($oldoption, $newoption) {
             $html .= '<td>' . $value . '</td></tr>';
         }
         $html .= '</table>';
-    }
 
-    return $html;
+        return $html;
+    } else return false;
 }
 
 /**
