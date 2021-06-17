@@ -100,6 +100,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $sql = 'SELECT DISTINCT eventtype FROM {booking} ORDER BY eventtype';
         $eventtypearray = $DB->get_fieldset_sql($sql);
 
+        $eventstrings = [];
         foreach ($eventtypearray as $item) {
             $eventstrings[$item] = $item;
         }

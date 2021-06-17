@@ -1029,9 +1029,10 @@ class booking_option {
      *
      * @param stdClass $user user object
      * @param bool $optionchanged optional param used to inform the user of updates on the option
+     * @param array $arrayofchanges an array containing changes to render in the update message
      * @return bool
      */
-    public function send_confirm_message($user, $optionchanged = false) {
+    public function send_confirm_message($user, $optionchanged = false, $changes = '') {
         global $DB, $USER;
         $cmid = $this->booking->cm->id;
         // Used to store the ical attachment (if required).
@@ -1042,7 +1043,7 @@ class booking_option {
         $bookingmanager = $DB->get_record('user',
                 array('username' => $this->booking->settings->bookingmanager));
         $data = booking_generate_email_params($this->booking->settings, $this->option, $user, $cmid,
-                $this->optiontimes);
+                $this->optiontimes, $changes);
 
         $cansend = true;
 

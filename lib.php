@@ -804,6 +804,8 @@ function booking_update_options($optionvalues, $context) {
 
             // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
             if (booking_option_has_relevant_changes($originaloption, $option)) {
+                $changes = booking_option_get_changes($originaloption, $option);
+
                 $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
                 $bo->option->courseid = $option->courseid;
                 if ($bo->booking->settings->sendmail) {
@@ -811,7 +813,7 @@ function booking_update_options($optionvalues, $context) {
                     if (!empty($bookinganswers)) {
                         foreach ($bookinganswers as $bookinganswer) {
                             $bookeduser = $DB->get_record('user', ['id' => $bookinganswer->userid]);
-                            $bo->send_confirm_message($bookeduser, true);
+                            $bo->send_confirm_message($bookeduser, true, $changes);
                         }
                     }
                 }
@@ -916,6 +918,52 @@ function booking_option_has_relevant_changes($oldoption, $newoption) {
         || $oldoption->description != $newoption->description) {
         return true;
     } else return false;
+}
+
+/**
+ * Helper function to return a string containing all relevant option update changes.
+ * The string will be used to replace the {changes} placeholder in update mails.
+ *
+ * @param $oldoption stdClass the original booking option object
+ * @param $newoption stdClass the new booking option object
+ * @return string a string containing the changes that have been made
+ */
+function booking_option_get_changes($oldoption, $newoption) {
+    $html = '';
+
+    $changesarray = [];
+    if ($oldoption->text != $newoption->text) {
+        $changesarray['bookingoptiontitle'] = $newoption->text;
+    }
+    if ($oldoption->coursestarttime != $newoption->coursestarttime) {
+        $changesarray['coursestarttime'] = userdate($newoption->coursestarttime, get_string('strftimedatetime'));
+    }
+    if ($oldoption->courseendtime != $newoption->courseendtime) {
+        $changesarray['courseendtime'] = userdate($newoption->courseendtime, get_string('strftimedatetime'));
+    }
+    if ($oldoption->location != $newoption->location) {
+        $changesarray['location'] = $newoption->location;
+    }
+    if ($oldoption->institution != $newoption->institution) {
+        $changesarray['institution'] = $newoption->institution;
+    }
+    if ($oldoption->address != $newoption->address) {
+        $changesarray['address'] = $newoption->address;
+    }
+    if ($oldoption->description != $newoption->description) {
+        $changesarray['description'] = $newoption->description;
+    }
+
+    if ($changesarray) {
+        $html .= '<table border="0">';
+        foreach ($changesarray as $key => $value) {
+            $html .= '<tr><td><b>' . get_string($key, 'booking') . ': </b></td>';
+            $html .= '<td>' . $value . '</td></tr>';
+        }
+        $html .= '</table>';
+    }
+
+    return $html;
 }
 
 /**
@@ -2362,7 +2410,8 @@ function booking_pretty_duration($seconds) {
  * @param int $cmid
  * @return stdClass data to be sent via mail
  */
-function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid, $optiontimes = array()) {
+function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid,
+                                       $optiontimes = array(), $changes = '') {
     global $CFG;
 
     $params = new stdClass();
@@ -2435,6 +2484,9 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     }
 
     $params->times = $val;
+
+    // Store changes (if it has been an update).
+    $params->changes = $changes;
 
     return $params;
 }

@@ -105,6 +105,7 @@ $string['advancedoptions'] = 'Erweiterte Einstellungen';
 $string['btnbooknowname'] = 'Bezeichnung des Buttons "Jetzt buchen"';
 $string['btncacname'] = 'Bezeichnung des Buttons "Aktivitätsabschluss bestätigen"';
 $string['btncancelname'] = 'Bezeichnung des Buttons "Buchung stornieren"';
+$string['description'] = 'Beschreibung';
 $string['disablebookingusers'] = 'Buchung von Teilnehmer/innen deaktivieren - "Jetzt buchen" Button unsichtbar schalten.';
 $string['howmanyusers'] = 'Maximale Anzahl an Buchungen, die ein/e der Buchungsoption zugewiesene Lehrer/in vornehmen kann';
 $string['howmanyusers_help'] = '';
@@ -257,7 +258,7 @@ $string['userleave'] = 'Nutzer/in hat Buchung storniert';
 $string['waitingtext'] = 'Wartelistenbestätigung';
 $string['statuschangetext'] = 'Statusänderungsbenachrichtigung';
 $string['deletedtext'] = 'Stornierungsbenachrichtigung';
-$string['bookingchangedtext'] = 'Benachrichtigung bei Änderungen an der Buchung (geht nur an User, die bereits gebucht haben).';
+$string['bookingchangedtext'] = 'Benachrichtigung bei Änderungen an der Buchung (geht nur an User, die bereits gebucht haben). Verwenden Sie den Platzhalter {changes} um die Änderungen anzuzeigen.';
 $string['comments'] = 'Kommentare';
 $string['nocomments'] = 'Kommentare deaktiviert';
 $string['allcomments'] = 'Jede/r kann kommentieren';
@@ -445,6 +446,7 @@ $string['deletedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext 
 
 $string['bookingchangedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
+<li>{changes} - Was hat sich geändert?</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -710,8 +712,10 @@ Die Buchung für {$a->title} wurde erfolgreich storniert
 ';
 
 $string['bookingchangedsubject'] = 'Änderungsbenachrichtigung für {$a->title}';
-$string['bookingchangedmessage'] = 'Es wurden Änderungen an der Buchung zu {$a->title} vorgenommen.
-Datum: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+$string['bookingchangedmessage'] = 'Ihre Buchung "{$a->title}" hat sich geändert.
+
+Das ist neu:
+{changes}
 
 Klicken Sie auf den folgenden Link um die Änderung(en) und eine Übersicht über alle Buchungen zu sehen: {$a->bookinglink}
 ';

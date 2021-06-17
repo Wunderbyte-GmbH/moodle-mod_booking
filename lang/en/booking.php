@@ -125,6 +125,7 @@ $string['btnbooknowname'] = 'Name of button: Book now';
 $string['btncacname'] = 'Name of button: Confirm activity completion';
 $string['btncancelname'] = 'Name of button: Cancel booking';
 $string['courseurl'] = 'Course URL';
+$string['description'] = 'Description';
 $string['disablebookingusers'] = 'Disable booking of users - hide Book now button.';
 $string['howmanyusers'] = 'Max. number of users a teacher assigned to the option can book';
 $string['howmanyusers_help'] = '';
@@ -297,7 +298,7 @@ $string['userleave'] = 'User has cancelled his/her own booking';
 $string['waitingtext'] = 'Waiting list confirmation';
 $string['statuschangetext'] = 'Status change message';
 $string['deletedtext'] = 'Cancelled booking message';
-$string['bookingchangedtext'] = 'Message to be sent when a booking option changes (will only be sent to users who have already booked).';
+$string['bookingchangedtext'] = 'Message to be sent when a booking option changes (will only be sent to users who have already booked). Use the placeholder {changes} to show the changes.';
 $string['comments'] = 'Comments';
 $string['nocomments'] = 'Commenting disabled';
 $string['allcomments'] = 'Everybody can comment';
@@ -534,6 +535,7 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 
 $string['bookingchangedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
+<li>{changes} - What has changed?</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -908,8 +910,10 @@ Your booking for {$a->title} ({$a->startdate} {$a->starttime}) has been cancelle
 ';
 
 $string['bookingchangedsubject'] = 'Change notification for {$a->title}';
-$string['bookingchangedmessage'] = 'There have been changes to your booking for {$a->title}.
-Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+$string['bookingchangedmessage'] = 'Your booking "{$a->title}" has changed.
+
+Here\'s what\'s new:
+{changes}
 
 To view the change(s) and all your booked courses click on the following link: {$a->bookinglink}
 ';
