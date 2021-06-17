@@ -602,7 +602,7 @@ function booking_update_instance($booking) {
  * @return boolean|number optionid
  */
 function booking_update_options($optionvalues, $context) {
-    global $DB, $CFG, $USER;
+    global $DB, $CFG, $PAGE, $USER;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
     require_once("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
     $customfields = \mod_booking\booking_option::get_customfield_settings();
@@ -806,7 +806,7 @@ function booking_update_options($optionvalues, $context) {
             if ($changes = booking_option_get_changes($originaloption, $option)) {
 
                $bu = new \mod_booking\booking_utils();
-               $bu->react_on_changes($context->_instanceid, $bookingoption, $changes);
+               $bu->react_on_changes($PAGE->cm->id, $context, $option, $changes);
             }
 
             return $option->id;

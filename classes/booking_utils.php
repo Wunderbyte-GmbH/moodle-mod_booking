@@ -461,12 +461,13 @@ class booking_utils {
     }
 
     /**
-     * function to define reaction on changes of booking options and its sessions
+     * Function to define reaction on changes of booking options and its sessions.
      * @param $option
      * @param $changes
      * @throws \coding_exception
      */
-    public function react_on_changes($cmid, $option, $changes) {
+    public function react_on_changes($cmid, $context, $option, $changes) {
+        global $DB, $USER;
         $bo = new booking_option($cmid, $option->id);
         // $bo->option->courseid = $option->courseid;
         if ($bo->booking->settings->sendmail) {
@@ -480,9 +481,8 @@ class booking_utils {
         }
 
         // Also, we need to trigger the bookingoption_updated event, in order to update calendar entries.
-        $event = booking_option::create(array('context' => $context, 'objectid' => $option->id,
-                'userid' => $USER->id));
+        $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $option->id,
+            'userid' => $USER->id));
         $event->trigger();
     }
-
 }
