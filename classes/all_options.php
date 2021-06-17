@@ -280,7 +280,7 @@ class all_options extends table_sql {
             $data = new \mod_booking\output\bookingoption_description($this->booking, $values);
             $output = $PAGE->get_renderer('mod_booking');
             // We can go with the data from bookingoption_description directly to modal.
-            return $output->render_modal_info($data);
+            return $output->render_col_text_modal($data);
         } else {
             $data = new \mod_booking\output\bookingoption_description($this->booking, $values);
             $output = $PAGE->get_renderer('mod_booking');

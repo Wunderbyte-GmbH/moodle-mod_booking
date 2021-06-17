@@ -362,6 +362,18 @@ class renderer extends plugin_renderer_base {
         $o .= $this->render_from_template('mod_booking/info_modal', $data);
         return $o;
     }
+
+    /** function to render bookingoption_description in template.
+     * This is actually nearly the same database as for bookingoption_description, only wrapped in a modal.
+     */
+    public function render_col_text_modal(mod_booking\output\bookingoption_description $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $data['modaltitle'] = $data['title'];
+        unset($data['title']);
+        $o .= $this->render_from_template('mod_booking/col_text_modal', $data);
+        return $o;
+    }
     
 
    /**
