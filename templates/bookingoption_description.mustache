@@ -25,10 +25,10 @@
 }}
 
 <h4>{{title}}</h4>
-<div class="bo_address">{{#str}}address, mod_booking{{/str}}:  {{address}}</div>
-<div class="bo_location">{{#str}}location, mod_booking{{/str}}: {{location}}</div>
-<div class="bo_institution">{{#str}}institution, mod_booking{{/str}}: {{institution}}</div>
-<div class="bo_description"><p>{{{description}}}</p></div>
+{{#address}}<div class="bo_address">{{#str}}address, mod_booking{{/str}}:  {{address}}</div>{{/address}}
+{{#location}}<div class="bo_location">{{#str}}location, mod_booking{{/str}}: {{location}}</div>{{/location}}
+{{#institution}}<div class="bo_institution">{{#str}}institution, mod_booking{{/str}}: {{institution}}</div>{{/institution}}
+{{#description}}<div class="bo_description"><p>{{{description}}}</p></div>{{/description}}
 {{#dates}}
     <p>
         <div>
