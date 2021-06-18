@@ -48,6 +48,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $title the title (column text) as it is saved in db */
     public $title = null;
 
+    /** @var int $modalcounter the title (column text) as it is saved in db */
+    public $modalcounter = null;
+
     /** @var string $description from DB */
     public $description = null;
 
@@ -97,6 +100,11 @@ class bookingoption_description implements renderable, templatable {
         $this->location = $bookingoption->option->location;
         $this->addresse = $bookingoption->option->address;
         $this->institution = $bookingoption->option->institution;
+
+        // There can be more than one modal, therefor we use the id of this record
+        $this->modalcounter = $bookingoption->option->id;
+
+        
         // $this->duration = $bookingoption->option->duration;
         $this->description = format_text($bookingoption->option->description, FORMAT_HTML);
 
@@ -114,6 +122,7 @@ class bookingoption_description implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
         return array(
                 'title' => $this->title,
+                'modalcounter' => $this->modalcounter,
                 'description' => $this->description,
                 'statusdescription' => $this->statusdescription,
                 'location' => $this->location,
