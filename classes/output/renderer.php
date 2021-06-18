@@ -386,4 +386,15 @@ class renderer extends plugin_renderer_base {
         $o .= $this->render_from_template('mod_booking/coursepage_available_options', $data);
         return $o;
     }
+
+    /**
+     * @return string
+     * @throws \moodle_exception
+     */
+    public function render_col_coursestarttime($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/col_coursestarttime', $data);
+        return $o;
+    }
 }

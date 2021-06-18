@@ -33,12 +33,14 @@
 {{#dates}}
     <p>
         <div>
-            {{datestring}}
+            {{{datestring}}}
         </div>
+        <div class="list-group">
         {{#customfields}}
-            <div>
+            <div class="list-group-item">
                 {{name}}{{{value}}}
             </div>
         {{/customfields}}
+        <div>
     </p>
 {{/dates}}

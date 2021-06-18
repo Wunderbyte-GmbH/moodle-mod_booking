@@ -406,8 +406,17 @@ class booking_utils {
         if ($start == 0 || $end == 0) {
             return '';
         }
-        $starttime = userdate($start, get_string('strftimedatetime'));
-        $endtime = userdate($end, get_string('strftimetime'));
+
+        $current = userdate($start, get_string('strftimedate'));
+        $previous = userdate($end, get_string('strftimedate'));
+
+        if ($current == $previous) {
+            $starttime = userdate($start, get_string('strftimedaydatetime'));
+            $endtime = userdate($end, get_string('strftimetime'));
+        } else {
+            $starttime = userdate($start, get_string('strftimedaydatetime'));
+            $endtime = '<br>' . userdate($end, get_string('strftimedaydatetime'));
+        }
 
         return "$starttime - $endtime";
     }
@@ -438,7 +447,10 @@ class booking_utils {
             case 'Teamsmeeting':
                 // If the session is not yet about to begin, we show placeholder
                 if (!$this->show_conference_link($bookingoption, $USER->id, $sessionid)) {
-                    return get_string('linknotavailableyet', 'mod_booking');
+                    return [
+                            'name' => null,
+                            'value' => get_string('linknotavailableyet', 'mod_booking')
+                    ];
                 }
                 return [
                         'name' => null,
@@ -447,7 +459,10 @@ class booking_utils {
             case 'Zoommeeting':
                 // If the session is not yet about to begin, we show placeholder
                 if (!$this->show_conference_link($bookingoption, $USER->id, $sessionid)) {
-                    return get_string('linknotavailableyet', 'mod_booking');
+                    return [
+                            'name' => null,
+                            'value' => get_string('linknotavailableyet', 'mod_booking')
+                    ];
                 }
                 return [
                         'name' => null,
@@ -484,5 +499,71 @@ class booking_utils {
         $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $option->id,
             'userid' => $USER->id));
         $event->trigger();
+    }
+
+    /**
+     * Helper function for mustache template to return array with datestring and customfields
+     * @param $bookingoption
+     * @return array
+     * @throws \dml_exception
+     */
+    public function return_array_of_sessions($bookingoption, $bookingevent = null, $withcustomfields = false) {
+
+        global $DB;
+
+        // If we didn't set a $bookingevent (record from booking_optiondates) we retrieve all of them for this option.
+        // Else, we check if there are sessions.
+        // If not, we just use normal coursestart & endtime.
+        if ($bookingevent) {
+            $sessions = [$bookingevent];
+        } else if ($bookingoption->sessions) {
+            $sessions = $bookingoption->sessions;
+        } else {
+
+            $session = new stdClass();
+            $session->id = 1;
+            $session->coursestarttime = $bookingoption->option->coursestarttime;
+            $session->courseendtime = $bookingoption->option->courseendtime;
+            $sessions = [$session];
+        }
+        $returnitem = [];
+
+        if (count($sessions) > 0) {
+            foreach ($sessions as $session) {
+
+                $returnsession = null;
+                // Filter the matchin customfields.
+                $fields = $DB->get_records('booking_customfields', array(
+                        'optionid' => $bookingoption->optionid,
+                        'optiondateid' => $session->id
+                ));
+
+                // We show this only if timevalues are not 0.
+                if ($session->coursestarttime != 0 && $session->courseendtime != 0) {
+                    $returnsession = [
+                            'datestring' => $this->return_string_from_dates($session->coursestarttime, $session->courseendtime)
+                    ];
+                    // customfields can only be displayed in combination with timevalues.
+                    if ($withcustomfields) {
+                        $returnsession = [
+                                'customfields' => $this->return_array_of_customfields($bookingoption, $fields, $session->id)
+                        ];
+                    }
+                }
+                if ($returnsession) {
+                    $returnitem[] = $returnsession;
+                }
+
+            }
+        } else {
+            $returnitem[] = [
+                    'datesstring' => $this->return_string_from_dates(
+                            $bookingoption->option->coursestarttime,
+                            $bookingoption->option->courseendtime)
+            ];
+        }
+
+
+        return $returnitem;
     }
 }

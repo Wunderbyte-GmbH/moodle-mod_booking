@@ -203,6 +203,9 @@ class all_options extends table_sql {
     }
 
     protected function col_coursestarttime($values) {
+
+        global $PAGE;
+
         if ($this->is_downloading()) {
             if ($values->coursestarttime == 0) {
                 return '';
@@ -211,16 +214,11 @@ class all_options extends table_sql {
             }
         }
 
-        if ($values->coursestarttime == 0) {
-            return get_string('datenotset', 'booking');
-        } else {
-            if (!isset($values->timeobjects)) {
-                return userdate($values->coursestarttime) . " -<br>" .
-                    userdate($values->courseendtime);
-            } else {
-                return $this->render_sessions_with_customfields($values);
-            }
-        }
+        // Use the render to output this column
+        $data = new \mod_booking\output\col_coursestarttime($this->booking, $values);
+        $output = $PAGE->get_renderer('mod_booking');
+        // We can go with the data from bookingoption_description directly to modal.
+        return $output->render_col_coursestarttime($data);
     }
 
     /**

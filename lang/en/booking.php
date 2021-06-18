@@ -1262,4 +1262,4 @@ $string['bookingpassed'] = 'Your event has endeded {$a} minutes ago.';
 $string['linknotvalid'] = 'The link seems to be broken.';
 
 // booking_utils.php
-$string['linknotavailableyet'] = "15 minutes before start of the event, a button will be shown here.";
+$string['linknotavailableyet'] = "The link to access the meeting is available only 15 minutes before the start until the end of the session.";

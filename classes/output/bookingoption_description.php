@@ -90,8 +90,6 @@ class bookingoption_description implements renderable, templatable {
             $bookinglinkparam = BOOKINGLINKPARAM_NONE,
             $withcustomfields = true) {
 
-        global $DB, $CFG;
-
         $this->bu = new booking_utils();
         $bookingoption = new booking_option($booking->cm->id, $bookingoption->id);
 
@@ -104,7 +102,7 @@ class bookingoption_description implements renderable, templatable {
         // There can be more than one modal, therefor we use the id of this record
         $this->modalcounter = $bookingoption->option->id;
 
-        
+
         // $this->duration = $bookingoption->option->duration;
         $this->description = format_text($bookingoption->option->description, FORMAT_HTML);
 
@@ -115,7 +113,7 @@ class bookingoption_description implements renderable, templatable {
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
 
-        $this->dates = $this->return_array_of_sessions($bookingoption, $bookingevent, $withcustomfields);
+        $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent, $withcustomfields);
 
     }
 
@@ -131,55 +129,5 @@ class bookingoption_description implements renderable, templatable {
                 'duration' => $this->duration,
                 'dates' => $this->dates
         );
-    }
-
-    /**
-     * Helper function for mustache template to return array with datestring and customfields
-     * @param $bookingoption
-     * @return array
-     * @throws \dml_exception
-     */
-    private function  return_array_of_sessions($bookingoption, $bookingevent = null, $withcustomfields = false) {
-
-        global $DB;
-
-        // If we didn't set a $bookingevent (record from booking_optiondates) we retrieve all of them for this option.
-        // Else, we only use the transmitted one.
-        if (!$bookingevent) {
-            $sessions = $bookingoption->sessions;
-        } else {
-            $sessions = [$bookingevent];
-        }
-        $return = [];
-
-        if (count($sessions) > 0) {
-            foreach ($sessions as $session) {
-
-
-                // Filter the matchin customfields.
-                $fields = $DB->get_records('booking_customfields', array(
-                        'optionid' => $bookingoption->optionid,
-                        'optiondateid' => $session->id
-                ));
-
-                if ($withcustomfields) {
-                    $customfields = $this->bu->return_array_of_customfields($bookingoption, $fields, $session->id);
-                } else {
-                    $customfields = [];
-                }
-
-                $returnitem[] = [
-                        'datestring' => $this->bu->return_string_from_dates($session->coursestarttime, $session->courseendtime),
-                        'customfields' => $customfields
-                ];
-            }
-        } else {
-            $returnitem[] = [
-                    'datesstring' => $this->bu->return_string_from_dates(
-                            $bookingoption->option->coursestarttime,
-                            $bookingoption->option->courseendtime)
-            ];
-        }
-        return $returnitem;
     }
 }
