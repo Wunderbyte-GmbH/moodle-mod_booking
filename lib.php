@@ -803,9 +803,9 @@ function booking_update_options($optionvalues, $context) {
             }
 
             // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
-            if ($changes = booking_option_get_changes($originaloption, $option)) {
+            $bu = new \mod_booking\booking_utils();
+            if ($changes = $bu->booking_option_get_changes($originaloption, $option)) {
 
-               $bu = new \mod_booking\booking_utils();
                $bu->react_on_changes($PAGE->cm->id, $context, $option, $changes);
             }
 
@@ -902,52 +902,6 @@ function booking_option_has_relevant_changes($oldoption, $newoption) {
         || $oldoption->address != $newoption->address
         || $oldoption->description != $newoption->description) {
         return true;
-    } else return false;
-}
-
-/**
- * Helper function to return a string containing all relevant option update changes.
- * The string will be used to replace the {changes} placeholder in update mails.
- *
- * @param $oldoption stdClass the original booking option object
- * @param $newoption stdClass the new booking option object
- * @return string a string containing the changes that have been made
- */
-function booking_option_get_changes($oldoption, $newoption) {
-    $html = '';
-
-    $changesarray = [];
-    if ($oldoption->text != $newoption->text) {
-        $changesarray['bookingoptiontitle'] = $newoption->text;
-    }
-    if ($oldoption->coursestarttime != $newoption->coursestarttime) {
-        $changesarray['coursestarttime'] = userdate($newoption->coursestarttime, get_string('strftimedatetime'));
-    }
-    if ($oldoption->courseendtime != $newoption->courseendtime) {
-        $changesarray['courseendtime'] = userdate($newoption->courseendtime, get_string('strftimedatetime'));
-    }
-    if ($oldoption->location != $newoption->location) {
-        $changesarray['location'] = $newoption->location;
-    }
-    if ($oldoption->institution != $newoption->institution) {
-        $changesarray['institution'] = $newoption->institution;
-    }
-    if ($oldoption->address != $newoption->address) {
-        $changesarray['address'] = $newoption->address;
-    }
-    if ($oldoption->description != $newoption->description) {
-        $changesarray['description'] = $newoption->description;
-    }
-
-    if ($changesarray) {
-        $html .= '<table border="0">';
-        foreach ($changesarray as $key => $value) {
-            $html .= '<tr><td><b>' . get_string($key, 'booking') . ': </b></td>';
-            $html .= '<td>' . $value . '</td></tr>';
-        }
-        $html .= '</table>';
-
-        return $html;
     } else return false;
 }
 

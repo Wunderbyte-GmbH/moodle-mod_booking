@@ -350,10 +350,9 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         }
 
         if (!empty($booking->settings->organizatorname)) {
-
             if ($organizerid = (int)$booking->settings->organizatorname) {
 
-                $data = new \mod_booking\output\business_card($organizerid);
+                $data = new \mod_booking\output\business_card($booking, $organizerid);
                 $output = $PAGE->get_renderer('mod_booking');
                 echo $output->render_business_card($data);
             } else {

@@ -39,6 +39,27 @@ class booking_utils {
      */
     public $minutespassed = null;
 
+    /**
+     * @var stdClass
+     */
+    public $booking = null;
+
+    /**
+     * @var stdClass
+     */
+    public $bookingoption = null;
+
+    public function __construct($booking = null, $bookingoption = null) {
+
+        if ($booking) {
+            $this->booking = $booking;
+        }
+        if ($bookingoption) {
+            $this->bookingoption = $bookingoption;
+        }
+
+    }
+
 
     public function get_pretty_duration($seconds) {
         return $this->pretty_duration($seconds);
@@ -565,5 +586,144 @@ class booking_utils {
 
 
         return $returnitem;
+    }
+
+    /**
+     * Helper function to return a string and arrays containing all relevant customfields update changes.
+     * The string will be used to replace the {changes} placeholder in update mails.
+     * The returned arrays will have the prepared stdclasses for update and insert in booking_customfields table.
+     * @param $oldcustomfields
+     * @param $newcustomfields
+     */
+    public function booking_customfields_get_changes($oldcustomfields, $data) {
+
+        $customfields = [];
+        $updates = [];
+        $inserts = [];
+        $changes = [];
+
+        foreach ($data as $key => $value) {
+            if (strpos($key, 'customfieldid') !== false) {
+
+                $counter = (int)substr($key, -1);
+
+                // First check if the field existed before.
+                if ($value != 0
+                        && $oldfield = $oldcustomfields[$value]) {
+
+                    // Check name.
+                    if ($oldfield->cfgname != $data->'customfieldname' . $counter) {
+                        $changes[] = [
+                                'fieldname' => 'name',
+                                'oldvalue' => $oldfield->cfgname,
+                                'newvalue' => $data->'customfieldname' . $counter,
+                                'optiondateid' => $value
+                        ];
+                    }
+                    // Check value.
+                    if ($oldfield->value != $data->'customfieldvalue' . $counter) {
+
+                        $cffieldvalue = $data->'customfieldvalue' . $counter;
+
+                        $changes[] = [
+                                'fieldname' => 'name',
+                                'oldvalue' => $oldfield->value,
+                                'newvalue' => $cffieldvalue[0],
+                                'optiondateid' => $value
+                        ];
+                    }
+
+
+                    // Compare all values;
+                } else {
+                    // Create new.
+                    $customfield = new stdClass();
+                    $customfield->bookingid = $this->booking->instance;
+                    $customfield->optionid = $this->bookingoption->option->id;
+                    $customfield->optiondateid = $optiondate->id;
+                    $customfield->cfgname = $data->'customfieldname' . $counter;
+                    $customfield->value = $data->'customfieldvalue' . $counter;
+                    $customfield->value = $customfield->value[0];
+
+                    $inserts[] = $customfield;
+                }
+
+                $customfields[] = $customfield;
+            }
+        }
+
+    }
+
+    /**
+     * Helper function to return a string containing all relevant option update changes.
+     * The string will be used to replace the {changes} placeholder in update mails.
+     *
+     * @param $oldoption stdClass the original booking option object
+     * @param $newoption stdClass the new booking option object
+     * @return string a string containing the changes that have been made
+     */
+    function booking_option_get_changes($oldoption, $newoption) {
+        $returnarry = [];
+
+        if (isset($oldoption->text)
+                && $oldoption->text != $newoption->text) {
+            $returnarry[] = [
+                    'fieldname' => 'bookingoptiontitle',
+                    'oldvalue' => $oldoption->text,
+                    'newvalue' => $newoption->text
+            ];
+        }
+        if (isset($oldoption->coursestarttime)
+                && $oldoption->coursestarttime != $newoption->coursestarttime) {
+            $returnarry[] = [
+                    'fieldname' => 'coursestarttime',
+                    'oldvalue' => $oldoption->coursestarttime,
+                    'newvalue' => $newoption->coursestarttime
+            ];
+        }
+        if (isset($oldoption->courseendtime)
+                && $oldoption->courseendtime != $newoption->courseendtime) {
+            $returnarry[] = [
+                    'fieldname' => 'courseendtime',
+                    'oldvalue' => $oldoption->courseendtime,
+                    'newvalue' => $newoption->courseendtime
+            ];
+        }
+        if (isset($oldoption->location)
+                && $oldoption->location != $newoption->location) {
+            $changesarray['location'] = $newoption->location;
+            $returnarry[] = [
+                    'fieldname' => 'location',
+                    'oldvalue' => $oldoption->location,
+                    'newvalue' => $newoption->location
+            ];
+        }
+        if (isset($oldoption->institution)
+                && $oldoption->institution != $newoption->institution) {
+            $returnarry[] = [
+                    'fieldname' => 'institution',
+                    'oldvalue' => $oldoption->institution,
+                    'newvalue' => $newoption->institution
+            ];
+        }
+        if (isset($oldoption->address)
+                && $oldoption->address != $newoption->address) {
+            $returnarry[] = [
+                    'fieldname' => 'address',
+                    'oldvalue' => $oldoption->address,
+                    'newvalue' => $newoption->address
+            ];
+        }
+        if (isset($oldoption->description)
+                && $oldoption->description != $newoption->description) {
+            $returnarry[] = [
+                    'fieldname' => 'description',
+                    'oldvalue' => $oldoption->description,
+                    'newvalue' => $newoption->description
+            ];
+        }
+        if (count($returnarry) > 0) {
+            return $returnarry;
+        } else return false;
     }
 }
