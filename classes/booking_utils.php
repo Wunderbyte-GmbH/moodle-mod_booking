@@ -504,9 +504,9 @@ class booking_utils {
      * @param $changes
      * @throws \coding_exception
      */
-    public function react_on_changes($cmid, $context, $option, $changes) {
+    public function react_on_changes($cmid, $context, $optionid, $changes) {
         global $DB, $USER;
-        $bo = new booking_option($cmid, $option->id);
+        $bo = new booking_option($cmid, $optionid);
         // $bo->option->courseid = $option->courseid;
         if ($bo->booking->settings->sendmail) {
             $bookinganswers = $bo->get_all_users_booked();
@@ -519,7 +519,7 @@ class booking_utils {
         }
 
         // Also, we need to trigger the bookingoption_updated event, in order to update calendar entries.
-        $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $option->id,
+        $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
             'userid' => $USER->id));
         $event->trigger();
     }
@@ -598,11 +598,17 @@ class booking_utils {
         $updates = [];
         $inserts = [];
         $changes = [];
+        $deletes = [];
 
         foreach ($data as $key => $value) {
             if (strpos($key, 'customfieldid') !== false) {
 
                 $counter = (int)substr($key, -1);
+
+                if ($data->{'deletecustomfield' . $counter} == 1) {
+                    $deletes[] = $value; // The ID of the custom field that needs to be deleted.
+                    continue;
+                }
 
                 // First check if the field existed before.
                 if ($value != 0
@@ -611,10 +617,9 @@ class booking_utils {
                     // Check name.
                     if ($oldfield->cfgname != $data->{'customfieldname' . $counter}) {
                         $changes[] = [
-                                'fieldname' => 'name',
+                                'fieldname' => 'changedfield',
                                 'oldvalue' => $oldfield->cfgname,
                                 'newvalue' => $data->{'customfieldname' . $counter}
-                                // 'customfieldid' => $value
                         ];
                     }
                     // Check value.
@@ -625,19 +630,18 @@ class booking_utils {
                         $changes[] = [
                                 'fieldname' => 'name',
                                 'oldvalue' => $oldfield->value,
-                                'newvalue' => $cffieldvalue[0]
-                                // 'customfieldid' => $value //TODO: Fix "Undefined offset: 0"
+                                'newvalue' => $cffieldvalue
                         ];
 
                         $customfield = new stdClass();
                         $customfield->id = $value;
-                        $customfield->bookingid = $this->booking->instance;
+                        $customfield->bookingid = $this->booking->id;
                         $customfield->optionid = $this->bookingoption->option->id;
                         $customfield->optiondateid = $data->optiondateid;
                         $customfield->cfgname = $data->{'customfieldname' . $counter};
                         $customfield->value = $data->{'customfieldvalue' . $counter};
-                        $customfield->value = $customfield->value[0]; //TO
-                        $updates[] = [];
+
+                        $updates[] = $customfield;
                     }
 
                     // Compare all values;
@@ -650,7 +654,6 @@ class booking_utils {
                         $customfield->optiondateid = $data->optiondateid;
                         $customfield->cfgname = $data->{'customfieldname' . $counter};
                         $customfield->value = $data->{'customfieldvalue' . $counter};
-                        $customfield->value = $customfield->value[0]; //TODO: Fix "Undefined offset: 0"
 
                         $inserts[] = $customfield;
                     }
@@ -660,18 +663,18 @@ class booking_utils {
 
         return [
                 'changes' => $changes,
-                'insers' => $inserts,
-                'updates' => $updates
+                'inserts' => $inserts,
+                'updates' => $updates,
+                'deletes' => $deletes
         ];
     }
 
     /**
-     * Helper function to return a string containing all relevant option update changes.
-     * The string will be used to replace the {changes} placeholder in update mails.
+     * Helper function to return an array containing all relevant option update changes.
      *
      * @param $oldoption stdClass the original booking option object
      * @param $newoption stdClass the new booking option object
-     * @return string a string containing the changes that have been made
+     * @return array an array containing the changes that have been made
      */
     function booking_option_get_changes($oldoption, $newoption) {
         $returnarry = [];
@@ -702,7 +705,6 @@ class booking_utils {
         }
         if (isset($oldoption->location)
                 && $oldoption->location != $newoption->location) {
-            $changesarray['location'] = $newoption->location;
             $returnarry[] = [
                     'fieldname' => 'location',
                     'oldvalue' => $oldoption->location,
@@ -735,6 +737,39 @@ class booking_utils {
         }
         if (count($returnarry) > 0) {
             return $returnarry;
-        } else return false;
+        } else return [];
+    }
+
+    /**
+     * Helper function to return an array containing all relevant session update changes.
+     *
+     * @param $oldoptiondate stdClass the original session object
+     * @param $newoptiondate stdClass the new session object
+     * @return array an array containing the changes that have been made
+     */
+    function booking_optiondate_get_changes($oldoptiondate, $newoptiondate) {
+        $returnarry = [];
+
+        if (isset($oldoptiondate->coursestarttime)
+            && $oldoptiondate->coursestarttime != $newoptiondate->coursestarttime) {
+            $returnarry[] = [
+                'fieldname' => 'coursestarttime',
+                'oldvalue' => $oldoptiondate->coursestarttime,
+                'newvalue' => $newoptiondate->coursestarttime
+            ];
+        }
+
+        if (isset($oldoptiondate->courseendtime)
+            && $oldoptiondate->courseendtime != $newoptiondate->courseendtime) {
+            $returnarry[] = [
+                'fieldname' => 'courseendtime',
+                'oldvalue' => $oldoptiondate->courseendtime,
+                'newvalue' => $newoptiondate->courseendtime
+            ];
+        }
+
+        if (count($returnarry) > 0) {
+            return $returnarry;
+        } else return [];
     }
 }

@@ -806,7 +806,7 @@ function booking_update_options($optionvalues, $context) {
             $bu = new \mod_booking\booking_utils();
             if ($changes = $bu->booking_option_get_changes($originaloption, $option)) {
 
-                $bu->react_on_changes($PAGE->cm->id, $context, $option, $changes);
+                $bu->react_on_changes($PAGE->cm->id, $context, $option->id, $changes);
             }
 
             return $option->id;

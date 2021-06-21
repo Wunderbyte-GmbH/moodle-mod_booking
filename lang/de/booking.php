@@ -960,3 +960,6 @@ $string['linknotvalid'] = 'Der Link scheint nicht in Ordnung zu sein.';
 
 // booking_utils.php
 $string['linknotavailableyet'] = "Der Link auf die Konferenz ist nur zwischen 15 Minuten vor dem Meeting und dem Enddatum hier verfügbar.";
+
+// Bookingoption_changes.php.
+$string['changedfield'] = 'Geändertes Feld';

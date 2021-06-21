@@ -43,15 +43,6 @@ class bookingoption_changes implements renderable, templatable {
     /** @var array $changesarray an array containing fieldname, oldvalue and newvalue of changes */
     public $changesarray = null;
 
-    /** @var array $fieldnames an array containing only the fieldnames */
-    //public $fieldnames = [];
-
-    /** @var array $oldvalues an array containing only the old values (before change) */
-    //public $oldvalues = [];
-
-    /** @var array $newvalues an array containing only the new values (after change) */
-    //public $newvalues = [];
-
     /**
      * Constructor
      *
@@ -59,24 +50,35 @@ class bookingoption_changes implements renderable, templatable {
      */
     public function __construct($changesarray) {
         $this->changesarray = $changesarray;
-
-        /*foreach ($changesarray as $entry) {
-            $this->fieldnames[] = $entry['fieldname'];
-            $this->oldvalues[] = $entry['oldvalue'];
-            $this->newvalues[] = $entry['newvalue'];
-        }*/
     }
 
     public function export_for_template(renderer_base $output) {
 
-        return array(
-            'changes' => $this->changesarray
-        );
+        $newchangesarray = [];
+        foreach($this->changesarray as $entry) {
+            if ($entry['fieldname'] == 'coursestarttime') {
+                $newchangesarray[] = [
+                    'fieldname' => get_string('coursestarttime', 'booking'),
+                    'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime')),
+                    'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
+                ];
+            } else if ($entry['fieldname'] == 'courseendtime') {
+                $newchangesarray[] = [
+                    'fieldname' => get_string('courseendtime', 'booking'),
+                    'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime')),
+                    'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
+                ];
+            } else {
+                $newchangesarray[] = [
+                    'fieldname' => get_string($entry['fieldname'], 'booking'),
+                    'oldvalue' => $entry['oldvalue'],
+                    'newvalue' => $entry['newvalue']
+                ];
+            }
+        }
 
-        /*array(
-                'fieldnames' => $this->fieldnames,
-                'oldvalues' => $this->oldvalues,
-                'newvalues' => $this->newvalues
-        );*/
+        return array(
+            'changes' => $newchangesarray
+        );
     }
 }

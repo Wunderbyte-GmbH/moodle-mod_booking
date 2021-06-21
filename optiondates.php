@@ -20,6 +20,9 @@
  * @copyright 2016 Andraž Prinčič www.princic.net
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use mod_booking\booking_option;
+
 require_once("../../config.php");
 require_once("locallib.php");
 require_once('optiondatesadd_form.php');
@@ -108,24 +111,36 @@ if ($mform->is_cancelled()) {
     $date = date("Y-m-d", $data->coursestarttime);
     $optiondate->courseendtime = strtotime($date . " {$data->endhour}:{$data->endminute}");
 
-    // There is an optiondate-id, so we have to update & check for changes
+    // There is an optiondate id, so we have to update & check for changes.
     if ($optiondate->id != '') {
 
-        // retrieve the old record and pass it on
+        // Retrieve the old record and pass it on.
         $oldoptiondate = $DB->get_record('booking_optiondates', array('id' => $optiondate->id));
-        $bu = new \mod_booking\booking_utils();
-        $optiondatechanges = $bu->booking_option_get_changes($oldoptiondate, $optiondate);
+
+        $booking = new mod_booking\booking($cm->id);
+        $bookingoption = new booking_option($cm->id, $optionid);
+
+        $bu = new \mod_booking\booking_utils($booking, $bookingoption);
+        $optiondatechanges = $bu->booking_optiondate_get_changes($oldoptiondate, $optiondate);
 
         $oldcustomfields = $DB->get_records('booking_customfields', array('optiondateid' => $optiondate->id));
         if ($customfieldchanges = $bu->booking_customfields_get_changes($oldcustomfields, $data)) {
-            foreach ($customfieldchanges->updates as $record) {
+            foreach ($customfieldchanges['updates'] as $record) {
                 $DB->update_record('booking_customfields', $record);
             }
-            if (count($customfieldchanges->inserts) > 0) {
-                $DB->insert_records('booking_customfields', $customfieldchanges->insert);
+            foreach ($customfieldchanges['deletes'] as $record) {
+                $DB->delete_record('booking_customfields', ['id' => $record]);
+            }
+            if (count($customfieldchanges['inserts']) > 0) {
+                $DB->insert_records('booking_customfields', $customfieldchanges['inserts']);
             }
         }
-        $changes = array_merge($optiondatechanges, $customfieldchanges->changes);
+        $changes = array_merge($optiondatechanges, $customfieldchanges['changes']);
+
+        // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
+        if ($changes) {
+            $bu->react_on_changes($cm->id, $context, $optionid, $changes);
+        }
 
         // If there is an associated calendar event, update the event too.
         optiondate_updateevent($optiondate, $cm->id);

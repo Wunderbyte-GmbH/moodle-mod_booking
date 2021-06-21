@@ -1263,3 +1263,6 @@ $string['linknotvalid'] = 'The link seems to be broken.';
 
 // booking_utils.php
 $string['linknotavailableyet'] = "The link to access the meeting is available only 15 minutes before the start until the end of the session.";
+
+// Bookingoption_changes.php.
+$string['changedfield'] = 'Changed field';
