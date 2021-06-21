@@ -623,14 +623,14 @@ class booking_utils {
                         ];
                     }
                     // Check value.
-                    if ($oldfield->value != $data->{'customfieldvalue' . $counter}) {
+                    if (!empty($data->{'customfieldvalue' . $counter}) && $oldfield->value != $data->{'customfieldvalue' . $counter}) {
 
-                        $cffieldvalue = $data->{'customfieldvalue' . $counter};
+                        $newvalue = $data->{'customfieldvalue' . $counter};
 
                         $changes[] = [
                                 'fieldname' => 'name',
                                 'oldvalue' => $oldfield->value,
-                                'newvalue' => $cffieldvalue
+                                'newvalue' => $newvalue
                         ];
 
                         $customfield = new stdClass();
@@ -639,7 +639,7 @@ class booking_utils {
                         $customfield->optionid = $this->bookingoption->option->id;
                         $customfield->optiondateid = $data->optiondateid;
                         $customfield->cfgname = $data->{'customfieldname' . $counter};
-                        $customfield->value = $data->{'customfieldvalue' . $counter};
+                        $customfield->value = $newvalue;
 
                         $updates[] = $customfield;
                     }
@@ -647,15 +647,17 @@ class booking_utils {
                     // Compare all values;
                 } else {
                     if (!empty($this->booking) && !empty($this->bookingoption)) {
-                        // Create new.
-                        $customfield = new stdClass();
-                        $customfield->bookingid = $this->booking->instance;
-                        $customfield->optionid = $this->bookingoption->option->id;
-                        $customfield->optiondateid = $data->optiondateid;
-                        $customfield->cfgname = $data->{'customfieldname' . $counter};
-                        $customfield->value = $data->{'customfieldvalue' . $counter};
+                        if (!empty($data->{'customfieldname' . $counter})) {
+                            // Create new.
+                            $customfield = new stdClass();
+                            $customfield->bookingid = $this->booking->instance;
+                            $customfield->optionid = $this->bookingoption->option->id;
+                            $customfield->optiondateid = $data->optiondateid;
+                            $customfield->cfgname = $data->{'customfieldname' . $counter};
+                            $customfield->value = $data->{'customfieldvalue' . $counter};
 
-                        $inserts[] = $customfield;
+                            $inserts[] = $customfield;
+                        }
                     }
                 }
             }
