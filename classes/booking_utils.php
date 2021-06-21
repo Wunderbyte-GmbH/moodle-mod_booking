@@ -554,7 +554,7 @@ class booking_utils {
         if (count($sessions) > 0) {
             foreach ($sessions as $session) {
 
-                $returnsession = null;
+                $returnsession = [];
                 // Filter the matchin customfields.
                 $fields = $DB->get_records('booking_customfields', array(
                         'optionid' => $bookingoption->optionid,
@@ -563,14 +563,10 @@ class booking_utils {
 
                 // We show this only if timevalues are not 0.
                 if ($session->coursestarttime != 0 && $session->courseendtime != 0) {
-                    $returnsession = [
-                            'datestring' => $this->return_string_from_dates($session->coursestarttime, $session->courseendtime)
-                    ];
+                    $returnsession['datestring'] = $this->return_string_from_dates($session->coursestarttime, $session->courseendtime);
                     // customfields can only be displayed in combination with timevalues.
                     if ($withcustomfields) {
-                        $returnsession = [
-                                'customfields' => $this->return_array_of_customfields($bookingoption, $fields, $session->id)
-                        ];
+                        $returnsession['customfields'] = $this->return_array_of_customfields($bookingoption, $fields, $session->id);
                     }
                 }
                 if ($returnsession) {
