@@ -119,14 +119,12 @@ if ($mform->is_cancelled()) {
         $oldcustomfields = $DB->get_records('booking_customfields', array('optiondateid' => $optiondate->id));
         if ($customfieldchanges = $bu->booking_customfields_get_changes($oldcustomfields, $data)) {
             foreach ($customfieldchanges->updates as $record) {
-                $DB->update_record('booking_customfield', $record);
+                $DB->update_record('booking_customfields', $record);
             }
             if (count($customfieldchanges->insert) > 0) {
-                $DB->insert_records('booking_customfield', $customfieldchanges->insert);
+                $DB->insert_records('booking_customfields', $customfieldchanges->insert);
             }
         }
-
-
 
         $DB->update_record("booking_optiondates", $optiondate);
 

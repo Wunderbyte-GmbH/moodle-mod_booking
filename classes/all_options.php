@@ -274,174 +274,19 @@ class all_options extends table_sql {
 
         global $PAGE;
 
+        $output = $PAGE->get_renderer('mod_booking');
+        $data = new \mod_booking\output\bookingoption_description($this->booking, $values);
+
         if ($this->booking->settings->showdescriptionmode == 0) {
-            $data = new \mod_booking\output\bookingoption_description($this->booking, $values);
             // We will have a number of modals on this site, therefore we have to distinguish them.
             $data->modalcounter = $values->id;
 
-            $output = $PAGE->get_renderer('mod_booking');
             // We can go with the data from bookingoption_description directly to modal.
             return $output->render_col_text_modal($data);
         } else {
-            $data = new \mod_booking\output\bookingoption_description($this->booking, $values);
-            $output = $PAGE->get_renderer('mod_booking');
             // We can go with the data from bookingoption_description directly to modal.
             return $output->render_bookingoption_description($data);
         }
-
-
-
-        // All beneath is legacy.
-        global $DB;
-
-        // Get description mode (modal or inline) from instance settings.
-        $showfulldescription = $this->booking->settings->showdescriptionmode;
-
-        $output = '';
-        $output .= html_writer::tag('h4', format_string($values->text, true, $this->booking->settings->course));
-        $style = 'display: none;';
-        $th = '';
-        $ts = '"display: none;"';
-        if (isset($_GET['whichview']) && $_GET['whichview'] == 'showonlyone') {
-            $style = '';
-            $th = '"display: none;"';
-            $ts = '';
-        }
-
-        if (strlen($values->address) > 0) {
-            $output .= html_writer::empty_tag('br');
-            $output .= get_string('address', 'booking') . ': ' . $values->address;
-        }
-        if (strlen($values->location) > 0) {
-            $output .= html_writer::empty_tag('br');
-            $lbllocation = $this->booking->settings->lbllocation;
-            $output .= (empty($lbllocation) ? get_string('location', 'booking') : $lbllocation) . ': ' . $values->location;
-        }
-        if (strlen($values->institution) > 0) {
-            $output .= html_writer::empty_tag('br');
-            $lblinstitution = $this->booking->settings->lblinstitution;
-            $output .= (empty($lblinstitution) ? get_string('institution', 'booking') : $lblinstitution) . ': ' .
-                $values->institution;
-        }
-
-        if (!empty($values->description)) {
-            $values->description = $this->tags->tag_replaces($values->description);
-
-            if (isset($showfulldescription) && $showfulldescription == 1) {
-                // Show the full description without the show/hide link.
-                $output .= html_writer::div(format_text($values->description, FORMAT_HTML), 'optiontext',
-                    array('style' => '', 'id' => 'optiontextdes' . $values->id));
-            } else {
-                // Info links with modal are the default.
-                $output .= '<br><a href="#" data-toggle="modal" data-target="#descriptionModal"><i class="fa fa-info-circle fa-lg"></i></a>
-                            <div class="modal fade" id="descriptionModal" tabindex="-1" role="dialog" aria-labelledby="descriptionModalLabel" aria-hidden="true">
-                              <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                  <div class="modal-header">
-                                    <h5 class="modal-title" id="descriptionModalLabel">' . $values->text . '</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                      <span aria-hidden="true">&times;</span>
-                                    </button>
-                                  </div>
-                                  <div class="modal-body">' .
-                                    $values->description .
-                                  '</div>
-                                </div>
-                              </div>
-                            </div>';
-            }
-            //else {
-                // Show the show/hide link (description hidden by default).
-                /*$showhidetext = '<span id="showtextdes' . $values->id . '" style=' . $th . '>' . get_string(
-                        'showdescription', "mod_booking") . '</span><span id="hidetextdes' . $values->id . '" style=' . $ts . '>' .
-                    get_string(
-                        'hidedescription', "mod_booking") . '</span>';
-
-                $output .= '<br><a href="#" class="showHideOptionText" data-id="des' . $values->id . '">' .
-                    $showhidetext . "</a>";
-                $output .= html_writer::div(format_text($values->description, FORMAT_HTML), 'optiontext',
-                    array('style' => $style, 'id' => 'optiontextdes' . $values->id));
-            }*/
-        }
-
-        $lblteach = $this->booking->settings->lblteachname;
-        $output .= (!empty($values->teachers) ? " <br />" . (empty($lblteach) ? get_string('teachers', 'booking') : $lblteach) .
-            ": " . $values->teachers : '');
-
-        // Custom fields.
-        $customfields = $DB->get_records('booking_customfields', array('optionid' => $values->id));
-        $customfieldcfg = \mod_booking\booking_option::get_customfield_settings();
-        if ($customfields && !empty($customfieldcfg)) {
-            foreach ($customfields as $field) {
-                if (!empty($field->value)) {
-                    $cfgvalue = $customfieldcfg[$field->cfgname]['value'];
-                    if ($customfieldcfg[$field->cfgname]['type'] == 'multiselect') {
-                        $tmpdata = implode(", ", explode("\n", $field->value));
-                        $output .= "<br> <b>$cfgvalue: </b>$tmpdata";
-                    } else {
-                        $output .= "<br> <b>$cfgvalue: </b>$field->value";
-                    }
-                }
-            }
-        }
-
-        // Show text.
-        $texttoshow = "";
-        $bookingdata = new \mod_booking\booking_option($this->cm->id, $values->id);
-        $texttoshow = $bookingdata->get_option_text();
-        $texttoshow = $this->tags->tag_replaces($texttoshow);
-
-        $showhidetext = '<span id="showtext' . $values->id . '" style=' . $th . '>' . get_string(
-                'showdescription', "mod_booking") . '</span><span id="hidetext' . $values->id . '" style=' . $ts . '>' . get_string(
-                'hidedescription', "mod_booking") . '</span>';
-
-        if (!empty($texttoshow)) {
-            if (isset($showfulldescription) && $showfulldescription == 1) {
-                // Show the full description without the show/hide link.
-                $output .= html_writer::div($texttoshow, 'optiontext', array('style' => '',
-                    'id' => 'optiontext' . $values->id));
-            } else {
-                // Show the show/hide link (description hidden by default).
-                $output .= '<br><a href="#" class="showHideOptionText" data-id="' . $values->id . '">' .
-                $showhidetext . "</a>";
-                $output .= html_writer::div($texttoshow, 'optiontext', array('style' => $style,
-                                                                             'id' => 'optiontext' . $values->id));
-            }
-        }
-
-        $fs = get_file_storage();
-        $files = $fs->get_area_files($this->context->id, 'mod_booking', 'myfilemanageroption',
-            $values->id);
-
-        if (count($files) > 0) {
-            $output .= html_writer::start_tag('div');
-            $output .= html_writer::tag('label', get_string("attachedfiles", "booking") . ': ',
-                array('class' => 'bold'));
-
-            foreach ($files as $file) {
-                if ($file->get_filesize() > 0) {
-                    $filename = $file->get_filename();
-                    $furl = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(),
-                        $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename(), false);
-                    $out[] = html_writer::link($furl, $filename);
-                }
-            }
-            $output .= html_writer::tag('span', implode(', ', $out));
-            $output .= html_writer::end_tag('div');
-        }
-
-        $options = new stdClass();
-        $options->area = 'booking_option';
-        $options->context = $this->context;
-        $options->cm = $this->cm;
-        $options->itemid = $values->id;
-        $options->component = 'mod_booking';
-        $options->client_id = "client_{$values->id}";
-        $options->showcount = true;
-        $comment = new comment($options);
-        $output .= $comment->output(true);
-
-        return $output;
     }
 
     protected function col_description($values) {

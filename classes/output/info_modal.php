@@ -138,8 +138,8 @@ class info_modal implements renderable, templatable {
             $customfields = $DB->get_records('booking_customfields', array('optionid' => $bookingoption->id));
             foreach ($sessions as $session) {
 
-                // Filter the matchin customfields.
-                $fields = array_filter($customfields, function($x) { $x->optiondateid == $session->id});
+                // Filter the matching customfields.
+                $fields = array_filter($customfields, function($x) { $x->optiondateid == $session->id; });
 
                 if ($withcustomfields) {
                     $customfields = $this->bu->return_array_of_customfields($bookingoption, $fields);

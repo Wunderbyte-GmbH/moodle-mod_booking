@@ -630,29 +630,32 @@ class booking_utils {
                         $changes[] = [
                                 'fieldname' => 'name',
                                 'oldvalue' => $oldfield->value,
-                                'newvalue' => $cffieldvalue[0],
+                                'newvalue' => $cffieldvalue[0], //TODO: Fix "Undefined offset: 0"
                                 'optiondateid' => $value
                         ];
                     }
 
                     // Compare all values;
                 } else {
-                    // Create new.
-                    $customfield = new stdClass();
-                    $customfield->bookingid = $this->booking->instance;
-                    $customfield->optionid = $this->bookingoption->option->id;
-                    $customfield->optiondateid = $value;
-                    $customfield->cfgname = $data->{'customfieldname' . $counter};
-                    $customfield->value = $data->{'customfieldvalue' . $counter};
-                    $customfield->value = $customfield->value[0];
+                    if (!empty($this->booking) && !empty($this->bookingoption)) {
+                        // Create new.
+                        $customfield = new stdClass();
+                        $customfield->bookingid = $this->booking->instance;
+                        $customfield->optionid = $this->bookingoption->option->id;
+                        $customfield->optiondateid = $value;
+                        $customfield->cfgname = $data->{'customfieldname' . $counter};
+                        $customfield->value = $data->{'customfieldvalue' . $counter};
+                        $customfield->value = $customfield->value[0]; //TODO: Fix "Undefined offset: 0"
 
-                    $inserts[] = $customfield;
+                        $inserts[] = $customfield;
+                    }
                 }
 
-                $customfields[] = $customfield;
+                if (isset($customfield)) {
+                    $customfields[] = $customfield;
+                }
             }
         }
-
     }
 
     /**
