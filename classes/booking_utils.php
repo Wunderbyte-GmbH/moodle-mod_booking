@@ -123,6 +123,7 @@ class booking_utils {
             }
             $courselink = '';
             if ($option->courseid) {
+                $baseurl = $CFG->wwwroot;
                 $courselink = new moodle_url($baseurl . '/course/view.php', array('id' => $option->courseid));
                 $courselink = html_writer::link($courselink, $courselink->out());
             }
@@ -418,12 +419,13 @@ class booking_utils {
     /**
      * Function to determine the way start and end date are displayed on course page
      * Also, if there are no dates set, we return an empty string
-     * @param $optiondate
+     * @param $start
+     * @param $end
      * @return string
      */
     public function return_string_from_dates($start, $end) {
 
-        // If start is 0, we return no dates
+        // If start or end is 0, we return no dates.
         if ($start == 0 || $end == 0) {
             return '';
         }
@@ -612,18 +614,18 @@ class booking_utils {
                         && $oldfield = $oldcustomfields[$value]) {
 
                     // Check name.
-                    if ($oldfield->cfgname != $data->'customfieldname' . $counter) {
+                    if ($oldfield->cfgname != $data->{'customfieldname' . $counter}) {
                         $changes[] = [
                                 'fieldname' => 'name',
                                 'oldvalue' => $oldfield->cfgname,
-                                'newvalue' => $data->'customfieldname' . $counter,
+                                'newvalue' => $data->{'customfieldname' . $counter},
                                 'optiondateid' => $value
                         ];
                     }
                     // Check value.
-                    if ($oldfield->value != $data->'customfieldvalue' . $counter) {
+                    if ($oldfield->value != $data->{'customfieldvalue' . $counter}) {
 
-                        $cffieldvalue = $data->'customfieldvalue' . $counter;
+                        $cffieldvalue = $data->{'customfieldvalue' . $counter};
 
                         $changes[] = [
                                 'fieldname' => 'name',
@@ -633,16 +635,15 @@ class booking_utils {
                         ];
                     }
 
-
                     // Compare all values;
                 } else {
                     // Create new.
                     $customfield = new stdClass();
                     $customfield->bookingid = $this->booking->instance;
                     $customfield->optionid = $this->bookingoption->option->id;
-                    $customfield->optiondateid = $optiondate->id;
-                    $customfield->cfgname = $data->'customfieldname' . $counter;
-                    $customfield->value = $data->'customfieldvalue' . $counter;
+                    $customfield->optiondateid = $value;
+                    $customfield->cfgname = $data->{'customfieldname' . $counter};
+                    $customfield->value = $data->{'customfieldvalue' . $counter};
                     $customfield->value = $customfield->value[0];
 
                     $inserts[] = $customfield;
