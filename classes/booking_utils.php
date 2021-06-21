@@ -628,7 +628,7 @@ class booking_utils {
                         $newvalue = $data->{'customfieldvalue' . $counter};
 
                         $changes[] = [
-                                'fieldname' => 'name',
+                                'fieldname' => 'changedfield',
                                 'oldvalue' => $oldfield->value,
                                 'newvalue' => $newvalue
                         ];
