@@ -49,6 +49,9 @@ class business_card implements renderable, templatable {
     /** @var string $sendmessageurl */
     public $sendmessageurl = null;
 
+    /** @var string $description */
+    public $description = null;
+
     /** @var string $userprofileurl */
     public $userprofileurl = null;
 
@@ -58,7 +61,7 @@ class business_card implements renderable, templatable {
      *
      * @param \stdClass $data
      */
-    public function __construct($userid) {
+    public function __construct($booking, $userid) {
 
         global $PAGE;
 
@@ -69,11 +72,13 @@ class business_card implements renderable, templatable {
         $userpictureurl = $userpic->get_url($PAGE);
         $userprofileurl = new \moodle_url('../../user/profile.php', ['id' => $user->id]);
         $sendmessageurl = new \moodle_url('../../message/index.php', ['id' => $user->id]);
+        $description = format_text($booking->settings->intro, $booking->settings->introformat);
 
         $this->username = "$user->firstname $user->lastname";
         $this->userpictureurl = $userpictureurl;
         $this->userprofileurl = $userprofileurl;
         $this->sendmessageurl = $sendmessageurl;
+        $this->description = $description;
     }
 
     public function export_for_template(renderer_base $output) {
@@ -82,6 +87,7 @@ class business_card implements renderable, templatable {
                 'userpictureurl' => $this->userpictureurl->out(),
                 'userprofileurl' => $this->userprofileurl->out(),
                 'sendmessageurl' => $this->sendmessageurl->out(),
+                'description' => $this->description
         );
     }
 }

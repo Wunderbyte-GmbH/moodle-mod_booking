@@ -29,12 +29,20 @@
         <div class='col-2'>
             <img src="{{userpictureurl}}" alt="{{username}}" class='userpicture' style="max-width:100%;"></img>
         </div>
-    <div clas='col-10'>
-        <p class='bold'>
-            {{#str}} organizatorname, mod_booking {{/str}}
-        </p>
-        <p class='bold'>
-            <a href='{{userprofileurl}}' alt='{{username}}'>{{username}}</a>
-        </p>
+        <div clas='col-5'>
+            <p class='bold'>
+                {{#str}} organizatorname, mod_booking {{/str}}
+            </p>
+            <p class='bold'>
+                <a href='{{userprofileurl}}' alt='{{username}}'>{{username}}</a>
+            </p>
+        </div>
+        <div clas='col-1'>
+        </div>
+        <div clas='col-4'>
+            <p>
+                {{{description}}}
+            </p>
+        </div>
     </div>
 </div>
