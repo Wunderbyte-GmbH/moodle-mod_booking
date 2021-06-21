@@ -332,7 +332,8 @@ class renderer extends plugin_renderer_base {
 
 
     /** function to print user picture plus text as html
-     * @param $data
+     * @param business_card $data
+     * @return string
      */
     public function render_business_card(mod_booking\output\business_card $data) {
         $o = '';
@@ -341,13 +342,25 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-    /** function to print user picture plus text as html
-     * @param $data
+    /** Function to print booking option description.
+     * @param bookingoption_description $data
+     * @return string
      */
     public function render_bookingoption_description(mod_booking\output\bookingoption_description $data) {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/bookingoption_description', $data);
+        return $o;
+    }
+
+    /** Function to print booking option changes ("What has changed?").
+     * @param bookingoption_changes $data
+     * @return string
+     */
+    public function render_bookingoption_changes(mod_booking\output\bookingoption_changes $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/bookingoption_changes', $data);
         return $o;
     }
 

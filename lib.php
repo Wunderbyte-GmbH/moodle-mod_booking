@@ -806,7 +806,7 @@ function booking_update_options($optionvalues, $context) {
             $bu = new \mod_booking\booking_utils();
             if ($changes = $bu->booking_option_get_changes($originaloption, $option)) {
 
-               $bu->react_on_changes($PAGE->cm->id, $context, $option, $changes);
+                $bu->react_on_changes($PAGE->cm->id, $context, $option, $changes);
             }
 
             return $option->id;
@@ -2350,8 +2350,8 @@ function booking_pretty_duration($seconds) {
  * @return stdClass data to be sent via mail
  */
 function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid,
-                                       $optiontimes = array(), $changes = '') {
-    global $CFG;
+                                       $optiontimes = array(), $changes = false) {
+    global $CFG, $PAGE;
 
     $params = new stdClass();
 
@@ -2424,8 +2424,13 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
 
     $params->times = $val;
 
-    // Store changes (if it has been an update).
-    $params->changes = $changes;
+    // Now we'll render the changes.
+    if ($changes) {
+        $output = $PAGE->get_renderer('mod_booking');
+        $data = new \mod_booking\output\bookingoption_changes($changes);
+
+        $params->changes = $output->render_bookingoption_changes($data);
+    }
 
     return $params;
 }

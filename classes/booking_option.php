@@ -1032,7 +1032,7 @@ class booking_option {
      * @param array $changes a string containing changes to be replaced in the update message
      * @return bool
      */
-    public function send_confirm_message($user, $optionchanged = false, $changes = '') {
+    public function send_confirm_message($user, $optionchanged = false, $changes = false) {
         global $DB, $USER;
         $cmid = $this->booking->cm->id;
         // Used to store the ical attachment (if required).
