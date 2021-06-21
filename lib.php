@@ -2426,9 +2426,8 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
 
     // Now we'll render the changes.
     if ($changes) {
-        $output = $PAGE->get_renderer('mod_booking');
         $data = new \mod_booking\output\bookingoption_changes($changes);
-
+        $output = $PAGE->get_renderer('mod_booking');
         $params->changes = $output->render_bookingoption_changes($data);
     }
 

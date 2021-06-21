@@ -599,7 +599,6 @@ class booking_utils {
      */
     public function booking_customfields_get_changes($oldcustomfields, $data) {
 
-        $customfields = [];
         $updates = [];
         $inserts = [];
         $changes = [];
@@ -619,7 +618,7 @@ class booking_utils {
                                 'fieldname' => 'name',
                                 'oldvalue' => $oldfield->cfgname,
                                 'newvalue' => $data->{'customfieldname' . $counter},
-                                'optiondateid' => $value
+                                // 'customfieldid' => $value
                         ];
                     }
                     // Check value.
@@ -630,9 +629,19 @@ class booking_utils {
                         $changes[] = [
                                 'fieldname' => 'name',
                                 'oldvalue' => $oldfield->value,
-                                'newvalue' => $cffieldvalue[0], //TODO: Fix "Undefined offset: 0"
-                                'optiondateid' => $value
+                                'newvalue' => $cffieldvalue[0],
+                                // 'customfieldid' => $value //TODO: Fix "Undefined offset: 0"
                         ];
+
+                        $customfield = new stdClass();
+                        $customfield->id = $value;
+                        $customfield->bookingid = $this->booking->instance;
+                        $customfield->optionid = $this->bookingoption->option->id;
+                        $customfield->optiondateid = $data->optiondateid
+                        $customfield->cfgname = $data->{'customfieldname' . $counter};
+                        $customfield->value = $data->{'customfieldvalue' . $counter};
+                        $customfield->value = $customfield->value[0]; //TO
+                        $updates[] = [];
                     }
 
                     // Compare all values;
@@ -642,7 +651,7 @@ class booking_utils {
                         $customfield = new stdClass();
                         $customfield->bookingid = $this->booking->instance;
                         $customfield->optionid = $this->bookingoption->option->id;
-                        $customfield->optiondateid = $value;
+                        $customfield->optiondateid = $data->optiondateid
                         $customfield->cfgname = $data->{'customfieldname' . $counter};
                         $customfield->value = $data->{'customfieldvalue' . $counter};
                         $customfield->value = $customfield->value[0]; //TODO: Fix "Undefined offset: 0"
@@ -650,12 +659,14 @@ class booking_utils {
                         $inserts[] = $customfield;
                     }
                 }
-
-                if (isset($customfield)) {
-                    $customfields[] = $customfield;
-                }
             }
         }
+
+        return = [
+                'changes' => $changes,
+                'insers' => $inserts,
+                'updates' => $updates
+        ];
     }
 
     /**
