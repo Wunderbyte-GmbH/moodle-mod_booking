@@ -65,6 +65,11 @@ class optiondatesadd_form extends moodleform {
         $mform->setType('endminute', PARAM_INT);
         $mform->addGroup($courseendtime, 'endtime', get_string('to'), ' ', false);
 
+        $mform->addElement('text', 'daystonotify', get_string('daystonotifysession', 'booking'));
+        $mform->setType('daystonotify', PARAM_INT);
+        $mform->setDefault('daystonotify', 0);
+        $mform->addHelpButton('daystonotify', 'daystonotifysession', 'booking');
+
         // Only allow creation of custom fields, when creating a new optiondate.
         if (empty($this->_customdata['optiondateid'])) {
             $this->addcustomfields($mform);

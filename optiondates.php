@@ -128,6 +128,7 @@ if ($mform->is_cancelled()) {
     $optiondate->coursestarttime = $data->coursestarttime;
     $date = date("Y-m-d", $data->coursestarttime);
     $optiondate->courseendtime = strtotime($date . " {$data->endhour}:{$data->endminute}");
+    $optiondate->daystonotify = $data->daystonotify;
 
     // There is an optiondate id, so we have to update & check for changes.
     if ($optiondate->id != '') {

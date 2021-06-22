@@ -72,7 +72,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         $optiondates = new backup_nested_element('optiondates');
         $optiondate = new backup_nested_element('optiondate', array('id'),
-                array('bookingid', 'optionid', 'eventid', 'coursestarttime', 'courseendtime'));
+                array('bookingid', 'optionid', 'eventid', 'coursestarttime', 'courseendtime', 'daystonotify', 'sent'));
 
         $categories = new backup_nested_element('categories');
         $category = new backup_nested_element('category', array('id'),

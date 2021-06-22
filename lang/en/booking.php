@@ -1110,6 +1110,8 @@ $string['deletecustomfield'] = 'Delete custom field?';
 $string['deletecustomfield_help'] = 'Caution: Setting this checkbox will delete the associated custom field when saving.';
 $string['erroremptycustomfieldname'] = 'Custom field name is not allowed to be empty.';
 $string['erroremptycustomfieldvalue'] = 'Custom field value is not allowed to be empty.';
+$string['daystonotifysession'] = 'Number of days in advance of the session start to notify participants';
+$string['daystonotifysession_help'] = "Enter 0 to deactivate the e-mail notification for this session.";
 
 // locallib.php
 $string['pdfdate'] = 'Booking Date(s): ';

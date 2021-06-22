@@ -886,6 +886,8 @@ $string['deletecustomfield'] = 'Feld löschen?';
 $string['deletecustomfield_help'] = 'Achtung: Wenn Sie diese Checkbox aktivieren, wird das zugehörige Feld beim Speichern gelöscht!';
 $string['erroremptycustomfieldname'] = 'Name des Felds darf nicht leer sein.';
 $string['erroremptycustomfieldvalue'] = 'Wert des Felds darf nicht leer sein.';
+$string['daystonotifysession'] = 'Wie viele Tage vor Beginn dieser Session soll an die Teilnehmenden eine Benachrichtigung gesendet werden?';
+$string['daystonotifysession_help'] = "Geben Sie 0 ein, um die E-Mail-Benachrichtigung für diese Session zu deaktivieren.";
 
 // File: settings.php.
 $string['licensekeycfg'] = 'PRO-Version aktivieren';

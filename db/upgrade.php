@@ -2175,6 +2175,25 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2021062100, 'booking');
     }
+    if ($oldversion < 2021062200) {
+        // Define table booking_optiondates to be created.
+        $table = new xmldb_table('booking_optiondates');
+
+        // Adding fields to table booking_optiondates.
+        $daystonotify = new xmldb_field('daystonotify', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'courseendtime');
+        $sent = new xmldb_field('sent', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'daystonotify');
+
+        // Conditionally launch add field daystonotify.
+        if (!$dbman->field_exists($table, $daystonotify)) {
+            $dbman->add_field($table, $daystonotify);
+        }
+        // Conditionally launch add field sent.
+        if (!$dbman->field_exists($table, $sent)) {
+            $dbman->add_field($table, $sent);
+        }
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2021062200, 'booking');
+    }
 
     return true;
 }
