@@ -30,17 +30,21 @@
 {{#institution}}<div class="bo_institution">{{#str}}institution, mod_booking{{/str}}: {{institution}}</div>{{/institution}}
 {{#statusdescription}}<div class="bo_description"><p>{{{statusdescription}}}</p></div>{{/statusdescription}}
 {{#description}}<div class="bo_description"><p>{{{description}}}</p></div>{{/description}}
-{{#dates}}
-    <p>
-        <div>
-            {{{datestring}}}
-        </div>
-        <div class="list-group">
-        {{#customfields}}
-            <div class="list-group-item">
-                {{name}}{{{value}}}
+<div class="list-group">
+    {{#dates}}
+        <div class="list-group-item">
+            <div>
+                {{{datestring}}}
             </div>
-        {{/customfields}}
+            <div>
+                <ul>
+                    {{#customfields}}
+                        <li>
+                            {{name}}{{{value}}}
+                        </li>
+                    {{/customfields}}
+                </ul>
+            </div>
         </div>
-    </p>
-{{/dates}}
+    {{/dates}}
+</div>
