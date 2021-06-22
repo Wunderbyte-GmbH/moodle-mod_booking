@@ -262,15 +262,24 @@ class ical {
             "TRANSP:OPAQUE{$this->status}",
             "ORGANIZER;CN={$this->fromuser->email}:MAILTO:{$this->fromuser->email}",
             "ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT=NEEDS-ACTION;RSVP=false;CN={$this->userfullname};LANGUAGE=en:MAILTO:{$this->user->email}",
-            "UID:{$uid}",
-            "END:VEVENT"
+            "UID:{$uid}"
         );
 
         // If the event has been updated then add SEQUENCE:1 before END:VEVENT.
         if ($this->updated) {
-            $endVevent = array_pop($veventparts);
-            array_push($veventparts, "SEQUENCE:1", $endVevent);
+            if (!$data = $DB->get_record('booking_icalsequence', array('userid' => $this->user->id))) {
+                $data = new \stdClass();
+                $data->userid = $this->user->id;
+                $data->optionid = $this->option->id;
+                $data->sequencevalue = 1;
+                $DB->insert_record('booking_icalsequence', $data);
+            } else {
+                ++$data->sequencevalue;
+                $DB->update_record('booking_icalsequence', $data);
+            }
+            array_push($veventparts, "SEQUENCE:$data->sequencevalue");
         }
+        array_push($veventparts, "END:VEVENT");
 
         $vevent = implode("\r\n", $veventparts);
         $this->individualvevents[] = $vevent;
