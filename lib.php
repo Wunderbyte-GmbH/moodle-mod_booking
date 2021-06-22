@@ -25,61 +25,6 @@ require_once($CFG->dirroot . '/user/selector/lib.php');
 
 use \mod_booking\utils\wb_payment;
 
-function booking_cron() {
-    global $DB;
-
-    mtrace('Starting cron for Booking ...');
-
-    $toprocess = $DB->get_records_sql(
-            'SELECT bo.id, bo.coursestarttime, b.daystonotify, b.daystonotify2, bo.sent, bo.sent2
-            FROM {booking_options} bo
-            LEFT JOIN {booking} b ON b.id = bo.bookingid
-            WHERE (b.daystonotify > 0 OR b.daystonotify2 > 0)
-            AND bo.coursestarttime > 0  AND bo.coursestarttime > ?
-            AND (bo.sent = 0 AND bo.sent2 = 0)', array(time()));
-
-    foreach ($toprocess as $value) {
-        $dateevent = new DateTime();
-        $dateevent->setTimestamp($value->coursestarttime);
-        $datenow = new DateTime();
-
-        $dateevent->modify('-' . $value->daystonotify . ' day');
-
-        if ($value->sent == 0 and $value->daystonotify > 0) {
-            if ($dateevent < $datenow) {
-
-                $save = new stdClass();
-                $save->id = $value->id;
-                $save->sent = 1;
-
-                booking_send_notification($save->id, get_string('notificationsubject', 'booking'));
-
-                $DB->update_record("booking_options", $save);
-            }
-        }
-
-        $dateevent = new DateTime();
-        $dateevent->setTimestamp($value->coursestarttime);
-
-        $dateevent->modify('-' . $value->daystonotify2 . ' day');
-
-        if ($value->sent2 == 0 and $value->daystonotify2 > 0) {
-            if ($dateevent < $datenow) {
-                $save = new stdClass();
-                $save->id = $value->id;
-                $save->sent2 = 1;
-
-                booking_send_notification($save->id, get_string('notificationsubject', 'booking'));
-
-                $DB->update_record("booking_options", $save);
-            }
-        }
-    }
-
-    mtrace('Ending cron for Booking ...');
-
-    return true;
-}
 
 /**
  * @param stdClass $cm
