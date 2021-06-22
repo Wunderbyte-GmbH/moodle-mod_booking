@@ -605,58 +605,82 @@ class booking_utils {
 
                 $counter = (int)substr($key, -1);
 
-                if ($data->{'deletecustomfield' . $counter} == 1) {
-                    $deletes[] = $value; // The ID of the custom field that needs to be deleted.
-                    continue;
-                }
-
                 // First check if the field existed before.
-                if ($value != 0
-                        && $oldfield = $oldcustomfields[$value]) {
+                if ($value != 0 && $oldfield = $oldcustomfields[$value]) {
 
-                    // Check name.
-                    if ($oldfield->cfgname != $data->{'customfieldname' . $counter}) {
-                        $changes[] = [
-                                'fieldname' => 'changedfield',
-                                'oldvalue' => $oldfield->cfgname,
-                                'newvalue' => $data->{'customfieldname' . $counter}
-                        ];
+                    // If the delete checkbox has been set, add to deletes.
+                    if ($data->{'deletecustomfield' . $counter} == 1) {
+                        $deletes[] = $value; // The ID of the custom field that needs to be deleted.
+
+                        // Also add to changes.
+                        $changes[] = ['oldname' => $oldfield->cfgname,
+                                      'oldvalue' => $oldfield->value];
+
+                        continue;
                     }
-                    // Check value.
-                    if (!empty($data->{'customfieldvalue' . $counter}) && $oldfield->value != $data->{'customfieldvalue' . $counter}) {
 
-                        $newvalue = $data->{'customfieldvalue' . $counter};
+                    /* Custom field changes do not contain a 'fieldname' so they can easily be identified by the
+                     * mustache template (bookingoption_changes.mustache). They always will contain 'newname' and
+                     * 'newvalue'; 'oldname' and 'oldvalue' will only be included, if there has been a change. */
 
-                        $changes[] = [
-                                'fieldname' => 'changedfield',
-                                'oldvalue' => $oldfield->value,
-                                'newvalue' => $newvalue
-                        ];
+                    $haschange = false;
+                    $currentchange = [];
+                    // Check if the name of the custom field has changed.
+                    if ($oldfield->cfgname != $data->{'customfieldname' . $counter}) {
+                        array_merge($currentchange,
+                            ['oldname' => $oldfield->cfgname,
+                                'newname' => $data->{'customfieldname' . $counter}]);
+                        $haschange = true;
+                    } else {
+                        // Do not add the old name, if there has been no change.
+                        array_merge($currentchange,
+                            ['newname' => $data->{'customfieldname' . $counter}]);
+                    }
 
+                    // Check if the value of the custom field has changed.
+                    if (!empty($data->{'customfieldvalue' . $counter}) &&
+                        $oldfield->value != $data->{'customfieldvalue' . $counter}) {
+                        array_merge($currentchange,
+                            ['oldvalue' => $oldfield->value,
+                                'newvalue' => $data->{'customfieldvalue' . $counter}]);
+                        $haschange = true;
+                    } else {
+                        // Do not add the old value, if there has been no change.
+                        array_merge($currentchange,
+                            ['newvalue' => $data->{'customfieldvalue' . $counter}]);
+                    }
+
+                    if ($haschange) {
+                        // Add to changes.
+                        $changes[] = $currentchange;
+
+                        // Create custom field object and add to updates.
                         $customfield = new stdClass();
                         $customfield->id = $value;
                         $customfield->bookingid = $this->booking->id;
                         $customfield->optionid = $this->bookingoption->option->id;
                         $customfield->optiondateid = $data->optiondateid;
                         $customfield->cfgname = $data->{'customfieldname' . $counter};
-                        $customfield->value = $newvalue;
+                        $customfield->value = $data->{'customfieldvalue' . $counter};
 
                         $updates[] = $customfield;
                     }
-
-                    // Compare all values;
                 } else {
+                    // Create new custom field and add to inserts.
                     if (!empty($this->booking) && !empty($this->bookingoption)) {
                         if (!empty($data->{'customfieldname' . $counter})) {
-                            // Create new.
                             $customfield = new stdClass();
-                            $customfield->bookingid = $this->booking->instance;
+                            $customfield->bookingid = $this->booking->id;
                             $customfield->optionid = $this->bookingoption->option->id;
                             $customfield->optiondateid = $data->optiondateid;
                             $customfield->cfgname = $data->{'customfieldname' . $counter};
                             $customfield->value = $data->{'customfieldvalue' . $counter};
 
                             $inserts[] = $customfield;
+
+                            // Also add to changes.
+                            $changes[] = ['newname' => $data->{'customfieldname' . $counter},
+                                          'newvalue' => $data->{'customfieldvalue' . $counter}];
                         }
                     }
                 }
@@ -750,11 +774,11 @@ class booking_utils {
      * @return array an array containing the changes that have been made
      */
     function booking_optiondate_get_changes($oldoptiondate, $newoptiondate) {
-        $returnarry = [];
+        $changes = [];
 
         if (isset($oldoptiondate->coursestarttime)
             && $oldoptiondate->coursestarttime != $newoptiondate->coursestarttime) {
-            $returnarry[] = [
+            $changes[] = [
                 'fieldname' => 'coursestarttime',
                 'oldvalue' => $oldoptiondate->coursestarttime,
                 'newvalue' => $newoptiondate->coursestarttime
@@ -763,15 +787,15 @@ class booking_utils {
 
         if (isset($oldoptiondate->courseendtime)
             && $oldoptiondate->courseendtime != $newoptiondate->courseendtime) {
-            $returnarry[] = [
+            $changes[] = [
                 'fieldname' => 'courseendtime',
                 'oldvalue' => $oldoptiondate->courseendtime,
                 'newvalue' => $newoptiondate->courseendtime
             ];
         }
 
-        if (count($returnarry) > 0) {
-            return $returnarry;
-        } else return [];
+        return [
+            'changes' => $changes
+        ];
     }
 }

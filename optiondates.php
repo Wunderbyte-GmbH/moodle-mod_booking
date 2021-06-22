@@ -51,9 +51,16 @@ $optionid = $DB->get_field('booking_options', 'id',
 require_capability('mod/booking:updatebooking', $context);
 
 if ($delete != '') {
+    $changes = [];
     // If there is an associated calendar event, delete it first.
     if ($optiondate = $DB->get_record('booking_optiondates', ['id' => $delete])) {
         $DB->delete_records('event', ['id' => $optiondate->eventid]);
+
+        // Also store the changes so they can be sent in an update mail.
+        $changes[] = ['fieldname' => 'coursestarttime',
+                      'oldvalue' => $optiondate->coursestarttime];
+        $changes[] = ['fieldname' => 'courseendtime',
+                      'oldvalue' => $optiondate->courseendtime];
     }
 
     // Now we can delete the session.
@@ -111,17 +118,20 @@ if ($mform->is_cancelled()) {
     $date = date("Y-m-d", $data->coursestarttime);
     $optiondate->courseendtime = strtotime($date . " {$data->endhour}:{$data->endminute}");
 
+    $booking = new mod_booking\booking($cm->id);
+    $bookingoption = new booking_option($cm->id, $optionid);
+    $bu = new \mod_booking\booking_utils($booking, $bookingoption);
+
     // There is an optiondate id, so we have to update & check for changes.
     if ($optiondate->id != '') {
 
         // Retrieve the old record and pass it on.
         $oldoptiondate = $DB->get_record('booking_optiondates', array('id' => $optiondate->id));
 
-        $booking = new mod_booking\booking($cm->id);
-        $bookingoption = new booking_option($cm->id, $optionid);
-
-        $bu = new \mod_booking\booking_utils($booking, $bookingoption);
         $optiondatechanges = $bu->booking_optiondate_get_changes($oldoptiondate, $optiondate);
+        if (!empty($optiondatechanges)) {
+            $DB->update_record('booking_optiondates', $optiondate);
+        }
 
         $oldcustomfields = $DB->get_records('booking_customfields', array('optiondateid' => $optiondate->id));
         if ($customfieldchanges = $bu->booking_customfields_get_changes($oldcustomfields, $data)) {
@@ -129,22 +139,18 @@ if ($mform->is_cancelled()) {
                 $DB->update_record('booking_customfields', $record);
             }
             foreach ($customfieldchanges['deletes'] as $record) {
-                $DB->delete_record('booking_customfields', ['id' => $record]);
+                $DB->delete_records('booking_customfields', ['id' => $record]);
             }
             if (count($customfieldchanges['inserts']) > 0) {
                 $DB->insert_records('booking_customfields', $customfieldchanges['inserts']);
             }
         }
-        $changes = array_merge($optiondatechanges, $customfieldchanges['changes']);
-
-        // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
-        if ($changes) {
-            $bu->react_on_changes($cm->id, $context, $optionid, $changes);
-        }
+        $changes = array_merge($optiondatechanges['changes'], $customfieldchanges['changes']);
 
         // If there is an associated calendar event, update the event too.
         optiondate_updateevent($optiondate, $cm->id);
     } else {
+        $changes = [];
         $optiondateid = $DB->insert_record("booking_optiondates", $optiondate);
 
         // Retrieve available custom field data.
@@ -163,8 +169,12 @@ if ($mform->is_cancelled()) {
                     $customfield->cfgname = $data->{$customfieldnamex};
                     $customfield->value = $data->{$customfieldvaluex};
                     $DB->insert_record("booking_customfields", $customfield);
+
+                    $changes[] = ['newname' => $customfield->cfgname,
+                                  'newvalue' => $customfield->value];
                 }
             }
+
         }
         // Add the newly created option date (session) to the calendar.
         // The event stores optiondateid in event parameter objectid (which needs to be table primary key)...
@@ -172,6 +182,11 @@ if ($mform->is_cancelled()) {
         $event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondateid,
             'userid' => $USER->id, 'other' => ['optionid' => $optionid]));
         $event->trigger();
+    }
+
+    // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
+    if ($changes) {
+        $bu->react_on_changes($cm->id, $context, $optionid, $changes);
     }
 
     booking_updatestartenddate($optionid);
