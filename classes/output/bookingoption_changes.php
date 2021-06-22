@@ -58,17 +58,41 @@ class bookingoption_changes implements renderable, templatable {
         foreach($this->changesarray as $entry) {
             if (isset($entry['fieldname'])) {
                 if ($entry['fieldname'] == 'coursestarttime') {
-                    $newchangesarray[] = [
-                        'fieldname' => get_string('coursestarttime', 'booking'),
-                        'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime')),
-                        'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
-                    ];
+                    if (isset($entry['oldvalue']) && isset($entry['newvalue'])) {
+                        $newchangesarray[] = [
+                            'fieldname' => get_string('coursestarttime', 'booking'),
+                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime')),
+                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
+                        ];
+                    } else if (isset($entry['newvalue'])) {
+                        $newchangesarray[] = [
+                            'fieldname' => get_string('coursestarttime', 'booking'),
+                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
+                        ];
+                    } else {
+                        $newchangesarray[] = [
+                            'fieldname' => get_string('coursestarttime', 'booking'),
+                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime'))
+                        ];
+                    }
                 } else if ($entry['fieldname'] == 'courseendtime') {
-                    $newchangesarray[] = [
-                        'fieldname' => get_string('courseendtime', 'booking'),
-                        'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime')),
-                        'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
-                    ];
+                    if (isset($entry['oldvalue']) && isset($entry['newvalue'])) {
+                        $newchangesarray[] = [
+                            'fieldname' => get_string('courseendtime', 'booking'),
+                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime')),
+                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
+                        ];
+                    } else if (isset($entry['newvalue'])) {
+                        $newchangesarray[] = [
+                            'fieldname' => get_string('courseendtime', 'booking'),
+                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
+                        ];
+                    } else {
+                        $newchangesarray[] = [
+                            'fieldname' => get_string('courseendtime', 'booking'),
+                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime'))
+                        ];
+                    }
                 } else {
                     $newchangesarray[] = [
                         'fieldname' => get_string($entry['fieldname'], 'booking'),
