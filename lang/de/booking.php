@@ -821,9 +821,8 @@ $string['users'] = '<< Antworten bearbeiten';
 // Lib.php.
 $string['pollstrftimedate'] = '%Y-%m-%d';
 $string['sessionremindermailsubject'] = 'Erinnerung: Sie haben demnächst einen Kurstermin';
-$string['sessionremindermailmessage'] = 'Sie haben den folgenden Termin gebucht:<br>
-<br>
-{$a->sessiondescription}<br>
+$string['sessionremindermailmessage'] = 'Erinnerung: Sie haben den folgenden Termin gebucht:<br>
+{$a->sessiondescription}<br><br>
 Buchungsstatus: {$a->status}<br>
 Teilnehmer*in: {$a->participant}<br>
 ';

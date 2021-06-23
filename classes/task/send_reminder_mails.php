@@ -106,7 +106,9 @@ class send_reminder_mails extends \core\task\scheduled_task {
         $now = time();
         $timetosend = strtotime('-' . $daystonotify . ' day', $record->coursestarttime);
         if ($timetosend < $now) {
-            booking_send_notification($record->id, get_string('notificationsubject', 'booking'), array(), $issession);
+            // Use a different subject for session reminder mails.
+            $subject = $issession ? get_string('sessionremindermailsubject', 'booking') : get_string('notificationsubject', 'booking');
+            booking_send_notification($record->id, $subject, array(), $issession);
             mtrace('booking - send notification triggered');
             return true;
         } else {

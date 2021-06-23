@@ -1057,9 +1057,8 @@ $string['pollstrftimedate'] = '%Y-%m-%d';
 $string['mybookings'] = 'My bookings';
 $string['bookuserswithoutcompletedactivity'] = "Book users without completed activity";
 $string['sessionremindermailsubject'] = 'Reminder: You have an upcoming session';
-$string['sessionremindermailmessage'] = 'You are booked for the following session:<br>
-<br>
-{$a->sessiondescription}<br>
+$string['sessionremindermailmessage'] = 'Keep in mind: You are booked for the following session:<br>
+{$a->sessiondescription}<br><br>
 Booking status: {$a->status}<br>
 Participant: {$a->participant}<br>
 ';
