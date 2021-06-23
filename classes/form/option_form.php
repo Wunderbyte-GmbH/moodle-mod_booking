@@ -203,7 +203,7 @@ class option_form extends moodleform {
         $caleventtypes = [
             0 => get_string('caldonotadd', 'booking'),
             1 => get_string('caladdascourseevent', 'booking'),
-            2 => get_string('caladdassiteevent', 'booking')
+            // 2 => get_string('caladdassiteevent', 'booking') // Don't need this yet
         ];
         $mform->addElement('select', 'addtocalendar', get_string('addtocalendar', 'booking'), $caleventtypes);
         $mform->setDefault('addtocalendar', 0);
