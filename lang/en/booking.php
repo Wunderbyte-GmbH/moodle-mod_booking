@@ -1056,6 +1056,13 @@ $string['users'] = '<< Manage responses';
 $string['pollstrftimedate'] = '%Y-%m-%d';
 $string['mybookings'] = 'My bookings';
 $string['bookuserswithoutcompletedactivity'] = "Book users without completed activity";
+$string['sessionremindermailsubject'] = 'Reminder: You have an upcoming session';
+$string['sessionremindermailmessage'] = 'You are booked for the following session:<br>
+<br>
+{$a->sessiondescription}<br>
+Booking status: {$a->status}<br>
+Participant: {$a->participant}<br>
+';
 
 // all_users.php
 $string['completed'] = 'Completed';

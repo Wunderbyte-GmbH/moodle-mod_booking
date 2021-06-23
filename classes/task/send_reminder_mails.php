@@ -19,6 +19,9 @@ use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
 class send_reminder_mails extends \core\task\scheduled_task {
 
     public function get_name() {
@@ -103,7 +106,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
         $now = time();
         $timetosend = strtotime('-' . $daystonotify . ' day', $record->coursestarttime);
         if ($timetosend < $now) {
-            booking_send_notification($record->id, get_string('notificationsubject', 'booking'));
+            booking_send_notification($record->id, get_string('notificationsubject', 'booking'), array(), $issession);
             mtrace('booking - send notification triggered');
             return true;
         } else {
