@@ -123,6 +123,7 @@ class optiondatesadd_form extends moodleform {
             $mform->addElement('text', 'customfieldname' . $counter, get_string('customfieldname', 'booking'));
             $mform->setType('customfieldname' . $counter, PARAM_TEXT);
             $mform->setDefault('customfieldname' . $counter, '');
+            $mform->addHelpButton('customfieldname' . $counter, 'customfieldname', 'booking');
             $mform->hideIf('customfieldname' . $counter, 'addcustomfield' . $counter, 'notchecked');
 
             $mform->addElement('textarea', 'customfieldvalue' . $counter, get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
@@ -160,7 +161,7 @@ class optiondatesadd_form extends moodleform {
             $errors['endtime'] = "Course end time must be after course start time";
         }
 
-        if (!(int)$data['daystonotify']) {
+        if ($data['daystonotify'] != 0 && !(int)$data['daystonotify']) {
             $errors['daystonotify'] = "Value must be an integer number";
         }
 
