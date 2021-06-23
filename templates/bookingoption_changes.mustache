@@ -29,14 +29,14 @@
         <tr>
             {{#fieldname}}
                 <td><b>{{fieldname}}: </b></td>
-                <td style="color: red;">{{#oldvalue}}<s>{{oldvalue}}</s>{{/oldvalue}}</td>
-                <td>{{#newvalue}}{{newvalue}}{{/newvalue}}</td>
+                <td style="color: red;">{{#oldvalue}}<s>{{{oldvalue}}}</s>{{/oldvalue}}</td>
+                <td>{{#newvalue}}{{{newvalue}}}{{/newvalue}}</td>
             {{/fieldname}}
             <!-- Custom fields have no field name. -->
             {{^fieldname}}
                 <td><b>{{#newname}}{{newname}} {{/newname}}{{#oldname}}<s style="color: red;">{{oldname}}</s>{{/oldname}}</b></td>
-                <td style="color: red;">{{#oldvalue}}<s>{{oldvalue}}</s>{{/oldvalue}}</td>
-                <td>{{#newvalue}}{{newvalue}}{{/newvalue}}</td>
+                <td style="color: red;">{{#oldvalue}}<s>{{{oldvalue}}}</s>{{/oldvalue}}</td>
+                <td>{{#newvalue}}{{{newvalue}}}{{/newvalue}}</td>
             {{/fieldname}}
         </tr>
     {{/changes}}
