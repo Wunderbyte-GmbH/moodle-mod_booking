@@ -85,6 +85,7 @@ class optiondatesadd_form extends moodleform {
                 $mform->addElement('text', 'customfieldname' . $j, get_string('customfieldname', 'booking'));
                 $mform->setType('customfieldname' . $j, PARAM_TEXT);
                 $mform->setDefault('customfieldname' . $j, $customfield->cfgname);
+                $mform->addHelpButton('customfieldname' . $j, 'customfieldname', 'booking');
 
                 $mform->addElement('textarea', 'customfieldvalue' . $j, get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
                 $mform->setType('customfieldvalue' . $j, PARAM_RAW);
