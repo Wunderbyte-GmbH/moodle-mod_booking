@@ -159,6 +159,11 @@ class optiondatesadd_form extends moodleform {
         if ($endtime < $starttime) {
             $errors['endtime'] = "Course end time must be after course start time";
         }
+
+        if (!(int)$data['daystonotify']) {
+            $errors['daystonotify'] = "Value must be an integer number";
+        }
+
         // Validate custom fields.
         for ($i = 1; $i <= MAX_CUSTOM_FIELDS; $i++) {
             $customfieldnamex = $data['customfieldname' . $i];
