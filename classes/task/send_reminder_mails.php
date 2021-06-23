@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking\task;
 
+use stdClass;
+
 defined('MOODLE_INTERNAL') || die();
 
 class send_reminder_mails extends \core\task\scheduled_task {
@@ -24,13 +26,13 @@ class send_reminder_mails extends \core\task\scheduled_task {
     }
 
     public function execute() {
-        global $DB, $CFG;
+        global $DB;
         $now = time();
 
         echo "run send_reminder_mails task" . "\n";
 
         $toprocess = $DB->get_records_sql(
-                'SELECT bo.id, bo.coursestarttime, b.daystonotify, b.daystonotify2, bo.sent, bo.sent2
+           'SELECT bo.id, bo.coursestarttime, b.daystonotify, b.daystonotify2, bo.sent, bo.sent2
             FROM {booking_options} bo
             LEFT JOIN {booking} b ON b.id = bo.bookingid
             WHERE (b.daystonotify > 0 OR b.daystonotify2 > 0)
@@ -62,6 +64,31 @@ class send_reminder_mails extends \core\task\scheduled_task {
                 }
             }
         }
+
+        // Now let's check if reminders for sessions need to be sent.
+        $now = time();
+        $sessionstoprocess = $DB->get_records_sql(
+           'SELECT bod.id, bod.coursestarttime, bod.daystonotify, bod.sent
+            FROM {booking_optiondates} bod
+            WHERE bod.daystonotify > 0
+            AND sent = 0
+            AND bod.coursestarttime > 0  AND bod.coursestarttime > :now', array('now' => $now));
+
+        foreach ($sessionstoprocess as $sessionrecord) {
+
+            echo json_encode($sessionrecord) . "\n";
+
+            // Check if session notification has been sent already.
+            if ($sessionrecord->sent == 0) {
+
+                if ($this->send_notification($sessionrecord, $sessionrecord->daystonotify, true)) {
+                    $save = new stdClass();
+                    $save->id = $sessionrecord->id;
+                    $save->sent = 1;
+                    $DB->update_record("booking_optiondates", $save);
+                }
+            }
+        }
     }
 
     /**
@@ -69,11 +96,10 @@ class send_reminder_mails extends \core\task\scheduled_task {
      * Returns true if sent and false if not.
      * @param $record
      * @param $daystonotify
+     * @param bool $issession false for option (default), true for sessions (optiondates)
      * @return bool
-     * @throws \coding_exception
-     * @throws \dml_exception
      */
-    private function send_notification($record, $daystonotify) {
+    private function send_notification($record, $daystonotify, $issession = false) {
         $now = time();
         $timetosend = strtotime('-' . $daystonotify . ' day', $record->coursestarttime);
         if ($timetosend < $now) {
