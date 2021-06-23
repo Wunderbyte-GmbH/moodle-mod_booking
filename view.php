@@ -329,8 +329,13 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             echo $html = html_writer::tag('div',
                     '<a id="gotop" href="#goenrol">' . get_string('goenrol', 'booking') . '</a>',
                     array('style' => 'width:100%; font-weight: bold; text-align: right;'));
-            echo html_writer::tag('div', format_module_intro('booking', $booking->settings, $cm->id),
-                    array('class' => 'intro'));
+            // Show intro description only when not showing businesscard (see beneath)
+            if (!empty($booking->settings->organizatorname)) {
+                if (!$organizerid = (int)$booking->settings->organizatorname) {
+                    echo html_writer::tag('div', format_module_intro('booking', $booking->settings, $cm->id),
+                            array('class' => 'intro'));
+                }
+            }
         }
 
         if (!empty($booking->settings->duration)) {
@@ -348,7 +353,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             echo html_writer::tag('span', $booking->settings->points);
             echo html_writer::end_tag('div');
         }
-
+        // If we have specified a teacher as organizer, we show a "busines_card" with photo, else legacy organizer description.
         if (!empty($booking->settings->organizatorname)) {
             if ($organizerid = (int)$booking->settings->organizatorname) {
 
