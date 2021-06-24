@@ -55,7 +55,7 @@ if ($link = $bu->show_conference_link($bookingoption, $userid, $sessionid)) {
     $link = $DB->get_field('booking_customfields', 'value', array('id' => $fieldid));
 
     // Check if it's actually a link.
-    if (filter_var($url, FILTER_VALIDATE_URL) === TRUE) {
+    if (filter_var($link, FILTER_VALIDATE_URL)) {
         header("Location: $link");
         exit();
     } else {
