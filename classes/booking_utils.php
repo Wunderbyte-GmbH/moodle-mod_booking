@@ -501,7 +501,8 @@ class booking_utils {
                     array('id' => $cm->id,
                             'optionid' => $bookingoption->optionid,
                             'action' => 'join',
-                            'sessionid' => $sessionid
+                            'sessionid' => $sessionid,
+                            'fieldid' => $field->id
                             ));
             return [
                     'name' => null,
@@ -514,7 +515,8 @@ class booking_utils {
                     array('id' => $cm->id,
                             'optionid' => $bookingoption->optionid,
                             'action' => 'join',
-                            'sessionid' => $sessionid
+                            'sessionid' => $sessionid,
+                            'fieldid' => $field->id
                     ));
             return [
                     'name' => null,

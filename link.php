@@ -28,6 +28,7 @@ $id = required_param('id', PARAM_INT); // Course Module ID.
 $action = optional_param('action', '', PARAM_ALPHA);
 $optionid = optional_param('optionid', '', PARAM_INT);
 $sessionid = optional_param('sessionid', '', PARAM_INT);
+$fieldid = optional_param('fieldid', '', PARAM_INT);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
 
@@ -44,44 +45,54 @@ $booking = $bookingoption->booking;
 $bu = new \mod_booking\booking_utils($booking, $bookingoption);
 $userid = $USER->id;
 
+$explanationstring = null;
+
+// Only if there was a valid link, we redirect and session is open, we redirect.
 if ($link = $bu->show_conference_link($bookingoption, $userid, $sessionid)) {
 
-    header("Location: https://www.wunderbyte.at");
-    exit();
-} else {
+    // We can find the actual link:
 
-    $context = context_module::instance($cm->id);
+    $link = $DB->get_field('booking_customfields', 'value', array('id' => $fieldid));
 
-    require_login($course, false, $cm);
+    // Check if it's actually a link.
+    if (filter_var($url, FILTER_VALIDATE_URL) === TRUE) {
+        header("Location: $link");
+        exit();
+    } else {
+        $explanationstring = "Check your link, it doesn't seem to be valid: $link";
+    }
+}
 
-    $url = new moodle_url('/mod/booking/link.php', [
-            'id' => $id,
-            'action' => 'join',
-            'optionid' => $optionid
-    ]);
-    $PAGE->set_url($url);
+$context = context_module::instance($cm->id);
 
-    $PAGE->set_context($context);
+require_login($course, false, $cm);
 
-    echo $OUTPUT->header();
+$url = new moodle_url('/mod/booking/link.php', [
+        'id' => $id,
+        'action' => 'join',
+        'optionid' => $optionid
+]);
+$PAGE->set_url($url);
 
-    // Todo: Calculate minutes to event start
+$PAGE->set_context($context);
+
+echo $OUTPUT->header();
+
+if (!$explanationstring) {
     if ($seconds = $bu->secondstostart) {
-
         $minutes = $bu->get_pretty_duration($seconds);
-
         $explanationstring = get_string('bookingnotopenyet', 'booking', $minutes);
     } else if ($minutes = $bu->secondspassed) {
         $explanationstring = get_string('bookingpassed', 'booking', $minutes);
     } else {
         $explanationstring = get_string('linknotvalid', 'booking');
     }
-
-    $contents = html_writer::tag('p', $explanationstring);
-    $options = array('id' => $cm->id, 'optionid' =>$optionid, 'action' => 'showonlyone', 'whichview' => 'showonlyone');
-    $contents .= $OUTPUT->single_button(new moodle_url('view.php', $options),
-            get_string('continue'), 'get');
-    echo $OUTPUT->box($contents, 'box generalbox', 'notice');
-    echo $OUTPUT->footer();
-    die();
 }
+
+$contents = html_writer::tag('p', $explanationstring);
+$options = array('id' => $cm->id, 'optionid' =>$optionid, 'action' => 'showonlyone', 'whichview' => 'showonlyone');
+$contents .= $OUTPUT->single_button(new moodle_url('view.php', $options),
+        get_string('continue'), 'get');
+echo $OUTPUT->box($contents, 'box generalbox', 'notice');
+echo $OUTPUT->footer();
+die();
