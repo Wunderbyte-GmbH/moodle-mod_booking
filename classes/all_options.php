@@ -274,8 +274,11 @@ class all_options extends table_sql {
 
         global $PAGE;
 
+
+
         $output = $PAGE->get_renderer('mod_booking');
-        $data = new \mod_booking\output\bookingoption_description($this->booking, $values);
+        // If iambooked 0, we don't who Meeting-Links, if booked, we show them.
+        $data = new \mod_booking\output\bookingoption_description($this->booking, $values, null, $values->iambooked);
 
         if ($this->booking->settings->showdescriptionmode == 0) {
             // We will have a number of modals on this site, therefore we have to distinguish them.

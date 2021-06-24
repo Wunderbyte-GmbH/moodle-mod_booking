@@ -32,12 +32,12 @@ class booking_utils {
     /**
      * @var int|null
      */
-    public $minutestostart = null;
+    public $secondstostart = null;
 
     /**
      * @var int|null
      */
-    public $minutespassed = null;
+    public $secondspassed = null;
 
     /**
      * @var stdClass
@@ -383,11 +383,11 @@ class booking_utils {
 
         global $DB;
 
-        if (!$DB->record_exists('booking_answers', array('optionid' => $bookingoption->optionid,
-                                                                'userid' => $userid,
-                                                                'waitinglist' => 0))) {
-            return false;
+        // First check if user is really booked.
+        if ($bookingoption->iambooked != 1) {
+                return false;
         }
+
         $now = time();
         $openingtime = strtotime("+15 minutes", $now);
 
@@ -404,13 +404,13 @@ class booking_utils {
             && $end > $now) {
             return true;
         } else {
-            // If we return false here, we first have to calculate minutestostart
+            // If we return false here, we first have to calculate secondstostart
             $delta = $start - $now;
 
             if ($delta < 0) {
-                $this->minutespassed = - $delta / 60;
+                $this->secondspassed = - $delta;
             } else {
-                $this->minutestostart = $delta / 60;
+                $this->secondstostart = $delta;
             }
             return false;
         }
@@ -450,10 +450,12 @@ class booking_utils {
      * @param $fields
      * @return array
      */
-    public function return_array_of_customfields($bookingoption, $fields, $sessionid = 0) {
+    public function return_array_of_customfields($bookingoption, $fields, $sessionid = 0, $bookinglinkparam = 0) {
         $returnarray = [];
         foreach ($fields as $field) {
-            $returnarray[] = $this->render_customfield_data($bookingoption, $field, $sessionid);
+            if ($value = $this->render_customfield_data($bookingoption, $field, $sessionid, $bookinglinkparam)) {
+                $returnarray[] = $value;
+            }
         }
         return $returnarray;
     }
@@ -462,39 +464,74 @@ class booking_utils {
      * This is the place to return buttons etc. for special name, keys, like teams-meeting or zoom meeting.
      * @param $field
      */
-    private function render_customfield_data($bookingoption, $field, $sessionid = 0) {
-
+    private function render_customfield_data($bookingoption, $field, $sessionid = 0, $bookinglinkparam = 0) {
         global $USER;
 
         switch ($field->cfgname) {
-            case 'Teamsmeeting':
+            case 'TeamsMeeting':
                 // If the session is not yet about to begin, we show placeholder
-                if (!$this->show_conference_link($bookingoption, $USER->id, $sessionid)) {
-                    return [
-                            'name' => null,
-                            'value' => get_string('linknotavailableyet', 'mod_booking')
-                    ];
-                }
-                return [
-                        'name' => null,
-                        'value' => "<a href=$field->value class='btn btn-info'>$field->cfgname</a>"
-                ];
-            case 'Zoommeeting':
+                return $this->render_meeting_fields($bookingoption, $sessionid, $field, $bookinglinkparam);
+            case 'ZoomMeeting':
                 // If the session is not yet about to begin, we show placeholder
-                if (!$this->show_conference_link($bookingoption, $USER->id, $sessionid)) {
-                    return [
-                            'name' => null,
-                            'value' => get_string('linknotavailableyet', 'mod_booking')
-                    ];
-                }
-                return [
-                        'name' => null,
-                        'value' => '<a href="' . $field->value . '" class="btn btn-warning">' . $field->cfgname . '</a>'
-                ];
+                return $this->render_meeting_fields($bookingoption, $sessionid, $field, $bookinglinkparam);
+            case 'BigBlueButtonMeeting':
+                // If the session is not yet about to begin, we show placeholder
+                return $this->render_meeting_fields($bookingoption, $sessionid, $field, $bookinglinkparam);
         }
         return [
                 'name' => "$field->cfgname: ",
                 'value' => $field->value
+        ];
+    }
+
+
+    private function render_meeting_fields($bookingoption, $sessionid, $field, $bookinglinkparam) {
+        global $USER, $CFG;
+
+        $baseurl = $CFG->wwwroot;
+
+        // User is not booked, no access to buttons.
+        if ($bookinglinkparam == 0) {
+            // We don't want to show these Buttons at all if the user is not booked.
+            return null;
+        } else if ($bookinglinkparam == 2) {
+            // User is booked, we show a button (for Moodle calendar ie).
+            $cm = $bookingoption->booking->cm;
+            $link = new moodle_url($baseurl . '/mod/booking/link.php',
+                    array('id' => $cm->id,
+                            'optionid' => $bookingoption->optionid,
+                            'action' => 'join',
+                            'sessionid' => $sessionid
+                            ));
+            return [
+                    'name' => null,
+                    'value' => "<a href=$link class='btn btn-info'>$field->cfgname</a>"
+            ];
+        } else if ($bookinglinkparam == 3) {
+            // User is booked, for ical, not button but link only.
+            $cm = $bookingoption->booking->cm;
+            $link = new moodle_url($baseurl . '/mod/booking/link.php',
+                    array('id' => $cm->id,
+                            'optionid' => $bookingoption->optionid,
+                            'action' => 'join',
+                            'sessionid' => $sessionid
+                    ));
+            return [
+                    'name' => null,
+                    'value' => $link
+            ];
+        }
+        else if (!$this->show_conference_link($bookingoption, $USER->id, $sessionid)) {
+            // User is booked, if the user is booked, but event not yet open, we show placeholder with time to start.
+            return [
+                    'name' => null,
+                    'value' => get_string('linknotavailableyet', 'mod_booking')
+            ];
+        }
+        // User is booked and event open, we return the button with the link to access, this is for the website.
+        return [
+                'name' => null,
+                'value' => "<a href=$field->value class='btn btn-info'>$field->cfgname</a>"
         ];
     }
 
@@ -530,7 +567,7 @@ class booking_utils {
      * @return array
      * @throws \dml_exception
      */
-    public function return_array_of_sessions($bookingoption, $bookingevent = null, $withcustomfields = false) {
+    public function return_array_of_sessions($bookingoption, $bookingevent = null, $bookinglinkparam = 0, $withcustomfields = false) {
 
         global $DB;
 
@@ -566,7 +603,7 @@ class booking_utils {
                     $returnsession['datestring'] = $this->return_string_from_dates($session->coursestarttime, $session->courseendtime);
                     // customfields can only be displayed in combination with timevalues.
                     if ($withcustomfields) {
-                        $returnsession['customfields'] = $this->return_array_of_customfields($bookingoption, $fields, $session->id);
+                        $returnsession['customfields'] = $this->return_array_of_customfields($bookingoption, $fields, $session->id, $bookinglinkparam);
                     }
                 }
                 if ($returnsession) {

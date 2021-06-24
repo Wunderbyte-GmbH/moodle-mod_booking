@@ -27,7 +27,7 @@ require_once($CFG->dirroot . '/comment/lib.php');
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $action = optional_param('action', '', PARAM_ALPHA);
 $optionid = optional_param('optionid', '', PARAM_INT);
-$userid = optional_param('userid', '', PARAM_INT);
+$sessionid = optional_param('sessionid', '', PARAM_INT);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
 
@@ -35,13 +35,17 @@ if ($action !== 'join') {
     die();
 }
 
-$bu = new \mod_booking\booking_utils();
-
 if (!$bookingoption = new \mod_booking\booking_option($cm->id, $optionid)) {
     die();
 }
 
-if ($link = $bu->show_conference_link($$bookingoption, $userid)) {
+$booking = $bookingoption->booking;
+
+$bu = new \mod_booking\booking_utils($booking, $bookingoption);
+$userid = $USER->id;
+
+if ($link = $bu->show_conference_link($bookingoption, $userid, $sessionid)) {
+
     header("Location: https://www.wunderbyte.at");
     exit();
 } else {
@@ -62,9 +66,12 @@ if ($link = $bu->show_conference_link($$bookingoption, $userid)) {
     echo $OUTPUT->header();
 
     // Todo: Calculate minutes to event start
-    if ($minutes = $bu->minutestostart) {
+    if ($seconds = $bu->secondstostart) {
+
+        $minutes = $bu->get_pretty_duration($seconds);
+
         $explanationstring = get_string('bookingnotopenyet', 'booking', $minutes);
-    } else if ($minutes = $bu->minutespassed) {
+    } else if ($minutes = $bu->secondspassed) {
         $explanationstring = get_string('bookingpassed', 'booking', $minutes);
     } else {
         $explanationstring = get_string('linknotvalid', 'booking');

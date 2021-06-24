@@ -21,10 +21,10 @@ global $CFG;
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
-const BOOKINGLINKPARAM_NONE = 0;
-const BOOKINGLINKPARAM_BOOK = 1;
-const BOOKINGLINKPARAM_USER = 2;
-const BOOKINGLINKPARAM_ICAL = 3;
+const BOOKINGLINKPARAM_NONE = 0; // Shows Link only when active, used on website
+const BOOKINGLINKPARAM_BOOK = 1; // Shows link with text "book" and no link to Teamsmeeting etc.
+const BOOKINGLINKPARAM_USER = 2; // Shows Links with text "go to bookingoption" via link.php
+const BOOKINGLINKPARAM_ICAL = 3; // Shows Links with text "go to bookingoption" via link.php
 
 /**
  * Abstract class used by booking subscriber selection controls
@@ -375,76 +375,18 @@ function get_rendered_customfields($optiondateid) {
  * @return string The rendered HTML of the full description.
  */
 function get_rendered_eventdescription($option, $cmid, $optiondate = false, $bookinglinkparam = BOOKINGLINKPARAM_NONE) {
-    global $DB, $CFG;
-    $fulldescription = '';
+    global $DB, $CFG, $PAGE;
 
-    // Create the description for a booking option date (session) event.
-    if ($optiondate) {
-        $timestart = userdate($optiondate->coursestarttime, get_string('strftimedatetime'));
-        $timefinish = userdate($optiondate->courseendtime, get_string('strftimedatetime'));
-        $fulldescription .= "<p><b>$timestart &ndash; $timefinish</b></p>";
+    // We have the following differences:
+    // - Rendered live on the website (eg wihin a modal) -> use button
+    // - Rendered in calendar event -> use link.php? link.
+    // - Rendered in ical file for mail -> use  use link.php? link.
 
-        $fulldescription .= "<p>" . format_text($option->description, FORMAT_HTML) . "</p>";
+    $booking = new \mod_booking\booking($cmid);
 
-        // Add rendered custom fields.
-        $customfieldshtml = get_rendered_customfields($optiondate->id);
-        if (!empty($customfieldshtml)) {
-            $fulldescription .= $customfieldshtml;
-        }
-    } else {
-        // Create the description for a booking option event without sessions.
-        $timestart = userdate($option->coursestarttime, get_string('strftimedatetime'));
-        $timefinish = userdate($option->courseendtime, get_string('strftimedatetime'));
-        $fulldescription .= "<p><b>$timestart &ndash; $timefinish</b></p>";
-
-        $fulldescription .= "<p>" . format_text($option->description, FORMAT_HTML) . "</p>";
-
-        $customfields = $DB->get_records('booking_customfields', array('optionid' => $option->id));
-        $customfieldcfg = \mod_booking\booking_option::get_customfield_settings();
-
-        if ($customfields && !empty($customfieldcfg)) {
-            foreach ($customfields as $field) {
-                if (!empty($field->value)) {
-                    $cfgvalue = $customfieldcfg[$field->cfgname]['value'];
-                    if ($customfieldcfg[$field->cfgname]['type'] == 'multiselect') {
-                        $tmpdata = implode(", ", explode("\n", $field->value));
-                        $fulldescription .= "<p> <b>$cfgvalue: </b>$tmpdata</p>";
-                    } else {
-                        $fulldescription .= "<p> <b>$cfgvalue: </b>$field->value</p>";
-                    }
-                }
-            }
-        }
-    }
-
-    // Add location, institution and address.
-    if (strlen($option->location) > 0) {
-        $fulldescription .= '<p><i>' . get_string('location', 'booking') . '</i>: ' . $option->location . '</p>';
-    }
-    if (strlen($option->institution) > 0) {
-        $fulldescription .= '<p><i>' . get_string('institution', 'booking') . '</i>: ' . $option->institution. '</p>';
-    }
-    if (strlen($option->address) > 0) {
-        $fulldescription .= '<p><i>' . get_string('address', 'booking') . '</i>: ' . $option->address. '</p>';
-    }
-
-    // Attach the correct link.
-    $linkurl = $CFG->wwwroot . "/mod/booking/view.php?id={$cmid}&optionid={$option->id}&action=showonlyone&whichview=showonlyone#goenrol";
-    switch ($bookinglinkparam) {
-        case BOOKINGLINKPARAM_BOOK:
-            $fulldescription .= "<p>" . get_string("bookingoptioncalendarentry", 'booking', $linkurl) . "</p>";
-            break;
-        case BOOKINGLINKPARAM_USER:
-            $fulldescription .= "<p>" . get_string("usercalendarentry", 'booking', $linkurl) . "</p>";
-            break;
-        case BOOKINGLINKPARAM_ICAL:
-            $fulldescription .= "<br><p>" . get_string("linkgotobookingoption", 'booking', $linkurl) . "</p>";
-            // Convert to plain text for ICAL.
-            $fulldescription = rtrim(strip_tags(preg_replace( "/<br>|<\/p>/", "\\n", $fulldescription)));
-            break;
-    }
-
-    return $fulldescription;
+    $data = new \mod_booking\output\bookingoption_description($booking, $option, null, $bookinglinkparam);
+    $output = $PAGE->get_renderer('mod_booking');
+    return $output->render_bookingoption_description($data);
 }
 
 /**

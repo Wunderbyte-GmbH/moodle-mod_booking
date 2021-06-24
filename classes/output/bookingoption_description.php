@@ -26,7 +26,10 @@ namespace mod_booking\output;
 
 defined('MOODLE_INTERNAL') || die();
 
-use mod_booking\booking_option;use mod_booking\booking_utils;use mod_booking\utils\db;use renderer_base;
+use mod_booking\booking_option;
+use mod_booking\booking_utils;
+use mod_booking\utils\db;
+use renderer_base;
 use renderable;
 use templatable;
 
@@ -69,6 +72,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $duration as saved in db in minutes */
     public $duration = null;
 
+    /** @var string $booknowbutton as saved in db in minutes */
+    public $booknowbutton = null;
+
     /** @var array $dates as saved in db in minutes */
     public $dates = [];
 
@@ -89,6 +95,8 @@ class bookingoption_description implements renderable, templatable {
             $bookingevent = null,
             $bookinglinkparam = BOOKINGLINKPARAM_NONE,
             $withcustomfields = true) {
+
+        global $CFG;
 
         $this->bu = new booking_utils();
         $bookingoption = new booking_option($booking->cm->id, $bookingoption->id);
@@ -113,8 +121,22 @@ class bookingoption_description implements renderable, templatable {
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
 
-        $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent, $withcustomfields);
+        $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent, $bookinglinkparam, $withcustomfields);
 
+        // if the user is not yet booked, we want to add "book now" button to ical and Moodle calendar.
+        if ($bookinglinkparam != 0
+                && $bookingoption->iambooked == 0) {
+            $baseurl = $CFG->wwwroot;
+            $link = new \moodle_url($baseurl . '/mod/booking/view.php', array(
+                    'id' => $booking->cm->id,
+                    'optionid' => $bookingoption->optionid,
+                    'action' => 'showonlyone',
+                    'whichview' => 'showonlyone'
+            ));
+            $this->booknowbutton = "<a href=$link class='btn btn-primary'>"
+                    . get_string('booknow', 'booking')
+                    . "</a>";
+        }
     }
 
     public function export_for_template(renderer_base $output) {
@@ -127,7 +149,8 @@ class bookingoption_description implements renderable, templatable {
                 'addresse' => $this->addresse,
                 'institution' => $this->institution,
                 'duration' => $this->duration,
-                'dates' => $this->dates
+                'dates' => $this->dates,
+                'booknowbutton' => $this->booknowbutton
         );
     }
 }

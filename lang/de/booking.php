@@ -965,7 +965,7 @@ $string['linkgotobookingoption'] = 'Buchung anzeigen: {$a}</a>';
 // link.php
 $string['bookingnotopenyet'] = 'Ihr Event startet erst in {$a} Minuten. Dieser Link wird Sie ab 15 Minuten vor dem Event weiterleiten.';
 $string['bookingpassed'] = 'Ihr Event ist bereits seit {$a} Minuten vorüber.';
-$string['linknotvalid'] = 'Der Link scheint nicht in Ordnung zu sein.';
+$string['linknotvalid'] = 'Sie scheinen dieses Meeting nicht gebucht zu haben.';
 
 // booking_utils.php
 $string['linknotavailableyet'] = "Der Link auf die Konferenz ist nur zwischen 15 Minuten vor dem Meeting und dem Enddatum hier verfügbar.";

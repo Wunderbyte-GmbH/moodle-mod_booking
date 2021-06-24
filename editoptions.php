@@ -74,7 +74,7 @@ if ($mform->is_cancelled()) {
         if (!isset($fromform->limitanswers)) {
             $fromform->limitanswers = 0;
         }
-
+        // Todo: nbooking should be call $optionid
         $nbooking = booking_update_options($fromform, $context);
 
         if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
