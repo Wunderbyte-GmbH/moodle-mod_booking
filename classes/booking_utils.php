@@ -518,9 +518,10 @@ class booking_utils {
                             'sessionid' => $sessionid,
                             'fieldid' => $field->id
                     ));
+            $link = $link->out(false);
             return [
                     'name' => null,
-                    'value' => $link
+                    'value' => "$field->cfgname: $link"
             ];
         }
         else if (!$this->show_conference_link($bookingoption, $USER->id, $sessionid)) {

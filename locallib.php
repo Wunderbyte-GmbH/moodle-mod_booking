@@ -386,7 +386,15 @@ function get_rendered_eventdescription($option, $cmid, $optiondate = false, $boo
 
     $data = new \mod_booking\output\bookingoption_description($booking, $option, null, $bookinglinkparam);
     $output = $PAGE->get_renderer('mod_booking');
+
+    if ($bookinglinkparam == 3) { // Means: If this is for ical.
+
+        // For ical, we need to strip tags.
+
+        return $output->render_bookingoption_description_ical($data);
+    }
     return $output->render_bookingoption_description($data);
+
 }
 
 /**

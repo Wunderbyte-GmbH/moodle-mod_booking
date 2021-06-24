@@ -248,6 +248,10 @@ class ical {
             $fulldescription = get_rendered_eventdescription($this->option, $PAGE->cm->id, false, BOOKINGLINKPARAM_ICAL);
         }
 
+        // Make sure we have not tags in full description:
+        $fulldescription = rtrim(strip_tags(preg_replace( "/<br>|<\/p>/", "\n", $fulldescription)));
+        $fulldescription = str_replace("\n", "\\n", $fulldescription );
+
         $veventparts = array(
             "BEGIN:VEVENT",
             "CLASS:PUBLIC",

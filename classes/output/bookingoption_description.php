@@ -133,9 +133,14 @@ class bookingoption_description implements renderable, templatable {
                     'action' => 'showonlyone',
                     'whichview' => 'showonlyone'
             ));
-            $this->booknowbutton = "<a href=$link class='btn btn-primary'>"
-                    . get_string('booknow', 'booking')
-                    . "</a>";
+            if ($bookinglinkparam == 3) { // if it's for ical, we don't render link.
+                $this->booknowbutton = get_string('booknow', 'booking') . $link->out(false);
+            } else {
+                $this->booknowbutton = "<a href=$link class='btn btn-primary'>"
+                        . get_string('booknow', 'booking')
+                        . "</a>";
+            }
+
         }
     }
 
