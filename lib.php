@@ -548,7 +548,7 @@ function booking_update_instance($booking) {
  * @return boolean|number optionid
  */
 function booking_update_options($optionvalues, $context) {
-    global $DB, $CFG, $PAGE, $USER;
+    global $DB, $CFG, $COURSE, $PAGE, $USER;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
     require_once("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
     $customfields = \mod_booking\booking_option::get_customfield_settings();
@@ -567,7 +567,7 @@ function booking_update_options($optionvalues, $context) {
 
     $option = new stdClass();
     $option->bookingid = $optionvalues->bookingid;
-    $option->courseid = $optionvalues->courseid;
+    $option->courseid = $COURSE->id;
 
     // for global option templates, 0 is used as bookingid
     if (isset($optionvalues->addastemplate) && $optionvalues->addastemplate == 1) {

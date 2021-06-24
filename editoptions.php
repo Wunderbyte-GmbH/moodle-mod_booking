@@ -145,6 +145,7 @@ if ($mform->is_cancelled()) {
             }
         }
 
+        // Redirect after pressing one of the 2 submit buttons.
         if (isset($fromform->submittandaddnew)) {
             $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
             redirect($redirecturl, get_string('changessaved'), 0);

@@ -80,7 +80,10 @@ class calendar {
                             }
                         }
                     }
-                    $DB->set_field("booking_options", 'calendarid', $newcalendarid, array('id' => $this->optionid));
+                    if ($newcalendarid && $newcalendarid != 0) {
+                        // Fixed: Only set calendar id, if there is one.
+                        $DB->set_field("booking_options", 'calendarid', $newcalendarid, array('id' => $this->optionid));
+                    }
                 }
                 break;
             case $this::TYPEOPTIONDATE:
@@ -95,14 +98,14 @@ class calendar {
                 } else {
                     if ($bookingoption->option->addtocalendar == 1) {
                         if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $this->optiondateid])) {
-                            $newcalendarid = $this->booking_optiondate_add_to_cal($bookingoption->booking->settings,
+                            $this->booking_optiondate_add_to_cal($bookingoption->booking->settings,
                                 $bookingoption->option, $optiondate, 0, $bookingoption->option->calendarid);
                         } else {
                             echo "ERROR: Calendar entry for option date could not be created.";
                         }
                     } else if ($bookingoption->option->addtocalendar == 2) {
                         if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $this->optiondateid])) {
-                            $newcalendarid = $this->booking_optiondate_add_to_cal($bookingoption->booking->settings,
+                            $this->booking_optiondate_add_to_cal($bookingoption->booking->settings,
                                 $bookingoption->option, $optiondate, 0, $bookingoption->option->calendarid,
                                 2);
                         } else {
@@ -182,7 +185,7 @@ class calendar {
         $event = new stdClass();
         $event->type = CALENDAR_EVENT_TYPE_STANDARD;
         $event->component = 'mod_booking';
-        $event->modulename = '';
+        $event->modulename = 'booking';
         $event->id = $calendareventid;
         $event->name = $option->text;
         $event->description = $fulldescription;
@@ -199,7 +202,6 @@ class calendar {
                 // Only include course id in course events.
                 $event->eventtype = 'course';
                 $event->courseid = $courseid;
-                $event->modulename = 'booking';
                 $event->userid = 0;
                 $event->groupid = 0;
             }
@@ -320,6 +322,7 @@ class calendar {
             if (!empty($optiondate->eventid)) {
                 $DB->update_record('booking_optiondates', $optiondate);
             }
+
             return $tmpevent->id;
         }
     }
