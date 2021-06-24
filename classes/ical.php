@@ -267,7 +267,9 @@ class ical {
 
         // If the event has been updated then add SEQUENCE:1 before END:VEVENT.
         if ($this->updated) {
-            if (!$data = $DB->get_record('booking_icalsequence', array('userid' => $this->user->id))) {
+            if (!$data = $DB->get_record('booking_icalsequence', array(
+                    'userid' => $this->user->id,
+                    'optionid' => $this->option->id))) {
                 $data = new \stdClass();
                 $data->userid = $this->user->id;
                 $data->optionid = $this->option->id;
