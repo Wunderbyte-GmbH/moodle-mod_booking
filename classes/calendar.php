@@ -341,7 +341,7 @@ class calendar {
 
             // Set the eventid in table booking_optiondates so the event can be identified later.
             $optiondate->eventid = $tmpevent->id;
-            if (!empty($optiondate->eventid)) {
+            if (!empty($optiondate->eventid) && !$userid) {
                 $DB->update_record('booking_optiondates', $optiondate);
             }
             return $tmpevent->id;

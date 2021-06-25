@@ -432,22 +432,22 @@ function optiondate_updateevent($optiondate, $cmid) {
     } else {
 
         // Get all the userevents
-        $sql = "SELECT e.*
-              FROM {booking_userevents} ue
+        $sql = "SELECT e.* FROM {booking_userevents} ue
               JOIN {event} e
-              ON ue.eventid = e.id";
+              ON ue.eventid = e.id
+              WHERE ue.optiondateid = :optiondateid";
 
-        $userevents = $DB->get_records_sql($sql);
+        $allevents = $DB->get_records_sql($sql, ['optiondateid' => $optiondate->id]);
 
-        if ($userevents && count($userevents) > 0) {
-            $userevents[] = $event;
+        if ($allevents && count($allevents) > 0) {
+            $allevents[] = $event;
         } else {
-            $userevents = [$event];
+            $allevents = [$event];
         }
         if (!$option = $DB->get_record('booking_options', ['id' => $optiondate->optionid])) {
             return false;
         }
-        foreach ($userevents as $even) {
+        foreach ($allevents as $event) {
             $event->description = '';
             $event->description = get_rendered_eventdescription($option, $cmid, $optiondate, BOOKINGLINKPARAM_BOOK);
             $event->timestart = $optiondate->coursestarttime;
