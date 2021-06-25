@@ -145,12 +145,12 @@ if ($mform->is_cancelled()) {
             }
         }
 
-        if ($optionid > 0) {
+        /*if ($optionid > 0) {
             // If it has been an update, we need to trigger the bookingoption_updated event, in order to update calendar entries.
             $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
                 'userid' => $USER->id));
             $event->trigger();
-        }
+        }*/
 
         // Redirect after pressing one of the 2 submit buttons.
         if (isset($fromform->submittandaddnew)) {
