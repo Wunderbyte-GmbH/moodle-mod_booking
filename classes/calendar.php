@@ -65,7 +65,7 @@ class calendar {
                         // When we create a user event, we have to keep track of it in our special table.
                         if ($newcalendarid) {
                             $data = new stdClass();
-                            $data->userid = userid;
+                            $data->userid = $userid;
                             $data->optionid = $optionid;
                             $data->eventid = $newcalendarid;
                             $DB->insert_record('booking_userevents', $data);
@@ -102,7 +102,7 @@ class calendar {
                             $bookingoption->option, $optiondate, $userid, $bookingoption->option->calendarid);
                         if ($newcalendarid) {
                             $data = new stdClass();
-                            $data->userid = userid;
+                            $data->userid = $userid;
                             $data->optionid = $optionid;
                             $data->eventid = $newcalendarid;
                             $data->optiondateid = $this->optiondateid;

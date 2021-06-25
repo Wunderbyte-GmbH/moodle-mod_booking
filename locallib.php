@@ -430,8 +430,25 @@ function optiondate_updateevent($optiondate, $cmid) {
     if (!$event = $DB->get_record('event', ['id' => $optiondate->eventid])) {
         return false;
     } else {
-        $event->description = '';
-        if ($option = $DB->get_record('booking_options', ['id' => $optiondate->optionid])) {
+
+        // Get all the userevents
+        $sql = "SELECT e.*
+              FROM {booking_userevents} ue
+              JOIN {event} e
+              ON ue.eventid = e.id";
+
+        $userevents = $DB->get_records_sql($sql);
+
+        if ($userevents && count($userevents) > 0) {
+            $userevents[] = $event;
+        } else {
+            $userevents = [$event];
+        }
+        if (!$option = $DB->get_record('booking_options', ['id' => $optiondate->optionid])) {
+            return false;
+        }
+        foreach ($userevents as $even) {
+            $event->description = '';
             $event->description = get_rendered_eventdescription($option, $cmid, $optiondate, BOOKINGLINKPARAM_BOOK);
             $event->timestart = $optiondate->coursestarttime;
             $event->timeduration = $optiondate->courseendtime - $optiondate->coursestarttime;
@@ -439,8 +456,6 @@ function optiondate_updateevent($optiondate, $cmid) {
             if (!$DB->update_record('event', $event)) {
                 return false;
             }
-        } else {
-            return false;
         }
     }
 }
