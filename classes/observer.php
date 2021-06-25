@@ -94,9 +94,14 @@ class mod_booking_observer {
         new calendar($event->contextinstanceid, $event->objectid, 0, calendar::TYPEOPTION);
 
         // If there are associated optiondates (sessions) then update their calendar events.
-        if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $event->objectid])) {
+       if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $event->objectid])) {
             foreach ($optiondates as $optiondate) {
-                optiondate_updateevent($optiondate, $PAGE->cm->id);
+                if (!optiondate_updateevent($optiondate, $PAGE->cm->id)) {
+                    // If calendar events for sessions did not exist before, then create new ones.
+                    if (!$DB->get_record('event', ['id' => $optiondate->eventid])) {
+                        new calendar($event->contextinstanceid, $event->objectid, 0, calendar::TYPEOPTIONDATE, $optiondate->id);
+                    }
+                }
             }
         }
 
