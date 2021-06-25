@@ -2194,9 +2194,9 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2021062200, 'booking');
     }
-    if ($oldversion < 2021062400) {
+    if ($oldversion < 2021062500) {
         // Define table booking_optiondates to be created.
-        $table = new xmldb_table('booking_opendatesevents');
+        $table = new xmldb_table('booking_userevents');
 
         // Adding fields to table booking_category.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -2213,7 +2213,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->create_table($table);
         }
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2021062400, 'booking');
+        upgrade_mod_savepoint(true, 2021062500, 'booking');
     }
 
     return true;
