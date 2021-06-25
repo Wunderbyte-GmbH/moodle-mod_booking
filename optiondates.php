@@ -86,16 +86,17 @@ if ($delete != '') {
         }
     }
 
-    // If there have been significant changes, we have to resend an e-mail (containing an updated ical)...
-    // ...and the information about the changes..
-    if (!empty($changes)) {
-        $bu->react_on_changes($cm->id, $context, $optionid, $changes);
-    }
-
     booking_updatestartenddate($optionid);
 
     // Delete associated custom fields.
     optiondate_deletecustomfields($delete);
+
+    // If there have been significant changes, we have to resend an e-mail (containing an updated ical)...
+    // ...and the information about the changes..
+    if (!empty($changes)) {
+        // Set no update to true, so the original
+        $bu->react_on_changes($cm->id, $context, $optionid, $changes, true);
+    }
 
     redirect($url, get_string('optiondatessuccessfullydelete', 'booking'), 5);
 }
