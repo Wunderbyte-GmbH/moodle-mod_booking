@@ -65,10 +65,9 @@ class calendar {
                         // When we create a user event, we have to keep track of it in our special table.
                         if ($newcalendarid) {
                             $data = new stdClass();
-                            $data->userid = $event->userid;
-                            $data->optionid = $option->id;
-                            $data->eventid = $tmpevent->id;
-                            $data->optiondateid = $this->optiondateid;
+                            $data->userid = userid;
+                            $data->optionid = $optionid;
+                            $data->eventid = $newcalendarid;
                             $DB->insert_record('booking_userevents', $data);
                         }
                 } else {
@@ -99,8 +98,16 @@ class calendar {
                 if ($justbooked) {
                     // A user has just booked an option with sessions. The events will be created as USER events.
                     if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $this->optiondateid])) {
-                        $this->booking_optiondate_add_to_cal($bookingoption->booking->settings,
+                        $newcalendarid = $this->booking_optiondate_add_to_cal($bookingoption->booking->settings,
                             $bookingoption->option, $optiondate, $userid, $bookingoption->option->calendarid);
+                        if ($newcalendarid) {
+                            $data = new stdClass();
+                            $data->userid = userid;
+                            $data->optionid = $optionid;
+                            $data->eventid = $newcalendarid;
+                            $data->optiondateid = $this->optiondateid;
+                            $DB->insert_record('booking_userevents', $data);
+                        }
                     } else {
                         echo "ERROR: Calendar entry for option date could not be created.";
                     }
