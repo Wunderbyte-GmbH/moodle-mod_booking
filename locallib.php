@@ -428,7 +428,9 @@ function optiondate_updateevent($optiondate, $cmid) {
             $event->timestart = $optiondate->coursestarttime;
             $event->timeduration = $optiondate->courseendtime - $optiondate->coursestarttime;
             $event->timesort = $optiondate->coursestarttime;
-            $DB->update_record('event', $event);
+            if (!$DB->update_record('event', $event)) {
+                return false;
+            }
         } else {
             return false;
         }

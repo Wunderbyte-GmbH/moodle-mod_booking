@@ -68,6 +68,11 @@ if ($delete != '') {
                       'oldvalue' => $optiondate->courseendtime];
     }
 
+    // First, delete the associated calendar event.
+    if ($eventid = $DB->get_field('booking_optiondates', 'eventid', ['id' => $delete])) {
+        $DB->delete_records('event', ['id' => $eventid]);
+    }
+
     // Now we can delete the session.
     $DB->delete_records("booking_optiondates", array('optionid' => $optionid, 'id' => $delete));
 

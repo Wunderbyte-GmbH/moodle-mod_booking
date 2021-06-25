@@ -22,6 +22,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
+use mod_booking\calendar;
+
 /**
  * Event observer for mod_booking.
  */
@@ -77,7 +79,7 @@ class mod_booking_observer {
      * @param \mod_booking\event\bookingoption_created $event
      */
     public static function bookingoption_created(\mod_booking\event\bookingoption_created $event) {
-        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, 0, \mod_booking\calendar::TYPEOPTION);
+        new calendar($event->contextinstanceid, $event->objectid, 0, calendar::TYPEOPTION);
     }
 
     /**
@@ -89,18 +91,26 @@ class mod_booking_observer {
     public static function bookingoption_updated(\mod_booking\event\bookingoption_updated $event) {
         global $DB, $PAGE;
 
-        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, 0, \mod_booking\calendar::TYPEOPTION);
-
         // If there are associated optiondates (sessions) then update their calendar events.
         if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $event->objectid])) {
             foreach ($optiondates as $optiondate) {
-                optiondate_updateevent($optiondate, $PAGE->cm->id);
+                if (!optiondate_updateevent($optiondate, $PAGE->cm->id)) {
+                    // If calendar events for sessions did not exist before, then create new ones.
+                    if (!$DB->get_record('event', ['id' => $optiondate->eventid])) {
+                        new calendar($event->contextinstanceid, $event->objectid, 0, calendar::TYPEOPTIONDATE, $optiondate->id);
+                    }
+                }
             }
+        }
+
+        if (!isset($optiondates) || empty($optiondates)) {
+            // If there are no sessions then update the option event.
+            new calendar($event->contextinstanceid, $event->objectid, 0, calendar::TYPEOPTION);
         }
 
         $allteachers = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid AND calendarid > 0', array( 'optionid' => $event->objectid));
         foreach ($allteachers as $key => $value) {
-            new \mod_booking\calendar($event->contextinstanceid, $event->objectid, $value, \mod_booking\calendar::TYPETEACHERUPDATE);
+            new calendar($event->contextinstanceid, $event->objectid, $value, calendar::TYPETEACHERUPDATE);
         }
     }
 
@@ -111,8 +121,8 @@ class mod_booking_observer {
      * @param \mod_booking\event\bookingoptiondate_created $event
      */
     public static function bookingoptiondate_created(\mod_booking\event\bookingoptiondate_created $event) {
-        new \mod_booking\calendar($event->contextinstanceid, $event->other['optionid'], 0,
-            \mod_booking\calendar::TYPEOPTIONDATE, $event->objectid);
+        new calendar($event->contextinstanceid, $event->other['optionid'], 0,
+            calendar::TYPEOPTIONDATE, $event->objectid);
     }
 
     /**
@@ -133,11 +143,11 @@ class mod_booking_observer {
                 JOIN {booking} m ON m.id = cm.instance
                 WHERE md.name = 'booking' AND cm.instance = ?", array($value->bookingid));
 
-                new \mod_booking\calendar($tmpcmid->id, $value->id, 0, \mod_booking\calendar::TYPEOPTION);
+                new calendar($tmpcmid->id, $value->id, 0, calendar::TYPEOPTION);
 
                 $allteachers = $DB->get_records_sql('SELECT userid FROM {booking_teachers} WHERE optionid = ? AND calendarid > 0', array($value->id));
             foreach ($allteachers as $keyt => $valuet) {
-                new \mod_booking\calendar($tmpcmid->id, $value->id, $valuet->userid, \mod_booking\calendar::TYPETEACHERUPDATE);
+                new calendar($tmpcmid->id, $value->id, $valuet->userid, calendar::TYPETEACHERUPDATE);
             }
         }
     }
@@ -148,7 +158,7 @@ class mod_booking_observer {
      * @param \mod_booking\event\teacher_added $event
      */
     public static function teacher_added(\mod_booking\event\teacher_added $event) {
-        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, \mod_booking\calendar::TYPETEACHERADD);
+        new calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, calendar::TYPETEACHERADD);
     }
 
     /**
@@ -157,6 +167,6 @@ class mod_booking_observer {
      * @param \mod_booking\event\teacher_removed $event
      */
     public static function teacher_removed(\mod_booking\event\teacher_removed $event) {
-        new \mod_booking\calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, \mod_booking\calendar::TYPETEACHERREMOVE);
+        new calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, calendar::TYPETEACHERREMOVE);
     }
 }

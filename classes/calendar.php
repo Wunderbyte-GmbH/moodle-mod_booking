@@ -80,7 +80,10 @@ class calendar {
                             }
                         }
                     }
-                    $DB->set_field("booking_options", 'calendarid', $newcalendarid, array('id' => $this->optionid));
+                    if ($newcalendarid && $newcalendarid != 0) {
+                        // Fixed: Only set calendar id, if there is one.
+                        $DB->set_field("booking_options", 'calendarid', $newcalendarid, array('id' => $this->optionid));
+                    }
                 }
                 break;
             case $this::TYPEOPTIONDATE:
@@ -182,6 +185,7 @@ class calendar {
         $event = new stdClass();
         $event->type = CALENDAR_EVENT_TYPE_STANDARD;
         $event->component = 'mod_booking';
+        // IMPORTANT: ONLY course events are allowed to have a modulename.
         $event->modulename = '';
         $event->id = $calendareventid;
         $event->name = $option->text;
@@ -199,6 +203,7 @@ class calendar {
                 // Only include course id in course events.
                 $event->eventtype = 'course';
                 $event->courseid = $courseid;
+                // IMPORTANT: ONLY course events are allowed to have a modulename.
                 $event->modulename = 'booking';
                 $event->userid = 0;
                 $event->groupid = 0;
@@ -272,6 +277,7 @@ class calendar {
         $event = new stdClass();
         $event->type = CALENDAR_EVENT_TYPE_STANDARD;
         $event->component = 'mod_booking';
+        // IMPORTANT: ONLY course events are allowed to have a modulename.
         $event->modulename = '';
         $event->id = $calendareventid;
         $event->name = $option->text;
@@ -287,6 +293,8 @@ class calendar {
             } else {
                 // Only include course id in course events.
                 $event->eventtype = 'course';
+                // IMPORTANT: ONLY course events are allowed to have a modulename.
+                $event->modulename = 'booking';
                 $event->courseid = $courseid;
                 $event->userid = 0;
                 $event->groupid = 0;
