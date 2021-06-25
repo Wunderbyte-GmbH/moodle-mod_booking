@@ -60,8 +60,17 @@ class calendar {
             case $this::TYPEOPTION:
                 if ($justbooked) {
                     // A user has just booked an option. The event will be created as USER event.
-                    $this->booking_option_add_to_cal($bookingoption->booking->settings,
+                    $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings,
                         $bookingoption->option, $userid, $bookingoption->option->calendarid);
+                        // When we create a user event, we have to keep track of it in our special table.
+                        if ($newcalendarid) {
+                            $data = new stdClass();
+                            $data->userid = $event->userid;
+                            $data->optionid = $option->id;
+                            $data->eventid = $tmpevent->id;
+                            $data->optiondateid = $this->optiondateid;
+                            $DB->insert_record('booking_userevents', $data);
+                        }
                 } else {
                     if ($bookingoption->option->addtocalendar == 1) {
                         // Add to calendar as course event.
