@@ -547,8 +547,23 @@ class booking_utils {
     public function react_on_changes($cmid, $context, $optionid, $changes) {
         global $DB, $USER;
         $bo = new booking_option($cmid, $optionid);
-        // $bo->option->courseid = $option->courseid;
-        if ($bo->booking->settings->sendmail) {
+
+        // If changes concern only the add to calendar_field, we don't want to send a mail.
+        $index = null;
+        $addtocalendar = 0;
+        foreach ($changes as $key => $value) {
+            if ($value['fieldname'] == 'addtocalendar') {
+                $addtocalendar = $value['newvalue'];
+                $index = $key;
+            }
+        }
+        if ($index !== null) {
+            array_splice($changes, $key, 1);
+        }
+
+        // If we still have changes, we can send the confirmation mail.
+        if (count($changes) > 0
+                && $bo->booking->settings->sendmail) {
             $bookinganswers = $bo->get_all_users_booked();
             if (!empty($bookinganswers)) {
                 foreach ($bookinganswers as $bookinganswer) {
@@ -558,10 +573,16 @@ class booking_utils {
             }
         }
 
-        // Also, we need to trigger the bookingoption_updated event, in order to update calendar entries.
-        $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
-            'userid' => $USER->id));
-        $event->trigger();
+        // Todo: We could delete all calendar entries of this option here, if addtocalendar is 0.
+        // But we are not sure if it's a good idea.
+
+        // We trigger the event only if we have real changes OR if we set the calendar entry to 1
+        if (count($changes) > 0 || $addtocalendar == 1) {
+            // Also, we need to trigger the bookingoption_updated event, in order to update calendar entries.
+            $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
+                    'userid' => $USER->id));
+            $event->trigger();
+        }
     }
 
     /**
@@ -799,6 +820,15 @@ class booking_utils {
                     'fieldname' => 'description',
                     'oldvalue' => $oldoption->description,
                     'newvalue' => $newoption->description
+            ];
+        }
+        // We have to check for changed "adtocalendar"-value, because we need to trigger update event (but not send mail).
+        if (isset($oldoption->addtocalendar)
+                && $oldoption->addtocalendar != $newoption->addtocalendar) {
+            $returnarry[] = [
+                    'fieldname' => 'addtocalendar',
+                    'oldvalue' => $oldoption->addtocalendar,
+                    'newvalue' => $newoption->addtocalendar
             ];
         }
         if (count($returnarry) > 0) {
