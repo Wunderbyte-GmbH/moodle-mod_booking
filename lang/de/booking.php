@@ -899,7 +899,7 @@ $string['editingoptiondate'] = 'Sie bearbeiten gerade diesen Termin';
 // Optiondatesadd_form.php.
 $string['addcustomfield'] = 'Benutzerdefiniertes Feld hinzufügen';
 $string['customfieldname'] = 'Feldname';
-$string['customfieldname_help'] = 'Folgende Feldnamen, in Kombination mit Links im "Wert-Feld", fügen Buttons bzw. Links ein, die nur während der aktiven Session aufgerufen werden können: Teamsmeeting, Zoommeeting, BigBlueButton-Meeting';
+$string['customfieldname_help'] = 'Folgende Feldnamen, in Kombination mit Link im "Wert-Feld", fügen Buttons bzw. Links ein, die nur während der aktiven Session aufgerufen werden können: TeamsMeeting, ZoomMeeting, BigBlueButtonMeeting';
 $string['customfieldvalue'] = 'Wert';
 $string['deletecustomfield'] = 'Feld löschen?';
 $string['deletecustomfield_help'] = 'Achtung: Wenn Sie diese Checkbox aktivieren, wird das zugehörige Feld beim Speichern gelöscht!';
