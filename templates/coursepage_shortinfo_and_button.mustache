@@ -15,10 +15,10 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 <div class="d-flex justify-content-between">
-    <div><h2>{{coursename}}</h2></div>
-    {{#eventtype}}<div style="color:grey;"><h2>{{.}}</h2></div>{{/eventtype}}
-    <div><a href="{{{buttonurl}}}" target="_self" class="btn btn-primary">{{# str }} btnviewavailable, booking {{/ str }}</a></div>
+    <div class="coursename"><h2>{{coursename}}</h2></div>
+    {{#eventtype}}<div class="eventtype"><h2>{{.}}</h2></div>{{/eventtype}}
+    <div class="btnavailableoptions"><a href="{{{buttonurl}}}" target="_self" class="btn btn-primary">{{#str}}btnviewavailable, booking{{/str}}</a></div>
 </div>
-<div class="d-flex justify-content-start">
+<div class="shortinfo d-flex justify-content-start">
     {{{shortinfo}}}
 </div>
