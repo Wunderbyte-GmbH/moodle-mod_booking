@@ -130,10 +130,14 @@ $string['disablebookingusers'] = 'Disable booking of users - hide Book now butto
 $string['howmanyusers'] = 'Max. number of users a teacher assigned to the option can book';
 $string['howmanyusers_help'] = '';
 $string['institution'] = 'Institution';
+$string['institution_help'] = 'You can either enter the institution name manually or choose from a list of previous institutions.
+                                    You can choose one institution only. Once you save, the institution will be added to the list.';
 $string['lblsputtname'] = 'Name of label: Send poll url to teachers';
 $string['lblteachname'] = 'Name of label: Teachers';
 $string['limitanswers_help'] = 'If you change this option and you have booked people, you can remove them without notification!';
 $string['location'] = 'Location';
+$string['location_help'] = 'You can either enter the location name manually or choose from a list of previous locations.
+                                    You can choose one location only. Once you save, the location will be added to the list.';
 $string['removeafterminutes'] = 'Remove activity completion after N minutes';
 $string['banusernames'] = 'Ban usernames';
 $string['banusernames_help'] = 'To limit which usernames can`t apply just write in this field, and separate with coma. To ban usernames, that end with gmail.com and yahoo.com just write: gmail.com, yahoo.com';
@@ -223,6 +227,8 @@ $string['nobookingselected'] = 'No booking option selected';
 $string['notbooked'] = 'Not yet booked';
 $string['onwaitinglist'] = 'You are on the waiting list';
 $string['organizatorname'] = 'Organizer name';
+$string['organizatorname_help'] = 'You can either enter the organizer name manually or choose from a list of previous organizers.
+                                    You can choose one organizer only. Once you save, the organizer will be added to the list.';
 $string['availableplaces'] = 'Places available: {$a->available} of {$a->maxanswers}';
 $string['pollurl'] = 'Poll url';
 $string['pollurlteachers'] = 'Teachers poll url';
@@ -755,6 +761,8 @@ $string['customlabels'] = 'Custom labels';
 $string['editinstitutions'] = 'Edit institutions';
 $string['entervalidurl'] = 'Please, enter a valid URL!';
 $string['eventtype'] = 'Event type';
+$string['eventtype_help'] = 'You can either enter the event type manually or choose from a list of previous event types.
+                             You can choose one event type only. Once you save, the event type will be added to the list.';
 $string['groupname'] = 'Group name';
 $string['lblacceptingfrom'] = 'Name of label: Accepting from';
 $string['lblbooking'] = 'Name of label: Booking';

@@ -121,12 +121,12 @@ class option_form extends moodleform {
                 'tags' => true
         );
         $mform->addElement('autocomplete', 'location', get_string('addnewlocation', 'booking'), $locationstrings, $options);
-
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('location', PARAM_TEXT);
         } else {
             $mform->setType('location', PARAM_CLEANHTML);
         }
+        $mform->addHelpButton('location', 'location', 'mod_booking');
 
         $sql = 'SELECT DISTINCT institution FROM {booking_options} ORDER BY institution';
         $institutionarray = $DB->get_fieldset_sql($sql);
@@ -141,12 +141,12 @@ class option_form extends moodleform {
                 'tags' => true
         );
         $mform->addElement('autocomplete', 'institution', get_string('addnewinstitution', 'booking'), $institutionstrings, $options);
+        $mform->addHelpButton('institution', 'institution', 'mod_booking');
 
         $url = $CFG->wwwroot . '/mod/booking/institutions.php';
         if (isset($COURSE->id)) {
             $url .= '?courseid=' . $COURSE->id;
         }
-
         $mform->addElement('html',
                 '<a target="_blank" href="' . $url . '">' . get_string('editinstitutions', 'booking') .
                          '</a>');

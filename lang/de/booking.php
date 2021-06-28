@@ -110,10 +110,16 @@ $string['disablebookingusers'] = 'Buchung von Teilnehmer/innen deaktivieren - "J
 $string['howmanyusers'] = 'Maximale Anzahl an Buchungen, die ein/e der Buchungsoption zugewiesene Lehrer/in vornehmen kann';
 $string['howmanyusers_help'] = '';
 $string['institution'] = 'Institution';
+$string['institution_help'] = 'Sie können den Namen der Institution manuell eingeben oder aus einer Liste von 
+                            früheren Institutionen auswählen. Sie können nur eine Institution angeben. Sobald
+                            Sie speichern, wird die Institution zur Liste hinzugefügt.';
 $string['lblsputtname'] = 'Alternative Bezeichnung für "Umfragelink an Trainer/innen senden" verwenden';
 $string['lblteachname'] = 'Alternative Bezeichnung für "Trainer/in" verwenden';
 $string['limitanswers_help'] = 'Bei Änderung dieser Einstellung und vorhandenen Buchungen, werden die Buchungen für die betroffenen Nutzer/innen ohne Benachrichtigung entfernt.';
 $string['location'] = 'Ort';
+$string['location_help'] = 'Sie können den Namen des Orts manuell eingeben oder aus einer Liste von 
+                            früheren Orten auswählen. Sie können nur einen Ort angeben. Sobald
+                            Sie speichern, wird der Ort zur Liste hinzugefügt.';
 $string['removeafterminutes'] = 'Aktivitätsabschluss nach N Minuten entfernen';
 $string['banusernames'] = 'Nutzer/innennamen ausschließen';
 $string['banusernames_help'] = 'Komma getrennte Liste von Usernamen, die nicht teilnehmen können. Um Usernamen mit bestimmten Endungen auszuschließen, kann man folgendes eingeben: gmail.com, yahoo.com';
@@ -191,6 +197,9 @@ $string['norighttobook'] = 'Sie haben zur Zeit keine Berechtigung Buchungen vorz
 $string['notbooked'] = 'Noch nicht gebucht';
 $string['onwaitinglist'] = 'Sie sind auf der Warteliste';
 $string['organizatorname'] = 'Name des Organisators';
+$string['organizatorname_help'] = 'Sie können den Namen des Organisators/der Organisatorin manuell eingeben oder aus einer Liste von 
+                                    früheren Organisator*innen auswählen. Sie können nur eine/n Organisator/in angeben. Sobald
+                                    Sie speichern, wird der/die Organisator/in zur Liste hinzugefügt.';
 $string['availableplaces'] = 'Verfügbare Plätze: {$a->available} von {$a->maxanswers}';
 $string['pollurl'] = 'Link zur Umfrage';
 $string['pollurlteachers'] = 'Trainer/innen Umfragelink';
@@ -569,6 +578,9 @@ $string['customlabels'] = 'Benutzerdefinierte Bezeichnungen';
 $string['editinstitutions'] = 'Institutionen bearbeiten';
 $string['entervalidurl'] = 'Bitte geben Sie eine gültige URL an!';
 $string['eventtype'] = 'Art des Ereignisses';
+$string['eventtype_help'] = 'Sie können den Namen der Ereignisart manuell eingeben oder aus einer Liste von 
+                            früheren Ereignisarten auswählen. Sie können nur eine Ereignisart angeben. Sobald
+                            Sie speichern, wird die Ereignisart zur Liste hinzugefügt.';
 $string['groupname'] = 'Gruppenname';
 $string['lblacceptingfrom'] = 'Bezeichnung für: Annehmen von';
 $string['lblbooking'] = 'Bezeichnung für: Buchung';

@@ -110,13 +110,13 @@ class mod_booking_mod_form extends moodleform_mod {
                 'tags' => true
         );
         $mform->addElement('autocomplete', 'eventtype', get_string('eventtype', 'booking'), $eventstrings, $options);
-
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('eventtype', PARAM_TEXT);
         } else {
             $mform->setType('eventtype', PARAM_CLEANHTML);
         }
         $mform->addRule('eventtype', null, 'required', null, 'client');
+        $mform->addHelpButton('eventtype', 'eventtype', 'mod_booking');
 
         $this->standard_intro_elements(get_string('bookingtext', 'booking'));
 
@@ -141,10 +141,8 @@ class mod_booking_mod_form extends moodleform_mod {
                 //'noselectionstring' => get_string('donotselecteventtype', 'booking'),
         );
         $mform->addElement('autocomplete', 'organizatorname', get_string('organizatorname', 'booking'), $teachersstring, $options);
-
-        // $mform->addElement('text', 'organizatorname',
-        //        get_string('bookingorganizatorname', 'booking'), array('size' => '64'));
         $mform->setType('organizatorname', PARAM_RAW);
+        $mform->addHelpButton('organizatorname', 'organizatorname', 'mod_booking');
 
         $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'),
                 array('size' => '64'));
