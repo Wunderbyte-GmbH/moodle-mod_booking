@@ -362,7 +362,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                 echo $output->render_business_card($data);
             } else {
                 echo html_writer::start_tag('div');
-                echo html_writer::tag('label', get_string('organizatorname', 'booking') . ': ',
+                echo html_writer::tag('label', get_string('organizatorname', 'booking') . ':&nbsp;',
                         array('class' => 'bold'));
                 echo html_writer::tag('span', $booking->settings->organizatorname);
                 echo html_writer::end_tag('div');
