@@ -245,9 +245,9 @@ class booking_utils {
                     $buttonmethod = 'get';
                 }
                 $url = new moodle_url($baseurl . '/mod/booking/view.php', $buttonoptions);
-                $delete = $OUTPUT->single_button($url,
+                $delete = '<div class="col-ap-cancelbooking">' . $OUTPUT->single_button($url,
                         (empty($values->btncancelname) ? get_string('cancelbooking', 'booking') : $values->btncancelname),
-                        $buttonmethod);
+                        $buttonmethod) . '</div>';
 
                 if ($values->coursestarttime > 0 && $values->allowupdatedays > 0) {
                     if (time() > strtotime("-{$values->allowupdatedays} day", $values->coursestarttime)) {
@@ -257,25 +257,25 @@ class booking_utils {
             }
 
             if (!empty($values->completed)) {
-                $completed = '<div class="">' . get_string('completed', 'mod_booking') .
+                $completed = '<div class="col-ap-completed">' . get_string('completed', 'mod_booking') .
                         '<span class="fa fa-check float-right"> </span> </div>';
             } else {
                 $completed = '';
             }
 
             if (!empty($values->status)) {
-                $status = '<div class="">' . get_string('presence', 'mod_booking') .
+                $status = '<div class="col-ap-presence">' . get_string('presence', 'mod_booking') .
                         '<span class="badge badge-default float-right">' . $this->col_status($values) . '</span> </div>';
             } else {
                 $status = '';
             }
             if ($values->waitinglist) {
-                $booked .= '<div class="btn alert-info">' . get_string('onwaitinglist', 'booking') . '</div>';
+                $booked .= '<div class="btn alert-info col-ap-onwaitinglist">' . get_string('onwaitinglist', 'booking') . '</div>';
             } else if ($inpast) {
-                $booked .= '<div class="btn alert-success">' . get_string('bookedpast', 'booking') . $completed . $status .
+                $booked .= '<div class="btn alert-success col-ap-bookedpast">' . get_string('bookedpast', 'booking') . $completed . $status .
                         '</div>';
             } else {
-                $booked .= '<div class="btn alert-success">' . get_string('booked', 'booking') . $completed . $status . '</div>';
+                $booked .= '<div class="btn alert-success col-ap-booked">' . get_string('booked', 'booking') . $completed . $status . '</div>';
             }
         } else {
             if (!$coursepage) {
@@ -295,9 +295,9 @@ class booking_utils {
 
             $url = new moodle_url($baseurl . '/mod/booking/view.php', $buttonoptions);
 
-            $button = $OUTPUT->single_button($url,
+            $button = '<div class="col-ap-booknow">' . $OUTPUT->single_button($url,
                     (empty($values->btnbooknowname) ? get_string('booknow', 'booking') : $values->btnbooknowname),
-                    $buttonmethod);
+                    $buttonmethod) . '</div>';
         }
 
         if (($values->limitanswers && ($availabibility == "full")) || ($availabibility == "closed") || !$underlimit ||
@@ -323,7 +323,7 @@ class booking_utils {
 
         // Check if user has right to book.
         if (!has_capability('mod/booking:choose', $context, $USER->id, false)) {
-            $button = get_string('norighttobook', 'booking') . "<br />";
+            $button = '<div class="col-ap-norighttobook">' . get_string('norighttobook', 'booking') . "</div><br/>";
         }
 
         // We only run this if we are not on coursepage
@@ -352,19 +352,18 @@ class booking_utils {
         }
 
         if (!$coursepage) {
-            $limit = "<div>" . get_string("unlimited", 'booking') . "</div>";
+            $limit = "<div class='col-ap-unlimited'>" . get_string("unlimited", 'booking') . "</div>";
         } else {
             $limit = '';
         }
-
 
         if (!$values->limitanswers) {
             return $button . $delete . $booked . $limit . $manage;
         } else {
             $places = new places($values->maxanswers, $values->availableplaces, $values->maxoverbooking,
                     $values->maxoverbooking - $values->waiting);
-            return $button . $delete . $booked . "<div>" . get_string("availableplaces", "booking", $places) .
-                    "</div><div>" . get_string("waitingplacesavailable", "booking", $places) . "</div>" . $manage;
+            return $button . $delete . $booked . "<div class='col-ap-availableplaces'>" . get_string("availableplaces", "booking", $places) .
+                    "</div><div class='col-ap-waitingplacesavailable'>" . get_string("waitingplacesavailable", "booking", $places) . "</div>" . $manage;
         }
     }
 
