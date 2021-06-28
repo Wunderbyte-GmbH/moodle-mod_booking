@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-use mod_booking\booking_option;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -24,8 +23,10 @@ require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
+use mod_booking\booking_option;
+use mod_booking\output\coursepage_available_options;
+use mod_booking\output\coursepage_shortinfo_and_button;
 use \mod_booking\utils\wb_payment;
-
 
 /**
  * @param stdClass $cm
@@ -2621,18 +2622,26 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
  * @return void
  */
 function mod_booking_cm_info_view(cm_info $cm) {
-    global $PAGE;
+    global $CFG, $COURSE, $PAGE;
+
     $booking = new mod_booking\booking($cm->id);
+
     if (!empty($booking)) {
-        // Only show options list on course page if setting 'showlistoncoursepage' is activated.
+        $html = '';
+        // Only show options list on course page if setting 'showlistoncoursepage' is set to 1.
         if (isset($booking->settings->showlistoncoursepage) && $booking->settings->showlistoncoursepage == 1) {
-            $html = '';
-            $data = new \mod_booking\output\coursepage_available_options($cm);
+            $data = new coursepage_available_options($cm);
             $output = $PAGE->get_renderer('mod_booking');
             $html .= $output->render_coursepage_available_options($data);
-            if ($html !== '') {
-                $cm->set_content($html);
-            }
+        } else if (isset($booking->settings->showlistoncoursepage) && $booking->settings->showlistoncoursepage == 2) {
+            // If showlistoncoursepage is set to 2, it means there should only be course name, a short info text...
+            // ...and a button redirecting to available booking options.
+            $data = new coursepage_shortinfo_and_button($cm);
+            $output = $PAGE->get_renderer('mod_booking');
+            $html .= $output->render_coursepage_shortinfo_and_button($data);
+        }
+        if ($html !== '') {
+            $cm->set_content($html);
         }
     }
 }

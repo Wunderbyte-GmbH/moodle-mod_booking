@@ -387,7 +387,7 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-    /** function to render bookingoption_description in template.
+    /** Function to render bookingoption_description in template.
      * This is actually nearly the same database as for bookingoption_description, only wrapped in a modal.
      */
     public function render_col_text_modal(mod_booking\output\bookingoption_description $data) {
@@ -401,8 +401,9 @@ class renderer extends plugin_renderer_base {
     
 
    /**
+    * Render function.
+    * @param $data array
     * @return string
-    * @throws \moodle_exception
     */
     public function render_coursepage_available_options($data) {
         $o = '';
@@ -412,8 +413,21 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render function.
+     * @param $data array
      * @return string
-     * @throws \moodle_exception
+     */
+    public function render_coursepage_shortinfo_and_button($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/coursepage_shortinfo_and_button', $data);
+        return $o;
+    }
+
+    /**
+     * Render function.
+     * @param $data array
+     * @return string
      */
     public function render_col_coursestarttime($data) {
         $o = '';

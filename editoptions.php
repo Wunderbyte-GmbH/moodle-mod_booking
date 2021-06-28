@@ -145,21 +145,13 @@ if ($mform->is_cancelled()) {
             }
         }
 
-        /*if ($optionid > 0) {
-            // If it has been an update, we need to trigger the bookingoption_updated event, in order to update calendar entries.
-            $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
-                'userid' => $USER->id));
-            $event->trigger();
-        }*/
-
         // Redirect after pressing one of the 2 submit buttons.
         if (isset($fromform->submittandaddnew)) {
             $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
-            redirect($redirecturl, get_string('changessaved'), 0);
         } else {
             $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
-            redirect($redirecturl, get_string('changessaved'), 0);
         }
+        redirect($redirecturl, get_string('changessaved'), 0);
     }
 } else {
     $PAGE->set_title(format_string($booking->settings->name));

@@ -930,9 +930,19 @@ $string['showdescriptioninline'] = 'Vollständige Beschreibungen direkt in der T
 $string['showdescriptionmodal'] = 'Info-Links anzeigen (Standard)';
 
 $string['showlistoncoursepagelbl'] = 'Liste mit verfügbaren Buchungsoptionen auf Kursseite anzeigen';
-$string['showlistoncoursepagelbl_help'] = 'Wenn Sie diese Einstellung aktivieren, wird eine Liste mit allen verfügbaren Buchungsoptionen direkt auf der Kursseite unter dem Link der Buchungsinstanz angezeigt.';
+$string['showlistoncoursepagelbl_help'] = 'Wenn Sie diese Einstellung aktivieren, wird eine Liste mit allen verfügbaren 
+                                Buchungsoptionen direkt auf der Kursseite unter dem Link der Buchungsinstanz angezeigt.
+                                Sie können auch nur den Kursnamen, eine Kurzinfo und einen Button, der auf die 
+                                verfügbaren Buchungsoptionen zeigt, anzeigen lassen.';
 $string['showlistoncoursepage'] = 'Ja, Liste auf Kursseite anzeigen (Standard)';
 $string['hidelistoncoursepage'] = 'Nein, Liste nicht auf Kursseite anzeigen';
+$string['showcoursenameandbutton'] = 'Kursnamen, Kurzinfo und einen Button, der die verfügbaren Buchungsoptionen öffnet, anzeigen';
+
+$string['coursepageshortinfolbl'] = 'Kurzinfo';
+$string['coursepageshortinfolbl_help'] = 'Geben Sie den Kurzinfo-Text ein, der auf der Kursseite angezeigt werden soll.';
+$string['coursepageshortinfo'] = 'Wenn Sie diesen Kurs buchen wollen, klicken Sie auf "Verfügbare Optionen anzeigen", treffen Sie eine Auswahl und klicken Sie auf "Jetzt buchen".';
+
+$string['btnviewavailable'] = "Verfügbare Optionen anzeigen";
 
 $string['signinextracols_heading'] = 'Zusätzliche Spalten auf der Unterschriftenliste';
 $string['signinextracols'] = 'Extra Spalte auf der Unterschriftenliste';

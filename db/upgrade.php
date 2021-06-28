@@ -2194,6 +2194,7 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2021062200, 'booking');
     }
+
     if ($oldversion < 2021062500) {
         // Define table booking_optiondates to be created.
         $table = new xmldb_table('booking_userevents');
@@ -2214,6 +2215,21 @@ function xmldb_booking_upgrade($oldversion) {
         }
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2021062500, 'booking');
+    }
+
+    if ($oldversion < 2021062801) {
+
+        // Define field coursepageshortinfo to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('coursepageshortinfo', XMLDB_TYPE_TEXT, null, null, null, null, null, 'showlistoncoursepage');
+
+        // Conditionally launch add field coursepageshortinfo.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2021062801, 'booking');
     }
 
     return true;

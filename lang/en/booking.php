@@ -1167,10 +1167,20 @@ $string['showdescriptionmode_help'] = 'You can choose how to show descriptions: 
 $string['showdescriptioninline'] = 'Show full descriptions inline (right inside the table)';
 $string['showdescriptionmodal'] = 'Show info links (default)';
 
-$string['showlistoncoursepagelbl'] = 'Show vailable booking options on course page';
-$string['showlistoncoursepagelbl_help'] = 'If you activate this setting, a list of available booking options will be shown right on the course page below the link of the booking instance.';
-$string['showlistoncoursepage'] = 'Yes, show list on course page (default)';
-$string['hidelistoncoursepage'] = 'No, hide list on course page';
+$string['showlistoncoursepagelbl'] = 'Show available booking options on course page';
+$string['showlistoncoursepagelbl_help'] = 'If you activate this setting, a list of available booking options will be 
+                                            shown right on the course page below the link of the booking instance.
+                                            You can also choose to show only the course name, a short info and a button
+                                            redirecting to the available booking options.';
+$string['showlistoncoursepage'] = 'Show list on course page (default)';
+$string['hidelistoncoursepage'] = 'Hide list on course page';
+$string['showcoursenameandbutton'] = 'Show course name, short info and a button redirecting to the available booking options';
+
+$string['coursepageshortinfolbl'] = 'Short info';
+$string['coursepageshortinfolbl_help'] = 'Choose a short info text to show on the course page.';
+$string['coursepageshortinfo'] = 'If you want to book yourself for this course, click on "View available options", choose a booking option and then click on "Book now".';
+
+$string['btnviewavailable'] = "View available options";
 
 $string['signinextracols_heading'] = 'Additional columns on the sign-in sheet';
 $string['signinextracols'] = 'Additional column';

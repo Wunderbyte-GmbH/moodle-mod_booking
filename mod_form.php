@@ -218,10 +218,18 @@ class mod_booking_mod_form extends moodleform_mod {
         $listoncoursepageoptions = array();
         $listoncoursepageoptions[0] = get_string('hidelistoncoursepage', 'booking');
         $listoncoursepageoptions[1] = get_string('showlistoncoursepage', 'booking');
+        $listoncoursepageoptions[2] = get_string('showcoursenameandbutton', 'booking');
         $mform->addElement('select', 'showlistoncoursepage', get_string('showlistoncoursepagelbl', 'booking'), $listoncoursepageoptions);
         $mform->setDefault('showlistoncoursepage', 1); // List on course page is activated by default.
         $mform->addHelpButton('showlistoncoursepage', 'showlistoncoursepagelbl', 'booking');
         $mform->setType('showlistoncoursepage', PARAM_INT);
+
+        $mform->addElement('textarea', 'coursepageshortinfo', get_string('coursepageshortinfolbl', 'booking'), 'wrap="virtual" rows="5" cols="65"');
+        $mform->setDefault('coursepageshortinfo', get_string('coursepageshortinfo', 'booking'));
+        $mform->addHelpButton('coursepageshortinfo', 'coursepageshortinfolbl', 'booking');
+        $mform->setType('coursepageshortinfo', PARAM_TEXT);
+        // Hide short info for the first two options.
+        $mform->hideIf('coursepageshortinfo', 'showlistoncoursepage', 'in', [0,1]);
 
         // Confirmation message.
         $mform->addElement('header', 'confirmation',
