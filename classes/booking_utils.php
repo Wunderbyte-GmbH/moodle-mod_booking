@@ -552,7 +552,7 @@ class booking_utils {
         $index = null;
         $addtocalendar = 0;
         foreach ($changes as $key => $value) {
-            if ($value['fieldname'] == 'addtocalendar') {
+            if (isset($value['fieldname']) && $value['fieldname'] == 'addtocalendar') {
                 $addtocalendar = $value['newvalue'];
                 $index = $key;
             }
