@@ -867,4 +867,33 @@ class booking_utils {
             'changes' => $changes
         ];
     }
+
+    private function col_status($values) {
+        switch ($values->status) {
+            case 0:
+                return '';
+                break;
+            case 1:
+                return get_string('status_complete', 'booking');
+                break;
+            case 2:
+                return get_string('status_incomplete', 'booking');
+                break;
+            case 3:
+                return get_string('status_noshow', 'booking');
+                break;
+            case 4:
+                return get_string('status_failed', 'booking');
+                break;
+            case 5:
+                return get_string('status_unknown', 'booking');
+                break;
+            case 6:
+                return get_string('status_attending', 'booking');
+                break;
+            default:
+                return '';
+                break;
+        }
+    }
 }
