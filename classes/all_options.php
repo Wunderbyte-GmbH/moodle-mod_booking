@@ -274,8 +274,6 @@ class all_options extends table_sql {
 
         global $PAGE;
 
-
-
         $output = $PAGE->get_renderer('mod_booking');
         // If iambooked 0, we don't who Meeting-Links, if booked, we show them.
         $data = new \mod_booking\output\bookingoption_description($this->booking, $values, null, $values->iambooked);

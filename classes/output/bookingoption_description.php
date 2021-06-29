@@ -63,8 +63,8 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $location as saved in db */
     public $location = null;
 
-    /** @var string $addresse as saved in db */
-    public $addresse = null;
+    /** @var string $address as saved in db */
+    public $address = null;
 
     /** @var string $institution as saved in db */
     public $institution = null;
@@ -85,10 +85,12 @@ class bookingoption_description implements renderable, templatable {
 
 
     /**
-     * In the constructur we prepare the following
-     * Constructor
-     *
-     * @param \stdClass $data
+     * Constructor.
+     * @param $booking
+     * @param $bookingoption
+     * @param null $bookingevent
+     * @param int $bookinglinkparam
+     * @param bool $withcustomfields
      */
     public function __construct($booking,
             $bookingoption,
@@ -104,7 +106,7 @@ class bookingoption_description implements renderable, templatable {
         // These fields can be gathered directly from DB.
         $this->title = $bookingoption->option->text;
         $this->location = $bookingoption->option->location;
-        $this->addresse = $bookingoption->option->address;
+        $this->address = $bookingoption->option->address;
         $this->institution = $bookingoption->option->institution;
 
         // There can be more than one modal, therefor we use the id of this record
@@ -123,24 +125,25 @@ class bookingoption_description implements renderable, templatable {
 
         $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent, $bookinglinkparam, $withcustomfields);
 
-        // if the user is not yet booked, we want to add "book now" button to ical and Moodle calendar.
-        if ($bookinglinkparam != 0
-                && $bookingoption->iambooked == 0) {
-            $baseurl = $CFG->wwwroot;
-            $link = new \moodle_url($baseurl . '/mod/booking/view.php', array(
-                    'id' => $booking->cm->id,
-                    'optionid' => $bookingoption->optionid,
-                    'action' => 'showonlyone',
-                    'whichview' => 'showonlyone'
-            ));
-            if ($bookinglinkparam == 3) { // if it's for ical, we don't render link.
-                $this->booknowbutton = get_string('booknow', 'booking') . $link->out(false);
-            } else {
-                $this->booknowbutton = "<a href=$link class='btn btn-primary'>"
-                        . get_string('booknow', 'booking')
-                        . "</a>";
-            }
+        $baseurl = $CFG->wwwroot;
+        $link = new \moodle_url($baseurl . '/mod/booking/view.php', array(
+            'id' => $booking->cm->id,
+            'optionid' => $bookingoption->optionid,
+            'action' => 'showonlyone',
+            'whichview' => 'showonlyone'
+        ));
 
+        // If the user is not yet booked, we want to add a "book now" button to Moodle calendar.
+        if ($bookinglinkparam != 0
+                && $bookingoption->iambooked == 0 && $bookinglinkparam != 3) {
+            $this->booknowbutton = "<a href=$link class='btn btn-primary'>"
+                . get_string('booknow', 'booking')
+                . "</a>";
+        }
+
+        // If it's for ical, we don't render the link.
+        if ($bookinglinkparam == 3) {
+            $this->booknowbutton = get_string('icalgotobooking', 'booking') . $link->out(false);
         }
     }
 
@@ -151,7 +154,7 @@ class bookingoption_description implements renderable, templatable {
                 'description' => $this->description,
                 'statusdescription' => $this->statusdescription,
                 'location' => $this->location,
-                'addresse' => $this->addresse,
+                'address' => $this->address,
                 'institution' => $this->institution,
                 'duration' => $this->duration,
                 'dates' => $this->dates,

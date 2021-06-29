@@ -26,18 +26,24 @@
 
 {{title}}
 
-{{#location}}{{location}}{{/location}}
-{{#institution}}{{#str}}institution, mod_booking{{/str}}: {{institution}}{{/institution}}
-{{#addresse}}{{#str}}address, mod_booking{{/str}}:  {{addresse}}{{/addresse}}
-{{#statusdescription}}{{{statusdescription}}}{{/statusdescription}}
-{{#description}}{{{description}}}{{/description}}
-    {{#dates}}
+{{#dates}}
 - {{{datestring}}}
-                    {{#customfields}}
+{{#customfields}}
     * {{name}}{{{value}}}
-                    {{/customfields}}
-    {{/dates}}
+{{/customfields}}
+<!--The line breaks are intentional.-->
+{{/dates}}
+{{#location}}{{.}}
+{{/location}}{{#institution}}{{#str}}institution, mod_booking{{/str}}: {{.}}
+{{/institution}}{{#address}}{{#str}}address, mod_booking{{/str}}:  {{.}}
+{{/address}}{{#statusdescription}}{{{.}}}
+{{/statusdescription}}
+{{#description}}
 
+{{{.}}}
+
+{{/description}}
 {{#booknowbutton}}
-{{{booknowbutton}}}
+
+{{{.}}}
 {{/booknowbutton}}

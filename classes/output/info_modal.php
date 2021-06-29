@@ -52,8 +52,8 @@ class info_modal implements renderable, templatable {
     /** @var string $location as saved in db */
     public $location = null;
 
-    /** @var string $addresse as saved in db */
-    public $addresse = null;
+    /** @var string $address as saved in db */
+    public $address = null;
 
     /** @var string $institution as saved in db */
     public $institution = null;
@@ -85,7 +85,7 @@ class info_modal implements renderable, templatable {
         // These fields can be gathered directly from DB.
         $this->title = $bookingoption->text;
         $this->location = $bookingoption->location;
-        $this->addresse = $bookingoption->address;
+        $this->address = $bookingoption->address;
         $this->institution = $bookingoption->institution;
         $this->duration = $bookingoption->duration;
         $this->description = format_text($bookingoption->description, FORMAT_HTML);
@@ -108,7 +108,7 @@ class info_modal implements renderable, templatable {
                 'description' => $this->description,
                 'statusdescription' => $this->statusdescription,
                 'location' => $this->location,
-                'addresse' => $this->addresse,
+                'address' => $this->address,
                 'institution' => $this->institution,
                 'duration' => $this->duration,
                 'dates' => $this->dates

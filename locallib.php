@@ -380,7 +380,7 @@ function get_rendered_eventdescription($option, $cmid, $optiondate = false, $boo
     // We have the following differences:
     // - Rendered live on the website (eg wihin a modal) -> use button
     // - Rendered in calendar event -> use link.php? link.
-    // - Rendered in ical file for mail -> use  use link.php? link.
+    // - Rendered in ical file for mail -> use link.php? link.
 
     $booking = new \mod_booking\booking($cmid);
 

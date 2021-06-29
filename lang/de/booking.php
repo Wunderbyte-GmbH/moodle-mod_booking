@@ -1004,4 +1004,7 @@ $string['bookingpassed'] = 'Ihr Event ist bereits seit {$a} Minuten vorüber.';
 $string['linknotvalid'] = 'Sie scheinen dieses Meeting nicht gebucht zu haben.';
 
 // booking_utils.php
-$string['linknotavailableyet'] = "Der Link auf die Konferenz ist nur zwischen 15 Minuten vor dem Meeting und dem Enddatum hier verfügbar.";
+$string['linknotavailableyet'] = 'Der Link auf die Konferenz ist nur zwischen 15 Minuten vor dem Meeting und dem Enddatum hier verfügbar.';
+
+// Ical.php.
+$string['icalgotobooking'] = 'Buchung anzeigen: ';

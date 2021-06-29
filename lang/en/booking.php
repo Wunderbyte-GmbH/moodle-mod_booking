@@ -1303,3 +1303,6 @@ $string['linknotvalid'] = 'You don\'t seem to be booked for this meeting';
 
 // booking_utils.php
 $string['linknotavailableyet'] = "The link to access the meeting is available only 15 minutes before the start until the end of the session.";
+
+// Ical.php.
+$string['icalgotobooking'] = 'Go to booking option: ';
