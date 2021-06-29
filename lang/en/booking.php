@@ -1119,8 +1119,21 @@ $string['editingoptiondate'] = 'You are currently editing this session';
 // Optiondatesadd_form.php.
 $string['addcustomfield'] = 'Add custom field';
 $string['customfieldname'] = 'Field name';
-$string['customfieldname_help'] = 'The following fieldnames in combination with links in the value-fields will render buttons and links which are only accessible during the actual meetings: TeamsMeeting, ZoomMeeting, BigBlueButtonMeeting';
+$string['customfieldname_help'] = 'You can enter any field name you want. The special fieldnames 
+                                    <ul>
+                                        <li>TeamsMeeting</li>
+                                        <li>ZoomMeeting</li>
+                                        <li>BigBlueButtonMeeting</li>
+                                    </ul> in combination with a link in the value field will render buttons and links 
+                                    which are only accessible during (and shortly before) the actual meetings.';
 $string['customfieldvalue'] = 'Value';
+$string['customfieldvalue_help'] = 'You can enter any value you want (text, number or HTML).<br>
+                                    If you have used one of the special field names
+                                    <ul>
+                                        <li>TeamsMeeting</li>
+                                        <li>ZoomMeeting</li>
+                                        <li>BigBlueButtonMeeting</li>
+                                    </ul> then enter the complete link to the meeting session starting with https:// or http://';
 $string['deletecustomfield'] = 'Delete custom field?';
 $string['deletecustomfield_help'] = 'Caution: Setting this checkbox will delete the associated custom field when saving.';
 $string['erroremptycustomfieldname'] = 'Custom field name is not allowed to be empty.';

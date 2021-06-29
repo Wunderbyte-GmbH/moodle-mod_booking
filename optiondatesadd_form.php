@@ -90,6 +90,7 @@ class optiondatesadd_form extends moodleform {
                 $mform->addElement('textarea', 'customfieldvalue' . $j, get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
                 $mform->setType('customfieldvalue' . $j, PARAM_RAW);
                 $mform->setDefault('customfieldvalue' . $j, $customfield->value);
+                $mform->addHelpButton('customfieldvalue' . $j, 'customfieldvalue', 'booking');
 
                 $mform->addElement('checkbox', 'deletecustomfield' . $j, get_string('deletecustomfield', 'booking'));
                 $mform->setDefault('deletecustomfield' . $j, 0);
@@ -129,6 +130,7 @@ class optiondatesadd_form extends moodleform {
             $mform->addElement('textarea', 'customfieldvalue' . $counter, get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
             $mform->setType('customfieldvalue' . $counter, PARAM_RAW);
             $mform->setDefault('customfieldvalue' . $counter, '');
+            $mform->addHelpButton('customfieldvalue' . $counter, 'customfieldvalue', 'booking');
             $mform->hideIf('customfieldvalue' . $counter, 'addcustomfield' . $counter, 'notchecked');
 
             // Set delete parameter to 0 for newly created fields, so they won't be deleted.
