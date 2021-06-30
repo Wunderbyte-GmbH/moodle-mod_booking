@@ -97,9 +97,9 @@ class mod_booking_observer {
         $optionid = 1;
 
         $records = $DB->get_records('booking_userevents', array('userid' => $userid, 'optionid' => $optionid));
-        foreach ($records) {
-            $DB->delete_records('event', array('id' => $records->eventid));
-            $DB->delete_records('booking_userevents', array('id' => $records->id));
+        foreach ($records as $record) {
+            $DB->delete_records('event', array('id' => $record->eventid));
+            $DB->delete_records('booking_userevents', array('id' => $record->id));
         }
     }
 
