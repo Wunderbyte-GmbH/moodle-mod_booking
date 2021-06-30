@@ -492,57 +492,67 @@ class booking_utils {
     }
 
 
-    private function render_meeting_fields($bookingoption, $sessionid, $field, $bookinglinkparam) {
+    private function render_meeting_fields($bookingoption, $sessionid, $field, $descriptionparam) {
         global $USER, $CFG;
 
         $baseurl = $CFG->wwwroot;
 
-        // User is not booked, no access to buttons.
-        if ($bookinglinkparam == \mod_booking\output\BOOKINGLINKPARAM_NONE || $bookingoption->iambooked == 0) {
-            // We don't want to show these Buttons at all if the user is not booked.
-            return null;
-        } else if ($bookingoption->iambooked != 0 && $bookinglinkparam != \mod_booking\output\BOOKINGLINKPARAM_ICAL) {
-            // User is booked, we show a button (for Moodle calendar ie).
-            $cm = $bookingoption->booking->cm;
-            $link = new moodle_url($baseurl . '/mod/booking/link.php',
-                    array('id' => $cm->id,
-                            'optionid' => $bookingoption->optionid,
-                            'action' => 'join',
-                            'sessionid' => $sessionid,
-                            'fieldid' => $field->id
+        switch ($descriptionparam) {
+
+            case DESCRIPTION_WEBSITE:
+                // We don't want to show these Buttons at all if the user is not booked.
+                if ($bookingoption->iambooked == 0) {
+                    return null;
+                } else {
+                    // We are booked on the web site, we check if we show the real link.
+                    if (!$this->show_conference_link($bookingoption, $USER->id, $sessionid)) {
+                        // User is booked, if the user is booked, but event not yet open, we show placeholder with time to start.
+                        return [
+                                'name' => null,
+                                'value' => get_string('linknotavailableyet', 'mod_booking')
+                        ];
+                    }
+                    // User is booked and event open, we return the button with the link to access, this is for the website.
+                    return [
+                            'name' => null,
+                            'value' => "<a href=$field->value class='btn btn-info'>$field->cfgname</a>"
+                    ];
+                };
+            case DESCRIPTION_CALENDAR:
+                // Calendar is static, so we don't have to check for booked or not.
+                // In all cases, we return the Teams-Button, going by the link.php.
+                if ($bookingoption->iambooked != 0) {
+                    // User is booked, we show a button (for Moodle calendar ie).
+                    $cm = $bookingoption->booking->cm;
+                    $link = new moodle_url($baseurl . '/mod/booking/link.php',
+                            array('id' => $cm->id,
+                                    'optionid' => $bookingoption->optionid,
+                                    'action' => 'join',
+                                    'sessionid' => $sessionid,
+                                    'fieldid' => $field->id
                             ));
-            return [
-                    'name' => null,
-                    'value' => "<a href=$link class='btn btn-info'>$field->cfgname</a>"
-            ];
-        } else if ($bookinglinkparam == \mod_booking\output\BOOKINGLINKPARAM_ICAL) {
-            // User is booked, for ical no button but link only.
-            $cm = $bookingoption->booking->cm;
-            $link = new moodle_url($baseurl . '/mod/booking/link.php',
-                    array('id' => $cm->id,
-                            'optionid' => $bookingoption->optionid,
-                            'action' => 'join',
-                            'sessionid' => $sessionid,
-                            'fieldid' => $field->id
-                    ));
-            $link = $link->out(false);
-            return [
-                    'name' => null,
-                    'value' => "$field->cfgname: $link"
-            ];
+                    return [
+                            'name' => null,
+                            'value' => "<a href=$link class='btn btn-info'>$field->cfgname</a>"
+                    ];
+                }
+            case DESCRIPTION_ICAL:
+                // User is booked, for ical no button but link only.
+                // For ical, we don't check for booked as it's always booked only.
+                $cm = $bookingoption->booking->cm;
+                $link = new moodle_url($baseurl . '/mod/booking/link.php',
+                        array('id' => $cm->id,
+                                'optionid' => $bookingoption->optionid,
+                                'action' => 'join',
+                                'sessionid' => $sessionid,
+                                'fieldid' => $field->id
+                        ));
+                $link = $link->out(false);
+                return [
+                        'name' => null,
+                        'value' => "$field->cfgname: $link"
+                ];
         }
-        else if (!$this->show_conference_link($bookingoption, $USER->id, $sessionid)) {
-            // User is booked, if the user is booked, but event not yet open, we show placeholder with time to start.
-            return [
-                    'name' => null,
-                    'value' => get_string('linknotavailableyet', 'mod_booking')
-            ];
-        }
-        // User is booked and event open, we return the button with the link to access, this is for the website.
-        return [
-                'name' => null,
-                'value' => "<a href=$field->value class='btn btn-info'>$field->cfgname</a>"
-        ];
     }
 
     /**
