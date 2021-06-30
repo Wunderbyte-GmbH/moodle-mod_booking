@@ -270,12 +270,6 @@ class calendar {
             return 0;
         }
 
-        // For multiple date sessions, hide the original booking option event.
-        if ($optionevent = $DB->get_record('event', ['id' => $option->calendarid])) {
-            $optionevent->visible = 0; // Hide the event.
-            $DB->update_record('event', $optionevent);
-        }
-
         if ($userid > 0) {
             // Add to user calendar.
             $courseid = 0;

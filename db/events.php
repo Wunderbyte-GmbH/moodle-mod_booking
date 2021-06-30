@@ -50,5 +50,9 @@ $observers = array(
     array(
         'eventname' => '\mod_booking\event\custom_field_changed',
         'callback' => 'mod_booking_observer::custom_field_changed'
+        ),
+        array(
+                'eventname' => '\mod_booking\event\booking_cancelled',
+                'callback' => 'mod_booking_observer::booking_cancelled'
         )
     );

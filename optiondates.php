@@ -76,16 +76,6 @@ if ($delete != '') {
     // Now we can delete the session.
     $DB->delete_records("booking_optiondates", array('optionid' => $optionid, 'id' => $delete));
 
-    // If there is no session left, then show the original booking option event again.
-    if (empty($DB->get_records('booking_optiondates', ['optionid' => $optionid]))) {
-        if ($calendarid = $DB->get_field('booking_options', 'calendarid', ['id' => $optionid])) {
-            if ($optionevent = $DB->get_record('event', ['id' => $calendarid])) {
-                $optionevent->visible = 1; // Show the event because there are no more sessions left.
-                $DB->update_record('event', $optionevent);
-            }
-        }
-    }
-
     booking_updatestartenddate($optionid);
 
     // Delete associated custom fields.

@@ -41,6 +41,8 @@ class mod_booking_observer {
 
         $DB->delete_records_select('booking_answers', 'userid = :userid', $params);
         $DB->delete_records_select('booking_teachers', 'userid = :userid', $params);
+        $DB->delete_records_select('booking_userevents', 'userid = :userid', $params);
+        $DB->delete_records_select('booking_customfields', 'userid = :userid', $params);
     }
 
     /**
@@ -82,6 +84,25 @@ class mod_booking_observer {
         new calendar($event->contextinstanceid, $event->objectid, 0, calendar::TYPEOPTION);
     }
 
+
+    /**
+     * @param \mod_booking\event\booking_cancelled $event
+     * @throws dml_exception
+     */
+    public static function booking_cancelled(\mod_booking\event\booking_cancelled $event) {
+
+        global $DB;
+
+        $userid = 1;
+        $optionid = 1;
+
+        $records = $DB->get_records('booking_userevents', array('userid' => $userid, 'optionid' => $optionid));
+        foreach ($records) {
+            $DB->delete_records('event', array('id' => $records->eventid));
+            $DB->delete_records('booking_userevents', array('id' => $records->id));
+        }
+    }
+
     /**
      * Updates calendar entry for teachers when a booking option is updated.
      *
@@ -93,12 +114,14 @@ class mod_booking_observer {
 
         $optionid = $event->objectid;
 
-        new calendar($event->contextinstanceid, $optionid, 0, calendar::TYPEOPTION);
-
         $option = $DB->get_record('booking_options', array('id' => $optionid));
 
         // If there are associated optiondates (sessions) then update their calendar events.
        if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
+
+           // Delete course event.
+           $DB->delete_records('event', array('id' => $option->calendarid));
+
             foreach ($optiondates as $optiondate) {
                 if (!option_optiondate_update_event($option, $optiondate, $PAGE->cm->id)) {
                     // If calendar events for sessions did not exist before, then create new ones.
@@ -107,7 +130,11 @@ class mod_booking_observer {
                     }
                 }
             }
-        } else { // This means that there are no multisessions, so we still have to update userevent.
+        } else { // This means that there are no multisessions.
+           // this is for the course event
+           new calendar($event->contextinstanceid, $optionid, 0, calendar::TYPEOPTION);
+
+           // this is for the user events.
            option_optiondate_update_event($option, null, $PAGE->cm->id);
        }
 
