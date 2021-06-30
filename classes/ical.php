@@ -17,10 +17,7 @@ namespace mod_booking;
 
 defined('MOODLE_INTERNAL') || die();
 
-const DESCRIPTION_NONE = 0;
-const DESCRIPTION_WEBSITE = 1;
-const DESCRIPTION_CALENDAR = 2;
-const BOOKINGLINKPARAM_ICAL = 3;
+const DESCRIPTION_ICAL = 3;
 
 /**
  * Support class for generating ical items Note - this code is based on the ical code from mod_facetoface
@@ -242,10 +239,10 @@ class ical {
         $eventid = false;
         if ($time) {
             // If it's an option date (a session), use the option date's eventid.
-            $fulldescription = get_rendered_eventdescription($this->option, $PAGE->cm->id, $time, BOOKINGLINKPARAM_ICAL);
+            $fulldescription = get_rendered_eventdescription($this->option, $PAGE->cm->id, $time, DESCRIPTION_ICAL);
         } else {
             // Use calendarid of the option if it's an option event.
-            $fulldescription = get_rendered_eventdescription($this->option, $PAGE->cm->id, false, BOOKINGLINKPARAM_ICAL);
+            $fulldescription = get_rendered_eventdescription($this->option, $PAGE->cm->id, false, DESCRIPTION_ICAL);
         }
 
         // Make sure we have not tags in full description:

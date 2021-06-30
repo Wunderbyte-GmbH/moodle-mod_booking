@@ -36,7 +36,7 @@ use templatable;
 const DESCRIPTION_NONE = 0;
 const DESCRIPTION_WEBSITE = 1;
 const DESCRIPTION_CALENDAR = 2;
-const BOOKINGLINKPARAM_ICAL = 3;
+const DESCRIPTION_ICAL = 3;
 
 
 /**
@@ -136,18 +136,18 @@ class bookingoption_description implements renderable, templatable {
         // If the user is not yet booked, we want to add a "book now" button to Moodle calendar.
         if ($bookingoption->iambooked == 0
                 && $descriptionparam != DESCRIPTION_NONE
-                && $descriptionparam != BOOKINGLINKPARAM_ICAL) {
+                && $descriptionparam != DESCRIPTION_ICAL) {
             $this->booknowbutton = "<a href=$link class='btn btn-primary'>"
                 . get_string('booknow', 'booking')
                 . "</a>";
         } else  if ($bookingoption->iambooked != 0
                 && $descriptionparam != DESCRIPTION_NONE
-                && $descriptionparam != BOOKINGLINKPARAM_ICAL) {
+                && $descriptionparam != DESCRIPTION_ICAL) {
             // For booked options show different label.
             $this->booknowbutton = "<a href=$link class='btn btn-primary'>"
                 . get_string('gotobookingoption', 'booking')
                 . "</a>";
-        } else if ($descriptionparam == BOOKINGLINKPARAM_ICAL) {
+        } else if ($descriptionparam == DESCRIPTION_ICAL) {
             // For iCal show the link without HTML.
             $this->booknowbutton = get_string('gotobookingoption', 'booking') . ': ' .  $link->out(false);
         }
