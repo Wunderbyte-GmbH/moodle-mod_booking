@@ -362,6 +362,14 @@ class booking_utils {
         } else {
             $places = new places($values->maxanswers, $values->availableplaces, $values->maxoverbooking,
                     $values->maxoverbooking - $values->waiting);
+
+            // Add string when no booking is possible.
+
+            if (strlen($button . $delete . $booked) == 0) {
+                $button = get_string('pleasereturnlater', 'booking');
+            }
+
+
             return $button . $delete . $booked . "<div class='col-ap-availableplaces'>" . get_string("availableplaces", "booking", $places) .
                     "</div><div class='col-ap-waitingplacesavailable'>" . get_string("waitingplacesavailable", "booking", $places) . "</div>" . $manage;
         }
