@@ -177,28 +177,20 @@ class all_options extends table_sql {
         switch ($values->status) {
             case 0:
                 return '';
-                break;
             case 1:
                 return get_string('status_complete', 'booking');
-                break;
             case 2:
                 return get_string('status_incomplete', 'booking');
-                break;
             case 3:
                 return get_string('status_noshow', 'booking');
-                break;
             case 4:
                 return get_string('status_failed', 'booking');
-                break;
             case 5:
                 return get_string('status_unknown', 'booking');
-                break;
             case 6:
                 return get_string('status_attending', 'booking');
-                break;
             default:
                 return '';
-                break;
         }
     }
 
@@ -275,8 +267,13 @@ class all_options extends table_sql {
         global $PAGE;
 
         $output = $PAGE->get_renderer('mod_booking');
-        // If iambooked 0, we don't who Meeting-Links, if booked, we show them.
-        $data = new \mod_booking\output\bookingoption_description($this->booking, $values, null, $values->iambooked);
+
+        $data = new \mod_booking\output\bookingoption_description($this->booking, $values, null, \mod_booking\output\BOOKINGLINKPARAM_NONE);
+
+        // If iambooked is 1, we show a short info text that the option is already booked.
+        if ($values->iambooked == 1) {
+            $data->booknowbutton = get_string('infoalreadybooked', 'booking');
+        }
 
         if ($this->booking->settings->showdescriptionmode == 0) {
             // We will have a number of modals on this site, therefore we have to distinguish them.

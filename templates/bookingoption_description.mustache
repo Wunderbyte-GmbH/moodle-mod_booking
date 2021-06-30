@@ -25,16 +25,16 @@
 }}
 
 <h4>{{title}}</h4>
-{{#location}}<div class="bo_location">{{#str}}location, mod_booking{{/str}}: {{location}}</div>{{/location}}
-{{#institution}}<div class="bo_institution">{{#str}}institution, mod_booking{{/str}}: {{institution}}</div>{{/institution}}
+{{#location}}<div class="bo_location">{{#str}}location, mod_booking{{/str}}: {{.}}</div>{{/location}}
+{{#institution}}<div class="bo_institution">{{#str}}institution, mod_booking{{/str}}: {{.}}</div>{{/institution}}
 {{#address}}<div class="bo_address">{{#str}}address, mod_booking{{/str}}:  {{.}}</div>{{/address}}
-{{#statusdescription}}<div class="bo_description"><p>{{{statusdescription}}}</p></div>{{/statusdescription}}
-{{#description}}<div class="bo_description"><p>{{{description}}}</p></div>{{/description}}
+{{#statusdescription}}<div class="bo_description"><p>{{{.}}}</p></div>{{/statusdescription}}
+{{#description}}<div class="bo_description"><p>{{{.}}}</p></div>{{/description}}
 <div class="list-group">
     {{#dates}}
         <div class="list-group-item">
             <div>
-                {{{datestring}}}
+                <b>{{{datestring}}}</b>
             </div>
             <div>
                 <ul>
@@ -48,8 +48,9 @@
         </div>
     {{/dates}}
 </div>
+<br>
 {{#booknowbutton}}
     <div>
-        {{{booknowbutton}}}
+        {{{.}}}
     </div>
 {{/booknowbutton}}

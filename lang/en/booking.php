@@ -1305,4 +1305,7 @@ $string['linknotvalid'] = 'You don\'t seem to be booked for this meeting';
 $string['linknotavailableyet'] = "The link to access the meeting is available only 15 minutes before the start until the end of the session.";
 
 // Ical.php.
-$string['icalgotobooking'] = 'Go to booking option: ';
+$string['gotobookingoption'] = 'Go to booked option';
+
+// All_options.php
+$string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>You are already booked for this option.</i></div>';
