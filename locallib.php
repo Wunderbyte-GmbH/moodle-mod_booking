@@ -21,7 +21,7 @@ global $CFG;
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
-const DESCRIPTION_NONE = 0; // Shows Link only when active, used on website
+const DESCRIPTION_NOLINK = 0; // Shows Link only when active, used on website
 const DESCRIPTION_WEBSITE = 1; // Shows link button with text "book now" and no link to TeamsMeeting etc.
 const DESCRIPTION_CALENDAR = 2; // Shows link button with text "go to bookingoption" via link.php
 const DESCRIPTION_ICAL = 3; // Shows link with text "go to bookingoption" via link.php for iCal
@@ -374,7 +374,7 @@ function get_rendered_customfields($optiondateid) {
  * @param stdClass $optiondate the option date object (optional)
  * @return string The rendered HTML of the full description.
  */
-function get_rendered_eventdescription($option, $cmid, $optiondate = false, $descriptionparam = DESCRIPTION_NONE) {
+function get_rendered_eventdescription($option, $cmid, $optiondate = false, $descriptionparam = DESCRIPTION_NOLINK) {
     global $DB, $CFG, $PAGE;
 
     // We have the following differences:
