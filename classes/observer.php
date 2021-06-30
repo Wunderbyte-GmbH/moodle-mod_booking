@@ -155,6 +155,18 @@ class mod_booking_observer {
             calendar::TYPEOPTIONDATE, $event->objectid);
     }
 
+
+    /**
+     * When a  booking option is completed, we send a mail to the user.
+     *
+     * @param \mod_booking\event\bookingoptiondate_created $event
+     */
+    public static function bookingoptiondate_completed(\mod_booking\event\bookingoptiondate_completed $event) {
+
+        // Do stuff.
+
+    }
+
     /**
      * Change calendar entry when custom field is changed.
      *
