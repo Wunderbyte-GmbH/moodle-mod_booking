@@ -33,7 +33,6 @@ use renderer_base;
 use renderable;
 use templatable;
 
-const DESCRIPTION_NOLINK = 0;
 const DESCRIPTION_WEBSITE = 1;
 const DESCRIPTION_CALENDAR = 2;
 const DESCRIPTION_ICAL = 3;
@@ -95,7 +94,7 @@ class bookingoption_description implements renderable, templatable {
     public function __construct($booking,
             $bookingoption,
             $bookingevent = null,
-            $descriptionparam = DESCRIPTION_NOLINK,
+            $descriptionparam = DESCRIPTION_WEBSITE, // Default.
             $withcustomfields = true) {
 
         global $CFG;
@@ -134,12 +133,11 @@ class bookingoption_description implements renderable, templatable {
         ));
 
         switch ($descriptionparam) {
-            case DESCRIPTION_NOLINK:
-                // Do nothing.
-
-                break;
             case DESCRIPTION_WEBSITE:
-                // Do nothing.
+                // If iambooked is 1, we show a short info text that the option is already booked.
+                if ($bookingoption->iambooked == 1) {
+                    $this->booknowbutton = get_string('infoalreadybooked', 'booking');
+                }
                 break;
             case DESCRIPTION_CALENDAR:
                 $this->booknowbutton = "<a href=$link class='btn btn-primary'>"

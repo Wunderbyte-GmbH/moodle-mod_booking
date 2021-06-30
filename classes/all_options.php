@@ -268,12 +268,7 @@ class all_options extends table_sql {
 
         $output = $PAGE->get_renderer('mod_booking');
 
-        $data = new \mod_booking\output\bookingoption_description($this->booking, $values, null, \mod_booking\output\DESCRIPTION_NOLINK);
-
-        // If iambooked is 1, we show a short info text that the option is already booked.
-        if ($values->iambooked == 1) {
-            $data->booknowbutton = get_string('infoalreadybooked', 'booking');
-        }
+        $data = new \mod_booking\output\bookingoption_description($this->booking, $values, null, DESCRIPTION_WEBSITE);
 
         if ($this->booking->settings->showdescriptionmode == 0) {
             // We will have a number of modals on this site, therefore we have to distinguish them.
