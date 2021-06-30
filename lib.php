@@ -1589,6 +1589,11 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             $userdata->completed = '1';
             $userdata->timemodified = time();
 
+            // Trigger the completion event, in order to send the notification mail.
+            $event = \mod_booking\event\bookingoption_completed::create(array('context' => context_module::instance($cmid), 'objectid' => $optionid,
+                'relateduserid' => $ui));
+            $event->trigger();
+
             $DB->update_record('booking_answers', $userdata);
             $countcomplete = $DB->count_records('booking_answers',
                     array('bookingid' => $booking->id, 'userid' => $ui, 'completed' => '1'));
