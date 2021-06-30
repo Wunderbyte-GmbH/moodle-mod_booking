@@ -93,8 +93,8 @@ class mod_booking_observer {
 
         global $DB;
 
-        $userid = 1;
-        $optionid = 1;
+        $userid = $event->relateduserid;
+        $optionid = $event->objectid;
 
         $records = $DB->get_records('booking_userevents', array('userid' => $userid, 'optionid' => $optionid));
         foreach ($records as $record) {
