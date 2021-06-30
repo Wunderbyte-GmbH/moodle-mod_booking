@@ -100,6 +100,7 @@ if ($delete != '') {
 
     redirect($url, get_string('optiondatessuccessfullydelete', 'booking'), 5);
 }
+
 if ($duplicate != '') {
     $record = $DB->get_record("booking_optiondates",
             array('optionid' => $optionid, 'id' => $duplicate),
@@ -168,7 +169,7 @@ if ($mform->is_cancelled()) {
         }
 
         // If there is an associated calendar event, update the event too.
-        optiondate_updateevent($optiondate, $cm->id);
+        option_optiondate_update_event($bookingoption, $optiondate, $cm->id);
     } else {
         // It's a new session.
         $changes = [];

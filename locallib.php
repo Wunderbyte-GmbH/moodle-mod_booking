@@ -471,10 +471,10 @@ function option_optiondate_update_event($option = null, $optiondate = null, $cmi
             }
         }*/
 
-        // We use $data here for $option and $optiondate, the necessary keys arethe same.
+        // We use $data here for $option and $optiondate, the necessary keys are the same.
         foreach ($allevents as $event) {
             $event->description = '';
-            $event->description = get_rendered_eventdescription($option, $cmid, $optiondate, BOOKINGLINKPARAM_BOOK);
+            $event->description = get_rendered_eventdescription($option, $cmid, $optiondate, DESCRIPTION_CALENDAR);
             $event->timestart = $data->coursestarttime;
             $event->timeduration = $data->courseendtime - $data->coursestarttime;
             $event->timesort = $data->coursestarttime;
