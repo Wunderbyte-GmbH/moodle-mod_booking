@@ -56,6 +56,7 @@ $string['datenotset'] = 'Datum nicht angegeben';
 $string['daystonotify'] = 'Wie viele Tage vor Kursbeginn soll an die Teilnehmenden eine Benachrichtigung gesendet werden?';
 $string['eventbooking_cancelled'] = 'Buchung wurde storniert';
 $string['eventbookingoption_booked'] = 'Buchung durchgeführt';
+$string['eventbookingoption_completed'] = 'Buchung abgeschlossen.';
 $string['eventreport_viewed'] = 'Übersicht über Buchungen für eine Buchungsoption angesehen';
 $string['eventuserprofilefields_updated'] = 'Nutzerprofil aktualisiert';
 $string['existingsubscribers'] = 'Vorhandene Nutzer/innen';

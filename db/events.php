@@ -54,5 +54,9 @@ $observers = array(
         array(
                 'eventname' => '\mod_booking\event\booking_cancelled',
                 'callback' => 'mod_booking_observer::booking_cancelled'
+        ),
+        array(
+                'eventname' => '\mod_booking\event\bookingoption_completed',
+                'callback' => 'mod_booking_observer::bookingoption_compled'
         )
     );

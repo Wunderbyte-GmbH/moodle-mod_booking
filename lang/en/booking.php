@@ -71,6 +71,7 @@ $string['daystonotify'] = 'Number of days in advance of the event-start to notif
 $string['daystonotify2'] = 'Second notification before start of event to notify participants.';
 $string['eventbooking_cancelled'] = 'Booking cancelled';
 $string['eventbookingoption_booked'] = 'Booking option booked';
+$string['eventbookingoption_completed'] = 'Booking option completed';
 $string['bookingoption_created'] = 'Booking option created';
 $string['bookingoption_updated'] = 'Booking option updated';
 $string['bookingoption_deleted'] = 'Booking option deleted';
