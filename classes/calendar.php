@@ -189,13 +189,13 @@ class calendar {
             $courseid = 0;
             $instance = 0;
             $visible = 1;
-            $fulldescription = get_rendered_eventdescription($option, $this->cmid, false, BOOKINGLINKPARAM_USER);
+            $fulldescription = get_rendered_eventdescription($option, $this->cmid, false, BOOKINGLINKPARAM_BTNGOTO);
         } else {
             // Event calendar.
             $courseid = ($option->courseid == 0 ? $booking->course : $option->courseid);
             $instance = ($courseid == $booking->course ? $option->bookingid : 0);
             $visible = instance_is_visible('booking', $booking);
-            $fulldescription = get_rendered_eventdescription($option, $this->cmid, false, BOOKINGLINKPARAM_BOOK);
+            $fulldescription = get_rendered_eventdescription($option, $this->cmid, false, BOOKINGLINKPARAM_BTNGOTO);
         }
 
         $event = new stdClass();
@@ -281,13 +281,13 @@ class calendar {
             $courseid = 0;
             $instance = 0;
             $visible = 1;
-            $fulldescription = get_rendered_eventdescription($option, $this->cmid, $optiondate, BOOKINGLINKPARAM_USER);
+            $fulldescription = get_rendered_eventdescription($option, $this->cmid, $optiondate, BOOKINGLINKPARAM_BTNGOTO);
         } else {
             // Event calendar.
             $courseid = ($option->courseid == 0 ? $booking->course : $option->courseid);
             $instance = ($courseid == $booking->course ? $option->bookingid : 0);
             $visible = instance_is_visible('booking', $booking);
-            $fulldescription = get_rendered_eventdescription($option, $this->cmid, $optiondate, BOOKINGLINKPARAM_BOOK);
+            $fulldescription = get_rendered_eventdescription($option, $this->cmid, $optiondate, BOOKINGLINKPARAM_BTNGOTO);
         }
 
         $event = new stdClass();

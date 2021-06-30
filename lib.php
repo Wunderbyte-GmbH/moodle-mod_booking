@@ -2390,7 +2390,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
         $params->status = booking_get_user_status($user->id, $option->id, $booking->id, $cmid);
         $params->participant = fullname($user);
         $params->email = $user->email;
-        $params->sessiondescription = get_rendered_eventdescription($option, $cmid, $optiontimes[0], BOOKINGLINKPARAM_USER);
+        $params->sessiondescription = get_rendered_eventdescription($option, $cmid, $optiontimes[0], BOOKINGLINKPARAM_BTNGOTO);
     }
 
 

@@ -498,10 +498,10 @@ class booking_utils {
         $baseurl = $CFG->wwwroot;
 
         // User is not booked, no access to buttons.
-        if ($bookinglinkparam == 0) {
+        if ($bookinglinkparam == \mod_booking\output\BOOKINGLINKPARAM_NONE || $bookingoption->iambooked == 0) {
             // We don't want to show these Buttons at all if the user is not booked.
             return null;
-        } else if ($bookinglinkparam == 2) {
+        } else if ($bookingoption->iambooked != 0 && $bookinglinkparam != \mod_booking\output\BOOKINGLINKPARAM_ICAL) {
             // User is booked, we show a button (for Moodle calendar ie).
             $cm = $bookingoption->booking->cm;
             $link = new moodle_url($baseurl . '/mod/booking/link.php',
@@ -515,8 +515,8 @@ class booking_utils {
                     'name' => null,
                     'value' => "<a href=$link class='btn btn-info'>$field->cfgname</a>"
             ];
-        } else if ($bookinglinkparam == 3) {
-            // User is booked, for ical, not button but link only.
+        } else if ($bookinglinkparam == \mod_booking\output\BOOKINGLINKPARAM_ICAL) {
+            // User is booked, for ical no button but link only.
             $cm = $bookingoption->booking->cm;
             $link = new moodle_url($baseurl . '/mod/booking/link.php',
                     array('id' => $cm->id,

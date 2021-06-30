@@ -1005,9 +1005,9 @@ $string['linknotvalid'] = 'Sie scheinen dieses Meeting nicht gebucht zu haben.';
 
 // booking_utils.php
 $string['linknotavailableyet'] = 'Der Link auf die Konferenz ist nur zwischen 15 Minuten vor dem Meeting und dem Enddatum hier verfügbar.';
-$string['pleasereturnlater'] = 'Alle Plätze sind vergeben.';
-// Ical.php.
-$string['gotobookingoption'] = 'Gebuchte Option anzeigen';
+
+// Bookingoption_description.php.
+$string['gotobookingoption'] = 'Buchungsoption anzeigen';
 
 // All_options.php
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>Sie haben diese Option bereits gebucht.</i></div>';

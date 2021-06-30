@@ -22,9 +22,9 @@ require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 const BOOKINGLINKPARAM_NONE = 0; // Shows Link only when active, used on website
-const BOOKINGLINKPARAM_BOOK = 1; // Shows link with text "book" and no link to Teamsmeeting etc.
-const BOOKINGLINKPARAM_USER = 2; // Shows Links with text "go to bookingoption" via link.php
-const BOOKINGLINKPARAM_ICAL = 3; // Shows Links with text "go to bookingoption" via link.php
+const BOOKINGLINKPARAM_BTNBOOKNOW = 1; // Shows link button with text "book now" and no link to TeamsMeeting etc.
+const BOOKINGLINKPARAM_BTNGOTO = 2; // Shows link button with text "go to bookingoption" via link.php
+const BOOKINGLINKPARAM_ICAL = 3; // Shows link with text "go to bookingoption" via link.php for iCal
 
 /**
  * Abstract class used by booking subscriber selection controls
