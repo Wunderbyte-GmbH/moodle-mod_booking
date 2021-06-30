@@ -91,19 +91,25 @@ class mod_booking_observer {
     public static function bookingoption_updated(\mod_booking\event\bookingoption_updated $event) {
         global $DB, $PAGE;
 
-        new calendar($event->contextinstanceid, $event->objectid, 0, calendar::TYPEOPTION);
+        $optionid = $event->objectid;
+
+        new calendar($event->contextinstanceid, $optionid, 0, calendar::TYPEOPTION);
+
+        $option = $DB->get_record('booking_options', array('id' => $optionid));
 
         // If there are associated optiondates (sessions) then update their calendar events.
-       if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $event->objectid])) {
+       if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
             foreach ($optiondates as $optiondate) {
-                if (!optiondate_updateevent($optiondate, $PAGE->cm->id)) {
+                if (!option_optiondate_update_event($option, $optiondate, $PAGE->cm->id)) {
                     // If calendar events for sessions did not exist before, then create new ones.
                     if (!$DB->get_record('event', ['id' => $optiondate->eventid])) {
                         new calendar($event->contextinstanceid, $event->objectid, 0, calendar::TYPEOPTIONDATE, $optiondate->id);
                     }
                 }
             }
-        }
+        } else { // This means that there are no multisessions, so we still have to update userevent.
+           option_optiondate_update_event($option, null, $PAGE->cm->id);
+       }
 
         $allteachers = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid AND calendarid > 0', array( 'optionid' => $event->objectid));
         foreach ($allteachers as $key => $value) {
