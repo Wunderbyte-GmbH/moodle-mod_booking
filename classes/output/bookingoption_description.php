@@ -133,23 +133,22 @@ class bookingoption_description implements renderable, templatable {
             'whichview' => 'showonlyone'
         ));
 
-        // If the user is not yet booked, we want to add a "book now" button to Moodle calendar.
-        if ($bookingoption->iambooked == 0
-                && $descriptionparam != DESCRIPTION_NOLINK
-                && $descriptionparam != DESCRIPTION_ICAL) {
-            $this->booknowbutton = "<a href=$link class='btn btn-primary'>"
-                . get_string('booknow', 'booking')
-                . "</a>";
-        } else  if ($bookingoption->iambooked != 0
-                && $descriptionparam != DESCRIPTION_NOLINK
-                && $descriptionparam != DESCRIPTION_ICAL) {
-            // For booked options show different label.
-            $this->booknowbutton = "<a href=$link class='btn btn-primary'>"
-                . get_string('gotobookingoption', 'booking')
-                . "</a>";
-        } else if ($descriptionparam == DESCRIPTION_ICAL) {
-            // For iCal show the link without HTML.
-            $this->booknowbutton = get_string('gotobookingoption', 'booking') . ': ' .  $link->out(false);
+        switch ($descriptionparam) {
+            case DESCRIPTION_NOLINK:
+                // Do nothing.
+
+                break;
+            case DESCRIPTION_WEBSITE:
+                // Do nothing.
+                break;
+            case DESCRIPTION_CALENDAR:
+                $this->booknowbutton = "<a href=$link class='btn btn-primary'>"
+                        . get_string('gotobookingoption', 'booking')
+                        . "</a>";
+                break;
+            case DESCRIPTION_ICAL:
+                $this->booknowbutton = get_string('gotobookingoption', 'booking') . ': ' .  $link->out(false);
+                break;
         }
     }
 
