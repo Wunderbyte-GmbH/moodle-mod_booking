@@ -76,7 +76,7 @@ class info_modal implements renderable, templatable {
      *
      * @param \stdClass $data
      */
-    public function __construct($booking, $bookingoption, $bookingevent = null, $bookinglinkparam = DESCRIPTION_NONE) {
+    public function __construct($booking, $bookingoption, $bookingevent = null, $descriptionparam = DESCRIPTION_NONE) {
 
         global $DB, $CFG;
 

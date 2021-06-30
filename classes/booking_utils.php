@@ -457,10 +457,10 @@ class booking_utils {
      * @param $fields
      * @return array
      */
-    public function return_array_of_customfields($bookingoption, $fields, $sessionid = 0, $bookinglinkparam = 0) {
+    public function return_array_of_customfields($bookingoption, $fields, $sessionid = 0, $descriptionparam = 0) {
         $returnarray = [];
         foreach ($fields as $field) {
-            if ($value = $this->render_customfield_data($bookingoption, $field, $sessionid, $bookinglinkparam)) {
+            if ($value = $this->render_customfield_data($bookingoption, $field, $sessionid, $descriptionparam)) {
                 $returnarray[] = $value;
             }
         }
@@ -471,19 +471,19 @@ class booking_utils {
      * This is the place to return buttons etc. for special name, keys, like teams-meeting or zoom meeting.
      * @param $field
      */
-    private function render_customfield_data($bookingoption, $field, $sessionid = 0, $bookinglinkparam = 0) {
+    private function render_customfield_data($bookingoption, $field, $sessionid = 0, $descriptionparam = 0) {
         global $USER;
 
         switch ($field->cfgname) {
             case 'TeamsMeeting':
                 // If the session is not yet about to begin, we show placeholder
-                return $this->render_meeting_fields($bookingoption, $sessionid, $field, $bookinglinkparam);
+                return $this->render_meeting_fields($bookingoption, $sessionid, $field, $descriptionparam);
             case 'ZoomMeeting':
                 // If the session is not yet about to begin, we show placeholder
-                return $this->render_meeting_fields($bookingoption, $sessionid, $field, $bookinglinkparam);
+                return $this->render_meeting_fields($bookingoption, $sessionid, $field, $descriptionparam);
             case 'BigBlueButtonMeeting':
                 // If the session is not yet about to begin, we show placeholder
-                return $this->render_meeting_fields($bookingoption, $sessionid, $field, $bookinglinkparam);
+                return $this->render_meeting_fields($bookingoption, $sessionid, $field, $descriptionparam);
         }
         return [
                 'name' => "$field->cfgname: ",
@@ -608,7 +608,7 @@ class booking_utils {
      * @return array
      * @throws \dml_exception
      */
-    public function return_array_of_sessions($bookingoption, $bookingevent = null, $bookinglinkparam = 0, $withcustomfields = false) {
+    public function return_array_of_sessions($bookingoption, $bookingevent = null, $descriptionparam = 0, $withcustomfields = false) {
 
         global $DB;
 
@@ -644,7 +644,7 @@ class booking_utils {
                     $returnsession['datestring'] = $this->return_string_from_dates($session->coursestarttime, $session->courseendtime);
                     // customfields can only be displayed in combination with timevalues.
                     if ($withcustomfields) {
-                        $returnsession['customfields'] = $this->return_array_of_customfields($bookingoption, $fields, $session->id, $bookinglinkparam);
+                        $returnsession['customfields'] = $this->return_array_of_customfields($bookingoption, $fields, $session->id, $descriptionparam);
                     }
                 }
                 if ($returnsession) {

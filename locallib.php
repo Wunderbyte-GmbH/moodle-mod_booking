@@ -374,7 +374,7 @@ function get_rendered_customfields($optiondateid) {
  * @param stdClass $optiondate the option date object (optional)
  * @return string The rendered HTML of the full description.
  */
-function get_rendered_eventdescription($option, $cmid, $optiondate = false, $bookinglinkparam = DESCRIPTION_NONE) {
+function get_rendered_eventdescription($option, $cmid, $optiondate = false, $descriptionparam = DESCRIPTION_NONE) {
     global $DB, $CFG, $PAGE;
 
     // We have the following differences:
@@ -384,10 +384,10 @@ function get_rendered_eventdescription($option, $cmid, $optiondate = false, $boo
 
     $booking = new \mod_booking\booking($cmid);
 
-    $data = new \mod_booking\output\bookingoption_description($booking, $option, null, $bookinglinkparam);
+    $data = new \mod_booking\output\bookingoption_description($booking, $option, null, $descriptionparam);
     $output = $PAGE->get_renderer('mod_booking');
 
-    if ($bookinglinkparam == 3) { // Means: If this is for ical.
+    if ($descriptionparam == 3) { // Means: If this is for ical.
 
         // For ical, we need to strip tags.
 

@@ -89,13 +89,13 @@ class bookingoption_description implements renderable, templatable {
      * @param $booking
      * @param $bookingoption
      * @param null $bookingevent
-     * @param int $bookinglinkparam
+     * @param int $descriptionparam
      * @param bool $withcustomfields
      */
     public function __construct($booking,
             $bookingoption,
             $bookingevent = null,
-            $bookinglinkparam = DESCRIPTION_NONE,
+            $descriptionparam = DESCRIPTION_NONE,
             $withcustomfields = true) {
 
         global $CFG;
@@ -123,7 +123,7 @@ class bookingoption_description implements renderable, templatable {
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
 
-        $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent, $bookinglinkparam, $withcustomfields);
+        $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent, $descriptionparam, $withcustomfields);
 
         $baseurl = $CFG->wwwroot;
         $link = new \moodle_url($baseurl . '/mod/booking/view.php', array(
@@ -135,19 +135,19 @@ class bookingoption_description implements renderable, templatable {
 
         // If the user is not yet booked, we want to add a "book now" button to Moodle calendar.
         if ($bookingoption->iambooked == 0
-                && $bookinglinkparam != DESCRIPTION_NONE
-                && $bookinglinkparam != BOOKINGLINKPARAM_ICAL) {
+                && $descriptionparam != DESCRIPTION_NONE
+                && $descriptionparam != BOOKINGLINKPARAM_ICAL) {
             $this->booknowbutton = "<a href=$link class='btn btn-primary'>"
                 . get_string('booknow', 'booking')
                 . "</a>";
         } else  if ($bookingoption->iambooked != 0
-                && $bookinglinkparam != DESCRIPTION_NONE
-                && $bookinglinkparam != BOOKINGLINKPARAM_ICAL) {
+                && $descriptionparam != DESCRIPTION_NONE
+                && $descriptionparam != BOOKINGLINKPARAM_ICAL) {
             // For booked options show different label.
             $this->booknowbutton = "<a href=$link class='btn btn-primary'>"
                 . get_string('gotobookingoption', 'booking')
                 . "</a>";
-        } else if ($bookinglinkparam == BOOKINGLINKPARAM_ICAL) {
+        } else if ($descriptionparam == BOOKINGLINKPARAM_ICAL) {
             // For iCal show the link without HTML.
             $this->booknowbutton = get_string('gotobookingoption', 'booking') . ': ' .  $link->out(false);
         }
