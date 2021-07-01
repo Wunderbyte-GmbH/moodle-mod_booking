@@ -60,6 +60,9 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             if ($('#id_restrictanswerperiod').is(':checked') != (obj.bookingclosingtime == 0 ? false : true)) {
                                 $("#id_restrictanswerperiod").trigger('click');
                             }
+
+                            $("#id_courseid").val(obj.courseid);
+
                             if ($('#id_startendtimeknown').is(':checked') != (obj.coursestarttime == 0 ? false : true)) {
                                 $("#id_startendtimeknown").trigger('click');
                             }
@@ -108,6 +111,10 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $("#id_beforebookedtexteditable").html(obj.beforebookedtext);
                             $("#id_beforecompletedtexteditable").html(obj.beforecompletedtext);
                             $("#id_aftercompletedtexteditable").html(obj.aftercompletedtext);
+
+                            // Trigger clicks to fix autocomplete bugs.
+                            $(".form-autocomplete-downarrow").trigger('click');
+                            $("#fitem_id_courseid .badge").trigger('click');
                         }
                     }], true);
                 }
