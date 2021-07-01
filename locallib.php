@@ -475,6 +475,7 @@ function option_optiondate_update_event($option = null, $optiondate = null, $cmi
         foreach ($allevents as $event) {
             $event->description = '';
             $event->description = get_rendered_eventdescription($option, $cmid, $optiondate, DESCRIPTION_CALENDAR);
+            $event->name = $option->text;
             $event->timestart = $data->coursestarttime;
             $event->timeduration = $data->courseendtime - $data->coursestarttime;
             $event->timesort = $data->coursestarttime;
