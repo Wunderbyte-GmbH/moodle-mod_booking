@@ -1320,6 +1320,27 @@ class booking_option {
             }
         }
 
+        // Delete all associated user events for option
+
+        // Get all the userevents
+        $sql = "SELECT e.* FROM {booking_userevents} ue
+              JOIN {event} e
+              ON ue.eventid = e.id
+              WHERE ue.optionid = :optionid";
+
+        $allevents = $DB->get_records_sql($sql, [
+                'optionid' => $this->optionid]);
+
+        // Delete all the events we found associated with a user
+        foreach ($allevents as $item) {
+            $DB->delete_records('event', array('id' => $item->id));
+        }
+
+        // Delete all the entries in booking_userevents, where we have previously linked users do optiondates and options.
+        $DB->delete_records('booking_userevents', array('optionid' => $this->optionid));
+
+
+
         // Delete comments.
         $DB->delete_records("comments",
                 array('itemid' => $this->optionid, 'commentarea' => 'booking_option',
