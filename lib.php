@@ -786,7 +786,7 @@ function booking_update_options($optionvalues, $context) {
         }
 
         // Create group in target course if there is a course specified only.
-        if ($option->courseid > 0 && $booking->addtogroup) {
+        if ($option->courseid > 0 && isset($booking->addtogroup) && $booking->addtogroup) {
             $option->id = $id;
             $bo = new booking_option($context->instanceid, $id, array(), 0, 0, false);
             $option->groupid = $bo->create_group($booking, $option);
