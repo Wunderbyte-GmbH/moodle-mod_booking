@@ -777,8 +777,11 @@ function booking_update_options($optionvalues, $context) {
             }
         }
 
+        // TODO: Get rid of unique booking option name (text)
         //Fixed: record should not get inserted a 2nd time here:
-        $db_record = $DB->get_record("booking_options", ['text' => $option->text]);
+        $db_record = $DB->get_record("booking_options",
+                ['text' => $option->text,
+                'bookingid' => $option->bookingid]);
         if (empty($db_record)){
             $id = $DB->insert_record("booking_options", $option);
         } else {
