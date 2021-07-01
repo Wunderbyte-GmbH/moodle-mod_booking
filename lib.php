@@ -351,7 +351,7 @@ function booking_add_instance($booking) {
     $booking->bookingchangedtext = $booking->bookingchangedtext['text'];
     $booking->pollurltext = $booking->pollurltext['text'];
     $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'];
-    $booking->notificationtext = $booking->notificationtext['text'];
+    $booking->activitycompletiontext = $booking->activitycompletiontext['text'];
     $booking->userleave = $booking->userleave['text'];
     if (isset($booking->beforebookedtext['text'])) {
         $booking->beforebookedtext = $booking->beforebookedtext['text'];
@@ -507,7 +507,7 @@ function booking_update_instance($booking) {
     $booking->bookingchangedtext = $booking->bookingchangedtext['text'];
     $booking->pollurltext = $booking->pollurltext['text'];
     $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'];
-    $booking->notificationtext = $booking->notificationtext['text'];
+    $booking->activitycompletiontext = $booking->activitycompletiontext['text'];
     $booking->userleave = $booking->userleave['text'];
 
     // Update, delete or insert answers.

@@ -625,6 +625,34 @@ $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default 
 <li>{shorturl} - Short url ob option</li>
 </ul>';
 
+$string['activitycompletiontext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{email} - User email</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+<li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
+<li>{shorturl} - Short url ob option</li>
+</ul>';
+
 $string['notificationtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
 <li>{status}</li>
@@ -801,7 +829,13 @@ $string['donotselectlocation'] = 'No location selected';
 $string['donotselecteventtype'] = 'No event type selected';
 $string['importcsvbookingoption'] = 'Import CSV with booking options';
 $string['importexcelbutton'] = 'Import activity completion';
-$string['notificationtext'] = 'Notification text shown on activity completion.';
+$string['activitycompletiontext'] = 'Notification text shown on activity completion';
+$string['activitycompletiontextmessage'] = 'You have completed the following activity:
+
+Course:   {$a->title}
+Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+Booking link: {bookinglink}
+Course link: {courselink}';
 $string['sendmailtobooker'] = 'Book other users page: Send mail to user who books instead to users who are booked';
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to the user who books other users instead to users, who have been added to a booking option. This is only relevant for bookings made on the page "book other users".';
 $string['startendtimeknown'] = 'Start and end time of course are known';

@@ -362,14 +362,14 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('pollurlteacherstext', $default);
         $mform->addHelpButton('pollurlteacherstext', 'pollurlteacherstext', 'mod_booking');
 
-        $mform->addElement('editor', 'notificationtext', get_string('notificationtext', 'booking'),
+        $mform->addElement('editor', 'activitycompletiontext', get_string('activitycompletiontext', 'booking'),
                 null, $editoroptions);
         $default = array(
-            'text' => get_string('notificationtextmessage', 'mod_booking', $fieldmapping),
+            'text' => get_string('activitycompletiontextmessage', 'booking', $fieldmapping),
             'format' => FORMAT_HTML);
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        $mform->setDefault('notificationtext', $default);
-        $mform->addHelpButton('notificationtext', 'notificationtext', 'mod_booking');
+        $mform->setDefault('activitycompletiontext', $default);
+        $mform->addHelpButton('activitycompletiontext', 'activitycompletiontext', 'booking');
 
         // Custom labels.
         $mform->addElement('header', 'customlabels', get_string('customlabels', 'mod_booking'));
@@ -835,6 +835,10 @@ class mod_booking_mod_form extends moodleform_mod {
             $defaultvalues['deletedtext'] = array('text' => $defaultvalues['deletedtext'],
                 'format' => FORMAT_HTML);
         }
+        if (isset($defaultvalues['bookingchangedtext'])) {
+            $defaultvalues['bookingchangedtext'] = array('text' => $defaultvalues['bookingchangedtext'],
+                'format' => FORMAT_HTML);
+        }
         if (isset($defaultvalues['pollurltext'])) {
             $defaultvalues['pollurltext'] = array('text' => $defaultvalues['pollurltext'],
                 'format' => FORMAT_HTML);
@@ -843,8 +847,8 @@ class mod_booking_mod_form extends moodleform_mod {
             $defaultvalues['pollurlteacherstext'] = array(
                 'text' => $defaultvalues['pollurlteacherstext'], 'format' => FORMAT_HTML);
         }
-        if (isset($defaultvalues['notificationtext'])) {
-            $defaultvalues['notificationtext'] = array('text' => $defaultvalues['notificationtext'],
+        if (isset($defaultvalues['activitycompletiontext'])) {
+            $defaultvalues['activitycompletiontext'] = array('text' => $defaultvalues['activitycompletiontext'],
                 'format' => FORMAT_HTML);
         }
         if (isset($defaultvalues['userleave'])) {

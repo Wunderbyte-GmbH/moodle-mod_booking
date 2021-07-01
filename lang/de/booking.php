@@ -530,6 +530,31 @@ $string['pollurlteacherstext_help'] = 'Lassen Sie dieses Feld leer, um den Stand
 <li>{qr_username} - QR Code des Usernamen einfügen</li>
 </ul>';
 
+$string['activitycompletiontext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
+<ul>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+<li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
+</ul>';
+
 $string['notificationtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
 <li>{status}</li>
@@ -619,7 +644,13 @@ $string['donotselectlocation'] = 'Kein Ort ausgewählt';
 $string['donotselecteventtype'] = 'Keine Ereignisart ausgewählt';
 $string['importcsvbookingoption'] = 'Buchungsoptionen via CSV-Datei importieren';
 $string['importexcelbutton'] = 'Aktivitätsabschluss importieren';
-$string['notificationtext'] = 'Benachrichtungstext bei Aktivitätsabschluss';
+$string['activitycompletiontext'] = 'Benachrichtungstext bei Aktivitätsabschluss';
+$string['activitycompletiontextmessage'] = 'Sie haben die folgende Aktivität abgeschlossen:
+
+Kurs:   {$a->title}
+Datum: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+Link zur Buchung: {bookinglink}
+Link zum Kurs: {courselink}';
 $string['sendmailtobooker'] = 'Buchung für andere User durchführen: Mail an User, der Buchung durchführt, anstatt an gebuchte User senden';
 $string['sendmailtobooker_help'] = 'Diese Option aktivieren, um Buchungsbestätigungsmails anstatt an die gebuchten Nutzer/innen zu senden an den/die Nutzer/in senden, die die Buchung durchgeführt hat. Dies betrifft nur Buchungen, die auf der Seite "Buchung für andere Nutzer/innen durchführen" getätigt wurden';
 $string['startendtimeknown'] = 'Kursbeginn und Kursende sind bekannt';

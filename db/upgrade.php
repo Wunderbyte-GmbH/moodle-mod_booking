@@ -2232,5 +2232,21 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2021062801, 'booking');
     }
 
+    if ($oldversion < 2021070100) {
+
+        // Define field activitycompletiontext to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('activitycompletiontext', XMLDB_TYPE_TEXT, null, null, null, null, null,
+            'pollurlteacherstext');
+
+        // Conditionally launch add field activitycompletiontext.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2021070100, 'booking');
+    }
+
     return true;
 }
