@@ -972,16 +972,16 @@ Associated course: {$a->courselink}
 
 ';
 
-$string['pollurltextsubject'] = 'Please, take the survey';
-$string['pollurltextmessage'] = 'Please, take the survey
+$string['pollurltextsubject'] = 'Please take the survey';
+$string['pollurltextmessage'] = 'Please take the survey:
 
-Survey url {pollurl}
+Survey URL: <a href="{pollurl}" target="_blank">{pollurl}</a>
 ';
 
-$string['pollurlteacherstextsubject'] = 'Please, take the survey';
-$string['pollurlteacherstextmessage'] = 'Please, take the survey
+$string['pollurlteacherstextsubject'] = 'Please take the survey';
+$string['pollurlteacherstextmessage'] = 'Please take the survey:
 
-Survey url {pollurlteachers}
+Survey URL: <a href="{pollurlteachers}" target="_blank">{pollurlteachers}</a>
 ';
 
 $string['notificationtextsubject'] = 'Info about course start!';

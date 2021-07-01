@@ -775,18 +775,16 @@ Link: {$a->bookinglink}
 
 ';
 
-$string['pollurltextsubject'] = 'Nehmen Sie bitte an der Umfrage teil';
-$string['pollurltextmessage'] = 'Füllen Sie die Umfrage unter
+$string['pollurltextsubject'] = 'Bitte nehmen Sie an der Umfrage teil';
+$string['pollurltextmessage'] = 'Bitte nehmen Sie an der Umfrage teil:
 
-Survey url {pollurl}
-
-aus.
+Link zur Umfrage: <a href="{pollurl}" target="_blank">{pollurl}</a>
 ';
 
 $string['pollurlteacherstextsubject'] = 'Bitte nehmen Sie an der Umfrage teil';
 $string['pollurlteacherstextmessage'] = 'Bitte nehmen Sie an der Umfrage teil:
 
-Link zur Umfrage: {pollurlteachers}
+Link zur Umfrage: <a href="{pollurlteachers}" target="_blank">{pollurlteachers}</a>
 ';
 
 $string['notificationtextsubject'] = 'Information über den Kursstart!';
