@@ -17,6 +17,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 use mod_booking\booking_option;
+use mod_booking\calendar;
 global $CFG;
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -422,13 +423,39 @@ function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
  * Helper function to update user calendar events after an option or optiondate (a session of a booking option) has been changed.
  * @param $optiondate stdClass optiondate object
  */
-function option_optiondate_update_event($option = null, $optiondate = null, $cmid) {
+function option_optiondate_update_event($option, $optiondate = null, $cmid) {
     global $DB;
 
     // We either do this for option or optiondate
     // different way to retrieve the right events.
     if ($optiondate) {
+        // check if we have already associated userevents
         if (!$event = $DB->get_record('event', ['id' => $optiondate->eventid])) {
+
+            // If we don't find the event here, we might still be just switching to multisession.
+            // Then we should update the old userevents
+
+            // Get all the userevents
+            $sql = "SELECT e.* FROM {booking_userevents} ue
+              JOIN {event} e
+              ON ue.eventid = e.id
+              WHERE ue.optionid = :optionid AND
+              ue.optiondateid IS NULL";
+
+            $allevents = $DB->get_records_sql($sql, [
+                    'optionid' => $optiondate->optionid]);
+
+            // We delete all userevents and return false
+
+            foreach ($allevents as $event) {
+                $DB->delete_records('event', array('id' => $event->id));
+                $DB->delete_records('booking_userevents', array('id' => $event->id));
+
+                // And create the new user events here
+                // new calendar($cmid, $optiondate->optionid, $event->userid, calendar::TYPEOPTIONDATE, $optiondate->id, 1);
+            }
+
+            // We have to return false if we have switched from multisession to create the right events.
             return false;
         } else {
 
@@ -443,6 +470,20 @@ function option_optiondate_update_event($option = null, $optiondate = null, $cmi
         }
     } else {
             if (!$event = $DB->get_record('event', ['id' => $option->calendarid])) {
+
+                // if we don't find this, we might be switching from multisession to single date.
+                // Get all the userevents
+                $sql = "SELECT e.* FROM {booking_userevents} ue
+              JOIN {event} e
+              ON ue.eventid = e.id
+              WHERE ue.optionid = :optionid";
+
+                $allevents = $DB->get_records_sql($sql, ['optionid' => $option->id]);
+
+                foreach ($allevents as $event) {
+                    $DB->delete_records('event', array('id' => $event->id));
+                    $DB->delete_records('booking_userevents', array('eventid' => $event->id));
+                }
                 return false;
             } else {
 
@@ -455,10 +496,13 @@ function option_optiondate_update_event($option = null, $optiondate = null, $cmi
                 $allevents = $DB->get_records_sql($sql, ['optionid' => $option->id]);
 
                 $data = $option;
+            }
         }
 
         if ($allevents && count($allevents) > 0) {
-            $allevents[] = $event;
+            if ($event && isset($event->description)) {
+                $allevents[] = $event;
+            }
         } else {
             $allevents = [$event];
         }
@@ -483,7 +527,6 @@ function option_optiondate_update_event($option = null, $optiondate = null, $cmi
                 return false;
             }
         }
-    }
 }
 
 /**

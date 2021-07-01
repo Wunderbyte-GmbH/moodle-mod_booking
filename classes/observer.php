@@ -110,11 +110,15 @@ class mod_booking_observer {
      * @throws dml_exception
      */
     public static function bookingoption_updated(\mod_booking\event\bookingoption_updated $event) {
-        global $DB, $PAGE;
+        global $DB, $PAGE, $USER;
 
         $optionid = $event->objectid;
+        $cmid = $event->contextinstanceid;
+        $context = $event->get_context();
 
-        $option = $DB->get_record('booking_options', array('id' => $optionid));
+        $bookingoption = new \mod_booking\booking_option($cmid, $optionid);
+
+        $option = $bookingoption->option;
 
         // If there are associated optiondates (sessions) then update their calendar events.
        if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
@@ -126,7 +130,12 @@ class mod_booking_observer {
                 if (!option_optiondate_update_event($option, $optiondate, $PAGE->cm->id)) {
                     // If calendar events for sessions did not exist before, then create new ones.
                     if (!$DB->get_record('event', ['id' => $optiondate->eventid])) {
-                        new calendar($event->contextinstanceid, $event->objectid, 0, calendar::TYPEOPTIONDATE, $optiondate->id);
+                        // Trigger the same routine as if it was created anew
+
+                        $event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondate->id,
+                                'userid' => $USER->id, 'other' => ['optionid' => $optionid]));
+                        $event->trigger();
+
                     }
                 }
             }
@@ -151,15 +160,26 @@ class mod_booking_observer {
      * @param \mod_booking\event\bookingoptiondate_created $event
      */
     public static function bookingoptiondate_created(\mod_booking\event\bookingoptiondate_created $event) {
-        new calendar($event->contextinstanceid, $event->other['optionid'], 0,
+
+        $optionid = $event->other['optionid'];
+
+        new calendar($event->contextinstanceid, $optionid, 0,
             calendar::TYPEOPTIONDATE, $event->objectid);
+
+        $cmid = $event->contextinstanceid;
+        $bookingoption = new \mod_booking\booking_option($cmid, $optionid);
+
+        $users = $bookingoption->get_all_users_booked();
+        foreach ($users as $user) {
+            new calendar($event->contextinstanceid, $event->objectid, $user->id, calendar::TYPEOPTIONDATE, $event->objectid, 1);
+        }
     }
 
 
     /**
      * When a  booking option is completed, we send a mail to the user.
      *
-     * @param \mod_booking\event\bookingoptiondate_created $event
+     * @param \mod_booking\event\bookingoptiondate_completed event
      */
     public static function bookingoptiondate_completed(\mod_booking\event\bookingoptiondate_completed $event) {
 
