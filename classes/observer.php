@@ -155,7 +155,7 @@ class mod_booking_observer {
 
     /**
      * When a new booking option date is created, we insert a new calendar entry for the session
-     * and delete the old booking option calendar entry.
+     * and hide the old booking option calendar entry.
      *
      * @param \mod_booking\event\bookingoptiondate_created $event
      */
@@ -177,14 +177,13 @@ class mod_booking_observer {
 
 
     /**
-     * When a  booking option is completed, we send a mail to the user.
+     * When a booking option is completed, we send a mail to the user.
      *
-     * @param \mod_booking\event\bookingoptiondate_completed event
+     * @param \mod_booking\event\bookingoption_completed $event
      */
-    public static function bookingoptiondate_completed(\mod_booking\event\bookingoptiondate_completed $event) {
+    public static function bookingoption_completed(\mod_booking\event\bookingoption_completed $event) {
 
-        // Do stuff.
-
+        //TODO: Do stuff.
     }
 
     /**
