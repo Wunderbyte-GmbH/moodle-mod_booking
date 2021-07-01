@@ -125,6 +125,10 @@ class mod_booking_observer {
 
            // Delete course event.
            $DB->delete_records('event', array('id' => $option->calendarid));
+           $data = new stdClass();
+           $data->id = $optionid;
+           $data->calendarid = 0;
+           $DB->update_record('booking_options', $data);
 
             foreach ($optiondates as $optiondate) {
                 if (!option_optiondate_update_event($option, $optiondate, $PAGE->cm->id)) {
@@ -132,9 +136,9 @@ class mod_booking_observer {
                     if (!$DB->get_record('event', ['id' => $optiondate->eventid])) {
                         // Trigger the same routine as if it was created anew
 
-                        $event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondate->id,
+                        /*$event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondate->id,
                                 'userid' => $USER->id, 'other' => ['optionid' => $optionid]));
-                        $event->trigger();
+                        $event->trigger();*/
 
                     }
                 }
@@ -171,7 +175,7 @@ class mod_booking_observer {
 
         $users = $bookingoption->get_all_users_booked();
         foreach ($users as $user) {
-            new calendar($event->contextinstanceid, $event->objectid, $user->id, calendar::TYPEOPTIONDATE, $event->objectid, 1);
+            new calendar($event->contextinstanceid, $optionid, $user->id, calendar::TYPEOPTIONDATE, $event->objectid, 1);
         }
     }
 

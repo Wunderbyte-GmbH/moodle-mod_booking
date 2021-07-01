@@ -159,6 +159,7 @@ $string['successfulldeleted'] = 'Kategorie wurde erfolgreich gelöscht!';
 // Events.
 $string['bookingoptiondate_created'] = 'Buchungsoptionsdatum erstellt';
 $string['bookingoptiondate_updated'] = 'Buchungsoptionsdatum geändert';
+$string['bookingoptiondate_deleted'] = 'Buchungsoptionsdatum gelöscht';
 $string['custom_field_changed'] = 'Benutzerdefiniertes Feld geändert';
 
 // View.php.

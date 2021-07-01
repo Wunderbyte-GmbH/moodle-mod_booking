@@ -177,6 +177,7 @@ $string['successfulldeleted'] = 'Category was deleted!';
 // Events.
 $string['bookingoptiondate_created'] = 'Booking option date created';
 $string['bookingoptiondate_updated'] = 'Booking option date updated';
+$string['bookingoptiondate_deleted'] = 'Booking option date deleted';
 $string['custom_field_changed'] = 'Custom field changed';
 
 // view.php

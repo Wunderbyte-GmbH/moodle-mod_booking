@@ -61,16 +61,19 @@ if ($delete != '') {
     if ($optiondate = $DB->get_record('booking_optiondates', ['id' => $delete])) {
         $DB->delete_records('event', ['id' => $optiondate->eventid]);
 
+        // Also, clean all associated user records
+        $records = $DB->get_records('booking_userevents', array('optiondateid' => $delete));
+
+        foreach ($records as $record) {
+            $DB->delete_records('event', array('id' => $record->eventid));
+        }
+
+
         // Also store the changes so they can be sent in an update mail.
         $changes[] = ['fieldname' => 'coursestarttime',
                       'oldvalue' => $optiondate->coursestarttime];
         $changes[] = ['fieldname' => 'courseendtime',
                       'oldvalue' => $optiondate->courseendtime];
-    }
-
-    // First, delete the associated calendar event.
-    if ($eventid = $DB->get_field('booking_optiondates', 'eventid', ['id' => $delete])) {
-        $DB->delete_records('event', ['id' => $eventid]);
     }
 
     // Now we can delete the session.
@@ -159,7 +162,7 @@ if ($mform->is_cancelled()) {
         }
 
         // If there is an associated calendar event, update the event too.
-        option_optiondate_update_event($bookingoption, $optiondate, $cm->id);
+        // option_optiondate_update_event($bookingoption, $optiondate, $cm->id);
     } else {
         // It's a new session.
         $changes = [];
