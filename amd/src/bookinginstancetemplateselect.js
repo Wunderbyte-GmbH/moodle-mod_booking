@@ -49,17 +49,26 @@ define(['jquery', 'core/ajax'], function($, ajax) {
 
                             // General
                             $("#id_name").val(obj.name);
+
+                            // TODO: eventtype does not yet work correctly.
                             $("#id_eventtype").val(obj.eventtype);
+                            
                             $("#id_introeditoreditable").html(obj.intro);
                             $('#id_duration').val(obj.duration);
                             $('#id_points').val(obj.points);
                             $('#id_organizatorname').val(obj.organizatorname);
                             $('#id_pollurl').val(obj.pollurl);
                             $('#id_pollurlteachers').val(obj.pollurlteachers);
+                            // TODO: attachment - is this even possible?
+                            // TODO: Views to show in the booking options overview.
                             $('#id_whichview').val(obj.whichview);
                             $('#id_defaultoptionsort').val(obj.defaultoptionsort);
                             $('#id_enablepresence').val(obj.enablepresence);
                             $('#id_templateid').val(obj.templateid);
+                            $('#id_showdescriptionmode').val(obj.showdescriptionmode);
+                            $('#id_showlistoncoursepage').val(obj.showlistoncoursepage);
+                            $('#id_coursepageshortinfo').val(obj.coursepageshortinfo);
+                            // Known issue: coursepageshortinfo won't be unhidden when filled from template.
 
                             // Confirmation e-mail settings
                             $('#id_sendmail').val(obj.sendmail);
@@ -67,16 +76,17 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $('#id_sendmailtobooker').val(obj.sendmailtobooker);
                             $('#id_daystonotify').val(obj.daystonotify);
                             $('#id_daystonotify2').val(obj.daystonotify2);
-                            // $('#id_bookingmanager').val(obj.bookingmanager);
+                            // TODO: bookingmanager
                             $('#id_bookedtexteditable').html(obj.bookedtext);
                             $('#id_waitingtexteditable').html(obj.waitingtext);
                             $('#id_notifyemaileditable').html(obj.notifyemail);
                             $('#id_statuschangetexteditable').html(obj.statuschangetext);
                             $('#id_userleaveeditable').html(obj.userleave);
                             $('#id_deletedtexteditable').html(obj.deletedtext);
+                            $('#id_bookingchangedtexteditable').html(obj.bookingchangedtext);
                             $('#id_pollurltexteditable').html(obj.pollurltext);
                             $('#id_pollurlteacherstexteditable').html(obj.pollurlteacherstext);
-                            $('#id_notificationtexteditable').html(obj.notificationtext);
+                            $('#id_activitycompletiontexteditable').html(obj.activitycompletiontext);
 
                             // Custom labels
                             $('#id_btncacname').val(obj.btncacname);

@@ -813,7 +813,7 @@ $string['searchtag'] = 'Search tags';
 $string['showinapi'] = 'Show in API?';
 $string['whichview'] = 'Default view for booking options';
 $string['whichviewerror'] = 'You have to include the default view in: Views to show in the booking options overview';
-$string['showviews'] = 'Views to show on in the booking options overview';
+$string['showviews'] = 'Views to show in the booking options overview';
 $string['enablepresence'] = 'Enable presence';
 $string['removeuseronunenrol'] = 'Remove user from booking upon unenrolment from associated course?';
 
