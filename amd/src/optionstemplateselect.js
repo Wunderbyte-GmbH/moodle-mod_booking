@@ -61,14 +61,14 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                                 $("#id_restrictanswerperiod").trigger('click');
                             }
 
-                            $("#id_courseid").val(obj.courseid);
+                            var datebookingclosingtime = new Date(obj.bookingclosingtime * 1000);
+                            $("#id_bookingclosingtime_day").val(datebookingclosingtime.getDate());
+                            $("#id_bookingclosingtime_month").val(datebookingclosingtime.getMonth() + 1);
+                            $("#id_bookingclosingtime_year").val(datebookingclosingtime.getFullYear());
+                            $("#id_bookingclosingtime_hour").val(datebookingclosingtime.getHours());
+                            $("#id_bookingclosingtime_minute").val(datebookingclosingtime.getMinutes());
 
-                            if ($('#id_startendtimeknown').is(':checked') != (obj.coursestarttime == 0 ? false : true)) {
-                                $("#id_startendtimeknown").trigger('click');
-                            }
-                            if ($('#id_addtocalendar').is(':checked') != (obj.addtocalendar == 0 ? false : true)) {
-                                $("#id_addtocalendar").trigger('click');
-                            }
+                            $("#id_courseid").val(obj.courseid);
 
                             var x = obj.duration;
                             switch (true) {
@@ -94,9 +94,30 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                                     break;
                             }
 
+                            if ($('#id_startendtimeknown').is(':checked') != (obj.coursestarttime == 0 ? false : true)) {
+                                $("#id_startendtimeknown").trigger('click');
+                            }
+
+                            $("#id_addtocalendar").val(obj.addtocalendar);
+
+                            var datecoursestarttime = new Date(obj.coursestarttime * 1000);
+                            $("#id_coursestarttime_day").val(datecoursestarttime.getDate());
+                            $("#id_coursestarttime_month").val(datecoursestarttime.getMonth() + 1);
+                            $("#id_coursestarttime_year").val(datecoursestarttime.getFullYear());
+                            $("#id_coursestarttime_hour").val(datecoursestarttime.getHours());
+                            $("#id_coursestarttime_minute").val(datecoursestarttime.getMinutes());
+
                             if ($('#id_enrolmentstatus').is(':checked') != (obj.enrolmentstatus == 0 ? false : true)) {
                                 $("#id_enrolmentstatus").trigger('click');
                             }
+
+                            var datecourseendtime = new Date(obj.courseendtime * 1000);
+                            $("#id_courseendtime_day").val(datecourseendtime.getDate());
+                            $("#id_courseendtime_month").val(datecourseendtime.getMonth() + 1);
+                            $("#id_courseendtime_year").val(datecourseendtime.getFullYear());
+                            $("#id_courseendtime_hour").val(datecourseendtime.getHours());
+                            $("#id_courseendtime_minute").val(datecourseendtime.getMinutes());
+
                             $("#id_descriptioneditable").html(obj.description);
                             $("#id_pollurl").val(obj.pollurl);
                             $("#id_pollurlteachers").val(obj.pollurlteachers);
@@ -113,8 +134,15 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $("#id_aftercompletedtexteditable").html(obj.aftercompletedtext);
 
                             // Trigger clicks to fix autocomplete bugs.
-                            $(".form-autocomplete-downarrow").trigger('click');
+                            $("#fitem_id_location .form-autocomplete-downarrow").trigger('click');
+                            $("#fitem_id_institution .form-autocomplete-downarrow").trigger('click');
                             $("#fitem_id_courseid .badge").trigger('click');
+                            $("#id_optiontemplateid").trigger('click');
+
+                            // A little hack to close open menus.
+                            $("#fitem_id_courseendtime .icon").trigger('click');
+                            $("#fitem_id_courseendtime .icon").trigger('click');
+
                         }
                     }], true);
                 }

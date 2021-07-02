@@ -175,6 +175,7 @@ class option_form extends moodleform {
 
         $mform->addElement('date_time_selector', 'bookingclosingtime',
                 get_string("bookingclose", "booking"));
+        $mform->setType('bookingclosingtime', PARAM_INT);
         $mform->disabledIf('bookingclosingtime', 'restrictanswerperiod', 'notchecked');
 
         $coursearray = array();
