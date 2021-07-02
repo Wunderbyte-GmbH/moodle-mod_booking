@@ -779,14 +779,17 @@ function booking_update_options($optionvalues, $context) {
 
         // TODO: Get rid of unique booking option name (text)
         //Fixed: record should not get inserted a 2nd time here:
-        $db_record = $DB->get_record("booking_options",
+        /*$db_record = $DB->get_record("booking_options",
                 ['text' => $option->text,
                 'bookingid' => $option->bookingid]);
         if (empty($db_record)){
             $id = $DB->insert_record("booking_options", $option);
         } else {
             $id = $db_record->id;
-        }
+        }*/
+
+        // No check for unique name anymore, option will always be inserted.
+        $id = $DB->insert_record("booking_options", $option);
 
         // Create group in target course if there is a course specified only.
         if ($option->courseid > 0 && isset($booking->addtogroup) && $booking->addtogroup) {
@@ -814,6 +817,10 @@ function booking_update_options($optionvalues, $context) {
             }
         }
 
+        $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $id,
+                'userid' => $USER->id));
+        $event->trigger();
+
         // Save custom fields if there are any.
         if (!empty($customfields)) {
             foreach ($customfields as $fieldcfgname => $field) {
@@ -828,8 +835,56 @@ function booking_update_options($optionvalues, $context) {
             }
         }
 
-        $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $id,
-                        'userid' => $USER->id));
+        //Deal with new optiondates (Multisessions).
+        // TODO: We should have an optiondates class to deal with all of this.
+        // As of now, we do it the hacky way.
+
+        for ($i = 1; $i < 4; ++$i) {
+
+            $starttimekey = 'ms' . $i . 'starttime';
+            $endtimekey = 'ms' . $i . 'endtime';
+            $daystonotify = 'ms' . $i . 'nt';
+
+            if (isset($optionvalues->$starttimekey) && isset($optionvalues->$endtimekey)) {
+                $optiondate = new stdClass();
+                $optiondate->bookingid = $booking->id;
+                $optiondate->optionid = $id;
+                $optiondate->coursestarttime = $optionvalues->$starttimekey;
+                $optiondate->courseendtime = $optionvalues->$endtimekey;
+                if (isset($optionvalues->$daystonotify)) {
+                    $optiondate->daystonotify = $optionvalues->$daystonotify;
+                }
+                $optiondateid = $DB->insert_record("booking_optiondates", $optiondate);
+
+                for ($j = 1; $j < 4; ++$j) {
+                    $cfname = 'ms' . $i . 'cf' . $j . 'name';
+                    $cfvalue = 'ms' . $i . 'cf'. $j . 'value';
+
+                    if (isset($optionvalues->$cfname)
+                            && isset($optionvalues->$cfvalue)
+                            && !empty($optionvalues->$cfname)
+                            && !empty($optionvalues->$cfvalue)) {
+
+                        $customfield = new stdClass();
+                        $customfield->bookingid = $booking->id;
+                        $customfield->optionid = $id;
+                        $customfield->optiondateid = $optiondateid;
+                        $customfield->cfgname = $optionvalues->$cfname;
+                        $customfield->value = $optionvalues->$cfvalue;
+                        $DB->insert_record("booking_customfields", $customfield);
+
+                    }
+                }
+
+                // We trigger the event, where we take care of events in calendar etc.
+                $event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondateid,
+                        'userid' => $USER->id, 'other' => ['optionid' => $id]));
+                $event->trigger();
+            }
+        }
+
+        $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $id,
+                'userid' => $USER->id));
         $event->trigger();
 
         return $id;

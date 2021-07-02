@@ -112,6 +112,28 @@ class csv_import {
         $this->additionalfields[] = 'name';
         $this->additionalfields[] = 'startdate';
         $this->additionalfields[] = 'enddate';
+
+        // Optiondates (Multisessionfields have to be added here.
+        // Every multisession can have up to three customfields
+        for ($i = 1; $i < 7; ++$i) {
+
+            $starttimekey = 'ms' . $i . 'starttime';
+            $endtimekey = 'ms' . $i . 'endtime';
+            $daystonotify = 'ms' . $i . 'nt';
+
+            $this->additionalfields[] = $starttimekey;
+            $this->additionalfields[] = $endtimekey;
+            $this->additionalfields[] = $daystonotify;
+
+            for ($j = 1; $j < 4; ++$j) {
+                $cfname = 'ms' . $i . 'cf' . $j . 'name';
+                $cfvalue = 'ms' . $i . 'cf' . $j . 'value';
+
+                $this->additionalfields[] = $cfname;
+                $this->additionalfields[] = $cfvalue;
+            }
+        }
+
         $this->customfields = booking_option::get_customfield_settings();
         // TODO: now only possible add fields of type text, select multiselect still to implement.
         // Add customfields.
@@ -311,6 +333,17 @@ class csv_import {
                         $bookingoption->$column = strtotime($value);
                     }
                     break;
+                // For optiondates
+                case preg_match('/ms[1-3]starttime/', $column) ? $column : !$column:
+                case preg_match('/ms[1-3]endtime/', $column) ? $column : !$column:
+                    $date = date_create_from_format($this->formdata->dateparseformat, $value);
+                    $bookingoption->startendtimeknown = 1;
+                    if ($date) {
+                        $bookingoption->$column = $date->getTimestamp();
+                    } else {
+                        $bookingoption->$column = strtotime($value);
+                    }
+                    break;
                 case 'institution':
                     // Create institution if it does not exist.
                     $bookingoption->institution = $this->fix_encoding($value);
@@ -323,6 +356,12 @@ class csv_import {
                         $DB->insert_record("booking_institutions", $institution);
                     }
                     break;
+                    // We don't need this, because values are not transformed
+                    /*case preg_match('/ms[1-3]cf[1-3]name/', $column) ? $column : !$column:
+                    case preg_match('/ms[1-3]cf[1-3]value/', $column) ? $column : !$column:
+                    case preg_match('/ms[1-3]nt/', $column) ? $column : !$column:
+                    $bookingoption->$column = $value;
+                        break;*/
                 default:
                     $bookingoption->$column = $value;
             }
