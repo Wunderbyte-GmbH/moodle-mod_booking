@@ -73,6 +73,8 @@ class mod_booking_observer {
                     "userid = :userid AND optionid $insql", $inparams);
             }
         }
+
+        // TODO: We need to run update to update personal calendar events.
     }
 
     /**

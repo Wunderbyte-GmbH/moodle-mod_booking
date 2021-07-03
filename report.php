@@ -27,6 +27,8 @@ require_once("{$CFG->dirroot}/mod/booking/classes/all_userbookings.php");
 require_once("{$CFG->dirroot}/user/profile/lib.php");
 require_once($CFG->dirroot . '/rating/lib.php');
 
+global $USER;
+
 $id = required_param('id', PARAM_INT); // Course module id.
 $optionid = required_param('optionid', PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
@@ -324,6 +326,12 @@ if (!$tableallbookings->is_downloading()) {
                     $data->del++;
                 }
             }
+
+            // After we have delete a response, we run update booking uption, because we need to update userevents.
+            $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
+                    'userid' => $USER->id));
+            $event->trigger();
+
 
             redirect($url, get_string('delnotification', 'booking', $data), 5);
         } else if (isset($_POST['subscribetocourse'])) { // Subscription submitted.
