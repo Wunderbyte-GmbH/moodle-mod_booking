@@ -76,7 +76,7 @@ class info_modal implements renderable, templatable {
      *
      * @param \stdClass $data
      */
-    public function __construct($booking, $bookingoption, $bookingevent = null, $descriptionparam = \DESCRIPTION_WEBSITE) {
+    public function __construct($booking, $bookingoption, $bookingevent = null, $descriptionparam = \DESCRIPTION_WEBSITE, $withcustomfields = false) {
 
         global $DB, $CFG;
 
@@ -98,7 +98,7 @@ class info_modal implements renderable, templatable {
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
 
-        $this->dates = $this->return_array_of_sessions($bookingoption, $bookingevent);
+        $this->dates = $this->return_array_of_sessions($bookingoption, $bookingevent, $descriptionparam, $withcustomfields);
 
     }
 
@@ -121,7 +121,7 @@ class info_modal implements renderable, templatable {
      * @return array
      * @throws \dml_exception
      */
-    private function return_array_of_sessions($bookingoption, $bookingevent = null, $withcustomfields = false) {
+    private function return_array_of_sessions($bookingoption, $bookingevent = null, $descriptionparam, $withcustomfields = false) {
 
         global $DB;
 
@@ -142,7 +142,7 @@ class info_modal implements renderable, templatable {
                 $fields = array_filter($customfields, function($x) { $x->optiondateid == $session->id; });
 
                 if ($withcustomfields) {
-                    $customfields = $this->bu->return_array_of_customfields($bookingoption, $fields);
+                    $customfields = $this->bu->return_array_of_customfields($bookingoption, $fields, $session->id, $descriptionparam);
                 } else {
                     $customfields = false;
                 }

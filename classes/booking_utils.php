@@ -535,6 +535,8 @@ class booking_utils {
                             'name' => null,
                             'value' => "<a href=$link class='btn btn-info'>$field->cfgname</a>"
                     ];
+                } else {
+                    return null;
                 }
             case DESCRIPTION_ICAL:
                 // User is booked, for ical no button but link only.
