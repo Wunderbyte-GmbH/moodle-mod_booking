@@ -124,11 +124,13 @@ class mod_booking_observer {
        if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
 
            // Delete course event.
-           $DB->delete_records('event', array('id' => $option->calendarid));
-           $data = new stdClass();
-           $data->id = $optionid;
-           $data->calendarid = 0;
-           $DB->update_record('booking_options', $data);
+           if ($option->calendarid) {
+               $DB->delete_records('event', array('id' => $option->calendarid));
+               $data = new stdClass();
+               $data->id = $optionid;
+               $data->calendarid = 0;
+               $DB->update_record('booking_options', $data);
+           }
 
             foreach ($optiondates as $optiondate) {
                 // Create or update the sessions.
