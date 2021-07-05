@@ -472,23 +472,19 @@ class booking_utils {
      * @param $field
      */
     private function render_customfield_data($bookingoption, $field, $sessionid = 0, $descriptionparam = 0) {
-        global $USER;
 
         switch ($field->cfgname) {
+            case 'ZoomMeeting':
+            case 'BigBlueButtonMeeting':
             case 'TeamsMeeting':
                 // If the session is not yet about to begin, we show placeholder
                 return $this->render_meeting_fields($bookingoption, $sessionid, $field, $descriptionparam);
-            case 'ZoomMeeting':
-                // If the session is not yet about to begin, we show placeholder
-                return $this->render_meeting_fields($bookingoption, $sessionid, $field, $descriptionparam);
-            case 'BigBlueButtonMeeting':
-                // If the session is not yet about to begin, we show placeholder
-                return $this->render_meeting_fields($bookingoption, $sessionid, $field, $descriptionparam);
+            default:
+                return [
+                    'name' => "$field->cfgname: ",
+                    'value' => $field->value
+                ];
         }
-        return [
-                'name' => "$field->cfgname: ",
-                'value' => $field->value
-        ];
     }
 
 
