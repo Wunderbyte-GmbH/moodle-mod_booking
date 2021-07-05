@@ -26,27 +26,24 @@
 
 <div class='container'>
     <div class='row'>
-        <div class='col-2'>
+        <div class='col-1'>
             <img src="{{userpictureurl}}" alt="{{username}}" class='userpicture' style="max-width:100%;"></img>
         </div>
-        <div class='col-3'>
-            <p class='bold'>
-                {{#str}} organizatorname, mod_booking {{/str}}
+        <div class='col-11'>
+            <p class="bold">
+                {{#str}} organizatorname, mod_booking {{/str}}<br>
             </p>
-            <p class='bold'>
-                <a href='{{userprofileurl}}' alt='{{username}}'>{{username}}</a>
-            </p>
-        </div>
-        <div class='col-4'>
             <p>
+                <b><a href='{{userprofileurl}}' alt='{{username}}'>{{username}}</a></b><br>
                 {{{userdescription}}}
             </p>
         </div>
-        <div class='col-3'></div>
     </div>
+    {{#description}}
+    <div  class='row'>
+        <div class='col-12'>
+            <p>{{{description}}}</p>
+        </div>
+    </div>
+    {{/description}}
 </div>
-{{#description}}
-    <div>
-        {{{description}}}
-    </div>
-{{/description}}
