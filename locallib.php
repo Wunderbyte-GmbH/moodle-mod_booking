@@ -432,7 +432,7 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
     // different way to retrieve the right events.
     if ($optiondate) {
         // check if we have already associated userevents
-        if (!$event = $DB->get_record('event', ['id' => $optiondate->eventid])) {
+        if (!isset($optiondate->eventid) || (!$event = $DB->get_record('event', ['id' => $optiondate->eventid]))) {
 
             // If we don't find the event here, we might still be just switching to multisession.
             // Let's create the event anew.
