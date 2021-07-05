@@ -18,6 +18,8 @@ defined('MOODLE_INTERNAL') || die();
 
 use mod_booking\booking_option;
 use mod_booking\calendar;
+use mod_booking\event\bookingoptiondate_created;
+
 global $CFG;
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -424,7 +426,7 @@ function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
  * @param $optiondate stdClass optiondate object
  */
 function option_optiondate_update_event($option, $optiondate = null, $cmid) {
-    global $DB;
+    global $DB, $USER;
 
     // We either do this for option or optiondate
     // different way to retrieve the right events.
@@ -433,7 +435,12 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
         if (!$event = $DB->get_record('event', ['id' => $optiondate->eventid])) {
 
             // If we don't find the event here, we might still be just switching to multisession.
-            // Then we should update the old userevents
+            // Let's create the event anew.
+            $bocreatedevent = bookingoptiondate_created::create(array('context' => context_module::instance($cmid), 'objectid' => $optiondate->id,
+                'userid' => $USER->id, 'other' => ['optionid' => $option->id]));
+            $bocreatedevent->trigger();
+
+            // And we should update the old userevents
 
             // Get all the userevents
             $sql = "SELECT e.* FROM {booking_userevents} ue
@@ -447,9 +454,9 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
 
             // We delete all userevents and return false
 
-            foreach ($allevents as $event) {
-                $DB->delete_records('event', array('id' => $event->id));
-                $DB->delete_records('booking_userevents', array('id' => $event->id));
+            foreach ($allevents as $eventrecord) {
+                $DB->delete_records('event', array('id' => $eventrecord->id));
+                $DB->delete_records('booking_userevents', array('id' => $eventrecord->id));
 
                 // And create the new user events here
                 // new calendar($cmid, $optiondate->optionid, $event->userid, calendar::TYPEOPTIONDATE, $optiondate->id, 1);
@@ -507,8 +514,8 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
             $allevents = [$event];
         }
 
-            // Todo: Skip this, we can probably always just pass option along.
-            // We might have the option already, so we only fetch it if not (only for optiondates).
+        // Todo: Skip this, we can probably always just pass option along.
+        // We might have the option already, so we only fetch it if not (only for optiondates).
         /*if (!$option) {
             if (!$option = $DB->get_record('booking_options', ['id' => $optiondate->optionid])) {
                 return false;

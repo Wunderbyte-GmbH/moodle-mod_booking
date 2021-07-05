@@ -131,17 +131,8 @@ class mod_booking_observer {
            $DB->update_record('booking_options', $data);
 
             foreach ($optiondates as $optiondate) {
-                if (!option_optiondate_update_event($option, $optiondate, $PAGE->cm->id)) {
-                    // If calendar events for sessions did not exist before, then create new ones.
-                    if (!$DB->get_record('event', ['id' => $optiondate->eventid])) {
-                        // Trigger the same routine as if it was created anew
-
-                        /*$event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondate->id,
-                                'userid' => $USER->id, 'other' => ['optionid' => $optionid]));
-                        $event->trigger();*/
-
-                    }
-                }
+                // Create or update the sessions.
+                option_optiondate_update_event($option, $optiondate, $PAGE->cm->id);
             }
         } else { // This means that there are no multisessions.
            // this is for the course event

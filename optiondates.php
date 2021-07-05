@@ -160,9 +160,6 @@ if ($mform->is_cancelled()) {
         if (!empty($changes)) {
             $bu->react_on_changes($cm->id, $context, $optionid, $changes);
         }
-
-        // If there is an associated calendar event, update the event too.
-        // option_optiondate_update_event($bookingoption, $optiondate, $cm->id);
     } else {
         // It's a new session.
         $changes = [];
@@ -199,12 +196,6 @@ if ($mform->is_cancelled()) {
                 $bu->react_on_changes($cm->id, $context, $optionid, $changes);
             }
         }
-        // Add the newly created option date (session) to the calendar.
-        // The event stores optiondateid in event parameter objectid (which needs to be table primary key)...
-        // ... and optionid needs to be passed with parameter 'other' (which is an array).
-        $event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondateid,
-            'userid' => $USER->id, 'other' => ['optionid' => $optionid]));
-        $event->trigger();
     }
 
     booking_updatestartenddate($optionid);
