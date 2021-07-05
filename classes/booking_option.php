@@ -1339,8 +1339,6 @@ class booking_option {
         // Delete all the entries in booking_userevents, where we have previously linked users do optiondates and options.
         $DB->delete_records('booking_userevents', array('optionid' => $this->optionid));
 
-
-
         // Delete comments.
         $DB->delete_records("comments",
                 array('itemid' => $this->optionid, 'commentarea' => 'booking_option',
