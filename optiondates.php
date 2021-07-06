@@ -22,6 +22,7 @@
  */
 
 use mod_booking\booking_option;
+use mod_booking\calendar;
 
 require_once("../../config.php");
 require_once("locallib.php");
@@ -117,6 +118,12 @@ if ($duplicate != '') {
     $edit = $DB->insert_record("booking_optiondates", $record);
     booking_updatestartenddate($optionid);
     optiondate_duplicatecustomfields($duplicate, $edit);
+
+    // Also create new user events (user calendar entries) for all booked users.
+    $users = $bookingoption->get_all_users_booked();
+    foreach ($users as $user) {
+        new calendar($cm->id, $optionid, $user->id, calendar::TYPEOPTIONDATE, $edit, 1);
+    }
 }
 
 $mform = new optiondatesadd_form($url, array('optiondateid' => $edit));

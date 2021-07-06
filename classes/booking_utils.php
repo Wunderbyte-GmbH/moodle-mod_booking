@@ -922,9 +922,10 @@ class booking_utils {
         $userevents = $DB->get_records('booking_userevents', ['optionid' => $optionid, 'optiondateid' => null]);
 
         foreach ($userevents as $userevent) {
-            $event = $DB->get_record('event', ['id' => $userevent->eventid]);
-            $event->visible = 0;
-            $DB->update_record('event', $event);
+            if ($event = $DB->get_record('event', ['id' => $userevent->eventid])) {
+                $event->visible = 0;
+                $DB->update_record('event', $event);
+            } else return false;
         }
     }
 
@@ -937,9 +938,10 @@ class booking_utils {
         $userevents = $DB->get_records('booking_userevents', ['optionid' => $optionid, 'optiondateid' => null]);
 
         foreach ($userevents as $userevent) {
-            $event = $DB->get_record('event', ['id' => $userevent->eventid]);
-            $event->visible = 1;
-            $DB->update_record('event', $event);
+            if ($event = $DB->get_record('event', ['id' => $userevent->eventid])) {
+                $event->visible = 1;
+                $DB->update_record('event', $event);
+            } else return false;
         }
     }
 }

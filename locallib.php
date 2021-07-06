@@ -451,7 +451,19 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
               WHERE ue.optiondateid = :optiondateid";
 
             $allevents = $DB->get_records_sql($sql, ['optiondateid' => $optiondate->id]);
+
+            // use the optiondate as data object
             $data = $optiondate;
+
+            if ($event = $DB->get_record('event', ['id' => $optiondate->eventid])) {
+                if ($allevents && count($allevents) > 0) {
+                    if ($event && isset($event->description)) {
+                        $allevents[] = $event;
+                    }
+                } else {
+                    $allevents = [$event];
+                }
+            }
         }
     } else {
         // Get all the userevents
@@ -462,6 +474,7 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
 
         $allevents = $DB->get_records_sql($sql, ['optionid' => $option->id]);
 
+        // use the option as data object
         $data = $option;
 
         if ($event = $DB->get_record('event', ['id' => $option->calendarid])) {
@@ -477,7 +490,6 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
 
     // We use $data here for $option and $optiondate, the necessary keys are the same.
     foreach ($allevents as $eventrecord) {
-        $eventrecord->description = '';
         $eventrecord->description = get_rendered_eventdescription($option, $cmid, $optiondate, DESCRIPTION_CALENDAR);
         $eventrecord->name = $option->text;
         $eventrecord->timestart = $data->coursestarttime;
