@@ -47,6 +47,8 @@ class calendar {
     public function __construct($cmid, $optionid, $userid, $type, $optiondateid = 0, $justbooked = 0) {
         global $DB;
 
+        $bu = new booking_utils();
+
         $this->optionid = $optionid;
         $this->userid = $userid;
         $this->cmid = $cmid;
@@ -121,6 +123,9 @@ class calendar {
                                 $data->eventid = $newcalendarid;
                                 $data->optiondateid = $this->optiondateid;
                                 $DB->insert_record('booking_userevents', $data);
+
+                                // Delete old option events because we use multisession.
+                                $bu->booking_hide_option_userevents($optionid);
                             } else {
                                 // If the user event already exists, then update.
                                 $DB->delete_records('event', ['id' => $userevent->eventid]);

@@ -454,64 +454,39 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
             $data = $optiondate;
         }
     } else {
-            if (!$event = $DB->get_record('event', ['id' => $option->calendarid])) {
+        // Get all the userevents
+        $sql = "SELECT e.* FROM {booking_userevents} ue
+                    JOIN {event} e
+                    ON ue.eventid = e.id
+                    WHERE ue.optionid = :optionid";
 
-                // if we don't find this, we might be switching from multisession to single date.
-                // Get all the userevents
-                $sql = "SELECT e.* FROM {booking_userevents} ue
-              JOIN {event} e
-              ON ue.eventid = e.id
-              WHERE ue.optionid = :optionid";
+        $allevents = $DB->get_records_sql($sql, ['optionid' => $option->id]);
 
-                $allevents = $DB->get_records_sql($sql, ['optionid' => $option->id]);
+        $data = $option;
 
-                foreach ($allevents as $event) {
-                    $DB->delete_records('event', array('id' => $event->id));
-                    $DB->delete_records('booking_userevents', array('eventid' => $event->id));
+        if ($event = $DB->get_record('event', ['id' => $option->calendarid])) {
+            if ($allevents && count($allevents) > 0) {
+                if ($event && isset($event->description)) {
+                    $allevents[] = $event;
                 }
-                return false;
             } else {
-
-                // Get all the userevents
-                $sql = "SELECT e.* FROM {booking_userevents} ue
-              JOIN {event} e
-              ON ue.eventid = e.id
-              WHERE ue.optionid = :optionid";
-
-                $allevents = $DB->get_records_sql($sql, ['optionid' => $option->id]);
-
-                $data = $option;
+                $allevents = [$event];
             }
         }
+    }
 
-        if ($allevents && count($allevents) > 0) {
-            if ($event && isset($event->description)) {
-                $allevents[] = $event;
-            }
-        } else {
-            $allevents = [$event];
+    // We use $data here for $option and $optiondate, the necessary keys are the same.
+    foreach ($allevents as $eventrecord) {
+        $eventrecord->description = '';
+        $eventrecord->description = get_rendered_eventdescription($option, $cmid, $optiondate, DESCRIPTION_CALENDAR);
+        $eventrecord->name = $option->text;
+        $eventrecord->timestart = $data->coursestarttime;
+        $eventrecord->timeduration = $data->courseendtime - $data->coursestarttime;
+        $eventrecord->timesort = $data->coursestarttime;
+        if (!$DB->update_record('event', $eventrecord)) {
+            return false;
         }
-
-        // Todo: Skip this, we can probably always just pass option along.
-        // We might have the option already, so we only fetch it if not (only for optiondates).
-        /*if (!$option) {
-            if (!$option = $DB->get_record('booking_options', ['id' => $optiondate->optionid])) {
-                return false;
-            }
-        }*/
-
-        // We use $data here for $option and $optiondate, the necessary keys are the same.
-        foreach ($allevents as $event) {
-            $event->description = '';
-            $event->description = get_rendered_eventdescription($option, $cmid, $optiondate, DESCRIPTION_CALENDAR);
-            $event->name = $option->text;
-            $event->timestart = $data->coursestarttime;
-            $event->timeduration = $data->courseendtime - $data->coursestarttime;
-            $event->timesort = $data->coursestarttime;
-            if (!$DB->update_record('event', $event)) {
-                return false;
-            }
-        }
+    }
 }
 
 /**

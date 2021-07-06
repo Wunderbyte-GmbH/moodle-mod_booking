@@ -66,8 +66,8 @@ if ($delete != '') {
 
         foreach ($records as $record) {
             $DB->delete_records('event', array('id' => $record->eventid));
+            $DB->delete_records('booking_userevents', array('id' => $record->id));
         }
-
 
         // Also store the changes so they can be sent in an update mail.
         $changes[] = ['fieldname' => 'coursestarttime',
@@ -78,6 +78,12 @@ if ($delete != '') {
 
     // Now we can delete the session.
     $DB->delete_records("booking_optiondates", array('optionid' => $optionid, 'id' => $delete));
+
+    // If there are no sessions left, we switch from multisession to simple option.
+    if (!$DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
+        $bu = new \mod_booking\booking_utils();
+        $bu->booking_show_option_userevents($optionid);
+    }
 
     booking_updatestartenddate($optionid);
 

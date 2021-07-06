@@ -912,4 +912,34 @@ class booking_utils {
                 break;
         }
     }
+
+    /**
+     * Helper function to hide all option user events.
+     * We need this if we switch from option to multisession.
+     */
+    public function booking_hide_option_userevents ($optionid) {
+        global $DB;
+        $userevents = $DB->get_records('booking_userevents', ['optionid' => $optionid, 'optiondateid' => null]);
+
+        foreach ($userevents as $userevent) {
+            $event = $DB->get_record('event', ['id' => $userevent->eventid]);
+            $event->visible = 0;
+            $DB->update_record('event', $event);
+        }
+    }
+
+    /**
+     * Helper function to show all option user events.
+     * We need this if we switch from multisession to option.
+     */
+    public function booking_show_option_userevents ($optionid) {
+        global $DB;
+        $userevents = $DB->get_records('booking_userevents', ['optionid' => $optionid, 'optiondateid' => null]);
+
+        foreach ($userevents as $userevent) {
+            $event = $DB->get_record('event', ['id' => $userevent->eventid]);
+            $event->visible = 1;
+            $DB->update_record('event', $event);
+        }
+    }
 }
