@@ -358,7 +358,7 @@ class booking_utils {
         }
 
         if (!$values->limitanswers) {
-            return $button . $delete . $booked . $limit . $manage;
+            return $button . $booked . $delete . $limit . $manage;
         } else {
             $places = new places($values->maxanswers, $values->availableplaces, $values->maxoverbooking,
                     $values->maxoverbooking - $values->waiting);
@@ -370,7 +370,7 @@ class booking_utils {
             }
 
 
-            return $button . $delete . $booked . "<div class='col-ap-availableplaces'>" . get_string("availableplaces", "booking", $places) .
+            return $button . $booked . $delete . "<div class='col-ap-availableplaces'>" . get_string("availableplaces", "booking", $places) .
                     "</div><div class='col-ap-waitingplacesavailable'>" . get_string("waitingplacesavailable", "booking", $places) . "</div>" . $manage;
         }
     }
