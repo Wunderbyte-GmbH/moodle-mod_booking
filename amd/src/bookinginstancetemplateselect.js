@@ -124,7 +124,14 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             // Category
                             $("#id_categoryid").val(JSON.parse("[" + obj.categoryid + "]"));
 
-                            // Fields to display in different contexts
+                            // TODO: Fields to display in different contexts
+
+                            // Booking option text depending on booking status
+                            $('#id_beforecompletedtexteditable').html(obj.beforecompletedtext);
+                            $('#id_aftercompletedtexteditable').html(obj.aftercompletedtext);
+                            $('#id_beforebookedtexteditable').html(obj.beforebookedtext);
+
+                            // TODO: Sign-In Sheet Configuration
                             // $("#id_signinsheetfields").val(JSON.parse("[" + obj.signinsheetfields + "]")).change();
 
                             // TO-DO :Create backup!
@@ -142,19 +149,22 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             // - timemodified
                             // - timeopen
 
-                            // Booking option text depending on booking status
-                            $('#id_beforecompletedtexteditable').html(obj.beforecompletedtext);
-                            $('#id_aftercompletedtexteditable').html(obj.aftercompletedtext);
-                            $('#id_beforebookedtexteditable').html(obj.beforebookedtext);
-
                             // Connected booking
                             $('#id_conectedbooking').val(obj.conectedbooking);
 
                             // Teachers
                             $('#id_teacherroleid').val(obj.teacherroleid);
 
+                            // TODO: Custom report templates
+                            // TODO: Automatic booking option creation
+
                             // Ratings
                             $('#id_assessed').val(obj.assessed);
+
+                            // TODO: Common module settings
+                            // TODO: Restrict access (possible?)
+                            // TODO: Activity completion
+                            // TODO: Competencies
                         }
                     }], true);
                 }
