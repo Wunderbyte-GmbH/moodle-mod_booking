@@ -123,13 +123,32 @@ class mod_booking_observer {
         // If there are associated optiondates (sessions) then update their calendar events.
        if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
 
-           // Delete course event.
+           // Delete course event if we have optiondates (multisession!).
            if ($option->calendarid) {
                $DB->delete_records('event', array('id' => $option->calendarid));
                $data = new stdClass();
                $data->id = $optionid;
                $data->calendarid = 0;
                $DB->update_record('booking_options', $data);
+
+               // Also, delete all associated user events.
+
+               // Get all the userevents
+               $sql = "SELECT e.* FROM {booking_userevents} ue
+               JOIN {event} e
+               ON ue.eventid = e.id
+               WHERE ue.optionid = :optionid AND
+               ue.optiondateid IS NULL";
+
+               $allevents = $DB->get_records_sql($sql, [
+                       'optionid' => $optionid]);
+
+               // We delete all userevents and return false
+
+               foreach ($allevents as $eventrecord) {
+                   $DB->delete_records('event', array('id' => $eventrecord->id));
+                   $DB->delete_records('booking_userevents', array('id' => $eventrecord->id));
+               }
            }
 
             foreach ($optiondates as $optiondate) {

@@ -440,28 +440,6 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
                 'userid' => $USER->id, 'other' => ['optionid' => $option->id]));
             $bocreatedevent->trigger();
 
-            // And we should update the old userevents
-
-            // Get all the userevents
-            $sql = "SELECT e.* FROM {booking_userevents} ue
-              JOIN {event} e
-              ON ue.eventid = e.id
-              WHERE ue.optionid = :optionid AND
-              ue.optiondateid IS NULL";
-
-            $allevents = $DB->get_records_sql($sql, [
-                    'optionid' => $optiondate->optionid]);
-
-            // We delete all userevents and return false
-
-            foreach ($allevents as $eventrecord) {
-                $DB->delete_records('event', array('id' => $eventrecord->id));
-                $DB->delete_records('booking_userevents', array('id' => $eventrecord->id));
-
-                // And create the new user events here
-                // new calendar($cmid, $optiondate->optionid, $event->userid, calendar::TYPEOPTIONDATE, $optiondate->id, 1);
-            }
-
             // We have to return false if we have switched from multisession to create the right events.
             return false;
         } else {
