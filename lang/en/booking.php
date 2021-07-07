@@ -346,7 +346,9 @@ $string['pollurlteachers_help'] = 'You can use any of the following placeholders
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['pollurl_help'] = 'You can use any of the following placeholders in the text:
@@ -372,7 +374,9 @@ $string['pollurl_help'] = 'You can use any of the following placeholders in the 
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['bookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -398,7 +402,9 @@ $string['bookedtext_help'] = 'Leave this blank to use the site default text. You
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['userleave_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -426,7 +432,9 @@ $string['userleave_help'] = 'Leave this blank to use the site default text. You 
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['waitingtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -454,7 +462,9 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['notifyemail_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -482,7 +492,9 @@ $string['notifyemail_help'] = 'Leave this blank to use the site default text. Yo
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['statuschangetext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -510,7 +522,9 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['deletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -538,7 +552,9 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['bookingchangedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -567,7 +583,9 @@ $string['bookingchangedtext_help'] = 'Leave this blank to use the site default t
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['pollurltext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -595,7 +613,9 @@ $string['pollurltext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -623,7 +643,9 @@ $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default 
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['activitycompletiontext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -651,7 +673,9 @@ $string['activitycompletiontext_help'] = 'Leave this blank to use the site defau
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['notificationtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -679,7 +703,9 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['beforebookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -707,7 +733,9 @@ $string['beforebookedtext_help'] = 'Leave this blank to use the site default tex
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['beforecompletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -735,7 +763,9 @@ $string['beforecompletedtext_help'] = 'Leave this blank to use the site default 
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['aftercompletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
@@ -763,7 +793,9 @@ $string['aftercompletedtext_help'] = 'Leave this blank to use the site default t
 <li>{qr_id} - Insert QR code with user id</li>
 <li>{qr_username} - Insert QR code with user username</li>
 <li>{times} - Session times</li>
-<li>{shorturl} - Short url ob option</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
 $string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";

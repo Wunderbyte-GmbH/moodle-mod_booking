@@ -307,6 +307,10 @@ $string['pollurlteachers_help'] = 'Folgende Platzhalter können im Text verwende
 <li>{pollstartdate}</li>
 <li>{qr_id} - QR Code der Userid einfügen</li>
 <li>{qr_username} - QR Code des Usernamen einfügen</li>
+<li>{times} - Sessions (bei mehreren Terminen)</li>
+<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
 </ul>';
 
 $string['pollurl_help'] = 'Folgende Platzhalter können im Text verwendet werden:
@@ -330,6 +334,10 @@ $string['pollurl_help'] = 'Folgende Platzhalter können im Text verwendet werden
 <li>{pollstartdate}</li>
 <li>{qr_id} - QR Code der Userid einfügen</li>
 <li>{qr_username} - QR Code des Usernamen einfügen</li>
+<li>{times} - Sessions (bei mehreren Terminen)</li>
+<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
 </ul>';
 
 $string['bookedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
@@ -353,6 +361,10 @@ $string['bookedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext d
 <li>{pollstartdate}</li>
 <li>{qr_id} - QR Code der Userid einfügen</li>
 <li>{qr_username} - QR Code des Usernamen einfügen</li>
+<li>{times} - Sessions (bei mehreren Terminen)</li>
+<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
 </ul>';
 
 $string['userleave_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
@@ -374,10 +386,14 @@ $string['userleave_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext de
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
-<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{teacherN} - N ist die Trainernummer. Zum Beispiel: {teacher1}</li>
 <li>{pollstartdate}</li>
-<li>{qr_id} - Insert QR code with user id</li>
-<li>{qr_username} - Insert QR code with user username</li>
+<li>{qr_id} - QR Code der Userid einfügen</li>
+<li>{qr_username} - QR Code des Usernamen einfügen</li>
+<li>{times} - Sessions (bei mehreren Terminen)</li>
+<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
 </ul>';
 
 $string['waitingtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
@@ -403,6 +419,10 @@ $string['waitingtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext 
 <li>{pollstartdate}</li>
 <li>{qr_id} - QR Code der Userid einfügen</li>
 <li>{qr_username} - QR Code des Usernamen einfügen</li>
+<li>{times} - Sessions (bei mehreren Terminen)</li>
+<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
 </ul>';
 
 $string['statuschangetext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
@@ -428,6 +448,10 @@ $string['statuschangetext_help'] = 'Lassen Sie dieses Feld leer, um den Standard
 <li>{pollstartdate}</li>
 <li>{qr_id} - QR Code der Userid einfügen</li>
 <li>{qr_username} - QR Code des Usernamen einfügen</li>
+<li>{times} - Sessions (bei mehreren Terminen)</li>
+<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
 </ul>';
 
 $string['deletedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
@@ -453,6 +477,10 @@ $string['deletedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext 
 <li>{pollstartdate}</li>
 <li>{qr_id} - QR Code der Userid einfügen</li>
 <li>{qr_username} - QR Code des Usernamen einfügen</li>
+<li>{times} - Sessions (bei mehreren Terminen)</li>
+<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
 </ul>';
 
 $string['bookingchangedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
@@ -479,6 +507,10 @@ $string['bookingchangedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standa
 <li>{pollstartdate}</li>
 <li>{qr_id} - QR Code der Userid einfügen</li>
 <li>{qr_username} - QR Code des Usernamen einfügen</li>
+<li>{times} - Sessions (bei mehreren Terminen)</li>
+<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
 </ul>';
 
 $string['pollurltext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
@@ -504,6 +536,10 @@ $string['pollurltext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext 
 <li>{pollstartdate}</li>
 <li>{qr_id} - QR Code der Userid einfügen</li>
 <li>{qr_username} - QR Code des Usernamen einfügen</li>
+<li>{times} - Sessions (bei mehreren Terminen)</li>
+<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
 </ul>';
 
 $string['pollurlteacherstext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
@@ -529,6 +565,10 @@ $string['pollurlteacherstext_help'] = 'Lassen Sie dieses Feld leer, um den Stand
 <li>{pollstartdate}</li>
 <li>{qr_id} - QR Code der Userid einfügen</li>
 <li>{qr_username} - QR Code des Usernamen einfügen</li>
+<li>{times} - Sessions (bei mehreren Terminen)</li>
+<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
 </ul>';
 
 $string['activitycompletiontext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
@@ -550,10 +590,14 @@ $string['activitycompletiontext_help'] = 'Lassen Sie dieses Feld leer, um den St
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
-<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{teacherN} - N ist die Trainernummer. Zum Beispiel: {teacher1}</li>
 <li>{pollstartdate}</li>
-<li>{qr_id} - Insert QR code with user id</li>
-<li>{qr_username} - Insert QR code with user username</li>
+<li>{qr_id} - QR Code der Userid einfügen</li>
+<li>{qr_username} - QR Code des Usernamen einfügen</li>
+<li>{times} - Sessions (bei mehreren Terminen)</li>
+<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
 </ul>';
 
 $string['notificationtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
@@ -575,10 +619,14 @@ $string['notificationtext_help'] = 'Lassen Sie dieses Feld leer, um den Standard
 <li>{address}</li>
 <li>{eventtype}</li>
 <li>{teacher}</li>
-<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{teacherN} - N ist die Trainernummer. Zum Beispiel: {teacher1}</li>
 <li>{pollstartdate}</li>
-<li>{qr_id} - Insert QR code with user id</li>
-<li>{qr_username} - Insert QR code with user username</li>
+<li>{qr_id} - QR Code der Userid einfügen</li>
+<li>{qr_username} - QR Code des Usernamen einfügen</li>
+<li>{times} - Sessions (bei mehreren Terminen)</li>
+<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
 </ul>';
 
 $string['fields'] = 'In bestimmten Bereichen anzuzeigende Informationen';
