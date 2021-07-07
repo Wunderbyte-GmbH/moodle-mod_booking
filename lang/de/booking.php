@@ -648,7 +648,7 @@ $string['importexcelbutton'] = 'Aktivitätsabschluss importieren';
 $string['activitycompletiontext'] = 'Benachrichtungstext bei Aktivitätsabschluss';
 $string['activitycompletiontextmessage'] = 'Sie haben die folgende Aktivität abgeschlossen:
 
-Kurs:   {$a->title}
+Buchungsoption: {$a->title}
 Datum: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 Link zur Buchung: {bookinglink}
 Link zum Kurs: {courselink}';
@@ -747,7 +747,7 @@ Sie sind nun fix in {$a->title} als Teilnehmer/in eingetragen.
 Termin:  {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 Ihr Buchungsstatus: {$a->status}
 Teilnehmer/in:   {$a->participant}
-Kurs:   {$a->title}
+Buchungsoption: {$a->title}
 ';
 
 $string['deletedbookingusersubject'] = 'Stornobestätigung für {$a->title}';
@@ -770,7 +770,7 @@ Die Buchung wurde erfolgreich durchgeführt, das Senden des Bestätigungsmails i
 
 Buchungsstatus: {$a->status}
 User:   {$a->participant}
-Gebuchter Kurs:   {$a->title}
+Gebuchte Buchungsoption: {$a->title}
 Kurstermin: {$a->date}
 Link: {$a->bookinglink}
 
@@ -791,7 +791,7 @@ Link zur Umfrage: <a href="{pollurlteachers}" target="_blank">{pollurlteachers}<
 $string['notificationtextsubject'] = 'Information über den Kursstart!';
 $string['notificationtextmessage'] = 'Kursbeginn:
 
-Kurs:   {$a->title}
+Buchungsoption: {$a->title}
 Datum: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
 
 // Report.php and bookingmanagusers.class.php.

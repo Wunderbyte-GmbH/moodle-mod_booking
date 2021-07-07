@@ -833,7 +833,7 @@ $string['importexcelbutton'] = 'Import activity completion';
 $string['activitycompletiontext'] = 'Notification text shown on activity completion';
 $string['activitycompletiontextmessage'] = 'You have completed the following activity:
 
-Course:   {$a->title}
+Booking option: {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 Booking link: {bookinglink}
 Course link: {courselink}';
@@ -878,7 +878,7 @@ $string['hours'] = '{$a} hours';
 $string['minutes'] = '{$a} minutes';
 
 $string['deletedbookingsubject'] = 'Deleted booking: {$a->title} by {$a->participant}';
-$string['deletedbookingmessage'] = 'Booking for following course deleted: {$a->title}
+$string['deletedbookingmessage'] = 'Booking option has been deleted: {$a->title}
 
 User: {$a->participant}
 Title: {$a->title}
@@ -895,7 +895,7 @@ $string['confirmationmessage'] = 'Your booking has been registered
 
 Booking status: {$a->status}
 Participant:   {$a->participant}
-Course:   {$a->title}
+Booking option: {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 To view all your booked courses click on the following link: {$a->bookinglink}
 The associated course can be found here: {$a->courselink}
@@ -908,8 +908,8 @@ $string['confirmationmessagewaitinglist'] = 'Hello {$a->participant},
 Your booking request has been registered
 
 Booking status: {$a->status}
-Participant:   {$a->participant}
-Course:   {$a->title}
+Participant: {$a->participant}
+Booking option: {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 To view all your booked courses click on the following link: {$a->bookinglink}
 
@@ -919,8 +919,8 @@ $string['notifyemaildefaultmessage'] = 'Your booking has been registered
 
 
 Booking status: {$a->status}
-Participant:   {$a->participant}
-Course:   {$a->title}
+Participant: {$a->participant}
+Booking option: {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 To view all your booked courses click on the following link: {$a->bookinglink}
 The associated course can be found here: {$a->courselink}
@@ -941,7 +941,7 @@ Your booking status has changed. You are now registered in {$a->title}.
 
 Booking status: {$a->status}
 Participant:   {$a->participant}
-Course:   {$a->title}
+Booking option: {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 To view all your booked courses click on the following link: {$a->bookinglink}
 The associated course can be found here: {$a->courselink}
@@ -965,8 +965,8 @@ To view the change(s) and all your booked courses click on the following link: {
 $string['error:failedtosendconfirmation'] = 'The following user did not receive a confirmation mail
 
 Booking status: {$a->status}
-Participant:   {$a->participant}
-Course:   {$a->title}
+Participant: {$a->participant}
+Booking option: {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 Link: {$a->bookinglink}
 Associated course: {$a->courselink}
@@ -988,7 +988,7 @@ Survey URL: <a href="{pollurlteachers}" target="_blank">{pollurlteachers}</a>
 $string['notificationtextsubject'] = 'Info about course start!';
 $string['notificationtextmessage'] = 'Course will start:
 
-Course:   {$a->title}
+Booking option: {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
 
 // report.php
