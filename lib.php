@@ -24,6 +24,7 @@ require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use mod_booking\booking_option;
+use mod_booking\booking_utils;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use \mod_booking\utils\wb_payment;
@@ -750,7 +751,7 @@ function booking_update_options($optionvalues, $context) {
             }
 
             // If there have been changes to significant fields, we have to resend an e-mail with the updated ical attachment.
-            $bu = new \mod_booking\booking_utils();
+            $bu = new booking_utils();
             if ($changes = $bu->booking_option_get_changes($originaloption, $option)) {
 
                 $bu->react_on_changes($PAGE->cm->id, $context, $option->id, $changes);
@@ -2451,13 +2452,17 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
         $params->sessiondescription = get_rendered_eventdescription($option, $cmid, $optiontimes[0], DESCRIPTION_CALENDAR);
     }
 
-
     // Now we'll render the changes.
     if ($changes) {
         $data = new \mod_booking\output\bookingoption_changes($changes);
         $output = $PAGE->get_renderer('mod_booking');
         $params->changes = $output->render_bookingoption_changes($data);
     }
+
+    // We also add the URLs for the user to subscribe to user and course event calendar.
+    $bu = new booking_utils();
+    $params->usercalendarurl = $bu->booking_generate_calendar_subscription_link($user, 'user');
+    $params->coursecalendarurl = $bu->booking_generate_calendar_subscription_link($user, 'courses');
 
     return $params;
 }

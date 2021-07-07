@@ -16,6 +16,8 @@
 
 namespace mod_booking;
 
+defined('MOODLE_INTERNAL') || die();
+
 use html_writer;
 use moodle_url;
 use stdClass;
@@ -886,30 +888,21 @@ class booking_utils {
 
     private function col_status($values) {
         switch ($values->status) {
-            case 0:
-                return '';
-                break;
             case 1:
                 return get_string('status_complete', 'booking');
-                break;
             case 2:
                 return get_string('status_incomplete', 'booking');
-                break;
             case 3:
                 return get_string('status_noshow', 'booking');
-                break;
             case 4:
                 return get_string('status_failed', 'booking');
-                break;
             case 5:
                 return get_string('status_unknown', 'booking');
-                break;
             case 6:
                 return get_string('status_attending', 'booking');
-                break;
+            case 0:
             default:
                 return '';
-                break;
         }
     }
 
@@ -943,5 +936,30 @@ class booking_utils {
                 $DB->update_record('event', $event);
             } else return false;
         }
+    }
+
+    /**
+     * Helper function to generate a subscription link to the Moodle calendar.
+     * The calendar export time range can be set in Site_admin > Appearance > Calendar.
+     * Use $eventparam to specify the event type to be exported (user events are the default).
+     *
+     * @param stdClass $user the user the calendar link is for
+     * @param string $eventparam ('all' | 'categories' | 'courses' | 'groups' | 'user')
+     * @return string the subscription link
+     */
+    public function booking_generate_calendar_subscription_link ($user, $eventparam = 'user') {
+        global $CFG;
+        require_once($CFG->dirroot . '/calendar/lib.php');
+        $authtoken = calendar_get_export_token($user);
+
+        $linkparams = [
+            'userid' => $user->id,
+            'authtoken' => $authtoken,
+            'preset_what' => $eventparam,
+            'preset_time' => 'custom'
+        ];
+        $subscriptionlink = new moodle_url('/calendar/export_execute.php', $linkparams);
+
+        return $subscriptionlink->__toString();
     }
 }
