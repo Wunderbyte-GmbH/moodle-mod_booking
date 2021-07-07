@@ -948,9 +948,7 @@ class booking_utils {
      * @return string the subscription link
      */
     public function booking_generate_calendar_subscription_link ($user, $eventparam = 'user') {
-        global $CFG;
-        require_once($CFG->dirroot . '/calendar/lib.php');
-        $authtoken = calendar_get_export_token($user);
+        $authtoken = $this->calendar_get_export_token($user);
 
         $linkparams = [
             'userid' => $user->id,
@@ -961,5 +959,17 @@ class booking_utils {
         $subscriptionlink = new moodle_url('/calendar/export_execute.php', $linkparams);
 
         return $subscriptionlink->__toString();
+    }
+
+    /**
+     * Copied from core_calendar > lib.php.
+     * Get the auth token for exporting the given user calendar.
+     * @param stdClass $user The user to export the calendar for
+     *
+     * @return string The export token.
+     */
+    private function calendar_get_export_token(stdClass $user): string {
+        global $CFG, $DB;
+        return sha1($user->id . $DB->get_field('user', 'password', ['id' => $user->id]) . $CFG->calendar_exportsalt);
     }
 }
