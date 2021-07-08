@@ -134,15 +134,24 @@ class bookingoption_description implements renderable, templatable {
 
         switch ($descriptionparam) {
             case DESCRIPTION_WEBSITE:
-                // If iambooked is 1, we show a short info text that the option is already booked.
                 if ($bookingoption->iambooked == 1) {
+                    // If iambooked is 1, we show a short info text that the option is already booked.
                     $this->booknowbutton = get_string('infoalreadybooked', 'booking');
+                } else if ($bookingoption->onwaitinglist == 1) {
+                    // If onwaitinglist is 1, we show a short info text that the user is on the waiting list.
+                    $this->booknowbutton = get_string('infowaitinglist', 'booking');
                 }
                 break;
             case DESCRIPTION_CALENDAR:
                 $this->booknowbutton = "<a href=$link class='btn btn-primary'>"
                         . get_string('gotobookingoption', 'booking')
                         . "</a>";
+                // TODO: We would need an event tracking status changes between notbooked, iambooked and onwaitinglist...
+                // TODO: ...in order to update the event table accordingly.
+                /*if ($bookingoption->onwaitinglist == 1) {
+                    // If onwaitinglist is 1, we show a short info text that the user is on the waiting list.
+                    $this->booknowbutton .= '<br><p>' . get_string('infowaitinglist', 'booking') . '</p>';
+                }*/
                 break;
             case DESCRIPTION_ICAL:
                 $this->booknowbutton = get_string('gotobookingoption', 'booking') . ': ' .  $link->out(false);

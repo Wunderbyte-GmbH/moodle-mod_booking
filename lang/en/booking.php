@@ -1382,3 +1382,4 @@ $string['gotobookingoption'] = 'Go to booking option';
 
 // All_options.php
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>You are already booked for this option.</i></div>';
+$string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the waiting list for this option.</i></div>';
