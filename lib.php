@@ -780,7 +780,7 @@ function booking_update_options($optionvalues, $context) {
 
         // TODO: Get rid of unique booking option name (text) - will be still checked in validation.
 
-        // Make sure it's no template by checking if bookingid is 0.
+        // Make sure it's no template by checking if bookingid is something else than 0.
         if ($option->bookingid != 0) {
             // A booking option will always be inserted, even if it has the same name (text) as a template.
             $id = $DB->insert_record("booking_options", $option);
