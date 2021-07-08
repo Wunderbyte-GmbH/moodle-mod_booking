@@ -183,6 +183,21 @@ if ($ADMIN->fulltree) {
                         get_string('defaulttemplate', 'mod_booking'),
                         get_string('defaulttemplatedesc', 'mod_booking'),
                         1, $alltemplates));
+
+    $settings->add(
+        new admin_setting_heading('globalmailtemplates_heading',
+            get_string('globalmailtemplates', 'mod_booking'), ''));
+
+    $settings->add(new admin_setting_confightmleditor('globalbookedtext', get_string('globalbookedtext', 'booking'), '', ''));
+    $settings->add(new admin_setting_confightmleditor('globalwaitingtext', get_string('globalwaitingtext', 'booking'), '', ''));
+    $settings->add(new admin_setting_confightmleditor('globalnotifyemail', get_string('globalnotifyemail', 'booking'), '', ''));
+    $settings->add(new admin_setting_confightmleditor('globalstatuschangetext', get_string('globalstatuschangetext', 'booking'), '', ''));
+    $settings->add(new admin_setting_confightmleditor('globaluserleave', get_string('globaluserleave', 'booking'), '', ''));
+    $settings->add(new admin_setting_confightmleditor('globaldeletedtext', get_string('globaldeletedtext', 'booking'), '', ''));
+    $settings->add(new admin_setting_confightmleditor('globalbookingchangedtext', get_string('globalbookingchangedtext', 'booking'), '', ''));
+    $settings->add(new admin_setting_confightmleditor('globalpollurltext', get_string('globalpollurltext', 'booking'), '', ''));
+    $settings->add(new admin_setting_confightmleditor('globalpollurlteacherstext', get_string('globalpollurlteacherstext', 'booking'), '', ''));
+    $settings->add(new admin_setting_confightmleditor('globalactivitycompletiontext', get_string('globalactivitycompletiontext', 'booking'), '', ''));
 }
 
 $ADMIN->add('modbookingfolder',
