@@ -1373,6 +1373,10 @@ $string['linknotvalid'] = 'You don\'t seem to be booked for this meeting';
 $string['linknotavailableyet'] = "The link to access the meeting is available only 15 minutes before the start until the end of the session.";
 $string['pleasereturnlater'] = 'All places are booked.';
 
+// Bookingoption_changes.mustache.
+$string['changeold'] = '[DELETED] ';
+$string['changenew'] = '[NEW] ';
+
 // Bookingoption_description.php.
 $string['gotobookingoption'] = 'Go to booking option';
 

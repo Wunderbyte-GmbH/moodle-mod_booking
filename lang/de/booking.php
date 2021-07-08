@@ -1085,6 +1085,10 @@ $string['linknotvalid'] = 'Sie scheinen dieses Meeting nicht gebucht zu haben.';
 // booking_utils.php
 $string['linknotavailableyet'] = 'Der Link auf die Konferenz ist nur zwischen 15 Minuten vor dem Meeting und dem Enddatum hier verfügbar.';
 
+// Bookingoption_changes.mustache.
+$string['changeold'] = '[GELÖSCHT] ';
+$string['changenew'] = '[NEU] ';
+
 // Bookingoption_description.php.
 $string['gotobookingoption'] = 'Buchungsoption anzeigen';
 
