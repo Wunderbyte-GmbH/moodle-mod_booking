@@ -778,19 +778,23 @@ function booking_update_options($optionvalues, $context) {
             }
         }
 
-        // TODO: Get rid of unique booking option name (text)
-        //Fixed: record should not get inserted a 2nd time here:
-        /*$db_record = $DB->get_record("booking_options",
-                ['text' => $option->text,
-                'bookingid' => $option->bookingid]);
-        if (empty($db_record)){
+        // TODO: Get rid of unique booking option name (text) - will be still checked in validation.
+
+        // Make sure it's no template by checking if bookingid is 0.
+        if ($option->bookingid != 0) {
+            // A booking option will always be inserted, even if it has the same name (text) as a template.
             $id = $DB->insert_record("booking_options", $option);
         } else {
-            $id = $db_record->id;
-        }*/
-
-        // No check for unique name anymore, option will always be inserted.
-        $id = $DB->insert_record("booking_options", $option);
+            // Fixed: For templates, make sure they won't get inserted twice.
+            $db_record = $DB->get_record("booking_options",
+                ['text' => $option->text,
+                    'bookingid' => $option->bookingid]);
+            if (empty($db_record)){
+                $id = $DB->insert_record("booking_options", $option);
+            } else {
+                $id = $db_record->id;
+            }
+        }
 
         // Create group in target course if there is a course specified only.
         if ($option->courseid > 0 && isset($booking->addtogroup) && $booking->addtogroup) {
