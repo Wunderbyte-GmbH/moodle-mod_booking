@@ -1255,6 +1255,17 @@ $string['manageoptiontemplates'] = 'Manage option templates';
 $string['linkgotobookingoption'] = 'Go to booked option: {$a}</a>';
 
 // File: settings.php
+$string['globalmailtemplates'] = 'Global mail templates';
+$string['globalbookedtext'] = 'Booking confirmation (global template)';
+$string['globalwaitingtext'] = 'Waiting list confirmation (global template)';
+$string['globalnotifyemail'] = 'Notification before start (global template)';
+$string['globalstatuschangetext'] = 'Status change message (global template)';
+$string['globaluserleave'] = 'User has cancelled his/her own booking (global template)';
+$string['globaldeletedtext'] = 'Cancelled booking message (global template)';
+$string['globalbookingchangedtext'] = 'Message to be sent when a booking option changes (will only be sent to users who have already booked). Use the placeholder {changes} to show the changes. (Global template)';
+$string['globalpollurltext'] = 'Message for sending poll url to booked users (global template)';
+$string['globalpollurlteacherstext'] = 'Message for the poll url sent to teachers (global template)';
+$string['globalactivitycompletiontext'] = 'Notification text shown on activity completion (global template)';
 $string['licensekeycfg'] = 'Activate PRO version';
 $string['licensekeycfgdesc'] = 'With a PRO license you can create as many booking templates as you like.';
 $string['licensekey'] = 'PRO license key';
@@ -1425,3 +1436,4 @@ $string['gotobookingoption'] = 'Go to booking option';
 // All_options.php
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>You are already booked for this option.</i></div>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the waiting list for this option.</i></div>';
+

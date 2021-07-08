@@ -1028,6 +1028,17 @@ $string['nocfnameselected'] = "Nichts ausgewählt. Tippen Sie einen neuen Namen 
 
 
 // File: settings.php.
+$string['globalmailtemplates'] = 'Globale Mailvorlagen';
+$string['globalbookedtext'] = 'Buchungsbestätigung (globale Vorlage)';
+$string['globalwaitingtext'] = 'Wartelistenbestätigung (globale Vorlage)';
+$string['globalnotifyemail'] = 'Benachrichtigung vor dem Beginn (globale Vorlage)';
+$string['globalstatuschangetext'] = 'Benachrichtigung über Statusänderung (globale Vorlage)';
+$string['globaluserleave'] = 'Nutzer/in hat Buchung storniert (globale Vorlage)';
+$string['globaldeletedtext'] = 'Stornierungsbenachrichtigung (globale Vorlage)';
+$string['globalbookingchangedtext'] = 'Benachrichtigung bei Änderungen an der Buchung (geht nur an User, die bereits gebucht haben). Verwenden Sie den Platzhalter {changes} um die Änderungen anzuzeigen. (Globale Vorlage)';
+$string['globalpollurltext'] = 'Umfragelink versenden (globale Vorlage)';
+$string['globalpollurlteacherstext'] = 'Link zum Absender der Umfrage für Trainer/innen (globale Vorlage)';
+$string['globalactivitycompletiontext'] = 'Benachrichtungstext bei Aktivitätsabschluss (globale Vorlage)';
 $string['licensekeycfg'] = 'PRO-Version aktivieren';
 $string['licensekeycfgdesc'] = 'Mit einer PRO-Lizenz können Sie so viele Buchungsvorlagen erstellen wie Sie wollen.';
 $string['licensekey'] = 'PRO-Lizenz-Schlüssel';
