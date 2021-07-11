@@ -79,6 +79,10 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->bookingid = $this->get_new_parentid('booking');
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
+        // Calendarid should not be copied or set.
+        $data->addtocalendar = 0;
+        $data->calendarid = 0;
+
         $newitemid = $DB->insert_record('booking_options', $data);
         $this->set_mapping('booking_option', $oldid, $newitemid);
     }
@@ -100,11 +104,16 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         global $DB;
 
         $data = (object) $data;
+        $oldid = $data->id;
+
         $data->bookingid = $this->get_new_parentid('booking');
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
 
-        $DB->insert_record('booking_optiondates', $data);
-        // No need to save this mapping as far as nothing depend on it.
+        // Eventid should not be copied or set.
+        $data->eventid = 0;
+
+        $newitemid = $DB->insert_record('booking_optiondates', $data);
+        $this->set_mapping('booking_optiondate', $oldid, $newitemid);
     }
 
     protected function process_booking_teacher($data) {
@@ -166,6 +175,8 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
         $data->bookingid = $this->get_new_parentid('booking');
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
+
+        $data->optiondateid = $this->get_mappingid('booking_optiondate', $data->optiondateid);
 
         $DB->insert_record('booking_customfields', $data);
         // No need to save this mapping as far as nothing depend on it.
