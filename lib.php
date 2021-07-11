@@ -2434,6 +2434,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
         $val = '';
 
         if (!empty($optiontimes)) {
+
             $times = explode(',', trim($optiontimes, ','));
             $i = 1;
             foreach ($times as $time) {
@@ -2445,6 +2446,16 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
                 $tmpdate->endtime = userdate($slot[1], get_string('strftimetime', 'langconfig'));
                 $val .= get_string('optiondatesmessage', 'mod_booking', $tmpdate) . '<br><br>';
                 $i++;
+            }
+        } else {
+            if ($option->coursestarttime && $option->courseendtime) {
+                $tmpdate = new stdClass();
+                $tmpdate->number = '';
+                $tmpdate->date = userdate($option->coursestarttime, get_string('strftimedate', 'langconfig'));
+                $tmpdate->starttime = userdate($option->coursestarttime, get_string('strftimetime', 'langconfig'));
+                $tmpdate->endtime = userdate($option->courseendtime, get_string('strftimetime', 'langconfig'));
+                $val .= get_string('optiondatesmessage', 'mod_booking', $tmpdate) . '<br><br>';
+                $params->times = "$params->startdate $params->starttime - $params->enddate $params->endtime";
             }
         }
         $params->times = $val;
