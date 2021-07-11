@@ -14,10 +14,18 @@
     You should have received a copy of the GNU General Public License
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
-<div class="d-flex justify-content-between">
-    <div class="coursename"><h2>{{coursename}}</h2></div>
-    {{#eventtype}}<div class="eventtype"><h2>{{.}}</h2></div>{{/eventtype}}
-    <div class="btnavailableoptions"><a href="{{{buttonurl}}}" target="_self" class="btn btn-secondary">{{#str}}btnviewavailable, booking{{/str}}</a></div>
+<div class="row">
+    <div class="col-sm">
+        <div class="coursename"><h2>{{coursename}}</h2></div>
+    </div>
+    {{#eventtype}}
+        <div class="col-sm">
+            <div class="eventtype"><h2>{{.}}</h2></div>
+        </div>
+    {{/eventtype}}
+    <div class="col-sm">
+        <div class="btnavailableoptions"><a href="{{{buttonurl}}}" target="_self" class="btn btn-secondary">{{#str}}btnviewavailable, booking{{/str}}</a></div>
+    </div>
 </div>
 <div class="shortinfo d-flex justify-content-start">
     {{{shortinfo}}}
