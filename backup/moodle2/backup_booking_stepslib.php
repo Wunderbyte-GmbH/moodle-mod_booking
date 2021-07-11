@@ -49,7 +49,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'booktootherbooking', 'lblacceptingfrom', 'lblnumofusers', 'numgenerator',
                     'paginationnum', 'daystonotify', 'daystonotify2', 'notifyemail', 'assessed',
                     'assesstimestart', 'assesstimefinish', 'scale', 'enablepresence',
-                    'responsesfields', 'reportfields', 'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
+                    'responsesfields', 'reportfields', 'optionsfields', 'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
                     'signinsheetfields', 'comments', 'ratings', 'removeuseronunenrol', 'teacherroleid', 'allowupdatedays',
                     'templateid', 'showdescriptionmode', 'showlistoncoursepage', 'coursepageshortinfo', 'defaultoptionsort',
                     'showviews', 'customtemplateid', 'autcractive', 'autcrprofile', 'autcrvalue', 'autcrtemplate'));
