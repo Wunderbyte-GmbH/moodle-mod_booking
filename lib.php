@@ -2393,7 +2393,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
         $courselink = html_writer::link($courselink, $courselink->out());
     }
     $bookinglink = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
-    $bookinglink = $bookinglink->out();
+    $bookinglink = html_writer::link($bookinglink, $bookinglink->out());
 
     // Default params:
     if (!$issessionreminder) {
