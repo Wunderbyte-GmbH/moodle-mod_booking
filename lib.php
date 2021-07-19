@@ -897,25 +897,6 @@ function booking_update_options($optionvalues, $context) {
 }
 
 /**
- * Helper function to compare two booking options and see if there have been changes
- * in fields relevant for calendar events or ICAL files.
- * @param $oldoption stdClass the original booking option object
- * @param $newoption stdClass the new booking option object
- * @return bool true if there have been relevant changes, false if not
- */
-function booking_option_has_relevant_changes($oldoption, $newoption) {
-    if ($oldoption->text != $newoption->text
-        || $oldoption->coursestarttime != $newoption->coursestarttime
-        || $oldoption->courseendtime != $newoption->courseendtime
-        || $oldoption->location != $newoption->location
-        || $oldoption->institution != $newoption->institution
-        || $oldoption->address != $newoption->address
-        || $oldoption->description != $newoption->description) {
-        return true;
-    } else return false;
-}
-
-/**
  * Checks the status of the specified user
  *
  * @param $userid userid of the user
@@ -2469,7 +2450,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
 
     // Now we'll render the changes.
     if ($changes) {
-        $data = new \mod_booking\output\bookingoption_changes($changes);
+        $data = new \mod_booking\output\bookingoption_changes($changes, $cmid);
         $output = $PAGE->get_renderer('mod_booking');
         $params->changes = $output->render_bookingoption_changes($data);
     }

@@ -29,6 +29,7 @@ $action = optional_param('action', '', PARAM_ALPHA);
 $optionid = optional_param('optionid', '', PARAM_INT);
 $sessionid = optional_param('sessionid', '', PARAM_INT);
 $fieldid = optional_param('fieldid', '', PARAM_INT);
+$meetingtype = optional_param('meetingtype', '', PARAM_ALPHA);
 
 list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
 
@@ -51,8 +52,14 @@ $explanationstring = null;
 if ($link = $bu->show_conference_link($bookingoption, $userid, $sessionid)) {
 
     // We can find the actual link:
-
-    $link = $DB->get_field('booking_customfields', 'value', array('id' => $fieldid));
+    if (!empty($fieldid)) {
+        $link = $DB->get_field('booking_customfields', 'value', array('id' => $fieldid));
+    } else {
+        // If fieldid is not present, we'll use optionid, optiondateid and meetingtype to find the correct link.
+        $customfields = $DB->get_records('booking_customfields', ['optionid' => $optionid, 'optiondateid' => $sessionid, 'cfgname' => $meetingtype]);
+        $customfield = array_pop($customfields);
+        $link = $customfield->value;
+    }
 
     // Check if it's actually a link.
     if (filter_var($link, FILTER_VALIDATE_URL)) {

@@ -729,6 +729,12 @@ class booking_utils {
                     }
 
                     if ($haschange) {
+                        // Also add optionid, sessionid and fieldid (needed to create link via link.php).
+                        array_merge($currentchange,
+                            ['customfieldid' => $value,
+                             'optionid' => $this->bookingoption->option->id,
+                             'optiondateid' => $data->optiondateid]);
+
                         // Add to changes.
                         $changes[] = $currentchange;
 
@@ -758,7 +764,9 @@ class booking_utils {
 
                             // Also add to changes.
                             $changes[] = ['newname' => $data->{'customfieldname' . $counter},
-                                          'newvalue' => $data->{'customfieldvalue' . $counter}];
+                                          'newvalue' => $data->{'customfieldvalue' . $counter},
+                                          'optionid' => $this->bookingoption->option->id,
+                                          'optiondateid' => $data->optiondateid];
                         }
                     }
                 }

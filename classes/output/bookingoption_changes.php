@@ -29,7 +29,8 @@ defined('MOODLE_INTERNAL') || die();
 use renderer_base;
 use renderable;
 use templatable;
-
+use html_writer;
+use moodle_url;
 
 /**
  * This class prepares data for displaying booking option changes.
@@ -43,16 +44,21 @@ class bookingoption_changes implements renderable, templatable {
     /** @var array $changesarray an array containing fieldname, oldvalue and newvalue of changes */
     public $changesarray = null;
 
+    /** @var null course module id */
+    public $cmid = null;
+
     /**
      * Constructor
      *
      * @param array $changesarray
      */
-    public function __construct($changesarray) {
+    public function __construct($changesarray, $cmid) {
         $this->changesarray = $changesarray;
+        $this->cmid = $cmid;
     }
 
     public function export_for_template(renderer_base $output) {
+        global $CFG;
 
         $newchangesarray = [];
         foreach($this->changesarray as $entry) {
@@ -101,6 +107,34 @@ class bookingoption_changes implements renderable, templatable {
                     ];
                 }
             } else {
+                // Custom fields with links to video meeting sessions.
+                if (isset($entry['newname']) &&
+                    ($entry['newname'] == 'TeamsMeeting'
+                        || $entry['newname'] == 'ZoomMeeting'
+                        || $entry['newname'] == 'BigBlueButtonMeeting')) {
+
+                    // Never show the link directly, but use link.php instead.
+                    $baseurl = $CFG->wwwroot;
+
+                    // Fieldid is only present at updates, not at inserts.
+                    if (isset($entry['customfieldid'])) {
+                        $fieldid = $entry['customfieldid'];
+                    } else {
+                        $fieldid = null;
+                    }
+
+                    $link = new moodle_url($baseurl . '/mod/booking/link.php',
+                        array('id' => $this->cmid,
+                            'optionid' => $entry['optionid'],
+                            'action' => 'join',
+                            'sessionid' => $entry['optiondateid'],
+                            'fieldid' => $fieldid,
+                            'meetingtype' => $entry['newname']
+                        ));
+
+                    $entry['newvalue'] = html_writer::link($link, $link->out());
+                }
+
                 $newchangesarray[] = $entry;
             }
         }

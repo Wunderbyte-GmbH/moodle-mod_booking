@@ -198,6 +198,7 @@ if ($mform->is_cancelled()) {
                     $customfield->value = $data->{$customfieldvaluex};
                     $DB->insert_record("booking_customfields", $customfield);
 
+                    // Add newly added custom field to changes array.
                     $changes[] = ['newname' => $customfield->cfgname,
                                   'newvalue' => $customfield->value];
                 }
