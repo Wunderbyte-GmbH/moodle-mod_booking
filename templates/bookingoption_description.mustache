@@ -23,7 +23,13 @@
     Data attributes required for JS:
     * data-region
 }}
-
+{{#booknowbutton}}
+    <div class="float-right">
+        <div>
+            {{{.}}}
+        </div>
+    </div>
+{{/booknowbutton}}
 <h4>{{title}}</h4>
 {{#location}}<div class="bo_location">{{#str}}location, mod_booking{{/str}}: {{.}}</div>{{/location}}
 {{#institution}}<div class="bo_institution">{{#str}}institution, mod_booking{{/str}}: {{.}}</div>{{/institution}}
@@ -48,9 +54,3 @@
         </div>
     {{/dates}}
 </div>
-<br>
-{{#booknowbutton}}
-    <div>
-        {{{.}}}
-    </div>
-{{/booknowbutton}}
