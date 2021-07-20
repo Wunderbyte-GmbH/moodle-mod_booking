@@ -2457,8 +2457,9 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
 
     // We also add the URLs for the user to subscribe to user and course event calendar.
     $bu = new booking_utils();
-    $params->usercalendarurl = $bu->booking_generate_calendar_subscription_link($user, 'user');
-    $params->coursecalendarurl = $bu->booking_generate_calendar_subscription_link($user, 'courses');
+    // Fix: Links should not be clickable, so add <pre>-Tags.
+    $params->usercalendarurl = '<pre>' . $bu->booking_generate_calendar_subscription_link($user, 'user') . '</pre>';
+    $params->coursecalendarurl = '<pre>' . $bu->booking_generate_calendar_subscription_link($user, 'courses') . '</pre>';
 
     return $params;
 }

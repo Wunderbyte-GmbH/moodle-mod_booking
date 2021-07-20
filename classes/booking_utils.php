@@ -691,7 +691,8 @@ class booking_utils {
                         $deletes[] = $value; // The ID of the custom field that needs to be deleted.
 
                         // Also add to changes.
-                        $changes[] = ['oldname' => $oldfield->cfgname,
+                        $changes[] = ['info' => get_string('changeinfocfdeleted', 'booking'),
+                                      'oldname' => $oldfield->cfgname,
                                       'oldvalue' => $oldfield->value];
 
                         continue;
@@ -705,32 +706,34 @@ class booking_utils {
                     $currentchange = [];
                     // Check if the name of the custom field has changed.
                     if ($oldfield->cfgname != $data->{'customfieldname' . $counter}) {
-                        array_merge($currentchange,
-                            ['oldname' => $oldfield->cfgname,
-                                'newname' => $data->{'customfieldname' . $counter}]);
+                        $currentchange = array_merge($currentchange,
+                            ['info' => get_string('changeinfocfchanged', 'booking'),
+                             'oldname' => $oldfield->cfgname,
+                             'newname' => $data->{'customfieldname' . $counter}]);
                         $haschange = true;
                     } else {
                         // Do not add the old name, if there has been no change.
-                        array_merge($currentchange,
+                        $currentchange = array_merge($currentchange,
                             ['newname' => $data->{'customfieldname' . $counter}]);
                     }
 
                     // Check if the value of the custom field has changed.
                     if (!empty($data->{'customfieldvalue' . $counter}) &&
                         $oldfield->value != $data->{'customfieldvalue' . $counter}) {
-                        array_merge($currentchange,
-                            ['oldvalue' => $oldfield->value,
-                                'newvalue' => $data->{'customfieldvalue' . $counter}]);
+                        $currentchange = array_merge($currentchange,
+                            ['info' => get_string('changeinfocfchanged', 'booking'),
+                             'oldvalue' => $oldfield->value,
+                             'newvalue' => $data->{'customfieldvalue' . $counter}]);
                         $haschange = true;
                     } else {
                         // Do not add the old value, if there has been no change.
-                        array_merge($currentchange,
+                        $currentchange = array_merge($currentchange,
                             ['newvalue' => $data->{'customfieldvalue' . $counter}]);
                     }
 
                     if ($haschange) {
                         // Also add optionid, sessionid and fieldid (needed to create link via link.php).
-                        array_merge($currentchange,
+                        $currentchange = array_merge($currentchange,
                             ['customfieldid' => $value,
                              'optionid' => $this->bookingoption->option->id,
                              'optiondateid' => $data->optiondateid]);
@@ -763,7 +766,8 @@ class booking_utils {
                             $inserts[] = $customfield;
 
                             // Also add to changes.
-                            $changes[] = ['newname' => $data->{'customfieldname' . $counter},
+                            $changes[] = ['info' => get_string('changeinfocfadded', 'booking'),
+                                          'newname' => $data->{'customfieldname' . $counter},
                                           'newvalue' => $data->{'customfieldvalue' . $counter},
                                           'optionid' => $this->bookingoption->option->id,
                                           'optiondateid' => $data->optiondateid];
@@ -794,6 +798,7 @@ class booking_utils {
         if (isset($oldoption->text)
                 && $oldoption->text != $newoption->text) {
             $returnarry[] = [
+                    'info' => get_string('bookingoptiontitle', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'bookingoptiontitle',
                     'oldvalue' => $oldoption->text,
                     'newvalue' => $newoption->text
@@ -802,6 +807,7 @@ class booking_utils {
         if (isset($oldoption->coursestarttime)
                 && $oldoption->coursestarttime != $newoption->coursestarttime) {
             $returnarry[] = [
+                    'info' => get_string('coursestarttime', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'coursestarttime',
                     'oldvalue' => $oldoption->coursestarttime,
                     'newvalue' => $newoption->coursestarttime
@@ -810,6 +816,7 @@ class booking_utils {
         if (isset($oldoption->courseendtime)
                 && $oldoption->courseendtime != $newoption->courseendtime) {
             $returnarry[] = [
+                    'info' => get_string('courseendtime', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'courseendtime',
                     'oldvalue' => $oldoption->courseendtime,
                     'newvalue' => $newoption->courseendtime
@@ -818,6 +825,7 @@ class booking_utils {
         if (isset($oldoption->location)
                 && $oldoption->location != $newoption->location) {
             $returnarry[] = [
+                    'info' => get_string('location', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'location',
                     'oldvalue' => $oldoption->location,
                     'newvalue' => $newoption->location
@@ -826,6 +834,7 @@ class booking_utils {
         if (isset($oldoption->institution)
                 && $oldoption->institution != $newoption->institution) {
             $returnarry[] = [
+                    'info' => get_string('institution', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'institution',
                     'oldvalue' => $oldoption->institution,
                     'newvalue' => $newoption->institution
@@ -834,6 +843,7 @@ class booking_utils {
         if (isset($oldoption->address)
                 && $oldoption->address != $newoption->address) {
             $returnarry[] = [
+                    'info' => get_string('address', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'address',
                     'oldvalue' => $oldoption->address,
                     'newvalue' => $newoption->address
@@ -842,6 +852,7 @@ class booking_utils {
         if (isset($oldoption->description)
                 && $oldoption->description != $newoption->description) {
             $returnarry[] = [
+                    'info' => get_string('description', 'booking') . get_string('changeinfochanged', 'booking'),
                     'fieldname' => 'description',
                     'oldvalue' => $oldoption->description,
                     'newvalue' => $newoption->description
@@ -874,6 +885,7 @@ class booking_utils {
         if (isset($oldoptiondate->coursestarttime)
             && $oldoptiondate->coursestarttime != $newoptiondate->coursestarttime) {
             $changes[] = [
+                'info' => get_string('coursestarttime', 'booking') . get_string('changeinfochanged', 'booking'),
                 'fieldname' => 'coursestarttime',
                 'oldvalue' => $oldoptiondate->coursestarttime,
                 'newvalue' => $newoptiondate->coursestarttime
@@ -883,6 +895,7 @@ class booking_utils {
         if (isset($oldoptiondate->courseendtime)
             && $oldoptiondate->courseendtime != $newoptiondate->courseendtime) {
             $changes[] = [
+                'info' => get_string('courseendtime', 'booking') . get_string('changeinfochanged', 'booking'),
                 'fieldname' => 'courseendtime',
                 'oldvalue' => $oldoptiondate->courseendtime,
                 'newvalue' => $newoptiondate->courseendtime

@@ -65,47 +65,56 @@ class bookingoption_changes implements renderable, templatable {
             if (isset($entry['fieldname'])) {
                 if ($entry['fieldname'] == 'coursestarttime') {
                     if (isset($entry['oldvalue']) && isset($entry['newvalue'])) {
-                        $newchangesarray[] = [
+                        $temparray = [
                             'fieldname' => get_string('coursestarttime', 'booking'),
                             'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime')),
                             'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
                         ];
                     } else if (isset($entry['newvalue'])) {
-                        $newchangesarray[] = [
+                        $temparray = [
                             'fieldname' => get_string('coursestarttime', 'booking'),
                             'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
                         ];
                     } else {
-                        $newchangesarray[] = [
+                        $temparray = [
                             'fieldname' => get_string('coursestarttime', 'booking'),
                             'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime'))
                         ];
                     }
                 } else if ($entry['fieldname'] == 'courseendtime') {
                     if (isset($entry['oldvalue']) && isset($entry['newvalue'])) {
-                        $newchangesarray[] = [
+                        $temparray = [
                             'fieldname' => get_string('courseendtime', 'booking'),
                             'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime')),
                             'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
                         ];
                     } else if (isset($entry['newvalue'])) {
-                        $newchangesarray[] = [
+                        $temparray = [
                             'fieldname' => get_string('courseendtime', 'booking'),
                             'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
                         ];
                     } else {
-                        $newchangesarray[] = [
+                        $temparray = [
                             'fieldname' => get_string('courseendtime', 'booking'),
                             'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime'))
                         ];
                     }
                 } else {
-                    $newchangesarray[] = [
+                    $temparray = [
                         'fieldname' => get_string($entry['fieldname'], 'booking'),
                         'oldvalue' => $entry['oldvalue'],
                         'newvalue' => $entry['newvalue']
                     ];
                 }
+
+                // If there is an info field, then add it.
+                if (isset($entry['info'])) {
+                    $temparray = array_merge($temparray, ['info' => $entry['info']]);
+                }
+
+                // Now add the current change to the newchangesarray.
+                $newchangesarray[] = $temparray;
+
             } else {
                 // Custom fields with links to video meeting sessions.
                 if (isset($entry['newname']) &&
@@ -135,6 +144,7 @@ class bookingoption_changes implements renderable, templatable {
                     $entry['newvalue'] = html_writer::link($link, $link->out());
                 }
 
+                // Add all custom fields here.
                 $newchangesarray[] = $entry;
             }
         }

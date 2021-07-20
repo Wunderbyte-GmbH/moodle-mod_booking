@@ -1084,6 +1084,15 @@ $string['linknotvalid'] = 'Sie scheinen dieses Meeting nicht gebucht zu haben.';
 
 // booking_utils.php
 $string['linknotavailableyet'] = 'Der Link auf die Konferenz ist nur zwischen 15 Minuten vor dem Meeting und dem Enddatum hier verfügbar.';
+$string['pleasereturnlater'] = 'Alle Plätze sind gebucht.';
+$string['changeinfochanged'] = ' hat sich geändert:';
+$string['changeinfoadded'] = ' wurde hinzugefügt:';
+$string['changeinfodeleted'] = ' wurde gelöscht:';
+$string['changeinfocfchanged'] = 'Ein Feld hat sich geändert:';
+$string['changeinfocfadded'] = 'Ein Feld wurde hinzugefügt:';
+$string['changeinfocfdeleted'] = 'Ein Feld wurde gelöscht:';
+$string['changeinfosessionadded'] = 'Ein Termin wurde hinzugefügt:';
+$string['changeinfosessiondeleted'] = 'Ein Termin wurde gelöscht:';
 
 // Bookingoption_changes.mustache.
 $string['changeold'] = '[GELÖSCHT] ';

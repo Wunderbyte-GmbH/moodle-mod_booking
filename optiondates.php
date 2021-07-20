@@ -71,7 +71,8 @@ if ($delete != '') {
         }
 
         // Also store the changes so they can be sent in an update mail.
-        $changes[] = ['fieldname' => 'coursestarttime',
+        $changes[] = ['info' => get_string('changeinfosessiondeleted', 'booking'),
+                      'fieldname' => 'coursestarttime',
                       'oldvalue' => $optiondate->coursestarttime];
         $changes[] = ['fieldname' => 'courseendtime',
                       'oldvalue' => $optiondate->courseendtime];
@@ -177,8 +178,12 @@ if ($mform->is_cancelled()) {
         // It's a new session.
         $changes = [];
         if ($optiondateid = $DB->insert_record("booking_optiondates", $optiondate)) {
-            $changes[] = ['fieldname' => 'coursestarttime', 'newvalue' => $optiondate->coursestarttime];
-            $changes[] = ['fieldname' => 'courseendtime', 'newvalue' => $optiondate->courseendtime];
+            // Add info that a session has been added (do this only at coursestarttime, we don't need it twice).
+            $changes[] = [  'info' => get_string('changeinfosessionadded', 'booking'),
+                            'fieldname' => 'coursestarttime',
+                            'newvalue' => $optiondate->coursestarttime];
+            $changes[] = [  'fieldname' => 'courseendtime',
+                            'newvalue' => $optiondate->courseendtime];
         }
 
         // Retrieve available custom field data.
@@ -199,7 +204,10 @@ if ($mform->is_cancelled()) {
                     $DB->insert_record("booking_customfields", $customfield);
 
                     // Add newly added custom field to changes array.
-                    $changes[] = ['newname' => $customfield->cfgname,
+                    $changes[] = ['info' => get_string('changeinfocfadded', 'booking'),
+                                  'optionid' => $optionid,
+                                  'optiondateid' => $optiondateid,
+                                  'newname' => $customfield->cfgname,
                                   'newvalue' => $customfield->value];
                 }
             }

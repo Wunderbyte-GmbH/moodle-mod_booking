@@ -26,18 +26,25 @@
 
 <table border="0">
     {{#changes}}
+        {{#info}}
         <tr>
-            {{#fieldname}}
-                <td><b>{{.}}: </b></td>
-                <td style="color: red;">{{#oldvalue}}{{#str}} changeold, mod_booking {{/str}}<s>{{{.}}}</s>{{/oldvalue}}</td>
-                <td>{{#newvalue}}{{#str}} changenew, mod_booking {{/str}}{{{.}}}{{/newvalue}}</td>
-            {{/fieldname}}
-            <!-- Custom fields have no field name. -->
-            {{^fieldname}}
-                <td><b>{{#newname}}{{#str}} changenew, mod_booking {{/str}}{{.}}{{/newname}} {{#oldname}}<div  style="color: red;">{{#str}} changeold, mod_booking {{/str}}<s>{{.}}</s></div>{{/oldname}}</b></td>
-                <td style="color: red;">{{#oldvalue}}{{#str}} changeold, mod_booking {{/str}}<s>{{{.}}}</s>{{/oldvalue}}</td>
-                <td>{{#newvalue}}{{#str}} changenew, mod_booking {{/str}}{{{.}}}{{/newvalue}}</td>
-            {{/fieldname}}
+            <td colspan="3"><i>{{{.}}}</i></td>
         </tr>
+        {{/info}}
+        {{#fieldname}}
+        <tr>
+            <td><b>{{.}}: </b></td>
+            <td style="color: red;">{{#oldvalue}}{{#str}} changeold, mod_booking {{/str}}<s>{{{.}}}</s>{{/oldvalue}}</td>
+            <td>{{#newvalue}}{{#str}} changenew, mod_booking {{/str}}{{{.}}}{{/newvalue}}</td>
+        </tr>
+        {{/fieldname}}
+        <!-- Custom fields have no field name. -->
+        {{^fieldname}}
+        <tr>
+            <td><b>{{#newname}}{{#str}} changenew, mod_booking {{/str}}{{.}}{{/newname}} {{#oldname}}<div  style="color: red;">{{#str}} changeold, mod_booking {{/str}}<s>{{.}}</s></div>{{/oldname}}</b></td>
+            <td style="color: red;">{{#oldvalue}}{{#str}} changeold, mod_booking {{/str}}<s>{{{.}}}</s>{{/oldvalue}}</td>
+            <td>{{#newvalue}}{{#str}} changenew, mod_booking {{/str}}{{{.}}}{{/newvalue}}</td>
+        </tr>
+        {{/fieldname}}
     {{/changes}}
 </table>

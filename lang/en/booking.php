@@ -1372,6 +1372,14 @@ $string['linknotvalid'] = 'You don\'t seem to be booked for this meeting';
 // booking_utils.php
 $string['linknotavailableyet'] = "The link to access the meeting is available only 15 minutes before the start until the end of the session.";
 $string['pleasereturnlater'] = 'All places are booked.';
+$string['changeinfochanged'] = ' has changed:';
+$string['changeinfoadded'] = ' has been added:';
+$string['changeinfodeleted'] = ' has been deleted:';
+$string['changeinfocfchanged'] = 'A field has changed:';
+$string['changeinfocfadded'] = 'A field has been added:';
+$string['changeinfocfdeleted'] = 'A field has been deleted:';
+$string['changeinfosessionadded'] = 'A session has been added:';
+$string['changeinfosessiondeleted'] = 'A session has been deleted:';
 
 // Bookingoption_changes.mustache.
 $string['changeold'] = '[DELETED] ';
