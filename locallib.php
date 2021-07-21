@@ -25,8 +25,10 @@ require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 const DESCRIPTION_WEBSITE = 1; // Shows link button with text "book now" and no link to TeamsMeeting etc.
-const DESCRIPTION_CALENDAR = 2; // Shows link button with text "go to bookingoption" via link.php
-const DESCRIPTION_ICAL = 3; // Shows link with text "go to bookingoption" via link.php for iCal
+const DESCRIPTION_CALENDAR = 2; // Shows link button with text "go to bookingoption" and meeting links via link.php.
+const DESCRIPTION_ICAL = 3; // Shows link with text "go to bookingoption" and meeting links via link.php for iCal.
+const DESCRIPTION_MAIL = 4; // Shows link with text "go to bookingoption" and meeting links via link.php...
+                            // ...for mail placeholder {bookingdetails}.
 
 /**
  * Abstract class used by booking subscriber selection controls
@@ -390,9 +392,13 @@ function get_rendered_eventdescription($option, $cmid, $optiondate = false, $des
     $output = $PAGE->get_renderer('mod_booking');
 
     if ($descriptionparam == DESCRIPTION_ICAL) {
-        // Means: If this is for ical.
+        // If this is for ical.
         return $output->render_bookingoption_description_ical($data);
+    } else if ($descriptionparam == DESCRIPTION_MAIL) {
+        // If this is used for a mail - placeholder {bookingdetails}.
+        return $output->render_bookingoption_description_mail($data);
     }
+
     return $output->render_bookingoption_description($data);
 
 }

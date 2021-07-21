@@ -720,7 +720,8 @@ class booking_option {
         $event->trigger();
         $this->unenrol_user($user->id);
 
-        $params = booking_generate_email_params($this->booking->settings, $this->option, $user, $this->booking->cm->id, $this->optiontimes);
+        $params = booking_generate_email_params($this->booking->settings, $this->option, $user, $this->booking->cm->id,
+            $this->optiontimes, false, false, true);
 
         if ($userid == $USER->id) {
             // I cancelled the booking.
@@ -791,7 +792,8 @@ class booking_option {
                 if ($this->booking->settings->sendmail == 1 || $this->booking->settings->copymail) {
                     $newbookeduser = $DB->get_record('user', array('id' => $newuser->userid));
                     $params = booking_generate_email_params($this->booking->settings, $this->option,
-                            $newbookeduser, $this->booking->cm->id, $this->optiontimes);
+                            $newbookeduser, $this->booking->cm->id, $this->optiontimes, false,
+                            false, true);
                     $messagetextnewuser = booking_get_email_body($this->booking->settings, 'statuschangetext',
                             'statuschangebookedmessage', $params);
                     $messagehtml = text_to_html($messagetextnewuser, false, false, true);
@@ -1043,7 +1045,7 @@ class booking_option {
         $bookingmanager = $DB->get_record('user',
                 array('username' => $this->booking->settings->bookingmanager));
         $data = booking_generate_email_params($this->booking->settings, $this->option, $user, $cmid,
-                $this->optiontimes, $changes);
+                $this->optiontimes, $changes, false, true);
 
         $cansend = true;
 

@@ -36,7 +36,7 @@ use templatable;
 const DESCRIPTION_WEBSITE = 1;
 const DESCRIPTION_CALENDAR = 2;
 const DESCRIPTION_ICAL = 3;
-
+const DESCRIPTION_MAIL = 4;
 
 /**
  * This class prepares data for displaying a booking option instance
@@ -155,6 +155,13 @@ class bookingoption_description implements renderable, templatable {
                 break;
             case DESCRIPTION_ICAL:
                 $this->booknowbutton = get_string('gotobookingoption', 'booking') . ': ' .  $link->out(false);
+                break;
+            case DESCRIPTION_MAIL:
+                // The link should be clickable in mails (placeholder {bookingdetails}).
+                $this->booknowbutton = get_string('gotobookingoption', 'booking') . ': ' .
+                    '<a href = "' . $link . '" target = "_blank">' .
+                        $link->out(false) .
+                    '</a>';
                 break;
         }
     }

@@ -552,6 +552,22 @@ class booking_utils {
                         'name' => null,
                         'value' => "$field->cfgname: $link"
                 ];
+            case DESCRIPTION_MAIL:
+                // For the mail placeholder {bookingdetails} no button but link only.
+                // However, we can use HTML links in mails.
+                $cm = $bookingoption->booking->cm;
+                $link = new moodle_url($baseurl . '/mod/booking/link.php',
+                    array('id' => $cm->id,
+                        'optionid' => $bookingoption->optionid,
+                        'action' => 'join',
+                        'sessionid' => $sessionid,
+                        'fieldid' => $field->id
+                    ));
+                $link = $link->out(false);
+                return [
+                    'name' => null,
+                    'value' => "$field->cfgname: <a href='$link' target='_blank'>$link</a>"
+                ];
         }
     }
 

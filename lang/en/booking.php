@@ -325,6 +325,8 @@ $string['addnewlocation'] = "Add new location";
 
 $string['pollurlteachers_help'] = 'You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -353,6 +355,8 @@ $string['pollurlteachers_help'] = 'You can use any of the following placeholders
 
 $string['pollurl_help'] = 'You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -381,6 +385,8 @@ $string['pollurl_help'] = 'You can use any of the following placeholders in the 
 
 $string['bookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -409,6 +415,8 @@ $string['bookedtext_help'] = 'Leave this blank to use the site default text. You
 
 $string['userleave_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -439,6 +447,8 @@ $string['userleave_help'] = 'Leave this blank to use the site default text. You 
 
 $string['waitingtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -469,6 +479,8 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 
 $string['notifyemail_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -499,6 +511,8 @@ $string['notifyemail_help'] = 'Leave this blank to use the site default text. Yo
 
 $string['statuschangetext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -529,6 +543,8 @@ $string['statuschangetext_help'] = 'Leave this blank to use the site default tex
 
 $string['deletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -560,6 +576,8 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 $string['bookingchangedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
 <li>{changes} - What has changed?</li>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -590,6 +608,8 @@ $string['bookingchangedtext_help'] = 'Leave this blank to use the site default t
 
 $string['pollurltext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -620,6 +640,8 @@ $string['pollurltext_help'] = 'Leave this blank to use the site default text. Yo
 
 $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -650,6 +672,8 @@ $string['pollurlteacherstext_help'] = 'Leave this blank to use the site default 
 
 $string['activitycompletiontext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -680,6 +704,8 @@ $string['activitycompletiontext_help'] = 'Leave this blank to use the site defau
 
 $string['notificationtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -710,6 +736,8 @@ $string['notificationtext_help'] = 'Leave this blank to use the site default tex
 
 $string['beforebookedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -740,6 +768,8 @@ $string['beforebookedtext_help'] = 'Leave this blank to use the site default tex
 
 $string['beforecompletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -770,6 +800,8 @@ $string['beforecompletedtext_help'] = 'Leave this blank to use the site default 
 
 $string['aftercompletedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -1366,7 +1398,7 @@ $string['optiontemplate'] = 'Option template';
 
 // link.php
 $string['bookingnotopenyet'] = 'Your event starts in {$a} minutes. The link you used will redirect you if you click it again within 15 minutes before.';
-$string['bookingpassed'] = 'Your event has ended {$a} minutes ago.';
+$string['bookingpassed'] = 'Your event has ended.';
 $string['linknotvalid'] = 'You don\'t seem to be booked for this meeting';
 
 // booking_utils.php

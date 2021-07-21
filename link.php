@@ -90,7 +90,7 @@ if (!$explanationstring) {
         $minutes = $bu->get_pretty_duration($seconds);
         $explanationstring = get_string('bookingnotopenyet', 'booking', $minutes);
     } else if ($minutes = $bu->secondspassed) {
-        $explanationstring = get_string('bookingpassed', 'booking', $minutes);
+        $explanationstring = get_string('bookingpassed', 'booking');
     } else {
         $explanationstring = get_string('linknotvalid', 'booking');
     }

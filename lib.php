@@ -2011,7 +2011,7 @@ function booking_sendpollurlteachers(\mod_booking\booking_option $booking, $cmid
         $userdata = $DB->get_record('user', array('id' => $tuser->userid));
 
         $params = booking_generate_email_params($booking->booking->settings, $booking->option, $userdata,
-                $cmid, $booking->optiontimes);
+                $cmid, $booking->optiontimes, false, false, true);
 
         $pollurlmessage = booking_get_email_body($booking->booking->settings, 'pollurlteacherstext',
                 'pollurlteacherstextmessage', $params);
@@ -2057,7 +2057,8 @@ function booking_sendpollurl($userids, \mod_booking\booking_option $booking, $cm
     foreach ($userids as $userid) {
         $tuser = $DB->get_record('user', array('id' => $userid));
 
-        $params = booking_generate_email_params($booking->booking->settings, $booking->option, $tuser, $cmid, $booking->optiontimes);
+        $params = booking_generate_email_params($booking->booking->settings, $booking->option, $tuser, $cmid,
+                $booking->optiontimes, false, false, true);
 
         $pollurlmessage = booking_get_email_body($booking->booking->settings, 'pollurltext',
                 'pollurltextmessage', $params);
@@ -2177,13 +2178,13 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
 
             if (!$issession) {
                 $params = booking_generate_email_params($bookingdata->booking->settings, $bookingdata->option,
-                    $ruser, $cm->id, $bookingdata->optiontimes);
+                    $ruser, $cm->id, $bookingdata->optiontimes, false, false, true);
                 $pollurlmessage = booking_get_email_body($bookingdata->booking->settings, 'notifyemail',
                     'notifyemaildefaultmessage', $params);
             } else {
                 $optiontimes = array($optiondate); // Only add one specific session for session reminders.
                 $params = booking_generate_email_params($bookingdata->booking->settings, $bookingdata->option,
-                    $ruser, $cm->id, $optiontimes, false, true);
+                    $ruser, $cm->id, $optiontimes, false, true, false);
                 $pollurlmessage = booking_get_email_body($bookingdata->booking->settings, 'sessionremindermailsubject',
                     'sessionremindermailmessage', $params);
             }
@@ -2355,7 +2356,8 @@ function booking_pretty_duration($seconds) {
  * @return stdClass data to be sent via mail
  */
 function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid,
-                                       $optiontimes = array(), $changes = false, $issessionreminder = false) {
+                                       $optiontimes = array(), $changes = false, $issessionreminder = false,
+                                       $includebookingdetails = false) {
     global $CFG, $PAGE;
 
     $params = new stdClass();
@@ -2440,6 +2442,20 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
             }
         }
         $params->times = $val;
+
+        // If there are changes, let's render them.
+        if ($changes) {
+            $data = new \mod_booking\output\bookingoption_changes($changes, $cmid);
+            $output = $PAGE->get_renderer('mod_booking');
+            $params->changes = $output->render_bookingoption_changes($data);
+        }
+
+        // Add placeholder {bookingdetails} so we can add the detailed option description (similar to calendar, modal...
+        // ... and ical) to mails.
+        if ($includebookingdetails) {
+            $params->bookingdetails = get_rendered_eventdescription($option, $cmid, false, DESCRIPTION_MAIL);
+        }
+
     } else {
         // Params for specific session reminders.
         $params->status = booking_get_user_status($user->id, $option->id, $booking->id, $cmid);
@@ -2448,18 +2464,24 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
         $params->sessiondescription = get_rendered_eventdescription($option, $cmid, $optiontimes[0], DESCRIPTION_CALENDAR);
     }
 
-    // Now we'll render the changes.
-    if ($changes) {
-        $data = new \mod_booking\output\bookingoption_changes($changes, $cmid);
-        $output = $PAGE->get_renderer('mod_booking');
-        $params->changes = $output->render_bookingoption_changes($data);
-    }
-
     // We also add the URLs for the user to subscribe to user and course event calendar.
     $bu = new booking_utils();
-    // Fix: Links should not be clickable, so add <pre>-Tags.
-    $params->usercalendarurl = '<pre>' . $bu->booking_generate_calendar_subscription_link($user, 'user') . '</pre>';
-    $params->coursecalendarurl = '<pre>' . $bu->booking_generate_calendar_subscription_link($user, 'courses') . '</pre>';
+    // Fix: These links should not be clickable (beacuse they will be copied by users), so add <pre>-Tags.
+    $params->usercalendarurl =  '<a href="#" style="text-decoration:none; color:#000">' .
+                                $bu->booking_generate_calendar_subscription_link($user, 'user') .
+                                '</a>';
+    $params->coursecalendarurl = '<a href="#" style="text-decoration:none; color:#000">' .
+                                $bu->booking_generate_calendar_subscription_link($user, 'courses') .
+                                '</a>';
+
+    // Add a placeholder with a link to go to the current booking option.
+    $gotobookingoptionlink = new moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
+        'id' => $cmid,
+        'optionid' => $option->id,
+        'action' => 'showonlyone',
+        'whichview' => 'showonlyone'
+    ));
+    $params->gotobookingoption = html_writer::link($gotobookingoptionlink, $gotobookingoptionlink->out());
 
     return $params;
 }

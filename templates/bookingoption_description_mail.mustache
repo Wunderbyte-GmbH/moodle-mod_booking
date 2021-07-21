@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/bookingoption_description_ical
+    @template mod_booking/bookingoption_description_mail
 
     Classes required for JS:
     * none
@@ -24,26 +24,22 @@
     * data-region
 }}
 
-{{title}}
-
-{{#dates}}
-- {{{datestring}}}
-{{#customfields}}
-    * {{name}}{{{value}}}
-{{/customfields}}
-<!--The line breaks are intentional.-->
-{{/dates}}
-{{#location}}{{.}}
-{{/location}}{{#institution}}{{#str}}institution, mod_booking{{/str}}: {{.}}
-{{/institution}}{{#address}}{{#str}}address, mod_booking{{/str}}:  {{.}}
-{{/address}}{{#statusdescription}}{{{.}}}
-{{/statusdescription}}
-{{#description}}
-
-{{{.}}}
-
-{{/description}}
-{{#booknowbutton}}
-
-{{{.}}}
-{{/booknowbutton}}
+<h4>{{title}}</h4>
+{{#location}}{{#str}}location, mod_booking{{/str}}: {{.}}{{/location}}
+{{#institution}}{{#str}}institution, mod_booking{{/str}}: {{.}}{{/institution}}
+{{#address}}{{#str}}address, mod_booking{{/str}}:  {{.}}{{/address}}
+{{#statusdescription}}<p>{{{.}}}</p>{{/statusdescription}}
+{{#description}}<p>{{{.}}}</p>{{/description}}
+<ul>
+    {{#dates}}
+        <li><b>{{{datestring}}}</b></li>
+        <ul>
+            {{#customfields}}
+                <li>
+                    {{name}}{{{value}}}
+                </li>
+            {{/customfields}}
+        </ul>
+    {{/dates}}
+</ul><br>
+{{#booknowbutton}}{{{.}}}{{/booknowbutton}}

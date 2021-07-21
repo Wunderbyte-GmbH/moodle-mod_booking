@@ -353,7 +353,7 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-    /** Function to print booking option description.
+    /** Function to print booking option description for ical.
      * @param bookingoption_description $data
      * @return string
      */
@@ -361,6 +361,17 @@ class renderer extends plugin_renderer_base {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/bookingoption_description_ical', $data);
+        return $o;
+    }
+
+    /** Function to print booking option description for mail placeholder {bookingdetails}.
+     * @param bookingoption_description $data
+     * @return string
+     */
+    public function render_bookingoption_description_mail(mod_booking\output\bookingoption_description $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/bookingoption_description_mail', $data);
         return $o;
     }
 

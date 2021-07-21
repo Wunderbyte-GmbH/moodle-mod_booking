@@ -58,7 +58,8 @@ if (!$answer) {
     echo $OUTPUT->footer();
 }
 $bookingmanager = $DB->get_record('user', array('username' => $booking->booking->settings->bookingmanager));
-$data = booking_generate_email_params($booking->booking->settings, $booking->option, $user, $cm->id, $booking->optiontimes);
+$data = booking_generate_email_params($booking->booking->settings, $booking->option, $user, $cm->id, $booking->optiontimes,
+    false, false, true);
 
 if ($answer->waitinglist == 1) {
     $message = booking_get_email_body($booking->booking->settings, 'waitingtext', 'confirmationmessage', $data);

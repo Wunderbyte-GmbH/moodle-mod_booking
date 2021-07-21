@@ -288,6 +288,8 @@ $string['addnewlocation'] = "Neuen Ort hinzufügen";
 
 $string['pollurlteachers_help'] = 'Folgende Platzhalter können im Text verwendet werden:
 <ul>
+<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+<li>{gotobookingoption} - Link zur Buchungsoption</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -315,6 +317,8 @@ $string['pollurlteachers_help'] = 'Folgende Platzhalter können im Text verwende
 
 $string['pollurl_help'] = 'Folgende Platzhalter können im Text verwendet werden:
 <ul>
+<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+<li>{gotobookingoption} - Link zur Buchungsoption</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -342,6 +346,8 @@ $string['pollurl_help'] = 'Folgende Platzhalter können im Text verwendet werden
 
 $string['bookedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
+<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+<li>{gotobookingoption} - Link zur Buchungsoption</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -369,6 +375,8 @@ $string['bookedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext d
 
 $string['userleave_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
+<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+<li>{gotobookingoption} - Link zur Buchungsoption</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -398,6 +406,8 @@ $string['userleave_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext de
 
 $string['waitingtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
+<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+<li>{gotobookingoption} - Link zur Buchungsoption</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -427,6 +437,8 @@ $string['waitingtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext 
 
 $string['statuschangetext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
+<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+<li>{gotobookingoption} - Link zur Buchungsoption</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -456,6 +468,8 @@ $string['statuschangetext_help'] = 'Lassen Sie dieses Feld leer, um den Standard
 
 $string['deletedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
+<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+<li>{gotobookingoption} - Link zur Buchungsoption</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -486,6 +500,8 @@ $string['deletedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext 
 $string['bookingchangedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
 <li>{changes} - Was hat sich geändert?</li>
+<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+<li>{gotobookingoption} - Link zur Buchungsoption</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -515,6 +531,8 @@ $string['bookingchangedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standa
 
 $string['pollurltext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
+<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+<li>{gotobookingoption} - Link zur Buchungsoption</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -544,6 +562,8 @@ $string['pollurltext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext 
 
 $string['pollurlteacherstext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
+<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+<li>{gotobookingoption} - Link zur Buchungsoption</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -573,6 +593,8 @@ $string['pollurlteacherstext_help'] = 'Lassen Sie dieses Feld leer, um den Stand
 
 $string['activitycompletiontext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
+<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+<li>{gotobookingoption} - Link zur Buchungsoption</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -602,6 +624,8 @@ $string['activitycompletiontext_help'] = 'Lassen Sie dieses Feld leer, um den St
 
 $string['notificationtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
 <ul>
+<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+<li>{gotobookingoption} - Link zur Buchungsoption</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -1079,7 +1103,7 @@ $string['linkgotobookingoption'] = 'Buchung anzeigen: {$a}</a>';
 
 // link.php
 $string['bookingnotopenyet'] = 'Ihr Event startet erst in {$a} Minuten. Dieser Link wird Sie ab 15 Minuten vor dem Event weiterleiten.';
-$string['bookingpassed'] = 'Ihr Event ist bereits seit {$a} Minuten vorüber.';
+$string['bookingpassed'] = 'Dieses Event ist nicht mehr aktiv.';
 $string['linknotvalid'] = 'Sie scheinen dieses Meeting nicht gebucht zu haben.';
 
 // booking_utils.php

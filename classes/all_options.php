@@ -277,7 +277,6 @@ class all_options extends table_sql {
             // We can go with the data from bookingoption_description directly to modal.
             return $output->render_col_text_modal($data);
         } else {
-            // We can go with the data from bookingoption_description directly to modal.
             return $output->render_bookingoption_description($data);
         }
     }
