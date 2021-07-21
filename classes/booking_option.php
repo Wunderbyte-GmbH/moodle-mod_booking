@@ -799,19 +799,24 @@ class booking_option {
                     $messagehtml = text_to_html($messagetextnewuser, false, false, true);
 
                     // Generate ical attachment to go with the message.
-                    $attachname = '';
-                    $ical = new ical($this->booking->settings, $this->option, $newbookeduser,
+                    // Check if ical attachments enabled.
+                    if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
+                        $attachname = '';
+                        $ical = new ical($this->booking->settings, $this->option, $newbookeduser,
                             $bookingmanager);
-                    if ($attachment = $ical->get_attachments()) {
-                        $attachname = $ical->get_name();
+                        if ($attachment = $ical->get_attachments()) {
+                            $attachname = $ical->get_name();
+                        }
+                        $eventdata->attachment = $attachment;
+                        $eventdata->attachname = $attachname;
                     }
+
                     $eventdata->userto = $newbookeduser;
                     $eventdata->userfrom = $bookingmanager;
                     $eventdata->subject = get_string('statuschangebookedsubject', 'booking', $params);
                     $eventdata->messagetext = $messagetextnewuser;
                     $eventdata->messagehtml = $messagehtml;
-                    $eventdata->attachment = $attachment;
-                    $eventdata->attachname = $attachname;
+
                     if ($this->booking->settings->sendmail == 1) {
                         $sendtask = new task\send_confirmation_mails();
                         $sendtask->set_custom_data($eventdata);
