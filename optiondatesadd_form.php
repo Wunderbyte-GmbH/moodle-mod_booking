@@ -82,8 +82,31 @@ class optiondatesadd_form extends moodleform {
                 $mform->addElement('hidden', 'customfieldid' . $j, $customfield->id);
                 $mform->setType('customfieldid' . $j, PARAM_INT);
 
-                $mform->addElement('text', 'customfieldname' . $j, get_string('customfieldname', 'booking'));
-                $mform->setType('customfieldname' . $j, PARAM_TEXT);
+                //$mform->addElement('text', 'customfieldname' . $j, get_string('customfieldname', 'booking'));
+                //$mform->setType('customfieldname' . $j, PARAM_TEXT);
+                //$mform->setDefault('customfieldname' . $j, $customfield->cfgname);
+                //$mform->addHelpButton('customfieldname' . $j, 'customfieldname', 'booking');
+
+                $cfnames = [
+                    null => '',
+                    'TeamsMeeting' => 'TeamsMeeting',
+                    'ZoomMeeting' => 'ZoomMeeting',
+                    'BigBlueButtonMeeting' => 'BigBlueButtonMeeting'
+                ];
+                if (!in_array($customfield->cfgname, $cfnames)) {
+                    $cfnames[$customfield->cfgname] = $customfield->cfgname;
+                }
+                $options = array(
+                        'noselectionstring' => get_string('nocfnameselected', 'booking'),
+                        'tags' => true
+                );
+                $element = $mform->createElement('autocomplete', 'customfieldname' . $j, get_string('customfieldname', 'booking'), $cfnames, $options);
+                $mform->addElement($element);
+                if (!empty($CFG->formatstringstriptags)) {
+                    $mform->setType('customfieldname' . $j, PARAM_TEXT);
+                } else {
+                    $mform->setType('customfieldname' . $j, PARAM_CLEANHTML);
+                }
                 $mform->setDefault('customfieldname' . $j, $customfield->cfgname);
                 $mform->addHelpButton('customfieldname' . $j, 'customfieldname', 'booking');
 
@@ -121,11 +144,32 @@ class optiondatesadd_form extends moodleform {
             $mform->addElement('hidden', 'customfieldid' . $counter, 0);
             $mform->setType('customfieldid' . $counter, PARAM_INT);
 
-            $mform->addElement('text', 'customfieldname' . $counter, get_string('customfieldname', 'booking'));
-            $mform->setType('customfieldname' . $counter, PARAM_TEXT);
-            $mform->setDefault('customfieldname' . $counter, '');
+            // Add Autocomplete with TeamsMeeting etc.
+            $cfnames = [
+                null => '',
+                'TeamsMeeting' => 'TeamsMeeting',
+                'ZoomMeeting' => 'ZoomMeeting',
+                'BigBlueButtonMeeting' => 'BigBlueButtonMeeting'
+            ];
+            $options = array(
+                    'noselectionstring' => get_string('nocfnameselected', 'booking'),
+                    'tags' => true
+            );
+            $mform->addElement('autocomplete', 'customfieldname' . $counter, get_string('customfieldname', 'booking'), $cfnames, $options);
+            if (!empty($CFG->formatstringstriptags)) {
+                $mform->setType('customfieldname' . $counter, PARAM_TEXT);
+            } else {
+                $mform->setType('customfieldname' . $counter, PARAM_CLEANHTML);
+            }
+            $mform->setDefault('customfieldname' . $counter, null);
             $mform->addHelpButton('customfieldname' . $counter, 'customfieldname', 'booking');
             $mform->hideIf('customfieldname' . $counter, 'addcustomfield' . $counter, 'notchecked');
+
+            //$mform->addElement('text', 'customfieldname' . $counter, get_string('customfieldname', 'booking'));
+            //$mform->setType('customfieldname' . $counter, PARAM_TEXT);
+            //$mform->setDefault('customfieldname' . $counter, '');
+            //$mform->addHelpButton('customfieldname' . $counter, 'customfieldname', 'booking');
+            //$mform->hideIf('customfieldname' . $counter, 'addcustomfield' . $counter, 'notchecked');
 
             $mform->addElement('textarea', 'customfieldvalue' . $counter, get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
             $mform->setType('customfieldvalue' . $counter, PARAM_RAW);
