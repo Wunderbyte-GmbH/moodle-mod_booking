@@ -275,6 +275,10 @@ class mod_booking_mod_form extends moodleform_mod {
         // Add the fields to allow editing of the default text.
         $editoroptions = array('subdirs' => false, 'maxfiles' => 0, 'maxbytes' => 0,
             'trusttext' => false, 'context' => $context);
+
+        // TODO: find out if it's necessary to add new placeholders to this fieldmapping: ...
+        // TODO: {bookingdetails}, {gotobookingoption}, {changes}, {usercalendarurl}, {coursecalendarurl}
+        // TODO: Right now, it seems to work without it.
         $fieldmapping = (object) array('status' => '{status}', 'participant' => '{participant}',
             'title' => '{title}', 'duration' => '{duration}', 'starttime' => '{starttime}',
             'endtime' => '{endtime}', 'startdate' => '{startdate}', 'enddate' => '{enddate}',
