@@ -321,6 +321,17 @@ $string['shorturl'] = 'Short URL of this option';
 $string['generatenewurl'] = 'Generate new short url';
 $string['notes'] = 'Booking notes';
 
+// Mail templates (instance specific or global).
+$string['mailtemplatesadvanced'] = 'Activate advanced settings for e-mail templates';
+$string['mailtemplatessource'] = 'Set source of mail templates';
+$string['mailtemplatessource_help'] = '<b>Caution:</b> If you choose global e-mail templates, the instance-specific mail 
+templates will be overwritten with the e-mail templates specified in the booking plugin settings. Please make sure that 
+there are existing e-mail templates in the booking settings for each e-mail type.<br><br>
+If you choose the "reset" option, then all mail templates will be overwritten with their default values.';
+$string['mailtemplatesinstance'] = 'Use mail templates from this booking instance (default)';
+$string['mailtemplatesglobal'] = 'Use global mail templates from plugin settings';
+$string['mailtemplatesreset'] = 'Reset mail templates to defaults';
+
 $string['addnewlocation'] = "Add new location";
 
 $string['pollurlteachers_help'] = 'You can use any of the following placeholders in the text:

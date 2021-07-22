@@ -284,6 +284,18 @@ $string['shorturl'] = 'Verkürzter Link zu dieser Buchungsoption';
 $string['generatenewurl'] = 'Neue Kurz-URL generieren';
 $string['notes'] = 'Anmerkungen zur Buchung';
 
+// Mail templates (Instanz-spezifisch oder global).
+$string['mailtemplatesadvanced'] = 'Erweiterte Einstelllungen für E-Mail-Vorlagen aktivieren';
+$string['mailtemplatessource'] = 'Quelle von E-Mail-Vorlagen festlegen';
+$string['mailtemplatessource_help'] = '<b>Achtung:</b> Wenn Sie globale E-Mail-Vorlagen wählen, werden die Instanz-spezifischen 
+E-Mail-Vorlagen beim Speichern mit den E-Mail-Vorlagen überschrieben, die in den Einstellungen des Buchungs-Plugins angelegt
+wurden. Bitte stellen Sie sicher, dass zu allen E-Mail-Typen eine Vorlage vorhanden ist.<br><br>
+Wenn Sie die Option "zurücksetzen" verwenden, werden alle E-Mail-Vorlagen beim Speichern auf die Standard-Werte
+zurückgesetzt.';
+$string['mailtemplatesinstance'] = 'E-Mail-Vorlagen aus dieser Buchungsinstanz verwenden (Standard)';
+$string['mailtemplatesglobal'] = 'Globale E-Mail-Vorlagen aus den Plugin-Einstellungen verwenden';
+$string['mailtemplatesreset'] = 'E-Mail-Vorlagen auf Standard-Werte zurücksetzen';
+
 $string['addnewlocation'] = "Neuen Ort hinzufügen";
 
 $string['pollurlteachers_help'] = 'Folgende Platzhalter können im Text verwendet werden:
