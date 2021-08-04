@@ -36,7 +36,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         // Define each element separated.
         $booking = new backup_nested_element('booking', array('id'),
-                array('course', 'name', 'intro', 'introformat', 'bookingmanager', 'sendmail',
+                array('course', 'name', 'intro', 'introformat', 'bookingmanager', 'mailtemplatessource', 'sendmail',
                     'copymail', 'allowupdate', 'bookingpolicy', 'bookingpolicyformat', 'timeopen',
                     'timeclose', 'timemodified',
                     'autoenrol', 'bookedtext', 'waitingtext', 'statuschangetext', 'deletedtext', 'bookingchangedtext',

@@ -272,24 +272,20 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('bookingmanager', $USER->username);
         $mform->addRule('bookingmanager', null, 'required', null, 'client');
 
-        $mform->addElement('checkbox', 'cbmailtemplatessource', get_string('mailtemplatesadvanced', 'booking'));
-
         // Let the user choose between instance specific or global mail templates.
         // Options to show booking descriptions (inline or via modal info links).
         $mailtemplatessource = array();
         $mailtemplatessource[0] = get_string('mailtemplatesinstance', 'booking');
         $mailtemplatessource[1] = get_string('mailtemplatesglobal', 'booking');
-        $mailtemplatessource[2] = get_string('mailtemplatesreset', 'booking');
         $mform->addElement('select', 'mailtemplatessource', get_string('mailtemplatessource', 'booking'), $mailtemplatessource);
         $mform->setDefault('mailtemplatessource', 0); // Instance specific mail templates are the default.
         $mform->addHelpButton('mailtemplatessource', 'mailtemplatessource', 'booking');
         $mform->setType('mailtemplatessource', PARAM_INT);
-        $mform->hideIf('mailtemplatessource', 'cbmailtemplatessource', 'notchecked');
 
         // Add the fields to allow editing of the default text.
         $editoroptions = array('subdirs' => false, 'maxfiles' => 0, 'maxbytes' => 0,
             'trusttext' => false, 'context' => $context);
-        
+
         $fieldmapping = (object) array('status' => '{status}', 'participant' => '{participant}',
             'title' => '{title}', 'duration' => '{duration}', 'starttime' => '{starttime}',
             'endtime' => '{endtime}', 'startdate' => '{startdate}', 'enddate' => '{enddate}',

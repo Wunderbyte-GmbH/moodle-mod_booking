@@ -2153,6 +2153,7 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2021061603, 'booking');
     }
+
     if ($oldversion < 2021062100) {
 
         // Define table booking_category to be created.
@@ -2246,6 +2247,22 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2021070100, 'booking');
+    }
+
+    if ($oldversion < 2021080400) {
+
+        // Define field mailtemplatessource to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('mailtemplatessource', XMLDB_TYPE_INTEGER, '1', null,
+            null, null, '0', 'bookingmanager');
+
+        // Conditionally launch add field mailtemplatessource.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2021080400, 'booking');
     }
 
     return true;

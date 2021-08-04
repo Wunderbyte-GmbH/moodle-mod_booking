@@ -2015,9 +2015,8 @@ function booking_sendpollurlteachers(\mod_booking\booking_option $booking, $cmid
 
         $pollurlmessage = booking_get_email_body($booking->booking->settings, 'pollurlteacherstext',
                 'pollurlteacherstextmessage', $params);
+
         $booking->booking->settings->pollurlteacherstext = $pollurlmessage;
-        $pollurlmessage = booking_get_email_body($booking->booking->settings, 'pollurlteacherstext',
-                'pollurlteacherstextmessage', $params);
 
         $eventdata = new stdClass();
         $eventdata->modulename = 'booking';
@@ -2489,17 +2488,29 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
 /**
  * Generate the email body based on the activity settings and the booking parameters
  *
- * @param object $booking the booking activity object
+ * @param object $bookingsettings the settings of the booking activity
  * @param string $fieldname the name of the field that contains the custom text
  * @param string $defaultname the name of the default string
  * @param object $params the booking details
  * @return string
  */
-function booking_get_email_body($booking, $fieldname, $defaultname, $params) {
-    if (empty($booking->$fieldname)) {
+function booking_get_email_body($bookingsettings, $fieldname, $defaultname, $params) {
+
+    // List of fieldnames that have a corresponding global mail template.
+    $mailtemplatesfieldnames = [
+        'bookedtext', 'waitingtext', 'notifyemail', 'statuschangetext', 'userleave',
+        'deletedtext', 'bookingchangedtext', 'pollurltext', 'pollurlteacherstext'
+    ];
+
+    // Check if global mail templates are enabled and if the field name also has a global mail template.
+    if (isset($bookingsettings->mailtemplatessource) && $bookingsettings->mailtemplatessource == 1
+        && in_array($fieldname, $mailtemplatesfieldnames)) {
+        // Get the mail template specified in plugin config.
+        $text = get_config('booking', 'global' . $fieldname);
+    } else if (empty($bookingsettings->$fieldname)) {
         $text = get_string($defaultname, 'booking', $params);
     } else {
-        $text = $booking->$fieldname;
+        $text = $bookingsettings->$fieldname;
     }
 
     foreach ($params as $name => $value) {
