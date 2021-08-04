@@ -371,9 +371,18 @@ class booking_utils {
                 $button = get_string('pleasereturnlater', 'booking');
             }
 
+            $availableplaces = "<div class='col-ap-availableplaces'>" . get_string("availableplaces", "booking", $places) . "</div>";
 
-            return $button . $booked . $delete . "<div class='col-ap-availableplaces'>" . get_string("availableplaces", "booking", $places) .
-                    "</div><div class='col-ap-waitingplacesavailable'>" . get_string("waitingplacesavailable", "booking", $places) . "</div>" . $manage;
+            // Check if checkbox for waiting list info texts in plugin config is activated.
+            if (get_config('booking', 'waitinglistinfotexts')) {
+                // TODO: implement info texts based on percentage in config field waitinglistlowpercentage
+                // TODO: use $places->overbookingavailable / $places->maxoverbooking
+                $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" . get_string("waitingplacesavailable", "booking", $places) . "</div>";
+            } else {
+                $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" . get_string("waitingplacesavailable", "booking", $places) . "</div>";
+            }
+
+            return $button . $booked . $delete . $availableplaces . $waitingplaces . $manage;
         }
     }
 
