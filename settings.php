@@ -201,6 +201,36 @@ if ($ADMIN->fulltree) {
     // TODO: Is this needed in global mail templates?
     // TODO: Find out, if mails will be sent for activity completion.
     // $settings->add(new admin_setting_confightmleditor('globalactivitycompletiontext', get_string('globalactivitycompletiontext', 'booking'), '', ''));
+
+    $settings->add(
+        new admin_setting_heading('waitinglistinfotexts_heading',
+            get_string('waitinglistinfotexts_heading', 'mod_booking'), ''));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/waitinglistinfotexts',
+            get_string('waitinglistinfotexts', 'mod_booking'),
+            get_string('waitinglistinfotexts_info', 'booking'), 0));
+
+    $waitinglistlowpercentages = [
+        5 => ' 5%',
+        10 => '10%',
+        15 => '15%',
+        20 => '20%',
+        30 => '30%',
+        40 => '40%',
+        50 => '50%',
+        60 => '60%',
+        70 => '70%',
+        80 => '80%',
+        90 => '90%',
+        100 => '100%'
+    ];
+
+    $settings->add(
+        new admin_setting_configselect('booking/waitinglistlowpercentage',
+            get_string('waitinglistlowpercentage', 'booking'),
+            get_string('waitinglistlowpercentagedesc', 'booking'),
+            20, $waitinglistlowpercentages));
 }
 
 $ADMIN->add('modbookingfolder',

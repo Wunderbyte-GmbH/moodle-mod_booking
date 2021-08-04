@@ -1335,6 +1335,12 @@ $string['numberrowsdesc'] = 'Number each row of the sign-in sheet. Number will b
 $string['multiicalfiles'] = 'Attach one iCal file per date for MS Outlook 2010 compatibility';
 $string['multiicalfilesdesc'] = 'Only MS Outlook 2010 does not support multiple dates within one iCal file. Previous and later version do support it (Ex. Outlook365). If you want to send MS Outlook compatible dates, then activate this option in order to attach multiple iCal files (one per date/event)';
 
+$string['waitinglistinfotexts_heading'] = 'Waiting list availability info texts';
+$string['waitinglistinfotexts'] = 'Show waiting list availability info texts';
+$string['waitinglistinfotexts_info'] = 'Show short info messages instead of the number of available spots.';
+$string['waitinglistlowpercentage'] = 'Percentage for waiting list low message';
+$string['waitinglistlowpercentagedesc'] = 'If the available spots get below this percentage a waiting list low message will be shown.';
+
 // Mobile
 $string['next'] = 'Next';
 $string['previous'] = 'Previous';

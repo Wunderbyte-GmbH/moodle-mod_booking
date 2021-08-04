@@ -1105,6 +1105,12 @@ $string['numberrowsdesc'] = 'Nummerierung der Zeilen in der Unterschriftenliste 
 $string['multiicalfiles'] = 'Pro Event/Termin eine iCal-Datei anhängen um Kompatibilität mit MS Outlook 2010 zu gewährleisten.';
 $string['multiicalfilesdesc'] = 'MS Outlook unterstützt keine Mehrfach-Termine in einer-Datei. Um mehrere Termine auch in Outlook importieren zu können, muss pro Termin eine Datei angehängt werden. Es werden dann in einem Mail mehrere iCal-Dateien angehängt.';
 
+$string['waitinglistinfotexts_heading'] = 'Beschreibungstexte für verfügbare Wartelistenplätze';
+$string['waitinglistinfotexts'] = 'Beschreibungstexte für verfügbare Wartelistenplätze anzeigen';
+$string['waitinglistinfotexts_info'] = 'Kurze Infotexte anstatt der konkreten Zahl verfügbarer Wartelistenplätze anzeigen.';
+$string['waitinglistlowpercentage'] = 'Prozentsatz für "Nur noch wenige Plätze verfügbar"-Nachricht';
+$string['waitinglistlowpercentagedesc'] = 'Wenn die Anzahl verfügbarer Plätze unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';
+
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
 $string['defaulttemplate'] = 'Standard-Vorlage';
