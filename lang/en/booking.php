@@ -69,6 +69,7 @@ $string['bookingtext'] = 'Booking text';
 $string['datenotset'] = 'Date not set';
 $string['daystonotify'] = 'Number of days in advance of the event-start to notify participants';
 $string['daystonotify2'] = 'Second notification before start of event to notify participants.';
+$string['daystonotifyteachers'] = 'Number of days in advance of the event-start to notify teachers';
 $string['eventbooking_cancelled'] = 'Booking cancelled';
 $string['eventbookingoption_booked'] = 'Booking option booked';
 $string['eventbookingoption_completed'] = 'Booking option completed';
@@ -487,6 +488,38 @@ $string['waitingtext_help'] = 'Leave this blank to use the site default text. Yo
 </ul>';
 
 $string['notifyemail_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+<ul>
+<li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
+<li>{gotobookingoption} - Link to booking option</li>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{email} - User email</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+<li>{teacher}</li>
+<li>{teacherN} - N is number of teacher ex. {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - Insert QR code with user id</li>
+<li>{qr_username} - Insert QR code with user username</li>
+<li>{times} - Session times</li>
+<li>{shorturl} - Short URL of option</li>
+<li>{usercalendarurl} - Link to subscribe to user calendar (personal events)</li>
+<li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
+</ul>';
+
+$string['notifyemailteachers_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
 <ul>
 <li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
 <li>{gotobookingoption} - Link to booking option</li>
@@ -988,8 +1021,7 @@ To view all your booked courses click on the following link: {$a->bookinglink}
 
 ';
 
-$string['notifyemaildefaultmessage'] = 'Your booking has been registered
-
+$string['notifyemaildefaultmessage'] = 'Your booking will start soon:
 
 Booking status: {$a->status}
 Participant: {$a->participant}
@@ -997,9 +1029,18 @@ Booking option: {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 To view all your booked courses click on the following link: {$a->bookinglink}
 The associated course can be found here: {$a->courselink}
-
 ';
-$string['notifyemail'] = 'Notification before start';
+$string['notifyemail'] = 'Participant notification before start';
+
+$string['notifyemailteachersdefaultmessage'] = 'Your booking will start soon:
+
+Booking option: {$a->title}
+Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+
+To view all your booked courses click on the following link: {$a->bookinglink}
+The associated course can be found here: {$a->courselink}
+';
+$string['notifyemailteachers'] = 'Teacher notification before start';
 
 $string['userleavebookedsubject'] = 'You successfully unsubscribed from {$a->title}';
 $string['userleavebookedmessage'] = 'Hello {$a->participant},
@@ -1267,7 +1308,8 @@ $string['linkgotobookingoption'] = 'Go to booked option: {$a}</a>';
 $string['globalmailtemplates'] = 'Global mail templates';
 $string['globalbookedtext'] = 'Booking confirmation (global template)';
 $string['globalwaitingtext'] = 'Waiting list confirmation (global template)';
-$string['globalnotifyemail'] = 'Notification before start (global template)';
+$string['globalnotifyemail'] = 'Participant notification before start (global template)';
+$string['globalnotifyemailteachers'] = 'Teacher notification before start (global template)';
 $string['globalstatuschangetext'] = 'Status change message (global template)';
 $string['globaluserleave'] = 'User has cancelled his/her own booking (global template)';
 $string['globaldeletedtext'] = 'Cancelled booking message (global template)';

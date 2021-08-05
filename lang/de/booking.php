@@ -54,6 +54,7 @@ $string['bookingoptionsmenu'] = 'Buchungsoptionen';
 $string['bookingtext'] = 'Buchungsbeschreibung';
 $string['datenotset'] = 'Datum nicht angegeben';
 $string['daystonotify'] = 'Wie viele Tage vor Kursbeginn soll an die Teilnehmenden eine Benachrichtigung gesendet werden?';
+$string['daystonotifyteachers'] = 'Wie viele Tage vor Kursbeginn soll an die Trainer/innen eine Benachrichtigung gesendet werden?';
 $string['eventbooking_cancelled'] = 'Buchung wurde storniert';
 $string['eventbookingoption_booked'] = 'Buchung durchgeführt';
 $string['eventbookingoption_completed'] = 'Buchung abgeschlossen.';
@@ -232,6 +233,11 @@ $string['tagtext'] = 'Schlagwort-Text';
 $string['wrongdataallfields'] = 'Bitte alle Felder ausfüllen!';
 $string['tagsuccessfullysaved'] = 'Schlagwort erfolgreich gespeichert.';
 $string['edittag'] = 'Bearbeiten';
+
+// mod_booking\all_options
+$string['showdescription'] = 'Beschreibung anzeigen';
+$string['hidedescription'] = 'Beschreibung verstecken';
+$string['editteacherslink'] = 'Trainer/innen bearbeiten';
 
 // Mod_form.
 $string['signinlogoheader'] = 'Logo in der Kopfzeile auf der Unterschriftenliste';
@@ -807,8 +813,24 @@ Ihr Buchungsstatus: {$a->status}
 Name:   {$a->participant}
 Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf folgenden Link:
 {$a->bookinglink}
-
 ';
+
+$string['notifyemaildefaultmessage'] = 'Ihre Buchung startet demnächst:
+
+{$a->bookingdetails}
+
+Name:   {$a->participant}
+
+Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf den folgenden Link:
+{$a->bookinglink}
+';
+$string['notifyemail'] = 'Teilnehmer/innen-Benachrichtigung vor dem Beginn';
+
+$string['notifyemailteachersdefaultmessage'] = 'Ihre Buchung startet demnächst:
+
+{$a->bookingdetails}
+';
+$string['notifyemailteachers'] = 'Lehrer/innen-Benachrichtigung vor dem Beginn';
 
 $string['userleavebookedsubject'] = 'Sie wurden erfolgreich abgemeldet von: {$a->title}';
 $string['userleavebookedmessage'] = 'Hallo {$a->participant},
@@ -1040,7 +1062,8 @@ $string['nocfnameselected'] = "Nichts ausgewählt. Tippen Sie einen neuen Namen 
 $string['globalmailtemplates'] = 'Globale Mailvorlagen';
 $string['globalbookedtext'] = 'Buchungsbestätigung (globale Vorlage)';
 $string['globalwaitingtext'] = 'Wartelistenbestätigung (globale Vorlage)';
-$string['globalnotifyemail'] = 'Benachrichtigung vor dem Beginn (globale Vorlage)';
+$string['globalnotifyemail'] = 'Teilnehmer/innen-Benachrichtigung vor dem Beginn (globale Vorlage)';
+$string['globalnotifyemailteachers'] = 'Lehrer/innen-Benachrichtigung vor dem Beginn (globale Vorlage)';
 $string['globalstatuschangetext'] = 'Benachrichtigung über Statusänderung (globale Vorlage)';
 $string['globaluserleave'] = 'Nutzer/in hat Buchung storniert (globale Vorlage)';
 $string['globaldeletedtext'] = 'Stornierungsbenachrichtigung (globale Vorlage)';
