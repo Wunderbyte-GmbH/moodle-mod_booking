@@ -1029,4 +1029,6 @@ class booking_utils {
         global $CFG, $DB;
         return sha1($user->id . $DB->get_field('user', 'password', ['id' => $user->id]) . $CFG->calendar_exportsalt);
     }
+
+
 }

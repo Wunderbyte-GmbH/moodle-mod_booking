@@ -49,14 +49,31 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
 
 $mform = new option_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context));
 
+// Duplicate this booking option.
 if ($optionid == -1 && $copyoptionid != 0) {
     // Adding new booking option - default values.
     $defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid));
+    $oldoptionid = $defaultvalues->id;
     $defaultvalues->text = $defaultvalues->text . get_string('copy', 'booking');
     $defaultvalues->optionid = -1;
     $defaultvalues->bookingname = $booking->settings->name;
     $defaultvalues->bookingid = $cm->instance;
     $defaultvalues->id = $cm->id;
+
+    // Create a new duplicate of the old booking option.
+    $optionid = booking_update_options($defaultvalues, $context);
+    $defaultvalues->optionid = $optionid;
+
+    // If there are associated teachers, let's duplicate them too.
+    $teacherstocopy = $DB->get_records('booking_teachers', ['bookingid' => $cm->instance, 'optionid' => $oldoptionid]);
+
+    // For each copied teacher change the old optionid to the new one and unset the old id.
+    foreach ($teacherstocopy as $teachertocopy) {
+        unset($teachertocopy->id);
+        $teachertocopy->optionid = $optionid;
+        $DB->insert_record('booking_teachers', $teachertocopy);
+    }
+
 } else if ($optionid > 0 && $defaultvalues = $DB->get_record('booking_options', array('bookingid' => $booking->settings->id, 'id' => $optionid))) {
     $defaultvalues->optionid = $optionid;
     $defaultvalues->bookingname = $booking->settings->name;
