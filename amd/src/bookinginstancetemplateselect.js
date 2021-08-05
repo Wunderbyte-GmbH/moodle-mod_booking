@@ -77,6 +77,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $('#id_daystonotify').val(obj.daystonotify);
                             $('#id_daystonotify2').val(obj.daystonotify2);
                             // TODO: bookingmanager
+                            $('#id_mailtemplatessource').val(obj.mailtemplatessource);
                             $('#id_bookedtexteditable').html(obj.bookedtext);
                             $('#id_waitingtexteditable').html(obj.waitingtext);
                             $('#id_notifyemaileditable').html(obj.notifyemail);
