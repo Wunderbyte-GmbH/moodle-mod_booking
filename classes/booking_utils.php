@@ -366,7 +366,6 @@ class booking_utils {
                     $values->maxoverbooking - $values->waiting);
 
             // Add string when no booking is possible.
-
             if (strlen($button . $delete . $booked) == 0) {
                 $button = get_string('pleasereturnlater', 'booking');
             }
@@ -374,11 +373,23 @@ class booking_utils {
             $availableplaces = "<div class='col-ap-availableplaces'>" . get_string("availableplaces", "booking", $places) . "</div>";
 
             // Check if checkbox for waiting list info texts in plugin config is activated.
-            if (get_config('booking', 'waitinglistinfotexts')) {
-                // TODO: implement info texts based on percentage in config field waitinglistlowpercentage
-                // TODO: use $places->overbookingavailable / $places->maxoverbooking
-                $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" . get_string("waitingplacesavailable", "booking", $places) . "</div>";
+            if (get_config('booking', 'waitinglistinfotexts') && $places->maxoverbooking != 0) {
+
+                $waitinglistlowpercentage = get_config('booking', 'waitinglistlowpercentage');
+                $actualpercentage = ($places->overbookingavailable / $places->maxoverbooking) * 100;
+
+                if ($places->overbookingavailable == 0) {
+                    // No places left.
+                    $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" . get_string("waitinglistfullmessage", "booking") . "</div>";
+                } else if ($actualpercentage <= $waitinglistlowpercentage) {
+                    // Only a few places left.
+                    $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" . get_string("waitinglistlowmessage", "booking") . "</div>";
+                } else {
+                    // Still enough places left.
+                    $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" . get_string("waitinglistenoughmessage", "booking") . "</div>";
+                }
             } else {
+                // If waiting list info text are not active, show the actual numbers instead.
                 $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" . get_string("waitingplacesavailable", "booking", $places) . "</div>";
             }
 

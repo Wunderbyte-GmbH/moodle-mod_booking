@@ -1337,9 +1337,12 @@ $string['multiicalfilesdesc'] = 'Only MS Outlook 2010 does not support multiple 
 
 $string['waitinglistinfotexts_heading'] = 'Waiting list availability info texts';
 $string['waitinglistinfotexts'] = 'Show waiting list availability info texts';
-$string['waitinglistinfotexts_info'] = 'Show short info messages instead of the number of available spots.';
+$string['waitinglistinfotexts_info'] = 'Show short info messages instead of the number of available places.';
 $string['waitinglistlowpercentage'] = 'Percentage for waiting list low message';
-$string['waitinglistlowpercentagedesc'] = 'If the available spots get below this percentage a waiting list low message will be shown.';
+$string['waitinglistlowpercentagedesc'] = 'If the available places on the waiting list reach or get below this percentage a waiting list low message will be shown.';
+$string['waitinglistlowmessage'] = 'Only a few places on the waiting list are left.';
+$string['waitinglistenoughmessage'] = 'Still enough places on the waiting list available.';
+$string['waitinglistfullmessage'] = 'No places available on the waiting list.';
 
 // Mobile
 $string['next'] = 'Next';

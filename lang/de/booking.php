@@ -1109,7 +1109,10 @@ $string['waitinglistinfotexts_heading'] = 'Beschreibungstexte für verfügbare W
 $string['waitinglistinfotexts'] = 'Beschreibungstexte für verfügbare Wartelistenplätze anzeigen';
 $string['waitinglistinfotexts_info'] = 'Kurze Infotexte anstatt der konkreten Zahl verfügbarer Wartelistenplätze anzeigen.';
 $string['waitinglistlowpercentage'] = 'Prozentsatz für "Nur noch wenige Plätze verfügbar"-Nachricht';
-$string['waitinglistlowpercentagedesc'] = 'Wenn die Anzahl verfügbarer Plätze unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';
+$string['waitinglistlowpercentagedesc'] = 'Wenn die Anzahl verfügbarer Plätze auf der Warteliste diesen Prozentsatz erreicht oder unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';
+$string['waitinglistlowmessage'] = 'Nur noch wenige Plätze auf der Warteliste verfügbar.';
+$string['waitinglistenoughmessage'] = 'Noch ausreichend Plätze auf der Warteliste verfügbar.';
+$string['waitinglistfullmessage'] = 'Keine Wartelistenplätze mehr verfügbar.';
 
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
