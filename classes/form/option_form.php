@@ -415,7 +415,9 @@ class option_form extends moodleform {
             $errors['text'] = get_string('groupexists', 'booking');
         }
 
-        if ($data['optionid'] == -1) {
+        // Allow duplicate option names. So comment this out.
+        // TODO: Should we remove this completely?
+        /* if ($data['optionid'] == -1) {
             // To prevent duplicate option names when creating a new booking option.
             if ($DB->record_exists('booking_options', array('text' => $data['text'], 'bookingid' => $data['bookingid']))) {
                 $errors['text'] = get_string('duplicatename', 'mod_booking');
@@ -429,7 +431,7 @@ class option_form extends moodleform {
             if ($DB->record_exists_sql($sql, $params)) {
                 $errors['text'] = get_string('duplicatename', 'mod_booking');
             }
-        }
+        } */
 
         return $errors;
     }
