@@ -22,6 +22,10 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
+const MAIL_NOTIFICATION_PARTICIPANTS = 1;
+const MAIL_NOTIFICATION_PARTICIPANTS_SESSIONS = 2;
+const MAIL_NOTIFICATION_TEACHERS = 3;
+
 class send_reminder_mails extends \core\task\scheduled_task {
 
     public function get_name() {
@@ -49,7 +53,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
             // Check if first notification is sent already.
             if ($record->sent == 0) {
 
-                if ($this->send_notification($record, $record->daystonotify)) {
+                if ($this->send_notification($record, $record->daystonotify, MAIL_NOTIFICATION_PARTICIPANTS)) {
                     $save = new stdClass();
                     $save->id = $record->id;
                     $save->sent = 1;
@@ -59,7 +63,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
 
             // Check if second notification is sent already.
             if ($record->sent2 == 0) {
-                if ($this->send_notification($record, $record->daystonotify2)) {
+                if ($this->send_notification($record, $record->daystonotify2, MAIL_NOTIFICATION_PARTICIPANTS)) {
                     $save = new stdClass();
                     $save->id = $record->id;
                     $save->sent2 = 1;
@@ -68,7 +72,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
             }
         }
 
-        // Now let's check if reminders for sessions need to be sent.
+        // Now let's check if reminders for sessions (optiondates) need to be sent.
         $now = time();
         $sessionstoprocess = $DB->get_records_sql(
            'SELECT bod.id, bod.coursestarttime, bod.daystonotify, bod.sent
@@ -84,13 +88,42 @@ class send_reminder_mails extends \core\task\scheduled_task {
             // Check if session notification has been sent already.
             if ($sessionrecord->sent == 0) {
 
-                if ($this->send_notification($sessionrecord, $sessionrecord->daystonotify, true)) {
+                if ($this->send_notification($sessionrecord, $sessionrecord->daystonotify, MAIL_NOTIFICATION_PARTICIPANTS_SESSIONS)) {
                     $save = new stdClass();
                     $save->id = $sessionrecord->id;
                     $save->sent = 1;
                     $DB->update_record("booking_optiondates", $save);
                 }
             }
+        }
+
+        // Teacher notifications.
+        $now = time();
+        $toprocess = $DB->get_records_sql(
+            'SELECT bo.id, bo.coursestarttime, b.daystonotifyteachers, bo.sentteachers
+            FROM {booking_options} bo
+            LEFT JOIN {booking} b ON b.id = bo.bookingid
+            WHERE b.daystonotifyteachers > 0
+            AND bo.coursestarttime > 0  AND bo.coursestarttime > :now
+            AND bo.sentteachers = 0', array('now' => $now));
+
+        if (count($toprocess) > 0)  {
+            echo "send_reminder_mails task: send teacher notifications - START" . "\n";
+            foreach ($toprocess as $record) {
+
+                echo json_encode($record) . "\n";
+
+                // Check if teacher notification has been sent already.
+                if ($record->sentteachers == 0) {
+                    if ($this->send_notification($record, $record->daystonotifyteachers, MAIL_NOTIFICATION_TEACHERS)) {
+                        $save = new stdClass();
+                        $save->id = $record->id;
+                        $save->sentteachers = 1;
+                        $DB->update_record("booking_options", $save);
+                    }
+                }
+            }
+            echo "send_reminder_mails task: send teacher notifications - DONE" . "\n";
         }
     }
 
@@ -100,17 +133,49 @@ class send_reminder_mails extends \core\task\scheduled_task {
      * @param $record
      * @param $daystonotify
      * @param bool $issession false for option (default), true for sessions (optiondates)
+     * @param array $tousers an array of user ids to receive the notification (for teacher notification this should be an array of the teacher ids)
      * @return bool
      */
-    private function send_notification($record, $daystonotify, $issession = false) {
+    private function send_notification($record, $daystonotify, $notificationmailparam = MAIL_NOTIFICATION_PARTICIPANTS) {
+        global $DB;
         $now = time();
         $timetosend = strtotime('-' . $daystonotify . ' day', $record->coursestarttime);
         if ($timetosend < $now) {
-            // Use a different subject for session reminder mails.
-            $subject = $issession ? get_string('sessionremindermailsubject', 'booking') : get_string('notificationsubject', 'booking');
-            booking_send_notification($record->id, $subject, array(), $issession);
+
+            switch ($notificationmailparam) {
+                case MAIL_NOTIFICATION_PARTICIPANTS_SESSIONS:
+
+                    $subject = get_string('sessionremindermailsubject', 'booking');
+                    booking_send_notification($record->id, $subject, array(), true, false);
+
+                    break;
+
+                case MAIL_NOTIFICATION_TEACHERS:
+
+                    // Get an array of teacher ids for the booking option.
+                    $teachers = $DB->get_records('booking_teachers', ['optionid' => $record->id]);
+                    $teacherids = [];
+                    foreach ($teachers as $teacher) {
+                        $teacherids[] = $teacher->userid;
+                    }
+
+                    $subject = get_string('notificationsubject', 'booking');
+                    booking_send_notification($record->id, $subject, $teacherids, false, true);
+
+                    break;
+
+                case MAIL_NOTIFICATION_PARTICIPANTS:
+                default:
+
+                    $subject = get_string('notificationsubject', 'booking');
+                    booking_send_notification($record->id, $subject, array(), false, false);
+
+                    break;
+            }
             mtrace('booking - send notification triggered');
+
             return true;
+
         } else {
             return false;
         }

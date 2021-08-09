@@ -54,6 +54,8 @@ $string['bookingoptionsmenu'] = 'Buchungsoptionen';
 $string['bookingtext'] = 'Buchungsbeschreibung';
 $string['datenotset'] = 'Datum nicht angegeben';
 $string['daystonotify'] = 'Wie viele Tage vor Kursbeginn soll an die Teilnehmenden eine Benachrichtigung gesendet werden?';
+$string['daystonotify_help'] = "Funktioniert nur, wenn ein Beginn- und Enddatum für die Buchungsoption gesetzt sind. Wenn Sie 0 eingeben, wird die Benachrichtigung deaktiviert.";
+$string['daystonotify2'] = 'Zweite Teilnehmerbenachrichtigung vor Veranstaltungsbeginn';
 $string['daystonotifyteachers'] = 'Wie viele Tage vor Kursbeginn soll an die Trainer/innen eine Benachrichtigung gesendet werden?';
 $string['eventbooking_cancelled'] = 'Buchung wurde storniert';
 $string['eventbookingoption_booked'] = 'Buchung durchgeführt';
@@ -75,7 +77,7 @@ $string['myoptions'] = 'Von mir verwaltete Buchungsoptionen';
 $string['noguestchoose'] = 'Gäste dürfen keine Buchungen vornehmen';
 $string['noresultsviewable'] = 'Die Ergebnisse sind momentan nicht einsehbar';
 $string['nosubscribers'] = 'Keine Trainer/innen zugewiesen!';
-$string['notificationsubject'] = 'Demnächst stattfindender Kurs';
+$string['notificationsubject'] = 'Erinnerung: Ihr Kurs startet bald!';
 $string['notopenyet'] = 'Diese Aktivität ist bis {$a} nicht verfügbar';
 $string['pluginadministration'] = 'Booking administration';
 $string['pluginname'] = 'Booking';
@@ -423,6 +425,70 @@ $string['waitingtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext 
 <ul>
 <li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
 <li>{gotobookingoption} - Link zur Buchungsoption</li>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+<li>{teacher}</li>
+<li>{teacherN} - N ist die Trainernummer. Zum Beispiel: {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - QR Code der Userid einfügen</li>
+<li>{qr_username} - QR Code des Usernamen einfügen</li>
+<li>{times} - Sessions (bei mehreren Terminen)</li>
+<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
+</ul>';
+
+$string['notifyemail_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
+<ul>
+<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+<li>{gotobookingoption} - Link zur Buchungsoption</li>
+<li>{status}</li>
+<li>{participant}</li>
+<li>{title}</li>
+<li>{duration}</li>
+<li>{starttime}</li>
+<li>{endtime}</li>
+<li>{startdate}</li>
+<li>{enddate}</li>
+<li>{courselink}</li>
+<li>{bookinglink}</li>
+<li>{pollurl}</li>
+<li>{pollurlteachers}</li>
+<li>{location}</li>
+<li>{institution}</li>
+<li>{address}</li>
+<li>{eventtype}</li>
+<li>{teacher}</li>
+<li>{teacherN} - N ist die Trainernummer. Zum Beispiel: {teacher1}</li>
+<li>{pollstartdate}</li>
+<li>{qr_id} - QR Code der Userid einfügen</li>
+<li>{qr_username} - QR Code des Usernamen einfügen</li>
+<li>{times} - Sessions (bei mehreren Terminen)</li>
+<li>{shorturl} - Verkürzte URL der Buchungsoption</li>
+<li>{usercalendarurl} - Link zum Abonnieren des User-Kalenders (persönliche Ereignisse)</li>
+<li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
+</ul>';
+
+$string['notifyemailteachers_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
+<ul>
+<li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
+<li>{gotobookingoption} - Link zur Buchungsoption</li>
+<li>{numberparticipants} - Anzahl der Teilnehmer/innen (ohne Warteliste)</li>
+<li>{numberwaitinglist} - Anzahl der Teilnehmer/innen auf der Warteliste</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{title}</li>
@@ -823,14 +889,23 @@ Name:   {$a->participant}
 
 Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf den folgenden Link:
 {$a->bookinglink}
+
+Hier geht\'s zum Kurs:  {$a->courselink}
 ';
 $string['notifyemail'] = 'Teilnehmer/innen-Benachrichtigung vor dem Beginn';
 
 $string['notifyemailteachersdefaultmessage'] = 'Ihre Buchung startet demnächst:
 
 {$a->bookingdetails}
+
+Sie haben <b>{$a->numberparticipants} gebuchte Teilnehmer/innen</b> und <b>{$a->numberwaitinglist} Personen auf der Warteliste</b>.
+
+Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf den folgenden Link:
+{$a->bookinglink}
+
+Hier geht\'s zum Kurs:  {$a->courselink}
 ';
-$string['notifyemailteachers'] = 'Lehrer/innen-Benachrichtigung vor dem Beginn';
+$string['notifyemailteachers'] = 'Trainer/innen-Benachrichtigung vor dem Beginn';
 
 $string['userleavebookedsubject'] = 'Sie wurden erfolgreich abgemeldet von: {$a->title}';
 $string['userleavebookedmessage'] = 'Hallo {$a->participant},
@@ -1063,7 +1138,7 @@ $string['globalmailtemplates'] = 'Globale Mailvorlagen';
 $string['globalbookedtext'] = 'Buchungsbestätigung (globale Vorlage)';
 $string['globalwaitingtext'] = 'Wartelistenbestätigung (globale Vorlage)';
 $string['globalnotifyemail'] = 'Teilnehmer/innen-Benachrichtigung vor dem Beginn (globale Vorlage)';
-$string['globalnotifyemailteachers'] = 'Lehrer/innen-Benachrichtigung vor dem Beginn (globale Vorlage)';
+$string['globalnotifyemailteachers'] = 'Trainer/innen-Benachrichtigung vor dem Beginn (globale Vorlage)';
 $string['globalstatuschangetext'] = 'Benachrichtigung über Statusänderung (globale Vorlage)';
 $string['globaluserleave'] = 'Nutzer/in hat Buchung storniert (globale Vorlage)';
 $string['globaldeletedtext'] = 'Stornierungsbenachrichtigung (globale Vorlage)';

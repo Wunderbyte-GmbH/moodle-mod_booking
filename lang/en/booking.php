@@ -68,6 +68,7 @@ $string['bookingopen'] = 'Open';
 $string['bookingtext'] = 'Booking text';
 $string['datenotset'] = 'Date not set';
 $string['daystonotify'] = 'Number of days in advance of the event-start to notify participants';
+$string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
 $string['daystonotify2'] = 'Second notification before start of event to notify participants.';
 $string['daystonotifyteachers'] = 'Number of days in advance of the event-start to notify teachers';
 $string['eventbooking_cancelled'] = 'Booking cancelled';
@@ -93,7 +94,7 @@ $string['myoptions'] = 'Options I manage';
 $string['noguestchoose'] = 'Sorry, guests are not allowed to enter data';
 $string['noresultsviewable'] = 'The results are not currently viewable.';
 $string['nosubscribers'] = 'There are no teachers assigned!';
-$string['notificationsubject'] = 'Upcoming course...';
+$string['notificationsubject'] = 'Reminder: You have an upcoming course';
 $string['notopenyet'] = 'Sorry, this activity is not available until {$a} ';
 $string['pluginadministration'] = 'Booking administration';
 $string['pluginname'] = 'Booking';
@@ -337,6 +338,8 @@ $string['pollurlteachers_help'] = 'You can use any of the following placeholders
 <ul>
 <li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
 <li>{gotobookingoption} - Link to booking option</li>
+<li>{numberparticipants} - Number of participants (without waiting list)</li>
+<li>{numberwaitinglist} - Number of participants on the waiting list</li>
 <li>{status}</li>
 <li>{participant}</li>
 <li>{email} - User email</li>
@@ -872,8 +875,6 @@ $string['aftercompletedtext_help'] = 'Leave this blank to use the site default t
 <li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
-$string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
-
 $string['fields'] = 'Fields to display in different contexts';
 $string['reportfields'] = 'Downlodable responses fields (csv, xls-Download)';
 $string['responsesfields'] = 'Fields on the manage responses page';
@@ -1034,8 +1035,9 @@ $string['notifyemail'] = 'Participant notification before start';
 
 $string['notifyemailteachersdefaultmessage'] = 'Your booking will start soon:
 
-Booking option: {$a->title}
-Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+{$a->bookingdetails}
+
+You have <b>{$a->numberparticipants} booked participants</b> and <b>{$a->numberwaitinglist} people on the waiting list</b>.
 
 To view all your booked courses click on the following link: {$a->bookinglink}
 The associated course can be found here: {$a->courselink}

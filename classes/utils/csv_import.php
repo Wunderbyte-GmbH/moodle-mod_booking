@@ -98,6 +98,7 @@ class csv_import {
         unset($this->columns['groupid']);
         unset($this->columns['sent']);
         unset($this->columns['sent2']);
+        unset($this->columns['sentteachers']);
         unset($this->columns['timemodified']);
         unset($this->columns['calendarid']);
         unset($this->columns['pollsend']);

@@ -347,6 +347,7 @@ function booking_add_instance($booking) {
     $booking->bookedtext = $booking->bookedtext['text'];
     $booking->waitingtext = $booking->waitingtext['text'];
     $booking->notifyemail = $booking->notifyemail['text'];
+    $booking->notifyemailteachers = $booking->notifyemailteachers['text'];
     $booking->statuschangetext = $booking->statuschangetext['text'];
     $booking->deletedtext = $booking->deletedtext['text'];
     $booking->bookingchangedtext = $booking->bookingchangedtext['text'];
@@ -503,6 +504,7 @@ function booking_update_instance($booking) {
     $booking->bookedtext = $booking->bookedtext['text'];
     $booking->waitingtext = $booking->waitingtext['text'];
     $booking->notifyemail = $booking->notifyemail['text'];
+    $booking->notifyemailteachers = $booking->notifyemailteachers['text'];
     $booking->statuschangetext = $booking->statuschangetext['text'];
     $booking->deletedtext = $booking->deletedtext['text'];
     $booking->bookingchangedtext = $booking->bookingchangedtext['text'];
@@ -600,6 +602,7 @@ function booking_update_options($optionvalues, $context) {
 
     $option->sent = 0;
     $option->sent2 = 0;
+    $option->sentteachers = 0;
 
     $option->location = trim($optionvalues->location);
     $option->institution = trim($optionvalues->institution);
@@ -677,11 +680,14 @@ function booking_update_options($optionvalues, $context) {
             if ($coursestarttime != $optionvalues->coursestarttime) {
                 $option->sent = 0;
                 $option->sent2 = 0;
+                $option->sentteachers = 0;
             } else {
                 $option->sent = $DB->get_field('booking_options', 'sent',
                         array('id' => $option->id));
                 $option->sent2 = $DB->get_field('booking_options', 'sent2',
                         array('id' => $option->id));
+                $option->sentteachers = $DB->get_field('booking_options', 'sentteachers',
+                    array('id' => $option->id));
             }
 
             if (isset($booking->addtogroup) && $option->courseid > 0) {
@@ -2133,7 +2139,7 @@ function booking_sendcustommessage(int $optionid, string $subject, string $messa
  * @throws coding_exception
  * @throws dml_exception
  */
-function booking_send_notification($id, $subject, $tousers = array(), $issession = false) {
+function booking_send_notification($id, $subject, $tousers = array(), $issession = false, $isteacher = false) {
     global $DB, $USER, $CFG;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
 
@@ -2143,13 +2149,12 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
     if (!$issession) {
         // Option without sessions.
         $option = $DB->get_record('booking_options', array('id' => $id));
-        $cm = get_coursemodule_from_instance('booking', $option->bookingid);
     } else {
         // Specific session (optiondate).
         $optiondate = $DB->get_record('booking_optiondates', array('id' => $id));
         $option = $DB->get_record('booking_options', array('id' => $optiondate->optionid));
-        $cm = get_coursemodule_from_instance('booking', $option->bookingid);
     }
+    $cm = get_coursemodule_from_instance('booking', $option->bookingid);
 
     $bookingdata = new \mod_booking\booking_option($cm->id, $option->id);
     $bookingdata->apply_tags();
@@ -2178,13 +2183,23 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
             if (!$issession) {
                 $params = booking_generate_email_params($bookingdata->booking->settings, $bookingdata->option,
                     $ruser, $cm->id, $bookingdata->optiontimes, false, false, true);
-                $pollurlmessage = booking_get_email_body($bookingdata->booking->settings, 'notifyemail',
-                    'notifyemaildefaultmessage', $params);
+
+                if ($isteacher) {
+                    // Message for teacher notifications.
+                    $notificationmessage = booking_get_email_body($bookingdata->booking->settings, 'notifyemailteachers',
+                        'notifyemailteachersdefaultmessage', $params);
+                } else {
+                    // Message for participant notifications.
+                    $notificationmessage = booking_get_email_body($bookingdata->booking->settings, 'notifyemail',
+                        'notifyemaildefaultmessage', $params);
+                }
+
             } else {
                 $optiontimes = array($optiondate); // Only add one specific session for session reminders.
                 $params = booking_generate_email_params($bookingdata->booking->settings, $bookingdata->option,
                     $ruser, $cm->id, $optiontimes, false, true, false);
-                $pollurlmessage = booking_get_email_body($bookingdata->booking->settings, 'sessionremindermailsubject',
+                // Message for session reminders.
+                $notificationmessage = booking_get_email_body($bookingdata->booking->settings, 'sessionremindermailsubject',
                     'sessionremindermailmessage', $params);
             }
 
@@ -2193,9 +2208,9 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
             $eventdata->userto = $ruser;
             $eventdata->subject = $subject;
             $eventdata->fullmessage = strip_tags(
-                    preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
+                    preg_replace('#<br\s*?/?>#i', "\n", $notificationmessage));
             $eventdata->fullmessageformat = FORMAT_HTML;
-            $eventdata->fullmessagehtml = $pollurlmessage;
+            $eventdata->fullmessagehtml = $notificationmessage;
             $eventdata->smallmessage = '';
             $eventdata->component = 'mod_booking';
             $eventdata->name = 'bookingconfirmation';
@@ -2442,6 +2457,14 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
         }
         $params->times = $val;
 
+        // Booking_option instance needed to access functions get_all_users_booked and get_all_users_onwaitlist.
+        $boption = new booking_option($cmid, $option->id);
+
+        // Placeholder for the number of booked users.
+        $params->numberparticipants = strval(count($boption->get_all_users_booked()));
+        // Placeholder for the number of users on the waiting list.
+        $params->numberwaitinglist = strval(count($boption->get_all_users_onwaitlist()));
+
         // If there are changes, let's render them.
         if ($changes) {
             $data = new \mod_booking\output\bookingoption_changes($changes, $cmid);
@@ -2497,8 +2520,9 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
 function booking_get_email_body($bookingsettings, $fieldname, $defaultname, $params) {
 
     // List of fieldnames that have a corresponding global mail template.
+    // TODO: add activitycompletiontext ??
     $mailtemplatesfieldnames = [
-        'bookedtext', 'waitingtext', 'notifyemail', 'statuschangetext', 'userleave',
+        'bookedtext', 'waitingtext', 'notifyemail', 'notifyemailteachers', 'statuschangetext', 'userleave',
         'deletedtext', 'bookingchangedtext', 'pollurltext', 'pollurlteacherstext'
     ];
 

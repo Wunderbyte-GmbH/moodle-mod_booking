@@ -399,11 +399,14 @@ class booking_option {
      * @return array of userobjects $this->allusers key: booking_answers id
      */
     public function get_all_users_onwaitlist() {
+
         if (empty($this->allusers)) {
             $allusers = $this->get_all_users();
         } else {
             $allusers = $this->allusers;
         }
+
+        $waitlistusers = array();
         foreach ($allusers as $baid => $user) {
             if ($user->waitinglist == 1) {
                 $waitlistusers[$baid] = $user;
@@ -413,7 +416,7 @@ class booking_option {
     }
 
     /**
-     * Get all users booked users (not aon waitlist) as an array of objects
+     * Get all users booked users (not on waiting list) as an array of objects
      * booking_answer id as key, ->userid,
      *
      * @return array of userobjects $this->allusers key: booking_answers id

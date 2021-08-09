@@ -191,6 +191,7 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_confightmleditor('booking/globalbookedtext', get_string('globalbookedtext', 'booking'), '', ''));
     $settings->add(new admin_setting_confightmleditor('booking/globalwaitingtext', get_string('globalwaitingtext', 'booking'), '', ''));
     $settings->add(new admin_setting_confightmleditor('booking/globalnotifyemail', get_string('globalnotifyemail', 'booking'), '', ''));
+    $settings->add(new admin_setting_confightmleditor('booking/globalnotifyemailteachers', get_string('globalnotifyemailteachers', 'booking'), '', ''));
     $settings->add(new admin_setting_confightmleditor('booking/globalstatuschangetext', get_string('globalstatuschangetext', 'booking'), '', ''));
     $settings->add(new admin_setting_confightmleditor('booking/globaluserleave', get_string('globaluserleave', 'booking'), '', ''));
     $settings->add(new admin_setting_confightmleditor('booking/globaldeletedtext', get_string('globaldeletedtext', 'booking'), '', ''));

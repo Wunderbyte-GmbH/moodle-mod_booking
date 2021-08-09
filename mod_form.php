@@ -252,6 +252,11 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('daystonotify2', 0);
         $mform->addHelpButton('daystonotify2', 'daystonotify', 'booking');
 
+        $mform->addElement('text', 'daystonotifyteachers', get_string('daystonotifyteachers', 'booking'));
+        $mform->setType('daystonotifyteachers', PARAM_INT);
+        $mform->setDefault('daystonotifyteachers', 0);
+        $mform->addHelpButton('daystonotifyteachers', 'daystonotify', 'booking');
+
         // Booking manager.
         $contextbooking = $this->get_context();
         $choosepotentialmanager = [];
@@ -293,7 +298,8 @@ class mod_booking_mod_form extends moodleform_mod {
             'location' => '{location}', 'institution' => '{institution}', 'address' => '{address}',
             'eventtype' => '{evventtype}', 'email' => '{email}', 'bookingdetails' => '{bookingdetails}',
             'gotobookingoption' => '{gotobookingoption}', 'changes' => '{changes}',
-            'usercalendarurl' => '{usercalendarurl}', 'coursecalendarurl' => '{coursecalendarurl}');
+            'usercalendarurl' => '{usercalendarurl}', 'coursecalendarurl' => '{coursecalendarurl}',
+            'numberparticipants' => '{numberparticipants}', 'numberwaitinglist' => '{numberwaitinglist}');
 
         $mform->addElement('editor', 'bookedtext', get_string('bookedtext', 'booking'), null,
                 $editoroptions);
@@ -323,6 +329,16 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('notifyemail', $default);
         $mform->addHelpButton('notifyemail', 'notifyemail', 'booking');
         $mform->disabledIf('notifyemail', 'mailtemplatessource', 'in', [1, 2]);
+
+        $mform->addElement('editor', 'notifyemailteachers', get_string('notifyemailteachers', 'booking'), null,
+            $editoroptions);
+        $default = array(
+            'text' => get_string('notifyemailteachersdefaultmessage', 'booking', $fieldmapping),
+            'format' => FORMAT_HTML);
+        $default['text'] = str_replace("\n", '<br/>', $default['text']);
+        $mform->setDefault('notifyemailteachers', $default);
+        $mform->addHelpButton('notifyemailteachers', 'notifyemailteachers', 'booking');
+        $mform->disabledIf('notifyemailteachers', 'mailtemplatessource', 'in', [1, 2]);
 
         $mform->addElement('editor', 'statuschangetext', get_string('statuschangetext', 'booking'),
                 null, $editoroptions);
@@ -848,6 +864,10 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         if (isset($defaultvalues['notifyemail'])) {
             $defaultvalues['notifyemail'] = array('text' => $defaultvalues['notifyemail'],
+                'format' => FORMAT_HTML);
+        }
+        if (isset($defaultvalues['notifyemailteachers'])) {
+            $defaultvalues['notifyemailteachers'] = array('text' => $defaultvalues['notifyemailteachers'],
                 'format' => FORMAT_HTML);
         }
         if (isset($defaultvalues['statuschangetext'])) {

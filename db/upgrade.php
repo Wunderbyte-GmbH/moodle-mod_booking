@@ -2265,5 +2265,45 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2021080400, 'booking');
     }
 
+    if ($oldversion < 2021080900) {
+
+        // Define fields daystonotifyteachers, notifyemailteachers to be added to booking.
+        $table = new xmldb_table('booking');
+
+        // Conditionally launch add field daystonotifyteachers.
+        $field1 = new xmldb_field('daystonotifyteachers', XMLDB_TYPE_INTEGER, '3', null,
+            null, null, '0', 'notifyemail');
+        if (!$dbman->field_exists($table, $field1)) {
+            $dbman->add_field($table, $field1);
+        }
+
+        // Conditionally launch add field notifyemailteachers.
+        $field2 = new xmldb_field('notifyemailteachers', XMLDB_TYPE_TEXT, null, null,
+            null, null, null, 'daystonotifyteachers');
+        if (!$dbman->field_exists($table, $field2)) {
+            $dbman->add_field($table, $field2);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2021080900, 'booking');
+    }
+
+    if ($oldversion < 2021080901) {
+
+        // Define field sentteachers to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+
+        $field = new xmldb_field('sentteachers', XMLDB_TYPE_INTEGER, '1', null,
+            XMLDB_NOTNULL, null, '0', 'sent2');
+
+        // Conditionally launch add field sentteachers.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2021080901, 'booking');
+    }
+
     return true;
 }

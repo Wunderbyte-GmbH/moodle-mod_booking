@@ -76,11 +76,13 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $('#id_sendmailtobooker').val(obj.sendmailtobooker);
                             $('#id_daystonotify').val(obj.daystonotify);
                             $('#id_daystonotify2').val(obj.daystonotify2);
+                            $('#id_daystonotifyteachers').val(obj.daystonotifyteachers);
                             // TODO: bookingmanager
                             $('#id_mailtemplatessource').val(obj.mailtemplatessource);
                             $('#id_bookedtexteditable').html(obj.bookedtext);
                             $('#id_waitingtexteditable').html(obj.waitingtext);
                             $('#id_notifyemaileditable').html(obj.notifyemail);
+                            $('#id_notifyemailteacherseditable').html(obj.notifyemailteachers);
                             $('#id_statuschangetexteditable').html(obj.statuschangetext);
                             $('#id_userleaveeditable').html(obj.userleave);
                             $('#id_deletedtexteditable').html(obj.deletedtext);
