@@ -1,15 +1,29 @@
 <?php
-// Wunderbyte Payment Methods Class:
-// Contains methods for license verification and more
-
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking\utils;
 
 use \stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
-class wb_payment
-{
+/**
+ * Wunderbyte Payment Methods Class:
+ * Contains methods for license verification and more.
+ */
+class wb_payment {
     const PUBLIC_KEY =
 "-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu8vRBnPDug2pKoGY9wQS
@@ -27,45 +41,45 @@ pwIDAQAB
      * @param stdClass $signedkey an object containing licensekey and signature
      * @return string the expiration date of the license key formatted as Y-m-d
      */
-    public static function decryptlicensekey(string $encrypted_licensekey): string
-    {
+    public static function decryptlicensekey(string $encryptedlicensekey): string {
         global $CFG;
-        // Step 1: Do base64 decoding
-        $encrypted_licensekey = base64_decode($encrypted_licensekey);
+        // Step 1: Do base64 decoding.
+        $encryptedlicensekey = base64_decode($encryptedlicensekey);
 
-        // Step 2: Decrypt using public key
-        openssl_public_decrypt($encrypted_licensekey, $licensekey, self::PUBLIC_KEY);
+        // Step 2: Decrypt using public key.
+        openssl_public_decrypt($encryptedlicensekey, $licensekey, self::PUBLIC_KEY);
 
-        // Step 3: Do another base64 decode and decrypt using wwwroot
+        // Step 3: Do another base64 decode and decrypt using wwwroot.
         $c = base64_decode($licensekey);
         $ivlen = openssl_cipher_iv_length($cipher="AES-128-CBC");
         $iv = substr($c, 0, $ivlen);
 
-        // Bugfix when passing wrong license keys that are too short
+        // Bugfix when passing wrong license keys that are too short.
         if (strlen($iv) != 16) return false;
 
-        $sha2len=32;
-        $ciphertext_raw = substr($c, $ivlen+$sha2len);
-        $decrypted_content = openssl_decrypt($ciphertext_raw, $cipher, $CFG->wwwroot, $options=OPENSSL_RAW_DATA, $iv);
+        $sha2len = 32;
+        $ciphertextraw = substr($c, $ivlen + $sha2len);
+        $decryptedcontent = openssl_decrypt($ciphertextraw, $cipher, $CFG->wwwroot, $options = OPENSSL_RAW_DATA, $iv);
 
-        return $decrypted_content;
+        return $decryptedcontent;
     }
 
     /**
      * Helper function to determine if the user has set a valid license key which has not yet expired.
      *
      * @return bool true if the license key is valid at current date
+     * @throws \dml_exception
      */
-    public static function is_currently_valid_licensekey(){
-        // get license key which has been set in settings.php
+    public static function is_currently_valid_licensekey() {
+        // Get license key which has been set in settings.php.
         $pluginconfig = get_config('booking');
-        if (!empty($pluginconfig->licensekey)){
+        if (!empty($pluginconfig->licensekey)) {
             $licensekey_from_settings = $pluginconfig->licensekey;
-            // echo "License key from plugin config: $licensekey_from_settings<br>";
+            // DEBUG: echo "License key from plugin config: $licensekey_from_settings<br>"; END.
 
             $expiration_timestamp = strtotime(self::decryptlicensekey($licensekey_from_settings));
-            // return true if the current timestamp has not yet reached the expiration date
-            if (time() < $expiration_timestamp){
+            // Return true if the current timestamp has not yet reached the expiration date.
+            if (time() < $expiration_timestamp) {
                 return true;
             }
         }

@@ -324,7 +324,8 @@ class generator {
             $this->pdf->SetHeaderData('', 0, format_string($this->bookingdata->option->text), '');
         } else if ($this->title == 1) {
             $this->pdf->SetHeaderData('', 0,
-                    format_string($this->bookingdata->booking->settings->name) . ': ' . format_string($this->bookingdata->option->text), '');
+                    format_string($this->bookingdata->booking->settings->name) . ': ' .
+                    format_string($this->bookingdata->option->text), '');
         } else {
             $this->pdf->SetHeaderData('', 0, format_string($this->bookingdata->booking->settings->name, ''));
         }
@@ -572,8 +573,9 @@ class generator {
                     if (!empty($record->value)) {
                         $this->pdf->Cell(0, 0,
                                 $customfields[$record->cfgname]['value'] . ": " .
-                                ($customfields[$record->cfgname]['type'] == 'multiselect' ? implode(", ", explode("\n", $record->value)) : $record->value), 0,
-                                1, '', 0, '', 1);
+                                ($customfields[$record->cfgname]['type'] == 'multiselect' ? implode(", ",
+                                    explode("\n", $record->value)) : $record->value), 0, 1, '',
+                                    0, '', 1);
                     }
                 }
             }

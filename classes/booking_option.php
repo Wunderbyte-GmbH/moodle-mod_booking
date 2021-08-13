@@ -143,23 +143,27 @@ class booking_option {
         if ($getusers) {
             $this->get_users();
         }
-        // TODO: A lot of DB queries: put into fewer queries. Only get this, when necessary. Maybe create a separate class for managing booking answers.
-        $imbooked = $DB->get_record_sql("SELECT COUNT(*) imbooked FROM {booking_answers} WHERE optionid = :optionid AND userid = :userid AND waitinglist = 0",
-                array('optionid' => $optionid, 'userid' => $USER->id));
+        // TODO: A lot of DB queries: put into fewer queries. Only get this, when necessary.
+        // TODO: Maybe create a separate class for managing booking answers.
+        $imbooked = $DB->get_record_sql("SELECT COUNT(*) imbooked FROM {booking_answers} WHERE optionid = :optionid 
+            AND userid = :userid AND waitinglist = 0", array('optionid' => $optionid, 'userid' => $USER->id));
         $this->iambooked = $imbooked->imbooked;
 
-        $onwaitinglist = $DB->get_record_sql("SELECT COUNT(*) onwaitinglist FROM {booking_answers} WHERE optionid = :optionid AND userid = :userid AND waitinglist = 1",
-                array('optionid' => $optionid, 'userid' => $USER->id));
+        $onwaitinglist = $DB->get_record_sql("SELECT COUNT(*) onwaitinglist FROM {booking_answers} 
+            WHERE optionid = :optionid AND userid = :userid AND waitinglist = 1", array('optionid' => $optionid,
+            'userid' => $USER->id));
         $this->onwaitinglist = $onwaitinglist->onwaitinglist;
 
-        $completed = $DB->get_record_sql("SELECT COUNT(*) completed FROM {booking_answers} WHERE optionid = :optionid AND userid = :userid AND completed = 1",
-                array('optionid' => $optionid, 'userid' => $USER->id));
+        $completed = $DB->get_record_sql("SELECT COUNT(*) completed FROM {booking_answers} WHERE optionid = :optionid 
+            AND userid = :userid AND completed = 1", array('optionid' => $optionid, 'userid' => $USER->id));
         $this->completed = $completed->completed;
 
-        $waiting = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid AND waitinglist = 1", array('optionid' => $optionid));
+        $waiting = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid 
+            AND waitinglist = 1", array('optionid' => $optionid));
         $this->waiting = $waiting->rnum;
 
-        $booked = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid AND waitinglist = 0", array('optionid' => $optionid));
+        $booked = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid 
+            AND waitinglist = 0", array('optionid' => $optionid));
         $this->booked = $booked->rnum;
     }
 
@@ -312,8 +316,8 @@ class booking_option {
             $params['completed'] = $this->filters['searchcompleted'];
         }
         if (isset($this->filters['searchdate']) && $this->filters['searchdate'] == 1) {
-            $beginofday = strtotime(
-                    "{$this->urlparams['searchdateday']}-{$this->urlparams['searchdatemonth']}-{$this->urlparams['searchdateyear']}");
+            $beginofday = strtotime("{$this->urlparams['searchdateday']}-{$this->urlparams['searchdatemonth']}-"
+                . "{$this->urlparams['searchdateyear']}");
             $endofday = strtotime("tomorrow", $beginofday) - 1;
             $options .= " AND ba.timecreated BETWEEN :beginofday AND :endofday";
             $params['beginofday'] = $beginofday;
@@ -453,7 +457,7 @@ class booking_option {
                 array('optionid' => $this->optionid, 'userid' => $userid));
 
         if ($booked === false) {
-            // Check, if it's in teachers table
+            // Check, if it's in teachers table.
             if ($DB->get_field('booking_teachers', 'id',
                     array('optionid' => $this->optionid, 'userid' => $userid)) !== false) {
                 return 2;
@@ -536,7 +540,8 @@ class booking_option {
 
         $text = "";
 
-        $params = booking_generate_email_params($this->booking->settings, $this->option, $USER, $this->booking->cm->id, $this->optiontimes);
+        $params = booking_generate_email_params($this->booking->settings, $this->option, $USER, $this->booking->cm->id,
+            $this->optiontimes);
 
         if (in_array($this->user_status($userid), array(1, 2))) {
             $ac = $this->is_activity_completed($userid);
@@ -590,7 +595,7 @@ class booking_option {
              ORDER BY ba.timemodified ASC";
         $params = array("bookingid" => $this->booking->id, "optionid" => $this->optionid);
 
-        // mod/booking:choose may have been revoked after the user has booked: not count them as booked.
+        // Note: mod/booking:choose may have been revoked after the user has booked: not count them as booked.
         $allanswers = $DB->get_records_sql($sql, $params);
         $this->bookedusers = array_intersect_key($allanswers, $this->booking->canbookusers);
         // TODO offer users with according caps to delete excluded users from booking option.
@@ -864,8 +869,8 @@ class booking_option {
         $transferred->no = array(); // Errored users.
         $transferred->success = false;
         $otheroption = new booking_option($this->booking->cm->id, $newoption);
-        if (!empty($userids) && (has_capability('mod/booking:subscribeusers', $this->booking->get_context()) || booking_check_if_teacher(
-                $otheroption->option))) {
+        if (!empty($userids) && (has_capability('mod/booking:subscribeusers', $this->booking->get_context()) ||
+                booking_check_if_teacher($otheroption->option))) {
             $transferred->success = true;
             list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, "limit_");
             $mainuserfields = get_all_user_name_fields(true, 'u');
@@ -1013,7 +1018,7 @@ class booking_option {
             $optiondates = false;
         }
 
-        //If the option has optiondates, then add the optiondate events to the user's calendar.
+        // If the option has optiondates, then add the optiondate events to the user's calendar.
         if ($optiondates) {
             foreach ($optiondates as $optiondate) {
                 new \mod_booking\calendar($this->booking->cm->id, $this->optionid, $user->id, 6, $optiondate->id, 1);
@@ -1330,9 +1335,9 @@ class booking_option {
             }
         }
 
-        // Delete all associated user events for option
+        // Delete all associated user events for option.
 
-        // Get all the userevents
+        // Get all the userevents.
         $sql = "SELECT e.* FROM {booking_userevents} ue
               JOIN {event} e
               ON ue.eventid = e.id
@@ -1341,7 +1346,7 @@ class booking_option {
         $allevents = $DB->get_records_sql($sql, [
                 'optionid' => $this->optionid]);
 
-        // Delete all the events we found associated with a user
+        // Delete all the events we found associated with a user.
         foreach ($allevents as $item) {
             $DB->delete_records('event', array('id' => $item->id));
         }
@@ -1456,7 +1461,8 @@ class booking_option {
      */
     public function user_completed_option() {
         global $DB;
-        return $DB->count_records_select('booking_answers', 'optionid = :optionid AND completed = 1', ['optionid' => $this->optionid]);
+        return $DB->count_records_select('booking_answers', 'optionid = :optionid AND completed = 1',
+            ['optionid' => $this->optionid]);
     }
 
     /**
@@ -1518,7 +1524,7 @@ class booking_option {
      *
      * @return array string[customfieldname][value|type]; empty array if no settings set
      */
-    static public function get_customfield_settings() {
+    public static function get_customfield_settings() {
         $values = array();
         $bkgconfig = \get_config('booking');
         $customfieldvals = \get_object_vars($bkgconfig);
@@ -1575,7 +1581,8 @@ class booking_option {
             $countcompleted = $DB->count_records('booking_answers',
                 array('bookingid' => $this->booking->id, 'userid' => $userid, 'completed' => '1'));
 
-            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $this->booking->settings->enablecompletion <= $countcompleted) {
+            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC &&
+                $this->booking->settings->enablecompletion <= $countcompleted) {
                 $completion->update_state($cm, COMPLETION_COMPLETE, $userid);
             }
         }
@@ -1671,7 +1678,7 @@ class booking_option {
         if ($files) {
             $file = reset($files);
 
-            // Get file
+            // Get file.
             $file = $fs->get_file($coursecontext->id, 'mod_booking', 'templatefile',
             $this->booking->settings->customtemplateid, $file->get_filepath(), $file->get_filename());
         }
@@ -1703,14 +1710,14 @@ class booking_option {
         $tempfilefull = $tbs->Source;
 
         $fullfile = array(
-            'contextid' => $coursecontext->id, // ID of context
-            'component' => 'mod_booking',     // usually = table name
-            'filearea' => 'templatefile',     // usually = table name
-            'itemid' => 0,               // usually = ID of row in table
-            'filepath' => '/',           // any path beginning and ending in /
-            'filename' => "{$filename}.{$ext}"); // any filename
+            'contextid' => $coursecontext->id, // ID of context.
+            'component' => 'mod_booking',     // Usually = table name.
+            'filearea' => 'templatefile',     // Usually = table name.
+            'itemid' => 0,               // Usually = ID of row in table.
+            'filepath' => '/',           // Any path beginning and ending in '/'.
+            'filename' => "{$filename}.{$ext}"); // Any filename.
 
-        // Create file containing text 'hello world'
+        // Create file containing text 'hello world'.
         $newfile = $fs->create_file_from_string($fullfile, $tbs->Source);
 
         header('Content-Description: File Transfer');

@@ -15,10 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
 
-require_once($CFG->libdir.'/tablelib.php');
-
 use moodle_url;
 use table_sql;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->libdir.'/tablelib.php');
 
 class mybookings_table extends table_sql {
 
@@ -52,7 +54,8 @@ class mybookings_table extends table_sql {
     }
 
     protected function col_text($values) {
-        $optionurl = new moodle_url("/mod/booking/view.php?id={$values->cmid}&optionid={$values->optionid}&action=showonlyone&whichview=showonlyone#goenrol");
+        $optionurl = new moodle_url("/mod/booking/view.php?id={$values->cmid}" .
+            "&optionid={$values->optionid}&action=showonlyone&whichview=showonlyone#goenrol");
 
         return "<a href='{$optionurl}'>{$values->text}</a>";
     }

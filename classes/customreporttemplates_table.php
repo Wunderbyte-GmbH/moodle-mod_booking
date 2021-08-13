@@ -57,7 +57,8 @@ class customreporttemplates_table extends table_sql {
         global $OUTPUT;
         $output = '';
         $delete = get_string('delete');
-        $url = new moodle_url('/mod/booking/customreporttemplates.php', array('templateid' => $values->id, 'action' => 'delete', 'id' => $this->cmid));
+        $url = new moodle_url('/mod/booking/customreporttemplates.php',
+            array('templateid' => $values->id, 'action' => 'delete', 'id' => $this->cmid));
         $output .= $OUTPUT->single_button($url, $delete, 'get');
         return $output;
     }
@@ -71,8 +72,8 @@ class customreporttemplates_table extends table_sql {
 
         $file = array_pop($files);
         if (!is_null($file)) {
-            $url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(),
-                $file->get_filepath(), $file->get_filename(), false);
+            $url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(),
+                $file->get_itemid(), $file->get_filepath(), $file->get_filename(), false);
 
             return \html_writer::link($url, $file->get_filename());
         }

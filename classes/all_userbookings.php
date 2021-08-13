@@ -302,7 +302,8 @@ class all_userbookings extends \table_sql {
                 if ($result) {
                     $dynamicactivitymodulesdata = $DB->get_record($result->name,
                         array('id' => $result->instance));
-                    echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="deleteusersactivitycompletion" value="' .
+                    echo '<div class="singlebutton">' .
+                        '<input type="submit" class="btn btn-secondary" name="deleteusersactivitycompletion" value="' .
                         get_string('deleteresponsesactivitycompletion', 'booking',
                             $dynamicactivitymodulesdata->name) . '" /></div>';
                 }
@@ -423,7 +424,8 @@ class all_userbookings extends \table_sql {
                             $this->bookingdata->booking->settings->booktootherbooking) ? get_string(
                             'booktootherbooking', 'booking') : $this->bookingdata->booking->settings->booktootherbooking);
 
-                    echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="booktootherbooking" value="' .
+                    echo '<div class="singlebutton">' .
+                        '<input type="submit" class="btn btn-secondary" name="booktootherbooking" value="' .
                              $label . '" /></div>';
                 } else {
                     $alllimits = $DB->get_records_sql(
@@ -448,7 +450,8 @@ class all_userbookings extends \table_sql {
                                 $this->bookingdata->booking->settings->booktootherbooking) ? get_string(
                                 'booktootherbooking', 'booking') : $this->bookingdata->booking->settings->booktootherbooking);
 
-                        echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="booktootherbooking" value="' .
+                        echo '<div class="singlebutton">' .
+                            '<input type="submit" class="btn btn-secondary" name="booktootherbooking" value="' .
                                  $label . '" /></div>';
                     }
                 }
@@ -467,7 +470,8 @@ class all_userbookings extends \table_sql {
 
                 echo html_writer::select($presences, 'selectpresencestatus', '');
 
-                echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="changepresencestatus" value="' .
+                echo '<div class="singlebutton">' .
+                    '<input type="submit" class="btn btn-secondary" name="changepresencestatus" value="' .
                          get_string('confirmpresence', 'booking') . '" /></div>';
             }
         }
