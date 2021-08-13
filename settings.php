@@ -42,19 +42,19 @@ if ($ADMIN->fulltree) {
             get_string('licensekeycfg', 'mod_booking'),
             get_string('licensekeycfgdesc', 'mod_booking')));
 
-    // Dynamically change the license info text
+    // Dynamically change the license info text.
     $licensekeydesc = get_string('licensekeydesc', 'mod_booking');
 
-    // get license key which has been set in text field
+    // Get license key which has been set in text field.
     $pluginconfig = get_config('booking');
-    if (!empty($pluginconfig->licensekey)){
+    if (!empty($pluginconfig->licensekey)) {
         $licensekey = $pluginconfig->licensekey;
 
-        $expiration_date = wb_payment::decrypt_licensekey($licensekey);
-        if (!empty($expiration_date)){
+        $expirationdate = wb_payment::decryptlicensekey($licensekey);
+        if (!empty($expirationdate)) {
             $licensekeydesc = "<p style='color: green; font-weight: bold'>"
                 .get_string('license_activated', 'mod_booking')
-                .$expiration_date
+                .$expirationdate
                 .")</p>";
         } else {
             $licensekeydesc = "<p style='color: red; font-weight: bold'>"
@@ -188,20 +188,37 @@ if ($ADMIN->fulltree) {
         new admin_setting_heading('globalmailtemplates_heading',
             get_string('globalmailtemplates', 'mod_booking'), ''));
 
-    $settings->add(new admin_setting_confightmleditor('booking/globalbookedtext', get_string('globalbookedtext', 'booking'), '', ''));
-    $settings->add(new admin_setting_confightmleditor('booking/globalwaitingtext', get_string('globalwaitingtext', 'booking'), '', ''));
-    $settings->add(new admin_setting_confightmleditor('booking/globalnotifyemail', get_string('globalnotifyemail', 'booking'), '', ''));
-    $settings->add(new admin_setting_confightmleditor('booking/globalnotifyemailteachers', get_string('globalnotifyemailteachers', 'booking'), '', ''));
-    $settings->add(new admin_setting_confightmleditor('booking/globalstatuschangetext', get_string('globalstatuschangetext', 'booking'), '', ''));
-    $settings->add(new admin_setting_confightmleditor('booking/globaluserleave', get_string('globaluserleave', 'booking'), '', ''));
-    $settings->add(new admin_setting_confightmleditor('booking/globaldeletedtext', get_string('globaldeletedtext', 'booking'), '', ''));
-    $settings->add(new admin_setting_confightmleditor('booking/globalbookingchangedtext', get_string('globalbookingchangedtext', 'booking'), '', ''));
-    $settings->add(new admin_setting_confightmleditor('booking/globalpollurltext', get_string('globalpollurltext', 'booking'), '', ''));
-    $settings->add(new admin_setting_confightmleditor('booking/globalpollurlteacherstext', get_string('globalpollurlteacherstext', 'booking'), '', ''));
+    $settings->add(new admin_setting_confightmleditor('booking/globalbookedtext',
+        get_string('globalbookedtext', 'booking'), '', ''));
 
-    // TODO: Is this needed in global mail templates?
-    // TODO: Find out, if mails will be sent for activity completion.
-    // $settings->add(new admin_setting_confightmleditor('globalactivitycompletiontext', get_string('globalactivitycompletiontext', 'booking'), '', ''));
+    $settings->add(new admin_setting_confightmleditor('booking/globalwaitingtext',
+        get_string('globalwaitingtext', 'booking'), '', ''));
+
+    $settings->add(new admin_setting_confightmleditor('booking/globalnotifyemail',
+        get_string('globalnotifyemail', 'booking'), '', ''));
+
+    $settings->add(new admin_setting_confightmleditor('booking/globalnotifyemailteachers',
+        get_string('globalnotifyemailteachers', 'booking'), '', ''));
+
+    $settings->add(new admin_setting_confightmleditor('booking/globalstatuschangetext',
+        get_string('globalstatuschangetext', 'booking'), '', ''));
+
+    $settings->add(new admin_setting_confightmleditor('booking/globaluserleave',
+        get_string('globaluserleave', 'booking'), '', ''));
+
+    $settings->add(new admin_setting_confightmleditor('booking/globaldeletedtext',
+        get_string('globaldeletedtext', 'booking'), '', ''));
+
+    $settings->add(new admin_setting_confightmleditor('booking/globalbookingchangedtext',
+        get_string('globalbookingchangedtext', 'booking'), '', ''));
+
+    $settings->add(new admin_setting_confightmleditor('booking/globalpollurltext',
+        get_string('globalpollurltext', 'booking'), '', ''));
+
+    $settings->add(new admin_setting_confightmleditor('booking/globalpollurlteacherstext',
+        get_string('globalpollurlteacherstext', 'booking'), '', ''));
+
+    // TODO: globalactivitycompletiontext is currently not implemented because activitycompletiontext isn't either.
 
     $settings->add(
         new admin_setting_heading('waitinglistinfotexts_heading',

@@ -27,7 +27,7 @@ pwIDAQAB
      * @param stdClass $signedkey an object containing licensekey and signature
      * @return string the expiration date of the license key formatted as Y-m-d
      */
-    public static function decrypt_licensekey(string $encrypted_licensekey): string
+    public static function decryptlicensekey(string $encrypted_licensekey): string
     {
         global $CFG;
         // Step 1: Do base64 decoding
@@ -63,7 +63,7 @@ pwIDAQAB
             $licensekey_from_settings = $pluginconfig->licensekey;
             // echo "License key from plugin config: $licensekey_from_settings<br>";
 
-            $expiration_timestamp = strtotime(self::decrypt_licensekey($licensekey_from_settings));
+            $expiration_timestamp = strtotime(self::decryptlicensekey($licensekey_from_settings));
             // return true if the current timestamp has not yet reached the expiration date
             if (time() < $expiration_timestamp){
                 return true;
