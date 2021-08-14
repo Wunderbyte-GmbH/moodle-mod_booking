@@ -319,9 +319,9 @@ function booking_add_instance($booking) {
         $booking->timeopen = $booking->timeclose = 0;
     }
 
-    if (isset($booking->showviews) && count($booking->showviews) > 0) {
+    if (isset($booking->showviews) && is_array($booking->showviews) && count($booking->showviews) > 0) {
         $booking->showviews = implode(',', $booking->showviews);
-    } else {
+    } else if ($booking->showviews === null) {
         $booking->showviews = '';
     }
 
@@ -344,17 +344,17 @@ function booking_add_instance($booking) {
     }
 
     // Copy the text fields out.
-    $booking->bookedtext = $booking->bookedtext['text'];
-    $booking->waitingtext = $booking->waitingtext['text'];
-    $booking->notifyemail = $booking->notifyemail['text'];
-    $booking->notifyemailteachers = $booking->notifyemailteachers['text'];
-    $booking->statuschangetext = $booking->statuschangetext['text'];
-    $booking->deletedtext = $booking->deletedtext['text'];
-    $booking->bookingchangedtext = $booking->bookingchangedtext['text'];
-    $booking->pollurltext = $booking->pollurltext['text'];
-    $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'];
-    $booking->activitycompletiontext = $booking->activitycompletiontext['text'];
-    $booking->userleave = $booking->userleave['text'];
+    $booking->bookedtext = isset($booking->bookedtext['text']) ? $booking->bookedtext['text'] : $booking->bookedtext;
+    $booking->waitingtext = isset($booking->waitingtext['text']) ? $booking->waitingtext['text'] : $booking->waitingtext;
+    $booking->notifyemail = isset($booking->notifyemail['text']) ? $booking->notifyemail['text'] : $booking->notifyemail;
+    $booking->notifyemailteachers = isset($booking->notifyemailteachers['text']) ? $booking->notifyemailteachers['text'] : $booking->notifyemailteachers;
+    $booking->statuschangetext = isset($booking->statuschangetext['text']) ? $booking->statuschangetext['text'] : $booking->statuschangetext;
+    $booking->deletedtext = isset($booking->deletedtext['text']) ? $booking->deletedtext['text'] : $booking->deletedtext;
+    $booking->bookingchangedtext = isset($booking->bookingchangedtext['text']) ? $booking->bookingchangedtext['text'] : $booking->bookingchangedtext;
+    $booking->pollurltext = isset($booking->pollurltext['text']) ? $booking->pollurltext['text'] : $booking->pollurltext;
+    $booking->pollurlteacherstext = isset($booking->pollurlteacherstext['text']) ? $booking->pollurlteacherstext['text'] : $booking->pollurlteacherstext;
+    $booking->activitycompletiontext = isset($booking->activitycompletiontext['text']) ? $booking->activitycompletiontext['text'] : $booking->activitycompletiontext;
+    $booking->userleave = isset($booking->userleave['text']) ? $booking->userleave['text'] : $booking->userleave;
     if (isset($booking->beforebookedtext['text'])) {
         $booking->beforebookedtext = $booking->beforebookedtext['text'];
     }
