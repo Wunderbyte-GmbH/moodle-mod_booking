@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use mod_booking\utils\wb_payment;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
@@ -277,14 +279,18 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('bookingmanager', $USER->username);
         $mform->addRule('bookingmanager', null, 'required', null, 'client');
 
-        // Let the user choose between instance specific or global mail templates.
-        // Options to show booking descriptions (inline or via modal info links).
-        $mailtemplatessource = array();
-        $mailtemplatessource[0] = get_string('mailtemplatesinstance', 'booking');
-        $mailtemplatessource[1] = get_string('mailtemplatesglobal', 'booking');
-        $mform->addElement('select', 'mailtemplatessource', get_string('mailtemplatessource', 'booking'), $mailtemplatessource);
-        $mform->setDefault('mailtemplatessource', 0); // Instance specific mail templates are the default.
-        $mform->addHelpButton('mailtemplatessource', 'mailtemplatessource', 'booking');
+        // PRO feature: Let the user choose between instance specific or global mail templates.
+        if (wb_payment::is_currently_valid_licensekey()) {
+            $mailtemplatessource = array();
+            $mailtemplatessource[0] = get_string('mailtemplatesinstance', 'booking');
+            $mailtemplatessource[1] = get_string('mailtemplatesglobal', 'booking');
+            $mform->addElement('select', 'mailtemplatessource', get_string('mailtemplatessource', 'booking'), $mailtemplatessource);
+            $mform->setDefault('mailtemplatessource', 0); // Instance specific mail templates are the default.
+            $mform->addHelpButton('mailtemplatessource', 'mailtemplatessource', 'booking');
+        } else {
+            // Without a license key only instance specific mail templates are available.
+            $mform->addElement('hidden', 'mailtemplatessource', 0);
+        }
         $mform->setType('mailtemplatessource', PARAM_INT);
 
         // Add the fields to allow editing of the default text.
@@ -308,7 +314,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('bookedtext', $default);
         $mform->addHelpButton('bookedtext', 'bookedtext', 'mod_booking');
-        $mform->disabledIf('bookedtext', 'mailtemplatessource', 'in', [1, 2]);
+        $mform->disabledIf('bookedtext', 'mailtemplatessource', 'eq', 1);
 
         $mform->addElement('editor', 'waitingtext', get_string('waitingtext', 'booking'), null,
                 $editoroptions);
@@ -318,7 +324,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('waitingtext', $default);
         $mform->addHelpButton('waitingtext', 'waitingtext', 'mod_booking');
-        $mform->disabledIf('waitingtext', 'mailtemplatessource', 'in', [1, 2]);
+        $mform->disabledIf('waitingtext', 'mailtemplatessource', 'eq', 1);
 
         $mform->addElement('editor', 'notifyemail', get_string('notifyemail', 'booking'), null,
                 $editoroptions);
@@ -328,7 +334,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('notifyemail', $default);
         $mform->addHelpButton('notifyemail', 'notifyemail', 'booking');
-        $mform->disabledIf('notifyemail', 'mailtemplatessource', 'in', [1, 2]);
+        $mform->disabledIf('notifyemail', 'mailtemplatessource', 'eq', 1);
 
         $mform->addElement('editor', 'notifyemailteachers', get_string('notifyemailteachers', 'booking'), null,
             $editoroptions);
@@ -338,7 +344,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('notifyemailteachers', $default);
         $mform->addHelpButton('notifyemailteachers', 'notifyemailteachers', 'booking');
-        $mform->disabledIf('notifyemailteachers', 'mailtemplatessource', 'in', [1, 2]);
+        $mform->disabledIf('notifyemailteachers', 'mailtemplatessource', 'eq', 1);
 
         $mform->addElement('editor', 'statuschangetext', get_string('statuschangetext', 'booking'),
                 null, $editoroptions);
@@ -348,7 +354,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('statuschangetext', $default);
         $mform->addHelpButton('statuschangetext', 'statuschangetext', 'mod_booking');
-        $mform->disabledIf('statuschangetext', 'mailtemplatessource', 'in', [1, 2]);
+        $mform->disabledIf('statuschangetext', 'mailtemplatessource', 'eq', 1);
 
         $mform->addElement('editor', 'userleave', get_string('userleave', 'booking'), null,
                 $editoroptions);
@@ -358,7 +364,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('userleave', $default);
         $mform->addHelpButton('userleave', 'userleave', 'mod_booking');
-        $mform->disabledIf('userleave', 'mailtemplatessource', 'in', [1, 2]);
+        $mform->disabledIf('userleave', 'mailtemplatessource', 'eq', 1);
 
         $mform->addElement('editor', 'deletedtext', get_string('deletedtext', 'booking'), null,
                 $editoroptions);
@@ -368,7 +374,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('deletedtext', $default);
         $mform->addHelpButton('deletedtext', 'deletedtext', 'mod_booking');
-        $mform->disabledIf('deletedtext', 'mailtemplatessource', 'in', [1, 2]);
+        $mform->disabledIf('deletedtext', 'mailtemplatessource', 'eq', 1);
 
         // Message to be sent when fields relevant for a booking option calendar entry (or ical) change.
         $mform->addElement('editor', 'bookingchangedtext', get_string('bookingchangedtext', 'booking'), null,
@@ -379,7 +385,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('bookingchangedtext', $default);
         $mform->addHelpButton('bookingchangedtext', 'bookingchangedtext', 'mod_booking');
-        $mform->disabledIf('bookingchangedtext', 'mailtemplatessource', 'in', [1, 2]);
+        $mform->disabledIf('bookingchangedtext', 'mailtemplatessource', 'eq', 1);
 
         $mform->addElement('editor', 'pollurltext', get_string('pollurltext', 'booking'), null,
                 $editoroptions);
@@ -388,7 +394,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('pollurltext', $default);
         $mform->addHelpButton('pollurltext', 'pollurltext', 'mod_booking');
-        $mform->disabledIf('pollurltext', 'mailtemplatessource', 'in', [1, 2]);
+        $mform->disabledIf('pollurltext', 'mailtemplatessource', 'eq', 1);
 
         $mform->addElement('editor', 'pollurlteacherstext',
                 get_string('pollurlteacherstext', 'booking'), null, $editoroptions);
@@ -398,7 +404,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('pollurlteacherstext', $default);
         $mform->addHelpButton('pollurlteacherstext', 'pollurlteacherstext', 'mod_booking');
-        $mform->disabledIf('pollurlteacherstext', 'mailtemplatessource', 'in', [1, 2]);
+        $mform->disabledIf('pollurlteacherstext', 'mailtemplatessource', 'eq', 1);
 
         $mform->addElement('editor', 'activitycompletiontext', get_string('activitycompletiontext', 'booking'),
                 null, $editoroptions);
@@ -408,7 +414,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('activitycompletiontext', $default);
         $mform->addHelpButton('activitycompletiontext', 'activitycompletiontext', 'booking');
-        $mform->disabledIf('activitycompletiontext', 'mailtemplatessource', 'in', [1, 2]);
+        $mform->disabledIf('activitycompletiontext', 'mailtemplatessource', 'eq', 1);
 
         // Custom labels.
         $mform->addElement('header', 'customlabels', get_string('customlabels', 'mod_booking'));

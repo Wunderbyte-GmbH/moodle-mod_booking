@@ -1135,6 +1135,7 @@ $string['nocfnameselected'] = "Nichts ausgewählt. Tippen Sie einen neuen Namen 
 
 // File: settings.php.
 $string['globalmailtemplates'] = 'Globale Mailvorlagen';
+$string['globalmailtemplates_desc'] = 'Nur in der PRO-Version verfügbar. Nach der Aktivierung können Sie in den Einstellungen jeder beliebigen Buchungsinstanz die Quelle der Mailvorlagen auf global setzen.';
 $string['globalbookedtext'] = 'Buchungsbestätigung (globale Vorlage)';
 $string['globalwaitingtext'] = 'Wartelistenbestätigung (globale Vorlage)';
 $string['globalnotifyemail'] = 'Teilnehmer/innen-Benachrichtigung vor dem Beginn (globale Vorlage)';
@@ -1205,6 +1206,7 @@ $string['multiicalfilesdesc'] = 'MS Outlook unterstützt keine Mehrfach-Termine 
 
 $string['waitinglistinfotexts_heading'] = 'Beschreibungstexte für verfügbare Wartelistenplätze';
 $string['waitinglistinfotexts'] = 'Beschreibungstexte für verfügbare Wartelistenplätze anzeigen';
+$string['waitinglistinfotexts_desc'] = 'Nur in der PRO-Version verfügbar.';
 $string['waitinglistinfotexts_info'] = 'Kurze Infotexte anstatt der konkreten Zahl verfügbarer Wartelistenplätze anzeigen.';
 $string['waitinglistlowpercentage'] = 'Prozentsatz für "Nur noch wenige Plätze verfügbar"-Nachricht';
 $string['waitinglistlowpercentagedesc'] = 'Wenn die Anzahl verfügbarer Plätze auf der Warteliste diesen Prozentsatz erreicht oder unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';

@@ -1295,7 +1295,7 @@ $string['daystonotifysession_help'] = "Enter 0 to deactivate the e-mail notifica
 $string['nocfnameselected'] = "Nothing selected. Either type new name or select one from the list.";
 
 
-// locallib.php
+// File: locallib.php.
 $string['pdfdate'] = 'Booking Date(s): ';
 $string['pdflocation'] = 'Location: ';
 $string['pdfroom'] = 'Room: ';
@@ -1306,8 +1306,9 @@ $string['booking:readallinstitutionusers'] = 'Show all users';
 $string['manageoptiontemplates'] = 'Manage option templates';
 $string['linkgotobookingoption'] = 'Go to booked option: {$a}</a>';
 
-// File: settings.php
+// File: settings.php.
 $string['globalmailtemplates'] = 'Global mail templates';
+$string['globalmailtemplates_desc'] = 'Only available in the PRO version. After activation, you can go to the settings of a booking instance and set the source of mail templates to global.';
 $string['globalbookedtext'] = 'Booking confirmation (global template)';
 $string['globalwaitingtext'] = 'Waiting list confirmation (global template)';
 $string['globalnotifyemail'] = 'Participant notification before start (global template)';
@@ -1381,6 +1382,7 @@ $string['multiicalfilesdesc'] = 'Only MS Outlook 2010 does not support multiple 
 
 $string['waitinglistinfotexts_heading'] = 'Waiting list availability info texts';
 $string['waitinglistinfotexts'] = 'Show waiting list availability info texts';
+$string['waitinglistinfotexts_desc'] = 'Only available in the PRO version.';
 $string['waitinglistinfotexts_info'] = 'Show short info messages instead of the number of available places.';
 $string['waitinglistlowpercentage'] = 'Percentage for waiting list low message';
 $string['waitinglistlowpercentagedesc'] = 'If the available places on the waiting list reach or get below this percentage a waiting list low message will be shown.';
@@ -1434,7 +1436,7 @@ $string['confirmusers'] = 'Confirm users activity';
 // optiontemplatessettings.php
 $string['optiontemplatessettings'] = 'Booking option templates';
 $string['defaulttemplate'] = 'Default template';
-$string['defaulttemplatedesc'] = 'Default booking option template, when creatting new booking option.';
+$string['defaulttemplatedesc'] = 'Default booking option template when creating a new booking option.';
 $string['dontuse'] = 'Don\'t use template';
 
 // instancetemplateadd.php

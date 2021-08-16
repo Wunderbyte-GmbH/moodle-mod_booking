@@ -19,6 +19,7 @@ namespace mod_booking;
 defined('MOODLE_INTERNAL') || die();
 
 use html_writer;
+use mod_booking\utils\wb_payment;
 use moodle_url;
 use stdClass;
 
@@ -370,27 +371,34 @@ class booking_utils {
                 $button = get_string('pleasereturnlater', 'booking');
             }
 
-            $availableplaces = "<div class='col-ap-availableplaces'>" . get_string("availableplaces", "booking", $places) . "</div>";
+            $availableplaces = "<div class='col-ap-availableplaces'>" .
+                get_string("availableplaces", "booking", $places) . "</div>";
 
-            // Check if checkbox for waiting list info texts in plugin config is activated.
-            if (get_config('booking', 'waitinglistinfotexts') && $places->maxoverbooking != 0) {
+            // Check if a PRO license is active and the checkbox for waiting list info texts in plugin config is activated.
+            if (wb_payment::is_currently_valid_licensekey()
+                && get_config('booking', 'waitinglistinfotexts')
+                && $places->maxoverbooking != 0) {
 
                 $waitinglistlowpercentage = get_config('booking', 'waitinglistlowpercentage');
                 $actualpercentage = ($places->overbookingavailable / $places->maxoverbooking) * 100;
 
                 if ($places->overbookingavailable == 0) {
                     // No places left.
-                    $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" . get_string("waitinglistfullmessage", "booking") . "</div>";
+                    $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" .
+                        get_string("waitinglistfullmessage", "booking") . "</div>";
                 } else if ($actualpercentage <= $waitinglistlowpercentage) {
                     // Only a few places left.
-                    $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" . get_string("waitinglistlowmessage", "booking") . "</div>";
+                    $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" .
+                        get_string("waitinglistlowmessage", "booking") . "</div>";
                 } else {
                     // Still enough places left.
-                    $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" . get_string("waitinglistenoughmessage", "booking") . "</div>";
+                    $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" .
+                        get_string("waitinglistenoughmessage", "booking") . "</div>";
                 }
             } else {
                 // If waiting list info text are not active, show the actual numbers instead.
-                $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" . get_string("waitingplacesavailable", "booking", $places) . "</div>";
+                $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" .
+                    get_string("waitingplacesavailable", "booking", $places) . "</div>";
             }
 
             return $button . $booked . $delete . $availableplaces . $waitingplaces . $manage;

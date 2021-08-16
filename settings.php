@@ -185,70 +185,78 @@ if ($ADMIN->fulltree) {
                         1, $alltemplates));
 
     $settings->add(
-        new admin_setting_heading('globalmailtemplates_heading',
-            get_string('globalmailtemplates', 'mod_booking'), ''));
-
-    $settings->add(new admin_setting_confightmleditor('booking/globalbookedtext',
-        get_string('globalbookedtext', 'booking'), '', ''));
-
-    $settings->add(new admin_setting_confightmleditor('booking/globalwaitingtext',
-        get_string('globalwaitingtext', 'booking'), '', ''));
-
-    $settings->add(new admin_setting_confightmleditor('booking/globalnotifyemail',
-        get_string('globalnotifyemail', 'booking'), '', ''));
-
-    $settings->add(new admin_setting_confightmleditor('booking/globalnotifyemailteachers',
-        get_string('globalnotifyemailteachers', 'booking'), '', ''));
-
-    $settings->add(new admin_setting_confightmleditor('booking/globalstatuschangetext',
-        get_string('globalstatuschangetext', 'booking'), '', ''));
-
-    $settings->add(new admin_setting_confightmleditor('booking/globaluserleave',
-        get_string('globaluserleave', 'booking'), '', ''));
-
-    $settings->add(new admin_setting_confightmleditor('booking/globaldeletedtext',
-        get_string('globaldeletedtext', 'booking'), '', ''));
-
-    $settings->add(new admin_setting_confightmleditor('booking/globalbookingchangedtext',
-        get_string('globalbookingchangedtext', 'booking'), '', ''));
-
-    $settings->add(new admin_setting_confightmleditor('booking/globalpollurltext',
-        get_string('globalpollurltext', 'booking'), '', ''));
-
-    $settings->add(new admin_setting_confightmleditor('booking/globalpollurlteacherstext',
-        get_string('globalpollurlteacherstext', 'booking'), '', ''));
-
-    // TODO: globalactivitycompletiontext is currently not implemented because activitycompletiontext isn't either.
-
-    $settings->add(
         new admin_setting_heading('waitinglistinfotexts_heading',
-            get_string('waitinglistinfotexts_heading', 'mod_booking'), ''));
+            get_string('waitinglistinfotexts_heading', 'mod_booking'),
+            get_string('waitinglistinfotexts_desc', 'mod_booking')));
+
+    // PRO feature.
+    if (wb_payment::is_currently_valid_licensekey()) {
+        $settings->add(
+            new admin_setting_configcheckbox('booking/waitinglistinfotexts',
+                get_string('waitinglistinfotexts', 'mod_booking'),
+                get_string('waitinglistinfotexts_info', 'booking'), 0));
+
+        $waitinglistlowpercentages = [
+            5 => ' 5%',
+            10 => '10%',
+            15 => '15%',
+            20 => '20%',
+            30 => '30%',
+            40 => '40%',
+            50 => '50%',
+            60 => '60%',
+            70 => '70%',
+            80 => '80%',
+            90 => '90%',
+            100 => '100%'
+        ];
+
+        $settings->add(
+            new admin_setting_configselect('booking/waitinglistlowpercentage',
+                get_string('waitinglistlowpercentage', 'booking'),
+                get_string('waitinglistlowpercentagedesc', 'booking'),
+                20, $waitinglistlowpercentages));
+    }
 
     $settings->add(
-        new admin_setting_configcheckbox('booking/waitinglistinfotexts',
-            get_string('waitinglistinfotexts', 'mod_booking'),
-            get_string('waitinglistinfotexts_info', 'booking'), 0));
+        new admin_setting_heading('globalmailtemplates_heading',
+            get_string('globalmailtemplates', 'mod_booking'),
+            get_string('globalmailtemplates_desc', 'mod_booking')));
 
-    $waitinglistlowpercentages = [
-        5 => ' 5%',
-        10 => '10%',
-        15 => '15%',
-        20 => '20%',
-        30 => '30%',
-        40 => '40%',
-        50 => '50%',
-        60 => '60%',
-        70 => '70%',
-        80 => '80%',
-        90 => '90%',
-        100 => '100%'
-    ];
+    // PRO feature.
+    if (wb_payment::is_currently_valid_licensekey()) {
+        $settings->add(new admin_setting_confightmleditor('booking/globalbookedtext',
+            get_string('globalbookedtext', 'booking'), '', ''));
 
-    $settings->add(
-        new admin_setting_configselect('booking/waitinglistlowpercentage',
-            get_string('waitinglistlowpercentage', 'booking'),
-            get_string('waitinglistlowpercentagedesc', 'booking'),
-            20, $waitinglistlowpercentages));
+        $settings->add(new admin_setting_confightmleditor('booking/globalwaitingtext',
+            get_string('globalwaitingtext', 'booking'), '', ''));
+
+        $settings->add(new admin_setting_confightmleditor('booking/globalnotifyemail',
+            get_string('globalnotifyemail', 'booking'), '', ''));
+
+        $settings->add(new admin_setting_confightmleditor('booking/globalnotifyemailteachers',
+            get_string('globalnotifyemailteachers', 'booking'), '', ''));
+
+        $settings->add(new admin_setting_confightmleditor('booking/globalstatuschangetext',
+            get_string('globalstatuschangetext', 'booking'), '', ''));
+
+        $settings->add(new admin_setting_confightmleditor('booking/globaluserleave',
+            get_string('globaluserleave', 'booking'), '', ''));
+
+        $settings->add(new admin_setting_confightmleditor('booking/globaldeletedtext',
+            get_string('globaldeletedtext', 'booking'), '', ''));
+
+        $settings->add(new admin_setting_confightmleditor('booking/globalbookingchangedtext',
+            get_string('globalbookingchangedtext', 'booking'), '', ''));
+
+        $settings->add(new admin_setting_confightmleditor('booking/globalpollurltext',
+            get_string('globalpollurltext', 'booking'), '', ''));
+
+        $settings->add(new admin_setting_confightmleditor('booking/globalpollurlteacherstext',
+            get_string('globalpollurlteacherstext', 'booking'), '', ''));
+
+        // TODO: globalactivitycompletiontext is currently not implemented because activitycompletiontext isn't either.
+    }
 }
 
 $ADMIN->add('modbookingfolder',
