@@ -145,24 +145,24 @@ class booking_option {
         }
         // TODO: A lot of DB queries: put into fewer queries. Only get this, when necessary.
         // TODO: Maybe create a separate class for managing booking answers.
-        $imbooked = $DB->get_record_sql("SELECT COUNT(*) imbooked FROM {booking_answers} WHERE optionid = :optionid 
+        $imbooked = $DB->get_record_sql("SELECT COUNT(*) imbooked FROM {booking_answers} WHERE optionid = :optionid
             AND userid = :userid AND waitinglist = 0", array('optionid' => $optionid, 'userid' => $USER->id));
         $this->iambooked = $imbooked->imbooked;
 
-        $onwaitinglist = $DB->get_record_sql("SELECT COUNT(*) onwaitinglist FROM {booking_answers} 
+        $onwaitinglist = $DB->get_record_sql("SELECT COUNT(*) onwaitinglist FROM {booking_answers}
             WHERE optionid = :optionid AND userid = :userid AND waitinglist = 1", array('optionid' => $optionid,
             'userid' => $USER->id));
         $this->onwaitinglist = $onwaitinglist->onwaitinglist;
 
-        $completed = $DB->get_record_sql("SELECT COUNT(*) completed FROM {booking_answers} WHERE optionid = :optionid 
+        $completed = $DB->get_record_sql("SELECT COUNT(*) completed FROM {booking_answers} WHERE optionid = :optionid
             AND userid = :userid AND completed = 1", array('optionid' => $optionid, 'userid' => $USER->id));
         $this->completed = $completed->completed;
 
-        $waiting = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid 
+        $waiting = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid
             AND waitinglist = 1", array('optionid' => $optionid));
         $this->waiting = $waiting->rnum;
 
-        $booked = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid 
+        $booked = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid
             AND waitinglist = 0", array('optionid' => $optionid));
         $this->booked = $booked->rnum;
     }

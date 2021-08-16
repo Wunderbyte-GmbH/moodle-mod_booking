@@ -24,8 +24,7 @@ defined('MOODLE_INTERNAL') || die();
  * Contains methods for license verification and more.
  */
 class wb_payment {
-    const PUBLIC_KEY =
-"-----BEGIN PUBLIC KEY-----
+    const PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu8vRBnPDug2pKoGY9wQS
 KNTK1SzrPuU0KC8xm22GPQZQM1XkPpvNwBp8CmXUN29r/qiPxapDNVmIH5Ectvb+
 NA7EsuVSS8xV6HfjV0tNZKIfFA4b1JD7t6l4gGDLuoppvKQV9n1JP/uZhQlFZ8Dg
@@ -51,11 +50,13 @@ pwIDAQAB
 
         // Step 3: Do another base64 decode and decrypt using wwwroot.
         $c = base64_decode($licensekey);
-        $ivlen = openssl_cipher_iv_length($cipher="AES-128-CBC");
+        $ivlen = openssl_cipher_iv_length($cipher = "AES-128-CBC");
         $iv = substr($c, 0, $ivlen);
 
         // Bugfix when passing wrong license keys that are too short.
-        if (strlen($iv) != 16) return false;
+        if (strlen($iv) != 16) {
+            return false;
+        }
 
         $sha2len = 32;
         $ciphertextraw = substr($c, $ivlen + $sha2len);
@@ -74,12 +75,12 @@ pwIDAQAB
         // Get license key which has been set in settings.php.
         $pluginconfig = get_config('booking');
         if (!empty($pluginconfig->licensekey)) {
-            $licensekey_from_settings = $pluginconfig->licensekey;
+            $licensekeyfromsettings = $pluginconfig->licensekey;
             // DEBUG: echo "License key from plugin config: $licensekey_from_settings<br>"; END.
 
-            $expiration_timestamp = strtotime(self::decryptlicensekey($licensekey_from_settings));
+            $expirationtimestamp = strtotime(self::decryptlicensekey($licensekeyfromsettings));
             // Return true if the current timestamp has not yet reached the expiration date.
-            if (time() < $expiration_timestamp) {
+            if (time() < $expirationtimestamp) {
                 return true;
             }
         }
