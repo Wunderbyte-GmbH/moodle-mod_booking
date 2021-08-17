@@ -70,7 +70,7 @@ $string['datenotset'] = 'Date not set';
 $string['daystonotify'] = 'Number of days in advance of the event-start to notify participants';
 $string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
 $string['daystonotify2'] = 'Second notification before start of event to notify participants.';
-$string['daystonotifyteachers'] = 'Number of days in advance of the event-start to notify teachers';
+$string['daystonotifyteachers'] = 'Number of days in advance of the event-start to notify teachers (PRO)';
 $string['eventbooking_cancelled'] = 'Booking cancelled';
 $string['eventbookingoption_booked'] = 'Booking option booked';
 $string['eventbookingoption_completed'] = 'Booking option completed';
@@ -325,7 +325,7 @@ $string['notes'] = 'Booking notes';
 
 // Mail templates (instance specific or global).
 $string['mailtemplatesadvanced'] = 'Activate advanced settings for e-mail templates';
-$string['mailtemplatessource'] = 'Set source of mail templates';
+$string['mailtemplatessource'] = 'Set source of mail templates (PRO)';
 $string['mailtemplatessource_help'] = '<b>Caution:</b> If you choose global e-mail templates, the instance-specific mail 
 templates won\'t be used. Instead the e-mail templates specified in the booking plugin settings will be used. <br><br>
 Please make sure that there are existing e-mail templates in the booking settings for each e-mail type.';
@@ -1042,7 +1042,7 @@ You have <b>{$a->numberparticipants} booked participants</b> and <b>{$a->numberw
 To view all your booked courses click on the following link: {$a->bookinglink}
 The associated course can be found here: {$a->courselink}
 ';
-$string['notifyemailteachers'] = 'Teacher notification before start';
+$string['notifyemailteachers'] = 'Teacher notification before start (PRO)';
 
 $string['userleavebookedsubject'] = 'You successfully unsubscribed from {$a->title}';
 $string['userleavebookedmessage'] = 'Hello {$a->participant},
@@ -1321,7 +1321,7 @@ $string['globalpollurltext'] = 'Message for sending poll url to booked users (gl
 $string['globalpollurlteacherstext'] = 'Message for the poll url sent to teachers (global template)';
 $string['globalactivitycompletiontext'] = 'Notification text shown on activity completion (global template)';
 $string['licensekeycfg'] = 'Activate PRO version';
-$string['licensekeycfgdesc'] = 'With a PRO license you can create as many booking templates as you like.';
+$string['licensekeycfgdesc'] = 'With a PRO license you can create as many booking templates as you like and use PRO features such as global mail templates, waiting list info texts or teacher notifications.';
 $string['licensekey'] = 'PRO license key';
 $string['licensekeydesc'] = 'Upload a valid license key to activate the PRO version.';
 $string['license_activated'] = 'PRO version activated successfully.<br>(Expires: ';

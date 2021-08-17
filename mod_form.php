@@ -254,10 +254,15 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('daystonotify2', 0);
         $mform->addHelpButton('daystonotify2', 'daystonotify', 'booking');
 
-        $mform->addElement('text', 'daystonotifyteachers', get_string('daystonotifyteachers', 'booking'));
+        // PRO feature: Teacher notifications.
+        if (wb_payment::is_currently_valid_licensekey()) {
+            $mform->addElement('text', 'daystonotifyteachers', get_string('daystonotifyteachers', 'booking'));
+            $mform->setDefault('daystonotifyteachers', 0);
+            $mform->addHelpButton('daystonotifyteachers', 'daystonotify', 'booking');
+        } else {
+            $mform->addElement('hidden', 'daystonotifyteachers', 0);
+        }
         $mform->setType('daystonotifyteachers', PARAM_INT);
-        $mform->setDefault('daystonotifyteachers', 0);
-        $mform->addHelpButton('daystonotifyteachers', 'daystonotify', 'booking');
 
         // Booking manager.
         $contextbooking = $this->get_context();
@@ -336,15 +341,25 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('notifyemail', 'notifyemail', 'booking');
         $mform->disabledIf('notifyemail', 'mailtemplatessource', 'eq', 1);
 
-        $mform->addElement('editor', 'notifyemailteachers', get_string('notifyemailteachers', 'booking'), null,
-            $editoroptions);
+        // BEGIN - PRO feature: Teacher notifications.
         $default = array(
             'text' => get_string('notifyemailteachersdefaultmessage', 'booking', $fieldmapping),
             'format' => FORMAT_HTML);
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
-        $mform->setDefault('notifyemailteachers', $default);
-        $mform->addHelpButton('notifyemailteachers', 'notifyemailteachers', 'booking');
-        $mform->disabledIf('notifyemailteachers', 'mailtemplatessource', 'eq', 1);
+        // Check if PRO version is active.
+        if (wb_payment::is_currently_valid_licensekey()) {
+            $mform->addElement('editor', 'notifyemailteachers', get_string('notifyemailteachers', 'booking'),
+                null, $editoroptions);
+            $mform->setDefault('notifyemailteachers', $default);
+            $mform->addHelpButton('notifyemailteachers', 'notifyemailteachers', 'booking');
+            $mform->disabledIf('notifyemailteachers', 'mailtemplatessource', 'eq', 1);
+        } else {
+            // Array elements need to be stored in separate 'hidden' elements.
+            $mform->addElement('hidden', 'notifyemailteachers[text]', $default['text']);
+            $mform->addElement('hidden', 'notifyemailteachers[format]', FORMAT_HTML);
+        }
+        $mform->setType('notifyemailteachers', PARAM_RAW);
+        // END - PRO feature: Teacher notifications.
 
         $mform->addElement('editor', 'statuschangetext', get_string('statuschangetext', 'booking'),
                 null, $editoroptions);

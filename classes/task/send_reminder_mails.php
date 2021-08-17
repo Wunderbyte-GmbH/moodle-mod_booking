@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking\task;
 
+use mod_booking\utils\wb_payment;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -73,9 +74,23 @@ class send_reminder_mails extends \core\task\scheduled_task {
         }
 
         // Now let's check if reminders for sessions (optiondates) need to be sent.
+        $this->send_session_notifications();
+
+        // Check if PRO version is activated.
+        if (wb_payment::is_currently_valid_licensekey()) {
+            // Teacher notifications (PRO feature).
+            $this->send_teacher_notifications();
+        }
+    }
+
+    /**
+     * Send session notifications to participants.
+     */
+    private function send_session_notifications() {
+        global $DB;
+
         $now = time();
-        $sessionstoprocess = $DB->get_records_sql(
-           'SELECT bod.id, bod.coursestarttime, bod.daystonotify, bod.sent
+        $sessionstoprocess = $DB->get_records_sql('SELECT bod.id, bod.coursestarttime, bod.daystonotify, bod.sent
             FROM {booking_optiondates} bod
             WHERE bod.daystonotify > 0
             AND sent = 0
@@ -88,7 +103,8 @@ class send_reminder_mails extends \core\task\scheduled_task {
             // Check if session notification has been sent already.
             if ($sessionrecord->sent == 0) {
 
-                if ($this->send_notification($sessionrecord, $sessionrecord->daystonotify, MAIL_NOTIFICATION_PARTICIPANTS_SESSIONS)) {
+                if ($this->send_notification($sessionrecord, $sessionrecord->daystonotify,
+                    MAIL_NOTIFICATION_PARTICIPANTS_SESSIONS)) {
                     $save = new stdClass();
                     $save->id = $sessionrecord->id;
                     $save->sent = 1;
@@ -96,11 +112,16 @@ class send_reminder_mails extends \core\task\scheduled_task {
                 }
             }
         }
+    }
 
-        // Teacher notifications.
+    /**
+     * Will send notifications messages to teachers.
+     */
+    private function send_teacher_notifications() {
+        global $DB;
+
         $now = time();
-        $toprocess = $DB->get_records_sql(
-            'SELECT bo.id, bo.coursestarttime, b.daystonotifyteachers, bo.sentteachers
+        $toprocess = $DB->get_records_sql('SELECT bo.id, bo.coursestarttime, b.daystonotifyteachers, bo.sentteachers
             FROM {booking_options} bo
             LEFT JOIN {booking} b ON b.id = bo.bookingid
             WHERE b.daystonotifyteachers > 0
@@ -115,7 +136,8 @@ class send_reminder_mails extends \core\task\scheduled_task {
 
                 // Check if teacher notification has been sent already.
                 if ($record->sentteachers == 0) {
-                    if ($this->send_notification($record, $record->daystonotifyteachers, MAIL_NOTIFICATION_TEACHERS)) {
+                    if ($this->send_notification($record, $record->daystonotifyteachers,
+                        MAIL_NOTIFICATION_TEACHERS)) {
                         $save = new stdClass();
                         $save->id = $record->id;
                         $save->sentteachers = 1;

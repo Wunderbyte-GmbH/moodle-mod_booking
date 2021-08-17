@@ -56,7 +56,7 @@ $string['datenotset'] = 'Datum nicht angegeben';
 $string['daystonotify'] = 'Wie viele Tage vor Kursbeginn soll an die Teilnehmenden eine Benachrichtigung gesendet werden?';
 $string['daystonotify_help'] = "Funktioniert nur, wenn ein Beginn- und Enddatum für die Buchungsoption gesetzt sind. Wenn Sie 0 eingeben, wird die Benachrichtigung deaktiviert.";
 $string['daystonotify2'] = 'Zweite Teilnehmerbenachrichtigung vor Veranstaltungsbeginn';
-$string['daystonotifyteachers'] = 'Wie viele Tage vor Kursbeginn soll an die Trainer/innen eine Benachrichtigung gesendet werden?';
+$string['daystonotifyteachers'] = 'Wie viele Tage vor Kursbeginn soll an die Trainer/innen eine Benachrichtigung gesendet werden? (PRO)';
 $string['eventbooking_cancelled'] = 'Buchung wurde storniert';
 $string['eventbookingoption_booked'] = 'Buchung durchgeführt';
 $string['eventbookingoption_completed'] = 'Buchung abgeschlossen.';
@@ -294,7 +294,7 @@ $string['notes'] = 'Anmerkungen zur Buchung';
 
 // Mail templates (Instanz-spezifisch oder global).
 $string['mailtemplatesadvanced'] = 'Erweiterte Einstelllungen für E-Mail-Vorlagen aktivieren';
-$string['mailtemplatessource'] = 'Quelle von E-Mail-Vorlagen festlegen';
+$string['mailtemplatessource'] = 'Quelle von E-Mail-Vorlagen festlegen (PRO)';
 $string['mailtemplatessource_help'] = '<b>Achtung:</b> Wenn Sie globale E-Mail-Vorlagen wählen, werden die Instanz-spezifischen 
 E-Mail-Vorlagen nicht verwendet, sondern die E-Mail-Vorlagen, die in den Einstellungen des Buchungs-Plugins angelegt
 wurden. <br><br>Bitte stellen Sie sicher, dass zu allen E-Mail-Typen eine Vorlage vorhanden ist.';
@@ -905,7 +905,7 @@ Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf den folgend
 
 Hier geht\'s zum Kurs:  {$a->courselink}
 ';
-$string['notifyemailteachers'] = 'Trainer/innen-Benachrichtigung vor dem Beginn';
+$string['notifyemailteachers'] = 'Trainer/innen-Benachrichtigung vor dem Beginn (PRO)';
 
 $string['userleavebookedsubject'] = 'Sie wurden erfolgreich abgemeldet von: {$a->title}';
 $string['userleavebookedmessage'] = 'Hallo {$a->participant},
@@ -1148,7 +1148,7 @@ $string['globalpollurltext'] = 'Umfragelink versenden (globale Vorlage)';
 $string['globalpollurlteacherstext'] = 'Link zum Absender der Umfrage für Trainer/innen (globale Vorlage)';
 $string['globalactivitycompletiontext'] = 'Benachrichtungstext bei Aktivitätsabschluss (globale Vorlage)';
 $string['licensekeycfg'] = 'PRO-Version aktivieren';
-$string['licensekeycfgdesc'] = 'Mit einer PRO-Lizenz können Sie so viele Buchungsvorlagen erstellen wie Sie wollen.';
+$string['licensekeycfgdesc'] = 'Mit einer PRO-Lizenz können Sie so viele Buchungsvorlagen erstellen wie Sie wollen und PRO-Features wie z.B. globale Mailvorlagen, Info-Texte für Wartelistenplätze und Benachrichtigungen für Trainer/innen nutzen.';
 $string['licensekey'] = 'PRO-Lizenz-Schlüssel';
 $string['licensekeydesc'] = 'Laden Sie hier einen gültigen Schlüssel hoch, um die PRO-Version zu aktivieren.';
 $string['license_activated'] = 'PRO-Version wurde erfolgreich aktiviert.<br>(Läuft ab am: ';
