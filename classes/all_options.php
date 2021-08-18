@@ -206,7 +206,7 @@ class all_options extends table_sql {
             }
         }
 
-        // Use the render to output this column
+        // Use the renderer to output this column.
         $data = new \mod_booking\output\col_coursestarttime($this->booking, $values);
         $output = $PAGE->get_renderer('mod_booking');
         // We can go with the data from bookingoption_description directly to modal.
