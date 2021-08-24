@@ -334,7 +334,7 @@ class csv_import {
                         $bookingoption->$column = strtotime($value);
                     }
                     break;
-                // For optiondates
+                // For optiondates.
                 case preg_match('/ms[1-3]starttime/', $column) ? $column : !$column:
                 case preg_match('/ms[1-3]endtime/', $column) ? $column : !$column:
                     $date = date_create_from_format($this->formdata->dateparseformat, $value);

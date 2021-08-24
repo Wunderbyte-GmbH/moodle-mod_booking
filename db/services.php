@@ -63,6 +63,13 @@ $functions = array(
         'description' => 'Read option template.',
         'type' => 'read',
         'ajax' => true
+    ),
+    'mod_booking_addbookingoption' => array( // Function will be added manually to service, only for admin use.
+        'classname' => 'mod_booking\external',
+        'methodname' => 'addbookingoption',
+        'description' => 'Add Booking option',
+        'type' => 'write',
+        'ajax' => false
     )
 );
 

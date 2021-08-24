@@ -16,6 +16,7 @@
 
 // General strings.
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
+$string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 
 // Renderer.php.
 $string['showonlymyinstitutions'] = "Meine Institution";

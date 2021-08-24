@@ -16,6 +16,7 @@
 
 // general strings
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
+$string['booking:manageoptiontemplates'] = "Manage option templates";
 
 // index.php
 $string['week'] = "Week";

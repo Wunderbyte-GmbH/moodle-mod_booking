@@ -571,9 +571,12 @@ function booking_update_options($optionvalues, $context) {
 
     $option = new stdClass();
     $option->bookingid = $optionvalues->bookingid;
-    $option->courseid = $COURSE->id; //Previously: $option->courseid = $optionvalues->courseid;
-
-    // for global option templates, 0 is used as bookingid
+    if (isset($optionvalues->courseid)) {
+        $option->courseid = $optionvalues->courseid;
+    } else {
+        $option->courseid = $COURSE->id;
+    }
+    // For global option templates, 0 is used as bookingid.
     if (isset($optionvalues->addastemplate) && $optionvalues->addastemplate == 1) {
         $option->bookingid = 0;
     }
