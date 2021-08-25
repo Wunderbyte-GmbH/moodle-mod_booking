@@ -27,11 +27,9 @@ use mod_booking\booking;
 use stdClass;
 use mod_booking\booking_option;
 
-global $CFG;
+defined('MOODLE_INTERNAL') || die();
 
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.');
-}
+global $CFG;
 
 /**
  * Class webservice_import
@@ -112,7 +110,7 @@ class webservice_import {
     private function check_if_update_option(&$data): ?booking_option {
 
         global $DB;
-        // Array of Keys to check:
+        // Array of keys to check.
         $keystocheck = [];
 
         // If we have an actual and valid moodle bookingoptionid, we can return the corresponding booking option right away.
@@ -133,8 +131,8 @@ class webservice_import {
             // If there is the multisession marker 2, we might return a booking option.
             // First, we look at the last bookingoption created. Is it in the same instance?
             $sql = "SELECT MAX(Id) FROM {booking_options}";
-            if ($lastbooking_optionid = $DB->get_field_sql($sql)) {
-                If (($bookingoption = new booking_option($data->cmid, $lastbooking_optionid))
+            if ($lastbookingoptionid = $DB->get_field_sql($sql)) {
+                if (($bookingoption = new booking_option($data->cmid, $lastbookingoptionid))
                         && ($bookingoption->option->text == $data->text)
                         && ($bookingoption->option->description == $data->description)) {
                     return $bookingoption;
@@ -142,10 +140,11 @@ class webservice_import {
             }
         }
 
-        // If the ismultisession marker is 0 or 1, we create a new booking option. Therefore, we have to create a booking instance first.
+        // If the ismultisession marker is 0 or 1, we create a new booking option.
+        // Therefore, we have to create a booking instance first.
         // Analyze data to know where to retrieve the right booking instance.
 
-        // $bookingid = $this->return_booking_id($data);
+        // TODO: $bookingid = $this->return_booking_id($data); END.
 
         return null;
     }
@@ -158,7 +157,6 @@ class webservice_import {
     private function return_booking_id(&$data): ?int {
 
         global $DB;
-
 
         if (isset($data->bookingcmid)) {
             // If we have received a bookingid, we just take this value.
@@ -184,7 +182,9 @@ class webservice_import {
             // There can only be one visible booking instance in every course.
             $bookinginstances = get_coursemodules_in_course('booking', $data->courseid);
 
-            $bookinginstances = array_filter($bookinginstances, function($x) { return $x->visible == 1; });
+            $bookinginstances = array_filter($bookinginstances, function($x) {
+                return $x->visible == 1;
+            });
 
             if (count($bookinginstances) != 1) {
                 throw new \moodle_exception('wrongnumberofinstances', 'mod_booking', null, null,
@@ -228,7 +228,7 @@ class webservice_import {
             }
 
             // Check if it's no multisession.
-            if (!isset($data->ismultisession) || $data->ismultisession == 0){
+            if (!isset($data->ismultisession) || $data->ismultisession == 0) {
                 $data->startendtimeknown = 1;
                 $data->coursestarttime = strtotime($data->coursestarttime);
                 $data->courseendtime = strtotime($data->courseendtime);
