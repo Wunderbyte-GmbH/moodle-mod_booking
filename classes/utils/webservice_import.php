@@ -77,12 +77,11 @@ class webservice_import {
             $data->bookingcmid = $cm->id;
         }
 
-        $bookingoption = $this->check_if_update_option($data)
+        $bookingoption = $this->check_if_update_option($data);
         // First, we remap data to make sure we can use it in update & creation.
-            $this->remap_data($data);
+        $this->remap_data($data);
 
         if ($bookingoption) {
-
             $this->update_option($bookingoption, $data);
         } else {
             // Create new booking option.
@@ -213,11 +212,29 @@ class webservice_import {
     /**
      * Remapping changes the name of keys and transforms dates.
      * @param $data
+     * @throws \moodle_exception
      */
     private function remap_data(&$data) {
         self::change_property($data, 'name', 'text');
-        $data->coursestarttime = strtotime($data->coursestarttime);
-        $data->courseendtime = strtotime($data->courseendtime);
+
+        // We need to set startendtimeknown to 1 if both are provided.
+        if (isset($data->coursestarttime) && $data->coursestarttime
+            && isset($data->courseendtime) && $data->courseendtime) {
+
+            // Throw an error if courseendtime is not after course start time.
+            if ($data->courseendtime <= $data->coursestarttime) {
+                throw new \moodle_exception('startendtimeerror', 'mod_booking', null, null,
+                    'Course end time needs to be AFTER course start time (not before or equal).');
+            }
+
+            // Check if it's no multisession.
+            if (!isset($data->ismultisession) || $data->ismultisession == 0){
+                $data->startendtimeknown = 1;
+                $data->coursestarttime = strtotime($data->coursestarttime);
+                $data->courseendtime = strtotime($data->courseendtime);
+            }
+        }
+
         $data->bookingclosingtime = strtotime($data->bookingclosingtime);
     }
 
