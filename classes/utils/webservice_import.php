@@ -43,7 +43,7 @@ class webservice_import {
 
     /**
      * In the constructor of this class, we don't know which booking instance will be used.
-     * We have to interprete the data first.
+     * We have to interpret the data first.
      */
     public function __construct() {
 
@@ -54,6 +54,9 @@ class webservice_import {
      * If so, we merge.
      * If not, we create a new booking option.
      * @param $data
+     * @return int[]
+     * @throws \coding_exception
+     * @throws \moodle_exception
      */
     public function process_data($data) {
 
