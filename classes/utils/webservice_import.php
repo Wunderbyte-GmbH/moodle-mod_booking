@@ -70,8 +70,14 @@ class webservice_import {
                     'We need a booking instance for webservice upload.');
         }
 
+        $data->bookingid = $bookingid;
+
+        $cm = get_coursemodule_from_instance('booking', $bookingid);
+        $data->cmid = $cm->id;
+
         if ($bookingoption = $this->check_if_update_option($data)) {
             // Do something.
+            $this->update_option($bookingoption, $data);
         } else {
             // Create new booking option.
             $cm = get_coursemodule_from_instance('booking', $bookingid);
@@ -84,12 +90,21 @@ class webservice_import {
     }
 
     /**
+     * Function to update option. It is used to add teacher, to inscribe users or to add multisession date.
+     * @param $data
+     * @param $bookingoption
+     */
+    public function update_option(&$data, $bookingoption) {
+
+    }
+
+    /**
      * Verify if we have enough overlapping with an existing booking option so we can update.
      * Returns 0 if we have to create a new option, else bookingoptionid.
      * @param $data
      * @return booking_option|null
      */
-    private function check_if_update_option($data): ?booking_option {
+    private function check_if_update_option(&$data): ?booking_option {
 
         global $DB;
         // Array of Keys to check:
@@ -109,6 +124,17 @@ class webservice_import {
             $bookingid = $DB->get_field_sql($sql, array('bookingoptionid' => $data->bookingoptionid, 'modulename' => 'booking'));
 
             return new booking_option($bookingid, $data->bookingoptionid);
+        } else if ($data->ismultisession == 2) {
+            // If there is the multisession marker 2, we might return a booking option.
+            // First, we look at the last bookingoption created. Is it in the same instance?
+            $sql = "SELECT MAX(Id) FROM {booking_options}";
+            if ($lastbooking_optionid = $DB->get_field_sql($sql)) {
+                If (($bookingoption = new booking_option($data->cmid, $lastbooking_optionid))
+                        && ($bookingoption->option->text == $data->text)
+                        && ($bookingoption->option->description == $data->description)) {
+                    return $bookingoption;
+                }
+            }
         }
 
         // If the ismultisession marker is 0 or 1, we create a new booking option. Therefore, we have to create a booking instance first.
@@ -131,24 +157,6 @@ class webservice_import {
         if (isset($data->bookingid)) {
             // If we have received a bookingid, we just take this value.
             return $data->bookingid;
-        } else if (isset($data->courseid)) {
-            // If there is a moodle courseid, we just get the booking instances in this course.
-            // There can only be one visible booking instance in every course.
-            if (!isset($data->bookingslotnumber)) {
-                $data->bookingslotnumber = 0;
-            }
-            $bookinginstances = get_coursemodules_in_course('booking', $data->courseid);
-
-            $bookinginstances = array_filter($bookinginstances, function($x) { return $x->visible == 1; });
-
-            if (count($bookinginstances) != 1) {
-                throw new \moodle_exception('wrongnumberofinstances', 'mod_booking', null, null,
-                        'There should be only one visible booking activity in the course.');
-            }
-
-            $bookinginstance = reset($bookinginstances);
-
-            $bookingid = $bookinginstance->instance;
         } else if (isset($data->bookingidnumber)) {
 
             $sql = "SELECT cm.instance
@@ -163,6 +171,29 @@ class webservice_import {
             if (!$bookingid = $DB->get_field_sql($sql, array('idnumber' => $data->bookingidnumber, 'modulename' => 'booking'))) {
                 return 0;
             }
+        } else if (isset($data->courseid)) {
+            // If there is a moodle courseid, we just get the booking instances in this course.
+            // There can only be one visible booking instance in every course.
+            $bookinginstances = get_coursemodules_in_course('booking', $data->courseid);
+
+            $bookinginstances = array_filter($bookinginstances, function($x) { return $x->visible == 1; });
+
+            if (count($bookinginstances) != 1) {
+                throw new \moodle_exception('wrongnumberofinstances', 'mod_booking', null, null,
+                        'There should be only one visible booking activity in the course.');
+            }
+
+            $bookinginstance = reset($bookinginstances);
+
+            $bookingid = $bookinginstance->instance;
+        } else if (isset($data->courseidnumber)) {
+            // If we can identify the course via courseidnumber, we do so.
+            $data->courseid = $DB->get_field('course', 'id', array('idnumber' => $data->courseidnumber));
+            $bookingid = $this->return_booking_id($data);
+        } else if (isset($data->courseshortname)) {
+            // If we can identify the course via course shortname, we do so.
+            $data->courseid = $DB->get_field('course', 'id', array('shortname' => $data->courseshortname));
+            $bookingid = $this->return_booking_id($data);
         }
 
         $data->bookingid = $bookingid;

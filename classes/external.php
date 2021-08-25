@@ -334,6 +334,7 @@ class external extends external_api {
             $bookingidnumber = null,
             $bookingoptionid = null,
             $courseidnumber = null,
+            $courseshortname = null,
             $maxanswers = null,
             $maxoverbooking = null,
             $bookingclosingtime = null,
@@ -367,11 +368,12 @@ class external extends external_api {
 
         $params = self::validate_parameters(self::addbookingoption_parameters(),
                 array('name' => $name,
-                        'courseid' => $courseid,
-                        'bookingid' => $bookingid,
-                        'bookingidnumber' => $bookingidnumber,
-                        'bookingoptionid' => $bookingoptionid,
-                        'courseidnumber' => $courseidnumber,
+                        'courseid' => $courseid, // There is one visible booking instance in course.
+                        'bookingid' => $bookingid, // Moodle cm ID of the target booking instance.
+                        'bookingidnumber' => $bookingidnumber, // Idnumber of target booking instance.
+                        'courseidnumber' => $courseidnumber, // Way of identifying course via idnumber.
+                        'courseshortname' => $courseshortname, // Way of identifiying course via shortname.
+                        'bookingoptionid' => $bookingoptionid, // Moodle id of bookingoption to update booking option.
                         'maxanswers' => $maxanswers,
                         'maxoverbooking' => $maxoverbooking,
                         'bookingclosingtime' => $bookingclosingtime,
@@ -423,6 +425,7 @@ class external extends external_api {
                         'bookingidnumber' => new external_value(PARAM_RAW, 'Idnumber identifier of target booking activity.',VALUE_DEFAULT, null),
                         'bookingoptionid' => new external_value(PARAM_INT, 'Moodle Id of booking option. Allows to update option.',VALUE_DEFAULT, null),
                         'courseidnumber' => new external_value(PARAM_RAW, 'Idnumber identifier of target course. Overriden by bookingidnumber.',VALUE_DEFAULT, null),
+                        'courseshortname' => new external_value(PARAM_RAW, 'Shortname of target course. Overriden by bookingidnumber.',VALUE_DEFAULT, null),
                         'maxanswers' => new external_value(PARAM_INT, 'Max places',VALUE_DEFAULT, null),
                         'maxoverbooking' => new external_value(PARAM_INT, 'Max places on waitinglist',VALUE_DEFAULT, null),
                         'bookingclosingtime' => new external_value(PARAM_RAW, 'Time when booking is not possible anymore.',VALUE_DEFAULT, null),
