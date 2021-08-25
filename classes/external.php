@@ -369,7 +369,7 @@ class external extends external_api {
         $params = self::validate_parameters(self::addbookingoption_parameters(),
                 array('name' => $name,
                         'courseid' => $courseid, // There is one visible booking instance in course.
-                        'bookingid' => $bookingid, // Moodle cm ID of the target booking instance.
+                        'bookingcmid' => $bookingid, // Moodle cm ID of the target booking instance.
                         'bookingidnumber' => $bookingidnumber, // Idnumber of target booking instance.
                         'courseidnumber' => $courseidnumber, // Way of identifying course via idnumber.
                         'courseshortname' => $courseshortname, // Way of identifiying course via shortname.
@@ -421,7 +421,7 @@ class external extends external_api {
                 array(
                         'name' => new external_value(PARAM_TEXT, 'Booking option name',VALUE_REQUIRED),
                         'courseid' => new external_value(PARAM_INT, 'Id of Target course.',VALUE_DEFAULT, null),
-                        'bookingid' => new external_value(PARAM_INT, 'Moodle id of booking activity.',VALUE_DEFAULT, null),
+                        'bookingcmid' => new external_value(PARAM_INT, 'Moodle id of booking activity.',VALUE_DEFAULT, null),
                         'bookingidnumber' => new external_value(PARAM_RAW, 'Idnumber identifier of target booking activity.',VALUE_DEFAULT, null),
                         'bookingoptionid' => new external_value(PARAM_INT, 'Moodle Id of booking option. Allows to update option.',VALUE_DEFAULT, null),
                         'courseidnumber' => new external_value(PARAM_RAW, 'Idnumber identifier of target course. Overriden by bookingidnumber.',VALUE_DEFAULT, null),

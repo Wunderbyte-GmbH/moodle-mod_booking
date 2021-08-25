@@ -61,9 +61,6 @@ class webservice_import {
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
-        // First, we remap data to make sure we can use it in update & creation.
-        $this->remap_data($data);
-
         // Now we get the booking instance.
         if (!$bookingid = $this->return_booking_id($data)) {
             throw new \moodle_exception('nobookingid', 'mod_booking', null, null,
@@ -72,11 +69,17 @@ class webservice_import {
 
         $data->bookingid = $bookingid;
 
-        $cm = get_coursemodule_from_instance('booking', $bookingid);
-        $data->cmid = $cm->id;
+        if (!isset($data->bookingcmid)) {
+            $cm = get_coursemodule_from_instance('booking', $bookingid);
+            $data->bookingcmid = $cm->id;
+        }
 
-        if ($bookingoption = $this->check_if_update_option($data)) {
-            // Do something.
+        $bookingoption = $this->check_if_update_option($data)
+        // First, we remap data to make sure we can use it in update & creation.
+            $this->remap_data($data);
+
+        if ($bookingoption) {
+
             $this->update_option($bookingoption, $data);
         } else {
             // Create new booking option.
@@ -154,9 +157,12 @@ class webservice_import {
 
         global $DB;
 
-        if (isset($data->bookingid)) {
+
+        if (isset($data->bookingcmid)) {
             // If we have received a bookingid, we just take this value.
-            return $data->bookingid;
+            if (!$bookingid = $DB->get_field('course_modules', 'instance', array('id' => $data->bookingcmid))) {
+                $bookingid = 0;
+            }
         } else if (isset($data->bookingidnumber)) {
 
             $sql = "SELECT cm.instance
