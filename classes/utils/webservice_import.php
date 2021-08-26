@@ -233,6 +233,14 @@ class webservice_import {
             $data->optionid = $bookingoption->option->id;
         }
 
+        // For mergeparams 1 and 2 both start time and end time need to be provided.
+        if (($data->mergeparam == 1 || $data->mergeparam == 2)
+            && empty($data->coursestarttime)
+            && empty($data->courseendtime)) {
+            throw new \moodle_exception('startendtimeerror', 'mod_booking', null, null,
+                'For mergeparams 1 and 2 you need to provide start and end time.');
+        }
+
         // We need to set startendtimeknown to 1 if both are provided.
         if (!empty($data->coursestarttime) && !empty($data->courseendtime)) {
 
@@ -250,7 +258,6 @@ class webservice_import {
             } else if ($data->mergeparam == 1 || $data->mergeparam == 2) {
 
                 $data->startendtimeknown = 1;
-                // TODO: also check if it gets added to calendar correctly.
 
                 $data->coursestarttime = strtotime($data->coursestarttime);
                 $data->courseendtime = strtotime($data->courseendtime);
