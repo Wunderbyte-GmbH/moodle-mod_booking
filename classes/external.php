@@ -482,7 +482,7 @@ class external extends external_api {
                             'Duration', VALUE_DEFAULT, 0),
                         'useremail' => new external_value(PARAM_EMAIL,
                             'Email of user to inscribe. User must exist in system.', VALUE_DEFAULT, null),
-                        'teacheremail' => new external_value(PARAM_INT,
+                        'teacheremail' => new external_value(PARAM_EMAIL,
                             'Email of teacher. User must exist in system.', VALUE_DEFAULT, null),
                         'user_username' => new external_value(PARAM_RAW,
                             'Username of user to inscribe. User must exist in system.', VALUE_DEFAULT, null),
