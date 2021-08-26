@@ -39,6 +39,10 @@ global $CFG;
  */
 class webservice_import {
 
+
+    /** @var stdClass the course module for this assign instance */
+    public $cm = null;
+
     /**
      * In the constructor of this class, we don't know which booking instance will be used.
      * We have to interpret the data first.
@@ -69,10 +73,10 @@ class webservice_import {
         }
 
         $data->bookingid = $bookingid;
+        $this->cm = get_coursemodule_from_instance('booking', $bookingid);
 
         if (!isset($data->bookingcmid)) {
-            $cm = get_coursemodule_from_instance('booking', $bookingid);
-            $data->bookingcmid = $cm->id;
+            $data->bookingcmid = $this->cm->id;
         }
 
         // This will set the bookingoption to update (if there is one, else it will be null).
@@ -83,13 +87,16 @@ class webservice_import {
 
         if ($bookingoption == null) {
             // Create new booking option.
-            $cm = get_coursemodule_from_instance('booking', $bookingid);
-            $context = \context_module::instance($cm->id);
+            $context = \context_module::instance($this->cm->id);
         } else {
             $context = $bookingoption->booking->context;
         }
 
         $bookingoptionid = booking_update_options($data, $context);
+
+        // Now that we have the option id, also from new users, we can add the teacher.
+
+        $this->add_teacher_to_bookingoption($bookingoptionid, $data);
 
         return array('status' => 1);
     }
@@ -276,9 +283,6 @@ class webservice_import {
                     self::change_property($data, 'courseendtime', $endkey);
                 }
 
-            } else if ($data->mergeparam == 3) {
-
-                //TODO: Merge teachers to booking option.
             }
         }
 
@@ -312,5 +316,21 @@ class webservice_import {
             $data->{$newname} = $data->{$oldname};
             unset($data->{$oldname});
         }
+    }
+
+    private function add_teacher_to_bookingoption($optionid, $data) {
+        global $DB;
+        if (!isset($data->teacheremail)
+            || (!$userids = $DB->get_fieldset_select('user', 'id', 'email=:email', array('email' => $data->teacheremail)))) {
+            return;
+        }
+
+        if (count($userids) != 1) {
+            throw new \moodle_exception('nomatchingteacheremail', 'mod_booking', null, null,
+                    'Teacher email is not there or not unique');
+        }
+        $userid = reset($userids);
+
+        booking_optionid_subscribe($userid, $optionid, $this->cm);
     }
 }
