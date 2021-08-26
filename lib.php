@@ -766,9 +766,21 @@ function booking_update_options($optionvalues, $context) {
             $bu = new booking_utils();
             if ($changes = $bu->booking_option_get_changes($originaloption, $option)) {
 
-                $bu->react_on_changes($PAGE->cm->id, $context, $option->id, $changes);
+                // Fix a bug where $PAGE->cm->id is not set for webservice importer.
+                if ($PAGE->cm->id != null) {
+                    $cmid = $PAGE->cm->id;
+                } else {
+                    $cm = get_coursemodule_from_instance('booking', $option->bookingid);
+                    $cmid = $cm->id;
+                }
+
+                $bu->react_on_changes($cmid, $context, $option->id, $changes);
             }
         }
+
+        // Update start and end date of the option depending on the sessions.
+        booking_updatestartenddate($option->id);
+
         return $option->id;
     }
     // new booking option record
@@ -906,9 +918,6 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
                     $DB->insert_record("booking_customfields", $customfield);
                 }
             }
-
-            // Update start and end date of the option depending on the sessions.
-            booking_updatestartenddate($optionid);
 
             // We trigger the event, where we take care of events in calendar etc.
             $event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondateid,

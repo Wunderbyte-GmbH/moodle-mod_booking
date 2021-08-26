@@ -283,7 +283,7 @@ class webservice_import {
      * Function to return the key for the next session, by counting existing ones.
      * If no bookingoption as of yet, we return 1.
      * @param object $data
-     * @param booking_option $bookingoption
+     * @param booking_option|null $bookingoption
      * @return int
      */
     function return_next_sessionkey(object $data, booking_option $bookingoption = null) {
