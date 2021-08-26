@@ -2611,7 +2611,7 @@ function booking_get_extra_capabilities() {
  * @param int $optionid
  * @param $cm
  */
-function booking_optionid_subscribe($userid, $optionid, $cm, $groupid = '') {
+function subscribe_teacher_to_booking_option($userid, $optionid, $cm, $groupid = '') {
     global $DB;
 
     if ($DB->record_exists("booking_teachers", array("userid" => $userid, "optionid" => $optionid))) {

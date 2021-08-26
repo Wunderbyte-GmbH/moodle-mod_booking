@@ -94,7 +94,7 @@ if ($edit === 0) {
     if ($subscribe) {
         $users = $subscriberselector->get_selected_users();
         foreach ($users as $user) {
-            if (!booking_optionid_subscribe($user->id, $optionid, $cm, $addtogroup)) {
+            if (!subscribe_teacher_to_booking_option($user->id, $optionid, $cm, $addtogroup)) {
                 print_error('cannotaddsubscriber', 'booking', '', $user->id);
             }
         }

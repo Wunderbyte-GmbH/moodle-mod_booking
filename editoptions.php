@@ -69,9 +69,8 @@ if ($optionid == -1 && $copyoptionid != 0) {
 
     // For each copied teacher change the old optionid to the new one and unset the old id.
     foreach ($teacherstocopy as $teachertocopy) {
-        unset($teachertocopy->id);
-        $teachertocopy->optionid = $optionid;
-        $DB->insert_record('booking_teachers', $teachertocopy);
+        // Subscribe the copied teacher to the new booking option.
+        subscribe_teacher_to_booking_option($teachertocopy->userid, $optionid, $cm);
     }
 
 } else if ($optionid > 0 && $defaultvalues = $DB->get_record('booking_options', array('bookingid' => $booking->settings->id, 'id' => $optionid))) {
@@ -121,7 +120,7 @@ if ($mform->is_cancelled()) {
 
         if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 &&
                 !has_capability('mod/booking:updatebooking', $context)) {
-            booking_optionid_subscribe($USER->id, $nbooking, $cm);
+            subscribe_teacher_to_booking_option($USER->id, $nbooking, $cm);
         }
 
         // Recurring
@@ -157,7 +156,7 @@ if ($mform->is_cancelled()) {
 
                 if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 &&
                         !has_capability('mod/booking:updatebooking', $context)) {
-                    booking_optionid_subscribe($USER->id, $nbooking, $cm);
+                    subscribe_teacher_to_booking_option($USER->id, $nbooking, $cm);
                 }
             }
         }
