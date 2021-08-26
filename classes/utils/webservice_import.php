@@ -217,9 +217,20 @@ class webservice_import {
     private function remap_data(&$data) {
         self::change_property($data, 'name', 'text');
 
+        // Throw an error if coursestarttime is provided without courseendtime.
+        if (!empty($data->coursestarttime) && empty($data->courseendtime)) {
+            throw new \moodle_exception('startendtimeerror', 'mod_booking', null, null,
+                'You provided coursestarttime but courseendtime is missing.');
+        }
+
+        // Throw an error if courseendtime is provided without coursestarttime.
+        if (!empty($data->courseendtime) && empty($data->coursestarttime)) {
+            throw new \moodle_exception('startendtimeerror', 'mod_booking', null, null,
+                'You provided courseendtime but coursestarttime is missing.');
+        }
+
         // We need to set startendtimeknown to 1 if both are provided.
-        if (isset($data->coursestarttime) && $data->coursestarttime
-            && isset($data->courseendtime) && $data->courseendtime) {
+        if (!empty($data->coursestarttime) && !empty($data->courseendtime)) {
 
             // Throw an error if courseendtime is not after course start time.
             if ($data->courseendtime <= $data->coursestarttime) {
@@ -228,7 +239,7 @@ class webservice_import {
             }
 
             // Check if it's no multisession.
-            if (!isset($data->ismultisession) || $data->ismultisession == 0) {
+            if (empty($data->ismultisession)) {
                 $data->startendtimeknown = 1;
                 $data->coursestarttime = strtotime($data->coursestarttime);
                 $data->courseendtime = strtotime($data->courseendtime);
