@@ -229,7 +229,7 @@ class webservice_import {
                 'You provided courseendtime but coursestarttime is missing.');
         }
 
-        if (!empty($bookingoption)) {
+        if ($bookingoption) {
             $data->optionid = $bookingoption->option->id;
         }
 
@@ -286,7 +286,7 @@ class webservice_import {
      * @param booking_option $bookingoption
      * @return int
      */
-    function return_next_sessionkey(object $data, booking_option $bookingoption) {
+    function return_next_sessionkey(object $data, booking_option $bookingoption = null) {
         if ($bookingoption) {
             return count($bookingoption->sessions) + 1;
         } else {
