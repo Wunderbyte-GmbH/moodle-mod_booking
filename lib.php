@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpInconsistentReturnPointsInspection */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -721,6 +721,9 @@ function booking_update_options($optionvalues, $context) {
                 }
             }
 
+            // This is needed to create option dates with the webservice importer.
+            deal_with_multisessions($optionvalues, $booking, $option->id, $context);
+
             // Check if custom field will be updated or newly created.
             if (!empty($customfields)) {
                 foreach ($customfields as $fieldcfgname => $field) {
@@ -765,9 +768,8 @@ function booking_update_options($optionvalues, $context) {
 
                 $bu->react_on_changes($PAGE->cm->id, $context, $option->id, $changes);
             }
-
-            return $option->id;
         }
+        return $option->id;
     }
     // new booking option record
     else if (isset($optionvalues->text) && $optionvalues->text != '') {
@@ -777,13 +779,13 @@ function booking_update_options($optionvalues, $context) {
 
             // (1) count the number of booking options templates
             $option_templates_data = $DB->get_records("booking_options", ['bookingid' => 0]);
-            $number_of_option_templates = count($option_templates_data);
+            $numberofoptiontemplates = count($option_templates_data);
 
             // (2) if the user has not activated a valid PRO license
             // ... then only allow one booking option
-            if ($number_of_option_templates > 0 && !wb_payment::is_currently_valid_licensekey()) {
-                $db_record = $DB->get_record("booking_options", ['text' => $option->text]);
-                if (empty($db_record)) return 'BOOKING_OPTION_NOT_CREATED';
+            if ($numberofoptiontemplates > 0 && !wb_payment::is_currently_valid_licensekey()) {
+                $dbrecord = $DB->get_record("booking_options", ['text' => $option->text]);
+                if (empty($dbrecord)) return 'BOOKING_OPTION_NOT_CREATED';
             }
         }
 
@@ -792,23 +794,23 @@ function booking_update_options($optionvalues, $context) {
         // Make sure it's no template by checking if bookingid is something else than 0.
         if ($option->bookingid != 0) {
             // A booking option will always be inserted, even if it has the same name (text) as a template.
-            $id = $DB->insert_record("booking_options", $option);
+            $optionid = $DB->insert_record("booking_options", $option);
         } else {
             // Fixed: For templates, make sure they won't get inserted twice.
-            $db_record = $DB->get_record("booking_options",
+            $dbrecord = $DB->get_record("booking_options",
                 ['text' => $option->text,
                     'bookingid' => $option->bookingid]);
-            if (empty($db_record)){
-                $id = $DB->insert_record("booking_options", $option);
+            if (empty($dbrecord)){
+                $optionid = $DB->insert_record("booking_options", $option);
             } else {
-                $id = $db_record->id;
+                $optionid = $dbrecord->id;
             }
         }
 
         // Create group in target course if there is a course specified only.
         if ($option->courseid > 0 && isset($booking->addtogroup) && $booking->addtogroup) {
-            $option->id = $id;
-            $bo = new booking_option($context->instanceid, $id, array(), 0, 0, false);
+            $option->id = $optionid;
+            $bo = new booking_option($context->instanceid, $optionid, array(), 0, 0, false);
             $option->groupid = $bo->create_group($booking, $option);
             $DB->update_record('booking_options', $option);
         }
@@ -819,19 +821,19 @@ function booking_update_options($optionvalues, $context) {
         if (!empty($gapik)) {
             $googer = new GoogleURLAPI($gapik);
             $onlyoneurl = new moodle_url('/mod/booking/view.php',
-                    array('id' => $optionvalues->id, 'optionid' => $id, 'action' => 'showonlyone',
+                    array('id' => $optionvalues->id, 'optionid' => $optionid, 'action' => 'showonlyone',
                         'whichview' => 'showonlyone'));
             $onlyoneurl->set_anchor('goenrol');
 
             $shorturl = $googer->shorten(htmlspecialchars_decode($onlyoneurl->__toString()));
             if ($shorturl) {
                 $option->shorturl = $shorturl;
-                $option->id = $id;
+                $option->id = $optionid;
                 $DB->update_record("booking_options", $option);
             }
         }
 
-        $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $id,
+        $event = \mod_booking\event\bookingoption_created::create(array('context' => $context, 'objectid' => $optionid,
                 'userid' => $USER->id));
         $event->trigger();
 
@@ -840,8 +842,8 @@ function booking_update_options($optionvalues, $context) {
             foreach ($customfields as $fieldcfgname => $field) {
                 if (!empty($optionvalues->$fieldcfgname)) {
                     $customfield = new stdClass();
-                    $customfield->value = (is_array($optionvalues->$fieldcfgname) ? implode("\n", $optionvalues->$fieldcfgname) : $optionvalues->$fieldcfgname);;
-                    $customfield->optionid = $id;
+                    $customfield->value = (is_array($optionvalues->$fieldcfgname) ? implode("\n", $optionvalues->$fieldcfgname) : $optionvalues->$fieldcfgname);
+                    $customfield->optionid = $optionid;
                     $customfield->bookingid = $booking->id;
                     $customfield->cfgname = $fieldcfgname;
                     $DB->insert_record('booking_customfields', $customfield);
@@ -849,59 +851,67 @@ function booking_update_options($optionvalues, $context) {
             }
         }
 
-        //Deal with new optiondates (Multisessions).
-        // TODO: We should have an optiondates class to deal with all of this.
-        // As of now, we do it the hacky way.
+        deal_with_multisessions($optionvalues, $booking, $optionid, $context);
 
-        for ($i = 1; $i < 4; ++$i) {
-
-            $starttimekey = 'ms' . $i . 'starttime';
-            $endtimekey = 'ms' . $i . 'endtime';
-            $daystonotify = 'ms' . $i . 'nt';
-
-            if (isset($optionvalues->$starttimekey) && isset($optionvalues->$endtimekey)) {
-                $optiondate = new stdClass();
-                $optiondate->bookingid = $booking->id;
-                $optiondate->optionid = $id;
-                $optiondate->coursestarttime = $optionvalues->$starttimekey;
-                $optiondate->courseendtime = $optionvalues->$endtimekey;
-                if (isset($optionvalues->$daystonotify)) {
-                    $optiondate->daystonotify = $optionvalues->$daystonotify;
-                }
-                $optiondateid = $DB->insert_record("booking_optiondates", $optiondate);
-
-                for ($j = 1; $j < 4; ++$j) {
-                    $cfname = 'ms' . $i . 'cf' . $j . 'name';
-                    $cfvalue = 'ms' . $i . 'cf'. $j . 'value';
-
-                    if (isset($optionvalues->$cfname)
-                            && isset($optionvalues->$cfvalue)
-                            && !empty($optionvalues->$cfname)
-                            && !empty($optionvalues->$cfvalue)) {
-
-                        $customfield = new stdClass();
-                        $customfield->bookingid = $booking->id;
-                        $customfield->optionid = $id;
-                        $customfield->optiondateid = $optiondateid;
-                        $customfield->cfgname = $optionvalues->$cfname;
-                        $customfield->value = $optionvalues->$cfvalue;
-                        $DB->insert_record("booking_customfields", $customfield);
-
-                    }
-                }
-
-                // We trigger the event, where we take care of events in calendar etc.
-                $event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondateid,
-                        'userid' => $USER->id, 'other' => ['optionid' => $id]));
-                $event->trigger();
-            }
-        }
-
-        $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $id,
+        $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
                 'userid' => $USER->id));
         $event->trigger();
 
-        return $id;
+        return $optionid;
+    }
+}
+
+/**
+ * Helper function to deal with the creation of multisessions (optiondates).
+ */
+function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) {
+
+    global $DB, $USER;
+
+    // Deal with new optiondates (Multisessions).
+    // TODO: We should have an optiondates class to deal with all of this.
+    // As of now, we do it the hacky way.
+    for ($i = 1; $i < 8; ++$i) {
+
+        $starttimekey = 'ms' . $i . 'starttime';
+        $endtimekey = 'ms' . $i . 'endtime';
+        $daystonotify = 'ms' . $i . 'nt';
+
+        if (isset($optionvalues->$starttimekey) && isset($optionvalues->$endtimekey)) {
+            $optiondate = new stdClass();
+            $optiondate->bookingid = $booking->id;
+            $optiondate->optionid = $optionid;
+            $optiondate->coursestarttime = $optionvalues->$starttimekey;
+            $optiondate->courseendtime = $optionvalues->$endtimekey;
+            if (isset($optionvalues->$daystonotify)) {
+                $optiondate->daystonotify = $optionvalues->$daystonotify;
+            }
+            $optiondateid = $DB->insert_record("booking_optiondates", $optiondate);
+
+            for ($j = 1; $j < 4; ++$j) {
+                $cfname = 'ms' . $i . 'cf' . $j . 'name';
+                $cfvalue = 'ms' . $i . 'cf'. $j . 'value';
+
+                if (isset($optionvalues->$cfname)
+                    && isset($optionvalues->$cfvalue)
+                    && !empty($optionvalues->$cfname)
+                    && !empty($optionvalues->$cfvalue)) {
+
+                    $customfield = new stdClass();
+                    $customfield->bookingid = $booking->id;
+                    $customfield->optionid = $optionid;
+                    $customfield->optiondateid = $optiondateid;
+                    $customfield->cfgname = $optionvalues->$cfname;
+                    $customfield->value = $optionvalues->$cfvalue;
+                    $DB->insert_record("booking_customfields", $customfield);
+                }
+            }
+
+            // We trigger the event, where we take care of events in calendar etc.
+            $event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondateid,
+                'userid' => $USER->id, 'other' => ['optionid' => $optionid]));
+            $event->trigger();
+        }
     }
 }
 

@@ -42,7 +42,7 @@ class booking {
      *
      * @var \context the context of the course module for this booking instance (or just the course if we are
      */
-    protected $context = null;
+    public $context = null;
 
     /** @var stdClass the course this booking instance belongs to */
     public $course = null;

@@ -363,7 +363,7 @@ class external extends external_api {
         $userusername = null,
         $coursestarttime = null,
         $courseendtime = null,
-        $ismultisession = null
+        $mergeparam = null
     ) {
 
         $params = self::validate_parameters(self::addbookingoption_parameters(),
@@ -402,7 +402,7 @@ class external extends external_api {
                         'user_username' => $userusername,
                         'coursestarttime' => $coursestarttime,
                         'courseendtime' => $courseendtime,
-                        'ismultisession' => $ismultisession));
+                        'mergeparam' => $mergeparam));
 
         // We want to pass on an object to, so we clean all unnecessary values.
         $cleanedarray = array_filter($params, function($x) {
@@ -490,9 +490,10 @@ class external extends external_api {
                             'Time when booking option starts.', VALUE_DEFAULT, null),
                         'courseendtime' => new external_value(PARAM_TEXT,
                             'Time when booking option ends.', VALUE_DEFAULT, null),
-                        'ismultisession' => new external_value(PARAM_INT,
-                            'To upload multisession in consecutive steps.
-                            0 is no multisession, 1 is create ms, 2 is merge with previous.', VALUE_DEFAULT, null)
+                        'mergeparam' => new external_value(PARAM_INT,
+                            'To upload multisession in consecutive steps or to add teachers to option.
+                            0 is no multisession, 1 is create ms, 2 is merge with previous, 3 is merge teacher to option',
+                            VALUE_DEFAULT, null)
                 )
         );
     }

@@ -75,19 +75,21 @@ class webservice_import {
             $data->bookingcmid = $cm->id;
         }
 
+        // This will set the bookingoption to update (if there is one, else it will be null).
         $bookingoption = $this->check_if_update_option($data);
-        // First, we remap data to make sure we can use it in update & creation.
-        $this->remap_data($data);
 
-        if ($bookingoption) {
-            $this->update_option($bookingoption, $data);
-        } else {
+        // First, we remap data to make sure we can use it in update & creation.
+        $this->remap_data($data, $bookingoption);
+
+        if ($bookingoption == null) {
             // Create new booking option.
             $cm = get_coursemodule_from_instance('booking', $bookingid);
             $context = \context_module::instance($cm->id);
-
-            $bookingoptionid = booking_update_options($data, $context);
+        } else {
+            $context = $bookingoption->booking->context;
         }
+
+        $bookingoptionid = booking_update_options($data, $context);
 
         return array('status' => 1);
     }
@@ -127,24 +129,22 @@ class webservice_import {
             $bookingid = $DB->get_field_sql($sql, array('bookingoptionid' => $data->bookingoptionid, 'modulename' => 'booking'));
 
             return new booking_option($bookingid, $data->bookingoptionid);
-        } else if ($data->ismultisession == 2) {
-            // If there is the multisession marker 2, we might return a booking option.
+        } else if ($data->mergeparam == 2 || $data->mergeparam == 3) {
+            // If there is the multisession marker 2 or 3, we might return a booking option.
             // First, we look at the last bookingoption created. Is it in the same instance?
-            $sql = "SELECT MAX(Id) FROM {booking_options}";
+            $sql = "SELECT MAX(id) FROM {booking_options}";
             if ($lastbookingoptionid = $DB->get_field_sql($sql)) {
-                if (($bookingoption = new booking_option($data->cmid, $lastbookingoptionid))
-                        && ($bookingoption->option->text == $data->text)
+                if (($bookingoption = new booking_option($data->bookingcmid, $lastbookingoptionid))
+                        && ($bookingoption->option->text == $data->name) // Text is called 'name' before remap.
                         && ($bookingoption->option->description == $data->description)) {
                     return $bookingoption;
                 }
             }
         }
 
-        // If the ismultisession marker is 0 or 1, we create a new booking option.
+        // If the mergeparam marker is 0 or 1, we create a new booking option.
         // Therefore, we have to create a booking instance first.
         // Analyze data to know where to retrieve the right booking instance.
-
-        // TODO: $bookingid = $this->return_booking_id($data); END.
 
         return null;
     }
@@ -214,7 +214,7 @@ class webservice_import {
      * @param $data
      * @throws \moodle_exception
      */
-    private function remap_data(&$data) {
+    private function remap_data(&$data, $bookingoption) {
         self::change_property($data, 'name', 'text');
 
         // Throw an error if coursestarttime is provided without courseendtime.
@@ -229,6 +229,10 @@ class webservice_import {
                 'You provided courseendtime but coursestarttime is missing.');
         }
 
+        if (!empty($bookingoption)) {
+            $data->optionid = $bookingoption->option->id;
+        }
+
         // We need to set startendtimeknown to 1 if both are provided.
         if (!empty($data->coursestarttime) && !empty($data->courseendtime)) {
 
@@ -239,13 +243,32 @@ class webservice_import {
             }
 
             // Check if it's no multisession.
-            if (empty($data->ismultisession)) {
+            if (empty($data->mergeparam)) {
                 $data->startendtimeknown = 1;
                 $data->coursestarttime = strtotime($data->coursestarttime);
                 $data->courseendtime = strtotime($data->courseendtime);
+            } else if ($data->mergeparam == 1 || $data->mergeparam == 2) {
+
+                // TODO: also check if it gets added to calendar correctly.
+
+                $data->coursestarttime = strtotime($data->coursestarttime);
+                $data->courseendtime = strtotime($data->courseendtime);
+
+                $numberofsessions = count($bookingoption->sessions);
+
+                $startkey = 'ms' . (string) ($numberofsessions + 1) . 'starttime';
+                $endkey = 'ms' . (string) ($numberofsessions + 1) . 'endtime';
+
+                self::change_property($data, 'coursestarttime', $startkey);
+                self::change_property($data, 'courseendtime', $endkey);
+
+            } else if ($data->mergeparam == 3) {
+
+                //TODO: Merge teachers to booking option.
             }
         }
 
+        // Set booking closing time.
         $data->bookingclosingtime = strtotime($data->bookingclosingtime);
     }
 
