@@ -907,6 +907,9 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
                 }
             }
 
+            // Update start and end date of the option depending on the sessions.
+            booking_updatestartenddate($optionid);
+
             // We trigger the event, where we take care of events in calendar etc.
             $event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondateid,
                 'userid' => $USER->id, 'other' => ['optionid' => $optionid]));

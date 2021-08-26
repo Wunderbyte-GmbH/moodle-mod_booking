@@ -247,9 +247,21 @@ class webservice_import {
                 $data->startendtimeknown = 1;
                 $data->coursestarttime = strtotime($data->coursestarttime);
                 $data->courseendtime = strtotime($data->courseendtime);
-            } else if ($data->mergeparam == 1 || $data->mergeparam == 2) {
+            } else if ($data->mergeparam == 1) {
 
-                // TODO: also check if it gets added to calendar correctly.
+                $numberofsessions = count($bookingoption->sessions);
+
+                $startkey = 'ms' . (string) ($numberofsessions + 1) . 'starttime';
+                $endkey = 'ms' . (string) ($numberofsessions + 1) . 'endtime';
+
+                $data->$startkey = strtotime($data->coursestarttime);
+                $data->$endkey = strtotime($data->courseendtime);
+
+                // For the first entry set start time and end time both for option and session.
+                $data->coursestarttime = strtotime($data->coursestarttime);
+                $data->courseendtime = strtotime($data->courseendtime);
+
+            } else if ($data->mergeparam == 2) {
 
                 $data->coursestarttime = strtotime($data->coursestarttime);
                 $data->courseendtime = strtotime($data->courseendtime);
