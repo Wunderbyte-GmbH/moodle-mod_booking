@@ -296,11 +296,11 @@ class webservice_import {
 
     /**
      * Helper function to change propertyname in object.
-     * @param $data
-     * @param $oldname
-     * @param $newname
+     * @param object $data
+     * @param string $oldname
+     * @param string $newname
      */
-    private static function change_property(&$data, $oldname, $newname) {
+    private static function change_property(object &$data, string $oldname, string $newname) {
         if (isset($data->{$oldname})) {
             $data->{$newname} = $data->{$oldname};
             unset($data->{$oldname});
