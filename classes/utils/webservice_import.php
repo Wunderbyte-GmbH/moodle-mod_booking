@@ -255,10 +255,10 @@ class webservice_import {
                 $data->coursestarttime = strtotime($data->coursestarttime);
                 $data->courseendtime = strtotime($data->courseendtime);
 
-                $numberofsessions = count($bookingoption->sessions);
+                $sessionkey = self::return_next_sessionkey($data, $bookingoption);
 
-                $startkey = 'ms' . (string) ($numberofsessions + 1) . 'starttime';
-                $endkey = 'ms' . (string) ($numberofsessions + 1) . 'endtime';
+                $startkey = 'ms' . $sessionkey . 'starttime';
+                $endkey = 'ms' . $sessionkey. 'endtime';
 
                 if ($data->mergeparam == 1) {
                     // We don't change, but just add multisession, because here there is only one.
@@ -277,6 +277,21 @@ class webservice_import {
 
         // Set booking closing time.
         $data->bookingclosingtime = strtotime($data->bookingclosingtime);
+    }
+
+    /**
+     * Function to return the key for the next session, by counting existing ones.
+     * If no bookingoption as of yet, we return 1.
+     * @param object $data
+     * @param booking_option $bookingoption
+     * @return int
+     */
+    function return_next_sessionkey(object $data, booking_option $bookingoption) {
+        if ($bookingoption) {
+            return count($bookingoption->sessions) + 1;
+        } else {
+            return 1;
+        }
     }
 
     /**
