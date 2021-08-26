@@ -271,8 +271,14 @@ class webservice_import {
                 $startkey = 'ms' . (string) ($numberofsessions + 1) . 'starttime';
                 $endkey = 'ms' . (string) ($numberofsessions + 1) . 'endtime';
 
-                self::change_property($data, 'coursestarttime', $startkey);
-                self::change_property($data, 'courseendtime', $endkey);
+                if ($data->mergeparam == 1) {
+                    // We don't change, but just add multisession, because here there is only one.
+                    $data->{$startkey} = $data->coursestarttime;
+                    $data->{$endkey} = $data->courseendtime;
+                } else {
+                    self::change_property($data, 'coursestarttime', $startkey);
+                    self::change_property($data, 'courseendtime', $endkey);
+                }
 
             } else if ($data->mergeparam == 3) {
 
