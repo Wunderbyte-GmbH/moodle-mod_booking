@@ -291,10 +291,8 @@ function booking_add_instance($booking) {
 
     $booking->timemodified = time();
 
-    if (isset($booking->responsesfields) && count($booking->responsesfields) > 0) {
+    if (isset($booking->responsesfields) && is_array($booking->responsesfields) && count($booking->responsesfields) > 0) {
         $booking->responsesfields = implode(',', $booking->responsesfields);
-    } else {
-        $booking->responsesfields = null;
     }
 
     if (isset($booking->additionalfields) && count($booking->additionalfields) > 0) {
@@ -325,22 +323,16 @@ function booking_add_instance($booking) {
         $booking->showviews = '';
     }
 
-    if (isset($booking->reportfields) && count($booking->reportfields) > 0) {
+    if (isset($booking->reportfields) && is_array($booking->reportfields) && count($booking->reportfields) > 0) {
         $booking->reportfields = implode(',', $booking->reportfields);
-    } else {
-        $booking->reportfields = null;
     }
 
-    if (isset($booking->optionsfields) && count($booking->optionsfields) > 0) {
+    if (isset($booking->optionsfields) && is_array($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
-    } else {
-        $booking->optionsfields = null;
     }
 
-    if (isset($booking->signinsheetfields) && count($booking->signinsheetfields) > 0) {
+    if (isset($booking->signinsheetfields) && is_array($booking->signinsheetfields) && count($booking->signinsheetfields) > 0) {
         $booking->signinsheetfields = implode(',', $booking->signinsheetfields);
-    } else {
-        $booking->signinsheetfields = null;
     }
 
     // Copy the text fields out.
@@ -429,22 +421,16 @@ function booking_update_instance($booking) {
         $booking->showviews = '';
     }
 
-    if (isset($booking->responsesfields) && count($booking->responsesfields) > 0) {
+    if (isset($booking->responsesfields) && is_array($booking->responsesfields) && count($booking->responsesfields) > 0) {
         $booking->responsesfields = implode(',', $booking->responsesfields);
-    } else {
-        $booking->responsesfields = null;
     }
 
-    if (isset($booking->reportfields) && count($booking->reportfields) > 0) {
+    if (isset($booking->reportfields) && is_array($booking->reportfields) && count($booking->reportfields) > 0) {
         $booking->reportfields = implode(',', $booking->reportfields);
-    } else {
-        $booking->reportfields = null;
     }
 
-    if (isset($booking->signinsheetfields) && count($booking->signinsheetfields) > 0) {
+    if (isset($booking->signinsheetfields) && is_array($booking->signinsheetfields) && count($booking->signinsheetfields) > 0) {
         $booking->signinsheetfields = implode(',', $booking->signinsheetfields);
-    } else {
-        $booking->signinsheetfields = null;
     }
 
     if (isset($booking->templateid) && $booking->templateid > 0) {
@@ -453,10 +439,8 @@ function booking_update_instance($booking) {
         $booking->templateid = 0;
     }
 
-    if (isset($booking->optionsfields) && count($booking->optionsfields) > 0) {
+    if (isset($booking->optionsfields) && is_array($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
-    } else {
-        $booking->optionsfields = null;
     }
 
     if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
