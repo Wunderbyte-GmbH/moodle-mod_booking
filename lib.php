@@ -1,4 +1,4 @@
-<?php /** @noinspection PhpInconsistentReturnPointsInspection */
+<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -65,8 +65,8 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
     }
 
     // Make sure the filearea is one of those used by the plugin.
-    if ($filearea !== 'myfilemanager' && $filearea !== 'myfilemanageroption' && $filearea !== 'signinlogoheader' && $filearea !== 'signinlogofooter'
-        && $filearea !== 'templatefile') {
+    if ($filearea !== 'myfilemanager' && $filearea !== 'myfilemanageroption' && $filearea !== 'signinlogoheader'
+        && $filearea !== 'signinlogofooter' && $filearea !== 'templatefile') {
         return false;
     }
 
@@ -175,7 +175,8 @@ function booking_supports($feature) {
  * @return array
  * @throws dml_exception
  */
-function booking_comment_permissions($commentparam) {
+function booking_comment_permissions($commentparam): array
+{
     global $DB, $USER;
 
     $odata = $DB->get_record('booking_options', array('id' => $commentparam->itemid));
@@ -210,15 +211,22 @@ function booking_comment_permissions($commentparam) {
 }
 
 /**
- * Validate comment parameter before perform other comments actions
+ * Validate comment parameter before perform other comments actions.
  *
- * @package mod_booking
- * @category comment
- * @param stdClass $comment_param { context => context the context object courseid => int course id cm => stdClass course module object commentarea =>
- *            string comment area itemid => int itemid }
+ * @param stdClass $commentparam { context => context the context object
+ *                                  courseid => int course id
+ *                                  cm => stdClass course module object
+ *                                  commentarea => string comment area
+ *                                  itemid => int itemid }
  * @return boolean
+ * @throws coding_exception
+ * @throws comment_exception
+ * @throws dml_exception
+ * @category comment
+ * @package mod_booking
  */
-function booking_comment_validate($commentparam) {
+function booking_comment_validate(stdClass $commentparam): bool
+{
     global $DB;
 
     if ($commentparam->commentarea != 'booking_option') {
@@ -331,22 +339,23 @@ function booking_add_instance($booking) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
     }
 
-    if (isset($booking->signinsheetfields) && is_array($booking->signinsheetfields) && count($booking->signinsheetfields) > 0) {
+    if (isset($booking->signinsheetfields) && is_array($booking->signinsheetfields)
+        && count($booking->signinsheetfields) > 0) {
         $booking->signinsheetfields = implode(',', $booking->signinsheetfields);
     }
 
     // Copy the text fields out.
-    $booking->bookedtext = isset($booking->bookedtext['text']) ? $booking->bookedtext['text'] : $booking->bookedtext;
-    $booking->waitingtext = isset($booking->waitingtext['text']) ? $booking->waitingtext['text'] : $booking->waitingtext;
-    $booking->notifyemail = isset($booking->notifyemail['text']) ? $booking->notifyemail['text'] : $booking->notifyemail;
-    $booking->notifyemailteachers = isset($booking->notifyemailteachers['text']) ? $booking->notifyemailteachers['text'] : $booking->notifyemailteachers;
-    $booking->statuschangetext = isset($booking->statuschangetext['text']) ? $booking->statuschangetext['text'] : $booking->statuschangetext;
-    $booking->deletedtext = isset($booking->deletedtext['text']) ? $booking->deletedtext['text'] : $booking->deletedtext;
-    $booking->bookingchangedtext = isset($booking->bookingchangedtext['text']) ? $booking->bookingchangedtext['text'] : $booking->bookingchangedtext;
-    $booking->pollurltext = isset($booking->pollurltext['text']) ? $booking->pollurltext['text'] : $booking->pollurltext;
-    $booking->pollurlteacherstext = isset($booking->pollurlteacherstext['text']) ? $booking->pollurlteacherstext['text'] : $booking->pollurlteacherstext;
-    $booking->activitycompletiontext = isset($booking->activitycompletiontext['text']) ? $booking->activitycompletiontext['text'] : $booking->activitycompletiontext;
-    $booking->userleave = isset($booking->userleave['text']) ? $booking->userleave['text'] : $booking->userleave;
+    $booking->bookedtext = $booking->bookedtext['text'] ?? $booking->bookedtext;
+    $booking->waitingtext = $booking->waitingtext['text'] ?? $booking->waitingtext;
+    $booking->notifyemail = $booking->notifyemail['text'] ?? $booking->notifyemail;
+    $booking->notifyemailteachers = $booking->notifyemailteachers['text'] ?? $booking->notifyemailteachers;
+    $booking->statuschangetext = $booking->statuschangetext['text'] ?? $booking->statuschangetext;
+    $booking->deletedtext = $booking->deletedtext['text'] ?? $booking->deletedtext;
+    $booking->bookingchangedtext = $booking->bookingchangedtext['text'] ?? $booking->bookingchangedtext;
+    $booking->pollurltext = $booking->pollurltext['text'] ?? $booking->pollurltext;
+    $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'] ?? $booking->pollurlteacherstext;
+    $booking->activitycompletiontext = $booking->activitycompletiontext['text'] ?? $booking->activitycompletiontext;
+    $booking->userleave = $booking->userleave['text'] ?? $booking->userleave;
     if (isset($booking->beforebookedtext['text'])) {
         $booking->beforebookedtext = $booking->beforebookedtext['text'];
     }

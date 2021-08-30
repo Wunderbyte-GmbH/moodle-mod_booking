@@ -303,7 +303,7 @@ class webservice_import {
      * @param booking_option|null $bookingoption
      * @return int
      */
-    function return_next_sessionkey(object $data, booking_option $bookingoption = null) {
+    private static function return_next_sessionkey(object $data, booking_option $bookingoption = null) {
         if ($bookingoption) {
             return count($bookingoption->sessions) + 1;
         } else {
@@ -345,7 +345,7 @@ class webservice_import {
         }
         $userid = reset($userids);
 
-        // Try to subscribe teacher to booking option and throw an error
+        // Try to subscribe teacher to booking option and throw an error if not successful.
         if (!subscribe_teacher_to_booking_option($userid, $optionid, $this->cm)) {
             throw new \moodle_exception('teachernotsubscribed', 'mod_booking', null, null,
                 'The teacher with e-mail ' . $data->teacheremail .
