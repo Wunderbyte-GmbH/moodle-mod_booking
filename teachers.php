@@ -101,7 +101,7 @@ if ($edit === 0) {
     } else if ($unsubscribe) {
         $users = $existingselector->get_selected_users();
         foreach ($users as $user) {
-            if (!booking_optionid_unsubscribe($user->id, $optionid, $cm)) {
+            if (!unsubscribe_teacher_from_booking_option($user->id, $optionid, $cm)) {
                 print_error('cannotremovesubscriber', 'booking', '', $user->id);
             }
         }

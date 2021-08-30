@@ -1317,7 +1317,7 @@ class booking_option {
         }
 
         foreach ($this->get_teachers() as $teacher) {
-            booking_optionid_unsubscribe($teacher->userid, $this->optionid, $this->booking->cm);
+            unsubscribe_teacher_from_booking_option($teacher->userid, $this->optionid, $this->booking->cm);
         }
 
         // Delete calendar entry, if any.

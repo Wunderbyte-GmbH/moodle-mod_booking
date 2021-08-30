@@ -320,9 +320,17 @@ class webservice_import {
 
     private function add_teacher_to_bookingoption($optionid, $data) {
         global $DB;
-        if (!isset($data->teacheremail)
-            || (!$userids = $DB->get_fieldset_select('user', 'id', 'email=:email', array('email' => $data->teacheremail)))) {
+
+        // If no teacher e-mail is provided, we don't do anything.
+        if (empty($data->teacheremail)) {
             return;
+        }
+
+        // If a teacher e-mail is provided, but the teacher can't be found in the DB, we throw an error.
+        if (!$userids = $DB->get_fieldset_select('user', 'id', 'email=:email', array('email' => $data->teacheremail))) {
+            throw new \moodle_exception('teachernotsubscribed', 'mod_booking', null, null,
+                'The teacher with email ' . $data->teacheremail .
+                ' does not exist in the target database.');
         }
 
         if (count($userids) != 1) {
@@ -331,6 +339,11 @@ class webservice_import {
         }
         $userid = reset($userids);
 
-        booking_optionid_subscribe($userid, $optionid, $this->cm);
+        // Try to subscribe teacher to booking option and throw an error
+        if (!subscribe_teacher_to_booking_option($userid, $optionid, $this->cm)) {
+            throw new \moodle_exception('teachernotsubscribed', 'mod_booking', null, null,
+                'The teacher with e-mail ' . $data->teacheremail .
+                ' could not be subscribed to the option with optionid ' . $optionid);
+        }
     }
 }

@@ -2650,7 +2650,7 @@ function subscribe_teacher_to_booking_option($userid, $optionid, $cm, $groupid =
  * @param int $optionid
  * @param $cm
  */
-function booking_optionid_unsubscribe($userid, $optionid, $cm) {
+function unsubscribe_teacher_from_booking_option($userid, $optionid, $cm) {
     global $DB;
 
     $event = \mod_booking\event\teacher_removed::create(

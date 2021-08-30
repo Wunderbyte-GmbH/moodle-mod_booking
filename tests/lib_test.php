@@ -30,7 +30,7 @@ class mod_booking_lib_testcase extends advanced_testcase {
     }
 
     // Test adding teacher to event and group.
-    public function test_booking_optionid_subscribe() {
+    public function test_subscribe_teacher_to_booking_option() {
 
         global $DB;
 
