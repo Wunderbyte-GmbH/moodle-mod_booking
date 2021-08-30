@@ -66,6 +66,12 @@ class webservice_import {
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
+        // PRO feature: A license key is needed to use the Import controller web service.
+        if (!wb_payment::is_currently_valid_licensekey()) {
+            throw new \moodle_exception('missinglicensekey', 'mod_booking', null, null,
+                'You need an activated PRO version in order to use the import controller web service.');
+        }
+
         // Now we get the booking instance.
         if (!$bookingid = $this->return_booking_id($data)) {
             throw new \moodle_exception('nobookingid', 'mod_booking', null, null,
