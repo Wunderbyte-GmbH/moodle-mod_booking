@@ -799,13 +799,14 @@ $string['donotselectlocation'] = 'Kein Ort ausgewählt';
 $string['donotselecteventtype'] = 'Keine Ereignisart ausgewählt';
 $string['importcsvbookingoption'] = 'Buchungsoptionen via CSV-Datei importieren';
 $string['importexcelbutton'] = 'Aktivitätsabschluss importieren';
-$string['activitycompletiontext'] = 'Benachrichtungstext bei Aktivitätsabschluss';
-$string['activitycompletiontextmessage'] = 'Sie haben die folgende Aktivität abgeschlossen:
+$string['activitycompletiontext'] = 'Nachricht an Benutzer/in, wenn Buchungsoption abgeschlossen ist';
+$string['activitycompletiontextsubject'] = 'Buchungsoption abgeschlossen';
+$string['activitycompletiontextmessage'] = 'Sie haben die folgende Buchungsoption abgeschlossen:
 
-Buchungsoption: {$a->title}
-Datum: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
-Link zur Buchung: {bookinglink}
-Link zum Kurs: {courselink}';
+{a->bookingdetails}
+
+Zum Kurs: {a->courselink}
+Alle Buchungsoptionen ansehen: {a->bookinglink}';
 $string['sendmailtobooker'] = 'Buchung für andere User durchführen: Mail an User, der Buchung durchführt, anstatt an gebuchte User senden';
 $string['sendmailtobooker_help'] = 'Diese Option aktivieren, um Buchungsbestätigungsmails anstatt an die gebuchten Nutzer/innen zu senden an den/die Nutzer/in senden, die die Buchung durchgeführt hat. Dies betrifft nur Buchungen, die auf der Seite "Buchung für andere Nutzer/innen durchführen" getätigt wurden';
 $string['startendtimeknown'] = 'Kursbeginn und Kursende sind bekannt';
@@ -1147,7 +1148,7 @@ $string['globaldeletedtext'] = 'Stornierungsbenachrichtigung (globale Vorlage)';
 $string['globalbookingchangedtext'] = 'Benachrichtigung bei Änderungen an der Buchung (geht nur an User, die bereits gebucht haben). Verwenden Sie den Platzhalter {changes} um die Änderungen anzuzeigen. (Globale Vorlage)';
 $string['globalpollurltext'] = 'Umfragelink versenden (globale Vorlage)';
 $string['globalpollurlteacherstext'] = 'Link zum Absender der Umfrage für Trainer/innen (globale Vorlage)';
-$string['globalactivitycompletiontext'] = 'Benachrichtungstext bei Aktivitätsabschluss (globale Vorlage)';
+$string['globalactivitycompletiontext'] = 'Nachricht an Benutzer/in, wenn Buchungsoption abgeschlossen ist (globale Vorlage)';
 $string['licensekeycfg'] = 'PRO-Version aktivieren';
 $string['licensekeycfgdesc'] = 'Mit einer PRO-Lizenz können Sie so viele Buchungsvorlagen erstellen wie Sie wollen und PRO-Features wie z.B. globale Mailvorlagen, Info-Texte für Wartelistenplätze und Benachrichtigungen für Trainer/innen nutzen.';
 $string['licensekey'] = 'PRO-Lizenz-Schlüssel';

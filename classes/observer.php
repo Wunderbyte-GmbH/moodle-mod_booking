@@ -22,6 +22,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
+use mod_booking\booking_option;
 use mod_booking\calendar;
 
 /**
@@ -63,7 +64,7 @@ class mod_booking_observer {
             $options = $DB->get_records_sql($sql, $params);
             if (!empty($options)) {
                 foreach ($options as $option) {
-                    $bo = \mod_booking\booking_option::create_option_from_optionid($option->id, $option->bookingid);
+                    $bo = booking_option::create_option_from_optionid($option->id, $option->bookingid);
                     $bo->user_delete_response($cp->userid);
                 }
                 $optionids = array_keys($options);
@@ -116,7 +117,7 @@ class mod_booking_observer {
         $cmid = $event->contextinstanceid;
         $context = $event->get_context();
 
-        $bookingoption = new \mod_booking\booking_option($cmid, $optionid);
+        $bookingoption = new booking_option($cmid, $optionid);
 
         $option = $bookingoption->option;
 
@@ -183,7 +184,7 @@ class mod_booking_observer {
             calendar::TYPEOPTIONDATE, $event->objectid);
 
         $cmid = $event->contextinstanceid;
-        $bookingoption = new \mod_booking\booking_option($cmid, $optionid);
+        $bookingoption = new booking_option($cmid, $optionid);
 
         $users = $bookingoption->get_all_users_booked();
         foreach ($users as $user) {
@@ -199,7 +200,17 @@ class mod_booking_observer {
      */
     public static function bookingoption_completed(\mod_booking\event\bookingoption_completed $event) {
 
-        //TODO: Do stuff.
+        $optionid = $event->objectid;
+        $cmid = $event->other['cmid'];
+        $selecteduserid = $event->relateduserid;
+        $bookingoption = new booking_option($cmid, $optionid);
+
+        // Send a message to the user who has completed the booking option (or who has been marked for completion).
+        try {
+            bookingoption_completed_send_message($selecteduserid, $bookingoption, $cmid);
+        } catch (coding_exception | dml_exception $e) {
+            error_log('Booking option completion message could not be sent. Exception in function observer.php/bookingoption_completed.');
+        }
     }
 
     /**

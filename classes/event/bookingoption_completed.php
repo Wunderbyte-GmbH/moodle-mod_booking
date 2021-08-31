@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 
 /**
- * The bookingoption_booked event class.
+ * The bookingoption_completed event class.
  *
  * @property-read array $other { Extra information about event. Acesss an instance of the booking module }
  * @since Moodle 2.7

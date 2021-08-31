@@ -548,7 +548,7 @@ function booking_update_options($optionvalues, $context) {
     global $DB, $CFG, $COURSE, $PAGE, $USER;
     require_once("$CFG->dirroot/mod/booking/locallib.php");
     require_once("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
-    $customfields = \mod_booking\booking_option::get_customfield_settings();
+    $customfields = booking_option::get_customfield_settings();
     if (!($booking = $DB->get_record('booking', array('id' => $optionvalues->bookingid)))) {
         $booking = new stdClass();
         $booking->id = 0;
@@ -1004,7 +1004,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
     $booking_is_teacher = false; // set to false by default
     if (!is_null($optionid) && $optionid > 0) {
-        $option = new \mod_booking\booking_option($cm->id, $optionid);
+        $option = new booking_option($cm->id, $optionid);
         $booking_is_teacher = booking_check_if_teacher ($option->option);
     }
 
@@ -1633,9 +1633,9 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
 
     $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
 
-    foreach ($selectedusers as $ui) {
+    foreach ($selectedusers as $selecteduser) {
         $userdata = $DB->get_record('booking_answers',
-                array('optionid' => $optionid, 'userid' => $ui));
+                array('optionid' => $optionid, 'userid' => $selecteduser));
 
         if ($userdata->completed == '1') {
             $userdata->completed = '0';
@@ -1643,10 +1643,10 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
 
             $DB->update_record('booking_answers', $userdata);
             $countcomplete = $DB->count_records('booking_answers',
-                    array('bookingid' => $booking->id, 'userid' => $ui, 'completed' => '1'));
+                    array('bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1'));
 
             if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcomplete) {
-                $completion->update_state($cm, COMPLETION_INCOMPLETE, $ui);
+                $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);
             }
         } else {
             $userdata->completed = '1';
@@ -1654,15 +1654,18 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
 
             // Trigger the completion event, in order to send the notification mail.
             $event = \mod_booking\event\bookingoption_completed::create(array('context' => context_module::instance($cmid), 'objectid' => $optionid,
-                'relateduserid' => $ui));
+                'relateduserid' => $selecteduser, 'other' => ['cmid' => $cmid]));
             $event->trigger();
+
+            /*$event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondateid,
+                'userid' => $USER->id, 'other' => ['optionid' => $optionid]));*/
 
             $DB->update_record('booking_answers', $userdata);
             $countcomplete = $DB->count_records('booking_answers',
-                    array('bookingid' => $booking->id, 'userid' => $ui, 'completed' => '1'));
+                    array('bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1'));
 
             if ($completion->is_enabled($cm) && $booking->enablecompletion <= $countcomplete) {
-                $completion->update_state($cm, COMPLETION_COMPLETE, $ui);
+                $completion->update_state($cm, COMPLETION_COMPLETE, $selecteduser);
             }
         }
     }
@@ -2023,7 +2026,7 @@ function booking_sendreminderemail($selectedusers, $booking, $cmid, $optionid) {
  * @throws coding_exception
  * @throws dml_exception
  */
-function booking_sendpollurlteachers(\mod_booking\booking_option $booking, $cmid, $optionid) {
+function booking_sendpollurlteachers(booking_option $booking, $cmid, $optionid) {
     global $DB, $USER;
 
     $returnval = true;
@@ -2070,7 +2073,7 @@ function booking_sendpollurlteachers(\mod_booking\booking_option $booking, $cmid
  * @throws coding_exception
  * @throws dml_exception
  */
-function booking_sendpollurl($userids, \mod_booking\booking_option $booking, $cmid, $optionid) {
+function booking_sendpollurl($userids, booking_option $booking, $cmid, $optionid) {
     global $DB, $USER;
 
     $returnval = true;
@@ -2109,6 +2112,44 @@ function booking_sendpollurl($userids, \mod_booking\booking_option $booking, $cm
     $DB->update_record('booking_options', $dataobject);
 
     return $returnval;
+}
+
+/**
+ * Send a message to the user who has completed the booking option.
+ * Triggered by the event bookingoption_completed and executed by the function bookingoption_completed in observer.php.
+ *
+ * @param int $userid
+ * @param booking_option $bookingoption
+ * @param int $cmid
+ * @return bool|mixed
+ * @throws coding_exception
+ * @throws dml_exception
+ */
+function bookingoption_completed_send_message(int $userid, booking_option $bookingoption, int $cmid) {
+    global $DB, $USER;
+
+    $touser = $DB->get_record('user', array('id' => $userid));
+
+    $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option, $touser, $cmid,
+        $bookingoption->optiontimes, false, false, true);
+
+    $message = booking_get_email_body($bookingoption->booking->settings, 'activitycompletiontext',
+        'activitycompletiontextmessage', $params);
+    $bookingoption->booking->settings->pollurltext = $message;
+
+    $eventdata = new core\message\message();
+    $eventdata->modulename = 'booking';
+    $eventdata->userfrom = $USER;
+    $eventdata->userto = $touser;
+    $eventdata->subject = get_string('activitycompletiontextsubject', 'booking', $params);
+    $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $message));
+    $eventdata->fullmessageformat = FORMAT_HTML;
+    $eventdata->fullmessagehtml = $message;
+    $eventdata->smallmessage = '';
+    $eventdata->component = 'mod_booking';
+    $eventdata->name = 'bookingconfirmation'; // Message providers are defined in messages.php.
+
+    return message_send($eventdata);
 }
 
 /**
@@ -2174,7 +2215,7 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
     }
     $cm = get_coursemodule_from_instance('booking', $option->bookingid);
 
-    $bookingdata = new \mod_booking\booking_option($cm->id, $option->id);
+    $bookingdata = new booking_option($cm->id, $option->id);
     $bookingdata->apply_tags();
 
     if (!empty($tousers)) {
@@ -2281,7 +2322,7 @@ function booking_delete_instance($id) {
 
     $alloptionsid = \mod_booking\booking::get_all_optionids($id);
     foreach ($alloptionsid as $optionid) {
-        $bookingoption = new \mod_booking\booking_option($cm->id, $optionid);
+        $bookingoption = new booking_option($cm->id, $optionid);
         $bookingoption->delete_booking_option();
     }
 
@@ -2627,7 +2668,7 @@ function subscribe_teacher_to_booking_option($userid, $optionid, $cm, $groupid =
         return true;
     }
 
-    $option = new \mod_booking\booking_option($cm->id, $optionid);
+    $option = new booking_option($cm->id, $optionid);
 
     $sub = new stdClass();
     $sub->userid = $userid;

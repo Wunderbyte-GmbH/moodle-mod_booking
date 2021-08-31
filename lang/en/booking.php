@@ -938,13 +938,14 @@ $string['donotselectlocation'] = 'No location selected';
 $string['donotselecteventtype'] = 'No event type selected';
 $string['importcsvbookingoption'] = 'Import CSV with booking options';
 $string['importexcelbutton'] = 'Import activity completion';
-$string['activitycompletiontext'] = 'Notification text shown on activity completion';
-$string['activitycompletiontextmessage'] = 'You have completed the following activity:
+$string['activitycompletiontext'] = 'Message to be sent to user when booking option is completed';
+$string['activitycompletiontextsubject'] = 'Booking option completed';
+$string['activitycompletiontextmessage'] = 'You have completed the following booking option:
 
-Booking option: {$a->title}
-Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
-Booking link: {bookinglink}
-Course link: {courselink}';
+{a->bookingdetails}
+
+Go to course: {a->courselink}
+See all booking options: {a->bookinglink}';
 $string['sendmailtobooker'] = 'Book other users page: Send mail to user who books instead to users who are booked';
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to the user who books other users instead to users, who have been added to a booking option. This is only relevant for bookings made on the page "book other users".';
 $string['startendtimeknown'] = 'Start and end time of course are known';
@@ -1320,7 +1321,7 @@ $string['globaldeletedtext'] = 'Cancelled booking message (global template)';
 $string['globalbookingchangedtext'] = 'Message to be sent when a booking option changes (will only be sent to users who have already booked). Use the placeholder {changes} to show the changes. (Global template)';
 $string['globalpollurltext'] = 'Message for sending poll url to booked users (global template)';
 $string['globalpollurlteacherstext'] = 'Message for the poll url sent to teachers (global template)';
-$string['globalactivitycompletiontext'] = 'Notification text shown on activity completion (global template)';
+$string['globalactivitycompletiontext'] = 'Message to be sent to user when booking option is completed (global template)';
 $string['licensekeycfg'] = 'Activate PRO version';
 $string['licensekeycfgdesc'] = 'With a PRO license you can create as many booking templates as you like and use PRO features such as global mail templates, waiting list info texts or teacher notifications.';
 $string['licensekey'] = 'PRO license key';
