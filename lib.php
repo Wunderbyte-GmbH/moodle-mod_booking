@@ -27,7 +27,8 @@ use mod_booking\booking_option;
 use mod_booking\booking_utils;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
-use \mod_booking\utils\wb_payment;
+use mod_booking\utils\wb_payment;
+use mod_booking\task\send_completion_mails;
 
 /**
  * @param stdClass $cm
@@ -1657,9 +1658,6 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
                 'relateduserid' => $selecteduser, 'other' => ['cmid' => $cmid]));
             $event->trigger();
 
-            /*$event = \mod_booking\event\bookingoptiondate_created::create(array('context' => $context, 'objectid' => $optiondateid,
-                'userid' => $USER->id, 'other' => ['optionid' => $optionid]));*/
-
             $DB->update_record('booking_answers', $userdata);
             $countcomplete = $DB->count_records('booking_answers',
                     array('bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1'));
@@ -2119,37 +2117,24 @@ function booking_sendpollurl($userids, booking_option $booking, $cmid, $optionid
  * Triggered by the event bookingoption_completed and executed by the function bookingoption_completed in observer.php.
  *
  * @param int $userid
- * @param booking_option $bookingoption
+ * @param int $optionid
  * @param int $cmid
  * @return bool|mixed
  * @throws coding_exception
  * @throws dml_exception
  */
-function bookingoption_completed_send_message(int $userid, booking_option $bookingoption, int $cmid) {
+function bookingoption_completed_send_message(int $userid, int $optionid, int $cmid) {
     global $DB, $USER;
 
-    $touser = $DB->get_record('user', array('id' => $userid));
+    $taskdata = array(
+        'userid' => $userid,
+        'optionid' => $optionid,
+        'cmid' => $cmid
+    );
 
-    $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option, $touser, $cmid,
-        $bookingoption->optiontimes, false, false, true);
-
-    $message = booking_get_email_body($bookingoption->booking->settings, 'activitycompletiontext',
-        'activitycompletiontextmessage', $params);
-    $bookingoption->booking->settings->pollurltext = $message;
-
-    $eventdata = new core\message\message();
-    $eventdata->modulename = 'booking';
-    $eventdata->userfrom = $USER;
-    $eventdata->userto = $touser;
-    $eventdata->subject = get_string('activitycompletiontextsubject', 'booking', $params);
-    $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $message));
-    $eventdata->fullmessageformat = FORMAT_HTML;
-    $eventdata->fullmessagehtml = $message;
-    $eventdata->smallmessage = '';
-    $eventdata->component = 'mod_booking';
-    $eventdata->name = 'bookingconfirmation'; // Message providers are defined in messages.php.
-
-    return message_send($eventdata);
+    $sendtask = new send_completion_mails();
+    $sendtask->set_custom_data($taskdata);
+    \core\task\manager::queue_adhoc_task($sendtask);
 }
 
 /**

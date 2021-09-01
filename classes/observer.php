@@ -203,11 +203,10 @@ class mod_booking_observer {
         $optionid = $event->objectid;
         $cmid = $event->other['cmid'];
         $selecteduserid = $event->relateduserid;
-        $bookingoption = new booking_option($cmid, $optionid);
 
         // Send a message to the user who has completed the booking option (or who has been marked for completion).
         try {
-            bookingoption_completed_send_message($selecteduserid, $bookingoption, $cmid);
+            bookingoption_completed_send_message($selecteduserid, $optionid, $cmid);
         } catch (coding_exception | dml_exception $e) {
             error_log('Booking option completion message could not be sent. Exception in function observer.php/bookingoption_completed.');
         }
