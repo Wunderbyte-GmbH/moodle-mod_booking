@@ -14,14 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
- * This page allows a user to subscribe/unsubscribe other users from a booking option
+ * This page allows a user to subscribe/unsubscribe other users from a booking option.
  * TODO: upgrade logging, add logging for added/deleted users
  *
  * @author David Bogner davidbogner@gmail.com
- * @package mod/booking
+ * @package mod_booking
  */
+global $CFG, $DB, $COURSE, $PAGE, $OUTPUT;
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
+
+use core\output\notification;
+use mod_booking\booking_utils;
+use mod_booking\form\subscribe_cohort_or_group_form;
 
 $id = required_param('id', PARAM_INT); // Course_module ID.
 $optionid = required_param('optionid', PARAM_INT);
@@ -166,5 +171,60 @@ if ($subscribesuccess || $unsubscribesuccess) {
 }
 
 echo $bookingoutput->subscriber_selection_form($existingselector, $subscriberselector, $course->id);
+
+echo '<br>';
+
+// Add the Moodle form for cohort and group subscription.
+$mform = new subscribe_cohort_or_group_form();
+$mform->set_data(['id' => $id, 'optionid' => $optionid]);
+
+// Form processing and displaying is done here.
+if ($fromform = $mform->get_data()) {
+
+    $notificationstring = '';
+    $delay = 0;
+    $notificationtype = notification::NOTIFY_INFO;
+
+    $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id, 'optionid' => $optionid, 'agree' => $agree]);
+
+    if (!empty($fromform->cohortids) || !empty($fromform->groupids)){
+        $result = booking_utils::book_cohort_or_group_members($fromform, $bookingoption, $context);
+        $delay = 120;
+
+        // Generate the notification string and determine the notification color.
+        $notificationstring = get_string('resultofcohortorgroupbooking', 'mod_booking', $result);
+
+        if ($result->notenrolledusers > 0 || $result->notsubscribedusers > 0) {
+            $notificationstring .= get_string('problemsofcohortorgroupbooking', 'mod_booking', $result);
+
+            if ($result->subscribedusers > 0) {
+                $notificationtype = notification::NOTIFY_WARNING;
+            } else {
+                $notificationtype = notification::NOTIFY_ERROR;
+            }
+        } else {
+            if ($result->subscribedusers > 0) {
+                $notificationtype = notification::NOTIFY_SUCCESS;
+            } else {
+                $notificationtype = notification::NOTIFY_ERROR;
+            }
+        }
+    } else {
+        $notificationtype = notification::NOTIFY_ERROR;
+        $notificationstring = get_string('nogrouporcohortselected', 'mod_booking');
+        $delay = 5;
+    }
+
+    try {
+        redirect($url, $notificationstring, $delay, $notificationtype);
+    } catch (moodle_exception $e) {
+        error_log('subscribeusers.php: Exception in redirect function.');
+    }
+
+} else {
+    // This branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed...
+    // ... or on the first display of the form.
+    $mform->display();
+}
 
 echo $OUTPUT->footer();

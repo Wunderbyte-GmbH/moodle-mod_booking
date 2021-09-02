@@ -24,10 +24,10 @@ use moodle_url;
 use stdClass;
 
 /**
- * Utils
+ * Booking utils.
  *
- * @package mod-booking
- * @copyright 2014 Andraž Prinčič
+ * @package mod_booking
+ * @copyright 2014 Andraž Prinčič, 2021 onwards - Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_utils {
@@ -1042,6 +1042,124 @@ class booking_utils {
         $subscriptionlink = new moodle_url('/calendar/export_execute.php', $linkparams);
 
         return $subscriptionlink->__toString();
+    }
+
+    /**
+     * Function to book cohort or group members(users).
+     * Result as an object containing the following numbers:
+     * - sumcohortmembers All cohort members that have been tried to subscribe.
+     * - sumgroupmembers All group members that have been tried to subscribe.
+     * - subscribedusers Users that were subscribed successfully.
+     * - sumgroupmembers All group members that have been tried to subscribe.
+     * - notenrolledusers Users that could not be subscribed because of missing course enrolment.
+     * - notsubscribedusers Users that could not be subscribed for all reasons else.
+     *
+     * @param stdClass $fromform
+     * @param booking_option $bookingoption
+     * @param $context
+     * @return stdClass
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public static function book_cohort_or_group_members(stdClass $fromform, booking_option $bookingoption, $context): stdClass {
+
+        global $DB;
+
+        // Create the return object.
+        $result = new stdClass();
+
+        $cohortmembersarray = [];
+        $groupmembersarray = [];
+        $notenrolledusersarray = [];
+        $notsubscribedusersarray = [];
+        $subscribedusersarray = [];
+
+        $result->sumcohortmembers = 0;
+        $result->sumgroupmembers = 0;
+        $result->notenrolledusers = 0;
+        $result->notsubscribedusers = 0;
+        $result->subscribedusers = 0;
+
+        // Part 1: Book cohort members.
+        foreach($fromform->cohortids as $cohortid) {
+
+            // Retrieve all users of this cohort.
+            $sql = "SELECT u.*
+                    FROM {user} u
+                    JOIN {cohort_members} cm
+                    ON u.id = cm.userid
+                    WHERE cm.cohortid = :cohortid";
+            $cohortmembers = $DB->get_records_sql($sql, ['cohortid' => $cohortid]);
+            $cohortmembersarray = array_merge($cohortmembersarray, $cohortmembers);
+
+            // Verify if the editing user can see the cohorts.
+            if (!cohort_get_cohort($cohortid, $context)) {
+                // Members of cohorts with no permission.
+                $notsubscribedusersarray = array_merge($notsubscribedusersarray, $cohortmembers);
+                continue;
+            }
+
+            if (has_capability('mod/booking:subscribeusers', $context) or
+                (booking_check_if_teacher($bookingoption->option))) {
+                foreach ($cohortmembers as $user) {
+
+                    // First, we only book users which are already subscribed to this course.
+                    if (!is_enrolled($context, $user, null, true)) {
+                        // Track users who were not subscribed because they were not enrolled in the course.
+                        $notenrolledusersarray[] = $user;
+                        continue;
+                    }
+                    if (!$bookingoption->user_submit_response($user)) {
+                        // Track users where subscription failed because of different reasons.
+                        $notsubscribedusersarray[] = $user;
+                    } else {
+                        // Track users with successful subscription.
+                        $subscribedusersarray[] = $user;
+                    }
+                }
+            }
+        }
+
+        // Part 2: Book group members.
+        foreach($fromform->groupids as $groupid) {
+
+            // Retrieve all users of this group.
+            $sql = "SELECT u.*
+                    FROM {user} u
+                    JOIN {groups_members} gm
+                    ON u.id = gm.userid
+                    WHERE gm.groupid = :groupid";
+            $groupmembers = $DB->get_records_sql($sql, ['groupid' => $groupid]);
+            $groupmembersarray = array_merge($groupmembersarray, $groupmembers);
+
+            if (has_capability('mod/booking:subscribeusers', $context) or
+                (booking_check_if_teacher($bookingoption->option))) {
+
+                foreach ($groupmembers as $user) {
+                    // First, we only book users which are already subscribed to this course.
+                    if (!is_enrolled($context, $user, null, true)) {
+                        // Track users who were not subscribed because they were not enrolled in the course.
+                        $notenrolledusersarray[] = $user;
+                        continue;
+                    }
+                    if (!$bookingoption->user_submit_response($user)) {
+                        // Track users where subscription failed because of different reasons.
+                        $notsubscribedusersarray[] = $user;
+                    } else {
+                        // Track users with successful subscription.
+                        $subscribedusersarray[] = $user;
+                    }
+                }
+            }
+        }
+
+        $result->sumcohortmembers = count(array_unique($cohortmembersarray , SORT_REGULAR));
+        $result->sumgroupmembers = count(array_unique($groupmembersarray , SORT_REGULAR));
+        $result->notenrolledusers = count(array_unique($notenrolledusersarray , SORT_REGULAR));
+        $result->notsubscribedusers = count(array_unique($notsubscribedusersarray , SORT_REGULAR));
+        $result->subscribedusers = count(array_unique($subscribedusersarray , SORT_REGULAR));
+
+        return $result;
     }
 
     /**

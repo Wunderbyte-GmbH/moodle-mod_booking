@@ -104,6 +104,27 @@ $string['backtoresponses'] = '<< Zurück zu den Antworten';
 $string['allusersbooked'] = 'Alle {$a} Nutzer/innen wurden erfolgreich für diese Buchungsoption gebucht.';
 $string['notallbooked'] = 'Folgende Nutzer/innen konnten aufgrund nicht mehr verfügbarer Plätze oder durch das Überschreiten des vorgegebenen Buchungslimits pro Nutzer/in nicht gebucht werden: {$a}';
 
+$string['resultofcohortorgroupbooking'] = '<p>Die Buchung der globalen Gruppen hat folgendes Ergebnis gebracht:</p>
+<ul>
+<li>{$a->sumcohortmembers} Benutzer/innen in den ausgewählten globalen Gruppen gefunden</li>
+<li>{$a->sumgroupmembers} Benutzer/innen in den ausgewählten Kursgruppen gefunden</li>
+<li>{$a->subscribedusers} Benutzer/innen wurden erfolgreich für die Option gebucht</li>
+</ul>';
+$string['problemsofcohortorgroupbooking'] = '<br><p>Es konnten nicht alle Buchungen durchgeführt werden:</p>
+<ul>
+<li>{$a->notenrolledusers} Benutzer/innen sind nicht in den Kurs eingeschrieben</li>
+<li>{$a->notsubscribedusers} Benutzer/innen konnten aus anderen Gründen nicht gebucht werden</li>
+</ul>';
+$string['nogrouporcohortselected'] = 'Sie müssen mindestens eine Gruppe oder globale Gruppe auswählen.';
+
+// Subscribe_cohort_or_group_form.php.
+$string['scgfcohortheader'] = 'Globale Gruppe (Kohorte) buchen';
+$string['scgfgroupheader'] = 'Gruppe aus dem Kurs buchen';
+$string['scgfselectcohorts'] = 'Globale Gruppe(n) wählen';
+$string['scgfbookgroupscohorts'] = 'Globale Gruppe(n) oder Gruppe(n) buchen';
+$string['scgfselectgroups'] = 'Gruppe(n) auswählen';
+
+
 // Bookingform.
 $string['address'] = 'Adresse';
 $string['advancedoptions'] = 'Erweiterte Einstellungen';

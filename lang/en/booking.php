@@ -114,7 +114,7 @@ $string['to'] = 'to';
 $string['viewallresponses'] = 'Manage {$a} responses';
 $string['yourselection'] = 'Your selection';
 
-// subscribeusers.php
+// Subscribeusers.php.
 $string['cannotremovesubscriber'] = 'You have to remove the activity completion prior to cancel the booking. Booking was not cancelled!';
 $string['allchangessave'] = 'All changes have been saved.';
 $string['backtoresponses'] = '<< Back to responses';
@@ -122,7 +122,27 @@ $string['allusersbooked'] = 'All {$a} selected users have successfully been assi
 $string['notallbooked'] = 'The following users could not be booked due to reaching the max number of bookings per user or lack of available places for the booking option: {$a}';
 $string['enrolledinoptions'] = "alredy booked in booking options: ";
 
-// Bookingform
+$string['resultofcohortorgroupbooking'] = '<p>This is the result of your cohort booking:</p>
+<ul>
+<li>{$a->sumcohortmembers} users found in the selected cohorts</li>
+<li>{$a->sumgroupmembers} users found in the selected groups</li>
+<li><b>{$a->subscribedusers} users where booked for this option</b></li>
+</ul>';
+$string['problemsofcohortorgroupbooking'] = '<br><p>Not all users could be booked with cohort booking:</p>
+<ul>
+<li>{$a->notenrolledusers} users are not enrolled in the course</li>
+<li>{$a->notsubscribedusers} users not booked for other reasons</li>
+</ul>';
+$string['nogrouporcohortselected'] = 'You need to select at least one group or cohort.';
+
+// Subscribe_cohort_or_group_form.php.
+$string['scgfcohortheader'] = 'Cohort subscription';
+$string['scgfgroupheader'] = 'Group subscription';
+$string['scgfselectcohorts'] = 'Select cohort(s)';
+$string['scgfbookgroupscohorts'] = 'Book cohort(s) or group(s)';
+$string['scgfselectgroups'] = 'Select group(s)';
+
+// Bookingform.
 $string['address'] = 'Address';
 $string['advancedoptions'] = 'Advanced options';
 $string['btnbooknowname'] = 'Name of button: Book now';
