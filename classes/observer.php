@@ -194,7 +194,7 @@ class mod_booking_observer {
 
 
     /**
-     * When a booking option is completed, we send a mail to the user.
+     * When a booking option is completed, we send a mail to the user (as long as sendmail is activated).
      *
      * @param \mod_booking\event\bookingoption_completed $event
      */
@@ -203,6 +203,12 @@ class mod_booking_observer {
         $optionid = $event->objectid;
         $cmid = $event->other['cmid'];
         $selecteduserid = $event->relateduserid;
+
+        // If sendmail is not set or not active, we don't do anything.
+        $bookingoption = new booking_option($cmid, $optionid);
+        if (empty($bookingoption->booking->settings->sendmail)) {
+            return;
+        }
 
         // Send a message to the user who has completed the booking option (or who has been marked for completion).
         try {
