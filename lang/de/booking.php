@@ -803,10 +803,10 @@ $string['activitycompletiontext'] = 'Nachricht an Benutzer/in, wenn Buchungsopti
 $string['activitycompletiontextsubject'] = 'Buchungsoption abgeschlossen';
 $string['activitycompletiontextmessage'] = 'Sie haben die folgende Buchungsoption abgeschlossen:
 
-{a->bookingdetails}
+{$a->bookingdetails}
 
-Zum Kurs: {a->courselink}
-Alle Buchungsoptionen ansehen: {a->bookinglink}';
+Zum Kurs: {$a->courselink}
+Alle Buchungsoptionen ansehen: {$a->bookinglink}';
 $string['sendmailtobooker'] = 'Buchung für andere User durchführen: Mail an User, der Buchung durchführt, anstatt an gebuchte User senden';
 $string['sendmailtobooker_help'] = 'Diese Option aktivieren, um Buchungsbestätigungsmails anstatt an die gebuchten Nutzer/innen zu senden an den/die Nutzer/in senden, die die Buchung durchgeführt hat. Dies betrifft nur Buchungen, die auf der Seite "Buchung für andere Nutzer/innen durchführen" getätigt wurden';
 $string['startendtimeknown'] = 'Kursbeginn und Kursende sind bekannt';

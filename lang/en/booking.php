@@ -942,10 +942,10 @@ $string['activitycompletiontext'] = 'Message to be sent to user when booking opt
 $string['activitycompletiontextsubject'] = 'Booking option completed';
 $string['activitycompletiontextmessage'] = 'You have completed the following booking option:
 
-{a->bookingdetails}
+{$a->bookingdetails}
 
-Go to course: {a->courselink}
-See all booking options: {a->bookinglink}';
+Go to course: {$a->courselink}
+See all booking options: {$a->bookinglink}';
 $string['sendmailtobooker'] = 'Book other users page: Send mail to user who books instead to users who are booked';
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to the user who books other users instead to users, who have been added to a booking option. This is only relevant for bookings made on the page "book other users".';
 $string['startendtimeknown'] = 'Start and end time of course are known';
