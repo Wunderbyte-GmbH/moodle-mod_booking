@@ -772,8 +772,11 @@ function booking_update_options($optionvalues, $context) {
             }
         }
 
-        // Update start and end date of the option depending on the sessions.
-        booking_updatestartenddate($option->id);
+        // Bugfix: Only update start end date depending on session IF there actually are sessions.
+        if (booking_utils::booking_option_has_optiondates($option->id)) {
+            // Update start and end date of the option depending on the sessions.
+            booking_updatestartenddate($option->id);
+        }
 
         return $option->id;
     }

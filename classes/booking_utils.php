@@ -709,6 +709,22 @@ class booking_utils {
     }
 
     /**
+     * Helper function to check if a booking option has associated sessions (optiondates).
+     * @param $optionid int The id of a booking option.
+     * @return bool
+     * @throws \dml_exception
+     */
+    public static function booking_option_has_optiondates(int $optionid) {
+        global $DB;
+        $sql = "SELECT * FROM {booking_optiondates} WHERE optionid = :optionid";
+        $sessions = $DB->get_records_sql($sql, ['optionid' => $optionid]);
+
+        if (empty($sessions)) {
+            return false;
+        } else return true;
+    }
+
+    /**
      * Helper function to return a string and arrays containing all relevant customfields update changes.
      * The string will be used to replace the {changes} placeholder in update mails.
      * The returned arrays will have the prepared stdclasses for update and insert in booking_customfields table.
