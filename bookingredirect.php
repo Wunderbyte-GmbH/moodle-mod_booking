@@ -15,16 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- *
- * @package mod_booking
- * @copyright 2012-2021 David Bogner <info@wunderbyte.at>, Andraž Prinčič <atletek@gmail.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * This is a very simple script which allows us to pass a base64 encoded URL
+ * as param and redirect to the decoded URL.
+ * This was needed because it wasn't possible to stop the Moodle calendar exporter
+ * from escaping "&" to "&amp;" HTML entitities which made it impossible
+ * to open links within outlook events.
  */
-defined('MOODLE_INTERNAL') || die();
+global $DB, $CFG, $COURSE, $USER, $OUTPUT, $PAGE;
 
-$plugin->version = 2021090700;
-$plugin->requires = 2019111800; // Requires this Moodle version. Current: Moodle 3.8.
-$plugin->release = 'v7.0.2';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->cron = 60;
-$plugin->component = 'mod_booking';
+require_once("../../config.php");
+
+$encodedurl = required_param('encodedurl', PARAM_TEXT); // The base64 encoded URL.
+$link = base64_decode($encodedurl);
+
+// Check if it's actually a link.
+if (filter_var($link, FILTER_VALIDATE_URL)) {
+    // Now open the link.
+    header("Location: $link");
+    exit();
+}

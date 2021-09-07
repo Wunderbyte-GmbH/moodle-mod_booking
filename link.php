@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 use mod_booking\all_options;
 use mod_booking\booking;
 
@@ -48,7 +49,7 @@ $userid = $USER->id;
 
 $explanationstring = null;
 
-// Only if there was a valid link, we redirect and session is open, we redirect.
+// Only if there was a valid link and session is open, we redirect.
 if ($link = $bu->show_conference_link($bookingoption, $userid, $sessionid)) {
 
     // We can find the actual link:

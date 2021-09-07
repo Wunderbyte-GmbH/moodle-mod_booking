@@ -125,7 +125,7 @@ class bookingoption_description implements renderable, templatable {
         $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent, $descriptionparam, $withcustomfields);
 
         $baseurl = $CFG->wwwroot;
-        $link = new \moodle_url($baseurl . '/mod/booking/view.php', array(
+        $moodleurl = new \moodle_url($baseurl . '/mod/booking/view.php', array(
             'id' => $booking->cm->id,
             'optionid' => $bookingoption->optionid,
             'action' => 'showonlyone',
@@ -143,7 +143,8 @@ class bookingoption_description implements renderable, templatable {
                 }
                 break;
             case DESCRIPTION_CALENDAR:
-                $this->booknowbutton = "<a href=$link class='btn btn-primary'>"
+                $encodedlink = booking_utils::booking_encode_moodle_url($moodleurl);
+                $this->booknowbutton = "<a href=$encodedlink class='btn btn-primary'>"
                         . get_string('gotobookingoption', 'booking')
                         . "</a>";
                 // TODO: We would need an event tracking status changes between notbooked, iambooked and onwaitinglist...
@@ -154,13 +155,14 @@ class bookingoption_description implements renderable, templatable {
                 }*/
                 break;
             case DESCRIPTION_ICAL:
-                $this->booknowbutton = get_string('gotobookingoption', 'booking') . ': ' .  $link->out(false);
+                $this->booknowbutton = get_string('gotobookingoption', 'booking') . ': '
+                    .  $moodleurl->out(false);
                 break;
             case DESCRIPTION_MAIL:
                 // The link should be clickable in mails (placeholder {bookingdetails}).
                 $this->booknowbutton = get_string('gotobookingoption', 'booking') . ': ' .
-                    '<a href = "' . $link . '" target = "_blank">' .
-                        $link->out(false) .
+                    '<a href = "' . $moodleurl . '" target = "_blank">' .
+                        $moodleurl->out(false) .
                     '</a>';
                 break;
         }

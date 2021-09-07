@@ -550,16 +550,18 @@ class booking_utils {
                 if ($bookingoption->iambooked != 0) {
                     // User is booked, we show a button (for Moodle calendar ie).
                     $cm = $bookingoption->booking->cm;
-                    $link = new moodle_url($baseurl . '/mod/booking/link.php',
+                    $moodleurl = new moodle_url($baseurl . '/mod/booking/link.php',
                             array('id' => $cm->id,
                                     'optionid' => $bookingoption->optionid,
                                     'action' => 'join',
                                     'sessionid' => $sessionid,
                                     'fieldid' => $field->id
                             ));
+                    $encodedlink = booking_utils::booking_encode_moodle_url($moodleurl);
+
                     return [
                             'name' => null,
-                            'value' => "<a href=$link class='btn btn-info'>$field->cfgname</a>"
+                            'value' => "<a href=$encodedlink class='btn btn-info'>$field->cfgname</a>"
                     ];
                 } else {
                     return null;
@@ -1052,5 +1054,24 @@ class booking_utils {
     private function calendar_get_export_token(stdClass $user): string {
         global $CFG, $DB;
         return sha1($user->id . $DB->get_field('user', 'password', ['id' => $user->id]) . $CFG->calendar_exportsalt);
+    }
+
+    /**
+     * Helper function to encode a moodle_url with base64.
+     * This can be used in combination with bookingredirect.php.
+     * @param $moodleurl
+     */
+    public static function booking_encode_moodle_url($moodleurl) {
+
+        global $CFG;
+
+        $encodedurl = base64_encode($moodleurl->out(false));
+        $encodedmoodleurl = new \moodle_url($CFG->wwwroot . '/mod/booking/bookingredirect.php', array(
+            'encodedurl' => $encodedurl
+        ));
+
+        $encodedlink = $encodedmoodleurl->out(false);
+
+        return $encodedlink;
     }
 }
