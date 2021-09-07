@@ -34,3 +34,5 @@ if (filter_var($link, FILTER_VALIDATE_URL)) {
     header("Location: $link");
     exit();
 }
+
+echo "The URL does not seem to be valid. Please contact a developer.";
