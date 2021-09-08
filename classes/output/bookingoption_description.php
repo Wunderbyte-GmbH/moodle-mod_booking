@@ -77,6 +77,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var array $dates as saved in db in minutes */
     public $dates = [];
 
+    /** @var array $teachers by names */
+    public $teachers = [];
+
     /**
      * @var null Bookingutilities to instantiate only once
      */
@@ -123,6 +126,13 @@ class bookingoption_description implements renderable, templatable {
         // But customfields will only be shown if we show booking option information inline.
 
         $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent, $descriptionparam, $withcustomfields);
+
+        $teachers = $bookingoption->get_teachers();
+        $teachernames = [];
+        foreach($teachers as $teacher) {
+            $teachernames[] = "$teacher->firstname $teacher->lastname";
+        }
+        $this->teachers = $teachernames;
 
         $baseurl = $CFG->wwwroot;
         $moodleurl = new \moodle_url($baseurl . '/mod/booking/view.php', array(
@@ -179,7 +189,8 @@ class bookingoption_description implements renderable, templatable {
                 'institution' => $this->institution,
                 'duration' => $this->duration,
                 'dates' => $this->dates,
-                'booknowbutton' => $this->booknowbutton
+                'booknowbutton' => $this->booknowbutton,
+                'teachers' => $this->teachers
         );
     }
 }
