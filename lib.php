@@ -539,7 +539,7 @@ function booking_update_instance($booking) {
 }
 
 /**
- * Update the booking option settings when adding and modifying a single booking option
+ * Update the booking option settings when adding and modifying a single booking option.
  *
  * @param object $optionvalues
  * @param context_module $context
@@ -742,6 +742,10 @@ function booking_update_options($optionvalues, $context) {
                 }
             }
 
+            // If there already is an option with the same name within the same instance...
+            // ... then generate a unique name (with separator from plugin config and automatically generated key.
+            $option->text = booking_utils::booking_option_get_unique_name($option);
+
             $DB->update_record("booking_options", $option);
 
             if (isset($booking->addtogroup) && $option->courseid > 0) {
@@ -798,10 +802,13 @@ function booking_update_options($optionvalues, $context) {
             }
         }
 
-        // TODO: Get rid of unique booking option name (text) - will be still checked in validation.
-
         // Make sure it's no template by checking if bookingid is something else than 0.
         if ($option->bookingid != 0) {
+
+            // If there already is an option with the same name within the same instance...
+            // ... then generate a unique name (with separator from plugin config and automatically generated key.
+            $option->text = booking_utils::booking_option_get_unique_name($option);
+
             // A booking option will always be inserted, even if it has the same name (text) as a template.
             $optionid = $DB->insert_record("booking_options", $option);
         } else {

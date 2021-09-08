@@ -115,6 +115,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
                             if (!empty($result)) {
                                 $r = array();
                                 foreach ($result as $v) {
+                                    booking_utils::transform_unique_bookingoption_name_to_display_name($v);
                                     $r[] = $v->text;
                                 }
                                 $output .= '&nbsp;' . get_string('enrolledinoptions', 'mod_booking') .

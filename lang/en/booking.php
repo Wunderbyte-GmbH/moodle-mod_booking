@@ -1348,6 +1348,14 @@ $string['licensekey'] = 'PRO license key';
 $string['licensekeydesc'] = 'Upload a valid license key to activate the PRO version.';
 $string['license_activated'] = 'PRO version activated successfully.<br>(Expires: ';
 $string['license_invalid'] = 'Invalid license key';
+$string['uniqueoptionnameheading'] = 'Unique option names';
+$string['uniqueoptionnameheadingdesc'] = 'When using CSV import for booking options, option names need to be unique.
+If there are multiple options with the same name, a unique key will be added internally to the option name.
+Here you can define the separator between the option name and the key.
+
+Example: Option name = "Option A", Separator = "#?#", idnumber = "00313" => Internal option name: "Option A#?#00313"';
+$string['uniqueoptionnameseparator'] = 'Separator for unique option names';
+$string['uniqueoptionnameseparatordesc'] = 'The separator must not contain blanks or be part of any existing booking option name.';
 $string['icalcfg'] = 'Configuration of the iCal attachements';
 $string['icalcfgdesc'] = 'Configure the iCal.ics files that are attached to e-mail messages. These files alow adding the booking dates to the personal calendar.';
 $string['icalfieldlocation'] = 'Text to display in iCal field location';

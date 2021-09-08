@@ -165,6 +165,8 @@ class booking_option {
         $booked = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid
             AND waitinglist = 0", array('optionid' => $optionid));
         $this->booked = $booked->rnum;
+        // To deal with the necessity of unique booking names.
+        booking_utils::transform_unique_bookingoption_name_to_display_name($this->option);
     }
 
     /**

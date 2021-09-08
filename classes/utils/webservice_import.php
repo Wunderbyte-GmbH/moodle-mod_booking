@@ -139,19 +139,25 @@ class webservice_import {
                     ON cm.module=m.id
                     WHERE bo.id=:bookingoptionid
                     AND m.name=:modulename";
-            $bookingid = $DB->get_field_sql($sql, array('bookingoptionid' => $data->bookingoptionid, 'modulename' => 'booking'));
+            $bookingcmid = $DB->get_field_sql($sql, array('bookingoptionid' => $data->bookingoptionid, 'modulename' => 'booking'));
 
-            return new booking_option($bookingid, $data->bookingoptionid);
-        } else if ($data->mergeparam == 2 || $data->mergeparam == 3) {
-            // If there is the multisession marker 2 or 3, we might return a booking option.
-            // First, we look at the last bookingoption created. Is it in the same instance?
-            $sql = "SELECT MAX(id) FROM {booking_options}";
-            if ($lastbookingoptionid = $DB->get_field_sql($sql)) {
-                if (($bookingoption = new booking_option($data->bookingcmid, $lastbookingoptionid))
-                        && ($bookingoption->option->text == $data->name) // Text is called 'name' before remap.
-                        && ($bookingoption->option->description == $data->description)) {
-                    return $bookingoption;
-                }
+            return new booking_option($bookingcmid, $data->bookingoptionid);
+        } else {
+            // The text key (booking option name) is unique in every instance, therefore we can find the id by id.
+            $sql = "SELECT cm.id as cmid, bo.id as boid
+                    FROM {course_modules} cm
+                    INNER JOIN {booking_options} bo
+                    ON cm.instance = bo.bookingid
+                    INNER JOIN {modules} m
+                    ON cm.module=m.id
+                    WHERE cm.instance=:bookingid
+                    AND m.name=:modulename
+                    AND bo.text=:bookingoptionname";
+            if ($result = $DB->get_record_sql($sql, array(
+                    'bookingid' => $data->bookingid,
+                    'modulename' => 'booking',
+                    'bookingoptionname' => $data->name))) {
+                return new booking_option($result->cmid, $result->boid);
             }
         }
 
@@ -289,6 +295,14 @@ class webservice_import {
                     self::change_property($data, 'courseendtime', $endkey);
                 }
 
+            }
+        }
+        // We need the limitanswers key if there are maxanswers.
+        if (isset($data->maxanswers)) {
+            $data->limitanswers = 1;
+            // To make sure overbooking is not null, we set it here.
+            if (!isset($data->maxoverbooking)) {
+                $data->maxoverbooking = 0;
             }
         }
 

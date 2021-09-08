@@ -1192,4 +1192,75 @@ class booking_utils {
 
         return $encodedlink;
     }
+
+    /**
+     * Helper function to check if an option name (text) already exists within the same instance.
+     * If it does, return a new option name containing the separator defined in plugin config
+     * and a unique key (5 digits).
+     * @param stdClass $option
+     * @return string A unique booking option name within the instance.
+     */
+    public static function booking_option_get_unique_name(stdClass $option) {
+        global $DB;
+
+        $bookingid = $option->bookingid;
+        $text = $option->text;
+        $separator = get_config('booking', 'uniqueoptionnameseparator');
+
+        if (strlen($separator) == 0) {
+            $visiblename = $text;
+        } else {
+            list($visiblename, $key) = explode($separator, $text);
+        }
+
+        $sql = 'SELECT id, bookingid, text FROM {booking_options}
+                WHERE bookingid = :bookingid AND text = :text';
+        $params = ['bookingid' => $bookingid, 'text' => $text];
+
+        // We only have an option id if it's an update.
+        if (!empty($option->id)) {
+            // Exclude the option itself and only look if there are other options with the same name.
+            $sql .= ' AND id <> :optionid';
+            $params['optionid'] = $option->id;
+        }
+
+        $duplicates = $DB->get_records_sql($sql, $params);
+
+        if (empty($duplicates)) {
+            // If the name is unique within the booking instance, we can return it unchanged.
+            return $text;
+        } else {
+            do {
+                // This will be set to true as soon as we have a really unique name.
+                $is_really_unique = false;
+
+                $key = substr(str_shuffle(MD5(microtime())), 0, 5);
+
+                $uniquetext = $visiblename . $separator . $key;
+
+                if(empty($DB->get_records('booking_options', ['bookingid' => $bookingid, 'text' => $uniquetext]))) {
+                    $is_really_unique = true;
+                }
+            } while (!$is_really_unique);
+
+            return $uniquetext;
+        }
+    }
+
+    /**
+     * The booking option data should have a display name without unique key in text.
+     * Therefore, we use the separtor and only display first part as text (name) wihtout key.
+     * @param $data
+     * @throws \dml_exception
+     */
+    public static function transform_unique_bookingoption_name_to_display_name(&$data) {
+        if (isset($data->text)) {
+            $separator = get_config('booking', 'uniqueoptionnameseparator');
+            if (strlen($separator) != 0) {
+                list($displayname, $key) = explode($separator, $data->text);
+                $data->text = $displayname;
+                $data->idnumber = $key;
+            }
+        }
+    }
 }
