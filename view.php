@@ -354,19 +354,18 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             echo html_writer::end_tag('div');
         }
         // If we have specified a teacher as organizer, we show a "busines_card" with photo, else legacy organizer description.
-        if (!empty($booking->settings->organizatorname)) {
-            if ($organizerid = (int)$booking->settings->organizatorname) {
+        if (!empty($booking->settings->organizatorname)
+            && ($organizerid = (int)$booking->settings->organizatorname)) {
 
                 $data = new \mod_booking\output\business_card($booking, $organizerid);
                 $output = $PAGE->get_renderer('mod_booking');
                 echo $output->render_business_card($data);
-            } else {
-                echo html_writer::start_tag('div');
-                echo html_writer::tag('label', get_string('organizatorname', 'booking') . ':&nbsp;',
-                        array('class' => 'bold'));
-                echo html_writer::tag('span', $booking->settings->organizatorname);
-                echo html_writer::end_tag('div');
-            }
+        } else {
+            echo html_writer::start_tag('div');
+            echo html_writer::tag('label', get_string('organizatorname', 'booking') . ':&nbsp;',
+                    array('class' => 'bold'));
+            echo html_writer::tag('span', $booking->settings->organizatorname);
+            echo html_writer::end_tag('div');
         }
 
         $out = array();
