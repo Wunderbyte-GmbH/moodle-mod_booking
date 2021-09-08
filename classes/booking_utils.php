@@ -211,7 +211,7 @@ class booking_utils {
      */
     public function return_button_based_on_record($booking, $context, $values, $coursepage = false) {
         global $OUTPUT, $USER, $CFG;
-
+        $this->booking = $booking;
         $delete = '';
         $availabibility = '';
         $button = '';
