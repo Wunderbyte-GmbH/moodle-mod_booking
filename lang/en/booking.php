@@ -1410,15 +1410,22 @@ $string['numberrowsdesc'] = 'Number each row of the sign-in sheet. Number will b
 $string['multiicalfiles'] = 'Attach one iCal file per date for MS Outlook 2010 compatibility';
 $string['multiicalfilesdesc'] = 'Only MS Outlook 2010 does not support multiple dates within one iCal file. Previous and later version do support it (Ex. Outlook365). If you want to send MS Outlook compatible dates, then activate this option in order to attach multiple iCal files (one per date/event)';
 
-$string['waitinglistinfotexts_heading'] = 'Waiting list availability info texts';
-$string['waitinglistinfotexts'] = 'Show waiting list availability info texts';
-$string['waitinglistinfotexts_desc'] = 'Only available in the PRO version.';
-$string['waitinglistinfotexts_info'] = 'Show short info messages instead of the number of available places.';
+$string['availabilityinfotexts_heading'] = 'Availability info texts for booking places and waiting list';
+$string['availabilityinfotexts_desc'] = 'Only available in the PRO version.';
+$string['bookingplacesinfotexts'] = 'Show availability info texts for booking places';
+$string['bookingplacesinfotexts_info'] = 'Show short info messages instead of the number of available booking places.';
+$string['waitinglistinfotexts'] = 'Show availability info texts for waiting list';
+$string['waitinglistinfotexts_info'] = 'Show short info messages instead of the number of available waiting list places.';
+$string['bookingplaceslowpercentage'] = 'Percentage for booking places low message';
+$string['bookingplaceslowpercentagedesc'] = 'If the available booking places reach or get below this percentage a booking places low message will be shown.';
 $string['waitinglistlowpercentage'] = 'Percentage for waiting list low message';
 $string['waitinglistlowpercentagedesc'] = 'If the available places on the waiting list reach or get below this percentage a waiting list low message will be shown.';
 $string['waitinglistlowmessage'] = 'Only a few places on the waiting list are left.';
 $string['waitinglistenoughmessage'] = 'Still enough places on the waiting list available.';
 $string['waitinglistfullmessage'] = 'No places available on the waiting list.';
+$string['bookingplaceslowmessage'] = 'Only a few booking places are left.';
+$string['bookingplacesenoughmessage'] = 'Still enough booking places available.';
+$string['bookingplacesfullmessage'] = 'No booking places available anymore.';
 
 // Mobile
 $string['next'] = 'Next';

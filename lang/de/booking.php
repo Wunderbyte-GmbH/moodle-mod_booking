@@ -1236,15 +1236,22 @@ $string['numberrowsdesc'] = 'Nummerierung der Zeilen in der Unterschriftenliste 
 $string['multiicalfiles'] = 'Pro Event/Termin eine iCal-Datei anhängen um Kompatibilität mit MS Outlook 2010 zu gewährleisten.';
 $string['multiicalfilesdesc'] = 'MS Outlook unterstützt keine Mehrfach-Termine in einer-Datei. Um mehrere Termine auch in Outlook importieren zu können, muss pro Termin eine Datei angehängt werden. Es werden dann in einem Mail mehrere iCal-Dateien angehängt.';
 
-$string['waitinglistinfotexts_heading'] = 'Beschreibungstexte für verfügbare Wartelistenplätze';
+$string['availabilityinfotexts_heading'] = 'Beschreibungstexte für verfügbare Buchungs- und Wartelistenplätze';
+$string['availabilityinfotexts_desc'] = 'Nur in der PRO-Version verfügbar.';
+$string['bookingplacesinfotexts'] = 'Beschreibungstexte für verfügbare Buchungsplätze anzeigen';
+$string['bookingplacesinfotexts_info'] = 'Kurze Infotexte anstatt der konkreten Zahl verfügbarer Buchungsplätze anzeigen.';
 $string['waitinglistinfotexts'] = 'Beschreibungstexte für verfügbare Wartelistenplätze anzeigen';
-$string['waitinglistinfotexts_desc'] = 'Nur in der PRO-Version verfügbar.';
 $string['waitinglistinfotexts_info'] = 'Kurze Infotexte anstatt der konkreten Zahl verfügbarer Wartelistenplätze anzeigen.';
-$string['waitinglistlowpercentage'] = 'Prozentsatz für "Nur noch wenige Plätze verfügbar"-Nachricht';
-$string['waitinglistlowpercentagedesc'] = 'Wenn die Anzahl verfügbarer Plätze auf der Warteliste diesen Prozentsatz erreicht oder unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';
+$string['bookingplaceslowpercentage'] = 'Buchungsplätze: Prozentsatz für "Nur noch wenige Plätze verfügbar"-Nachricht';
+$string['bookingplaceslowpercentagedesc'] = 'Wenn die Anzahl verfügbarer Buchungsplätze diesen Prozentsatz erreicht oder unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';
+$string['waitinglistlowpercentage'] = 'Warteliste: Prozentsatz für "Nur noch wenige Plätze verfügbar"-Nachricht';
+$string['waitinglistlowpercentagedesc'] = 'Wenn die Anzahl verfügbarer Wartelistenplätze diesen Prozentsatz erreicht oder unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';
 $string['waitinglistlowmessage'] = 'Nur noch wenige Plätze auf der Warteliste verfügbar.';
 $string['waitinglistenoughmessage'] = 'Noch ausreichend Plätze auf der Warteliste verfügbar.';
 $string['waitinglistfullmessage'] = 'Keine Wartelistenplätze mehr verfügbar.';
+$string['bookingplaceslowmessage'] = 'Nur noch wenige Buchungsplätze verfügbar.';
+$string['bookingplacesenoughmessage'] = 'Noch ausreichend Buchungsplätze verfügbar.';
+$string['bookingplacesfullmessage'] = 'Keine Buchungsplätze mehr verfügbar.';
 
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';

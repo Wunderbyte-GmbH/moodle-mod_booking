@@ -18,6 +18,8 @@ use mod_booking\utils\wb_payment;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');

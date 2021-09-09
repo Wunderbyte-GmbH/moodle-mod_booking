@@ -198,12 +198,39 @@ if ($ADMIN->fulltree) {
                         1, $alltemplates));
 
     $settings->add(
-        new admin_setting_heading('waitinglistinfotexts_heading',
-            get_string('waitinglistinfotexts_heading', 'mod_booking'),
-            get_string('waitinglistinfotexts_desc', 'mod_booking')));
+        new admin_setting_heading('availabilityinfotexts_heading',
+            get_string('availabilityinfotexts_heading', 'mod_booking'),
+            get_string('availabilityinfotexts_desc', 'mod_booking')));
 
     // PRO feature.
     if (wb_payment::is_currently_valid_licensekey()) {
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/bookingplacesinfotexts',
+                get_string('bookingplacesinfotexts', 'mod_booking'),
+                get_string('bookingplacesinfotexts_info', 'booking'), 0));
+
+        $bookingplaceslowpercentages = [
+            5 => ' 5%',
+            10 => '10%',
+            15 => '15%',
+            20 => '20%',
+            30 => '30%',
+            40 => '40%',
+            50 => '50%',
+            60 => '60%',
+            70 => '70%',
+            80 => '80%',
+            90 => '90%',
+            100 => '100%'
+        ];
+
+        $settings->add(
+            new admin_setting_configselect('booking/bookingplaceslowpercentage',
+                get_string('bookingplaceslowpercentage', 'booking'),
+                get_string('bookingplaceslowpercentagedesc', 'booking'),
+                20, $bookingplaceslowpercentages));
+
         $settings->add(
             new admin_setting_configcheckbox('booking/waitinglistinfotexts',
                 get_string('waitinglistinfotexts', 'mod_booking'),

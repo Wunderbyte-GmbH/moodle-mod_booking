@@ -371,8 +371,37 @@ class booking_utils {
                 $button = get_string('pleasereturnlater', 'booking');
             }
 
-            $availableplaces = "<div class='col-ap-availableplaces'>" .
-                get_string("availableplaces", "booking", $places) . "</div>";
+            // Check if a PRO license is active and the checkbox for booking places info texts in plugin config is activated.
+            if (wb_payment::is_currently_valid_licensekey()
+                && get_config('booking', 'bookingplacesinfotexts')
+                && $places->maxanswers != 0) {
+
+                $bookingplaceslowpercentage = get_config('booking', 'bookingplaceslowpercentage');
+                $actualpercentage = ($places->available / $places->maxanswers) * 100;
+
+                if ($places->available == 0) {
+                    // No places left.
+                    $availableplaces = "<div class='col-ap-availableplaces'>" .
+                        get_string("bookingplacesfullmessage", "booking") . "</div>";
+                } else if ($actualpercentage <= $bookingplaceslowpercentage) {
+                    // Only a few places left.
+                    $availableplaces = "<div class='col-ap-availableplaces'>" .
+                        get_string("bookingplaceslowmessage", "booking") . "</div>";
+                } else {
+                    // Still enough places left.
+                    $availableplaces = "<div class='col-ap-availableplaces'>" .
+                        get_string("bookingplacesenoughmessage", "booking") . "</div>";
+                }
+            } else {
+                if ($places->maxanswers != 0) {
+                    // If booking places info texts are not active, show the actual numbers instead.
+                    $availableplaces = "<div class='col-ap-availableplaces'>" .
+                        get_string("availableplaces", "booking", $places) . "</div>";
+                } else {
+                    // If maxanswers are set to 0, don't show anything.
+                    $availableplaces = "";
+                }
+            }
 
             // Check if a PRO license is active and the checkbox for waiting list info texts in plugin config is activated.
             if (wb_payment::is_currently_valid_licensekey()
@@ -396,9 +425,14 @@ class booking_utils {
                         get_string("waitinglistenoughmessage", "booking") . "</div>";
                 }
             } else {
-                // If waiting list info text are not active, show the actual numbers instead.
-                $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" .
-                    get_string("waitingplacesavailable", "booking", $places) . "</div>";
+                if ($places->maxoverbooking != 0) {
+                    // If waiting list info texts are not active, show the actual numbers instead.
+                    $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" .
+                        get_string("waitingplacesavailable", "booking", $places) . "</div>";
+                } else {
+                    // If there is not waiting list, don't show anything.
+                    $waitingplaces = "";
+                }
             }
 
             return $button . $booked . $delete . $availableplaces . $waitingplaces . $manage;
