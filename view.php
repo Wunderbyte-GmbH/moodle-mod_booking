@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 use mod_booking\all_options;
 use mod_booking\booking;
+use mod_booking\output\business_card;
+use mod_booking\output\instance_description;
 
 global $DB, $CFG, $USER, $OUTPUT, $PAGE;
 
@@ -329,43 +331,18 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             echo $html = html_writer::tag('div',
                     '<a id="gotop" href="#goenrol">' . get_string('goenrol', 'booking') . '</a>',
                     array('style' => 'width:100%; font-weight: bold; text-align: right;'));
-            // Show intro description only when not showing businesscard (see beneath)
-            if (!empty($booking->settings->organizatorname)) {
-                if (!$organizerid = (int)$booking->settings->organizatorname) {
-                    echo html_writer::tag('div', format_module_intro('booking', $booking->settings, $cm->id),
-                            array('class' => 'intro'));
-                }
-            }
         }
 
-        if (!empty($booking->settings->duration)) {
-            echo html_writer::start_tag('div');
-            echo html_writer::tag('label', get_string('eventduration', 'booking') . ': ',
-                    array('class' => 'bold'));
-            echo html_writer::tag('span', $booking->settings->duration);
-            echo html_writer::end_tag('div');
-        }
-
-        if (!empty($booking->settings->points) && ($booking->settings->points != 0)) {
-            echo html_writer::start_tag('div');
-            echo html_writer::tag('label', get_string('eventpoints', 'booking') . ': ',
-                    array('class' => 'bold'));
-            echo html_writer::tag('span', $booking->settings->points);
-            echo html_writer::end_tag('div');
-        }
         // If we have specified a teacher as organizer, we show a "busines_card" with photo, else legacy organizer description.
         if (!empty($booking->settings->organizatorname)
             && ($organizerid = (int)$booking->settings->organizatorname)) {
-
-                $data = new \mod_booking\output\business_card($booking, $organizerid);
+                $data = new business_card($booking, $organizerid);
                 $output = $PAGE->get_renderer('mod_booking');
                 echo $output->render_business_card($data);
         } else {
-            echo html_writer::start_tag('div');
-            echo html_writer::tag('label', get_string('organizatorname', 'booking') . ':&nbsp;',
-                    array('class' => 'bold'));
-            echo html_writer::tag('span', $booking->settings->organizatorname);
-            echo html_writer::end_tag('div');
+            $data = new instance_description($booking->settings);
+            $output = $PAGE->get_renderer('mod_booking');
+            echo $output->render_instance_description($data);
         }
 
         $out = array();

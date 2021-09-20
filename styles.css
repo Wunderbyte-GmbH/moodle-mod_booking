@@ -119,3 +119,14 @@ tr.mod-booking-invisible {
 .br-theme-css-stars .br-readonly a {
     cursor: default;
 }
+
+#booking-instance-description {
+    margin-left: 10px;
+}
+
+#booking-business-card {
+    margin-left: 10px;
+    padding: 10px;
+    border-radius: 15px;
+    border: 1px dashed lightgray;
+}

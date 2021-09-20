@@ -58,6 +58,11 @@ class business_card implements renderable, templatable {
     /** @var string $userprofileurl */
     public $userprofileurl = null;
 
+    /** @var string $duration */
+    public $duration = null;
+
+    /** @var string $points */
+    public $points = null;
 
     /**
      * Constructor
@@ -84,6 +89,8 @@ class business_card implements renderable, templatable {
         $this->sendmessageurl = $sendmessageurl;
         $this->description = $description;
         $this->userdescription = $userdescription;
+        $this->duration = $booking->settings->duration;
+        $this->points = $booking->settings->points;
     }
 
     public function export_for_template(renderer_base $output) {
@@ -93,7 +100,9 @@ class business_card implements renderable, templatable {
                 'userprofileurl' => $this->userprofileurl->out(),
                 'sendmessageurl' => $this->sendmessageurl->out(),
                 'description' => $this->description,
-                'userdescription' => $this->userdescription
+                'userdescription' => $this->userdescription,
+                'duration' => $this->duration,
+                'points' => $this->points
         );
     }
 }
