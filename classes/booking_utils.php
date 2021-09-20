@@ -1241,7 +1241,7 @@ class booking_utils {
         $text = $option->text;
         $separator = get_config('booking', 'uniqueoptionnameseparator');
 
-        if (strlen($separator) == 0) {
+        if (strlen($separator) == 0 || strpos($text, $separator) == false) {
             $visiblename = $text;
         } else {
             list($visiblename, $key) = explode($separator, $text);
@@ -1290,7 +1290,8 @@ class booking_utils {
     public static function transform_unique_bookingoption_name_to_display_name(&$data) {
         if (isset($data->text)) {
             $separator = get_config('booking', 'uniqueoptionnameseparator');
-            if (strlen($separator) != 0) {
+            // We only need to do this if the separator is part of the text string.
+            if (strlen($separator) != 0 && strpos($data->text, $separator) !== false) {
                 list($displayname, $key) = explode($separator, $data->text);
                 $data->text = $displayname;
                 $data->idnumber = $key;
