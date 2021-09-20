@@ -5,6 +5,7 @@ namespace mod_booking\table;
 global $CFG;
 require_once($CFG->libdir.'/tablelib.php');
 
+use mod_booking\booking_utils;
 use table_sql;
 
 defined('MOODLE_INTERNAL') || die();
@@ -26,11 +27,11 @@ class bookingoptions_simple_table extends table_sql {
         $this->baseurl = $PAGE->url;
 
         // Define the list of columns to show.
-        $columns = array('text', 'course', 'location', 'institution', 'coursestarttime', 'courseendtime');
+        $columns = array('text', 'coursestarttime', 'courseendtime', 'location', 'institution', 'course');
         $this->define_columns($columns);
 
         // Define the titles of columns to show in header.
-        $headers = array('text', 'course', 'location', 'institution', 'coursestarttime', 'courseendtime');
+        $headers = array('text', 'coursestarttime', 'courseendtime', 'location', 'institution', 'course');
         $this->define_headers($headers);
     }
 
@@ -42,13 +43,14 @@ class bookingoptions_simple_table extends table_sql {
      * @return $string Return username with link to profile or username only
      *     when downloading.
      */
-    function col_testcolumn1($values) {
-        // If the data is being downloaded than we don't want to show HTML.
-        if ($this->is_downloading()) {
-            return $values->testcolumn1;
-        } else {
-            return '<a href="linktobookingoption">'.$values->testcolumn1.'</a>';
+    function col_text($values) {
+        // If the data is being downloaded we show the original text including the separator and unique idnumber.
+        if (!$this->is_downloading()) {
+            // Remove identifier key and separator if necessary.
+            booking_utils::transform_unique_bookingoption_name_to_display_name($values);
         }
+
+        return $values->text;
     }
 
     /**
