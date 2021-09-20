@@ -477,33 +477,43 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                 array($labelbooking,
                     $hidden . '<input value="' . $urlparams['searchtext'] .
                              '" type="text" id="searchtext" name="searchtext">', "", ""));
+        $row->id = 'booking-searchtext-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
+
         $row = new html_table_row(
                 array($labellocation,
                     '<input value="' . $urlparams['searchlocation'] .
                              '" type="text" id="searchlocation" name="searchlocation">', "", ""));
+        $row->id = 'booking-searchlocation-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
+
         $row = new html_table_row(
                 array($labelinstitution,
                     '<input value="' . $urlparams['searchinstitution'] .
                              '" type="text" id="searchinstitution" name="searchinstitution">', "",
                             ""));
+        $row->id = 'booking-searchinstitution-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
+
         $row = new html_table_row(
                 array($labelsearchname,
                     '<input value="' . $urlparams['searchname'] .
                              '" type="text" id="searchname" name="searchname">', "", ""));
+        $row->id = 'booking-searchname-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
+
         $row = new html_table_row(
                 array($labelsearchsurname,
                     '<input value="' . $urlparams['searchsurname'] .
                              '" type="text" id="searchsurname" name="searchsurname">', "", ""));
+        $row->id = 'booking-searchsurname-row';
         $tabledata[] = $row;
         $rowclasses[] = "";
+
         $row = new html_table_row(
                 array("",
                     '<input id="searchButton" type="submit" value="' . get_string('search') .
