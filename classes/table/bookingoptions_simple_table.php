@@ -21,12 +21,16 @@ class bookingoptions_simple_table extends table_sql {
      */
     function __construct($uniqueid) {
         parent::__construct($uniqueid);
+
+        global $PAGE;
+        $this->baseurl = $PAGE->url;
+
         // Define the list of columns to show.
-        $columns = array('testcolumn1', 'testcolumn2');
+        $columns = array('text', 'course', 'location', 'institution', 'coursestarttime', 'courseendtime');
         $this->define_columns($columns);
 
         // Define the titles of columns to show in header.
-        $headers = array('Test Column 1', 'Test Column 2');
+        $headers = array('text', 'course', 'location', 'institution', 'coursestarttime', 'courseendtime');
         $this->define_headers($headers);
     }
 
