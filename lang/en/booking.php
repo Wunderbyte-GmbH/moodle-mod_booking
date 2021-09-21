@@ -1534,6 +1534,14 @@ $string['changenew'] = '[NEW] ';
 // Bookingoption_description.php.
 $string['gotobookingoption'] = 'Go to booking option';
 
+// Bookingoptions_simple_table.php.
+$string['bsttext'] = 'Booking option';
+$string['bstcoursestarttime'] = 'Start time';
+$string['bstcourseendtime'] = 'End time';
+$string['bstlocation'] = 'Location';
+$string['bstinstitution'] = 'Institution';
+$string['bstcourse'] = 'Course';
+
 // All_options.php
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>You are already booked for this option.</i></div>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the waiting list for this option.</i></div>';
