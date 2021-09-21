@@ -90,7 +90,11 @@ class business_card implements renderable, templatable {
         $this->description = $description;
         $this->userdescription = $userdescription;
         $this->duration = $booking->settings->duration;
-        $this->points = $booking->settings->points;
+        $this->points = null;
+        // Only show points if there are any.
+        if ($booking->settings->points != '0.00') {
+            $this->points = $booking->settings->points;
+        }
     }
 
     public function export_for_template(renderer_base $output) {

@@ -59,8 +59,12 @@ class instance_description implements renderable, templatable {
     public function __construct($settings) {
         $this->description = $settings->intro;
         $this->duration = $settings->duration;
-        $this->points = $settings->points;
         $this->organizatorname = $settings->organizatorname;
+        $this->points = null;
+        // Only show points if there are any.
+        if ($settings->points != '0.00') {
+            $this->points = $settings->points;
+        }
     }
 
     public function export_for_template(renderer_base $output) {
