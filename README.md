@@ -25,12 +25,12 @@ Interested in more features? [Contact us for a quote.](mailto:info@wunderbyte.at
 + Automatic course enrolments for users who successfully completed a booking
 + Manage bookings: Download all participants as CSV, Excel, PDF. Send custom messages. Send a reminder. Add notes to individual bookings
 + Customised e-mail messages for users in waitnglist or users with regular bookings. Cancellation mesages, confirmation messages.
-+ Add start and end time for booking periode
++ Add start and end time for booking period
 + Automatic unenrolment
 + Create and prin sign-in sheets with custom logo and text
 + Customise the information included on the sign-in sheets and the bookings overview
 + Import participants from CSV files
-+ Automaitcally add events to the Moodle calendar
++ Automatically add events to the Moodle calendar
 + Event/course description: Add location, poll url, duration, additional files and tags
 + Organize booking instances in categories
 + Automatically enrol users in groups
