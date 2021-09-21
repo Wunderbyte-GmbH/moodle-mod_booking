@@ -366,11 +366,6 @@ class booking_utils {
             $places = new places($values->maxanswers, $values->availableplaces, $values->maxoverbooking,
                     $values->maxoverbooking - $values->waiting);
 
-            // Add string when no booking is possible.
-            if (strlen($button . $delete . $booked) == 0) {
-                $button = get_string('pleasereturnlater', 'booking');
-            }
-
             // Check if a PRO license is active and the checkbox for booking places info texts in plugin config is activated.
             if (wb_payment::is_currently_valid_licensekey()
                 && get_config('booking', 'bookingplacesinfotexts')
