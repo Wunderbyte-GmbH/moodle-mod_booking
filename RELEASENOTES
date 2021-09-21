@@ -1,14 +1,152 @@
-2.1.2 (2016051906)
-Bug: Fixed version format for recording list so it works for formats used in non western countries.
-Bug: Fixed issue with user limit not being correctly enforced when default limit was updated and edition was not allowed. (This bug only affected sites making use of the user limit feature)
-2.3 Audrey Horne (2018052100)
-Bug fixes: Search for firstname and lastname, adding tags
-New feature: In Site adminstration for booking plugin choose what is used for the location string in the ical.ics file attached to e-mails
-2.4 Audrey Horne (2018052400)
-New feature: Add comments to individual bookings in ther Manage responses area of the booking module.
-Readme updated
-2.4 Audrey Horne (2018101300)
-Added the user profile field city to the fields to display in various contexts. Fixed bug in autocompletion field for institutions. Added support for Moodle mobile.
-Implemented GDPR API. Added support for M3.5. Several bugfixes.
+7.0.9 (2021092200)
+* Improvement: bookingoptions_simple_table (will be used by block_booking) -
+    Add a link redirecting to each booking option.
+* Improvement: Only show "already booked" or "on waiting list" text in modal but not inline.
+* Bugfix: Added missing fields in backup (duplication) of booking instances
+* Other: Added RELEASENOTES, CHANGES and updated README
+
+7.0.8 (2021092100)
+* New feature: Sending of mails can be disabled by leaving the message template empty (Known issue: Currently only
+    working with mails using the task send_confirmation_mails).
+* Improvement: bookingoptions_simple_table (will be used by block_booking) - removed identifier key and
+    separator from column which shows the option names (titles). New headers (localized strings).
+* Improvement: Added metadata to classes/privacy/provider.php
+* Bugfix: Removed "All places are booked" - as we already have new explanation string functionality (PRO) for available
+    places and waiting list.
+* Bugfix: Only show points in business_card and instance_description if there are any.
+
+7.0.7 (2021092000)
+* Bugfix: Fixed a bug with unique option names (Offset issue: only do "explode" if separator is part of the option name.)
+* Improvement: Added ids to rows in booking options search, so they can be hidden via CSS if needed.
+* Improvement: Booking instance description and business card enhancements.
+* Other: Introduced new table bookingoptions_simple_table which will be used by the new Booking Quickfinder block.
+* Other: Introduced CHANGES.md
+
+7.0.6 (2021091400)
+* Bugfix: Fixed a bug where courseid was always set to 0 when adding new booking options.
+
+7.0.5 (2021091000)
+* New feature: New cohort and group subscription (within "Book other users") for booking options.
+* New feature: Unique option names
+    When using CSV import for booking options, option names need to be unique. If there are multiple options with the
+    same name, a unique key will be added internally to the option name. In the plugin settings, you can now define the
+    separator (default: #?#) between the option name and the key.
+* New PRO feature: Availability info texts for booking places and waiting list
+    Instead of showing the numbers of available booking places and waiting list places, you can now go to the plugin
+    config and activate availability info texts (you can activate them separately for available places and waiting list
+    places). You can also define a percentage for the places low message. If the available booking places reach or get
+    below this percentage a booking places low message will be shown. (You need to activate this feature with a PRO
+    license.)
+* Bugfix: Hide list of custom fields in booking option description when there are none.
+
+7.0.3 (2021090800)
+* Improvement: New redirect script which fixes links that didn't work before (e.g. links in MS Outlook event texts
+    after importing via {usercalendarurl}).
+* Improvement: Add teachers to booking option description.
+* Bugfix: Fixed a bug where $booking object was null.
+* Bugfix: Fixed a bug where description was not shown whithout organizatorname.
+
+7.0.1 (2021090600)
+* Bugfix: Fixed a bug with the placeholders in the completion mails template.
+* Bugfix: Completion mails will only be sent if setting for sending confirmation mails is active.
+* Bugfix: Only update start end date (of booking options) depending on sessions IF there actually ARE sessions.
+
+7.0 (2021090100)
+* New feature: License key checker in plugin config to activate PRO version.
+* New feature: New dropdown for calendar event types.
+* New feature: Up to 3 individual custom fields for multiple date sessions with autocomplete functionality.
+    (Including special functionality for "TeamsMeeting", "ZoomMeeting" and "BigBlueButtonMeeting").
+* New feature: Show detailed description of booking option either via modal (little info button) or inline within the
+    options table (can be configured in instance settings).
+* New feature: Show a "business card" of the teacher who is defined via autocomplete "Organizer name" (instance setting).
+* New feature: Send change notification mails (including new mail template and new placeholder {changes} which will
+    create a summary of all changes made to the booking option. The summary includes explanation texts and
+    "[DELETED]" and "[NEW]" strings for text-only mails.
+* New feature: Links to video meetings will only redirect to the link of the video meeting 15 minutes before until
+    the end of the session.
+* New feature: Session reminder e-mails (Including new mail template and functionality to set the number of days before the
+    session when the e-mail should be sent.)
+* New feature: Show course name, short info and a button redirecting to the available booking options on course page.
+    (Can be turned on in instance settings. Short info text is customizable.)
+* New feature: New placeholders {usercalendarurl} and {coursecalendarurl} (can be used in e-mail templates) to enable
+    subscription to Moodle calendar via Outlook or similar calendar tool. Subscription links are made not clickable
+    (styled via CSS), because they should be copied and pasted.
+* New feature: New placeholder {bookingdetails} for detailed booking description including session and custom field data.
+* New feature: New placeholder {gotobookingoption} linking only to the booking option.
+* New feature: Booking option completion e-mails
+    When you change the completion status of a user on the "Manage responses" page to "completed", an automatically
+    generated e-mail will be sent to the user(s) letting them know that they have completed the booking option.
+    You can edit the template for this in booking instance settings.
+* New PRO feature: Global mail templates - each booking instance can define its source of mail templates:
+    (Option 1) From within the booking instance (default)
+    (Option 2) Use global mail templates defined in plugin settings
+    This feature allows you to define global mail templates within the plugin config and use them within every booking
+    instance on the whole platform. (You need to activate this feature with a PRO license.)
+* New PRO feature: Teacher notification e-mails including a new mail template in booking instance settings, number of
+    days before the event start to notify teachers and to new placeholders to include in the template:
+    {numberparticipants}: The number of successfully booked participants for the option.
+    {numberwaitinglist}: The number of people on the waiting list for the option. (You need to activate this feature
+    with a PRO license.)
+* New PRO feature: Webservice importer - it is now possible to import a massive amount of booking options using a CSV file
+    in combination with the new importer web service. (Web service will only work with a PRO license. Contact
+    info@wunderbyte.at if you need support with that.)
+* Improvement: Added missing German localization strings.
+* Improvement: Improved calendar features - show events, booked events and multiple date sessions in Moodle calendar.
+    Calendar events include detailed description (supporting multiple dates sessions) and a button linking to the
+    booking option.
+* Improvement: Booking option is prefilled with "coursename - eventtype"-Scheme
+* Improvement: Added autocomplete dropdown for location, institution (in booking option settings)
+    and event type, organizer name (in booking instance settings).
+* Improvement: It is now possible to add a list of available booking options to the course page (can be turned off
+    in instance settings).
+* Improvement: Added classes to columns and buttons in order to enable individual CSS styling.
+* Improvement: Redirect to view.php instead of report.php after editing options or sessions.
+* Improvement: Added localized help buttons for organizer name, event type, institution and location.
+* Improvement: Add string when neither waitinglist nor booking is possible.
+* Improvement: New bookingoption_completed event gets triggered when completion status of a user changes.
+* Improvement: CSV importer now imports optiondates (multisession) & customfields for multisessions
+* Improvement: Show cancel button below booked button.
+* Improvement: Modal is showing the info if a user is already booked or on the waiting list for an option.
+* Improvement: When there are no multisessions defined, the {times} parameter for notification e-mails will use the
+    single date defined within the booking option.
+* Improvement: Added new fields to backup.
+* Improvement: Show button redirecting to the booking option at upper right of the calendar modal.
+* Improvement: iCal attachments including detailed summary of the booking option and improved session iCals.
+    Known issue: Updating events still does not work as expected with Microsoft Outlook. If you rely on
+    Outlook, please use calendar subscription with the e-mail placeholders {usercalendarurl} (or {coursecalendarurl})
+    instead and turn iCal attachments off in the plugin settings.
+* Improvement: Also duplicate associated teachers on booking option duplication.
+* Bugfix: Do not add option templates twice.
+* Bugfix: Fixed wrong calculation of available places.
+* Bugfix: Show "Save as template" only for new booking options, not for existing ones.
+* Bugfix: Calculate duration if not set while saving.
+* Bugfix: Update calendar events of sessions when a booking option is edited.
+* Bugfix: Fix bug when addtogroup is not set on saving new instance templates.
+* Bugfix: Fix bug where booking name (->text) was required unique not only in instance, but everywhere.
+* Bugfix: Fixed autofill of option templates (JavaScript-based).
+* Bugfix: Fixed autofill of instance templates (JavaScript-based).
+* Bugfix: Fixed duplicate creation of option templates.
+* Bugfix: Fixed missing link on {bookinglink} placeholder.
+* Bugfix: Fixed issues in backup and duplication.
+
 3.9 Audrey Horne (2018121600)
-Fixed bug in automatic generation of groups in the related course.
+* Bugfix: Fixed bug in automatic generation of groups in the related course.
+
+2.4 Audrey Horne (2018101300)
+* Improvement: Added the user profile field city to the fields to display in various contexts.
+* Bugfix: Fixed bug in autocompletion field for institutions. Added support for Moodle mobile.
+* Other: Implemented GDPR API. Added support for M3.5. Several bugfixes.
+
+2.4 Audrey Horne (2018052400)
+* New feature: Add comments to individual bookings in ther Manage responses area of the booking module.
+* Other: Readme updated
+
+2.3 Audrey Horne (2018052100)
+* Bugfix: Search for firstname and lastname, adding tags
+* New feature: In Site adminstration for booking plugin choose what is used for the location string in the ical.ics file
+    attached to e-mails.
+
+2.1.2 (2016051906)
+* Bugfix: Fixed version format for recording list so it works for formats used in non western countries.
+* Bugfix: Fixed issue with user limit not being correctly enforced when default limit was updated and edition was not allowed.
+    (This bug only affected sites making use of the user limit feature)
