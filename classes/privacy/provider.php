@@ -53,14 +53,18 @@ class provider implements
                 'userid' => 'privacy:metadata:booking_answers:userid',
                 'bookingid' => 'privacy:metadata:booking_answers:bookingid',
                 'optionid' => 'privacy:metadata:booking_answers:optionid',
+                'completed' => 'privacy:metadata:booking_answers:completed',
                 'timemodified' => 'privacy:metadata:booking_answers:timemodified',
                 'timecreated' => 'privacy:metadata:booking_answers:timecreated',
                 'waitinglist' => 'privacy:metadata:booking_answers:waitinglist',
+                'frombookingid' => 'privacy:metadata:booking_answers:frombookingid',
+                'numrec' => 'privacy:metadata:booking_answers:numrec',
                 'status' => 'privacy:metadata:booking_answers:status',
                 'notes' => 'privacy:metadata:booking_answers:notes',
             ],
             'privacy:metadata:booking_answers'
         );
+
         $collection->add_database_table(
             'booking_ratings',
             [
@@ -70,14 +74,38 @@ class provider implements
             ],
             'privacy:metadata:booking_ratings'
         );
+
         $collection->add_database_table(
             'booking_teachers',
             [
+                'bookingid' => 'privacy:metadata:booking_teachers:bookingid',
                 'userid' => 'privacy:metadata:booking_teachers:userid',
                 'optionid' => 'privacy:metadata:booking_teachers:optionid',
                 'completed' => 'privacy:metadata:booking_teachers:completed',
+                'calendarid' => 'privacy:metadata:booking_teachers:calendarid',
             ],
             'privacy:metadata:booking_teachers'
+        );
+
+        $collection->add_database_table(
+            'booking_icalsequence',
+            [
+                'userid' => 'privacy:metadata:booking_icalsequence:userid',
+                'optionid' => 'privacy:metadata:booking_icalsequence:optionid',
+                'sequencevalue' => 'privacy:metadata:booking_icalsequence:sequencevalue',
+            ],
+            'privacy:metadata:booking_icalsequence'
+        );
+
+        $collection->add_database_table(
+            'booking_userevents',
+            [
+                'userid' => 'privacy:metadata:booking_userevents:userid',
+                'optionid' => 'privacy:metadata:booking_userevents:optionid',
+                'optiondateid' => 'privacy:metadata:booking_userevents:optiondateid',
+                'eventid' => 'privacy:metadata:booking_userevents:eventid',
+            ],
+            'privacy:metadata:booking_userevents'
         );
 
         return $collection;
@@ -173,7 +201,7 @@ class provider implements
                     'notes' => $bookinganswer->notes,
                 ];
             }
-            // Important, can be more then one option. Export in one nice line.
+            // Important, can be more than one option. Export in one nice line.
             $bookingdata['bookedoptions'][] = $bookinganswer->bookedoptiontext . " (from " .
                 \core_privacy\local\request\transform::datetime($bookinganswer->coursestart). " to " .
                 \core_privacy\local\request\transform::datetime($bookinganswer->courseend). ") with rating " .
