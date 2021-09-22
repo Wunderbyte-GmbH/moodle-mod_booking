@@ -1540,6 +1540,7 @@ $string['bstcourseendtime'] = 'End time';
 $string['bstlocation'] = 'Location';
 $string['bstinstitution'] = 'Institution';
 $string['bstcourse'] = 'Course';
+$string['bstlink'] = 'Show';
 
 // All_options.php
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>You are already booked for this option.</i></div>';

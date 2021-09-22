@@ -8,6 +8,8 @@ require_once($CFG->libdir.'/tablelib.php');
 use coding_exception;
 use dml_exception;
 use mod_booking\booking_utils;
+use moodle_exception;
+use moodle_url;
 use table_sql;
 
 defined('MOODLE_INTERNAL') || die();
@@ -29,7 +31,7 @@ class bookingoptions_simple_table extends table_sql {
         $this->baseurl = $PAGE->url;
 
         // Define the list of columns to show.
-        $columns = array('text', 'coursestarttime', 'courseendtime', 'location', 'institution', 'course');
+        $columns = array('text', 'coursestarttime', 'courseendtime', 'location', 'institution', 'course', 'link');
         $this->define_columns($columns);
 
         // Define the titles of columns to show in header.
@@ -39,7 +41,8 @@ class bookingoptions_simple_table extends table_sql {
             get_string('bstcourseendtime', 'mod_booking'),
             get_string('bstlocation', 'mod_booking'),
             get_string('bstinstitution', 'mod_booking'),
-            get_string('bstcourse', 'mod_booking')
+            get_string('bstcourse', 'mod_booking'),
+            get_string('bstlink', 'mod_booking')
         );
         $this->define_headers($headers);
     }
@@ -98,6 +101,38 @@ class bookingoptions_simple_table extends table_sql {
         }
 
         return $courseendtime;
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * link value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $link Returns a link to the booking option (formatted as button).
+     * @throws moodle_exception
+     * @throws coding_exception
+     */
+    function col_link($values) {
+        global $CFG;
+
+        // Add a link to redirect to the booking option.
+        $link = new moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
+            'id' => $values->cmid,
+            'optionid' => $values->optionid,
+            'action' => 'showonlyone',
+            'whichview' => 'showonlyone'
+        ));
+        // Use html_entity_decode to convert "&amp;" to a simple "&" character.
+        $link = html_entity_decode($link->out());
+
+        // Only format as button if it's not an export.
+        if (!$this->is_downloading()) {
+            $link = '<a href="' . $link . '" class="btn btn-primary">'
+                . get_string('bstlink', 'mod_booking')
+                . '</a>';
+        }
+
+        return $link;
     }
 
     /**
