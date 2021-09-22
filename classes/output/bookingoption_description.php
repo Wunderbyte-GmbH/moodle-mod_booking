@@ -144,12 +144,18 @@ class bookingoption_description implements renderable, templatable {
 
         switch ($descriptionparam) {
             case DESCRIPTION_WEBSITE:
-                if ($bookingoption->iambooked == 1) {
-                    // If iambooked is 1, we show a short info text that the option is already booked.
-                    $this->booknowbutton = get_string('infoalreadybooked', 'booking');
-                } else if ($bookingoption->onwaitinglist == 1) {
-                    // If onwaitinglist is 1, we show a short info text that the user is on the waiting list.
-                    $this->booknowbutton = get_string('infowaitinglist', 'booking');
+                // Only show "already booked" or "on waiting list" text in modal.
+                if ($booking->settings->showdescriptionmode == 0) {
+                    if ($bookingoption->iambooked == 1) {
+                        // If iambooked is 1, we show a short info text that the option is already booked.
+                        $this->booknowbutton = get_string('infoalreadybooked', 'booking');
+                    } else if ($bookingoption->onwaitinglist == 1) {
+                        // If onwaitinglist is 1, we show a short info text that the user is on the waiting list.
+                        $this->booknowbutton = get_string('infowaitinglist', 'booking');
+                    }
+                } else {
+                    // Inline we don't want to show it because it would be redundant information.
+                    $this->booknowbutton = '';
                 }
                 break;
             case DESCRIPTION_CALENDAR:
