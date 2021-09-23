@@ -393,7 +393,7 @@ function booking_add_instance($booking) {
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {
             $value = trim($value);
-            if (isset($value) && $value != '') {
+            if (!empty($value)) {
                 $option = new stdClass();
                 $option->text = $value;
                 $option->bookingid = $booking->id;
@@ -520,13 +520,13 @@ function booking_update_instance($booking) {
             $option->timemodified = time();
             if (isset($booking->optionid[$key]) && !empty($booking->optionid[$key])) { // Existing booking record.
                 $option->id = $booking->optionid[$key];
-                if (isset($value) && $value != '') {
+                if (!empty($value)) {
                     $DB->update_record("booking_options", $option);
                 } else { // Empty old option - needs to be deleted.
                     $DB->delete_records("booking_options", array("id" => $option->id));
                 }
             } else {
-                if (isset($value) && $value != '') {
+                if (!empty($value)) {
                     $DB->insert_record("booking_options", $option);
                 }
             }
@@ -556,7 +556,7 @@ function booking_update_options($optionvalues, $context) {
     }
 
     // Get the original option to compare it for changes.
-    if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
+    if (!empty($optionvalues->optionid) &&
         $optionvalues->optionid != -1) {
         if (!$originaloption = $DB->get_record('booking_options', ['id' => $optionvalues->optionid])) {
             $originaloption = false;
@@ -583,17 +583,17 @@ function booking_update_options($optionvalues, $context) {
     }
 
     $option->text = trim($optionvalues->text);
-    if (!isset($optionvalues->howmanyusers) || empty ($optionvalues->howmanyusers)) {
+    if (!isset($optionvalues->howmanyusers) || empty($optionvalues->howmanyusers)) {
         $option->howmanyusers = 0;
     } else {
         $option->howmanyusers = $optionvalues->howmanyusers;
     }
-    if (!isset($optionvalues->removeafterminutes) || empty ($optionvalues->removeafterminutes)) {
+    if (!isset($optionvalues->removeafterminutes) || empty($optionvalues->removeafterminutes)) {
         $option->removeafterminutes = 0;
     } else {
         $option->removeafterminutes = $optionvalues->removeafterminutes;
     }
-    if (!isset($optionvalues->notificationtext) || empty ($optionvalues->notificationtext)) {
+    if (!isset($optionvalues->notificationtext) || empty($optionvalues->notificationtext)) {
         $option->notificationtext = "";
     } else {
         $option->notificationtext = $optionvalues->notificationtext;
@@ -690,7 +690,7 @@ function booking_update_options($optionvalues, $context) {
                     array('id' => $option->id));
             }
 
-            if (isset($booking->addtogroup) && $option->courseid > 0) {
+            if (!empty($booking->addtogroup) && $option->courseid > 0) {
                 $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
                 $bo->option->courseid = $option->courseid;
                 $option->groupid = $bo->create_group();
@@ -702,7 +702,7 @@ function booking_update_options($optionvalues, $context) {
                 }
             }
 
-            if (isset($optionvalues->generatenewurl) && $optionvalues->generatenewurl == 1) {
+            if (!empty($optionvalues->generatenewurl) && $optionvalues->generatenewurl == 1) {
                 // URL shortnere - only if API key is entered.
                 $gapik = get_config('booking', 'googleapikey');
                 $googer = new GoogleURLAPI($gapik);
@@ -724,7 +724,7 @@ function booking_update_options($optionvalues, $context) {
             // Check if custom field will be updated or newly created.
             if (!empty($customfields)) {
                 foreach ($customfields as $fieldcfgname => $field) {
-                    if (isset($optionvalues->$fieldcfgname)) {
+                    if (!empty($optionvalues->$fieldcfgname)) {
                         $customfieldid = $DB->get_field('booking_customfields', 'id',
                                 array('bookingid' => $booking->id, 'optionid' => $option->id,
                                     'cfgname' => $fieldcfgname));
@@ -751,7 +751,7 @@ function booking_update_options($optionvalues, $context) {
 
             $DB->update_record("booking_options", $option);
 
-            if (isset($booking->addtogroup) && $option->courseid > 0) {
+            if (!empty($booking->addtogroup) && $option->courseid > 0) {
                 $bo = new booking_option($context->instanceid, $option->id, array(), 0, 0, false);
                 $bo->option->courseid = $option->courseid;
                 $option->groupid = $bo->create_group();
@@ -788,7 +788,7 @@ function booking_update_options($optionvalues, $context) {
         return $option->id;
     }
     // new booking option record
-    else if (isset($optionvalues->text) && $optionvalues->text != '') {
+    else if (!empty($optionvalues->text)) {
 
         // if option "Use as global template" has been set
         if (isset($optionvalues->addastemplate) && $optionvalues->addastemplate == 1) {
@@ -827,6 +827,9 @@ function booking_update_options($optionvalues, $context) {
         }
 
         // Create group in target course if there is a course specified only.
+        // TODO: This is logically nonsense.
+        // It should be: if (($option->courseid > 0) && !empty($booking->addtogroup)).
+        // We don't do it right away because people rely on this to work. We need to introduce a special setting.
         if ($option->courseid > 0 && isset($booking->addtogroup) && $booking->addtogroup) {
             $option->id = $optionid;
             $bo = new booking_option($context->instanceid, $optionid, array(), 0, 0, false);
@@ -896,13 +899,13 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
         $endtimekey = 'ms' . $i . 'endtime';
         $daystonotify = 'ms' . $i . 'nt';
 
-        if (isset($optionvalues->$starttimekey) && isset($optionvalues->$endtimekey)) {
+        if (!empty($optionvalues->$starttimekey) && !empty($optionvalues->$endtimekey)) {
             $optiondate = new stdClass();
             $optiondate->bookingid = $booking->id;
             $optiondate->optionid = $optionid;
             $optiondate->coursestarttime = $optionvalues->$starttimekey;
             $optiondate->courseendtime = $optionvalues->$endtimekey;
-            if (isset($optionvalues->$daystonotify)) {
+            if (!empty($optionvalues->$daystonotify)) {
                 $optiondate->daystonotify = $optionvalues->$daystonotify;
             }
             $optiondateid = $DB->insert_record("booking_optiondates", $optiondate);
@@ -911,9 +914,7 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
                 $cfname = 'ms' . $i . 'cf' . $j . 'name';
                 $cfvalue = 'ms' . $i . 'cf'. $j . 'value';
 
-                if (isset($optionvalues->$cfname)
-                    && isset($optionvalues->$cfvalue)
-                    && !empty($optionvalues->$cfname)
+                if (!empty($optionvalues->$cfname)
                     && !empty($optionvalues->$cfvalue)) {
 
                     $customfield = new stdClass();
@@ -1209,7 +1210,7 @@ function booking_email_to_user($user, $from, $subject, $messagetext, $messagehtm
 
     // Skip mail to suspended users.
     if ((isset($user->auth) && $user->auth == 'nologin') or
-            (isset($user->suspended) && $user->suspended)) {
+            (!empty($user->suspended))) {
         return true;
     }
 
@@ -2223,7 +2224,7 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
             $allusers[$value] = $tmpuser;
         }
     } else {
-        if (isset($bookingdata->usersonlist)) {
+        if (!empty($bookingdata->usersonlist)) {
             foreach ($bookingdata->usersonlist as $value) {
                 $tmpuser = new stdClass();
                 $tmpuser->id = $value->userid;
