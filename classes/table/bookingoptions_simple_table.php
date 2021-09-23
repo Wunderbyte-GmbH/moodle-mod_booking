@@ -115,18 +115,21 @@ class bookingoptions_simple_table extends table_sql {
     function col_link($values) {
         global $CFG;
 
-        // Add a link to redirect to the booking option.
-        $link = new moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
-            'id' => $values->cmid,
-            'optionid' => $values->optionid,
-            'action' => 'showonlyone',
-            'whichview' => 'showonlyone'
-        ));
-        // Use html_entity_decode to convert "&amp;" to a simple "&" character.
-        $link = html_entity_decode($link->out());
+        // Link is empty on default.
+        $link = '';
 
-        // Only format as button if it's not an export.
+        // Only generate link and format as a button if it's not an export.
         if (!$this->is_downloading()) {
+            // Add a link to redirect to the booking option.
+            $link = new moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
+                'id' => $values->cmid,
+                'optionid' => $values->optionid,
+                'action' => 'showonlyone',
+                'whichview' => 'showonlyone'
+            ));
+            // Use html_entity_decode to convert "&amp;" to a simple "&" character.
+            $link = html_entity_decode($link->out());
+
             $link = '<a href="' . $link . '" class="btn btn-primary">'
                 . get_string('bstlink', 'mod_booking')
                 . '</a>';
