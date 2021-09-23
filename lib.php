@@ -827,10 +827,7 @@ function booking_update_options($optionvalues, $context) {
         }
 
         // Create group in target course if there is a course specified only.
-        // TODO: This is logically nonsense.
-        // It should be: if (($option->courseid > 0) && !empty($booking->addtogroup)).
-        // We don't do it right away because people rely on this to work. We need to introduce a special setting.
-        if ($option->courseid > 0 && isset($booking->addtogroup) && $booking->addtogroup) {
+        if (!empty($option->courseid) && !empty($booking->addtogroup)) {
             $option->id = $optionid;
             $bo = new booking_option($context->instanceid, $optionid, array(), 0, 0, false);
             $option->groupid = $bo->create_group($booking, $option);
