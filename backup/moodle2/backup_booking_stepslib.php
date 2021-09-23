@@ -37,8 +37,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         // Define each element separated.
         $booking = new backup_nested_element('booking', array('id'),
                 array('course', 'name', 'intro', 'introformat', 'bookingmanager', 'mailtemplatessource', 'sendmail',
-                    'copymail', 'allowupdate', 'bookingpolicy', 'bookingpolicyformat', 'timeopen',
-                    'timeclose', 'timemodified',
+                    'copymail', 'allowupdate', 'bookingpolicy', 'bookingpolicyformat', 'timeopen', 'timeclose', 'timemodified',
                     'autoenrol', 'bookedtext', 'waitingtext', 'statuschangetext', 'deletedtext', 'bookingchangedtext',
                     'maxperuser', 'sendmailtobooker', 'duration', 'points', 'organizatorname',
                     'pollurl', 'addtogroup', 'categoryid', 'pollurltext', 'eventtype',
@@ -47,9 +46,10 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'lblbooking', 'lbllocation', 'lblinstitution', 'lblname', 'lblsurname',
                     'btncacname', 'lblteachname', 'lblsputtname', 'btnbooknowname', 'btncancelname',
                     'booktootherbooking', 'lblacceptingfrom', 'lblnumofusers', 'numgenerator',
-                    'paginationnum', 'daystonotify', 'daystonotify2', 'notifyemail', 'daystonotifyteachers',
-                    'notifyemailteachers', 'assessed', 'assesstimestart', 'assesstimefinish', 'scale', 'enablepresence',
-                    'responsesfields', 'reportfields', 'optionsfields', 'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
+                    'paginationnum', 'banusernames', 'showhelpfullnavigationlinks', 'daystonotify', 'notifyemail',
+                    'daystonotifyteachers', 'notifyemailteachers', 'assessed', 'assesstimestart', 'assesstimefinish',
+                    'scale', 'whichview', 'daystonotify2', 'enablepresence', 'completionmodule', 'responsesfields',
+                    'reportfields', 'optionsfields', 'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
                     'signinsheetfields', 'comments', 'ratings', 'removeuseronunenrol', 'teacherroleid', 'allowupdatedays',
                     'templateid', 'showdescriptionmode', 'showlistoncoursepage', 'coursepageshortinfo', 'defaultoptionsort',
                     'showviews', 'customtemplateid', 'autcractive', 'autcrprofile', 'autcrvalue', 'autcrtemplate'));
