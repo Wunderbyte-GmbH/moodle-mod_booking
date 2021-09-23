@@ -24,14 +24,16 @@
 
 namespace mod_booking\privacy;
 
-// TODO: Which are needed?
+use coding_exception;
+use context;
+use context_module;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\helper;
-use core_privacy\local\request\transform;
 use core_privacy\local\request\writer;
-use core_privacy\manager;
+use dml_exception;
+use stdClass;
 
 class provider implements
     // This plugin stores personal data.
@@ -120,18 +122,32 @@ class provider implements
     public static function get_contexts_for_userid(int $userid) : contextlist {
 
         // Add if the user booked an event.
-        $sql = "SELECT c.id
+        $sql = "(SELECT DISTINCT c.id
             FROM {context} c
             INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
             INNER JOIN {modules} m ON m.id = cm.module AND m.name = :modname
             INNER JOIN {booking} boo ON boo.id = cm.instance
             INNER JOIN {booking_answers} ans ON ans.bookingid = boo.id
-            WHERE ans.userid = :userid";
+            WHERE ans.userid = :userid)
+            UNION
+            (SELECT DISTINCT c.id
+            FROM {context} c
+            INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel2
+            INNER JOIN {modules} m ON m.id = cm.module AND m.name = :modname2
+            INNER JOIN {booking} boo ON boo.id = cm.instance
+            INNER JOIN {booking_teachers} tea ON tea.bookingid = boo.id
+            WHERE tea.userid = :userid2)";
+
         $params = [
             'modname'       => 'booking',
             'contextlevel'  => CONTEXT_MODULE,
             'userid'        => $userid,
+            // This is needed a second time because every param can only be used once.
+            'modname2'       => 'booking',
+            'contextlevel2'  => CONTEXT_MODULE,
+            'userid2'        => $userid,
         ];
+
         $contextlist = new contextlist();
         $contextlist->add_from_sql($sql, $params);
 
@@ -139,8 +155,11 @@ class provider implements
     }
 
     /**
-     * Export personal data for the given approved_contextlist. User and context information is contained within the contextlist.
+     * Export personal data for the given approved_contextlist.
+     * User and context information is contained within the contextlist.
      * @param approved_contextlist $contextlist a list of contexts approved for export.
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function export_user_data(approved_contextlist $contextlist) {
         global $DB;
@@ -189,7 +208,7 @@ class provider implements
             // If we've moved to a new instance, then write the last bookingdata and reinit the bookingdata array.
             if ($lastcmid != $bookinganswer->cmid) {
                 if (!empty($bookingdata)) {
-                    $context = \context_module::instance($lastcmid);
+                    $context = context_module::instance($lastcmid);
                     self::export_booking($bookingdata, $context, $user);
                 }
                 $bookingdata = [
@@ -212,7 +231,7 @@ class provider implements
 
         // The data for the last activity won't have been written yet, so make sure to write it now!
         if (!empty($bookingdata)) {
-            $context = \context_module::instance($lastcmid);
+            $context = context_module::instance($lastcmid);
             self::export_booking($bookingdata, $context, $user);
         }
     }
@@ -220,18 +239,58 @@ class provider implements
     /**
      * Delete all data for all users in the specified context.
      *
-     * @param \context $context the context to delete in.
+     * @param context $context the context to delete in.
+     * @throws coding_exception
+     * @throws dml_exception
      */
-    public static function delete_data_for_all_users_in_context(\context $context) {
+    public static function delete_data_for_all_users_in_context(context $context) {
         global $DB;
-        if (!$context instanceof \context_module) {
+        if (!$context instanceof context_module) {
             return;
         }
 
         if ($cm = get_coursemodule_from_id('booking', $context->instanceid)) {
+            // Delete all booking answers within the instance.
             $DB->delete_records('booking_answers', ['bookingid' => $cm->instance]);
-            $DB->delete_records('booking_options', ['bookingid' => $cm->instance]);
-            $DB->delete_records('booking_ratings', ['bookingid' => $cm->instance]);
+
+            // Delete all teachers within the instance.
+            $DB->delete_records('booking_teachers', ['bookingid' => $cm->instance]);
+
+            // Find all ratings within the instance.
+            $ratingswhere = 'id IN (SELECT id
+                FROM {booking_ratings} br
+                INNER JOIN {booking_options} bo
+                ON br.optionid = bo.id
+                WHERE bo.bookingid = :bookingid)';
+            // Delete all ratings within the instance.
+            $DB->delete_records_select('booking_ratings', $ratingswhere, ['bookingid' => $cm->instance]);
+
+            // Find all icalsequence records within the instance.
+            $icalsequencewhere = 'id IN (SELECT id
+                FROM {booking_icalsequence} bi
+                INNER JOIN {booking_options} bo
+                ON bi.optionid = bo.id
+                WHERE bo.bookingid = :bookingid)';
+            // Delete all icalsequence records within the instance.
+            $DB->delete_records_select('booking_icalsequence', $icalsequencewhere, ['bookingid' => $cm->instance]);
+
+            // Find all entries in booking_userevents within the instance and delete the associated events from {event}.
+            $eventswhere = 'id IN (SELECT eventid
+                FROM {booking_userevents} bue
+                INNER JOIN {booking_options} bo
+                ON bue.optionid = bo.id
+                WHERE bo.bookingid = :bookingid)';
+            // Delete all entries in booking_userevents within the instance.
+            $DB->delete_records_select('event', $eventswhere, ['bookingid' => $cm->instance]);
+
+            // Now, find all entries in booking_userevents within the instance.
+            $usereventswhere = 'id IN (SELECT id
+                FROM {booking_userevents} bue
+                INNER JOIN {booking_options} bo
+                ON bue.optionid = bo.id
+                WHERE bo.bookingid = :bookingid)';
+            // Now we can delete all entries in booking_userevents within the instance.
+            $DB->delete_records_select('booking_userevents', $usereventswhere, ['bookingid' => $cm->instance]);
         }
     }
 
@@ -239,6 +298,7 @@ class provider implements
      * Delete all user data for the specified user, in the specified contexts.
      *
      * @param approved_contextlist $contextlist a list of contexts approved for deletion.
+     * @throws dml_exception
      */
     public static function delete_data_for_user(approved_contextlist $contextlist) {
         global $DB;
@@ -250,24 +310,36 @@ class provider implements
         $userid = $contextlist->get_user()->id;
         foreach ($contextlist->get_contexts() as $context) {
 
-            if (!$context instanceof \context_module) {
+            if (!$context instanceof context_module) {
                 continue;
             }
             $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
             $DB->delete_records('booking_answers', ['bookingid' => $instanceid, 'userid' => $userid]);
-            $DB->delete_records('booking_options', ['bookingid' => $instanceid, 'userid' => $userid]);
-            $DB->delete_records('booking_ratings', ['bookingid' => $instanceid, 'userid' => $userid]);
+            $DB->delete_records('booking_teachers', ['bookingid' => $instanceid, 'userid' => $userid]);
         }
+
+        // Ratings, icalsequence and userevents do not have a booking id and will therefore be deleted independent of contexts.
+        $DB->delete_records('booking_ratings', ['userid' => $userid]);
+        $DB->delete_records('booking_icalsequence', ['userid' => $userid]);
+
+        // Before deleting from booking_userevents, we first have to delete the associated events in table {event}.
+        $eventswhere = 'id IN (SELECT eventid
+                FROM {booking_userevents}
+                WHERE userid = :userid)';
+        $DB->delete_records_select('event', $eventswhere, ['userid' => $userid]);
+
+        // Now, we can delete the records in booking_userevents.
+        $DB->delete_records('booking_userevents', ['userid' => $userid]);
     }
 
     /**
      * Export the supplied personal data for a booking instance, along with any generic data or area files.
      *
      * @param array $bookingdata the personal data to export for the subscription.
-     * @param \context_module $context the context of the subscription.
-     * @param \stdClass $user the user record
+     * @param context_module $context the context of the subscription.
+     * @param stdClass $user the user record
      */
-    protected static function export_booking(array $bookingdata, \context_module $context, \stdClass $user) {
+    protected static function export_booking(array $bookingdata, context_module $context, stdClass $user) {
         // Fetch the generic module data.
         $contextdata = helper::get_context_data($context, $user);
 

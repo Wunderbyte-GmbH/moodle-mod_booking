@@ -3,6 +3,7 @@
     Add a link redirecting to each booking option.
 * Improvement: Only show "already booked" or "on waiting list" text in modal but not inline.
 * Bugfix: Added missing fields in backup (duplication) of booking instances
+* Bugfix: Fixed context and deletion methods in provider.php (Privacy API)
 * Other: Added RELEASENOTES, CHANGES and updated README
 
 7.0.8 (2021092100)

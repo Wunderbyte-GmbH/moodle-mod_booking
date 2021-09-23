@@ -6,6 +6,7 @@
 
 **Bugfixes:**
 * Added missing fields in backup (duplication) of booking instances
+* Fixed context and deletion methods in provider.php (Privacy API)
 
 **Other:**
 * Added RELEASENOTES, CHANGES and updated README
