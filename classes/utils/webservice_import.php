@@ -196,10 +196,10 @@ class webservice_import {
             if (!$bookingid = $DB->get_field_sql($sql, array('idnumber' => $data->bookingidnumber, 'modulename' => 'booking'))) {
                 return 0;
             }
-        } else if (isset($data->courseid)) {
-            // If there is a moodle courseid, we just get the booking instances in this course.
+        } else if (isset($data->targetcourseid)) {
+            // If there is a moodle target courseid, we just get the booking instances in this course.
             // There can only be one visible booking instance in every course.
-            $bookinginstances = get_coursemodules_in_course('booking', $data->courseid);
+            $bookinginstances = get_coursemodules_in_course('booking', $data->targetcourseid);
 
             $bookinginstances = array_filter($bookinginstances, function($x) {
                 return $x->visible == 1;
@@ -215,11 +215,11 @@ class webservice_import {
             $bookingid = $bookinginstance->instance;
         } else if (isset($data->courseidnumber)) {
             // If we can identify the course via courseidnumber, we do so.
-            $data->courseid = $DB->get_field('course', 'id', array('idnumber' => $data->courseidnumber));
+            $data->targetcourseid = $DB->get_field('course', 'id', array('idnumber' => $data->courseidnumber));
             $bookingid = $this->return_booking_id($data);
         } else if (isset($data->courseshortname)) {
             // If we can identify the course via course shortname, we do so.
-            $data->courseid = $DB->get_field('course', 'id', array('shortname' => $data->courseshortname));
+            $data->targetcourseid = $DB->get_field('course', 'id', array('shortname' => $data->courseshortname));
             $bookingid = $this->return_booking_id($data);
         }
 

@@ -329,6 +329,7 @@ class external extends external_api {
      */
     public static function addbookingoption(
         $name,
+        $targetcourseid = null,
         $courseid = null,
         $bookingid = null,
         $bookingidnumber = null,
@@ -368,11 +369,12 @@ class external extends external_api {
 
         $params = self::validate_parameters(self::addbookingoption_parameters(),
                 array('name' => $name,
-                        'courseid' => $courseid, // There is one visible booking instance in course.
+                        'targetcourseid' => $targetcourseid, // Id of course where the booking option should be created.
+                        'courseid' => $courseid, // Id of course where users should be inscribed when booked.
                         'bookingcmid' => $bookingid, // Moodle cm ID of the target booking instance.
                         'bookingidnumber' => $bookingidnumber, // Idnumber of target booking instance.
-                        'courseidnumber' => $courseidnumber, // Way of identifying course via idnumber.
-                        'courseshortname' => $courseshortname, // Way of identifiying course via shortname.
+                        'courseidnumber' => $courseidnumber, // Way of identifying target course via idnumber.
+                        'courseshortname' => $courseshortname, // Way of identifiying target course via shortname.
                         'bookingoptionid' => $bookingoptionid, // Moodle id of bookingoption to update booking option.
                         'maxanswers' => $maxanswers,
                         'maxoverbooking' => $maxoverbooking,
@@ -422,8 +424,10 @@ class external extends external_api {
                 array(
                         'name' => new external_value(PARAM_TEXT,
                             'Booking option name', VALUE_REQUIRED),
+                        'targetcourseid' => new external_value(PARAM_INT,
+                                'Id of course where this booking option should be created.', VALUE_DEFAULT, null),
                         'courseid' => new external_value(PARAM_INT,
-                            'Id of Target course.', VALUE_DEFAULT, null),
+                            'Id of course to book users to.', VALUE_DEFAULT, null),
                         'bookingcmid' => new external_value(PARAM_INT,
                             'Moodle id of booking activity.', VALUE_DEFAULT, null),
                         'bookingidnumber' => new external_value(PARAM_RAW,
