@@ -1426,6 +1426,8 @@ $string['waitinglistfullmessage'] = 'No places available on the waiting list.';
 $string['bookingplaceslowmessage'] = 'Only a few booking places are left.';
 $string['bookingplacesenoughmessage'] = 'Still enough booking places available.';
 $string['bookingplacesfullmessage'] = 'No booking places available anymore.';
+$string['eventalreadyover'] = 'This event is already over.';
+$string['nobookingpossible'] = 'No booking possible.';
 
 // Mobile
 $string['next'] = 'Next';

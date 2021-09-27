@@ -1252,6 +1252,8 @@ $string['waitinglistfullmessage'] = 'Keine Wartelistenplätze mehr verfügbar.';
 $string['bookingplaceslowmessage'] = 'Nur noch wenige Buchungsplätze verfügbar.';
 $string['bookingplacesenoughmessage'] = 'Noch ausreichend Buchungsplätze verfügbar.';
 $string['bookingplacesfullmessage'] = 'Keine Buchungsplätze mehr verfügbar.';
+$string['eventalreadyover'] = 'Diese Veranstaltung ist bereits vorüber.';
+$string['nobookingpossible'] = 'Keine Buchung möglich.';
 
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
