@@ -1300,6 +1300,9 @@ $string['bstcoursestarttime'] = 'Startzeit';
 $string['bstcourseendtime'] = 'Endzeit';
 $string['bstlocation'] = 'Ort';
 $string['bstinstitution'] = 'Institution';
+$string['bstparticipants'] = 'Teilnehmer/innen';
+$string['bstwaitinglist'] = 'Auf Warteliste';
+$string['bstmanageresponses'] = 'Antworten verwalten';
 $string['bstcourse'] = 'Kurs';
 $string['bstlink'] = 'Anzeigen';
 

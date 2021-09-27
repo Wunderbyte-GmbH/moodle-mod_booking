@@ -1539,6 +1539,9 @@ $string['bstcoursestarttime'] = 'Start time';
 $string['bstcourseendtime'] = 'End time';
 $string['bstlocation'] = 'Location';
 $string['bstinstitution'] = 'Institution';
+$string['bstparticipants'] = 'Participants';
+$string['bstwaitinglist'] = 'On waiting list';
+$string['bstmanageresponses'] = 'Manage responses';
 $string['bstcourse'] = 'Course';
 $string['bstlink'] = 'Show';
 

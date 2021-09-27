@@ -31,17 +31,21 @@ class bookingoptions_simple_table extends table_sql {
         $this->baseurl = $PAGE->url;
 
         // Define the list of columns to show.
-        $columns = array('text', 'coursestarttime', 'courseendtime', 'location', 'institution', 'course', 'link');
+        $columns = array('text', 'course', 'coursestarttime', 'courseendtime', 'location', 'institution', 'participants',
+            'waitinglist', 'manageresponses', 'link');
         $this->define_columns($columns);
 
         // Define the titles of columns to show in header.
         $headers = array(
             get_string('bsttext', 'mod_booking'),
+            get_string('bstcourse', 'mod_booking'),
             get_string('bstcoursestarttime', 'mod_booking'),
             get_string('bstcourseendtime', 'mod_booking'),
             get_string('bstlocation', 'mod_booking'),
             get_string('bstinstitution', 'mod_booking'),
-            get_string('bstcourse', 'mod_booking'),
+            get_string('bstparticipants', 'mod_booking'),
+            get_string('bstwaitinglist', 'mod_booking'),
+            get_string('bstmanageresponses', 'mod_booking'),
             get_string('bstlink', 'mod_booking')
         );
         $this->define_headers($headers);
@@ -104,6 +108,42 @@ class bookingoptions_simple_table extends table_sql {
     }
 
     /**
+     * This function is called for each data row to add a link
+     * for managing responses (booking_answers).
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $link Returns a link to report.php (manage responses).
+     * @throws moodle_exception
+     * @throws coding_exception
+     */
+    function col_manageresponses($values) {
+        global $CFG, $DB;
+
+        // Link is empty on default.
+        $link = '';
+
+        if ($DB->get_records('booking_answers', ['optionid' => $values->optionid])) {
+            // Add a link to redirect to the booking option.
+            $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', array(
+                'id' => $values->cmid,
+                'optionid' => $values->optionid
+            ));
+            // Use html_entity_decode to convert "&amp;" to a simple "&" character.
+            $link = html_entity_decode($link->out());
+
+            if (!$this->is_downloading()) {
+                // Only format as a button if it's not an export.
+                $link = '<a href="' . $link . '" class="btn btn-secondary">'
+                    . get_string('bstmanageresponses', 'mod_booking')
+                    . '</a>';
+            }
+        }
+        // Do not show a link if there are no answers.
+
+        return $link;
+    }
+
+    /**
      * This function is called for each data row to allow processing of the
      * link value.
      *
@@ -115,21 +155,18 @@ class bookingoptions_simple_table extends table_sql {
     function col_link($values) {
         global $CFG;
 
-        // Link is empty on default.
-        $link = '';
+        // Add a link to redirect to the booking option.
+        $link = new moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
+            'id' => $values->cmid,
+            'optionid' => $values->optionid,
+            'action' => 'showonlyone',
+            'whichview' => 'showonlyone'
+        ));
+        // Use html_entity_decode to convert "&amp;" to a simple "&" character.
+        $link = html_entity_decode($link->out());
 
-        // Only generate link and format as a button if it's not an export.
         if (!$this->is_downloading()) {
-            // Add a link to redirect to the booking option.
-            $link = new moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
-                'id' => $values->cmid,
-                'optionid' => $values->optionid,
-                'action' => 'showonlyone',
-                'whichview' => 'showonlyone'
-            ));
-            // Use html_entity_decode to convert "&amp;" to a simple "&" character.
-            $link = html_entity_decode($link->out());
-
+            // Only format as a button if it's not an export.
             $link = '<a href="' . $link . '" class="btn btn-primary">'
                 . get_string('bstlink', 'mod_booking')
                 . '</a>';
