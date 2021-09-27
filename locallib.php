@@ -397,6 +397,9 @@ function get_rendered_eventdescription($option, $cmid, $optiondate = false, $des
     } else if ($descriptionparam == DESCRIPTION_MAIL) {
         // If this is used for a mail - placeholder {bookingdetails}.
         return $output->render_bookingoption_description_mail($data);
+    } else if ($descriptionparam == DESCRIPTION_CALENDAR) {
+        // If this is used for an event.
+        return $output->render_bookingoption_description_event($data);
     }
 
     return $output->render_bookingoption_description($data);

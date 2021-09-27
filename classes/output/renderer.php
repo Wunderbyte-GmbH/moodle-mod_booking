@@ -364,6 +364,17 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /** Function to print booking option description for event.
+     * @param bookingoption_description $data
+     * @return string
+     */
+    public function render_bookingoption_description_event(mod_booking\output\bookingoption_description $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/bookingoption_description_event', $data);
+        return $o;
+    }
+
     /** Function to print booking option description for ical.
      * @param bookingoption_description $data
      * @return string
