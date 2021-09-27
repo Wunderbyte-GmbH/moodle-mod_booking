@@ -1288,8 +1288,10 @@ class booking_option {
         $option = $tags->option_replace($option);
         $newgroupdata = new stdClass();
         $newgroupdata->courseid = $option->courseid;
-        $newgroupdata->name = "{$booking->name} - {$option->text} ({$option->id})";
-        $newgroupdata->description = "{$booking->name} - {$option->text} ({$option->id})";
+        // Before setting name, we have to resolve the id Tag.
+        $optionname = booking_utils::return_unique_bookingoption_name($option);
+        $newgroupdata->name = "{$booking->name} - $optionname ({$option->id})";
+        $newgroupdata->description = "{$booking->name} - $optionname ({$option->id})";
         $newgroupdata->descriptionformat = FORMAT_HTML;
         return $newgroupdata;
     }

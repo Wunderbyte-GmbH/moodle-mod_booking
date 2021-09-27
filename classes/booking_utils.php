@@ -1293,4 +1293,15 @@ class booking_utils {
             }
         }
     }
+
+    /**
+     * Function to return bookingoptionname directly from DB, as opposed from displayname (without key) normally used.
+     * @param object $data
+     * @return false|mixed
+     * @throws \dml_exception
+     */
+    public static function return_unique_bookingoption_name(object $data) {
+        global $DB;
+        return $DB->get_field('booking_options', 'text', array('id' => $data->id));
+    }
 }
