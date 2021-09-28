@@ -1,6 +1,10 @@
+7.0.10 (2021092700)
+Improvement: Add possibility to distinguish between courseid and targetcourseid in webservice.
+Improvement: Use uniqe booking option name with key for group creation.
+Bugfix: Fix some bugs & potential bugs
+Bugfix: Fixed unwanted group creation
+
 7.0.9 (2021092200)
-* Improvement: bookingoptions_simple_table (will be used by block_booking) -
-    Add a link redirecting to each booking option.
 * Improvement: Only show "already booked" or "on waiting list" text in modal but not inline.
 * Bugfix: Added missing fields in backup (duplication) of booking instances
 * Bugfix: Fixed context and deletion methods in provider.php (Privacy API)
@@ -9,8 +13,6 @@
 7.0.8 (2021092100)
 * New feature: Sending of mails can be disabled by leaving the message template empty (Known issue: Currently only
     working with mails using the task send_confirmation_mails).
-* Improvement: bookingoptions_simple_table (will be used by block_booking) - removed identifier key and
-    separator from column which shows the option names (titles). New headers (localized strings).
 * Improvement: Added metadata to classes/privacy/provider.php
 * Bugfix: Removed "All places are booked" - as we already have new explanation string functionality (PRO) for available
     places and waiting list.
