@@ -184,8 +184,13 @@ class bookingoption_description implements renderable, templatable {
         }
     }
 
+    /**
+     * @param renderer_base $output
+     * @return array
+     */
     public function export_for_template(renderer_base $output) {
-        return array(
+
+        $returnarray = array(
                 'title' => $this->title,
                 'modalcounter' => $this->modalcounter,
                 'description' => $this->description,
@@ -198,5 +203,16 @@ class bookingoption_description implements renderable, templatable {
                 'booknowbutton' => $this->booknowbutton,
                 'teachers' => $this->teachers
         );
+
+        // In events don't have the possibility, as on the website, to use display: none the same way.
+        // So we need two helpervariables:
+        if (count($this->dates) > 0) {
+            $returnarray['showdateslabel'] = 1;
+        }
+        if (count($this->teachers) > 0) {
+            $returnarray['showteachersslabel'] = 1;
+        }
+
+        return $returnarray;
     }
 }
