@@ -2028,35 +2028,43 @@ function booking_sendreminderemail($selectedusers, $booking, $cmid, $optionid) {
 
 /**
  * Send mail to all teachers - pollurlteachers.
- * @param booking_option $booking
+ * @param booking_option $bookingoption
  * @param $cmid
  * @param $optionid
  * @return bool|mixed
  * @throws coding_exception
  * @throws dml_exception
  */
-function booking_sendpollurlteachers(booking_option $booking, $cmid, $optionid) {
+function booking_sendpollurlteachers(booking_option $bookingoption, $cmid, $optionid) {
     global $DB, $USER;
 
     $returnval = true;
 
     $teachers = $DB->get_records("booking_teachers",
-            array("optionid" => $optionid, 'bookingid' => $booking->booking->settings->id));
+            array("optionid" => $optionid, 'bookingid' => $bookingoption->booking->settings->id));
 
     foreach ($teachers as $tuser) {
         $userdata = $DB->get_record('user', array('id' => $tuser->userid));
 
-        $params = booking_generate_email_params($booking->booking->settings, $booking->option, $userdata,
-                $cmid, $booking->optiontimes, false, false, true);
+        $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option, $userdata,
+                $cmid, $bookingoption->optiontimes, false, false, true);
 
-        $pollurlmessage = booking_get_email_body($booking->booking->settings, 'pollurlteacherstext',
+        $pollurlmessage = booking_get_email_body($bookingoption->booking->settings, 'pollurlteacherstext',
                 'pollurlteacherstextmessage', $params);
 
-        $booking->booking->settings->pollurlteacherstext = $pollurlmessage;
+        $bookingoption->booking->settings->pollurlteacherstext = $pollurlmessage;
 
         $eventdata = new stdClass();
         $eventdata->modulename = 'booking';
-        $eventdata->userfrom = $USER;
+
+        // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
+        if ($bookingmanager = $DB->get_record('user',
+            array('username' => $bookingoption->booking->settings->bookingmanager))) {
+            $eventdata->userfrom = $bookingmanager;
+        } else {
+            $eventdata->userfrom = $USER;
+        }
+
         $eventdata->userto = $userdata;
         $eventdata->subject = get_string('pollurlteacherstextsubject', 'booking', $params);
         $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
@@ -2075,33 +2083,41 @@ function booking_sendpollurlteachers(booking_option $booking, $cmid, $optionid) 
  * Send pollurl
  *
  * @param $userids
- * @param booking_option $booking
+ * @param booking_option $bookingoption
  * @param $cmid
  * @param $optionid
  * @return bool|mixed
  * @throws coding_exception
  * @throws dml_exception
  */
-function booking_sendpollurl($userids, booking_option $booking, $cmid, $optionid) {
+function booking_sendpollurl($userids, booking_option $bookingoption, $cmid, $optionid) {
     global $DB, $USER;
 
     $returnval = true;
 
-    $sender = $DB->get_record('user', array('username' => $booking->booking->settings->bookingmanager));
+    $sender = $DB->get_record('user', array('username' => $bookingoption->booking->settings->bookingmanager));
 
     foreach ($userids as $userid) {
         $tuser = $DB->get_record('user', array('id' => $userid));
 
-        $params = booking_generate_email_params($booking->booking->settings, $booking->option, $tuser, $cmid,
-                $booking->optiontimes, false, false, true);
+        $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option, $tuser, $cmid,
+                $bookingoption->optiontimes, false, false, true);
 
-        $pollurlmessage = booking_get_email_body($booking->booking->settings, 'pollurltext',
+        $pollurlmessage = booking_get_email_body($bookingoption->booking->settings, 'pollurltext',
                 'pollurltextmessage', $params);
-        $booking->booking->settings->pollurltext = $pollurlmessage;
+        $bookingoption->booking->settings->pollurltext = $pollurlmessage;
 
         $eventdata = new core\message\message();
         $eventdata->modulename = 'booking';
-        $eventdata->userfrom = $USER;
+
+        // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
+        if ($bookingmanager = $DB->get_record('user',
+            array('username' => $bookingoption->booking->settings->bookingmanager))) {
+            $eventdata->userfrom = $bookingmanager;
+        } else {
+            $eventdata->userfrom = $USER;
+        }
+
         $eventdata->userto = $tuser;
         $eventdata->subject = get_string('pollurltextsubject', 'booking', $params);
         $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
@@ -2115,7 +2131,7 @@ function booking_sendpollurl($userids, booking_option $booking, $cmid, $optionid
     }
 
     $dataobject = new stdClass();
-    $dataobject->id = $booking->option->id;
+    $dataobject->id = $bookingoption->option->id;
     $dataobject->pollsend = 1;
 
     $DB->update_record('booking_options', $dataobject);
@@ -2173,7 +2189,15 @@ function booking_sendcustommessage(int $optionid, string $subject, string $messa
             $eventdata->courseid = $cm->course;
         }
         $eventdata->modulename = 'booking';
-        $eventdata->userfrom = $USER;
+
+        // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
+        if ($bookingmanager = $DB->get_record('user',
+            array('username' => $booking->bookingmanager))) {
+            $eventdata->userfrom = $bookingmanager;
+        } else {
+            $eventdata->userfrom = $USER;
+        }
+
         $eventdata->userto = $ruser;
         $eventdata->subject = $subject;
         $eventdata->fullmessage = $message;
@@ -2259,7 +2283,15 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
             }
 
             $eventdata = new \core\message\message();
-            $eventdata->userfrom = $USER;
+
+            // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
+            if ($bookingmanager = $DB->get_record('user',
+                array('username' => $bookingdata->booking->settings->bookingmanager))) {
+                $eventdata->userfrom = $bookingmanager;
+            } else {
+                $eventdata->userfrom = $USER;
+            }
+
             $eventdata->userto = $ruser;
             $eventdata->subject = $subject;
             $eventdata->fullmessage = strip_tags(

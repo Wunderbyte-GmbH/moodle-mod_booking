@@ -72,7 +72,15 @@ class send_completion_mails extends \core\task\adhoc_task {
 
                 $eventdata = new message();
                 $eventdata->modulename = 'booking';
-                $eventdata->userfrom = $USER;
+
+                // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
+                if ($bookingmanager = $DB->get_record('user',
+                    array('username' => $bookingoption->booking->settings->bookingmanager))) {
+                    $eventdata->userfrom = $bookingmanager;
+                } else {
+                    $eventdata->userfrom = $USER;
+                }
+
                 $eventdata->userto = $touser;
                 $eventdata->subject = get_string('activitycompletiontextsubject', 'booking', $params);
                 $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $message));
