@@ -2544,13 +2544,13 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
         }
         $params->times = $val;
 
-        // Booking_option instance needed to access functions get_all_users_booked and get_all_users_onwaitlist.
+        // Booking_option instance needed to access functions get_all_users_booked and get_all_users_on_waitinglist.
         $boption = new booking_option($cmid, $option->id);
 
         // Placeholder for the number of booked users.
         $params->numberparticipants = strval(count($boption->get_all_users_booked()));
         // Placeholder for the number of users on the waiting list.
-        $params->numberwaitinglist = strval(count($boption->get_all_users_onwaitlist()));
+        $params->numberwaitinglist = strval(count($boption->get_all_users_on_waitinglist()));
 
         // If there are changes, let's render them.
         if ($changes) {

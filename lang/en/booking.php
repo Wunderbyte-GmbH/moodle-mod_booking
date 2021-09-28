@@ -1030,8 +1030,8 @@ To view all your booked courses click on the following link: {$a->bookinglink}
 The associated course can be found here: {$a->courselink}
 
 ';
-$string['confirmationsubjectwaitinglist'] = 'Booking status for {$a->title}';
-$string['confirmationsubjectwaitinglistmanager'] = 'Booking status for {$a->title}';
+$string['confirmationsubjectwaitinglist'] = 'Booking status for {$a->title} has changed';
+$string['confirmationsubjectwaitinglistmanager'] = 'Booking status for {$a->title} has changed';
 $string['confirmationmessagewaitinglist'] = 'Hello {$a->participant},
 
 Your booking request has been registered
@@ -1072,7 +1072,7 @@ $string['userleavebookedmessage'] = 'Hello {$a->participant},
 You have been unsubscribed from {$a->title}.
 ';
 
-$string['statuschangebookedsubject'] = 'Booking status changed for {$a->title}';
+$string['statuschangebookedsubject'] = 'Booking status has changed for {$a->title}';
 $string['statuschangebookedmessage'] = 'Hello {$a->participant},
 
 Your booking status has changed. You are now registered in {$a->title}.

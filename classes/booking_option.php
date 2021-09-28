@@ -14,13 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
+use coding_exception;
 use completion_info;
 use context_module;
+use dml_exception;
 use invalid_parameter_exception;
 use stdClass;
 use moodle_url;
 use calendar_event;
 use mod_booking\booking_utils;
+use function get_config;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -176,8 +179,8 @@ class booking_option {
      * @param $optionid
      * @param integer $boid booking id
      * @return booking_option
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function create_option_from_optionid($optionid, $boid = null) {
         global $DB;
@@ -380,7 +383,7 @@ class booking_option {
      * booking_answer id as key, ->userid, ->waitinglist
      *
      * @return array of objects
-     * @throws \dml_exception
+     * @throws dml_exception
      */
     public function get_all_users() {
         global $DB;
@@ -404,7 +407,7 @@ class booking_option {
      *
      * @return array of userobjects $this->allusers key: booking_answers id
      */
-    public function get_all_users_onwaitlist() {
+    public function get_all_users_on_waitinglist() {
 
         if (empty($this->allusers)) {
             $allusers = $this->get_all_users();
@@ -412,13 +415,13 @@ class booking_option {
             $allusers = $this->allusers;
         }
 
-        $waitlistusers = array();
+        $waitinglistusers = array();
         foreach ($allusers as $baid => $user) {
             if ($user->waitinglist == 1) {
-                $waitlistusers[$baid] = $user;
+                $waitinglistusers[$baid] = $user;
             }
         }
-        return $waitlistusers;
+        return $waitinglistusers;
     }
 
     /**
@@ -652,7 +655,7 @@ class booking_option {
      * Mass delete all users with activity completion.
      *
      * @return array
-     * @throws \dml_exception
+     * @throws dml_exception
      */
     public function delete_responses_activitycompletion() {
         global $DB;
@@ -745,9 +748,11 @@ class booking_option {
             $subject = get_string('deletedbookingsubject', 'booking', $params);
         }
 
-        // TODO: user might have been deleted.
-        $bookingmanager = $DB->get_record('user',
-                array('username' => $this->booking->settings->bookingmanager));
+        if (!$bookingmanager = $DB->get_record('user',
+                array('username' => $this->booking->settings->bookingmanager))) {
+            // If bookingmanager was deleted, we use global $USER instead.
+            $bookingmanager = $USER;
+        }
 
         $eventdata = new stdClass();
 
@@ -755,7 +760,7 @@ class booking_option {
             // Generate ical attachment to go with the message.
             $attachname = '';
             $attachments = '';
-            if (\get_config('booking', 'icalcancel')) {
+            if (get_config('booking', 'icalcancel')) {
                 $ical = new ical($this->booking->settings, $this->option, $user, $bookingmanager);
                 $attachments = $ical->get_attachments(true);
             }
@@ -784,63 +789,9 @@ class booking_option {
                 \core\task\manager::queue_adhoc_task($sendtask);
             }
         }
-        if ($this->option->limitanswers) {
-            $bookedusers = $DB->count_records("booking_answers",
-                    array('optionid' => $this->optionid, 'waitinglist' => 0));
-            $waitingusers = $DB->count_records("booking_answers",
-                    array('optionid' => $this->optionid, 'waitinglist' => 1));
 
-            if ($waitingusers > 0 && $this->option->maxanswers > $bookedusers) {
-                $newuser = $DB->get_record_sql(
-                        'SELECT * FROM {booking_answers} WHERE optionid = ? AND waitinglist = 1 ORDER BY timemodified ASC',
-                        array($this->optionid), IGNORE_MULTIPLE);
-
-                $newuser->waitinglist = 0;
-                $DB->update_record("booking_answers", $newuser);
-                $this->enrol_user_coursestart($newuser->userid);
-
-                if ($this->booking->settings->sendmail == 1 || $this->booking->settings->copymail) {
-                    $newbookeduser = $DB->get_record('user', array('id' => $newuser->userid));
-                    $params = booking_generate_email_params($this->booking->settings, $this->option,
-                            $newbookeduser, $this->booking->cm->id, $this->optiontimes, false,
-                            false, true);
-                    $messagetextnewuser = booking_get_email_body($this->booking->settings, 'statuschangetext',
-                            'statuschangebookedmessage', $params);
-                    $messagehtml = text_to_html($messagetextnewuser, false, false, true);
-
-                    // Generate ical attachment to go with the message.
-                    // Check if ical attachments enabled.
-                    if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
-                        $attachname = '';
-                        $ical = new ical($this->booking->settings, $this->option, $newbookeduser,
-                            $bookingmanager);
-                        if ($attachment = $ical->get_attachments()) {
-                            $attachname = $ical->get_name();
-                        }
-                        $eventdata->attachment = $attachment;
-                        $eventdata->attachname = $attachname;
-                    }
-
-                    $eventdata->userto = $newbookeduser;
-                    $eventdata->userfrom = $bookingmanager;
-                    $eventdata->subject = get_string('statuschangebookedsubject', 'booking', $params);
-                    $eventdata->messagetext = $messagetextnewuser;
-                    $eventdata->messagehtml = $messagehtml;
-
-                    if ($this->booking->settings->sendmail == 1) {
-                        $sendtask = new task\send_confirmation_mails();
-                        $sendtask->set_custom_data($eventdata);
-                        \core\task\manager::queue_adhoc_task($sendtask);
-                    }
-                    if ($this->booking->settings->copymail) {
-                        $eventdata->userto = $bookingmanager;
-                        $sendtask = new task\send_confirmation_mails();
-                        $sendtask->set_custom_data($eventdata);
-                        \core\task\manager::queue_adhoc_task($sendtask);
-                    }
-                }
-            }
-        }
+        // Sync the waiting list and send status change mails.
+        $this->sync_waiting_list();
 
         // Remove activity completion.
         $course = $DB->get_record('course', array('id' => $this->booking->settings->course));
@@ -912,38 +863,124 @@ class booking_option {
 
         if ($this->option->limitanswers) {
 
-            $nbooking = $DB->get_records_sql(
+            $newbookedanswers = $DB->get_records_sql(
                     'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
                     array($this->optionid), 0, $this->option->maxanswers);
-            foreach ($nbooking as $value) {
-                if ($value->waitinglist != 0) {
-                    $value->waitinglist = 0;
-                    $DB->update_record("booking_answers", $value);
-                    $this->enrol_user_coursestart($value->userid);
+            foreach ($newbookedanswers as $newbookedanswer) {
+                if ($newbookedanswer->waitinglist != 0) {
+                    $newbookedanswer->waitinglist = 0;
+                    $DB->update_record("booking_answers", $newbookedanswer);
+                    $this->enrol_user_coursestart($newbookedanswer->userid);
+
+                    $this->send_status_change_mail($newbookedanswer, 'statuschangetext',
+                        'statuschangebookedmessage', 'statuschangebookedsubject');
                 }
             }
 
-            $noverbooking = $DB->get_records_sql(
+            $newwaitinglistanswers = $DB->get_records_sql(
                     'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
                     array($this->optionid), $this->option->maxanswers, $this->option->maxoverbooking);
 
-            foreach ($noverbooking as $value) {
-                if ($value->waitinglist != 1) {
-                    $value->waitinglist = 1;
-                    $DB->update_record("booking_answers", $value);
+            foreach ($newwaitinglistanswers as $newwaitinglistanswer) {
+                if ($newwaitinglistanswer->waitinglist != 1) {
+                    $newwaitinglistanswer->waitinglist = 1;
+                    $DB->update_record("booking_answers", $newwaitinglistanswer);
+
+                    $this->send_status_change_mail($newwaitinglistanswer, 'statuschangetext',
+                        'statuschangebookedmessage', 'statuschangebookedsubject');
                 }
             }
 
-            $nover = $DB->get_records_sql(
+            $answerstodelete = $DB->get_records_sql(
                     'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
                     array($this->optionid), $this->option->maxoverbooking + $this->option->maxanswers);
 
-            foreach ($nover as $value) {
-                $DB->delete_records('booking_answers', array('id' => $value->id));
+            foreach ($answerstodelete as $answertodelete) {
+                $DB->delete_records('booking_answers', array('id' => $answertodelete->id));
+
+                $this->send_status_change_mail($answertodelete, 'deletedtext',
+                    'deletedbookingmessage', 'deletedbookingsubject');
             }
         } else {
+            // If option was set to unlimited, inform all users that have been on the waiting list of the status change.
+            if ($onwaitinglistanswers = $DB->get_records('booking_answers', ['optionid' => $this->optionid,
+                                                                            'waitinglist' => 1])) {
+                foreach ($onwaitinglistanswers as $onwaitinglistanswer) {
+                    $this->send_status_change_mail($onwaitinglistanswer, 'statuschangetext',
+                    'statuschangebookedmessage', 'statuschangebookedsubject');
+                }
+            }
+
+            // Now move everybody from the waiting list to booked users.
             $DB->execute("UPDATE {booking_answers} SET waitinglist = 0 WHERE optionid = :optionid",
                     array('optionid' => $this->optionid));
+        }
+    }
+
+    /**
+     * Helper function to queue adhoc tasks for sending mails when booking status changes.
+     *
+     * @param stdClass $bookinganswer DB record of a booking_answer.
+     * @param stdClass $bookingmanager DB record of the bookingmanager (an admin user)
+     * @param string $messagefieldname name of the message field
+     * @param string $messagedefaultname default template of the message
+     * @param string $messagesubject message subject
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    private function send_status_change_mail(stdClass $bookinganswer, string $messagefieldname,
+                                             string $messagedefaultname, string $messagesubject) {
+        global $DB, $USER;
+
+        $eventdata = new stdClass();
+        $eventdata->attachment = [];
+        $eventdata->attachname = '';
+
+        if (!$bookingmanager = $DB->get_record('user',
+            array('username' => $this->booking->settings->bookingmanager))) {
+            // If booking manager was deleted, we use global $USER instead.
+            $bookingmanager = $USER;
+        }
+
+        if ($this->booking->settings->sendmail == 1 || $this->booking->settings->copymail) {
+            $newbookeduser = $DB->get_record('user', array('id' => $bookinganswer->userid));
+            $params = booking_generate_email_params($this->booking->settings, $this->option,
+                $newbookeduser, $this->booking->cm->id, $this->optiontimes, false,
+                false, true);
+            $messagetextnewuser = booking_get_email_body($this->booking->settings, $messagefieldname,
+                $messagedefaultname, $params);
+            $messagehtml = text_to_html($messagetextnewuser, false, false, true);
+
+            // Generate ical attachment to go with the message.
+            // Check if ical attachments enabled.
+            if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
+                $attachname = '';
+                $ical = new ical($this->booking->settings, $this->option, $newbookeduser,
+                    $bookingmanager);
+                if ($attachment = $ical->get_attachments()) {
+                    $attachname = $ical->get_name();
+                }
+                $eventdata->attachment = $attachment;
+                $eventdata->attachname = $attachname;
+            }
+
+            $eventdata->userto = $newbookeduser;
+            $eventdata->userfrom = $bookingmanager;
+            $eventdata->subject = get_string($messagesubject, 'booking', $params);
+            $eventdata->messagetext = $messagetextnewuser;
+            $eventdata->messagehtml = $messagehtml;
+
+            if ($this->booking->settings->sendmail == 1) {
+                $sendtask = new task\send_confirmation_mails();
+                $sendtask->set_custom_data($eventdata);
+                \core\task\manager::queue_adhoc_task($sendtask);
+            }
+            if ($this->booking->settings->copymail) {
+                $eventdata->userto = $bookingmanager;
+                $sendtask = new task\send_confirmation_mails();
+                $sendtask->set_custom_data($eventdata);
+                \core\task\manager::queue_adhoc_task($sendtask);
+            }
         }
     }
 
@@ -1301,8 +1338,8 @@ class booking_option {
      * Deletes a booking option and the associated user answers
      *
      * @return bool false if not successful, true on success
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function delete_booking_option() {
         global $DB, $USER;
@@ -1461,7 +1498,7 @@ class booking_option {
      * Check if at least one user already completed the option. When yes, deleting users is not possible.
      *
      * @return bool
-     * @throws \dml_exception
+     * @throws dml_exception
      */
     public function user_completed_option() {
         global $DB;
@@ -1474,8 +1511,8 @@ class booking_option {
      *
      * @param $targetcmid
      * @return string error message, empty if no error.
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @throws coding_exception
+     * @throws dml_exception
      * @throws \moodle_exception
      * @throws invalid_parameter_exception
      */
@@ -1530,7 +1567,7 @@ class booking_option {
      */
     public static function get_customfield_settings() {
         $values = array();
-        $bkgconfig = \get_config('booking');
+        $bkgconfig = get_config('booking');
         $customfieldvals = \get_object_vars($bkgconfig);
         if (!empty($customfieldvals)) {
             foreach (array_keys($customfieldvals) as $customfieldname) {
