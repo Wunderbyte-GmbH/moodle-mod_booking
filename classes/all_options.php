@@ -26,6 +26,7 @@ namespace mod_booking;
 use comment;
 use context;
 use context_course;
+use dml_exception;
 use html_writer;
 use moodle_url;
 use stdClass;
@@ -53,6 +54,7 @@ class all_options extends table_sql {
      * @param booking $booking
      * @param object $cm course module object
      * @param context $context
+     * @throws dml_exception
      */
     public function __construct($uniqueid, booking $booking, $cm, context $context) {
         parent::__construct($uniqueid);

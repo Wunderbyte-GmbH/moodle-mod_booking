@@ -354,7 +354,9 @@ class booking_utils {
             }
         }
 
-        if (!$coursepage) {
+        if ($values->courseendtime > 0 &&  $values->courseendtime < time()) {
+            $limit = get_string('eventalreadyover', 'booking');
+        } else if (!$coursepage) {
             $limit = "<div class='col-ap-unlimited'>" . get_string("unlimited", 'booking') . "</div>";
         } else {
             $limit = '';
