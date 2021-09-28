@@ -1,3 +1,14 @@
+## Version 7.0.11 (2021092800)
+**Improvements:**
+* Improved availability info texts when events lie in the past.
+* Bookings Quickfinder Block: number of participants, waiting list and manage responses in bookingoptions_simple_table.
+
+**Bugfixes:**
+* Always send emails from booking manager if a valid booking manager (needs to be an admin user) was defined.
+  (Please keep in mind that you still need to set an outgoing noreply-address, add the domain of the booking
+   manager's email to the allowed domains in outgoing email settings and set the booking manager's email address
+   visible to all users in the user profile.)
+
 ## Version 7.0.10 (2021092700)
 **Improvements:**
 * Webservice: Add possibility to distinguish between courseid & targetcourseid
