@@ -307,7 +307,10 @@ class webservice_import {
         }
 
         // Set booking closing time.
-        $data->bookingclosingtime = strtotime($data->bookingclosingtime);
+        if (!empty($data->bookingclosingtime)) {
+            $data->restrictanswerperiod = 1;
+            $data->bookingclosingtime = strtotime($data->bookingclosingtime);
+        }
     }
 
     /**
