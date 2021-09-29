@@ -49,7 +49,7 @@ class send_confirmation_mails extends \core\task\adhoc_task {
             $trimmedmessage = str_replace('&nbsp;', '', $trimmedmessage);
             $trimmedmessage = trim($trimmedmessage);
 
-            if (!empty($trimmedmessage)) {
+            if ($trimmedmessage != '0') {
                 $userdata = $DB->get_record('user', array('id' => $taskdata->userto->id));
                 if (!$userdata->deleted) {
                     // Hack to support multiple attachments.
@@ -70,7 +70,7 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                 }
             } else {
                 echo 'send_confirmation_mails: e-mail with subject "' . $taskdata->subject . '"' .
-                    ' was not sent because message template is empty.'. PHP_EOL;
+                    ' was not sent because message template is set to "0" (turned off).'. PHP_EOL;
             }
         } else {
             throw new \coding_exception(
