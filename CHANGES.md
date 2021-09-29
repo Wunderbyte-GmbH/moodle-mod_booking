@@ -1,3 +1,9 @@
+## Version 7.0.12 (2021092900)
+**Improvements:**
+* Improved calendar event descriptions.
+* Send status change notifications when limits (max. answers, places on waiting list) change.
+* Turn off change notifications by setting the template to "0".
+
 ## Version 7.0.11 (2021092800)
 **Improvements:**
 * Improved availability info texts when events lie in the past.
