@@ -1072,17 +1072,18 @@ $string['userleavebookedmessage'] = 'Hello {$a->participant},
 You have been unsubscribed from {$a->title}.
 ';
 
-$string['statuschangebookedsubject'] = 'Booking status has changed for {$a->title}';
-$string['statuschangebookedmessage'] = 'Hello {$a->participant},
+$string['statuschangesubject'] = 'Booking status has changed for {$a->title}';
+$string['statuschangemessage'] = 'Hello {$a->participant}!
 
-Your booking status has changed. You are now registered in {$a->title}.
+Your booking status has changed.
 
 Booking status: {$a->status}
+
 Participant:   {$a->participant}
 Booking option: {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
-To view all your booked courses click on the following link: {$a->bookinglink}
-The associated course can be found here: {$a->courselink}
+
+Go to the booking option: {$a->gotobookingoption}
 ';
 
 $string['deletedbookingusersubject'] = 'Booking for {$a->title} cancelled';

@@ -863,6 +863,19 @@ class booking_option {
 
         if ($this->option->limitanswers) {
 
+            // If users drop out of the waiting list because of changed limits, delete and inform them.
+            $answerstodelete = $DB->get_records_sql(
+                'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
+                array($this->optionid), $this->option->maxoverbooking + $this->option->maxanswers);
+
+            foreach ($answerstodelete as $answertodelete) {
+                $DB->delete_records('booking_answers', array('id' => $answertodelete->id));
+
+                $this->send_mail_with_adhoc_task($answertodelete, 'deletedtext',
+                    'deletedbookingmessage', 'deletedbookingsubject');
+            }
+
+            // Update, enrol and inform users who have switched from the waiting list to status "booked".
             $newbookedanswers = $DB->get_records_sql(
                     'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
                     array($this->optionid), 0, $this->option->maxanswers);
@@ -872,11 +885,12 @@ class booking_option {
                     $DB->update_record("booking_answers", $newbookedanswer);
                     $this->enrol_user_coursestart($newbookedanswer->userid);
 
-                    $this->send_status_change_mail($newbookedanswer, 'statuschangetext',
-                        'statuschangebookedmessage', 'statuschangebookedsubject');
+                    $this->send_mail_with_adhoc_task($newbookedanswer, 'statuschangetext',
+                        'statuschangemessage', 'statuschangesubject');
                 }
             }
 
+            // Update and inform users who have been put on the waiting list because of changed limits.
             $newwaitinglistanswers = $DB->get_records_sql(
                     'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
                     array($this->optionid), $this->option->maxanswers, $this->option->maxoverbooking);
@@ -886,28 +900,17 @@ class booking_option {
                     $newwaitinglistanswer->waitinglist = 1;
                     $DB->update_record("booking_answers", $newwaitinglistanswer);
 
-                    $this->send_status_change_mail($newwaitinglistanswer, 'statuschangetext',
-                        'statuschangebookedmessage', 'statuschangebookedsubject');
+                    $this->send_mail_with_adhoc_task($newwaitinglistanswer, 'statuschangetext',
+                        'statuschangemessage', 'statuschangesubject');
                 }
-            }
-
-            $answerstodelete = $DB->get_records_sql(
-                    'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
-                    array($this->optionid), $this->option->maxoverbooking + $this->option->maxanswers);
-
-            foreach ($answerstodelete as $answertodelete) {
-                $DB->delete_records('booking_answers', array('id' => $answertodelete->id));
-
-                $this->send_status_change_mail($answertodelete, 'deletedtext',
-                    'deletedbookingmessage', 'deletedbookingsubject');
             }
         } else {
             // If option was set to unlimited, inform all users that have been on the waiting list of the status change.
             if ($onwaitinglistanswers = $DB->get_records('booking_answers', ['optionid' => $this->optionid,
                                                                             'waitinglist' => 1])) {
                 foreach ($onwaitinglistanswers as $onwaitinglistanswer) {
-                    $this->send_status_change_mail($onwaitinglistanswer, 'statuschangetext',
-                    'statuschangebookedmessage', 'statuschangebookedsubject');
+                    $this->send_mail_with_adhoc_task($onwaitinglistanswer, 'statuschangetext',
+                    'statuschangemessage', 'statuschangesubject');
                 }
             }
 
@@ -918,7 +921,7 @@ class booking_option {
     }
 
     /**
-     * Helper function to queue adhoc tasks for sending mails when booking status changes.
+     * Helper function to queue an adhoc tasks for sending an email.
      *
      * @param stdClass $bookinganswer DB record of a booking_answer.
      * @param stdClass $bookingmanager DB record of the bookingmanager (an admin user)
@@ -928,8 +931,8 @@ class booking_option {
      * @throws coding_exception
      * @throws dml_exception
      */
-    private function send_status_change_mail(stdClass $bookinganswer, string $messagefieldname,
-                                             string $messagedefaultname, string $messagesubject) {
+    private function send_mail_with_adhoc_task(stdClass $bookinganswer, string $messagefieldname,
+                                               string   $messagedefaultname, string $messagesubject) {
         global $DB, $USER;
 
         $eventdata = new stdClass();

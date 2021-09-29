@@ -936,19 +936,18 @@ $string['userleavebookedmessage'] = 'Hallo {$a->participant},
 Sie wurden erfolgreich von {$a->title} abgemeldet.
 ';
 
-$string['statuschangebookedsubject'] = 'Buchungstatus für {$a->title} geändert';
-$string['statuschangebookedmessage'] = 'Guten Tag {$a->participant},
+$string['statuschangesubject'] = 'Buchungstatus für {$a->title} geändert';
+$string['statuschangemessage'] = 'Guten Tag, {$a->participant}!
 
 Ihr Buchungsstatus hat sich geändert.
-Sie sind nun fix in {$a->title} als Teilnehmer/in eingetragen.
 
-Über folgenden Link gelangen Sie in Ihren Buchungsbereich, in dem Sie jederzeit alle Ihre Buchungen einsehen können:
-{$a->bookinglink}
-
-Termin:  {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 Ihr Buchungsstatus: {$a->status}
+
 Teilnehmer/in:   {$a->participant}
 Buchungsoption: {$a->title}
+Termin:  {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+
+Link zur Buchungsoption: {$a->gotobookingoption}
 ';
 
 $string['deletedbookingusersubject'] = 'Stornobestätigung für {$a->title}';

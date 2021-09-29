@@ -366,7 +366,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('editor', 'statuschangetext', get_string('statuschangetext', 'booking'),
                 null, $editoroptions);
         $default = array(
-            'text' => get_string('statuschangebookedmessage', 'mod_booking', $fieldmapping),
+            'text' => get_string('statuschangemessage', 'mod_booking', $fieldmapping),
             'format' => FORMAT_HTML);
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('statuschangetext', $default);
