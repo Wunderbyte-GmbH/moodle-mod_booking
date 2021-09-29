@@ -299,7 +299,7 @@ $string['userleave'] = 'Nutzer/in hat Buchung storniert';
 $string['waitingtext'] = 'Wartelistenbestätigung';
 $string['statuschangetext'] = 'Statusänderungsbenachrichtigung';
 $string['deletedtext'] = 'Stornierungsbenachrichtigung';
-$string['bookingchangedtext'] = 'Benachrichtigung bei Änderungen an der Buchung (geht nur an User, die bereits gebucht haben). Verwenden Sie den Platzhalter {changes} um die Änderungen anzuzeigen.';
+$string['bookingchangedtext'] = 'Benachrichtigung bei Änderungen an der Buchung (geht nur an User, die bereits gebucht haben). Verwenden Sie den Platzhalter {changes} um die Änderungen anzuzeigen. 0 eingeben um Änderungsbenachrichtigungen auszuschalten.';
 $string['comments'] = 'Kommentare';
 $string['nocomments'] = 'Kommentare deaktiviert';
 $string['allcomments'] = 'Jede/r kann kommentieren';
@@ -600,7 +600,9 @@ $string['deletedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext 
 <li>{coursecalendarurl} - Link zum Abonnieren des Kurs-Kalenders (Kurs-Ereignisse)</li>
 </ul>';
 
-$string['bookingchangedtext_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden. Folgende Platzhalter können im Text verwendet werden:
+$string['bookingchangedtext_help'] = '0 eingeben um Änderungsbenachrichtigungen auszuschalten.
+
+Folgende Platzhalter können im Text verwendet werden:
 <ul>
 <li>{changes} - Was hat sich geändert?</li>
 <li>{bookingdetails} - Zusammenfassung der Buchung (inkl. Sessions und Link zur Buchungsoption)</li>
@@ -1165,7 +1167,7 @@ $string['globalnotifyemailteachers'] = 'Trainer/innen-Benachrichtigung vor dem B
 $string['globalstatuschangetext'] = 'Benachrichtigung über Statusänderung (globale Vorlage)';
 $string['globaluserleave'] = 'Nutzer/in hat Buchung storniert (globale Vorlage)';
 $string['globaldeletedtext'] = 'Stornierungsbenachrichtigung (globale Vorlage)';
-$string['globalbookingchangedtext'] = 'Benachrichtigung bei Änderungen an der Buchung (geht nur an User, die bereits gebucht haben). Verwenden Sie den Platzhalter {changes} um die Änderungen anzuzeigen. (Globale Vorlage)';
+$string['globalbookingchangedtext'] = 'Benachrichtigung bei Änderungen an der Buchung (geht nur an User, die bereits gebucht haben). Verwenden Sie den Platzhalter {changes} um die Änderungen anzuzeigen. 0 eingeben um Änderungsbenachrichtigungen auszuschalten. (Globale Vorlage)';
 $string['globalpollurltext'] = 'Umfragelink versenden (globale Vorlage)';
 $string['globalpollurlteacherstext'] = 'Link zum Absender der Umfrage für Trainer/innen (globale Vorlage)';
 $string['globalactivitycompletiontext'] = 'Nachricht an Benutzer/in, wenn Buchungsoption abgeschlossen ist (globale Vorlage)';

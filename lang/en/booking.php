@@ -329,7 +329,7 @@ $string['userleave'] = 'User has cancelled his/her own booking';
 $string['waitingtext'] = 'Waiting list confirmation';
 $string['statuschangetext'] = 'Status change message';
 $string['deletedtext'] = 'Cancelled booking message';
-$string['bookingchangedtext'] = 'Message to be sent when a booking option changes (will only be sent to users who have already booked). Use the placeholder {changes} to show the changes.';
+$string['bookingchangedtext'] = 'Message to be sent when a booking option changes (will only be sent to users who have already booked). Use the placeholder {changes} to show the changes. Enter 0 to turn off change notifications.';
 $string['comments'] = 'Comments';
 $string['nocomments'] = 'Commenting disabled';
 $string['allcomments'] = 'Everybody can comment';
@@ -639,7 +639,9 @@ $string['deletedtext_help'] = 'Leave this blank to use the site default text. Yo
 <li>{coursecalendarurl} - Link to subscribe to course calendar (course events)</li>
 </ul>';
 
-$string['bookingchangedtext_help'] = 'Leave this blank to use the site default text. You can use any of the following placeholders in the text:
+$string['bookingchangedtext_help'] = 'Enter 0 to turn change notifications off.
+
+You can use any of the following placeholders in the text:
 <ul>
 <li>{changes} - What has changed?</li>
 <li>{bookingdetails} - Detailed summary of the booking option (incl. sessions und link to booking option)</li>
@@ -1339,7 +1341,7 @@ $string['globalnotifyemailteachers'] = 'Teacher notification before start (globa
 $string['globalstatuschangetext'] = 'Status change message (global template)';
 $string['globaluserleave'] = 'User has cancelled his/her own booking (global template)';
 $string['globaldeletedtext'] = 'Cancelled booking message (global template)';
-$string['globalbookingchangedtext'] = 'Message to be sent when a booking option changes (will only be sent to users who have already booked). Use the placeholder {changes} to show the changes. (Global template)';
+$string['globalbookingchangedtext'] = 'Message to be sent when a booking option changes (will only be sent to users who have already booked). Use the placeholder {changes} to show the changes. Enter 0 to turn off change notifications. (Global template)';
 $string['globalpollurltext'] = 'Message for sending poll url to booked users (global template)';
 $string['globalpollurlteacherstext'] = 'Message for the poll url sent to teachers (global template)';
 $string['globalactivitycompletiontext'] = 'Message to be sent to user when booking option is completed (global template)';
