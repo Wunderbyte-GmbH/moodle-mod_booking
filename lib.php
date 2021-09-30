@@ -570,7 +570,7 @@ function booking_update_options($optionvalues, $context) {
     if (!empty($optionvalues->courseid)) {
         $option->courseid = $optionvalues->courseid;
     } else {
-        $option->courseid = $COURSE->id;
+        $option->courseid = 0;
     }
 
     // For global option templates, 0 is used as bookingid.

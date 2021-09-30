@@ -217,8 +217,8 @@ class calendar {
             $fulldescription = get_rendered_eventdescription($option, $this->cmid, false, DESCRIPTION_CALENDAR);
         } else {
             // Event calendar.
-            $courseid = ($option->courseid == 0 ? $booking->course : $option->courseid);
-            $instance = ($courseid == $booking->course ? $option->bookingid : 0);
+            $courseid = !empty($booking->course) ? $booking->course : 0;
+            $instance = $option->bookingid;
             $visible = instance_is_visible('booking', $booking);
             $fulldescription = get_rendered_eventdescription($option, $this->cmid, false, DESCRIPTION_CALENDAR);
         }
@@ -303,8 +303,8 @@ class calendar {
             $fulldescription = get_rendered_eventdescription($option, $this->cmid, $optiondate, DESCRIPTION_CALENDAR);
         } else {
             // Event calendar.
-            $courseid = ($option->courseid == 0 ? $booking->course : $option->courseid);
-            $instance = ($courseid == $booking->course ? $option->bookingid : 0);
+            $courseid = !empty($booking->course) ? $booking->course : 0;
+            $instance = $option->bookingid;
             $visible = instance_is_visible('booking', $booking);
             $fulldescription = get_rendered_eventdescription($option, $this->cmid, $optiondate, DESCRIPTION_CALENDAR);
         }
