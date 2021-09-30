@@ -2336,6 +2336,12 @@ function booking_delete_instance($id) {
 
     $result = true;
 
+    $alloptionsid = \mod_booking\booking::get_all_optionids($id);
+    foreach ($alloptionsid as $optionid) {
+        $bookingoption = new booking_option($cm->id, $optionid);
+        $bookingoption->delete_booking_option();
+    }
+
     if (!$DB->delete_records("booking_answers", array("bookingid" => "$booking->id"))) {
         $result = false;
     }
@@ -2346,12 +2352,6 @@ function booking_delete_instance($id) {
 
     if (!$DB->delete_records("event", array("instance" => "$booking->id"))) {
         $result = false;
-    }
-
-    $alloptionsid = \mod_booking\booking::get_all_optionids($id);
-    foreach ($alloptionsid as $optionid) {
-        $bookingoption = new booking_option($cm->id, $optionid);
-        $bookingoption->delete_booking_option();
     }
 
     if (!$DB->delete_records("booking", array("id" => "$booking->id"))) {
