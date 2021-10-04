@@ -1,8 +1,19 @@
+## Version 7.0.13 (2021100400)
+**Bugfixes:**
+* Fix bug where calendar event was not created when course was set.
+
+**Improvements:**
+* Code quality: More logical deletion sequence.
+
 ## Version 7.0.12 (2021092900)
 **Improvements:**
 * Improved calendar event descriptions.
 * Send status change notifications when limits (max. answers, places on waiting list) change.
 * Turn off change notifications by setting the template to "0".
+* Allow setting of bookingclosingtime via webservice
+
+**Bugfixes:**
+* Fixed a bug where a deleted user got 2 mails.
 
 ## Version 7.0.11 (2021092800)
 **Improvements:**

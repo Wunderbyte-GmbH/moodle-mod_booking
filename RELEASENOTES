@@ -1,7 +1,11 @@
+7.0.13 (2021100400)
+* Bugfix: Fix bug where calendar event was not created when course was set.
+
 7.0.12 (2021092900)
 * Improvement: Improved calendar event descriptions.
 * Improvement: Send status change notifications when limits (max. answers, places on waiting list) change.
 * Improvement: Turn off change notifications by setting the template to "0".
+* Improvement: Allow setting of bookingclosingtime via webservice.
 
 7.0.11 (2021092800)
 * Improvement: Improved availability info texts when events lie in the past.
