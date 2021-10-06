@@ -202,7 +202,7 @@ class webservice_import {
             $bookinginstances = get_coursemodules_in_course('booking', $data->targetcourseid);
 
             $bookinginstances = array_filter($bookinginstances, function($x) {
-                return $x->visible == 1;
+                return ($x->visible) == 1 && ($x->deletioninprogress == 0);
             });
 
             if (count($bookinginstances) != 1) {
