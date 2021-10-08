@@ -142,7 +142,6 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $options = array(
                 'tags' => true
-                //'noselectionstring' => get_string('donotselecteventtype', 'booking'),
         );
         $mform->addElement('autocomplete', 'organizatorname', get_string('organizatorname', 'booking'), $teachersstring, $options);
         $mform->setType('organizatorname', PARAM_RAW);
@@ -221,17 +220,19 @@ class mod_booking_mod_form extends moodleform_mod {
         $listoncoursepageoptions[0] = get_string('hidelistoncoursepage', 'booking');
         $listoncoursepageoptions[1] = get_string('showlistoncoursepage', 'booking');
         $listoncoursepageoptions[2] = get_string('showcoursenameandbutton', 'booking');
-        $mform->addElement('select', 'showlistoncoursepage', get_string('showlistoncoursepagelbl', 'booking'), $listoncoursepageoptions);
+        $mform->addElement('select', 'showlistoncoursepage',
+            get_string('showlistoncoursepagelbl', 'booking'), $listoncoursepageoptions);
         $mform->setDefault('showlistoncoursepage', 1); // List on course page is activated by default.
         $mform->addHelpButton('showlistoncoursepage', 'showlistoncoursepagelbl', 'booking');
         $mform->setType('showlistoncoursepage', PARAM_INT);
 
-        $mform->addElement('textarea', 'coursepageshortinfo', get_string('coursepageshortinfolbl', 'booking'), 'wrap="virtual" rows="5" cols="65"');
+        $mform->addElement('textarea', 'coursepageshortinfo',
+            get_string('coursepageshortinfolbl', 'booking'), 'wrap="virtual" rows="5" cols="65"');
         $mform->setDefault('coursepageshortinfo', get_string('coursepageshortinfo', 'booking'));
         $mform->addHelpButton('coursepageshortinfo', 'coursepageshortinfolbl', 'booking');
         $mform->setType('coursepageshortinfo', PARAM_TEXT);
         // Hide short info for the first two options.
-        $mform->hideIf('coursepageshortinfo', 'showlistoncoursepage', 'in', [0,1]);
+        $mform->hideIf('coursepageshortinfo', 'showlistoncoursepage', 'in', [0, 1]);
 
         // Confirmation message.
         $mform->addElement('header', 'confirmation',
@@ -275,8 +276,27 @@ class mod_booking_mod_form extends moodleform_mod {
         $potentials2 = get_users_by_capability($contextbooking, 'moodle/course:update',
             'u.id, u.firstname, u.lastname, u.username, u.email');
         $potentialmanagers = array_merge ($potentials1, $potentials2, $potentials);
+
+        // Before creating the array, we have to check if there is a booking manager already set.
+        // If so, but the user has left the course, an arbitrary value will be shown. Therefore we add the...
+        // ... existing bookingmanager to the array.
+        if ($existingmanager = $DB->get_field('booking', 'bookingmanager', array('id' => $this->_instance))) {
+            if ($existinguser = $DB->get_record('user', array('username' => $existingmanager))) {
+                $found = false;
+                foreach ($potentialmanagers as $user) {
+                    if ($user->id == $existinguser->id) {
+                        $found = true;
+                    }
+                }
+                if (!$found) {
+                    $potentialmanagers = array_merge($potentialmanagers, [$existinguser]);
+                }
+            }
+        }
+
         foreach ($potentialmanagers as $potentialmanager) {
-            $choosepotentialmanager[$potentialmanager->username] = $potentialmanager->firstname . ' ' . $potentialmanager->lastname . ' (' .
+            $choosepotentialmanager[$potentialmanager->username] = $potentialmanager->firstname
+                    . ' ' . $potentialmanager->lastname . ' (' .
             $potentialmanager->email . ')';
         }
         $mform->addElement('autocomplete', 'bookingmanager',
@@ -291,7 +311,8 @@ class mod_booking_mod_form extends moodleform_mod {
             $mailtemplatessource = array();
             $mailtemplatessource[0] = get_string('mailtemplatesinstance', 'booking');
             $mailtemplatessource[1] = get_string('mailtemplatesglobal', 'booking');
-            $mform->addElement('select', 'mailtemplatessource', get_string('mailtemplatessource', 'booking'), $mailtemplatessource);
+            $mform->addElement('select', 'mailtemplatessource',
+                get_string('mailtemplatessource', 'booking'), $mailtemplatessource);
             $mform->setDefault('mailtemplatessource', 0); // Instance specific mail templates are the default.
             $mform->addHelpButton('mailtemplatessource', 'mailtemplatessource', 'booking');
         } else {
@@ -755,7 +776,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('conectedbooking', 0);
         $mform->addHelpButton('conectedbooking', 'conectedbooking', 'mod_booking');
 
-        // Teachers
+        // Teachers.
         $mform->addElement('header', 'teachers',
                 get_string('teachers', 'booking'));
 
