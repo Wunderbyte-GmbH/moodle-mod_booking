@@ -633,6 +633,11 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $from = "{booking} b LEFT JOIN {booking_options} bo ON bo.bookingid = b.id";
         $where = "b.id = :bookingid " .
                  (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions));
+        
+        // Fixed: In the beginning, we order by coursestarttime ascending, even if column is not displayed.
+        if (empty($_GET['tsort']) && $booking->settings->defaultoptionsort == 'coursestarttime') {
+            $where .= " ORDER BY bo.coursestarttime ASC";
+        }
 
         $conditionsparams['userid'] = $USER->id;
         $conditionsparams['userid1'] = $USER->id;
