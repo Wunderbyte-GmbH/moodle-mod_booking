@@ -1,3 +1,8 @@
+7.0.14 (2021101300)
+* Bugfix: Webservice only targets booking instances which are not in deletion progress.
+* Bugfix: Minor code fixes.
+* Bugfix: If sort by is set to coursestarttime but coursestarttime column is missing, we still order by coursestarttime.
+
 7.0.13 (2021100400)
 * Bugfix: Fix bug where calendar event was not created when course was set.
 
@@ -59,7 +64,7 @@
 * Bugfix: Hide list of custom fields in booking option description when there are none.
 
 7.0.3 (2021090800)
-* Improvement: New redirect script which fixes links that didn't work before (e.g. links in MS Outlook event texts
+* Improvement: New redirect script which fixes links that did not work before (e.g. links in MS Outlook event texts
     after importing via {usercalendarurl}).
 * Improvement: Add teachers to booking option description.
 * Bugfix: Fixed a bug where $booking object was null.
@@ -80,18 +85,18 @@
 * New feature: Show a "business card" of the teacher who is defined via autocomplete "Organizer name" (instance setting).
 * New feature: Send change notification mails (including new mail template and new placeholder {changes} which will
     create a summary of all changes made to the booking option. The summary includes explanation texts and
-    "[DELETED]" and "[NEW]" strings for text-only mails.
+    "[DELETED]" and "[NEW]" strings for text-only mails).
 * New feature: Links to video meetings will only redirect to the link of the video meeting 15 minutes before until
     the end of the session.
 * New feature: Session reminder e-mails (Including new mail template and functionality to set the number of days before the
     session when the e-mail should be sent.)
 * New feature: Show course name, short info and a button redirecting to the available booking options on course page.
     (Can be turned on in instance settings. Short info text is customizable.)
-* New feature: New placeholders {usercalendarurl} and {coursecalendarurl} (can be used in e-mail templates) to enable
+* New feature: New placeholders "{usercalendarurl}" and "{coursecalendarurl}" (can be used in e-mail templates) to enable
     subscription to Moodle calendar via Outlook or similar calendar tool. Subscription links are made not clickable
     (styled via CSS), because they should be copied and pasted.
-* New feature: New placeholder {bookingdetails} for detailed booking description including session and custom field data.
-* New feature: New placeholder {gotobookingoption} linking only to the booking option.
+* New feature: New placeholder "{bookingdetails}" for detailed booking description including session and custom field data.
+* New feature: New placeholder "{gotobookingoption}" linking only to the booking option.
 * New feature: Booking option completion e-mails
     When you change the completion status of a user on the "Manage responses" page to "completed", an automatically
     generated e-mail will be sent to the user(s) letting them know that they have completed the booking option.
@@ -103,8 +108,8 @@
     instance on the whole platform. (You need to activate this feature with a PRO license.)
 * New PRO feature: Teacher notification e-mails including a new mail template in booking instance settings, number of
     days before the event start to notify teachers and to new placeholders to include in the template:
-    {numberparticipants}: The number of successfully booked participants for the option.
-    {numberwaitinglist}: The number of people on the waiting list for the option. (You need to activate this feature
+    "{numberparticipants}": The number of successfully booked participants for the option.
+    "{numberwaitinglist}": The number of people on the waiting list for the option. (You need to activate this feature
     with a PRO license.)
 * New PRO feature: Webservice importer - it is now possible to import a massive amount of booking options using a CSV file
     in combination with the new importer web service. (Web service will only work with a PRO license. Contact
@@ -126,13 +131,13 @@
 * Improvement: CSV importer now imports optiondates (multisession) & customfields for multisessions
 * Improvement: Show cancel button below booked button.
 * Improvement: Modal is showing the info if a user is already booked or on the waiting list for an option.
-* Improvement: When there are no multisessions defined, the {times} parameter for notification e-mails will use the
+* Improvement: When there are no multisessions defined, the "{times}" parameter for notification e-mails will use the
     single date defined within the booking option.
 * Improvement: Added new fields to backup.
 * Improvement: Show button redirecting to the booking option at upper right of the calendar modal.
 * Improvement: iCal attachments including detailed summary of the booking option and improved session iCals.
     Known issue: Updating events still does not work as expected with Microsoft Outlook. If you rely on
-    Outlook, please use calendar subscription with the e-mail placeholders {usercalendarurl} (or {coursecalendarurl})
+    Outlook, please use calendar subscription with the e-mail placeholders "{usercalendarurl}" (or "{coursecalendarurl}")
     instead and turn iCal attachments off in the plugin settings.
 * Improvement: Also duplicate associated teachers on booking option duplication.
 * Bugfix: Do not add option templates twice.
@@ -145,7 +150,7 @@
 * Bugfix: Fixed autofill of option templates (JavaScript-based).
 * Bugfix: Fixed autofill of instance templates (JavaScript-based).
 * Bugfix: Fixed duplicate creation of option templates.
-* Bugfix: Fixed missing link on {bookinglink} placeholder.
+* Bugfix: Fixed missing link on "{bookinglink}" placeholder.
 * Bugfix: Fixed issues in backup and duplication.
 
 3.9 Audrey Horne (2018121600)

@@ -1,3 +1,9 @@
+## Version 7.0.14 (2021101300)
+**Bugfixes:**
+* Webservice only targets booking instances which are not in deletion progress.
+* Minor code fixes.
+* If sort by is set to coursestarttime but coursestarttime column is missing, we still order by coursestarttime.
+
 ## Version 7.0.13 (2021100400)
 **Bugfixes:**
 * Fix bug where calendar event was not created when course was set.
