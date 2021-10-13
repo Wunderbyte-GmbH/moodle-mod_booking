@@ -306,13 +306,6 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
     $tablealloptions = new all_options('mod_booking_all_options', $booking, $cm, $context);
     $tablealloptions->is_downloading($download, $booking->settings->name, $booking->settings->name);
-    $defaultorder = ($booking->settings->defaultoptionsort !== 'availableplaces') ? SORT_ASC : SORT_DESC;
-    
-    if (empty($_GET['tsort']) && ($booking->settings->defaultoptionsort === 'coursestarttime')) {
-        $tablealloptions->sortable(false);
-    } else {
-        $tablealloptions->sortable(true, $booking->settings->defaultoptionsort, $defaultorder);
-    }
 
     $tablealloptions->define_baseurl($sorturl);
     $tablealloptions->defaultdownloadformat = 'ods';
@@ -639,9 +632,14 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $where = "b.id = :bookingid " .
                  (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions));
         
-        // Fixed: In the beginning, we order by coursestarttime ascending, even if column is not displayed.
-        if (empty($_GET['tsort']) && $booking->settings->defaultoptionsort == 'coursestarttime') {
+        $defaultorder = ($booking->settings->defaultoptionsort !== 'availableplaces') ? SORT_ASC : SORT_DESC;
+        if (!in_array('coursestarttime', $columns) && ($booking->settings->defaultoptionsort === 'coursestarttime')) {
+            // Fixed: If sort by is set to coursestarttime but coursestarttime column is missing, we still want to order by coursestarttime.
+            $tablealloptions->sortable(false);
             $where .= " ORDER BY bo.coursestarttime ASC";
+        } else {
+            // Else we can use the sortable method of table_sql.
+            $tablealloptions->sortable(true, $booking->settings->defaultoptionsort, $defaultorder);
         }
 
         $conditionsparams['userid'] = $USER->id;
