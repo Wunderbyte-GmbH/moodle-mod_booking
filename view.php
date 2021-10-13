@@ -114,7 +114,7 @@ if (!empty($searchnyname)) {
             WHERE bookingid = :snbookingid1 UNION SELECT userid, optionid
             FROM {booking_answers} WHERE bookingid = :snbookingid2) AS un
             LEFT JOIN {user} u ON u.id = un.userid
-            WHERE " . implode($searchnyname, ' AND ') . ")";
+            WHERE " . implode(' AND ', $searchnyname) . ")";
     $conditionsparams['snbookingid1'] = $booking->id;
     $conditionsparams['snbookingid2'] = $booking->id;
 }
