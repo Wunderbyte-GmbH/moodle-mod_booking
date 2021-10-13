@@ -307,7 +307,12 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
     $tablealloptions = new all_options('mod_booking_all_options', $booking, $cm, $context);
     $tablealloptions->is_downloading($download, $booking->settings->name, $booking->settings->name);
     $defaultorder = ($booking->settings->defaultoptionsort !== 'availableplaces') ? SORT_ASC : SORT_DESC;
-    $tablealloptions->sortable(true, $booking->settings->defaultoptionsort, $defaultorder);
+    
+    if (empty($_GET['tsort']) && ($booking->settings->defaultoptionsort === 'coursestarttime')) {
+        $tablealloptions->sortable(false);
+    } else {
+        $tablealloptions->sortable(true, $booking->settings->defaultoptionsort, $defaultorder);
+    }
 
     $tablealloptions->define_baseurl($sorturl);
     $tablealloptions->defaultdownloadformat = 'ods';
