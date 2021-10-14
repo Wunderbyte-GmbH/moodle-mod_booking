@@ -31,7 +31,7 @@ class bookingoptions_simple_table extends table_sql {
         $this->baseurl = $PAGE->url;
 
         // Define the list of columns to show.
-        $columns = array('text', 'course', 'coursestarttime', 'courseendtime', 'location', 'institution', 'participants',
+        $columns = array('text', 'course', 'coursestarttime', 'courseendtime', 'location', 'participants',
             'waitinglist', 'manageresponses', 'link');
         $this->define_columns($columns);
 
@@ -42,7 +42,6 @@ class bookingoptions_simple_table extends table_sql {
             get_string('bstcoursestarttime', 'mod_booking'),
             get_string('bstcourseendtime', 'mod_booking'),
             get_string('bstlocation', 'mod_booking'),
-            get_string('bstinstitution', 'mod_booking'),
             get_string('bstparticipants', 'mod_booking'),
             get_string('bstwaitinglist', 'mod_booking'),
             get_string('bstmanageresponses', 'mod_booking'),
