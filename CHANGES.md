@@ -1,3 +1,10 @@
+## Version 7.0.15 (2021101500)
+**Bugfixes:**
+* Fixed deprecated implode => switch params.
+
+**Improvements:**
+* Removed "institution" from bookingoptions_simple_table (for compatibility with Bookings Quickfinder block).
+
 ## Version 7.0.14 (2021101300)
 **Bugfixes:**
 * Webservice only targets booking instances which are not in deletion progress.

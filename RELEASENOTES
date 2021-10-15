@@ -1,3 +1,7 @@
+7.0.15 (2021101500)
+* Bugfix: Fixed a deprecated function.
+* Improvement: Compatibility with Bookings Quickfinder Block.
+
 7.0.14 (2021101300)
 * Bugfix: Webservice only targets booking instances which are not in deletion progress.
 * Bugfix: Minor code fixes.
