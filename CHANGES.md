@@ -1,3 +1,7 @@
+## Version 7.0.16 (2021101800)
+**Improvements:**
+* Generic booking_options_simple_table (currently used by Bookings Quickfinder block).
+
 ## Version 7.0.15 (2021101500)
 **Bugfixes:**
 * Fixed deprecated implode => switch params.
