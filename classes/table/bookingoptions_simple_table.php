@@ -23,6 +23,7 @@ require_once($CFG->libdir.'/tablelib.php');
 
 use coding_exception;
 use dml_exception;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_utils;
 use moodle_exception;
 use moodle_url;
@@ -33,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Search results for managers are shown in a table (student search results use the template searchresults_student).
  */
-class bookingoptions_simple_table extends table_sql {
+class bookingoptions_simple_table extends wunderbyte_table {
 
     /**
      * Constructor
