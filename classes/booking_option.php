@@ -349,7 +349,7 @@ class booking_option {
 
         $limitfrom = $this->perpage * $this->page;
         $numberofrecords = $this->perpage;
-        $mainuserfields = \user_picture::fields('u');
+        $mainuserfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
 
         $sql = 'SELECT ba.id AS aid,
                 ba.bookingid,
@@ -359,7 +359,7 @@ class booking_option {
                 ba.timemodified,
                 ba.completed,
                 ba.timecreated,
-                ba.waitinglist,
+                ba.waitinglist
                 ' . $mainuserfields . ', ' .
                 $DB->sql_fullname('u.firstname', 'u.lastname') . ' AS fullname
                 FROM {booking_answers} ba
@@ -388,9 +388,9 @@ class booking_option {
     public function get_all_users() {
         global $DB;
         if (empty($this->allusers)) {
-            $userfields = \user_picture::fields('u');
+            $userfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
             $params = array('optionid' => $this->optionid);
-            $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated, $userfields, u.institution
+            $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated $userfields, u.institution
                       FROM {booking_answers} ba
                       JOIN {user} u ON u.id = ba.userid
                      WHERE ba.optionid = :optionid
