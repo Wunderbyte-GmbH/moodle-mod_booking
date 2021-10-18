@@ -30,24 +30,7 @@ class bookingoptions_simple_table extends table_sql {
         global $PAGE;
         $this->baseurl = $PAGE->url;
 
-        // Define the list of columns to show.
-        $columns = array('text', 'course', 'coursestarttime', 'courseendtime', 'location', 'participants',
-            'waitinglist', 'manageresponses', 'link');
-        $this->define_columns($columns);
-
-        // Define the titles of columns to show in header.
-        $headers = array(
-            get_string('bsttext', 'mod_booking'),
-            get_string('bstcourse', 'mod_booking'),
-            get_string('bstcoursestarttime', 'mod_booking'),
-            get_string('bstcourseendtime', 'mod_booking'),
-            get_string('bstlocation', 'mod_booking'),
-            get_string('bstparticipants', 'mod_booking'),
-            get_string('bstwaitinglist', 'mod_booking'),
-            get_string('bstmanageresponses', 'mod_booking'),
-            get_string('bstlink', 'mod_booking')
-        );
-        $this->define_headers($headers);
+        // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
     }
 
     /**
