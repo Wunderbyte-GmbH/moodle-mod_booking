@@ -49,8 +49,24 @@ class mod_booking_generator extends testing_module_generator {
 
         $record = (object) (array) $record;
 
-        if (!isset($record->assessed)) {
-            $record->assessed = 0;
+        $defaultsettings = array(
+            'assessed'    => 0,
+            'showviews'   => 'mybooking,myoptions,showall,showactive,myinstitution',
+            'whichview'   => 'showall',
+            'optionsfields' => 'text,coursestarttime,maxanswers',
+            'reportsfields' => 'optionid,booking,institution,location,coursestarttime,
+                                city,department,courseendtime,numrec,userid,username,
+                                firstname,lastname,email,completed,waitinglist,status,
+                                groups,notes,idnumber',
+            'responsesfields' => 'completed,status,rating,numrec,fullname,timecreated,
+                                institution,waitinglist,city,notes'
+
+        );
+
+        foreach ($defaultsettings as $name => $value) {
+            if (!isset($record->{$name})) {
+                $record->{$name} = $value;
+            }
         }
 
         return parent::create_instance($record, $options);

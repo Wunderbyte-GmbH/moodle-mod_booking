@@ -33,7 +33,7 @@ $PAGE->set_url($url);
 $context = context_course::instance($courseid);
 
 if (!$course = $DB->get_record("course", array("id" => $courseid))) {
-    print_error('coursemisconf');
+    throw new moodle_exception('coursemisconf');
 }
 
 $PAGE->navbar->add(get_string('addnewcategory', 'booking'));

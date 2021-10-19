@@ -27,19 +27,19 @@ require_once($CFG->dirroot . '/mod/booking/backup/moodle2/backup_booking_stepsli
 require_once($CFG->dirroot . '/mod/booking/backup/moodle2/backup_booking_settingslib.php');
 
 /**
- * booking backup task that provides all the settings and steps to perform one complete backup of the activity
+ * Booking backup task that provides all the settings and steps to perform one complete backup of the activity
  */
 class backup_booking_activity_task extends backup_activity_task {
 
     /**
-     * Define (add) particular settings this activity can have
+     * Define (add) particular settings this activity can have.
      */
     protected function define_my_settings() {
         // No particular settings for this activity.
     }
 
     /**
-     * Define (add) particular steps this activity can have
+     * Define (add) particular steps this activity can have.
      */
     protected function define_my_steps() {
         // Booking only has one structure step.
@@ -48,7 +48,7 @@ class backup_booking_activity_task extends backup_activity_task {
     }
 
     /**
-     * Code the transformations to perform in the activity in order to get transportable (encoded) links
+     * Code the transformations to perform in the activity in order to get transportable (encoded) links.
      */
     static public function encode_content_links($content) {
         global $CFG;

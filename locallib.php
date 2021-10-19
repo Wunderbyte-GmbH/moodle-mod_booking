@@ -40,7 +40,7 @@ const DESCRIPTION_MAIL = 4; // Shows link with text "go to bookingoption" and me
 abstract class booking_user_selector_base extends user_selector_base {
 
     /**
-     * The id of the booking this selector is being used for
+     * The id of the booking this selector is being used for.
      *
      * @var int
      */

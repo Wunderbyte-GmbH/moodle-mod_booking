@@ -91,7 +91,7 @@ if ($mform->is_cancelled()) {
         if (!isset($fromform->limitanswers)) {
             $fromform->limitanswers = 0;
         }
-        // Todo: nbooking should be call $optionid
+        // Todo: nbooking should be call $optionid.
         $nbooking = booking_update_options($fromform, $context);
 
         if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
@@ -124,7 +124,7 @@ if ($mform->is_cancelled()) {
             subscribe_teacher_to_booking_option($USER->id, $nbooking, $cm);
         }
 
-        // Recurring
+        // Recurring.
         if ($optionid == -1 && isset($fromform->startendtimeknown) && $fromform->startendtimeknown == 1 &&
             isset($fromform->repeatthisbooking) && $fromform->repeatthisbooking == 1 && $fromform->howmanytimestorepeat > 0) {
 
