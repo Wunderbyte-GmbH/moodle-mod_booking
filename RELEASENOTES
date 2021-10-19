@@ -1,3 +1,7 @@
+7.0.17 (2021101900)
+* Improvement: Added "Department" to "Fields to display in different contexts" for report download.
+* Improvement: Minor code quality improvements.
+
 7.0.16 (2021101800)
 * Improvement: Generic booking_options_simple_table (currently used by Bookings Quickfinder block).
 
