@@ -648,6 +648,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'location' => get_string("location", "booking"),
             'coursestarttime' => get_string("coursestarttime", "booking"),
             'city' => new lang_string('city'),
+            'department'  => new lang_string('department'),
             'courseendtime' => get_string("courseendtime", "booking"),
             'numrec' => get_string("numrec", "booking"), 'userid' => get_string("userid", "booking"),
             'username' => get_string("username"), 'firstname' => get_string("firstname"),

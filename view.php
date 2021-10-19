@@ -778,6 +778,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                         tu.firstname AS firstname,
                         tu.lastname AS lastname,
                         tu.city AS city,
+                        tu.department AS department,
                         tu.username AS username,
                         tu.email AS email,
                         tba.completed AS completed,

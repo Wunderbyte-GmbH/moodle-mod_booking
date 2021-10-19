@@ -451,6 +451,10 @@ class booking {
                     $columns[] = 'city';
                     $headers[] = get_string("city");
                     break;
+                case 'department':
+                    $columns[] = 'department';
+                    $headers[] = get_string("department");
+                    break;
                 case 'completed':
                     $columns[] = 'completed';
                     $headers[] = get_string("completed", "booking");
