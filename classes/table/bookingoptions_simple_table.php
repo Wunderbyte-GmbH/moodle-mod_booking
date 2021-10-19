@@ -1,6 +1,22 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_booking\table;
+
+defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->libdir.'/tablelib.php');
@@ -24,7 +40,7 @@ class bookingoptions_simple_table extends table_sql {
      * @param int $uniqueid all tables have to have a unique id, this is used
      *      as a key when storing table properties like sort order in the session.
      */
-    function __construct($uniqueid) {
+    public function __construct($uniqueid) {
         parent::__construct($uniqueid);
 
         global $PAGE;
@@ -41,7 +57,7 @@ class bookingoptions_simple_table extends table_sql {
      * @return string $string Return name of the booking option.
      * @throws dml_exception
      */
-    function col_text($values) {
+    public function col_text($values) {
         // If the data is being downloaded we show the original text including the separator and unique idnumber.
         if (!$this->is_downloading()) {
             // Remove identifier key and separator if necessary.
@@ -59,7 +75,7 @@ class bookingoptions_simple_table extends table_sql {
      * @return string $coursestarttime Returns course start time as a readable string.
      * @throws coding_exception
      */
-    function col_coursestarttime($values) {
+    public function col_coursestarttime($values) {
         // Prepare date string.
         if ($values->coursestarttime != 0) {
             $coursestarttime = userdate($values->coursestarttime, get_string('strftimedatetime'));
@@ -78,7 +94,7 @@ class bookingoptions_simple_table extends table_sql {
      * @return string $courseendtime Returns course end time as a readable string.
      * @throws coding_exception
      */
-    function col_courseendtime($values) {
+    public function col_courseendtime($values) {
         // Prepare date string.
         if ($values->courseendtime != 0) {
             $courseendtime = userdate($values->courseendtime, get_string('strftimedatetime'));
@@ -98,7 +114,7 @@ class bookingoptions_simple_table extends table_sql {
      * @throws moodle_exception
      * @throws coding_exception
      */
-    function col_manageresponses($values) {
+    public function col_manageresponses($values) {
         global $CFG, $DB;
 
         // Link is empty on default.
@@ -134,7 +150,7 @@ class bookingoptions_simple_table extends table_sql {
      * @throws moodle_exception
      * @throws coding_exception
      */
-    function col_link($values) {
+    public function col_link($values) {
         global $CFG;
 
         // Add a link to redirect to the booking option.
@@ -155,15 +171,5 @@ class bookingoptions_simple_table extends table_sql {
         }
 
         return $link;
-    }
-
-    /**
-     * This function is called for each data row to allow processing of
-     * columns which do not have a *_cols function.
-     * @return string return processed value. Return NULL if no change has
-     *     been made.
-     */
-    function other_cols($colname, $value) {
-        // Anything we want to do with other cols...
     }
 }
