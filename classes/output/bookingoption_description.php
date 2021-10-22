@@ -95,15 +95,22 @@ class bookingoption_description implements renderable, templatable {
      * @param bool $withcustomfields
      */
     public function __construct($booking,
-            $bookingoption,
+            $option,
             $bookingevent = null,
             $descriptionparam = DESCRIPTION_WEBSITE, // Default.
-            $withcustomfields = true) {
+            $withcustomfields = true,
+            $forbookeduser = null) {
 
         global $CFG;
 
         $this->bu = new booking_utils();
-        $bookingoption = new booking_option($booking->cm->id, $bookingoption->id);
+        $bookingoption = new booking_option($booking->cm->id, $option->id);
+
+        // We need the possibility to render for other users, so the iambookedflag is not enough.
+        // But we use it if nothing else is specified.
+        if ($forbookeduser === null) {
+            $forbookeduser = $bookingoption->iambooked == 1 ? true : false;
+        }
 
         // These fields can be gathered directly from DB.
         $this->title = $bookingoption->option->text;
@@ -113,7 +120,6 @@ class bookingoption_description implements renderable, templatable {
 
         // There can be more than one modal, therefor we use the id of this record
         $this->modalcounter = $bookingoption->option->id;
-
 
         // $this->duration = $bookingoption->option->duration;
         $this->description = format_text($bookingoption->option->description, FORMAT_HTML);
@@ -125,11 +131,11 @@ class bookingoption_description implements renderable, templatable {
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
 
-        $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent, $descriptionparam, $withcustomfields);
+        $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent, $descriptionparam, $withcustomfields, $forbookeduser);
 
         $teachers = $bookingoption->get_teachers();
         $teachernames = [];
-        foreach($teachers as $teacher) {
+        foreach ($teachers as $teacher) {
             $teachernames[] = "$teacher->firstname $teacher->lastname";
         }
         $this->teachers = $teachernames;
@@ -146,8 +152,8 @@ class bookingoption_description implements renderable, templatable {
             case DESCRIPTION_WEBSITE:
                 // Only show "already booked" or "on waiting list" text in modal.
                 if ($booking->settings->showdescriptionmode == 0) {
-                    if ($bookingoption->iambooked == 1) {
-                        // If iambooked is 1, we show a short info text that the option is already booked.
+                    if ($forbookeduser) {
+                        // If it is for booked user, we show a short info text that the option is already booked.
                         $this->booknowbutton = get_string('infoalreadybooked', 'booking');
                     } else if ($bookingoption->onwaitinglist == 1) {
                         // If onwaitinglist is 1, we show a short info text that the user is on the waiting list.

@@ -300,7 +300,11 @@ class calendar {
             $courseid = 0;
             $instance = 0;
             $visible = 1;
-            $fulldescription = get_rendered_eventdescription($option, $this->cmid, $optiondate, DESCRIPTION_CALENDAR);
+
+            $bookingoption = new \mod_booking\booking_option($this->cmid, $this->optionid, null, null, null, true);
+            // If the user is booked, we have a different kind of description.
+            $forbookeduser = isset($bookingoption->usersonlist[$userid]) ? true : false;
+            $fulldescription = get_rendered_eventdescription($option, $this->cmid, $optiondate, DESCRIPTION_CALENDAR, $forbookeduser);
         } else {
             // Event calendar.
             $courseid = !empty($booking->course) ? $booking->course : 0;

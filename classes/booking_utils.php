@@ -528,10 +528,18 @@ class booking_utils {
      * @param $fields
      * @return array
      */
-    public function return_array_of_customfields($bookingoption, $fields, $sessionid = 0, $descriptionparam = 0) {
+    public function return_array_of_customfields($bookingoption,
+            $fields,
+            $sessionid = 0,
+            $descriptionparam = 0,
+            $forbookeduser = false) {
         $returnarray = [];
         foreach ($fields as $field) {
-            if ($value = $this->render_customfield_data($bookingoption, $field, $sessionid, $descriptionparam)) {
+            if ($value = $this->render_customfield_data($bookingoption,
+            $field,
+            $sessionid,
+            $descriptionparam,
+            $forbookeduser)) {
                 $returnarray[] = $value;
             }
         }
@@ -542,14 +550,18 @@ class booking_utils {
      * This is the place to return buttons etc. for special name, keys, like teams-meeting or zoom meeting.
      * @param $field
      */
-    private function render_customfield_data($bookingoption, $field, $sessionid = 0, $descriptionparam = 0) {
+    private function render_customfield_data($bookingoption,
+            $field,
+            $sessionid = 0,
+            $descriptionparam = 0,
+            $forbookeduser = false) {
 
         switch ($field->cfgname) {
             case 'ZoomMeeting':
             case 'BigBlueButtonMeeting':
             case 'TeamsMeeting':
                 // If the session is not yet about to begin, we show placeholder
-                return $this->render_meeting_fields($bookingoption, $sessionid, $field, $descriptionparam);
+                return $this->render_meeting_fields($bookingoption, $sessionid, $field, $descriptionparam, $forbookeduser);
             default:
                 return [
                     'name' => "$field->cfgname: ",
@@ -559,7 +571,7 @@ class booking_utils {
     }
 
 
-    private function render_meeting_fields($bookingoption, $sessionid, $field, $descriptionparam) {
+    private function render_meeting_fields($bookingoption, $sessionid, $field, $descriptionparam, $forbookeduser = false) {
         global $USER, $CFG;
 
         $baseurl = $CFG->wwwroot;
@@ -568,7 +580,7 @@ class booking_utils {
 
             case DESCRIPTION_WEBSITE:
                 // We don't want to show these Buttons at all if the user is not booked.
-                if ($bookingoption->iambooked == 0) {
+                if (!$forbookeduser) {
                     return null;
                 } else {
                     // We are booked on the web site, we check if we show the real link.
@@ -588,7 +600,7 @@ class booking_utils {
             case DESCRIPTION_CALENDAR:
                 // Calendar is static, so we don't have to check for booked or not.
                 // In all cases, we return the Teams-Button, going by the link.php.
-                if ($bookingoption->iambooked != 0) {
+                if ($forbookeduser) {
                     // User is booked, we show a button (for Moodle calendar ie).
                     $cm = $bookingoption->booking->cm;
                     $moodleurl = new moodle_url($baseurl . '/mod/booking/link.php',
@@ -695,7 +707,10 @@ class booking_utils {
      * @return array
      * @throws \dml_exception
      */
-    public function return_array_of_sessions($bookingoption, $bookingevent = null, $descriptionparam = 0, $withcustomfields = false) {
+    public function return_array_of_sessions($bookingoption, $bookingevent = null,
+                                            $descriptionparam = 0,
+                                            $withcustomfields = false,
+                                            $forbookeduser = false) {
 
         global $DB;
 
@@ -731,7 +746,7 @@ class booking_utils {
                     $returnsession['datestring'] = $this->return_string_from_dates($session->coursestarttime, $session->courseendtime);
                     // customfields can only be displayed in combination with timevalues.
                     if ($withcustomfields) {
-                        $returnsession['customfields'] = $this->return_array_of_customfields($bookingoption, $fields, $session->id, $descriptionparam);
+                        $returnsession['customfields'] = $this->return_array_of_customfields($bookingoption, $fields, $session->id, $descriptionparam, $forbookeduser);
                     }
                 }
                 if ($returnsession) {

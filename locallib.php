@@ -378,7 +378,7 @@ function get_rendered_customfields($optiondateid) {
  * @param stdClass $optiondate the option date object (optional)
  * @return string The rendered HTML of the full description.
  */
-function get_rendered_eventdescription($option, $cmid, $optiondate = false, $descriptionparam = DESCRIPTION_WEBSITE) {
+function get_rendered_eventdescription($option, $cmid, $optiondate = false, $descriptionparam = DESCRIPTION_WEBSITE, $forbookeduser = false) {
     global $DB, $CFG, $PAGE;
 
     // We have the following differences:
@@ -388,7 +388,7 @@ function get_rendered_eventdescription($option, $cmid, $optiondate = false, $des
 
     $booking = new \mod_booking\booking($cmid);
 
-    $data = new \mod_booking\output\bookingoption_description($booking, $option, null, $descriptionparam);
+    $data = new \mod_booking\output\bookingoption_description($booking, $option, null, $descriptionparam, true, $forbookeduser);
     $output = $PAGE->get_renderer('mod_booking');
 
     if ($descriptionparam == DESCRIPTION_ICAL) {
@@ -499,7 +499,11 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
 
     // We use $data here for $option and $optiondate, the necessary keys are the same.
     foreach ($allevents as $eventrecord) {
-        $eventrecord->description = get_rendered_eventdescription($option, $cmid, $optiondate, DESCRIPTION_CALENDAR);
+        if ($eventrecord->eventtype == 'user') {
+            $eventrecord->description = get_rendered_eventdescription($option, $cmid, $optiondate, DESCRIPTION_CALENDAR, true);
+        } else {
+            $eventrecord->description = get_rendered_eventdescription($option, $cmid, $optiondate, DESCRIPTION_CALENDAR, false);
+        }
         $eventrecord->name = $option->text;
         $eventrecord->timestart = $data->coursestarttime;
         $eventrecord->timeduration = $data->courseendtime - $data->coursestarttime;

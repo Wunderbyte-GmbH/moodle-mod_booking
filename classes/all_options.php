@@ -270,7 +270,9 @@ class all_options extends table_sql {
 
         $output = $PAGE->get_renderer('mod_booking');
 
-        $data = new \mod_booking\output\bookingoption_description($this->booking, $values, null, DESCRIPTION_WEBSITE);
+        $forbookeduser = $values->iambooked == 1 ? true : false;
+
+        $data = new \mod_booking\output\bookingoption_description($this->booking, $values, null, DESCRIPTION_WEBSITE, $forbookeduser);
 
         if ($this->booking->settings->showdescriptionmode == 0) {
             // We will have a number of modals on this site, therefore we have to distinguish them.
