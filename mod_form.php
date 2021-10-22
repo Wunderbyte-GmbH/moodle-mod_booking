@@ -280,7 +280,8 @@ class mod_booking_mod_form extends moodleform_mod {
         // Before creating the array, we have to check if there is a booking manager already set.
         // If so, but the user has left the course, an arbitrary value will be shown. Therefore we add the...
         // ... existing bookingmanager to the array.
-        if ($existingmanager = $DB->get_field('booking', 'bookingmanager', array('id' => $this->_instance))) {
+        if (((int)$this->_instance)
+            && ($existingmanager = $DB->get_field('booking', 'bookingmanager', array('id' => $this->_instance)))) {
             if ($existinguser = $DB->get_record('user', array('username' => $existingmanager))) {
                 $found = false;
                 foreach ($potentialmanagers as $user) {
