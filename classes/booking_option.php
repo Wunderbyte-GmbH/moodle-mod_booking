@@ -310,7 +310,7 @@ class booking_option {
      * $this->usersonlist booked users
      */
     public function get_users() {
-        global $DB;
+        global $CFG, $DB;
         $params = array();
 
         $options = "ba.optionid = :optionid";
@@ -349,9 +349,11 @@ class booking_option {
 
         $limitfrom = $this->perpage * $this->page;
         $numberofrecords = $this->perpage;
-        $mainuserfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
 
-        $sql = 'SELECT ba.id AS aid,
+        if ($CFG->version >= 2021051703) {
+            // This only works in Moodle 3.11 and later.
+            $mainuserfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
+            $sql = 'SELECT ba.id AS aid,
                 ba.bookingid,
                 ba.numrec,
                 ba.userid,
@@ -366,6 +368,27 @@ class booking_option {
                 LEFT JOIN {user} u ON ba.userid = u.id
                 WHERE ' . $options . '
                 ORDER BY ba.optionid, ba.timemodified DESC';
+        } else {
+            // This is only here to support Moodle versions earlier than 3.11.
+            $mainuserfields = \user_picture::fields('u');
+            $sql = 'SELECT ba.id AS aid,
+                ba.bookingid,
+                ba.numrec,
+                ba.userid,
+                ba.optionid,
+                ba.timemodified,
+                ba.completed,
+                ba.timecreated,
+                ba.waitinglist,
+                ' . $mainuserfields . ', ' .
+                $DB->sql_fullname('u.firstname', 'u.lastname') . ' AS fullname
+                FROM {booking_answers} ba
+                LEFT JOIN {user} u ON ba.userid = u.id
+                WHERE ' . $options . '
+                ORDER BY ba.optionid, ba.timemodified DESC';
+        }
+
+        
 
         $this->users = $DB->get_records_sql($sql, $params, $limitfrom, $numberofrecords);
 
@@ -386,16 +409,28 @@ class booking_option {
      * @throws dml_exception
      */
     public function get_all_users() {
-        global $DB;
+        global $CFG, $DB;
         if (empty($this->allusers)) {
-            $userfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
             $params = array('optionid' => $this->optionid);
-            $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated $userfields, u.institution
-                      FROM {booking_answers} ba
-                      JOIN {user} u ON u.id = ba.userid
-                     WHERE ba.optionid = :optionid
-                     AND u.deleted = 0
-                     ORDER BY ba.timecreated ASC";
+            if ($CFG->version >= 2021051703) {
+                // This only works in Moodle 3.11 and later.
+                $userfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
+                $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated $userfields, u.institution
+                        FROM {booking_answers} ba
+                        JOIN {user} u ON u.id = ba.userid
+                        WHERE ba.optionid = :optionid
+                        AND u.deleted = 0
+                        ORDER BY ba.timecreated ASC";
+            } else {
+                // This is only here to support Moodle versions earlier than 3.11.
+                $userfields = \user_picture::fields('u');
+                $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated, $userfields, u.institution
+                        FROM {booking_answers} ba
+                        JOIN {user} u ON u.id = ba.userid
+                        WHERE ba.optionid = :optionid
+                        AND u.deleted = 0
+                        ORDER BY ba.timecreated ASC";
+            }
             $this->allusers = $DB->get_records_sql($sql, $params);
         }
         return $this->allusers;
