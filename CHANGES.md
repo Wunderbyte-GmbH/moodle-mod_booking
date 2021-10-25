@@ -1,3 +1,10 @@
+## Version 7.0.18 (2021102500)
+**Bugfixes:**
+* Displaying booking option name now without separator on course page.
+* Description for booked users was rendered like for unbooked in calendar.
+* Fixed a bug where new bookingmanager list led to error on instantiation.
+* Fixed deprecation of user_pictures in Moodle 3.11 and kept compatibility for 3.10, 3.9 and earlier.
+
 ## Version 7.0.17 (2021101900)
 **Improvements:**
 * Added "Department" to "Fields to display in different contexts" for report download.
