@@ -2052,8 +2052,6 @@ function booking_sendpollurlteachers(booking_option $bookingoption, $cmid, $opti
         $pollurlmessage = booking_get_email_body($bookingoption->booking->settings, 'pollurlteacherstext',
                 'pollurlteacherstextmessage', $params);
 
-        $bookingoption->booking->settings->pollurlteacherstext = $pollurlmessage;
-
         $eventdata = new stdClass();
         $eventdata->modulename = 'booking';
 
@@ -2105,7 +2103,6 @@ function booking_sendpollurl($userids, booking_option $bookingoption, $cmid, $op
 
         $pollurlmessage = booking_get_email_body($bookingoption->booking->settings, 'pollurltext',
                 'pollurltextmessage', $params);
-        $bookingoption->booking->settings->pollurltext = $pollurlmessage;
 
         $eventdata = new core\message\message();
         $eventdata->modulename = 'booking';
