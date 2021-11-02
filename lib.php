@@ -2052,7 +2052,7 @@ function booking_sendpollurlteachers(booking_option $bookingoption, $cmid, $opti
         $pollurlmessage = booking_get_email_body($bookingoption->booking->settings, 'pollurlteacherstext',
                 'pollurlteacherstextmessage', $params);
 
-        $eventdata = new stdClass();
+        $eventdata = new core\message\message();
         $eventdata->modulename = 'booking';
 
         // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
