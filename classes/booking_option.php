@@ -353,25 +353,13 @@ class booking_option {
         if ($CFG->version >= 2021051703) {
             // This only works in Moodle 3.11 and later.
             $mainuserfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
-            $sql = 'SELECT ba.id AS aid,
-                ba.bookingid,
-                ba.numrec,
-                ba.userid,
-                ba.optionid,
-                ba.timemodified,
-                ba.completed,
-                ba.timecreated,
-                ba.waitinglist
-                ' . $mainuserfields . ', ' .
-                $DB->sql_fullname('u.firstname', 'u.lastname') . ' AS fullname
-                FROM {booking_answers} ba
-                LEFT JOIN {user} u ON ba.userid = u.id
-                WHERE ' . $options . '
-                ORDER BY ba.optionid, ba.timemodified DESC';
+            $mainuserfields = trim($mainuserfields, ', ');
         } else {
             // This is only here to support Moodle versions earlier than 3.11.
             $mainuserfields = \user_picture::fields('u');
-            $sql = 'SELECT ba.id AS aid,
+        }
+
+        $sql = 'SELECT ba.id AS aid,
                 ba.bookingid,
                 ba.numrec,
                 ba.userid,
@@ -379,16 +367,13 @@ class booking_option {
                 ba.timemodified,
                 ba.completed,
                 ba.timecreated,
-                ba.waitinglist,
-                ' . $mainuserfields . ', ' .
+                ba.waitinglist,' .
+                $mainuserfields . ', ' .
                 $DB->sql_fullname('u.firstname', 'u.lastname') . ' AS fullname
                 FROM {booking_answers} ba
                 LEFT JOIN {user} u ON ba.userid = u.id
                 WHERE ' . $options . '
                 ORDER BY ba.optionid, ba.timemodified DESC';
-        }
-
-        
 
         $this->users = $DB->get_records_sql($sql, $params, $limitfrom, $numberofrecords);
 
@@ -412,25 +397,23 @@ class booking_option {
         global $CFG, $DB;
         if (empty($this->allusers)) {
             $params = array('optionid' => $this->optionid);
+            
             if ($CFG->version >= 2021051703) {
                 // This only works in Moodle 3.11 and later.
                 $userfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
-                $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated $userfields, u.institution
-                        FROM {booking_answers} ba
-                        JOIN {user} u ON u.id = ba.userid
-                        WHERE ba.optionid = :optionid
-                        AND u.deleted = 0
-                        ORDER BY ba.timecreated ASC";
+                $userfields = trim($userfields, ', ');
             } else {
                 // This is only here to support Moodle versions earlier than 3.11.
                 $userfields = \user_picture::fields('u');
-                $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated, $userfields, u.institution
-                        FROM {booking_answers} ba
-                        JOIN {user} u ON u.id = ba.userid
-                        WHERE ba.optionid = :optionid
-                        AND u.deleted = 0
-                        ORDER BY ba.timecreated ASC";
             }
+
+            $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated, $userfields, u.institution
+            FROM {booking_answers} ba
+            JOIN {user} u ON u.id = ba.userid
+            WHERE ba.optionid = :optionid
+            AND u.deleted = 0
+            ORDER BY ba.timecreated ASC";
+
             $this->allusers = $DB->get_records_sql($sql, $params);
         }
         return $this->allusers;
@@ -634,6 +617,7 @@ class booking_option {
             // This is deprecated in Moodle 3.11 and later.
             $mainuserfields = \user_picture::fields('u', null);
         }
+        
         $sql = "SELECT $mainuserfields, ba.id AS answerid, ba.optionid, ba.bookingid
                  FROM {booking_answers} ba, {user} u
                 WHERE ba.userid = u.id
