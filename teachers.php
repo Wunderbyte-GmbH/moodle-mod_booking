@@ -16,7 +16,7 @@
 use mod_booking\existing_subscriber_selector;
 use mod_booking\potential_subscriber_selector;
 
-require_once("../../config.php");
+require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
 require_once("teachers_form.php");
 

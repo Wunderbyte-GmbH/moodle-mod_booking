@@ -20,7 +20,7 @@ use mod_booking\output\instance_description;
 
 global $DB, $CFG, $USER, $OUTPUT, $PAGE;
 
-require_once("../../config.php");
+require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
 require_once($CFG->libdir . '/completionlib.php');
 require_once("{$CFG->libdir}/tablelib.php");

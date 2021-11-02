@@ -24,7 +24,7 @@
 use mod_booking\booking_option;
 use mod_booking\calendar;
 
-require_once("../../config.php");
+require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
 require_once('optiondatesadd_form.php');
 

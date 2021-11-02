@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 use mod_booking\booking;
 
-require_once('../../config.php');
+require_once(__DIR__ . '/../../config.php');
 require_once("$CFG->dirroot/mod/booking/locallib.php");
 $id = required_param('id', PARAM_INT);
 

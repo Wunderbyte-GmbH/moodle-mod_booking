@@ -20,7 +20,7 @@
  * @author David Bogner davidbogner@gmail.com
  * @package mod/booking
  */
-require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use mod_booking\utils\db;

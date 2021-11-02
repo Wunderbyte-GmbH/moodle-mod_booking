@@ -23,7 +23,7 @@
  */
 global $DB, $CFG, $COURSE, $USER, $OUTPUT, $PAGE;
 
-require_once("../../config.php");
+require_once(__DIR__ . '/../../config.php');
 
 $encodedurl = required_param('encodedurl', PARAM_TEXT); // The base64 encoded URL.
 $link = base64_decode($encodedurl);

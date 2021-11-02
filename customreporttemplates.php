@@ -23,7 +23,7 @@
  */
 use mod_booking\customreporttemplates_table;
 
-require_once('../../config.php');
+require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/tablelib.php');
 require_once($CFG->libdir . '/adminlib.php');
 

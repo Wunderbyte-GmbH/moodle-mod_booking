@@ -16,7 +16,7 @@
 defined('MOODLE_INTERNAL') || die();
 ini_set('max_execution_time', 600);
 
-require_once("../../config.php");
+require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . "/externallib.php");
 require_once($CFG->libdir . "/filelib.php");
 require_once($CFG->libdir . "/datalib.php");

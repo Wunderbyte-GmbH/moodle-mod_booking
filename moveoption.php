@@ -16,7 +16,7 @@
 use mod_booking\booking;
 use mod_booking\booking_option;
 
-require_once("../../config.php");
+require_once(__DIR__ . '/../../config.php');
 require_once("lib.php");
 
 
