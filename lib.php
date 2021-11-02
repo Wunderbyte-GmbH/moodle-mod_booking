@@ -2776,8 +2776,16 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
         $context = context_module::instance($cm->id);
     }
 
-    $extrauserfields = get_extra_user_fields($context);
-    $allnames = user_picture::fields('u', $extrauserfields);
+    if ($CFG->version >= 2021051703) {
+        // This only works in Moodle 3.11 and later.
+        $allnames = \core_user\fields::for_identity($context)->with_userpic()->get_sql('u')->selects;
+        $allnames = trim($allnames, ', ');
+    } else {
+        // This is deprecated in Moodle 3.11 and later.
+        $extrauserfields = get_extra_user_fields($context);
+        $allnames = user_picture::fields('u', $extrauserfields);
+    }
+    
     if (empty($fields)) {
         $fields = "u.id,
                 u.username,

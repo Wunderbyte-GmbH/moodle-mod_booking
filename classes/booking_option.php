@@ -619,13 +619,21 @@ class booking_option {
      * Calculates the potential users (bookers able to book, but not yet booked)
      */
     public function update_booked_users() {
-        global $DB, $USER;
+        global $CFG, $DB, $USER;
 
         if (empty($this->booking->canbookusers)) {
             $this->booking->get_canbook_userids();
         }
 
-        $mainuserfields = \user_picture::fields('u', null);
+        if ($CFG->version >= 2021051703) {
+            // This only works in Moodle 3.11 and later.
+            $mainuserfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
+            // The $mainuserfields variable already includes a comma in the beginning, so trim it first.
+            $mainuserfields = trim($mainuserfields, ', ');
+        } else {
+            // This is deprecated in Moodle 3.11 and later.
+            $mainuserfields = \user_picture::fields('u', null);
+        }
         $sql = "SELECT $mainuserfields, ba.id AS answerid, ba.optionid, ba.bookingid
                  FROM {booking_answers} ba, {user} u
                 WHERE ba.userid = u.id
@@ -633,6 +641,7 @@ class booking_option {
                   AND ba.bookingid = :bookingid
                   AND ba.optionid = :optionid
              ORDER BY ba.timemodified ASC";
+        
         $params = array("bookingid" => $this->booking->id, "optionid" => $this->optionid);
 
         // Note: mod/booking:choose may have been revoked after the user has booked: not count them as booked.
