@@ -1,3 +1,11 @@
+## Version 7.0.19 (2021110200)
+**Bugfixes:**
+* Fixed a bug where wrong poll url messages where sent (to both participants and teachers).
+* Fixed a function in observer.php which didn't make sense.
+* Fixed wrong inclusion of config.php in several files.
+* Fixed deprecation of user_picture::fields in Moodle 3.11 and kept compatibility for 3.10, 3.9 and earlier.
+* Fixed a bug where poll URL message was not sent to teachers.
+
 ## Version 7.0.18 (2021102500)
 **Bugfixes:**
 * Displaying booking option name now without separator on course page.
