@@ -340,9 +340,9 @@ class booking {
      * Determins the number of bookings that a single user has already made in all booking options
      *
      * @param stdClass $user
-     * @return number of bookings made by user
+     * @return int of bookings made by user
      */
-    public function get_user_booking_count($user) {
+    public function get_user_booking_count($user):int {
         global $DB;
         if (!empty($this->userbookings)) {
             return $this->userbookings;
@@ -355,7 +355,7 @@ class booking {
             AND ba.userid = ?
             AND (bo.courseendtime = 0 OR bo.courseendtime > ?)", array($this->id, $user->id, time()));
 
-        return $activebookingcount;
+        return (int)$activebookingcount;
     }
 
     /**

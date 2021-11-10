@@ -397,7 +397,7 @@ class booking_option {
         global $CFG, $DB;
         if (empty($this->allusers)) {
             $params = array('optionid' => $this->optionid);
-            
+
             if ($CFG->version >= 2021051703) {
                 // This only works in Moodle 3.11 and later.
                 $userfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
@@ -617,7 +617,7 @@ class booking_option {
             // This is deprecated in Moodle 3.11 and later.
             $mainuserfields = \user_picture::fields('u', null);
         }
-        
+
         $sql = "SELECT $mainuserfields, ba.id AS answerid, ba.optionid, ba.bookingid
                  FROM {booking_answers} ba, {user} u
                 WHERE ba.userid = u.id
@@ -625,7 +625,7 @@ class booking_option {
                   AND ba.bookingid = :bookingid
                   AND ba.optionid = :optionid
              ORDER BY ba.timemodified ASC";
-        
+
         $params = array("bookingid" => $this->booking->id, "optionid" => $this->optionid);
 
         // Note: mod/booking:choose may have been revoked after the user has booked: not count them as booked.
@@ -1044,12 +1044,14 @@ class booking_option {
         global $DB;
 
         if (null == $this->option) {
+            mtrace("Didn't find option to subscribe user $user->username");
             return false;
         }
 
         $waitinglist = $this->check_if_limit();
 
         if ($waitinglist === false) {
+            mtrace("Couldn't subscribe user $user->username because of waitinglist");
             return false;
         }
 
@@ -1057,6 +1059,7 @@ class booking_option {
         $underlimit = $underlimit ||
                 (($this->booking->get_user_booking_count($user) - $substractfromlimit) < $this->booking->settings->maxperuser);
         if (!$underlimit) {
+            mtrace("Couldn't subscribe user $user->username because of maxperuser setting");
             return false;
         }
         $currentanswerid = $DB->get_field('booking_answers', 'id',

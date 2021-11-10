@@ -245,15 +245,30 @@ class csv_import {
                     }
                 }
                 if (isset($userdata['useremail'])) {
-                    $user = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
-                        'email' => $userdata['useremail']), 'id', IGNORE_MULTIPLE);
+                    $users = $DB->get_records('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
+                        'email' => $userdata['useremail']), 'id');
+
+                    $useremail = $userdata['useremail'];
+
+                    // If there are multiple users with the same e-email.
+                    if (($users !== false) && (count($users) > 1)) {
+                        $this->add_csverror("The e-mail $useremail is used by multiple users,
+                            couldn't be subscribed to this booking option", $i);
+                        continue;
+                    } else {
+                        $user = reset($users);
+                    }
                     if ($user !== false) {
                         $option = new booking_option($this->booking->cm->id, $optionid,
                             array(), 0, 0, false);
                         if ($option->user_submit_response($user) === false) {
                             $this->add_csverror("The user with username {$user->username} and e-mail {$user->email} was
-                            not subscribed to the booking option {$bookingoption->text}", $i);
+                            not subscribed to the booking option", $i);
                         }
+                    } else {
+                        $useremail = $userdata['useremail'];
+                        $this->add_csverror("The user with the e-mail $useremail  was
+                            not found, couldn't be subscribed to booking option.", $i);
                     }
                 }
                 if (isset($userdata['user_username'])) {
