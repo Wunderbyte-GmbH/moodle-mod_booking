@@ -1044,14 +1044,14 @@ class booking_option {
         global $DB;
 
         if (null == $this->option) {
-            mtrace("Didn't find option to subscribe user $user->username");
+            echo "<br>Didn't find option to subscribe user $user->username <br>";
             return false;
         }
 
         $waitinglist = $this->check_if_limit();
 
         if ($waitinglist === false) {
-            mtrace("Couldn't subscribe user $user->username because of waitinglist");
+            echo "Couldn't subscribe user $user->username because of waitinglist <br>";
             return false;
         }
 
@@ -1059,7 +1059,7 @@ class booking_option {
         $underlimit = $underlimit ||
                 (($this->booking->get_user_booking_count($user) - $substractfromlimit) < $this->booking->settings->maxperuser);
         if (!$underlimit) {
-            mtrace("Couldn't subscribe user $user->username because of maxperuser setting");
+            mtrace("Couldn't subscribe user $user->username because of maxperuser setting <br>");
             return false;
         }
         $currentanswerid = $DB->get_field('booking_answers', 'id',

@@ -245,20 +245,34 @@ class csv_import {
                     }
                 }
                 if (isset($userdata['useremail'])) {
-                    $users = $DB->get_records('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
-                        'email' => $userdata['useremail']), 'id');
 
-                    $useremail = $userdata['useremail'];
+                    $sql = "SELECT *
+                            FROM {user}
+                            WHERE LOWER(email)=LOWER(:useremail)";
 
-                    // If there are multiple users with the same e-email.
-                    if (($users !== false) && (count($users) > 1)) {
-                        $this->add_csverror("The e-mail $useremail is used by multiple users,
-                            couldn't be subscribed to this booking option", $i);
-                        continue;
-                    } else {
-                        $user = reset($users);
-                    }
+                    $user = $DB->get_record_sql($sql, array('useremail' => $userdata['useremail']));
+
+                    // $user = $DB->get_record('user', array('email' => $userdata['useremail']));
+
                     if ($user !== false) {
+
+                        // Now we make sure we don't have suspended or otherwise no elegible users.
+                        if ($user->suspended != 0) {
+                            $this->add_csverror("The user with username {$user->username} and e-mail {$user->email} was
+                            not subscribed to the booking option because of suspension", $i);
+                            continue;
+                        }
+                        if ($user->deleted != 0) {
+                            $this->add_csverror("The user with username {$user->username} and e-mail {$user->email} was
+                            not subscribed to the booking option because of deletion", $i);
+                            continue;
+                        }
+                        if ($user->confirmed != 1) {
+                            $this->add_csverror("The user with username {$user->username} and e-mail {$user->email} was
+                            not subscribed to the booking option because he/she is not confirmed", $i);
+                            continue;
+                        }
+
                         $option = new booking_option($this->booking->cm->id, $optionid,
                             array(), 0, 0, false);
                         if ($option->user_submit_response($user) === false) {
@@ -267,7 +281,7 @@ class csv_import {
                         }
                     } else {
                         $useremail = $userdata['useremail'];
-                        $this->add_csverror("The user with the e-mail $useremail  was
+                        $this->add_csverror("The user with the e-mail $useremail was
                             not found, couldn't be subscribed to booking option.", $i);
                     }
                 }
