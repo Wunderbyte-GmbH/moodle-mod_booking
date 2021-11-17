@@ -2774,7 +2774,7 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
         $context = context_module::instance($cm->id);
     }
 
-    if ($CFG->version >= 2021051703) {
+    if ($CFG->version >= 2021051700) {
         // This only works in Moodle 3.11 and later.
         $allnames = \core_user\fields::for_identity($context)->with_userpic()->get_sql('u')->selects;
         $allnames = trim($allnames, ', ');
