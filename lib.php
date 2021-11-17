@@ -328,7 +328,7 @@ function booking_add_instance($booking) {
 
     if (isset($booking->showviews) && is_array($booking->showviews) && count($booking->showviews) > 0) {
         $booking->showviews = implode(',', $booking->showviews);
-    } else if ($booking->showviews === null) {
+    } else if (!isset($booking->showviews) || $booking->showviews === null) {
         $booking->showviews = '';
     }
 
@@ -346,27 +346,23 @@ function booking_add_instance($booking) {
     }
 
     // Copy the text fields out.
-    $booking->bookedtext = $booking->bookedtext['text'] ?? $booking->bookedtext;
-    $booking->waitingtext = $booking->waitingtext['text'] ?? $booking->waitingtext;
-    $booking->notifyemail = $booking->notifyemail['text'] ?? $booking->notifyemail;
-    $booking->notifyemailteachers = $booking->notifyemailteachers['text'] ?? $booking->notifyemailteachers;
-    $booking->statuschangetext = $booking->statuschangetext['text'] ?? $booking->statuschangetext;
-    $booking->deletedtext = $booking->deletedtext['text'] ?? $booking->deletedtext;
-    $booking->bookingchangedtext = $booking->bookingchangedtext['text'] ?? $booking->bookingchangedtext;
-    $booking->pollurltext = $booking->pollurltext['text'] ?? $booking->pollurltext;
-    $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'] ?? $booking->pollurlteacherstext;
-    $booking->activitycompletiontext = $booking->activitycompletiontext['text'] ?? $booking->activitycompletiontext;
-    $booking->userleave = $booking->userleave['text'] ?? $booking->userleave;
-    if (isset($booking->beforebookedtext['text'])) {
-        $booking->beforebookedtext = $booking->beforebookedtext['text'];
-    }
-    if (isset($booking->beforecompletedtext['text'])) {
-        $booking->beforecompletedtext = $booking->beforecompletedtext['text'];
-    }
-    if (isset($booking->aftercompletedtext['text'])) {
-        $booking->aftercompletedtext = $booking->aftercompletedtext['text'];
-    }
+    $booking->bookedtext = $booking->bookedtext['text'] ?? $booking->bookedtext ?? null;
+    $booking->waitingtext = $booking->waitingtext['text'] ?? $booking->waitingtext ?? null;
+    $booking->notifyemail = $booking->notifyemail['text'] ?? $booking->notifyemail ?? null;
+    $booking->notifyemailteachers = $booking->notifyemailteachers['text'] ?? $booking->notifyemailteachers ?? null;
+    $booking->statuschangetext = $booking->statuschangetext['text'] ?? $booking->statuschangetext ?? null;
+    $booking->deletedtext = $booking->deletedtext['text'] ?? $booking->deletedtext ?? null;
+    $booking->bookingchangedtext = $booking->bookingchangedtext['text'] ?? $booking->bookingchangedtext ?? null;
+    $booking->pollurltext = $booking->pollurltext['text'] ?? $booking->pollurltext ?? null;
+    $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'] ?? $booking->pollurlteacherstext ?? null;
+    $booking->activitycompletiontext = $booking->activitycompletiontext['text'] ?? $booking->activitycompletiontext ?? null;
+    $booking->userleave = $booking->userleave['text'] ?? $booking->userleave ?? null;
+    $booking->beforebookedtext = $booking->beforebookedtext['text'] ?? null;
+    $booking->beforecompletedtext = $booking->beforecompletedtext['text'] ?? null;
+    $booking->aftercompletedtext = $booking->aftercompletedtext['text'] ?? null;
 
+    // To avoid errors.
+    $booking->bookingpolicy = $booking->bookingpolicy['text'] ?? '';
     // Insert answer options from mod_form.
     $booking->id = $DB->insert_record("booking", $booking);
 
@@ -388,7 +384,9 @@ function booking_add_instance($booking) {
                 $booking->id, array('subdirs' => false, 'maxfiles' => 1));
     }
 
-    core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
+    if (isset($booking->tags)) {
+        core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
+    }
 
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {
@@ -2785,7 +2783,7 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
         $extrauserfields = get_extra_user_fields($context);
         $allnames = user_picture::fields('u', $extrauserfields);
     }
-    
+
     if (empty($fields)) {
         $fields = "u.id,
                 u.username,

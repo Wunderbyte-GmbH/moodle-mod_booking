@@ -21,11 +21,11 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 class mod_booking_lib_testcase extends advanced_testcase {
 
-    public function setUp() {
+    public function setUp():void {
 
     }
 
-    public function tearDown() {
+    public function tearDown():void {
 
     }
 

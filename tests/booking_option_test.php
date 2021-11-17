@@ -37,11 +37,11 @@ class mod_booking_booking_option_testcase extends advanced_testcase {
     /**
      * Tests set up.
      */
-    public function setUp() {
+    public function setUp():void {
         $this->resetAfterTest();
     }
 
-    public function tearDown() {
+    public function tearDown():void {
     }
 
     public function test_delete_responses_activitycompletion() {
