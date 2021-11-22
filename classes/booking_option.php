@@ -350,7 +350,7 @@ class booking_option {
         $limitfrom = $this->perpage * $this->page;
         $numberofrecords = $this->perpage;
 
-        if ($CFG->version >= 2021051703) {
+        if ($CFG->version >= 2021051700) {
             // This only works in Moodle 3.11 and later.
             $mainuserfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
             $mainuserfields = trim($mainuserfields, ', ');
@@ -398,7 +398,7 @@ class booking_option {
         if (empty($this->allusers)) {
             $params = array('optionid' => $this->optionid);
 
-            if ($CFG->version >= 2021051703) {
+            if ($CFG->version >= 2021051700) {
                 // This only works in Moodle 3.11 and later.
                 $userfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
                 $userfields = trim($userfields, ', ');
@@ -608,7 +608,7 @@ class booking_option {
             $this->booking->get_canbook_userids();
         }
 
-        if ($CFG->version >= 2021051703) {
+        if ($CFG->version >= 2021051700) {
             // This only works in Moodle 3.11 and later.
             $mainuserfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
             // The $mainuserfields variable already includes a comma in the beginning, so trim it first.
