@@ -52,7 +52,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
 
                             // TODO: eventtype does not yet work correctly.
                             $("#id_eventtype").val(obj.eventtype);
-                            
+
                             $("#id_introeditoreditable").html(obj.intro);
                             $('#id_duration').val(obj.duration);
                             $('#id_points').val(obj.points);
