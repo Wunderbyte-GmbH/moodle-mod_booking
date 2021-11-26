@@ -136,14 +136,14 @@ $string['disablebookingusers'] = 'Buchung von Teilnehmer/innen deaktivieren - "J
 $string['howmanyusers'] = 'Maximale Anzahl an Buchungen, die ein/e der Buchungsoption zugewiesene Lehrer/in vornehmen kann';
 $string['howmanyusers_help'] = '';
 $string['institution'] = 'Institution';
-$string['institution_help'] = 'Sie können den Namen der Institution manuell eingeben oder aus einer Liste von 
+$string['institution_help'] = 'Sie können den Namen der Institution manuell eingeben oder aus einer Liste von
                             früheren Institutionen auswählen. Sie können nur eine Institution angeben. Sobald
                             Sie speichern, wird die Institution zur Liste hinzugefügt.';
 $string['lblsputtname'] = 'Alternative Bezeichnung für "Umfragelink an Trainer/innen senden" verwenden';
 $string['lblteachname'] = 'Alternative Bezeichnung für "Trainer/in" verwenden';
 $string['limitanswers_help'] = 'Bei Änderung dieser Einstellung und vorhandenen Buchungen, werden die Buchungen für die betroffenen Nutzer/innen ohne Benachrichtigung entfernt.';
 $string['location'] = 'Ort';
-$string['location_help'] = 'Sie können den Namen des Orts manuell eingeben oder aus einer Liste von 
+$string['location_help'] = 'Sie können den Namen des Orts manuell eingeben oder aus einer Liste von
                             früheren Orten auswählen. Sie können nur einen Ort angeben. Sobald
                             Sie speichern, wird der Ort zur Liste hinzugefügt.';
 $string['removeafterminutes'] = 'Aktivitätsabschluss nach N Minuten entfernen';
@@ -162,7 +162,7 @@ $string['astemplate'] = 'Als Vorlage in diesem Kurs hinzufügen';
 $string['asglobaltemplate'] = 'Als globale Vorlage hinzufügen';
 $string['templatedeleted'] = 'Vorlage wurde gelöscht!';
 
-// calendar.php
+// Calendar.php.
 $string['usercalendarentry'] = 'Sie haben <a href="{$a}">diese Option</a> gebucht.';
 $string['bookingoptioncalendarentry'] = '<a href="{$a}" class="btn btn-primary">Jetzt buchen...</a>';
 
@@ -224,7 +224,7 @@ $string['norighttobook'] = 'Sie haben zur Zeit keine Berechtigung Buchungen vorz
 $string['notbooked'] = 'Noch nicht gebucht';
 $string['onwaitinglist'] = 'Sie sind auf der Warteliste';
 $string['organizatorname'] = 'Name des Organisators';
-$string['organizatorname_help'] = 'Sie können den Namen des Organisators/der Organisatorin manuell eingeben oder aus einer Liste von 
+$string['organizatorname_help'] = 'Sie können den Namen des Organisators/der Organisatorin manuell eingeben oder aus einer Liste von
                                     früheren Organisator*innen auswählen. Sie können nur eine/n Organisator/in angeben. Sobald
                                     Sie speichern, wird der/die Organisator/in zur Liste hinzugefügt.';
 $string['availableplaces'] = 'Verfügbare Plätze: {$a->available} von {$a->maxanswers}';
@@ -258,7 +258,7 @@ $string['wrongdataallfields'] = 'Bitte alle Felder ausfüllen!';
 $string['tagsuccessfullysaved'] = 'Schlagwort erfolgreich gespeichert.';
 $string['edittag'] = 'Bearbeiten';
 
-// mod_booking\all_options
+// Mod_booking\all_options.
 $string['showdescription'] = 'Beschreibung anzeigen';
 $string['hidedescription'] = 'Beschreibung verstecken';
 $string['editteacherslink'] = 'Trainer/innen bearbeiten';
@@ -317,7 +317,7 @@ $string['notes'] = 'Anmerkungen zur Buchung';
 // Mail templates (Instanz-spezifisch oder global).
 $string['mailtemplatesadvanced'] = 'Erweiterte Einstelllungen für E-Mail-Vorlagen aktivieren';
 $string['mailtemplatessource'] = 'Quelle von E-Mail-Vorlagen festlegen (PRO)';
-$string['mailtemplatessource_help'] = '<b>Achtung:</b> Wenn Sie globale E-Mail-Vorlagen wählen, werden die Instanz-spezifischen 
+$string['mailtemplatessource_help'] = '<b>Achtung:</b> Wenn Sie globale E-Mail-Vorlagen wählen, werden die Instanz-spezifischen
 E-Mail-Vorlagen nicht verwendet, sondern die E-Mail-Vorlagen, die in den Einstellungen des Buchungs-Plugins angelegt
 wurden. <br><br>Bitte stellen Sie sicher, dass zu allen E-Mail-Typen eine Vorlage vorhanden ist.';
 $string['mailtemplatesinstance'] = 'E-Mail-Vorlagen aus dieser Buchungsinstanz verwenden (Standard)';
@@ -782,7 +782,7 @@ $string['customlabels'] = 'Benutzerdefinierte Bezeichnungen';
 $string['editinstitutions'] = 'Institutionen bearbeiten';
 $string['entervalidurl'] = 'Bitte geben Sie eine gültige URL an!';
 $string['eventtype'] = 'Art des Ereignisses';
-$string['eventtype_help'] = 'Sie können den Namen der Ereignisart manuell eingeben oder aus einer Liste von 
+$string['eventtype_help'] = 'Sie können den Namen der Ereignisart manuell eingeben oder aus einer Liste von
                             früheren Ereignisarten auswählen. Sie können nur eine Ereignisart angeben. Sobald
                             Sie speichern, wird die Ereignisart zur Liste hinzugefügt.';
 $string['groupname'] = 'Gruppenname';
@@ -842,8 +842,8 @@ $string['copy'] = ' - Kopie';
 $string['enrolmentstatus'] = 'Nutzer/innen nicht sofort in Kurs einschreiben sondern erst zu Kursbeginn';
 $string['duplicatename'] = 'Diese Bezeichnung für eine Buchungsoption existiert bereits. Bitte wählen Sie eine andere.';
 $string['newtemplatesaved'] = 'Neue Buchungsoptionsvorlage wurde gespeichert.';
-$string['option_template_not_saved_no_valid_license'] = 'Buchungsoption konnte nicht als Vorlage gespeichert werden. 
-                                                  Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen 
+$string['option_template_not_saved_no_valid_license'] = 'Buchungsoption konnte nicht als Vorlage gespeichert werden.
+                                                  Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen
                                                   zu können.';
 
 // Option_form.php.
@@ -1084,13 +1084,13 @@ $string['importexceltitle'] = 'Aktivitätsabschluss importieren';
 // Importexcel_file.php.
 $string['excelfile'] = 'CSV Datei mit Aktivitätsabschluss';
 
-// instancetemplateadd.php
+// Instancetemplateadd.php.
 $string['saveinstanceastemplate'] = 'Buchung als Vorlage hinzufügen';
 $string['thisinstance'] = 'Diese Buchung';
 $string['instancetemplate'] = 'Buchungsvorlage';
 $string['instancesuccessfullysaved'] = 'Diese Buchung wurde erfolgreich als Vorlage gespeichert.';
-$string['instance_not_saved_no_valid_license'] = 'Buchung konnte nicht als Vorlage gespeichert werden. 
-                                                  Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen 
+$string['instance_not_saved_no_valid_license'] = 'Buchung konnte nicht als Vorlage gespeichert werden.
+                                                  Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen
                                                   zu können.';
 $string['bookinginstancetemplatessettings'] = 'Buchungsvorlagen';
 $string['bookinginstancetemplatename'] = 'Name der Buchungsvorlage';
@@ -1213,9 +1213,9 @@ $string['showdescriptioninline'] = 'Vollständige Beschreibungen direkt in der T
 $string['showdescriptionmodal'] = 'Info-Links anzeigen (Standard)';
 
 $string['showlistoncoursepagelbl'] = 'Liste mit verfügbaren Buchungsoptionen auf Kursseite anzeigen';
-$string['showlistoncoursepagelbl_help'] = 'Wenn Sie diese Einstellung aktivieren, wird eine Liste mit allen verfügbaren 
+$string['showlistoncoursepagelbl_help'] = 'Wenn Sie diese Einstellung aktivieren, wird eine Liste mit allen verfügbaren
                                 Buchungsoptionen direkt auf der Kursseite unter dem Link der Buchungsinstanz angezeigt.
-                                Sie können auch nur den Kursnamen, eine Kurzinfo und einen Button, der auf die 
+                                Sie können auch nur den Kursnamen, eine Kurzinfo und einen Button, der auf die
                                 verfügbaren Buchungsoptionen zeigt, anzeigen lassen.';
 $string['showlistoncoursepage'] = 'Ja, Liste auf Kursseite anzeigen (Standard)';
 $string['hidelistoncoursepage'] = 'Nein, Liste nicht auf Kursseite anzeigen';
@@ -1274,12 +1274,12 @@ $string['pdfsignature'] = "Unterschrift";
 $string['pdftodaydate'] = 'Datum: ';
 $string['linkgotobookingoption'] = 'Buchung anzeigen: {$a}</a>';
 
-// link.php
+// Link.php.
 $string['bookingnotopenyet'] = 'Ihr Event startet erst in {$a} Minuten. Dieser Link wird Sie ab 15 Minuten vor dem Event weiterleiten.';
 $string['bookingpassed'] = 'Dieses Event ist nicht mehr aktiv.';
 $string['linknotvalid'] = 'Sie scheinen dieses Meeting nicht gebucht zu haben.';
 
-// booking_utils.php
+// Booking_utils.php.
 $string['linknotavailableyet'] = 'Der Link auf die Konferenz ist nur zwischen 15 Minuten vor dem Meeting und dem Enddatum hier verfügbar.';
 $string['changeinfochanged'] = ' hat sich geändert:';
 $string['changeinfoadded'] = ' wurde hinzugefügt:';

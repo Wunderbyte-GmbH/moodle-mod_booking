@@ -14,25 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-// general strings
+// General strings.
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 
-// index.php
+// Index.php.
 $string['week'] = "Week";
 $string['question'] = "Question";
 $string['answer'] = "Answer";
 $string['topic'] = "Topic";
 
-// teacher_added.php
+// Teacher_added.php.
 $string['eventteacher_added'] = 'Teacher added';
 $string['eventteacher_removed'] = 'Teacher removed';
 
-// renderer.php
+// Renderer.php.
 $string['showonlymyinstitutions'] = "My institution";
 $string['addusertogroup'] = 'Add user to group: ';
 
-// view.php
+// View.php.
 $string['addmorebookings'] = 'Add more bookings';
 $string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
@@ -182,7 +182,7 @@ $string['repeatthisbooking'] = 'Repeat this option';
 $string['howmanytimestorepeat'] = 'How many times to repeat?';
 $string['howoftentorepeat'] = 'How often to repeat?';
 
-// Categories
+// Categories.
 $string['category'] = 'Category';
 $string['categories'] = 'Categories';
 $string['addcategory'] = 'Edit categories';
@@ -203,7 +203,7 @@ $string['bookingoptiondate_updated'] = 'Booking option date updated';
 $string['bookingoptiondate_deleted'] = 'Booking option date deleted';
 $string['custom_field_changed'] = 'Custom field changed';
 
-// view.php
+// View.php.
 $string['agreetobookingpolicy'] = 'I have read and agree to the following booking policies';
 $string['allbookingoptions'] = 'Download users for all booking options';
 $string['attachedfiles'] = 'Attached files';
@@ -274,7 +274,7 @@ $string['banusernameswarning'] = "Your username is banned so you can't book.";
 $string['duplicatebooking'] = 'Duplicate this booking option';
 $string['moveoptionto'] = 'Move booking option to other booking instance';
 
-// tag templates
+// Tag templates.
 $string['cancel'] = 'Cancel';
 $string['addnewtagtemplate'] = 'Add new';
 $string['addnewtagtemplate'] = 'Add new tag template';
@@ -286,12 +286,12 @@ $string['tagsuccessfullysaved'] = 'Tag was saved.';
 $string['edittag'] = 'Edit';
 $string['tagdeleted'] = 'Tag template was deleted!';
 
-// mod_booking\all_options
+// Mod_booking\all_options.
 $string['showdescription'] = 'Show description';
 $string['hidedescription'] = 'Hide description';
 $string['editteacherslink'] = 'Edit teachers';
 
-// mod_form
+// Mod_form.
 $string['signinlogoheader'] = 'Logo in header to display on the sign-in sheet';
 $string['signinlogofooter'] = 'Logo in footer to display on the sign-in sheet';
 $string['bookingoptiontext'] = "Booking option text depending on booking status";
@@ -347,7 +347,7 @@ $string['notes'] = 'Booking notes';
 // Mail templates (instance specific or global).
 $string['mailtemplatesadvanced'] = 'Activate advanced settings for e-mail templates';
 $string['mailtemplatessource'] = 'Set source of mail templates (PRO)';
-$string['mailtemplatessource_help'] = '<b>Caution:</b> If you choose global e-mail templates, the instance-specific mail 
+$string['mailtemplatessource_help'] = '<b>Caution:</b> If you choose global e-mail templates, the instance-specific mail
 templates won\'t be used. Instead the e-mail templates specified in the booking plugin settings will be used. <br><br>
 Please make sure that there are existing e-mail templates in the booking settings for each e-mail type.';
 $string['mailtemplatesinstance'] = 'Use mail templates from this booking instance (default)';
@@ -947,7 +947,7 @@ $string['showviews'] = 'Views to show in the booking options overview';
 $string['enablepresence'] = 'Enable presence';
 $string['removeuseronunenrol'] = 'Remove user from booking upon unenrolment from associated course?';
 
-// editoptions.php
+// Editoptions.php.
 $string['addeditbooking'] = 'Edit booking option';
 $string['addnewbookingoption'] = 'Add a new booking option';
 $string['addnewbookingoptionfromtemplate'] = 'Add a new booking option from template';
@@ -983,13 +983,13 @@ $string['newtemplatesaved'] = 'New template for booking option was saved.';
 $string['manageoptiontemplates'] = 'Manage booking option templates';
 $string['usedinbookinginstances'] = 'Template is used in following booking instances';
 $string['optiontemplatename'] = 'Option template name';
-$string['option_template_not_saved_no_valid_license'] = 'Booking option template could not be saved as template. 
+$string['option_template_not_saved_no_valid_license'] = 'Booking option template could not be saved as template.
                                                   Upgrade to PRO version to save an unlimited number of templates.';
 
 // Option_form.php.
 $string['submitandgoback'] = 'Save and go back';
 
-// importoptions.php
+// Importoptions.php.
 $string['csvfile'] = 'CSV file';
 $string['dateerror'] = 'Wrong date in line {$a}: ';
 $string['dateparseformat'] = 'Date parse format';
@@ -1003,7 +1003,7 @@ $string['import_failed'] = 'The import failed due to following reason: ';
 $string['import_partial'] = 'The import was only partially completed. There were problems with following lines and they were not imported: ';
 $string['importinfo'] = 'Import info: You can use the following columns in the csv upload (Explanation in parenthesis)';
 
-// Confirmation mail
+// Confirmation mail.
 $string['days'] = '{$a} days';
 $string['hours'] = '{$a} hours';
 $string['minutes'] = '{$a} minutes';
@@ -1132,7 +1132,7 @@ $string['notificationtextmessage'] = 'Course will start:
 Booking option: {$a->title}
 Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
 
-// report.php
+// Report.php.
 $string['addteachers'] = 'Add teachers';
 $string['allmailssend'] = 'All e-mails to the users have been sent!';
 $string['associatedcourse'] = 'Associated course';
@@ -1224,7 +1224,7 @@ $string['copytotemplate'] = 'Copy to template';
 $string['copytotemplatesucesfull'] = 'Booking option was sucesfully copied to template.';
 
 
-// Send message
+// Send message.
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';
 $string['booking:communicate'] = 'Can communicate';
 $string['confirmoptioncompletion'] = '(Un)confirm completion status';
@@ -1234,10 +1234,10 @@ $string['messagesend'] = 'Your message has been sent.';
 $string['messagesubject'] = 'Subject';
 $string['messagetext'] = 'Message';
 
-// teachers.php
+// Teachers.php.
 $string['users'] = '<< Manage responses';
 
-// lib.php
+// Lib.php.
 $string['pollstrftimedate'] = '%Y-%m-%d';
 $string['mybookings'] = 'My bookings';
 $string['bookuserswithoutcompletedactivity'] = "Book users without completed activity";
@@ -1248,30 +1248,30 @@ Booking status: {$a->status}<br>
 Participant: {$a->participant}<br>
 ';
 
-// all_users.php
+// All_users.php.
 $string['completed'] = 'Completed';
 $string['usersonlist'] = 'User on list';
 $string['fullname'] = 'Full name';
 $string['timecreated'] = 'Time created';
 $string['sendreminderemail'] = "Send reminder e-mail";
 
-// importexcel.php
+// Importexcel.php.
 $string['importexceltitle'] = 'Import activity completion';
 
-// importexcel_file.php
+// Importexcel_file.php.
 $string['excelfile'] = 'CSV file with activity completion';
 
-// institutions.php
+// Institutions.php.
 $string['institutions'] = 'Institutions';
 $string['addnewinstitution'] = 'Add new institution';
 
-// institutionform.class.php
+// Institutionform.class.php.
 $string['institutionname'] = 'Institution name';
 $string['addnewinstitution'] = 'Add new institution';
 $string['successfulldeletedinstitution'] = 'Institution was deleted';
 $string['csvfile_help'] = 'CSV file must contain only one column named Institution.';
 
-// otherbooking.php
+// Otherbooking.php.
 $string['otherbookingoptions'] = 'Accepting from';
 $string['otherbookingnumber'] = 'Num. of users';
 $string['otherbookingaddrule'] = 'Add new rule';
@@ -1279,13 +1279,13 @@ $string['editrule'] = "Edit";
 $string['deleterule'] = 'Delete';
 $string['deletedrule'] = 'Rule deleted.';
 
-// otherbookingaddrule_form.php
+// Otherbookingaddrule_form.php.
 $string['selectoptioninotherbooking'] = "Option";
 $string['otherbookinglimit'] = "Limit";
 $string['otherbookinglimit_help'] = "How many users you accept from option. If 0, you can accept unlimited users.";
 $string['otherbookingsuccessfullysaved'] = 'Rule saved!';
 
-// optiondates.php
+// Optiondates.php.
 $string['optiondatestime'] = 'Session time';
 $string['optiondatesmessage'] = 'Session {$a->number}: {$a->date} <br> From: {$a->starttime} <br> To: {$a->endtime}';
 $string['optiondatessuccessfullysaved'] = "Session time was saved.";
@@ -1296,12 +1296,12 @@ $string['editingoptiondate'] = 'You are currently editing this session';
 // Optiondatesadd_form.php.
 $string['addcustomfield'] = 'Add custom field';
 $string['customfieldname'] = 'Field name';
-$string['customfieldname_help'] = 'You can enter any field name you want. The special fieldnames 
+$string['customfieldname_help'] = 'You can enter any field name you want. The special fieldnames
                                     <ul>
                                         <li>TeamsMeeting</li>
                                         <li>ZoomMeeting</li>
                                         <li>BigBlueButtonMeeting</li>
-                                    </ul> in combination with a link in the value field will render buttons and links 
+                                    </ul> in combination with a link in the value field will render buttons and links
                                     which are only accessible during (and shortly before) the actual meetings.';
 $string['customfieldvalue'] = 'Value';
 $string['customfieldvalue_help'] = 'You can enter any value you want (text, number or HTML).<br>
@@ -1389,7 +1389,7 @@ $string['showdescriptioninline'] = 'Show full descriptions inline (right inside 
 $string['showdescriptionmodal'] = 'Show info links (default)';
 
 $string['showlistoncoursepagelbl'] = 'Show available booking options on course page';
-$string['showlistoncoursepagelbl_help'] = 'If you activate this setting, a list of available booking options will be 
+$string['showlistoncoursepagelbl_help'] = 'If you activate this setting, a list of available booking options will be
                                             shown right on the course page below the link of the booking instance.
                                             You can also choose to show only the course name, a short info and a button
                                             redirecting to the available booking options.';
@@ -1432,7 +1432,7 @@ $string['bookingplacesfullmessage'] = 'No booking places available anymore.';
 $string['eventalreadyover'] = 'This event is already over.';
 $string['nobookingpossible'] = 'No booking possible.';
 
-// Mobile
+// Mobile.
 $string['next'] = 'Next';
 $string['previous'] = 'Previous';
 // Privacy API.
@@ -1454,17 +1454,17 @@ $string['privacy:metadata:booking_teachers:userid'] = 'User that is teaching thi
 $string['privacy:metadata:booking_teachers:optionid'] = 'Which version of an event is taught';
 $string['privacy:metadata:booking_teachers:completed'] = 'If task is completed';
 
-// calendar.php
+// Calendar.php.
 $string['usercalendarentry'] = 'You are booked for <a href="{$a}">this session</a>.';
 $string['bookingoptioncalendarentry'] = '<a href="{$a}" class="btn btn-primary">Book now...</a>';
 
-// mybookings.php
+// Mybookings.php.
 $string['status'] = 'Status';
 $string['active'] = "Active";
 $string['terminated'] = "Terminated";
 $string['notstarted'] = "Not yet started";
 
-// subscribeusersctivity.php
+// Subscribeusersctivity.php.
 $string['transefusers'] = "Transfer users";
 $string['transferhelp'] = 'Transfer users, that have not completed activity from selected option to {$a}.';
 $string['sucesfullytransfered'] = 'Users were sucesfully transfered.';
@@ -1475,29 +1475,29 @@ $string['enablecompletion'] = 'Count of entries';
 $string['confirmuserswith'] = 'Confirm users who completed activity or received badge';
 $string['confirmusers'] = 'Confirm users activity';
 
-// optiontemplatessettings.php
+// Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Booking option templates';
 $string['defaulttemplate'] = 'Default template';
 $string['defaulttemplatedesc'] = 'Default booking option template when creating a new booking option.';
 $string['dontuse'] = 'Don\'t use template';
 
-// instancetemplateadd.php
+// Instancetemplateadd.php.
 $string['saveinstanceastemplate'] = 'Add booking instance to template';
 $string['thisinstance'] = 'This booking instance';
 $string['instancetemplate'] = 'Instance template';
 $string['instancesuccessfullysaved'] = 'This booking instance was sucesfully saved as template.';
-$string['instance_not_saved_no_valid_license'] = 'Booking instance could not be saved as template. 
+$string['instance_not_saved_no_valid_license'] = 'Booking instance could not be saved as template.
                                                   Upgrade to PRO version to save an unlimited number of templates.';
 $string['bookinginstancetemplatessettings'] = 'Booking instance templates';
 $string['bookinginstancetemplatename'] = 'Booking instance template name';
 $string['managebookinginstancetemplates'] = 'Manage booking instance templates';
 $string['populatefromtemplate'] = 'Populate from template';
 
-// mybookings
+// Mybookings.
 $string['mybookingsbooking'] = 'Booking (Course)';
 $string['mybookingsoption'] = 'Option';
 
-// Custom report templates
+// Custom report templates.
 $string['managecustomreporttemplates'] = 'Manage custom report templates';
 $string['customreporttemplates'] = 'Custom report templates';
 $string['customreporttemplate'] = 'Custom report template';
@@ -1554,4 +1554,3 @@ $string['bstlink'] = 'Show';
 // All_options.php.
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>You are already booked for this option.</i></div>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the waiting list for this option.</i></div>';
-
