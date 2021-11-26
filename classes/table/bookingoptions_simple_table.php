@@ -27,7 +27,6 @@ use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_utils;
 use moodle_exception;
 use moodle_url;
-use table_sql;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -35,6 +34,11 @@ defined('MOODLE_INTERNAL') || die();
  * Search results for managers are shown in a table (student search results use the template searchresults_student).
  */
 class bookingoptions_simple_table extends wunderbyte_table {
+
+    /**
+     * Cache an array of teacher names to save DB queries.
+     */
+    private $teachers = [];
 
     /**
      * Constructor
@@ -140,6 +144,25 @@ class bookingoptions_simple_table extends wunderbyte_table {
         // Do not show a link if there are no answers.
 
         return $link;
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * teacher(s) value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $link Returns a string containing all teacher names.
+     * @throws moodle_exception
+     * @throws coding_exception
+     */
+    public function col_teacher($values) {
+
+        // Only do this once for performance reasons.
+        if (empty($this->teachers)) {
+            $this->teachers = booking_utils::prepare_teachernames_arrays_for_optionids($this->rawdata);
+        }
+
+        return implode(', ', $this->teachers[$values->optionid]);
     }
 
     /**

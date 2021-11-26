@@ -1304,11 +1304,12 @@ $string['bstcourseendtime'] = 'Endzeit';
 $string['bstlocation'] = 'Ort';
 $string['bstinstitution'] = 'Institution';
 $string['bstparticipants'] = 'Teilnehmer/innen';
+$string['bstteacher'] = 'Trainer/in(nen)';
 $string['bstwaitinglist'] = 'Auf Warteliste';
 $string['bstmanageresponses'] = 'Antworten verwalten';
 $string['bstcourse'] = 'Kurs';
 $string['bstlink'] = 'Anzeigen';
 
-// All_options.php
+// All_options.php.
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>Sie haben diese Option bereits gebucht.</i></div>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der Warteliste für diese Option.</i></div>';

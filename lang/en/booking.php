@@ -1515,12 +1515,12 @@ $string['customprofilefield'] = 'Custom profile field to check';
 $string['customprofilefieldvalue'] = 'Custom profile field value to check';
 $string['optiontemplate'] = 'Option template';
 
-// link.php
+// Link.php.
 $string['bookingnotopenyet'] = 'Your event starts in {$a} minutes. The link you used will redirect you if you click it again within 15 minutes before.';
 $string['bookingpassed'] = 'Your event has ended.';
 $string['linknotvalid'] = 'You don\'t seem to be booked for this meeting';
 
-// booking_utils.php
+// Booking_utils.php.
 $string['linknotavailableyet'] = "The link to access the meeting is available only 15 minutes before the start until the end of the session.";
 $string['changeinfochanged'] = ' has changed:';
 $string['changeinfoadded'] = ' has been added:';
@@ -1545,12 +1545,13 @@ $string['bstcourseendtime'] = 'End time';
 $string['bstlocation'] = 'Location';
 $string['bstinstitution'] = 'Institution';
 $string['bstparticipants'] = 'Participants';
+$string['bstteacher'] = 'Teacher(s)';
 $string['bstwaitinglist'] = 'On waiting list';
 $string['bstmanageresponses'] = 'Manage responses';
 $string['bstcourse'] = 'Course';
 $string['bstlink'] = 'Show';
 
-// All_options.php
+// All_options.php.
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>You are already booked for this option.</i></div>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the waiting list for this option.</i></div>';
 

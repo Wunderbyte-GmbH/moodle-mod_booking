@@ -1331,4 +1331,37 @@ class booking_utils {
         global $DB;
         return $DB->get_field('booking_options', 'text', array('id' => $data->id));
     }
+
+    /**
+     * Prepare an associative array of optionids, each with an according array of teacher names.
+     * @param array $objectswithoptionids an array containing objects with optionids
+     * @return array
+     */
+    public static function prepare_teachernames_arrays_for_optionids(array $objectswithoptionids) {
+
+        global $DB;
+
+        // Prepare arrays of teacher names of every option to reduce DB-queries.
+        $list = [];
+        $teachers = [];
+        foreach ($objectswithoptionids as $objectentry) {
+            $list[] = $objectentry->optionid;
+            $teachers[$objectentry->optionid] = [];
+        }
+        list($insql, $inparams) = $DB->get_in_or_equal($list, SQL_PARAMS_NAMED, 'optionid_');
+
+        $sql = "SELECT DISTINCT bt.id, bt.userid, u.firstname, u.lastname, u.username, bt.optionid
+                FROM {booking_teachers} bt
+                JOIN m_user u
+                ON bt.userid = u.id
+                WHERE bt.optionid $insql";
+
+        if ($records = $DB->get_records_sql($sql, $inparams)) {
+            foreach ($records as $record) {
+                $teachers[$record->optionid][] = $record->lastname . ' ' . $record->firstname;
+            }
+        }
+
+        return $teachers;
+    }
 }
