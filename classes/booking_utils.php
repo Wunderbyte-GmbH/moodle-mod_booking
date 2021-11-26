@@ -1348,17 +1348,20 @@ class booking_utils {
             $list[] = $objectentry->optionid;
             $teachers[$objectentry->optionid] = [];
         }
-        list($insql, $inparams) = $DB->get_in_or_equal($list, SQL_PARAMS_NAMED, 'optionid_');
 
-        $sql = "SELECT DISTINCT bt.id, bt.userid, u.firstname, u.lastname, u.username, bt.optionid
-                FROM {booking_teachers} bt
-                JOIN m_user u
-                ON bt.userid = u.id
-                WHERE bt.optionid $insql";
+        if (!empty($list)) {
+            list($insql, $inparams) = $DB->get_in_or_equal($list, SQL_PARAMS_NAMED, 'optionid_');
 
-        if ($records = $DB->get_records_sql($sql, $inparams)) {
-            foreach ($records as $record) {
-                $teachers[$record->optionid][] = $record->lastname . ' ' . $record->firstname;
+            $sql = "SELECT DISTINCT bt.id, bt.userid, u.firstname, u.lastname, u.username, bt.optionid
+                    FROM {booking_teachers} bt
+                    JOIN m_user u
+                    ON bt.userid = u.id
+                    WHERE bt.optionid $insql";
+
+            if ($records = $DB->get_records_sql($sql, $inparams)) {
+                foreach ($records as $record) {
+                    $teachers[$record->optionid][] = $record->lastname . ' ' . $record->firstname;
+                }
             }
         }
 
