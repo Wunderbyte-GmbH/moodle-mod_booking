@@ -1,3 +1,13 @@
+7.0.21 (2021112600)
+* Bugfix: Fixed broken phpunit tests.
+* Bugfix: Use correct version number for Moodle 3.11 compatibility.
+* Bugfix: Fix bug where custom fields where not shown in modal.
+* Bugfix: Remove obsolete $plugin->cron.
+* Bugfix: Fix datestring to interpret HTML in coursepage_available_options template.
+
+7.0.20 (2021111602)
+* Improvement: Added better feedback for CSV importer.
+
 7.0.19 (2021110200)
 * Bugfix: Fixed a bug where wrong poll url messages where sent (to both participants and teachers).
 * Bugfix: Fixed a function in observer.php which didn't make sense.
