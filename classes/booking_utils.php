@@ -1355,7 +1355,7 @@ class booking_utils {
 
             $sql = "SELECT DISTINCT bt.id, bt.userid, u.firstname, u.lastname, u.username, bt.optionid
                     FROM {booking_teachers} bt
-                    JOIN m_user u
+                    JOIN {user} u
                     ON bt.userid = u.id
                     WHERE bt.optionid $insql";
 
