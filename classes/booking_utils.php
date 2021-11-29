@@ -762,7 +762,6 @@ class booking_utils {
             ];
         }
 
-
         return $returnitem;
     }
 
@@ -779,7 +778,9 @@ class booking_utils {
 
         if (empty($sessions)) {
             return false;
-        } else return true;
+        } else {
+            return true;
+        }
     }
 
     /**

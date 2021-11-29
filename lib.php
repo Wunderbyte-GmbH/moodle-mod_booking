@@ -176,8 +176,7 @@ function booking_supports($feature) {
  * @return array
  * @throws dml_exception
  */
-function booking_comment_permissions($commentparam): array
-{
+function booking_comment_permissions($commentparam): array {
     global $DB, $USER;
 
     $odata = $DB->get_record('booking_options', array('id' => $commentparam->itemid));
@@ -226,8 +225,7 @@ function booking_comment_permissions($commentparam): array
  * @category comment
  * @package mod_booking
  */
-function booking_comment_validate(stdClass $commentparam): bool
-{
+function booking_comment_validate(stdClass $commentparam): bool {
     global $DB;
 
     if ($commentparam->commentarea != 'booking_option') {
@@ -784,22 +782,20 @@ function booking_update_options($optionvalues, $context) {
         }
 
         return $option->id;
-    }
-    // new booking option record
-    else if (!empty($optionvalues->text)) {
-
-        // if option "Use as global template" has been set
+    } else if (!empty($optionvalues->text)) { // New booking option record.
+        // If option "Use as global template" has been set.
         if (isset($optionvalues->addastemplate) && $optionvalues->addastemplate == 1) {
 
-            // (1) count the number of booking options templates
-            $option_templates_data = $DB->get_records("booking_options", ['bookingid' => 0]);
-            $numberofoptiontemplates = count($option_templates_data);
+            // 1) count the number of booking options templates.
+            $optiontemplatesdata = $DB->get_records("booking_options", ['bookingid' => 0]);
+            $numberofoptiontemplates = count($optiontemplatesdata);
 
-            // (2) if the user has not activated a valid PRO license
-            // ... then only allow one booking option
+            // 2) if the user has not activated a valid PRO license, then only allow one booking option.
             if ($numberofoptiontemplates > 0 && !wb_payment::is_currently_valid_licensekey()) {
                 $dbrecord = $DB->get_record("booking_options", ['text' => $option->text]);
-                if (empty($dbrecord)) return 'BOOKING_OPTION_NOT_CREATED';
+                if (empty($dbrecord)) {
+                    return 'BOOKING_OPTION_NOT_CREATED';
+                }
             }
         }
 
@@ -817,7 +813,7 @@ function booking_update_options($optionvalues, $context) {
             $dbrecord = $DB->get_record("booking_options",
                 ['text' => $option->text,
                     'bookingid' => $option->bookingid]);
-            if (empty($dbrecord)){
+            if (empty($dbrecord)) {
                 $optionid = $DB->insert_record("booking_options", $option);
             } else {
                 $optionid = $dbrecord->id;
