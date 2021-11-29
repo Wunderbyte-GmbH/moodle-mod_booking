@@ -1,3 +1,7 @@
+## Version 7.0.22 (2021112900)
+**Bugfixes:**
+* Fixed a broken SQL statement which caused an error in the Quickfinder Block.
+
 ## Version 7.0.21 (2021112600)
 **Bugfixes:**
 * Fixed broken phpunit tests.
