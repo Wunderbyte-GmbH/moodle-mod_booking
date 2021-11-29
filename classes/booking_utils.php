@@ -275,10 +275,11 @@ class booking_utils {
             if ($values->waitinglist) {
                 $booked .= '<div class="btn alert-info col-ap-onwaitinglist">' . get_string('onwaitinglist', 'booking') . '</div>';
             } else if ($inpast) {
-                $booked .= '<div class="btn alert-success col-ap-bookedpast">' . get_string('bookedpast', 'booking') . $completed . $status .
-                        '</div>';
+                $booked .= '<div class="btn alert-success col-ap-bookedpast">' . get_string('bookedpast', 'booking')
+                    . $completed . $status . '</div>';
             } else {
-                $booked .= '<div class="btn alert-success col-ap-booked">' . get_string('booked', 'booking') . $completed . $status . '</div>';
+                $booked .= '<div class="btn alert-success col-ap-booked">' . get_string('booked', 'booking')
+                    . $completed . $status . '</div>';
             }
         } else {
             if (!$coursepage) {
@@ -294,7 +295,6 @@ class booking_utils {
                         'whichview' => 'showonlyone',
                         'optionid' => $values->id);
             }
-
 
             $url = new moodle_url($baseurl . '/mod/booking/view.php', $buttonoptions);
 
@@ -329,7 +329,7 @@ class booking_utils {
             $button = '<div class="col-ap-norighttobook">' . get_string('norighttobook', 'booking') . "</div><br/>";
         }
 
-        // We only run this if we are not on coursepage
+        // We only run this if we are not on coursepage.
         if (!$coursepage) {
             if (has_capability('mod/booking:readresponses', $context) || $values->isteacher) {
                 if (groups_get_activity_groupmode($booking->cm) == SEPARATEGROUPS
@@ -482,7 +482,7 @@ class booking_utils {
             && $end > $now) {
             return true;
         } else {
-            // If we return false here, we first have to calculate secondstostart
+            // If we return false here, we first have to calculate secondstostart.
             $delta = $start - $now;
 
             if ($delta < 0) {
@@ -560,7 +560,7 @@ class booking_utils {
             case 'ZoomMeeting':
             case 'BigBlueButtonMeeting':
             case 'TeamsMeeting':
-                // If the session is not yet about to begin, we show placeholder
+                // If the session is not yet about to begin, we show placeholder.
                 return $this->render_meeting_fields($bookingoption, $sessionid, $field, $descriptionparam, $forbookeduser);
             default:
                 return [
@@ -610,7 +610,7 @@ class booking_utils {
                                     'sessionid' => $sessionid,
                                     'fieldid' => $field->id
                             ));
-                    $encodedlink = booking_utils::booking_encode_moodle_url($moodleurl);
+                    $encodedlink = self::booking_encode_moodle_url($moodleurl);
 
                     return [
                             'name' => null,
@@ -692,7 +692,7 @@ class booking_utils {
         // Todo: We could delete all calendar entries of this option here, if addtocalendar is 0.
         // But we are not sure if it's a good idea.
 
-        // We trigger the event only if we have real changes OR if we set the calendar entry to 1
+        // We trigger the event only if we have real changes OR if we set the calendar entry to 1.
         if (count($changes) > 0 || $addtocalendar == 1) {
             // Also, we need to trigger the bookingoption_updated event, in order to update calendar entries.
             $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
@@ -743,10 +743,12 @@ class booking_utils {
 
                 // We show this only if timevalues are not 0.
                 if ($session->coursestarttime != 0 && $session->courseendtime != 0) {
-                    $returnsession['datestring'] = $this->return_string_from_dates($session->coursestarttime, $session->courseendtime);
-                    // customfields can only be displayed in combination with timevalues.
+                    $returnsession['datestring'] = $this->return_string_from_dates($session->coursestarttime,
+                        $session->courseendtime);
+                    // Customfields can only be displayed in combination with timevalues.
                     if ($withcustomfields) {
-                        $returnsession['customfields'] = $this->return_array_of_customfields($bookingoption, $fields, $session->id, $descriptionparam, $forbookeduser);
+                        $returnsession['customfields'] = $this->return_array_of_customfields($bookingoption,
+                            $fields, $session->id, $descriptionparam, $forbookeduser);
                     }
                 }
                 if ($returnsession) {
@@ -911,7 +913,7 @@ class booking_utils {
      * @param $newoption stdClass the new booking option object
      * @return array an array containing the changes that have been made
      */
-    function booking_option_get_changes($oldoption, $newoption) {
+    public function booking_option_get_changes($oldoption, $newoption) {
         $returnarry = [];
 
         if (isset($oldoption->text)
@@ -988,7 +990,9 @@ class booking_utils {
         }
         if (count($returnarry) > 0) {
             return $returnarry;
-        } else return [];
+        } else {
+            return [];
+        }
     }
 
     /**
@@ -998,7 +1002,7 @@ class booking_utils {
      * @param $newoptiondate stdClass the new session object
      * @return array an array containing the changes that have been made
      */
-    function booking_optiondate_get_changes($oldoptiondate, $newoptiondate) {
+    public function booking_optiondate_get_changes($oldoptiondate, $newoptiondate) {
         $changes = [];
 
         if (isset($oldoptiondate->coursestarttime)
@@ -1058,7 +1062,9 @@ class booking_utils {
             if ($event = $DB->get_record('event', ['id' => $userevent->eventid])) {
                 $event->visible = 0;
                 $DB->update_record('event', $event);
-            } else return false;
+            } else {
+                return false;
+            }
         }
     }
 
@@ -1074,7 +1080,9 @@ class booking_utils {
             if ($event = $DB->get_record('event', ['id' => $userevent->eventid])) {
                 $event->visible = 1;
                 $DB->update_record('event', $event);
-            } else return false;
+            } else {
+                return false;
+            }
         }
     }
 
@@ -1138,7 +1146,7 @@ class booking_utils {
         $result->subscribedusers = 0;
 
         // Part 1: Book cohort members.
-        foreach($fromform->cohortids as $cohortid) {
+        foreach ($fromform->cohortids as $cohortid) {
 
             // Retrieve all users of this cohort.
             $sql = "SELECT u.*
@@ -1178,7 +1186,7 @@ class booking_utils {
         }
 
         // Part 2: Book group members.
-        foreach($fromform->groupids as $groupid) {
+        foreach ($fromform->groupids as $groupid) {
 
             // Retrieve all users of this group.
             $sql = "SELECT u.*
@@ -1289,16 +1297,16 @@ class booking_utils {
         } else {
             do {
                 // This will be set to true as soon as we have a really unique name.
-                $is_really_unique = false;
+                $isreallyunique = false;
 
-                $key = substr(str_shuffle(MD5(microtime())), 0, 5);
+                $key = substr(str_shuffle(md5(microtime())), 0, 5);
 
                 $uniquetext = $visiblename . $separator . $key;
 
-                if(empty($DB->get_records('booking_options', ['bookingid' => $bookingid, 'text' => $uniquetext]))) {
-                    $is_really_unique = true;
+                if (empty($DB->get_records('booking_options', ['bookingid' => $bookingid, 'text' => $uniquetext]))) {
+                    $isreallyunique = true;
                 }
-            } while (!$is_really_unique);
+            } while (!$isreallyunique);
 
             return $uniquetext;
         }

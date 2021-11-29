@@ -727,11 +727,23 @@ function booking_update_options($optionvalues, $context) {
                         if ($customfieldid) {
                             $customfield = new stdClass();
                             $customfield->id = $customfieldid;
-                            $customfield->value = (is_array($optionvalues->$fieldcfgname) ? implode("\n", $optionvalues->$fieldcfgname) : $optionvalues->$fieldcfgname);;
+
+                            if (is_array($optionvalues->$fieldcfgname)) {
+                                $customfield->value = implode("\n", $optionvalues->$fieldcfgname);
+                            } else {
+                                $customfield->value = $optionvalues->$fieldcfgname;
+                            }
+
                             $DB->update_record('booking_customfields', $customfield);
                         } else {
                             $customfield = new stdClass();
-                            $customfield->value = (is_array($optionvalues->$fieldcfgname) ? implode("\n", $optionvalues->$fieldcfgname) : $optionvalues->$fieldcfgname);
+
+                            if (is_array($optionvalues->$fieldcfgname)) {
+                                $customfield->value = implode("\n", $optionvalues->$fieldcfgname);
+                            } else {
+                                $customfield->value = $optionvalues->$fieldcfgname;
+                            }
+
                             $customfield->optionid = $option->id;
                             $customfield->bookingid = $booking->id;
                             $customfield->cfgname = $fieldcfgname;
@@ -855,7 +867,13 @@ function booking_update_options($optionvalues, $context) {
             foreach ($customfields as $fieldcfgname => $field) {
                 if (!empty($optionvalues->$fieldcfgname)) {
                     $customfield = new stdClass();
-                    $customfield->value = (is_array($optionvalues->$fieldcfgname) ? implode("\n", $optionvalues->$fieldcfgname) : $optionvalues->$fieldcfgname);
+
+                    if (is_array($optionvalues->$fieldcfgname)) {
+                        $customfield->value = implode("\n", $optionvalues->$fieldcfgname);
+                    } else {
+                        $customfield->value = $optionvalues->$fieldcfgname;
+                    }
+
                     $customfield->optionid = $optionid;
                     $customfield->bookingid = $booking->id;
                     $customfield->cfgname = $fieldcfgname;
@@ -1008,10 +1026,10 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     $contextcourse = context_course::instance($course->id);
     $optionid = $PAGE->url->get_param('optionid');
 
-    $booking_is_teacher = false; // set to false by default
+    $bookingisteacher = false; // Set to false by default.
     if (!is_null($optionid) && $optionid > 0) {
         $option = new booking_option($cm->id, $optionid);
-        $booking_is_teacher = booking_check_if_teacher ($option->option);
+        $bookingisteacher = booking_check_if_teacher ($option->option);
     }
 
     if (!$course) {
@@ -1023,7 +1041,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         has_capability('mod/booking:addeditownoption', $context) ||
         has_capability ( 'mod/booking:subscribeusers', $context ) ||
         has_capability ( 'mod/booking:readresponses', $context ) ||
-        $booking_is_teacher) {
+        $bookingisteacher) {
         $settingnode = $navref->add(get_string("thisinstance", "booking"), null,
         navigation_node::TYPE_CONTAINER);
     }
@@ -1659,8 +1677,8 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             $userdata->timemodified = time();
 
             // Trigger the completion event, in order to send the notification mail.
-            $event = \mod_booking\event\bookingoption_completed::create(array('context' => context_module::instance($cmid), 'objectid' => $optionid,
-                'relateduserid' => $selecteduser, 'other' => ['cmid' => $cmid]));
+            $event = \mod_booking\event\bookingoption_completed::create(array('context' => context_module::instance($cmid),
+                'objectid' => $optionid, 'relateduserid' => $selecteduser, 'other' => ['cmid' => $cmid]));
             $event->trigger();
 
             $DB->update_record('booking_answers', $userdata);
@@ -1842,12 +1860,15 @@ function booking_rating_permissions($contextid, $component, $ratingarea) {
 /**
  * Validates a submitted rating. OBSOLETE?
  *
- * @param array $params submitted data context => object the context in which the rated items exists [required] component => The component for this
- *            module - should always be mod_forum [required] ratingarea => object the context in which the rated items exists [required] itemid => int
- *            the ID of the object being rated [required] scaleid => int the scale from which the user can select a rating. Used for bounds checking.
- *            [required] rating => int the submitted rating [required] rateduserid => int the id of the user whose items have been rated. NOT the user
- *            who submitted the ratings. 0 to update all. [required] aggregation => int the aggregation method to apply when calculating grades ie
- *            RATING_AGGREGATE_AVERAGE [required]
+ * @param array $params submitted data context => object the context in which the rated items exists [required]
+ * component => The component for this module - should always be mod_forum [required]
+ * ratingarea => object the context in which the rated items exists [required]
+ * itemid => int the ID of the object being rated [required]
+ * scaleid => int the scale from which the user can select a rating. Used for bounds checking. [required]
+ * rating => int the submitted rating [required]
+ * rateduserid => int the id of the user whose items have been rated.
+ *      NOT the user who submitted the ratings. 0 to update all. [required]
+ * aggregation => int the aggregation method to apply when calculating grades i.e. RATING_AGGREGATE_AVERAGE [required]
  * @return boolean true if the rating is valid. Will throw rating_exception if not
  * @throws coding_exception
  * @throws dml_exception
@@ -1925,7 +1946,7 @@ function booking_rating_validate($params) {
  * Rate users.
  *
  * @param stdClass $ratings
- * @param array $params
+ * @param stdClass $params
  * @throws coding_exception
  * @throws dml_exception
  * @throws moodle_exception
@@ -1956,7 +1977,7 @@ function booking_rate($ratings, $params) {
             $ratingarea);
 
     if (!$pluginpermissionsarray['rate']) {
-        print_error('ratepermissiondenied', 'rating');
+        throw new moodle_exception('ratepermissiondenied', 'rating');
     } else {
         foreach ($ratings as $rating) {
             $checks = array('context' => $context, 'component' => $component,
@@ -2040,7 +2061,8 @@ function booking_sendpollurlteachers(booking_option $bookingoption, $cmid, $opti
     foreach ($teachers as $tuser) {
         $userdata = $DB->get_record('user', array('id' => $tuser->userid));
 
-        $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option, $userdata,
+        $params = booking_generate_email_params($bookingoption->booking->settings,
+            $bookingoption->option, $userdata,
                 $cmid, $bookingoption->optiontimes, false, false, true);
 
         $pollurlmessage = booking_get_email_body($bookingoption->booking->settings, 'pollurlteacherstext',
@@ -2470,7 +2492,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $bookinglink = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
     $bookinglink = html_writer::link($bookinglink, $bookinglink->out());
 
-    // Default params:
+    // Default params.
     if (!$issessionreminder) {
         $params->qr_id = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
             rawurlencode($user->id) . '&choe=UTF-8" title="Link to Google.com" />';
@@ -2567,7 +2589,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     // We also add the URLs for the user to subscribe to user and course event calendar.
     $bu = new booking_utils();
     // Fix: These links should not be clickable (beacuse they will be copied by users), so add <pre>-Tags.
-    $params->usercalendarurl =  '<a href="#" style="text-decoration:none; color:#000">' .
+    $params->usercalendarurl = '<a href="#" style="text-decoration:none; color:#000">' .
                                 $bu->booking_generate_calendar_subscription_link($user, 'user') .
                                 '</a>';
     $params->coursecalendarurl = '<a href="#" style="text-decoration:none; color:#000">' .
