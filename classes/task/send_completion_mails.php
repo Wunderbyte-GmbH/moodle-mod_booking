@@ -15,14 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking\task;
 
+defined('MOODLE_INTERNAL') || die();
+
 global $CFG;
 
 use core\message\message;
 use mod_booking\booking_option;
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Adhoc Task to send notification mails when the completion status of a user changes to complete.
@@ -63,8 +63,7 @@ class send_completion_mails extends \core\task\adhoc_task {
                 $bookingoption = new booking_option($taskdata->cmid, $taskdata->optionid);
 
                 $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option,
-                    $touser, $taskdata->cmid, $bookingoption->optiontimes, false, false,
-                    true);
+                    $touser, $taskdata->cmid, $bookingoption->optiontimes, false, false, true);
 
                 $message = booking_get_email_body($bookingoption->booking->settings, 'activitycompletiontext',
                     'activitycompletiontextmessage', $params);
