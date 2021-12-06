@@ -17,11 +17,14 @@
  * View confirmation message
  *
  * @package Booking
- * @copyright 2016 Andraž Prinčič www.princic.net
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author 2016 Andraž Prinčič www.princic.net
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
+
+use mod_booking\booking_option;
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT); // Option ID.
@@ -34,12 +37,12 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 
-if (!$booking = new mod_booking\booking_option($id, $optionid, array(), 0, 0, false)) {
+if (!$bookingoption = new booking_option($id, $optionid, array(), 0, 0, false)) {
     throw new invalid_parameter_exception("Course module id is incorrect");
 }
 
 if (!$context = context_module::instance($cm->id)) {
-    print_error('badcontext');
+    throw new moodle_exception('badcontext');
 }
 
 $PAGE->navbar->add(get_string("bookedtext", "booking"));
@@ -57,14 +60,14 @@ if (!$answer) {
     echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id' => $course->id)));
     echo $OUTPUT->footer();
 }
-$bookingmanager = $DB->get_record('user', array('username' => $booking->booking->settings->bookingmanager));
-$data = booking_generate_email_params($booking->booking->settings, $booking->option, $user, $cm->id, $booking->optiontimes,
-    false, false, true);
+$bookingmanager = $DB->get_record('user', array('username' => $bookingoption->booking->settings->bookingmanager));
+$data = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option,
+    $user, $cm->id, $bookingoption->optiontimes, false, false, true);
 
 if ($answer->waitinglist == 1) {
-    $message = booking_get_email_body($booking->booking->settings, 'waitingtext', 'confirmationmessage', $data);
+    $message = booking_get_email_body($bookingoption->booking->settings, 'waitingtext', 'confirmationmessage', $data);
 } else {
-    $message = booking_get_email_body($booking->booking->settings, 'bookedtext', 'confirmationmessagewaitinglist', $data);
+    $message = booking_get_email_body($bookingoption->booking->settings, 'bookedtext', 'confirmationmessagewaitinglist', $data);
 }
 
 echo "{$message}";

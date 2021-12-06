@@ -25,6 +25,7 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use mod_booking\booking_option;
 use mod_booking\booking_utils;
+use mod_booking\settings;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\utils\wb_payment;
@@ -2061,9 +2062,8 @@ function booking_sendpollurlteachers(booking_option $bookingoption, $cmid, $opti
     foreach ($teachers as $tuser) {
         $userdata = $DB->get_record('user', array('id' => $tuser->userid));
 
-        $params = booking_generate_email_params($bookingoption->booking->settings,
-            $bookingoption->option, $userdata,
-                $cmid, $bookingoption->optiontimes, false, false, true);
+        $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option,
+            $userdata, $cmid, $bookingoption->optiontimes, false, false, true);
 
         $pollurlmessage = booking_get_email_body($bookingoption->booking->settings, 'pollurlteacherstext',
                 'pollurlteacherstextmessage', $params);
@@ -2463,14 +2463,14 @@ function booking_pretty_duration($seconds) {
 /**
  * Prepares the data to be sent with confirmation mail
  *
- * @param stdClass $booking
+ * @param stdClass $settings
  * @param stdClass $option
  * @param stdClass $user
  * @param int $cmid
  * @return stdClass data to be sent via mail
  */
-function booking_generate_email_params(stdClass $booking, stdClass $option, stdClass $user, $cmid,
-                                       $optiontimes = array(), $changes = false, $issessionreminder = false,
+function booking_generate_email_params(settings $settings, stdClass $option, stdClass $user, $cmid,
+                                       $optiontimes = '', $changes = false, $issessionreminder = false,
                                        $includebookingdetails = false) {
     global $CFG, $PAGE;
 
@@ -2499,11 +2499,11 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
         $params->qr_username = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
             rawurlencode($user->username) . '&choe=UTF-8" title="Link to Google.com" />';
 
-        $params->status = booking_get_user_status($user->id, $option->id, $booking->id, $cmid);
+        $params->status = booking_get_user_status($user->id, $option->id, $settings->id, $cmid);
         $params->participant = fullname($user);
         $params->email = $user->email;
         $params->title = format_string($option->text);
-        $params->duration = $booking->duration;
+        $params->duration = $settings->duration;
         $params->starttime = $option->coursestarttime ? userdate($option->coursestarttime, $timeformat) : '';
         $params->endtime = $option->courseendtime ? userdate($option->courseendtime, $timeformat) : '';
         $params->startdate = $option->coursestarttime ? userdate($option->coursestarttime, $dateformat) : '';
@@ -2513,17 +2513,17 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
         $params->location = $option->location;
         $params->institution = $option->institution;
         $params->address = $option->address;
-        $params->eventtype = $booking->eventtype;
+        $params->eventtype = $settings->eventtype;
         $params->shorturl = $option->shorturl;
         $params->pollstartdate = $option->coursestarttime ? userdate((int) $option->coursestarttime,
             get_string('pollstrftimedate', 'booking')) : '';
         if (empty($option->pollurl)) {
-            $params->pollurl = $booking->pollurl;
+            $params->pollurl = $settings->pollurl;
         } else {
             $params->pollurl = $option->pollurl;
         }
         if (empty($option->pollurlteachers)) {
-            $params->pollurlteachers = $booking->pollurlteachers;
+            $params->pollurlteachers = $settings->pollurlteachers;
         } else {
             $params->pollurlteachers = $option->pollurlteachers;
         }
@@ -2580,7 +2580,7 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
 
     } else {
         // Params for specific session reminders.
-        $params->status = booking_get_user_status($user->id, $option->id, $booking->id, $cmid);
+        $params->status = booking_get_user_status($user->id, $option->id, $settings->id, $cmid);
         $params->participant = fullname($user);
         $params->email = $user->email;
         $params->sessiondescription = get_rendered_eventdescription($option, $cmid, $optiontimes[0], DESCRIPTION_CALENDAR);

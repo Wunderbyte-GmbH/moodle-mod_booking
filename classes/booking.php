@@ -18,6 +18,7 @@ namespace mod_booking;
 use html_writer;
 use stdClass;
 use moodle_url;
+use mod_booking\settings;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -38,10 +39,7 @@ class booking {
     /** @var number id booking id  */
     public $id = 0;
 
-    /**
-     *
-     * @var \context the context of the course module for this booking instance (or just the course if we are
-     */
+    /** @var \context the context of the course module for this booking instance (or just the course) */
     public $context = null;
 
     /** @var stdClass the course this booking instance belongs to */
@@ -56,23 +54,16 @@ class booking {
     /** @var array users who are members of the current users group */
     public $groupmembers = array();
 
-    /** @var booking booking object from booking instance settings */
-    public $settings;
+    /** @var settings booking instance settings */
+    public $settings = null;
 
-    /**
-     * @var array $alloptions option objects indexed by optionid
-     */
+    /** @var array $alloptions option objects indexed by optionid */
     protected $alloptions = array();
 
-    /**
-     * @var array of ids
-     */
+    /** @var array of ids */
     protected $optionids = array();
 
-    /**
-     *
-     * @var number of bookings a user has made
-     */
+    /** @var number of bookings a user has made */
     protected $userbookings = null;
 
     /**
@@ -89,7 +80,10 @@ class booking {
                 'id, fullname, shortname, groupmode, groupmodeforce, visible', MUST_EXIST);
         $this->id = $this->cm->instance;
         $this->context = \context_module::instance($cmid);
-        $this->settings = $DB->get_record("booking", array("id" => $this->id));
+
+        // Create settings class.
+        $this->settings = new settings($this->id);
+
         // If the course has groups and I do not have the capability to see all groups, show only
         // users of my groups.
         if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS &&
@@ -127,8 +121,8 @@ class booking {
      * $this->canbookusers
      */
     public function get_canbook_userids() {
-        // TODO check if course has guest access if not get all enrolled users and check with
-        // has_capability if user has right to book
+        // TODO check if course has guest access if not get all enrolled users and check with...
+        // ...has_capability if user has right to book.
         // $this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose',
         // 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '',
         // '', true, true);
@@ -180,7 +174,7 @@ class booking {
         global $DB;
 
         $limit = '';
-        $rsearch = self::searchparameters($searchtext);
+        $rsearch = $this->searchparameters($searchtext);
         $search = $rsearch['query'];
         $params = array_merge(array('bookingid' => $this->id), $rsearch['params']);
 
@@ -188,7 +182,9 @@ class booking {
             $limit = " LIMIT {$limitfrom},{$limitnum}";
         }
 
-        return $DB->get_records_sql("SELECT {$fields} FROM {booking_options} bo WHERE bo.bookingid = :bookingid {$search} ORDER BY bo.coursestarttime ASC {$limit}", $params);
+        return $DB->get_records_sql(
+            "SELECT {$fields} FROM {booking_options} bo " .
+            "WHERE bo.bookingid = :bookingid {$search} ORDER BY bo.coursestarttime ASC {$limit}", $params);
     }
 
     public function get_all_options_count($searchtext = '') {
@@ -197,12 +193,13 @@ class booking {
         $search = '';
         $params = array();
 
-        $rsearch = self::searchparameters($searchtext);
+        $rsearch = $this->searchparameters($searchtext);
 
         $search = $rsearch['query'];
         $params = array_merge(array('bookingid' => $this->id), $rsearch['params']);
 
-        return $DB->count_records_sql("SELECT COUNT(*) FROM {booking_options} bo WHERE bo.bookingid = :bookingid {$search}", $params);
+        return $DB->count_records_sql(
+            "SELECT COUNT(*) FROM {booking_options} bo WHERE bo.bookingid = :bookingid {$search}", $params);
     }
 
     /**
@@ -226,7 +223,7 @@ class booking {
         global $DB;
 
         $limit = '';
-        $rsearch = self::searchparameters($searchtext);
+        $rsearch = $this->searchparameters($searchtext);
         $search = $rsearch['query'];
         $params = array_merge(array('bookingid' => $this->id, 'time' => time()), $rsearch['params']);
 
@@ -234,8 +231,10 @@ class booking {
             $limit = " LIMIT {$limitfrom},{$limitnum}";
         }
 
-        return $DB->get_records_sql("SELECT bo.id FROM {booking_options} bo WHERE bo.bookingid = :bookingid AND (bo.courseendtime > :time OR bo.courseendtime = 0)" .
-        " {$search} {$limit}", $params);
+        return $DB->get_records_sql(
+            "SELECT bo.id FROM {booking_options} bo " .
+            "WHERE bo.bookingid = :bookingid AND (bo.courseendtime > :time OR bo.courseendtime = 0)" .
+            " {$search} {$limit}", $params);
     }
 
     public function get_active_optionids_count($bookingid, $searchtext = '') {
@@ -244,13 +243,15 @@ class booking {
         $search = '';
         $params = array();
 
-        $rsearch = self::searchparameters($searchtext);
+        $rsearch = $this->searchparameters($searchtext);
 
         $search = $rsearch['query'];
         $params = array_merge(array('bookingid' => $this->id, 'time' => time()), $rsearch['params']);
 
-        return $DB->count_records_sql("SELECT COUNT(*) FROM {booking_options} bo WHERE bo.bookingid = :bookingid AND (bo.courseendtime > :time OR bo.courseendtime = 0)" .
-        " {$search}", $params);
+        return $DB->count_records_sql(
+            "SELECT COUNT(*) FROM {booking_options} bo " .
+            "WHERE bo.bookingid = :bookingid AND (bo.courseendtime > :time OR bo.courseendtime = 0)" .
+            " {$search}", $params);
     }
 
     /**
@@ -275,7 +276,7 @@ class booking {
         global $DB, $USER;
 
         $limit = '';
-        $rsearch = self::searchparameters($searchtext);
+        $rsearch = $this->searchparameters($searchtext);
         $search = $rsearch['query'];
         $params = array_merge(array('bookingid' => $this->id, 'userid' => $USER->id), $rsearch['params']);
 
@@ -283,7 +284,8 @@ class booking {
             $limit = " LIMIT {$limitfrom},{$limitnum}";
         }
 
-        return $DB->get_records_sql("SELECT ba.optionid id FROM {booking_options} bo LEFT JOIN {booking_answers} ba ON ba.optionid = bo.id WHERE" .
+        return $DB->get_records_sql(
+            "SELECT ba.optionid id FROM {booking_options} bo LEFT JOIN {booking_answers} ba ON ba.optionid = bo.id WHERE" .
                 " ba.bookingid = :bookingid AND ba.userid = :userid {$search} {$limit}", $params);
     }
 
@@ -293,12 +295,13 @@ class booking {
         $search = '';
         $params = array();
 
-        $rsearch = self::searchparameters($searchstring);
+        $rsearch = $this->searchparameters($searchstring);
 
         $search = $rsearch['query'];
         $params = array_merge(array('bookingid' => $this->id, 'userid' => $USER->id), $rsearch['params']);
 
-        return $DB->count_records_sql("SELECT COUNT(*) FROM {booking_options} bo LEFT JOIN {booking_answers} ba ON ba.optionid = bo.id" .
+        return $DB->count_records_sql(
+            "SELECT COUNT(*) FROM {booking_options} bo LEFT JOIN {booking_answers} ba ON ba.optionid = bo.id" .
                 " WHERE ba.bookingid = :bookingid AND ba.userid = :userid {$search}", $params);
     }
 
@@ -332,7 +335,8 @@ class booking {
         $outdata->count = $this->get_user_booking_count($user);
         $outdata->eventtype = $this->settings->eventtype;
 
-        $warning .= html_writer::tag('div', get_string('maxperuserwarning', 'mod_booking', $outdata), array ('class' => 'alert alert-warning'));
+        $warning .= html_writer::tag('div', get_string('maxperuserwarning', 'mod_booking', $outdata),
+            array ('class' => 'alert alert-warning'));
         return $warning;
     }
 
@@ -497,10 +501,12 @@ class booking {
     public function checkautocreate() {
         global $USER, $DB;
 
-        if ($this->settings->autcractive && !empty($this->settings->autcrprofile) && !empty($this->settings->autcrvalue) && !empty($this->settings->autcrtemplate)) {
+        if ($this->settings->autcractive && !empty($this->settings->autcrprofile)
+            && !empty($this->settings->autcrvalue) && !empty($this->settings->autcrtemplate)) {
             $customfields = profile_user_record($USER->id);
 
-            if (isset($customfields->{$this->settings->autcrprofile}) && $customfields->{$this->settings->autcrprofile} == $this->settings->autcrvalue) {
+            if (isset($customfields->{$this->settings->autcrprofile}) &&
+                $customfields->{$this->settings->autcrprofile} == $this->settings->autcrvalue) {
 
                 $nrec = $DB->count_records('booking_teachers', array('userid' => $USER->id, 'bookingid' => $this->id));
 

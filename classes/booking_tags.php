@@ -16,11 +16,15 @@
 
 namespace mod_booking;
 
+use stdClass;
+use mod_booking\settings;
+
 /**
- * Tags templates
+ * Tags templates.
  *
- * @package mod-booking
- * @copyright 2014 Andraž Prinčič
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author 2014 Andraž Prinčič
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_tags {
@@ -29,10 +33,10 @@ class booking_tags {
 
     public $replaces;
 
-    public $optionschangetext = array('text', 'description', 'location', 'institution', 'address',
+    public $optiontextfields = array('text', 'description', 'location', 'institution', 'address',
             'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext');
 
-    public $bookingchangetext = array('name', 'intro', 'bookingpolicy', 'bookedtext', 'notifyemail',
+    public $bookingtextfields = array('name', 'intro', 'bookingpolicy', 'bookedtext', 'notifyemail',
             'waitingtext', 'statuschangetext', 'deletedtext', 'bookingchangedtext', 'duration', 'organizatorname',
             'pollurltext', 'eventtype', 'notificationtext', 'userleave', 'pollurlteacherstext',
             'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext');
@@ -40,7 +44,7 @@ class booking_tags {
     private $option;
 
     /**
-     * booking_tags constructor.
+     * Booking_tags constructor.
      *
      * @param integer $courseid
      * @throws \dml_exception
@@ -76,25 +80,24 @@ class booking_tags {
         return str_replace($this->replaces['keys'], $this->replaces['values'], $text);
     }
 
-    public function booking_replace($bookingtmp = null) {
-        $booking = clone $bookingtmp;
-        foreach ($booking as $key => $value) {
-            if (in_array($key, $this->bookingchangetext)) {
-                $booking->{$key} = $this->tag_replaces($booking->{$key});
+    public function booking_replace(settings $settings = null): settings {
+        $newsettings = clone $settings;
+        foreach ($newsettings as $key => $value) {
+            if (in_array($key, $this->bookingtextfields)) {
+                $newsettings->{$key} = $this->tag_replaces($newsettings->{$key});
             }
         }
-
-        return $booking;
+        return $newsettings;
     }
 
-    public function option_replace($option = null) {
-        $this->option = clone $option;
-        foreach ($this->option as $key => $value) {
-            if (in_array($key, $this->optionschangetext)) {
-                $this->option->{$key} = $this->tag_replaces($this->option->{$key});
+    // TODO: create new optionsettings class!
+    public function option_replace(stdClass $optionsettings = null): stdClass {
+        $newoptionsettings = clone $optionsettings;
+        foreach ($newoptionsettings as $key => $value) {
+            if (in_array($key, $this->optiontextfields)) {
+                $newoptionsettings->{$key} = $this->tag_replaces($newoptionsettings->{$key});
             }
         }
-
-        return $this->option;
+        return $newoptionsettings;
     }
 }

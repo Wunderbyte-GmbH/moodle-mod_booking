@@ -20,6 +20,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use html_writer;
 use mod_booking\utils\wb_payment;
+use mod_booking\settings;
 use moodle_url;
 use stdClass;
 
@@ -63,7 +64,6 @@ class booking_utils {
 
     }
 
-
     public function get_pretty_duration($seconds) {
         return $this->pretty_duration($seconds);
     }
@@ -84,16 +84,16 @@ class booking_utils {
     /**
      * Prepares the data to be sent with confirmation mail
      *
-     * @param stdClass $booking
+     * @param settings $settings
      * @return stdClass data to be sent via mail
      */
-    public function generate_params(stdClass $booking, stdClass $option = null) {
+    public function generate_params(settings $settings, stdClass $option = null) {
         global $DB, $CFG;
 
         $params = new stdClass();
 
-        $params->duration = $booking->duration;
-        $params->eventtype = $booking->eventtype;
+        $params->duration = $settings->duration;
+        $params->eventtype = $settings->eventtype;
 
         if (!is_null($option)) {
 
@@ -150,12 +150,12 @@ class booking_utils {
             if (!empty($option->pollurl)) {
                 $params->pollurl = $option->pollurl;
             } else {
-                $params->pollurl = $booking->pollurl;
+                $params->pollurl = $settings->pollurl;
             }
             if (!empty($option->pollurlteachers)) {
                 $params->pollurlteachers = $option->pollurlteachers;
             } else {
-                $params->pollurlteachers = $booking->pollurlteachers;
+                $params->pollurlteachers = $settings->pollurlteachers;
             }
 
             $val = '';

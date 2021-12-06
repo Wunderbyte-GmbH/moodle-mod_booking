@@ -21,8 +21,8 @@ use dml_exception;
 use invalid_parameter_exception;
 use stdClass;
 use moodle_url;
-use calendar_event;
 use mod_booking\booking_utils;
+use mod_booking\settings;
 use function get_config;
 
 defined('MOODLE_INTERNAL') || die();
@@ -55,16 +55,17 @@ class booking_option {
     /** @var array of users subscribeable to booking option if groups enabled, members of groups user has access to */
     public $potentialusers = array();
 
-    /** @var integer id of the booking option in table booking_options */
+    /** @var int id of the booking option in table booking_options */
     public $optionid = null;
 
-    /** @var booking option config object */
+    // TODO: We need to create a new optionsettings class for this!
+    /** @var stdClass option config object */
     public $option = null;
 
-    /** @var booking option teachers defined in booking_teachers table */
+    /** @var array booking option teachers defined in booking_teachers table */
     public $teachers = array();
 
-    /** @var number of answers */
+    /** @var int number of answers */
     public $numberofanswers = null;
 
     /** @var array of users filters */
@@ -79,34 +80,34 @@ class booking_option {
     /** @var array of user objects with users on waitinglist userid as key */
     public $usersonwaitinglist = array();
 
-    /** @var number of the page starting with 0 */
+    /** @var int number of the page starting with 0 */
     public $page = 0;
 
-    /** @var number of bookings displayed on a single page */
+    /** @var int number of bookings displayed on a single page */
     public $perpage = 0;
 
     /** @var string filter and other url params */
     public $urparams;
 
-    /** @var string $times course start time - course end time or session times separated with, */
+    /** @var string $times course start time - course end time or session times separated with a comma */
     public $optiontimes = '';
 
     /** @var array $sessions array of objects containing coursestarttime and courseendtime as object values */
     public $sessions = array();
 
-    /** @var boolean if I'm booked*/
+    /** @var boolean if I'm booked */
     public $iambooked = 0;
 
-    /** @var boolean if I'm on waiting list*/
+    /** @var boolean if I'm on waiting list */
     public $onwaitinglist = 0;
 
-    /** @var boolean if I completed?*/
+    /** @var boolean if I completed? */
     public $completed = 0;
 
-    /** @var int user on waiting list*/
+    /** @var int user on waiting list */
     public $waiting = 0;
 
-    /** @var int booked users*/
+    /** @var int booked users */
     public $booked = 0;
 
     /**
@@ -124,7 +125,10 @@ class booking_option {
 
         $this->booking = new booking($cmid);
         $this->optionid = $optionid;
+
+        // TODO: Create an optionsettings class for this!
         $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', MUST_EXIST);
+
         $times = $DB->get_records_sql(
                 "SELECT id, coursestarttime, courseendtime
                    FROM {booking_optiondates}
@@ -177,7 +181,7 @@ class booking_option {
      * TODO: cache this.
      *
      * @param $optionid
-     * @param integer $boid booking id
+     * @param int $boid booking id
      * @return booking_option
      * @throws coding_exception
      * @throws dml_exception
@@ -1345,25 +1349,30 @@ class booking_option {
     /**
      * Generate data for creating the group.
      *
-     * @param stdClass $bookingsettings
+     * @param settings $bookingsettings
      * @param stdClass $optionsettings
      * @return stdClass
      * @throws \moodle_exception
      */
-    public static function generate_group_data(stdClass $bookingsettings, stdClass $optionsettings) {
+    public static function generate_group_data(settings $bookingsettings, stdClass $optionsettings): stdClass {
+
         // Replace tags with content. This alters the booking settings so cloning them.
-        $booking = clone $bookingsettings;
-        $option = clone $optionsettings;
-        $tags = new booking_tags($option->courseid);
-        $booking = $tags->booking_replace($booking);
-        $option = $tags->option_replace($option);
+        $newbookingsettings = clone $bookingsettings;
+        $newoptionsettings = clone $optionsettings;
+
+        $tags = new booking_tags($newoptionsettings->courseid);
+        $newbookingsettings = $tags->booking_replace($newbookingsettings);
+        $newoptionsettings = $tags->option_replace($newoptionsettings);
+
         $newgroupdata = new stdClass();
-        $newgroupdata->courseid = $option->courseid;
+        $newgroupdata->courseid = $newoptionsettings->courseid;
+
+        $optionname = booking_utils::return_unique_bookingoption_name($newoptionsettings);
         // Before setting name, we have to resolve the id Tag.
-        $optionname = booking_utils::return_unique_bookingoption_name($option);
-        $newgroupdata->name = "{$booking->name} - $optionname ({$option->id})";
-        $newgroupdata->description = "{$booking->name} - $optionname ({$option->id})";
+        $newgroupdata->name = "{$newbookingsettings->name} - $optionname ({$newoptionsettings->id})";
+        $newgroupdata->description = "{$newbookingsettings->name} - $optionname ({$newoptionsettings->id})";
         $newgroupdata->descriptionformat = FORMAT_HTML;
+
         return $newgroupdata;
     }
 
@@ -1583,8 +1592,8 @@ class booking_option {
         }
         if (!empty($failed)) {
             $error .= 'The following users could not be registered to the new booking option:';
-            $error .= html_writer::empty_tag('br');
-            $error .= html_writer::alist($failed);
+            $error .= \html_writer::empty_tag('br');
+            $error .= \html_writer::alist($failed);
         }
         // Remove source option.
         $this->delete_booking_option();

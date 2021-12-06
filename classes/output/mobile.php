@@ -21,6 +21,7 @@ use context_module;
 use context;
 use mod_booking\booking;
 use mod_booking\booking_option;
+use mod_booking\places;
 use stdClass;
 
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
@@ -257,11 +258,12 @@ class mobile {
         }
 
         if (strlen($values->option->location) > 0) {
-            $text .= (empty($booking->settings->lbllocation) ? get_string('location', 'booking') : $booking->settings->lbllocation) . ': ' . $values->option->location . "<br>";
+            $text .= (empty($booking->settings->lbllocation) ? get_string('location', 'booking') :
+                $booking->settings->lbllocation) . ': ' . $values->option->location . "<br>";
         }
         if (strlen($values->option->institution) > 0) {
-            $text .= (empty($booking->settings->lblinstitution) ? get_string('institution', 'booking') : $booking->settings->lblinstitution) . ': ' .
-            $values->option->institution . "<br>";
+            $text .= (empty($booking->settings->lblinstitution) ? get_string('institution', 'booking') :
+                $booking->settings->lblinstitution) . ': ' . $values->option->institution . "<br>";
         }
 
         if (!empty($values->option->description)) {
@@ -349,7 +351,8 @@ class mobile {
                 $message .= "<br><br>" . get_string('agreetobookingpolicy', 'booking');
                 $message .= "<br>" . format_text($booking->settings->bookingpolicy, FORMAT_HTML);
             }
-            $bnow = (empty($booking->settings->btnbooknowname) ? get_string('booknow', 'booking') : $booking->settings->btnbooknowname);
+            $bnow = (empty($booking->settings->btnbooknowname) ? get_string('booknow', 'booking') :
+                $booking->settings->btnbooknowname);
             $button = array(
                 'text' => $bnow,
                             'args' => "answer: {$values->option->id}, id: {$cm->id}, courseid: {$courseid}",
@@ -357,11 +360,13 @@ class mobile {
             );
         }
 
-        if (($values->option->limitanswers && ($status == "full")) || ($status == "closed") || !$underlimit || $values->option->disablebookingusers) {
+        if (($values->option->limitanswers && ($status == "full")) || ($status == "closed") ||
+            !$underlimit || $values->option->disablebookingusers) {
             $button = array();
         }
 
-        if ($booking->settings->cancancelbook == 0 && $values->option->courseendtime > 0 && $values->option->courseendtime < time()) {
+        if ($booking->settings->cancancelbook == 0 && $values->option->courseendtime > 0
+            && $values->option->courseendtime < time()) {
             $button = array();
             $delete = array();
         }

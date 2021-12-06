@@ -13,6 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('MOODLE_INTERNAL') || die();
+
 use mod_booking\all_options;
 use mod_booking\booking;
 use mod_booking\output\business_card;
@@ -442,8 +445,10 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             }
         }
         $labelbooking = (empty($booking->settings->lblbooking) ? get_string('booking', 'booking') : $booking->settings->lblbooking);
-        $labellocation = (empty($booking->settings->lbllocation) ? get_string('location', 'booking') : $booking->settings->lbllocation);
-        $labelinstitution = (empty($booking->settings->lblinstitution) ? get_string('institution', 'booking') : $booking->settings->lblinstitution);
+        $labellocation = (empty($booking->settings->lbllocation) ? get_string('location', 'booking') :
+            $booking->settings->lbllocation);
+        $labelinstitution = (empty($booking->settings->lblinstitution) ? get_string('institution', 'booking') :
+            $booking->settings->lblinstitution);
         $labelsearchname = (empty($booking->settings->lblname) ? get_string('searchname', 'booking') : $booking->settings->lblname);
         $labelsearchsurname = (empty($booking->settings->lblsurname) ? get_string('searchsurname',
                 'booking') : $booking->settings->lblsurname);
@@ -533,7 +538,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $columns[] = 'id';
         $headers[] = "";
         $usersofgroupsql = '';
-        if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
+        if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS &&
+            !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
             list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($course->id);
             $conditionsparams = array_merge($conditionsparams, $groupparams);
             $usersofgroupsql = "
@@ -631,10 +637,11 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $from = "{booking} b LEFT JOIN {booking_options} bo ON bo.bookingid = b.id";
         $where = "b.id = :bookingid " .
                  (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions));
-        
+
         $defaultorder = ($booking->settings->defaultoptionsort !== 'availableplaces') ? SORT_ASC : SORT_DESC;
         if (!in_array('coursestarttime', $columns) && ($booking->settings->defaultoptionsort === 'coursestarttime')) {
-            // Fixed: If sort by is set to coursestarttime but coursestarttime column is missing, we still want to order by coursestarttime.
+            // Fixed: If sort by is set to coursestarttime but coursestarttime column is missing ...
+            // ... we still want to order by coursestarttime.
             $tablealloptions->sortable(false);
             $where .= " ORDER BY bo.coursestarttime ASC";
         } else {
@@ -760,7 +767,9 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             $conditionsparams['onlyinstitution1'] = $USER->institution;
             $conditions[] = 'tu.institution LIKE :onlyinstitution1';
         }
-        if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS AND !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
+        if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS &&
+            !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
+
             list ($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($course->id);
             array_push($conditions, "tu.id IN ($groupsql)");
             $conditionsparams = array_merge($conditionsparams, $groupparams);
