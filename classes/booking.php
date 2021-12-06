@@ -54,7 +54,7 @@ class booking {
     /** @var array users who are members of the current users group */
     public $groupmembers = array();
 
-    /** @var settings booking instance settings */
+    /** @var settings settings of the booking instance */
     public $settings = null;
 
     /** @var array $alloptions option objects indexed by optionid */

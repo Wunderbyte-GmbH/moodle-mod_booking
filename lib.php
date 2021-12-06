@@ -2611,7 +2611,7 @@ function booking_generate_email_params(settings $settings, stdClass $option, std
 /**
  * Generate the email body based on the activity settings and the booking parameters
  *
- * @param object $bookingsettings the settings of the booking activity
+ * @param settings $bookingsettings the settings of the booking activity
  * @param string $fieldname the name of the field that contains the custom text
  * @param string $defaultname the name of the default string
  * @param object $params the booking details

@@ -14,14 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 use mod_booking\all_options;
 use mod_booking\booking;
 use mod_booking\output\business_card;
 use mod_booking\output\instance_description;
-
-global $DB, $CFG, $USER, $OUTPUT, $PAGE;
 
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
