@@ -20,7 +20,6 @@ defined('MOODLE_INTERNAL') || die();
 
 use html_writer;
 use mod_booking\utils\wb_payment;
-use mod_booking\settings;
 use moodle_url;
 use stdClass;
 
@@ -84,10 +83,11 @@ class booking_utils {
     /**
      * Prepares the data to be sent with confirmation mail
      *
-     * @param settings $settings
+     * @param stdClass $settings
+     * @param stdClass $option
      * @return stdClass data to be sent via mail
      */
-    public function generate_params(settings $settings, stdClass $option = null) {
+    public function generate_params(stdClass $settings, stdClass $option = null): stdClass {
         global $DB, $CFG;
 
         $params = new stdClass();

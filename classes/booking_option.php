@@ -22,7 +22,6 @@ use invalid_parameter_exception;
 use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
-use mod_booking\settings;
 use function get_config;
 
 defined('MOODLE_INTERNAL') || die();
@@ -58,7 +57,6 @@ class booking_option {
     /** @var int id of the booking option in table booking_options */
     public $optionid = null;
 
-    // TODO: We need to create a new optionsettings class for this!
     /** @var stdClass option config object */
     public $option = null;
 
@@ -126,7 +124,6 @@ class booking_option {
         $this->booking = new booking($cmid);
         $this->optionid = $optionid;
 
-        // TODO: Create an optionsettings class for this!
         $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', MUST_EXIST);
 
         $times = $DB->get_records_sql(
@@ -848,7 +845,7 @@ class booking_option {
      *         $transferred->yes transferred users
      */
     public function transfer_users_to_otheroption($newoption, $userids) {
-        global $DB;
+        global $CFG, $DB;
         $transferred = new stdClass();
         $transferred->yes = array(); // Successfully transferred users.
         $transferred->no = array(); // Errored users.
@@ -858,7 +855,16 @@ class booking_option {
                 booking_check_if_teacher($otheroption->option))) {
             $transferred->success = true;
             list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, "limit_");
-            $mainuserfields = get_all_user_name_fields(true, 'u');
+
+            if ($CFG->version >= 2021051700) {
+                // This only works in Moodle 3.11 and later.
+                $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
+                $mainuserfields = trim($mainuserfields, ', ');
+            } else {
+                // This is only here to support Moodle versions earlier than 3.11.
+                $mainuserfields = get_all_user_name_fields(true, 'u');
+            }
+
             $sql = 'SELECT ba.userid AS id,
                 ba.timecreated,
                 ' . $mainuserfields . ', ' .
@@ -1169,7 +1175,7 @@ class booking_option {
             $message = booking_get_email_body($this->booking->settings, 'waitingtext',
                     'confirmationmessagewaitinglist', $data);
         } else {
-            // TODO: should never be reached.
+            // This should never be reached.
             $subject = "test";
             $subjectmanager = "tester";
             $message = "message";
@@ -1349,12 +1355,12 @@ class booking_option {
     /**
      * Generate data for creating the group.
      *
-     * @param settings $bookingsettings
+     * @param stdClass $bookingsettings
      * @param stdClass $optionsettings
      * @return stdClass
      * @throws \moodle_exception
      */
-    public static function generate_group_data(settings $bookingsettings, stdClass $optionsettings): stdClass {
+    public static function generate_group_data(stdClass $bookingsettings, stdClass $optionsettings): stdClass {
 
         // Replace tags with content. This alters the booking settings so cloning them.
         $newbookingsettings = clone $bookingsettings;

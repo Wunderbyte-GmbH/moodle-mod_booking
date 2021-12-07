@@ -18,7 +18,6 @@ namespace mod_booking;
 use html_writer;
 use stdClass;
 use moodle_url;
-use mod_booking\settings;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -54,7 +53,7 @@ class booking {
     /** @var array users who are members of the current users group */
     public $groupmembers = array();
 
-    /** @var settings settings of the booking instance */
+    /** @var stdClass settings of the booking instance */
     public $settings = null;
 
     /** @var array $alloptions option objects indexed by optionid */
@@ -82,7 +81,7 @@ class booking {
         $this->context = \context_module::instance($cmid);
 
         // Create settings class.
-        $this->settings = new settings($this->id);
+        $this->settings = $DB->get_record("booking", array("id" => $this->id));
 
         // If the course has groups and I do not have the capability to see all groups, show only
         // users of my groups.

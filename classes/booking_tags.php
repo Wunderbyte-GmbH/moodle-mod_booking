@@ -17,7 +17,6 @@
 namespace mod_booking;
 
 use stdClass;
-use mod_booking\settings;
 
 /**
  * Tags templates.
@@ -80,7 +79,7 @@ class booking_tags {
         return str_replace($this->replaces['keys'], $this->replaces['values'], $text);
     }
 
-    public function booking_replace(settings $settings = null): settings {
+    public function booking_replace(stdClass $settings = null): stdClass {
         $newsettings = clone $settings;
         foreach ($newsettings as $key => $value) {
             if (in_array($key, $this->bookingtextfields)) {
@@ -90,7 +89,6 @@ class booking_tags {
         return $newsettings;
     }
 
-    // TODO: create new optionsettings class!
     public function option_replace(stdClass $optionsettings = null): stdClass {
         $newoptionsettings = clone $optionsettings;
         foreach ($newoptionsettings as $key => $value) {

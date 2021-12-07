@@ -25,7 +25,6 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use mod_booking\booking_option;
 use mod_booking\booking_utils;
-use mod_booking\settings;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\utils\wb_payment;
@@ -1430,7 +1429,7 @@ function booking_email_to_user($user, $from, $subject, $messagetext, $messagehtm
         $mail->Body = $messagehtml;
         $mail->AltBody = "\n$messagetext\n";
     } else {
-        $mail->IsHTML(false);
+        $mail->isHTML(false);
         $mail->Body = "\n$messagetext\n";
     }
     if (!is_array((array) $attachment) && ($attachment && $attachname)) {
@@ -1522,12 +1521,11 @@ function booking_email_to_user($user, $from, $subject, $messagetext, $messagehtm
                     'other' => array('subject' => $subject, 'message' => $messagetext,
                         'errorinfo' => $mail->ErrorInfo)));
         $event->trigger();
-        if (CLI_SCRIPT) {
-            mtrace('Error: lib/moodlelib.php email_to_user(): ' . $mail->ErrorInfo);
-        }
+
         if (!empty($mail->SMTPDebug)) {
             echo '</pre>';
         }
+
         return false;
     }
 }
@@ -2469,7 +2467,7 @@ function booking_pretty_duration($seconds) {
  * @param int $cmid
  * @return stdClass data to be sent via mail
  */
-function booking_generate_email_params(settings $settings, stdClass $option, stdClass $user, $cmid,
+function booking_generate_email_params(stdClass $settings, stdClass $option, stdClass $user, $cmid,
                                        $optiontimes = '', $changes = false, $issessionreminder = false,
                                        $includebookingdetails = false) {
     global $CFG, $PAGE;
