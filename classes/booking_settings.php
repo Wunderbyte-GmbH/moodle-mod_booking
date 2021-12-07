@@ -16,19 +16,19 @@
 
 namespace mod_booking;
 
-use coding_exception;
+use dml_exception;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Settings class for mod_booking.
+ * Settings class for booking instances.
  *
  * @package mod_booking
  * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class settings {
+class booking_settings {
 
     /** @var int $id The ID of the booking instance. */
     public $id = null;
@@ -411,7 +411,7 @@ class settings {
             $this->autcrtemplate = $dbrecord->autcrtemplate;
 
         } else {
-            throw new coding_exception('Exception: Could not create settings class for bookingid: ' . $bookingid);
+            throw new dml_exception('Exception: Could not create settings class for bookingid: ' . $bookingid);
         }
     }
 }

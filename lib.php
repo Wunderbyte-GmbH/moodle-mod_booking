@@ -2477,11 +2477,6 @@ function booking_generate_email_params(stdClass $settings, stdClass $option, std
     $timeformat = get_string('strftimetime');
     $dateformat = get_string('strftimedate');
 
-    $duration = '';
-    if ($option->coursestarttime && $option->courseendtime) {
-        $seconds = $option->courseendtime - $option->coursestarttime;
-        $duration = booking_pretty_duration($seconds);
-    }
     $courselink = '';
     if ($option->courseid) {
         $courselink = new moodle_url('/course/view.php', array('id' => $option->courseid));
@@ -2609,7 +2604,7 @@ function booking_generate_email_params(stdClass $settings, stdClass $option, std
 /**
  * Generate the email body based on the activity settings and the booking parameters
  *
- * @param settings $bookingsettings the settings of the booking activity
+ * @param stdClass $bookingsettings the settings of the booking activity
  * @param string $fieldname the name of the field that contains the custom text
  * @param string $defaultname the name of the default string
  * @param object $params the booking details
