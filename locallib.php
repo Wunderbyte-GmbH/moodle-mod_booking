@@ -33,7 +33,7 @@ const DESCRIPTION_MAIL = 4; // Shows link with text "go to bookingoption" and me
 /**
  * Abstract class used by booking subscriber selection controls
  *
- * @package mod-booking
+ * @package mod_booking
  * @copyright 2013 David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -216,7 +216,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
 /**
  * User selector control for removing booked users
  *
- * @package mod-booking
+ * @package mod_booking
  * @copyright 2013 David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -378,8 +378,10 @@ function get_rendered_customfields($optiondateid) {
  * @param stdClass $optiondate the option date object (optional)
  * @return string The rendered HTML of the full description.
  */
-function get_rendered_eventdescription($option, $cmid, $optiondate = false, $descriptionparam = DESCRIPTION_WEBSITE, $forbookeduser = false) {
-    global $DB, $CFG, $PAGE;
+function get_rendered_eventdescription($option, $cmid, $optiondate = false,
+    $descriptionparam = DESCRIPTION_WEBSITE, $forbookeduser = false) {
+
+    global $PAGE;
 
     // We have the following differences:
     // - Rendered live on the website (eg wihin a modal) -> use button.
@@ -440,20 +442,20 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
     // We either do this for option or optiondate
     // different way to retrieve the right events.
     if ($optiondate) {
-        // check if we have already associated userevents
+        // Check if we have already associated userevents.
         if (!isset($optiondate->eventid) || (!$event = $DB->get_record('event', ['id' => $optiondate->eventid]))) {
 
             // If we don't find the event here, we might still be just switching to multisession.
             // Let's create the event anew.
-            $bocreatedevent = bookingoptiondate_created::create(array('context' => context_module::instance($cmid), 'objectid' => $optiondate->id,
-                'userid' => $USER->id, 'other' => ['optionid' => $option->id]));
+            $bocreatedevent = bookingoptiondate_created::create(array('context' => context_module::instance($cmid),
+                'objectid' => $optiondate->id, 'userid' => $USER->id, 'other' => ['optionid' => $option->id]));
             $bocreatedevent->trigger();
 
             // We have to return false if we have switched from multisession to create the right events.
             return false;
         } else {
 
-            // Get all the userevents
+            // Get all the userevents.
             $sql = "SELECT e.* FROM {booking_userevents} ue
               JOIN {event} e
               ON ue.eventid = e.id
@@ -461,7 +463,7 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
 
             $allevents = $DB->get_records_sql($sql, ['optiondateid' => $optiondate->id]);
 
-            // use the optiondate as data object
+            // Use the optiondate as data object.
             $data = $optiondate;
 
             if ($event = $DB->get_record('event', ['id' => $optiondate->eventid])) {
@@ -475,7 +477,7 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
             }
         }
     } else {
-        // Get all the userevents
+        // Get all the userevents.
         $sql = "SELECT e.* FROM {booking_userevents} ue
                     JOIN {event} e
                     ON ue.eventid = e.id
@@ -483,7 +485,7 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
 
         $allevents = $DB->get_records_sql($sql, ['optionid' => $option->id]);
 
-        // use the option as data object
+        // Use the option as data object.
         $data = $option;
 
         if ($event = $DB->get_record('event', ['id' => $option->calendarid])) {

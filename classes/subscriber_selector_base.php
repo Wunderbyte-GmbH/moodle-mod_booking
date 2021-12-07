@@ -21,7 +21,7 @@ use user_selector_base;
 /**
  * Abstract class used by booking subscriber selection controls
  *
- * @package mod-booking
+ * @package mod_booking
  * @copyright 2014 Andraž Prinčič
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

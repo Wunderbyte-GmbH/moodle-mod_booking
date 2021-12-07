@@ -157,14 +157,15 @@ class mod_booking_observer {
                 option_optiondate_update_event($option, $optiondate, $PAGE->cm->id);
             }
         } else { // This means that there are no multisessions.
-            // this is for the course event
+            // This is for the course event.
             new calendar($event->contextinstanceid, $optionid, 0, calendar::TYPEOPTION);
 
-            // this is for the user events.
+            // This is for the user events.
             option_optiondate_update_event($option, null, $PAGE->cm->id);
         }
 
-        $allteachers = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid AND calendarid > 0', array( 'optionid' => $event->objectid));
+        $allteachers = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid AND calendarid > 0',
+            array( 'optionid' => $event->objectid));
         foreach ($allteachers as $key => $value) {
             new calendar($event->contextinstanceid, $event->objectid, $value, calendar::TYPETEACHERUPDATE);
         }
@@ -214,7 +215,8 @@ class mod_booking_observer {
         try {
             bookingoption_completed_send_message($selecteduserid, $optionid, $cmid);
         } catch (coding_exception | dml_exception $e) {
-            debugging('Booking option completion message could not be sent. Exception in function observer.php/bookingoption_completed.');
+            debugging('Booking option completion message could not be sent. ' .
+                'Exception in function observer.php/bookingoption_completed.');
         }
     }
 
@@ -227,18 +229,25 @@ class mod_booking_observer {
     public static function custom_field_changed(\mod_booking\event\custom_field_changed $event) {
         global $DB;
 
-        $alloptions = $DB->get_records_sql('SELECT id, bookingid FROM {booking_options} WHERE addtocalendar IN (1, 2) AND calendarid > 0');
+        $alloptions = $DB->get_records_sql(
+            "SELECT id, bookingid
+            FROM {booking_options}
+            WHERE addtocalendar IN (1, 2) AND calendarid > 0"
+        );
 
         foreach ($alloptions as $key => $value) {
             $tmpcmid = $DB->get_record_sql(
                 "SELECT cm.id FROM {course_modules} cm
                 JOIN {modules} md ON md.id = cm.module
                 JOIN {booking} m ON m.id = cm.instance
-                WHERE md.name = 'booking' AND cm.instance = ?", array($value->bookingid));
+                WHERE md.name = 'booking' AND cm.instance = ?", array($value->bookingid)
+            );
 
-                new calendar($tmpcmid->id, $value->id, 0, calendar::TYPEOPTION);
+            new calendar($tmpcmid->id, $value->id, 0, calendar::TYPEOPTION);
 
-                $allteachers = $DB->get_records_sql('SELECT userid FROM {booking_teachers} WHERE optionid = ? AND calendarid > 0', array($value->id));
+            $allteachers = $DB->get_records_sql("SELECT userid FROM {booking_teachers} WHERE optionid = ? AND calendarid > 0",
+                array($value->id));
+
             foreach ($allteachers as $keyt => $valuet) {
                 new calendar($tmpcmid->id, $value->id, $valuet->userid, calendar::TYPETEACHERUPDATE);
             }

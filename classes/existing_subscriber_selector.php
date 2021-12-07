@@ -21,7 +21,7 @@ use mod_booking\subscriber_selector_base;
 /**
  * User selector control for removing subscribed users
  *
- * @package mod-booking
+ * @package mod_booking
  * @copyright 2014 Andraž Prinčič
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

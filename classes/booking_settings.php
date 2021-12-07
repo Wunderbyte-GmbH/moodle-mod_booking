@@ -16,8 +16,6 @@
 
 namespace mod_booking;
 
-use dml_exception;
-
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -411,7 +409,7 @@ class booking_settings {
             $this->autcrtemplate = $dbrecord->autcrtemplate;
 
         } else {
-            throw new dml_exception('Exception: Could not create settings class for bookingid: ' . $bookingid);
+            debugging('Could not create settings class for bookingid: ' . $bookingid);
         }
     }
 }

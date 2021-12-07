@@ -16,8 +16,6 @@
 
 namespace mod_booking;
 
-use dml_exception;
-
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -190,7 +188,7 @@ class booking_option_settings {
             $this->parentid = $dbrecord->parentid;
 
         } else {
-            throw new dml_exception('Exception: Could not create option settings class for optionid: ' . $optionid);
+            debugging('Could not create option settings class for optionid: ' . $optionid);
         }
     }
 }
