@@ -170,20 +170,13 @@ class booking {
      * @return array of booking options records
      */
     public function get_all_options($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "bo.id") {
+
         global $DB;
 
-        $limit = '';
-        $rsearch = $this->searchparameters($searchtext);
-        $search = $rsearch['query'];
-        $params = array_merge(array('bookingid' => $this->id), $rsearch['params']);
-
-        if ($limitnum != 0) {
-            $limit = " LIMIT {$limitfrom},{$limitnum}";
-        }
+        list($fields, $from, $where, $params) = $this->get_all_options_sql($limitfrom, $limitnum, $searchtext, $fields);
 
         return $DB->get_records_sql(
-            "SELECT {$fields} FROM {booking_options} bo " .
-            "WHERE bo.bookingid = :bookingid {$search} ORDER BY bo.coursestarttime ASC {$limit}", $params);
+            "SELECT $fields FROM $from $where", $params);
     }
 
     public function get_all_options_count($searchtext = '') {
@@ -536,5 +529,35 @@ class booking {
                 }
             }
         }
+    }
+
+    // New functions beneath.
+
+    /**
+     * Genereate SQL and params array to fetch all options.
+     *
+     * @param integer $limitfrom
+     * @param integer $limitnum
+     * @param string $searchtext
+     * @param string $fields
+     * @return void
+     */
+    public function get_all_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "bo.id") {
+        global $DB;
+
+        $limit = '';
+        $rsearch = $this->searchparameters($searchtext);
+        $search = $rsearch['query'];
+        $params = array_merge(array('bookingid' => $this->id), $rsearch['params']);
+
+        if ($limitnum != 0) {
+            $limit = " LIMIT {$limitfrom},{$limitnum}";
+        }
+
+        $fields = "{$fields}";
+        $from = "{booking_options} bo";
+        $where = "bo.bookingid = :bookingid {$search} ORDER BY bo.coursestarttime ASC {$limit}";
+
+        return [$fields, $from, $where, $params];
     }
 }
