@@ -1555,10 +1555,7 @@ $string['bstlink'] = 'Show';
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>You are already booked for this option.</i></div>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the waiting list for this option.</i></div>';
 
-// Optiondates_only.mustache.
-$string['sessions'] = 'Sessions';
-
-// Shortcodes.
+// Shortcodes
 $string['shortcodeslistofbookingoptions'] = 'List of booking options';
 $string['shortcodessetdefaultinstance'] = 'Set default instance for shortcodes implementation';
 $string['shortcodessetdefaultinstancedesc'] = 'This allows you to change instances quickly when you want to change
