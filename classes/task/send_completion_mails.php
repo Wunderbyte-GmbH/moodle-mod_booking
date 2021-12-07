@@ -62,7 +62,7 @@ class send_completion_mails extends \core\task\adhoc_task {
 
                 $bookingoption = new booking_option($taskdata->cmid, $taskdata->optionid);
 
-                $params = $bookingoption->booking->settings->get_email_params($bookingoption->option,
+                $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option,
                     $touser, $taskdata->cmid, $bookingoption->optiontimes, false, false, true);
 
                 $message = booking_get_email_body($bookingoption->booking->settings, 'activitycompletiontext',

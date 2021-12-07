@@ -61,7 +61,7 @@ if (!$answer) {
     echo $OUTPUT->footer();
 }
 $bookingmanager = $DB->get_record('user', array('username' => $bookingoption->booking->settings->bookingmanager));
-$data = $bookingoption->booking->settings->get_email_params($bookingoption->option,
+$data = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option,
     $user, $cm->id, $bookingoption->optiontimes, false, false, true);
 
 if ($answer->waitinglist == 1) {
