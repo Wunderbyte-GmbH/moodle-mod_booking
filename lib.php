@@ -948,13 +948,13 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
 /**
  * Checks the status of the specified user
  *
- * @param $userid userid of the user
- * @param $optionid booking option to check
- * @param $bookingid booking id
- * @param $cmid course module id
- * @return localised string of user status
+ * @param int $userid userid of the user
+ * @param int $optionid booking option to check
+ * @param int $bookingid booking id
+ * @param int $cmid course module id
+ * @return string localized string of user status
  */
-function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
+function booking_get_user_status($userid, $optionid, $bookingid, $cmid): string {
     global $DB;
     $option = $DB->get_record('booking_options', array('id' => $optionid));
     $current = $DB->get_record('booking_answers',
@@ -2062,7 +2062,7 @@ function booking_sendpollurlteachers(booking_option $bookingoption, $cmid, $opti
     foreach ($teachers as $tuser) {
         $userdata = $DB->get_record('user', array('id' => $tuser->userid));
 
-        $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option,
+        $params = $bookingoption->booking->settings->get_email_params($bookingoption->option,
             $userdata, $cmid, $bookingoption->optiontimes, false, false, true);
 
         $pollurlmessage = booking_get_email_body($bookingoption->booking->settings, 'pollurlteacherstext',
@@ -2114,7 +2114,7 @@ function booking_sendpollurl($userids, booking_option $bookingoption, $cmid, $op
     foreach ($userids as $userid) {
         $tuser = $DB->get_record('user', array('id' => $userid));
 
-        $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option, $tuser, $cmid,
+        $params = $bookingoption->booking->settings->get_email_params($bookingoption->option, $tuser, $cmid,
                 $bookingoption->optiontimes, false, false, true);
 
         $pollurlmessage = booking_get_email_body($bookingoption->booking->settings, 'pollurltext',
@@ -2273,8 +2273,8 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
             $ruser = $DB->get_record('user', array('id' => $record->id));
 
             if (!$issession) {
-                $params = booking_generate_email_params($bookingdata->booking->settings, $bookingdata->option,
-                    $ruser, $cm->id, $bookingdata->optiontimes, false, false, true);
+                $params = $bookingdata->booking->settings->get_email_params($bookingdata->option,
+                $ruser, $cm->id, $bookingdata->optiontimes, false, false, true);
 
                 if ($isteacher) {
                     // Message for teacher notifications.
@@ -2288,7 +2288,7 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
 
             } else {
                 $optiontimes = array($optiondate); // Only add one specific session for session reminders.
-                $params = booking_generate_email_params($bookingdata->booking->settings, $bookingdata->option,
+                $params = $bookingdata->booking->settings->get_email_params($bookingdata->option,
                     $ruser, $cm->id, $optiontimes, false, true, false);
                 // Message for session reminders.
                 $notificationmessage = booking_get_email_body($bookingdata->booking->settings, 'sessionremindermailsubject',
@@ -2458,154 +2458,6 @@ function booking_pretty_duration($seconds) {
         }
     }
     return implode(' ', $durationparts);
-}
-
-/**
- * Prepares the data to be sent with confirmation mail
- *
- * @param stdClass $settings
- * @param stdClass $option
- * @param stdClass $user
- * @param int $cmid
- * @return stdClass data to be sent via mail
- */
-function booking_generate_email_params(settings $settings, stdClass $option, stdClass $user, $cmid,
-                                       $optiontimes = '', $changes = false, $issessionreminder = false,
-                                       $includebookingdetails = false) {
-    global $CFG, $PAGE;
-
-    $params = new stdClass();
-
-    $timeformat = get_string('strftimetime');
-    $dateformat = get_string('strftimedate');
-
-    $duration = '';
-    if ($option->coursestarttime && $option->courseendtime) {
-        $seconds = $option->courseendtime - $option->coursestarttime;
-        $duration = booking_pretty_duration($seconds);
-    }
-    $courselink = '';
-    if ($option->courseid) {
-        $courselink = new moodle_url('/course/view.php', array('id' => $option->courseid));
-        $courselink = html_writer::link($courselink, $courselink->out());
-    }
-    $bookinglink = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
-    $bookinglink = html_writer::link($bookinglink, $bookinglink->out());
-
-    // Default params.
-    if (!$issessionreminder) {
-        $params->qr_id = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
-            rawurlencode($user->id) . '&choe=UTF-8" title="Link to Google.com" />';
-        $params->qr_username = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
-            rawurlencode($user->username) . '&choe=UTF-8" title="Link to Google.com" />';
-
-        $params->status = booking_get_user_status($user->id, $option->id, $settings->id, $cmid);
-        $params->participant = fullname($user);
-        $params->email = $user->email;
-        $params->title = format_string($option->text);
-        $params->duration = $settings->duration;
-        $params->starttime = $option->coursestarttime ? userdate($option->coursestarttime, $timeformat) : '';
-        $params->endtime = $option->courseendtime ? userdate($option->courseendtime, $timeformat) : '';
-        $params->startdate = $option->coursestarttime ? userdate($option->coursestarttime, $dateformat) : '';
-        $params->enddate = $option->courseendtime ? userdate($option->courseendtime, $dateformat) : '';
-        $params->courselink = $courselink;
-        $params->bookinglink = $bookinglink;
-        $params->location = $option->location;
-        $params->institution = $option->institution;
-        $params->address = $option->address;
-        $params->eventtype = $settings->eventtype;
-        $params->shorturl = $option->shorturl;
-        $params->pollstartdate = $option->coursestarttime ? userdate((int) $option->coursestarttime,
-            get_string('pollstrftimedate', 'booking')) : '';
-        if (empty($option->pollurl)) {
-            $params->pollurl = $settings->pollurl;
-        } else {
-            $params->pollurl = $option->pollurl;
-        }
-        if (empty($option->pollurlteachers)) {
-            $params->pollurlteachers = $settings->pollurlteachers;
-        } else {
-            $params->pollurlteachers = $option->pollurlteachers;
-        }
-
-        $val = '';
-
-        if (!empty($optiontimes)) {
-
-            $times = explode(',', trim($optiontimes, ','));
-            $i = 1;
-            foreach ($times as $time) {
-                $slot = explode('-', $time);
-                $tmpdate = new stdClass();
-                $tmpdate->number = $i;
-                $tmpdate->date = userdate($slot[0], get_string('strftimedate', 'langconfig'));
-                $tmpdate->starttime = userdate($slot[0], get_string('strftimetime', 'langconfig'));
-                $tmpdate->endtime = userdate($slot[1], get_string('strftimetime', 'langconfig'));
-                $val .= get_string('optiondatesmessage', 'mod_booking', $tmpdate) . '<br><br>';
-                $i++;
-            }
-        } else {
-            if ($option->coursestarttime && $option->courseendtime) {
-                $tmpdate = new stdClass();
-                $tmpdate->number = '';
-                $tmpdate->date = userdate($option->coursestarttime, get_string('strftimedate', 'langconfig'));
-                $tmpdate->starttime = userdate($option->coursestarttime, get_string('strftimetime', 'langconfig'));
-                $tmpdate->endtime = userdate($option->courseendtime, get_string('strftimetime', 'langconfig'));
-                $val .= get_string('optiondatesmessage', 'mod_booking', $tmpdate) . '<br><br>';
-                $params->times = "$params->startdate $params->starttime - $params->enddate $params->endtime";
-            }
-        }
-        $params->times = $val;
-
-        // Booking_option instance needed to access functions get_all_users_booked and get_all_users_on_waitinglist.
-        $boption = new booking_option($cmid, $option->id);
-
-        // Placeholder for the number of booked users.
-        $params->numberparticipants = strval(count($boption->get_all_users_booked()));
-        // Placeholder for the number of users on the waiting list.
-        $params->numberwaitinglist = strval(count($boption->get_all_users_on_waitinglist()));
-
-        // If there are changes, let's render them.
-        if ($changes) {
-            $data = new \mod_booking\output\bookingoption_changes($changes, $cmid);
-            $output = $PAGE->get_renderer('mod_booking');
-            $params->changes = $output->render_bookingoption_changes($data);
-        }
-
-        // Add placeholder {bookingdetails} so we can add the detailed option description (similar to calendar, modal...
-        // ... and ical) to mails.
-        if ($includebookingdetails) {
-            $params->bookingdetails = get_rendered_eventdescription($option, $cmid, false, DESCRIPTION_MAIL);
-        }
-
-    } else {
-        // Params for specific session reminders.
-        $params->status = booking_get_user_status($user->id, $option->id, $settings->id, $cmid);
-        $params->participant = fullname($user);
-        $params->email = $user->email;
-        $params->sessiondescription = get_rendered_eventdescription($option, $cmid, $optiontimes[0], DESCRIPTION_CALENDAR);
-    }
-
-    // We also add the URLs for the user to subscribe to user and course event calendar.
-    $bu = new booking_utils();
-    // Fix: These links should not be clickable (beacuse they will be copied by users), so add <pre>-Tags.
-    $params->usercalendarurl = '<a href="#" style="text-decoration:none; color:#000">' .
-                                $bu->booking_generate_calendar_subscription_link($user, 'user') .
-                                '</a>';
-    $params->coursecalendarurl = '<a href="#" style="text-decoration:none; color:#000">' .
-                                $bu->booking_generate_calendar_subscription_link($user, 'courses') .
-                                '</a>';
-
-    // Add a placeholder with a link to go to the current booking option.
-    $gotobookingoptionlink = new moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
-        'id' => $cmid,
-        'optionid' => $option->id,
-        'action' => 'showonlyone',
-        'whichview' => 'showonlyone'
-    ));
-    $params->gotobookingoption = html_writer::link($gotobookingoptionlink, $gotobookingoptionlink->out());
-
-    return $params;
 }
 
 /**
@@ -2843,10 +2695,10 @@ function booking_subscribed_teachers($course, $optionid, $id, $groupid = 0, $con
 /**
  * This will create the options list on the coursepage.
  *
- * @param cm_info $cm
+ * @param cm_info $cm course module info
  * @return void
  */
-function mod_booking_cm_info_view(cm_info $cm) {
+function mod_booking_cm_info_view(cm_info $cm): void {
     global $CFG, $COURSE, $PAGE;
 
     $booking = new mod_booking\booking($cm->id);
