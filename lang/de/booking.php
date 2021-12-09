@@ -1314,6 +1314,8 @@ $string['bstlink'] = 'Anzeigen';
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>Sie haben diese Option bereits gebucht.</i></div>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der Warteliste für diese Option.</i></div>';
 
+// Optiondates_only.mustache.
+$string['sessions'] = 'Termine';
 // Shortcodes
 $string['shortcodeslistofbookingoptions'] = 'Liste der buchbaren Optionen';
 $string['shortcodessetdefaultinstance'] = 'Setze eine Standard Instanz für Shortcodes';
