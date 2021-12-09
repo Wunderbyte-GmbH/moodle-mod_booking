@@ -239,13 +239,13 @@ class ical {
         $eventid = false;
         if ($time) {
             // If it's an option date (a session), use the option date's eventid.
-            $fulldescription = get_rendered_eventdescription($this->option, $PAGE->cm->id, $time, DESCRIPTION_ICAL);
+            $fulldescription = get_rendered_eventdescription($this->option->id, $PAGE->cm->id, DESCRIPTION_ICAL);
         } else {
             // Use calendarid of the option if it's an option event.
-            $fulldescription = get_rendered_eventdescription($this->option, $PAGE->cm->id, false, DESCRIPTION_ICAL);
+            $fulldescription = get_rendered_eventdescription($this->option->id, $PAGE->cm->id, DESCRIPTION_ICAL);
         }
 
-        // Make sure we have not tags in full description:
+        // Make sure we have not tags in full description.
         $fulldescription = rtrim(strip_tags(preg_replace( "/<br>|<\/p>/", "\n", $fulldescription)));
         $fulldescription = str_replace("\n", "\\n", $fulldescription );
 
@@ -258,7 +258,7 @@ class ical {
             "DTSTART:{$dtstart}",
             "LOCATION:{$this->location}",
             "PRIORITY:5",
-            //"SEQUENCE:0",
+            // CODEBEGIN: "SEQUENCE:0", CODEEND.
             "SUMMARY:{$this->summary}",
             "TRANSP:OPAQUE{$this->status}",
             "ORGANIZER;CN={$this->fromuser->email}:MAILTO:{$this->fromuser->email}",

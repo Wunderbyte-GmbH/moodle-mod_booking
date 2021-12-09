@@ -20,6 +20,9 @@
  * @copyright 2012 David Bogner www.edulabs.org
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use mod_booking\message_controller;
+
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
 require_once("{$CFG->libdir}/tablelib.php");
@@ -159,14 +162,14 @@ require_course_login($course, false, $cm);
 
 $context = context_module::instance($cm->id);
 
-$bookingdata = new \mod_booking\booking_option($cm->id, $optionid, $urlparams, $page, 25,
+$bookingoption = new \mod_booking\booking_option($cm->id, $optionid, $urlparams, $page, 25,
         false);
-$bookingdata->urparams = $urlparams;
-$bookingdata->apply_tags();
-$bookingdata->get_url_params();
-$optionteachers = $bookingdata->get_teachers();
-$paging = $bookingdata->booking->settings->paginationnum;
-$isteacher = booking_check_if_teacher($bookingdata->option);
+$bookingoption->urlparams = $urlparams;
+$bookingoption->apply_tags();
+$bookingoption->get_url_params();
+$optionteachers = $bookingoption->get_teachers();
+$paging = $bookingoption->booking->settings->paginationnum;
+$isteacher = booking_check_if_teacher($bookingoption->option);
 if ($paging < 1) {
     $paging = 25;
 }
@@ -186,20 +189,20 @@ if ($action == 'downloadpdf') {
     $pdfoptions->sessions = $pdfsessions;
     $pdfoptions->addemptyrows = $addemptyrows;
     $pdfoptions->includeteachers = $includeteachers;
-    $pdf = new mod_booking\signinsheet\generator($bookingdata , $pdfoptions);
+    $pdf = new mod_booking\signinsheet\generator($bookingoption , $pdfoptions);
     $pdf->download_signinsheet();
     die();
 }
 
 if ($action == 'copytotemplate' && has_capability('mod/booking:manageoptiontemplates', $context) &&
          confirm_sesskey()) {
-    $bookingdata->copytotemplate();
+    $bookingoption->copytotemplate();
     redirect($baseurl, get_string('copytotemplatesucesfull', 'booking'), 5);
 }
 
 if ($action == 'deletebookingoption' && $confirm == 1 &&
          has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
-             $bookingdata->delete_booking_option();
+             $bookingoption->delete_booking_option();
     redirect("view.php?id=$cm->id");
 } else if ($action == 'deletebookingoption' && has_capability('mod/booking:updatebooking', $context) &&
          confirm_sesskey()) {
@@ -215,26 +218,30 @@ if ($action == 'deletebookingoption' && $confirm == 1 &&
     die();
 }
 
-$PAGE->navbar->add(format_string($bookingdata->option->text));
-$PAGE->set_title(format_string($bookingdata->booking->settings->name) . ": " . format_string($bookingdata->option->text));
+$PAGE->navbar->add(format_string($bookingoption->option->text));
+$PAGE->set_title(format_string($bookingoption->booking->settings->name) . ": " . format_string($bookingoption->option->text));
 $PAGE->set_heading(format_string($course->fullname));
 
 if (isset($action) && $action == 'sendpollurlteachers' &&
          has_capability('mod/booking:communicate', $context)) {
-    booking_sendpollurlteachers($bookingdata, $cm->id, $optionid);
+
+    // Send the Poll URL to the teacher(s).
+    booking_sendmessage_pollurlteachers($bookingoption, $cm->id, $optionid);
+
     $url->remove_params('action');
     redirect($url, get_string('allmailssend', 'booking'), 5);
 }
 
-$bookingdata->option->courseurl = new moodle_url('/course/view.php',
-        array('id' => $bookingdata->option->courseid));
-$bookingdata->option->urltitle = $DB->get_field('course', 'shortname',
-        array('id' => $bookingdata->option->courseid));
-$bookingdata->option->cmid = $cm->id;
-$bookingdata->option->autoenrol = $bookingdata->booking->settings->autoenrol;
+$bookingoption->option->courseurl = new moodle_url('/course/view.php',
+        array('id' => $bookingoption->option->courseid));
+$bookingoption->option->urltitle = $DB->get_field('course', 'shortname',
+        array('id' => $bookingoption->option->courseid));
+$bookingoption->option->cmid = $cm->id;
+$bookingoption->option->autoenrol = $bookingoption->booking->settings->autoenrol;
 
-$tableallbookings = new \mod_booking\all_userbookings('mod_booking_all_users_sort_new', $bookingdata, $cm, $optionid);
-$tableallbookings->is_downloading($download, format_string($bookingdata->option->text), format_string($bookingdata->option->text));
+$tableallbookings = new \mod_booking\all_userbookings('mod_booking_all_users_sort_new', $bookingoption, $cm, $optionid);
+$tableallbookings->is_downloading($download, format_string($bookingoption->option->text),
+    format_string($bookingoption->option->text));
 
 // Remove page number from url otherwise empty results are shown when searching via first/lastname letters.
 $tablebaseurl = $currenturl;
@@ -254,7 +261,7 @@ $tableallbookings->no_sorting('rating');
 if (!$tableallbookings->is_downloading()) {
 
     if ($action == 'postcustomreport') {
-        $bookingdata->printcustomreport();
+        $bookingoption->printcustomreport();
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
@@ -266,13 +273,13 @@ if (!$tableallbookings->is_downloading()) {
                     $allselectedusers[] = array_keys($value)[0];
                 }
             }
-            booking_generatenewnumners($bookingdata->booking->settings, $cm->id, $optionid, $allselectedusers);
+            booking_generatenewnumners($bookingoption->booking->settings, $cm->id, $optionid, $allselectedusers);
             redirect($url, get_string('generaterecnumnotification', 'booking'), 5);
         }
 
         if (isset($_POST['deleteusersactivitycompletion']) &&
                  has_capability('mod/booking:deleteresponses', $context)) {
-            $res = $bookingdata->delete_responses_activitycompletion();
+            $res = $bookingoption->delete_responses_activitycompletion();
 
             $data = new stdClass();
             $data->all = count($res);
@@ -304,16 +311,16 @@ if (!$tableallbookings->is_downloading()) {
             if (empty($allselectedusers)) {
                 redirect($url,
                         get_string('selectatleastoneuser', 'booking',
-                                $bookingdata->option->howmanyusers), 5);
+                                $bookingoption->option->howmanyusers), 5);
             }
         } else {
             redirect($url,
                     get_string('selectatleastoneuser', 'booking',
-                            $bookingdata->option->howmanyusers), 5);
+                            $bookingoption->option->howmanyusers), 5);
         }
 
         if (isset($_POST['deleteusers']) && has_capability('mod/booking:deleteresponses', $context)) {
-            $res = $bookingdata->delete_responses($allselectedusers);
+            $res = $bookingoption->delete_responses($allselectedusers);
 
             $data = new stdClass();
 
@@ -327,9 +334,9 @@ if (!$tableallbookings->is_downloading()) {
 
             redirect($url, get_string('delnotification', 'booking', $data), 5);
         } else if (isset($_POST['subscribetocourse'])) { // Subscription submitted.
-            if ($bookingdata->option->courseid != 0) {
+            if ($bookingoption->option->courseid != 0) {
                 foreach ($allselectedusers as $selecteduserid) {
-                    $bookingdata->enrol_user($selecteduserid, true);
+                    $bookingoption->enrol_user($selecteduserid, true);
                 }
                 redirect($url, get_string('userssuccessfullenrolled', 'booking'), 5);
             } else {
@@ -339,7 +346,7 @@ if (!$tableallbookings->is_downloading()) {
         } else if (isset($_POST['sendpollurl']) &&
                  has_capability('mod/booking:communicate', $context)) {
 
-            booking_sendpollurl($allselectedusers, $bookingdata, $cm->id, $optionid);
+            booking_sendpollurl($allselectedusers, $bookingoption, $cm->id, $optionid);
             redirect($url, get_string('allmailssend', 'booking'), 5);
         } else if (isset($_POST['sendcustommessage']) &&
                  has_capability('mod/booking:communicate', $context)) {
@@ -349,17 +356,17 @@ if (!$tableallbookings->is_downloading()) {
                         'uids' => json_encode($allselectedusers)));
             redirect($sendmessageurl);
         } else if (isset($_POST['activitycompletion']) && (booking_check_if_teacher(
-                $bookingdata->option) || has_capability('mod/booking:readresponses', $context))) {
+                $bookingoption->option) || has_capability('mod/booking:readresponses', $context))) {
 
-            booking_activitycompletion($allselectedusers, $bookingdata->booking->settings, $cm->id, $optionid);
+            booking_activitycompletion($allselectedusers, $bookingoption->booking->settings, $cm->id, $optionid);
             redirect($url,
-                    (empty($bookingdata->option->notificationtext) ? get_string(
-                            'activitycompletionsuccess', 'booking') : $bookingdata->option->notificationtext),
+                    (empty($bookingoption->option->notificationtext) ? get_string(
+                            'activitycompletionsuccess', 'booking') : $bookingoption->option->notificationtext),
                     5);
         } else if (isset($_POST['postratingsubmit']) && (booking_check_if_teacher(
-                $bookingdata->option) || has_capability('moodle/rating:rate', $context))) {
+                $bookingoption->option) || has_capability('moodle/rating:rate', $context))) {
 
-            $allusers = $bookingdata->get_all_users();
+            $allusers = $bookingoption->get_all_users();
             $bookedusers = array();
             $ratings = array();
             foreach ($allusers as $baid => $user) {
@@ -382,31 +389,31 @@ if (!$tableallbookings->is_downloading()) {
             if (!empty($ratings)) {
                 booking_rate($ratings, $params);
                 redirect($url,
-                        (empty($bookingdata->option->notificationtext) ? get_string('ratingsuccess',
-                                'booking') : $bookingdata->option->notificationtext), 5);
+                        (empty($bookingoption->option->notificationtext) ? get_string('ratingsuccess',
+                                'booking') : $bookingoption->option->notificationtext), 5);
             }
         } else if (isset($_POST['sendreminderemail']) &&
                  has_capability('mod/booking:communicate', $context)) {
 
-            booking_sendreminderemail($allselectedusers, $bookingdata->booking->settings, $cm->id, $optionid);
+            booking_sendreminderemail($allselectedusers, $bookingoption->booking->settings, $cm->id, $optionid);
             redirect($url, get_string('sendreminderemailsuccess', 'booking'), 5);
         } else if (isset($_POST['booktootherbooking']) && (booking_check_if_teacher(
-                $bookingdata->option) || has_capability('mod/booking:readresponses', $context))) {
+                $bookingoption->option) || has_capability('mod/booking:readresponses', $context))) {
 
             if (!isset($_POST['selectoptionid']) || empty($_POST['selectoptionid'])) {
                 redirect($url, get_string('selectoptionid', 'booking'), 5);
             }
 
-            if (count($allselectedusers) > $bookingdata->calculate_how_many_can_book_to_other(
+            if (count($allselectedusers) > $bookingoption->calculate_how_many_can_book_to_other(
                     $_POST['selectoptionid'])) {
                 redirect($url,
                         get_string('toomuchusersbooked', 'booking',
-                                $bookingdata->calculate_how_many_can_book_to_other(
+                                $bookingoption->calculate_how_many_can_book_to_other(
                                         $_POST['selectoptionid'])), 5);
             }
 
             $connectedbooking = $DB->get_record("booking",
-                    array('conectedbooking' => $bookingdata->booking->settings->id), 'id', IGNORE_MULTIPLE);
+                    array('conectedbooking' => $bookingoption->booking->settings->id), 'id', IGNORE_MULTIPLE);
 
             $tmpcmid = $DB->get_record_sql(
                     "SELECT cm.id FROM {course_modules} cm
@@ -428,7 +435,7 @@ if (!$tableallbookings->is_downloading()) {
             if ($_POST['transferoption'] == "") {
                 redirect($url, get_string('selectanoption', 'mod_booking'), 5);
             }
-            $result = $bookingdata->transfer_users_to_otheroption($_POST['transferoption'],
+            $result = $bookingoption->transfer_users_to_otheroption($_POST['transferoption'],
                     $allselectedusers);
             if ($result->success) {
                 redirect($url, get_string('transfersuccess', 'mod_booking', $result), 5);
@@ -442,17 +449,17 @@ if (!$tableallbookings->is_downloading()) {
                 redirect($url, get_string('transferproblem', 'mod_booking', $output), 5, 'error');
             }
         } else if (isset($_POST['changepresencestatus']) && (booking_check_if_teacher(
-                $bookingdata->option) || has_capability('mod/booking:readresponses', $context))) {
+                $bookingoption->option) || has_capability('mod/booking:readresponses', $context))) {
             // Change presence status.
             if (empty($allselectedusers)) {
                 redirect($url,
                         get_string('selectatleastoneuser', 'booking',
-                                $bookingdata->option->howmanyusers), 5);
+                                $bookingoption->option->howmanyusers), 5);
             }
             if (!isset($_POST['selectpresencestatus']) || empty($_POST['selectpresencestatus'])) {
                 redirect($url, get_string('selectpresencestatus', 'booking'), 5);
             }
-            $bookingdata->changepresencestatus($allselectedusers, $_POST['selectpresencestatus']);
+            $bookingoption->changepresencestatus($allselectedusers, $_POST['selectpresencestatus']);
             redirect($url, get_string('userssucesfullygetnewpresencestatus', 'booking'), 5);
         }
     }
@@ -463,7 +470,7 @@ if (!$tableallbookings->is_downloading()) {
     $columns[] = 'selected';
     $headers[] = '<input type="checkbox" id="usercheckboxall" name="selectall" value="0" />';
 
-    $responsesfields = explode(',', $bookingdata->booking->settings->responsesfields);
+    $responsesfields = explode(',', $bookingoption->booking->settings->responsesfields);
     list($addquoted, $addquotedparams) = $DB->get_in_or_equal($responsesfields);
 
     $userprofilefields = $DB->get_records_select('user_info_field',
@@ -476,19 +483,19 @@ if (!$tableallbookings->is_downloading()) {
                 $headers[] = get_string('completed', 'mod_booking');
                 break;
             case 'status':
-                if ($bookingdata->booking->settings->enablepresence) {
+                if ($bookingoption->booking->settings->enablepresence) {
                     $columns[] = 'status';
                     $headers[] = get_string('presence', 'mod_booking');
                 }
                 break;
             case 'rating':
-                if ($bookingdata->booking->settings->assessed != RATING_AGGREGATE_NONE) {
+                if ($bookingoption->booking->settings->assessed != RATING_AGGREGATE_NONE) {
                     $columns[] = 'rating';
                     $headers[] = get_string('rating', 'core_rating');
                 }
                 break;
             case 'numrec':
-                if ($bookingdata->booking->settings->numgenerator) {
+                if ($bookingoption->booking->settings->numgenerator) {
                     $columns[] = 'numrec';
                     $headers[] = get_string('numrec', 'mod_booking');
                 }
@@ -503,10 +510,10 @@ if (!$tableallbookings->is_downloading()) {
                 break;
             case 'institution':
                 $columns[] = 'institution';
-                if (empty($bookingdata->booking->settings->lblinstitution)) {
+                if (empty($bookingoption->booking->settings->lblinstitution)) {
                     $headers[] = get_string('institution', 'booking');
                 } else {
-                    $headers[] = $bookingdata->booking->settings->lblinstitution;
+                    $headers[] = $bookingoption->booking->settings->lblinstitution;
                 }
                 break;
             case 'notes':
@@ -518,7 +525,7 @@ if (!$tableallbookings->is_downloading()) {
                 $headers[] = get_string('city');
                 break;
             case 'waitinglist':
-                if ($bookingdata->option->limitanswers == 1 && $bookingdata->option->maxoverbooking > 0) {
+                if ($bookingoption->option->limitanswers == 1 && $bookingoption->option->maxoverbooking > 0) {
                     $columns[] = 'waitinglist';
                     $headers[] = get_string('searchwaitinglist', 'mod_booking');
                 }
@@ -580,11 +587,12 @@ if (!$tableallbookings->is_downloading()) {
 
     echo $OUTPUT->heading(
             html_writer::link(new moodle_url('/mod/booking/view.php', array('id' => $cm->id)),
-                    format_string($bookingdata->booking->settings->name)) . ' > ' . format_string($bookingdata->option->text), 4);
+                    format_string($bookingoption->booking->settings->name)) . ' > ' .
+                        format_string($bookingoption->option->text), 4);
 
     $teachers = array();
 
-    foreach ($bookingdata->teachers as $value) {
+    foreach ($bookingoption->teachers as $value) {
         $teachers[] = html_writer::link(
                 new moodle_url('/user/profile.php', array('id' => $value->userid)),
                 "{$value->firstname} {$value->lastname}", array());
@@ -602,15 +610,16 @@ if (!$tableallbookings->is_downloading()) {
                     get_string('editteachers', 'booking'), array());
         }
 
-        $haspollurl = (!empty($bookingdata->booking->settings->pollurlteachers) || !empty($bookingdata->option->pollurlteachers));
+        $haspollurl = (!empty($bookingoption->booking->settings->pollurlteachers) ||
+            !empty($bookingoption->option->pollurlteachers));
 
         if (has_capability('mod/booking:communicate', context_module::instance($cm->id)) && $haspollurl) {
             $linkst[] = html_writer::link(
                     new moodle_url('/mod/booking/report.php',
                             array('id' => $cm->id, 'optionid' => $optionid,
                                 'action' => 'sendpollurlteachers')),
-                    (empty($bookingdata->booking->settings->lblsputtname) ? get_string(
-                            'sendpollurltoteachers', 'booking') : $bookingdata->booking->settings->lblsputtname),
+                    (empty($bookingoption->booking->settings->lblsputtname) ? get_string(
+                            'sendpollurltoteachers', 'booking') : $bookingoption->booking->settings->lblsputtname),
                     array());
         }
 
@@ -624,11 +633,12 @@ if (!$tableallbookings->is_downloading()) {
     }
 
     echo "<p>" .
-             ($bookingdata->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate(
-                    $bookingdata->option->coursestarttime, get_string('strftimedatetime')) . " - " .
-             userdate($bookingdata->option->courseendtime, get_string('strftimedatetime'))) . " | " .
-             (empty($bookingdata->booking->settings->lblteachname) ? get_string('teachers', 'booking') . ': ' : $bookingdata->booking->settings->lblteachname . ': ') .
-             implode(', ', $teachers) . " {$linkst}</p>";
+             ($bookingoption->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate(
+                    $bookingoption->option->coursestarttime, get_string('strftimedatetime')) . " - " .
+             userdate($bookingoption->option->courseendtime, get_string('strftimedatetime'))) . " | " .
+             (empty($bookingoption->booking->settings->lblteachname) ? get_string('teachers', 'booking') . ': ' :
+                $bookingoption->booking->settings->lblteachname . ': ') .
+                    implode(', ', $teachers) . " {$linkst}</p>";
 
     $links = array();
 
@@ -637,9 +647,9 @@ if (!$tableallbookings->is_downloading()) {
 
     echo implode("<br>", $links);
 
-    if ($bookingdata->option->courseid != 0) {
+    if ($bookingoption->option->courseid != 0) {
         echo '<br>' . html_writer::start_span('') . get_string('associatedcourse', 'booking') . ': ' . html_writer::link(
-                new moodle_url($bookingdata->option->courseurl, array()), $bookingdata->option->urltitle,
+                new moodle_url($bookingoption->option->courseurl, array()), $bookingoption->option->urltitle,
                 array()) . html_writer::end_span();
     }
 
@@ -701,21 +711,21 @@ if (!$tableallbookings->is_downloading()) {
 
     $tableallbookings->setup();
     $tableallbookings->query_db($paging, true);
-    if ($bookingdata->booking->settings->assessed != RATING_AGGREGATE_NONE &&
+    if ($bookingoption->booking->settings->assessed != RATING_AGGREGATE_NONE &&
              !empty($tableallbookings->rawdata)) {
         // Get all bookings from all booking options: only that guarantees correct use of rating.
 
         $ratingoptions = new stdClass();
-        $ratingoptions->context = $bookingdata->booking->get_context();
+        $ratingoptions->context = $bookingoption->booking->get_context();
         $ratingoptions->component = 'mod_booking';
         $ratingoptions->ratingarea = 'bookingoption';
         $ratingoptions->items = $tableallbookings->rawdata;
-        $ratingoptions->aggregate = $bookingdata->booking->settings->assessed; // The aggregation method.
-        $ratingoptions->scaleid = $bookingdata->booking->settings->scale;
+        $ratingoptions->aggregate = $bookingoption->booking->settings->assessed; // The aggregation method.
+        $ratingoptions->scaleid = $bookingoption->booking->settings->scale;
         $ratingoptions->userid = $USER->id;
         $ratingoptions->returnurl = "$CFG->wwwroot/mod/booking/report.php?id=$cm->id&optionid=$optionid";
-        $ratingoptions->assesstimestart = $bookingdata->booking->settings->assesstimestart;
-        $ratingoptions->assesstimefinish = $bookingdata->booking->settings->assesstimefinish;
+        $ratingoptions->assesstimestart = $bookingoption->booking->settings->assesstimestart;
+        $ratingoptions->assesstimefinish = $bookingoption->booking->settings->assesstimefinish;
 
         $rm = new rating_manager();
         $tableallbookings->rawdata = $rm->get_ratings($ratingoptions);
@@ -747,7 +757,7 @@ if (!$tableallbookings->is_downloading()) {
         }
 
     }
-    $otheroptions = $bookingdata->get_other_options();
+    $otheroptions = $bookingoption->get_other_options();
     if (!empty($otheroptions)) {
         if (!empty($tableallbookings->rawdata)) {
             foreach ($tableallbookings->rawdata as $answer) {
@@ -769,23 +779,23 @@ if (!$tableallbookings->is_downloading()) {
                 'whichview' => 'showonlyone'));
     $onlyoneurl->set_anchor('goenrol');
 
-    $pollurl = trim($bookingdata->option->pollurl);
+    $pollurl = trim($bookingoption->option->pollurl);
     if (!empty($pollurl)) {
-        echo html_writer::link($bookingdata->option->pollurl, get_string('copypollurl', 'booking'),
+        echo html_writer::link($bookingoption->option->pollurl, get_string('copypollurl', 'booking'),
                 array('onclick' => 'copyToClipboard("' . $pollurl . '"); return false;')) .
-                 ($bookingdata->option->pollsend ? ' &#x2713;' : '') . ' | ';
+                 ($bookingoption->option->pollsend ? ' &#x2713;' : '') . ' | ';
     }
 
     echo html_writer::link($onlyoneurl, get_string('onlythisbookingurl', 'booking'), array());
-    if (!empty($bookingdata->option->shorturl)) {
-        echo " ({$bookingdata->option->shorturl})";
+    if (!empty($bookingoption->option->shorturl)) {
+        echo " ({$bookingoption->option->shorturl})";
     }
     echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
             array('onclick' => 'copyToClipboard("' . htmlspecialchars_decode($onlyoneurl) . '"); return false;'));
 
     echo ' | ' . html_writer::link($onlyoneurl, get_string('sign_in_sheet_download_show', 'booking'),
             array('id' => 'sign_in_sheet_download_show'));
-    if (!empty($bookingdata->booking->settings->customtemplateid)) {
+    if (!empty($bookingoption->booking->settings->customtemplateid)) {
         echo ' | ' . html_writer::link(new moodle_url('/mod/booking/report.php',
                         array('id' => $cm->id, 'optionid' => $optionid, 'action' => 'postcustomreport')),
                         get_string('customdownloadreport', 'booking'), array('target' => '_blank'));
@@ -797,7 +807,7 @@ if (!$tableallbookings->is_downloading()) {
   }
 </script>";
 
-    $signinform = new mod_booking\output\signin_downloadform($bookingdata, $baseurl);
+    $signinform = new mod_booking\output\signin_downloadform($bookingoption, $baseurl);
     $renderer = $PAGE->get_renderer('mod_booking');
     echo $renderer->render_signin_pdfdownloadform($signinform);
 
@@ -808,7 +818,7 @@ if (!$tableallbookings->is_downloading()) {
 
     $customfields = '';
 
-    list($columns, $headers, $userprofilefields) = $bookingdata->booking->get_fields();
+    list($columns, $headers, $userprofilefields) = $bookingoption->booking->get_fields();
 
     if ($userprofilefields) {
         foreach ($userprofilefields as $profilefield) {

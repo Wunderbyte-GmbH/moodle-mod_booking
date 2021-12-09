@@ -28,7 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 
 use mod_booking\booking_option;
 use mod_booking\booking_utils;
-use mod_booking\utils\db;
 use renderer_base;
 use renderable;
 use templatable;
@@ -89,22 +88,22 @@ class bookingoption_description implements renderable, templatable {
     /**
      * Constructor.
      * @param $booking
-     * @param $bookingoption
+     * @param int $optionid
      * @param null $bookingevent
      * @param int $descriptionparam
      * @param bool $withcustomfields
      */
     public function __construct($booking,
-            $option,
+            int $optionid,
             $bookingevent = null,
-            $descriptionparam = DESCRIPTION_WEBSITE, // Default.
-            $withcustomfields = true,
-            $forbookeduser = null) {
+            int $descriptionparam = DESCRIPTION_WEBSITE, // Default.
+            bool $withcustomfields = true,
+            bool $forbookeduser = null) {
 
         global $CFG;
 
         $this->bu = new booking_utils();
-        $bookingoption = new booking_option($booking->cm->id, $option->id);
+        $bookingoption = new booking_option($booking->cm->id, $optionid);
 
         // We need the possibility to render for other users, so the iambookedflag is not enough.
         // But we use it if nothing else is specified.
@@ -118,20 +117,21 @@ class bookingoption_description implements renderable, templatable {
         $this->address = $bookingoption->option->address;
         $this->institution = $bookingoption->option->institution;
 
-        // There can be more than one modal, therefor we use the id of this record
+        // There can be more than one modal, therefor we use the id of this record.
         $this->modalcounter = $bookingoption->option->id;
 
+        // TODO: Add duration via booking_option_settings here. Do we need it?
         // $this->duration = $bookingoption->option->duration;
         $this->description = format_text($bookingoption->option->description, FORMAT_HTML);
 
         // For these fields we do need some conversion.
-        // For Description we need to know the booking status
+        // For Description we need to know the booking status.
         $this->statusdescription = $bookingoption->get_option_text();
 
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
-
-        $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent, $descriptionparam, $withcustomfields, $forbookeduser);
+        $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent,
+            $descriptionparam, $withcustomfields, $forbookeduser);
 
         $teachers = $bookingoption->get_teachers();
         $teachernames = [];
@@ -171,10 +171,6 @@ class bookingoption_description implements renderable, templatable {
                         . "</a>";
                 // TODO: We would need an event tracking status changes between notbooked, iambooked and onwaitinglist...
                 // TODO: ...in order to update the event table accordingly.
-                /*if ($bookingoption->onwaitinglist == 1) {
-                    // If onwaitinglist is 1, we show a short info text that the user is on the waiting list.
-                    $this->booknowbutton .= '<br><p>' . get_string('infowaitinglist', 'booking') . '</p>';
-                }*/
                 break;
             case DESCRIPTION_ICAL:
                 $this->booknowbutton = get_string('gotobookingoption', 'booking') . ': '
@@ -211,7 +207,7 @@ class bookingoption_description implements renderable, templatable {
         );
 
         // In events don't have the possibility, as on the website, to use display: none the same way.
-        // So we need two helpervariables:
+        // So we need two helper variables.
         if (count($this->dates) > 0) {
             $returnarray['showdateslabel'] = 1;
         }

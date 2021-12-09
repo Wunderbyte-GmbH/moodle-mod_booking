@@ -25,6 +25,7 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use mod_booking\booking_option;
 use mod_booking\booking_utils;
+use mod_booking\message_controller;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\utils\wb_payment;
@@ -2049,46 +2050,21 @@ function booking_sendreminderemail($selectedusers, $booking, $cmid, $optionid) {
  * @throws coding_exception
  * @throws dml_exception
  */
-function booking_sendpollurlteachers(booking_option $bookingoption, $cmid, $optionid) {
-    global $DB, $USER;
-
-    $returnval = true;
+function booking_sendmessage_pollurlteachers(booking_option $bookingoption, $cmid, $optionid) {
+    global $DB;
 
     $teachers = $DB->get_records("booking_teachers",
             array("optionid" => $optionid, 'bookingid' => $bookingoption->booking->settings->id));
 
-    foreach ($teachers as $tuser) {
-        $userdata = $DB->get_record('user', array('id' => $tuser->userid));
+    foreach ($teachers as $teacher) {
 
-        $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option,
-            $userdata, $cmid, $bookingoption->optiontimes, false, false, true);
+        // Use message controller to send the Poll URL to teacher(s).
+        $messagecontroller = new message_controller(
+            $cmid, $bookingoption->booking->id, $optionid, $teacher->userid, 'pollurlteacherstext'
+        );
+        $messagecontroller->send();
 
-        $pollurlmessage = booking_get_email_body($bookingoption->booking->settings, 'pollurlteacherstext',
-                'pollurlteacherstextmessage', $params);
-
-        $eventdata = new core\message\message();
-        $eventdata->modulename = 'booking';
-
-        // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
-        if ($bookingmanager = $DB->get_record('user',
-            array('username' => $bookingoption->booking->settings->bookingmanager))) {
-            $eventdata->userfrom = $bookingmanager;
-        } else {
-            $eventdata->userfrom = $USER;
-        }
-
-        $eventdata->userto = $userdata;
-        $eventdata->subject = get_string('pollurlteacherstextsubject', 'booking', $params);
-        $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
-        $eventdata->fullmessageformat = FORMAT_HTML;
-        $eventdata->fullmessagehtml = $pollurlmessage;
-        $eventdata->smallmessage = '';
-        $eventdata->component = 'mod_booking';
-        $eventdata->name = 'bookingconfirmation';
-
-        $returnval = message_send($eventdata);
     }
-    return $returnval;
 }
 
 /**
@@ -2568,7 +2544,7 @@ function booking_generate_email_params(stdClass $settings, stdClass $option, std
         // Add placeholder {bookingdetails} so we can add the detailed option description (similar to calendar, modal...
         // ... and ical) to mails.
         if ($includebookingdetails) {
-            $params->bookingdetails = get_rendered_eventdescription($option, $cmid, false, DESCRIPTION_MAIL);
+            $params->bookingdetails = get_rendered_eventdescription($option->id, $cmid, DESCRIPTION_MAIL);
         }
 
     } else {
@@ -2576,7 +2552,7 @@ function booking_generate_email_params(stdClass $settings, stdClass $option, std
         $params->status = booking_get_user_status($user->id, $option->id, $settings->id, $cmid);
         $params->participant = fullname($user);
         $params->email = $user->email;
-        $params->sessiondescription = get_rendered_eventdescription($option, $cmid, $optiontimes[0], DESCRIPTION_CALENDAR);
+        $params->sessiondescription = get_rendered_eventdescription($option->id, $cmid, DESCRIPTION_CALENDAR);
     }
 
     // We also add the URLs for the user to subscribe to user and course event calendar.
@@ -2612,7 +2588,7 @@ function booking_generate_email_params(stdClass $settings, stdClass $option, std
  */
 function booking_get_email_body($bookingsettings, $fieldname, $defaultname, $params) {
 
-    // List of fieldnames that have a corresponding global mail template.
+    // List of fieldnames that have a corresponding global mail templates.
     // TODO: add activitycompletiontext ??
     $mailtemplatesfieldnames = [
         'bookedtext', 'waitingtext', 'notifyemail', 'notifyemailteachers', 'statuschangetext', 'userleave',

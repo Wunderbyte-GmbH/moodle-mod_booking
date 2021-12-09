@@ -16,6 +16,8 @@
 
 namespace mod_booking;
 
+use stdClass;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -28,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 class booking_option_settings {
 
-    /** @var int $id The ID of the booking instance. */
+    /** @var int $id The ID of the booking option. */
     public $id = null;
 
     /** @var int $bookingid */
@@ -149,6 +151,8 @@ class booking_option_settings {
         global $DB;
 
         if ($dbrecord = $DB->get_record("booking_options", array("id" => $optionid))) {
+
+            // Fields in DB.
             $this->id = $optionid;
             $this->bookingid = $dbrecord->bookingid;
             $this->text = $dbrecord->text;
@@ -186,6 +190,28 @@ class booking_option_settings {
             $this->shorturl = $dbrecord->shorturl;
             $this->duration = $dbrecord->duration;
             $this->parentid = $dbrecord->parentid;
+
+            // Other member variables from different tables.
+
+            // Multi-sessions.
+            if (!$this->sessions = $DB->get_records_sql(
+                "SELECT id, coursestarttime, courseendtime
+                FROM {booking_optiondates}
+                WHERE optionid = ?
+                ORDER BY coursestarttime ASC", array($optionid))) {
+
+                // If there are no multisessions, but we still have the option's ...
+                // ... coursestarttime and courseendtime, then store them as if they were a session.
+                if (!empty($this->coursestarttime) && !empty($this->courseendtime)) {
+                    $singlesession = new stdClass;
+                    $singlesession->coursestarttime = $this->coursestarttime;
+                    $singlesession->courseendtime = $this->courseendtime;
+                    $this->sessions[] = $singlesession;
+                } else {
+                    // Else we have no sessions.
+                    $this->sessions = [];
+                }
+            }
 
         } else {
             debugging('Could not create option settings class for optionid: ' . $optionid);

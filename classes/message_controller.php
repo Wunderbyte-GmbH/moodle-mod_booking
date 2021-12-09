@@ -23,16 +23,17 @@ use core\message\message;
 use mod_booking\booking_option;
 use mod_booking\booking_settings;
 use mod_booking\booking_option_settings;
+use mod_booking\output\optiondates_only;
 
 /**
- * Manage booking messages which will be sent by email
+ * Manage booking messages which will be sent by email.
  *
  * @package mod_booking
  * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_message {
+class message_controller {
 
     /** @var int $cmid course module id */
     private $cmid;
@@ -45,9 +46,6 @@ class booking_message {
 
     /** @var int $userid */
     private $userid;
-
-    /** @var string $messagetype */
-    private $messagetype;
 
     /** @var booking_settings $bookingsettings */
     private $bookingsettings;
@@ -71,66 +69,41 @@ class booking_message {
      */
     public function __construct(int $cmid, int $bookingid, int $optionid, int $userid, string $messagetype) {
 
-        global $DB, $USER;
+        global $DB;
 
+        // Settings.
+        $this->bookingsettings = new booking_settings($bookingid);
+        $this->optionsettings = new booking_option_settings($optionid);
+
+        // Standard params.
         $this->cmid = $cmid;
         $this->bookingid = $bookingid;
         $this->optionid = $optionid;
         $this->userid = $userid;
         $this->messagetype = $messagetype;
 
-        // Generate settings.
-        $this->bookingsettings = new booking_settings($bookingid);
-        $this->optionsettings = new booking_option_settings($optionid);
-
-        // TODO: We should get rid of this somehow. Currently we need it only because of optiontimes.
-        $bookingoption = new booking_option($this->cmid, $this->optionid);
-        $optiontimes = $bookingoption->optiontimes;
-
         // Generate user data.
         $this->user = $DB->get_record('user', array('id' => $userid));
 
         // Generate email params.
-        $params = $this->generate_email_params($optiontimes, false, false, true);
+        $params = $this->get_email_params([], false, true);
 
-        // TODO: Generate email body.
-        $messagebody = '';
-        // $pollurlmessage = booking_get_email_body($bookingoption->booking->settings, 'pollurlteacherstext',
-        // 'pollurlteacherstextmessage', $params);
+        // Generate the email body.
+        $messagebody = $this->get_email_body($messagetype, $params);
 
         // Generate full message data.
-        $this->messagedata = new message();
-        $this->messagedata->modulename = 'booking';
-
-        // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
-        if ($bookingmanager = $DB->get_record('user',
-            array('username' => $this->bookingsettings->bookingmanager))) {
-            $this->messagedata->userfrom = $bookingmanager;
-        } else {
-            $this->messagedata->userfrom = $USER;
-        }
-
-        $this->messagedata->userto = $this->user;
-        $this->messagedata->subject = get_string($this->messagetype . 'subject', 'booking', $params);
-        $this->messagedata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $messagebody));
-        $this->messagedata->fullmessageformat = FORMAT_HTML;
-        $this->messagedata->fullmessagehtml = $messagebody;
-        $this->messagedata->smallmessage = '';
-        $this->messagedata->component = 'mod_booking';
-        $this->messagedata->name = $this->messagetype;
-
+        $this->messagedata = $this->get_message_data($messagetype, $messagebody, $params);
     }
 
     /**
      * Prepares the email parameters.
-     * @param string $optiontimes
-     * @param bool|array $changes
+     * @param array $changes
      * @param bool $issessionreminder
      * @param bool $includebookingdetails
      * @return stdClass data to be sent via mail
      */
-    private function generate_email_params($optiontimes = '', $changes = false,
-        $issessionreminder = false, $includebookingdetails = false) {
+    private function get_email_params(array $changes = [],
+        bool $issessionreminder = false, bool $includebookingdetails = false): stdClass {
 
         global $CFG, $PAGE;
 
@@ -187,35 +160,10 @@ class booking_message {
                 $params->pollurlteachers = $this->optionsettings->pollurlteachers;
             }
 
-            $val = '';
-
-            if (!empty($optiontimes)) {
-
-                $times = explode(',', trim($optiontimes, ','));
-                $i = 1;
-                foreach ($times as $time) {
-                    $slot = explode('-', $time);
-                    $tmpdate = new stdClass();
-                    $tmpdate->number = $i;
-                    $tmpdate->date = userdate($slot[0], get_string('strftimedate', 'langconfig'));
-                    $tmpdate->starttime = userdate($slot[0], get_string('strftimetime', 'langconfig'));
-                    $tmpdate->endtime = userdate($slot[1], get_string('strftimetime', 'langconfig'));
-                    $val .= get_string('optiondatesmessage', 'mod_booking', $tmpdate) . '<br><br>';
-                    $i++;
-                }
-            } else {
-                if ($this->optionsettings->coursestarttime && $this->optionsettings->courseendtime) {
-                    $tmpdate = new stdClass();
-                    $tmpdate->number = '';
-                    $tmpdate->date = userdate($this->optionsettings->coursestarttime, get_string('strftimedate', 'langconfig'));
-                    $tmpdate->starttime = userdate($this->optionsettings->coursestarttime,
-                        get_string('strftimetime', 'langconfig'));
-                    $tmpdate->endtime = userdate($this->optionsettings->courseendtime, get_string('strftimetime', 'langconfig'));
-                    $val .= get_string('optiondatesmessage', 'mod_booking', $tmpdate) . '<br><br>';
-                    $params->times = "$params->startdate $params->starttime - $params->enddate $params->endtime";
-                }
-            }
-            $params->times = $val;
+            // Render optiontimes using a template.
+            $output = $PAGE->get_renderer('mod_booking');
+            $data = new optiondates_only($this->optionsettings->sessions);
+            $params->optiontimes = $output->render_optiondates_only($data);
 
             // Booking_option instance needed to access functions get_all_users_booked and get_all_users_on_waitinglist.
             $boption = new booking_option($this->cmid, $this->optionid);
@@ -235,8 +183,8 @@ class booking_message {
             // Add placeholder {bookingdetails} so we can add the detailed option description (similar to calendar, modal...
             // ... and ical) to mails.
             if ($includebookingdetails) {
-                $params->bookingdetails = get_rendered_eventdescription($this->optionsettings,
-                    $this->cmid, false, DESCRIPTION_MAIL);
+                $params->bookingdetails = get_rendered_eventdescription($this->optionsettings->id,
+                    $this->cmid, DESCRIPTION_MAIL);
             }
 
         } else {
@@ -244,8 +192,8 @@ class booking_message {
             $params->status = booking_get_user_status($this->userid, $this->optionid, $this->bookingid, $this->cmid);
             $params->participant = fullname($this->user);
             $params->email = $this->user->email;
-            $params->sessiondescription = get_rendered_eventdescription($this->optionsettings,
-                $this->cmid, $optiontimes[0], DESCRIPTION_CALENDAR);
+            $params->sessiondescription = get_rendered_eventdescription($this->optionsettings->id,
+                $this->cmid, DESCRIPTION_CALENDAR);
         }
 
         // We also add the URLs for the user to subscribe to user and course event calendar.
@@ -271,8 +219,77 @@ class booking_message {
     }
 
     /**
+     * Generate the email body based on the message type and the booking parameters
+     *
+     * @param string $messagetype the name of the field that contains the custom text
+     * @param stdClass $params the booking details
+     * @return string
+     */
+    private function get_email_body(string $messagetype, stdClass $params): string {
+
+        // List of fieldnames that have a corresponding global mail templates.
+        // TODO: add activitycompletiontext ??
+        $mailtemplatesfieldnames = [
+            'bookedtext', 'waitingtext', 'notifyemail', 'notifyemailteachers', 'statuschangetext', 'userleave',
+            'deletedtext', 'bookingchangedtext', 'pollurltext', 'pollurlteacherstext'
+        ];
+
+        // Check if global mail templates are enabled and if the field name also has a global mail template.
+        if (isset($this->bookingsettings->mailtemplatessource) && $this->bookingsettings->mailtemplatessource == 1
+            && in_array($messagetype, $mailtemplatesfieldnames)) {
+            // Get the mail template specified in plugin config.
+            $text = get_config('booking', 'global' . $messagetype);
+        } else if (empty($this->bookingsettings->$messagetype)) {
+            $text = get_string($messagetype . 'message', 'booking', $params);
+        } else {
+            $text = $this->bookingsettings->{$messagetype};
+        }
+
+        // Replace the placeholders.
+        foreach ($params as $name => $value) {
+            $text = str_replace('{' . $name . '}', $value, $text);
+        }
+
+        return $text;
+    }
+
+    /**
+     * Get the actual message data needed to send the message
+     * @param string $messagetype
+     * @param string $messagebody
+     * @param stdClass $params
+     * @return message
+     */
+    private function get_message_data(string $messagetype, string $messagebody, stdClass $params): message {
+
+        global $DB, $USER;
+
+        $messagedata = new message();
+        $messagedata->modulename = 'booking';
+
+        // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
+        if ($bookingmanager = $DB->get_record('user',
+            array('username' => $this->bookingsettings->bookingmanager))) {
+            $messagedata->userfrom = $bookingmanager;
+        } else {
+            $messagedata->userfrom = $USER;
+        }
+
+        $messagedata->userto = $this->user;
+        $messagedata->subject = get_string($messagetype . 'subject', 'booking', $params);
+        $messagedata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $messagebody));
+        $messagedata->fullmessageformat = FORMAT_HTML;
+        $messagedata->fullmessagehtml = $messagebody;
+        $messagedata->smallmessage = '';
+        $messagedata->component = 'mod_booking';
+        $messagedata->name = 'bookingconfirmation';
+
+        return $messagedata;
+    }
+
+    /**
      * Send the message
-     * @return bool
+     * @return bool true if sent successfully
      */
     public function send(): bool {
         if (!empty($this->messagedata)) {

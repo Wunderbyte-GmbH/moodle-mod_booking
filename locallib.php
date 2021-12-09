@@ -373,13 +373,14 @@ function get_rendered_customfields($optiondateid) {
 
 /**
  * Helper function to render the full description (including custom fields) of option events or optiondate events.
- * @param stdClass $option the option object
- * @param numeric $cmid the course module id
- * @param stdClass $optiondate the option date object (optional)
+ * @param int $optionid
+ * @param int $cmid the course module id
+ * @param int $descriptionparam
+ * @param bool $forbookeduser
  * @return string The rendered HTML of the full description.
  */
-function get_rendered_eventdescription($option, $cmid, $optiondate = false,
-    $descriptionparam = DESCRIPTION_WEBSITE, $forbookeduser = false) {
+function get_rendered_eventdescription(int $optionid, int $cmid,
+    int $descriptionparam = DESCRIPTION_WEBSITE, bool $forbookeduser = false): string {
 
     global $PAGE;
 
@@ -390,7 +391,7 @@ function get_rendered_eventdescription($option, $cmid, $optiondate = false,
 
     $booking = new \mod_booking\booking($cmid);
 
-    $data = new \mod_booking\output\bookingoption_description($booking, $option, null, $descriptionparam, true, $forbookeduser);
+    $data = new \mod_booking\output\bookingoption_description($booking, $optionid, null, $descriptionparam, true, $forbookeduser);
     $output = $PAGE->get_renderer('mod_booking');
 
     if ($descriptionparam == DESCRIPTION_ICAL) {
@@ -434,9 +435,11 @@ function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
 
 /**
  * Helper function to update user calendar events after an option or optiondate (a session of a booking option) has been changed.
- * @param $optiondate stdClass optiondate object
+ * @param stdClass $option
+ * @param stdClass $optiondate
+ * @param int $cmid
  */
-function option_optiondate_update_event($option, $optiondate = null, $cmid) {
+function option_optiondate_update_event(stdClass $option, stdClass $optiondate = null, int $cmid) {
     global $DB, $USER;
 
     // We either do this for option or optiondate
@@ -502,9 +505,9 @@ function option_optiondate_update_event($option, $optiondate = null, $cmid) {
     // We use $data here for $option and $optiondate, the necessary keys are the same.
     foreach ($allevents as $eventrecord) {
         if ($eventrecord->eventtype == 'user') {
-            $eventrecord->description = get_rendered_eventdescription($option, $cmid, $optiondate, DESCRIPTION_CALENDAR, true);
+            $eventrecord->description = get_rendered_eventdescription($option->id, $cmid, DESCRIPTION_CALENDAR, true);
         } else {
-            $eventrecord->description = get_rendered_eventdescription($option, $cmid, $optiondate, DESCRIPTION_CALENDAR, false);
+            $eventrecord->description = get_rendered_eventdescription($option->id, $cmid, DESCRIPTION_CALENDAR, false);
         }
         $eventrecord->name = $option->text;
         $eventrecord->timestart = $data->coursestarttime;

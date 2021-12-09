@@ -17,9 +17,9 @@
 /**
  * Defines message providers (types of messages being sent)
  *
- * @package mod
- * @package booking
- * @copyright 2014 David Bogner
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author David Bogner, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();

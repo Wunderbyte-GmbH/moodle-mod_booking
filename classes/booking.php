@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
  */
 class booking {
 
-    /** @var number id booking id  */
+    /** @var int id booking id  */
     public $id = 0;
 
     /** @var \context the context of the course module for this booking instance (or just the course) */
@@ -62,17 +62,17 @@ class booking {
     /** @var array of ids */
     protected $optionids = array();
 
-    /** @var number of bookings a user has made */
+    /** @var int number of bookings a user has made */
     protected $userbookings = null;
 
     /**
      * Constructor for the booking class
      *
-     * @param $cmid
+     * @param int $cmid
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function __construct($cmid) {
+    public function __construct(int $cmid) {
         global $DB;
         $this->cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
         $this->course = $DB->get_record('course', array('id' => $this->cm->course),
@@ -122,10 +122,10 @@ class booking {
     public function get_canbook_userids() {
         // TODO check if course has guest access if not get all enrolled users and check with...
         // ...has_capability if user has right to book.
-        // $this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose',
-        // 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '',
-        // '', true, true);
-        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id');
+        // CODEBEGIN $this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose', CODEEND.
+        // CODEBEGIN 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', CODEEND.
+        // CODEBEGIN '', true, true); CODEEND.
+        // CODEBEGIN $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id'); CODEEND.
     }
 
     /**

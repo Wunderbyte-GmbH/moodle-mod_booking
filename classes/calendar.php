@@ -189,7 +189,7 @@ class calendar {
      * Add the booking option to the calendar.
      *
      * @param $booking
-     * @param array $option
+     * @param stdClass $option
      * @param numeric $userid
      * @param numeric $calendareventid
      * @param numeric $addtocalendar 0 = do not add, 1 = add as course event, 2 = add as global event.
@@ -214,13 +214,13 @@ class calendar {
             $courseid = 0;
             $instance = 0;
             $visible = 1;
-            $fulldescription = get_rendered_eventdescription($option, $this->cmid, false, DESCRIPTION_CALENDAR);
+            $fulldescription = get_rendered_eventdescription($option->id, $this->cmid, DESCRIPTION_CALENDAR);
         } else {
             // Event calendar.
             $courseid = !empty($booking->course) ? $booking->course : 0;
             $instance = $option->bookingid;
             $visible = instance_is_visible('booking', $booking);
-            $fulldescription = get_rendered_eventdescription($option, $this->cmid, false, DESCRIPTION_CALENDAR);
+            $fulldescription = get_rendered_eventdescription($option->id, $this->cmid, DESCRIPTION_CALENDAR);
         }
 
         $event = new stdClass();
@@ -304,13 +304,13 @@ class calendar {
             $bookingoption = new \mod_booking\booking_option($this->cmid, $this->optionid, null, null, null, true);
             // If the user is booked, we have a different kind of description.
             $forbookeduser = isset($bookingoption->usersonlist[$userid]) ? true : false;
-            $fulldescription = get_rendered_eventdescription($option, $this->cmid, $optiondate, DESCRIPTION_CALENDAR, $forbookeduser);
+            $fulldescription = get_rendered_eventdescription($option->id, $this->cmid, DESCRIPTION_CALENDAR, $forbookeduser);
         } else {
             // Event calendar.
             $courseid = !empty($booking->course) ? $booking->course : 0;
             $instance = $option->bookingid;
             $visible = instance_is_visible('booking', $booking);
-            $fulldescription = get_rendered_eventdescription($option, $this->cmid, $optiondate, DESCRIPTION_CALENDAR);
+            $fulldescription = get_rendered_eventdescription($option->id, $this->cmid, DESCRIPTION_CALENDAR);
         }
 
         $event = new stdClass();

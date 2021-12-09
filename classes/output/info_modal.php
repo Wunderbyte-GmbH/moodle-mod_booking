@@ -41,7 +41,7 @@ use templatable;
 class info_modal implements renderable, templatable {
 
     /** @var array from  */
-    public $bookingoption_description = null;
+    public $bookingoptiondescription = null;
 
     /** @var string $description from DB */
     public $body = null;

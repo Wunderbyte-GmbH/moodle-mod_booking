@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking\output;
+
 use mod_booking;
+use mod_booking\booking;
 use tabobject;
 use html_writer;
 use plugin_renderer_base;
@@ -39,7 +41,7 @@ defined('MOODLE_INTERNAL') || die();
 class renderer extends plugin_renderer_base {
 
     // Prints tabs for options.
-    public function print_booking_tabs($urlparams, $current = 'showactive', $mybookings = 0, $myoptions = 0, mod_booking\booking $booking) {
+    public function print_booking_tabs($urlparams, $current = 'showactive', $mybookings = 0, $myoptions = 0, booking $booking) {
         global $USER;
         // Output tabs.
         $row = array();
@@ -206,7 +208,6 @@ class renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_rating(rating $rating) {
-        global $OUTPUT;
 
         if ($rating->settings->aggregationmethod == RATING_AGGREGATE_NONE) {
             return null; // Ratings are turned off.
@@ -282,7 +283,7 @@ class renderer extends plugin_renderer_base {
                 } else {
                     $courseid = $rating->settings->scale->courseid;
                 }
-                $ratinghtml .= $OUTPUT->help_icon_scale($courseid, $rating->settings->scale);
+                $ratinghtml .= $this->output->help_icon_scale($courseid, $rating->settings->scale);
             }
             $ratinghtml .= html_writer::end_tag('div');
         }
@@ -431,13 +432,13 @@ class renderer extends plugin_renderer_base {
         $o .= $this->render_from_template('mod_booking/col_text_modal', $data);
         return $o;
     }
-    
 
-   /**
-    * Render function.
-    * @param $data array
-    * @return string
-    */
+
+    /**
+     * Render function.
+     * @param $data array
+     * @return string
+     */
     public function render_coursepage_available_options($data) {
         $o = '';
         $data = $data->export_for_template($this);
@@ -466,6 +467,18 @@ class renderer extends plugin_renderer_base {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/col_coursestarttime', $data);
+        return $o;
+    }
+
+    /**
+     * Render function to render a simple string of optiondates separated by ", ".
+     * @param $data array
+     * @return string
+     */
+    public function render_optiondates_only($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/optiondates_only', $data);
         return $o;
     }
 }

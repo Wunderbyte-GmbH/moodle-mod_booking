@@ -31,10 +31,10 @@ define(['jquery', "jqueryui", 'core/config'], function($, jqueryui, mdlconfig) {
                 url: mdlconfig.wwwroot + "/mod/booking/institutions_rest.php?id=" + id,
                 method: "POST",
             }).done(function(data) {
-                $( "#id_institution" ).autocomplete( "option", "source", data );
+                $("#id_institution").autocomplete("option", "source", data);
             });
 
-            $( "#id_institution" ).autocomplete();
+            $("#id_institution").autocomplete();
         }
     };
 });

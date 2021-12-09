@@ -26,11 +26,11 @@
 define(['jquery', 'core/config', 'mod_booking/jquery.barrating'],
         function($, mdlconfig) {
             return {
-                setup : function(id) {
+                setup: function(id) {
                     $('.starrating').each(function(index, value) {
                         var currentrating = $(this).data('current-rating');
                         var itemid = $(this).data('itemid');
-                        if(!value) {
+                        if (!value) {
                             // Just for stupid TravisCI rules!
                             value = '';
                         }
@@ -39,11 +39,11 @@ define(['jquery', 'core/config', 'mod_booking/jquery.barrating'],
                             initialRating: currentrating,
                             theme: 'css-stars',
                             onSelect: function(value, text, event) {
-                                if (typeof(event) !== 'undefined') {
+                                if (typeof (event) !== 'undefined') {
                                     $.ajax({
                                         url: mdlconfig.wwwroot + "/mod/booking/rating_rest.php?id=" + id,
                                         method: "POST",
-                                        data: { optionid: itemid, value: value }
+                                        data: {optionid: itemid, value: value}
                                     }).done(function(data) {
                                         $(thisid).barrating('readonly', true);
                                         $(thisid).barrating('set', data.rate);
@@ -55,7 +55,7 @@ define(['jquery', 'core/config', 'mod_booking/jquery.barrating'],
                     $('#showHideSearch').on('click', function() {
                         $('#tableSearch').fadeToggle("slow", "linear");
                         $('html, body').animate({
-                            scrollTop : $("#tableSearch").offset().top - 120
+                            scrollTop: $("#tableSearch").offset().top - 120
                         }, 1000);
                     });
                     $('.showHideOptionText').on('click', function() {
@@ -63,7 +63,7 @@ define(['jquery', 'core/config', 'mod_booking/jquery.barrating'],
                         $('#showtext' + $(this).data("id")).toggle();
                         $('#hidetext' + $(this).data("id")).toggle();
                         $('html, body').animate({
-                            scrollTop : $('#optiontext' + $(this).data("id")).offset().top - 120
+                            scrollTop: $('#optiontext' + $(this).data("id")).offset().top - 120
                         }, 1000);
                     });
                     $('#page-mod-booking-view #buttonclear')

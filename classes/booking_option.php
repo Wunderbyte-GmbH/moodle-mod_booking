@@ -85,7 +85,7 @@ class booking_option {
     public $perpage = 0;
 
     /** @var string filter and other url params */
-    public $urparams;
+    public $urlparams;
 
     /** @var string $times course start time - course end time or session times separated with a comma */
     public $optiontimes = '';
@@ -126,6 +126,8 @@ class booking_option {
 
         $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', MUST_EXIST);
 
+        // TODO: We need to get rid of this in the future.
+        // It will be done by the booking_option_settings class and the mustache template optiondates_only.
         $times = $DB->get_records_sql(
                 "SELECT id, coursestarttime, courseendtime
                    FROM {booking_optiondates}
@@ -141,6 +143,7 @@ class booking_option {
         } else {
             $this->optiontimes = '';
         }
+
         $this->filters = $filters;
         $this->page = $page;
         $this->perpage = $perpage;
