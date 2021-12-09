@@ -61,13 +61,17 @@ class shortcodes {
             return 'Couldn\'t find right booking instance ' . $args['id'];
         }
 
+        if (!$category = ($args['category'])) {
+            return 'No Category defined ' . $args['id'];
+        }
+
         $tablename = bin2hex(random_bytes(12));
 
         $table = new bookingoptions_simple_table($tablename);
 
         $booking = new booking($args['id']);
 
-        list($fields, $from, $where, $params) = $booking->get_all_options_sql(null, null, null, '*');
+        list($fields, $from, $where, $params) = $booking->get_all_options_sql(null, null, $category, '*');
 
         $table->set_sql($fields, $from, $where, $params);
 
