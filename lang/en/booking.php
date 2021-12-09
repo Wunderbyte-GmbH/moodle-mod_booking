@@ -1558,5 +1558,8 @@ $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the wai
 // Shortcodes
 $string['shortcodeslistofbookingoptions'] = 'List of booking options';
 
+// Customfields
+$string['booking_customfield'] = 'Booking customfields for booking options';
+
 // Optiondates_only.mustache.
 $string['sessions'] = 'Sessions';

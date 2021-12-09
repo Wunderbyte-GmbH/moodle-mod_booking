@@ -19,6 +19,9 @@ use mod_booking\utils\wb_payment;
 use moodleform;
 use mod_booking\booking;
 use mod_booking\booking_option;
+use mod_booking\customfield\booking_handler;
+use mod_booking_external;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -27,6 +30,17 @@ class option_form extends moodleform {
     public function definition() {
         global $CFG, $COURSE, $DB, $PAGE;
         $mform = & $this->_form;
+
+        $cmid = 0;
+        $optionid = 0;
+        if (isset($this->_customdata['cmid'])) {
+            $cmid = $this->_customdata['cmid'];
+            $booking = new booking($cmid);
+        }
+        if (isset($this->_customdata['optionid'])) {
+            $optionid = $this->_customdata['optionid'];
+        }
+
         $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
@@ -55,11 +69,7 @@ class option_form extends moodleform {
         } else {
             $mform->setType('text', PARAM_CLEANHTML);
         }
-        if (isset($this->_customdata['cmid'])) {
-            $cmid = $this->_customdata['cmid'];
-            $booking = new booking($cmid);
-        }
-        
+
         // Add standard name here:
         $eventtype = $booking->settings->eventtype;
         if ($eventtype && strlen($eventtype) > 0) {
@@ -287,6 +297,10 @@ class option_form extends moodleform {
         $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
         $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
 
+        // Add custom fields
+        $handler = booking_handler::create();
+        $handler->instance_form_definition($mform, $optionid);
+
         // Templates and recurring 'events' - only visible when adding new.
         if ($this->_customdata['optionid'] == -1) {
             $mform->addElement('header', 'recurringheader',
@@ -463,6 +477,16 @@ class option_form extends moodleform {
             }
         }
 
+        // To handle costumfileds correctly.
+        // We use instanceid for optionid.
+        // But cf always uses the id key. we can't override it completly though.
+        // Therefore, we change it to optionid just for the defaultvalues creation.
+        $handler = booking_handler::create();
+        $id = $defaultvalues->id;
+        $defaultvalues->id = $defaultvalues->optionid;
+        $handler->instance_form_before_set_data($defaultvalues);
+        $defaultvalues->id = $id;
+
         parent::set_data($defaultvalues);
     }
 
@@ -480,7 +504,30 @@ class option_form extends moodleform {
             $data->aftercompletedtext = $data->aftercompletedtext['text'];
         }
 
+        $handler = booking_handler::create();
+        $handler->instance_form_validation((array)$data, []);
+
         return $data;
+    }
+
+    /**
+     *
+     * Show the booking information to edit
+     *
+     * @param bool $entity
+     */
+    public function get_customfieldcategories(booking_handler $handler) {
+        $categories = $handler->get_categories_with_fields();
+        foreach ($categories as $category) {
+            $name = $category->get('name');
+            // Mabye use later $id = $category->get('id');.
+            $categorynames[$name] = $name;
+        }
+        if (count($categorynames) == 0) {
+            return ['not category yet'];
+        }
+
+        return $categorynames;
     }
 
 }

@@ -72,5 +72,7 @@ $capabilities = array(
         'archetypes' => array('teacher' => CAP_ALLOW, 'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW)),
     'mod/booking:manageoptiontemplates' => array('captype' => 'write', 'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array('manager' => CAP_ALLOW))
+        'archetypes' => array('manager' => CAP_ALLOW)),
+    'mod/booking:changelockedcustomfields' => array('captype' => 'write', 'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array('manager' => CAP_ALLOW)),
     );

@@ -147,6 +147,12 @@ class booking {
         return array($groupsql, $params);
     }
 
+    /**
+     * Function to $params and $sqlquery for searching booking option.
+     *
+     * @param string $searchtext
+     * @return array
+     */
     private function searchparameters($searchtext = '') {
         global $DB;
         $search = '';
@@ -554,9 +560,29 @@ class booking {
             $limit = " LIMIT {$limitfrom},{$limitnum}";
         }
 
-        $fields = "{$fields}";
         $from = "{booking_options} bo";
-        $where = "bo.bookingid = :bookingid {$search} ORDER BY bo.coursestarttime ASC {$limit}";
+        $where = "bo.bookingid = :bookingid {$search}";
+        $order = "ORDER BY bo.coursestarttime ASC {$limit}";
+
+        if (strlen($searchtext) !== 0) {
+            $from .= "
+                JOIN {customfield_data} cfd
+                ON bo.id=cfd.instanceid
+                JOIN {customfield_field} cff
+                ON cfd.fieldid=cff.id
+                ";
+            // Strip column close.
+            $where = substr($where, 0, -1);
+            // Add another tag.
+            $where .= " OR {$DB->sql_like('cfd.value', ':cfsearchtext', false)}) ";
+            $where .= $order;
+            // In a future iteration, we can add the specification in which customfield we want to search.
+            // For From JOIN {customfield_field} cff.
+            // ON cfd.fieldid=cff.id .
+            // And for Where.
+            // AND cff.name like 'fieldname'.
+            $params['cfsearchtext'] = $searchtext;
+        }
 
         return [$fields, $from, $where, $params];
     }

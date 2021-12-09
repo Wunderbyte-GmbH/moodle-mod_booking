@@ -18,6 +18,7 @@ require_once("locallib.php");
 
 use mod_booking\form\option_form;
 use \core\output\notification;
+use mod_booking\customfield\booking_handler;
 
 global $DB, $OUTPUT, $PAGE, $USER;
 
@@ -160,6 +161,12 @@ if ($mform->is_cancelled()) {
                 }
             }
         }
+
+        // This is to save customfield data
+        // The id key has to be set to option id.
+        $fromform->id = $nbooking ?? $optionid;
+        $handler = booking_handler::create();
+        $handler->instance_form_save($fromform, $optionid == -1);
 
         // Redirect after pressing one of the 2 submit buttons.
         if (isset($fromform->submittandaddnew)) {
