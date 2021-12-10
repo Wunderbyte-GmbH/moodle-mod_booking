@@ -30,7 +30,6 @@ defined('MOODLE_INTERNAL') || die();
 use renderer_base;
 use renderable;
 use templatable;
-use mod_booking\booking_option_settings;
 use stdClass;
 
 /**
@@ -56,18 +55,45 @@ class optiondates_only implements renderable, templatable {
      */
     public function __construct(array $sessions) {
 
-        if (empty($sessions)) {
+        $dateformat = get_string('strftimedate', 'langconfig');
+        $timeformat = get_string('strftimetime', 'langconfig');
+        $datetimeformat = get_string('strftimedatetime', 'langconfig');
 
+        if (empty($sessions)) {
+            // Don't show anything if we have no sessions.
             $this->showsessions = false;
 
         } else {
+            // If there only is one session, it could be that it's the course start and end time.
+            // So check, if it's expanding over more than one day and format accordingly.
+            if (count($sessions) == 1) {
 
-            foreach ($sessions as $session) {
+                $session = array_pop($sessions);
+
                 $formattedsession = new stdClass;
-                $formattedsession->starttime = userdate($session->coursestarttime, get_string('strftimedatetime', 'langconfig'));
-                $formattedsession->endtime = userdate($session->courseendtime, get_string('strftimedatetime', 'langconfig'));
 
+                if (userdate($session->coursestarttime, $dateformat) == userdate($session->courseendtime, $dateformat)) {
+                    // Session is on one day only.
+                    $formattedsession->starttime = userdate($session->coursestarttime, $datetimeformat);
+                    $formattedsession->endtime = userdate($session->courseendtime, $timeformat);
+                } else {
+                    // Session expands over more than one day.
+                    $formattedsession->starttime = userdate($session->coursestarttime, $datetimeformat);
+                    $formattedsession->endtime = userdate($session->courseendtime, $datetimeformat);
+                }
                 $this->sessions[] = $formattedsession;
+
+            } else {
+
+                // Each session in a multisession will always be on the same day.
+                foreach ($sessions as $session) {
+                    $formattedsession = new stdClass;
+
+                    $formattedsession->starttime = userdate($session->coursestarttime, $datetimeformat);
+                    $formattedsession->endtime = userdate($session->courseendtime, $timeformat);
+
+                    $this->sessions[] = $formattedsession;
+                }
             }
         }
     }
