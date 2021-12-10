@@ -557,8 +557,17 @@ if (!$tableallbookings->is_downloading()) {
         $sqlvalues = array_merge($sqlvalues, $groupparams);
     }
 
+    if ($CFG->version >= 2021051700) {
+        // This only works in Moodle 3.11 and later.
+        $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
+        $mainuserfields = trim($mainuserfields, ', ');
+    } else {
+        // This is only here to support Moodle versions earlier than 3.11.
+        $mainuserfields = get_all_user_name_fields(true, 'u');
+    }
+
     // ALL USERS - START To make compatible MySQL and PostgreSQL - http://hyperpolyglot.org/db.
-    $fields = 'ba.id, ' . get_all_user_name_fields(true, 'u') . ',
+    $fields = 'ba.id, ' . $mainuserfields . ',
             u.username,
             u.institution,
             u.city,
@@ -629,7 +638,8 @@ if (!$tableallbookings->is_downloading()) {
     if ($isteacher) {
         $url = new moodle_url('/mod/booking/subscribeusers.php',
             array('id' => $cm->id, 'optionid' => $optionid));
-        $linkst = $linkst . html_writer::link($url, html_writer::tag('p', get_string('bookotherusers', 'booking'), ['class' => 'btn btn-secondary']));
+        $linkst = $linkst . html_writer::link($url,
+            html_writer::tag('p', get_string('bookotherusers', 'booking'), ['class' => 'btn btn-secondary']));
     }
 
     echo "<p>" .

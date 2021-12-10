@@ -24,6 +24,7 @@ use mod_booking\booking_option;
 use mod_booking\booking_settings;
 use mod_booking\booking_option_settings;
 use mod_booking\output\optiondates_only;
+use mod_booking\output\bookingoption_changes;
 
 /**
  * Manage booking messages which will be sent by email.
@@ -175,7 +176,7 @@ class message_controller {
 
             // If there are changes, let's render them.
             if ($changes) {
-                $data = new \mod_booking\output\bookingoption_changes($changes, $this->cmid);
+                $data = new bookingoption_changes($changes, $this->cmid);
                 $output = $PAGE->get_renderer('mod_booking');
                 $params->changes = $output->render_bookingoption_changes($data);
             }

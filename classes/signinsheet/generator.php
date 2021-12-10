@@ -261,14 +261,25 @@ class generator {
         }
         $remove = array('signinextracols1', 'signinextracols2', 'signinextracols3', 'fullname',
             'signature', 'rownumber', 'role');
+
+        if ($CFG->version >= 2021051700) {
+            // This only works in Moodle 3.11 and later.
+            $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
+            $mainuserfields = trim($mainuserfields, ', ');
+        } else {
+            // This is only here to support Moodle versions earlier than 3.11.
+            $mainuserfields = get_all_user_name_fields(true, 'u');
+        }
+
         $userfields = array_diff($this->allfields, $remove);
         if (!empty($userfields)) {
             $userfields = ', u.' . implode(', u.', $userfields);
         } else {
             $userfields = '';
         }
+        
         $users = $DB->get_records_sql(
-                'SELECT u.id, ' . get_all_user_name_fields(true, 'u') . $userfields .
+                'SELECT u.id, ' . $mainuserfields . $userfields .
                          '
             FROM {booking_answers} ba
             LEFT JOIN {user} u ON u.id = ba.userid
@@ -299,8 +310,18 @@ class generator {
         }
 
         if ($this->includeteachers) {
+
+            if ($CFG->version >= 2021051700) {
+                // This only works in Moodle 3.11 and later.
+                $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
+                $mainuserfields = trim($mainuserfields, ', ');
+            } else {
+                // This is only here to support Moodle versions earlier than 3.11.
+                $mainuserfields = get_all_user_name_fields(true, 'u');
+            }
+
             $teachers = $DB->get_records_sql(
-                    'SELECT u.id, ' . get_all_user_name_fields(true, 'u') . $userfields .
+                    'SELECT u.id, ' . $mainuserfields . $userfields .
                     '
             FROM {booking_teachers} bt
             LEFT JOIN {user} u ON u.id = bt.userid
