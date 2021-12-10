@@ -16,9 +16,10 @@
 /**
  * Manage bookings for a booking option
  *
- * @package mod_booking
- * @copyright 2012 David Bogner www.edulabs.org
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     mod_booking
+ * @copyright   2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author      David Bogner
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use mod_booking\message_controller;
@@ -226,7 +227,7 @@ if (isset($action) && $action == 'sendpollurlteachers' &&
          has_capability('mod/booking:communicate', $context)) {
 
     // Send the Poll URL to the teacher(s).
-    booking_sendmessage_pollurlteachers($bookingoption, $cm->id, $optionid);
+    booking_sendmessage_pollurlteachers($bookingoption->booking->id, $cm->id, $optionid);
 
     $url->remove_params('action');
     redirect($url, get_string('allmailssend', 'booking'), 5);
@@ -346,8 +347,10 @@ if (!$tableallbookings->is_downloading()) {
         } else if (isset($_POST['sendpollurl']) &&
                  has_capability('mod/booking:communicate', $context)) {
 
-            booking_sendpollurl($allselectedusers, $bookingoption, $cm->id, $optionid);
+            // Send the poll URL to all selected users.
+            booking_sendmessage_pollurl($allselectedusers, $bookingoption->booking->id, $cm->id, $optionid);
             redirect($url, get_string('allmailssend', 'booking'), 5);
+
         } else if (isset($_POST['sendcustommessage']) &&
                  has_capability('mod/booking:communicate', $context)) {
 

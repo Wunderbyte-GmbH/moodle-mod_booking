@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 defined('MOODLE_INTERNAL') || die();
+
 global $CFG;
 
 require_once($CFG->libdir . '/filelib.php');
@@ -2043,87 +2044,55 @@ function booking_sendreminderemail($selectedusers, $booking, $cmid, $optionid) {
 
 /**
  * Send mail to all teachers - pollurlteachers.
- * @param booking_option $bookingoption
- * @param $cmid
- * @param $optionid
- * @return bool|mixed
+ * @param int $bookingid
+ * @param int $cmid
+ * @param int $optionid
  * @throws coding_exception
  * @throws dml_exception
  */
-function booking_sendmessage_pollurlteachers(booking_option $bookingoption, $cmid, $optionid) {
+function booking_sendmessage_pollurlteachers(int $bookingid, $cmid, $optionid) {
     global $DB;
 
     $teachers = $DB->get_records("booking_teachers",
-            array("optionid" => $optionid, 'bookingid' => $bookingoption->booking->settings->id));
+            array("optionid" => $optionid, 'bookingid' => $bookingid));
 
     foreach ($teachers as $teacher) {
 
         // Use message controller to send the Poll URL to teacher(s).
         $messagecontroller = new message_controller(
-            $cmid, $bookingoption->booking->id, $optionid, $teacher->userid, 'pollurlteacherstext'
+            $cmid, $bookingid, $optionid, $teacher->userid, 'pollurlteacherstext'
         );
         $messagecontroller->send();
-
     }
 }
 
 /**
  * Send pollurl
  *
- * @param $userids
- * @param booking_option $bookingoption
- * @param $cmid
- * @param $optionid
- * @return bool|mixed
+ * @param array $userids the selected userids
+ * @param int $bookingid
+ * @param int $cmid
+ * @param int $optionid
  * @throws coding_exception
  * @throws dml_exception
  */
-function booking_sendpollurl($userids, booking_option $bookingoption, $cmid, $optionid) {
-    global $DB, $USER;
-
-    $returnval = true;
-
-    $sender = $DB->get_record('user', array('username' => $bookingoption->booking->settings->bookingmanager));
+function booking_sendmessage_pollurl($userids, int $bookingid, $cmid, $optionid) {
+    global $DB;
 
     foreach ($userids as $userid) {
-        $tuser = $DB->get_record('user', array('id' => $userid));
 
-        $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option, $tuser, $cmid,
-                $bookingoption->optiontimes, false, false, true);
-
-        $pollurlmessage = booking_get_email_body($bookingoption->booking->settings, 'pollurltext',
-                'pollurltextmessage', $params);
-
-        $eventdata = new core\message\message();
-        $eventdata->modulename = 'booking';
-
-        // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
-        if ($bookingmanager = $DB->get_record('user',
-            array('username' => $bookingoption->booking->settings->bookingmanager))) {
-            $eventdata->userfrom = $bookingmanager;
-        } else {
-            $eventdata->userfrom = $USER;
-        }
-
-        $eventdata->userto = $tuser;
-        $eventdata->subject = get_string('pollurltextsubject', 'booking', $params);
-        $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $pollurlmessage));
-        $eventdata->fullmessageformat = FORMAT_HTML;
-        $eventdata->fullmessagehtml = $pollurlmessage;
-        $eventdata->smallmessage = '';
-        $eventdata->component = 'mod_booking';
-        $eventdata->name = 'bookingconfirmation';
-
-        $returnval = message_send($eventdata);
+        // Use message controller to send the Poll URL to every selected user.
+        $messagecontroller = new message_controller(
+            $cmid, $bookingid, $optionid, $userid, 'pollurltext'
+        );
+        $messagecontroller->send();
     }
 
     $dataobject = new stdClass();
-    $dataobject->id = $bookingoption->option->id;
+    $dataobject->id = $optionid;
     $dataobject->pollsend = 1;
 
     $DB->update_record('booking_options', $dataobject);
-
-    return $returnval;
 }
 
 /**
