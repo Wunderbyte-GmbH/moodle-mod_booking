@@ -1316,6 +1316,13 @@ $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der W
 
 // Shortcodes
 $string['shortcodeslistofbookingoptions'] = 'Liste der buchbaren Optionen';
+$string['shortcodessetdefaultinstance'] = 'Setze eine Standard Instanz für Shortcodes';
+$string['shortcodessetdefaultinstancedesc'] = 'Damit kann eine Standard-Buchungsinstanz definiert werden, die dann verwendet wird,
+wenn keine Id definiert wurde. Das erlaubt den schnellen Wechsel (zum Beispiel von einem Semster zum nächsten), wenn es Überlbicks-
+Seiten für unterschiedliche Kategoiren gibt.';
+$string['shortcodessetinstance'] = 'Definiere die Moodle Id jener Buchungsinstanz, die standardmäßig verwendet werden soll.';
+$string['shortcodessetinstancedesc'] = 'Wenn Du hier einen Wert setzt, kann der Shortcodes so verwendet werden: [listofbookings category="philosophy"]
+Es ist also nicht mehr nötig, eine id zu übergeben.';
 
 // Customfields
 $string['booking_customfield'] = 'Benutzerdefinierte Felder für Buchungsoptionen';

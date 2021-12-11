@@ -1557,6 +1557,13 @@ $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the wai
 
 // Shortcodes
 $string['shortcodeslistofbookingoptions'] = 'List of booking options';
+$string['shortcodessetdefaultinstance'] = 'Set default instance for shortcodes implementation';
+$string['shortcodessetdefaultinstancedesc'] = 'This allows you to change instances quickly and at
+once when you want to change a lot of them at once. One example would be that you have a lot of teaching
+categories and they are listed on different pages, but you need to change the booking options form one semester to the next.';
+$string['shortcodessetinstance'] = 'Set the moodle id of the booking instance which should be used by default';
+$string['shortcodessetinstancedesc'] = 'If you use this setting, you can use the shortcode like this [listofbookings category="philosophy"]
+So no need to specify the id';
 
 // Customfields
 $string['booking_customfield'] = 'Booking customfields for booking options';

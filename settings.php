@@ -68,7 +68,18 @@ if ($ADMIN->fulltree) {
             get_string('licensekey', 'mod_booking'),
             $licensekeydesc, ''));
 
-    // TODO
+    $settings->add(
+        new admin_setting_heading('shortcodessetdefaultinstance',
+            get_string('shortcodessetdefaultinstance', 'mod_booking'),
+            get_string('shortcodessetdefaultinstancedesc', 'mod_booking')));
+
+    $settings->add(
+        new admin_setting_configtext('booking/shortcodessetinstance',
+            get_string('shortcodessetinstance', 'mod_booking'),
+            get_string('shortcodessetinstancedesc', 'mod_booking'),
+            '', PARAM_INT));
+
+            // TODO
     $settings->add(
         new admin_setting_heading('uniqueoptionnameheading',
             get_string('uniqueoptionnameheading', 'mod_booking'),
@@ -302,5 +313,5 @@ if ($ADMIN->fulltree) {
 $ADMIN->add('modbookingfolder',
         new admin_externalpage('modbookingcustomfield',
                 get_string('customfieldconfigure', 'mod_booking'),
-                new moodle_url('/mod/booking/customfieldsettings.php')));
+                new moodle_url('/mod/booking/customfield.php')));
 $settings = null;

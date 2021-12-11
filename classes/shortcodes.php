@@ -45,15 +45,48 @@ class shortcodes {
      * @return void
      */
     public static function listofbookingoptions($shortcode, $args, $content, $env, $next) {
-        global $USER;
+        global $USE, $DB;
+
+        $params = [
+            'text' => 'tennis',
+            'institution' => 'tennis',
+            'location' => 'tennis',
+            'cfsearchtext' => 'tennis',
+            'bookingid' => 1
+        ];
+
+        $sql = "SELECT bo.*, cff.name as customfieldname,
+        cfd.value as customfieldvalue,
+        cfd.charvalue as customfieldcharvalue,
+        cfd.shortcharvalue as customfieldcshortharvalue,
+        cfd.decvalue as customfielddecvalue
+        FROM {booking_options} bo
+        JOIN {customfield_data} cfd
+        ON bo.id=cfd.instanceid
+        JOIN {customfield_field} cff
+        ON cfd.fieldid=cff.id
+        WHERE bo.bookingid=:bookingid AND (
+LOWER(bo.text) LIKE LOWER(:text) COLLATE utf8mb4_bin ESCAPE '\\\' OR
+LOWER(bo.location) LIKE LOWER(:location) COLLATE utf8mb4_bin ESCAPE '\\\' OR
+LOWER(bo.institution) LIKE LOWER(:institution) COLLATE utf8mb4_bin ESCAPE '\\\' OR
+LOWER(cfd.value) LIKE LOWER(:cfsearchtext) COLLATE utf8mb4_bin ESCAPE '\\\')
+ORDER BY bo.coursestarttime ASC";
+
+        $records = $DB->get_records_sql($sql, $params);
+
 
         // TODO: Define capality.
         if (!has_capability('moodle/site:config', $env->context)) {
             return '';
         }
 
+        // If the id Argument was not passed on, we have a fallback in the connfig.
+        if (!isset($args['id'])) {
+            $args['id'] = get_config('booking', 'shortcodessetinstance');
+        }
+
         // To prevent missconfiguration, id has to be there and int.
-        if (!isset($args['id']) || !is_int((int)$args['id'])) {
+        if (!(isset($args['id']) && $args['id'] && is_int((int)$args['id']))) {
             return 'Set id of booking instance';
         }
 
@@ -71,7 +104,7 @@ class shortcodes {
 
         $booking = new booking($args['id']);
 
-        list($fields, $from, $where, $params) = $booking->get_all_options_sql(null, null, $category, '*');
+        list($fields, $from, $where, $params) = $booking->get_all_options_sql(null, null, $category, 'bo.*');
 
         $table->set_sql($fields, $from, $where, $params);
 
