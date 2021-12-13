@@ -1046,7 +1046,8 @@ To view all your booked courses click on the following link: {$a->bookinglink}
 
 ';
 
-$string['notifyemaildefaultmessage'] = 'Your booking will start soon:
+$string['notifyemailsubject'] = 'Your booking will start soon';
+$string['notifyemailmessage'] = 'Your booking will start soon:
 
 Booking status: {$a->status}
 Participant: {$a->participant}
@@ -1057,7 +1058,8 @@ The associated course can be found here: {$a->courselink}
 ';
 $string['notifyemail'] = 'Participant notification before start';
 
-$string['notifyemailteachersdefaultmessage'] = 'Your booking will start soon:
+$string['notifyemailteacherssubject'] = 'Your booking will start soon';
+$string['notifyemailteachersmessage'] = 'Your booking will start soon:
 
 {$a->bookingdetails}
 
@@ -1557,7 +1559,8 @@ $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the wai
 
 // Optiondates_only.mustache.
 $string['sessions'] = 'Sessions';
-// Shortcodes
+
+// Shortcodes.
 $string['shortcodeslistofbookingoptions'] = 'List of booking options';
 $string['shortcodessetdefaultinstance'] = 'Set default instance for shortcodes implementation';
 $string['shortcodessetdefaultinstancedesc'] = 'This allows you to change instances quickly when you want to change

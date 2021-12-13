@@ -299,6 +299,7 @@ class message_controller {
         $messagedata->smallmessage = '';
         $messagedata->component = 'mod_booking';
         $messagedata->name = 'bookingconfirmation';
+        $messagedata->courseid = $this->bookingsettings->course;
 
         return $messagedata;
     }
@@ -317,10 +318,10 @@ class message_controller {
             case MSGPARAM_WAITINGLIST:
                 $fieldname = 'waitingtext';
                 break;
-            case MSGPARAM_BEFORESTART_PARTICIPANT:
+            case MSGPARAM_REMINDER_PARTICIPANT:
                 $fieldname = 'notifyemail';
                 break;
-            case MSGPARAM_BEFORESTART_TEACHER:
+            case MSGPARAM_REMINDER_TEACHER:
                 $fieldname = 'notifyemailteachers';
                 break;
             case MSGPARAM_STATUS_CHANGED:

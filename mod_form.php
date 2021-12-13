@@ -358,7 +358,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('editor', 'notifyemail', get_string('notifyemail', 'booking'), null,
                 $editoroptions);
         $default = array(
-            'text' => get_string('notifyemaildefaultmessage', 'booking', $fieldmapping),
+            'text' => get_string('notifyemailmessage', 'booking', $fieldmapping),
             'format' => FORMAT_HTML);
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('notifyemail', $default);
@@ -367,7 +367,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // BEGIN - PRO feature: Teacher notifications.
         $default = array(
-            'text' => get_string('notifyemailteachersdefaultmessage', 'booking', $fieldmapping),
+            'text' => get_string('notifyemailteachersmessage', 'booking', $fieldmapping),
             'format' => FORMAT_HTML);
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         // Check if PRO version is active.

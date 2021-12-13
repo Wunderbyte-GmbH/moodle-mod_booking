@@ -906,7 +906,8 @@ Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf folgenden L
 {$a->bookinglink}
 ';
 
-$string['notifyemaildefaultmessage'] = 'Ihre Buchung startet demnächst:
+$string['notifyemailsubject'] = 'Ihre Buchung startet demnächst';
+$string['notifyemailmessage'] = 'Ihre Buchung startet demnächst:
 
 {$a->bookingdetails}
 
@@ -919,7 +920,8 @@ Hier geht\'s zum Kurs:  {$a->courselink}
 ';
 $string['notifyemail'] = 'Teilnehmer/innen-Benachrichtigung vor dem Beginn';
 
-$string['notifyemailteachersdefaultmessage'] = 'Ihre Buchung startet demnächst:
+$string['notifyemailteacherssubject'] = 'Ihre Buchung startet demnächst';
+$string['notifyemailteachersmessage'] = 'Ihre Buchung startet demnächst:
 
 {$a->bookingdetails}
 
@@ -1313,7 +1315,8 @@ $string['bstlink'] = 'Anzeigen';
 // All_options.php.
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>Sie haben diese Option bereits gebucht.</i></div>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der Warteliste für diese Option.</i></div>';
-// Shortcodes
+
+// Shortcodes.
 $string['shortcodeslistofbookingoptions'] = 'Liste der buchbaren Optionen';
 $string['shortcodessetdefaultinstance'] = 'Setze eine Standard Instanz für Shortcodes';
 $string['shortcodessetdefaultinstancedesc'] = 'Damit kann eine Standard-Buchungsinstanz definiert werden, die dann verwendet wird,

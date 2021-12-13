@@ -1910,7 +1910,7 @@ class booking_option {
     }
 
     /**
-     * Send mail to all teachers - pollurlteachers.
+     * Send message: Poll URL for teachers.
      * @param int $bookingid
      * @param int $cmid
      * @param int $optionid

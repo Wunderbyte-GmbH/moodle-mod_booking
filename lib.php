@@ -34,8 +34,8 @@ use mod_booking\utils\wb_payment;
 // Define global parameters.
 define('MSGPARAM_CONFIRMATION', 1);
 define('MSGPARAM_WAITINGLIST', 2);
-define('MSGPARAM_BEFORESTART_PARTICIPANT', 3);
-define('MSGPARAM_BEFORESTART_TEACHER', 4);
+define('MSGPARAM_REMINDER_PARTICIPANT', 3);
+define('MSGPARAM_REMINDER_TEACHER', 4);
 define('MSGPARAM_STATUS_CHANGED', 5);
 define('MSGPARAM_CANCELLED_BY_PARTICIPANT', 6);
 define('MSGPARAM_CANCELLED_BY_TEACHER', 7);
@@ -43,6 +43,7 @@ define('MSGPARAM_CHANGE_NOTIFICATION', 8);
 define('MSGPARAM_POLLURL_PARTICIPANT', 9);
 define('MSGPARAM_POLLURL_TEACHER', 10);
 define('MSGPARAM_COMPLETED', 11);
+define('MSGPARAM_SESSIONREMINDER', 12);
 
 /**
  * @param stdClass $cm
@@ -2135,9 +2136,7 @@ function booking_sendcustommessage(int $optionid, string $subject, string $messa
  */
 function booking_send_notification($id, $subject, $tousers = array(), $issession = false, $isteacher = false) {
     global $DB, $USER, $CFG;
-    require_once("$CFG->dirroot/mod/booking/locallib.php");
 
-    $returnval = true;
     $allusers = array();
 
     if (!$issession) {
@@ -2150,8 +2149,8 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
     }
     $cm = get_coursemodule_from_instance('booking', $option->bookingid);
 
-    $bookingdata = new booking_option($cm->id, $option->id);
-    $bookingdata->apply_tags();
+    $bookingoption = new booking_option($cm->id, $option->id);
+    $bookingoption->apply_tags();
 
     if (!empty($tousers)) {
         foreach ($tousers as $value) {
@@ -2160,8 +2159,8 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
             $allusers[$value] = $tmpuser;
         }
     } else {
-        if (!empty($bookingdata->usersonlist)) {
-            foreach ($bookingdata->usersonlist as $value) {
+        if (!empty($bookingoption->usersonlist)) {
+            foreach ($bookingoption->usersonlist as $value) {
                 $tmpuser = new stdClass();
                 $tmpuser->id = $value->userid;
                 $allusers[] = $tmpuser;
@@ -2170,38 +2169,42 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
             $allusers = array();
         }
     }
-    if (!empty($allusers)) {
-        foreach ($allusers as $record) {
-            $ruser = $DB->get_record('user', array('id' => $record->id));
 
-            if (!$issession) {
-                $params = booking_generate_email_params($bookingdata->booking->settings, $bookingdata->option,
-                    $ruser, $cm->id, $bookingdata->optiontimes, false, false, true);
+    foreach ($allusers as $user) {
 
-                if ($isteacher) {
-                    // Message for teacher notifications.
-                    $notificationmessage = booking_get_email_body($bookingdata->booking->settings, 'notifyemailteachers',
-                        'notifyemailteachersdefaultmessage', $params);
-                } else {
-                    // Message for participant notifications.
-                    $notificationmessage = booking_get_email_body($bookingdata->booking->settings, 'notifyemail',
-                        'notifyemaildefaultmessage', $params);
-                }
+        if (!$issession) {
+
+            if ($isteacher) {
+                // Message for teacher reminders.
+                $messagecontroller = new \mod_booking\message_controller(
+                    MSGPARAM_REMINDER_TEACHER, $cm->id, $bookingoption->bookingid, $bookingoption->optionid, $user->id
+                );
 
             } else {
-                $optiontimes = array($optiondate); // Only add one specific session for session reminders.
-                $params = booking_generate_email_params($bookingdata->booking->settings, $bookingdata->option,
-                    $ruser, $cm->id, $optiontimes, false, true, false);
-                // Message for session reminders.
-                $notificationmessage = booking_get_email_body($bookingdata->booking->settings, 'sessionremindermailsubject',
-                    'sessionremindermailmessage', $params);
+                // Message for participant reminders.
+                $messagecontroller = new \mod_booking\message_controller(
+                    MSGPARAM_REMINDER_PARTICIPANT, $cm->id, $bookingoption->bookingid, $bookingoption->optionid, $user->id
+                );
             }
+            $messagecontroller->send();
+
+        } else {
+
+            // TODO: Move this into message_controller!
+            $ruser = $DB->get_record('user', array('id' => $user->id));
+
+            $optiontimes = array($optiondate); // Only add one specific session for session reminders.
+            $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option,
+                $ruser, $cm->id, $optiontimes, false, true, false);
+            // Message for session reminders.
+            $notificationmessage = booking_get_email_body($bookingoption->booking->settings, 'sessionremindermailsubject',
+                'sessionremindermailmessage', $params);
 
             $eventdata = new \core\message\message();
 
             // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
             if ($bookingmanager = $DB->get_record('user',
-                array('username' => $bookingdata->booking->settings->bookingmanager))) {
+                array('username' => $bookingoption->booking->settings->bookingmanager))) {
                 $eventdata->userfrom = $bookingmanager;
             } else {
                 $eventdata->userfrom = $USER;
@@ -2217,14 +2220,11 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
             $eventdata->component = 'mod_booking';
             $eventdata->name = 'bookingconfirmation';
             if ($CFG->branch > 31) {
-                $eventdata->courseid = $bookingdata->booking->settings->course;
+                $eventdata->courseid = $bookingoption->booking->settings->course;
             }
 
-            $returnval = message_send($eventdata);
+            message_send($eventdata);
         }
-        return $returnval;
-    } else {
-        return false;
     }
 }
 
