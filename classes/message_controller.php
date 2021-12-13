@@ -25,6 +25,7 @@ use mod_booking\booking_settings;
 use mod_booking\booking_option_settings;
 use mod_booking\output\optiondates_only;
 use mod_booking\output\bookingoption_changes;
+use moodle_exception;
 
 /**
  * Manage booking messages which will be sent by email.
@@ -35,6 +36,9 @@ use mod_booking\output\bookingoption_changes;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class message_controller {
+
+    /** @var int $messageparam the message type */
+    private $messageparam;
 
     /** @var int $cmid course module id */
     private $cmid;
@@ -60,15 +64,18 @@ class message_controller {
     /** @var message $messagedata */
     private $messagedata;
 
+    /** @var string $messagefieldname */
+    private $messagefieldname;
+
     /**
      * Constructor
+     * @param int $messageparam the message type
      * @param int $cmid course module id
      * @param int $bookingid booking id
      * @param int $optionid option id
      * @param int $userid user id
-     * @param string $messagetype the message type
      */
-    public function __construct(int $cmid, int $bookingid, int $optionid, int $userid, string $messagetype) {
+    public function __construct(int $messageparam, int $cmid, int $bookingid, int $optionid, int $userid) {
 
         global $DB;
 
@@ -77,11 +84,14 @@ class message_controller {
         $this->optionsettings = new booking_option_settings($optionid);
 
         // Standard params.
+        $this->messageparam = $messageparam;
         $this->cmid = $cmid;
         $this->bookingid = $bookingid;
         $this->optionid = $optionid;
         $this->userid = $userid;
-        $this->messagetype = $messagetype;
+
+        // Resolve the correct message fieldname.
+        $this->messagefieldname = $this->get_message_fieldname($messageparam);
 
         // Generate user data.
         $this->user = $DB->get_record('user', array('id' => $userid));
@@ -90,10 +100,10 @@ class message_controller {
         $params = $this->get_email_params([], false, true);
 
         // Generate the email body.
-        $messagebody = $this->get_email_body($messagetype, $params);
+        $messagebody = $this->get_email_body($params);
 
         // Generate full message data.
-        $this->messagedata = $this->get_message_data($messagetype, $messagebody, $params);
+        $this->messagedata = $this->get_message_data($messagebody, $params);
     }
 
     /**
@@ -222,14 +232,12 @@ class message_controller {
     /**
      * Generate the email body based on the message type and the booking parameters
      *
-     * @param string $messagetype the name of the field that contains the custom text
      * @param stdClass $params the booking details
      * @return string
      */
-    private function get_email_body(string $messagetype, stdClass $params): string {
+    private function get_email_body(stdClass $params): string {
 
-        // List of fieldnames that have a corresponding global mail templates.
-        // TODO: add activitycompletiontext ??
+        // List of fieldnames that also have a global template (currently 'activitycompletiontext' has no global template).
         $mailtemplatesfieldnames = [
             'bookedtext', 'waitingtext', 'notifyemail', 'notifyemailteachers', 'statuschangetext', 'userleave',
             'deletedtext', 'bookingchangedtext', 'pollurltext', 'pollurlteacherstext'
@@ -237,13 +245,21 @@ class message_controller {
 
         // Check if global mail templates are enabled and if the field name also has a global mail template.
         if (isset($this->bookingsettings->mailtemplatessource) && $this->bookingsettings->mailtemplatessource == 1
-            && in_array($messagetype, $mailtemplatesfieldnames)) {
+            && in_array($this->messagefieldname, $mailtemplatesfieldnames)) {
+
             // Get the mail template specified in plugin config.
-            $text = get_config('booking', 'global' . $messagetype);
-        } else if (empty($this->bookingsettings->$messagetype)) {
-            $text = get_string($messagetype . 'message', 'booking', $params);
+            $text = get_config('booking', 'global' . $this->messagefieldname);
+
+        } else if (empty($this->bookingsettings->{$this->messagefieldname})) {
+
+            // Use default message if none is specified.
+            $text = get_string($this->messagefieldname . 'message', 'booking', $params);
+
         } else {
-            $text = $this->bookingsettings->{$messagetype};
+
+            // If there is an instance-specific template, then use it.
+            $text = $this->bookingsettings->{$this->messagefieldname};
+
         }
 
         // Replace the placeholders.
@@ -256,12 +272,11 @@ class message_controller {
 
     /**
      * Get the actual message data needed to send the message
-     * @param string $messagetype
      * @param string $messagebody
      * @param stdClass $params
      * @return message
      */
-    private function get_message_data(string $messagetype, string $messagebody, stdClass $params): message {
+    private function get_message_data(string $messagebody, stdClass $params): message {
 
         global $DB, $USER;
 
@@ -277,7 +292,7 @@ class message_controller {
         }
 
         $messagedata->userto = $this->user;
-        $messagedata->subject = get_string($messagetype . 'subject', 'booking', $params);
+        $messagedata->subject = get_string($this->messagefieldname . 'subject', 'booking', $params);
         $messagedata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $messagebody));
         $messagedata->fullmessageformat = FORMAT_HTML;
         $messagedata->fullmessagehtml = $messagebody;
@@ -286,6 +301,53 @@ class message_controller {
         $messagedata->name = 'bookingconfirmation';
 
         return $messagedata;
+    }
+
+    /**
+     * Helper function to get the fieldname for the message type.
+     * @param int $messageparam the message parameter
+     * @return string the field name
+     */
+    private function get_message_fieldname(int $messageparam) {
+
+        switch ($messageparam) {
+            case MSGPARAM_CONFIRMATION:
+                $fieldname = 'bookedtext';
+                break;
+            case MSGPARAM_WAITINGLIST:
+                $fieldname = 'waitingtext';
+                break;
+            case MSGPARAM_BEFORESTART_PARTICIPANT:
+                $fieldname = 'notifyemail';
+                break;
+            case MSGPARAM_BEFORESTART_TEACHER:
+                $fieldname = 'notifyemailteachers';
+                break;
+            case MSGPARAM_STATUS_CHANGED:
+                $fieldname = 'statuschangetext';
+                break;
+            case MSGPARAM_CANCELLED_BY_PARTICIPANT:
+                $fieldname = 'userleave';
+                break;
+            case MSGPARAM_CANCELLED_BY_TEACHER:
+                $fieldname = 'deletedtext';
+                break;
+            case MSGPARAM_CHANGE_NOTIFICATION:
+                $fieldname = 'bookingchangedtext';
+                break;
+            case MSGPARAM_POLLURL_PARTICIPANT:
+                $fieldname = 'pollurltext';
+                break;
+            case MSGPARAM_POLLURL_TEACHER:
+                $fieldname = 'pollurlteacherstext';
+                break;
+            case MSGPARAM_COMPLETED:
+                $fieldname = 'activitycompletiontext';
+                break;
+            default:
+                throw new moodle_exception('ERROR: Unknown message parameter!');
+        }
+        return $fieldname;
     }
 
     /**

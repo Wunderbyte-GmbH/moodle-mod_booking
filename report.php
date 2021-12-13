@@ -227,7 +227,7 @@ if (isset($action) && $action == 'sendpollurlteachers' &&
          has_capability('mod/booking:communicate', $context)) {
 
     // Send the Poll URL to the teacher(s).
-    booking_sendmessage_pollurlteachers($bookingoption->booking->id, $cm->id, $optionid);
+    $bookingoption->booking_sendmessage_pollurlteachers();
 
     $url->remove_params('action');
     redirect($url, get_string('allmailssend', 'booking'), 5);
@@ -348,7 +348,7 @@ if (!$tableallbookings->is_downloading()) {
                  has_capability('mod/booking:communicate', $context)) {
 
             // Send the poll URL to all selected users.
-            booking_sendmessage_pollurl($allselectedusers, $bookingoption->booking->id, $cm->id, $optionid);
+            $bookingoption->booking_sendmessage_pollurl($allselectedusers);
             redirect($url, get_string('allmailssend', 'booking'), 5);
 
         } else if (isset($_POST['sendcustommessage']) &&

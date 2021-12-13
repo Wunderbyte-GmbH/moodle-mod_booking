@@ -39,6 +39,15 @@ require_once($CFG->libdir . '/completionlib.php');
  */
 class booking_option {
 
+    /** @var int $cmid course module id */
+    public $cmid = null;
+
+    /** @var int id of the booking option in table booking_options */
+    public $optionid = null;
+
+    /** @var int id of the booking instance */
+    public $bookingid = null;
+
     /** @var booking object  */
     public $booking = null;
 
@@ -53,9 +62,6 @@ class booking_option {
 
     /** @var array of users subscribeable to booking option if groups enabled, members of groups user has access to */
     public $potentialusers = array();
-
-    /** @var int id of the booking option in table booking_options */
-    public $optionid = null;
 
     /** @var stdClass option config object */
     public $option = null;
@@ -121,7 +127,9 @@ class booking_option {
     public function __construct($cmid, $optionid, $filters = array(), $page = 0, $perpage = 0, $getusers = true) {
         global $DB, $USER;
 
+        $this->cmid = $cmid;
         $this->booking = new booking($cmid);
+        $this->bookingid = $this->booking->id;
         $this->optionid = $optionid;
 
         $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', MUST_EXIST);
@@ -1870,6 +1878,59 @@ class booking_option {
 
     public function apply_filters() {
 
+    }
+
+    /**
+     * Send message: Poll URL.
+     *
+     * @param array $userids the selected userids
+     * @param int $bookingid booking id
+     * @param int $cmid course module id
+     * @param int $optionid booking option id
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function booking_sendmessage_pollurl(array $userids) {
+        global $DB;
+
+        foreach ($userids as $userid) {
+
+            // Use message controller to send the Poll URL to every selected user.
+            $messagecontroller = new message_controller(
+                MSGPARAM_POLLURL_PARTICIPANT, $this->cmid, $this->bookingid, $this->optionid, $userid
+            );
+            $messagecontroller->send();
+        }
+
+        $dataobject = new stdClass();
+        $dataobject->id = $this->optionid;
+        $dataobject->pollsend = 1;
+
+        $DB->update_record('booking_options', $dataobject);
+    }
+
+    /**
+     * Send mail to all teachers - pollurlteachers.
+     * @param int $bookingid
+     * @param int $cmid
+     * @param int $optionid
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function booking_sendmessage_pollurlteachers() {
+        global $DB;
+
+        $teachers = $DB->get_records("booking_teachers",
+                array("optionid" => $this->optionid, 'bookingid' => $this->bookingid));
+
+        foreach ($teachers as $teacher) {
+
+            // Use message controller to send the Poll URL to teacher(s).
+            $messagecontroller = new message_controller(
+                MSGPARAM_POLLURL_TEACHER, $this->cmid, $this->bookingid, $this->optionid, $teacher->userid
+            );
+            $messagecontroller->send();
+        }
     }
 
 }

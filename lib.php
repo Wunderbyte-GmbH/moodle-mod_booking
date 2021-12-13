@@ -26,11 +26,23 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use mod_booking\booking_option;
 use mod_booking\booking_utils;
-use mod_booking\message_controller;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
-use mod_booking\utils\wb_payment;
 use mod_booking\task\send_completion_mails;
+use mod_booking\utils\wb_payment;
+
+// Define global parameters.
+define('MSGPARAM_CONFIRMATION', 1);
+define('MSGPARAM_WAITINGLIST', 2);
+define('MSGPARAM_BEFORESTART_PARTICIPANT', 3);
+define('MSGPARAM_BEFORESTART_TEACHER', 4);
+define('MSGPARAM_STATUS_CHANGED', 5);
+define('MSGPARAM_CANCELLED_BY_PARTICIPANT', 6);
+define('MSGPARAM_CANCELLED_BY_TEACHER', 7);
+define('MSGPARAM_CHANGE_NOTIFICATION', 8);
+define('MSGPARAM_POLLURL_PARTICIPANT', 9);
+define('MSGPARAM_POLLURL_TEACHER', 10);
+define('MSGPARAM_COMPLETED', 11);
 
 /**
  * @param stdClass $cm
@@ -1444,7 +1456,7 @@ function booking_email_to_user($user, $from, $subject, $messagetext, $messagehtm
                 $supportuser = core_user::get_support_user();
                 $temprecipients[] = array($supportuser->email, fullname($supportuser, true));
                 $mail->addStringAttachment(
-                        'Error in attachment.  User attempted to attach a filename with a unsafe name.',
+                        'Error in attachment.  User attempted to attach a filename with an unsafe name.',
                         'error.txt', '8bit', 'text/plain');
             } else {
                 require_once($CFG->libdir . '/filelib.php');
@@ -2040,59 +2052,6 @@ function booking_rate($ratings, $params) {
 function booking_sendreminderemail($selectedusers, $booking, $cmid, $optionid) {
     booking_send_notification($optionid, get_string('notificationsubject', 'booking'),
             $selectedusers);
-}
-
-/**
- * Send mail to all teachers - pollurlteachers.
- * @param int $bookingid
- * @param int $cmid
- * @param int $optionid
- * @throws coding_exception
- * @throws dml_exception
- */
-function booking_sendmessage_pollurlteachers(int $bookingid, $cmid, $optionid) {
-    global $DB;
-
-    $teachers = $DB->get_records("booking_teachers",
-            array("optionid" => $optionid, 'bookingid' => $bookingid));
-
-    foreach ($teachers as $teacher) {
-
-        // Use message controller to send the Poll URL to teacher(s).
-        $messagecontroller = new message_controller(
-            $cmid, $bookingid, $optionid, $teacher->userid, 'pollurlteacherstext'
-        );
-        $messagecontroller->send();
-    }
-}
-
-/**
- * Send pollurl
- *
- * @param array $userids the selected userids
- * @param int $bookingid
- * @param int $cmid
- * @param int $optionid
- * @throws coding_exception
- * @throws dml_exception
- */
-function booking_sendmessage_pollurl($userids, int $bookingid, $cmid, $optionid) {
-    global $DB;
-
-    foreach ($userids as $userid) {
-
-        // Use message controller to send the Poll URL to every selected user.
-        $messagecontroller = new message_controller(
-            $cmid, $bookingid, $optionid, $userid, 'pollurltext'
-        );
-        $messagecontroller->send();
-    }
-
-    $dataobject = new stdClass();
-    $dataobject->id = $optionid;
-    $dataobject->pollsend = 1;
-
-    $DB->update_record('booking_options', $dataobject);
 }
 
 /**
