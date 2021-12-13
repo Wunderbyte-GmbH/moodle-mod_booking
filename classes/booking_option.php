@@ -1836,4 +1836,40 @@ class booking_option {
 
         exit();
     }
+
+    /**
+     * Central function to return a list of booking options with all possible filters applied.
+     * Default is a list of all booking options from the whole site.
+     *
+     * @param integer $bookingid // Should be set.
+     * @param array $filters
+     * @param string $fields
+     * @param [type] $from
+     * @return void
+     */
+    public static function search_all_options_sql($bookingid = 0,
+                                    $filters = array(),
+                                    $fields = '*',
+                                    $from = '',
+                                    $where = '',
+                                    $params = array(),
+                                    $order = 'ORDER BY bo.id ASC'):array {
+        $from = $from ?? '{booking_options} bo
+                        JOIN {customfield_data} cfd
+                        ON bo.id=cfd.instanceid
+                        JOIN {customfield_field} cff
+                        ON cfd.fieldid=cff.id';
+
+        // If there is no booking id, we look for all booking options.
+        if (isset($bookingid)) {
+            $where = $where ?? 'bookingid=:bookingid';
+            $params['bookingid'] = $bookingid;
+        }
+        return [$fields, $from, $where, $params, $order];
+    }
+
+    public function apply_filters() {
+
+    }
+
 }
