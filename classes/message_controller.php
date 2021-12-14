@@ -115,11 +115,9 @@ class message_controller {
     /**
      * Prepares the email parameters.
      * @param array $changes
-     * @param bool $issessionreminder
      * @return stdClass data to be sent via mail
      */
-    private function get_email_params(array $changes = [],
-        bool $issessionreminder = false): stdClass {
+    private function get_email_params( array $changes = [] ): stdClass {
 
         global $CFG, $PAGE;
 
@@ -368,7 +366,7 @@ class message_controller {
             case MSGPARAM_SESSIONREMINDER:
                 $fieldname = 'sessionremindermail';
                 break;
-            case MSGPARAM_CUSTOMREMINDER:
+            case MSGPARAM_REPORTREMINDER:
                 $fieldname = 'reportreminder';
                 break;
             default:

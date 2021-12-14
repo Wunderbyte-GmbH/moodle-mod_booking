@@ -16,6 +16,7 @@
 namespace mod_booking\task;
 
 use mod_booking\utils\wb_payment;
+use mod_booking\booking_option;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -40,7 +41,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
         echo "run send_reminder_mails task" . "\n";
 
         $toprocess = $DB->get_records_sql(
-           'SELECT bo.id, bo.coursestarttime, b.daystonotify, b.daystonotify2, bo.sent, bo.sent2
+           'SELECT bo.id optionid, bo.bookingid, bo.coursestarttime, b.daystonotify, b.daystonotify2, bo.sent, bo.sent2
             FROM {booking_options} bo
             LEFT JOIN {booking} b ON b.id = bo.bookingid
             WHERE (b.daystonotify > 0 OR b.daystonotify2 > 0)
@@ -54,9 +55,9 @@ class send_reminder_mails extends \core\task\scheduled_task {
             // Check if first notification is sent already.
             if ($record->sent == 0) {
 
-                if ($this->send_notification($record, $record->daystonotify, MAIL_NOTIFICATION_PARTICIPANTS)) {
+                if ($this->send_notification(MSGPARAM_REMINDER_PARTICIPANT, $record, $record->daystonotify)) {
                     $save = new stdClass();
-                    $save->id = $record->id;
+                    $save->id = $record->optionid;
                     $save->sent = 1;
                     $DB->update_record("booking_options", $save);
                 }
@@ -64,9 +65,9 @@ class send_reminder_mails extends \core\task\scheduled_task {
 
             // Check if second notification is sent already.
             if ($record->sent2 == 0) {
-                if ($this->send_notification($record, $record->daystonotify2, MAIL_NOTIFICATION_PARTICIPANTS)) {
+                if ($this->send_notification(MSGPARAM_REMINDER_PARTICIPANT, $record, $record->daystonotify2)) {
                     $save = new stdClass();
-                    $save->id = $record->id;
+                    $save->id = $record->optionid;
                     $save->sent2 = 1;
                     $DB->update_record("booking_options", $save);
                 }
@@ -90,11 +91,12 @@ class send_reminder_mails extends \core\task\scheduled_task {
         global $DB;
 
         $now = time();
-        $sessionstoprocess = $DB->get_records_sql('SELECT bod.id, bod.coursestarttime, bod.daystonotify, bod.sent
+        $sessionstoprocess = $DB->get_records_sql(
+            "SELECT bod.id optiondateid, bod.bookingid, bod.optionid, bod.coursestarttime, bod.daystonotify, bod.sent
             FROM {booking_optiondates} bod
             WHERE bod.daystonotify > 0
             AND sent = 0
-            AND bod.coursestarttime > 0  AND bod.coursestarttime > :now', array('now' => $now));
+            AND bod.coursestarttime > 0  AND bod.coursestarttime > :now", array('now' => $now));
 
         foreach ($sessionstoprocess as $sessionrecord) {
 
@@ -103,10 +105,9 @@ class send_reminder_mails extends \core\task\scheduled_task {
             // Check if session notification has been sent already.
             if ($sessionrecord->sent == 0) {
 
-                if ($this->send_notification($sessionrecord, $sessionrecord->daystonotify,
-                    MAIL_NOTIFICATION_PARTICIPANTS_SESSIONS)) {
+                if ($this->send_notification(MSGPARAM_SESSIONREMINDER, $sessionrecord, $sessionrecord->daystonotify)) {
                     $save = new stdClass();
-                    $save->id = $sessionrecord->id;
+                    $save->id = $sessionrecord->optiondateid;
                     $save->sent = 1;
                     $DB->update_record("booking_optiondates", $save);
                 }
@@ -121,14 +122,15 @@ class send_reminder_mails extends \core\task\scheduled_task {
         global $DB;
 
         $now = time();
-        $toprocess = $DB->get_records_sql('SELECT bo.id, bo.coursestarttime, b.daystonotifyteachers, bo.sentteachers
+        $toprocess = $DB->get_records_sql(
+            "SELECT bo.id optionid, bo.bookingid, bo.coursestarttime, b.daystonotifyteachers, bo.sentteachers
             FROM {booking_options} bo
             LEFT JOIN {booking} b ON b.id = bo.bookingid
             WHERE b.daystonotifyteachers > 0
             AND bo.coursestarttime > 0  AND bo.coursestarttime > :now
-            AND bo.sentteachers = 0', array('now' => $now));
+            AND bo.sentteachers = 0", array('now' => $now));
 
-        if (count($toprocess) > 0)  {
+        if (count($toprocess) > 0) {
             echo "send_reminder_mails task: send teacher notifications - START" . "\n";
             foreach ($toprocess as $record) {
 
@@ -136,10 +138,9 @@ class send_reminder_mails extends \core\task\scheduled_task {
 
                 // Check if teacher notification has been sent already.
                 if ($record->sentteachers == 0) {
-                    if ($this->send_notification($record, $record->daystonotifyteachers,
-                        MAIL_NOTIFICATION_TEACHERS)) {
+                    if ($this->send_notification(MSGPARAM_REMINDER_TEACHER, $record, $record->daystonotifyteachers)) {
                         $save = new stdClass();
-                        $save->id = $record->id;
+                        $save->id = $record->optionid;
                         $save->sentteachers = 1;
                         $DB->update_record("booking_options", $save);
                     }
@@ -152,46 +153,42 @@ class send_reminder_mails extends \core\task\scheduled_task {
     /**
      * Function to send notification mail to all users if the time is right.
      * Returns true if sent and false if not.
-     * @param $record
-     * @param $daystonotify
-     * @param bool $issession false for option (default), true for sessions (optiondates)
-     * @param array $tousers an array of user ids to receive the notification (for teacher notification this should be an array of the teacher ids)
+     * @param int $messageparam the message type
+     * @param stdClass $record the DB record
+     * @param int $daystonotify number of days before course start time - when to notify
      * @return bool
      */
-    private function send_notification($record, $daystonotify, $notificationmailparam = MAIL_NOTIFICATION_PARTICIPANTS) {
+    private function send_notification(int $messageparam, stdClass $record, int $daystonotify) {
         global $DB;
         $now = time();
         $timetosend = strtotime('-' . $daystonotify . ' day', $record->coursestarttime);
         if ($timetosend < $now) {
 
-            switch ($notificationmailparam) {
-                case MAIL_NOTIFICATION_PARTICIPANTS_SESSIONS:
+            $optionid = $record->optionid;
+            $bookingid = $record->bookingid;
+            $cm = get_coursemodule_from_instance('booking', $bookingid);
+            $cmid = $cm->id;
+            $bookingoption = new booking_option($cmid, $optionid);
 
-                    $subject = get_string('sessionremindermailsubject', 'booking');
-                    booking_send_notification($record->id, $subject, array(), true, false);
-
+            switch ($messageparam) {
+                case MSGPARAM_SESSIONREMINDER:
+                    $optiondateid = $record->optiondateid;
+                    $bookingoption->sendmessage_notification($messageparam, []);
                     break;
 
-                case MAIL_NOTIFICATION_TEACHERS:
-
+                case MSGPARAM_REMINDER_TEACHER:
                     // Get an array of teacher ids for the booking option.
                     $teachers = $DB->get_records('booking_teachers', ['optionid' => $record->id]);
                     $teacherids = [];
                     foreach ($teachers as $teacher) {
                         $teacherids[] = $teacher->userid;
                     }
-
-                    $subject = get_string('notificationsubject', 'booking');
-                    booking_send_notification($record->id, $subject, $teacherids, false, true);
-
+                    $bookingoption->sendmessage_notification($messageparam, $teacherids);
                     break;
 
-                case MAIL_NOTIFICATION_PARTICIPANTS:
+                case MSGPARAM_REMINDER_PARTICIPANT:
                 default:
-
-                    $subject = get_string('notificationsubject', 'booking');
-                    booking_send_notification($record->id, $subject, array(), false, false);
-
+                    $bookingoption->sendmessage_notification($messageparam, []);
                     break;
             }
             mtrace('booking - send notification triggered');

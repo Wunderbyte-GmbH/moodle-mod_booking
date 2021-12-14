@@ -1933,4 +1933,52 @@ class booking_option {
         }
     }
 
+    /**
+     * Send notifications function for different types of notifications.
+     * @param int $messageparam the message type
+     * @param array $tousers
+     * @param int $optiondateid optional (needed for session reminders only)
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function sendmessage_notification(int $messageparam, $tousers = [], int $optiondateid = null) {
+
+        $allusers = [];
+
+        $bookingoption = new booking_option($this->cmid, $this->optionid);
+        $bookingoption->apply_tags(); // Do we need this here?
+
+        if (!empty($tousers)) {
+            foreach ($tousers as $value) {
+                $tmpuser = new stdClass();
+                $tmpuser->id = $value;
+                $allusers[$value] = $tmpuser;
+            }
+        } else {
+            // Send to all booked users if we have an empty $tousers array.
+            if (!empty($bookingoption->usersonlist)) {
+                foreach ($bookingoption->usersonlist as $value) {
+                    $tmpuser = new stdClass();
+                    $tmpuser->id = $value->userid;
+                    $allusers[] = $tmpuser;
+                }
+            } else {
+                $allusers = [];
+            }
+        }
+
+        foreach ($allusers as $user) {
+
+            $messagecontroller = new \mod_booking\message_controller(
+                $messageparam,
+                $this->cmid,
+                $this->bookingid,
+                $this->optionid,
+                $user->id,
+                $optiondateid
+            );
+            $messagecontroller->send();
+        }
+    }
+
 }

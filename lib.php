@@ -44,7 +44,7 @@ define('MSGPARAM_POLLURL_PARTICIPANT', 9);
 define('MSGPARAM_POLLURL_TEACHER', 10);
 define('MSGPARAM_COMPLETED', 11);
 define('MSGPARAM_SESSIONREMINDER', 12);
-define('MSGPARAM_CUSTOMREMINDER', 13);
+define('MSGPARAM_REPORTREMINDER', 13); // Reminder sent from report.php.
 
 /**
  * @param stdClass $cm
@@ -2112,56 +2112,6 @@ function booking_sendcustommessage(int $optionid, string $subject, string $messa
         $returnval = message_send($eventdata);
     }
     return $returnval;
-}
-
-/**
- * Send notifications function for different types of notifications.
- * @param int $messageparam the message type
- * @param array $tousers
- * @param int $cmid course module id
- * @param int $optionid option id (optional for session reminders)
- * @param int $optiondateid optional (needed for session reminders only)
- * @throws coding_exception
- * @throws dml_exception
- */
-function booking_send_notification(int $messageparam, $tousers = [], int $cmid, int $optionid = null, int $optiondateid = null) {
-
-    $allusers = [];
-
-    $bookingoption = new booking_option($cmid, $optionid);
-    $bookingoption->apply_tags(); // Do we need this here?
-
-    if (!empty($tousers)) {
-        foreach ($tousers as $value) {
-            $tmpuser = new stdClass();
-            $tmpuser->id = $value;
-            $allusers[$value] = $tmpuser;
-        }
-    } else {
-        // Send to all booked users if we have an empty $tousers array.
-        if (!empty($bookingoption->usersonlist)) {
-            foreach ($bookingoption->usersonlist as $value) {
-                $tmpuser = new stdClass();
-                $tmpuser->id = $value->userid;
-                $allusers[] = $tmpuser;
-            }
-        } else {
-            $allusers = [];
-        }
-    }
-
-    foreach ($allusers as $user) {
-
-        $messagecontroller = new \mod_booking\message_controller(
-            $messageparam,
-            $cmid,
-            $bookingoption->bookingid,
-            $bookingoption->optionid,
-            $user->id,
-            $optiondateid
-        );
-        $messagecontroller->send();
-    }
 }
 
 /**

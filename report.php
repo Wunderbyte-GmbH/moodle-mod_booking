@@ -399,7 +399,7 @@ if (!$tableallbookings->is_downloading()) {
                  has_capability('mod/booking:communicate', $context)) {
 
             // Send a custom reminder email.
-            booking_send_notification(MSGPARAM_CUSTOMREMINDER, $allselectedusers, $cm->id, $optionid);
+            $bookingoption->sendmessage_notification(MSGPARAM_REPORTREMINDER, $allselectedusers);
 
             redirect($url, get_string('sendreminderemailsuccess', 'booking'), 5);
         } else if (isset($_POST['booktootherbooking']) && (booking_check_if_teacher(
