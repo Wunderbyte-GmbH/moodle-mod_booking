@@ -78,7 +78,6 @@ $string['myoptions'] = 'Von mir verwaltete Buchungsoptionen';
 $string['noguestchoose'] = 'Gäste dürfen keine Buchungen vornehmen';
 $string['noresultsviewable'] = 'Die Ergebnisse sind momentan nicht einsehbar';
 $string['nosubscribers'] = 'Keine Trainer/innen zugewiesen!';
-$string['notificationsubject'] = 'Erinnerung: Ihr Kurs startet bald!';
 $string['notopenyet'] = 'Diese Aktivität ist bis {$a} nicht verfügbar';
 $string['pluginadministration'] = 'Booking administration';
 $string['pluginname'] = 'Booking';
@@ -992,11 +991,8 @@ $string['pollurlteacherstextmessage'] = 'Bitte nehmen Sie an der Umfrage teil:
 Link zur Umfrage: <a href="{pollurlteachers}" target="_blank">{pollurlteachers}</a>
 ';
 
-$string['notificationtextsubject'] = 'Information über den Kursstart!';
-$string['notificationtextmessage'] = 'Kursbeginn:
-
-Buchungsoption: {$a->title}
-Datum: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
+$string['reportremindersubject'] = 'Erinnerung: Ihr gebuchter Kurs';
+$string['reportremindermessage'] = '{$a->bookingdetails}';
 
 // Report.php and bookingmanagusers.class.php.
 $string['addteachers'] = 'Trainer/innen hinzufügen';
@@ -1337,4 +1333,4 @@ $string['tableheader_courseendtime'] = 'Kursende';
 $string['booking_customfield'] = 'Benutzerdefinierte Felder für Buchungsoptionen';
 
 // Optiondates_only.mustache.
-$string['sessions'] = 'Termine';
+$string['sessions'] = 'Termin(e)';

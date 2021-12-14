@@ -44,6 +44,7 @@ define('MSGPARAM_POLLURL_PARTICIPANT', 9);
 define('MSGPARAM_POLLURL_TEACHER', 10);
 define('MSGPARAM_COMPLETED', 11);
 define('MSGPARAM_SESSIONREMINDER', 12);
+define('MSGPARAM_CUSTOMREMINDER', 13);
 
 /**
  * @param stdClass $cm
@@ -2040,20 +2041,7 @@ function booking_rate($ratings, $params) {
         }
     }
 }
-
 // END RATING AND GRADES.
-/**
- * Send reminder email.
- * @param $selectedusers
- * @param $booking
- * @param $cmid
- * @param $optionid
- * @throws coding_exception
- */
-function booking_sendreminderemail($selectedusers, $booking, $cmid, $optionid) {
-    booking_send_notification($optionid, get_string('notificationsubject', 'booking'),
-            $selectedusers);
-}
 
 /**
  * Send a message to the user who has completed the booking option.
@@ -2127,30 +2115,21 @@ function booking_sendcustommessage(int $optionid, string $subject, string $messa
 }
 
 /**
- * @param numeric $id can be option id (for options) or optiondateid (for sessions)
- * @param $subject
+ * Send notifications function for different types of notifications.
+ * @param int $messageparam the message type
  * @param array $tousers
- * @return bool|mixed
+ * @param int $cmid course module id
+ * @param int $optionid option id (optional for session reminders)
+ * @param int $optiondateid optional (needed for session reminders only)
  * @throws coding_exception
  * @throws dml_exception
  */
-function booking_send_notification($id, $subject, $tousers = array(), $issession = false, $isteacher = false) {
-    global $DB, $USER, $CFG;
+function booking_send_notification(int $messageparam, $tousers = [], int $cmid, int $optionid = null, int $optiondateid = null) {
 
-    $allusers = array();
+    $allusers = [];
 
-    if (!$issession) {
-        // Option without sessions.
-        $option = $DB->get_record('booking_options', array('id' => $id));
-    } else {
-        // Specific session (optiondate).
-        $optiondate = $DB->get_record('booking_optiondates', array('id' => $id));
-        $option = $DB->get_record('booking_options', array('id' => $optiondate->optionid));
-    }
-    $cm = get_coursemodule_from_instance('booking', $option->bookingid);
-
-    $bookingoption = new booking_option($cm->id, $option->id);
-    $bookingoption->apply_tags();
+    $bookingoption = new booking_option($cmid, $optionid);
+    $bookingoption->apply_tags(); // Do we need this here?
 
     if (!empty($tousers)) {
         foreach ($tousers as $value) {
@@ -2159,6 +2138,7 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
             $allusers[$value] = $tmpuser;
         }
     } else {
+        // Send to all booked users if we have an empty $tousers array.
         if (!empty($bookingoption->usersonlist)) {
             foreach ($bookingoption->usersonlist as $value) {
                 $tmpuser = new stdClass();
@@ -2166,65 +2146,21 @@ function booking_send_notification($id, $subject, $tousers = array(), $issession
                 $allusers[] = $tmpuser;
             }
         } else {
-            $allusers = array();
+            $allusers = [];
         }
     }
 
     foreach ($allusers as $user) {
 
-        if (!$issession) {
-
-            if ($isteacher) {
-                // Message for teacher reminders.
-                $messagecontroller = new \mod_booking\message_controller(
-                    MSGPARAM_REMINDER_TEACHER, $cm->id, $bookingoption->bookingid, $bookingoption->optionid, $user->id
-                );
-
-            } else {
-                // Message for participant reminders.
-                $messagecontroller = new \mod_booking\message_controller(
-                    MSGPARAM_REMINDER_PARTICIPANT, $cm->id, $bookingoption->bookingid, $bookingoption->optionid, $user->id
-                );
-            }
-            $messagecontroller->send();
-
-        } else {
-
-            // TODO: Move this into message_controller!
-            $ruser = $DB->get_record('user', array('id' => $user->id));
-
-            $optiontimes = array($optiondate); // Only add one specific session for session reminders.
-            $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option,
-                $ruser, $cm->id, $optiontimes, false, true, false);
-            // Message for session reminders.
-            $notificationmessage = booking_get_email_body($bookingoption->booking->settings, 'sessionremindermailsubject',
-                'sessionremindermailmessage', $params);
-
-            $eventdata = new \core\message\message();
-
-            // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
-            if ($bookingmanager = $DB->get_record('user',
-                array('username' => $bookingoption->booking->settings->bookingmanager))) {
-                $eventdata->userfrom = $bookingmanager;
-            } else {
-                $eventdata->userfrom = $USER;
-            }
-
-            $eventdata->userto = $ruser;
-            $eventdata->subject = $subject;
-            $eventdata->fullmessage = strip_tags(
-                    preg_replace('#<br\s*?/?>#i', "\n", $notificationmessage));
-            $eventdata->fullmessageformat = FORMAT_HTML;
-            $eventdata->fullmessagehtml = $notificationmessage;
-            $eventdata->smallmessage = '';
-            $eventdata->component = 'mod_booking';
-            $eventdata->name = 'bookingconfirmation';
-            if ($CFG->branch > 31) {
-                $eventdata->courseid = $bookingoption->booking->settings->course;
-            }
-
-            message_send($eventdata);
-        }
+        $messagecontroller = new \mod_booking\message_controller(
+            $messageparam,
+            $cmid,
+            $bookingoption->bookingid,
+            $bookingoption->optionid,
+            $user->id,
+            $optiondateid
+        );
+        $messagecontroller->send();
     }
 }
 

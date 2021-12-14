@@ -227,7 +227,7 @@ if (isset($action) && $action == 'sendpollurlteachers' &&
          has_capability('mod/booking:communicate', $context)) {
 
     // Send the Poll URL to the teacher(s).
-    $bookingoption->booking_sendmessage_pollurlteachers();
+    $bookingoption->sendmessage_pollurlteachers();
 
     $url->remove_params('action');
     redirect($url, get_string('allmailssend', 'booking'), 5);
@@ -348,7 +348,7 @@ if (!$tableallbookings->is_downloading()) {
                  has_capability('mod/booking:communicate', $context)) {
 
             // Send the poll URL to all selected users.
-            $bookingoption->booking_sendmessage_pollurl($allselectedusers);
+            $bookingoption->sendmessage_pollurl($allselectedusers);
             redirect($url, get_string('allmailssend', 'booking'), 5);
 
         } else if (isset($_POST['sendcustommessage']) &&
@@ -398,7 +398,9 @@ if (!$tableallbookings->is_downloading()) {
         } else if (isset($_POST['sendreminderemail']) &&
                  has_capability('mod/booking:communicate', $context)) {
 
-            booking_sendreminderemail($allselectedusers, $bookingoption->booking->settings, $cm->id, $optionid);
+            // Send a custom reminder email.
+            booking_send_notification(MSGPARAM_CUSTOMREMINDER, $allselectedusers, $cm->id, $optionid);
+
             redirect($url, get_string('sendreminderemailsuccess', 'booking'), 5);
         } else if (isset($_POST['booktootherbooking']) && (booking_check_if_teacher(
                 $bookingoption->option) || has_capability('mod/booking:readresponses', $context))) {

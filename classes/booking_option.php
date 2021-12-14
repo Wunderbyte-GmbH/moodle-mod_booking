@@ -1890,7 +1890,7 @@ class booking_option {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function booking_sendmessage_pollurl(array $userids) {
+    public function sendmessage_pollurl(array $userids) {
         global $DB;
 
         foreach ($userids as $userid) {
@@ -1917,7 +1917,7 @@ class booking_option {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function booking_sendmessage_pollurlteachers() {
+    public function sendmessage_pollurlteachers() {
         global $DB;
 
         $teachers = $DB->get_records("booking_teachers",

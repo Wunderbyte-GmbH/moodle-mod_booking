@@ -95,7 +95,6 @@ $string['myoptions'] = 'Options I manage';
 $string['noguestchoose'] = 'Sorry, guests are not allowed to enter data';
 $string['noresultsviewable'] = 'The results are not currently viewable.';
 $string['nosubscribers'] = 'There are no teachers assigned!';
-$string['notificationsubject'] = 'Reminder: You have an upcoming course';
 $string['notopenyet'] = 'Sorry, this activity is not available until {$a} ';
 $string['pluginadministration'] = 'Booking administration';
 $string['pluginname'] = 'Booking';
@@ -1128,11 +1127,8 @@ $string['pollurlteacherstextmessage'] = 'Please take the survey:
 Survey URL: <a href="{pollurlteachers}" target="_blank">{pollurlteachers}</a>
 ';
 
-$string['notificationtextsubject'] = 'Info about course start!';
-$string['notificationtextmessage'] = 'Course will start:
-
-Booking option: {$a->title}
-Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}';
+$string['reportremindersubject'] = 'Reminder: Your booked course';
+$string['reportremindermessage'] = '{$a->bookingdetails}';
 
 // Report.php.
 $string['addteachers'] = 'Add teachers';
@@ -1557,9 +1553,6 @@ $string['bstlink'] = 'Show';
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>You are already booked for this option.</i></div>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the waiting list for this option.</i></div>';
 
-// Optiondates_only.mustache.
-$string['sessions'] = 'Sessions';
-
 // Shortcodes.
 $string['shortcodeslistofbookingoptions'] = 'List of booking options';
 $string['shortcodessetdefaultinstance'] = 'Set default instance for shortcodes implementation';
@@ -1581,4 +1574,4 @@ $string['tableheader_courseendtime'] = 'Course end';
 $string['booking_customfield'] = 'Booking customfields for booking options';
 
 // Optiondates_only.mustache.
-$string['sessions'] = 'Sessions';
+$string['sessions'] = 'Session(s)';

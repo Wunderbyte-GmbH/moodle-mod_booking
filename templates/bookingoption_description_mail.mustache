@@ -25,13 +25,14 @@
 }}
 
 <h4>{{title}}</h4>
-{{#location}}{{#str}}location, mod_booking{{/str}}: {{.}}{{/location}}
-{{#institution}}{{#str}}institution, mod_booking{{/str}}: {{.}}{{/institution}}
-{{#address}}{{#str}}address, mod_booking{{/str}}:  {{.}}{{/address}}
+{{#location}}{{#str}} location, mod_booking {{/str}}: {{.}}<br>{{/location}}
+{{#institution}}{{#str}} institution, mod_booking {{/str}}: {{.}}<br>{{/institution}}
+{{#address}}{{#str}} address, mod_booking {{/str}}:  {{.}}<br>{{/address}}
 {{#statusdescription}}<p>{{{.}}}</p>{{/statusdescription}}
 {{#description}}<p>{{{.}}}</p>{{/description}}
 <div {{^teachers}} style="display:none"{{/teachers}}>
-    {{#str}}teachers, mod_booking{{/str}}:
+    <br>
+    <b>{{#str}} teachers, mod_booking {{/str}}:</b>
     <ul>
         {{#teachers}}
             <li>
@@ -40,16 +41,20 @@
         {{/teachers}}
     </ul>
 </div>
-<ul>
-    {{#dates}}
-        <li><b>{{{datestring}}}</b></li>
-        <ul>
-            {{#customfields}}
-                <li>
-                    {{name}}{{{value}}}
-                </li>
-            {{/customfields}}
-        </ul>
-    {{/dates}}
-</ul><br>
+<div {{^dates}} style="display:none"{{/dates}}>
+    <b>{{#str}} sessions, mod_booking {{/str}}:</b>
+    <ul>
+        {{#dates}}
+            <li>{{{datestring}}}</li>
+            <ul>
+                {{#customfields}}
+                    <li>
+                        {{name}}{{{value}}}
+                    </li>
+                {{/customfields}}
+            </ul>
+        {{/dates}}
+    </ul>
+</div>
+<br>
 {{#booknowbutton}}{{{.}}}{{/booknowbutton}}
