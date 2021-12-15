@@ -28,6 +28,7 @@ use html_table_row;
 use rating;
 use rating_manager;
 use popup_action;
+use templatable;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -479,6 +480,41 @@ class renderer extends plugin_renderer_base {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/optiondates_only', $data);
+        return $o;
+    }
+
+    /**
+     * Render a bookingoptions_table.
+     *
+     * @param templatable $bookingoptionstable
+     * @return string|boolean
+     */
+    public function render_bookingoptions_table(templatable $bookingoptionstable) {
+        $data = $bookingoptionstable->export_for_template($this);
+        return $this->render_from_template('mod_booking/bookingoptions_table', $data);
+    }
+
+    /**
+     * Render output for text column.
+     * @param $data array
+     * @return string
+     */
+    public function render_col_text($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/col_text', $data);
+        return $o;
+    }
+
+    /**
+     * Render output for teacher column.
+     * @param $data array
+     * @return string
+     */
+    public function render_col_teacher($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/col_teacher', $data);
         return $o;
     }
 }

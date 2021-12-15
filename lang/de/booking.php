@@ -1316,17 +1316,25 @@ $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der W
 
 // Optiondates_only.mustache.
 $string['sessions'] = 'Termine';
-// Shortcodes
+
+// Shortcodes.
 $string['shortcodeslistofbookingoptions'] = 'Liste der buchbaren Optionen';
 $string['shortcodessetdefaultinstance'] = 'Setze eine Standard Instanz für Shortcodes';
 $string['shortcodessetdefaultinstancedesc'] = 'Damit kann eine Standard-Buchungsinstanz definiert werden, die dann verwendet wird,
-wenn keine Id definiert wurde. Das erlaubt den schnellen Wechsel (zum Beispiel von einem Semster zum nächsten), wenn es Überlbicks-
-Seiten für unterschiedliche Kategoiren gibt.';
-$string['shortcodessetinstance'] = 'Definiere die Moodle Id jener Buchungsinstanz, die standardmäßig verwendet werden soll.';
-$string['shortcodessetinstancedesc'] = 'Wenn Du hier einen Wert setzt, kann der Shortcodes so verwendet werden: [listofbookings category="philosophy"]
+wenn keine ID definiert wurde. Dies erlaubt den schnellen Wechsel (zum Beispiel von einem Semster zum nächsten), wenn es Überblicks-
+Seiten für unterschiedliche Kategorien gibt.';
+$string['shortcodessetinstance'] = 'Definiere die Moodle ID jener Buchungsinstanz, die standardmäßig verwendet werden soll.';
+$string['shortcodessetinstancedesc'] = 'Wenn Du hier einen Wert setzt, kann der Shortcode so verwendet werden: [listofbookings category="philosophy"]
 Es ist also nicht mehr nötig, eine id zu übergeben.';
 
-// Customfields
+$string['tableheader_text'] = 'Kursbezeichnung';
+$string['tableheader_teacher'] = 'Trainer*in(nen)';
+$string['tableheader_maxanswers'] = 'Verfügbare Plätze';
+$string['tableheader_maxoverbooking'] = 'Wartelistenplätze';
+$string['tableheader_coursestarttime'] = 'Kursbeginn';
+$string['tableheader_courseendtime'] = 'Kursende';
+
+// Customfields.
 $string['booking_customfield'] = 'Benutzerdefinierte Felder für Buchungsoptionen';
 
 // Optiondates_only.mustache.

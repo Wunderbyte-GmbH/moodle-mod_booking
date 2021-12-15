@@ -25,9 +25,9 @@
  */
 namespace mod_booking;
 
-use mod_booking\table\bookingoptions_simple_table;
-
 defined('MOODLE_INTERNAL') || die();
+
+use \mod_booking\table\bookingoptions_table;
 
 /**
  * Deals with local_shortcodes regarding booking.
@@ -45,7 +45,6 @@ class shortcodes {
      * @return void
      */
     public static function listofbookingoptions($shortcode, $args, $content, $env, $next) {
-        global $USER;
 
         // TODO: Define capality.
         if (!has_capability('moodle/site:config', $env->context)) {
@@ -57,7 +56,7 @@ class shortcodes {
             $args['id'] = get_config('booking', 'shortcodessetinstance');
         }
 
-        // To prevent missconfiguration, id has to be there and int.
+        // To prevent misconfiguration, id has to be there and int.
         if (!(isset($args['id']) && $args['id'] && is_int((int)$args['id']))) {
             return 'Set id of booking instance';
         }
@@ -67,12 +66,12 @@ class shortcodes {
         }
 
         if (!$category = ($args['category'])) {
-            return 'No Category defined ' . $args['id'];
+            return 'No category defined ' . $args['id'];
         }
 
         $tablename = bin2hex(random_bytes(12));
 
-        $table = new bookingoptions_simple_table($tablename);
+        $table = new bookingoptions_table($tablename);
 
         $booking = new booking($args['id']);
 
@@ -80,9 +79,27 @@ class shortcodes {
 
         $table->set_sql($fields, $from, $where, $params);
 
-        $table->add_subcolumns('cardbody', ['text', 'maxanswers', 'maxoverbooking', 'coursestarttime', 'courseendtime']);
+        $table->add_subcolumns('cardbody', ['text', 'teacher', 'maxanswers', 'maxoverbooking',
+            'coursestarttime', 'courseendtime']);
+
+        // This avoids showing all keys in list view.
+        $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-md-none']);
+
+        // Override naming for columns. one could use getstring for localisation here.
+        $table->add_classes_to_subcolumns('cardbody',
+            ['keystring' => get_string('tableheader_text', 'booking')], ['text']);
+        $table->add_classes_to_subcolumns('cardbody',
+            ['keystring' => get_string('tableheader_teacher', 'booking')], ['teacher']);
+        $table->add_classes_to_subcolumns('cardbody',
+            ['keystring' => get_string('tableheader_maxanswers', 'booking')], ['maxanswers']);
+        $table->add_classes_to_subcolumns('cardbody',
+            ['keystring' => get_string('tableheader_maxoverbooking', 'booking')], ['maxoverbooking']);
+        $table->add_classes_to_subcolumns('cardbody',
+            ['keystring' => get_string('tableheader_coursestarttime', 'booking')], ['coursestarttime']);
+        $table->add_classes_to_subcolumns('cardbody',
+            ['keystring' => get_string('tableheader_courseendtime', 'booking')], ['courseendtime']);
+
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm']);
-        $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'hidden']);
 
         $table->set_tableclass('listheaderclass', 'card d-none d-md-block');
         $table->set_tableclass('cardbodyclass', 'card-body row');
