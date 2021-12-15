@@ -175,6 +175,12 @@ class message_controller {
                 $data = new optiondates_only($sessions);
                 $params->optiontimes = $output->render_optiondates_only($data);
 
+                // Params for specific session reminders.
+                $params->status = booking_get_user_status($this->userid, $this->optionid, $this->bookingid, $this->cmid);
+                $params->participant = fullname($this->user);
+                $params->email = $this->user->email;
+                $params->sessiondescription = get_rendered_eventdescription($this->optionid, $this->cmid, DESCRIPTION_CALENDAR);
+
                 break;
 
             default:
