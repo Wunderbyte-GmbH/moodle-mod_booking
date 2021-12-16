@@ -173,12 +173,12 @@ class send_reminder_mails extends \core\task\scheduled_task {
             switch ($messageparam) {
                 case MSGPARAM_SESSIONREMINDER:
                     $optiondateid = $record->optiondateid;
-                    $bookingoption->sendmessage_notification($messageparam, []);
+                    $bookingoption->sendmessage_notification($messageparam, [], $optiondateid);
                     break;
 
                 case MSGPARAM_REMINDER_TEACHER:
                     // Get an array of teacher ids for the booking option.
-                    $teachers = $DB->get_records('booking_teachers', ['optionid' => $record->id]);
+                    $teachers = $DB->get_records('booking_teachers', ['optionid' => $optionid]);
                     $teacherids = [];
                     foreach ($teachers as $teacher) {
                         $teacherids[] = $teacher->userid;

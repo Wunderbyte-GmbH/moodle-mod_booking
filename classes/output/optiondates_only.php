@@ -68,6 +68,8 @@ class optiondates_only implements renderable, templatable {
             // So check, if it's expanding over more than one day and format accordingly.
             if (count($sessions) == 1) {
 
+                $this->onesession = true;
+
                 $session = array_pop($sessions);
 
                 $formattedsession = new stdClass;
@@ -84,6 +86,8 @@ class optiondates_only implements renderable, templatable {
                 $this->sessions[] = $formattedsession;
 
             } else {
+
+                $this->onesession = false;
 
                 // Each session in a multisession will always be on the same day.
                 foreach ($sessions as $session) {
@@ -102,6 +106,7 @@ class optiondates_only implements renderable, templatable {
 
         return array(
                 'showsessions' => $this->showsessions,
+                'onesession' => $this->onesession,
                 'sessions' => $this->sessions
         );
     }

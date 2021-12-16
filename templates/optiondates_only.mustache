@@ -24,10 +24,16 @@
     * data-region
 }}
 {{#showsessions}}
-{{#str}} sessions, mod_booking {{/str}}:<br>
+{{#onesession}}
+{{#sessions}}
+<b>{{{starttime}}} - {{{endtime}}}</b>
+{{/sessions}}
+{{/onesession}}
+{{^onesession}}
 <ul>
 {{#sessions}}
     <li>{{{starttime}}} - {{{endtime}}}</li>
 {{/sessions}}
 </ul>
+{{/onesession}}
 {{/showsessions}}

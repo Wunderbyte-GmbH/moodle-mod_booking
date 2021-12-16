@@ -1241,6 +1241,8 @@ $string['mybookings'] = 'My bookings';
 $string['bookuserswithoutcompletedactivity'] = "Book users without completed activity";
 $string['sessionremindermailsubject'] = 'Reminder: You have an upcoming session';
 $string['sessionremindermailmessage'] = '<p>Keep in mind: You are booked for the following session:</p>
+<p>{$a->optiontimes}</p>
+<p>##########################################</p>
 <p>{$a->sessiondescription}</p>
 <p>##########################################</p>
 <p>Booking status: {$a->status}</p>

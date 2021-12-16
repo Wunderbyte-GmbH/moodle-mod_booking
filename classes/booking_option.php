@@ -1949,17 +1949,18 @@ class booking_option {
         $bookingoption->apply_tags(); // Do we need this here?
 
         if (!empty($tousers)) {
-            foreach ($tousers as $value) {
+            foreach ($tousers as $currentuserid) {
                 $tmpuser = new stdClass();
-                $tmpuser->id = $value;
-                $allusers[$value] = $tmpuser;
+                $tmpuser->id = $currentuserid;
+                $allusers[$currentuserid] = $tmpuser;
             }
         } else {
             // Send to all booked users if we have an empty $tousers array.
-            if (!empty($bookingoption->usersonlist)) {
-                foreach ($bookingoption->usersonlist as $value) {
+            // Also make sure that teacher reminders won't be send to booked users.
+            if (!empty($bookingoption->usersonlist) && $messageparam !== MSGPARAM_REMINDER_TEACHER) {
+                foreach ($bookingoption->usersonlist as $currentuser) {
                     $tmpuser = new stdClass();
-                    $tmpuser->id = $value->userid;
+                    $tmpuser->id = $currentuser->userid;
                     $allusers[] = $tmpuser;
                 }
             } else {

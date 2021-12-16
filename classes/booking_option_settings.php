@@ -141,6 +141,9 @@ class booking_option_settings {
     /** @var int $parentid */
     public $parentid = null;
 
+    /** @var array $sessions */
+    public $sessions = [];
+
     /**
      * Constructor for the booking option settings class.
      *
@@ -195,7 +198,7 @@ class booking_option_settings {
 
             // Multi-sessions.
             if (!$this->sessions = $DB->get_records_sql(
-                "SELECT id, coursestarttime, courseendtime
+                "SELECT id optiondateid, coursestarttime, courseendtime
                 FROM {booking_optiondates}
                 WHERE optionid = ?
                 ORDER BY coursestarttime ASC", array($optionid))) {

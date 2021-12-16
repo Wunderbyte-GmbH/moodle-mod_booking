@@ -1065,6 +1065,8 @@ $string['users'] = '<< Antworten bearbeiten';
 $string['pollstrftimedate'] = '%Y-%m-%d';
 $string['sessionremindermailsubject'] = 'Erinnerung: Sie haben demnächst einen Kurstermin';
 $string['sessionremindermailmessage'] = '<p>Erinnerung: Sie haben den folgenden Termin gebucht:</p>
+<p>{$a->optiontimes}</p>
+<p>##########################################</p>
 <p>{$a->sessiondescription}</p>
 <p>##########################################</p>
 <p>Buchungsstatus: {$a->status}</p>
