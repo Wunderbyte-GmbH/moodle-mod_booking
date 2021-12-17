@@ -51,7 +51,7 @@ Feature: In a booking create
         And I should see "Monday, 30 January 2023, 12:00 PM - 8:00 PM"
     
     @javascript
-    Scenario: Add teachers and users
+    Scenario: Send reminder mail to participant
         Given I log in as "teacher1"
         When I am on "Course 1" course homepage
         And I follow "My booking"
@@ -63,7 +63,7 @@ Feature: In a booking create
         And I click on "Add" "button"
         And I follow "My booking"
         And I follow "Settings"
-        And  I follow "Book other users"
+        And I follow "Book other users"
         And I click on "Student 1 (student1@example.com)" "text"
         And I click on "Student 2 (student2@example.com)" "text"
         And I click on "Add" "button"
@@ -77,7 +77,10 @@ Feature: In a booking create
             |  Message | Dear, Firstly, I would like to thank you for booking my Course |
         And I press "Save changes"
         And I should see "Your message has been sent."
-       
+        And I open the link "webserver/admin/cron.php"
+        And I wait "1" seconds
+        And I open the link "webserver/_/mail"
+        Then I should see "Connected"
 
     @javascript   
     Scenario: Student can booking the courses
@@ -117,7 +120,7 @@ Feature: In a booking create
         Given I open the link "webserver/_/mail"
         And I should see "Connected"
         ## I can not see the sent email
-        #And I should see "Student 1 (via Acceotance test site)"
+        #And I should see "Student 1 (via Acceptance test site)"
         And I follow "Delete all messages"
         And I press "Delete all messages"     
         
