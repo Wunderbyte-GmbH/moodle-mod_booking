@@ -79,10 +79,21 @@ class message_controller {
      * @param int $userid user id
      * @param int|null $optiondateid optional id of a specific session (optiondate)
      */
-    public function __construct(int $messageparam, int $cmid, int $bookingid, int $optionid, int $userid,
+    public function __construct(int $messageparam, int $cmid, int $bookingid = null, int $optionid, int $userid,
         int $optiondateid = null) {
 
         global $DB;
+
+        // If bookingid is missing, try to retrieve it from DB via optionid.
+        if ($bookingid) {
+            $this->bookingid = $bookingid;
+        } else {
+            if ($bookingid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid])) {
+                $this->bookingid = $bookingid;
+            } else {
+                debugging('Could not retrieve missing bookingid from optionid: ' . $optionid);
+            }
+        }
 
         // Settings.
         $this->bookingsettings = new booking_settings($bookingid);
@@ -91,7 +102,6 @@ class message_controller {
         // Standard params.
         $this->messageparam = $messageparam;
         $this->cmid = $cmid;
-        $this->bookingid = $bookingid;
         $this->optionid = $optionid;
         $this->userid = $userid;
         $this->optiondateid = $optiondateid;
@@ -386,10 +396,16 @@ class message_controller {
      * @return bool true if sent successfully
      */
     public function send(): bool {
-        if (!empty($this->messagedata)) {
-            return message_send($this->messagedata);
+
+        // Only send if we have message data and if the user hasn't been deleted.
+        if ( !empty( $this->messagedata ) && !$this->user->deleted ) {
+
+            return message_send( $this->messagedata );
+
         } else {
+
             return false;
+
         }
     }
 }

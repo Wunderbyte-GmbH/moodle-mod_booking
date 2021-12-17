@@ -28,7 +28,6 @@ use mod_booking\booking_option;
 use mod_booking\booking_utils;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
-use mod_booking\task\send_completion_mails;
 use mod_booking\utils\wb_payment;
 
 // Define global parameters.
@@ -2042,31 +2041,6 @@ function booking_rate($ratings, $params) {
     }
 }
 // END RATING AND GRADES.
-
-/**
- * Send a message to the user who has completed the booking option.
- * Triggered by the event bookingoption_completed and executed by the function bookingoption_completed in observer.php.
- *
- * @param int $userid
- * @param int $optionid
- * @param int $cmid
- * @return bool|mixed
- * @throws coding_exception
- * @throws dml_exception
- */
-function bookingoption_completed_send_message(int $userid, int $optionid, int $cmid) {
-    global $DB, $USER;
-
-    $taskdata = array(
-        'userid' => $userid,
-        'optionid' => $optionid,
-        'cmid' => $cmid
-    );
-
-    $sendtask = new send_completion_mails();
-    $sendtask->set_custom_data($taskdata);
-    \core\task\manager::queue_adhoc_task($sendtask);
-}
 
 /**
  * Send a custom message to one or more users.

@@ -19,8 +19,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-use core\message\message;
-use mod_booking\booking_option;
+use mod_booking\message_controller;
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
@@ -48,56 +47,26 @@ class send_completion_mails extends \core\task\adhoc_task {
      * @see \core\task\task_base::execute()
      */
     public function execute() {
-        global $DB, $USER;
+
         $taskdata = $this->get_custom_data();
 
         echo 'send_completion_mails task: sending completion mail to user with id: ' . $taskdata->userid . PHP_EOL;
 
         if ($taskdata != null) {
-            $userdata = $DB->get_record('user', array('id' => $taskdata->userid));
 
-            if (!$userdata->deleted) {
+            // Use message controller to send the completion message.
+            $messagecontroller = new message_controller(
+                MSGPARAM_COMPLETED, $taskdata->cmid, null, $taskdata->optionid, $taskdata->userid
+            );
 
-                $touser = $DB->get_record('user', array('id' => $taskdata->userid));
-
-                $bookingoption = new booking_option($taskdata->cmid, $taskdata->optionid);
-
-                $params = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option,
-                    $touser, $taskdata->cmid, $bookingoption->optiontimes, false, false, true);
-
-                $message = booking_get_email_body($bookingoption->booking->settings, 'activitycompletiontext',
-                    'activitycompletiontextmessage', $params);
-                $bookingoption->booking->settings->pollurltext = $message;
-
-                $eventdata = new message();
-                $eventdata->modulename = 'booking';
-
-                // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
-                if ($bookingmanager = $DB->get_record('user',
-                    array('username' => $bookingoption->booking->settings->bookingmanager))) {
-                    $eventdata->userfrom = $bookingmanager;
-                } else {
-                    $eventdata->userfrom = $USER;
-                }
-
-                $eventdata->userto = $touser;
-                $eventdata->subject = get_string('activitycompletiontextsubject', 'booking', $params);
-                $eventdata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $message));
-                $eventdata->fullmessageformat = FORMAT_HTML;
-                $eventdata->fullmessagehtml = $message;
-                $eventdata->smallmessage = '';
-                $eventdata->component = 'mod_booking';
-                $eventdata->name = 'bookingconfirmation'; // Message providers are defined in messages.php.
-
-                // Now the task will send the message if possible.
-                if (!message_send($eventdata)) {
-                    echo 'send_completion_mails task: mail could not be sent to user with userid: '
+            if ($messagecontroller->send()) {
+                echo 'send_completion_mails task: mail successfully sent to user with userid: '
                         . $taskdata->userid . PHP_EOL;
-                } else {
-                    echo 'send_completion_mails task: mail successfully sent to user with userid: '
+            } else {
+                echo 'send_completion_mails task: mail could not be sent to user with userid: '
                         . $taskdata->userid . PHP_EOL;
-                }
             }
+
         } else {
             throw new \coding_exception(
                     'Completion email was not sent due to lack of custom message data.');

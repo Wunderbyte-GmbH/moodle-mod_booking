@@ -22,6 +22,8 @@ use invalid_parameter_exception;
 use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
+use mod_booking\message_controller;
+use mod_booking\task\send_completion_mails;
 use function get_config;
 
 defined('MOODLE_INTERNAL') || die();
@@ -1970,7 +1972,7 @@ class booking_option {
 
         foreach ($allusers as $user) {
 
-            $messagecontroller = new \mod_booking\message_controller(
+            $messagecontroller = new message_controller(
                 $messageparam,
                 $this->cmid,
                 $this->bookingid,
@@ -1982,4 +1984,25 @@ class booking_option {
         }
     }
 
+    /**
+     * Send a message to the user who has completed the booking option.
+     * Triggered by the event bookingoption_completed and executed by the
+     * function bookingoption_completed in observer.php
+     *
+     * @param int $userid
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function sendmessage_completed(int $userid) {
+
+        $taskdata = array(
+            'userid' => $userid,
+            'optionid' => $this->optionid,
+            'cmid' => $this->cmid
+        );
+
+        $sendtask = new send_completion_mails();
+        $sendtask->set_custom_data($taskdata);
+        \core\task\manager::queue_adhoc_task($sendtask);
+    }
 }

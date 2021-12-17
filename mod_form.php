@@ -238,10 +238,10 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('header', 'confirmation',
                 get_string('confirmationmessagesettings', 'booking'));
 
-        $mform->addElement('selectyesno', 'sendmail', get_string("sendconfirmmail", "booking"));
+        $mform->addElement('selectyesno', 'sendmail', get_string("activatemails", "booking"));
 
         $mform->addElement('selectyesno', 'copymail',
-                get_string("sendconfirmmailtobookingmanger", "booking"));
+                get_string("sendcopytobookingmanger", "booking"));
 
         $mform->addElement('selectyesno', 'sendmailtobooker',
                 get_string('sendmailtobooker', 'booking'));

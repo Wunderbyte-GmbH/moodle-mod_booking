@@ -205,18 +205,23 @@ class mod_booking_observer {
         $cmid = $event->other['cmid'];
         $selecteduserid = $event->relateduserid;
 
-        // If sendmail is not set or not active, we don't do anything.
         $bookingoption = new booking_option($cmid, $optionid);
+
         if (empty($bookingoption->booking->settings->sendmail)) {
+            // If sendmail is not set or not active, we don't do anything.
             return;
         }
 
-        // Send a message to the user who has completed the booking option (or who has been marked for completion).
         try {
-            bookingoption_completed_send_message($selecteduserid, $optionid, $cmid);
+
+            // Send a message to the user who has completed the booking option (or who has been marked for completion).
+            $bookingoption->sendmessage_completed($selecteduserid);
+
         } catch (coding_exception | dml_exception $e) {
+
             debugging('Booking option completion message could not be sent. ' .
                 'Exception in function observer.php/bookingoption_completed.');
+
         }
     }
 
