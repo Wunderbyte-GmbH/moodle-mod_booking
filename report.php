@@ -272,7 +272,7 @@ if (!$tableallbookings->is_downloading()) {
                     $allselectedusers[] = array_keys($value)[0];
                 }
             }
-            booking_generatenewnumners($bookingoption->booking->settings, $cm->id, $optionid, $allselectedusers);
+            booking_generatenewnumbers($bookingoption->booking->settings, $cm->id, $optionid, $allselectedusers);
             redirect($url, get_string('generaterecnumnotification', 'booking'), 5);
         }
 

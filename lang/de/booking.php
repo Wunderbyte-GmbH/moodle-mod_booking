@@ -879,30 +879,30 @@ Link: {$a->bookinglink}
 
 ';
 
-$string['confirmationsubject'] = 'Buchungsbestätigung für {$a->title}';
-$string['confirmationsubjectbookingmanager'] = 'Neue Buchung für {$a->title} von {$a->participant}';
-$string['confirmationmessage'] = 'Guten Tag {$a->participant}
+$string['bookedtextsubject'] = 'Buchungsbestätigung für {$a->title}';
+$string['bookedtextsubjectbookingmanager'] = 'Neue Buchung für {$a->title} von {$a->participant}';
+$string['bookedtextmessage'] = 'Ihre Buchung wurde registriert:
 
-vielen Dank für die Buchung von {$a->title}.
+{$a->bookingdetails}
+<p>##########################################</p>
+Buchungsstatus: {$a->status}
+Teilnehmer*in:   {$a->participant}
 
-Termin: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
-Ihr Buchungsstatus: {$a->status}
-Name:   {$a->participant}
-Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf folgenden Link:
-{$a->bookinglink}
-
+Zur Buchungsübersicht: {$a->bookinglink}
+Hier geht\'s zum dazugehörigen Kurs: {$a->courselink}
 ';
-$string['confirmationsubjectwaitinglist'] = 'Buchung auf Warteliste für {$a->title}';
-$string['confirmationsubjectwaitinglistmanager'] = 'Wartelistenbuchung für {$a->title} von {$a->participant}';
-$string['confirmationmessagewaitinglist'] = 'Guten Tag {$a->participant}
+$string['waitingtextsubject'] = 'Buchung auf Warteliste für {$a->title}';
+$string['waitingtextsubjectbookingmanager'] = 'Wartelistenbuchung für {$a->title} von {$a->participant}';
 
-vielen Dank für die Buchung von {$a->title}.
+$string['waitingtextmessage'] = 'Sie sind nun auf der Warteliste von:
 
-Termin: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
-Ihr Buchungsstatus: {$a->status}
-Name:   {$a->participant}
-Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf folgenden Link:
-{$a->bookinglink}
+{$a->bookingdetails}
+<p>##########################################</p>
+Buchungsstatus: {$a->status}
+Teilnehmer*in:   {$a->participant}
+
+Zur Buchungsübersicht: {$a->bookinglink}
+Hier geht\'s zum dazugehörigen Kurs: {$a->courselink}
 ';
 
 $string['notifyemailsubject'] = 'Ihre Buchung startet demnächst';

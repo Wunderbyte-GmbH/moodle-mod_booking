@@ -45,6 +45,9 @@ class booking_option {
     public $cmid = null;
 
     /** @var int id of the booking option in table booking_options */
+    public $id = null;
+
+    /** @var int id of the booking option in table booking_options */
     public $optionid = null;
 
     /** @var int id of the booking instance */
@@ -131,8 +134,10 @@ class booking_option {
 
         $this->cmid = $cmid;
         $this->booking = new booking($cmid);
+
         $this->bookingid = $this->booking->id;
         $this->optionid = $optionid;
+        $this->id = $optionid; // Store it in id AND in optionid.
 
         $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', MUST_EXIST);
 
@@ -775,6 +780,7 @@ class booking_option {
         $event->trigger();
         $this->unenrol_user($user->id);
 
+        // START OF EMAIL STUFF.
         $params = booking_generate_email_params($this->booking->settings, $this->option, $user, $this->booking->cm->id,
             $this->optiontimes, false, false, true);
 
@@ -831,6 +837,7 @@ class booking_option {
                 \core\task\manager::queue_adhoc_task($sendtask);
             }
         }
+        // END OF EMAIL STUFF.
 
         // Sync the waiting list and send status change mails.
         $this->sync_waiting_list();
@@ -1159,7 +1166,7 @@ class booking_option {
         $cansend = true;
 
         if ($optionchanged) {
-            // When there have been changes relevant to the calendar (or ical) entry, then inform the booked users.
+            // When there have been relevant changes, then inform the booked users.
             $subject = get_string('bookingchangedsubject', 'booking', $data);
             $message = booking_get_email_body($this->booking->settings, 'bookingchangedtext', 'bookingchangedmessage',
                 $data);
@@ -1171,9 +1178,9 @@ class booking_option {
                 $attachments = $ical->get_attachments();
             }
         } else if ($data->status == get_string('booked', 'booking')) {
-            $subject = get_string('confirmationsubject', 'booking', $data);
-            $subjectmanager = get_string('confirmationsubjectbookingmanager', 'booking', $data);
-            $message = booking_get_email_body($this->booking->settings, 'bookedtext', 'confirmationmessage',
+            $subject = get_string('bookedtextsubject', 'booking', $data);
+            $subjectmanager = get_string('bookedtextsubjectbookingmanager', 'booking', $data);
+            $message = booking_get_email_body($this->booking->settings, 'bookedtext', 'bookedtextmessage',
                     $data);
 
             // Generate ical attachments to go with the message.
@@ -1183,10 +1190,9 @@ class booking_option {
                 $attachments = $ical->get_attachments();
             }
         } else if ($data->status == get_string('onwaitinglist', 'booking')) {
-            $subject = get_string('confirmationsubjectwaitinglist', 'booking', $data);
-            $subjectmanager = get_string('confirmationsubjectwaitinglistmanager', 'booking', $data);
-            $message = booking_get_email_body($this->booking->settings, 'waitingtext',
-                    'confirmationmessagewaitinglist', $data);
+            $subject = get_string('waitingtextsubject', 'booking', $data);
+            $subjectmanager = get_string('waitingtextsubjectbookingmanager', 'booking', $data);
+            $message = booking_get_email_body($this->booking->settings, 'waitingtext', 'waitingtextmessage', $data);
         } else {
             // This should never be reached.
             $subject = "test";
@@ -1195,9 +1201,9 @@ class booking_option {
 
             $cansend = false;
         }
+
         $messagehtml = text_to_html($message, false, false, true);
-        $errormessage = get_string('error:failedtosendconfirmation', 'booking', $data);
-        $errormessagehtml = text_to_html($errormessage, false, false, true);
+
         $user->mailformat = FORMAT_HTML; // Always send HTML version as well.
 
         $messagedata = new stdClass();

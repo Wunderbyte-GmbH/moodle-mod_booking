@@ -1018,31 +1018,30 @@ Booking link: {$a->bookinglink}
 
 ';
 
-$string['confirmationsubject'] = 'Booking confirmation for {$a->title}';
-$string['confirmationsubjectbookingmanager'] = 'New booking for {$a->title} by {$a->participant}';
-$string['confirmationmessage'] = 'Your booking has been registered
+$string['bookedtextsubject'] = 'Booking confirmation for {$a->title}';
+$string['bookedtextsubjectbookingmanager'] = 'New booking for {$a->title} by {$a->participant}';
+$string['bookedtextmessage'] = 'Your booking has been registered:
 
-
+{$a->bookingdetails}
+<p>##########################################</p>
 Booking status: {$a->status}
 Participant:   {$a->participant}
-Booking option: {$a->title}
-Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
+
 To view all your booked courses click on the following link: {$a->bookinglink}
 The associated course can be found here: {$a->courselink}
-
 ';
-$string['confirmationsubjectwaitinglist'] = 'Booking status for {$a->title} has changed';
-$string['confirmationsubjectwaitinglistmanager'] = 'Booking status for {$a->title} has changed';
-$string['confirmationmessagewaitinglist'] = 'Hello {$a->participant},
+$string['waitingtextsubject'] = 'Booking status for {$a->title} has changed';
+$string['waitingtextsubjectbookingmanager'] = 'Booking status for {$a->title} has changed';
 
-Your booking request has been registered
+$string['waitingtextmessage'] = 'You are now on the waiting list of:
 
+{$a->bookingdetails}
+<p>##########################################</p>
 Booking status: {$a->status}
-Participant: {$a->participant}
-Booking option: {$a->title}
-Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
-To view all your booked courses click on the following link: {$a->bookinglink}
+Participant:   {$a->participant}
 
+To view all your booked courses click on the following link: {$a->bookinglink}
+The associated course can be found here: {$a->courselink}
 ';
 
 $string['notifyemailsubject'] = 'Your booking will start soon';

@@ -338,7 +338,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('editor', 'bookedtext', get_string('bookedtext', 'booking'), null,
                 $editoroptions);
-        $default = array('text' => get_string('confirmationmessage', 'mod_booking', $fieldmapping),
+        $default = array('text' => get_string('bookedtextmessage', 'mod_booking', $fieldmapping),
             'format' => FORMAT_HTML);
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('bookedtext', $default);
@@ -348,7 +348,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('editor', 'waitingtext', get_string('waitingtext', 'booking'), null,
                 $editoroptions);
         $default = array(
-            'text' => get_string('confirmationmessagewaitinglist', 'mod_booking', $fieldmapping),
+            'text' => get_string('waitingtextmessage', 'mod_booking', $fieldmapping),
             'format' => FORMAT_HTML);
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         $mform->setDefault('waitingtext', $default);

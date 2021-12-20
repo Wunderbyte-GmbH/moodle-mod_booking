@@ -25,23 +25,24 @@ require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
 
 use mod_booking\booking_option;
+use mod_booking\message_controller;
 
-$id = required_param('id', PARAM_INT); // Course Module ID.
+$cmid = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT); // Option ID.
 
 $url = new moodle_url('/mod/booking/viewconfirmation.php',
-        array('id' => $id, 'optionid' => $optionid));
+        array('id' => $cmid, 'optionid' => $optionid));
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+list($course, $cm) = get_course_and_cm_from_cmid($cmid);
 
 require_course_login($course, false, $cm);
 
-if (!$bookingoption = new booking_option($id, $optionid, array(), 0, 0, false)) {
+if (!$bookingoption = new booking_option($cmid, $optionid, array(), 0, 0, false)) {
     throw new invalid_parameter_exception("Course module id is incorrect");
 }
 
-if (!$context = context_module::instance($cm->id)) {
+if (!$context = context_module::instance($cmid)) {
     throw new moodle_exception('badcontext');
 }
 
@@ -60,15 +61,24 @@ if (!$answer) {
     echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id' => $course->id)));
     echo $OUTPUT->footer();
 }
-$bookingmanager = $DB->get_record('user', array('username' => $bookingoption->booking->settings->bookingmanager));
-$data = booking_generate_email_params($bookingoption->booking->settings, $bookingoption->option,
-    $user, $cm->id, $bookingoption->optiontimes, false, false, true);
 
 if ($answer->waitinglist == 1) {
-    $message = booking_get_email_body($bookingoption->booking->settings, 'waitingtext', 'confirmationmessage', $data);
+    $msgparam = MSGPARAM_WAITINGLIST;
 } else {
-    $message = booking_get_email_body($bookingoption->booking->settings, 'bookedtext', 'confirmationmessagewaitinglist', $data);
+    $msgparam = MSGPARAM_CONFIRMATION;
 }
+
+// New message controller.
+$messagecontroller = new message_controller(
+    $msgparam,
+    $cmid,
+    $bookingoption->bookingid,
+    $bookingoption->optionid,
+    $user->id
+);
+
+// Get the message from message controller (do not send, we only want to show it here).
+$message = $messagecontroller->get_messagebody();
 
 echo "{$message}";
 

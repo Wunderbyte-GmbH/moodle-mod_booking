@@ -70,6 +70,9 @@ class message_controller {
     /** @var string $messagefieldname */
     private $messagefieldname;
 
+    /** @var string $messagebody */
+    private $messagebody;
+
     /**
      * Constructor
      * @param int $messageparam the message type
@@ -113,13 +116,13 @@ class message_controller {
         $this->user = $DB->get_record('user', array('id' => $userid));
 
         // Generate email params.
-        $params = $this->get_email_params([], false);
+        $params = $this->get_email_params();
 
         // Generate the email body.
-        $messagebody = $this->get_email_body($params);
+        $this->messagebody = $this->get_email_body($params);
 
         // Generate full message data.
-        $this->messagedata = $this->get_message_data($messagebody, $params);
+        $this->messagedata = $this->get_message_data($params);
     }
 
     /**
@@ -306,11 +309,10 @@ class message_controller {
 
     /**
      * Get the actual message data needed to send the message
-     * @param string $messagebody
      * @param stdClass $params
      * @return message
      */
-    private function get_message_data(string $messagebody, stdClass $params): message {
+    private function get_message_data(stdClass $params): message {
 
         global $DB, $USER;
 
@@ -327,9 +329,9 @@ class message_controller {
 
         $messagedata->userto = $this->user;
         $messagedata->subject = get_string($this->messagefieldname . 'subject', 'booking', $params);
-        $messagedata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $messagebody));
+        $messagedata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $this->messagebody));
         $messagedata->fullmessageformat = FORMAT_HTML;
-        $messagedata->fullmessagehtml = $messagebody;
+        $messagedata->fullmessagehtml = $this->messagebody;
         $messagedata->smallmessage = '';
         $messagedata->component = 'mod_booking';
         $messagedata->name = 'bookingconfirmation';
@@ -392,7 +394,7 @@ class message_controller {
     }
 
     /**
-     * Send the message
+     * Send the message.
      * @return bool true if sent successfully
      */
     public function send(): bool {
@@ -407,5 +409,15 @@ class message_controller {
             return false;
 
         }
+    }
+
+    /**
+     * Get the message body.
+     * @return string the message body
+     */
+    public function get_messagebody(): string {
+
+        return $this->messagebody;
+
     }
 }

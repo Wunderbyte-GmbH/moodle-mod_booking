@@ -1619,7 +1619,7 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
  * @param number $optionid
  * @param array $allselectedusers
  */
-function booking_generatenewnumners($bookingdatabooking, $cmid, $optionid, $allselectedusers) {
+function booking_generatenewnumbers($bookingdatabooking, $cmid, $optionid, $allselectedusers) {
     global $DB;
 
     if (!empty($allselectedusers)) {
