@@ -277,7 +277,7 @@ class generator {
         } else {
             $userfields = '';
         }
-        
+
         $users = $DB->get_records_sql(
                 'SELECT u.id, ' . $mainuserfields . $userfields .
                          '
