@@ -59,7 +59,8 @@ class mod_booking_generator extends testing_module_generator {
                                 firstname,lastname,email,completed,waitinglist,status,
                                 groups,notes,idnumber',
             'responsesfields' => 'completed,status,rating,numrec,fullname,timecreated,
-                                institution,waitinglist,city,notes'
+                                institution,waitinglist,city,notes',
+            'sendmail' => 1
 
         );
 

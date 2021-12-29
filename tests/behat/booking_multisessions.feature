@@ -21,7 +21,7 @@ Feature: In a booking create
             | student1 | C1 | student |
             | student2 | C1 | student |
         And the following "activities" exist:
-            | activity | course |  name  | intro  | bookingmanager | eventtype |  Default view for booking options | Send confirmation e-mail | Booking option name |
+            | activity | course |  name  | intro  | bookingmanager | eventtype |  Default view for booking options | Activate e-mails (confirmations, notifications and more) | Booking option name |
             | booking     | C1     | My booking | My booking description | teacher1 | Webinar | All bookings | Yes | New option - Webinar |
         And I create booking option "New option - Webinar" in "My booking"
 
@@ -49,13 +49,12 @@ Feature: In a booking create
         And I press "Save"
         And I press "Back"
         And I should see "Monday, 30 January 2023, 12:00 PM - 8:00 PM"
-    
+
     @javascript
     Scenario: Send reminder mail to participant
         Given I log in as "teacher1"
         When I am on "Course 1" course homepage
         And I follow "My booking"
-        And I should see "New option - Webinar" 
         And I follow "Settings"
         And I follow "Edit teachers"
         And I press "Turn editing on"
@@ -77,13 +76,17 @@ Feature: In a booking create
             |  Message | Dear, Firstly, I would like to thank you for booking my Course |
         And I press "Save changes"
         And I should see "Your message has been sent."
-        And I open the link "webserver/admin/cron.php"
-        And I wait "1" seconds
+        And I run all adhoc tasks
         And I open the link "webserver/_/mail"
+        And I wait "10" seconds
         Then I should see "Connected"
 
-    @javascript   
+    @javascript
     Scenario: Student can booking the courses
+        And I log in as "admin"
+        And I navigate to "Server > Email > Outgoing mail configuration" in site administration
+        And I wait "10" seconds
+        And I log out
         And I log in as "student1"
         Then I am on "Course 1" course homepage
         And I follow "My booking"
@@ -92,7 +95,11 @@ Feature: In a booking create
         And I click on "Continue" "button"
         And I should see "New option"
         And I click on "Booked" "text"
-        
+        And I run all adhoc tasks
+        And I open the link "webserver/admin/cron.php"
+        And I open the link "webserver/_/mail"
+        And I wait "10" seconds
+
     @javascript
     Scenario: Teacher send email on students
         Given I log in as "teacher1"
@@ -108,8 +115,8 @@ Feature: In a booking create
         And I click on "selectall" "checkbox"
         And I click on "Send reminder e-mail" "button"
         And I should see "Notification e-mail has been sent!"
-        
-    
+
+
     @javascript
     Scenario: Run cron
         Then I open the link "webserver/admin/cron.php"
@@ -122,5 +129,4 @@ Feature: In a booking create
         ## I can not see the sent email
         #And I should see "Student 1 (via Acceptance test site)"
         And I follow "Delete all messages"
-        And I press "Delete all messages"     
-        
+        And I press "Delete all messages"
