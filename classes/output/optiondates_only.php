@@ -48,6 +48,9 @@ class optiondates_only implements renderable, templatable {
     /** @var array $sessions */
     public $sessions = [];
 
+    /** @var bool $onesession */
+    public $onesession = false;
+
     /**
      * Constructor
      *
