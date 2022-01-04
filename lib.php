@@ -1215,16 +1215,16 @@ function booking_email_to_user($user, $from, $subject, $messagetext, $messagehtm
         return false;
     }
 
-    if (defined('BEHAT_SITE_RUNNING')) {
-        // Fake email sending in behat.
-        return true;
-    }
+    // if (defined('BEHAT_SITE_RUNNING')) {
+    //     // Fake email sending in behat.
+    //     return true;
+    // }
 
-    if (!empty($CFG->noemailever)) {
-        // Hidden setting for development sites, set in config.php if needed.
-        debugging('Not sending email due to $CFG->noemailever config setting', DEBUG_NORMAL);
-        return true;
-    }
+    // if (!empty($CFG->noemailever)) {
+    //     // Hidden setting for development sites, set in config.php if needed.
+    //     debugging('Not sending email due to $CFG->noemailever config setting', DEBUG_NORMAL);
+    //     return true;
+    // }
 
     if (email_should_be_diverted($user->email)) {
         $subject = "[DIVERTED {$user->email}] $subject";
