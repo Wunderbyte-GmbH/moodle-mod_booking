@@ -83,11 +83,11 @@ Feature: In a booking create
 
     @javascript
     Scenario: Student can booking the courses
-        And I log in as "admin"
-        And I navigate to "Server > Email > Outgoing mail configuration" in site administration
-        And I wait "10" seconds
-        And I log out
-        And I log in as "student1"
+        When I log in as "student1"
+        And I open the link "webserver/_/mail"
+        And I follow "Delete all messages"
+        And I press "Delete all messages"
+        And I open the link "webserver"
         Then I am on "Course 1" course homepage
         And I follow "My booking"
         And I should see "New option"
@@ -96,9 +96,9 @@ Feature: In a booking create
         And I should see "New option"
         And I click on "Booked" "text"
         And I run all adhoc tasks
-        And I open the link "webserver/admin/cron.php"
         And I open the link "webserver/_/mail"
-        And I wait "10" seconds
+        Then I should see "Teacher 1 (via Acceptance test site)"
+        And I should see "Booking confirmation for New option - Webinar"
 
     @javascript
     Scenario: Teacher send email on students
