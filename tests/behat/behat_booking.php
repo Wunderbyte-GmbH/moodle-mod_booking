@@ -40,8 +40,6 @@ class behat_booking extends behat_base
      */
     public function i_create_booking_option($optionname, $instancename) {
 
-        global $DB;
-
         $cm = $this->get_cm_by_booking_name($instancename);
 
         $booking = new booking($cm->id);

@@ -1,4 +1,4 @@
-@mod @mod_booking
+@mod @mod_booking @booking_delete
 Feature: In a booking create
     As a teacher
     I need to add booking and event to a booking.
@@ -47,7 +47,7 @@ Feature: In a booking create
         Given I open the link "webserver/_/mail"
         And I should see "Connected"
         ## I can not see the sent email
-        And I should see "Student 1 (via Acceotance test site)"
+        And I should see "Student 1 (via Acceptance test site)"
         
 
 

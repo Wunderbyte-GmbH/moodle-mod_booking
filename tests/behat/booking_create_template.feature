@@ -1,4 +1,4 @@
-@mod @mod_booking
+@mod @mod_booking @booking_create_template
 Feature: In a booking create
   As a teacher
   I need to add booking and event to a booking.
