@@ -1739,3 +1739,6 @@ $string['donwloadtemplates'] = 'Download templates';
 $string['teplatefile'] = 'Templates file';
 $string['templatesinserted'] = 'Templates where inserted.';
 $string['templatesinsertederror'] = 'Error! Templates not inserted!';
+$string['recipients'] = 'Recipients';
+$string['allusers'] = 'All users';
+$string['onlyselected'] = 'Only selected';
