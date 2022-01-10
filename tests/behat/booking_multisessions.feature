@@ -53,6 +53,10 @@ Feature: In a booking create
     @javascript
     Scenario: Send reminder mail to participant
         Given I log in as "teacher1"
+        And I open the link "webserver/_/mail"
+        And I follow "Delete all messages"
+        And I press "Delete all messages"
+        And I open the link "webserver"
         When I am on "Course 1" course homepage
         And I follow "My booking"
         And I follow "Settings"
@@ -72,14 +76,14 @@ Feature: In a booking create
         And I click on "selectall" "checkbox"
         And I click on "Send custom message" "button"
         And I set the following fields to these values:
-            |  Subject | Your Booking |
+            |  Subject | Behat test |
             |  Message | Dear, Firstly, I would like to thank you for booking my Course |
         And I press "Save changes"
         And I should see "Your message has been sent."
         And I run all adhoc tasks
         And I open the link "webserver/_/mail"
-        And I wait "10" seconds
-        Then I should see "Connected"
+        Then I should see "Teacher 1 (via Acceptance test site)"
+        And I should see "Behat test"
 
     @javascript
     Scenario: Student can booking the courses
