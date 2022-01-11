@@ -328,9 +328,6 @@ class message_controller {
 
         global $USER;
 
-        // Used to store the ical attachment (if required).
-        $attachments = null;
-
         $messagedata = new message();
         $messagedata->modulename = 'booking';
 
@@ -339,22 +336,6 @@ class message_controller {
             $messagedata->userfrom = $this->bookingmanager;
         } else {
             $messagedata->userfrom = $USER;
-        }
-
-        // Currently ical attachments can only be added to booking confirmations and change notifications.
-        if ($this->messageparam == MSGPARAM_CONFIRMATION) {
-            // Generate ical attachments to go with the message. Check if ical attachments enabled.
-            if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
-                $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, false);
-                $attachments = $ical->get_attachments();
-            }
-        } else if ($this->messageparam == MSGPARAM_CHANGE_NOTIFICATION) {
-            // Generate ical attachments to go with the message. Check if ical attachments enabled.
-            // Set $updated param to true.
-            if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
-                $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, true);
-                $attachments = $ical->get_attachments();
-            }
         }
 
         $messagedata->userto = $this->user;
@@ -366,28 +347,6 @@ class message_controller {
         $messagedata->component = 'mod_booking';
         $messagedata->name = 'bookingconfirmation';
         $messagedata->courseid = $this->bookingsettings->course;
-
-        // Add attachments if there are any.
-        if (!empty($attachments)) {
-            $messagedata->attachment = $attachments;
-            $messagedata->attachname = '';
-        }
-
-        if ( $this->messageparam == MSGPARAM_CONFIRMATION ||
-             $this->messageparam == MSGPARAM_WAITINGLIST ||
-             $this->messageparam == MSGPARAM_CHANGE_NOTIFICATION ) {
-
-            $messagehtml = text_to_html($this->messagebody, false, false, true);
-
-            $this->user->mailformat = FORMAT_HTML; // Always send HTML version as well.
-
-            if ($this->bookingsettings->sendmailtobooker) {
-                $messagedata->userto = $USER;
-            }
-
-            $messagedata->messagetext = format_text_email($this->messagebody, FORMAT_HTML);
-            $messagedata->messagehtml = $messagehtml;
-        }
 
         return $messagedata;
     }
@@ -450,30 +409,55 @@ class message_controller {
      */
     public function send(): bool {
 
+        global $USER;
+
         // Only send if we have message data and if the user hasn't been deleted.
         if ( !empty( $this->messagedata ) && !$this->user->deleted ) {
 
-            if ( $this->messageparam == MSGPARAM_CONFIRMATION ||
-                 $this->messageparam == MSGPARAM_WAITINGLIST ||
-                 $this->messageparam == MSGPARAM_CHANGE_NOTIFICATION ) {
+            if ($this->messageparam == MSGPARAM_CONFIRMATION ||
+                $this->messageparam == MSGPARAM_WAITINGLIST ||
+                $this->messageparam == MSGPARAM_CHANGE_NOTIFICATION) {
+
+                $messagedata = new stdClass();
+
+                $messagedata->userfrom = $this->messagedata->userfrom;
+
+                if ($this->bookingsettings->sendmailtobooker) {
+                    $messagedata->userto = $USER;
+                } else {
+                    $messagedata->userto = $this->user;
+                }
+
+                $messagedata->subject = $this->messagedata->subject;
+                $messagedata->messagetext = format_text_email($this->messagebody, FORMAT_HTML);
+                $messagedata->messagehtml = text_to_html($this->messagebody, false, false, true);
+
+                // Add attachments if there are any.
+                $attachments = $this->get_attachments();
+                if (!empty($attachments)) {
+                    $messagedata->attachment = $attachments;
+                    $messagedata->attachname = '';
+                }
 
                 $sendtask = new task\send_confirmation_mails();
-                $sendtask->set_custom_data($this->messagedata);
+                $sendtask->set_custom_data($messagedata);
                 \core\task\manager::queue_adhoc_task($sendtask);
 
                 // If the setting to send a copy to the booking manger has been enabled,
                 // then also send a copy to the booking manager.
                 // Do not send copies of change notifications to booking managers.
-                if ( $this->booking->settings->copymail &&
+                if ( $this->bookingsettings->copymail &&
                     ($this->messageparam == MSGPARAM_CONFIRMATION || $this->messageparam == MSGPARAM_WAITINGLIST )) {
 
-                    $this->messagedata->userto = $this->bookingmanager;
-                    $this->messagedata->subject .= 'bookingmanager';
+                    $messagedata->userto = $this->bookingmanager;
+                    $messagedata->subject .= 'bookingmanager';
 
                     $sendtask = new task\send_confirmation_mails();
-                    $sendtask->set_custom_data($this->messagedata);
+                    $sendtask->set_custom_data($messagedata);
                     \core\task\manager::queue_adhoc_task($sendtask);
                 }
+
+                return true;
 
             } else {
 
@@ -482,9 +466,7 @@ class message_controller {
 
             }
         } else {
-
             return false;
-
         }
     }
 
@@ -496,5 +478,31 @@ class message_controller {
 
         return $this->messagebody;
 
+    }
+
+    /**
+     * Get ical attachments.
+     * @return array attachments
+     */
+    private function get_attachments(): array {
+        $attachments = null;
+
+        // Currently ical attachments can only be added to booking confirmations and change notifications.
+        if ($this->messageparam == MSGPARAM_CONFIRMATION) {
+            // Generate ical attachments to go with the message. Check if ical attachments enabled.
+            if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
+                $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, false);
+                $attachments = $ical->get_attachments();
+            }
+        } else if ($this->messageparam == MSGPARAM_CHANGE_NOTIFICATION) {
+            // Generate ical attachments to go with the message. Check if ical attachments enabled.
+            // Set $updated param to true.
+            if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
+                $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, true);
+                $attachments = $ical->get_attachments();
+            }
+        }
+
+        return $attachments;
     }
 }
