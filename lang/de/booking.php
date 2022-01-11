@@ -959,8 +959,8 @@ $string['deletedbookingusermessage'] = 'Guten Tag {$a->participant},
 Die Buchung für {$a->title} wurde erfolgreich storniert
 ';
 
-$string['bookingchangedsubject'] = 'Änderungsbenachrichtigung für {$a->title}';
-$string['bookingchangedmessage'] = 'Ihre Buchung "{$a->title}" hat sich geändert.
+$string['bookingchangedtextsubject'] = 'Änderungsbenachrichtigung für {$a->title}';
+$string['bookingchangedtextmessage'] = 'Ihre Buchung "{$a->title}" hat sich geändert.
 
 Das ist neu:
 {changes}

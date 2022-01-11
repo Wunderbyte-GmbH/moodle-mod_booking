@@ -1143,101 +1143,46 @@ class booking_option {
      * With the second param "optionchanged" set to true, this will send a notification mail to the user,
      * informing him/her that the option event has changed and will include the updated ical.
      *
-     * TODO this should be rewritten for moodle 2.6 onwards
-     *
      * @param stdClass $user user object
      * @param bool $optionchanged optional param used to inform the user of updates on the option
      * @param array $changes a string containing changes to be replaced in the update message
      * @return bool
      */
     public function send_confirm_message($user, $optionchanged = false, $changes = false) {
-        global $DB, $USER;
-        $cmid = $this->booking->cm->id;
-        // Used to store the ical attachment (if required).
-        $attachname = '';
-        $attachments = array();
+
+        global $DB;
 
         $user = $DB->get_record('user', array('id' => $user->id));
-        $bookingmanager = $DB->get_record('user',
-                array('username' => $this->booking->settings->bookingmanager));
-        $data = booking_generate_email_params($this->booking->settings, $this->option, $user, $cmid,
-                $this->optiontimes, $changes, false, true);
 
-        $cansend = true;
+        // Status can be STATUSPARAM_BOOKED (1), STATUSPARAM_NOTBOOKED (2), STATUSPARAM_WAITINGLIST (3).
+        $status = $this->get_user_status($user->id);
 
         if ($optionchanged) {
-            // When there have been relevant changes, then inform the booked users.
-            $subject = get_string('bookingchangedsubject', 'booking', $data);
-            $message = booking_get_email_body($this->booking->settings, 'bookingchangedtext', 'bookingchangedmessage',
-                $data);
 
-            // Generate ical attachments to go with the message.
-            // Check if ical attachments enabled.
-            if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
-                $ical = new ical($this->booking->settings, $this->option, $user, $bookingmanager, true);
-                $attachments = $ical->get_attachments();
-            }
-        } else if ($data->status == get_string('booked', 'booking')) {
-            $subject = get_string('bookedtextsubject', 'booking', $data);
-            $subjectmanager = get_string('bookedtextsubjectbookingmanager', 'booking', $data);
-            $message = booking_get_email_body($this->booking->settings, 'bookedtext', 'bookedtextmessage',
-                    $data);
+            // Change notification.
+            $msgparam = MSGPARAM_CHANGE_NOTIFICATION;
 
-            // Generate ical attachments to go with the message.
-            // Check if ical attachments enabled.
-            if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
-                $ical = new ical($this->booking->settings, $this->option, $user, $bookingmanager);
-                $attachments = $ical->get_attachments();
-            }
-        } else if ($data->status == get_string('onwaitinglist', 'booking')) {
-            $subject = get_string('waitingtextsubject', 'booking', $data);
-            $subjectmanager = get_string('waitingtextsubjectbookingmanager', 'booking', $data);
-            $message = booking_get_email_body($this->booking->settings, 'waitingtext', 'waitingtextmessage', $data);
+        } else if ($status == STATUSPARAM_BOOKED) {
+
+            // Booking confirmation.
+            $msgparam = MSGPARAM_CONFIRMATION;
+
+        } else if ($status == STATUSPARAM_WAITINGLIST) {
+
+            // Waiting list confirmation.
+            $msgparam = MSGPARAM_WAITINGLIST;
+
         } else {
-            // This should never be reached.
-            $subject = "test";
-            $subjectmanager = "tester";
-            $message = "message";
-
-            $cansend = false;
+            // Error: No message can be sent.
+            return false;
         }
 
-        $messagehtml = text_to_html($message, false, false, true);
+        // Use message controller to send the message.
+        $messagecontroller = new message_controller(
+            $msgparam, $this->cmid, $this->bookingid, $this->optionid, $user->id
+        );
+        $messagecontroller->send();
 
-        $user->mailformat = FORMAT_HTML; // Always send HTML version as well.
-
-        $messagedata = new stdClass();
-        $messagedata->userfrom = $bookingmanager;
-        if ($this->booking->settings->sendmailtobooker) {
-            $messagedata->userto = $DB->get_record('user', array('id' => $USER->id));
-        } else {
-            $messagedata->userto = $DB->get_record('user', array('id' => $user->id));
-        }
-        $messagedata->subject = $subject;
-        $messagedata->messagetext = format_text_email($message, FORMAT_HTML);
-        $messagedata->messagehtml = $messagehtml;
-        $messagedata->attachment = $attachments;
-        $messagedata->attachname = $attachname;
-
-        if ($cansend) {
-            $sendtask = new task\send_confirmation_mails();
-            $sendtask->set_custom_data($messagedata);
-            \core\task\manager::queue_adhoc_task($sendtask);
-        }
-
-        // If the setting to send a copy to the booking manger has been enabled,
-        // then also send a copy to the booking manager.
-        // Do not send copies of change notifications to booking managers.
-        if ($this->booking->settings->copymail && !$optionchanged) {
-            $messagedata->userto = $bookingmanager;
-            $messagedata->subject = $subjectmanager;
-
-            if ($cansend) {
-                $sendtask = new task\send_confirmation_mails();
-                $sendtask->set_custom_data($messagedata);
-                \core\task\manager::queue_adhoc_task($sendtask);
-            }
-        }
         return true;
     }
 
@@ -2010,5 +1955,80 @@ class booking_option {
         $sendtask = new send_completion_mails();
         $sendtask->set_custom_data($taskdata);
         \core\task\manager::queue_adhoc_task($sendtask);
+    }
+
+    /**
+     * Get the user status parameter of the specified user.
+     * STATUSPARAM_BOOKED (1) ... user has booked the option
+     * STATUSPARAM_NOTBOOKED (2) ... user has not booked the option
+     * STATUSPARAM_WAITINGLIST (3) ... user is on the waiting list
+     *
+     * @param $userid userid of the user
+     * @return int user status param
+     */
+    public function get_user_status($userid) {
+
+        global $DB;
+
+        $bookinganswers = $DB->get_records_select('booking_answers',
+            "bookingid = $this->bookingid AND optionid = $this->optionid", array(), 'timemodified', 'userid');
+
+        $sortedanswers = array();
+        if (!empty($bookinganswers)) {
+            foreach ($bookinganswers as $answer) {
+                $sortedanswers[] = $answer->userid;
+            }
+            $useridaskey = array_flip($sortedanswers);
+
+            if ($this->option->limitanswers) {
+                if (!isset($useridaskey[$userid])) {
+                    $status = STATUSPARAM_NOTBOOKED;
+                } else if ($useridaskey[$userid] > $this->option->maxanswers + $this->option->maxoverbooking) {
+                    $status = "Problem, please contact the admin";
+                } else if (($useridaskey[$userid]) >= $this->option->maxanswers) {
+                    $status = STATUSPARAM_WAITINGLIST;
+                } else if ($useridaskey[$userid] <= $this->option->maxanswers) {
+                    $status = STATUSPARAM_BOOKED;
+                } else {
+                    $status = STATUSPARAM_NOTBOOKED;
+                }
+            } else {
+                if (isset($useridaskey[$userid])) {
+                    $status = STATUSPARAM_BOOKED;
+                } else {
+                    $status = STATUSPARAM_NOTBOOKED;
+                }
+            }
+            return $status;
+        }
+        return STATUSPARAM_NOTBOOKED;
+    }
+
+    /**
+     * Get the user status as a string.
+     *
+     * @param $userid userid of the user
+     * @return string localized string of user status
+     */
+    public function get_user_status_string($userid) {
+
+        $statusparam = $this->get_user_status($userid);
+
+        switch ($statusparam) {
+            case STATUSPARAM_BOOKED:
+                $status = get_string('booked', 'booking');
+                break;
+            case STATUSPARAM_NOTBOOKED:
+                $status = get_string('notbooked', 'booking');
+                break;
+            case STATUSPARAM_WAITINGLIST:
+                $status = get_string('onwaitinglist', 'booking');
+                break;
+            default:
+                $status = get_string('notbooked', 'booking');
+                break;
+        }
+
+        return $status;
     }
 }

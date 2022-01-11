@@ -30,7 +30,7 @@ use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\utils\wb_payment;
 
-// Define global parameters.
+// Define message parameters.
 define('MSGPARAM_CONFIRMATION', 1);
 define('MSGPARAM_WAITINGLIST', 2);
 define('MSGPARAM_REMINDER_PARTICIPANT', 3);
@@ -44,6 +44,11 @@ define('MSGPARAM_POLLURL_TEACHER', 10);
 define('MSGPARAM_COMPLETED', 11);
 define('MSGPARAM_SESSIONREMINDER', 12);
 define('MSGPARAM_REPORTREMINDER', 13); // Reminder sent from report.php.
+
+// Define booking status parameters.
+define('STATUSPARAM_BOOKED', 1);
+define('STATUSPARAM_NOTBOOKED', 2);
+define('STATUSPARAM_WAITINGLIST', 3);
 
 /**
  * @param stdClass $cm
@@ -960,6 +965,8 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
 }
 
 /**
+ * Was moved to booking_option class.
+ * THIS FUNCTION WILL BE DELETED IN A FUTURE RELEASE.
  * Checks the status of the specified user
  *
  * @param $userid userid of the user
@@ -2401,6 +2408,8 @@ function booking_get_email_body($bookingsettings, $fieldname, $defaultname, $par
 }
 
 /**
+ * THIS FUNCTION IS NEVER USED. CAN WE DELETE IT?
+ * 
  * Checks if user on waitinglist gets normal place if a user is deleted
  *
  * @param $optionid id of booking option

@@ -49,6 +49,9 @@ class message_controller {
     /** @var int $optionid */
     private $optionid;
 
+    /** @var booking_option $option */
+    private $option;
+
     /** @var int $userid */
     private $userid;
 
@@ -72,6 +75,9 @@ class message_controller {
 
     /** @var string $messagebody */
     private $messagebody;
+
+    /** @var stdClass $bookingmanager */
+    private $bookingmanager;
 
     /**
      * Constructor
@@ -102,6 +108,9 @@ class message_controller {
         $this->bookingsettings = new booking_settings($bookingid);
         $this->optionsettings = new booking_option_settings($optionid);
 
+        // Get the booking manager.
+        $this->bookingmanager = $DB->get_record('user', ['username' => $this->bookingsettings->bookingmanager]);
+
         // Standard params.
         $this->messageparam = $messageparam;
         $this->cmid = $cmid;
@@ -109,8 +118,11 @@ class message_controller {
         $this->userid = $userid;
         $this->optiondateid = $optiondateid;
 
+        // Booking_option instance needed to access functions get_all_users_booked and get_all_users_on_waitinglist.
+        $this->option = new booking_option($cmid, $optionid);
+
         // Resolve the correct message fieldname.
-        $this->messagefieldname = $this->get_message_fieldname($messageparam);
+        $this->messagefieldname = $this->get_message_fieldname();
 
         // Generate user data.
         $this->user = $DB->get_record('user', array('id' => $userid));
@@ -189,7 +201,7 @@ class message_controller {
                 $params->optiontimes = $output->render_optiondates_only($data);
 
                 // Params for specific session reminders.
-                $params->status = booking_get_user_status($this->userid, $this->optionid, $this->bookingid, $this->cmid);
+                $params->status = $this->option->get_user_status_string($this->userid);
                 $params->participant = fullname($this->user);
                 $params->email = $this->user->email;
                 $params->sessiondescription = get_rendered_eventdescription($this->optionid, $this->cmid, DESCRIPTION_CALENDAR);
@@ -202,7 +214,7 @@ class message_controller {
                 $params->qr_username = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
                     rawurlencode($this->user->username) . '&choe=UTF-8" title="Link to Google.com" />';
 
-                $params->status = booking_get_user_status($this->user->id, $this->optionid, $this->bookingid, $this->cmid);
+                $params->status = $this->option->get_user_status_string($this->user->id);
                 $params->participant = fullname($this->user);
                 $params->email = $this->user->email;
                 $params->title = format_string($this->optionsettings->text);
@@ -240,13 +252,10 @@ class message_controller {
                 $data = new optiondates_only($this->optionsettings->sessions);
                 $params->optiontimes = $output->render_optiondates_only($data);
 
-                // Booking_option instance needed to access functions get_all_users_booked and get_all_users_on_waitinglist.
-                $boption = new booking_option($this->cmid, $this->optionid);
-
                 // Placeholder for the number of booked users.
-                $params->numberparticipants = strval(count($boption->get_all_users_booked()));
+                $params->numberparticipants = strval(count($this->option->get_all_users_booked()));
                 // Placeholder for the number of users on the waiting list.
-                $params->numberwaitinglist = strval(count($boption->get_all_users_on_waitinglist()));
+                $params->numberwaitinglist = strval(count($this->option->get_all_users_on_waitinglist()));
 
                 // If there are changes, let's render them.
                 if ($changes) {
@@ -309,22 +318,40 @@ class message_controller {
 
     /**
      * Get the actual message data needed to send the message
-     * @param stdClass $params
+     * @param stdClass $params params needed for the message
      * @return message
      */
     private function get_message_data(stdClass $params): message {
 
         global $DB, $USER;
 
+        // Used to store the ical attachment (if required).
+        $attachments = null;
+
         $messagedata = new message();
         $messagedata->modulename = 'booking';
 
         // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
-        if ($bookingmanager = $DB->get_record('user',
-            array('username' => $this->bookingsettings->bookingmanager))) {
-            $messagedata->userfrom = $bookingmanager;
+        if (!empty($this->bookingmanager)) {
+            $messagedata->userfrom = $this->bookingmanager;
         } else {
             $messagedata->userfrom = $USER;
+        }
+
+        // Currently ical attachments can only be added to booking confirmations and change notifications.
+        if ($this->messageparam == MSGPARAM_CONFIRMATION) {
+            // Generate ical attachments to go with the message. Check if ical attachments enabled.
+            if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
+                $ical = new ical($this->booking->settings, $this->option, $this->user, $this->bookingmanager, false);
+                $attachments = $ical->get_attachments();
+            }
+        } else if ($this->messageparam == MSGPARAM_CHANGE_NOTIFICATION) {
+            // Generate ical attachments to go with the message. Check if ical attachments enabled.
+            // Set $updated param to true.
+            if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
+                $ical = new ical($this->booking->settings, $this->option, $this->user, $this->bookingmanager, true);
+                $attachments = $ical->get_attachments();
+            }
         }
 
         $messagedata->userto = $this->user;
@@ -337,17 +364,38 @@ class message_controller {
         $messagedata->name = 'bookingconfirmation';
         $messagedata->courseid = $this->bookingsettings->course;
 
+        // Add attachments if there are any.
+        if (!empty($attachments)) {
+            $messagedata->attachment = $attachments;
+            $messagedata->attachname = '';
+        }
+
+        if ( $this->messageparam == MSGPARAM_CONFIRMATION ||
+             $this->messageparam == MSGPARAM_WAITINGLIST ||
+             $this->messageparam == MSGPARAM_CHANGE_NOTIFICATION ) {
+
+            $messagehtml = text_to_html($this->messagebody, false, false, true);
+
+            $this->user->mailformat = FORMAT_HTML; // Always send HTML version as well.
+
+            if ($this->booking->settings->sendmailtobooker) {
+                $messagedata->userto = $USER;
+            }
+
+            $messagedata->messagetext = format_text_email($this->messagebody, FORMAT_HTML);
+            $messagedata->messagehtml = $messagehtml;
+        }
+
         return $messagedata;
     }
 
     /**
      * Helper function to get the fieldname for the message type.
-     * @param int $messageparam the message parameter
      * @return string the field name
      */
-    private function get_message_fieldname(int $messageparam) {
+    private function get_message_fieldname() {
 
-        switch ($messageparam) {
+        switch ($this->messageparam) {
             case MSGPARAM_CONFIRMATION:
                 $fieldname = 'bookedtext';
                 break;
@@ -402,8 +450,34 @@ class message_controller {
         // Only send if we have message data and if the user hasn't been deleted.
         if ( !empty( $this->messagedata ) && !$this->user->deleted ) {
 
-            return message_send( $this->messagedata );
+            if ( $this->messageparam == MSGPARAM_CONFIRMATION ||
+                 $this->messageparam == MSGPARAM_WAITINGLIST ||
+                 $this->messageparam == MSGPARAM_CHANGE_NOTIFICATION ) {
 
+                $sendtask = new task\send_confirmation_mails();
+                $sendtask->set_custom_data($this->messagedata);
+                \core\task\manager::queue_adhoc_task($sendtask);
+
+                // If the setting to send a copy to the booking manger has been enabled,
+                // then also send a copy to the booking manager.
+                // Do not send copies of change notifications to booking managers.
+                if ( $this->booking->settings->copymail &&
+                    ($this->messageparam == MSGPARAM_CONFIRMATION || $this->messageparam == MSGPARAM_WAITINGLIST )) {
+
+                    $this->messagedata->userto = $this->bookingmanager;
+                    $this->messagedata->subject .= 'bookingmanager';
+
+                    $sendtask = new task\send_confirmation_mails();
+                    $sendtask->set_custom_data($this->messagedata);
+                    \core\task\manager::queue_adhoc_task($sendtask);
+                }
+
+            } else {
+
+                // In all other cases, use message_send.
+                return message_send( $this->messagedata );
+
+            }
         } else {
 
             return false;

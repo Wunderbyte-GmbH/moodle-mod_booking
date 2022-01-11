@@ -1094,8 +1094,8 @@ $string['deletedbookingusermessage'] = 'Hello {$a->participant},
 Your booking for {$a->title} ({$a->startdate} {$a->starttime}) has been cancelled.
 ';
 
-$string['bookingchangedsubject'] = 'Change notification for {$a->title}';
-$string['bookingchangedmessage'] = 'Your booking "{$a->title}" has changed.
+$string['bookingchangedtextsubject'] = 'Change notification for {$a->title}';
+$string['bookingchangedtextmessage'] = 'Your booking "{$a->title}" has changed.
 
 Here\'s what\'s new:
 {changes}
