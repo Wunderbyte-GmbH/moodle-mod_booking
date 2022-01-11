@@ -20,6 +20,7 @@ use moodleform;
 use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\customfield\booking_handler;
+use mod_booking\price;
 use mod_booking_external;
 use stdClass;
 
@@ -296,6 +297,10 @@ class option_form extends moodleform {
                 get_string("aftercompletedtext", "booking"), null, null);
         $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
         $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
+
+        // Add Price
+        $handler = new price();
+        $handler->instance_form_definition($mform, $optionid);
 
         // Add custom fields
         $handler = booking_handler::create();

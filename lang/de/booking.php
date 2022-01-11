@@ -847,6 +847,10 @@ $string['option_template_not_saved_no_valid_license'] = 'Buchungsoption konnte n
 
 // Option_form.php.
 $string['submitandgoback'] = 'Speichern und zurück';
+$string['bookingoptionprice'] = 'Preis';
+$string['pricegroup'] = 'Setze die Kategorie und den passenden Preis';
+$string['pricecategory'] = 'Preiskategorie';
+$string['pricecurrency'] = 'Währung';
 
 // Importoptions.php.
 $string['csvfile'] = 'CSV Datei';
@@ -1256,6 +1260,15 @@ $string['bookingplacesenoughmessage'] = 'Noch ausreichend Buchungsplätze verfü
 $string['bookingplacesfullmessage'] = 'Keine Buchungsplätze mehr verfügbar.';
 $string['eventalreadyover'] = 'Diese Veranstaltung ist bereits vorüber.';
 $string['nobookingpossible'] = 'Keine Buchung möglich.';
+
+$string['pricecategories'] = 'Preiskategorien';
+$string['pricecategories_desc'] = 'Definiere unterschiedliche Preiskategorien für unterschiedliche Usergruppen';
+
+$string['bookingpricecategory'] = 'Preiskategorie"';
+$string['bookingpricecategory_info'] = 'Definieren Sie den Namen der Preiskategorie, zum Beispiel "Studierende"';
+
+$string['addpricecategory'] = 'Neue Preiskategorie hinzufügen';
+$string['addpricecategory_info'] = 'Sie können eine weitere Preiskategorie definieren.';
 
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';

@@ -314,4 +314,8 @@ $ADMIN->add('modbookingfolder',
         new admin_externalpage('modbookingcustomfield',
                 get_string('customfieldconfigure', 'mod_booking'),
                 new moodle_url('/mod/booking/customfield.php')));
+$ADMIN->add('modbookingfolder',
+        new admin_externalpage('modbookingcustomfield',
+                get_string('pricecategories', 'mod_booking'),
+                new moodle_url('/mod/booking/pages/prices.php')));
 $settings = null;

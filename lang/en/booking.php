@@ -987,6 +987,10 @@ $string['option_template_not_saved_no_valid_license'] = 'Booking option template
 
 // Option_form.php.
 $string['submitandgoback'] = 'Save and go back';
+$string['bookingoptionprice'] = 'Price';
+$string['pricegroup'] = 'Set the category and it\'s price';
+$string['pricecategory'] = 'Price category';
+$string['pricecurrency'] = 'Currency';
 
 // Importoptions.php.
 $string['csvfile'] = 'CSV file';
@@ -1431,6 +1435,14 @@ $string['bookingplacesenoughmessage'] = 'Still enough booking places available.'
 $string['bookingplacesfullmessage'] = 'No booking places available anymore.';
 $string['eventalreadyover'] = 'This event is already over.';
 $string['nobookingpossible'] = 'No booking possible.';
+
+$string['pricecategories'] = 'Price categories';
+$string['pricecategories_desc'] = 'Define categories for different prices for different user groups.';
+$string['bookingpricecategory'] = 'Price category';
+$string['bookingpricecategory_info'] = 'Define the name of the category, eg "students"';
+
+$string['addpricecategory'] = 'Add price category';
+$string['addpricecategory_info'] = 'You can add another price category';
 
 // Mobile.
 $string['next'] = 'Next';
