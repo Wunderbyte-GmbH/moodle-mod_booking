@@ -436,7 +436,7 @@ class booking_utils {
                         $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" .
                             get_string("waitingplacesavailable", "booking", $places) . "</div>";
                     } else {
-                        // If there is not waiting list, don't show anything.
+                        // If there is no waiting list, don't show anything.
                         $waitingplaces = "";
                     }
                 }

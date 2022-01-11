@@ -53,10 +53,11 @@ Feature: In a booking create
     @javascript
     Scenario: Send reminder mail to participant
         Given I log in as "teacher1"
-        And I open the link "webserver/_/mail"
+        And I open the link "http://webserver/_/mail"
+        And I wait "10" seconds
         And I follow "Delete all messages"
         And I press "Delete all messages"
-        And I open the link "webserver"
+        And I open the link "http://webserver"
         When I am on "Course 1" course homepage
         And I follow "My booking"
         And I follow "Settings"
@@ -86,7 +87,7 @@ Feature: In a booking create
         And I should see "Behat test"
 
     @javascript
-    Scenario: Student can booking the courses
+    Scenario: Student books an option
         When I log in as "student1"
         And I open the link "webserver/_/mail"
         And I follow "Delete all messages"
@@ -105,7 +106,7 @@ Feature: In a booking create
         And I should see "Booking confirmation for New option - Webinar"
 
     @javascript
-    Scenario: Teacher send email on students
+    Scenario: Teacher sends mails to students
         Given I log in as "teacher1"
         When I am on "Course 1" course homepage
         Then I follow "My booking"
@@ -120,8 +121,6 @@ Feature: In a booking create
         And I click on "Send reminder e-mail" "button"
         And I should see "Notification e-mail has been sent!"
 
-
-    @javascript
     Scenario: Run cron
         Then I open the link "webserver/admin/cron.php"
         And I wait "1" seconds

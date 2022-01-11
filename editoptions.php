@@ -41,14 +41,15 @@ if (!$booking = new \mod_booking\booking($cm->id)) {
 }
 
 if (!$context = context_module::instance($cm->id)) {
-    print_error('badcontext');
+    throw new moodle_exception('badcontext');
 }
 
 if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mod/booking:addeditownoption', $context)) == false) {
-    print_error('nopermissions');
+    throw new moodle_exception('nopermissions');
 }
 
-$mform = new option_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id, 'context' => $context));
+$mform = new option_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id,
+    'context' => $context));
 
 // Duplicate this booking option.
 if ($optionid == -1 && $copyoptionid != 0) {
@@ -74,7 +75,8 @@ if ($optionid == -1 && $copyoptionid != 0) {
         subscribe_teacher_to_booking_option($teachertocopy->userid, $optionid, $cm);
     }
 
-} else if ($optionid > 0 && $defaultvalues = $DB->get_record('booking_options', array('bookingid' => $booking->settings->id, 'id' => $optionid))) {
+} else if ($optionid > 0 && $defaultvalues = $DB->get_record('booking_options',
+                array('bookingid' => $booking->settings->id, 'id' => $optionid))) {
     $defaultvalues->optionid = $optionid;
     $defaultvalues->bookingname = $booking->settings->name;
     $defaultvalues->id = $cm->id;
@@ -104,13 +106,12 @@ if ($mform->is_cancelled()) {
             $nbooking = booking_update_options($fromform, $context);
             if ($nbooking === 'BOOKING_OPTION_NOT_CREATED') {
                 $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
-                redirect($redirecturl, get_string('option_template_not_saved_no_valid_license', 'booking'), 0, notification::NOTIFY_ERROR);
-            }
-            else if (isset($fromform->submittandaddnew)) {
+                redirect($redirecturl, get_string('option_template_not_saved_no_valid_license', 'booking'), 0,
+                    notification::NOTIFY_ERROR);
+            } else if (isset($fromform->submittandaddnew)) {
                 $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
                 redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
-            }
-            else {
+            } else {
                 $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
                 redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
             }
