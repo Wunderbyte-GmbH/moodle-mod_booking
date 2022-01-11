@@ -25,6 +25,8 @@ use coding_exception;
 use dml_exception;
 use \local_wunderbyte_table\wunderbyte_table;
 use \mod_booking\booking_utils;
+use mod_booking\output\col_action;
+use mod_booking\output\col_price;
 use \mod_booking\output\col_text;
 use \mod_booking\output\col_teacher;
 use moodle_exception;
@@ -74,6 +76,26 @@ class bookingoptions_table extends wunderbyte_table {
         $data = new col_teacher();
 
         return $output->render_col_teacher($data);
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * price value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $string Return name of the booking option.
+     * @throws dml_exception
+     */
+    public function col_price($values) {
+        global $PAGE;
+
+        // Render col_text using a template.
+        $output = $PAGE->get_renderer('mod_booking');
+
+        // Currently, this will use dummy teachers.
+        $data = new col_price();
+
+        return $output->render_col_price($data);
     }
 
     /**
@@ -175,55 +197,24 @@ class bookingoptions_table extends wunderbyte_table {
     }
 
     /**
-     * OLD FUNCTION OF bookingoptions_simple_table - can it be reused?
      * This function is called for each data row to allow processing of the
-     * teacher(s) value.
+     * action button.
      *
      * @param object $values Contains object with all the values of record.
-     * @return string $link Returns a string containing all teacher names.
+     * @return string $action Returns formatted action button.
      * @throws moodle_exception
      * @throws coding_exception
      */
-    /*public function col_teacher($values) {
+    public function col_action($values) {
+        global $PAGE;
 
-        // Only do this once for performance reasons.
-        if (empty($this->teachers)) {
-            $this->teachers = booking_utils::prepare_teachernames_arrays_for_optionids($this->rawdata);
-        }
+        // Render col_text using a template.
+        $output = $PAGE->get_renderer('mod_booking');
 
-        return implode(', ', $this->teachers[$values->optionid]);
-    }*/
+        // Currently, this will use dummy teachers.
+        $data = new col_action();
 
-    /**
-     * This function is called for each data row to allow processing of the
-     * link value.
-     *
-     * @param object $values Contains object with all the values of record.
-     * @return string $link Returns a link to the booking option (formatted as button).
-     * @throws moodle_exception
-     * @throws coding_exception
-     */
-    public function col_link($values) {
-        global $CFG;
-
-        // Add a link to redirect to the booking option.
-        $link = new moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
-            'id' => $values->cmid,
-            'optionid' => $values->optionid,
-            'action' => 'showonlyone',
-            'whichview' => 'showonlyone'
-        ));
-        // Use html_entity_decode to convert "&amp;" to a simple "&" character.
-        $link = html_entity_decode($link->out());
-
-        if (!$this->is_downloading()) {
-            // Only format as a button if it's not an export.
-            $link = '<a href="' . $link . '" class="btn btn-primary">'
-                . get_string('bstlink', 'mod_booking')
-                . '</a>';
-        }
-
-        return $link;
+        return $output->render_col_action($data);
     }
 
     /**

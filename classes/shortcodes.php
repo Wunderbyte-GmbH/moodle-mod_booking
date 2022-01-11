@@ -79,8 +79,8 @@ class shortcodes {
 
         $table->set_sql($fields, $from, $where, $params);
 
-        $table->add_subcolumns('cardbody', ['text', 'teacher', 'maxanswers', 'maxoverbooking',
-            'coursestarttime', 'courseendtime']);
+        $table->add_subcolumns('cardbody', ['text', 'teacher', 'price', 'maxanswers', 'maxoverbooking',
+            'coursestarttime', 'courseendtime', 'action']);
 
         // This avoids showing all keys in list view.
         $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-md-none']);
