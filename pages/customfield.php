@@ -24,15 +24,15 @@
 
 use mod_booking\customfield\booking_handler;
 
-require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
 // No guest autologin.
 require_login(0, false);
 
-$pageurl = new moodle_url('/mod/booking/customfieldsettings.php');
+$pageurl = new moodle_url('/mod/booking/pages/customfield.php');
 $PAGE->set_url($pageurl);
-admin_externalpage_setup('modbookingcustomfield', '', null, '', array('pagelayout' => 'report'));
+// admin_externalpage_setup('modbookingcustomfield', '', null, '', array('pagelayout' => 'report'));
 $PAGE->set_title(
         format_string($SITE->shortname) . ': ' . get_string('customfieldconfigure', 'booking'));
 

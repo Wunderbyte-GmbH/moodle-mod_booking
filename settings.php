@@ -313,7 +313,7 @@ if ($ADMIN->fulltree) {
 $ADMIN->add('modbookingfolder',
         new admin_externalpage('modbookingcustomfield',
                 get_string('customfieldconfigure', 'mod_booking'),
-                new moodle_url('/mod/booking/customfield.php')));
+                new moodle_url('/mod/booking/pages/customfield.php')));
 $ADMIN->add('modbookingfolder',
         new admin_externalpage('modbookingcustomfield',
                 get_string('pricecategories', 'mod_booking'),
