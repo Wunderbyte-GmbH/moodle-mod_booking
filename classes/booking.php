@@ -120,12 +120,14 @@ class booking {
      * $this->canbookusers
      */
     public function get_canbook_userids() {
+
+        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id');
+
         // TODO check if course has guest access if not get all enrolled users and check with...
         // ...has_capability if user has right to book.
         // CODEBEGIN $this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose', CODEEND.
         // CODEBEGIN 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', CODEEND.
         // CODEBEGIN '', true, true); CODEEND.
-        // CODEBEGIN $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id'); CODEEND.
     }
 
     /**
