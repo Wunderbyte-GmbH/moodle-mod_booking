@@ -326,7 +326,7 @@ class message_controller {
      */
     private function get_message_data(stdClass $params): message {
 
-        global $DB, $USER;
+        global $USER;
 
         // Used to store the ical attachment (if required).
         $attachments = null;
@@ -345,14 +345,14 @@ class message_controller {
         if ($this->messageparam == MSGPARAM_CONFIRMATION) {
             // Generate ical attachments to go with the message. Check if ical attachments enabled.
             if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
-                $ical = new ical($this->booking->settings, $this->option, $this->user, $this->bookingmanager, false);
+                $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, false);
                 $attachments = $ical->get_attachments();
             }
         } else if ($this->messageparam == MSGPARAM_CHANGE_NOTIFICATION) {
             // Generate ical attachments to go with the message. Check if ical attachments enabled.
             // Set $updated param to true.
             if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
-                $ical = new ical($this->booking->settings, $this->option, $this->user, $this->bookingmanager, true);
+                $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, true);
                 $attachments = $ical->get_attachments();
             }
         }
@@ -381,7 +381,7 @@ class message_controller {
 
             $this->user->mailformat = FORMAT_HTML; // Always send HTML version as well.
 
-            if ($this->booking->settings->sendmailtobooker) {
+            if ($this->bookingsettings->sendmailtobooker) {
                 $messagedata->userto = $USER;
             }
 
