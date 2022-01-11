@@ -76,6 +76,9 @@ class message_controller {
     /** @var string $messagebody */
     private $messagebody;
 
+    /** @var array $changes */
+    private $changes;
+
     /** @var stdClass $bookingmanager */
     private $bookingmanager;
 
@@ -89,7 +92,7 @@ class message_controller {
      * @param int|null $optiondateid optional id of a specific session (optiondate)
      */
     public function __construct(int $messageparam, int $cmid, int $bookingid = null, int $optionid, int $userid,
-        int $optiondateid = null) {
+        int $optiondateid = null, $changes = null) {
 
         global $DB;
 
@@ -117,6 +120,7 @@ class message_controller {
         $this->optionid = $optionid;
         $this->userid = $userid;
         $this->optiondateid = $optiondateid;
+        $this->changes = $changes;
 
         // Booking_option instance needed to access functions get_all_users_booked and get_all_users_on_waitinglist.
         $this->option = new booking_option($cmid, $optionid);
@@ -139,10 +143,9 @@ class message_controller {
 
     /**
      * Prepares the email parameters.
-     * @param array $changes
      * @return stdClass data to be sent via mail
      */
-    private function get_email_params( array $changes = [] ): stdClass {
+    private function get_email_params(): stdClass {
 
         global $CFG, $PAGE;
 
@@ -258,8 +261,8 @@ class message_controller {
                 $params->numberwaitinglist = strval(count($this->option->get_all_users_on_waitinglist()));
 
                 // If there are changes, let's render them.
-                if ($changes) {
-                    $data = new bookingoption_changes($changes, $this->cmid);
+                if (!empty($this->changes)) {
+                    $data = new bookingoption_changes($this->changes, $this->cmid);
                     $output = $PAGE->get_renderer('mod_booking');
                     $params->changes = $output->render_bookingoption_changes($data);
                 }

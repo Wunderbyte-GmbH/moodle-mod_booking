@@ -1148,7 +1148,7 @@ class booking_option {
      * @param array $changes a string containing changes to be replaced in the update message
      * @return bool
      */
-    public function send_confirm_message($user, $optionchanged = false, $changes = false) {
+    public function send_confirm_message($user, $optionchanged = false, $changes = null) {
 
         global $DB;
 
@@ -1179,7 +1179,7 @@ class booking_option {
 
         // Use message controller to send the message.
         $messagecontroller = new message_controller(
-            $msgparam, $this->cmid, $this->bookingid, $this->optionid, $user->id
+            $msgparam, $this->cmid, $this->bookingid, $this->optionid, $user->id, null, $changes
         );
         $messagecontroller->send();
 
