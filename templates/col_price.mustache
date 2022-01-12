@@ -23,4 +23,15 @@
     Data attributes required for JS:
     * data-region
 }}
-{{price}} {{currency}}
+
+<button class="btn wb_shopping_cart" id="btn-{{id}}" data-id="id" data-objecttable="booking">
+  {{price}} {{currency}}
+  <i class="fa fa-cart-plus" aria-hidden="true"></i>
+  {{! This span element is just backup. In some cases the JS in the template won't be loaded.
+  If that's the case, init can be triggered by a (automatic) click. }}
+  <span class="loadJavascript" onclick="require(['local_shopping_cart/cart'], function(cart) {
+    cart.buttoninit({{id}}, '{{componentname}}');
+    }); return false;">
+      Loading...
+  </span>
+</button>

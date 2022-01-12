@@ -48,6 +48,9 @@ class col_price implements renderable, templatable {
     /** @var string $currency currency of the price */
     public $currency = '';
 
+    /** @var int $currency currency of the price */
+    public $id = '';
+
     /**
      * Constructor
      */
@@ -58,6 +61,7 @@ class col_price implements renderable, templatable {
                 $this->price = $priceitem['price'];
                 $this->currency = $priceitem['currency'];
             }
+            $this->id = $optionid;
         }
 
     }
@@ -71,7 +75,9 @@ class col_price implements renderable, templatable {
 
         return array(
             'price' => $this->price,
-            'currency' => $this->currency
+            'currency' => $this->currency,
+            'componentname' => 'mod_booking',
+            'id' => $this->id
         );
     }
 }
