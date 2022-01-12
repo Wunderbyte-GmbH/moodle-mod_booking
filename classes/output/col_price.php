@@ -27,6 +27,7 @@ namespace mod_booking\output;
 
 defined('MOODLE_INTERNAL') || die();
 
+use mod_booking\price;
 use renderer_base;
 use renderable;
 use templatable;
@@ -42,14 +43,23 @@ use templatable;
 class col_price implements renderable, templatable {
 
     /** @var string $price Price to pay for booking option */
-    public $price = null;
+    public $price = 'free';
+
+    /** @var string $currency currency of the price */
+    public $currency = '';
 
     /**
-     * Dummy constructor
+     * Constructor
      */
-    public function __construct() {
+    public function __construct($optionid = null) {
 
-        $this->price = '20€';
+        if ($optionid) {
+            if (list($price, $currency) = price::getprice($optionid)) {
+                $this->price = $price;
+                $this->currency = $currency;
+            }
+        }
+
     }
 
     /**
@@ -60,7 +70,8 @@ class col_price implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
 
         return array(
-            'price' => $this->price
+            'price' => $this->price,
+            'currency' => $this->currency
         );
     }
 }

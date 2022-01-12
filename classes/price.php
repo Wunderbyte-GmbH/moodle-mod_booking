@@ -17,6 +17,7 @@ namespace mod_booking;
 
 use admin_setting_configcheckbox;
 use admin_setting_configtext;
+use cache_helper;
 use MoodleQuickForm;
 use stdClass;
 
@@ -54,17 +55,38 @@ class price {
 
         $formgroup = array();
         $formgroup[] =&
-                $mform->createElement('select', 'bookingpricecategory', get_string('pricecategory', 'mod_booking'), ['category 1', 'category 2', 'category 3']);
-                $priceelement = $mform->createElement('text', 'bookingprice', get_string('bookingoptionprice', 'mod_booking'));
+                $mform->createElement('select', 'bookingpricecategory',
+                        get_string('pricecategory', 'mod_booking'), ['1' => 'students', '2' => 'external', '3' => 'internal']);
+                $priceelement = $mform->createElement('text', 'bookingprice',
+                        get_string('bookingoptionprice', 'mod_booking'));
                 $priceelement->setType('bookingprice', PARAM_INT);
         $formgroup[] =& $priceelement;
-        $currencyelement = $mform->createElement('text', 'bookingpricecurrency', get_string('pricecurrency', 'mod_booking'), 'size="5"');
+        $currencyelement = $mform->createElement('text', 'bookingpricecurrency',
+                        get_string('pricecurrency', 'mod_booking'), 'size="5"');
                 $currencyelement->setType('bookingpricecurrency', PARAM_TEXT);
         $formgroup[] =& $currencyelement;
 
         $mform->addGroup($formgroup, 'bookingpricegroup', get_string('pricegroup', 'mod_booking'));
     }
 
+    /**
+     * Set the prices of this option to display in mform.
+     *
+     * @param stdClass $defaultvalues
+     * @return void
+     */
+    public function instance_form_before_set_data(&$defaultvalues) {
+        $prices = self::getpricesrecords($defaultvalues->optionid);
+
+        // Todo: We will have more than one category in the future.
+
+        $price = reset($prices);
+
+        $defaultvalues->bookingpricegroup['bookingpricecategory'] = $price->pricecategoryid;
+        $defaultvalues->bookingpricegroup['bookingprice'] = $price->price;
+        $defaultvalues->bookingpricegroup['bookingpricecurrency'] = $price->currency;
+
+    }
 
     /**
      * Add Admin settings to settings.php
@@ -99,30 +121,37 @@ class price {
 
         if (isset($fromform->bookingpricegroup)) {
 
-            $bookingpricecategoryid = 1; // TODO: use real category.
-            $bookingpricecurrency = 'EUR'; // TODO: use real category.
+            $price = $fromform->bookingpricegroup['bookingprice'];
+            $categoryid = $fromform->bookingpricegroup['bookingpricecategory'];
+            $currency = $fromform->bookingpricegroup['bookingpricecurrency'];
 
             // If we retrieve a price record for this entry, we update if necessary.
-            if ($data = $DB->get_record('booking_prices', ['optionid' => $fromform->optionid, 'pricecategoryid' => $bookingpricecategoryid])) {
-                if ($data->price != $fromform->bookingpricegroup['bookingprice']
-                || $data->pricecategoryid != $bookingpricecategoryid
-                || $data->currency != $fromform->bookingpricegroup['bookingpricecurrency']) {
+            if ($data = $DB->get_record('booking_prices', ['optionid' => $fromform->optionid, 'pricecategoryid' => $categoryid])) {
+                if ($data->price != $price
+                || $data->pricecategoryid != $categoryid
+                || $data->currency != $currency) {
 
-                    $data->price = $fromform->bookingpricegroup['bookingprice'];
-                    $data->pricecategoryid = $bookingpricecategoryid;
-                    $data->currency = $fromform->bookingpricegroup['bookingpricecurrency'];
+                    $data->price = $price;
+                    $data->pricecategoryid = $categoryid;
+                    $data->currency = $currency;
                     $DB->update_record('booking_prices', $data);
                 }
             } else { // If there is no price entry, we insert.
                 $data = new stdClass();
                 $data->optionid = $fromform->optionid;
-                $data->pricecategoryid = $bookingpricecategoryid;
+                $data->pricecategoryid = $categoryid;
                 $data->name = 'noname';
-                $data->price = $fromform->bookingpricegroup['bookingprice'];
-                $data->currency = $fromform->bookingpricegroup['bookingpricecurrency'];
+                $data->price = $price;
+                $data->currency = $currency;
 
                 $DB->insert_record('booking_prices', $data);
             }
+
+            // In any case, invalidate the cache after updating the booking option.
+            // If performance is an issue, one could update only the cache of a this single option by key.
+            // But right now, it seems reasonable to invalidate the cache from time to time.
+            cache_helper::purge_by_event('setbackprices');
+
         }
     }
 
@@ -130,10 +159,29 @@ class price {
      * Price class caches once determined prices and returns them quickly by just the optionid.
      * But you can also retrieve the price for a different category than the one of the actual user.
      *
-     * @param [type] $optionid
+     * @param int $optionid
+     * @param int $categoryid
      * @return void
      */
-    public static function getprice($optionid, $categoryid = null):array {
+    public static function getprice(int $optionid, int $categoryid = null):array {
+        global $DB;
+
+        $prices = self::getpricesrecords($optionid);
+
+        $price = reset($prices);
+
+        // TODO: Determine category. At the moment, we just take the first price we find.
+
+        return [$price->price, $price->currency];
+    }
+
+    /**
+     * Return the cache or DB records of the prices for the option.
+     *
+     * @param int $optionid
+     * @return array
+     */
+    private static function getpricesrecords(int $optionid):array {
         global $DB;
 
         $cache = \cache::make('mod_booking', 'cachedprices');
@@ -151,9 +199,6 @@ class price {
         } else {
             $prices = json_decode($cachedprices);
         }
-
-        // TODO: Determine category. At the moment, we just take the first price we find.
-
-        return [$prices[0]->price, $prices[0]->currency];
+        return (array)$prices;
     }
 }

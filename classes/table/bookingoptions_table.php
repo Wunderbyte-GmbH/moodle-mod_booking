@@ -89,11 +89,11 @@ class bookingoptions_table extends wunderbyte_table {
     public function col_price($values) {
         global $PAGE;
 
-        // Render col_text using a template.
+        // Render col_price using a template.
         $output = $PAGE->get_renderer('mod_booking');
 
-        // Currently, this will use dummy teachers.
-        $data = new col_price();
+        // We pass on the id of the booking option.
+        $data = new col_price($values->id);
 
         return $output->render_col_price($data);
     }

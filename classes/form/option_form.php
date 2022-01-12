@@ -482,6 +482,10 @@ class option_form extends moodleform {
             }
         }
 
+        // Set prices.
+        $handler = new price();
+        $handler->instance_form_before_set_data($defaultvalues);
+
         // To handle costumfileds correctly.
         // We use instanceid for optionid.
         // But cf always uses the id key. we can't override it completly though.
