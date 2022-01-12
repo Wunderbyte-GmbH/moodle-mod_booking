@@ -28,6 +28,7 @@ global $CFG, $ADMIN, $DB;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
+use mod_booking\price;
 use \mod_booking\utils\wb_payment;
 
 $ADMIN->add('modsettings',
@@ -308,14 +309,20 @@ if ($ADMIN->fulltree) {
 
         // TODO: globalactivitycompletiontext is currently not implemented because activitycompletiontext isn't either.
     }
+
+    $settings->add(
+        new admin_setting_heading('bookingoption_pricecategories_heading',
+            get_string('pricecategories', 'mod_booking'),
+            get_string('pricecategories_desc', 'mod_booking')));
+
 }
 
 $ADMIN->add('modbookingfolder',
         new admin_externalpage('modbookingcustomfield',
                 get_string('customfieldconfigure', 'mod_booking'),
-                new moodle_url('/mod/booking/pages/customfield.php')));
+                new moodle_url('/mod/booking/customfield.php')));
 $ADMIN->add('modbookingfolder',
         new admin_externalpage('modbookingpricecategories',
                 get_string('pricecategories', 'mod_booking'),
-                new moodle_url('/mod/booking/pages/prices.php')));
+                new moodle_url('/mod/booking/prices.php')));
 $settings = null;
