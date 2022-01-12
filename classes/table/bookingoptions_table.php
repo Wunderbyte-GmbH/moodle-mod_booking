@@ -122,6 +122,7 @@ class bookingoptions_table extends wunderbyte_table {
         return $output->render_col_text($data);
     }
 
+
     /**
      * This function is called for each data row to allow processing of the
      * coursestarttime value.
@@ -130,15 +131,22 @@ class bookingoptions_table extends wunderbyte_table {
      * @return string $coursestarttime Returns course start time as a readable string.
      * @throws coding_exception
      */
-    public function col_coursestarttime($values) {
-        // Prepare date string.
-        if ($values->coursestarttime != 0) {
-            $coursestarttime = userdate($values->coursestarttime, get_string('strftimedatetime'));
-        } else {
-            $coursestarttime = '';
-        }
+    public function col_bookings($values) {
 
-        return $coursestarttime;
+        return '10/1/5';
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * coursestarttime value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $coursestarttime Returns course start time as a readable string.
+     * @throws coding_exception
+     */
+    public function col_location($values) {
+
+        return 'Schmelz 1,<br> 1030 Wien';
     }
 
     /**
@@ -149,15 +157,21 @@ class bookingoptions_table extends wunderbyte_table {
      * @return string $courseendtime Returns course end time as a readable string.
      * @throws coding_exception
      */
-    public function col_courseendtime($values) {
+    public function col_coursedates($values) {
+
         // Prepare date string.
-        if ($values->courseendtime != 0) {
-            $courseendtime = userdate($values->courseendtime, get_string('strftimedatetime'));
+        if ($values->coursestarttime != 0) {
+            $returnarray[] = userdate($values->coursestarttime, get_string('strftimedatetime'));
         } else {
-            $courseendtime = '';
+            $coursestarttime = '';
         }
 
-        return $courseendtime;
+        // Prepare date string.
+        if ($values->courseendtime != 0) {
+            $returnarray[] = userdate($values->courseendtime, get_string('strftimedatetime'));
+        }
+
+        return implode(' - ', $returnarray);
     }
 
     /**

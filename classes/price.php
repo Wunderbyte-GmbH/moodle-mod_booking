@@ -173,11 +173,10 @@ class price {
             return [];
         }
 
+        // TODO: Determine category. At the moment, we just take the first price we find.
         $price = reset($prices);
 
-        // TODO: Determine category. At the moment, we just take the first price we find.
-
-        return [$price->price, $price->currency];
+        return ["price" => $price->price, "currency" => $price->currency];
     }
 
     /**

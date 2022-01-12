@@ -491,7 +491,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_bookingoptions_table(templatable $bookingoptionstable) {
         $data = $bookingoptionstable->export_for_template($this);
-        return $this->render_from_template('mod_booking/bookingoptions_table', $data);
+        return $this->render_from_template('mod_booking/shortcodes_table', $data);
     }
 
     /**
