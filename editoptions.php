@@ -165,15 +165,17 @@ if ($mform->is_cancelled()) {
             }
         }
 
+        // Save the prices
+        // Make sure we have the option id in the fromform:
+        $fromform->optionid = $nbooking ?? $optionid;
+        $price = new price();
+        $price->save_from_form($fromform);
+
         // This is to save customfield data
         // The id key has to be set to option id.
         $fromform->id = $nbooking ?? $optionid;
         $handler = booking_handler::create();
         $handler->instance_form_save($fromform, $optionid == -1);
-
-        // Save the prices
-        $price = new price();
-        $price->save_from_form($fromform);
 
         // Redirect after pressing one of the 2 submit buttons.
         if (isset($fromform->submittandaddnew)) {

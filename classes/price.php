@@ -80,12 +80,13 @@ class price {
 
         // Todo: We will have more than one category in the future.
 
-        $price = reset($prices);
+        if (isset($prices) && count($prices) > 0) {
+            $price = reset($prices);
 
-        $defaultvalues->bookingpricegroup['bookingpricecategory'] = $price->pricecategoryid;
-        $defaultvalues->bookingpricegroup['bookingprice'] = $price->price;
-        $defaultvalues->bookingpricegroup['bookingpricecurrency'] = $price->currency;
-
+            $defaultvalues->bookingpricegroup['bookingpricecategory'] = $price->pricecategoryid;
+            $defaultvalues->bookingpricegroup['bookingprice'] = $price->price;
+            $defaultvalues->bookingpricegroup['bookingpricecurrency'] = $price->currency;
+        }
     }
 
     /**
@@ -168,6 +169,10 @@ class price {
 
         $prices = self::getpricesrecords($optionid);
 
+        if (!isset($prices)) {
+            return [];
+        }
+
         $price = reset($prices);
 
         // TODO: Determine category. At the moment, we just take the first price we find.
@@ -179,9 +184,9 @@ class price {
      * Return the cache or DB records of the prices for the option.
      *
      * @param int $optionid
-     * @return array
+     * @return array|null
      */
-    private static function getpricesrecords(int $optionid):array {
+    private static function getpricesrecords(int $optionid) {
         global $DB;
 
         $cache = \cache::make('mod_booking', 'cachedprices');
