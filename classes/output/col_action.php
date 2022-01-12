@@ -48,11 +48,15 @@ class col_action implements renderable, templatable {
     /** @var string $class class for button */
     public $class = 'btn btn-primary';
 
+    /** @var int $id class for button */
+    public $id = null;
+
     /**
      * Dummy constructor
      */
-    public function __construct() {
-        $this->action = '';
+    public function __construct(int $id) {
+        $this->id = $id;
+
     }
 
     /**
@@ -63,8 +67,10 @@ class col_action implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
 
         return array(
+            'id' => $this->id,
             'label' => $this->label,
             'class' => $this->class,
+            'componentname' => 'mod_booking',
         );
     }
 }

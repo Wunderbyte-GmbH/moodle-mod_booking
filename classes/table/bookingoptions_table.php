@@ -212,7 +212,7 @@ class bookingoptions_table extends wunderbyte_table {
         $output = $PAGE->get_renderer('mod_booking');
 
         // Currently, this will use dummy teachers.
-        $data = new col_action();
+        $data = new col_action($values->id);
 
         return $output->render_col_action($data);
     }
