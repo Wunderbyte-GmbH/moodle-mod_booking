@@ -52,9 +52,13 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
         $bookingoption = new booking_option_settings($optionid);
 
+        // Make sure we don't return the identifier in the booking option name (text).
+        booking_option_settings::transform_unique_bookingoption_name_to_display_name($bookingoption);
+
         // Make sure that we only buy from instance the user has access to.
         // This is just fraud prevention and can not happen ordinarily.
-        $cm = get_coursemodule_from_instance('mod_booking', $bookingoption->bookingid);
+        $cm = get_coursemodule_from_instance('booking', $bookingoption->bookingid);
+
         // Find out if the executing user has the right to access this instance.
         $context = context_module::instance($cm->id);
         if (!has_capability('mod/quiz:view', $context)) {
@@ -69,7 +73,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         return new cartitem($optionid,
                             $bookingoption->text,
                             $price['price'],
-                            $price['currency'], 'mod_booking',
+                            $price['currency'],
+                            'mod_booking',
                             $bookingoption->description);
     }
 
