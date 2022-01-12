@@ -79,6 +79,8 @@ class shortcodes {
 
         $table->set_sql($fields, $from, $where, $params);
 
+        $table->define_cache('mod_booking', 'bookingoptions');
+
         $table->add_subcolumns('cardbody', ['text', 'teacher', 'price', 'maxanswers', 'maxoverbooking',
             'coursestarttime', 'courseendtime', 'action']);
 
