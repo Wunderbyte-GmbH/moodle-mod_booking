@@ -22,6 +22,7 @@
  */
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
+require_once($CFG->libdir . '/formslib.php');
 
 use \mod_booking\utils\wb_payment;
 use \core\output\notification;

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
+require_once($CFG->libdir . '/formslib.php');
 
 use mod_booking\form\option_form;
 use \core\output\notification;
