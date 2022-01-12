@@ -54,9 +54,9 @@ class col_price implements renderable, templatable {
     public function __construct($optionid = null) {
 
         if ($optionid) {
-            if (list($price, $currency) = price::getprice($optionid)) {
-                $this->price = $price;
-                $this->currency = $currency;
+            if ($priceitem = price::getprice($optionid)) {
+                $this->price = $priceitem['price'];
+                $this->currency = $priceitem['currency'];
             }
         }
 
