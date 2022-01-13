@@ -2344,6 +2344,15 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
+        // Define field maxperuseronlyactive to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('maxperuseronlyactive', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'auth');
+
+        // Conditionally launch add field maxperuseronlyactive.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2022032803, 'booking');
     }

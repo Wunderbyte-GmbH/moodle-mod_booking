@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/booking/db" VERSION="20201111" COMMENT="XMLDB file for Moodle mod/booking"
+<XMLDB PATH="mod/booking/db" VERSION="20220113" COMMENT="XMLDB file for Moodle mod/booking"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -100,6 +100,7 @@
         <FIELD NAME="autcrvalue" TYPE="char" LENGTH="264" NOTNULL="false" SEQUENCE="false" COMMENT="Auto create user profile field value to check."/>
         <FIELD NAME="autcrtemplate" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Template to create an option from auto create option."/>
         <FIELD NAME="auth" TYPE="char" LENGTH="264" NOTNULL="false" SEQUENCE="false" COMMENT="Restrict to auth type."/>
+        <FIELD NAME="maxperuseronlyactive" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Count only in active bookings."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

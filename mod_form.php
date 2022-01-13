@@ -563,6 +563,9 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('maxperuser', 0);
         $mform->addHelpButton('maxperuser', 'maxperuser', 'mod_booking');
 
+        $mform->addElement('selectyesno', 'maxperuseronlyactive', get_string('maxperuseronlyactive', 'booking'));
+        $mform->addHelpButton('maxperuseronlyactive', 'maxperuseronlyactive', 'booking');
+
         $mform->addElement('selectyesno', 'showinapi', get_string("showinapi", "booking"));
 
         $mform->addElement('selectyesno', 'numgenerator', get_string("numgenerator", "booking"));

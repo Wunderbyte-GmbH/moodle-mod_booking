@@ -371,12 +371,20 @@ class booking {
             return $this->userbookings;
         }
 
-        $activebookingcount = $DB->count_records_sql("SELECT COUNT(*)
+        $sql = "SELECT COUNT(*)
             FROM {booking_answers} ba
             LEFT JOIN {booking_options} bo ON bo.id = ba.optionid
             WHERE ba.bookingid = ?
-            AND ba.userid = ?
-            AND (bo.courseendtime = 0 OR bo.courseendtime > ?)", array($this->id, $user->id, time()));
+            AND ba.userid = ?";
+
+        $params = [$this->id, $user->id];
+
+        if ($this->settings->maxperuseronlyactive == 1) {
+            $sql .= " AND (bo.courseendtime = 0 OR bo.courseendtime > ?)";
+            $params[] = time();
+        }
+
+        $activebookingcount = $DB->count_records_sql($sql, $params);
 
         return (int)$activebookingcount;
     }
