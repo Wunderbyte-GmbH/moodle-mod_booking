@@ -871,8 +871,8 @@ $string['days'] = '{$a} Tage';
 $string['hours'] = '{$a} Stunden';
 $string['minutes'] = '{$a} Minuten';
 
-$string['deletedbookingsubject'] = 'Storno von {$a->title}, User: {$a->participant}';
-$string['deletedbookingmessage'] = 'Folgende Buchung wurde storniert: {$a->title}
+$string['deletedtextsubject'] = 'Storno von {$a->title}, User: {$a->participant}';
+$string['deletedtextmessage'] = 'Folgende Buchung wurde storniert: {$a->title}
 
 Nutzer/in: {$a->participant}
 Titel: {$a->title}
@@ -937,14 +937,14 @@ Hier geht\'s zum Kurs:  {$a->courselink}
 ';
 $string['notifyemailteachers'] = 'Trainer/innen-Benachrichtigung vor dem Beginn (PRO)';
 
-$string['userleavebookedsubject'] = 'Sie wurden erfolgreich abgemeldet von: {$a->title}';
-$string['userleavebookedmessage'] = 'Hallo {$a->participant},
+$string['userleavesubject'] = 'Sie wurden erfolgreich abgemeldet von: {$a->title}';
+$string['userleavemessage'] = 'Hallo {$a->participant},
 
 Sie wurden erfolgreich von {$a->title} abgemeldet.
 ';
 
-$string['statuschangesubject'] = 'Buchungstatus für {$a->title} geändert';
-$string['statuschangemessage'] = 'Guten Tag, {$a->participant}!
+$string['statuschangetextsubject'] = 'Buchungstatus für {$a->title} geändert';
+$string['statuschangetextmessage'] = 'Guten Tag, {$a->participant}!
 
 Ihr Buchungsstatus hat sich geändert.
 

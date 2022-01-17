@@ -787,13 +787,13 @@ class booking_option {
         if ($userid == $USER->id) {
             // I cancelled the booking.
             $messagebody = booking_get_email_body($this->booking->settings, 'userleave',
-                    'userleavebookedmessage', $params);
-            $subject = get_string('userleavebookedsubject', 'booking', $params);
+                    'userleavemessage', $params);
+            $subject = get_string('userleavesubject', 'booking', $params);
         } else {
             // Booking manager cancelled the booking.
             $messagebody = booking_get_email_body($this->booking->settings, 'deletedtext',
-                    'deletedbookingmessage', $params);
-            $subject = get_string('deletedbookingsubject', 'booking', $params);
+                    'deletedtextmessage', $params);
+            $subject = get_string('deletedtextsubject', 'booking', $params);
         }
 
         if (!$bookingmanager = $DB->get_record('user',
@@ -929,8 +929,10 @@ class booking_option {
             foreach ($answerstodelete as $answertodelete) {
                 $DB->delete_records('booking_answers', array('id' => $answertodelete->id));
 
-                $this->send_mail_with_adhoc_task($answertodelete, 'deletedtext',
-                    'deletedbookingmessage', 'deletedbookingsubject');
+                $messagecontroller = new message_controller(
+                    MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM, $this->cmid, $this->bookingid, $this->optionid, $answertodelete->userid
+                );
+                $messagecontroller->send();
             }
 
             // Update, enrol and inform users who have switched from the waiting list to status "booked".
@@ -943,8 +945,10 @@ class booking_option {
                     $DB->update_record("booking_answers", $newbookedanswer);
                     $this->enrol_user_coursestart($newbookedanswer->userid);
 
-                    $this->send_mail_with_adhoc_task($newbookedanswer, 'statuschangetext',
-                        'statuschangemessage', 'statuschangesubject');
+                    $messagecontroller = new message_controller(
+                        MSGPARAM_STATUS_CHANGED, $this->cmid, $this->bookingid, $this->optionid, $newbookedanswer->userid
+                    );
+                    $messagecontroller->send();
                 }
             }
 
@@ -958,8 +962,10 @@ class booking_option {
                     $newwaitinglistanswer->waitinglist = 1;
                     $DB->update_record("booking_answers", $newwaitinglistanswer);
 
-                    $this->send_mail_with_adhoc_task($newwaitinglistanswer, 'statuschangetext',
-                        'statuschangemessage', 'statuschangesubject');
+                    $messagecontroller = new message_controller(
+                        MSGPARAM_STATUS_CHANGED, $this->cmid, $this->bookingid, $this->optionid, $newwaitinglistanswer->userid
+                    );
+                    $messagecontroller->send();
                 }
             }
         } else {
@@ -967,8 +973,11 @@ class booking_option {
             if ($onwaitinglistanswers = $DB->get_records('booking_answers', ['optionid' => $this->optionid,
                                                                             'waitinglist' => 1])) {
                 foreach ($onwaitinglistanswers as $onwaitinglistanswer) {
-                    $this->send_mail_with_adhoc_task($onwaitinglistanswer, 'statuschangetext',
-                    'statuschangemessage', 'statuschangesubject');
+
+                    $messagecontroller = new message_controller(
+                        MSGPARAM_STATUS_CHANGED, $this->cmid, $this->bookingid, $this->optionid, $onwaitinglistanswer->userid
+                    );
+                    $messagecontroller->send();
                 }
             }
 
@@ -979,6 +988,7 @@ class booking_option {
     }
 
     /**
+     * DELETE THIS FUNCTION - IT WAS REPLACED BY THE MESSAGE CONTROLLER.
      * Helper function to queue an adhoc tasks for sending an email.
      *
      * @param stdClass $bookinganswer DB record of a booking_answer.
@@ -989,7 +999,8 @@ class booking_option {
      * @throws coding_exception
      * @throws dml_exception
      */
-    private function send_mail_with_adhoc_task(stdClass $bookinganswer, string $messagefieldname,
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /*private function send_mail_with_adhoc_task(stdClass $bookinganswer, string $messagefieldname,
                                                string   $messagedefaultname, string $messagesubject) {
         global $DB, $USER;
 
@@ -1043,7 +1054,7 @@ class booking_option {
                 \core\task\manager::queue_adhoc_task($sendtask);
             }
         }
-    }
+    }*/
 
     /**
      * Enrol users only if either course has already started or booking option is set to immediately enrol users.

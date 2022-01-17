@@ -19,6 +19,8 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
+use mod_booking\message_controller;
+
 global $CFG;
 
 class send_confirmation_mails extends \core\task\adhoc_task {
@@ -54,7 +56,7 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                 $userdata = $DB->get_record('user', array('id' => $taskdata->userto->id));
                 if (!$userdata->deleted) {
                     // Hack to support multiple attachments.
-                    if (!booking_email_to_user($taskdata->userto, $taskdata->userfrom,
+                    if (!message_controller::phpmailer_email_to_user($taskdata->userto, $taskdata->userfrom,
                         $taskdata->subject, $taskdata->messagetext, $taskdata->messagehtml,
                         $taskdata->attachment, 'booking.ics')) {
                         throw new \coding_exception('Confirmation email was not sent');

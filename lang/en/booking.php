@@ -1011,8 +1011,8 @@ $string['days'] = '{$a} days';
 $string['hours'] = '{$a} hours';
 $string['minutes'] = '{$a} minutes';
 
-$string['deletedbookingsubject'] = 'Deleted booking: {$a->title} by {$a->participant}';
-$string['deletedbookingmessage'] = 'Booking option has been deleted: {$a->title}
+$string['deletedtextsubject'] = 'Deleted booking: {$a->title} by {$a->participant}';
+$string['deletedtextmessage'] = 'Booking option has been deleted: {$a->title}
 
 User: {$a->participant}
 Title: {$a->title}
@@ -1072,14 +1072,14 @@ The associated course can be found here: {$a->courselink}
 ';
 $string['notifyemailteachers'] = 'Teacher notification before start (PRO)';
 
-$string['userleavebookedsubject'] = 'You successfully unsubscribed from {$a->title}';
-$string['userleavebookedmessage'] = 'Hello {$a->participant},
+$string['userleavesubject'] = 'You successfully unsubscribed from {$a->title}';
+$string['userleavemessage'] = 'Hello {$a->participant},
 
 You have been unsubscribed from {$a->title}.
 ';
 
-$string['statuschangesubject'] = 'Booking status has changed for {$a->title}';
-$string['statuschangemessage'] = 'Hello {$a->participant}!
+$string['statuschangetextsubject'] = 'Booking status has changed for {$a->title}';
+$string['statuschangetextmessage'] = 'Hello {$a->participant}!
 
 Your booking status has changed.
 
