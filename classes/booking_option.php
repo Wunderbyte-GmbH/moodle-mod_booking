@@ -582,8 +582,17 @@ class booking_option {
 
         $text = "";
 
-        $params = booking_generate_email_params($this->booking->settings, $this->option, $USER, $this->booking->cm->id,
-            $this->optiontimes);
+        // New message controller.
+        $messagecontroller = new message_controller(
+            MSGCONTRPARAM_DO_NOT_SEND,
+            MSGPARAM_CONFIRMATION,
+            $this->booking->cm->id,
+            $this->bookingid,
+            $this->optionid,
+            $USER->id
+        );
+        // Get the email params from message controller.
+        $params = $messagecontroller->get_params();
 
         if (in_array($this->user_status($userid), array(1, 2))) {
             $ac = $this->is_activity_completed($userid);
@@ -780,64 +789,19 @@ class booking_option {
         $event->trigger();
         $this->unenrol_user($user->id);
 
-        // START OF EMAIL STUFF.
-        $params = booking_generate_email_params($this->booking->settings, $this->option, $user, $this->booking->cm->id,
-            $this->optiontimes, false, false, true);
-
         if ($userid == $USER->id) {
             // I cancelled the booking.
-            $messagebody = booking_get_email_body($this->booking->settings, 'userleave',
-                    'userleavemessage', $params);
-            $subject = get_string('userleavesubject', 'booking', $params);
+            $msgparam = MSGPARAM_CANCELLED_BY_PARTICIPANT;
         } else {
             // Booking manager cancelled the booking.
-            $messagebody = booking_get_email_body($this->booking->settings, 'deletedtext',
-                    'deletedtextmessage', $params);
-            $subject = get_string('deletedtextsubject', 'booking', $params);
+            $msgparam = MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM;
         }
-
-        if (!$bookingmanager = $DB->get_record('user',
-                array('username' => $this->booking->settings->bookingmanager))) {
-            // If bookingmanager was deleted, we use global $USER instead.
-            $bookingmanager = $USER;
-        }
-
-        $eventdata = new stdClass();
-
-        if ($this->booking->settings->sendmail) {
-            // Generate ical attachment to go with the message.
-            $attachname = '';
-            $attachments = '';
-            if (get_config('booking', 'icalcancel')) {
-                $ical = new ical($this->booking->settings, $this->option, $user, $bookingmanager);
-                $attachments = $ical->get_attachments(true);
-            }
-            $messagehtml = text_to_html($messagebody, false, false, true);
-
-            if (isset($this->booking->settings->sendmailtobooker) && $this->booking->settings->sendmailtobooker) {
-                $eventdata->userto = $USER;
-            } else {
-                $eventdata->userto = $user;
-            }
-
-            $eventdata->userfrom = $bookingmanager;
-            $eventdata->subject = $subject;
-            $eventdata->messagetext = format_text_email($messagebody, FORMAT_HTML);
-            $eventdata->messagehtml = $messagehtml;
-            $eventdata->attachment = $attachments;
-            $eventdata->attachname = $attachname;
-            $sendtask = new task\send_confirmation_mails();
-            $sendtask->set_custom_data($eventdata);
-            \core\task\manager::queue_adhoc_task($sendtask);
-
-            if ($this->booking->settings->copymail) {
-                $eventdata->userto = $bookingmanager;
-                $sendtask = new task\send_confirmation_mails();
-                $sendtask->set_custom_data($eventdata);
-                \core\task\manager::queue_adhoc_task($sendtask);
-            }
-        }
-        // END OF EMAIL STUFF.
+        // Let's send the cancel e-mails by using adhoc tasks.
+        $messagecontroller = new message_controller(
+            MSGCONTRPARAM_QUEUE_ADHOC, $msgparam,
+            $this->cmid, $this->bookingid, $this->optionid, $userid
+        );
+        $messagecontroller->send_or_queue();
 
         // Sync the waiting list and send status change mails.
         $this->sync_waiting_list();
@@ -930,9 +894,10 @@ class booking_option {
                 $DB->delete_records('booking_answers', array('id' => $answertodelete->id));
 
                 $messagecontroller = new message_controller(
-                    MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM, $this->cmid, $this->bookingid, $this->optionid, $answertodelete->userid
+                    MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM,
+                    $this->cmid, $this->bookingid, $this->optionid, $answertodelete->userid
                 );
-                $messagecontroller->send();
+                $messagecontroller->send_or_queue();
             }
 
             // Update, enrol and inform users who have switched from the waiting list to status "booked".
@@ -946,9 +911,10 @@ class booking_option {
                     $this->enrol_user_coursestart($newbookedanswer->userid);
 
                     $messagecontroller = new message_controller(
-                        MSGPARAM_STATUS_CHANGED, $this->cmid, $this->bookingid, $this->optionid, $newbookedanswer->userid
+                        MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_STATUS_CHANGED,
+                        $this->cmid, $this->bookingid, $this->optionid, $newbookedanswer->userid
                     );
-                    $messagecontroller->send();
+                    $messagecontroller->send_or_queue();
                 }
             }
 
@@ -963,9 +929,10 @@ class booking_option {
                     $DB->update_record("booking_answers", $newwaitinglistanswer);
 
                     $messagecontroller = new message_controller(
-                        MSGPARAM_STATUS_CHANGED, $this->cmid, $this->bookingid, $this->optionid, $newwaitinglistanswer->userid
+                        MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_STATUS_CHANGED,
+                        $this->cmid, $this->bookingid, $this->optionid, $newwaitinglistanswer->userid
                     );
-                    $messagecontroller->send();
+                    $messagecontroller->send_or_queue();
                 }
             }
         } else {
@@ -975,9 +942,10 @@ class booking_option {
                 foreach ($onwaitinglistanswers as $onwaitinglistanswer) {
 
                     $messagecontroller = new message_controller(
-                        MSGPARAM_STATUS_CHANGED, $this->cmid, $this->bookingid, $this->optionid, $onwaitinglistanswer->userid
+                        MSGCONTRPARAM_QUEUE_ADHOC, MSGPARAM_STATUS_CHANGED,
+                        $this->cmid, $this->bookingid, $this->optionid, $onwaitinglistanswer->userid
                     );
-                    $messagecontroller->send();
+                    $messagecontroller->send_or_queue();
                 }
             }
 
@@ -986,75 +954,6 @@ class booking_option {
                     array('optionid' => $this->optionid));
         }
     }
-
-    /**
-     * DELETE THIS FUNCTION - IT WAS REPLACED BY THE MESSAGE CONTROLLER.
-     * Helper function to queue an adhoc tasks for sending an email.
-     *
-     * @param stdClass $bookinganswer DB record of a booking_answer.
-     * @param stdClass $bookingmanager DB record of the bookingmanager (an admin user)
-     * @param string $messagefieldname name of the message field
-     * @param string $messagedefaultname default template of the message
-     * @param string $messagesubject message subject
-     * @throws coding_exception
-     * @throws dml_exception
-     */
-    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-    /*private function send_mail_with_adhoc_task(stdClass $bookinganswer, string $messagefieldname,
-                                               string   $messagedefaultname, string $messagesubject) {
-        global $DB, $USER;
-
-        $eventdata = new stdClass();
-        $eventdata->attachment = [];
-        $eventdata->attachname = '';
-
-        if (!$bookingmanager = $DB->get_record('user',
-            array('username' => $this->booking->settings->bookingmanager))) {
-            // If booking manager was deleted, we use global $USER instead.
-            $bookingmanager = $USER;
-        }
-
-        if ($this->booking->settings->sendmail == 1 || $this->booking->settings->copymail) {
-            $newbookeduser = $DB->get_record('user', array('id' => $bookinganswer->userid));
-            $params = booking_generate_email_params($this->booking->settings, $this->option,
-                $newbookeduser, $this->booking->cm->id, $this->optiontimes, false,
-                false, true);
-            $messagetextnewuser = booking_get_email_body($this->booking->settings, $messagefieldname,
-                $messagedefaultname, $params);
-            $messagehtml = text_to_html($messagetextnewuser, false, false, true);
-
-            // Generate ical attachment to go with the message.
-            // Check if ical attachments enabled.
-            if (get_config('booking', 'attachical') || get_config('booking', 'attachicalsessions')) {
-                $attachname = '';
-                $ical = new ical($this->booking->settings, $this->option, $newbookeduser,
-                    $bookingmanager);
-                if ($attachment = $ical->get_attachments()) {
-                    $attachname = $ical->get_name();
-                }
-                $eventdata->attachment = $attachment;
-                $eventdata->attachname = $attachname;
-            }
-
-            $eventdata->userto = $newbookeduser;
-            $eventdata->userfrom = $bookingmanager;
-            $eventdata->subject = get_string($messagesubject, 'booking', $params);
-            $eventdata->messagetext = $messagetextnewuser;
-            $eventdata->messagehtml = $messagehtml;
-
-            if ($this->booking->settings->sendmail == 1) {
-                $sendtask = new task\send_confirmation_mails();
-                $sendtask->set_custom_data($eventdata);
-                \core\task\manager::queue_adhoc_task($sendtask);
-            }
-            if ($this->booking->settings->copymail) {
-                $eventdata->userto = $bookingmanager;
-                $sendtask = new task\send_confirmation_mails();
-                $sendtask->set_custom_data($eventdata);
-                \core\task\manager::queue_adhoc_task($sendtask);
-            }
-        }
-    }*/
 
     /**
      * Enrol users only if either course has already started or booking option is set to immediately enrol users.
@@ -1190,9 +1089,9 @@ class booking_option {
 
         // Use message controller to send the message.
         $messagecontroller = new message_controller(
-            $msgparam, $this->cmid, $this->bookingid, $this->optionid, $user->id, null, $changes
+            MSGCONTRPARAM_QUEUE_ADHOC, $msgparam, $this->cmid, $this->bookingid, $this->optionid, $user->id, null, $changes
         );
-        $messagecontroller->send();
+        $messagecontroller->send_or_queue();
 
         return true;
     }
@@ -1861,9 +1760,10 @@ class booking_option {
 
             // Use message controller to send the Poll URL to every selected user.
             $messagecontroller = new message_controller(
-                MSGPARAM_POLLURL_PARTICIPANT, $this->cmid, $this->bookingid, $this->optionid, $userid
+                MSGCONTRPARAM_SEND_NOW, MSGPARAM_POLLURL_PARTICIPANT,
+                $this->cmid, $this->bookingid, $this->optionid, $userid
             );
-            $messagecontroller->send();
+            $messagecontroller->send_or_queue();
         }
 
         $dataobject = new stdClass();
@@ -1891,9 +1791,10 @@ class booking_option {
 
             // Use message controller to send the Poll URL to teacher(s).
             $messagecontroller = new message_controller(
-                MSGPARAM_POLLURL_TEACHER, $this->cmid, $this->bookingid, $this->optionid, $teacher->userid
+                MSGCONTRPARAM_SEND_NOW, MSGPARAM_POLLURL_TEACHER,
+                $this->cmid, $this->bookingid, $this->optionid, $teacher->userid
             );
-            $messagecontroller->send();
+            $messagecontroller->send_or_queue();
         }
     }
 
@@ -1935,14 +1836,10 @@ class booking_option {
         foreach ($allusers as $user) {
 
             $messagecontroller = new message_controller(
-                $messageparam,
-                $this->cmid,
-                $this->bookingid,
-                $this->optionid,
-                $user->id,
-                $optiondateid
+                MSGCONTRPARAM_SEND_NOW, $messageparam, $this->cmid,
+                $this->bookingid, $this->optionid, $user->id, $optiondateid
             );
-            $messagecontroller->send();
+            $messagecontroller->send_or_queue();
         }
     }
 

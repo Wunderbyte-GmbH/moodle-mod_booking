@@ -70,6 +70,7 @@ if ($answer->waitinglist == 1) {
 
 // New message controller.
 $messagecontroller = new message_controller(
+    MSGCONTRPARAM_DO_NOT_SEND,
     $msgparam,
     $cmid,
     $bookingoption->bookingid,
@@ -77,7 +78,7 @@ $messagecontroller = new message_controller(
     $user->id
 );
 
-// Get the message from message controller (do not send, we only want to show it here).
+// Get the message from message controller (DO NOT SEND, we only want to show it here).
 $message = $messagecontroller->get_messagebody();
 
 echo "{$message}";

@@ -50,6 +50,11 @@ define('STATUSPARAM_BOOKED', 1);
 define('STATUSPARAM_NOTBOOKED', 2);
 define('STATUSPARAM_WAITINGLIST', 3);
 
+// Define message controller parameters.
+define('MSGCONTRPARAM_SEND_NOW', 1);
+define('MSGCONTRPARAM_QUEUE_ADHOC', 2);
+define('MSGCONTRPARAM_DO_NOT_SEND', 3);
+
 /**
  * @param stdClass $cm
  * @return cached_cm_info
@@ -1862,186 +1867,8 @@ function booking_pretty_duration($seconds) {
 }
 
 /**
- * Prepares the data to be sent with confirmation mail
- *
- * @param stdClass $settings
- * @param stdClass $option
- * @param stdClass $user
- * @param int $cmid
- * @return stdClass data to be sent via mail
- */
-function booking_generate_email_params(stdClass $settings, stdClass $option, stdClass $user, $cmid,
-                                       $optiontimes = '', $changes = false, $issessionreminder = false,
-                                       $includebookingdetails = false) {
-    global $CFG, $PAGE;
-
-    $params = new stdClass();
-
-    $timeformat = get_string('strftimetime');
-    $dateformat = get_string('strftimedate');
-
-    $courselink = '';
-    if ($option->courseid) {
-        $courselink = new moodle_url('/course/view.php', array('id' => $option->courseid));
-        $courselink = html_writer::link($courselink, $courselink->out());
-    }
-    $bookinglink = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
-    $bookinglink = html_writer::link($bookinglink, $bookinglink->out());
-
-    // Default params.
-    if (!$issessionreminder) {
-        $params->qr_id = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
-            rawurlencode($user->id) . '&choe=UTF-8" title="Link to Google.com" />';
-        $params->qr_username = '<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' .
-            rawurlencode($user->username) . '&choe=UTF-8" title="Link to Google.com" />';
-
-        $params->status = booking_get_user_status($user->id, $option->id, $settings->id, $cmid);
-        $params->participant = fullname($user);
-        $params->email = $user->email;
-        $params->title = format_string($option->text);
-        $params->duration = $settings->duration;
-        $params->starttime = $option->coursestarttime ? userdate($option->coursestarttime, $timeformat) : '';
-        $params->endtime = $option->courseendtime ? userdate($option->courseendtime, $timeformat) : '';
-        $params->startdate = $option->coursestarttime ? userdate($option->coursestarttime, $dateformat) : '';
-        $params->enddate = $option->courseendtime ? userdate($option->courseendtime, $dateformat) : '';
-        $params->courselink = $courselink;
-        $params->bookinglink = $bookinglink;
-        $params->location = $option->location;
-        $params->institution = $option->institution;
-        $params->address = $option->address;
-        $params->eventtype = $settings->eventtype;
-        $params->shorturl = $option->shorturl;
-        $params->pollstartdate = $option->coursestarttime ? userdate((int) $option->coursestarttime,
-            get_string('pollstrftimedate', 'booking')) : '';
-        if (empty($option->pollurl)) {
-            $params->pollurl = $settings->pollurl;
-        } else {
-            $params->pollurl = $option->pollurl;
-        }
-        if (empty($option->pollurlteachers)) {
-            $params->pollurlteachers = $settings->pollurlteachers;
-        } else {
-            $params->pollurlteachers = $option->pollurlteachers;
-        }
-
-        $val = '';
-
-        if (!empty($optiontimes)) {
-
-            $times = explode(',', trim($optiontimes, ','));
-            $i = 1;
-            foreach ($times as $time) {
-                $slot = explode('-', $time);
-                $tmpdate = new stdClass();
-                $tmpdate->number = $i;
-                $tmpdate->date = userdate($slot[0], get_string('strftimedate', 'langconfig'));
-                $tmpdate->starttime = userdate($slot[0], get_string('strftimetime', 'langconfig'));
-                $tmpdate->endtime = userdate($slot[1], get_string('strftimetime', 'langconfig'));
-                $val .= get_string('optiondatesmessage', 'mod_booking', $tmpdate) . '<br><br>';
-                $i++;
-            }
-        } else {
-            if ($option->coursestarttime && $option->courseendtime) {
-                $tmpdate = new stdClass();
-                $tmpdate->number = '';
-                $tmpdate->date = userdate($option->coursestarttime, get_string('strftimedate', 'langconfig'));
-                $tmpdate->starttime = userdate($option->coursestarttime, get_string('strftimetime', 'langconfig'));
-                $tmpdate->endtime = userdate($option->courseendtime, get_string('strftimetime', 'langconfig'));
-                $val .= get_string('optiondatesmessage', 'mod_booking', $tmpdate) . '<br><br>';
-                $params->times = "$params->startdate $params->starttime - $params->enddate $params->endtime";
-            }
-        }
-        $params->times = $val;
-
-        // Booking_option instance needed to access functions get_all_users_booked and get_all_users_on_waitinglist.
-        $boption = new booking_option($cmid, $option->id);
-
-        // Placeholder for the number of booked users.
-        $params->numberparticipants = strval(count($boption->get_all_users_booked()));
-        // Placeholder for the number of users on the waiting list.
-        $params->numberwaitinglist = strval(count($boption->get_all_users_on_waitinglist()));
-
-        // If there are changes, let's render them.
-        if ($changes) {
-            $data = new \mod_booking\output\bookingoption_changes($changes, $cmid);
-            $output = $PAGE->get_renderer('mod_booking');
-            $params->changes = $output->render_bookingoption_changes($data);
-        }
-
-        // Add placeholder {bookingdetails} so we can add the detailed option description (similar to calendar, modal...
-        // ... and ical) to mails.
-        if ($includebookingdetails) {
-            $params->bookingdetails = get_rendered_eventdescription($option->id, $cmid, DESCRIPTION_MAIL);
-        }
-
-    } else {
-        // Params for specific session reminders.
-        $params->status = booking_get_user_status($user->id, $option->id, $settings->id, $cmid);
-        $params->participant = fullname($user);
-        $params->email = $user->email;
-        $params->sessiondescription = get_rendered_eventdescription($option->id, $cmid, DESCRIPTION_CALENDAR);
-    }
-
-    // We also add the URLs for the user to subscribe to user and course event calendar.
-    $bu = new booking_utils();
-    // Fix: These links should not be clickable (beacuse they will be copied by users), so add <pre>-Tags.
-    $params->usercalendarurl = '<a href="#" style="text-decoration:none; color:#000">' .
-                                $bu->booking_generate_calendar_subscription_link($user, 'user') .
-                                '</a>';
-    $params->coursecalendarurl = '<a href="#" style="text-decoration:none; color:#000">' .
-                                $bu->booking_generate_calendar_subscription_link($user, 'courses') .
-                                '</a>';
-
-    // Add a placeholder with a link to go to the current booking option.
-    $gotobookingoptionlink = new moodle_url($CFG->wwwroot . '/mod/booking/view.php', array(
-        'id' => $cmid,
-        'optionid' => $option->id,
-        'action' => 'showonlyone',
-        'whichview' => 'showonlyone'
-    ));
-    $params->gotobookingoption = html_writer::link($gotobookingoptionlink, $gotobookingoptionlink->out());
-
-    return $params;
-}
-
-/**
- * Generate the email body based on the activity settings and the booking parameters
- *
- * @param stdClass $bookingsettings the settings of the booking activity
- * @param string $fieldname the name of the field that contains the custom text
- * @param string $defaultname the name of the default string
- * @param object $params the booking details
- * @return string
- */
-function booking_get_email_body($bookingsettings, $fieldname, $defaultname, $params) {
-
-    // List of fieldnames that have a corresponding global mail templates.
-    // TODO: add activitycompletiontext ??
-    $mailtemplatesfieldnames = [
-        'bookedtext', 'waitingtext', 'notifyemail', 'notifyemailteachers', 'statuschangetext', 'userleave',
-        'deletedtext', 'bookingchangedtext', 'pollurltext', 'pollurlteacherstext'
-    ];
-
-    // Check if global mail templates are enabled and if the field name also has a global mail template.
-    if (isset($bookingsettings->mailtemplatessource) && $bookingsettings->mailtemplatessource == 1
-        && in_array($fieldname, $mailtemplatesfieldnames)) {
-        // Get the mail template specified in plugin config.
-        $text = get_config('booking', 'global' . $fieldname);
-    } else if (empty($bookingsettings->$fieldname)) {
-        $text = get_string($defaultname, 'booking', $params);
-    } else {
-        $text = $bookingsettings->$fieldname;
-    }
-
-    foreach ($params as $name => $value) {
-        $text = str_replace('{' . $name . '}', $value, $text);
-    }
-    return $text;
-}
-
-/**
  * THIS FUNCTION IS NEVER USED. CAN WE DELETE IT?
- * 
+ *
  * Checks if user on waitinglist gets normal place if a user is deleted
  *
  * @param $optionid id of booking option

@@ -121,7 +121,7 @@ class bookingoption_description implements renderable, templatable {
         $this->modalcounter = $bookingoption->option->id;
 
         // TODO: Add duration via booking_option_settings here. Do we need it?
-        // $this->duration = $bookingoption->option->duration;
+        // CODE: $this->duration = $bookingoption->option->duration; END.
         $this->description = format_text($bookingoption->option->description, FORMAT_HTML);
 
         // For these fields we do need some conversion.
