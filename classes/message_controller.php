@@ -244,10 +244,13 @@ class message_controller {
             $params->changes = $output->render_bookingoption_changes($data);
         }
 
-        // Add placeholder {bookingdetails} so we can add the detailed option description (similar to calendar, modal...
-        // ... and ical) to mails.
-        $params->bookingdetails = get_rendered_eventdescription($this->optionsettings->id,
-            $this->cmid, DESCRIPTION_MAIL);
+        // This fixes an infinite loop which will exhaust the allowed memory size.
+        if ($this->msgcontrparam != MSGCONTRPARAM_DO_NOT_SEND) {
+            // Add placeholder {bookingdetails} so we can add the detailed option description (similar to calendar, modal...
+            // ... and ical) to mails.
+            $params->bookingdetails = get_rendered_eventdescription($this->optionsettings->id,
+                $this->cmid, DESCRIPTION_MAIL);
+        }
 
         // Params for session reminders.
         if ($this->messageparam == MSGPARAM_SESSIONREMINDER) {
@@ -388,58 +391,6 @@ class message_controller {
     }
 
     /**
-     * Helper function to get the fieldname for the message type.
-     * @return string the field name
-     */
-    private function get_message_fieldname() {
-
-        switch ($this->messageparam) {
-            case MSGPARAM_CONFIRMATION:
-                $fieldname = 'bookedtext';
-                break;
-            case MSGPARAM_WAITINGLIST:
-                $fieldname = 'waitingtext';
-                break;
-            case MSGPARAM_REMINDER_PARTICIPANT:
-                $fieldname = 'notifyemail';
-                break;
-            case MSGPARAM_REMINDER_TEACHER:
-                $fieldname = 'notifyemailteachers';
-                break;
-            case MSGPARAM_STATUS_CHANGED:
-                $fieldname = 'statuschangetext';
-                break;
-            case MSGPARAM_CANCELLED_BY_PARTICIPANT:
-                $fieldname = 'userleave';
-                break;
-            case MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM:
-                $fieldname = 'deletedtext';
-                break;
-            case MSGPARAM_CHANGE_NOTIFICATION:
-                $fieldname = 'bookingchangedtext';
-                break;
-            case MSGPARAM_POLLURL_PARTICIPANT:
-                $fieldname = 'pollurltext';
-                break;
-            case MSGPARAM_POLLURL_TEACHER:
-                $fieldname = 'pollurlteacherstext';
-                break;
-            case MSGPARAM_COMPLETED:
-                $fieldname = 'activitycompletiontext';
-                break;
-            case MSGPARAM_SESSIONREMINDER:
-                $fieldname = 'sessionremindermail';
-                break;
-            case MSGPARAM_REPORTREMINDER:
-                $fieldname = 'reportreminder';
-                break;
-            default:
-                throw new moodle_exception('ERROR: Unknown message parameter!');
-        }
-        return $fieldname;
-    }
-
-    /**
      * Send the message.
      * @return bool true if successful
      */
@@ -468,7 +419,7 @@ class message_controller {
      * Helper function to queue an adhoc tasks for sending an email.
      * @return bool
      */
-    public function send_mail_with_adhoc_task() {
+    private function send_mail_with_adhoc_task() {
 
         if (!empty($this->bookingsettings->sendmail) || !empty($this->bookingsettings->copymail)) {
 
@@ -534,9 +485,81 @@ class message_controller {
     }
 
     /**
+     * Public getter function for the message body.
+     * @return string the message body
+     */
+    public function get_messagebody(): string {
+
+        return $this->messagebody;
+
+    }
+
+    /**
+     * Public getter function for the email params.
+     * @return stdClass email params
+     */
+    public function get_params(): stdClass {
+
+        return $this->params;
+
+    }
+
+    /**
+     * Helper function to get the fieldname for the message type.
+     * @return string the field name
+     */
+    private function get_message_fieldname() {
+
+        switch ($this->messageparam) {
+            case MSGPARAM_CONFIRMATION:
+                $fieldname = 'bookedtext';
+                break;
+            case MSGPARAM_WAITINGLIST:
+                $fieldname = 'waitingtext';
+                break;
+            case MSGPARAM_REMINDER_PARTICIPANT:
+                $fieldname = 'notifyemail';
+                break;
+            case MSGPARAM_REMINDER_TEACHER:
+                $fieldname = 'notifyemailteachers';
+                break;
+            case MSGPARAM_STATUS_CHANGED:
+                $fieldname = 'statuschangetext';
+                break;
+            case MSGPARAM_CANCELLED_BY_PARTICIPANT:
+                $fieldname = 'userleave';
+                break;
+            case MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM:
+                $fieldname = 'deletedtext';
+                break;
+            case MSGPARAM_CHANGE_NOTIFICATION:
+                $fieldname = 'bookingchangedtext';
+                break;
+            case MSGPARAM_POLLURL_PARTICIPANT:
+                $fieldname = 'pollurltext';
+                break;
+            case MSGPARAM_POLLURL_TEACHER:
+                $fieldname = 'pollurlteacherstext';
+                break;
+            case MSGPARAM_COMPLETED:
+                $fieldname = 'activitycompletiontext';
+                break;
+            case MSGPARAM_SESSIONREMINDER:
+                $fieldname = 'sessionremindermail';
+                break;
+            case MSGPARAM_REPORTREMINDER:
+                $fieldname = 'reportreminder';
+                break;
+            default:
+                throw new moodle_exception('ERROR: Unknown message parameter!');
+        }
+        return $fieldname;
+    }
+
+    /**
      * WE WANT TO GET RID OF THIS MONSTER FUNCTION IN THE FUTURE.
      * WE CURRENTLY NEED IT TO SUPPORT MULTIPLE ICAL-ATTACHMENTS.
-     * ONLY USAGE IN: send_confirmation_mails.php.
+     * USAGE IN: send_confirmation_mails.php.
      *
      * Send an email to a specified user
      *
@@ -907,25 +930,5 @@ class message_controller {
 
             return false;
         }
-    }
-
-    /**
-     * Public getter function for the message body.
-     * @return string the message body
-     */
-    public function get_messagebody(): string {
-
-        return $this->messagebody;
-
-    }
-
-    /**
-     * Public getter function for the email params.
-     * @return stdClass email params
-     */
-    public function get_params(): stdClass {
-
-        return $this->params;
-
     }
 }
