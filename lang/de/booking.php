@@ -1161,7 +1161,6 @@ $string['daystonotifysession'] = 'Wie viele Tage vor Beginn dieser Session soll 
 $string['daystonotifysession_help'] = "Geben Sie 0 ein, um die E-Mail-Benachrichtigung für diese Session zu deaktivieren.";
 $string['nocfnameselected'] = "Nichts ausgewählt. Tippen Sie einen neuen Namen oder wählen Sie einen aus der Liste.";
 
-
 // File: settings.php.
 $string['globalmailtemplates'] = 'Globale Mailvorlagen';
 $string['globalmailtemplates_desc'] = 'Nur in der PRO-Version verfügbar. Nach der Aktivierung können Sie in den Einstellungen jeder beliebigen Buchungsinstanz die Quelle der Mailvorlagen auf global setzen.';
@@ -1350,3 +1349,6 @@ $string['booking_customfield'] = 'Benutzerdefinierte Felder für Buchungsoptione
 
 // Optiondates_only.mustache.
 $string['sessions'] = 'Termin(e)';
+
+// Message_sent.php.
+$string['message_sent'] = "Nachricht gesendet";

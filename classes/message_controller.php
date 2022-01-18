@@ -380,6 +380,7 @@ class message_controller {
         $messagedata->subject = get_string($this->messagefieldname . 'subject', 'booking', $this->params);
         $messagedata->messagetext = format_text_email($this->messagebody, FORMAT_HTML);
         $messagedata->messagehtml = text_to_html($this->messagebody, false, false, true);
+        $messagedata->messageparam = $this->messageparam;
 
         // The "send mail to booker" setting is only available for adhoc mails.
         if (!empty($this->bookingsettings->sendmailtobooker)) {
@@ -423,7 +424,24 @@ class message_controller {
             } else {
 
                 // In all other cases, use message_send.
-                return message_send( $this->messagedata );
+                if (message_send($this->messagedata)) {
+
+                    // Use an event to log that a message has been sent.
+                    $event = \mod_booking\event\message_sent::create(array(
+                        'context' => context_system::instance(),
+                        'userid' => $this->messagedata->userto->id,
+                        'relateduserid' => $this->messagedata->userfrom->id,
+                        'other' => array(
+                            'messageparam' => $this->messageparam,
+                            'subject' => $this->messagedata->subject
+                        )
+                    ));
+                    $event->trigger();
+
+                    return true;
+                } else {
+                    return false;
+                }
             }
         } else {
             return false;

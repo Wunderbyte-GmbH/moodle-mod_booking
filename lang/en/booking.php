@@ -1589,3 +1589,6 @@ $string['booking_customfield'] = 'Booking customfields for booking options';
 
 // Optiondates_only.mustache.
 $string['sessions'] = 'Session(s)';
+
+// Message_sent.php.
+$string['message_sent'] = "Message sent";

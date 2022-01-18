@@ -20,6 +20,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 use mod_booking\message_controller;
+use context_system;
 
 global $CFG;
 
@@ -59,7 +60,9 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                     if (!message_controller::phpmailer_email_to_user($taskdata->userto, $taskdata->userfrom,
                         $taskdata->subject, $taskdata->messagetext, $taskdata->messagehtml,
                         $taskdata->attachment, 'booking.ics')) {
+
                         throw new \coding_exception('Confirmation email was not sent');
+
                     } else {
                         foreach ($taskdata->attachment as $key => $attached) {
                             $search = str_replace($CFG->tempdir . '/', '', $attached);
@@ -69,6 +72,18 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                                 }
                             }
                         }
+
+                        // Use an event to log that a message has been sent.
+                        $event = \mod_booking\event\message_sent::create(array(
+                            'context' => context_system::instance(),
+                            'userid' => $taskdata->userto->id,
+                            'relateduserid' => $taskdata->userfrom->id,
+                            'other' => array(
+                                'messageparam' => $taskdata->messageparam,
+                                'subject' => $taskdata->subject
+                            )
+                        ));
+                        $event->trigger();
                     }
                 }
             } else {
