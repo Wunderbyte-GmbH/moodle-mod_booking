@@ -73,7 +73,7 @@ class message_controller {
     /** @var stdClass $user */
     private $user;
 
-    /** @var message $messagedata */
+    /** @var message|stdClass $messagedata */
     private $messagedata;
 
     /** @var string $messagefieldname */
@@ -148,8 +148,12 @@ class message_controller {
         // Generate the email body.
         $this->messagebody = $this->get_email_body();
 
-        // Generate full message data.
-        $this->messagedata = $this->get_message_data();
+        // For adhoc task mails, we need to prepare data differently.
+        if ($this->msgcontrparam == MSGCONTRPARAM_QUEUE_ADHOC) {
+            $this->messagedata = $this->get_message_data_queue_adhoc();
+        } else {
+            $this->messagedata = $this->get_message_data_send_now();
+        }
     }
 
     /**
@@ -327,14 +331,13 @@ class message_controller {
 
     /**
      * Get the actual message data needed to send the message.
-     * @return message|stdClass send_message needs a message object, phpmailer_email_to_user needs an stdClass
+     * @return message the message object
      */
-    private function get_message_data(): message {
+    private function get_message_data_send_now(): message {
 
         global $USER;
 
         $messagedata = new message();
-        $messagedata->modulename = 'booking';
 
         // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
         if (!empty($this->bookingmanager)) {
@@ -342,8 +345,8 @@ class message_controller {
         } else {
             $messagedata->userfrom = $USER;
         }
-
         $messagedata->userto = $this->user;
+        $messagedata->modulename = 'booking';
         $messagedata->subject = get_string($this->messagefieldname . 'subject', 'booking', $this->params);
         $messagedata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $this->messagebody));
         $messagedata->fullmessageformat = FORMAT_HTML;
@@ -353,38 +356,50 @@ class message_controller {
         $messagedata->name = 'bookingconfirmation';
         $messagedata->courseid = $this->bookingsettings->course;
 
-        // If sent via adhoc task, we need to prepare data differently.
-        if ($this->msgcontrparam == MSGCONTRPARAM_QUEUE_ADHOC) {
+        return $messagedata;
+    }
 
-            // Because we still use the function phpmailer_email_to_user...
-            // ... we need a standard object instead of a message object.
-            $messagedata = (object) $messagedata;
+    /**
+     * Get the actual message data needed to send the message.
+     * @return stdClass the message object
+     */
+    private function get_message_data_queue_adhoc(): stdClass {
 
-            if (!empty($this->bookingsettings->sendmailtobooker)) {
-                $messagedata->userto = $USER;
-            } else {
-                $messagedata->userto = $this->user;
-            }
+        global $USER;
 
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            // CODE: $messagedata->messagetext = format_text_email($this->messagebody, FORMAT_HTML); // TODO: DELETE THIS.
-            // CODE: $messagedata->messagehtml = text_to_html($this->messagebody, false, false, true); // TODO: DELETE THIS.
-            $messagedata->messagetext = $messagedata->fullmessage;
-            $messagedata->messagehtml = $messagedata->fullmessagehtml;
+        $messagedata = new stdClass();
 
-            if ($this->messageparam == MSGPARAM_CHANGE_NOTIFICATION) {
-                $updated = true;
-            } else {
-                $updated = false;
-            }
+        // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
+        if (!empty($this->bookingmanager)) {
+            $messagedata->userfrom = $this->bookingmanager;
+        } else {
+            $messagedata->userfrom = $USER;
+        }
 
-            // Add attachments if there are any.
-            list($attachments, $attachname) = $this->get_attachments($updated);
+        $messagedata->modulename = 'booking';
+        $messagedata->subject = get_string($this->messagefieldname . 'subject', 'booking', $this->params);
+        $messagedata->messagetext = format_text_email($this->messagebody, FORMAT_HTML);
+        $messagedata->messagehtml = text_to_html($this->messagebody, false, false, true);
 
-            if (!empty($attachments)) {
-                $messagedata->attachment = $attachments;
-                $messagedata->attachname = $attachname;
-            }
+        // The "send mail to booker" setting is only available for adhoc mails.
+        if (!empty($this->bookingsettings->sendmailtobooker)) {
+            $messagedata->userto = $USER;
+        } else {
+            $messagedata->userto = $this->user;
+        }
+
+        if ($this->messageparam == MSGPARAM_CHANGE_NOTIFICATION) {
+            $updated = true;
+        } else {
+            $updated = false;
+        }
+
+        // Add attachments if there are any.
+        list($attachments, $attachname) = $this->get_attachments($updated);
+
+        if (!empty($attachments)) {
+            $messagedata->attachment = $attachments;
+            $messagedata->attachname = $attachname;
         }
 
         return $messagedata;
