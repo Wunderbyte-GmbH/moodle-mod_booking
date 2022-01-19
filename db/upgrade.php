@@ -2353,6 +2353,15 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
+        // Define field maxconfirmations to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('maxconfirmations', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '0', 'maxperuseronlyactive');
+
+        // Conditionally launch add field maxconfirmations.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2022032803, 'booking');
     }

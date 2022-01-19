@@ -565,6 +565,14 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('selectyesno', 'maxperuseronlyactive', get_string('maxperuseronlyactive', 'booking'));
         $mform->addHelpButton('maxperuseronlyactive', 'maxperuseronlyactive', 'booking');
+        
+        $opts = array(0 => get_string('unlimitedmpu', 'mod_booking'));
+        $extraopts = array_combine(range(1, 100), range(1, 100));
+        $opts = $opts + $extraopts;
+        $mform->addElement('select', 'maxconfirmations', get_string('maxconfirmations', 'mod_booking'), $opts);
+        $mform->setDefault('maxconfirmations', 0);
+        $mform->addHelpButton('maxconfirmations', 'maxconfirmations', 'mod_booking');
+
 
         $mform->addElement('selectyesno', 'showinapi', get_string("showinapi", "booking"));
 

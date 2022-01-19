@@ -1543,20 +1543,27 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
                 $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);
             }
         } else {
-            $userdata->completed = '1';
-            $userdata->timemodified = time();
+            $countcompletebefore = $DB->count_records('booking_answers',
+                    array('bookingid' => $booking->id, 'userid' => $ui, 'completed' => '1'));
+            $isavailable = false;
 
-            // Trigger the completion event, in order to send the notification mail.
-            $event = \mod_booking\event\bookingoption_completed::create(array('context' => context_module::instance($cmid),
-                'objectid' => $optionid, 'relateduserid' => $selecteduser, 'other' => ['cmid' => $cmid]));
-            $event->trigger();
+            if ($booking->maxconfirmations == 0) {
+                $isavailable = true;
+            } else if ($countcompletebefore < $booking->maxconfirmations) {
+                $isavailable = true;
+            }
 
-            $DB->update_record('booking_answers', $userdata);
-            $countcomplete = $DB->count_records('booking_answers',
-                    array('bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1'));
+            if ($isavailable) {
+                $userdata->completed = '1';
+                $userdata->timemodified = time();
 
-            if ($completion->is_enabled($cm) && $booking->enablecompletion <= $countcomplete) {
-                $completion->update_state($cm, COMPLETION_COMPLETE, $selecteduser);
+                $DB->update_record('booking_answers', $userdata);
+                $countcomplete = $DB->count_records('booking_answers',
+                        array('bookingid' => $booking->id, 'userid' => $ui, 'completed' => '1'));
+
+                if ($completion->is_enabled($cm) && $booking->enablecompletion <= $countcomplete) {
+                    $completion->update_state($cm, COMPLETION_COMPLETE, $ui);
+                }
             }
         }
     }
