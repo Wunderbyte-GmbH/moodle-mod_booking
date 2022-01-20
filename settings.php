@@ -35,6 +35,16 @@ $ADMIN->add('modsettings',
         new admin_category('modbookingfolder', new lang_string('pluginname', 'mod_booking'),
                 $module->is_enabled() === false));
 
+$ADMIN->add('modbookingfolder',
+        new admin_externalpage('modbookingpricecategories',
+                get_string('pricecategories', 'mod_booking'),
+                new moodle_url('/mod/booking/pages/prices.php')));
+
+$ADMIN->add('modbookingfolder',
+        new admin_externalpage('modbookingcustomfield',
+                get_string('customfieldconfigure', 'mod_booking'),
+                new moodle_url('/mod/booking/customfield.php')));
+
 $ADMIN->add('modbookingfolder', $settings);
 
 if ($ADMIN->fulltree) {
@@ -80,7 +90,7 @@ if ($ADMIN->fulltree) {
             get_string('shortcodessetinstancedesc', 'mod_booking'),
             '', PARAM_INT));
 
-            // TODO
+            // TODO.
     $settings->add(
         new admin_setting_heading('uniqueoptionnameheading',
             get_string('uniqueoptionnameheading', 'mod_booking'),
@@ -315,14 +325,21 @@ if ($ADMIN->fulltree) {
             get_string('pricecategories', 'mod_booking'),
             get_string('pricecategories_desc', 'mod_booking')));
 
+    // Currency dropdown.
+    $currenciesobjects = price::get_possible_currencies();
+
+    $currencies = [];
+
+    foreach ($currenciesobjects as $currenciesobject) {
+        $currencyidentifier = $currenciesobject->get_identifier();
+        $currencies[$currencyidentifier] = $currenciesobject->out(current_language()) . ' (' . $currencyidentifier . ')';
+    }
+
+    $settings->add(
+        new admin_setting_configselect('booking/globalcurrency',
+            get_string('globalcurrency', 'booking'),
+            get_string('globalcurrencydesc', 'booking'),
+            'EUR', $currencies));
 }
 
-$ADMIN->add('modbookingfolder',
-        new admin_externalpage('modbookingcustomfield',
-                get_string('customfieldconfigure', 'mod_booking'),
-                new moodle_url('/mod/booking/customfield.php')));
-$ADMIN->add('modbookingfolder',
-        new admin_externalpage('modbookingpricecategories',
-                get_string('pricecategories', 'mod_booking'),
-                new moodle_url('/mod/booking/prices.php')));
 $settings = null;

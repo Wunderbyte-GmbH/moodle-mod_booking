@@ -1162,6 +1162,8 @@ $string['daystonotifysession_help'] = "Geben Sie 0 ein, um die E-Mail-Benachrich
 $string['nocfnameselected'] = "Nichts ausgewählt. Tippen Sie einen neuen Namen oder wählen Sie einen aus der Liste.";
 
 // File: settings.php.
+$string['globalcurrency'] = 'Währung';
+$string['globalcurrencydesc'] = 'Wählen Sie die Währung für Preise von Buchungsoptionen aus';
 $string['globalmailtemplates'] = 'Globale Mailvorlagen';
 $string['globalmailtemplates_desc'] = 'Nur in der PRO-Version verfügbar. Nach der Aktivierung können Sie in den Einstellungen jeder beliebigen Buchungsinstanz die Quelle der Mailvorlagen auf global setzen.';
 $string['globalbookedtext'] = 'Buchungsbestätigung (globale Vorlage)';
@@ -1261,7 +1263,7 @@ $string['eventalreadyover'] = 'Diese Veranstaltung ist bereits vorüber.';
 $string['nobookingpossible'] = 'Keine Buchung möglich.';
 
 $string['pricecategories'] = 'Preiskategorien';
-$string['pricecategories_desc'] = 'Definiere unterschiedliche Preiskategorien für unterschiedliche Usergruppen';
+$string['pricecategories_desc'] = 'Preiskategorien für unterschiedliche Benutzergruppen definieren';
 
 $string['bookingpricecategory'] = 'Preiskategorie"';
 $string['bookingpricecategory_info'] = 'Definieren Sie den Namen der Preiskategorie, zum Beispiel "Studierende"';

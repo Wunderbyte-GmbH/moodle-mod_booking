@@ -1336,6 +1336,8 @@ $string['manageoptiontemplates'] = 'Manage option templates';
 $string['linkgotobookingoption'] = 'Go to booked option: {$a}</a>';
 
 // File: settings.php.
+$string['globalcurrency'] = 'Currency';
+$string['globalcurrencydesc'] = 'Choose the currency for booking option prices';
 $string['globalmailtemplates'] = 'Global mail templates';
 $string['globalmailtemplates_desc'] = 'Only available in the PRO version. After activation, you can go to the settings of a booking instance and set the source of mail templates to global.';
 $string['globalbookedtext'] = 'Booking confirmation (global template)';
@@ -1437,7 +1439,8 @@ $string['eventalreadyover'] = 'This event is already over.';
 $string['nobookingpossible'] = 'No booking possible.';
 
 $string['pricecategories'] = 'Price categories';
-$string['pricecategories_desc'] = 'Define categories for different prices for different user groups.';
+$string['pricecategories_desc'] = 'Define price categories for different user groups.';
+
 $string['bookingpricecategory'] = 'Price category';
 $string['bookingpricecategory_info'] = 'Define the name of the category, eg "students"';
 

@@ -20,6 +20,7 @@ use admin_setting_configtext;
 use cache_helper;
 use MoodleQuickForm;
 use stdClass;
+use lang_string;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -32,6 +33,9 @@ defined('MOODLE_INTERNAL') || die();
  */
 class price {
 
+    /**
+     * Constructor.
+     */
     public function __construct() {
 
     }
@@ -76,7 +80,7 @@ class price {
      * @return void
      */
     public function instance_form_before_set_data(&$defaultvalues) {
-        $prices = self::getpricesrecords($defaultvalues->optionid);
+        $prices = self::get_prices_records($defaultvalues->optionid);
 
         // Todo: We will have more than one category in the future.
 
@@ -164,10 +168,10 @@ class price {
      * @param int $categoryid
      * @return void
      */
-    public static function getprice(int $optionid, int $categoryid = null):array {
+    public static function get_price(int $optionid, int $categoryid = null):array {
         global $DB;
 
-        $prices = self::getpricesrecords($optionid);
+        $prices = self::get_prices_records($optionid);
 
         if (!isset($prices)) {
             return [];
@@ -185,7 +189,7 @@ class price {
      * @param int $optionid
      * @return array|null
      */
-    private static function getpricesrecords(int $optionid) {
+    private static function get_prices_records(int $optionid) {
         global $DB;
 
         $cache = \cache::make('mod_booking', 'cachedprices');
@@ -204,5 +208,25 @@ class price {
             $prices = json_decode($cachedprices);
         }
         return (array)$prices;
+    }
+
+    /**
+     * Returns the list of currencies that the payment subsystem supports and therefore we can work with.
+     *
+     * @return array[currencycode => currencyname]
+     */
+    public static function get_possible_currencies(): array {
+        $codes = \core_payment\helper::get_supported_currencies();
+
+        $currencies = [];
+        foreach ($codes as $c) {
+            $currencies[$c] = new lang_string($c, 'core_currencies');
+        }
+
+        uasort($currencies, function($a, $b) {
+            return strcmp($a, $b);
+        });
+
+        return $currencies;
     }
 }

@@ -66,7 +66,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         }
 
         // In booking, we always buy a booking option. Therefore, we have to first find out its price.
-        if (!$price = price::getprice($optionid)) {
+        if (!$price = price::get_price($optionid)) {
             return null;
         }
 
