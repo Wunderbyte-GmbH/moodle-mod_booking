@@ -23,205 +23,136 @@ require_once("$CFG->libdir/formslib.php");
 
 use moodleform;
 
-const MAX_CUSTOM_FIELDS = 3;
-
 /**
- * Add option date form.
+ * Add price categories form.
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
- * @author David Bogner, Bernhard Fischer
+ * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class optiondatesadd_form extends moodleform {
+class pricecategories_form extends moodleform {
 
     /**
      * {@inheritdoc}
      * @see moodleform::definition()
      */
     public function definition() {
-        global $CFG, $DB;
+        global $DB;
 
         $mform = $this->_form;
 
-        $mform->addElement('hidden', 'optiondateid');
-        $mform->setType('optiondateid', PARAM_INT);
+        // At first, loop through already existing price categories.
+        $pricecategories = $DB->get_records('booking_pricecategories');
 
-        $mform->addElement('hidden', 'bookingid');
-        $mform->setType('bookingid', PARAM_INT);
+        $j = 1;
+        foreach ($pricecategories as $pricecategory) {
+            $mform->addElement('hidden', 'pricecategoryid' . $j, $pricecategory->id);
+            $mform->setType('pricecategoryid' . $j, PARAM_INT);
 
-        $mform->addElement('hidden', 'eventid');
-        $mform->setType('eventid', PARAM_INT);
+            $mform->addElement('text', 'pricecategoryname' . $j, get_string('pricecategoryname', 'booking') . ' ' . $j);
+            $mform->setType('pricecategoryname' . $j, PARAM_TEXT);
+            $mform->setDefault('pricecategoryname' . $j, $pricecategory->pricecategory);
+            $mform->addHelpButton('pricecategoryname' . $j, 'pricecategoryname', 'booking');
 
-        $mform->addElement('date_time_selector', 'coursestarttime', get_string('from'));
-        $mform->setType('coursestarttime', PARAM_INT);
+            $mform->addElement('textarea', 'pricecategorydescription' . $j,
+                get_string('pricecategorydescription', 'booking'), 'wrap="virtual" rows="1" cols="65"');
+            $mform->setType('pricecategorydescription' . $j, PARAM_RAW);
+            $mform->setDefault('pricecategorydescription' . $j, $pricecategory->description);
+            $mform->addHelpButton('pricecategorydescription' . $j, 'pricecategorydescription', 'booking');
 
-        for ($i = 0; $i <= 23; $i++) {
-            $hours[$i] = sprintf("%02d", $i);
+            $mform->addElement('checkbox', 'pricecategoryrelationcheckbox' . $j,
+                get_string('pricecategoryrelationcheckbox', 'booking'));
+            $mform->addHelpButton('pricecategoryrelationcheckbox' . $j, 'pricecategoryrelationcheckbox', 'booking');
+
+            $mform->addElement('checkbox', 'deletepricecategory' . $j, get_string('deletepricecategory', 'booking') . ' ' . $j);
+            $mform->setDefault('deletepricecategory' . $j, 0);
+            $mform->addHelpButton('deletepricecategory' . $j, 'deletepricecategory', 'booking');
+
+            $j++;
         }
-        for ($i = 0; $i < 60; $i += 5) {
-            $minutes[$i] = sprintf("%02d", $i);
+
+        // Now, if there are less than the maximum number of price category fields allow adding additional ones.
+        if (count($pricecategories) < MAX_PRICE_CATEGORIES) {
+            // Between one to nine price categories are supported.
+            $start = count($pricecategories) + 1;
+            $this->addpricecategories($mform, $start);
         }
 
-        $courseendtime = array();
-        $courseendtime[] = & $mform->createElement('select', 'endhour', get_string('hour', 'form'),
-                $hours);
-        $courseendtime[] = & $mform->createElement('select', 'endminute',
-                get_string('minute', 'form'), $minutes);
-        $mform->setType('endhour', PARAM_INT);
-        $mform->setType('endminute', PARAM_INT);
-        $mform->addGroup($courseendtime, 'endtime', get_string('to'), ' ', false);
-
-        $mform->addElement('text', 'daystonotify', get_string('daystonotifysession', 'booking'));
-        $mform->setType('daystonotify', PARAM_INT);
-        $mform->setDefault('daystonotify', 0);
-        $mform->addHelpButton('daystonotify', 'daystonotifysession', 'booking');
-
-        // Only allow creation of custom fields, when creating a new optiondate.
-        if (empty($this->_customdata['optiondateid'])) {
-            $this->addcustomfields($mform);
-            $mform->addElement('submit', 'submitbutton', get_string('save'));
-        } else {
-            // At first loop through already existing custom field records.
-            $customfields = $DB->get_records("booking_customfields", array('optiondateid' => $this->_customdata['optiondateid']));
-            $j = 1;
-            foreach ($customfields as $customfield) {
-                $mform->addElement('hidden', 'customfieldid' . $j, $customfield->id);
-                $mform->setType('customfieldid' . $j, PARAM_INT);
-
-                $cfnames = [
-                    null => '',
-                    'TeamsMeeting' => 'TeamsMeeting',
-                    'ZoomMeeting' => 'ZoomMeeting',
-                    'BigBlueButtonMeeting' => 'BigBlueButtonMeeting'
-                ];
-                if (!in_array($customfield->cfgname, $cfnames)) {
-                    $cfnames[$customfield->cfgname] = $customfield->cfgname;
-                }
-                $options = array(
-                        'noselectionstring' => get_string('nocfnameselected', 'booking'),
-                        'tags' => true
-                );
-                $element = $mform->createElement('autocomplete', 'customfieldname' . $j,
-                    get_string('customfieldname', 'booking'), $cfnames, $options);
-                $mform->addElement($element);
-                if (!empty($CFG->formatstringstriptags)) {
-                    $mform->setType('customfieldname' . $j, PARAM_TEXT);
-                } else {
-                    $mform->setType('customfieldname' . $j, PARAM_CLEANHTML);
-                }
-                $mform->setDefault('customfieldname' . $j, $customfield->cfgname);
-                $mform->addHelpButton('customfieldname' . $j, 'customfieldname', 'booking');
-
-                $mform->addElement('textarea', 'customfieldvalue' . $j,
-                    get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
-                $mform->setType('customfieldvalue' . $j, PARAM_RAW);
-                $mform->setDefault('customfieldvalue' . $j, $customfield->value);
-                $mform->addHelpButton('customfieldvalue' . $j, 'customfieldvalue', 'booking');
-
-                $mform->addElement('checkbox', 'deletecustomfield' . $j, get_string('deletecustomfield', 'booking'));
-                $mform->setDefault('deletecustomfield' . $j, 0);
-                $mform->addHelpButton('deletecustomfield' . $j, 'deletecustomfield', 'booking');
-
-                $j++;
-            }
-            // Now, if there are less than the maximum number of custom fields allow adding additional ones.
-            if (count($customfields) < MAX_CUSTOM_FIELDS) {
-                // Between one to three custom fields are supported.
-                $start = count($customfields) + 1;
-                $this->addcustomfields($mform, $start);
-            }
-            $mform->addElement('submit', 'submitbutton', get_string('savechanges'));
-        }
+        $mform->addElement('submit', 'submitbutton', get_string('save'));
     }
 
     /**
-     * Helper function to create form elements for adding custom fields.
-     * @param int $counter if there already are existing custom fields start with the succeeding number
+     * Helper function to create form elements for adding price categories.
+     * @param int $counter if there already are existing price categories start with the succeeding number
      */
-    public function addcustomfields($mform, $counter = 1) {
+    public function addpricecategories($mform, $counter = 1) {
         global $CFG;
 
-        // Add checkbox to add first customfield.
-        $mform->addElement('checkbox', 'addcustomfield' . $counter, get_string('addcustomfield', 'booking'));
+        // Add checkbox to add first price category.
+        $mform->addElement('checkbox', 'addpricecategory' . $counter, get_string('addpricecategory', 'booking'));
 
-        while ($counter <= MAX_CUSTOM_FIELDS) {
-            // New elements have a default customfieldid of 0.
-            $mform->addElement('hidden', 'customfieldid' . $counter, 0);
-            $mform->setType('customfieldid' . $counter, PARAM_INT);
+        while ($counter <= MAX_PRICE_CATEGORIES) {
+            // New elements have a default pricecategoryid of 0.
+            $mform->addElement('hidden', 'pricecategoryid' . $counter, 0);
+            $mform->setType('pricecategoryid' . $counter, PARAM_INT);
 
-            // Add Autocomplete with TeamsMeeting etc.
-            $cfnames = [
-                null => '',
-                'TeamsMeeting' => 'TeamsMeeting',
-                'ZoomMeeting' => 'ZoomMeeting',
-                'BigBlueButtonMeeting' => 'BigBlueButtonMeeting'
-            ];
-            $options = array(
-                    'noselectionstring' => get_string('nocfnameselected', 'booking'),
-                    'tags' => true
-            );
-            $mform->addElement('autocomplete', 'customfieldname' . $counter,
-                get_string('customfieldname', 'booking'), $cfnames, $options);
-            if (!empty($CFG->formatstringstriptags)) {
-                $mform->setType('customfieldname' . $counter, PARAM_TEXT);
-            } else {
-                $mform->setType('customfieldname' . $counter, PARAM_CLEANHTML);
-            }
-            $mform->setDefault('customfieldname' . $counter, null);
-            $mform->addHelpButton('customfieldname' . $counter, 'customfieldname', 'booking');
-            $mform->hideIf('customfieldname' . $counter, 'addcustomfield' . $counter, 'notchecked');
+            $mform->addElement('text', 'pricecategoryname' . $counter, get_string('pricecategoryname', 'booking') . ' ' . $counter);
+            $mform->setType('pricecategoryname' . $counter, PARAM_TEXT);
+            $mform->addHelpButton('pricecategoryname' . $counter, 'pricecategoryname', 'booking');
+            $mform->hideIf('pricecategoryname' . $counter, 'addpricecategory' . $counter, 'notchecked');
 
-            $mform->addElement('textarea', 'customfieldvalue' . $counter,
-                get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
-            $mform->setType('customfieldvalue' . $counter, PARAM_RAW);
-            $mform->setDefault('customfieldvalue' . $counter, '');
-            $mform->addHelpButton('customfieldvalue' . $counter, 'customfieldvalue', 'booking');
-            $mform->hideIf('customfieldvalue' . $counter, 'addcustomfield' . $counter, 'notchecked');
+            $mform->addElement('textarea', 'pricecategorydescription' . $counter,
+                get_string('pricecategorydescription', 'booking'), 'wrap="virtual" rows="1" cols="65"');
+            $mform->setType('pricecategorydescription' . $counter, PARAM_RAW);
+            $mform->setDefault('pricecategorydescription' . $counter, '');
+            $mform->addHelpButton('pricecategorydescription' . $counter, 'pricecategorydescription', 'booking');
+            $mform->hideIf('pricecategorydescription' . $counter, 'addpricecategory' . $counter, 'notchecked');
+
+            $mform->addElement('checkbox', 'pricecategoryrelationcheckbox' . $counter,
+                get_string('pricecategoryrelationcheckbox', 'booking'));
+            $mform->addHelpButton('pricecategoryrelationcheckbox' . $counter, 'pricecategoryrelationcheckbox', 'booking');
+            $mform->hideIf('pricecategoryrelationcheckbox' . $counter, 'addpricecategory' . $counter, 'notchecked');
 
             // Set delete parameter to 0 for newly created fields, so they won't be deleted.
-            $mform->addElement('hidden', 'deletecustomfield' . $counter, 0);
-            $mform->setType('deletecustomfield' . $counter, PARAM_INT);
+            $mform->addElement('hidden', 'deletepricecategory' . $counter, 0);
+            $mform->setType('deletepricecategory' . $counter, PARAM_INT);
 
-            // Show checkbox to add a custom field.
-            if ($counter < MAX_CUSTOM_FIELDS) {
-                $mform->addElement('checkbox', 'addcustomfield' . ($counter + 1), get_string('addcustomfield', 'booking'));
-                $mform->hideIf('addcustomfield' . ($counter + 1), 'addcustomfield' . $counter, 'notchecked');
+            // Show checkbox to add a price category.
+            if ($counter < MAX_PRICE_CATEGORIES) {
+                $mform->addElement('checkbox', 'addpricecategory' . ($counter + 1), get_string('addpricecategory', 'booking'));
+                $mform->hideIf('addpricecategory' . ($counter + 1), 'addpricecategory' . $counter, 'notchecked');
             }
             ++$counter;
         }
     }
 
     /**
-     * Validate start and end time.
-     * Validate custom fields.
+     * Validate price categories.
      *
      * {@inheritdoc}
      * @see moodleform::validation()
      */
     public function validation($data, $files) {
+
+        global $DB;
+
         $errors = array();
-        // Validate start and end time.
-        $starttime = $data['coursestarttime'];
-        $date = date("Y-m-d", $data['coursestarttime']);
-        $endtime = strtotime($date . " {$data['endhour']}:{$data['endminute']}");
-        if ($endtime < $starttime) {
-            $errors['endtime'] = "Course end time must be after course start time";
-        }
 
-        if ($data['daystonotify'] != 0 && !(int)$data['daystonotify']) {
-            $errors['daystonotify'] = "Value must be an integer number";
-        }
+        // Validate price categories.
+        for ($i = 1; $i <= MAX_PRICE_CATEGORIES; $i++) {
 
-        // Validate custom fields.
-        for ($i = 1; $i <= MAX_CUSTOM_FIELDS; $i++) {
-            $customfieldnamex = $data['customfieldname' . $i];
-            $customfieldvaluex = $data['customfieldvalue' . $i];
-            // The field name is not allowed to be empty if there is a value.
-            if (empty($customfieldnamex) && !empty($customfieldvaluex)) {
-                $errors['customfieldname' . $i] = get_string('erroremptycustomfieldname', 'booking');
-            }
-            // The field value is not allowed to be empty if there is a name.
-            if (empty($customfieldvaluex) && !empty($customfieldnamex)) {
-                $errors['customfieldvalue' . $i] = get_string('erroremptycustomfieldvalue', 'booking');
+            if (isset($data['pricecategoryname' . $i])) {
+                $pricecategorynamex = $data['pricecategoryname' . $i];
+
+                // The price category name is not allowed to be empty.
+                if (empty($pricecategorynamex)) {
+                    $errors['pricecategoryname' . $i] = get_string('erroremptypricecategory', 'booking');
+                }
+
+                // The name of a price category needs to be unique.
+                $records = $DB->get_records('booking_pricecategories', ['pricecategory' => $pricecategorynamex]);
+                if (count($records) > 1) {
+                    $errors['pricecategoryname' . $i] = get_string('errorduplicatepricecategory', 'booking');
+                }
             }
         }
         return $errors;

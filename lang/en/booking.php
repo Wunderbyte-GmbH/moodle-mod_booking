@@ -1336,7 +1336,7 @@ $string['manageoptiontemplates'] = 'Manage option templates';
 $string['linkgotobookingoption'] = 'Go to booked option: {$a}</a>';
 
 // File: settings.php.
-$string['bookingsettings'] = 'Booking settings';
+$string['bookingsettings'] = 'Booking: Main settings';
 $string['globalcurrency'] = 'Currency';
 $string['globalcurrencydesc'] = 'Choose the currency for booking option prices';
 $string['globalmailtemplates'] = 'Global mail templates';
@@ -1440,7 +1440,9 @@ $string['eventalreadyover'] = 'This event is already over.';
 $string['nobookingpossible'] = 'No booking possible.';
 
 $string['pricecategories'] = 'Booking: Price categories';
-$string['pricecategories_desc'] = 'Define price categories for different user groups.';
+
+$string['bookingpricesettings'] = 'Price settings';
+$string['bookingpricesettings_desc'] = 'Here you can customize booking prices.';
 
 $string['bookingpricecategory'] = 'Price category';
 $string['bookingpricecategory_info'] = 'Define the name of the category, eg "students"';
@@ -1595,4 +1597,18 @@ $string['booking_customfield'] = 'Booking customfields for booking options';
 $string['sessions'] = 'Session(s)';
 
 // Message_sent.php.
-$string['message_sent'] = "Message sent";
+$string['message_sent'] = 'Message sent';
+
+// Pricecategories_form.php.
+$string['nopricecategoryselected'] = 'Enter the name of a new price category';
+$string['pricecategoryname'] = 'Price category';
+$string['pricecategoryname_help'] = 'Enter the name of a price category';
+$string['pricecategorydescription'] = 'Price category description';
+$string['pricecategorydescription_help'] = 'Enter a description text for the price category';
+$string['deletepricecategory'] = 'Delete price category';
+$string['addpricecategory'] = 'Add price category';
+$string['erroremptypricecategory'] = 'Price category name is not allowed to be empty.';
+$string['errorduplicatepricecategory'] = 'Price categories need to be unique.';
+$string['deletepricecategory_help'] = 'Delete this price category';
+$string['pricecategoriessaved'] = 'Price categories were saved';
+$string['pricecategoriessubtitle'] = '<p>Here you can define different price categories, e.g. special price categories for students, employees or externals.</p>';

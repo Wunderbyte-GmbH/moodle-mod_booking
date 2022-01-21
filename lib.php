@@ -30,6 +30,9 @@ use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\utils\wb_payment;
 
+// Currently up to 9 different price categories can be set.
+define('MAX_PRICE_CATEGORIES', 9);
+
 // Define message parameters.
 define('MSGPARAM_CONFIRMATION', 1);
 define('MSGPARAM_WAITINGLIST', 2);

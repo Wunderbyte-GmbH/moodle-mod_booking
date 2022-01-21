@@ -1162,7 +1162,7 @@ $string['daystonotifysession_help'] = "Geben Sie 0 ein, um die E-Mail-Benachrich
 $string['nocfnameselected'] = "Nichts ausgewählt. Tippen Sie einen neuen Namen oder wählen Sie einen aus der Liste.";
 
 // File: settings.php.
-$string['bookingsettings'] = 'Buchung - Einstellungen';
+$string['bookingsettings'] = 'Buchung: Einstellungen';
 $string['globalcurrency'] = 'Währung';
 $string['globalcurrencydesc'] = 'Wählen Sie die Währung für Preise von Buchungsoptionen aus';
 $string['globalmailtemplates'] = 'Globale Mailvorlagen';
@@ -1264,7 +1264,9 @@ $string['eventalreadyover'] = 'Diese Veranstaltung ist bereits vorüber.';
 $string['nobookingpossible'] = 'Keine Buchung möglich.';
 
 $string['pricecategories'] = 'Buchung: Preiskategorien';
-$string['pricecategories_desc'] = 'Preiskategorien für unterschiedliche Benutzergruppen definieren';
+
+$string['bookingpricesettings'] = 'Price settings';
+$string['bookingpricesettings_desc'] = 'Individuelle Einstellungen für die Preise von Buchungen.';
 
 $string['bookingpricecategory'] = 'Preiskategorie"';
 $string['bookingpricecategory_info'] = 'Definieren Sie den Namen der Preiskategorie, zum Beispiel "Studierende"';
@@ -1354,4 +1356,20 @@ $string['booking_customfield'] = 'Benutzerdefinierte Felder für Buchungsoptione
 $string['sessions'] = 'Termin(e)';
 
 // Message_sent.php.
-$string['message_sent'] = "Nachricht gesendet";
+$string['message_sent'] = 'Nachricht gesendet';
+
+// Pricecategories_form.php.
+$string['nopricecategoryselected'] = 'Geben Sie den Namen einer neuen Preiskategorie ein';
+$string['pricecategoryname'] = 'Preiskategorie';
+$string['pricecategoryname_help'] = 'Geben Sie den Namen einer Preiskategorie ein';
+$string['pricecategorydescription'] = 'Beschreibung der Preiskategorie';
+$string['pricecategorydescription_help'] = 'Geben Sie einen Beschreibungstext zur Preiskategorie ein';
+$string['pricecategoryrelationcheckbox'] = 'Abhängigkeit hinzufügen';
+$string['pricecategoryrelationcheckbox_help'] = 'Optional: Hier können Sie eine Abhängigkeit zu einer anderen Preiskategorie definieren, z.B. Standardpreis * 1.2 (entspricht: +20%).';
+$string['deletepricecategory'] = 'Preiskategorie löschen';
+$string['addpricecategory'] = 'Preiskategorie hinzufügen';
+$string['erroremptypricecategory'] = 'Name der Preiskategorie darf nicht leer sein.';
+$string['errorduplicatepricecategory'] = 'Preiskategorien müssen eindeutig sein.';
+$string['deletepricecategory_help'] = 'Diese Preiskategorie löschen';
+$string['pricecategoriessaved'] = 'Preiskategorien wurden gespeichert';
+$string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kategorien von Preisen definieren, z.B. eigene Preiskategorien für Studierende, Mitarbeitende oder Externe.</p>';

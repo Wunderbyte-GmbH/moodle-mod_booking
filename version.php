@@ -17,13 +17,13 @@
 /**
  *
  * @package mod_booking
- * @copyright 2012-2021 Wunderbyte GmbH <info@wunderbyte.at>,
- * @author David Bogner, Georg Maißer, Bernhard Fischer, Andraž Prinčič <atletek@gmail.com>
+ * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>,
+ * @author David Bogner, Georg Maißer, Bernhard Fischer, Andraž Prinčič
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2022011800;
+$plugin->version = 2022012601;
 $plugin->requires = 2019111800; // Requires this Moodle version. Current: Moodle 3.8.
 $plugin->release = 'v7.0.22';
 $plugin->maturity = MATURITY_STABLE;

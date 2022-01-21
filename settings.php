@@ -80,6 +80,27 @@ if ($ADMIN->fulltree) {
             $licensekeydesc, ''));
 
     $settings->add(
+        new admin_setting_heading('bookingpricesettings_heading',
+            get_string('bookingpricesettings', 'mod_booking'),
+            get_string('bookingpricesettings_desc', 'mod_booking')));
+
+    // Currency dropdown.
+    $currenciesobjects = price::get_possible_currencies();
+
+    $currencies = [];
+
+    foreach ($currenciesobjects as $currenciesobject) {
+        $currencyidentifier = $currenciesobject->get_identifier();
+        $currencies[$currencyidentifier] = $currenciesobject->out(current_language()) . ' (' . $currencyidentifier . ')';
+    }
+
+    $settings->add(
+        new admin_setting_configselect('booking/globalcurrency',
+            get_string('globalcurrency', 'booking'),
+            get_string('globalcurrencydesc', 'booking'),
+            'EUR', $currencies));
+
+    $settings->add(
         new admin_setting_heading('shortcodessetdefaultinstance',
             get_string('shortcodessetdefaultinstance', 'mod_booking'),
             get_string('shortcodessetdefaultinstancedesc', 'mod_booking')));
@@ -319,27 +340,6 @@ if ($ADMIN->fulltree) {
 
         // TODO: globalactivitycompletiontext is currently not implemented because activitycompletiontext isn't either.
     }
-
-    $settings->add(
-        new admin_setting_heading('bookingoption_pricecategories_heading',
-            get_string('pricecategories', 'mod_booking'),
-            get_string('pricecategories_desc', 'mod_booking')));
-
-    // Currency dropdown.
-    $currenciesobjects = price::get_possible_currencies();
-
-    $currencies = [];
-
-    foreach ($currenciesobjects as $currenciesobject) {
-        $currencyidentifier = $currenciesobject->get_identifier();
-        $currencies[$currencyidentifier] = $currenciesobject->out(current_language()) . ' (' . $currencyidentifier . ')';
-    }
-
-    $settings->add(
-        new admin_setting_configselect('booking/globalcurrency',
-            get_string('globalcurrency', 'booking'),
-            get_string('globalcurrencydesc', 'booking'),
-            'EUR', $currencies));
 }
 
 $settings = null;

@@ -2309,10 +2309,9 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2021121703) {
 
-        // Define field sentteachers to be added to booking_options.
         $table = new xmldb_table('booking_prices');
 
-        // Adding fields to table booking_category.
+        // Adding fields to table.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
         $table->add_field('pricecategoryid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
@@ -2320,16 +2319,40 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('price', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
         $table->add_field('currency', XMLDB_TYPE_CHAR, '10', null, null, null, '');
 
-        // Adding keys to table booking_category.
+        // Adding keys to table.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
 
-        // Conditionally launch create table for booking_category.
+        // Conditionally launch create table.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2021121703, 'booking');
+    }
+
+    if ($oldversion < 2022012601) {
+
+        // Add new table.
+        $table = new xmldb_table('booking_pricecategories');
+
+        // Adding fields to table.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
+        $table->add_field('pricecategory', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'id');
+        $table->add_field('description', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'pricecategory');
+        $table->add_field('defaultvalue', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, '0', 'description');
+        $table->add_field('disabled', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'defaultvalue');
+
+        // Adding keys to table.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022012601, 'booking');
     }
 
     return true;
