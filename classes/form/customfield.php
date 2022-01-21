@@ -146,7 +146,8 @@ class customfield extends \moodleform {
                 }
             }
 
-            $event = \mod_booking\event\custom_field_changed::create(array('objectid' => 0, 'context' => \context_system::instance()));
+            $event = \mod_booking\event\custom_field_changed::create(array('objectid' => 0,
+                'context' => \context_system::instance()));
             $event->trigger();
         }
         return $data;

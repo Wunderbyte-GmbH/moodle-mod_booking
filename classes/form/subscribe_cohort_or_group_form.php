@@ -51,10 +51,10 @@ class subscribe_cohort_or_group_form extends moodleform {
         $mform = $this->_form;
 
         // The form has to provide hidden id & optionid for it to work.
-        $mform->addElement('hidden', 'id', 0); // , $_GET['id']
+        $mform->addElement('hidden', 'id', 0);
         $mform->setType('id', PARAM_INT);
 
-        $mform->addElement('hidden', 'optionid', 0); // , $_GET['optionid']
+        $mform->addElement('hidden', 'optionid', 0);
         $mform->setType('optionid', PARAM_INT);
 
         // Cohort subscription header.
@@ -79,7 +79,7 @@ class subscribe_cohort_or_group_form extends moodleform {
         $groups = groups_get_all_groups($COURSE->id);
         // Associative array containing key value pairs for autocomplete.
         $groupsacvalues = [];
-        foreach($groups as $group) {
+        foreach ($groups as $group) {
             $groupsacvalues[$group->id] = $group->name;
         }
 
@@ -99,7 +99,7 @@ class subscribe_cohort_or_group_form extends moodleform {
     /**
      * Custom validation should be added here.
      */
-    function validation($data, $files) {
+    public function validation($data, $files) {
         return array();
     }
 }

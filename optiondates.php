@@ -23,10 +23,10 @@
 
 use mod_booking\booking_option;
 use mod_booking\calendar;
+use mod_booking\form\optiondatesadd_form;
 
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
-require_once('optiondatesadd_form.php');
 
 global $DB, $PAGE, $OUTPUT, $USER;
 
@@ -43,7 +43,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 require_course_login($course, false, $cm);
 
 if (!$context = context_module::instance($cm->id)) {
-    print_error('badcontext');
+    throw new moodle_exception('badcontext');
 }
 // Check if optionid is valid.
 $optionid = $DB->get_field('booking_options', 'id',
@@ -62,7 +62,7 @@ if ($delete != '') {
     if ($optiondate = $DB->get_record('booking_optiondates', ['id' => $delete])) {
         $DB->delete_records('event', ['id' => $optiondate->eventid]);
 
-        // Also, clean all associated user records
+        // Also, clean all associated user records.
         $records = $DB->get_records('booking_userevents', array('optiondateid' => $delete));
 
         foreach ($records as $record) {
@@ -95,7 +95,7 @@ if ($delete != '') {
     // If there have been significant changes, we have to resend an e-mail (containing an updated ical)...
     // ...and the information about the changes..
     if (!empty($changes)) {
-        // Set no update to true, so the original
+        // Set no update to true, so the original.
         $bu->react_on_changes($cm->id, $context, $optionid, $changes, true);
     }
 

@@ -26,25 +26,27 @@ class subscribeusersctivity extends \moodleform {
 
         $mform = $this->_form; // Don't forget the underscore!
 
-        $bookingoptions = $DB->get_records_list("booking_options", "bookingid", array($this->_customdata['bookingid']), '', 'id,text,coursestarttime,location', '', '');
+        $bookingoptions = $DB->get_records_list("booking_options", "bookingid", array($this->_customdata['bookingid']), '',
+            'id,text,coursestarttime,location', '', '');
 
         $values = array();
 
         foreach ($bookingoptions as $key => $value) {
-            $string = array();
-            $string[] = $value->text;
+            $stringarray = array();
+            $stringarray[] = $value->text;
             if ($value->coursestarttime != 0) {
-                $string[] = userdate($value->coursestarttime);
+                $stringarray[] = userdate($value->coursestarttime);
             }
             if ($value->location != '') {
-                $string[] = $value->location;
+                $stringarray[] = $value->location;
             }
-            $values[$value->id] = implode($string, ', ');
+            $values[$value->id] = implode(', ', $stringarray);
         }
 
         unset($values[$this->_customdata['optionid']]);
 
-        $mform->addElement('select', 'bookingoption', get_string('bookingoptionsmenu', 'booking'), $values); // Add elements to your form
+        // Add elements to your form.
+        $mform->addElement('select', 'bookingoption', get_string('bookingoptionsmenu', 'booking'), $values);
 
         $buttonarray = array();
         $buttonarray[] = $mform->createElement('submit', 'submitbutton', get_string('transefusers', 'booking'));
@@ -52,7 +54,7 @@ class subscribeusersctivity extends \moodleform {
         $mform->addGroup($buttonarray, 'buttonar', '', ' ', false);
     }
 
-    // Custom validation should be added here
+    // Custom validation should be added here.
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 

@@ -14,17 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_booking\form;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
+use moodleform;
+
 const MAX_CUSTOM_FIELDS = 3;
 
 /**
- * Add option date form
- * @author David Bogner
- *
+ * Add option date form.
+ * @copyright Wunderbyte GmbH <info@wunderbyte.at>
+ * @author David Bogner, Bernhard Fischer
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optiondatesadd_form extends moodleform {
 
@@ -33,7 +38,7 @@ class optiondatesadd_form extends moodleform {
      * @see moodleform::definition()
      */
     public function definition() {
-        global $DB;
+        global $CFG, $DB;
 
         $mform = $this->_form;
 
@@ -82,11 +87,6 @@ class optiondatesadd_form extends moodleform {
                 $mform->addElement('hidden', 'customfieldid' . $j, $customfield->id);
                 $mform->setType('customfieldid' . $j, PARAM_INT);
 
-                //$mform->addElement('text', 'customfieldname' . $j, get_string('customfieldname', 'booking'));
-                //$mform->setType('customfieldname' . $j, PARAM_TEXT);
-                //$mform->setDefault('customfieldname' . $j, $customfield->cfgname);
-                //$mform->addHelpButton('customfieldname' . $j, 'customfieldname', 'booking');
-
                 $cfnames = [
                     null => '',
                     'TeamsMeeting' => 'TeamsMeeting',
@@ -100,7 +100,8 @@ class optiondatesadd_form extends moodleform {
                         'noselectionstring' => get_string('nocfnameselected', 'booking'),
                         'tags' => true
                 );
-                $element = $mform->createElement('autocomplete', 'customfieldname' . $j, get_string('customfieldname', 'booking'), $cfnames, $options);
+                $element = $mform->createElement('autocomplete', 'customfieldname' . $j,
+                    get_string('customfieldname', 'booking'), $cfnames, $options);
                 $mform->addElement($element);
                 if (!empty($CFG->formatstringstriptags)) {
                     $mform->setType('customfieldname' . $j, PARAM_TEXT);
@@ -110,7 +111,8 @@ class optiondatesadd_form extends moodleform {
                 $mform->setDefault('customfieldname' . $j, $customfield->cfgname);
                 $mform->addHelpButton('customfieldname' . $j, 'customfieldname', 'booking');
 
-                $mform->addElement('textarea', 'customfieldvalue' . $j, get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
+                $mform->addElement('textarea', 'customfieldvalue' . $j,
+                    get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
                 $mform->setType('customfieldvalue' . $j, PARAM_RAW);
                 $mform->setDefault('customfieldvalue' . $j, $customfield->value);
                 $mform->addHelpButton('customfieldvalue' . $j, 'customfieldvalue', 'booking');
@@ -136,7 +138,9 @@ class optiondatesadd_form extends moodleform {
      * @param int $counter if there already are existing custom fields start with the succeeding number
      */
     public function addcustomfields($mform, $counter = 1) {
-        // Add checkbox to add first customfield
+        global $CFG;
+
+        // Add checkbox to add first customfield.
         $mform->addElement('checkbox', 'addcustomfield' . $counter, get_string('addcustomfield', 'booking'));
 
         while ($counter <= MAX_CUSTOM_FIELDS) {
@@ -155,7 +159,8 @@ class optiondatesadd_form extends moodleform {
                     'noselectionstring' => get_string('nocfnameselected', 'booking'),
                     'tags' => true
             );
-            $mform->addElement('autocomplete', 'customfieldname' . $counter, get_string('customfieldname', 'booking'), $cfnames, $options);
+            $mform->addElement('autocomplete', 'customfieldname' . $counter,
+                get_string('customfieldname', 'booking'), $cfnames, $options);
             if (!empty($CFG->formatstringstriptags)) {
                 $mform->setType('customfieldname' . $counter, PARAM_TEXT);
             } else {
@@ -165,13 +170,8 @@ class optiondatesadd_form extends moodleform {
             $mform->addHelpButton('customfieldname' . $counter, 'customfieldname', 'booking');
             $mform->hideIf('customfieldname' . $counter, 'addcustomfield' . $counter, 'notchecked');
 
-            //$mform->addElement('text', 'customfieldname' . $counter, get_string('customfieldname', 'booking'));
-            //$mform->setType('customfieldname' . $counter, PARAM_TEXT);
-            //$mform->setDefault('customfieldname' . $counter, '');
-            //$mform->addHelpButton('customfieldname' . $counter, 'customfieldname', 'booking');
-            //$mform->hideIf('customfieldname' . $counter, 'addcustomfield' . $counter, 'notchecked');
-
-            $mform->addElement('textarea', 'customfieldvalue' . $counter, get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
+            $mform->addElement('textarea', 'customfieldvalue' . $counter,
+                get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
             $mform->setType('customfieldvalue' . $counter, PARAM_RAW);
             $mform->setDefault('customfieldvalue' . $counter, '');
             $mform->addHelpButton('customfieldvalue' . $counter, 'customfieldvalue', 'booking');
@@ -228,7 +228,6 @@ class optiondatesadd_form extends moodleform {
     }
 
     /**
-     *
      * {@inheritDoc}
      * @see moodleform::get_data()
      */
