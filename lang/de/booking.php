@@ -1162,6 +1162,7 @@ $string['daystonotifysession_help'] = "Geben Sie 0 ein, um die E-Mail-Benachrich
 $string['nocfnameselected'] = "Nichts ausgewählt. Tippen Sie einen neuen Namen oder wählen Sie einen aus der Liste.";
 
 // File: settings.php.
+$string['bookingsettings'] = 'Buchung - Einstellungen';
 $string['globalcurrency'] = 'Währung';
 $string['globalcurrencydesc'] = 'Wählen Sie die Währung für Preise von Buchungsoptionen aus';
 $string['globalmailtemplates'] = 'Globale Mailvorlagen';
@@ -1198,7 +1199,7 @@ $string['icalfieldlocation'] = 'Text, der im iCal-Feld angezeigt werden soll';
 $string['icalfieldlocationdesc'] = 'Wählen Sie aus der Dropdown-Liste, welcher Text für das Kalender-Feld verwendet werden soll.';
 $string['customfield'] = 'Benutzerdefiniertes Feld, dessen Wert in den Buchungsoptionseinstellungen angegeben wird und in der Buchungsoptionsübersicht angezeigt wird';
 $string['customfielddesc'] = 'Definieren Sie den Wert dieses Feldes in den Buchungsoptionseinstellungen.';
-$string['customfieldconfigure'] = 'Benutzerdefinierte Buchungsoptionsfelder';
+$string['customfieldconfigure'] = 'Buchung: Benutzerdefinierte Buchungsoptionsfelder';
 $string['customfielddef'] = 'Benutzerdefiniertes Buchungsoptionsfeld';
 $string['customfieldtype'] = 'Feldtyp';
 $string['textfield'] = 'Eingabezeile';
@@ -1262,7 +1263,7 @@ $string['bookingplacesfullmessage'] = 'Keine Buchungsplätze mehr verfügbar.';
 $string['eventalreadyover'] = 'Diese Veranstaltung ist bereits vorüber.';
 $string['nobookingpossible'] = 'Keine Buchung möglich.';
 
-$string['pricecategories'] = 'Preiskategorien';
+$string['pricecategories'] = 'Buchung: Preiskategorien';
 $string['pricecategories_desc'] = 'Preiskategorien für unterschiedliche Benutzergruppen definieren';
 
 $string['bookingpricecategory'] = 'Preiskategorie"';

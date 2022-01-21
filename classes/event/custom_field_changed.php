@@ -14,16 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
- * The mod_booking taecher added event.
+ * The custom field changed event.
  *
  * @package mod_booking
- * @copyright 2014 David Bogner http://www.edulabs.org
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_booking\event;
 
 defined('MOODLE_INTERNAL') || die();
-
 
 /**
  * The mod_booking report viewed event class.

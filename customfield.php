@@ -15,10 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Global settings
+ * Customfield settings.
  *
  * @package mod_booking
- * @copyright 2017 David Bogner, http://www.edulabs.org
+ * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

@@ -1336,6 +1336,7 @@ $string['manageoptiontemplates'] = 'Manage option templates';
 $string['linkgotobookingoption'] = 'Go to booked option: {$a}</a>';
 
 // File: settings.php.
+$string['bookingsettings'] = 'Booking settings';
 $string['globalcurrency'] = 'Currency';
 $string['globalcurrencydesc'] = 'Choose the currency for booking option prices';
 $string['globalmailtemplates'] = 'Global mail templates';
@@ -1371,7 +1372,7 @@ $string['icalfieldlocation'] = 'Text to display in iCal field location';
 $string['icalfieldlocationdesc'] = 'Choose from the dropdown list what what text should be used for the calendar field location';
 $string['customfield'] = 'Custom field to be set in the booking option settings. It will then be shown in the booking option overview.';
 $string['customfielddesc'] = 'After adding a custom field, you can define the value for the field in the booking option settings. The value will be shown in the booking option description.';
-$string['customfieldconfigure'] = 'Custom booking option fields';
+$string['customfieldconfigure'] = 'Booking: Custom booking option fields';
 $string['customfielddef'] = 'Custom booking option field';
 $string['customfieldtype'] = 'Field type';
 $string['textfield'] = 'Single line text input';
@@ -1438,7 +1439,7 @@ $string['bookingplacesfullmessage'] = 'No booking places available anymore.';
 $string['eventalreadyover'] = 'This event is already over.';
 $string['nobookingpossible'] = 'No booking possible.';
 
-$string['pricecategories'] = 'Price categories';
+$string['pricecategories'] = 'Booking: Price categories';
 $string['pricecategories_desc'] = 'Define price categories for different user groups.';
 
 $string['bookingpricecategory'] = 'Price category';

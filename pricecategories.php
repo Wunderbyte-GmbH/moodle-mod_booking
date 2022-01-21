@@ -15,32 +15,33 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Global settings
+ * Price categories settings
  *
  * @package mod_booking
- * @copyright 2017 David Bogner, http://www.edulabs.org
+ * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\customfield\booking_handler;
+use mod_booking\customfield\booking_pricecategories_handler;
 
-require_once(__DIR__ . '/../../../config.php');
+require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
 // No guest autologin.
 require_login(0, false);
 
-$pageurl = new moodle_url('/mod/booking/pages/customfield.php');
-$PAGE->set_url($pageurl);
-// admin_externalpage_setup('modbookingcustomfield', '', null, '', array('pagelayout' => 'report'));
-$PAGE->set_title(
-        format_string($SITE->shortname) . ': ' . get_string('customfieldconfigure', 'booking'));
+admin_externalpage_setup('modbookingpricecategories');
 
-$output = $PAGE->get_renderer('core_customfield');
-$handler = booking_handler::create();
-$outputpage = new \core_customfield\output\management($handler);
+$pageurl = new moodle_url('/mod/booking/pricecategories.php');
+$PAGE->set_url($pageurl);
+
+$PAGE->set_title(
+        format_string($SITE->shortname) . ': ' . get_string('pricecategories', 'booking'));
+
+// TODO: mform
 
 echo $output->header(),
-        $output->heading(new lang_string('booking_customfield', 'mod_booking')),
+        $output->heading(new lang_string('pricecategory', 'mod_booking')),
         $output->render($outputpage),
         $output->footer();

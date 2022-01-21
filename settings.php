@@ -38,7 +38,7 @@ $ADMIN->add('modsettings',
 $ADMIN->add('modbookingfolder',
         new admin_externalpage('modbookingpricecategories',
                 get_string('pricecategories', 'mod_booking'),
-                new moodle_url('/mod/booking/pages/prices.php')));
+                new moodle_url('/mod/booking/pricecategories.php')));
 
 $ADMIN->add('modbookingfolder',
         new admin_externalpage('modbookingcustomfield',
