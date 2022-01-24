@@ -983,7 +983,7 @@ class booking_option {
     public function user_submit_response($user, $frombookingid = 0, $substractfromlimit = 0) {
         global $DB;
 
-        if (null == $this->option) {
+        if (empty($this->option)) {
             echo "<br>Didn't find option to subscribe user $user->username <br>";
             return false;
         }
@@ -1109,7 +1109,7 @@ class booking_option {
                 return; // Autoenrol not enabled.
             }
         }
-        if (!$this->option->courseid) {
+        if (empty($this->option->courseid)) {
             return; // No course specified.
         }
 
@@ -1129,6 +1129,9 @@ class booking_option {
         $instance = reset($instances); // Use the first manual enrolment plugin in the course.
         if ($this->user_status($userid) === 2) {
             $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid)); // Enrol using the default role.
+
+            // TODO: Track enrolment status in booking_answers. It makes no sense to track it in booking_options.
+
             if ($this->booking->settings->addtogroup == 1) {
                 $groups = groups_get_all_groups($this->option->courseid);
                 if (!is_null($this->option->groupid) && ($this->option->groupid > 0) &&
