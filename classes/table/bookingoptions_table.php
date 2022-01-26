@@ -93,7 +93,7 @@ class bookingoptions_table extends wunderbyte_table {
         $output = $PAGE->get_renderer('mod_booking');
 
         // We pass on the id of the booking option.
-        $data = new col_price($values->id);
+        $data = new col_price($values);
 
         return $output->render_col_price($data);
     }
