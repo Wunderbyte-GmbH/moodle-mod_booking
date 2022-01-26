@@ -1612,6 +1612,7 @@ $string['disablepricecategory_help'] = 'When you disable a price category, you w
 $string['addpricecategory'] = 'Add price category';
 $string['erroremptypricecategory'] = 'Price category name is not allowed to be empty.';
 $string['errorduplicatepricecategory'] = 'Price categories need to be unique.';
+$string['errortoomanydecimals'] = 'Only 2 decimals are allowed.';
 $string['pricecategoriessaved'] = 'Price categories were saved';
 $string['pricecategoriessubtitle'] = '<p>Here you can define different price categories, e.g.
     special price categories for students, employees or externals.

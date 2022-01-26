@@ -145,10 +145,19 @@ class pricecategories_form extends moodleform {
 
             if (isset($data['pricecategoryname' . $i])) {
                 $pricecategorynamex = $data['pricecategoryname' . $i];
+                $defaultvaluex = $data['defaultvalue' . $i];
 
                 // The price category name is not allowed to be empty.
                 if (empty($pricecategorynamex)) {
                     $errors['pricecategoryname' . $i] = get_string('erroremptypricecategory', 'booking');
+                }
+
+                // Not more than 2 decimals are allowed for the default price.
+                if (!empty($defaultvaluex) && is_float($defaultvaluex)) {
+                    $numberofdecimals = strlen(substr(strrchr($defaultvaluex, "."), 1));
+                    if ($numberofdecimals > 2) {
+                        $errors['defaultvalue' . $i] = get_string('errortoomanydecimals', 'booking');
+                    }
                 }
 
                 // The name of a price category needs to be unique.

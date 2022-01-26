@@ -1371,6 +1371,7 @@ $string['disablepricecategory_help'] = 'Wenn Sie eine Preiskategorie deaktiviere
 $string['addpricecategory'] = 'Preiskategorie hinzufügen';
 $string['erroremptypricecategory'] = 'Name der Preiskategorie darf nicht leer sein.';
 $string['errorduplicatepricecategory'] = 'Preiskategorien müssen eindeutig sein.';
+$string['errortoomanydecimals'] = 'Sie können maximal 2 Nachkommastellen angeben.';
 $string['pricecategoriessaved'] = 'Preiskategorien wurden gespeichert';
 $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kategorien von Preisen definieren,
     z.B. eigene Preiskategorien für Studierende, Mitarbeitende oder Externe.
