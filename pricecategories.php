@@ -57,12 +57,14 @@ if ($data = $mform->get_data()) {
 
             $pricecategorynamex = 'pricecategoryname' . $i;
             $pricecategorydescriptionx = 'pricecategorydescription' . $i;
+            $disablepricecategoryx = 'disablepricecategory' . $i;
 
             // Only add price categories if a name was entered.
             if (!empty($data->{$pricecategorynamex})) {
                 $pricecategory = new stdClass();
                 $pricecategory->pricecategory = $data->{$pricecategorynamex};
                 $pricecategory->description = $data->{$pricecategorydescriptionx};
+                $pricecategory->disabled = $data->{$disablepricecategoryx};
 
                 $DB->insert_record('booking_pricecategories', $pricecategory);
             }
@@ -76,9 +78,6 @@ if ($data = $mform->get_data()) {
         if ($pricecategorychanges = pricecategories_get_changes($oldpricecategories, $data)) {
             foreach ($pricecategorychanges['updates'] as $record) {
                 $DB->update_record('booking_pricecategories', $record);
-            }
-            foreach ($pricecategorychanges['deletes'] as $record) {
-                $DB->delete_records('booking_pricecategories', ['id' => $record]);
             }
             if (count($pricecategorychanges['inserts']) > 0) {
                 $DB->insert_records('booking_pricecategories', $pricecategorychanges['inserts']);
@@ -112,7 +111,6 @@ function pricecategories_get_changes($oldpricecategories, $data) {
 
     $updates = [];
     $inserts = [];
-    $deletes = [];
 
     foreach ($data as $key => $value) {
         if (strpos($key, 'pricecategoryid') !== false) {
@@ -122,29 +120,33 @@ function pricecategories_get_changes($oldpricecategories, $data) {
             // First check if the field existed before.
             if ($value != 0 && $oldcategory = $oldpricecategories[$value]) {
 
-                // If the delete checkbox has been set, add to deletes.
-                if (isset($data->{'deletepricecategory' . $counter})
-                    && $data->{'deletepricecategory' . $counter} == 1) {
-
-                    $deletes[] = $value; // The ID of the price category that needs to be deleted.
-                    continue;
-                }
-
                 $haschange = false;
 
                 // Check if the name of the price category has changed.
                 if ($oldcategory->pricecategory != $data->{'pricecategoryname' . $counter}) {
 
                     $haschange = true;
-
                 }
 
                 // Check if the description of the price category has changed.
-                if (!empty($data->{'pricecategorydescription' . $counter}) &&
+                if (isset($data->{'pricecategorydescription' . $counter}) &&
                     $oldcategory->description != $data->{'pricecategorydescription' . $counter}) {
 
                     $haschange = true;
+                }
 
+                // Check if the default value of the price category has changed.
+                if (isset($data->{'defaultvalue' . $counter}) &&
+                    $oldcategory->defaultvalue != $data->{'defaultvalue' . $counter}) {
+
+                    $haschange = true;
+                }
+
+                // Check if active/disabled status of the price category has changed.
+                if (isset($data->{'disablepricecategory' . $counter}) &&
+                    $oldcategory->disabled != $data->{'disablepricecategory' . $counter}) {
+
+                    $haschange = true;
                 }
 
                 if ($haschange) {
@@ -154,6 +156,8 @@ function pricecategories_get_changes($oldpricecategories, $data) {
                     $pricecategory->id = $value;
                     $pricecategory->pricecategory = $data->{'pricecategoryname' . $counter};
                     $pricecategory->description = $data->{'pricecategorydescription' . $counter};
+                    $pricecategory->defaultvalue = $data->{'defaultvalue' . $counter};
+                    $pricecategory->disabled = $data->{'disablepricecategory' . $counter};
 
                     $updates[] = $pricecategory;
                 }
@@ -163,6 +167,8 @@ function pricecategories_get_changes($oldpricecategories, $data) {
                     $pricecategory = new stdClass();
                     $pricecategory->pricecategory = $data->{'pricecategoryname' . $counter};
                     $pricecategory->description = $data->{'pricecategorydescription' . $counter};
+                    $pricecategory->defaultvalue = $data->{'defaultvalue' . $counter};
+                    $pricecategory->disabled = $data->{'disablepricecategory' . $counter};
 
                     $inserts[] = $pricecategory;
                 }
@@ -172,8 +178,7 @@ function pricecategories_get_changes($oldpricecategories, $data) {
 
     return [
             'inserts' => $inserts,
-            'updates' => $updates,
-            'deletes' => $deletes
+            'updates' => $updates
     ];
 }
 

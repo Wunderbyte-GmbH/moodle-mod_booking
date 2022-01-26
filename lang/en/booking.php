@@ -1605,10 +1605,15 @@ $string['pricecategoryname'] = 'Price category';
 $string['pricecategoryname_help'] = 'Enter the name of a price category';
 $string['pricecategorydescription'] = 'Price category description';
 $string['pricecategorydescription_help'] = 'Enter a description text for the price category';
-$string['deletepricecategory'] = 'Delete price category';
+$string['defaultvalue'] = 'Default price value';
+$string['defaultvalue_help'] = 'Enter a default value for every price in this category. Of course, this value can be overwritten later.';
+$string['disablepricecategory'] = 'Disable price category';
+$string['disablepricecategory_help'] = 'When you disable a price category, you will not be able to use it anymore.';
 $string['addpricecategory'] = 'Add price category';
 $string['erroremptypricecategory'] = 'Price category name is not allowed to be empty.';
 $string['errorduplicatepricecategory'] = 'Price categories need to be unique.';
-$string['deletepricecategory_help'] = 'Delete this price category';
 $string['pricecategoriessaved'] = 'Price categories were saved';
-$string['pricecategoriessubtitle'] = '<p>Here you can define different price categories, e.g. special price categories for students, employees or externals.</p>';
+$string['pricecategoriessubtitle'] = '<p>Here you can define different price categories, e.g.
+    special price categories for students, employees or externals.
+    <b>Be careful:</b> Once you have added a category, you cannot delete it.
+    Only disable or rename it.</p>';

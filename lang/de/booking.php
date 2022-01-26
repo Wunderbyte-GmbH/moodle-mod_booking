@@ -1364,12 +1364,15 @@ $string['pricecategoryname'] = 'Preiskategorie';
 $string['pricecategoryname_help'] = 'Geben Sie den Namen einer Preiskategorie ein';
 $string['pricecategorydescription'] = 'Beschreibung der Preiskategorie';
 $string['pricecategorydescription_help'] = 'Geben Sie einen Beschreibungstext zur Preiskategorie ein';
-$string['pricecategoryrelationcheckbox'] = 'Abhängigkeit hinzufügen';
-$string['pricecategoryrelationcheckbox_help'] = 'Optional: Hier können Sie eine Abhängigkeit zu einer anderen Preiskategorie definieren, z.B. Standardpreis * 1.2 (entspricht: +20%).';
-$string['deletepricecategory'] = 'Preiskategorie löschen';
+$string['defaultvalue'] = 'Standardpreis';
+$string['defaultvalue_help'] = 'Geben Sie einen Standardpreis für jeden Preis in dieser Kategorie ein. Natürlich kann dieser Wert später überschrieben werden.';
+$string['disablepricecategory'] = 'Deaktiviere Preiskategorie';
+$string['disablepricecategory_help'] = 'Wenn Sie eine Preiskategorie deaktivieren, kann diese nicht mehr benützt werden.';
 $string['addpricecategory'] = 'Preiskategorie hinzufügen';
 $string['erroremptypricecategory'] = 'Name der Preiskategorie darf nicht leer sein.';
 $string['errorduplicatepricecategory'] = 'Preiskategorien müssen eindeutig sein.';
-$string['deletepricecategory_help'] = 'Diese Preiskategorie löschen';
 $string['pricecategoriessaved'] = 'Preiskategorien wurden gespeichert';
-$string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kategorien von Preisen definieren, z.B. eigene Preiskategorien für Studierende, Mitarbeitende oder Externe.</p>';
+$string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kategorien von Preisen definieren,
+    z.B. eigene Preiskategorien für Studierende, Mitarbeitende oder Externe.
+    <b>Achtung:</b> Sobald Sie eine Kategorie erstellt haben, können Sie diese nicht mehr löschen.
+    Sie können Kategorien aber umbenennen oder deaktivieren.</p>';

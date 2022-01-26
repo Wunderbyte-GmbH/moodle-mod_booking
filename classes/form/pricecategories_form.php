@@ -59,13 +59,14 @@ class pricecategories_form extends moodleform {
             $mform->setDefault('pricecategorydescription' . $j, $pricecategory->description);
             $mform->addHelpButton('pricecategorydescription' . $j, 'pricecategorydescription', 'booking');
 
-            $mform->addElement('checkbox', 'pricecategoryrelationcheckbox' . $j,
-                get_string('pricecategoryrelationcheckbox', 'booking'));
-            $mform->addHelpButton('pricecategoryrelationcheckbox' . $j, 'pricecategoryrelationcheckbox', 'booking');
+            $mform->addElement('float', 'defaultvalue' . $j, get_string('defaultvalue', 'booking'), null);
+            $mform->setDefault('defaultvalue' . $j, $pricecategory->defaultvalue);
+            $mform->addHelpButton('defaultvalue' . $j, 'defaultvalue', 'booking');
 
-            $mform->addElement('checkbox', 'deletepricecategory' . $j, get_string('deletepricecategory', 'booking') . ' ' . $j);
-            $mform->setDefault('deletepricecategory' . $j, 0);
-            $mform->addHelpButton('deletepricecategory' . $j, 'deletepricecategory', 'booking');
+            $mform->addElement('advcheckbox', 'disablepricecategory' . $j,
+                get_string('disablepricecategory', 'booking') . ' ' . $j, null, null, [0, 1]);
+            $mform->setDefault('disablepricecategory' . $j, $pricecategory->disabled);
+            $mform->addHelpButton('disablepricecategory' . $j, 'disablepricecategory', 'booking');
 
             $j++;
         }
@@ -107,14 +108,16 @@ class pricecategories_form extends moodleform {
             $mform->addHelpButton('pricecategorydescription' . $counter, 'pricecategorydescription', 'booking');
             $mform->hideIf('pricecategorydescription' . $counter, 'addpricecategory' . $counter, 'notchecked');
 
-            $mform->addElement('checkbox', 'pricecategoryrelationcheckbox' . $counter,
-                get_string('pricecategoryrelationcheckbox', 'booking'));
-            $mform->addHelpButton('pricecategoryrelationcheckbox' . $counter, 'pricecategoryrelationcheckbox', 'booking');
-            $mform->hideIf('pricecategoryrelationcheckbox' . $counter, 'addpricecategory' . $counter, 'notchecked');
+            $mform->addElement('float', 'defaultvalue' . $counter, get_string('defaultvalue', 'booking'), null);
+            $mform->setDefault('defaultvalue' . $counter, 0.00);
+            $mform->addHelpButton('defaultvalue' . $counter, 'defaultvalue', 'booking');
+            $mform->hideIf('defaultvalue' . $counter, 'addpricecategory' . $counter, 'notchecked');
 
-            // Set delete parameter to 0 for newly created fields, so they won't be deleted.
-            $mform->addElement('hidden', 'deletepricecategory' . $counter, 0);
-            $mform->setType('deletepricecategory' . $counter, PARAM_INT);
+            $mform->addElement('advcheckbox', 'disablepricecategory' . $counter,
+                get_string('disablepricecategory', 'booking') . ' ' . $counter, null, null, [0, 1]);
+            $mform->setDefault('disablepricecategory' . $counter, 0);
+            $mform->addHelpButton('disablepricecategory' . $counter, 'disablepricecategory', 'booking');
+            $mform->hideIf('disablepricecategory' . $counter, 'addpricecategory' . $counter, 'notchecked');
 
             // Show checkbox to add a price category.
             if ($counter < MAX_PRICE_CATEGORIES) {
