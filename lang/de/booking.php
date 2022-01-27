@@ -1360,10 +1360,10 @@ $string['message_sent'] = 'Nachricht gesendet';
 
 // Pricecategories_form.php.
 $string['nopricecategoryselected'] = 'Geben Sie den Namen einer neuen Preiskategorie ein';
-$string['pricecategoryname'] = 'Preiskategorie';
-$string['pricecategoryname_help'] = 'Geben Sie den Namen einer Preiskategorie ein';
-$string['pricecategorydescription'] = 'Beschreibung der Preiskategorie';
-$string['pricecategorydescription_help'] = 'Geben Sie einen Beschreibungstext zur Preiskategorie ein';
+$string['pricecategoryidentifier'] = 'Identifikator der Preiskategorie';
+$string['pricecategoryidentifier_help'] = 'Geben Sie einen Kurztext ein mit dem die Preiskategorie identifiziert werden soll, z.B. "stud" oder "akad".';
+$string['pricecategoryname'] = 'Bezeichnung der Preiskategorie';
+$string['pricecategoryname_help'] = 'Geben Sie den Namen der Preiskategorie ein, der in Buchungsoptionen angezeigt wird, z.B. "Akademikerpreis".';
 $string['defaultvalue'] = 'Standardpreis';
 $string['defaultvalue_help'] = 'Geben Sie einen Standardpreis für jeden Preis in dieser Kategorie ein. Natürlich kann dieser Wert später überschrieben werden.';
 $string['disablepricecategory'] = 'Deaktiviere Preiskategorie';

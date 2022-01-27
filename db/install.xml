@@ -359,8 +359,8 @@
     <TABLE NAME="booking_pricecategories" COMMENT="Different price categories for different types of users (e.g. students, academics, employees, externals...)">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="pricecategory" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The name of the price category."/>
-        <FIELD NAME="description" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="A short description of the price category."/>
+        <FIELD NAME="identifier" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The identifier of the price category, e.g. 'student'."/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The full name of the price category, e.g. 'Student price'."/>
         <FIELD NAME="defaultvalue" TYPE="number" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="A default value for every price in this category."/>
         <FIELD NAME="disabled" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="0 = active, 1 = price category has been disabled"/>
       </FIELDS>

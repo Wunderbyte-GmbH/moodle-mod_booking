@@ -1601,10 +1601,10 @@ $string['message_sent'] = 'Message sent';
 
 // Pricecategories_form.php.
 $string['nopricecategoryselected'] = 'Enter the name of a new price category';
-$string['pricecategoryname'] = 'Price category';
-$string['pricecategoryname_help'] = 'Enter the name of a price category';
-$string['pricecategorydescription'] = 'Price category description';
-$string['pricecategorydescription_help'] = 'Enter a description text for the price category';
+$string['pricecategoryidentifier'] = 'Price category identifier';
+$string['pricecategoryidentifier_help'] = 'Enter a short text to identify the category, e.g. "stud" or "acad".';
+$string['pricecategoryname'] = 'Price category name';
+$string['pricecategoryname_help'] = 'Enter the full name of the price category to be shown in booking options, e.g. "Student price".';
 $string['defaultvalue'] = 'Default price value';
 $string['defaultvalue_help'] = 'Enter a default value for every price in this category. Of course, this value can be overwritten later.';
 $string['disablepricecategory'] = 'Disable price category';

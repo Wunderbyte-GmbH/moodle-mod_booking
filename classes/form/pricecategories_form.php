@@ -48,16 +48,15 @@ class pricecategories_form extends moodleform {
             $mform->addElement('hidden', 'pricecategoryid' . $j, $pricecategory->id);
             $mform->setType('pricecategoryid' . $j, PARAM_INT);
 
-            $mform->addElement('text', 'pricecategoryname' . $j, get_string('pricecategoryname', 'booking') . ' ' . $j);
-            $mform->setType('pricecategoryname' . $j, PARAM_TEXT);
-            $mform->setDefault('pricecategoryname' . $j, $pricecategory->pricecategory);
-            $mform->addHelpButton('pricecategoryname' . $j, 'pricecategoryname', 'booking');
+            $mform->addElement('text', 'pricecategoryidentifier' . $j, get_string('pricecategoryidentifier', 'booking') . ' ' . $j);
+            $mform->setType('pricecategoryidentifier' . $j, PARAM_TEXT);
+            $mform->setDefault('pricecategoryidentifier' . $j, $pricecategory->pricecategory);
+            $mform->addHelpButton('pricecategoryidentifier' . $j, 'pricecategoryidentifier', 'booking');
 
-            $mform->addElement('textarea', 'pricecategorydescription' . $j,
-                get_string('pricecategorydescription', 'booking'), 'wrap="virtual" rows="1" cols="65"');
-            $mform->setType('pricecategorydescription' . $j, PARAM_RAW);
-            $mform->setDefault('pricecategorydescription' . $j, $pricecategory->description);
-            $mform->addHelpButton('pricecategorydescription' . $j, 'pricecategorydescription', 'booking');
+            $mform->addElement('text', 'pricecategoryname' . $j, get_string('pricecategoryname', 'booking'));
+            $mform->setType('pricecategoryname' . $j, PARAM_RAW);
+            $mform->setDefault('pricecategoryname' . $j, $pricecategory->description);
+            $mform->addHelpButton('pricecategoryname' . $j, 'pricecategoryname', 'booking');
 
             $mform->addElement('float', 'defaultvalue' . $j, get_string('defaultvalue', 'booking'), null);
             $mform->setDefault('defaultvalue' . $j, $pricecategory->defaultvalue);
@@ -96,17 +95,16 @@ class pricecategories_form extends moodleform {
             $mform->addElement('hidden', 'pricecategoryid' . $counter, 0);
             $mform->setType('pricecategoryid' . $counter, PARAM_INT);
 
-            $mform->addElement('text', 'pricecategoryname' . $counter, get_string('pricecategoryname', 'booking') . ' ' . $counter);
-            $mform->setType('pricecategoryname' . $counter, PARAM_TEXT);
+            $mform->addElement('text', 'pricecategoryidentifier' . $counter, get_string('pricecategoryidentifier', 'booking') . ' ' . $counter);
+            $mform->setType('pricecategoryidentifier' . $counter, PARAM_TEXT);
+            $mform->addHelpButton('pricecategoryidentifier' . $counter, 'pricecategoryidentifier', 'booking');
+            $mform->hideIf('pricecategoryidentifier' . $counter, 'addpricecategory' . $counter, 'notchecked');
+
+            $mform->addElement('text', 'pricecategoryname' . $counter, get_string('pricecategoryname', 'booking'));
+            $mform->setType('pricecategoryname' . $counter, PARAM_RAW);
+            $mform->setDefault('pricecategoryname' . $counter, '');
             $mform->addHelpButton('pricecategoryname' . $counter, 'pricecategoryname', 'booking');
             $mform->hideIf('pricecategoryname' . $counter, 'addpricecategory' . $counter, 'notchecked');
-
-            $mform->addElement('textarea', 'pricecategorydescription' . $counter,
-                get_string('pricecategorydescription', 'booking'), 'wrap="virtual" rows="1" cols="65"');
-            $mform->setType('pricecategorydescription' . $counter, PARAM_RAW);
-            $mform->setDefault('pricecategorydescription' . $counter, '');
-            $mform->addHelpButton('pricecategorydescription' . $counter, 'pricecategorydescription', 'booking');
-            $mform->hideIf('pricecategorydescription' . $counter, 'addpricecategory' . $counter, 'notchecked');
 
             $mform->addElement('float', 'defaultvalue' . $counter, get_string('defaultvalue', 'booking'), null);
             $mform->setDefault('defaultvalue' . $counter, 0.00);
@@ -143,13 +141,13 @@ class pricecategories_form extends moodleform {
         // Validate price categories.
         for ($i = 1; $i <= MAX_PRICE_CATEGORIES; $i++) {
 
-            if (isset($data['pricecategoryname' . $i])) {
-                $pricecategorynamex = $data['pricecategoryname' . $i];
+            if (isset($data['pricecategoryidentifier' . $i])) {
+                $pricecategoryidentifierx = $data['pricecategoryidentifier' . $i];
                 $defaultvaluex = $data['defaultvalue' . $i];
 
                 // The price category name is not allowed to be empty.
-                if (empty($pricecategorynamex)) {
-                    $errors['pricecategoryname' . $i] = get_string('erroremptypricecategory', 'booking');
+                if (empty($pricecategoryidentifierx)) {
+                    $errors['pricecategoryidentifier' . $i] = get_string('erroremptypricecategory', 'booking');
                 }
 
                 // Not more than 2 decimals are allowed for the default price.
@@ -161,9 +159,9 @@ class pricecategories_form extends moodleform {
                 }
 
                 // The name of a price category needs to be unique.
-                $records = $DB->get_records('booking_pricecategories', ['pricecategory' => $pricecategorynamex]);
+                $records = $DB->get_records('booking_pricecategories', ['pricecategory' => $pricecategoryidentifierx]);
                 if (count($records) > 1) {
-                    $errors['pricecategoryname' . $i] = get_string('errorduplicatepricecategory', 'booking');
+                    $errors['pricecategoryidentifier' . $i] = get_string('errorduplicatepricecategory', 'booking');
                 }
             }
         }
