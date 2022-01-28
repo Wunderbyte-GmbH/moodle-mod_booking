@@ -46,7 +46,11 @@ $PAGE->set_title(
 
 $mform = new pricecategories_form($pageurl);
 
-if ($data = $mform->get_data()) {
+if ($mform->is_cancelled()) {
+
+    redirect($settingsurl);
+
+} else if ($data = $mform->get_data()) {
 
     $existingpricecategories = $DB->get_records('booking_pricecategories');
 
@@ -55,15 +59,19 @@ if ($data = $mform->get_data()) {
         // Currently there can be up to nine price categories.
         for ($i = 1; $i <= MAX_PRICE_CATEGORIES; $i++) {
 
+            $pricecategoryordernumx = 'pricecategoryordernum' . $i;
             $pricecategoryidentifierx = 'pricecategoryidentifier' . $i;
             $pricecategorynamex = 'pricecategoryname' . $i;
+            $defaultvaluex = 'defaultvalue' . $i;
             $disablepricecategoryx = 'disablepricecategory' . $i;
 
             // Only add price categories if a name was entered.
             if (!empty($data->{$pricecategoryidentifierx})) {
                 $pricecategory = new stdClass();
+                $pricecategory->ordernum = $data->{$pricecategoryordernumx};
                 $pricecategory->identifier = $data->{$pricecategoryidentifierx};
                 $pricecategory->name = $data->{$pricecategorynamex};
+                $pricecategory->defaultvalue = $data->{$defaultvaluex};
                 $pricecategory->disabled = $data->{$disablepricecategoryx};
 
                 $DB->insert_record('booking_pricecategories', $pricecategory);
@@ -84,14 +92,17 @@ if ($data = $mform->get_data()) {
             }
         }
     }
-    // After saving, go back to booking settings.
-    redirect($settingsurl, get_string('pricecategoriessaved', 'booking'), 5);
+
+    redirect($pageurl, get_string('pricecategoriessaved', 'booking'), 5);
 
 } else {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(new lang_string('pricecategory', 'mod_booking'));
 
     echo get_string('pricecategoriessubtitle', 'booking');
+
+    // Add "Save" and "Cancel" buttons.
+    $mform->add_action_buttons(true);
 
     // Show the mform.
     $mform->display();
@@ -112,59 +123,34 @@ function pricecategories_get_changes($oldpricecategories, $data) {
     $updates = [];
     $inserts = [];
 
-    foreach ($data as $key => $value) {
-        if (strpos($key, 'pricecategoryid') !== false) {
+    $existingordernumbers = [];
 
+    foreach ($oldpricecategories as $oldpricecategory) {
+        $existingordernumbers[] = $oldpricecategory->ordernum;
+    }
+
+    foreach ($data as $key => $value) {
+        if (preg_match('/pricecategoryid[0-9]/', $key)) {
             $counter = (int)substr($key, -1);
 
-            // First check if the field existed before.
-            if ($value != 0 && $oldcategory = $oldpricecategories[$value]) {
+            if (in_array($counter, $existingordernumbers)) {
 
-                $haschange = false;
+                // Create price category object and add to updates.
+                $pricecategory = new stdClass();
+                $pricecategory->id = $value;
+                $pricecategory->ordernum = $data->{'pricecategoryordernum' . $counter};
+                $pricecategory->identifier = $data->{'pricecategoryidentifier' . $counter};
+                $pricecategory->name = $data->{'pricecategoryname' . $counter};
+                $pricecategory->defaultvalue = $data->{'defaultvalue' . $counter};
+                $pricecategory->disabled = $data->{'disablepricecategory' . $counter};
 
-                // Check if the name of the price category has changed.
-                if ($oldcategory->identifier != $data->{'pricecategoryidentifier' . $counter}) {
+                $updates[] = $pricecategory;
 
-                    $haschange = true;
-                }
-
-                // Check if the description of the price category has changed.
-                if (isset($data->{'pricecategoryname' . $counter}) &&
-                    $oldcategory->name != $data->{'pricecategoryname' . $counter}) {
-
-                    $haschange = true;
-                }
-
-                // Check if the default value of the price category has changed.
-                if (isset($data->{'defaultvalue' . $counter}) &&
-                    $oldcategory->defaultvalue != $data->{'defaultvalue' . $counter}) {
-
-                    $haschange = true;
-                }
-
-                // Check if active/disabled status of the price category has changed.
-                if (isset($data->{'disablepricecategory' . $counter}) &&
-                    $oldcategory->disabled != $data->{'disablepricecategory' . $counter}) {
-
-                    $haschange = true;
-                }
-
-                if ($haschange) {
-
-                    // Create price category object and add to updates.
-                    $pricecategory = new stdClass();
-                    $pricecategory->id = $value;
-                    $pricecategory->identifier = $data->{'pricecategoryidentifier' . $counter};
-                    $pricecategory->name = $data->{'pricecategoryname' . $counter};
-                    $pricecategory->defaultvalue = $data->{'defaultvalue' . $counter};
-                    $pricecategory->disabled = $data->{'disablepricecategory' . $counter};
-
-                    $updates[] = $pricecategory;
-                }
             } else {
                 // Create new price category and add to inserts.
                 if (!empty($data->{'pricecategoryidentifier' . $counter})) {
                     $pricecategory = new stdClass();
+                    $pricecategory->ordernum = $data->{'pricecategoryordernum' . $counter};
                     $pricecategory->identifier = $data->{'pricecategoryidentifier' . $counter};
                     $pricecategory->name = $data->{'pricecategoryname' . $counter};
                     $pricecategory->defaultvalue = $data->{'defaultvalue' . $counter};
@@ -181,4 +167,3 @@ function pricecategories_get_changes($oldpricecategories, $data) {
             'updates' => $updates
     ];
 }
-

@@ -1600,6 +1600,9 @@ $string['sessions'] = 'Session(s)';
 $string['message_sent'] = 'Message sent';
 
 // Pricecategories_form.php.
+$string['price'] = 'Price';
+$string['additionalpricecategories'] = 'Add or edit price categories';
+$string['defaultpricecategoryname'] = 'Default price category name';
 $string['nopricecategoryselected'] = 'Enter the name of a new price category';
 $string['pricecategoryidentifier'] = 'Price category identifier';
 $string['pricecategoryidentifier_help'] = 'Enter a short text to identify the category, e.g. "stud" or "acad".';
@@ -1610,8 +1613,10 @@ $string['defaultvalue_help'] = 'Enter a default value for every price in this ca
 $string['disablepricecategory'] = 'Disable price category';
 $string['disablepricecategory_help'] = 'When you disable a price category, you will not be able to use it anymore.';
 $string['addpricecategory'] = 'Add price category';
-$string['erroremptypricecategory'] = 'Price category name is not allowed to be empty.';
-$string['errorduplicatepricecategory'] = 'Price categories need to be unique.';
+$string['erroremptypricecategoryname'] = 'Price category name is not allowed to be empty.';
+$string['erroremptypricecategoryidentifier'] = 'Price category identifier is not allowed to be empty.';
+$string['errorduplicatepricecategoryidentifier'] = 'Price category identifiers need to be unique.';
+$string['errorduplicatepricecategoryname'] = 'Price category names need to be unique.';
 $string['errortoomanydecimals'] = 'Only 2 decimals are allowed.';
 $string['pricecategoriessaved'] = 'Price categories were saved';
 $string['pricecategoriessubtitle'] = '<p>Here you can define different price categories, e.g.

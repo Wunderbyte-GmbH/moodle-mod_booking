@@ -1359,6 +1359,9 @@ $string['sessions'] = 'Termin(e)';
 $string['message_sent'] = 'Nachricht gesendet';
 
 // Pricecategories_form.php.
+$string['price'] = 'Preis';
+$string['additionalpricecategories'] = 'Preiskategorien hinzufügen oder bearbeiten';
+$string['defaultpricecategoryname'] = 'Standardpreiskategorie (Name)';
 $string['nopricecategoryselected'] = 'Geben Sie den Namen einer neuen Preiskategorie ein';
 $string['pricecategoryidentifier'] = 'Identifikator der Preiskategorie';
 $string['pricecategoryidentifier_help'] = 'Geben Sie einen Kurztext ein mit dem die Preiskategorie identifiziert werden soll, z.B. "stud" oder "akad".';
@@ -1369,8 +1372,10 @@ $string['defaultvalue_help'] = 'Geben Sie einen Standardpreis für jeden Preis i
 $string['disablepricecategory'] = 'Deaktiviere Preiskategorie';
 $string['disablepricecategory_help'] = 'Wenn Sie eine Preiskategorie deaktivieren, kann diese nicht mehr benützt werden.';
 $string['addpricecategory'] = 'Preiskategorie hinzufügen';
-$string['erroremptypricecategory'] = 'Name der Preiskategorie darf nicht leer sein.';
-$string['errorduplicatepricecategory'] = 'Preiskategorien müssen eindeutig sein.';
+$string['erroremptypricecategoryname'] = 'Name der Preiskategorie darf nicht leer sein.';
+$string['erroremptypricecategoryidentifier'] = 'Identifikator der Preiskategorie darf nicht leer sein.';
+$string['errorduplicatepricecategoryidentifier'] = 'Identifikatoren von Preiskategorien müssen eindeutig sein.';
+$string['errorduplicatepricecategoryname'] = 'Namen von Preiskategorien müssen eindeutig sein.';
 $string['errortoomanydecimals'] = 'Sie können maximal 2 Nachkommastellen angeben.';
 $string['pricecategoriessaved'] = 'Preiskategorien wurden gespeichert';
 $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kategorien von Preisen definieren,

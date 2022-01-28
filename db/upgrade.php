@@ -2331,14 +2331,15 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2021121703, 'booking');
     }
 
-    if ($oldversion < 2022012602) {
+    if ($oldversion < 2022012607) {
 
         // Add new table.
         $table = new xmldb_table('booking_pricecategories');
 
         // Adding fields to table.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
-        $table->add_field('identifier', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'id');
+        $table->add_field('ordernum', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'id');
+        $table->add_field('identifier', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'ordernum');
         $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'identifier');
         $table->add_field('defaultvalue', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, '0', 'name');
         $table->add_field('disabled', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'defaultvalue');
@@ -2352,7 +2353,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2022012602, 'booking');
+        upgrade_mod_savepoint(true, 2022012607, 'booking');
     }
 
     return true;

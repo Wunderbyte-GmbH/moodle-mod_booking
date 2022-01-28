@@ -359,6 +359,7 @@
     <TABLE NAME="booking_pricecategories" COMMENT="Different price categories for different types of users (e.g. students, academics, employees, externals...)">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="ordernum" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="A number defining the sort order of the categories."/>
         <FIELD NAME="identifier" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The identifier of the price category, e.g. 'student'."/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The full name of the price category, e.g. 'Student price'."/>
         <FIELD NAME="defaultvalue" TYPE="number" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="A default value for every price in this category."/>
