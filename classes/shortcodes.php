@@ -124,6 +124,8 @@ class shortcodes {
 
         $table->is_downloading('', 'List of booking options');
 
+        $table->tabletemplate = 'mod_booking/shortcodes_table';
+
         ob_start();
         $out = $table->out(40, true);
 
