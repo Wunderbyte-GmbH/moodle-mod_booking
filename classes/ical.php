@@ -258,11 +258,13 @@ class ical {
             "DTSTART:{$dtstart}",
             "LOCATION:{$this->location}",
             "PRIORITY:5",
-            // CODEBEGIN: "SEQUENCE:0", CODEEND.
+            // phpcs:ignore moodle.Commenting.InlineComment.NotCapital,Squiz.PHP.CommentedOutCode.Found
+            // "SEQUENCE:0",
             "SUMMARY:{$this->summary}",
             "TRANSP:OPAQUE{$this->status}",
             "ORGANIZER;CN={$this->fromuser->email}:MAILTO:{$this->fromuser->email}",
-            "ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT=NEEDS-ACTION;RSVP=false;CN={$this->userfullname};LANGUAGE=en:MAILTO:{$this->user->email}",
+            "ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT=NEEDS-ACTION;RSVP=false;" .
+                "CN={$this->userfullname};LANGUAGE=en:MAILTO:{$this->user->email}",
             "UID:{$uid}"
         );
 

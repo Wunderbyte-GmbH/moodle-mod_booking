@@ -988,7 +988,6 @@ $string['option_template_not_saved_no_valid_license'] = 'Booking option template
 // Option_form.php.
 $string['submitandgoback'] = 'Save and go back';
 $string['bookingoptionprice'] = 'Price';
-$string['pricegroup'] = 'Set the category and it\'s price';
 $string['pricecategory'] = 'Price category';
 $string['pricecurrency'] = 'Currency';
 

@@ -295,8 +295,8 @@ class option_form extends moodleform {
         $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
 
         // Add price.
-        $handler = new price();
-        $handler->instance_form_definition($mform, $optionid);
+        $pricehandler = new price();
+        $pricehandler->instance_form_definition($mform, $optionid);
 
         // Add custom fields.
         $handler = booking_handler::create();
@@ -486,11 +486,11 @@ class option_form extends moodleform {
             }
         }
 
-        // Set prices.
-        $handler = new price();
-        $handler->instance_form_before_set_data($defaultvalues);
+        // Set prices default values - is this necessary??.
+        // $pricehandler = new price();
+        // $pricehandler->instance_form_before_set_data($defaultvalues);
 
-        // To handle costumfileds correctly.
+        // To handle costumfields correctly.
         // We use instanceid for optionid.
         // But cf always uses the id key. we can't override it completly though.
         // Therefore, we change it to optionid just for the defaultvalues creation.

@@ -2313,11 +2313,10 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Adding fields to table.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
-        $table->add_field('pricecategoryid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
-        $table->add_field('name', XMLDB_TYPE_CHAR, '128', null, null, null, '');
-        $table->add_field('price', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
-        $table->add_field('currency', XMLDB_TYPE_CHAR, '10', null, null, null, '');
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'id');
+        $table->add_field('pricecategoryidentifier', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'optionid');
+        $table->add_field('price', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'pricecategoryidentifier');
+        $table->add_field('currency', XMLDB_TYPE_CHAR, '10', null, null, null, '', 'price');
 
         // Adding keys to table.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
