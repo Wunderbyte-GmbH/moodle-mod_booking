@@ -60,7 +60,10 @@ class col_price implements renderable, templatable {
                                  $priceitem['price'],
                                  $priceitem['currency'],
                                  'mod_booking',
-                                 $values->description);
+                                 $values->description,
+                                null,
+                                $priceitem['pricecategoryidentifier']
+                            );
 
                 $this->cartitem = $cartitem->getitem();
             }

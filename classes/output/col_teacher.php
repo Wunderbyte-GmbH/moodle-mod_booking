@@ -46,6 +46,7 @@ class col_teacher implements renderable, templatable {
      */
     public function __construct() {
 
+        // Dummy data. TODO: Show actual teachers!
         $this->teachers = ['Musterfrau Marianne', 'Mustermann Max'];
     }
 

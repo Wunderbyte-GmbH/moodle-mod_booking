@@ -93,6 +93,9 @@ if ($mform->is_cancelled()) {
         }
     }
 
+    // In any case, invalidate the cache after updating price categories.
+    cache_helper::purge_by_event('setbackpricecategories');
+
     redirect($pageurl, get_string('pricecategoriessaved', 'booking'), 5);
 
 } else {

@@ -142,12 +142,28 @@ class price {
      * If no category identifier has been set, it will return the default price.
      *
      * @param int $optionid
-     * @param string $categoryidentifier the price category identifier, e.g. 'default' or 'student'
      * @return void
      */
-    public static function get_price(int $optionid, string $categoryidentifier = 'default'):array {
+    public static function get_price(int $optionid): array {
 
-        $prices = self::get_prices_records($optionid, $categoryidentifier);
+        global $DB, $USER;
+
+        $categoryidentifier = 'default'; // Default.
+
+        // If a user profile field to story the price category identifiers for each user has been set,
+        // then retrieve it from config and set the correct category identifier for the current user.
+        $fieldid = get_config('booking', 'pricecategoryfield');
+        if (!empty($fieldid)) {
+            $categoryidentifier = $DB->get_field('user_info_data', 'data', ['fieldid' => $fieldid, 'userid' => $USER->id]);
+
+            // Make sure that the identifier exists and is active.
+            if (!$DB->get_record('booking_pricecategories', ['identifier' => $categoryidentifier, 'disabled' => 0])) {
+                // Fallback to 'default' if identifier not found or inactive.
+                $categoryidentifier = 'default';
+            }
+        }
+
+        $prices = self::get_prices_from_cache_or_db($optionid);
 
         if (empty($prices)) {
             return null;
@@ -155,7 +171,11 @@ class price {
 
         foreach ($prices as $pricerecord) {
             if ($pricerecord->pricecategoryidentifier == $categoryidentifier) {
-                return ["price" => $pricerecord->price, "currency" => $pricerecord->currency];
+                return [
+                    "price" => $pricerecord->price,
+                    "currency" => $pricerecord->currency,
+                    "pricecategoryidentifier" => $pricerecord->pricecategoryidentifier
+                ];
             }
         }
 
@@ -163,12 +183,12 @@ class price {
     }
 
     /**
-     * Return the cache or DB records of the prices for the option.
+     * Return the cache or DB records of all prices for the option.
      *
      * @param int $optionid
      * @return array|null
      */
-    private static function get_prices_records(int $optionid) {
+    private static function get_prices_from_cache_or_db(int $optionid): array {
         global $DB;
 
         $cache = \cache::make('mod_booking', 'cachedprices');
@@ -186,7 +206,35 @@ class price {
         } else {
             $prices = json_decode($cachedprices);
         }
-        return (array)$prices;
+        return (array) $prices;
+    }
+
+    /**
+     * Return price category for the category identifier from cache or DB.
+     * Only active price categories will be returned.
+     *
+     * @param string $identifier
+     * @return stdClass
+     */
+    public static function get_active_pricecategory_from_cache_or_db(string $identifier): stdClass {
+        global $DB;
+
+        $cache = \cache::make('mod_booking', 'cachedpricecategories');
+        $cachedpricecategory = $cache->get($identifier);
+
+        // If we don't have the cache, we need to retrieve the value from db.
+        if (!$cachedpricecategory) {
+
+            if (!$pricecategory = $DB->get_record('booking_pricecategories', ['identifier' => $identifier, 'disabled' => 0])) {
+                return null;
+            }
+
+            $data = json_encode($pricecategory);
+            $cache->set($identifier, $data);
+        } else {
+            $pricecategory = json_decode($cachedpricecategory);
+        }
+        return (object) $pricecategory;
     }
 
     /**

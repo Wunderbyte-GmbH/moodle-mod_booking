@@ -32,6 +32,13 @@ $definitions = array(
         'staticaccelerationsize' => 1,
         'invalidationevents' => ['setbackprices']
     ),
+    'cachedpricecategories' => array(
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1,
+        'invalidationevents' => ['setbackpricecategories']
+    ),
     'bookingoptions' => array(
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
