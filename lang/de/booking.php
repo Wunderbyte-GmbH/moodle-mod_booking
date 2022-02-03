@@ -1273,6 +1273,10 @@ $string['bookingpricecategory_info'] = 'Definieren Sie den Namen der Preiskatego
 $string['addpricecategory'] = 'Neue Preiskategorie hinzufügen';
 $string['addpricecategory_info'] = 'Sie können eine weitere Preiskategorie definieren.';
 
+$string['pricecategoryfieldoff'] = 'Nicht anzeigen';
+$string['pricecategoryfield'] = 'Nutzerprofilfeld für die Preiskategorie';
+$string['pricecategoryfielddesc'] = 'Wählen Sie ein Nutzerprofilfeld aus, in dem für jede/n Benutzer/in der Identifikator der Preiskategorie gesichert wird.';
+
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
 $string['defaulttemplate'] = 'Standard-Vorlage';

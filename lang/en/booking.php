@@ -1449,6 +1449,10 @@ $string['bookingpricecategory_info'] = 'Define the name of the category, eg "stu
 $string['addpricecategory'] = 'Add price category';
 $string['addpricecategory_info'] = 'You can add another price category';
 
+$string['pricecategoryfieldoff'] = 'Do not show';
+$string['pricecategoryfield'] = 'User profile field for price category';
+$string['pricecategoryfielddesc'] = 'Choose the user profile field, which stores the price category identifier for each user.';
+
 // Mobile.
 $string['next'] = 'Next';
 $string['previous'] = 'Previous';

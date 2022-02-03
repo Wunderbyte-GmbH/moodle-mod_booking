@@ -84,6 +84,24 @@ if ($ADMIN->fulltree) {
             get_string('bookingpricesettings', 'mod_booking'),
             get_string('bookingpricesettings_desc', 'mod_booking')));
 
+    // Choose the user profile field which is used to store each user's price category.
+    $userprofilefields = $DB->get_records('user_info_field', null, '', 'id, name');
+    if (!empty($userprofilefields)) {
+        $userprofilefieldsarray = [];
+        $userprofilefieldsarray[0] = get_string('pricecategoryfieldoff', 'mod_booking');
+
+        // Create an array of key => value pairs for the dropdown.
+        foreach ($userprofilefields as $userprofilefield) {
+            $userprofilefieldsarray[$userprofilefield->id] = $userprofilefield->name;
+        }
+
+        $settings->add(
+        new admin_setting_configselect('booking/pricecategoryfield',
+            get_string('pricecategoryfield', 'mod_booking'),
+            get_string('pricecategoryfielddesc', 'mod_booking'),
+            0, $userprofilefieldsarray));
+    }
+
     // Currency dropdown.
     $currenciesobjects = price::get_possible_currencies();
 
