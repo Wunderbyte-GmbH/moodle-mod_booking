@@ -166,9 +166,9 @@ if ($mform->is_cancelled()) {
         }
 
         // Save the prices
-        // Make sure we have the option id in the fromform:
+        // Make sure we have the option id in the fromform.
         $fromform->optionid = $nbooking ?? $optionid;
-        $price = new price();
+        $price = new price($fromform->optionid);
         $price->save_from_form($fromform);
 
         // This is to save customfield data

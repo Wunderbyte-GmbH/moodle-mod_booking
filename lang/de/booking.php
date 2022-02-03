@@ -1357,6 +1357,9 @@ $string['sessions'] = 'Termin(e)';
 // Message_sent.php.
 $string['message_sent'] = 'Nachricht gesendet';
 
+// Price.php.
+$string['nopricecategoriesyet'] = 'Es wurden noch keine Preiskategorien angelegt.';
+
 // Pricecategories_form.php.
 $string['price'] = 'Preis';
 $string['additionalpricecategories'] = 'Preiskategorien hinzufügen oder bearbeiten';

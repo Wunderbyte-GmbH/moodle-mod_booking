@@ -36,25 +36,37 @@ class price {
     /** @var array An array of all price categories. */
     private $pricecategories;
 
+    /** @var int $optionid */
+    private $optionid;
+
     /**
      * Constructor.
+     * @param int $optionid
      */
-    public function __construct() {
+    public function __construct(int $optionid = 0) {
         global $DB;
+
         $this->pricecategories = $DB->get_records('booking_pricecategories', ['disabled' => 0]);
+        $this->optionid = $optionid;
     }
 
     /**
      * Add form fields to passed on mform.
      *
      * @param MoodleQuickForm $mform
-     * @param int $instanceid
      * @return void
      */
-    public function instance_form_definition(MoodleQuickForm &$mform, int $instanceid = 0) {
+    public function add_price_to_mform(MoodleQuickForm &$mform) {
+
+        global $DB;
 
         $mform->addElement('header', 'bookingoptionprice',
                 get_string('bookingoptionprice', 'booking'));
+
+        // If there are no price categories yet, show an info text.
+        if (empty($this->pricecategories)) {
+            $mform->addElement('static', 'nopricecategoriesyet', get_string('nopricecategoriesyet', 'booking'));
+        }
 
         foreach ($this->pricecategories as $pricecategory) {
             $formgroup = array();
@@ -67,10 +79,18 @@ class price {
 
             $mform->addGroup($formgroup, 'pricegroup_' . $pricecategory->identifier, $pricecategory->name);
 
-            // We need this only to set the default value of the price.
+            // Determine the correct array identifier.
             $pricearrayidentifier = 'pricegroup_' . $pricecategory->identifier .
                 '[' . 'bookingprice_' . $pricecategory->identifier . ']';
-            $mform->setDefault($pricearrayidentifier, $pricecategory->defaultvalue);
+
+            if (!empty($this->optionid) && $existingprice = $DB->get_field('booking_prices', 'price',
+                ['optionid' => $this->optionid, 'pricecategoryidentifier' => $pricecategory->identifier])) {
+                // If there already are saved prices, we use them.
+                $mform->setDefault($pricearrayidentifier, $existingprice);
+            } else {
+                // Else we use the price category default values.
+                $mform->setDefault($pricearrayidentifier, $pricecategory->defaultvalue);
+            }
         }
     }
 
@@ -84,26 +104,26 @@ class price {
                 $pricegroup = $fromform->{'pricegroup_' . $pricecategory->identifier};
 
                 $price = $pricegroup['bookingprice_' . $pricecategory->identifier];
-                $categoryid = $pricecategory->id;
+                $categoryidentifier = $pricecategory->identifier;
                 $currency = get_config('booking', 'globalcurrency');
 
                 // If we retrieve a price record for this entry, we update if necessary.
                 if ($data = $DB->get_record('booking_prices', ['optionid' => $fromform->optionid,
-                    'pricecategoryid' => $categoryid])) {
+                    'pricecategoryidentifier' => $categoryidentifier])) {
 
                     if ($data->price != $price
-                    || $data->pricecategoryid != $categoryid
+                    || $data->pricecategoryidentifier != $categoryidentifier
                     || $data->currency != $currency) {
 
                         $data->price = $price;
-                        $data->pricecategoryid = $categoryid;
+                        $data->pricecategoryidentifier = $categoryidentifier;
                         $data->currency = $currency;
                         $DB->update_record('booking_prices', $data);
                     }
                 } else { // If there is no price entry, we insert a new one.
                     $data = new stdClass();
                     $data->optionid = $fromform->optionid;
-                    $data->pricecategoryid = $categoryid;
+                    $data->pricecategoryidentifier = $categoryidentifier;
                     $data->price = $price;
                     $data->currency = $currency;
                     $DB->insert_record('booking_prices', $data);
@@ -119,25 +139,27 @@ class price {
 
     /**
      * Price class caches once determined prices and returns them quickly.
+     * If no category identifier has been set, it will return the default price.
      *
      * @param int $optionid
-     * @param int $categoryid
+     * @param string $categoryidentifier the price category identifier, e.g. 'default' or 'student'
      * @return void
      */
-    public static function get_price(int $optionid, int $categoryid = null):array {
+    public static function get_price(int $optionid, string $categoryidentifier = 'default'):array {
 
-        $prices = self::get_prices_records($optionid);
+        $prices = self::get_prices_records($optionid, $categoryidentifier);
 
         if (empty($prices)) {
-            return [];
+            return null;
         }
 
-        // TODO...
+        foreach ($prices as $pricerecord) {
+            if ($pricerecord->pricecategoryidentifier == $categoryidentifier) {
+                return ["price" => $pricerecord->price, "currency" => $pricerecord->currency];
+            }
+        }
 
-        // TODO: Determine category. At the moment, we just take the first price we find.
-        $price = reset($prices);
-
-        return ["price" => $price->price, "currency" => $price->currency];
+        return null;
     }
 
     /**

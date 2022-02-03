@@ -40,6 +40,20 @@ class option_form extends moodleform {
             $optionid = $this->_customdata['optionid'];
         }
 
+        // Hidden elements.
+        $mform->addElement('hidden', 'id', $cmid);
+        $mform->setType('id', PARAM_INT);
+
+        $mform->addElement('hidden', 'bookingid', $this->_customdata['bookingid']);
+        $mform->setType('bookingid', PARAM_INT);
+
+        $mform->addElement('hidden', 'optionid', $this->_customdata['optionid']);
+        $mform->setType('optionid', PARAM_INT);
+
+        $mform->addElement('hidden', 'bookingname');
+        $mform->setType('bookingname', PARAM_TEXT);
+
+        // Header.
         $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
@@ -295,8 +309,8 @@ class option_form extends moodleform {
         $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
 
         // Add price.
-        $pricehandler = new price();
-        $pricehandler->instance_form_definition($mform, $optionid);
+        $pricehandler = new price($this->_customdata['optionid']);
+        $pricehandler->add_price_to_mform($mform);
 
         // Add custom fields.
         $handler = booking_handler::create();
@@ -351,19 +365,6 @@ class option_form extends moodleform {
                     get_string('licensekeycfgdesc', 'mod_booking'));
             }
         }
-
-        // Hidden elements.
-        $mform->addElement('hidden', 'id', $cmid);
-        $mform->setType('id', PARAM_INT);
-
-        $mform->addElement('hidden', 'bookingid', $this->_customdata['bookingid']);
-        $mform->setType('bookingid', PARAM_INT);
-
-        $mform->addElement('hidden', 'optionid', $this->_customdata['optionid']);
-        $mform->setType('optionid', PARAM_INT);
-
-        $mform->addElement('hidden', 'bookingname');
-        $mform->setType('bookingname', PARAM_TEXT);
 
         // Buttons.
         $buttonarray = array();
@@ -485,10 +486,6 @@ class option_form extends moodleform {
                 }
             }
         }
-
-        // Set prices default values - is this necessary??.
-        // $pricehandler = new price();
-        // $pricehandler->instance_form_before_set_data($defaultvalues);
 
         // To handle costumfields correctly.
         // We use instanceid for optionid.
