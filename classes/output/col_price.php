@@ -47,22 +47,23 @@ class col_price implements renderable, templatable {
     /** @var array $cartitem array of cartitem */
     public $cartitem = [];
 
+    /** @var array $priceitem array of priceitem */
+    public $priceitem = [];
+
     /**
      * Constructor
      */
     public function __construct(stdClass $values) {
 
         if ($values->id) {
-            if ($priceitem = price::get_price($values->id)) {
+            if ($this->priceitem = price::get_price($values->id)) {
 
                 $cartitem = new cartitem($values->id,
                                  $values->text,
-                                 $priceitem['price'],
-                                 $priceitem['currency'],
+                                 $this->priceitem['price'],
+                                 $this->priceitem['currency'],
                                  'mod_booking',
-                                 $values->description,
-                                null,
-                                $priceitem['pricecategoryidentifier']
+                                 $values->description
                             );
 
                 $this->cartitem = $cartitem->getitem();
@@ -80,6 +81,16 @@ class col_price implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
-        return $this->cartitem;
+        return [
+            'itemid' => $this->cartitem['itemid'],
+            'itemname' => $this->cartitem['itemname'],
+            'price' => $this->cartitem['price'],
+            'currency' => $this->cartitem['currency'],
+            'componentname' => $this->cartitem['componentname'],
+            'description' => $this->cartitem['description'],
+            'imageurl' => $this->cartitem['imageurl'],
+            'pricecategoryidentifier' => $this->priceitem['pricecategoryidentifier'],
+            'pricecategoryname' => $this->priceitem['pricecategoryname'],
+        ];
     }
 }
