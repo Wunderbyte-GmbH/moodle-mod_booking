@@ -2329,4 +2329,27 @@ class booking_option {
             $this->user_submit_response($value);
         }
     }
+
+    /**
+     * Get data for certificate creation.
+     *
+     * @return array
+     */
+    public function get_data_for_certificate(): array {
+        $data = [
+            'name' => $this->booking->cm->name,
+            'eventtype' => $this->booking->settings->eventtype,
+            'duration' => $this->booking->settings->duration,
+            'points' => $this->booking->settings->points,
+            'organizatorname' => $this->booking->settings->organizatorname,
+            'text' => $this->option->text,
+            'location' => $this->option->location,
+            'institution' => $this->option->institution,
+            'address' => $this->option->address,
+            'coursestarttime' => ($this->option->coursestarttime == 0 ? '' : userdate($this->option->coursestarttime, get_string('strftimedatetimeshort'))),
+            'courseendtime' => ($this->option->courseendtime == 0 ? '' : userdate($this->option->courseendtime, get_string('strftimedatetimeshort')))
+        ];
+
+        return $data;
+    }
 }

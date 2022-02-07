@@ -2268,3 +2268,104 @@ function mod_booking_cm_info_view(cm_info $cm) {
         }
     }
 }
+/**
+ * Callback for tool_certificate - the fields available for the certificates
+ */
+function booking_tool_certificate_fields() {
+    global $CFG;
+
+    if (!class_exists('tool_certificate\customfield\issue_handler')) {
+        return;
+    }
+
+    $handler = tool_certificate\customfield\issue_handler::create();
+
+    // TODO: the only currently supported field types are text/textarea (numeric will fallback to text).
+    $handler->ensure_field_exists(
+        'name',
+        'text',
+        get_string('booking', 'mod_booking')  . ': ' . get_string('bookingname', 'mod_booking'),
+        true,
+        get_string('bookingname', 'mod_booking')
+    );
+    $handler->ensure_field_exists(
+        'eventtype',
+        'text',
+        get_string('booking', 'mod_booking')  . ': ' . get_string('eventtype', 'mod_booking'),
+        true,
+        get_string('eventtype', 'mod_booking')
+    );
+
+    $handler->ensure_field_exists(
+        'duration',
+        'text',
+        get_string('booking', 'mod_booking')  . ': ' . get_string('bookingduration', 'mod_booking'),
+        true,
+        get_string('bookingduration', 'mod_booking')
+    );
+
+    $handler->ensure_field_exists(
+        'points',
+        'text',
+        get_string('booking', 'mod_booking')  . ': ' . get_string('bookingpoints', 'mod_booking'),
+        true,
+        get_string('bookingpoints', 'mod_booking')
+    );
+
+    $handler->ensure_field_exists(
+        'organizatorname',
+        'text',
+        get_string('booking', 'mod_booking')  . ': ' . get_string('bookingorganizatorname', 'mod_booking'),
+        true,
+        get_string('bookingorganizatorname', 'mod_booking')
+    );
+
+    // Booking options
+    $handler->ensure_field_exists(
+        'text',
+        'text',
+        get_string('bookingoptionname', 'mod_booking'),
+        true,
+        get_string('bookingoptionname', 'mod_booking')
+    );
+
+    $handler->ensure_field_exists(
+        'location',
+        'text',
+        get_string('bookingoptionsmenu', 'mod_booking') . ': ' . get_string('location', 'mod_booking'),
+        true,
+        get_string('location', 'mod_booking')
+    );
+
+    $handler->ensure_field_exists(
+        'institution',
+        'text',
+        get_string('bookingoptionsmenu', 'mod_booking') . ': ' . get_string('institution', 'mod_booking'),
+        true,
+        get_string('institution', 'mod_booking')
+    );
+
+    $handler->ensure_field_exists(
+        'address',
+        'text',
+        get_string('bookingoptionsmenu', 'mod_booking') . ': ' . get_string('address', 'mod_booking'),
+        true,
+        get_string('address', 'mod_booking')
+    );
+
+    $handler->ensure_field_exists(
+        'coursestarttime',
+        'text',
+        get_string('bookingoptionsmenu', 'mod_booking') . ': ' . get_string('coursestarttime', 'mod_booking'),
+        true,
+        get_string('coursestarttime', 'mod_booking')
+    );
+
+    $handler->ensure_field_exists(
+        'courseendtime',
+        'text',
+        get_string('bookingoptionsmenu', 'mod_booking') . ': ' . get_string('courseendtime', 'mod_booking'),
+        true,
+        get_string('courseendtime', 'mod_booking')
+    );
+}

@@ -256,7 +256,7 @@ class all_userbookings extends \table_sql {
      * @see \flexible_table::wrap_html_start()
      */
     public function wrap_html_start() {
-        echo '<form method="post" id="studentsform">' . "\n";
+        echo '<form method="post" id="studentsform" class="mform">' . "\n";
         $ratingoptions = $this->ratingoptions;
         if (!empty($ratingoptions)) {
             foreach ($ratingoptions as $name => $value) {
@@ -274,18 +274,25 @@ class all_userbookings extends \table_sql {
      * @see \flexible_table::wrap_html_finish()
      */
     public function wrap_html_finish() {
-        global $DB;
+        global $DB, $OUTPUT;
+
+        $manageusersoptions = [];
+
         echo '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
         if (!$this->bookingdata->booking->settings->autoenrol &&
                  has_capability('mod/booking:communicate', \context_module::instance($this->cm->id)) &&
                  $this->bookingdata->option->courseid > 0) {
-            echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="subscribetocourse" value="' .
-             get_string('subscribetocourse', 'booking') . '" /></div>';
+                    $manageusersoptions[] = [
+                        'value' => 'subscribetocourse',
+                        'label' => get_string('subscribetocourse', 'booking')
+                    ];
         }
 
         if (has_capability('mod/booking:deleteresponses', \context_module::instance($this->cm->id))) {
-            echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="deleteusers" value="' .
-                     get_string('booking:deleteresponses', 'booking') . '" /></div>';
+            $manageusersoptions[] = [
+                'value' => 'deleteusers',
+                'label' => get_string('booking:deleteresponses', 'booking')
+            ];
             if ($this->bookingdata->booking->settings->completionmodule > 0) {
                 $result = $DB->get_record_sql(
                     'SELECT cm.id, cm.course, cm.module, cm.instance, m.name
@@ -294,35 +301,46 @@ class all_userbookings extends \table_sql {
                 if ($result) {
                     $dynamicactivitymodulesdata = $DB->get_record($result->name,
                         array('id' => $result->instance));
+<<<<<<< HEAD
                     echo '<div class="singlebutton">' .
                         '<input type="submit" class="btn btn-secondary" name="deleteusersactivitycompletion" value="' .
                         get_string('deleteresponsesactivitycompletion', 'booking',
                             $dynamicactivitymodulesdata->name) . '" /></div>';
+=======
+                        $manageusersoptions[] = [
+                            'value' => 'deleteusersactivitycompletion',
+                            'label' => get_string('deleteresponsesactivitycompletion', 'booking', $dynamicactivitymodulesdata->name)
+                        ];
+>>>>>>> 71a2499... UI enhancements and integration with tool_certificate.
                 }
             }
         }
 
         if (has_capability('mod/booking:communicate', \context_module::instance($this->cm->id))) {
-            $pollurl = trim($this->bookingdata->option->pollurl);
-            if (!empty($pollurl)) {
-                echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="sendpollurl" value="' .
-                         get_string('booking:sendpollurl', 'booking') . '" /></div>';
+            if (!empty(trim($this->bookingdata->option->pollurl))) {
+                $manageusersoptions[] = [
+                    'value' => 'sendpollurl',
+                    'label' => get_string('booking:sendpollurl', 'booking')
+                ];
             }
-            echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="sendreminderemail" value="' .
-                     get_string('sendreminderemail', 'booking') . '" /></div>';
-            echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="sendcustommessage" value="' .
-                     get_string('sendcustommessage', 'booking') . '" /></div>';
+            $manageusersoptions[] = [
+                'value' => 'sendreminderemail',
+                'label' => get_string('sendreminderemail', 'booking')
+            ];
+            $manageusersoptions[] = [
+                'value' => 'sendcustommessage',
+                'label' => get_string('sendcustommessage', 'booking')
+            ];
         }
 
         if (booking_check_if_teacher($this->bookingdata->option) ||
                  has_capability('mod/booking:updatebooking',
                         \context_module::instance($this->cm->id))) {
-                            $course = $DB->get_record('course', array('id' => $this->bookingdata->booking->settings->course));
             if (strpos($this->bookingdata->booking->settings->responsesfields, 'completed') !== false) {
-                echo '<div class="singlebutton"><input type="submit"  class="btn btn-secondary" name="activitycompletion" value="' .
-                (empty($this->bookingdata->booking->settings->btncacname) ? get_string(
-                'confirmoptioncompletion', 'booking') : $this->bookingdata->booking->settings->btncacname) .
-                '" /></div>';
+                $manageusersoptions[] = [
+                    'value' => 'activitycompletion',
+                    'label' => (empty($this->bookingdata->booking->settings->btncacname) ? get_string('confirmoptioncompletion', 'booking') : $this->bookingdata->booking->settings->btncacname)
+                ];
             }
 
             // Output rating button.
@@ -336,7 +354,39 @@ class all_userbookings extends \table_sql {
                 $ratingbutton .= html_writer::end_span() . '</div>';
                 echo $ratingbutton;
             }
+        }
 
+        $optgroups = [];
+
+        // Issue certificate
+        if (has_capability ( 'mod/booking:readresponses', \context_module::instance($this->cm->id) ) || booking_check_if_teacher ($option )) {
+            if (!empty($this->bookingdata->booking->settings->template)) {
+                $optgroups[] = [
+                    'label' => get_string('issuecertificate', 'booking'),
+                    'options' => [
+                        ['label' => get_string('issuecertificateall', 'booking'), 'value' => 'issuecertificateall'],
+                        ['label' => get_string('issuecertificateselected', 'booking'), 'value' => 'issuecertificateselected'],
+                        ['label' => get_string('issuecertificateconfirmed', 'booking'), 'value' => 'issuecertificateconfirmed']
+                    ]
+                ];
+            }
+        }
+
+        if ($this->bookingdata->booking->settings->numgenerator) {
+            $manageusersoptions[] = [
+                'value' => 'generaterecnum',
+                'label' => get_string('generaterecnum', 'booking')
+            ];
+        }
+
+        $availableoptions = '';
+        $transferto = '';
+        $presencestatus = '';
+        $connectedbookings = '';
+
+        if (booking_check_if_teacher($this->bookingdata->option) ||
+                 has_capability('mod/booking:updatebooking',
+                        \context_module::instance($this->cm->id))) {
             // Output transfer users to other option.
             if (has_capability('mod/booking:subscribeusers',
                     \context_module::instance($this->cm->id)) || booking_check_if_teacher(
@@ -352,7 +402,7 @@ class all_userbookings extends \table_sql {
                     list($insql, $inparams) = $DB->get_in_or_equal($optionids);
                     $options = $DB->get_records_select('booking_options', "id {$insql}",
                             $inparams, '', 'id,text,coursestarttime,location');
-                    $transferto = array();
+                    $transferto = [];
                     foreach ($options as $key => $value) {
                         $string = array();
                         $string[] = $value->text;
@@ -362,26 +412,33 @@ class all_userbookings extends \table_sql {
                         if ($value->location != '') {
                             $string[] = $value->location;
                         }
+<<<<<<< HEAD
                         $transferto[$value->id] = implode(', ', $string);
+=======
+                        $transferto[] = [
+                            'value' => $value->id,
+                            'label' => implode($string, ', ')
+                        ];
+>>>>>>> 71a2499... UI enhancements and integration with tool_certificate.
                     }
-                    $optionbutton = '<div class="singlebutton">' . \html_writer::start_tag('span',
-                            array('class' => "transfersubmit"));
-                    echo \html_writer::div(get_string('transferheading', 'mod_booking'));
-                    echo $dropdown = \html_writer::select($transferto, 'transferoption');
-                    $attributes = array('type' => 'submit',
-                        'class' => 'transfersubmit btn btn-secondary', 'id' => 'transfersubmit',
-                        'name' => 'transfersubmit',
-                        'value' => s(get_string('transfer', 'mod_booking')));
-                    $optionbutton .= html_writer::empty_tag('input', $attributes);
-                    $optionbutton .= html_writer::end_span() . '</div>';
-                    echo $optionbutton;
-                }
-            }
 
-            if ($this->bookingdata->booking->settings->numgenerator) {
-                echo '<div class="singlebutton"><input type="submit" class="btn btn-secondary" name="generaterecnum" value="' .
-                         get_string('generaterecnum', 'booking') . '" onclick="return confirm(\'' .
-                         get_string('generaterecnumareyousure', 'booking') . '\')"/></div>';
+                    $manageusersoptions[] = [
+                        'value' => 'transferheading',
+                        'label' => get_string('transferheading', 'booking')
+                    ];
+
+                    array_unshift($transferto, ['value' => '', 'label' => '']);
+
+                    $data = array(
+                        'label' => '',
+                        'name' => 'transferoption',
+                        'options' => $transferto,
+                        'submit' => s(get_string('transfer', 'mod_booking')),
+                        'style' => 'display: none;'
+                    );
+
+                    $transferto = $OUTPUT->render_from_template('booking/dataformat_selector', $data);
+                }
             }
 
             $connectedbooking = $DB->get_record("booking",
@@ -389,7 +446,6 @@ class all_userbookings extends \table_sql {
                     IGNORE_MULTIPLE);
 
             if ($connectedbooking) {
-
                 $nolimits = $DB->get_records_sql(
                         "SELECT bo.*, b.text
                         FROM {booking_other} bo
@@ -397,16 +453,20 @@ class all_userbookings extends \table_sql {
                         WHERE b.bookingid = ?",
                         array($connectedbooking->id));
 
+                    $options = [];
+
                 if (!$nolimits) {
                     $result = $DB->get_records_select("booking_options",
                             "bookingid = {$connectedbooking->id} AND id <> {$this->optionid}", null,
                             'text ASC', 'id, text');
 
-                    $options = array();
-
                     foreach ($result as $value) {
-                        $options[$value->id] = $value->text;
+                        $options[] = [
+                            'label' => $value->text,
+                            'value' => $value->id
+                        ];
                     }
+<<<<<<< HEAD
 
                     echo "<br>";
 
@@ -419,6 +479,8 @@ class all_userbookings extends \table_sql {
                     echo '<div class="singlebutton">' .
                         '<input type="submit" class="btn btn-secondary" name="booktootherbooking" value="' .
                              $label . '" /></div>';
+=======
+>>>>>>> 71a2499... UI enhancements and integration with tool_certificate.
                 } else {
                     $alllimits = $DB->get_records_sql(
                             "SELECT bo.*, b.text
@@ -428,11 +490,13 @@ class all_userbookings extends \table_sql {
                             array($connectedbooking->id, $this->optionid));
 
                     if ($alllimits) {
-                        $options = array();
-
                         foreach ($alllimits as $value) {
-                            $options[$value->optionid] = $value->text;
+                            $options[] = [
+                                'label' => $value->text,
+                                'value' => $value->optionid
+                            ];
                         }
+<<<<<<< HEAD
 
                         echo "<br>";
 
@@ -445,28 +509,109 @@ class all_userbookings extends \table_sql {
                         echo '<div class="singlebutton">' .
                             '<input type="submit" class="btn btn-secondary" name="booktootherbooking" value="' .
                                  $label . '" /></div>';
+=======
+>>>>>>> 71a2499... UI enhancements and integration with tool_certificate.
                     }
+                }
+
+                $label = (empty(
+                    $this->bookingdata->booking->settings->booktootherbooking) ? get_string(
+                    'booktootherbooking', 'booking') : $this->bookingdata->booking->settings->booktootherbooking);
+
+                if (!empty($options)) {
+                    array_unshift($options, ['value' => '', 'label' => '']);
+
+                    $data = array(
+                        'label' => '',
+                        'name' => 'booktootherbooking',
+                        'options' => $options,
+                        'submit' => s(get_string('transfer', 'mod_booking')),
+                        'style' => 'display: none;'
+                    );
+
+                    $connectedbookings = $OUTPUT->render_from_template('booking/dataformat_selector', $data);
+                    $manageusersoptions[] = [
+                        'value' => 'connectedbookings',
+                        'label' => $label
+                    ];
                 }
             }
 
             if ($this->bookingdata->booking->settings->enablepresence) {
-                // Change presence status.
-                // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed.
-                echo "<br>";
-                $presences = array(5 => get_string('status_unknown', 'booking'),
-                    6 => get_string('status_attending', 'booking'),
-                    1 => get_string('status_complete', 'booking'),
-                    2 => get_string('status_incomplete', 'booking'),
-                    3 => get_string('status_noshow', 'booking'),
-                    4 => get_string('status_failed', 'booking'));
+                $presences = [
+                    [
+                        'value' => 5,
+                        'label' => get_string('status_unknown', 'booking')
+                    ],
+                    [
+                        'value' => 6,
+                        'label' => get_string('status_attending', 'booking')
+                    ],
+                    [
+                        'value' => 1,
+                        'label' => get_string('status_complete', 'booking')
+                    ],
+                    [
+                        'value' => 2,
+                        'label' => get_string('status_incomplete', 'booking')
+                    ],
+                    [
+                        'value' => 3,
+                        'label' => get_string('status_noshow', 'booking')
+                    ],
+                    [
+                        'value' => 4,
+                        'label' => get_string('status_failed', 'booking')
+                    ]
+                ];
 
-                echo html_writer::select($presences, 'selectpresencestatus', '');
+                $manageusersoptions[] = [
+                    'value' => 'changepresencestatus',
+                    'label' => get_string('presence', 'booking')
+                ];
 
-                echo '<div class="singlebutton">' .
-                    '<input type="submit" class="btn btn-secondary" name="changepresencestatus" value="' .
-                         get_string('confirmpresence', 'booking') . '" /></div>';
+                array_unshift($presences, ['value' => '', 'label' => '']);
+
+                $data = array(
+                    'label' => '',
+                    'name' => 'selectpresencestatus',
+                    'options' => $presences,
+                    'submit' => s(get_string('confirmpresence', 'booking')),
+                    'style' => 'display: none;'
+                );
+
+                $presencestatus = $OUTPUT->render_from_template('booking/dataformat_selector', $data);
             }
         }
+
+        if (!empty($manageusersoptions)) {
+            array_unshift($manageusersoptions, ['value' => '', 'label' => '']);
+            $data = array(
+                'label' => get_string('selectaction', 'mod_booking'),
+                'base' => '',
+                'name' => 'massactions',
+                'params' => [],
+                'options' => $manageusersoptions,
+                'optgroups' => $optgroups,
+                'submit' => s(get_string('submit')),
+            );
+
+            $availableoptions = $OUTPUT->render_from_template('booking/dataformat_selector', $data);
+        }
+
+        echo '<br>';
+        echo '<div class="container-fluid">';
+        echo '  <div class="row">';
+        echo '      <div class="col-6">';
+        echo            $availableoptions;
+        echo '      </div>';
+        echo '      <div class="col-6">';
+        echo            $transferto;
+        echo            $presencestatus;
+        echo            $connectedbookings;
+        echo '      </div>';
+        echo '  </div>';
+        echo '</div>';
 
         echo '</form>';
 

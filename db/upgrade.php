@@ -2362,6 +2362,22 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
+        // Define field template to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('template', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'maxconfirmations');
+
+        // Conditionally launch add field template.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('expires', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'template');
+
+        // Conditionally launch add field expires.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2022032803, 'booking');
     }

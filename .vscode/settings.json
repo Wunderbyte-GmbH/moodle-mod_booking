@@ -1,0 +1,7 @@
+{
+    "phpSniffer.standard": "moodle",
+    "[php]": {
+        "editor.defaultFormatter": "wongjn.php-sniffer"
+    },
+    "files.trimTrailingWhitespace": true
+}

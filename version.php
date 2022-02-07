@@ -28,3 +28,6 @@ $plugin->requires = 2019111800; // Requires this Moodle version. Current: Moodle
 $plugin->release = 'v7.0.28';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'mod_booking';
+$plugin->dependencies = [
+    'tool_certificate' => 2022011800
+];

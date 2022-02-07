@@ -74,10 +74,12 @@ class mod_booking_mod_form extends moodleform_mod {
     }
 
     public function definition() {
-        global $CFG, $DB, $COURSE, $USER, $PAGE;
+        global $CFG, $DB, $COURSE, $USER, $PAGE, $OUTPUT;
 
         $context = context_system::instance();
-        $mform = &$this->_form;
+        $mform = $this->_form;
+        $hasissues = $this->has_issues();
+        $canmanagetemplates = \tool_certificate\permission::can_manage_anywhere();
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
@@ -477,6 +479,70 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('activitycompletiontext', $default);
         $mform->addHelpButton('activitycompletiontext', 'activitycompletiontext', 'booking');
         $mform->disabledIf('activitycompletiontext', 'mailtemplatessource', 'eq', 1);
+
+        // Course certificate
+        $mform->addElement('header', 'coursecertificate', get_string('coursecertificate', 'mod_booking'));
+
+        // Adding the template selector.
+        if ($hasissues) {
+            // If coursecertificate has issues, just add the current template to the selector.
+            $templates = $this->get_current_template();
+        } else {
+            // Get all available templates for the user.
+            $templates = $this->get_template_select();
+        }
+        $templateoptions = ['' => get_string('chooseatemplate', 'mod_booking')] + $templates;
+        $manageurl = new \moodle_url('/admin/tool/certificate/manage_templates.php');
+        $elements = [$mform->createElement('select', 'template', get_string('template', 'mod_booking'), $templateoptions)];
+        // Adding "Manage templates" link if user has capabilities to manage templates.
+        if ($canmanagetemplates && !empty($templates)) {
+            $elements[] = $mform->createElement('static', 'managetemplates', '',
+                $OUTPUT->action_link($manageurl, get_string('managetemplates', 'mod_booking')));
+        }
+        $mform->addGroup($elements, 'template_group', get_string('template', 'mod_booking'),
+            \html_writer::div('', 'w-100'), false);
+
+        if (empty($templates)) {
+            // Adding warning text if there are not templates available.
+            if ($canmanagetemplates) {
+                $warningstr = get_string('notemplateswarningwithlink', 'mod_booking', $manageurl->out());
+            } else {
+                $warningstr = get_string('notemplateswarning', 'mod_booking');
+            }
+            $html = html_writer::tag('div', $warningstr, ['class' => 'alert alert-warning']);
+            $mform->addElement('static', 'notemplateswarning', '', $html);
+        } else {
+            $warningstr = get_string('selecttemplatewarning', 'mod_booking');
+            $html = html_writer::tag('div', $warningstr, ['class' => 'alert alert-warning']);
+            $mform->addElement('static', 'selecttemplatewarning', '', $html);
+        }
+        if (!$hasissues) {
+            $rules = [];
+            //$rules['template'][] = [null, 'required', null, 'client'];
+            $mform->addGroupRule('template_group', $rules);
+        }
+        // If Certificate has issues it's not possible to change the template.
+        $mform->addElement('hidden', 'hasissues', $hasissues);
+        $mform->setType('hasissues', PARAM_TEXT);
+        $mform->disabledIf('template', 'hasissues', 'eq', 1);
+
+        // Adding the expirydate selector.
+        $selectdatestr = get_string('selectdate', 'mod_booking');
+        $neverstr = get_string('never');
+        $expirydatestr = get_string('expirydate', 'mod_booking');
+        $expirydateoptions = [
+            0 => $neverstr,
+            1 => $selectdatestr,
+        ];
+        $group = [];
+        $expirydatetype = $mform->createElement('select', 'expirydatetype', '', $expirydateoptions,
+            ['class' => 'calendar-fix-selector-width']);
+        $group[] =& $expirydatetype;
+        $expirydate = $mform->createElement('date_selector', 'expires', '');
+        $group[] =& $expirydate;
+        $mform->addGroup($group, 'expirydategroup', $expirydatestr, ' ', false);
+        $mform->hideIf('expires', 'expirydatetype', 'noteq', 1);
+        $mform->disabledIf('expires', 'expirydatetype', 'noteq', 1);
 
         // Custom labels.
         $mform->addElement('header', 'customlabels', get_string('customlabels', 'mod_booking'));
@@ -1053,6 +1119,7 @@ class mod_booking_mod_form extends moodleform_mod {
      */
     public function data_postprocessing($data) {
         parent::data_postprocessing($data);
+        $data->expires = $data->expirydatetype == 0 ? 0 : $data->expires;
         if (!empty($data->completionunlocked)) {
             $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
             if (empty($data->enablecompletionenabled) || !$autocompletion) {
@@ -1072,5 +1139,62 @@ class mod_booking_mod_form extends moodleform_mod {
         }
 
         return $data;
+    }
+
+    /**
+     * Gets the current coursecertificate template for the template selector.
+     *
+     * @return array
+     */
+    private function get_current_template(): array {
+        global $DB;
+        $templates = [];
+        if ($instance = $this->get_instance()) {
+            $sql = "SELECT ct.id, ct.name
+                    FROM {tool_certificate_templates} ct
+                    JOIN {booking} c
+                    ON c.template = ct.id
+                    AND c.id = :instance";
+            if ($record = $DB->get_record_sql($sql, ['instance' => $instance], IGNORE_MISSING)) {
+                $templates[$record->id] = format_string($record->name);
+            }
+        }
+        return $templates;
+    }
+
+    /**
+     * Gets array options of available templates for the user for the template selector.
+     *
+     * @return array
+     */
+    private function get_template_select(): array {
+        $context = context_course::instance($this->current->course);
+        $templates = [];
+        if (!empty($records = \tool_certificate\permission::get_visible_templates($context))) {
+            foreach ($records as $record) {
+                $templates[$record->id] = format_string($record->name);
+            }
+        }
+        return $templates;
+    }
+
+    /**
+     * Returns "1" if course certificate has been issued.
+     *
+     * @return string
+     * @uses \tool_certificate\certificate
+     */
+    private function has_issues(): string {
+        global $DB;
+
+        if ($instance = $this->get_instance()) {
+            $certificate = $DB->get_record('booking', ['id' => $instance], '*', MUST_EXIST);
+            $courseissues = \tool_certificate\certificate::count_issues_for_course($certificate->template, $certificate->course,
+                'mod_booking', null, null);
+            if ($courseissues > 0) {
+                return  "1";
+            }
+        }
+        return "0";
     }
 }

@@ -34,7 +34,7 @@ Feature: Booking works correctly
     And I log in as "admin"
 
     And I am on "Course 1" course homepage with editing mode on
-    
+
     #Create booking activity
     And I click on "Add an activity or resource" "button"
     And I click on "Add a new Booking" "link"
@@ -51,7 +51,7 @@ Feature: Booking works correctly
     And I click on "Add a new booking option" "link"
     And I set the field "text" to "Prva izvedba dogodka"
     And I click on "Save and display" "button"
-    
+
     And I click on "Actions menu" "link"
     And I click on "Book users from group" "link"
     And I click on "Save changes" "button"
@@ -59,8 +59,6 @@ Feature: Booking works correctly
     And I should see "Test Testko2 (student2)"
     And I should not see "Test Testko3"
     And I should not see "Test Testko4"
-
-
 
   @javascript
   Scenario: Limited number of particpants
@@ -74,7 +72,7 @@ Feature: Booking works correctly
     And I set the field "maxanswers" to "2"
     And I set the field "maxoverbooking" to "0"
     And I click on "Save and display" "button"
-    
+
     And I click on "Actions menu" "link"
     And I click on "Book other users" "link"
     And I set the field "addselect[]" to "1,2"
@@ -96,13 +94,13 @@ Feature: Booking works correctly
     And I set the field "maxanswers" to "2"
     And I set the field "maxoverbooking" to "0"
     And I click on "Save and display" "button"
-    
+
     And I click on "Actions menu" "link"
     And I click on "Book other users" "link"
     And I set the field "addselect[]" to "3"
     And I click on "subscribe" "button"
     And I should see "All 1 selected users have successfully been assigned to this booking option."
-    
+
     And I am on "Course 1" course homepage with editing mode on
     And I click on "Prijava na izpit" "link"
     And I click on "Active bookings" "link"
@@ -114,7 +112,7 @@ Feature: Booking works correctly
     And I should not see "Test Testko2"
     And I should not see "Test Testko4"
 
-    @javascript
+  @javascript
   Scenario: Limited number of particpants with group add - full
     #Add booking option
     When I am on "Course 1" course homepage with editing mode on
@@ -126,13 +124,13 @@ Feature: Booking works correctly
     And I set the field "maxanswers" to "2"
     And I set the field "maxoverbooking" to "0"
     And I click on "Save and display" "button"
-    
+
     And I click on "Actions menu" "link"
     And I click on "Book other users" "link"
     And I set the field "addselect[]" to "3,4"
     And I click on "subscribe" "button"
     And I should see "All 2 selected users have successfully been assigned to this booking option."
-    
+
     And I am on "Course 1" course homepage with editing mode on
     And I click on "Prijava na izpit" "link"
     And I click on "Active bookings" "link"
