@@ -50,9 +50,11 @@ define('MSGPARAM_REPORTREMINDER', 13); // Reminder sent from report.php.
 define('MSGPARAM_CUSTOM_MESSAGE', 14);
 
 // Define booking status parameters.
-define('STATUSPARAM_BOOKED', 1);
-define('STATUSPARAM_NOTBOOKED', 2);
-define('STATUSPARAM_WAITINGLIST', 3);
+define('STATUSPARAM_BOOKED', 0);
+define('STATUSPARAM_WAITINGLIST', 1);
+define('STATUSPARAM_RESERVED', 2);
+define('STATUSPARAM_NOTBOOKED', 4);
+define('STATUSPARAM_DELETED', 5);
 
 // Define message controller parameters.
 define('MSGCONTRPARAM_SEND_NOW', 1);
@@ -1809,7 +1811,7 @@ function booking_reset_userdata($data) {
 
 /**
  *
- * @param number $seconds
+ * @param int $seconds
  */
 function booking_pretty_duration($seconds) {
     $measures = array('days' => 24 * 60 * 60, 'hours' => 60 * 60, 'minutes' => 60);

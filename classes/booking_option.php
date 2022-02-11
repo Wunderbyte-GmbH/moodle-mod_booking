@@ -24,6 +24,8 @@ use moodle_url;
 use mod_booking\booking_utils;
 use mod_booking\message_controller;
 use mod_booking\task\send_completion_mails;
+use moodle_exception;
+
 use function get_config;
 
 defined('MOODLE_INTERNAL') || die();
@@ -762,18 +764,44 @@ class booking_option {
      * If there is a limit book other user and send mail to the user.
      *
      * @param $userid
+     * @param bool $cancelreservation
      * @return true if booking was deleted successfully, otherwise false
      */
-    public function user_delete_response($userid) {
+    public function user_delete_response($userid, $cancelreservation = false) {
         global $USER, $DB;
-        $result = $DB->get_records('booking_answers',
+
+        $results = $DB->get_records('booking_answers',
                 array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0));
 
-        if (count($result) == 0) {
+        if (count($results) == 0) {
             return false;
         }
-        $DB->delete_records('booking_answers',
-                array('userid' => $userid, 'optionid' => $this->optionid, 'completed' => 0));
+
+        if ($cancelreservation) {
+            $DB->delete_records('booking_answers',
+                array('userid' => $userid,
+                      'optionid' => $this->optionid,
+                      'completed' => 0,
+                      'waitinglist' => STATUSPARAM_RESERVED));
+        } else {
+            foreach ($results as $result) {
+                if ($result->waitinglist != STATUSPARAM_DELETED) {
+                    $result->waitinglist = STATUSPARAM_DELETED;
+                    $result->timemodified = time();
+                    // We mark all the booking answers as deleted.
+
+                    $DB->update_record('booking_answers', $result);
+                }
+            }
+
+        }
+
+        // Sync the waiting list and send status change mails.
+        $this->sync_waiting_list();
+
+        if ($cancelreservation) {
+            return true;
+        }
 
         if ($userid == $USER->id) {
             $user = $USER;
@@ -802,9 +830,6 @@ class booking_option {
             $this->cmid, $this->bookingid, $this->optionid, $userid
         );
         $messagecontroller->send_or_queue();
-
-        // Sync the waiting list and send status change mails.
-        $this->sync_waiting_list();
 
         // Remove activity completion.
         $course = $DB->get_record('course', array('id' => $this->booking->settings->course));
@@ -978,9 +1003,10 @@ class booking_option {
      *        The number of bookings for the user has to be decreased by one, because, the user will
      *        be unsubscribed
      *        from the old booking option afterwards (which is not yet taken into account).
+     * @param boolean true if we just added this booking option to the shopping cart.
      * @return boolean true if booking was possible, false if meanwhile the booking got full
      */
-    public function user_submit_response($user, $frombookingid = 0, $substractfromlimit = 0) {
+    public function user_submit_response($user, $frombookingid = 0, $substractfromlimit = 0, $addedtocart = false) {
         global $DB;
 
         if (empty($this->option)) {
@@ -988,11 +1014,17 @@ class booking_option {
             return false;
         }
 
+        // We check if we can still book the user.
+        // False means, that it can't be booked.
+        // 0 means, that we can book right away
+        // 1 means, that there is only a place on the waiting list.
         $waitinglist = $this->check_if_limit();
 
         if ($waitinglist === false) {
             echo "Couldn't subscribe user $user->username because of waitinglist <br>";
             return false;
+        } else if ($addedtocart) {
+            $waitinglist = STATUSPARAM_RESERVED;
         }
 
         $underlimit = ($this->booking->settings->maxperuser == 0);
@@ -1002,23 +1034,73 @@ class booking_option {
             mtrace("Couldn't subscribe user $user->username because of maxperuser setting <br>");
             return false;
         }
-        $currentanswerid = $DB->get_field('booking_answers', 'id',
+        // We have to get all the records of the user, there might be more than one.
+        $$currentanswers = $DB->get_records('booking_answers',
                 array('userid' => $user->id, 'optionid' => $this->optionid));
-        if (!$currentanswerid) {
-            $newanswer = new stdClass();
-            $newanswer->bookingid = $this->booking->id;
-            $newanswer->frombookingid = $frombookingid;
-            $newanswer->userid = $user->id;
-            $newanswer->optionid = $this->optionid;
-            $newanswer->timemodified = time();
-            $newanswer->timecreated = time();
-            $newanswer->waitinglist = $waitinglist;
 
+        // This variable is used to detect errors.
+        $numberofanswers = count($currentanswers);
+
+        // Ignore all deleted entries
+        // And use some shortcuts, if possible.
+        foreach ($currentanswers as $currentanswer) {
+            switch($currentanswer->watinglist) {
+                case STATUSPARAM_DELETED:
+                    --$numberofanswers;
+                    break;
+                case STATUSPARAM_BOOKED:
+                    // If we are already booked, we don't do anything.
+                    return true;
+                case STATUSPARAM_RESERVED:
+                    // If the old and the new value is reserved, we just return true, we don't need to do anything.
+                    if ($waitinglist == STATUSPARAM_RESERVED) {
+                        return true;
+                    }
+                    // Else, we might move from reserved to booked, we just continue.
+                    $currentanswerid = $currentanswer->id;
+                    break;
+                case STATUSPARAM_WAITINGLIST:
+                    if ($waitinglist == STATUSPARAM_WAITINGLIST) {
+                        return true;
+                    }
+                    // Else, we might move from waitinglist to booked, we just continue.
+                    $currentanswerid = $currentanswer->id;
+                    break;
+            }
+        }
+
+        // We should have only one answer after deleted in DB.
+        if ($numberofanswers > 1) {
+            throw new moodle_exception('tomanybookinganswers', 'mod_booking', '', null, "$user->id has to many answers in $this->optionid");
+        }
+
+        $newanswer = new stdClass();
+        $newanswer->bookingid = $this->booking->id;
+        $newanswer->frombookingid = $frombookingid;
+        $newanswer->userid = $user->id;
+        $newanswer->optionid = $this->optionid;
+        $newanswer->timemodified = time();
+        $newanswer->timecreated = time();
+        $newanswer->waitinglist = $waitinglist;
+
+        if ($currentanswerid) {
+            $newanswer->id = $currentanswerid;
+            if (!$DB->update_record("booking_answers", $newanswer)) {
+                new \moodle_exception("dmlwriteexception");
+            }
+        } else {
             if (!$DB->insert_record("booking_answers", $newanswer)) {
                 new \moodle_exception("dmlwriteexception");
             }
-            $this->enrol_user_coursestart($newanswer->userid);
         }
+
+        // If we have only put the option in the shopping card (reserved) we will skip the rest of the fucntion here.
+
+        if ($waitinglist == STATUSPARAM_RESERVED) {
+            return true;
+        }
+
+        $this->enrol_user_coursestart($newanswer->userid);
 
         $event = event\bookingoption_booked::create(
                 array('objectid' => $this->optionid,
@@ -1047,6 +1129,10 @@ class booking_option {
         return true;
     }
 
+
+
+
+
     /**
      * Event that sends confirmation notification after user successfully booked.
      *
@@ -1064,7 +1150,7 @@ class booking_option {
 
         $user = $DB->get_record('user', array('id' => $user->id));
 
-        // Status can be STATUSPARAM_BOOKED (1), STATUSPARAM_NOTBOOKED (2), STATUSPARAM_WAITINGLIST (3).
+        // Status can be STATUSPARAM_BOOKED (0), STATUSPARAM_NOTBOOKED (4), STATUSPARAM_WAITINGLIST (1).
         $status = $this->get_user_status($user->id);
 
         if ($optionchanged) {
@@ -1393,7 +1479,7 @@ class booking_option {
     /**
      * Check if user can enrol
      *
-     * @return mixed false on full, or if can enrol or 1 for waiting list.
+     * @return mixed false on full, or if can enrol 0 or 1 for waiting list.
      */
     private function check_if_limit() {
         global $DB;
@@ -1408,15 +1494,15 @@ class booking_option {
 
             if ($maxplacesavailable > $alluserscount) {
                 if ($this->option->maxanswers > $bookedusers) {
-                    return 0;
+                    return STATUSPARAM_BOOKED;
                 } else {
-                    return 1;
+                    return STATUSPARAM_WAITINGLIST;
                 }
             } else {
                 return false;
             }
         } else {
-            return 0;
+            return STATUSPARAM_BOOKED;
         }
     }
 
@@ -1870,9 +1956,11 @@ class booking_option {
 
     /**
      * Get the user status parameter of the specified user.
-     * STATUSPARAM_BOOKED (1) ... user has booked the option
-     * STATUSPARAM_NOTBOOKED (2) ... user has not booked the option
-     * STATUSPARAM_WAITINGLIST (3) ... user is on the waiting list
+     * STATUSPARAM_BOOKED (0) ... user has booked the option
+     * STATUSPARAM_WAITINGLIST (1) ... user is on the waiting list
+     * STATUSPARAM_RESERVED (2) ... user is on the waiting list
+     * STATUSPARAM_NOTBOOKED (4) ... user has not booked the option
+     * STATUSPARAM_DELETED (5) ... user answer was deleted
      *
      * @param $userid userid of the user
      * @return int user status param

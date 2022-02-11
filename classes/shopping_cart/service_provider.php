@@ -28,6 +28,7 @@ namespace mod_booking\shopping_cart;
 use context_module;
 use context_system;
 use local_shopping_cart\local\entities\cartitem;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\price;
 use stdClass;
@@ -45,15 +46,13 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * for the course that $userid of the buying user.
      *
      * @param int $optionid
+     * @param int $userid
      * @return \shopping_cart\cartitem
      */
-    public static function get_cartitem(int $optionid): cartitem {
-        global $DB;
+    public static function load_cartitem(int $optionid, int $userid = 0): cartitem {
+        global $DB, $USER;
 
-        $bookingoption = new booking_option_settings($optionid);
-
-        // Make sure we don't return the identifier in the booking option name (text).
-        booking_option_settings::transform_unique_bookingoption_name_to_display_name($bookingoption);
+        $bookingoption = booking_option::create_option_from_optionid($optionid);
 
         // Make sure that we only buy from instance the user has access to.
         // This is just fraud prevention and can not happen ordinarily.
@@ -70,12 +69,20 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             return null;
         }
 
+        // Now we reserve the place for the user
+        // This should not
+        if (!$bookingoption->user_submit_response($USER, 0, 0, true)) {
+            return null;
+        }
+
+        // We need to register this action as a booking answer, where we only reserve, not actually book.
+
         return new cartitem($optionid,
-                            $bookingoption->text,
+                            $bookingoption->option->text,
                             $price['price'],
                             $price['currency'],
                             'mod_booking',
-                            $bookingoption->description);
+                            $bookingoption->option->description);
     }
 
     /**
@@ -84,7 +91,13 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @param integer $itemid
      * @return boolean
      */
-    public static function unload_cartitem(int $itemid): bool {
+    public static function unload_cartitem(int $optionid, int $userid = 0): bool {
+        global $USER;
+
+        $bookingoption = booking_option::create_option_from_optionid($optionid);
+        $userid = $userid == 0 ? $USER->id : $userid;
+
+        $bookingoption->user_delete_response($userid, true);
 
         return true;
     }
