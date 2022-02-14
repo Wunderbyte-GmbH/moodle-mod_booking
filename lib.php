@@ -47,6 +47,7 @@ define('MSGPARAM_POLLURL_TEACHER', 10);
 define('MSGPARAM_COMPLETED', 11);
 define('MSGPARAM_SESSIONREMINDER', 12);
 define('MSGPARAM_REPORTREMINDER', 13); // Reminder sent from report.php.
+define('MSGPARAM_CUSTOM_MESSAGE', 14);
 
 // Define booking status parameters.
 define('STATUSPARAM_BOOKED', 1);
@@ -1688,52 +1689,6 @@ function booking_rate($ratings, $params) {
     }
 }
 // END RATING AND GRADES.
-
-/**
- * Send a custom message to one or more users.
- *
- * @param integer $optionid
- * @param string $subject
- * @param string $message
- * @param array $uids
- * @return boolean|mixed|number
- */
-function booking_sendcustommessage(int $optionid, string $subject, string $message, array $uids) {
-    global $DB, $USER, $CFG;
-
-    $returnval = true;
-
-    $option = $DB->get_record('booking_options', array('id' => $optionid));
-    $booking = $DB->get_record('booking', array('id' => $option->bookingid));
-
-    $cm = get_coursemodule_from_instance('booking', $booking->id);
-    foreach ($uids as $id) {
-        $ruser = $DB->get_record('user', array('id' => $id));
-        $eventdata = new \core\message\message();
-        if ($CFG->branch > 31) {
-            $eventdata->courseid = $cm->course;
-        }
-        $eventdata->modulename = 'booking';
-
-        // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
-        if ($bookingmanager = $DB->get_record('user',
-            array('username' => $booking->bookingmanager))) {
-            $eventdata->userfrom = $bookingmanager;
-        } else {
-            $eventdata->userfrom = $USER;
-        }
-
-        $eventdata->userto = $ruser;
-        $eventdata->subject = $subject;
-        $eventdata->fullmessage = $message;
-        $eventdata->fullmessageformat = FORMAT_PLAIN;
-        $eventdata->fullmessagehtml = '';
-        $eventdata->component = 'mod_booking';
-        $eventdata->name = 'bookingconfirmation';
-        $returnval = message_send($eventdata);
-    }
-    return $returnval;
-}
 
 /**
  * Given an ID of an instance of this module, will permanently delete the instance and data.

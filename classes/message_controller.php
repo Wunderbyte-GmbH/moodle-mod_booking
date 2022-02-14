@@ -91,6 +91,12 @@ class message_controller {
     /** @var stdClass $params email params */
     private $params;
 
+    /** @var string $customsubject for custom messages */
+    private $customsubject;
+
+        /** @var string $custommessage for custom messages */
+    private $custommessage;
+
     /**
      * Constructor
      * @param int $msgcontrparam message controller param (send now | queue adhoc)
@@ -100,9 +106,13 @@ class message_controller {
      * @param int $optionid option id
      * @param int $userid user id
      * @param int|null $optiondateid optional id of a specific session (optiondate)
+     * @param array $changes array of changes for change notifications
+     * @param string $customsubject subject of custom messages
+     * @param string $custommessage body of custom messages
      */
     public function __construct(int $msgcontrparam, int $messageparam, int $cmid, int $bookingid = null,
-        int $optionid, int $userid, int $optiondateid = null, $changes = null) {
+        int $optionid, int $userid, int $optiondateid = null, $changes = null,
+        string $customsubject = '', string $custommessage = '') {
 
         global $DB;
 
@@ -132,6 +142,12 @@ class message_controller {
         $this->userid = $userid;
         $this->optiondateid = $optiondateid;
         $this->changes = $changes;
+
+        // For custom messages only.
+        if ($this->messageparam == MSGPARAM_CUSTOM_MESSAGE) {
+            $this->customsubject = $customsubject;
+            $this->custommessage = $custommessage;
+        }
 
         // Booking_option instance needed to access functions get_all_users_booked and get_all_users_on_waitinglist.
         $this->option = new booking_option($cmid, $optionid);
@@ -302,10 +318,12 @@ class message_controller {
             'deletedtext', 'bookingchangedtext', 'pollurltext', 'pollurlteacherstext'
         ];
 
-        // Check if global mail templates are enabled and if the field name also has a global mail template.
-        if (isset($this->bookingsettings->mailtemplatessource) && $this->bookingsettings->mailtemplatessource == 1
+        if ($this->messageparam == MSGPARAM_CUSTOM_MESSAGE) {
+            // For custom messages, we already have a message body.
+            $text = $this->custommessage;
+        } else if (isset($this->bookingsettings->mailtemplatessource) && $this->bookingsettings->mailtemplatessource == 1
             && in_array($this->messagefieldname, $mailtemplatesfieldnames)) {
-
+            // Check if global mail templates are enabled and if the field name also has a global mail template.
             // Get the mail template specified in plugin config.
             $text = get_config('booking', 'global' . $this->messagefieldname);
 
@@ -347,7 +365,15 @@ class message_controller {
         }
         $messagedata->userto = $this->user;
         $messagedata->modulename = 'booking';
-        $messagedata->subject = get_string($this->messagefieldname . 'subject', 'booking', $this->params);
+
+        if ($this->messageparam == MSGPARAM_CUSTOM_MESSAGE) {
+            // For custom messages use the custom subject.
+            $messagedata->subject = $this->customsubject;
+        } else {
+            // Else use the localized lang string for the correspondent message type.
+            $messagedata->subject = get_string($this->messagefieldname . 'subject', 'booking', $this->params);
+        }
+
         $messagedata->fullmessage = strip_tags(preg_replace('#<br\s*?/?>#i', "\n", $this->messagebody));
         $messagedata->fullmessageformat = FORMAT_HTML;
         $messagedata->fullmessagehtml = $this->messagebody;
@@ -377,7 +403,15 @@ class message_controller {
         }
 
         $messagedata->modulename = 'booking';
-        $messagedata->subject = get_string($this->messagefieldname . 'subject', 'booking', $this->params);
+
+        if ($this->messageparam == MSGPARAM_CUSTOM_MESSAGE) {
+            // For custom messages use the custom subject.
+            $messagedata->subject = $this->customsubject;
+        } else {
+            // Else use the localized lang string for the correspondent message type.
+            $messagedata->subject = get_string($this->messagefieldname . 'subject', 'booking', $this->params);
+        }
+
         $messagedata->messagetext = format_text_email($this->messagebody, FORMAT_HTML);
         $messagedata->messagehtml = text_to_html($this->messagebody, false, false, true);
         $messagedata->messageparam = $this->messageparam;
@@ -582,6 +616,9 @@ class message_controller {
                 break;
             case MSGPARAM_REPORTREMINDER:
                 $fieldname = 'reportreminder';
+                break;
+            case MSGPARAM_CUSTOM_MESSAGE:
+                $fieldname = 'custommessage';
                 break;
             default:
                 throw new moodle_exception('ERROR: Unknown message parameter!');

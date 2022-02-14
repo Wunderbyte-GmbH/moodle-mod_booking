@@ -17,6 +17,8 @@ require_once(__DIR__ . '/../../config.php');
 require_once("lib.php");
 require_once("sendmessageform.class.php");
 
+use mod_booking\message_controller;
+
 $id = required_param('id', PARAM_INT);
 $optionid = required_param('optionid', PARAM_INT);
 $uids = required_param('uids', PARAM_RAW);
@@ -33,7 +35,7 @@ $groupmode = groups_get_activity_groupmode($cm);
 $strbooking = get_string('modulename', 'booking');
 
 if (!$context = context_module::instance($cm->id)) {
-    print_error('badcontext');
+    throw new moodle_exception('badcontext');
 }
 
 require_capability('mod/booking:communicate', $context);
@@ -56,7 +58,9 @@ if ($mform->is_cancelled()) {
 } else if ($data = $mform->get_data()) {
     // Clean form data.
     $cleanuids = clean_param_array(json_decode($uids), PARAM_INT);
-    booking_sendcustommessage($optionid, $data->subject, $data->message, $cleanuids);
+
+    // Now, let's send the custom message.
+    send_custom_message($optionid, $data->subject, $data->message, $cleanuids);
 
     redirect($redirecturl, get_string('messagesend', 'booking'), 5);
 }
@@ -70,3 +74,28 @@ $mform->set_data($defaultvalues);
 $mform->display();
 
 echo $OUTPUT->footer();
+
+/**
+ * Send a custom message to one or more users.
+ *
+ * @param integer $optionid
+ * @param string $subject
+ * @param string $message
+ * @param array $selecteduserids
+ */
+function send_custom_message(int $optionid, string $subject, string $message, array $selecteduserids) {
+    global $DB;
+
+    $option = $DB->get_record('booking_options', array('id' => $optionid));
+    $booking = $DB->get_record('booking', array('id' => $option->bookingid));
+    $cm = get_coursemodule_from_instance('booking', $booking->id);
+
+    foreach ($selecteduserids as $currentuserid) {
+
+        $messagecontroller = new message_controller(
+            MSGCONTRPARAM_SEND_NOW, MSGPARAM_CUSTOM_MESSAGE, $cm->id,
+            $option->bookingid, $optionid, $currentuserid, null, null, $subject, $message
+        );
+        $messagecontroller->send_or_queue();
+    }
+}
