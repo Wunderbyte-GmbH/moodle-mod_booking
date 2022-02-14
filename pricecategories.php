@@ -47,7 +47,7 @@ $PAGE->set_title(
 $mform = new pricecategories_form($pageurl);
 
 if ($mform->is_cancelled()) {
-
+    // If cancelled, go back to general booking settings.
     redirect($settingsurl);
 
 } else if ($data = $mform->get_data()) {
@@ -103,9 +103,6 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->heading(new lang_string('pricecategory', 'mod_booking'));
 
     echo get_string('pricecategoriessubtitle', 'booking');
-
-    // Add "Save" and "Cancel" buttons.
-    $mform->add_action_buttons(true);
 
     // Show the mform.
     $mform->display();

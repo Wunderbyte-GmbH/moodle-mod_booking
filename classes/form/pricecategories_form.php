@@ -22,7 +22,6 @@ global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
 use moodleform;
-use moodle_url;
 use stdClass;
 
 /**
@@ -119,6 +118,9 @@ class pricecategories_form extends moodleform {
             $start = count($pricecategories) + 2;
             $this->addpricecategories($mform, $start);
         }
+
+        // Add "Save" and "Cancel" buttons.
+        $this->add_action_buttons(true);
     }
 
     /**
