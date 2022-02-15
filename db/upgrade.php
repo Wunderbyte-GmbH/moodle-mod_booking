@@ -2054,19 +2054,20 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
-        // Define table booking_instancetemplate to be created.
+
+        // Define table booking_customreport to be created.
         $table = new xmldb_table('booking_customreport');
 
-        // Adding fields to table booking_instancetemplate.
+        // Adding fields to table booking_customreport.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('name', XMLDB_TYPE_CHAR, '128', null, XMLDB_NOTNULL, null, null);
 
-        // Adding keys to table booking_instancetemplate.
+        // Adding keys to table booking_customreport.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
         $table->add_index('course', XMLDB_INDEX_NOTUNIQUE, ['course']);
 
-        // Conditionally launch create table for booking_instancetemplate.
+        // Conditionally launch create table for booking_customreport.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
@@ -2163,9 +2164,9 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Adding fields to table booking_category.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
-        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
-        $table->add_field('sequencevalue', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('sequencevalue', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
 
         // Adding keys to table booking_category.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
