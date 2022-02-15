@@ -51,7 +51,7 @@ class shortcodes {
             return '';
         }
 
-        // If the id Argument was not passed on, we have a fallback in the connfig.
+        // If the id argument was not passed on, we have a fallback in the connfig.
         if (!isset($args['id'])) {
             $args['id'] = get_config('booking', 'shortcodessetinstance');
         }
@@ -81,7 +81,8 @@ class shortcodes {
 
         $table->define_cache('mod_booking', 'bookingoptionstable');
 
-        $table->add_subcolumns('cardbody', ['text', 'sports', 'dayofweek', 'bookings', 'teacher', 'coursedates', 'location', 'price']);
+        $table->add_subcolumns('cardbody', ['text', 'sports', 'dayofweek', 'bookings', 'teacher', 'coursedates', 'location',
+            'price']);
 
         // This avoids showing all keys in list view.
         $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-md-none']);
@@ -90,12 +91,12 @@ class shortcodes {
         $table->add_classes_to_subcolumns('cardbody', ['columniclassbefore' => 'fa fa-info-circle'], ['text']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-2 text-right'], ['sports']);
-        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'badge badge-primary'], ['sports']);
+        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'sports-badge'], ['sports']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-4 text-left'], ['dayofweek']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-8 text-right'], ['bookings']);
-        // $table->add_classes_to_subcolumns('cardbody', ['columniclassafter' => 'fa fa-users pl-2'], ['bookings']);
+        // COMMENT: $table->add_classes_to_subcolumns('cardbody', ['columniclassafter' => 'fa fa-users pl-2'], ['bookings']); END.
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-3'], ['teacher']);
 

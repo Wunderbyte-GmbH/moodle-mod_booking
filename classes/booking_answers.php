@@ -163,7 +163,6 @@ class booking_answers {
                     $this->usersonwaitinglist[$answer->userid] = $answer;
                     break;
                 case STATUSPARAM_RESERVED:
-
                     if (count($this->usersonlist) < $this->bookingoptionsettings->maxanswers) {
                         $this->usersonlist[$answer->userid] = $answer;
                     } else {
