@@ -1,3 +1,37 @@
+7.0.24 (2022021500)
+* Improvement: Use message_controller for custom messages.
+* Bugfix: Cancel button now works correctly.
+* Bugfix: Wrong index in message logs of bookingoption_completed.
+* Bugfix: Missing string in message logs of custom messages.
+* Bugfix: Closed #183 - Inconsistancy between install.xml and upgrades
+
+7.0.23 (2022020300)
+* New feature: New shortcodes class enables dynamic embedding of new bookingoptions_table (using wunderbyte_table).
+* New feature: Added prices to booking options.
+* New feature: Show prices and action button in shortcodes table.
+* New feature: Implement shopping_cart service provider & template.
+* New feature: Added shopping cart functionality.
+* New feature: Use new wunderbyte table caching.
+* New feature: Better message logging: Sent messages get logged by Moodle event logger.
+* New feature: Add possibility to choose currency globally via plugin settings.
+* New feature: Add price categories to booking settings (including default category).
+* New feature: Define a user profile field where the price category for each user is stored.
+* New feature: Disable price categories and add default values.
+* Improvement: New settings classes for booking instances and booking options.
+* Improvement: Refactoring: New message controller class in charge of all notification e-mails.
+* Improvement: Placeholder {optiontimes} now works for both single and multisessions
+* Improvement: Add function to booking_option_settings to get display-text instead of text with separator.
+* Improvement: Use new wunderbyte_table with mustache.js support.
+* Bugfix: Fixed broken view.php.
+* Bugfix: Updated deprecated code.
+* Bugfix: Book other users: Fixed a bug where selected users where not shown anymore.
+* Bugfix: Fixed a bug where we had a duplicated admin page name.
+* Bugfix: Fixed a bug where empty prices led to an error.
+* Bugfix: Fixed customfields page.
+* Bugfix: Fixed an infinite loop caused by message controller.
+* Bugfix: Fixed message data preparation.
+* Other: Added behat tests.
+
 7.0.22 (2021112900)
 * Bugfix: Fixed a broken SQL statement which caused an error in the Quickfinder Block.
 

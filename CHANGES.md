@@ -1,3 +1,47 @@
+## Version 7.0.24 (2022021500)
+**Improvements:**
+* Use message_controller for custom messages.
+
+**Bugfixes:**
+* Cancel button now works correctly.
+* Wrong index in message logs of bookingoption_completed.
+* Missing string in message logs of custom messages.
+* Closed #183 - Inconsistancy between install.xml and upgrades
+
+## Version 7.0.23 (2022020300)
+**New features:**
+* New shortcodes class enables dynamic embedding of new bookingoptions_table (using wunderbyte_table).
+* Added prices to booking options.
+* Show prices and action button in shortcodes table.
+* Implement shopping_cart service provider & template.
+* Added shopping cart functionality.
+* Use new wunderbyte table caching.
+* Better message logging: Sent messages get logged by Moodle event logger.
+* Add possibility to choose currency globally via plugin settings.
+* Add price categories to booking settings (including default category).
+* Define a user profile field where the price category for each user is stored.
+* Disable price categories and add default values.
+
+**Improvements:**
+* New settings classes for booking instances and booking options.
+* Refactoring: New message controller class in charge of all notification e-mails.
+* Placeholder {optiontimes} now works for both single and multisessions
+* Add function to booking_option_settings to get display-text instead of text with separator.
+* Use new wunderbyte_table with mustache.js support.
+
+**Bugfixes:**
+* Fixed broken view.php.
+* Updated deprecated code.
+* Book other users: Fixed a bug where selected users where not shown anymore.
+* Fixed a bug where we had a duplicated admin page name.
+* Fixed a bug where empty prices led to an error.
+* Fixed customfields page.
+* Fixed an infinite loop caused by message controller.
+* Fixed message data preparation.
+
+**Other:**
+* Added behat tests.
+
 ## Version 7.0.22 (2021112900)
 **Bugfixes:**
 * Fixed a broken SQL statement which caused an error in the Quickfinder Block.
