@@ -87,6 +87,8 @@ class message_sent extends \core\event\base {
                 return 'Session reminder';
             case MSGPARAM_REPORTREMINDER:
                 return 'Reminder sent from report';
+            case MSGPARAM_CUSTOM_MESSAGE:
+                return 'Custom message';
         }
     }
 }
