@@ -576,6 +576,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
+                   AND ba.waitinglist < 2
                      AND ba.userid = :userid) AS iambooked,
                          b.allowupdate,
                          b.allowupdatedays,
@@ -585,18 +586,21 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
+                   AND ba.waitinglist < 2
                      AND ba.completed = 1
                      AND ba.userid = :userid4) AS completed,
 
                   (SELECT status
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
+                   AND ba.waitinglist < 2
                      AND ba.status > 0
                      AND ba.userid = :userid6) AS status,
 
                   (SELECT DISTINCT(ba.waitinglist)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
+                   AND ba.waitinglist < 2
                      AND ba.userid = :userid1) AS waitinglist,
                          b.btnbooknowname,
                          b.maxperuser,

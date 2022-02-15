@@ -79,18 +79,23 @@ class shortcodes {
 
         $table->set_sql($fields, $from, $where, $params);
 
-        $table->define_cache('mod_booking', 'bookingoptions');
+        $table->define_cache('mod_booking', 'bookingoptionstable');
 
-        $table->add_subcolumns('cardbody', ['text', 'bookings', 'teacher', 'coursedates', 'location', 'price']);
+        $table->add_subcolumns('cardbody', ['text', 'sports', 'dayofweek', 'bookings', 'teacher', 'coursedates', 'location', 'price']);
 
         // This avoids showing all keys in list view.
         $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-md-none']);
 
-        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-md-8 col-sm-12'], ['text']);
+        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-md-10 col-sm-12'], ['text']);
         $table->add_classes_to_subcolumns('cardbody', ['columniclassbefore' => 'fa fa-info-circle'], ['text']);
 
-        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-4 text-right'], ['bookings']);
-        $table->add_classes_to_subcolumns('cardbody', ['columniclassafter' => 'fa fa-users pl-2'], ['bookings']);
+        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-2 text-right'], ['sports']);
+        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'badge badge-primary'], ['sports']);
+
+        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-4 text-left'], ['dayofweek']);
+
+        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-8 text-right'], ['bookings']);
+        // $table->add_classes_to_subcolumns('cardbody', ['columniclassafter' => 'fa fa-users pl-2'], ['bookings']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-3'], ['teacher']);
 

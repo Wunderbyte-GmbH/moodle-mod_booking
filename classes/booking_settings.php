@@ -314,6 +314,9 @@ class booking_settings {
     public function __construct(int $bookingid) {
         global $DB;
 
+        // We cache all the options normally and don't do
+
+
         if ($dbrecord = $DB->get_record("booking", array("id" => $bookingid))) {
             $this->id = $bookingid;
             $this->course = $dbrecord->course;

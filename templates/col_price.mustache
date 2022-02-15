@@ -22,7 +22,21 @@
 
     Data attributes required for JS:
     * data-region
+
+     Example context (json):
+    {
+        "itemname" : "myitem",
+        "price" : "10",
+        "currency" : "EUR",
+        "componentname" : "local_shoppingcart",
+        "description" : "description",
+        "imageurl" : "https://mypic.jpg",
+        "pricecategoryidentifier" : "categoryid"
+        "pricecategoryname" : "student"
+    }
 }}
 
+{{#price}}
 {{price}} {{currency}} {{> local_shopping_cart/addtocartdb }}
 <p><i>{{pricecategoryname}}</i></p>
+{{/price}}

@@ -1388,3 +1388,11 @@ $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kateg
     z.B. eigene Preiskategorien für Studierende, Mitarbeitende oder Externe.
     <b>Achtung:</b> Sobald Sie eine Kategorie erstellt haben, können Sie diese nicht mehr löschen.
     Sie können Kategorien aber umbenennen oder deaktivieren.</p>';
+
+// Caches.
+
+$string['cachedef_bookingoptions'] = 'Buchungsoptionen allgemeine Infos';
+$string['cachedef_bookingoptionsanswers'] = 'Buchungsstatus von einzelnen Optionen';
+$string['cachedef_bookingoptionstable'] = 'Gesamte SQL Abfragen';
+$string['cachedef_cachedpricecategories'] = 'Preiskategorien in Booking';
+$string['cachedef_cachedprices'] = 'Standardpreise in Booking';

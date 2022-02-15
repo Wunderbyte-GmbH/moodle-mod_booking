@@ -28,6 +28,8 @@ namespace mod_booking\output;
 defined('MOODLE_INTERNAL') || die();
 
 use local_shopping_cart\local\entities\cartitem;
+use mod_booking\booking_answers;
+use mod_booking\booking_option_settings;
 use mod_booking\price;
 use renderer_base;
 use renderable;
@@ -51,27 +53,36 @@ class col_price implements renderable, templatable {
     public $priceitem = [];
 
     /**
-     * Constructor
+     * Only when the user is not booked, we store a price during construction.
      */
     public function __construct(stdClass $values) {
 
-        if ($values->id) {
-            if ($this->priceitem = price::get_price($values->id)) {
+        global $USER;
 
-                $cartitem = new cartitem($values->id,
-                                 $values->text,
-                                 $this->priceitem['price'],
-                                 $this->priceitem['currency'],
-                                 'mod_booking',
-                                 $values->description
-                            );
-
-                $this->cartitem = $cartitem->getitem();
-            }
+        if (!isset($values->userid)) {
+            $userid = $USER->id;
+        } else {
+            $userid = $values->userid;
         }
 
-        return '';
+        if ($values->id) {
+            $bookinganswers = booking_answers::get_instance_from_optionid($values->id);
+            // A status bigger than 1 means, that the user is neither booked nor on waitinglist.
+            if ($bookinganswers->user_status($userid) > 1) {
+                if ($this->priceitem = price::get_price($values->id)) {
 
+                    $cartitem = new cartitem($values->id,
+                                     $values->text,
+                                     $this->priceitem['price'],
+                                     $this->priceitem['currency'],
+                                     'mod_booking',
+                                     $values->description
+                                );
+
+                    $this->cartitem = $cartitem->getitem();
+                }
+            }
+        }
     }
 
     /**
@@ -80,7 +91,9 @@ class col_price implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output) {
-
+        if (!$this->cartitem) {
+            return [];
+        }
         return [
             'itemid' => $this->cartitem['itemid'],
             'itemname' => $this->cartitem['itemname'],

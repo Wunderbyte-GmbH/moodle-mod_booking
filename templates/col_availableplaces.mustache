@@ -1,0 +1,80 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/col_text
+
+    Classes required for JS:
+    * none
+
+    Example context (json):
+    {
+        "iambooked" : [
+            "maxanswers" : "10",
+            "maxoverbooking" : "10",
+            "waiting" : "3",
+            "booked" : "10",
+            "freeonlist" : "0",
+            "freeonwaitinglist" : "7",
+        ],
+        "onwaitinglist" : [
+            "maxanswers" : "10",
+            "maxoverbooking" : "10",
+            "waiting" : "3",
+            "booked" : "10",
+            "freeonlist" : "0",
+            "freeonwaitinglist" : "7",
+        ],
+        "notbooked" : [
+            "maxanswers" : "10",
+            "maxoverbooking" : "10",
+            "waiting" : "3",
+            "booked" : "10",
+            "freeonlist" : "0",
+            "freeonwaitinglist" : "7",
+        ],
+    }
+}}
+
+{{#iambooked}}
+    <div class="btn alert-success col-ap-booked">
+        {{#str}} booked, mod_booking {{/str}}
+    </div>
+{{/iambooked}}
+
+{{#onwaitinglist}}
+    <div class="btn alert-success col-ap-booked">
+        {{#str}} onwaitinglist, mod_booking {{/str}}
+    </div>
+{{/onwaitinglist}}
+
+{{#notbooked}}
+    {{#maxanswers}}
+        <div class="col-ap-availableplaces">
+            {{#str}} availableplaces, mod_booking, { "available": {{freeonlist}}, "maxanswers": {{maxanswers}} } {{/str}}
+        </div>
+    {{/maxanswers}}
+    {{^maxanswers}}
+        <div class="col-ap-availableplaces">
+            {{#str}} unlimited, mod_booking {{/str}}
+        </div>
+    {{/maxanswers}}
+    {{#maxoverbooking}}
+        <div class="col-ap-waitingplacesavailable">
+            {{#str}} waitingplacesavailable, mod_booking, { "overbookingavailable": {{freeonwaitinglist}}, "maxoverbooking": {{maxoverbooking}} } {{/str}}
+        </div>
+    {{/maxoverbooking}}
+{{/notbooked}}

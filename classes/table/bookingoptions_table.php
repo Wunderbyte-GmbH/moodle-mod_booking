@@ -24,8 +24,11 @@ require_once($CFG->libdir.'/tablelib.php');
 use coding_exception;
 use dml_exception;
 use \local_wunderbyte_table\wunderbyte_table;
+use mod_booking\booking_option;
 use \mod_booking\booking_utils;
+use mod_booking\customfield\booking_handler;
 use mod_booking\output\col_action;
+use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_price;
 use \mod_booking\output\col_text;
 use \mod_booking\output\col_teacher;
@@ -73,7 +76,7 @@ class bookingoptions_table extends wunderbyte_table {
         $output = $PAGE->get_renderer('mod_booking');
 
         // Currently, this will use dummy teachers.
-        $data = new col_teacher();
+        $data = new col_teacher($values->id);
 
         return $output->render_col_teacher($data);
     }
@@ -132,8 +135,11 @@ class bookingoptions_table extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_bookings($values) {
-
-        return '10/1/5';
+        global $PAGE;
+        // Render col_text using a template.
+        $output = $PAGE->get_renderer('mod_booking');
+        $data = new col_availableplaces($values);
+        return $output->render_col_availableplaces($data);
     }
 
     /**
@@ -147,6 +153,62 @@ class bookingoptions_table extends wunderbyte_table {
     public function col_location($values) {
 
         return 'Schmelz 1,<br> 1030 Wien';
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * sports value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $sports Returns course start time as a readable string.
+     * @throws coding_exception
+     */
+    public function col_sports($values) {
+
+        $handler = booking_handler::create();
+
+        $datas = $handler->get_instance_data($values->id);
+
+        foreach ($datas as $data) {
+
+            $getfield = $data->get_field();
+            $shortname = $getfield->get('shortname');
+            if ($shortname == 'sport') {
+                if ($value = $data->get_value()) {
+                    return $value;
+                }
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * dayofweek value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $dayofweek Returns course start time as a readable string.
+     * @throws coding_exception
+     */
+    public function col_dayofweek($values) {
+
+        $handler = booking_handler::create();
+
+        $datas = $handler->get_instance_data($values->id);
+
+        foreach ($datas as $data) {
+
+            $getfield = $data->get_field();
+            $shortname = $getfield->get('shortname');
+            if ($shortname == 'dayofweektime') {
+                if ($value = $data->get_value()) {
+                    return $value;
+                }
+            }
+        }
+
+        return '';
     }
 
     /**

@@ -824,6 +824,14 @@ function booking_update_options($optionvalues, $context) {
             booking_updatestartenddate($option->id);
         }
 
+        // At the very last moment, when everything is done, we invalidate the table cache.
+        cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::invalidate_by_event('setbackoptions', [$option->id]);
+        cache_helper::invalidate_by_event('setbackoptionsanswers', [$option->id]);
+
+        // $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
+        // $cache->delete($option->id);
+
         return $option->id;
     } else if (!empty($optionvalues->text)) { // New booking option record.
         // If option "Use as global template" has been set.
@@ -918,6 +926,17 @@ function booking_update_options($optionvalues, $context) {
         $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
                 'userid' => $USER->id));
         $event->trigger();
+
+        // At the very last moment, when everything is done, we invalidate the table cache.
+        cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::invalidate_by_event('setbackoptions', [$optionid]);
+        cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
+
+        // We also need to invalidate the cache for the booking answer.
+        // cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
+
+        // $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
+        // $cache->delete($optionid);
 
         return $optionid;
     }

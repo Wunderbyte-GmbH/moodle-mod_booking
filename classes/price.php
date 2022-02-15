@@ -142,9 +142,9 @@ class price {
      * If no category identifier has been set, it will return the default price.
      *
      * @param int $optionid
-     * @return void
+     * @return array
      */
-    public static function get_price(int $optionid): array {
+    public static function get_price(int $optionid):array {
 
         global $DB, $USER;
 
@@ -166,7 +166,7 @@ class price {
         $prices = self::get_prices_from_cache_or_db($optionid);
 
         if (empty($prices)) {
-            return null;
+            return [];
         }
 
         foreach ($prices as $pricerecord) {
@@ -181,16 +181,16 @@ class price {
             }
         }
 
-        return null;
+        return [];
     }
 
     /**
      * Return the cache or DB records of all prices for the option.
      *
      * @param int $optionid
-     * @return array|null
+     * @return array
      */
-    private static function get_prices_from_cache_or_db(int $optionid): array {
+    private static function get_prices_from_cache_or_db(int $optionid):array {
         global $DB;
 
         $cache = \cache::make('mod_booking', 'cachedprices');
@@ -200,7 +200,7 @@ class price {
         if (!$cachedprices) {
 
             if (!$prices = $DB->get_records('booking_prices', ['optionid' => $optionid])) {
-                return null;
+                return [];
             }
 
             $data = json_encode($prices);

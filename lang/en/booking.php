@@ -1629,3 +1629,10 @@ $string['pricecategoriessubtitle'] = '<p>Here you can define different price cat
     special price categories for students, employees or externals.
     <b>Be careful:</b> Once you have added a category, you cannot delete it.
     Only disable or rename it.</p>';
+
+// Cache.
+$string['cachedef_bookingoptions'] = 'General information of booking options';
+$string['cachedef_bookingoptionsanswers'] = 'Booking status of single options';
+$string['cachedef_bookingoptionstable'] = 'Tables of booking options with hashed sql queries';
+$string['cachedef_cachedpricecategories'] = 'Price categories Booking';
+$string['cachedef_cachedprices'] = 'Standard prices in Booking';

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
+
+use cache_helper;
 use coding_exception;
 use completion_info;
 use context_module;
@@ -141,19 +143,17 @@ class booking_option {
         $this->optionid = $optionid;
         $this->id = $optionid; // Store it in id AND in optionid.
 
-        $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', MUST_EXIST);
+        // $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', MUST_EXIST);
+
+        $settings = new booking_option_settings($optionid);
+        $this->option = $settings->return_settings();
 
         // TODO: We need to get rid of this in the future.
         // It will be done by the booking_option_settings class and the mustache template optiondates_only.
-        $times = $DB->get_records_sql(
-                "SELECT id, coursestarttime, courseendtime
-                   FROM {booking_optiondates}
-                  WHERE optionid = ?
-               ORDER BY coursestarttime ASC",
-                array($optionid));
-        if (!empty($times)) {
-            $this->sessions = $times;
-            foreach ($times as $time) {
+        $this->sessions = $this->option->sessions;
+
+        if (!empty($this->sessions)) {
+            foreach ($this->sessions as $time) {
                 $this->optiontimes .= $time->coursestarttime . " - " . $time->courseendtime . ",";
             }
             trim($this->optiontimes, ",");
@@ -167,35 +167,32 @@ class booking_option {
         if ($getusers) {
             $this->get_users();
         }
-        // TODO: A lot of DB queries: put into fewer queries. Only get this, when necessary.
-        // TODO: Maybe create a separate class for managing booking answers.
-        $imbooked = $DB->get_record_sql("SELECT COUNT(*) imbooked FROM {booking_answers} WHERE optionid = :optionid
-            AND userid = :userid AND waitinglist = 0", array('optionid' => $optionid, 'userid' => $USER->id));
-        $this->iambooked = $imbooked->imbooked;
 
-        $onwaitinglist = $DB->get_record_sql("SELECT COUNT(*) onwaitinglist FROM {booking_answers}
-            WHERE optionid = :optionid AND userid = :userid AND waitinglist = 1", array('optionid' => $optionid,
-            'userid' => $USER->id));
-        $this->onwaitinglist = $onwaitinglist->onwaitinglist;
+        // We use cached booking information by now.
+        $this->get_and_set_booking_information();
 
-        $completed = $DB->get_record_sql("SELECT COUNT(*) completed FROM {booking_answers} WHERE optionid = :optionid
-            AND userid = :userid AND completed = 1", array('optionid' => $optionid, 'userid' => $USER->id));
-        $this->completed = $completed->completed;
-
-        $waiting = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid
-            AND waitinglist = 1", array('optionid' => $optionid));
-        $this->waiting = $waiting->rnum;
-
-        $booked = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid
-            AND waitinglist = 0", array('optionid' => $optionid));
-        $this->booked = $booked->rnum;
         // To deal with the necessity of unique booking names.
-        booking_utils::transform_unique_bookingoption_name_to_display_name($this->option);
+        booking_option_settings::transform_unique_bookingoption_name_to_display_name($this->option);
     }
 
     /**
-     * Returns a booking_option object when optionid is passed along. Saves db query when booking id is given as well.
-     * TODO: cache this.
+     * Function to get information from the booking_answers table, if possible via cache.
+     *
+     * @return void
+     */
+    private function get_and_set_booking_information() {
+
+        // TODO: get and set information from booking class.
+        // $this->iambooked = $imbooked;
+        // $this->onwaitinglist = $onwaitinglist;
+        // $this->completed = $completed;
+        // $this->booked = $booked;
+        // $this->waiting = $waiting;
+    }
+
+    /**
+     * Returns a booking_option object when optionid is passed along.
+     * Saves db query when booking id is given as well, but uses already cached settings.
      *
      * @param $optionid
      * @param int $boid booking id
@@ -205,10 +202,17 @@ class booking_option {
      */
     public static function create_option_from_optionid($optionid, $boid = null) {
         global $DB;
-        if (is_null($boid)) {
-            $boid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid]);
+
+        if (!$boid && !($settings = new booking_option_settings($optionid))) {
+            if (is_null($boid)) {
+                $boid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid]);
+            }
+        } else {
+            $boid = $settings->bookingid;
         }
+
         $cm = get_coursemodule_from_instance('booking', $boid);
+
         return new booking_option($cm->id, $optionid);
     }
 
@@ -401,7 +405,7 @@ class booking_option {
         foreach ($this->users as $user) {
             if ($user->waitinglist == 1) {
                 $this->usersonwaitinglist[$user->userid] = $user;
-            } else {
+            } else if ($user->waitinglist == 0) {
                 $this->usersonlist[$user->userid] = $user;
             }
         }
@@ -477,7 +481,7 @@ class booking_option {
             $allusers = $this->allusers;
         }
         foreach ($allusers as $baid => $user) {
-            if ($user->waitinglist != 1) {
+            if ($user->waitinglist == 0) {
                 $bookedusers[$baid] = $user;
             }
         }
@@ -490,31 +494,31 @@ class booking_option {
      * @param number $userid
      * @return number status 0 = not existing, 1 = waitinglist, 2 = regularely booked
      */
-    public function user_status($userid = null) {
-        global $DB, $USER;
-        $booked = false;
-        if (is_null($userid)) {
-            $userid = $USER->id;
-        }
+    // public function user_status($userid = null) {
+    //     global $DB, $USER;
+    //     $booked = false;
+    //     if (is_null($userid)) {
+    //         $userid = $USER->id;
+    //     }
 
-        $booked = $DB->get_field('booking_answers', 'waitinglist',
-                array('optionid' => $this->optionid, 'userid' => $userid));
+    //     $booked = $DB->get_field('booking_answers', 'waitinglist',
+    //             array('optionid' => $this->optionid, 'userid' => $userid));
 
-        if ($booked === false) {
-            // Check, if it's in teachers table.
-            if ($DB->get_field('booking_teachers', 'id',
-                    array('optionid' => $this->optionid, 'userid' => $userid)) !== false) {
-                return 2;
-            }
-            return 0;
-        } else if ($booked === "0") {
-            return 2;
-        } else if ($booked === 1 || $booked === "1") {
-            return 1;
-        } else { // Should never be reached.
-            return 0;
-        }
-    }
+    //     if ($booked === false) {
+    //         // Check, if it's in teachers table.
+    //         if ($DB->get_field('booking_teachers', 'id',
+    //                 array('optionid' => $this->optionid, 'userid' => $userid)) !== false) {
+    //             return 2;
+    //         }
+    //         return 0;
+    //     } else if ($booked === "0") {
+    //         return 2;
+    //     } else if ($booked === 1 || $booked === "1") {
+    //         return 1;
+    //     } else { // Should never be reached.
+    //         return 0;
+    //     }
+    // }
 
     /**
      * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
@@ -522,21 +526,21 @@ class booking_option {
      * @param number $userid
      * @return number status 0 = activity not completed, 1 = activity completed
      */
-    public function is_activity_completed($userid = null) {
-        global $DB, $USER;
-        if (\is_null($userid)) {
-            $userid = $USER->id;
-        }
+    // public function is_activity_completed($userid = null) {
+    //     global $DB, $USER;
+    //     if (\is_null($userid)) {
+    //         $userid = $USER->id;
+    //     }
 
-        $userstatus = $DB->get_field('booking_answers', 'completed',
-                array('optionid' => $this->optionid, 'userid' => $userid));
+    //     $userstatus = $DB->get_field('booking_answers', 'completed',
+    //             array('optionid' => $this->optionid, 'userid' => $userid));
 
-        if ($userstatus == 1) {
-            return $userstatus;
-        } else {
-            return 0;
-        }
-    }
+    //     if ($userstatus == 1) {
+    //         return $userstatus;
+    //     } else {
+    //         return 0;
+    //     }
+    // }
 
     /**
      * Return if user can rate.
@@ -545,6 +549,8 @@ class booking_option {
      */
     public function can_rate() {
         global $USER;
+
+        $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
 
         if ($this->booking->settings->ratings == 0) {
             return false;
@@ -555,7 +561,7 @@ class booking_option {
         }
 
         if ($this->booking->settings->ratings == 2) {
-            if (in_array($this->user_status($USER->id), array(1, 2))) {
+            if (in_array($bookinganswers->user_status($USER->id), array(STATUSPARAM_BOOKED, STATUSPARAM_WAITINGLIST))) {
                 return true;
             } else {
                 return false;
@@ -563,7 +569,7 @@ class booking_option {
         }
 
         if ($this->booking->settings->ratings == 3) {
-            if ($this->is_activity_completed($USER->id)) {
+            if ($bookinganswers->is_activity_completed($USER->id)) {
                 return true;
             } else {
                 return false;
@@ -596,8 +602,10 @@ class booking_option {
         // Get the email params from message controller.
         $params = $messagecontroller->get_params();
 
-        if (in_array($this->user_status($userid), array(1, 2))) {
-            $ac = $this->is_activity_completed($userid);
+        $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
+
+        if (in_array($bookinganswers->user_status($userid), array(STATUSPARAM_BOOKED, STATUSPARAM_WAITINGLIST))) {
+            $ac = $bookinganswers->is_activity_completed($userid);
             if ($ac == 1) {
                 if (!empty($this->option->aftercompletedtext)) {
                     $text = format_text($this->option->aftercompletedtext, FORMAT_HTML, $this->booking->course->id);
@@ -799,6 +807,10 @@ class booking_option {
         // Sync the waiting list and send status change mails.
         $this->sync_waiting_list();
 
+        // Before returning, we have to set back the answer cache.
+        $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
+        $cache->delete($this->optionid);
+
         if ($cancelreservation) {
             return true;
         }
@@ -912,7 +924,7 @@ class booking_option {
 
             // If users drop out of the waiting list because of changed limits, delete and inform them.
             $answerstodelete = $DB->get_records_sql(
-                'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
+                'SELECT * FROM {booking_answers} WHERE optionid = ? AND waitinglist < 3 ORDER BY timemodified ASC',
                 array($this->optionid), $this->option->maxoverbooking + $this->option->maxanswers);
 
             foreach ($answerstodelete as $answertodelete) {
@@ -926,12 +938,13 @@ class booking_option {
             }
 
             // Update, enrol and inform users who have switched from the waiting list to status "booked".
+            // We include STATUSPARAM_BOOKED STATUSPARAM_WAITINGLIST & STATUSPARAM_RESERVED (all < 3) in this logic.
             $newbookedanswers = $DB->get_records_sql(
-                    'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
+                    'SELECT * FROM {booking_answers} WHERE optionid = ? AND waitinglist < 3 ORDER BY timemodified ASC',
                     array($this->optionid), 0, $this->option->maxanswers);
             foreach ($newbookedanswers as $newbookedanswer) {
-                if ($newbookedanswer->waitinglist != 0) {
-                    $newbookedanswer->waitinglist = 0;
+                if ($newbookedanswer->waitinglist == STATUSPARAM_WAITINGLIST) {
+                    $newbookedanswer->waitinglist = STATUSPARAM_BOOKED;
                     $DB->update_record("booking_answers", $newbookedanswer);
                     $this->enrol_user_coursestart($newbookedanswer->userid);
 
@@ -944,13 +957,14 @@ class booking_option {
             }
 
             // Update and inform users who have been put on the waiting list because of changed limits.
+            // We include STATUSPARAM_BOOKED STATUSPARAM_WAITINGLIST & STATUSPARAM_RESERVED (all < 3) in this logic.
             $newwaitinglistanswers = $DB->get_records_sql(
-                    'SELECT * FROM {booking_answers} WHERE optionid = ? ORDER BY timemodified ASC',
+                    'SELECT * FROM {booking_answers} WHERE optionid = ? AND waitinglist < 3 ORDER BY timemodified ASC',
                     array($this->optionid), $this->option->maxanswers, $this->option->maxoverbooking);
 
             foreach ($newwaitinglistanswers as $newwaitinglistanswer) {
-                if ($newwaitinglistanswer->waitinglist != 1) {
-                    $newwaitinglistanswer->waitinglist = 1;
+                if ($newwaitinglistanswer->waitinglist == STATUSPARAM_BOOKED) {
+                    $newwaitinglistanswer->waitinglist = STATUSPARAM_WAITINGLIST;
                     $DB->update_record("booking_answers", $newwaitinglistanswer);
 
                     $messagecontroller = new message_controller(
@@ -975,7 +989,7 @@ class booking_option {
             }
 
             // Now move everybody from the waiting list to booked users.
-            $DB->execute("UPDATE {booking_answers} SET waitinglist = 0 WHERE optionid = :optionid",
+            $DB->execute("UPDATE {booking_answers} SET waitinglist = 0 WHERE optionid = :optionid AND waitinglist < 2",
                     array('optionid' => $this->optionid));
         }
     }
@@ -1035,7 +1049,7 @@ class booking_option {
             return false;
         }
         // We have to get all the records of the user, there might be more than one.
-        $$currentanswers = $DB->get_records('booking_answers',
+        $currentanswers = $DB->get_records('booking_answers',
                 array('userid' => $user->id, 'optionid' => $this->optionid));
 
         // This variable is used to detect errors.
@@ -1044,7 +1058,7 @@ class booking_option {
         // Ignore all deleted entries
         // And use some shortcuts, if possible.
         foreach ($currentanswers as $currentanswer) {
-            switch($currentanswer->watinglist) {
+            switch($currentanswer->waitinglist) {
                 case STATUSPARAM_DELETED:
                     --$numberofanswers;
                     break;
@@ -1071,7 +1085,7 @@ class booking_option {
 
         // We should have only one answer after deleted in DB.
         if ($numberofanswers > 1) {
-            throw new moodle_exception('tomanybookinganswers', 'mod_booking', '', null, "$user->id has to many answers in $this->optionid");
+            throw new moodle_exception('tomanybookinganswers', 'mod_booking', '', null, "$user->id has too many answers in $this->optionid");
         }
 
         $newanswer = new stdClass();
@@ -1083,7 +1097,7 @@ class booking_option {
         $newanswer->timecreated = time();
         $newanswer->waitinglist = $waitinglist;
 
-        if ($currentanswerid) {
+        if (isset($currentanswerid)) {
             $newanswer->id = $currentanswerid;
             if (!$DB->update_record("booking_answers", $newanswer)) {
                 new \moodle_exception("dmlwriteexception");
@@ -1094,9 +1108,12 @@ class booking_option {
             }
         }
 
-        // If we have only put the option in the shopping card (reserved) we will skip the rest of the fucntion here.
+        // Before returning, we have to set back the answer cache.
+        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
 
+        // If we have only put the option in the shopping card (reserved) we will skip the rest of the fucntion here.
         if ($waitinglist == STATUSPARAM_RESERVED) {
+
             return true;
         }
 
@@ -1212,8 +1229,10 @@ class booking_option {
             return; // No manual enrolment instance on this course.
         }
 
+        $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
+
         $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-        if ($this->user_status($userid) === 2) {
+        if ($bookinganswers->user_status($userid) === STATUSPARAM_BOOKED) {
             $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid)); // Enrol using the default role.
 
             // TODO: Track enrolment status in booking_answers. It makes no sense to track it in booking_options.
@@ -1459,6 +1478,9 @@ class booking_option {
 
             $DB->update_record('booking_answers', $userdata);
         }
+
+        // After updating, we have to invalidate cache.
+        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
     }
 
     /**
@@ -1639,6 +1661,9 @@ class booking_option {
                 $completion->update_state($cm, COMPLETION_COMPLETE, $userid);
             }
         }
+
+        // After updating, we have to invalidate cache.
+        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
     }
 
     /**
@@ -1860,6 +1885,9 @@ class booking_option {
         $dataobject->pollsend = 1;
 
         $DB->update_record('booking_options', $dataobject);
+
+        // After updating, we have to invalidate cache.
+        cache_helper::invalidate_by_event('setbackoption', [$this->optionid]);
     }
 
     /**
@@ -1970,7 +1998,7 @@ class booking_option {
         global $DB;
 
         $bookinganswers = $DB->get_records_select('booking_answers',
-            "bookingid = $this->bookingid AND optionid = $this->optionid", array(), 'timemodified', 'userid');
+            "bookingid = $this->bookingid AND optionid = $this->optionid and waitinglist < 2", array(), 'timemodified', 'userid');
 
         $sortedanswers = array();
         if (!empty($bookinganswers)) {
@@ -2011,7 +2039,9 @@ class booking_option {
      */
     public function get_user_status_string($userid) {
 
-        $statusparam = $this->get_user_status($userid);
+        $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
+
+        $statusparam = $bookinganswers->user_status($userid);
 
         switch ($statusparam) {
             case STATUSPARAM_BOOKED:

@@ -586,7 +586,8 @@ if (!$tableallbookings->is_downloading()) {
             JOIN {user} u ON u.id = ba.userid
             JOIN {booking_options} bo ON bo.id = ba.optionid
             LEFT JOIN {booking_options} otherbookingoption ON otherbookingoption.id = ba.frombookingid ';
-    $where = ' ba.optionid = :optionid ' . $addsqlwhere;
+    $where = ' ba.optionid = :optionid
+             AND ba.waitinglist < 2 ' . $addsqlwhere;
 
     $tableallbookings->set_sql($fields, $from, $where, $sqlvalues);
 
@@ -876,7 +877,8 @@ if (!$tableallbookings->is_downloading()) {
     $from = '{booking_answers} ba
             JOIN {user}  u ON u.id = ba.userid
             JOIN {booking_options} bo ON bo.id = ba.optionid';
-    $where = 'ba.optionid = :optionid ' . $addsqlwhere;
+    $where = 'ba.optionid = :optionid
+             AND ba.waitinglist < 2 ' . $addsqlwhere;
     $tableallbookings->define_columns($columns);
     $tableallbookings->define_headers($headers);
     $tableallbookings->set_sql($fields, $from, $where, $sqlvalues);

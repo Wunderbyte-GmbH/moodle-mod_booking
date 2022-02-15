@@ -39,12 +39,26 @@ $definitions = array(
         'staticaccelerationsize' => 1,
         'invalidationevents' => ['setbackpricecategories']
     ),
-    'bookingoptions' => array(
+    'bookingoptionstable' => array( // This cache uses hased sql queries as keys.
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1,
+        'invalidationevents' => ['setbackoptionstable']
+    ),
+    'bookingoptions' => array( // This cache uses optionids as keys.
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
         'invalidationevents' => ['setbackoptions']
+    ),
+    'bookingoptionsanswers' => array( // This cache uses optionids as keys.
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1,
+        'invalidationevents' => ['setbackoptionsanswers']
     )
 );
 

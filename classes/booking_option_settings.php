@@ -144,6 +144,9 @@ class booking_option_settings {
     /** @var array $sessions */
     public $sessions = [];
 
+    /** @var array $teachers */
+    public $teachers = [];
+
     /**
      * Constructor for the booking option settings class.
      *
@@ -153,7 +156,38 @@ class booking_option_settings {
     public function __construct(int $optionid) {
         global $DB;
 
-        if ($dbrecord = $DB->get_record("booking_options", array("id" => $optionid))) {
+        $cache = \cache::make('mod_booking', 'bookingoptions');
+        $cachedoptions = $cache->get($optionid);
+
+        if (!$cachedoptions) {
+            $cachedoptions = null;
+        }
+
+        // If we have no object to pass to set values, the function will retrieve the values from db.
+        if ($data = $this->set_values($optionid, $cachedoptions)) {
+            // Only if we didn't pass anything to cachedoptions, we set the cache now.
+            if (!$cachedoptions) {
+                $cache->set($optionid, $data);
+            }
+        }
+    }
+
+    /**
+     * Load values of booking_option from db, should rarely be necessary.
+     *
+     * @param integer $optionid
+     * @return stdClass|null
+     */
+    private function set_values(int $optionid, object $dbrecord = null) {
+        global $DB;
+
+        // If we don't get the cached object, we have to fetch it here.
+        if ($dbrecord === null) {
+            $dbrecord = $DB->get_record("booking_options", array("id" => $optionid));
+
+        }
+
+        if ($dbrecord) {
 
             // Fields in DB.
             $this->id = $optionid;
@@ -194,31 +228,90 @@ class booking_option_settings {
             $this->duration = $dbrecord->duration;
             $this->parentid = $dbrecord->parentid;
 
-            // Other member variables from different tables.
-
-            // Multi-sessions.
-            if (!$this->sessions = $DB->get_records_sql(
-                "SELECT id optiondateid, coursestarttime, courseendtime
-                FROM {booking_optiondates}
-                WHERE optionid = ?
-                ORDER BY coursestarttime ASC", array($optionid))) {
-
-                // If there are no multisessions, but we still have the option's ...
-                // ... coursestarttime and courseendtime, then store them as if they were a session.
-                if (!empty($this->coursestarttime) && !empty($this->courseendtime)) {
-                    $singlesession = new stdClass;
-                    $singlesession->coursestarttime = $this->coursestarttime;
-                    $singlesession->courseendtime = $this->courseendtime;
-                    $this->sessions[] = $singlesession;
-                } else {
-                    // Else we have no sessions.
-                    $this->sessions = [];
-                }
+            // If the key "sessions" is not yet set, we need to load from DB.
+            if (!isset($dbrecord->sessions)) {
+                $this->load_sessions_from_db($optionid);
+                $dbrecord->sessions = $this->sessions;
+            } else {
+                $this->sessions = $dbrecord->sessions;
             }
 
+            // If the key "teachers" is not yet set, we need to load from DB.
+            if (!isset($dbrecord->teachers)) {
+                $this->load_teachers_from_db($optionid);
+                $dbrecord->teachers = $this->teachers;
+            } else {
+                $this->teachers = $dbrecord->teachers;
+            }
+
+            return $dbrecord;
         } else {
             debugging('Could not create option settings class for optionid: ' . $optionid);
+            return null;
         }
+    }
+
+    // Function to load Multisessions from DB.
+    private function load_sessions_from_db($optionid) {
+        global $DB;
+        // Multi-sessions.
+        if (!$this->sessions = $DB->get_records_sql(
+            "SELECT id optiondateid, coursestarttime, courseendtime
+            FROM {booking_optiondates}
+            WHERE optionid = ?
+            ORDER BY coursestarttime ASC", array($optionid))) {
+
+            // If there are no multisessions, but we still have the option's ...
+            // ... coursestarttime and courseendtime, then store them as if they were a session.
+            if (!empty($this->coursestarttime) && !empty($this->courseendtime)) {
+                $singlesession = new stdClass;
+                $singlesession->id = 0;
+                $singlesession->coursestarttime = $this->coursestarttime;
+                $singlesession->courseendtime = $this->courseendtime;
+                $this->sessions[] = $singlesession;
+            } else {
+                // Else we have no sessions.
+                $this->sessions = [];
+            }
+        }
+    }
+
+    // Function to load Teachers from DB.
+    private function load_teachers_from_db($optionid) {
+        global $DB, $CFG;
+
+        require_once($CFG->dirroot . "/user/lib.php");
+
+        $teachers = $DB->get_records("booking_teachers",
+                array("optionid" => $optionid));
+
+        foreach ($teachers as $teacher) {
+            $users = user_get_users_by_id([$teacher->userid]);
+            $user = reset($users);
+            $teacher->firstname = $user->firstname;
+            $teacher->lastname = $user->lastname;
+        }
+
+        $this->teachers = $teachers;
+    }
+
+    /**
+     * Returns the cached settings as stClass.
+     * We will always have them in cache if we have constructed an instance, but just in case...
+     * ... we also deal with an empty cache object.
+     *
+     * @return stdClass
+     */
+    public function return_settings():stdClass {
+
+        $cache = \cache::make('mod_booking', 'bookingoptions');
+        $cachedoptions = $cache->get($this->id);
+
+        if (!$cachedoptions) {
+            $cachedoptions = $this->set_values($this->id);
+        }
+
+        return $cachedoptions;
     }
 
     /**

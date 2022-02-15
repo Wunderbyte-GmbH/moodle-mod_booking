@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains the definition for the renderable classes for column 'teacher'.
+ * This file contains the definition for the renderable classes for column 'action'.
  *
  * @package   mod_booking
- * @copyright 2021 Wunderbyte GmbH {@link http://www.wunderbyte.at}
- * @author    Bernhard Fischer
+ * @copyright 2022 Wunderbyte GmbH {@link http://www.wunderbyte.at}
+ * @author    Georg Maißer
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,35 +27,32 @@ namespace mod_booking\output;
 
 defined('MOODLE_INTERNAL') || die();
 
+use mod_booking\booking_answers;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
-use mod_booking\booking_settings;
 use renderer_base;
 use renderable;
 use templatable;
 
 /**
- * This class prepares data for displaying the column 'teacher'.
+ * This class prepares data for displaying the column 'availableplaces'.
  *
  * @package     mod_booking
- * @copyright   2021 Wunderbyte GmbH {@link http://www.wunderbyte.at}
- * @author      Bernhard Fischer
+ * @copyright   2022 Wunderbyte GmbH {@link http://www.wunderbyte.at}
+ * @author      Georg Maißer
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class col_teacher implements renderable, templatable {
+class col_availableplaces implements renderable, templatable {
 
-    /** @var array $teachers array of teachers */
-    public $teachers = [];
-
+    /** @var booking_answers $bookinganswers instance of class */
+    private $bookinganswers = null;
     /**
-     * Constructor
+     * The constructor takes the values from db.
      */
-    public function __construct($optionid) {
+    public function __construct($values) {
 
-        $bookingsettings = new booking_option_settings($optionid);
-
-        foreach ($bookingsettings->teachers as $teacher) {
-            $this->teachers[] = (array)$teacher;
-        }
+        $bookingoptionsettings = new booking_option_settings($values->id);
+        $this->bookinganswers = new booking_answers($bookingoptionsettings);
     }
 
     /**
@@ -65,8 +62,9 @@ class col_teacher implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
-        return array(
-            'teachers' => $this->teachers
-        );
+        // We got the array of all the booking information.
+        $bookinginformation = $this->bookinganswers->return_all_booking_information();
+
+        return $bookinginformation;
     }
 }

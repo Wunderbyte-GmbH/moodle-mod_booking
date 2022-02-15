@@ -541,4 +541,16 @@ class renderer extends plugin_renderer_base {
         $o .= $this->render_from_template('mod_booking/col_action', $data);
         return $o;
     }
+
+    /**
+     * Render output for action column.
+     * @param $data array
+     * @return string
+     */
+    public function render_col_availableplaces($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/col_availableplaces', $data);
+        return $o;
+    }
 }
