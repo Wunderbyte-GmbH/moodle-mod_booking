@@ -65,8 +65,8 @@ class shortcodes {
             return 'Couldn\'t find right booking instance ' . $args['id'];
         }
 
-        if (!$category = ($args['category'])) {
-            return 'No category defined ' . $args['id'];
+        if (!isset($args['category']) || !$category = ($args['category'])) {
+            $category = '';
         }
 
         $tablename = bin2hex(random_bytes(12));
