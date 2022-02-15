@@ -50,7 +50,7 @@ class bookingoption_completed extends \core\event\base {
     public function get_description() {
         if ($this->userid != $this->data['relateduserid']) {
             return "The user with id {$this->userid} marked the option with id  {$this->objectid} for the "
-                . "user with id {$this->data['other']['userid']} as completed.";
+                . "user with id {$this->data['relateduserid']} as completed.";
         } else {
             return "The user with id {$this->userid} marked the booking option with id {$this->objectid} as completed.";
         }
