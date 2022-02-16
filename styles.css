@@ -135,9 +135,7 @@ tr.mod-booking-invisible {
     font-size: small;
     padding-top: 3px;
     padding-bottom: 3px;
-    padding-left: 8px;
-    padding-right: 8px;
-    border-radius: 10px;
-    color: #fff;
-    background-color: dodgerblue;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 15px;
 }
