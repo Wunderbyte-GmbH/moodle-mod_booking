@@ -23,7 +23,6 @@
 
 namespace mod_booking;
 
-use comment;
 use context;
 use context_course;
 use dml_exception;
@@ -32,7 +31,6 @@ use moodle_url;
 use stdClass;
 use table_sql;
 use mod_booking\booking;
-use mod_booking\places;
 use mod_booking\booking_tags;
 
 defined('MOODLE_INTERNAL') || die();

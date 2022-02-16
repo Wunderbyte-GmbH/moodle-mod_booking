@@ -19,11 +19,13 @@ namespace mod_booking\table;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
+require_once(__DIR__ . '/../../lib.php');
 require_once($CFG->libdir.'/tablelib.php');
 
 use coding_exception;
 use dml_exception;
 use \local_wunderbyte_table\wunderbyte_table;
+use mod_booking\booking;
 use mod_booking\booking_option;
 use \mod_booking\booking_utils;
 use mod_booking\customfield\booking_handler;
@@ -51,13 +53,18 @@ class bookingoptions_table extends wunderbyte_table {
      * Constructor
      * @param int $uniqueid all tables have to have a unique id, this is used
      *      as a key when storing table properties like sort order in the session.
+     * @param booking $booking the booking instance
      */
-    public function __construct($uniqueid) {
+    public function __construct($uniqueid, $booking = null) {
         parent::__construct($uniqueid);
 
         global $PAGE;
         $this->baseurl = $PAGE->url;
 
+        if ($booking) {
+            $this->booking = $booking;
+        }
+        
         // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
     }
 
@@ -120,9 +127,25 @@ class bookingoptions_table extends wunderbyte_table {
 
         // Render col_text using a template.
         $output = $PAGE->get_renderer('mod_booking');
-        $data = new col_text($values->text);
 
-        return $output->render_col_text($data);
+        if (!empty($this->booking)) {
+
+            $forbookeduser = $values->iambooked == 1 ? true : false;
+
+            $data = new \mod_booking\output\bookingoption_description($this->booking, $values->id,
+                null, DESCRIPTION_WEBSITE, true, $forbookeduser);
+
+            // We will have a number of modals on this site, therefore we have to distinguish them.
+            $data->modalcounter = $values->id;
+
+            // We can go with the data from bookingoption_description directly to modal.
+            return $output->render_col_text_modal($data);
+
+        } else {
+            // Fallback if booking instance is missing.
+            $data = new col_text($values->text);
+            return $output->render_col_text($data);
+        }
     }
 
 

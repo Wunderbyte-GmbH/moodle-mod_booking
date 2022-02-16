@@ -17,18 +17,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 use mod_booking\booking_option;
-use mod_booking\calendar;
 use mod_booking\event\bookingoptiondate_created;
 
 global $CFG;
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
-
-const DESCRIPTION_WEBSITE = 1; // Shows link button with text "book now" and no link to TeamsMeeting etc.
-const DESCRIPTION_CALENDAR = 2; // Shows link button with text "go to bookingoption" and meeting links via link.php.
-const DESCRIPTION_ICAL = 3; // Shows link with text "go to bookingoption" and meeting links via link.php for iCal.
-const DESCRIPTION_MAIL = 4; // Shows link with text "go to bookingoption" and meeting links via link.php...
-                            // ...for mail placeholder {bookingdetails}.
 
 /**
  * Abstract class used by booking subscriber selection controls

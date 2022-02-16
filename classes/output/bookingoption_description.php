@@ -32,11 +32,6 @@ use renderer_base;
 use renderable;
 use templatable;
 
-const DESCRIPTION_WEBSITE = 1;
-const DESCRIPTION_CALENDAR = 2;
-const DESCRIPTION_ICAL = 3;
-const DESCRIPTION_MAIL = 4;
-
 /**
  * This class prepares data for displaying a booking option instance
  *

@@ -33,6 +33,13 @@ use mod_booking\utils\wb_payment;
 // Currently up to 9 different price categories can be set.
 define('MAX_PRICE_CATEGORIES', 9);
 
+// Define description parameters.
+define('DESCRIPTION_WEBSITE', 1); // Shows link button with text "book now" and no link to TeamsMeeting etc.
+define('DESCRIPTION_CALENDAR', 2); // Shows link button with text "go to bookingoption" and meeting links via link.php.
+define('DESCRIPTION_ICAL', 3); // Shows link with text "go to bookingoption" and meeting links via link.php for iCal.
+define('DESCRIPTION_MAIL', 4); // Shows link with text "go to bookingoption" and meeting links via link.php...
+                            // ...for mail placeholder {bookingdetails}.
+
 // Define message parameters.
 define('MSGPARAM_CONFIRMATION', 1);
 define('MSGPARAM_WAITINGLIST', 2);
@@ -829,6 +836,7 @@ function booking_update_options($optionvalues, $context) {
         cache_helper::invalidate_by_event('setbackoptions', [$option->id]);
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$option->id]);
 
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
         // $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
         // $cache->delete($option->id);
 
@@ -932,9 +940,11 @@ function booking_update_options($optionvalues, $context) {
         cache_helper::invalidate_by_event('setbackoptions', [$optionid]);
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
 
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         // We also need to invalidate the cache for the booking answer.
+        // phpcs:ignore moodle.Commenting.InlineComment.InvalidEndChar,moodle.Commenting.InlineComment.NotCapital
         // cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
-
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
         // $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
         // $cache->delete($optionid);
 

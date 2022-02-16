@@ -71,9 +71,9 @@ class shortcodes {
 
         $tablename = bin2hex(random_bytes(12));
 
-        $table = new bookingoptions_table($tablename);
-
         $booking = new booking($args['id']);
+
+        $table = new bookingoptions_table($tablename, $booking);
 
         list($fields, $from, $where, $params) = $booking->get_all_options_sql(null, null, $category, 'bo.*');
 
@@ -88,7 +88,8 @@ class shortcodes {
         $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-md-none']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-md-10 col-sm-12'], ['text']);
-        $table->add_classes_to_subcolumns('cardbody', ['columniclassbefore' => 'fa fa-info-circle'], ['text']);
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
+        // $table->add_classes_to_subcolumns('cardbody', ['columniclassbefore' => 'fa fa-info-circle'], ['text']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-2 text-right'], ['sports']);
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'sports-badge'], ['sports']);
@@ -96,7 +97,8 @@ class shortcodes {
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-4 text-left'], ['dayofweek']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-8 text-right'], ['bookings']);
-        // COMMENT: $table->add_classes_to_subcolumns('cardbody', ['columniclassafter' => 'fa fa-users pl-2'], ['bookings']); END.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
+        // $table->add_classes_to_subcolumns('cardbody', ['columniclassafter' => 'fa fa-users pl-2'], ['bookings']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-3'], ['teacher']);
 
