@@ -81,34 +81,36 @@ class shortcodes {
 
         $table->define_cache('mod_booking', 'bookingoptionstable');
 
-        $table->add_subcolumns('cardbody', ['text', 'sports', 'dayofweek', 'bookings', 'teacher', 'coursedates', 'location',
-            'price']);
+        $table->add_subcolumns('cardbody', ['text', 'dayofweek', 'sports', 'teacher', 'location', 'bookings', 'price']);
 
         // This avoids showing all keys in list view.
         $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-md-none']);
 
-        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-md-10 col-sm-12'], ['text']);
+        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-md-3 col-sm-12'], ['text']);
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
         // $table->add_classes_to_subcolumns('cardbody', ['columniclassbefore' => 'fa fa-info-circle'], ['text']);
 
-        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-2 text-right'], ['sports']);
+        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-3 text-left'], ['dayofweek']);
+        $table->add_classes_to_subcolumns('cardbody', ['columniclassbefore' => 'fa fa-clock-o'], ['dayofweek']);
+
+        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-6 text-right'], ['sports']);
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'sports-badge'], ['sports']);
 
-        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-4 text-left'], ['dayofweek']);
 
-        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-8 text-right'], ['bookings']);
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
         // $table->add_classes_to_subcolumns('cardbody', ['columniclassafter' => 'fa fa-users pl-2'], ['bookings']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-3'], ['teacher']);
 
-        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-3 font-italic'], ['coursedates']);
-        $table->add_classes_to_subcolumns('cardbody', ['columniclassbefore' => 'fa fa-clock-o'], ['coursedates']);
+        // $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-3 font-italic'], ['coursedates']);
+        // $table->add_classes_to_subcolumns('cardbody', ['columniclassbefore' => 'fa fa-clock-o'], ['coursedates']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-3'], ['location']);
         $table->add_classes_to_subcolumns('cardbody', ['columniclassbefore' => 'fa fa-map-marker'], ['location']);
 
-        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm text-right'], ['price']);
+        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-3 text-right'], ['bookings']);
+
+        $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-3 text-right'], ['price']);
 
         // Override naming for columns. one could use getstring for localisation here.
         $table->add_classes_to_subcolumns('cardbody',

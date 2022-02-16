@@ -71,9 +71,11 @@
         <div class="row">
           {{#cardbody}}
             {{#columnclass}}<div class="{{.}} ">{{/columnclass}}
+                  <span {{^value}} style="display:none" {{/value}}>
                   {{#columniclassbefore}}
                     <i class="{{.}}" aria-hidden="true"></i>
                   {{/columniclassbefore}}
+                  </span>
                   {{#columnkeyclass}}<span class="{{.}} ">{{/columnkeyclass}}
                     {{^keystring}}
                    {{{key}}}
@@ -85,9 +87,11 @@
                   {{#columnvalueclass}}<span class="{{.}} ">{{/columnvalueclass}}
                     {{{value}}}
                   {{#columnvalueclass}}</span>{{/columnvalueclass}}
+                  <span {{^value}} style="display:none" {{/value}}>
                   {{#columniclassafter}}
                     <i class="{{.}}" aria-hidden="true"></i>
                   {{/columniclassafter}}
+                  </span>
             {{#columnclass}}</div>{{/columnclass}}
           {{/cardbody}}
         </div>
