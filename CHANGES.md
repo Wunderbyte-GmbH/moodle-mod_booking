@@ -1,3 +1,7 @@
+## Version 7.0.26 (2022021601)
+**New features:**
+* Nicer presentation of availably places.
+
 ## Version 7.0.25 (2022021600)
 **New features:**
 * New sports badge
