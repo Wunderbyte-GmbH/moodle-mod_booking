@@ -24,4 +24,13 @@
     * data-region
 }}
 
-{{#teachers}}{{firstname}} {{lastname}}{{/teachers}}
+<div {{^teachers}} style="display:none"{{/teachers}}>
+    {{#str}}teachers, mod_booking{{/str}}:
+    <ul>
+        {{#teachers}}
+            <li>
+                {{firstname}} {{lastname}}
+            </li>
+        {{/teachers}}
+    </ul>
+</div>

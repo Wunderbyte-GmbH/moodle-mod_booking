@@ -109,6 +109,9 @@ if ($edit === 0) {
     $subscriberselector->invalidate_selected_users();
     $existingselector->invalidate_selected_users();
     $subscriberselector->set_existing_subscribers($existingselector->find_users(''));
+
+    cache_helper::purge_by_event('setbackoptionstable');
+    cache_helper::invalidate_by_event('setbackoptions', [$optionid]);
 }
 
 if ($edit === 1) {
