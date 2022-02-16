@@ -559,12 +559,12 @@ class booking {
         $params = array_merge(array('bookingid' => $this->id), $rsearch['params']);
 
         if ($limitnum != 0) {
-            $limit = " LIMIT {$limitfrom},{$limitnum}";
+            $limit = " LIMIT {$limitfrom} OFFSET {$limitnum}";
         }
 
         $from = "{booking_options} bo";
         $where = "bo.bookingid = :bookingid {$search}";
-        $order = "ORDER BY bo.coursestarttime ASC {$limit}";
+        $order = ''; // "ORDER BY bo.coursestarttime ASC {$limit}";
 
         if (strlen($searchtext) !== 0) {
             $from .= "
