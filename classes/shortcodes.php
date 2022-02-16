@@ -87,22 +87,14 @@ class shortcodes {
         $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-md-none']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-md-3 col-sm-12'], ['text']);
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
-        // $table->add_classes_to_subcolumns('cardbody', ['columniclassbefore' => 'fa fa-info-circle'], ['text']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-3 text-left'], ['dayofweek']);
         $table->add_classes_to_subcolumns('cardbody', ['columniclassbefore' => 'fa fa-clock-o'], ['dayofweek']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-6 text-right'], ['sports']);
-		$table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'sports-badge bg-info text-light'], ['sports']);
-
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
-        // $table->add_classes_to_subcolumns('cardbody', ['columniclassafter' => 'fa fa-users pl-2'], ['bookings']);
+        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'sports-badge bg-info text-light'], ['sports']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-3'], ['teacher']);
-
-        // $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-3 font-italic'], ['coursedates']);
-        // $table->add_classes_to_subcolumns('cardbody', ['columniclassbefore' => 'fa fa-clock-o'], ['coursedates']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm-12 col-md-3'], ['location']);
         $table->add_classes_to_subcolumns('cardbody', ['columniclassbefore' => 'fa fa-map-marker'], ['location']);

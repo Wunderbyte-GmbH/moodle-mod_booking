@@ -64,7 +64,13 @@
 {{#notbooked}}
     {{#maxanswers}}
         <div class="col-ap-availableplaces">
-            {{#str}} availableplaces, mod_booking, { "available": {{freeonlist}}, "maxanswers": {{maxanswers}} } {{/str}}
+            {{#fullybooked}}
+                <span class="text-danger font-weight-bold">{{freeonlist}}</span>
+            {{/fullybooked}}
+            {{^fullybooked}}
+                <span class="text-success font-weight-bold">{{freeonlist}}</span>
+            {{/fullybooked}}
+             / {{maxanswers}} <i class="fa fa-users"></i>
         </div>
     {{/maxanswers}}
     {{^maxanswers}}

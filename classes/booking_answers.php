@@ -259,6 +259,13 @@ class booking_answers {
         $returnarray['freeonlist'] = $returnarray['maxanswers'] - $returnarray['booked'];
         $returnarray['freeonwaitinglist'] = $returnarray['maxoverbooking'] - $returnarray['waiting'];
 
+        // Determine if the option is booked out.
+        if ($returnarray['freeonlist'] <= 0) {
+            $returnarray['fullybooked'] = true;
+        } else {
+            $returnarray['fullybooked'] = false;
+        }
+
         if (isset($this->usersonlist[$userid]) && $this->usersonlist[$userid]->waitinglist < 2) {
             if ($this->usersonlist[$userid]->waitinglist == STATUSPARAM_BOOKED) {
                 $returnarray = array('iambooked' => $returnarray);
