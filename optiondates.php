@@ -92,6 +92,10 @@ if ($delete != '') {
     // Delete associated custom fields.
     optiondate_deletecustomfields($delete);
 
+     // After Deleting, we invalidate caches.
+     cache_helper::purge_by_event('setbackoptionstable');
+     cache_helper::invalidate_by_event('setbackoptions', [$optionid]);
+
     // If there have been significant changes, we have to resend an e-mail (containing an updated ical)...
     // ...and the information about the changes..
     if (!empty($changes)) {
@@ -211,17 +215,23 @@ if ($mform->is_cancelled()) {
                                   'newvalue' => $customfield->value];
                 }
             }
-
-            // If there have been significant changes, we have to resend an e-mail (containing an updated ical)...
-            // ...and the information about the changes..
-            if (!empty($changes)) {
-                $bu->react_on_changes($cm->id, $context, $optionid, $changes);
-            }
         }
     }
 
+    // After Updating, we invalidate caches.
+    cache_helper::purge_by_event('setbackoptionstable');
+    cache_helper::invalidate_by_event('setbackoptions', [$optionid]);
+
+    // If there have been significant changes, we have to resend an e-mail (containing an updated ical)...
+    // ...and the information about the changes..
+    if (!empty($changes)) {
+        $bu->react_on_changes($cm->id, $context, $optionid, $changes);
+    }
+
     booking_updatestartenddate($optionid);
+
     redirect($url, get_string('optiondatessuccessfullysaved', 'booking'), 5);
+
 } else {
     $PAGE->navbar->add(get_string('optiondates', 'mod_booking'));
     $PAGE->set_title(format_string(get_string('optiondates', 'mod_booking')));
