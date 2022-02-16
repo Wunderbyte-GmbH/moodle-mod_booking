@@ -1,3 +1,11 @@
+7.0.25 (2022021600)
+* New feature: New sports badge
+* New feature: Caching of shortcodes table data
+* New feature: Show description modal in shortcodes pages 
+* Improvement:Implement shopping cart & transition towards "unreal" deletion of booking_answers
+* Improvement:Support shortcode without category (returns all options)
+* Bugfix: Fix a bug with PostgreSQL
+
 7.0.24 (2022021500)
 * Improvement: Use message_controller for custom messages.
 * Bugfix: Cancel button now works correctly.

@@ -1,3 +1,16 @@
+## Version 7.0.25 (2022021600)
+**New features:**
+* New sports badge
+* Caching of shortcodes table data
+* Show description modal in shortcodes pages
+
+**Improvements:**
+* Implement shopping cart & transition towards "unreal" deletion of booking_answers
+* Support shortcode without category (returns all options)
+
+**Bugfixes:**
+* Fix a bug with PostgreSQL
+
 ## Version 7.0.24 (2022021500)
 **Improvements:**
 * Use message_controller for custom messages.
