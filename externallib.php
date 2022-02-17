@@ -21,6 +21,9 @@ require_once($CFG->libdir . "/externallib.php");
 require_once($CFG->libdir . "/filelib.php");
 require_once($CFG->libdir . "/datalib.php");
 
+// No guest autologin.
+require_login(0, false);
+
 function mod_booking_showsubcategories($catid, $DB, $courseid) {
     $returns = array();
     $categories = $DB->get_records('booking_category', array('cid' => $catid));

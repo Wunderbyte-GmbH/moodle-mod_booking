@@ -20,10 +20,8 @@
  * @copyright 2014 David Bogner http://www.edulabs.org
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace mod_booking\event;
-
-defined('MOODLE_INTERNAL') || die();
-
 
 /**
  * The mod_booking report viewed event class.

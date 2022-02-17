@@ -19,9 +19,7 @@ use core_text;
 use moodleform;
 use csv_import_reader;
 
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.');
-}
+defined('MOODLE_INTERNAL') || die();
 
 require_once("$CFG->libdir/formslib.php");
 

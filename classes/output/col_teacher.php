@@ -25,10 +25,7 @@
 
 namespace mod_booking\output;
 
-defined('MOODLE_INTERNAL') || die();
-
 use mod_booking\booking_option_settings;
-use mod_booking\booking_settings;
 use renderer_base;
 use renderable;
 use templatable;

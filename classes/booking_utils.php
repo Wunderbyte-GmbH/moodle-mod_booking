@@ -16,8 +16,6 @@
 
 namespace mod_booking;
 
-defined('MOODLE_INTERNAL') || die();
-
 use html_writer;
 use mod_booking\utils\wb_payment;
 use moodle_url;

@@ -25,11 +25,8 @@
 
 namespace mod_booking\output;
 
-defined('MOODLE_INTERNAL') || die();
-
 use local_shopping_cart\local\entities\cartitem;
 use mod_booking\booking_answers;
-use mod_booking\booking_option_settings;
 use mod_booking\price;
 use renderer_base;
 use renderable;

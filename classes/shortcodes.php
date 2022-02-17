@@ -25,8 +25,6 @@
  */
 namespace mod_booking;
 
-defined('MOODLE_INTERNAL') || die();
-
 use \mod_booking\table\bookingoptions_table;
 
 /**

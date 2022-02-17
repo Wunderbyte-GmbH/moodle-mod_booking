@@ -23,9 +23,6 @@
  */
 namespace mod_booking\event;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * The mod_booking report viewed event class.
  *

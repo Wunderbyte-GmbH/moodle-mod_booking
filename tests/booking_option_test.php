@@ -15,24 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for booking events.
+ * Tests for booking option events.
  *
  * @package mod_booking
  * @category test
  * @copyright 2017 Andraž Prinčič <atletek@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
-
-/**
- * Tests for forum events.
- *
- * @package mod_forum
- * @category test
- * @copyright 2014 Dan Poltawski <dan@moodle.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class mod_booking_booking_option_testcase extends advanced_testcase {
+class booking_option_test extends advanced_testcase {
 
     /**
      * Tests set up.
@@ -151,5 +141,4 @@ class mod_booking_booking_option_testcase extends advanced_testcase {
 
         $this->assertEquals(1, $DB->count_records('booking_answers', array('optionid' => $option2->id)));
     }
-
 }

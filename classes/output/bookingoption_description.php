@@ -24,8 +24,6 @@
 
 namespace mod_booking\output;
 
-defined('MOODLE_INTERNAL') || die();
-
 use mod_booking\booking_option;
 use mod_booking\booking_utils;
 use renderer_base;

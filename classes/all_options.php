@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Display all options.
  *
@@ -32,8 +33,6 @@ use stdClass;
 use table_sql;
 use mod_booking\booking;
 use mod_booking\booking_tags;
-
-defined('MOODLE_INTERNAL') || die();
 
 class all_options extends table_sql {
 

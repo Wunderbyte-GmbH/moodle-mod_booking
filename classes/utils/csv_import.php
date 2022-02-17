@@ -21,9 +21,8 @@ use stdClass;
 use mod_booking\booking_option;
 use html_writer;
 
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.');
-}
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->libdir . "/csvlib.class.php");
 
 /**

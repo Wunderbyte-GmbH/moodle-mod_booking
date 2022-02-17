@@ -16,8 +16,6 @@
 
 namespace mod_booking;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Settings class for booking instances.
  *

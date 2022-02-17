@@ -28,8 +28,7 @@ use mod_booking\booking;
 /**
  * To create booking specific behat scearios.
  */
-class behat_booking extends behat_base
-{
+class behat_booking extends behat_base {
 
     /**
      * Create booking option in booking instance

@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * The message_sent event.
  *
@@ -23,9 +22,8 @@
  * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_booking\event;
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_booking\event;
 
 /**
  * The message_sent event class.

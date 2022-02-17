@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 namespace mod_booking\form;
 
 use mod_booking\utils\wb_payment;
@@ -21,8 +22,6 @@ use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\customfield\booking_handler;
 use mod_booking\price;
-
-defined('MOODLE_INTERNAL') || die();
 
 class option_form extends moodleform {
 

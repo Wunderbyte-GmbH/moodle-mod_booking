@@ -15,8 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
 
-defined('MOODLE_INTERNAL') || die();
-
 const DESCRIPTION_ICAL = 3;
 
 /**

@@ -21,9 +21,8 @@
  * @copyright 2021 Bernhard Fischer, https://www.wunderbyte.at
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_booking\event;
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_booking\event;
 
 /**
  * The bookingoptiondate_deleted event class.

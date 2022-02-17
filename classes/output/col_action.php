@@ -25,9 +25,6 @@
 
 namespace mod_booking\output;
 
-defined('MOODLE_INTERNAL') || die();
-
-use moodle_url;
 use renderer_base;
 use renderable;
 use templatable;

@@ -13,9 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-namespace mod_booking\task;
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_booking\task;
 
 class remove_activity_completion extends \core\task\scheduled_task {
 

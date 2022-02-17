@@ -30,8 +30,6 @@ use rating_manager;
 use popup_action;
 use templatable;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * A custom renderer class that extends the plugin_renderer_base and is used by the booking module.
  *

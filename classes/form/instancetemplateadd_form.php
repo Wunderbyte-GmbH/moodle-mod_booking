@@ -17,8 +17,6 @@ namespace mod_booking\form;
 
 use moodleform;
 
-defined('MOODLE_INTERNAL') || die();
-
 class instancetemplateadd_form extends moodleform {
 
     public function definition() {

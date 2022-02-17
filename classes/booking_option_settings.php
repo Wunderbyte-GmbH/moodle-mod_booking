@@ -18,8 +18,6 @@ namespace mod_booking;
 
 use stdClass;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Settings class for booking option instances.
  *

@@ -24,9 +24,6 @@
  */
 namespace mod_booking\event;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * The booking_cancelled event class.
  *

@@ -13,16 +13,13 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 namespace mod_booking;
 
-use admin_setting_configcheckbox;
-use admin_setting_configtext;
 use cache_helper;
 use MoodleQuickForm;
 use stdClass;
 use lang_string;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Price class.

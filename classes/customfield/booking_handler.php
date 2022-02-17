@@ -24,8 +24,6 @@
 
 namespace mod_booking\customfield;
 
-defined('MOODLE_INTERNAL') || die;
-
 use core_customfield\api;
 use core_customfield\field_controller;
 

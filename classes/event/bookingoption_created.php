@@ -24,9 +24,6 @@
  */
 namespace mod_booking\event;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * The bookingoption_created event class.
  *

@@ -14,12 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_booking;
+
 defined('MOODLE_INTERNAL') || die();
 
+use advanced_testcase;
+use stdClass;
+
 global $CFG;
+
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
-class mod_booking_lib_testcase extends advanced_testcase {
+class lib_test extends advanced_testcase {
 
     public function setUp():void {
 

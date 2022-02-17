@@ -25,6 +25,9 @@ require_once(__DIR__ . '/../../config.php');
 
 global $DB, $CFG, $COURSE, $USER, $OUTPUT, $PAGE;
 
+// No guest autologin.
+require_login(0, false);
+
 $encodedurl = required_param('encodedurl', PARAM_TEXT); // The base64 encoded URL.
 $link = base64_decode($encodedurl);
 

@@ -16,8 +16,6 @@
 
 namespace mod_booking;
 
-defined('MOODLE_INTERNAL') || die();
-
 use stdClass;
 use moodle_exception;
 use core_user;

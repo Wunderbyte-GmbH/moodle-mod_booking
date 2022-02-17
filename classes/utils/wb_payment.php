@@ -17,8 +17,6 @@ namespace mod_booking\utils;
 
 use \stdClass;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Wunderbyte Payment Methods Class:
  * Contains methods for license verification and more.
