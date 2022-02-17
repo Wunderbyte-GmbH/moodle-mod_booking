@@ -138,10 +138,13 @@ class info_modal implements renderable, templatable {
             foreach ($sessions as $session) {
 
                 // Filter the matching customfields.
-                $fields = array_filter($customfields, function($x) { $x->optiondateid == $session->id; });
+                $fields = array_filter($customfields, function($x) {
+                    $x->optiondateid == $session->id;
+                });
 
                 if ($withcustomfields) {
-                    $customfields = $this->bu->return_array_of_customfields($bookingoption, $fields, $session->id, $descriptionparam);
+                    $customfields = $this->bu->return_array_of_customfields($bookingoption, $fields, $session->id,
+                        $descriptionparam);
                 } else {
                     $customfields = false;
                 }
@@ -153,7 +156,8 @@ class info_modal implements renderable, templatable {
             }
         } else {
             $returnitem = [
-                    'datesstring' => $this->bu->return_string_from_dates($bookingoption->coursestarttime, $bookingoption->coureendtime)
+                    'datesstring' => $this->bu->return_string_from_dates($bookingoption->coursestarttime,
+                        $bookingoption->coureendtime)
             ];
         }
         return $returnitem;

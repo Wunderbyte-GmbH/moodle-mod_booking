@@ -22,6 +22,14 @@
  * @copyright 2017 Andraž Prinčič <atletek@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace mod_booking;
+
+use advanced_testcase;
+use completion_info;
+use context_course;
+use stdClass;
+
 class booking_option_test extends advanced_testcase {
 
     /**
