@@ -53,7 +53,7 @@ class col_coursestarttime implements renderable, templatable {
         $this->bu = new booking_utils();
         $bookingoption = new booking_option($booking->cm->id, $bookingoption->id);
 
-        $this->datestrings = $this->bu->return_array_of_sessions($bookingoption, null, null,null, false);
+        $this->datestrings = $this->bu->return_array_of_sessions($bookingoption, null, null, null, false);
     }
 
     public function export_for_template(renderer_base $output) {

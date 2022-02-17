@@ -33,8 +33,8 @@ $addons = [
                     'icon' => 'document',
                     'class' => '',
                 ],
-                'delegate' => 'CoreMainMenuDelegate', // Delegate (where to display the link to the plugin)
-                'method' => 'mobile_mybookings_list', // Main function in \mod_certificate\output\mobile
+                'delegate' => 'CoreMainMenuDelegate', // Delegate (where to display the link to the plugin).
+                'method' => 'mobile_mybookings_list', // Main function in \mod_certificate\output\mobile.
                 'offlinefunctions' => [
                 ], // Function that needs to be downloaded for offline.
             ]

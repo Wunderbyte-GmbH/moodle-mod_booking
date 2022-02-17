@@ -40,7 +40,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 require_course_login($course, false, $cm);
 
 if (!$context = context_module::instance($cm->id)) {
-    print_error('badcontext');
+    throw new moodle_exception('badcontext');
 }
 
 require_capability('mod/booking:manageoptiontemplates', $context);
@@ -53,17 +53,16 @@ $PAGE->set_pagelayout('standard');
 $mform = new mod_booking\form\instancetemplateadd_form($url);
 
 // Count the number of instance templates.
-$templates_data = $DB->get_records("booking_instancetemplate");
-$number_of_templates = count($templates_data);
+$templatesdata = $DB->get_records("booking_instancetemplate");
+$numberoftemplates = count($templatesdata);
 
 if ($mform->is_cancelled()) {
     // Handle form cancel operation, if cancel button is present on form.
     redirect($urlredirect, '', 0);
-}
-else if ($data = $mform->get_data()) {
+} else if ($data = $mform->get_data()) {
     // Only allow generation of templates if it is either the first one
     // ... OR the user has set a valid PRO licensekey in the config settings.
-    if (wb_payment::is_currently_valid_licensekey() || $number_of_templates == 0) {
+    if (wb_payment::is_currently_valid_licensekey() || $numberoftemplates == 0) {
         $instance = $DB->get_record("course_modules", array('id' => $id), 'instance');
         $booking = $DB->get_record("booking", array('id' => $instance->instance));
 
@@ -73,15 +72,13 @@ else if ($data = $mform->get_data()) {
 
         $DB->insert_record("booking_instancetemplate", $newtemplate);
         redirect($urlredirect, get_string('instancesuccessfullysaved', 'booking'), 5);
-    }
-    // If the user does not match the requirements he will be redirected to view.php
-    // ... with the corresponding message.
-    else {
+    } else {
+        // If the user does not match the requirements he will be redirected to view.php
+        // ... with the corresponding message.
         redirect($urlredirect, get_string('instance_not_saved_no_valid_license', 'booking'), 1, notification::NOTIFY_ERROR);
     }
 
-}
-else {
+} else {
     echo $OUTPUT->header();
 
     $defaultvalues = new stdClass();

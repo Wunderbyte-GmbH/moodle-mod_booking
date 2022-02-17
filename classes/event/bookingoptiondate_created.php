@@ -53,14 +53,4 @@ class bookingoptiondate_created extends \core\event\base {
         return new \moodle_url('/mod/booking/report.php',
                 array('id' => $this->contextinstanceid, 'optiondateid' => $this->objectid));
     }
-
-    /**
-     * Custom validation.
-     *
-     * @throws \coding_exception
-     * @return void
-     */
-    protected function validate_data() {
-        parent::validate_data();
-    }
 }

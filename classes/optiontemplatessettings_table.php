@@ -49,7 +49,8 @@ class optiontemplatessettings_table extends table_sql {
         $this->define_columns($columns);
 
         // Define the titles of columns to show in header.
-        $headers = array(get_string('optiontemplatename', 'mod_booking'), get_string('usedinbookinginstances', 'mod_booking'), get_string('action'));
+        $headers = array(get_string('optiontemplatename', 'mod_booking'), get_string('usedinbookinginstances', 'mod_booking'),
+            get_string('action'));
         $this->define_headers($headers);
     }
 
@@ -66,7 +67,7 @@ class optiontemplatessettings_table extends table_sql {
             foreach ($this->bookinginstances as $instance) {
                 if ($instance->templateid == $values->optionid) {
                     // TODO: Replace DB query with something more performant.
-                    if($DB->record_exists('course_modules', ['id' => $instance->id])){
+                    if ($DB->record_exists('course_modules', ['id' => $instance->id])) {
                         list($course, $cm) = get_course_and_cm_from_cmid($instance->id);
                         $url = new moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
                         $linktobinstance = html_writer::link($url, $instance->name);
@@ -91,7 +92,8 @@ class optiontemplatessettings_table extends table_sql {
         global $OUTPUT;
         $output = '';
         $delete = get_string('delete');
-        $url = new moodle_url('/mod/booking/optiontemplatessettings.php', array('optionid' => $values->optionid, 'action' => 'delete', 'id' => $this->cmid));
+        $url = new moodle_url('/mod/booking/optiontemplatessettings.php',
+            array('optionid' => $values->optionid, 'action' => 'delete', 'id' => $this->cmid));
         $output .= $OUTPUT->single_button($url, $delete, 'get');
         $edit = get_string('edit');
         $url = new moodle_url('/mod/booking/edit_optiontemplates.php', array('optionid' => $values->optionid, 'id' => $this->cmid));

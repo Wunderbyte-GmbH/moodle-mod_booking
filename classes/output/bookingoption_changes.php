@@ -61,7 +61,7 @@ class bookingoption_changes implements renderable, templatable {
         global $CFG;
 
         $newchangesarray = [];
-        foreach($this->changesarray as $entry) {
+        foreach ($this->changesarray as $entry) {
             if (isset($entry['fieldname'])) {
                 if ($entry['fieldname'] == 'coursestarttime') {
                     if (isset($entry['oldvalue']) && isset($entry['newvalue'])) {

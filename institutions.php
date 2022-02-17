@@ -24,7 +24,7 @@ $PAGE->set_url($url);
 $context = context_course::instance($courseid);
 
 if (!$course = $DB->get_record("course", array("id" => $courseid))) {
-    print_error('coursemisconf');
+    throw new moodle_exception('coursemisconf');
 }
 
 require_login($courseid, false);

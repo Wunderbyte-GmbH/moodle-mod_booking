@@ -40,7 +40,7 @@ require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
 
 if (!$context = context_module::instance($cm->id)) {
-    print_error('badcontext');
+    throw new moodle_exception('badcontext');
 }
 
 require_capability('mod/booking:updatebooking', $context);
@@ -69,7 +69,8 @@ foreach ($tags->get_all_tags() as $tag) {
 
     $edit = new moodle_url('tagtemplatesadd.php', array('id' => $cm->id, 'tagid' => $tag->id));
     $delete = new moodle_url('tagtemplates.php', array('id' => $id, 'tagid' => $tag->id, 'action' => 'delete'));
-    $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get') . $OUTPUT->single_button($delete, get_string('delete'), 'get');
+    $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get') .
+        $OUTPUT->single_button($delete, get_string('delete'), 'get');
 
     $tagstable[] = array("[{$tag->tag}]", nl2br($tag->text),
         html_writer::tag('span', $button,

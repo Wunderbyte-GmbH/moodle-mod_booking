@@ -14,16 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-use mod_booking\all_options;
-use mod_booking\booking;
-
-global $DB, $CFG, $USER, $OUTPUT, $PAGE;
-
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
 require_once($CFG->libdir . '/completionlib.php');
 require_once("{$CFG->libdir}/tablelib.php");
 require_once($CFG->dirroot . '/comment/lib.php');
+
+global $DB, $CFG, $USER, $OUTPUT, $PAGE;
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $action = optional_param('action', '', PARAM_ALPHA);
@@ -52,12 +49,13 @@ $explanationstring = null;
 // Only if there was a valid link and session is open, we redirect.
 if ($link = $bu->show_conference_link($bookingoption, $userid, $sessionid)) {
 
-    // We can find the actual link:
+    // We can find the actual link.
     if (!empty($fieldid)) {
         $link = $DB->get_field('booking_customfields', 'value', array('id' => $fieldid));
     } else {
         // If fieldid is not present, we'll use optionid, optiondateid and meetingtype to find the correct link.
-        $customfields = $DB->get_records('booking_customfields', ['optionid' => $optionid, 'optiondateid' => $sessionid, 'cfgname' => $meetingtype]);
+        $customfields = $DB->get_records('booking_customfields',
+            ['optionid' => $optionid, 'optiondateid' => $sessionid, 'cfgname' => $meetingtype]);
         $customfield = array_pop($customfields);
         $link = $customfield->value;
     }
@@ -98,7 +96,7 @@ if (!$explanationstring) {
 }
 
 $contents = html_writer::tag('p', $explanationstring);
-$options = array('id' => $cm->id, 'optionid' =>$optionid, 'action' => 'showonlyone', 'whichview' => 'showonlyone');
+$options = array('id' => $cm->id, 'optionid' => $optionid, 'action' => 'showonlyone', 'whichview' => 'showonlyone');
 $contents .= $OUTPUT->single_button(new moodle_url('view.php', $options),
         get_string('continue'), 'get');
 echo $OUTPUT->box($contents, 'box generalbox', 'notice');

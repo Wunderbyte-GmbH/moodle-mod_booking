@@ -40,7 +40,7 @@ if (!$booking = new booking($cm->id)) {
 $context = context_module::instance($cm->id);
 $contextcourse = context_course::instance($course->id);
 if (!has_capability('mod/booking:updatebooking', $contextcourse)) {
-    throw new required_capability_exception($contextcourse, 'mod/booking:updatebooking', 'nopermissions');
+    throw new required_capability_exception($contextcourse, 'mod/booking:updatebooking', 'nopermissions', '');
 }
 $PAGE->set_title(format_string($booking->settings->name));
 $PAGE->set_heading(get_string('moveoptionto', 'mod_booking'));
@@ -92,6 +92,6 @@ if ($targetcmid > 0) {
         echo $output;
     }
 } else {
-    print_error('This booking option does not exist');
+    throw new moodle_exception('This booking option does not exist');
 }
 echo $OUTPUT->footer();

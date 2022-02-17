@@ -41,7 +41,7 @@ if (!$booking = new \mod_booking\booking($cm->id)) {
 }
 
 if (!$context = context_module::instance($cm->id)) {
-    print_error('badcontext');
+    throw new moodle_exception('badcontext');
 }
 
 require_capability('mod/booking:updatebooking', $context);

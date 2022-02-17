@@ -69,8 +69,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             return null;
         }
 
-        // Now we reserve the place for the user
-        // This should not
+        // Now we reserve the place for the user.
         if (!$bookingoption->user_submit_response($USER, 0, 0, true)) {
             return null;
         }

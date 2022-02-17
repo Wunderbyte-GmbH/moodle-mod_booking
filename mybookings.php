@@ -16,6 +16,9 @@
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
 
+// No guest autologin.
+require_login(0, false);
+
 use mod_booking\mybookings_table;
 
 $url = new moodle_url('/mod/booking/mybookings.php');

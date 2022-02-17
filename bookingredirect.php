@@ -21,9 +21,9 @@
  * from escaping "&" to "&amp;" HTML entitities which made it impossible
  * to open links within outlook events.
  */
-global $DB, $CFG, $COURSE, $USER, $OUTPUT, $PAGE;
-
 require_once(__DIR__ . '/../../config.php');
+
+global $DB, $CFG, $COURSE, $USER, $OUTPUT, $PAGE;
 
 $encodedurl = required_param('encodedurl', PARAM_TEXT); // The base64 encoded URL.
 $link = base64_decode($encodedurl);

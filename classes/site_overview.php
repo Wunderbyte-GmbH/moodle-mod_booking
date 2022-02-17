@@ -85,7 +85,7 @@ class site_overview implements \renderable {
                     $this->readresponsesprivilegeinstances[$booking->coursemodule] = $booking;
                     $this->courseswithbookings[$booking->course][$booking->coursemodule] = $booking;
                 } else {
-                    // Bookings of $USER
+                    // Bookings of $USER.
                     $myoptionids = $this->get_my_optionids();
                     $optionidsbkng = \array_intersect($myoptionids, array($booking->id));
                     $booking->optionids = $optionidsbkng;

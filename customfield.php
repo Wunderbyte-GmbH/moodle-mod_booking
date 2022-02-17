@@ -35,7 +35,8 @@ admin_externalpage_setup('modbookingcustomfield');
 
 $pageurl = new moodle_url('/mod/booking/customfield.php');
 $PAGE->set_url($pageurl);
-// admin_externalpage_setup('modbookingcustomfield', '', null, '', array('pagelayout' => 'report'));
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+/*admin_externalpage_setup('modbookingcustomfield', '', null, '', array('pagelayout' => 'report'));*/
 $PAGE->set_title(
         format_string($SITE->shortname) . ': ' . get_string('customfieldconfigure', 'booking'));
 

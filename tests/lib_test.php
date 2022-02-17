@@ -48,7 +48,8 @@ class mod_booking_lib_testcase extends advanced_testcase {
                         'pollurlteacherstext' => array('text' => 'text'),
                         'notificationtext' => array('text' => 'text'), 'userleave' => array('text' => 'text'),
                         'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'course' => $course->id,
-                        'bookingmanager' => $user->username, 'showviews' => ['mybooking, myoptions, showall, showactive, myinstitution']);
+                        'bookingmanager' => $user->username, 'showviews' =>
+                            ['mybooking, myoptions, showall, showactive, myinstitution']);
 
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);
 

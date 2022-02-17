@@ -76,7 +76,8 @@ class info_modal implements renderable, templatable {
      *
      * @param \stdClass $data
      */
-    public function __construct($booking, $bookingoption, $bookingevent = null, $descriptionparam = \DESCRIPTION_WEBSITE, $withcustomfields = false) {
+    public function __construct($booking, $bookingoption, $bookingevent = null,
+        $descriptionparam = \DESCRIPTION_WEBSITE, $withcustomfields = false) {
 
         global $DB, $CFG;
 
@@ -91,7 +92,7 @@ class info_modal implements renderable, templatable {
         $this->description = format_text($bookingoption->description, FORMAT_HTML);
 
         // For these fields we do need some conversion.
-        // For Description we need to know the booking status
+        // For Description we need to know the booking status.
 
         $this->statusdescription = $this->return_status_description($bookingoption);
 

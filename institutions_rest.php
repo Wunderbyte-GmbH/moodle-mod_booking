@@ -13,11 +13,12 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+require_once(__DIR__ . '/../../config.php');
+
 if (!defined('AJAX_SCRIPT')) {
     define('AJAX_SCRIPT', true);
 }
-
-require_once(__DIR__ . '/../../config.php');
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 

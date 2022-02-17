@@ -37,11 +37,11 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 require_course_login($course, false, $cm);
 
 if (!$context = context_module::instance($cm->id)) {
-    print_error('badcontext');
+    throw new moodle_exception('badcontext');
 }
 
 if (!$coursecontext = context_course::instance($course->id)) {
-    print_error('badcontext');
+    throw new moodle_exception('badcontext');
 }
 
 

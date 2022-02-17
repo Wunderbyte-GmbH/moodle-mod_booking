@@ -64,7 +64,7 @@ class bookingoptions_table extends wunderbyte_table {
         if ($booking) {
             $this->booking = $booking;
         }
-        
+
         // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
     }
 

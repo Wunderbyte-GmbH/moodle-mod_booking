@@ -20,13 +20,14 @@
  * @author David Bogner davidbogner@gmail.com
  * @package mod_booking
  */
-global $CFG, $DB, $COURSE, $PAGE, $OUTPUT;
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use core\output\notification;
 use mod_booking\booking_utils;
 use mod_booking\form\subscribe_cohort_or_group_form;
+
+global $CFG, $DB, $COURSE, $PAGE, $OUTPUT;
 
 $id = required_param('id', PARAM_INT); // Course_module ID.
 $optionid = required_param('optionid', PARAM_INT);
@@ -74,7 +75,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
     echo $OUTPUT->footer();
     die();
 } else {
-     $options = array('bookingid' => $cm->instance,
+    $options = array('bookingid' => $cm->instance,
                     'accesscontext' => $context, 'optionid' => $optionid, 'cm' => $cm, 'course' => $course,
                     'potentialusers' => $bookingoption->bookedvisibleusers);
     $bookingoutput = $PAGE->get_renderer('mod_booking');
@@ -127,7 +128,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
                     redirect($url, get_string('notallbooked', 'mod_booking', $output), 5);
                 }
             } else {
-                print_error('invalidaction');
+                throw new moodle_exception('invalidaction');
             }
         } else if ($unsubscribe && (has_capability('mod/booking:deleteresponses', $context) ||
                  (booking_check_if_teacher($bookingoption->option)))) {
@@ -136,12 +137,14 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
             foreach ($users as $user) {
                 if (!$bookingoption->user_delete_response($user->id)) {
                     $unsubscribesuccess = false;
-                    print_error('cannotremovesubscriber', 'booking', $url->out(), $user->id);
+                    throw new moodle_exception('cannotremovesubscriber', 'booking', $url->out(), null,
+                        'Cannot remove subscriber with id ' . $user->id);
                 }
             }
         } else if ($unsubscribe && (!has_capability('mod/booking:deleteresponses', $context) ||
                  (booking_check_if_teacher($bookingoption->option)))) {
-            print_error('nopermission', null, $url->out());
+                    throw new moodle_exception('nopermission', 'booking', $url->out(), null,
+                        'Permission to unsubscribe users is missing');
         }
         $subscriberselector->invalidate_selected_users();
         $existingselector->invalidate_selected_users();
@@ -188,7 +191,7 @@ if ($fromform = $mform->get_data()) {
 
     $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id, 'optionid' => $optionid, 'agree' => $agree]);
 
-    if (!empty($fromform->cohortids) || !empty($fromform->groupids)){
+    if (!empty($fromform->cohortids) || !empty($fromform->groupids)) {
         $result = booking_utils::book_cohort_or_group_members($fromform, $bookingoption, $context);
         $delay = 120;
 
@@ -219,7 +222,7 @@ if ($fromform = $mform->get_data()) {
     try {
         redirect($url, $notificationstring, $delay, $notificationtype);
     } catch (moodle_exception $e) {
-        error_log('subscribeusers.php: Exception in redirect function.');
+        debugging('subscribeusers.php: Exception in redirect function.');
     }
 
 } else {

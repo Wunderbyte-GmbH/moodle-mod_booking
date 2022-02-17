@@ -38,7 +38,7 @@ require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
 
 if (!$context = context_module::instance($cm->id)) {
-    print_error('badcontext');
+    throw new moodle_exception('badcontext');
 }
 
 require_capability('mod/booking:updatebooking', $context);

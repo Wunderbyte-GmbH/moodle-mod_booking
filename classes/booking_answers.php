@@ -123,13 +123,14 @@ class booking_answers {
         $this->answers = $answers;
 
         // Set back all the lists.
-        // $this->users =
-        // $this->usersonlist =
-        // $this->usersonwaitinglist =
-        // $this->usersreserved =
-        // $this->usersdeleted = [];
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $this->users =
+        $this->usersonlist =
+        $this->usersonwaitinglist =
+        $this->usersreserved =
+        $this->usersdeleted = []; */
 
-        // These are the values we are interested in:
+        // These are the values we are interested in.
         $imbooked = 0;
         $onwaitinglist = 0;
         $completed = 0;

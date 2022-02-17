@@ -35,7 +35,7 @@ require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
 
 if (!$context = context_module::instance($cm->id)) {
-    print_error('badcontext');
+    throw new moodle_exception('badcontext');
 }
 
 require_capability('mod/booking:updatebooking', $context);
@@ -58,8 +58,10 @@ echo '<br>';
 
 $table = new html_table();
 $table->head = array(
-    (empty($option->booking->settings->lblacceptingfrom) ? get_string('otherbookingoptions', 'booking') : $option->booking->settings->lblacceptingfrom),
-    (empty($option->booking->settings->lblnumofusers) ? get_string('otherbookingnumber', 'booking') : $option->booking->settings->lblnumofusers));
+    (empty($option->booking->settings->lblacceptingfrom) ? get_string('otherbookingoptions', 'booking') :
+        $option->booking->settings->lblacceptingfrom),
+    (empty($option->booking->settings->lblnumofusers) ? get_string('otherbookingnumber', 'booking') :
+        $option->booking->settings->lblnumofusers));
 
 $rules = $DB->get_records_sql(
         "SELECT bo.id, bo.otheroptionid, bo.userslimit, b.text

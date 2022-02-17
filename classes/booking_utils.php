@@ -1295,6 +1295,7 @@ class booking_utils {
             // If the name is unique within the booking instance, we can return it unchanged.
             return $text;
         } else {
+            $uniquetext = null; // Initialize.
             do {
                 // This will be set to true as soon as we have a really unique name.
                 $isreallyunique = false;

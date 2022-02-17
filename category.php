@@ -24,11 +24,11 @@ $url = new moodle_url('/mod/booking/category.php', array('id' => $id, 'category'
 $PAGE->set_url($url);
 
 if (!$cm = get_coursemodule_from_id('booking', $id)) {
-    print_error('invalidcoursemodule');
+    throw new moodle_exception('invalidcoursemodule');
 }
 
 if (!$course = $DB->get_record("course", array("id" => $cm->course))) {
-    print_error('coursemisconf');
+    throw new moodle_exception('coursemisconf');
 }
 
 require_course_login($course, false, $cm);

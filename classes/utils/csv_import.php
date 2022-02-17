@@ -115,7 +115,7 @@ class csv_import {
         $this->additionalfields[] = 'enddate';
 
         // Optiondates (Multisessionfields have to be added here.
-        // Every multisession can have up to three customfields
+        // Every multisession can have up to three customfields.
         for ($i = 1; $i < 7; ++$i) {
 
             $starttimekey = 'ms' . $i . 'starttime';
@@ -224,7 +224,7 @@ class csv_import {
                 }
                 // Set the option id again in order to use it in prepare_data for user data.
                 $bookingoption->id = $optionid;
-                // Finished option data, add user data to option:
+                // Finished option data, add user data to option.
                 foreach ($userdata as $userfield => $value) {
                     $this->prepare_data($userfield, $value, $bookingoption);
                 }
@@ -251,8 +251,6 @@ class csv_import {
                             WHERE LOWER(email)=LOWER(:useremail)";
 
                     $user = $DB->get_record_sql($sql, array('useremail' => $userdata['useremail']));
-
-                    // $user = $DB->get_record('user', array('email' => $userdata['useremail']));
 
                     if ($user !== false) {
 
@@ -337,7 +335,7 @@ class csv_import {
      */
     protected function prepare_data($column, $value, &$bookingoption) {
         global $DB;
-        // Prepare custom fields:
+        // Prepare custom fields.
         foreach ($this->customfields as $key => $customfield) {
             if ($customfield['value'] == $column) {
                 $bookingoption->{$key} = $value;
@@ -386,7 +384,8 @@ class csv_import {
                         $DB->insert_record("booking_institutions", $institution);
                     }
                     break;
-                    // We don't need this, because values are not transformed
+                    // We don't need this, because values are not transformed.
+                    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
                     /*case preg_match('/ms[1-3]cf[1-3]name/', $column) ? $column : !$column:
                     case preg_match('/ms[1-3]cf[1-3]value/', $column) ? $column : !$column:
                     case preg_match('/ms[1-3]nt/', $column) ? $column : !$column:

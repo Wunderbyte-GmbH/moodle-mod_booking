@@ -49,7 +49,8 @@ class bookingoption_booked extends \core\event\base {
 
     public function get_description() {
         if ($this->userid != $this->data['relateduserid']) {
-            return "The user with id {$this->userid} booked the user with id {$this->data['other']['userid']} to the option with id  {$this->objectid}.";
+            return "The user with id {$this->userid} booked the user with id {$this->data['other']['userid']} "
+                . "to the option with id  {$this->objectid}.";
         } else {
             return "The user with id {$this->userid} booked the booking option with id {$this->objectid}.";
         }

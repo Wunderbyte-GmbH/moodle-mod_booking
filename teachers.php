@@ -34,12 +34,12 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 require_course_login($course, false, $cm);
 
 if (!$booking = new mod_booking\booking_option($id, $optionid, array(), 0, 0, false)) {
-    print_error("Course module is incorrect");
+    throw new moodle_exception("Course module is incorrect");
 }
 
 $context = context_module::instance($cm->id);
 if (!has_capability('mod/booking:updatebooking', $context)) {
-    print_error('nopermissiontupdatebooking', 'booking');
+    throw new moodle_exception('nopermissiontupdatebooking', 'booking');
 }
 
 $output = $PAGE->get_renderer('mod_booking');
@@ -89,20 +89,22 @@ if ($edit === 0) {
     $addtogroup = optional_param('addtogroup', false, PARAM_RAW);
     // It has to be one or the other, not both or neither.
     if (!($subscribe xor $unsubscribe)) {
-        print_error('invalidaction');
+        throw new moodle_exception('invalidaction');
     }
     if ($subscribe) {
         $users = $subscriberselector->get_selected_users();
         foreach ($users as $user) {
             if (!subscribe_teacher_to_booking_option($user->id, $optionid, $cm, $addtogroup)) {
-                print_error('cannotaddsubscriber', 'booking', '', $user->id);
+                throw new moodle_exception('cannotaddsubscriber', 'booking', '', null,
+                    'Cannot add subscriber with id: ' . $user->id);
             }
         }
     } else if ($unsubscribe) {
         $users = $existingselector->get_selected_users();
         foreach ($users as $user) {
             if (!unsubscribe_teacher_from_booking_option($user->id, $optionid, $cm)) {
-                print_error('cannotremovesubscriber', 'booking', '', $user->id);
+                throw new moodle_exception('cannotremovesubscriber', 'booking', '', null,
+                    'Cannot remove subscriber with id: ' . $user->id);
             }
         }
     }

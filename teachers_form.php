@@ -17,6 +17,9 @@
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/formslib.php');
 
+// No guest autologin.
+require_login(0, false);
+
 class mod_booking_teachers_form extends moodleform {
 
     public function definition() {
@@ -57,7 +60,9 @@ class mod_booking_teachers_form extends moodleform {
 
             $course = $DB->get_record('course', array('id' => $bookingoption->booking->settings->course));
             $completion = new \completion_info($course);
-            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $bookingoption->booking->settings->enablecompletion > 0) {
+            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC
+                && $bookingoption->booking->settings->enablecompletion > 0) {
+
                 $buttonarray[] = &$mform->createElement('static', 'onlylabel', '',
                     '<span class="bookinglabelname">' . get_string('withselected', 'booking') . '</span>');
                 $buttonarray[] = &$mform->createElement("submit", 'activitycompletion',

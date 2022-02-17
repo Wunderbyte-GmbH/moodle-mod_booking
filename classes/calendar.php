@@ -160,20 +160,26 @@ class calendar {
                 break;
 
             case $this::TYPETEACHERADD:
-                $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings, $bookingoption->option, $this->userid, 0);
+                $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings,
+                    $bookingoption->option, $this->userid, 0);
                 if ($newcalendarid) {
-                    $DB->set_field("booking_teachers", 'calendarid', $newcalendarid, array('userid' => $this->userid, 'optionid' => $this->optionid));
+                    $DB->set_field("booking_teachers", 'calendarid', $newcalendarid,
+                        array('userid' => $this->userid, 'optionid' => $this->optionid));
                 }
                 break;
 
             case $this::TYPETEACHERUPDATE:
-                $calendarid = $DB->get_field('booking_teachers', 'calendarid', array('userid' => $this->userid, 'optionid' => $this->optionid));
-                $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings, $bookingoption->option, $this->userid, $calendarid);
-                $DB->set_field("booking_teachers", 'calendarid', $newcalendarid, array('userid' => $this->userid, 'optionid' => $this->optionid));
+                $calendarid = $DB->get_field('booking_teachers', 'calendarid',
+                    array('userid' => $this->userid, 'optionid' => $this->optionid));
+                $newcalendarid = $this->booking_option_add_to_cal($bookingoption->booking->settings,
+                    $bookingoption->option, $this->userid, $calendarid);
+                $DB->set_field("booking_teachers", 'calendarid', $newcalendarid,
+                    array('userid' => $this->userid, 'optionid' => $this->optionid));
                 break;
 
             case $this::TYPETEACHERREMOVE:
-                $calendarid = $DB->get_field('booking_teachers', 'calendarid', array('userid' => $this->userid, 'optionid' => $this->optionid));
+                $calendarid = $DB->get_field('booking_teachers', 'calendarid',
+                    array('userid' => $this->userid, 'optionid' => $this->optionid));
 
                 if ($calendarid > 0) {
                     if ($DB->record_exists("event", array('id' => $calendarid))) {
@@ -287,7 +293,9 @@ class calendar {
      * @throws coding_exception
      * @throws dml_exception
      */
-    private function booking_optiondate_add_to_cal($booking, $option, $optiondate, $userid = 0, $calendareventid, $addtocalendar = 1) {
+    private function booking_optiondate_add_to_cal($booking, $option, $optiondate, $userid = 0,
+        $calendareventid, $addtocalendar = 1) {
+
         global $DB, $CFG;
         $fulldescription = '';
 

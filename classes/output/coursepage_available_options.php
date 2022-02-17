@@ -149,7 +149,7 @@ class coursepage_available_options implements renderable, templatable {
         $where = "WHERE b.id = :bookingid
         ";
 
-        // We only show active on coursepage
+        // We only show active on coursepage.
         $where .= "AND (bo.courseendtime > :time OR bo.courseendtime = 0)";
 
         $now = time();
@@ -166,16 +166,16 @@ class coursepage_available_options implements renderable, templatable {
                 'timestampnow' => $now,
                 'time' => $now));
 
-        // We get all sessions for this instance right away for better performance
+        // We get all sessions for this instance right away for better performance.
         $sessions = $DB->get_records('booking_optiondates', array('bookingid' => $bookingid));
 
-        // Prepare running through all records
+        // Prepare running through all records.
         $context = $booking->get_context();
         $utils = new booking_utils();
 
         $baseurl = $CFG->wwwroot;
 
-        // Run through all the bookingoptions for this instance
+        // Run through all the bookingoptions for this instance.
         foreach ($records as $record) {
 
             if (!$record->id) {
@@ -184,7 +184,7 @@ class coursepage_available_options implements renderable, templatable {
 
             $dates = [];
 
-            // First we look if there are sessions for this option id
+            // First we look if there are sessions for this option id.
             foreach ($sessions as $session) {
                 if ($session->optionid == $record->id) {
                     $datestring = $this->bu->return_string_from_dates($session->coursestarttime, $session->courseendtime);
@@ -192,7 +192,7 @@ class coursepage_available_options implements renderable, templatable {
                 }
             }
 
-            // If there were no sessions to be found, we take the normal option string
+            // If there were no sessions to be found, we take the normal option string.
             if (count($dates) == 0) {
                 $datestring = $this->bu->return_string_from_dates($record->coursestarttime, $record->courseendtime);
                 $dates[] = ['datestring' => $datestring];

@@ -37,7 +37,7 @@ if (!$booking = new booking($cm->id)) {
 }
 
 if (!$context = context_module::instance($cm->id)) {
-    print_error('badcontext');
+    throw new moodle_exception('badcontext');
 }
 
 if (!has_capability('mod/booking:manageoptiontemplates', $context)) {
@@ -52,7 +52,7 @@ if ($defaultvalues = $DB->get_record('booking_options', array('bookingid' => 0, 
     $defaultvalues->bookingname = $booking->settings->name;
     $defaultvalues->id = $cm->id;
 } else {
-    print_error('This booking template does not exist');
+    throw new moodle_exception('This booking template does not exist');
 }
 
 if ($mform->is_cancelled()) {

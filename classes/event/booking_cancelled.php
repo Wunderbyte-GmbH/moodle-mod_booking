@@ -49,7 +49,8 @@ class booking_cancelled extends \core\event\base {
 
     public function get_description() {
         if ($this->userid != $this->data['relateduserid']) {
-            return "The user with id {$this->userid} cancelled the user with id {$this->data['other']['userid']} from the option with id  {$this->objectid}.";
+            return "The user with id {$this->userid} cancelled the user with id {$this->data['other']['userid']} "
+                . "from the option with id  {$this->objectid}.";
         } else {
             return "The user with id {$this->userid} cancelled the booking option with id {$this->objectid}.";
         }

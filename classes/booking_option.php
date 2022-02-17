@@ -143,7 +143,8 @@ class booking_option {
         $this->optionid = $optionid;
         $this->id = $optionid; // Store it in id AND in optionid.
 
-        // $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', MUST_EXIST);
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', MUST_EXIST); */
 
         $settings = new booking_option_settings($optionid);
         $this->option = $settings->return_settings();
@@ -183,11 +184,13 @@ class booking_option {
     private function get_and_set_booking_information() {
 
         // TODO: get and set information from booking class.
-        // $this->iambooked = $imbooked;
-        // $this->onwaitinglist = $onwaitinglist;
-        // $this->completed = $completed;
-        // $this->booked = $booked;
-        // $this->waiting = $waiting;
+
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $this->iambooked = $imbooked;
+        $this->onwaitinglist = $onwaitinglist;
+        $this->completed = $completed;
+        $this->booked = $booked;
+        $this->waiting = $waiting; */
     }
 
     /**
@@ -494,31 +497,32 @@ class booking_option {
      * @param number $userid
      * @return number status 0 = not existing, 1 = waitinglist, 2 = regularely booked
      */
-    // public function user_status($userid = null) {
-    //     global $DB, $USER;
-    //     $booked = false;
-    //     if (is_null($userid)) {
-    //         $userid = $USER->id;
-    //     }
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* public function user_status($userid = null) {
+        global $DB, $USER;
+        $booked = false;
+        if (is_null($userid)) {
+            $userid = $USER->id;
+        }
 
-    //     $booked = $DB->get_field('booking_answers', 'waitinglist',
-    //             array('optionid' => $this->optionid, 'userid' => $userid));
+        $booked = $DB->get_field('booking_answers', 'waitinglist',
+                array('optionid' => $this->optionid, 'userid' => $userid));
 
-    //     if ($booked === false) {
-    //         // Check, if it's in teachers table.
-    //         if ($DB->get_field('booking_teachers', 'id',
-    //                 array('optionid' => $this->optionid, 'userid' => $userid)) !== false) {
-    //             return 2;
-    //         }
-    //         return 0;
-    //     } else if ($booked === "0") {
-    //         return 2;
-    //     } else if ($booked === 1 || $booked === "1") {
-    //         return 1;
-    //     } else { // Should never be reached.
-    //         return 0;
-    //     }
-    // }
+        if ($booked === false) {
+            // Check, if it's in teachers table.
+            if ($DB->get_field('booking_teachers', 'id',
+                    array('optionid' => $this->optionid, 'userid' => $userid)) !== false) {
+                return 2;
+            }
+            return 0;
+        } else if ($booked === "0") {
+            return 2;
+        } else if ($booked === 1 || $booked === "1") {
+            return 1;
+        } else { // Should never be reached.
+            return 0;
+        }
+    } */
 
     /**
      * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
@@ -526,21 +530,22 @@ class booking_option {
      * @param number $userid
      * @return number status 0 = activity not completed, 1 = activity completed
      */
-    // public function is_activity_completed($userid = null) {
-    //     global $DB, $USER;
-    //     if (\is_null($userid)) {
-    //         $userid = $USER->id;
-    //     }
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* public function is_activity_completed($userid = null) {
+        global $DB, $USER;
+        if (\is_null($userid)) {
+            $userid = $USER->id;
+        }
 
-    //     $userstatus = $DB->get_field('booking_answers', 'completed',
-    //             array('optionid' => $this->optionid, 'userid' => $userid));
+        $userstatus = $DB->get_field('booking_answers', 'completed',
+                array('optionid' => $this->optionid, 'userid' => $userid));
 
-    //     if ($userstatus == 1) {
-    //         return $userstatus;
-    //     } else {
-    //         return 0;
-    //     }
-    // }
+        if ($userstatus == 1) {
+            return $userstatus;
+        } else {
+            return 0;
+        }
+    } */
 
     /**
      * Return if user can rate.
@@ -1085,7 +1090,8 @@ class booking_option {
 
         // We should have only one answer after deleted in DB.
         if ($numberofanswers > 1) {
-            throw new moodle_exception('tomanybookinganswers', 'mod_booking', '', null, "$user->id has too many answers in $this->optionid");
+            throw new moodle_exception('tomanybookinganswers', 'mod_booking', '', null,
+                "$user->id has too many answers in $this->optionid");
         }
 
         $newanswer = new stdClass();

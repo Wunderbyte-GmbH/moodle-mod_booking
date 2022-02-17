@@ -38,7 +38,7 @@ defined('MOODLE_INTERNAL') || die();
 class bookingoption_deleted extends \core\event\base {
 
     protected function init() {
-        $this->data['crud'] = 'd'; // c(reate), r(ead), u(pdate), d(elete)
+        $this->data['crud'] = 'd'; // Meaning: d = delete.
         $this->data['edulevel'] = self::LEVEL_TEACHING;
         $this->data['objecttable'] = 'booking_options';
     }
@@ -53,15 +53,5 @@ class bookingoption_deleted extends \core\event\base {
 
     public function get_url() {
         return new \moodle_url('/mod/booking/view.php', array('id' => $this->contextinstanceid));
-    }
-
-    /**
-     * Custom validation.
-     *
-     * @throws \coding_exception
-     * @return void
-     */
-    protected function validate_data() {
-        parent::validate_data();
     }
 }
