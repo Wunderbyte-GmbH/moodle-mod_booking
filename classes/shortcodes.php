@@ -35,7 +35,8 @@ use \mod_booking\table\bookingoptions_table;
 class shortcodes {
 
     /**
-     * Prints out list of bookingoptions, filtered by special category.
+     * Prints out list of bookingoptions.
+     * Argumtents can be 'category' or 'perpage'.
      *
      * @param string $shortcode
      * @param array $args
@@ -67,6 +68,12 @@ class shortcodes {
 
         if (!isset($args['category']) || !$category = ($args['category'])) {
             $category = '';
+        }
+
+        if (!isset($args['perpage'])
+            || !is_int((int)$args['perpage'])
+            || !$perpage = ($args['perpage'])) {
+            $perpage = 500;
         }
 
         $tablename = bin2hex(random_bytes(12));
@@ -128,7 +135,7 @@ class shortcodes {
         $table->tabletemplate = 'mod_booking/shortcodes_table';
 
         ob_start();
-        $out = $table->out(40, true);
+        $out = $table->out($perpage, true);
 
         $out = ob_get_contents();
         ob_end_clean();
