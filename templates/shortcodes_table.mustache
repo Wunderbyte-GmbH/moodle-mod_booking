@@ -70,13 +70,13 @@
     <li class="{{cardbodyclass}} wunderbyteTableJavascript">
         <div class="row">
           {{#cardbody}}
-            {{#columnclass}}<div class="{{.}} ">{{/columnclass}}
+            {{#columnclass}}<div class="{{.}} {{key}}">{{/columnclass}}
                   <span {{^value}} style="display:none" {{/value}}>
                   {{#columniclassbefore}}
                     <i class="{{.}}" aria-hidden="true"></i>
                   {{/columniclassbefore}}
                   </span>
-                  {{#columnkeyclass}}<span class="{{.}} ">{{/columnkeyclass}}
+                  {{#columnkeyclass}}<span class="key {{.}}">{{/columnkeyclass}}
                     {{^keystring}}
                    {{{key}}}
                   {{/keystring}}
@@ -89,7 +89,7 @@
                   {{#columnvalueclass}}</span>{{/columnvalueclass}}
                   <span {{^value}} style="display:none" {{/value}}>
                   {{#columniclassafter}}
-                    <i class="{{.}}" aria-hidden="true"></i>
+                    <i class="value {{.}}" aria-hidden="true"></i>
                   {{/columniclassafter}}
                   </span>
             {{#columnclass}}</div>{{/columnclass}}

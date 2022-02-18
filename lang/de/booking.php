@@ -1396,3 +1396,7 @@ $string['cachedef_bookingoptionsanswers'] = 'Buchungsstatus von einzelnen Option
 $string['cachedef_bookingoptionstable'] = 'Gesamte SQL Abfragen';
 $string['cachedef_cachedpricecategories'] = 'Preiskategorien in Booking';
 $string['cachedef_cachedprices'] = 'Standardpreise in Booking';
+
+// Shortcodes.
+
+$string['search'] = 'Suche...';

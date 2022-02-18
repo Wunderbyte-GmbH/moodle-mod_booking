@@ -806,7 +806,6 @@ class booking_option {
                     $DB->update_record('booking_answers', $result);
                 }
             }
-
         }
 
         // Sync the waiting list and send status change mails.
