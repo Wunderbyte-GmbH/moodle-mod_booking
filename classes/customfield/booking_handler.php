@@ -79,6 +79,33 @@ class booking_handler extends \core_customfield\handler {
     }
 
     /**
+     * Saves the given data for custom fields, must be called after the instance is saved and id is present
+     *
+     *
+     * @param int $instance id received from a form
+     * @param string $shortname of a given customfield
+     * @param mixed @value new value of a given custom field
+     */
+    public function field_save($instanceid, $shortname, $value) {
+
+        $editablefields = $this->get_editable_fields($instanceid);
+        $fields = api::get_instance_fields_data($editablefields, $instanceid);
+        foreach ($fields as $data) {
+            $field = $data->get_field();
+
+            if ($field->get('shortname') == $shortname) {
+                if (!$data->get('id')) {
+                    $data->set('contextid', $this->get_instance_context($instanceid)->id);
+                }
+
+                $data->set($data->datafield(), $value);
+                $data->set('value', $value);
+                $data->save();
+            }
+        }
+    }
+
+    /**
      * The current user can configure custom fields on this component.
      *
      * @return bool true if the current can configure custom fields, false otherwise

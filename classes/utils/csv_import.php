@@ -20,6 +20,7 @@ use mod_booking\booking;
 use stdClass;
 use mod_booking\booking_option;
 use html_writer;
+use mod_booking\customfield\booking_handler;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -223,7 +224,15 @@ class csv_import {
                 }
                 // Set the option id again in order to use it in prepare_data for user data.
                 $bookingoption->id = $optionid;
-                // Finished option data, add user data to option.
+
+                // At this point, we can map the custom fields.
+                $handler = booking_handler::create();
+                foreach ($csvrecord as $column => $value) {
+                    $handler->field_save($optionid, $column, $value);
+                }
+
+
+                // Finished option data, add user data to option:
                 foreach ($userdata as $userfield => $value) {
                     $this->prepare_data($userfield, $value, $bookingoption);
                 }
@@ -473,7 +482,7 @@ class csv_import {
         }
         foreach ($this->fieldnames as $fieldname) {
             if (!array_key_exists($fieldname, $this->columns) AND !in_array($fieldname, $this->additionalfields)) {
-                $error .= "CSV was not imported. Reason: Invalid booking option setting in csv: {$fieldname}";
+                // $error .= "CSV was not imported. Reason: Invalid booking option setting in csv: {$fieldname}";
             }
         }
         return $error;
