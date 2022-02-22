@@ -198,7 +198,6 @@ class booking_utils {
         return $text;
     }
 
-
     /**
      * Function to generate booking button, moved here from all_options to make it available also on coursepage and elsewhere
      * @param $cm
@@ -445,54 +444,6 @@ class booking_utils {
     }
 
     /**
-     * Function to return false if user has not yet the right to access conference
-     * Returns the link if the user has the right
-     * time before course start is hardcoded to 15 minutes
-     *
-     * @param $cmid
-     * @param $optionid
-     * @param $userid
-     * @throws \coding_exception
-     * @throws \dml_exception
-     */
-    public function show_conference_link($bookingoption, $userid, $sessionid = null) {
-
-        global $DB;
-
-        // First check if user is really booked.
-        if ($bookingoption->iambooked != 1) {
-                return false;
-        }
-
-        $now = time();
-        $openingtime = strtotime("+15 minutes", $now);
-
-        if (!$sessionid) {
-            $start = $bookingoption->option->coursestarttime;
-            $end = $bookingoption->option->courseendtime;
-        } else {
-            $start = $bookingoption->sessions[$sessionid]->coursestarttime;
-            $end = $bookingoption->sessions[$sessionid]->courseendtime;
-        }
-
-        // If now plus 15 minutes is smaller than coursestarttime, we return the link.
-        if ($start < $openingtime
-            && $end > $now) {
-            return true;
-        } else {
-            // If we return false here, we first have to calculate secondstostart.
-            $delta = $start - $now;
-
-            if ($delta < 0) {
-                $this->secondspassed = - $delta;
-            } else {
-                $this->secondstostart = $delta;
-            }
-            return false;
-        }
-    }
-
-    /**
      * Function to determine the way start and end date are displayed on course page
      * Also, if there are no dates set, we return an empty string
      * @param $start
@@ -518,138 +469,6 @@ class booking_utils {
         }
 
         return "$starttime - $endtime";
-    }
-
-    /**
-     * Helperfunction to return array with name - value items for mustache templates
-     * $fields must be records from booking_customfields
-     * @param $fields
-     * @return array
-     */
-    public function return_array_of_customfields($bookingoption,
-            $fields,
-            $sessionid = 0,
-            $descriptionparam = 0,
-            $forbookeduser = false) {
-        $returnarray = [];
-        foreach ($fields as $field) {
-            if ($value = $this->render_customfield_data($bookingoption,
-            $field,
-            $sessionid,
-            $descriptionparam,
-            $forbookeduser)) {
-                $returnarray[] = $value;
-            }
-        }
-        return $returnarray;
-    }
-
-    /** This function is meant to return the right name and value array for custom fields.
-     * This is the place to return buttons etc. for special name, keys, like teams-meeting or zoom meeting.
-     * @param $field
-     */
-    private function render_customfield_data($bookingoption,
-            $field,
-            $sessionid = 0,
-            $descriptionparam = 0,
-            $forbookeduser = false) {
-
-        switch ($field->cfgname) {
-            case 'ZoomMeeting':
-            case 'BigBlueButtonMeeting':
-            case 'TeamsMeeting':
-                // If the session is not yet about to begin, we show placeholder.
-                return $this->render_meeting_fields($bookingoption, $sessionid, $field, $descriptionparam, $forbookeduser);
-            default:
-                return [
-                    'name' => "$field->cfgname: ",
-                    'value' => $field->value
-                ];
-        }
-    }
-
-
-    private function render_meeting_fields($bookingoption, $sessionid, $field, $descriptionparam, $forbookeduser = false) {
-        global $USER, $CFG;
-
-        $baseurl = $CFG->wwwroot;
-
-        switch ($descriptionparam) {
-
-            case DESCRIPTION_WEBSITE:
-                // We don't want to show these Buttons at all if the user is not booked.
-                if (!$forbookeduser) {
-                    return null;
-                } else {
-                    // We are booked on the web site, we check if we show the real link.
-                    if (!$this->show_conference_link($bookingoption, $USER->id, $sessionid)) {
-                        // User is booked, if the user is booked, but event not yet open, we show placeholder with time to start.
-                        return [
-                                'name' => null,
-                                'value' => get_string('linknotavailableyet', 'mod_booking')
-                        ];
-                    }
-                    // User is booked and event open, we return the button with the link to access, this is for the website.
-                    return [
-                            'name' => null,
-                            'value' => "<a href=$field->value class='btn btn-info'>$field->cfgname</a>"
-                    ];
-                };
-            case DESCRIPTION_CALENDAR:
-                // Calendar is static, so we don't have to check for booked or not.
-                // In all cases, we return the Teams-Button, going by the link.php.
-                if ($forbookeduser) {
-                    // User is booked, we show a button (for Moodle calendar ie).
-                    $cm = $bookingoption->booking->cm;
-                    $moodleurl = new moodle_url($baseurl . '/mod/booking/link.php',
-                            array('id' => $cm->id,
-                                    'optionid' => $bookingoption->optionid,
-                                    'action' => 'join',
-                                    'sessionid' => $sessionid,
-                                    'fieldid' => $field->id
-                            ));
-                    $encodedlink = self::booking_encode_moodle_url($moodleurl);
-
-                    return [
-                            'name' => null,
-                            'value' => "<a href=$encodedlink class='btn btn-info'>$field->cfgname</a>"
-                    ];
-                } else {
-                    return null;
-                }
-            case DESCRIPTION_ICAL:
-                // User is booked, for ical no button but link only.
-                // For ical, we don't check for booked as it's always booked only.
-                $cm = $bookingoption->booking->cm;
-                $link = new moodle_url($baseurl . '/mod/booking/link.php',
-                        array('id' => $cm->id,
-                                'optionid' => $bookingoption->optionid,
-                                'action' => 'join',
-                                'sessionid' => $sessionid,
-                                'fieldid' => $field->id
-                        ));
-                $link = $link->out(false);
-                return [
-                        'name' => null,
-                        'value' => "$field->cfgname: $link"
-                ];
-            case DESCRIPTION_MAIL:
-                // For the mail placeholder {bookingdetails} no button but link only.
-                // However, we can use HTML links in mails.
-                $cm = $bookingoption->booking->cm;
-                $link = new moodle_url($baseurl . '/mod/booking/link.php',
-                    array('id' => $cm->id,
-                        'optionid' => $bookingoption->optionid,
-                        'action' => 'join',
-                        'sessionid' => $sessionid,
-                        'fieldid' => $field->id
-                    ));
-                $link = $link->out(false);
-                return [
-                    'name' => null,
-                    'value' => "$field->cfgname: <a href='$link' target='_blank'>$link</a>"
-                ];
-        }
     }
 
     /**
@@ -697,72 +516,6 @@ class booking_utils {
                     'userid' => $USER->id));
             $event->trigger();
         }
-    }
-
-    /**
-     * Helper function for mustache template to return array with datestring and customfields
-     * @param $bookingoption
-     * @return array
-     * @throws \dml_exception
-     */
-    public function return_array_of_sessions($bookingoption, $bookingevent = null,
-                                            $descriptionparam = 0,
-                                            $withcustomfields = false,
-                                            $forbookeduser = false) {
-
-        global $DB;
-
-        // If we didn't set a $bookingevent (record from booking_optiondates) we retrieve all of them for this option.
-        // Else, we check if there are sessions.
-        // If not, we just use normal coursestart & endtime.
-        if ($bookingevent) {
-            $sessions = [$bookingevent];
-        } else if ($bookingoption->sessions) {
-            $sessions = $bookingoption->sessions;
-        } else {
-
-            $session = new stdClass();
-            $session->id = 1;
-            $session->coursestarttime = $bookingoption->option->coursestarttime;
-            $session->courseendtime = $bookingoption->option->courseendtime;
-            $sessions = [$session];
-        }
-        $returnitem = [];
-
-        if (count($sessions) > 0) {
-            foreach ($sessions as $session) {
-
-                $returnsession = [];
-                // Filter the matchin customfields.
-                $fields = $DB->get_records('booking_customfields', array(
-                        'optionid' => $bookingoption->optionid,
-                        'optiondateid' => $session->id
-                ));
-
-                // We show this only if timevalues are not 0.
-                if ($session->coursestarttime != 0 && $session->courseendtime != 0) {
-                    $returnsession['datestring'] = $this->return_string_from_dates($session->coursestarttime,
-                        $session->courseendtime);
-                    // Customfields can only be displayed in combination with timevalues.
-                    if ($withcustomfields) {
-                        $returnsession['customfields'] = $this->return_array_of_customfields($bookingoption,
-                            $fields, $session->id, $descriptionparam, $forbookeduser);
-                    }
-                }
-                if ($returnsession) {
-                    $returnitem[] = $returnsession;
-                }
-
-            }
-        } else {
-            $returnitem[] = [
-                    'datesstring' => $this->return_string_from_dates(
-                            $bookingoption->option->coursestarttime,
-                            $bookingoption->option->courseendtime)
-            ];
-        }
-
-        return $returnitem;
     }
 
     /**
@@ -1238,25 +991,6 @@ class booking_utils {
     }
 
     /**
-     * Helper function to encode a moodle_url with base64.
-     * This can be used in combination with bookingredirect.php.
-     * @param $moodleurl
-     */
-    public static function booking_encode_moodle_url($moodleurl) {
-
-        global $CFG;
-
-        $encodedurl = base64_encode($moodleurl->out(false));
-        $encodedmoodleurl = new \moodle_url($CFG->wwwroot . '/mod/booking/bookingredirect.php', array(
-            'encodedurl' => $encodedurl
-        ));
-
-        $encodedlink = $encodedmoodleurl->out(false);
-
-        return $encodedlink;
-    }
-
-    /**
      * Helper function to check if an option name (text) already exists within the same instance.
      * If it does, return a new option name containing the separator defined in plugin config
      * and a unique key (5 digits).
@@ -1308,24 +1042,6 @@ class booking_utils {
             } while (!$isreallyunique);
 
             return $uniquetext;
-        }
-    }
-
-    /**
-     * The booking option data should have a display name without unique key in text.
-     * Therefore, we use the separtor and only display first part as text (name) wihtout key.
-     * @param $data
-     * @throws \dml_exception
-     */
-    public static function transform_unique_bookingoption_name_to_display_name(&$data) {
-        if (isset($data->text)) {
-            $separator = get_config('booking', 'uniqueoptionnameseparator');
-            // We only need to do this if the separator is part of the text string.
-            if (strlen($separator) != 0 && strpos($data->text, $separator) !== false) {
-                list($displayname, $key) = explode($separator, $data->text);
-                $data->text = $displayname;
-                $data->idnumber = $key;
-            }
         }
     }
 

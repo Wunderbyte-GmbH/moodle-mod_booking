@@ -105,9 +105,6 @@ class booking_option {
     /** @var string $times course start time - course end time or session times separated with a comma */
     public $optiontimes = '';
 
-    /** @var array $sessions array of objects containing coursestarttime and courseendtime as object values */
-    public $sessions = array();
-
     /** @var boolean if I'm booked */
     public $iambooked = 0;
 
@@ -122,6 +119,9 @@ class booking_option {
 
     /** @var int booked users */
     public $booked = 0;
+
+    /** @var booking_option_settings $settings */
+    public $settings = null;
 
     /**
      * Creates basic booking option
@@ -142,18 +142,17 @@ class booking_option {
         $this->optionid = $optionid;
         $this->id = $optionid; // Store it in id AND in optionid.
 
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $this->option = $DB->get_record('booking_options', array('id' => $optionid), '*', MUST_EXIST); */
-
         $settings = new booking_option_settings($optionid);
-        $this->option = $settings->return_settings();
 
-        // TODO: We need to get rid of this in the future.
-        // It will be done by the booking_option_settings class and the mustache template optiondates_only.
-        $this->sessions = $this->option->sessions;
+        // Booking option settings class is saved as member of booking option.
+        $this->settings = $settings;
 
-        if (!empty($this->sessions)) {
-            foreach ($this->sessions as $time) {
+        // In the future, we will get rid of the stdClass - right now, it's still used very often.
+        $this->option = $settings->return_settings_as_stdclass();
+
+        // Get cached sessions from booking settings class.
+        if (!empty($settings->sessions)) {
+            foreach ($settings->sessions as $time) {
                 $this->optiontimes .= $time->coursestarttime . " - " . $time->courseendtime . ",";
             }
             trim($this->optiontimes, ",");
@@ -469,62 +468,6 @@ class booking_option {
         }
         return $bookedusers;
     }
-
-    /**
-     * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
-     *
-     * @param int $userid
-     * @return int status 0 = not existing, 1 = waitinglist, 2 = regularely booked
-     */
-    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-    /* public function user_status($userid = null) {
-        global $DB, $USER;
-        $booked = false;
-        if (is_null($userid)) {
-            $userid = $USER->id;
-        }
-
-        $booked = $DB->get_field('booking_answers', 'waitinglist',
-                array('optionid' => $this->optionid, 'userid' => $userid));
-
-        if ($booked === false) {
-            // Check, if it's in teachers table.
-            if ($DB->get_field('booking_teachers', 'id',
-                    array('optionid' => $this->optionid, 'userid' => $userid)) !== false) {
-                return 2;
-            }
-            return 0;
-        } else if ($booked === "0") {
-            return 2;
-        } else if ($booked === 1 || $booked === "1") {
-            return 1;
-        } else { // Should never be reached.
-            return 0;
-        }
-    } */
-
-    /**
-     * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
-     *
-     * @param int $userid
-     * @return int status 0 = activity not completed, 1 = activity completed
-     */
-    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-    /* public function is_activity_completed($userid = null) {
-        global $DB, $USER;
-        if (\is_null($userid)) {
-            $userid = $USER->id;
-        }
-
-        $userstatus = $DB->get_field('booking_answers', 'completed',
-                array('optionid' => $this->optionid, 'userid' => $userid));
-
-        if ($userstatus == 1) {
-            return $userstatus;
-        } else {
-            return 0;
-        }
-    } */
 
     /**
      * Return if user can rate.
@@ -1813,7 +1756,7 @@ class booking_option {
      * @param integer $bookingid // Should be set.
      * @param array $filters
      * @param string $fields
-     * @param [type] $from
+     * @param string $from
      * @return void
      */
     public static function search_all_options_sql($bookingid = 0,
@@ -1822,7 +1765,7 @@ class booking_option {
                                     $from = '',
                                     $where = '',
                                     $params = array(),
-                                    $order = 'ORDER BY bo.id ASC'):array {
+                                    $order = 'ORDER BY bo.id ASC'): array {
         $from = $from ?? '{booking_options} bo
                         JOIN {customfield_data} cfd
                         ON bo.id=cfd.instanceid
@@ -1837,8 +1780,13 @@ class booking_option {
         return [$fields, $from, $where, $params, $order];
     }
 
+    /**
+     * Apply filters.
+     * Currently this function is not used.
+     *
+     * @return void
+     */
     public function apply_filters() {
-
     }
 
     /**
@@ -2061,5 +2009,291 @@ class booking_option {
                 $data->idnumber = $key;
             }
         }
+    }
+
+    /**
+     * Helper function for mustache template to return array with datestring and customfields
+     * @param $bookingoption
+     * @return array
+     * @throws \dml_exception
+     */
+    public function return_array_of_sessions($bookingevent = null,
+                                            $descriptionparam = 0,
+                                            $withcustomfields = false,
+                                            $forbookeduser = false) {
+
+        global $DB;
+
+        // If we didn't set a $bookingevent (record from booking_optiondates) we retrieve all of them for this option.
+        // Else, we check if there are sessions.
+        // If not, we just use normal coursestart & endtime.
+        if ($bookingevent) {
+            $sessions = [$bookingevent];
+        } else if ($this->settings->sessions) {
+            $sessions = $this->settings->sessions;
+        } else {
+
+            $session = new stdClass();
+            $session->id = 1;
+            $session->coursestarttime = $this->settings->coursestarttime;
+            $session->courseendtime = $this->settings->courseendtime;
+            $sessions = [$session];
+        }
+        $returnitem = [];
+
+        if (count($sessions) > 0) {
+            foreach ($sessions as $session) {
+
+                $returnsession = [];
+
+                // TODO: Can we cache this?
+                // Filter the matching customfields.
+                $fields = $DB->get_records('booking_customfields', array(
+                        'optionid' => $this->optionid,
+                        'optiondateid' => $session->id
+                ));
+
+                // We show this only if timevalues are not 0.
+                if ($session->coursestarttime != 0 && $session->courseendtime != 0) {
+                    $returnsession['datestring'] = self::return_string_from_dates($session->coursestarttime,
+                        $session->courseendtime);
+                    // Customfields can only be displayed in combination with timevalues.
+                    if ($withcustomfields) {
+                        $returnsession['customfields'] = $this->return_array_of_customfields($fields, $session->id,
+                            $descriptionparam, $forbookeduser);
+                    }
+                }
+                if ($returnsession) {
+                    $returnitem[] = $returnsession;
+                }
+            }
+        } else {
+            $returnitem[] = [
+                    'datesstring' => $this->return_string_from_dates(
+                            $this->settings->coursestarttime,
+                            $this->settings->courseendtime)
+            ];
+        }
+
+        return $returnitem;
+    }
+
+    /**
+     * Helper function to return array with name - value items for mustache templates
+     * $fields must be records from booking_customfields
+     * @param array $fields
+     * @param int $sessionid
+     * @param int $descriptionparam
+     * @param bool $forbookeduser
+     * @return array
+     */
+    public function return_array_of_customfields($fields, $sessionid = 0,
+            $descriptionparam = 0, $forbookeduser = false) {
+
+        $returnarray = [];
+        foreach ($fields as $field) {
+            if ($value = $this->render_customfield_data($field, $sessionid,
+                $descriptionparam, $forbookeduser)) {
+                $returnarray[] = $value;
+            }
+        }
+        return $returnarray;
+    }
+
+    /**
+     * This function is meant to return the right name and value array for custom fields.
+     * This is the place to return buttons etc. for special name, keys, like teams-meeting or zoom meeting.
+     * @param stdClass $field
+     * @param int $sessionid
+     * @param int $descriptionparam
+     * @param bool $forbookeduser
+     */
+    private function render_customfield_data (
+            $field,
+            $sessionid = 0,
+            $descriptionparam = 0,
+            $forbookeduser = false) {
+
+        switch ($field->cfgname) {
+            case 'ZoomMeeting':
+            case 'BigBlueButtonMeeting':
+            case 'TeamsMeeting':
+                // If the session is not yet about to begin, we show placeholder.
+                return $this->render_meeting_fields($sessionid, $field, $descriptionparam, $forbookeduser);
+            default:
+                return [
+                    'name' => "$field->cfgname: ",
+                    'value' => $field->value
+                ];
+        }
+    }
+
+    /**
+     * Render meeting fields
+     *
+     * @param int $sessionid
+     * @param stdClass $field
+     * @param int $descriptionparam
+     * @param bool $forbookeduser
+     *
+     * @return array
+     */
+    private function render_meeting_fields(int $sessionid, stdClass $field, int $descriptionparam,
+        bool $forbookeduser = false): array {
+
+        global $CFG;
+
+        $baseurl = $CFG->wwwroot;
+
+        switch ($descriptionparam) {
+
+            case DESCRIPTION_WEBSITE:
+                // We don't want to show these Buttons at all if the user is not booked.
+                if (!$forbookeduser) {
+                    return null;
+                } else {
+                    // We are booked on the web site, we check if we show the real link.
+                    if (!$this->show_conference_link($sessionid)) {
+                        // User is booked, if the user is booked, but event not yet open, we show placeholder with time to start.
+                        return [
+                                'name' => null,
+                                'value' => get_string('linknotavailableyet', 'mod_booking')
+                        ];
+                    }
+                    // User is booked and event open, we return the button with the link to access, this is for the website.
+                    return [
+                            'name' => null,
+                            'value' => "<a href=$field->value class='btn btn-info'>$field->cfgname</a>"
+                    ];
+                };
+            case DESCRIPTION_CALENDAR:
+                // Calendar is static, so we don't have to check for booked or not.
+                // In all cases, we return the Teams-Button, going by the link.php.
+                if ($forbookeduser) {
+                    // User is booked, we show a button (for Moodle calendar ie).
+                    $cm = $this->booking->cm;
+                    $moodleurl = new moodle_url($baseurl . '/mod/booking/link.php',
+                            array('id' => $cm->id,
+                                    'optionid' => $this->optionid,
+                                    'action' => 'join',
+                                    'sessionid' => $sessionid,
+                                    'fieldid' => $field->id
+                            ));
+                    $encodedlink = booking::encode_moodle_url($moodleurl);
+
+                    return [
+                            'name' => null,
+                            'value' => "<a href=$encodedlink class='btn btn-info'>$field->cfgname</a>"
+                    ];
+                } else {
+                    return null;
+                }
+            case DESCRIPTION_ICAL:
+                // User is booked, for ical no button but link only.
+                // For ical, we don't check for booked as it's always booked only.
+                $cm = $this->booking->cm;
+                $link = new moodle_url($baseurl . '/mod/booking/link.php',
+                        array('id' => $cm->id,
+                                'optionid' => $this->optionid,
+                                'action' => 'join',
+                                'sessionid' => $sessionid,
+                                'fieldid' => $field->id
+                        ));
+                $link = $link->out(false);
+                return [
+                        'name' => null,
+                        'value' => "$field->cfgname: $link"
+                ];
+            case DESCRIPTION_MAIL:
+                // For the mail placeholder {bookingdetails} no button but link only.
+                // However, we can use HTML links in mails.
+                $cm = $this->booking->cm;
+                $link = new moodle_url($baseurl . '/mod/booking/link.php',
+                    array('id' => $cm->id,
+                        'optionid' => $this->optionid,
+                        'action' => 'join',
+                        'sessionid' => $sessionid,
+                        'fieldid' => $field->id
+                    ));
+                $link = $link->out(false);
+                return [
+                    'name' => null,
+                    'value' => "$field->cfgname: <a href='$link' target='_blank'>$link</a>"
+                ];
+        }
+    }
+
+    /**
+     * Function to return false if user has not yet the right to access conference
+     * Returns the link if the user has the right
+     * time before course start is hardcoded to 15 minutes
+     *
+     * @param int $sessionid
+     *
+     * @return bool
+     */
+    public function show_conference_link(int $sessionid = null): bool {
+
+        // First check if user is really booked.
+        $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
+
+        if ($bookinganswers->user_status() != STATUSPARAM_BOOKED) {
+                return false;
+        }
+
+        $now = time();
+        $openingtime = strtotime("+15 minutes", $now);
+
+        if (!$sessionid) {
+            $start = $this->settings->coursestarttime;
+            $end = $this->settings->courseendtime;
+        } else {
+            $start = $this->settings->sessions[$sessionid]->coursestarttime;
+            $end = $this->settings->sessions[$sessionid]->courseendtime;
+        }
+
+        // If now plus 15 minutes is smaller than coursestarttime, we return the link.
+        if ($start < $openingtime
+            && $end > $now) {
+            return true;
+        } else {
+            // If we return false here, we first have to calculate secondstostart.
+            $delta = $start - $now;
+
+            if ($delta < 0) {
+                $this->secondspassed = - $delta;
+            } else {
+                $this->secondstostart = $delta;
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Function to determine the way start and end date are displayed on course page
+     * Also, if there are no dates set, we return an empty string
+     * @param $start
+     * @param $end
+     * @return string
+     */
+    public static function return_string_from_dates($start, $end) {
+
+        // If start or end is 0, we return no dates.
+        if ($start == 0 || $end == 0) {
+            return '';
+        }
+
+        $current = userdate($start, get_string('strftimedate'));
+        $previous = userdate($end, get_string('strftimedate'));
+
+        if ($current == $previous) {
+            $starttime = userdate($start, get_string('strftimedaydatetime'));
+            $endtime = userdate($end, get_string('strftimetime'));
+        } else {
+            $starttime = userdate($start, get_string('strftimedaydatetime'));
+            $endtime = '<br>' . userdate($end, get_string('strftimedaydatetime'));
+        }
+
+        return "$starttime - $endtime";
     }
 }

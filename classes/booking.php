@@ -588,4 +588,23 @@ class booking {
 
         return [$fields, $from, $where, $params];
     }
+
+    /**
+     * Helper function to encode a moodle_url with base64.
+     * This can be used in combination with bookingredirect.php.
+     * @param $moodleurl
+     */
+    public static function encode_moodle_url($moodleurl) {
+
+        global $CFG;
+
+        $encodedurl = base64_encode($moodleurl->out(false));
+        $encodedmoodleurl = new \moodle_url($CFG->wwwroot . '/mod/booking/bookingredirect.php', array(
+            'encodedurl' => $encodedurl
+        ));
+
+        $encodedlink = $encodedmoodleurl->out(false);
+
+        return $encodedlink;
+    }
 }

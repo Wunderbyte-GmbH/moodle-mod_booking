@@ -24,8 +24,9 @@
 
 namespace mod_booking\output;
 
+use mod_booking\booking;
+use mod_booking\booking_answers;
 use mod_booking\booking_option;
-use mod_booking\booking_utils;
 use renderer_base;
 use renderable;
 use templatable;
@@ -72,11 +73,6 @@ class bookingoption_description implements renderable, templatable {
     /** @var array $teachers by names */
     public $teachers = [];
 
-    /**
-     * @var null Bookingutilities to instantiate only once
-     */
-    private $bu = null;
-
 
     /**
      * Constructor.
@@ -95,27 +91,38 @@ class bookingoption_description implements renderable, templatable {
 
         global $CFG;
 
-        $this->bu = new booking_utils();
+        $this->cmid = $booking->cm->id;
+
         $bookingoption = new booking_option($booking->cm->id, $optionid);
 
-        // We need the possibility to render for other users, so the iambookedflag is not enough.
-        // But we use it if nothing else is specified.
+        // Booking answers class uses caching.
+        $bookinganswers = new booking_answers($bookingoption->settings);
+
+        /* We need the possibility to render for other users,
+        so the user status of the current USER is not enough.
+        But we use it if nothing else is specified. */
         if ($forbookeduser === null) {
-            $forbookeduser = $bookingoption->iambooked == 1 ? true : false;
+            if ($bookinganswers->user_status() == STATUSPARAM_BOOKED) {
+                $forbookeduser = true;
+            } else {
+                $forbookeduser = false;
+            }
         }
 
         // These fields can be gathered directly from DB.
-        $this->title = $bookingoption->option->text;
-        $this->location = $bookingoption->option->location;
-        $this->address = $bookingoption->option->address;
-        $this->institution = $bookingoption->option->institution;
+        $this->title = $bookingoption->settings->text;
+        $this->location = $bookingoption->settings->location;
+        $this->address = $bookingoption->settings->address;
+        $this->institution = $bookingoption->settings->institution;
 
         // There can be more than one modal, therefor we use the id of this record.
-        $this->modalcounter = $bookingoption->option->id;
+        $this->modalcounter = $bookingoption->settings->id;
 
-        // TODO: Add duration via booking_option_settings here. Do we need it?
-        // CODE: $this->duration = $bookingoption->option->duration; END.
-        $this->description = format_text($bookingoption->option->description, FORMAT_HTML);
+        // Duration from booking option settings.
+        $this->duration = $bookingoption->settings->duration;
+
+        // Description from booking option settings formatted as HTML.
+        $this->description = format_text($bookingoption->settings->description, FORMAT_HTML);
 
         // For these fields we do need some conversion.
         // For Description we need to know the booking status.
@@ -123,7 +130,7 @@ class bookingoption_description implements renderable, templatable {
 
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
-        $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent,
+        $this->dates = $bookingoption->return_array_of_sessions($bookingevent,
             $descriptionparam, $withcustomfields, $forbookeduser);
 
         $teachers = $bookingoption->get_teachers();
@@ -142,6 +149,7 @@ class bookingoption_description implements renderable, templatable {
         ));
 
         switch ($descriptionparam) {
+
             case DESCRIPTION_WEBSITE:
                 // Only show "already booked" or "on waiting list" text in modal.
                 if ($booking->settings->showdescriptionmode == 0) {
@@ -158,18 +166,21 @@ class bookingoption_description implements renderable, templatable {
                     $this->booknowbutton = '';
                 }
                 break;
+
             case DESCRIPTION_CALENDAR:
-                $encodedlink = booking_utils::booking_encode_moodle_url($moodleurl);
+                $encodedlink = booking::encode_moodle_url($moodleurl);
                 $this->booknowbutton = "<a href=$encodedlink class='btn btn-primary'>"
                         . get_string('gotobookingoption', 'booking')
                         . "</a>";
                 // TODO: We would need an event tracking status changes between notbooked, iambooked and onwaitinglist...
                 // TODO: ...in order to update the event table accordingly.
                 break;
+
             case DESCRIPTION_ICAL:
                 $this->booknowbutton = get_string('gotobookingoption', 'booking') . ': '
                     .  $moodleurl->out(false);
                 break;
+
             case DESCRIPTION_MAIL:
                 // The link should be clickable in mails (placeholder {bookingdetails}).
                 $this->booknowbutton = get_string('gotobookingoption', 'booking') . ': ' .
@@ -200,7 +211,7 @@ class bookingoption_description implements renderable, templatable {
                 'teachers' => $this->teachers
         );
 
-        // In events don't have the possibility, as on the website, to use display: none the same way.
+        // In events we don't have the possibility, as on the website, to use display: none the same way.
         // So we need two helper variables.
         if (count($this->dates) > 0) {
             $returnarray['showdateslabel'] = 1;

@@ -47,7 +47,7 @@ $userid = $USER->id;
 $explanationstring = null;
 
 // Only if there was a valid link and session is open, we redirect.
-if ($link = $bu->show_conference_link($bookingoption, $userid, $sessionid)) {
+if ($link = $bookingoption->show_conference_link($sessionid)) {
 
     // We can find the actual link.
     if (!empty($fieldid)) {

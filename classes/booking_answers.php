@@ -388,22 +388,4 @@ class booking_answers {
         $bookingoptionsettings = new booking_option_settings($optionid);
         return new booking_answers($bookingoptionsettings);
     }
-
-    /**
-     * The booking option data should have a display name without unique key in text.
-     * Therefore, we use the separtor and only display first part as text (name) wihtout key.
-     * @param $data
-     * @throws \dml_exception
-     */
-    public static function transform_unique_bookingoption_name_to_display_name(&$data) {
-        if (isset($data->text)) {
-            $separator = get_config('booking', 'uniqueoptionnameseparator');
-            // We only need to do this if the separator is part of the text string.
-            if (strlen($separator) != 0 && strpos($data->text, $separator) !== false) {
-                list($displayname, $key) = explode($separator, $data->text);
-                $data->text = $displayname;
-                $data->idnumber = $key;
-            }
-        }
-    }
 }

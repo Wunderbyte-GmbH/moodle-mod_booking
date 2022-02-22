@@ -408,8 +408,9 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-    /** function to render bookingoption_description in template.
-     * This is actually nearly the same database as for bookingoption_description, only wrapped in a modal.
+    /**
+     * Function to render modal info in template.
+     * This is actually nearly the same as for bookingoption_description, only wrapped in a modal.
      */
     public function render_modal_info(mod_booking\output\bookingoption_description $data) {
         $o = '';
