@@ -25,6 +25,7 @@ use coding_exception;
 use dml_exception;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_utils;
+use mod_booking\booking_option;
 use moodle_exception;
 use moodle_url;
 
@@ -66,7 +67,7 @@ class bookingoptions_simple_table extends wunderbyte_table {
         // If the data is being downloaded we show the original text including the separator and unique idnumber.
         if (!$this->is_downloading()) {
             // Remove identifier key and separator if necessary.
-            booking_utils::transform_unique_bookingoption_name_to_display_name($values);
+            booking_option::transform_unique_bookingoption_name_to_display_name($values);
         }
 
         return $values->text;

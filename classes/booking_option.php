@@ -134,7 +134,6 @@ class booking_option {
      * @param bool $getusers Get booked users via DB query
      */
     public function __construct($cmid, $optionid, $filters = array(), $page = 0, $perpage = 0, $getusers = true) {
-        global $DB, $USER;
 
         $this->cmid = $cmid;
         $this->booking = new booking($cmid);
@@ -169,28 +168,8 @@ class booking_option {
             $this->get_users();
         }
 
-        // We use cached booking information by now.
-        $this->get_and_set_booking_information();
-
         // To deal with the necessity of unique booking names.
-        booking_option_settings::transform_unique_bookingoption_name_to_display_name($this->option);
-    }
-
-    /**
-     * Function to get information from the booking_answers table, if possible via cache.
-     *
-     * @return void
-     */
-    private function get_and_set_booking_information() {
-
-        // TODO: get and set information from booking class.
-
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $this->iambooked = $imbooked;
-        $this->onwaitinglist = $onwaitinglist;
-        $this->completed = $completed;
-        $this->booked = $booked;
-        $this->waiting = $waiting; */
+        self::transform_unique_bookingoption_name_to_display_name($this->option);
     }
 
     /**
@@ -223,8 +202,8 @@ class booking_option {
      * This calculates number of user that can be booked to the connected booking option
      * Looks for max participant in the connected booking given the optionid
      *
-     * @param number $optionid
-     * @return number
+     * @param int $optionid
+     * @return int
      */
     public function calculate_how_many_can_book_to_other($optionid) {
         global $DB;
@@ -494,8 +473,8 @@ class booking_option {
     /**
      * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
      *
-     * @param number $userid
-     * @return number status 0 = not existing, 1 = waitinglist, 2 = regularely booked
+     * @param int $userid
+     * @return int status 0 = not existing, 1 = waitinglist, 2 = regularely booked
      */
     // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
     /* public function user_status($userid = null) {
@@ -527,8 +506,8 @@ class booking_option {
     /**
      * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
      *
-     * @param number $userid
-     * @return number status 0 = activity not completed, 1 = activity completed
+     * @param int $userid
+     * @return int status 0 = activity not completed, 1 = activity completed
      */
     // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
     /* public function is_activity_completed($userid = null) {
@@ -585,7 +564,7 @@ class booking_option {
     }
 
     /**
-     * Get text for depending on status of users booking.
+     * Get option text depending on status of users booking.
      *
      * @param null $userid
      * @return string
@@ -864,7 +843,7 @@ class booking_option {
     /**
      * Unsubscribes given users from this booking option and subscribes them to the newoption
      *
-     * @param number $newoption
+     * @param int $newoption
      * @param array of numbers $userids
      * @return stdClass transferred->success = true/false, transferred->no[] errored users,
      *         $transferred->yes transferred users
@@ -1015,8 +994,8 @@ class booking_option {
      * Subscribe a user to a booking option
      *
      * @param stdClass $user
-     * @param number $frombookingid
-     * @param number $substractfromlimit this is used for transferring users from one option to
+     * @param int $frombookingid
+     * @param int $substractfromlimit this is used for transferring users from one option to
      *        another
      *        The number of bookings for the user has to be decreased by one, because, the user will
      *        be unsubscribed
@@ -1262,7 +1241,7 @@ class booking_option {
      * Unenrol the user from the course, which has been defined as target course
      * in the booking option settings
      *
-     * @param number $userid
+     * @param int $userid
      */
     public function unenrol_user($userid) {
         global $DB;
@@ -1471,7 +1450,7 @@ class booking_option {
      * Change presence status
      *
      * @param array $allselectedusers
-     * @param number $presencestatus
+     * @param int $presencestatus
      */
     public function changepresencestatus($allselectedusers, $presencestatus) {
         global $DB;
@@ -2064,5 +2043,23 @@ class booking_option {
         }
 
         return $status;
+    }
+
+    /**
+     * The booking option data should have a display name without unique key in text.
+     * Therefore, we use the separtor and only display first part as text (name) wihtout key.
+     * @param $data
+     * @throws \dml_exception
+     */
+    public static function transform_unique_bookingoption_name_to_display_name(&$data) {
+        if (isset($data->text)) {
+            $separator = get_config('booking', 'uniqueoptionnameseparator');
+            // We only need to do this if the separator is part of the text string.
+            if (strlen($separator) != 0 && strpos($data->text, $separator) !== false) {
+                list($displayname, $key) = explode($separator, $data->text);
+                $data->text = $displayname;
+                $data->idnumber = $key;
+            }
+        }
     }
 }

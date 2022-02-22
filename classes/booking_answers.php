@@ -23,7 +23,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Settings class for booking option instances.
+ * Class for booking answers.
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
@@ -55,8 +55,6 @@ class booking_answers {
 
     /** @var array array of all user objects (only with deleted booking answer) */
     public $usersdeleted = [];
-
-
 
     /**
      * Constructor for the booking answers class.
@@ -182,8 +180,8 @@ class booking_answers {
      * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
      * The return value of this function is not equal to the former user_status in booking_option.
      *
-     * @param number $userid
-     * @return number const STATUSPARAMS_ for booking status.
+     * @param int $userid
+     * @return int const STATUSPARAM_* for booking status.
      */
     public function user_status($userid = null) {
 
@@ -203,8 +201,8 @@ class booking_answers {
     /**
      * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
      *
-     * @param number $userid
-     * @return number status 0 = activity not completed, 1 = activity completed
+     * @param int $userid
+     * @return int status 0 = activity not completed, 1 = activity completed
      */
     public function is_activity_completed($userid = null) {
         global $DB, $USER;

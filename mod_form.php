@@ -32,7 +32,7 @@ class mod_booking_mod_form extends moodleform_mod {
     /**
      * Return an array of categories catid as key and categoryname as value
      *
-     * @param number $cat_id
+     * @param int $cat_id
      * @param string $dashes
      * @param array $options
      * @return array of course category names indexed by category id

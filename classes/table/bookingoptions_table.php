@@ -24,16 +24,15 @@ require_once($CFG->libdir.'/tablelib.php');
 
 use coding_exception;
 use dml_exception;
-use \local_wunderbyte_table\wunderbyte_table;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\booking_option;
-use \mod_booking\booking_utils;
 use mod_booking\customfield\booking_handler;
 use mod_booking\output\col_action;
 use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_price;
-use \mod_booking\output\col_text;
-use \mod_booking\output\col_teacher;
+use mod_booking\output\col_text;
+use mod_booking\output\col_teacher;
 use moodle_exception;
 use moodle_url;
 
@@ -79,7 +78,7 @@ class bookingoptions_table extends wunderbyte_table {
     public function col_teacher($values) {
         global $PAGE;
 
-        // Render col_text using a template.
+        // Render col_teacher using a template.
         $output = $PAGE->get_renderer('mod_booking');
 
         // Currently, this will use dummy teachers.
@@ -122,7 +121,7 @@ class bookingoptions_table extends wunderbyte_table {
         // If the data is being downloaded we show the original text including the separator and unique idnumber.
         if (!$this->is_downloading()) {
             // Remove identifier key and separator if necessary.
-            booking_utils::transform_unique_bookingoption_name_to_display_name($values);
+            booking_option::transform_unique_bookingoption_name_to_display_name($values);
         }
 
         // Render col_text using a template.
@@ -159,7 +158,7 @@ class bookingoptions_table extends wunderbyte_table {
      */
     public function col_bookings($values) {
         global $PAGE;
-        // Render col_text using a template.
+        // Render col_bookings using a template.
         $output = $PAGE->get_renderer('mod_booking');
         $data = new col_availableplaces($values);
         return $output->render_col_availableplaces($data);
@@ -307,7 +306,7 @@ class bookingoptions_table extends wunderbyte_table {
     public function col_action($values) {
         global $PAGE;
 
-        // Render col_text using a template.
+        // Render col_action using a template.
         $output = $PAGE->get_renderer('mod_booking');
 
         // Currently, this will use dummy teachers.

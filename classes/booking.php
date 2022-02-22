@@ -205,7 +205,7 @@ class booking {
     /**
      * Get all booking option ids as an array of numbers.
      *
-     * @param number $bookingid
+     * @param int $bookingid
      * @return array of ids
      */
     public static function get_all_optionids($bookingid) {
@@ -216,7 +216,7 @@ class booking {
     /**
      * Get active booking option ids as an array of numbers.
      *
-     * @param number $bookingid
+     * @param int $bookingid
      * @return array of ids
      */
     public function get_active_optionids($bookingid, $limitfrom = 0, $limitnum = 0, $searchtext = '') {

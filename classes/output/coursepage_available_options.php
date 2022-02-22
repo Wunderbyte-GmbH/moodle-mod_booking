@@ -24,10 +24,12 @@
 
 namespace mod_booking\output;
 
-use mod_booking\booking;use mod_booking\booking_utils;use renderer_base;
+use mod_booking\booking;
+use mod_booking\booking_utils;
+use mod_booking\booking_option;
+use renderer_base;
 use renderable;
 use templatable;
-
 
 /**
  * This class prepares data for displaying a booking instance
@@ -204,7 +206,7 @@ class coursepage_available_options implements renderable, templatable {
             $url = new \moodle_url($baseurl . '/mod/booking/view.php', $urlparams);
             $linkonoption = $url->out(false);
 
-            booking_utils::transform_unique_bookingoption_name_to_display_name($record);
+            booking_option::transform_unique_bookingoption_name_to_display_name($record);
 
             $this->bookingoptions[] = [
                     'bookingoptionname' => $record->text,

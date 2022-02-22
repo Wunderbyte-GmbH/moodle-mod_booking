@@ -25,6 +25,7 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use core\output\notification;
 use mod_booking\booking_utils;
+use mod_booking\booking_option;
 use mod_booking\form\subscribe_cohort_or_group_form;
 
 global $CFG, $DB, $COURSE, $PAGE, $OUTPUT;
@@ -116,7 +117,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
                             if (!empty($result)) {
                                 $r = array();
                                 foreach ($result as $v) {
-                                    booking_utils::transform_unique_bookingoption_name_to_display_name($v);
+                                    booking_option::transform_unique_bookingoption_name_to_display_name($v);
                                     $r[] = $v->text;
                                 }
                                 $output .= '&nbsp;' . get_string('enrolledinoptions', 'mod_booking') .

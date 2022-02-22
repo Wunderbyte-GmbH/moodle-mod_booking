@@ -1249,8 +1249,8 @@ function booking_check_if_teacher($option) {
  *
  * @param array $selectedusers
  * @param unknown $booking
- * @param number $cmid
- * @param number $optionid
+ * @param int $cmid
+ * @param int $optionid
  */
 function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $optionid) {
     global $DB, $CFG;
@@ -1294,8 +1294,8 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
  * Generate new numbers for users
  *
  * @param unknown $bookingdatabooking
- * @param number $cmid
- * @param number $optionid
+ * @param int $cmid
+ * @param int $optionid
  * @param array $allselectedusers
  */
 function booking_generatenewnumbers($bookingdatabooking, $cmid, $optionid, $allselectedusers) {
@@ -1338,8 +1338,8 @@ function booking_generatenewnumbers($bookingdatabooking, $cmid, $optionid, $alls
  *
  * @param array $selectedusers array of userids
  * @param stdClass $booking booking instance
- * @param number $cmid course module id
- * @param number $optionid
+ * @param int $cmid course module id
+ * @param int $optionid
  */
 function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) {
     global $DB, $CFG;
@@ -1724,7 +1724,7 @@ function booking_rate($ratings, $params) {
 /**
  * Given an ID of an instance of this module, will permanently delete the instance and data.
  *
- * @param number $id
+ * @param int $id
  * @return boolean
  */
 function booking_delete_instance($id) {

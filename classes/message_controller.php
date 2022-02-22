@@ -252,6 +252,7 @@ class message_controller {
 
         // Placeholder for the number of booked users.
         $params->numberparticipants = strval(count($this->option->get_all_users_booked()));
+
         // Placeholder for the number of users on the waiting list.
         $params->numberwaitinglist = strval(count($this->option->get_all_users_on_waitinglist()));
 

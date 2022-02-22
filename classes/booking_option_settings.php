@@ -152,19 +152,18 @@ class booking_option_settings {
      * @throws dml_exception
      */
     public function __construct(int $optionid) {
-        global $DB;
 
         $cache = \cache::make('mod_booking', 'bookingoptions');
-        $cachedoptions = $cache->get($optionid);
+        $cachedoption = $cache->get($optionid);
 
-        if (!$cachedoptions) {
-            $cachedoptions = null;
+        if (!$cachedoption) {
+            $cachedoption = null;
         }
 
         // If we have no object to pass to set values, the function will retrieve the values from db.
-        if ($data = $this->set_values($optionid, $cachedoptions)) {
-            // Only if we didn't pass anything to cachedoptions, we set the cache now.
-            if (!$cachedoptions) {
+        if ($data = $this->set_values($optionid, $cachedoption)) {
+            // Only if we didn't pass anything to cachedoption, we set the cache now.
+            if (!$cachedoption) {
                 $cache->set($optionid, $data);
             }
         }
@@ -303,30 +302,12 @@ class booking_option_settings {
     public function return_settings():stdClass {
 
         $cache = \cache::make('mod_booking', 'bookingoptions');
-        $cachedoptions = $cache->get($this->id);
+        $cachedoption = $cache->get($this->id);
 
-        if (!$cachedoptions) {
-            $cachedoptions = $this->set_values($this->id);
+        if (!$cachedoption) {
+            $cachedoption = $this->set_values($this->id);
         }
 
-        return $cachedoptions;
-    }
-
-    /**
-     * The booking option data should have a display name without unique key in text.
-     * Therefore, we use the separtor and only display first part as text (name) wihtout key.
-     * @param $data
-     * @throws \dml_exception
-     */
-    public static function transform_unique_bookingoption_name_to_display_name(&$data) {
-        if (isset($data->text)) {
-            $separator = get_config('booking', 'uniqueoptionnameseparator');
-            // We only need to do this if the separator is part of the text string.
-            if (strlen($separator) != 0 && strpos($data->text, $separator) !== false) {
-                list($displayname, $key) = explode($separator, $data->text);
-                $data->text = $displayname;
-                $data->idnumber = $key;
-            }
-        }
+        return $cachedoption;
     }
 }

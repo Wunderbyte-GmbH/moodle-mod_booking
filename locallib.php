@@ -322,7 +322,7 @@ function booking_confirm_booking($optionid, $user, $cm, $url) {
 
 /**
  * Update start and enddate in booking_option when dates are set or deleted
- * @param number $optionid
+ * @param int $optionid
  */
 function booking_updatestartenddate($optionid) {
     global $DB;
@@ -404,7 +404,7 @@ function get_rendered_eventdescription(int $optionid, int $cmid,
 
 /**
  * Helper function to delete custom fields belonging to an option date.
- * @param number $optiondateid id of the option date for which all custom fields will be deleted.
+ * @param int $optiondateid id of the option date for which all custom fields will be deleted.
  */
 function optiondate_deletecustomfields($optiondateid) {
     global $DB;
@@ -414,7 +414,7 @@ function optiondate_deletecustomfields($optiondateid) {
 
 /**
  * Helper function to duplicate custom fields belonging to an option date.
- * @param number $optiondateid id of the option date for which all custom fields will be duplicated.
+ * @param int $optiondateid id of the option date for which all custom fields will be duplicated.
  */
 function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
     global $DB;
