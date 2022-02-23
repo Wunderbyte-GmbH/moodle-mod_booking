@@ -197,11 +197,14 @@ class price {
         if (!$cachedprices) {
 
             if (!$prices = $DB->get_records('booking_prices', ['optionid' => $optionid])) {
+                $cache->set($optionid, 'noentry');
                 return [];
             }
 
             $data = json_encode($prices);
             $cache->set($optionid, $data);
+        } else if ($cachedprices == 'noentry') {
+            return [];
         } else {
             $prices = json_decode($cachedprices);
         }
@@ -225,11 +228,14 @@ class price {
         if (!$cachedpricecategory) {
 
             if (!$pricecategory = $DB->get_record('booking_pricecategories', ['identifier' => $identifier, 'disabled' => 0])) {
+                $cache->set($identifier, 'noentry');
                 return null;
             }
 
             $data = json_encode($pricecategory);
             $cache->set($identifier, $data);
+        } else if ($cachedpricecategory == 'noentry') {
+            return null;
         } else {
             $pricecategory = json_decode($cachedpricecategory);
         }
