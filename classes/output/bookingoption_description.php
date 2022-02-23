@@ -93,7 +93,9 @@ class bookingoption_description implements renderable, templatable {
 
         $this->cmid = $booking->cm->id;
 
-        $bookingoption = new booking_option($booking->cm->id, $optionid);
+        // TODO: Cache booking options, so they don't get instantiated twice.
+        // Performance: Last param is set to true so users won't be retrieved from DB.
+        $bookingoption = new booking_option($booking->cm->id, $optionid, [], 0, 0, true);
 
         // Booking answers class uses caching.
         $bookinganswers = new booking_answers($bookingoption->settings);

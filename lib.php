@@ -833,7 +833,7 @@ function booking_update_options($optionvalues, $context) {
 
         // At the very last moment, when everything is done, we invalidate the table cache.
         cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::invalidate_by_event('setbackoptions', [$option->id]);
+        cache_helper::invalidate_by_event('setbackoptionsettings', [$option->id]);
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$option->id]);
 
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
@@ -937,7 +937,7 @@ function booking_update_options($optionvalues, $context) {
 
         // At the very last moment, when everything is done, we invalidate the table cache.
         cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::invalidate_by_event('setbackoptions', [$optionid]);
+        cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
 
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found

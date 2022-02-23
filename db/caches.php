@@ -25,6 +25,13 @@
 defined('MOODLE_INTERNAL') || die;
 
 $definitions = array(
+    'cachedbookinginstances' => array(
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1,
+        'invalidationevents' => ['setbackbookinginstances']
+    ),
     'cachedprices' => array(
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
@@ -46,12 +53,12 @@ $definitions = array(
         'staticaccelerationsize' => 1,
         'invalidationevents' => ['setbackoptionstable']
     ),
-    'bookingoptions' => array( // This cache uses optionids as keys.
+    'bookingoptionsettings' => array( // This cache uses optionids as keys.
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'invalidationevents' => ['setbackoptions']
+        'invalidationevents' => ['setbackoptionsettings']
     ),
     'bookingoptionsanswers' => array( // This cache uses optionids as keys.
         'mode' => cache_store::MODE_APPLICATION,

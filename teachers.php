@@ -113,7 +113,7 @@ if ($edit === 0) {
     $subscriberselector->set_existing_subscribers($existingselector->find_users(''));
 
     cache_helper::purge_by_event('setbackoptionstable');
-    cache_helper::invalidate_by_event('setbackoptions', [$optionid]);
+    cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
 }
 
 if ($edit === 1) {

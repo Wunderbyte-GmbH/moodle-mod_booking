@@ -94,7 +94,7 @@ if ($delete != '') {
 
      // After Deleting, we invalidate caches.
      cache_helper::purge_by_event('setbackoptionstable');
-     cache_helper::invalidate_by_event('setbackoptions', [$optionid]);
+     cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
 
     // If there have been significant changes, we have to resend an e-mail (containing an updated ical)...
     // ...and the information about the changes..
@@ -220,7 +220,7 @@ if ($mform->is_cancelled()) {
 
     // After Updating, we invalidate caches.
     cache_helper::purge_by_event('setbackoptionstable');
-    cache_helper::invalidate_by_event('setbackoptions', [$optionid]);
+    cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
 
     // If there have been significant changes, we have to resend an e-mail (containing an updated ical)...
     // ...and the information about the changes..

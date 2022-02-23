@@ -157,7 +157,7 @@ class booking_option_settings {
      */
     public function __construct(int $optionid) {
 
-        $cache = \cache::make('mod_booking', 'bookingoptions');
+        $cache = \cache::make('mod_booking', 'bookingoptionsettings');
         $cachedoption = $cache->get($optionid);
 
         if (!$cachedoption) {
@@ -332,7 +332,7 @@ class booking_option_settings {
      */
     public function return_settings_as_stdclass(): stdClass {
 
-        $cache = \cache::make('mod_booking', 'bookingoptions');
+        $cache = \cache::make('mod_booking', 'bookingoptionsettings');
         $cachedoption = $cache->get($this->id);
 
         if (!$cachedoption) {

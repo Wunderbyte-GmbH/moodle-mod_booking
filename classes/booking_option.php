@@ -136,7 +136,8 @@ class booking_option {
     public function __construct($cmid, $optionid, $filters = array(), $page = 0, $perpage = 0, $getusers = true) {
 
         $this->cmid = $cmid;
-        $this->booking = new booking($cmid);
+
+        $this->booking = self::get_booking_from_cache_or_create($cmid);
 
         $this->bookingid = $this->booking->id;
         $this->optionid = $optionid;
@@ -163,6 +164,7 @@ class booking_option {
         $this->filters = $filters;
         $this->page = $page;
         $this->perpage = $perpage;
+
         if ($getusers) {
             $this->get_users();
         }
@@ -2295,5 +2297,30 @@ class booking_option {
         }
 
         return "$starttime - $endtime";
+    }
+
+    /**
+     * Return an instance of booking either from cache (if it exists) or create a new one.
+     *
+     * @param int $cmid
+     * @return booking
+     */
+    public static function get_booking_from_cache_or_create(int $cmid): booking {
+
+        $cache = \cache::make('mod_booking', 'cachedbookinginstances');
+        $cachedbookinginstance = $cache->get($cmid);
+
+        // If we don't have the cache, we need to retrieve the value from db.
+        if (!$cachedbookinginstance) {
+
+            $booking = new booking($cmid);
+            $data = json_encode($booking);
+            $cache->set($cmid, $data);
+
+        } else {
+            $cachedbookingstdclass = json_decode($cachedbookinginstance);
+            $booking = new booking($cmid, $cachedbookingstdclass);
+        }
+        return $booking;
     }
 }
