@@ -569,6 +569,9 @@ function booking_update_instance($booking) {
 
     booking_grade_item_update($booking);
 
+    // When updating an instance, we need to invalidate the cache for booking instances.
+    cache_helper::invalidate_by_event('setbackbookinginstances', [$cm->id]);
+
     return $DB->update_record('booking', $booking);
 }
 
