@@ -16,6 +16,7 @@
 
 namespace mod_booking;
 
+use mod_booking\customfield\booking_handler;
 use stdClass;
 
 /**
@@ -145,6 +146,9 @@ class booking_option_settings {
     /** @var array $teachers */
     public $teachers = [];
 
+    /** @var array $customfields */
+    public $customfields = [];
+
     /**
      * Constructor for the booking option settings class.
      *
@@ -241,6 +245,14 @@ class booking_option_settings {
                 $this->teachers = $dbrecord->teachers;
             }
 
+            // If the key "customfields" is not yet set, we need to load them via handler first.
+            if (!isset($dbrecord->customfields)) {
+                $this->load_customfields($optionid);
+                $dbrecord->customfields = $this->customfields;
+            } else {
+                $this->customfields = $dbrecord->customfields;
+            }
+
             return $dbrecord;
         } else {
             debugging('Could not create option settings class for optionid: ' . $optionid);
@@ -290,6 +302,25 @@ class booking_option_settings {
         }
 
         $this->teachers = $teachers;
+    }
+
+
+    private function load_customfields($optionid) {
+        $handler = booking_handler::create();
+
+        $datas = $handler->get_instance_data($optionid);
+
+        foreach ($datas as $data) {
+
+            $getfield = $data->get_field();
+            $shortname = $getfield->get('shortname');
+
+            $value = $data->get_value();
+
+            if (!empty($value)) {
+                $this->customfields[$shortname] = $value;
+            }
+        }
     }
 
     /**

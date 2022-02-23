@@ -187,21 +187,12 @@ class bookingoptions_table extends wunderbyte_table {
      */
     public function col_sports($values) {
 
-        $handler = booking_handler::create();
+        $settings = new booking_option_settings($values->id);
 
-        $datas = $handler->get_instance_data($values->id);
-
-        foreach ($datas as $data) {
-
-            $getfield = $data->get_field();
-            $shortname = $getfield->get('shortname');
-            if ($shortname == 'sport') {
-                if ($value = $data->get_value()) {
-                    return $value;
-                }
-            }
+        if (isset($settings->customfields)
+            && isset($settings->customfields['sport'])) {
+                return implode(", ", $settings->customfields['sport']);
         }
-
         return '';
     }
 
