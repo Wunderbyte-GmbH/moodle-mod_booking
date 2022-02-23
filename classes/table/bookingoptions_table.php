@@ -27,6 +27,7 @@ use dml_exception;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\booking_option;
+use mod_booking\booking_option_settings;
 use mod_booking\customfield\booking_handler;
 use mod_booking\output\col_action;
 use mod_booking\output\col_availableplaces;
@@ -48,6 +49,8 @@ class bookingoptions_table extends wunderbyte_table {
      */
     private $teachers = [];
 
+    private $output = null;
+
     /**
      * Constructor
      * @param int $uniqueid all tables have to have a unique id, this is used
@@ -64,6 +67,8 @@ class bookingoptions_table extends wunderbyte_table {
             $this->booking = $booking;
         }
 
+        $this->output = $PAGE->get_renderer('mod_booking');
+
         // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
     }
 
@@ -78,13 +83,14 @@ class bookingoptions_table extends wunderbyte_table {
     public function col_teacher($values) {
         global $PAGE;
 
+
         // Render col_teacher using a template.
-        $output = $PAGE->get_renderer('mod_booking');
+        // $output = $PAGE->get_renderer('mod_booking');
 
         // Currently, this will use dummy teachers.
         $data = new col_teacher($values->id);
 
-        return $output->render_col_teacher($data);
+        return $this->output->render_col_teacher($data);
     }
 
     /**
@@ -99,12 +105,12 @@ class bookingoptions_table extends wunderbyte_table {
         global $PAGE;
 
         // Render col_price using a template.
-        $output = $PAGE->get_renderer('mod_booking');
+        //$output = $PAGE->get_renderer('mod_booking');
 
         // We pass on the id of the booking option.
         $data = new col_price($values);
 
-        return $output->render_col_price($data);
+        return $this->output->render_col_price($data);
     }
 
     /**
@@ -125,7 +131,7 @@ class bookingoptions_table extends wunderbyte_table {
         }
 
         // Render col_text using a template.
-        $output = $PAGE->get_renderer('mod_booking');
+        //$output = $PAGE->get_renderer('mod_booking');
 
         if (!empty($this->booking)) {
 
@@ -138,12 +144,12 @@ class bookingoptions_table extends wunderbyte_table {
             $data->modalcounter = $values->id;
 
             // We can go with the data from bookingoption_description directly to modal.
-            return $output->render_col_text_modal($data);
+            return $this->output->render_col_text_modal($data);
 
         } else {
             // Fallback if booking instance is missing.
             $data = new col_text($values->text);
-            return $output->render_col_text($data);
+            return $this->output->render_col_text($data);
         }
     }
 
@@ -159,9 +165,9 @@ class bookingoptions_table extends wunderbyte_table {
     public function col_bookings($values) {
         global $PAGE;
         // Render col_bookings using a template.
-        $output = $PAGE->get_renderer('mod_booking');
+        // $output = $PAGE->get_renderer('mod_booking');
         $data = new col_availableplaces($values);
-        return $output->render_col_availableplaces($data);
+        return $this->output->render_col_availableplaces($data);
     }
 
     /**
@@ -298,12 +304,12 @@ class bookingoptions_table extends wunderbyte_table {
         global $PAGE;
 
         // Render col_action using a template.
-        $output = $PAGE->get_renderer('mod_booking');
+        // $output = $PAGE->get_renderer('mod_booking');
 
         // Currently, this will use dummy teachers.
         $data = new col_action($values->id);
 
-        return $output->render_col_action($data);
+        return $this->output->render_col_action($data);
     }
 
     /**
@@ -314,8 +320,8 @@ class bookingoptions_table extends wunderbyte_table {
     public function finish_html() {
         global $PAGE;
 
-        $output = $PAGE->get_renderer('mod_booking');
+        // $output = $PAGE->get_renderer('mod_booking');
         $table = new \local_wunderbyte_table\output\table($this);
-        echo $output->render_bookingoptions_table($table);
+        echo $this->output->render_bookingoptions_table($table);
     }
 }
