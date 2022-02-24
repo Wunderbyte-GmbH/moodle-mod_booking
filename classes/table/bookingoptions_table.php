@@ -53,6 +53,8 @@ class bookingoptions_table extends wunderbyte_table {
 
     private $bookingsoptionsettings = [];
 
+    private $booking = null;
+
     /**
      * Constructor
      * @param int $uniqueid all tables have to have a unique id, this is used
@@ -139,7 +141,7 @@ class bookingoptions_table extends wunderbyte_table {
         }
 
         // Render col_text using a template.
-        //$output = $PAGE->get_renderer('mod_booking');
+        // $output = $PAGE->get_renderer('mod_booking');
 
         if (!empty($this->booking)) {
 
@@ -317,7 +319,12 @@ class bookingoptions_table extends wunderbyte_table {
         return $this->output->render_col_action($data);
     }
 
-
+    /**
+     * Make sure we fetch booking option only once from cache.
+     *
+     * @param int $optionid
+     * @return booking_option_settings
+     */
     private function get_instance_of_booking_option_settings($optionid) {
         if (isset($this->bookingsoptionsettings[$optionid])) {
             return $this->bookingsoptionsettings[$optionid];
@@ -325,6 +332,21 @@ class bookingoptions_table extends wunderbyte_table {
             $bos = new booking_option_settings($optionid);
             $this->bookingsoptionsettings[$optionid] = $bos;
             return $bos;
+        }
+    }
+
+    /**
+     * Make sure we fetch booking only once from cache.
+     *
+     * @param int $instanceid
+     * @return void
+     */
+    private function get_instance_of_booking($instanceid) {
+        if (!empty($this->booking)) {
+            return $this->booking;
+        } else {
+            $this->booking = new booking($instanceid);
+            return $this->booking;
         }
     }
 
