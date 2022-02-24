@@ -51,6 +51,8 @@ class bookingoptions_table extends wunderbyte_table {
 
     private $output = null;
 
+    private $bookingsoptionsettings = [];
+
     /**
      * Constructor
      * @param int $uniqueid all tables have to have a unique id, this is used
@@ -81,14 +83,14 @@ class bookingoptions_table extends wunderbyte_table {
      * @throws dml_exception
      */
     public function col_teacher($values) {
-        global $PAGE;
 
+        global $PAGE;
 
         // Render col_teacher using a template.
         // $output = $PAGE->get_renderer('mod_booking');
+        $settings = $this->get_instance_of_booking_option_settings($values->id);
 
-        // Currently, this will use dummy teachers.
-        $data = new col_teacher($values->id);
+        $data = new col_teacher($values->id, $settings);
 
         return $this->output->render_col_teacher($data);
     }
@@ -104,11 +106,14 @@ class bookingoptions_table extends wunderbyte_table {
     public function col_price($values) {
         global $PAGE;
 
+        // return '0';
+
         // Render col_price using a template.
-        //$output = $PAGE->get_renderer('mod_booking');
+        // $output = $PAGE->get_renderer('mod_booking');
+        $settings = $this->get_instance_of_booking_option_settings($values->id);
 
         // We pass on the id of the booking option.
-        $data = new col_price($values);
+        $data = new col_price($values, $settings);
 
         return $this->output->render_col_price($data);
     }
@@ -122,6 +127,9 @@ class bookingoptions_table extends wunderbyte_table {
      * @throws dml_exception
      */
     public function col_text($values) {
+
+        return 'x';
+
         global $PAGE;
 
         // If the data is being downloaded we show the original text including the separator and unique idnumber.
@@ -164,9 +172,11 @@ class bookingoptions_table extends wunderbyte_table {
      */
     public function col_bookings($values) {
         global $PAGE;
+
+        $settings = $this->get_instance_of_booking_option_settings($values->id);
         // Render col_bookings using a template.
         // $output = $PAGE->get_renderer('mod_booking');
-        $data = new col_availableplaces($values);
+        $data = new col_availableplaces($values, $settings);
         return $this->output->render_col_availableplaces($data);
     }
 
@@ -193,7 +203,9 @@ class bookingoptions_table extends wunderbyte_table {
      */
     public function col_sports($values) {
 
-        $settings = new booking_option_settings($values->id);
+        // return '0';
+
+        $settings = $this->get_instance_of_booking_option_settings($values->id);
 
         if (isset($settings->customfields)
             && isset($settings->customfields['sport'])) {
@@ -212,22 +224,15 @@ class bookingoptions_table extends wunderbyte_table {
      */
     public function col_dayofweek($values) {
 
-        $handler = booking_handler::create();
+        // return '0';
 
-        $datas = $handler->get_instance_data($values->id);
+        $settings = $this->get_instance_of_booking_option_settings($values->id);
 
-        foreach ($datas as $data) {
-
-            $getfield = $data->get_field();
-            $shortname = $getfield->get('shortname');
-            if ($shortname == 'dayofweektime') {
-                if ($value = $data->get_value()) {
-                    return $value;
-                }
-            }
+        if (isset($settings->customfields['dayofweektime'])) {
+            return $settings->customfields['dayofweektime'];
+        } else {
+            return '';
         }
-
-        return '';
     }
 
     /**
@@ -310,6 +315,17 @@ class bookingoptions_table extends wunderbyte_table {
         $data = new col_action($values->id);
 
         return $this->output->render_col_action($data);
+    }
+
+
+    private function get_instance_of_booking_option_settings($optionid) {
+        if (isset($this->bookingsoptionsettings[$optionid])) {
+            return $this->bookingsoptionsettings[$optionid];
+        } else {
+            $bos = new booking_option_settings($optionid);
+            $this->bookingsoptionsettings[$optionid] = $bos;
+            return $bos;
+        }
     }
 
     /**

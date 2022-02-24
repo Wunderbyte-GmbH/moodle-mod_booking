@@ -45,12 +45,13 @@ class col_teacher implements renderable, templatable {
 
     /**
      * Constructor
+     *
+     * @param integer $optionid
+     * @param booking_option_settings $settings
      */
-    public function __construct($optionid) {
+    public function __construct(int $optionid, booking_option_settings $settings) {
 
-        $bookingsettings = new booking_option_settings($optionid);
-
-        foreach ($bookingsettings->teachers as $teacher) {
+        foreach ($settings->teachers as $teacher) {
             $this->teachers[] = (array)$teacher;
         }
     }

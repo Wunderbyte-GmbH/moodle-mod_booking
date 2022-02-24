@@ -71,7 +71,7 @@ class shortcodes {
         if (!isset($args['perpage'])
             || !is_int((int)$args['perpage'])
             || !$perpage = ($args['perpage'])) {
-            $perpage = 500;
+            $perpage = 4000;
         }
 
         $tablename = bin2hex(random_bytes(12));

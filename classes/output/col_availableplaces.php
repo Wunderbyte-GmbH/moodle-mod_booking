@@ -43,13 +43,15 @@ class col_availableplaces implements renderable, templatable {
 
     /** @var booking_answers $bookinganswers instance of class */
     private $bookinganswers = null;
+
     /**
      * The constructor takes the values from db.
+     * @param stdClass $values
+     * @param booking_option_settings $settings
      */
-    public function __construct($values) {
+    public function __construct($values, booking_option_settings $settings) {
 
-        $bookingoptionsettings = new booking_option_settings($values->id);
-        $this->bookinganswers = new booking_answers($bookingoptionsettings);
+        $this->bookinganswers = new booking_answers($settings);
     }
 
     /**

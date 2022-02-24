@@ -27,6 +27,7 @@ namespace mod_booking\output;
 
 use local_shopping_cart\local\entities\cartitem;
 use mod_booking\booking_answers;
+use mod_booking\booking_option_settings;
 use mod_booking\price;
 use renderer_base;
 use renderable;
@@ -52,7 +53,13 @@ class col_price implements renderable, templatable {
     /**
      * Only when the user is not booked, we store a price during construction.
      */
-    public function __construct(stdClass $values) {
+    /**
+     * Undocumented function
+     *
+
+     * @param booking_option_settings $settings
+     */
+    public function __construct(stdClass $values, booking_option_settings $settings) {
 
         global $USER;
 
@@ -62,8 +69,9 @@ class col_price implements renderable, templatable {
             $userid = $values->userid;
         }
 
+        // Because of the caching logic, we have to create the booking_answers object here again.
         if ($values->id) {
-            $bookinganswers = booking_answers::get_instance_from_optionid($values->id);
+            $bookinganswers = new booking_answers($settings);
             // A status bigger than 1 means, that the user is neither booked nor on waitinglist.
             if ($bookinganswers->user_status($userid) > 1) {
                 if ($this->priceitem = price::get_price($values->id)) {
