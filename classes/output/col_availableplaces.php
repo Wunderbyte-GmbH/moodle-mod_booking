@@ -27,6 +27,7 @@ namespace mod_booking\output;
 
 use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
+use mod_booking\singleton_service;
 use renderer_base;
 use renderable;
 use templatable;
@@ -51,7 +52,7 @@ class col_availableplaces implements renderable, templatable {
      */
     public function __construct($values, booking_option_settings $settings) {
 
-        $this->bookinganswers = new booking_answers($settings);
+        $this->bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
     }
 
     /**

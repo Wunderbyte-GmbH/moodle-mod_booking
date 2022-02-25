@@ -16,6 +16,8 @@
 
 namespace mod_booking;
 
+use stdClass;
+
 /**
  * Settings class for booking instances.
  *
@@ -25,6 +27,9 @@ namespace mod_booking;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_settings {
+
+    /** @var int $cmid of booking instance. */
+    public $cmid = null;
 
     /** @var int $id The ID of the booking instance. */
     public $id = null;
@@ -302,6 +307,9 @@ class booking_settings {
     /** @var int $autcrtemplate */
     public $autcrtemplate = null;
 
+    /** @var user $bookingmanageruser */
+    public $bookingmanageruser = null;
+
     /**
      * Constructor for the booking settings class.
      *
@@ -309,13 +317,58 @@ class booking_settings {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function __construct(int $bookingid) {
-        global $DB;
+    public function __construct(int $cmid) {
 
         // We cache all the options normally and don't do.
 
-        if ($dbrecord = $DB->get_record("booking", array("id" => $bookingid))) {
-            $this->id = $bookingid;
+        $cache = \cache::make('mod_booking', 'cachedbookinginstances');
+        $cachedsettings = $cache->get($cmid);
+
+        if (!$cachedsettings) {
+            $cachedsettings = null;
+        }
+
+        // If we have no object to pass to set values, the function will retrieve the values from db.
+        if ($data = $this->set_values($cmid, $cachedsettings)) {
+            // Only if we didn't pass anything to cachedoption, we set the cache now.
+            if (!$cachedsettings) {
+                $cache->set($cmid, $data);
+            }
+        }
+    }
+
+
+    /**
+     * Set all the values from DB, if necessary.
+     * If we have passed on the cached object, we use this one.
+     *
+     * @param integer $bookingid
+     * @param object|null $dbrecord
+     * @return void
+     */
+    private function set_values(int $cmid, object $dbrecord = null) {
+        global $DB;
+
+        // If we don't get the cached object, we have to fetch it here.
+        if ($dbrecord === null) {
+
+            $sql = "SELECT b.*
+                    FROM {course_modules} cm
+                    JOIN {modules} m
+                    ON cm.module = m.id
+                    JOIN {booking} b
+                    ON cm.instance = b.id
+                    WHERE m.name='booking'
+                    AND cm.id = :cmid";
+
+            $dbrecord = $DB->get_record_sql($sql, array("cmid" => $cmid));
+
+        }
+
+        if ($dbrecord) {
+            $this->cmid = $cmid;
+
+            $this->id = $dbrecord->id;
             $this->course = $dbrecord->course;
             $this->name = $dbrecord->name;
             $this->intro = $dbrecord->intro;
@@ -408,8 +461,46 @@ class booking_settings {
             $this->autcrvalue = $dbrecord->autcrvalue;
             $this->autcrtemplate = $dbrecord->autcrtemplate;
 
+            $dbrecord->cmid = $cmid;
+
+            if (!isset($dbrecord->bookingmanageruser)) {
+                $this->load_bookingmanageruser_from_db();
+                $dbrecord->bookingmanageruser = $this->bookingmanageruser;
+            }
+
+            return $dbrecord;
         } else {
-            debugging('Could not create settings class for bookingid: ' . $bookingid);
+            debugging('Could not create settings class for bookingid: ' . $cmid);
         }
+    }
+
+    // Function to load bookingmanager as user from DB.
+    private function load_bookingmanageruser_from_db() {
+        global $DB;
+
+        if (!empty($this->bookingmanager)) {
+            $this->bookingmanageruser = $DB->get_record('user', ['username' => $this->bookingmanager]);
+        } else {
+            $this->bookingmanageruser = null;
+        }
+    }
+
+    /**
+     * Returns the cached settings as stClass.
+     * We will always have them in cache if we have constructed an instance, but just in case...
+     * ... we also deal with an empty cache object.
+     *
+     * @return stdClass
+     */
+    public function return_settings_as_stdclass(): stdClass {
+
+        $cache = \cache::make('mod_booking', 'cachedbookinginstances');
+        $cachedoption = $cache->get($this->cmid);
+
+        if (!$cachedoption) {
+            $cachedoption = $this->set_values($this->cmid);
+        }
+
+        return $cachedoption;
     }
 }

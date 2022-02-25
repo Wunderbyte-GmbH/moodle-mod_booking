@@ -26,6 +26,7 @@ use coding_exception;
 use dml_exception;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
+use mod_booking\booking_answers;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\customfield\booking_handler;
@@ -34,8 +35,10 @@ use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_price;
 use mod_booking\output\col_text;
 use mod_booking\output\col_teacher;
+use mod_booking\singleton_service;
 use moodle_exception;
 use moodle_url;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -90,7 +93,7 @@ class bookingoptions_table extends wunderbyte_table {
 
         // Render col_teacher using a template.
         // $output = $PAGE->get_renderer('mod_booking');
-        $settings = $this->get_instance_of_booking_option_settings($values->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
         $data = new col_teacher($values->id, $settings);
 
@@ -112,7 +115,7 @@ class bookingoptions_table extends wunderbyte_table {
 
         // Render col_price using a template.
         // $output = $PAGE->get_renderer('mod_booking');
-        $settings = $this->get_instance_of_booking_option_settings($values->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
         // We pass on the id of the booking option.
         $data = new col_price($values, $settings);
@@ -130,8 +133,6 @@ class bookingoptions_table extends wunderbyte_table {
      */
     public function col_text($values) {
 
-        return 'x';
-
         global $PAGE;
 
         // If the data is being downloaded we show the original text including the separator and unique idnumber.
@@ -143,24 +144,34 @@ class bookingoptions_table extends wunderbyte_table {
         // Render col_text using a template.
         // $output = $PAGE->get_renderer('mod_booking');
 
-        if (!empty($this->booking)) {
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
-            $forbookeduser = $values->iambooked == 1 ? true : false;
+        // Check userstatus for the selected user. Normally this will be $USER.
+        $userid = 0;
+        if (isset($values->userid)) {
+            $userid = $values->userid;
+        }
 
-            $data = new \mod_booking\output\bookingoption_description($this->booking, $values->id,
+        // TODO: We call this two time in a row, also in col_bookings. There is perforamnce-potential in it.
+        // $bookinganswer = new booking_answers($settings, $userid);
+
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $userid);
+
+        $forbookeduser = $bookinganswer->user_status($userid) === STATUSPARAM_BOOKED ? true : false;
+
+        if (empty($this->booking)) {
+            $cm = get_coursemodule_from_instance('booking', $values->bookingid);
+            $this->booking = singleton_service::get_instance_of_booking($cm->id);
+        }
+
+        $data = new \mod_booking\output\bookingoption_description($this->booking, $values->id,
                 null, DESCRIPTION_WEBSITE, true, $forbookeduser);
 
-            // We will have a number of modals on this site, therefore we have to distinguish them.
-            $data->modalcounter = $values->id;
+        // We will have a number of modals on this site, therefore we have to distinguish them.
+        $data->modalcounter = $values->id;
 
-            // We can go with the data from bookingoption_description directly to modal.
-            return $this->output->render_col_text_modal($data);
-
-        } else {
-            // Fallback if booking instance is missing.
-            $data = new col_text($values->text);
-            return $this->output->render_col_text($data);
-        }
+        // We can go with the data from bookingoption_description directly to modal.
+        return $this->output->render_col_text_modal($data);
     }
 
 
@@ -175,7 +186,7 @@ class bookingoptions_table extends wunderbyte_table {
     public function col_bookings($values) {
         global $PAGE;
 
-        $settings = $this->get_instance_of_booking_option_settings($values->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
         // Render col_bookings using a template.
         // $output = $PAGE->get_renderer('mod_booking');
         $data = new col_availableplaces($values, $settings);
@@ -207,7 +218,7 @@ class bookingoptions_table extends wunderbyte_table {
 
         // return '0';
 
-        $settings = $this->get_instance_of_booking_option_settings($values->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
         if (isset($settings->customfields)
             && isset($settings->customfields['sport'])) {
@@ -228,7 +239,7 @@ class bookingoptions_table extends wunderbyte_table {
 
         // return '0';
 
-        $settings = $this->get_instance_of_booking_option_settings($values->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
         if (isset($settings->customfields['dayofweektime'])) {
             return $settings->customfields['dayofweektime'];
@@ -317,37 +328,6 @@ class bookingoptions_table extends wunderbyte_table {
         $data = new col_action($values->id);
 
         return $this->output->render_col_action($data);
-    }
-
-    /**
-     * Make sure we fetch booking option only once from cache.
-     *
-     * @param int $optionid
-     * @return booking_option_settings
-     */
-    private function get_instance_of_booking_option_settings($optionid) {
-        if (isset($this->bookingsoptionsettings[$optionid])) {
-            return $this->bookingsoptionsettings[$optionid];
-        } else {
-            $bos = new booking_option_settings($optionid);
-            $this->bookingsoptionsettings[$optionid] = $bos;
-            return $bos;
-        }
-    }
-
-    /**
-     * Make sure we fetch booking only once from cache.
-     *
-     * @param int $instanceid
-     * @return void
-     */
-    private function get_instance_of_booking($instanceid) {
-        if (!empty($this->booking)) {
-            return $this->booking;
-        } else {
-            $this->booking = new booking($instanceid);
-            return $this->booking;
-        }
     }
 
     /**

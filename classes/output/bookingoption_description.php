@@ -27,6 +27,8 @@ namespace mod_booking\output;
 use mod_booking\booking;
 use mod_booking\booking_answers;
 use mod_booking\booking_option;
+use mod_booking\booking_option_settings;
+use mod_booking\singleton_service;
 use renderer_base;
 use renderable;
 use templatable;
@@ -95,10 +97,11 @@ class bookingoption_description implements renderable, templatable {
 
         // TODO: Cache booking options, so they don't get instantiated twice.
         // Performance: Last param is set to true so users won't be retrieved from DB.
-        $bookingoption = new booking_option($booking->cm->id, $optionid, [], 0, 0, true);
+        // $bookingoption = new booking_option($booking->cm->id, $optionid, [], 0, 0, true);
 
         // Booking answers class uses caching.
-        $bookinganswers = new booking_answers($bookingoption->settings);
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
 
         /* We need the possibility to render for other users,
         so the user status of the current USER is not enough.
@@ -112,30 +115,44 @@ class bookingoption_description implements renderable, templatable {
         }
 
         // These fields can be gathered directly from DB.
-        $this->title = $bookingoption->settings->text;
-        $this->location = $bookingoption->settings->location;
-        $this->address = $bookingoption->settings->address;
-        $this->institution = $bookingoption->settings->institution;
+        $this->title = $settings->text;
+        $this->location = $settings->location;
+        $this->address = $settings->address;
+        $this->institution = $settings->institution;
 
         // There can be more than one modal, therefor we use the id of this record.
-        $this->modalcounter = $bookingoption->settings->id;
+        $this->modalcounter = $settings->id;
 
         // Duration from booking option settings.
-        $this->duration = $bookingoption->settings->duration;
+        $this->duration = $settings->duration;
 
         // Description from booking option settings formatted as HTML.
-        $this->description = format_text($bookingoption->settings->description, FORMAT_HTML);
+        $this->description = format_text($settings->description, FORMAT_HTML);
+
+        // Todo: Reintegrate!!
+        $bookingoption = singleton_service::get_instance_of_booking_option($this->cmid, $optionid);
+        // End.
 
         // For these fields we do need some conversion.
         // For Description we need to know the booking status.
-        $this->statusdescription = $bookingoption->get_option_text();
+        // Todo: Reintegrate!!
+        $this->statusdescription = $bookingoption->get_option_text($bookinganswers);
+        // END.
+
+        return null;
 
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
-        $this->dates = $bookingoption->return_array_of_sessions($bookingevent,
-            $descriptionparam, $withcustomfields, $forbookeduser);
 
-        $teachers = $bookingoption->get_teachers();
+        // Todo: Reintegrate!!
+        //$this->dates = $bookingoption->return_array_of_sessions($bookingevent,
+        //    $descriptionparam, $withcustomfields, $forbookeduser);
+        $this->dates = [];
+
+        // End.
+
+        $teachers = $settings->teachers;
+
         $teachernames = [];
         foreach ($teachers as $teacher) {
             $teachernames[] = "$teacher->firstname $teacher->lastname";
@@ -145,7 +162,7 @@ class bookingoption_description implements renderable, templatable {
         $baseurl = $CFG->wwwroot;
         $moodleurl = new \moodle_url($baseurl . '/mod/booking/view.php', array(
             'id' => $booking->cm->id,
-            'optionid' => $bookingoption->optionid,
+            'optionid' => $settings->id,
             'action' => 'showonlyone',
             'whichview' => 'showonlyone'
         ));
@@ -158,7 +175,7 @@ class bookingoption_description implements renderable, templatable {
                     if ($forbookeduser) {
                         // If it is for booked user, we show a short info text that the option is already booked.
                         $this->booknowbutton = get_string('infoalreadybooked', 'booking');
-                    } else if ($bookingoption->onwaitinglist == 1) {
+                    } else if ($bookinganswers->user_status() == 1) {
                         // If onwaitinglist is 1, we show a short info text that the user is on the waiting list.
                         // Currently this is only working for the current USER.
                         $this->booknowbutton = get_string('infowaitinglist', 'booking');

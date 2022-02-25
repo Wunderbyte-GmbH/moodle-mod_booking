@@ -385,7 +385,7 @@ class booking_answers {
      * @return booking_answers
      */
     public static function get_instance_from_optionid($optionid) {
-        $bookingoptionsettings = new booking_option_settings($optionid);
-        return new booking_answers($bookingoptionsettings);
+        $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        return singleton_service::get_instance_of_booking_answers($bookingoptionsettings);
     }
 }

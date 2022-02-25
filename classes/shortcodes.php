@@ -60,7 +60,7 @@ class shortcodes {
             return 'Set id of booking instance';
         }
 
-        if (!$booking = new booking($args['id'])) {
+        if (!$booking = singleton_service::get_instance_of_booking($args['id'])) {
             return 'Couldn\'t find right booking instance ' . $args['id'];
         }
 
@@ -71,18 +71,18 @@ class shortcodes {
         if (!isset($args['perpage'])
             || !is_int((int)$args['perpage'])
             || !$perpage = ($args['perpage'])) {
-            $perpage = 4000;
+            $perpage = 100;
         }
 
         $tablename = bin2hex(random_bytes(12));
-
-        $booking = new booking($args['id']);
 
         $table = new bookingoptions_table($tablename, $booking);
 
         list($fields, $from, $where, $params) = $booking->get_all_options_sql(null, null, $category, 'bo.*');
 
         $table->set_sql($fields, $from, $where, $params);
+
+        $table->use_pages = false;
 
         $table->define_cache('mod_booking', 'bookingoptionstable');
 

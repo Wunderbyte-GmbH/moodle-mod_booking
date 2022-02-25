@@ -174,7 +174,8 @@ class booking_option_settings {
     }
 
     /**
-     * Load values of booking_option from db, should rarely be necessary.
+     * Set all the values from DB, if necessary.
+     * If we have passed on the cached object, we use this one.
      *
      * @param integer $optionid
      * @return stdClass|null
@@ -287,19 +288,13 @@ class booking_option_settings {
 
     // Function to load Teachers from DB.
     private function load_teachers_from_db($optionid) {
-        global $DB, $CFG;
+        global $DB;
 
-        require_once($CFG->dirroot . "/user/lib.php");
-
-        $teachers = $DB->get_records("booking_teachers",
-                array("optionid" => $optionid));
-
-        foreach ($teachers as $teacher) {
-            $users = user_get_users_by_id([$teacher->userid]);
-            $user = reset($users);
-            $teacher->firstname = $user->firstname;
-            $teacher->lastname = $user->lastname;
-        }
+        $teachers = $DB->get_records_sql(
+            'SELECT DISTINCT t.userid, u.firstname, u.lastname, u.email, u.institution
+                    FROM {booking_teachers} t
+               LEFT JOIN {user} u ON t.userid = u.id
+                   WHERE t.optionid = :optionid', array('optionid' => $optionid));
 
         $this->teachers = $teachers;
     }

@@ -112,25 +112,21 @@ class message_controller {
         int $optionid, int $userid, int $optiondateid = null, $changes = null,
         string $customsubject = '', string $custommessage = '') {
 
-        global $DB;
+        global $DB, $USER;
 
-        // If bookingid is missing, try to retrieve it from DB via optionid.
-        if ($bookingid) {
-            $this->bookingid = $bookingid;
+        if (!$bookingid) {
+            $booking = singleton_service::get_instance_of_booking($cmid);
+            $this->bookingid = $booking->id;
         } else {
-            if ($bookingid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid])) {
-                $this->bookingid = $bookingid;
-            } else {
-                debugging('Could not retrieve missing bookingid from optionid: ' . $optionid);
-            }
+            $this->bookingid = $bookingid;
         }
 
         // Settings.
-        $this->bookingsettings = new booking_settings($this->bookingid);
-        $this->optionsettings = new booking_option_settings($optionid);
+        $this->bookingsettings = singleton_service::get_instance_of_booking_settings($cmid);
+        $this->optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         // Get the booking manager.
-        $this->bookingmanager = $DB->get_record('user', ['username' => $this->bookingsettings->bookingmanager]);
+        $this->bookingmanager = $this->bookingsettings->bookingmanageruser;
 
         // Standard params.
         $this->msgcontrparam = $msgcontrparam;
@@ -148,13 +144,17 @@ class message_controller {
         }
 
         // Booking_option instance needed to access functions get_all_users_booked and get_all_users_on_waitinglist.
-        $this->option = new booking_option($cmid, $optionid);
+        $this->option = singleton_service::get_instance_of_booking_option($cmid, $optionid);
 
         // Resolve the correct message fieldname.
         $this->messagefieldname = $this->get_message_fieldname();
 
         // Generate user data.
-        $this->user = $DB->get_record('user', array('id' => $userid));
+        if ($userid == $USER->id) {
+            $this->user = $USER;
+        } else {
+            $this->user = $DB->get_record('user', array('id' => $userid));
+        }
 
         // Generate email params.
         $this->params = $this->get_email_params();

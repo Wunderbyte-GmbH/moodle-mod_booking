@@ -479,7 +479,7 @@ class booking_utils {
      */
     public function react_on_changes($cmid, $context, $optionid, $changes) {
         global $DB, $USER;
-        $bo = new booking_option($cmid, $optionid);
+        $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
 
         // If changes concern only the add to calendar_field, we don't want to send a mail.
         $index = null;

@@ -137,23 +137,20 @@ class booking_option {
 
         $this->cmid = $cmid;
 
-        $this->booking = self::get_booking_from_cache_or_create($cmid);
-
-        $this->bookingid = $this->booking->id;
         $this->optionid = $optionid;
         $this->id = $optionid; // Store it in id AND in optionid.
 
-        $settings = new booking_option_settings($optionid);
+        $this->settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $this->booking = singleton_service::get_instance_of_booking($cmid);
 
-        // Booking option settings class is saved as member of booking option.
-        $this->settings = $settings;
+        $this->bookingid = $this->booking->id;
 
         // In the future, we will get rid of the stdClass - right now, it's still used very often.
-        $this->option = $settings->return_settings_as_stdclass();
+        $this->option = $this->settings->return_settings_as_stdclass();
 
         // Get cached sessions from booking settings class.
-        if (!empty($settings->sessions)) {
-            foreach ($settings->sessions as $time) {
+        if (!empty($this->settings->sessions)) {
+            foreach ($this->settings->sessions as $time) {
                 $this->optiontimes .= $time->coursestarttime . " - " . $time->courseendtime . ",";
             }
             trim($this->optiontimes, ",");
@@ -165,12 +162,10 @@ class booking_option {
         $this->page = $page;
         $this->perpage = $perpage;
 
-        if ($getusers) {
-            $this->get_users();
-        }
-
-        // To deal with the necessity of unique booking names.
-        self::transform_unique_bookingoption_name_to_display_name($this->option);
+        // Never (!) do this. It's just too expensive.
+        // if ($getusers) {
+        //     $this->get_users();
+        // }
     }
 
     /**
@@ -186,7 +181,7 @@ class booking_option {
     public static function create_option_from_optionid($optionid, $boid = null) {
         global $DB;
 
-        if (!$boid && !($settings = new booking_option_settings($optionid))) {
+        if (!$boid && !($settings = singleton_service::get_instance_of_booking_option_settings($optionid))) {
             if (is_null($boid)) {
                 $boid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid]);
             }
@@ -196,7 +191,7 @@ class booking_option {
 
         $cm = get_coursemodule_from_instance('booking', $boid);
 
-        return new booking_option($cm->id, $optionid);
+        return singleton_service::get_instance_of_booking_option($cm->id, $optionid, $settings);
     }
 
     /**
@@ -402,28 +397,11 @@ class booking_option {
      * @throws dml_exception
      */
     public function get_all_users() {
-        global $CFG, $DB;
-        if (empty($this->allusers)) {
-            $params = array('optionid' => $this->optionid);
 
-            if ($CFG->version >= 2021051700) {
-                // This only works in Moodle 3.11 and later.
-                $userfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
-                $userfields = trim($userfields, ', ');
-            } else {
-                // This is only here to support Moodle versions earlier than 3.11.
-                $userfields = \user_picture::fields('u');
-            }
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings);
 
-            $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated, $userfields, u.institution
-            FROM {booking_answers} ba
-            JOIN {user} u ON u.id = ba.userid
-            WHERE ba.optionid = :optionid
-            AND u.deleted = 0
-            ORDER BY ba.timecreated ASC";
+        $this->allusers = $bookinganswers->users;
 
-            $this->allusers = $DB->get_records_sql($sql, $params);
-        }
         return $this->allusers;
     }
 
@@ -435,19 +413,9 @@ class booking_option {
      */
     public function get_all_users_on_waitinglist() {
 
-        if (empty($this->allusers)) {
-            $allusers = $this->get_all_users();
-        } else {
-            $allusers = $this->allusers;
-        }
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings);
 
-        $waitinglistusers = array();
-        foreach ($allusers as $baid => $user) {
-            if ($user->waitinglist == 1) {
-                $waitinglistusers[$baid] = $user;
-            }
-        }
-        return $waitinglistusers;
+        return $bookinganswers->usersonwaitinglist;
     }
 
     /**
@@ -514,8 +482,10 @@ class booking_option {
      * @param null $userid
      * @return string
      */
-    public function get_option_text($userid = null) {
+    public function get_option_text($bookinganswers, $userid = null) {
         global $USER;
+
+        $userid = $userid ?? $USER->id;
 
         $text = "";
 
@@ -526,12 +496,10 @@ class booking_option {
             $this->booking->cm->id,
             $this->bookingid,
             $this->optionid,
-            $USER->id
+            $userid
         );
         // Get the email params from message controller.
         $params = $messagecontroller->get_params();
-
-        $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
 
         if (in_array($bookinganswers->user_status($userid), array(STATUSPARAM_BOOKED, STATUSPARAM_WAITINGLIST))) {
             $ac = $bookinganswers->is_activity_completed($userid);
@@ -799,7 +767,7 @@ class booking_option {
         $transferred->yes = array(); // Successfully transferred users.
         $transferred->no = array(); // Errored users.
         $transferred->success = false;
-        $otheroption = new booking_option($this->booking->cm->id, $newoption);
+        $otheroption = singleton_service::get_instance_of_booking_option($this->booking->cm->id, $newoption);
         if (!empty($userids) && (has_capability('mod/booking:subscribeusers', $this->booking->get_context()) ||
                 booking_check_if_teacher($otheroption->option))) {
             $transferred->success = true;
@@ -1485,7 +1453,7 @@ class booking_option {
         if ($this->booking->course->id !== $targetcourse->id) {
             throw new invalid_parameter_exception("Target booking instance must be in same course");
         }
-        $targetbooking = new booking($targetcmid);
+        $targetbooking = singleton_service::get_instance_of_booking($targetcmid);
         $targetcontext = context_module::instance($targetcmid);
         // Get users of source option.
         // Check for completion errors on unsubscribe.
@@ -1500,7 +1468,7 @@ class booking_option {
         $newoption->bookingid = $targetbooking->id;
         $newoptionid = booking_update_options($newoption, $targetcontext);
         // Subscribe users.
-        $newoption = new booking_option($targetcmid, $newoptionid);
+        $newoption = singleton_service::get_instance_of_booking_option($targetcmid, $newoptionid);
         $users = $this->get_all_users();
         // Unsubscribe users from option.
         $failed = [];
@@ -1861,7 +1829,7 @@ class booking_option {
 
         $allusers = [];
 
-        $bookingoption = new booking_option($this->cmid, $this->optionid);
+        $bookingoption = singleton_service::get_instance_of_booking_option($this->cmid, $this->optionid);
         $bookingoption->apply_tags(); // Do we need this here?
 
         if (!empty($tousers)) {
@@ -2297,30 +2265,5 @@ class booking_option {
         }
 
         return "$starttime - $endtime";
-    }
-
-    /**
-     * Return an instance of booking either from cache (if it exists) or create a new one.
-     *
-     * @param int $cmid
-     * @return booking
-     */
-    public static function get_booking_from_cache_or_create(int $cmid): booking {
-
-        $cache = \cache::make('mod_booking', 'cachedbookinginstances');
-        $cachedbookinginstance = $cache->get($cmid);
-
-        // If we don't have the cache, we need to retrieve the value from db.
-        if (!$cachedbookinginstance) {
-
-            $booking = new booking($cmid);
-            $data = json_encode($booking);
-            $cache->set($cmid, $data);
-
-        } else {
-            $cachedbookingstdclass = json_decode($cachedbookinginstance);
-            $booking = new booking($cmid, $cachedbookingstdclass);
-        }
-        return $booking;
     }
 }

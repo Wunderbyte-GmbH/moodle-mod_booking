@@ -38,6 +38,9 @@ class booking {
     /** @var int id booking id  */
     public $id = 0;
 
+    /** @var int $cmid course module id  */
+    public $cmid = 0;
+
     /** @var \context the context of the course module for this booking instance (or just the course) */
     public $context = null;
 
@@ -73,38 +76,29 @@ class booking {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function __construct(int $cmid, stdClass $cachedbooking = null) {
+    public function __construct(int $cmid) {
+        global $DB;
 
-        if (empty ($cachedbooking)) {
-            // This is the standard functionality.
-            global $DB;
+        // In the constructur, we call the booking_settings, where we get the values from db or cache.
+        $bosettings = singleton_service::get_instance_of_booking_settings($cmid);
+        $this->settings = $bosettings->return_settings_as_stdclass();
+        $this->id = $this->settings->id;
 
-            $this->cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
-            $this->course = $DB->get_record('course', array('id' => $this->cm->course),
-                    'id, fullname, shortname, groupmode, groupmodeforce, visible', MUST_EXIST);
-            $this->id = $this->cm->instance;
-            $this->context = \context_module::instance($cmid);
+        // $this->cm = get_fast_modinfo($this->settings->course)->get_cm($cmid);
+        list($this->course, $this->cm) = get_course_and_cm_from_cmid($cmid, 'booking');
+        $this->context = \context_module::instance($cmid);
 
-            // Create settings class.
-            $this->settings = $DB->get_record("booking", array("id" => $this->id));
-
-            // If the course has groups and I do not have the capability to see all groups, show only
-            // users of my groups.
-            if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS &&
-                    !has_capability('moodle/site:accessallgroups', $this->context)) {
-                list($sql, $params) = $this::booking_get_groupmembers_sql($this->course->id);
-                $this->groupmembers = $DB->execute($sql, $params);
-            }
-        } else {
-            // A cached booking instance exists.
-            $this->cm = $cachedbooking->cm;
-            $this->course = $cachedbooking->course;
-            $this->context = $cachedbooking->context;
-            $this->settings = $cachedbooking->settings;
-            $this->groupmembers = $cachedbooking->groupmembers;
+        // If the course has groups and I do not have the capability to see all groups, show only
+        // users of my groups.
+        // TODO: Move this potentially expensive function to settings and, with its own cache.
+        // It needs to use the live information from cm & context and be invalidated by group change events in this course.
+        //
+        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS &&
+                !has_capability('moodle/site:accessallgroups', $this->context)) {
+            list($sql, $params) = $this::booking_get_groupmembers_sql($this->course->id);
+            $this->groupmembers = $DB->execute($sql, $params);
         }
     }
-
     /**
      *
      * @return \context
