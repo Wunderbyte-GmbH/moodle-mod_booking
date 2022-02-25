@@ -66,11 +66,22 @@ class bookingoptions_simple_table extends wunderbyte_table {
     public function col_text($values) {
         // If the data is being downloaded we show the original text including the separator and unique idnumber.
         if (!$this->is_downloading()) {
+
+            global $PAGE;
+
             // Remove identifier key and separator if necessary.
             booking_option::transform_unique_bookingoption_name_to_display_name($values);
         }
 
-        return $values->text;
+            // Use the renderer to output this column.
+            $data = new \mod_booking\output\col_text_with_description($values->optionid, $values->text, $values->description);
+            $output = $PAGE->get_renderer('mod_booking');
+            return $output->render_col_text_with_description($data);
+
+        } else {
+            // If downloading, we return the option title only.
+            return $values->text;
+        }
     }
 
     /**
