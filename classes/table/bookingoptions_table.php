@@ -47,11 +47,6 @@ defined('MOODLE_INTERNAL') || die();
  */
 class bookingoptions_table extends wunderbyte_table {
 
-    /**
-     * Cache an array of teacher names to save DB queries.
-     */
-    private $teachers = [];
-
     private $output = null;
 
     private $bookingsoptionsettings = [];
@@ -109,9 +104,6 @@ class bookingoptions_table extends wunderbyte_table {
      * @throws dml_exception
      */
     public function col_price($values) {
-        global $PAGE;
-
-        // return '0';
 
         // Render col_price using a template.
         // $output = $PAGE->get_renderer('mod_booking');
@@ -142,7 +134,6 @@ class bookingoptions_table extends wunderbyte_table {
         }
 
         // Render col_text using a template.
-        // $output = $PAGE->get_renderer('mod_booking');
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
@@ -184,11 +175,9 @@ class bookingoptions_table extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_bookings($values) {
-        global $PAGE;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
         // Render col_bookings using a template.
-        // $output = $PAGE->get_renderer('mod_booking');
         $data = new col_availableplaces($values, $settings);
         return $this->output->render_col_availableplaces($data);
     }
@@ -242,7 +231,14 @@ class bookingoptions_table extends wunderbyte_table {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
         if (isset($settings->customfields['dayofweektime'])) {
-            return $settings->customfields['dayofweektime'];
+
+            list($day, $starttime, $endtime) = explode('#', $settings->customfields['dayofweektime']);
+
+            $dayofweektimeformatted = $day .' '
+                . substr($starttime, 0, 2) . ':' . substr($starttime, 2, 2) . '-'
+                . substr($endtime, 0, 2) . ':' . substr($endtime, 2, 2);
+
+            return $dayofweektimeformatted;
         } else {
             return '';
         }
@@ -322,7 +318,6 @@ class bookingoptions_table extends wunderbyte_table {
         global $PAGE;
 
         // Render col_action using a template.
-        // $output = $PAGE->get_renderer('mod_booking');
 
         // Currently, this will use dummy teachers.
         $data = new col_action($values->id);
@@ -336,9 +331,6 @@ class bookingoptions_table extends wunderbyte_table {
      * @return void
      */
     public function finish_html() {
-        global $PAGE;
-
-        // $output = $PAGE->get_renderer('mod_booking');
         $table = new \local_wunderbyte_table\output\table($this);
         echo $this->output->render_bookingoptions_table($table);
     }
