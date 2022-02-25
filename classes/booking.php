@@ -72,7 +72,6 @@ class booking {
      * Constructor for the booking class
      *
      * @param int $cmid
-     * @param stdClass $cachedbooking optional booking object from cache
      * @throws \coding_exception
      * @throws \dml_exception
      */
