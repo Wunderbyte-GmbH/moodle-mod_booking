@@ -29,7 +29,6 @@ use mod_booking\booking;
 use mod_booking\booking_answers;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
-use mod_booking\customfield\booking_handler;
 use mod_booking\output\col_action;
 use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_price;
@@ -84,8 +83,6 @@ class bookingoptions_table extends wunderbyte_table {
      */
     public function col_teacher($values) {
 
-        global $PAGE;
-
         // Render col_teacher using a template.
         // $output = $PAGE->get_renderer('mod_booking');
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
@@ -124,8 +121,6 @@ class bookingoptions_table extends wunderbyte_table {
      * @throws dml_exception
      */
     public function col_text($values) {
-
-        global $PAGE;
 
         // If the data is being downloaded we show the original text including the separator and unique idnumber.
         if (!$this->is_downloading()) {
@@ -315,7 +310,6 @@ class bookingoptions_table extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_action($values) {
-        global $PAGE;
 
         // Render col_action using a template.
 
