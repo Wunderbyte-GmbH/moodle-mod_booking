@@ -1369,7 +1369,7 @@ class booking_utils {
 
             if ($records = $DB->get_records_sql($sql, $inparams)) {
                 foreach ($records as $record) {
-                    $teachers[$record->optionid][] = $record->lastname . ' ' . $record->firstname;
+                    $teachers[$record->optionid][] = $record->firstname . ' ' . $record->lastname;
                 }
             }
         }
