@@ -468,4 +468,16 @@ class renderer extends plugin_renderer_base {
         $o .= $this->render_from_template('mod_booking/col_coursestarttime', $data);
         return $o;
     }
+
+    /**
+     * Render function.
+     * @param $data array
+     * @return string
+     */
+    public function render_col_text_with_description($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/col_text_with_description', $data);
+        return $o;
+    }
 }
