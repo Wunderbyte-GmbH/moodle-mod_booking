@@ -25,9 +25,6 @@
 namespace mod_booking\output;
 
 use mod_booking\booking;
-use mod_booking\booking_answers;
-use mod_booking\booking_option;
-use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use renderer_base;
 use renderable;
@@ -95,8 +92,8 @@ class bookingoption_description implements renderable, templatable {
 
         $this->cmid = $booking->cm->id;
 
-        // TODO: Cache booking options, so they don't get instantiated twice.
         // Performance: Last param is set to true so users won't be retrieved from DB.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
         // $bookingoption = new booking_option($booking->cm->id, $optionid, [], 0, 0, true);
 
         // Booking answers class uses caching.
@@ -129,24 +126,22 @@ class bookingoption_description implements renderable, templatable {
         // Description from booking option settings formatted as HTML.
         $this->description = format_text($settings->description, FORMAT_HTML);
 
-        // Todo: Reintegrate!!
+        // Get the booking option.
         $bookingoption = singleton_service::get_instance_of_booking_option($this->cmid, $optionid);
-        // End.
 
-        // For these fields we do need some conversion.
-        // For Description we need to know the booking status.
-        // Todo: Reintegrate!!
+        // Currently, this will only get the description for the current user.
         $this->statusdescription = $bookingoption->get_option_text($bookinganswers);
-        // END.
 
         return null;
 
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
 
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.InvalidEndChar
         // Todo: Reintegrate!!
-        //$this->dates = $bookingoption->return_array_of_sessions($bookingevent,
-        //    $descriptionparam, $withcustomfields, $forbookeduser);
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $this->dates = $bookingoption->return_array_of_sessions($bookingevent,
+                $descriptionparam, $withcustomfields, $forbookeduser); */
         $this->dates = [];
 
         // End.

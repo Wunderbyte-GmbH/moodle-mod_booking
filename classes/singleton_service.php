@@ -22,33 +22,16 @@ use mod_booking\booking_option_settings;
 use mod_booking\booking_settings;
 
 /**
- * Shortcodes for mod booking
+ * Singleton Service to improve performance.
  *
  * @package mod_booking
- * @subpackage db
  * @since Moodle 3.11
  * @copyright 2021 Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-// Singleton Service to
-
 class singleton_service {
     // Hold the class instance of the singleton service.
     private static $instance = null;
-
-    private $bookinganswers = [];
-
-    private $bookings = [];
-
-    private $bookingsettings = [];
-
-    private $bookingoptions = [];
-
-    private $bookingoptionsettings = [];
-
-
-
 
     // The constructor is private
     // to prevent initiation with outer code.
@@ -158,5 +141,4 @@ class singleton_service {
             return $settings;
         }
     }
-
 }

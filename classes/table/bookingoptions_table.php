@@ -84,7 +84,6 @@ class bookingoptions_table extends wunderbyte_table {
     public function col_teacher($values) {
 
         // Render col_teacher using a template.
-        // $output = $PAGE->get_renderer('mod_booking');
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
         $data = new col_teacher($values->id, $settings);
@@ -103,7 +102,6 @@ class bookingoptions_table extends wunderbyte_table {
     public function col_price($values) {
 
         // Render col_price using a template.
-        // $output = $PAGE->get_renderer('mod_booking');
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
         // We pass on the id of the booking option.
@@ -138,8 +136,7 @@ class bookingoptions_table extends wunderbyte_table {
             $userid = $values->userid;
         }
 
-        // TODO: We call this two time in a row, also in col_bookings. There is perforamnce-potential in it.
-        // $bookinganswer = new booking_answers($settings, $userid);
+        // TODO: We call this two times in a row, also in col_bookings. There is perforamnce-potential in it.
 
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $userid);
 
@@ -187,7 +184,7 @@ class bookingoptions_table extends wunderbyte_table {
      */
     public function col_location($values) {
 
-        return 'Schmelz 1,<br> 1030 Wien';
+        return 'Schmelz 1,<br>1030 Wien';
     }
 
     /**
@@ -199,8 +196,6 @@ class bookingoptions_table extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_sports($values) {
-
-        // return '0';
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
@@ -220,8 +215,6 @@ class bookingoptions_table extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_dayofweek($values) {
-
-        // return '0';
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
@@ -252,8 +245,6 @@ class bookingoptions_table extends wunderbyte_table {
         // Prepare date string.
         if ($values->coursestarttime != 0) {
             $returnarray[] = userdate($values->coursestarttime, get_string('strftimedatetime'));
-        } else {
-            $coursestarttime = '';
         }
 
         // Prepare date string.
