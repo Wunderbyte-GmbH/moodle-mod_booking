@@ -80,26 +80,17 @@ class booking {
 
         // In the constructur, we call the booking_settings, where we get the values from db or cache.
         $bosettings = singleton_service::get_instance_of_booking_settings($cmid);
+
         $this->settings = $bosettings->return_settings_as_stdclass();
         $this->id = $this->settings->id;
-
-        // $this->cm = get_fast_modinfo($this->settings->course)->get_cm($cmid);
-        // list($this->course, $this->cm) = get_course_and_cm_from_cmid($cmid, 'booking');
-
-
         $this->cm = get_coursemodule_from_id('booking', $cmid);
         $this->course = get_course($this->cm->course);
-
         $this->context = \context_module::instance($cmid);
-
-
-
 
         // If the course has groups and I do not have the capability to see all groups, show only
         // users of my groups.
         // TODO: Move this potentially expensive function to settings and, with its own cache.
         // It needs to use the live information from cm & context and be invalidated by group change events in this course.
-        //
         if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS &&
                 !has_capability('moodle/site:accessallgroups', $this->context)) {
             list($sql, $params) = $this::booking_get_groupmembers_sql($this->course->id);

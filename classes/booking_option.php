@@ -163,9 +163,10 @@ class booking_option {
         $this->perpage = $perpage;
 
         // Never (!) do this. It's just too expensive.
-        // if ($getusers) {
-        //     $this->get_users();
-        // }
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /*if ($getusers) {
+             $this->get_users();
+        }*/
     }
 
     /**
