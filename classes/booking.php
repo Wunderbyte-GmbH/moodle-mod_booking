@@ -84,8 +84,16 @@ class booking {
         $this->id = $this->settings->id;
 
         // $this->cm = get_fast_modinfo($this->settings->course)->get_cm($cmid);
-        list($this->course, $this->cm) = get_course_and_cm_from_cmid($cmid, 'booking');
+        // list($this->course, $this->cm) = get_course_and_cm_from_cmid($cmid, 'booking');
+
+
+        $this->cm = get_coursemodule_from_id('booking', $cmid);
+        $this->course = get_course($this->cm->course);
+
         $this->context = \context_module::instance($cmid);
+
+
+
 
         // If the course has groups and I do not have the capability to see all groups, show only
         // users of my groups.
