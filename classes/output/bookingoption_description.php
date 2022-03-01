@@ -102,6 +102,7 @@ class bookingoption_description implements renderable, templatable {
         // Booking answers class uses caching.
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+        $bookingoption = singleton_service::get_instance_of_booking_option($this->cmid, $optionid);
 
         /* We need the possibility to render for other users,
         so the user status of the current USER is not enough.
