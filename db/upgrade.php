@@ -2354,5 +2354,29 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022012607, 'booking');
     }
 
+    if ($oldversion < 2022030100) {
+
+        // Add new table.
+        $table = new xmldb_table('booking_semesters');
+
+        // Adding fields to table.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
+        $table->add_field('identifier', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'id');
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'identifier');
+        $table->add_field('start', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'name');
+        $table->add_field('end', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'start');
+
+        // Adding keys to table.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022030100, 'booking');
+    }
+
     return true;
 }

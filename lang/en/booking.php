@@ -1630,6 +1630,9 @@ $string['pricecategoriessubtitle'] = '<p>Here you can define different price cat
     <b>Be careful:</b> Once you have added a category, you cannot delete it.
     Only disable or rename it.</p>';
 
+// Semesters.php.
+$string['semesters'] = 'Semesters';
+
 // Cache.
 $string['cachedef_bookingoptions'] = 'General information of booking options';
 $string['cachedef_bookingoptionsanswers'] = 'Booking status of single options';

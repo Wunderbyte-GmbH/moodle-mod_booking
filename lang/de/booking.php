@@ -1389,6 +1389,9 @@ $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kateg
     <b>Achtung:</b> Sobald Sie eine Kategorie erstellt haben, können Sie diese nicht mehr löschen.
     Sie können Kategorien aber umbenennen oder deaktivieren.</p>';
 
+// Semesters.php.
+$string['semesters'] = 'Semester';
+
 // Caches.
 $string['cachedef_bookingoptions'] = 'Buchungsoptionen allgemeine Infos';
 $string['cachedef_bookingoptionsanswers'] = 'Buchungsstatus von einzelnen Optionen';
