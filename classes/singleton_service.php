@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_booking;
+
 use mod_booking\booking;
 use mod_booking\booking_answers;
 use mod_booking\booking_option;

@@ -25,6 +25,9 @@
 namespace mod_booking\output;
 
 use mod_booking\booking;
+use mod_booking\booking_answers;
+use mod_booking\booking_option;
+use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use renderer_base;
 use renderable;
@@ -111,28 +114,22 @@ class bookingoption_description implements renderable, templatable {
             }
         }
 
-        // These fields can be gathered directly from DB.
+        // These fields can be gathered directly from settings.
         $this->title = $settings->text;
         $this->location = $settings->location;
         $this->address = $settings->address;
         $this->institution = $settings->institution;
-
-        // There can be more than one modal, therefor we use the id of this record.
+        // There can be more than one modal, therefore we use the id of this record.
         $this->modalcounter = $settings->id;
-
-        // Duration from booking option settings.
         $this->duration = $settings->duration;
-
         // Description from booking option settings formatted as HTML.
         $this->description = format_text($settings->description, FORMAT_HTML);
 
-        // Get the booking option.
-        $bookingoption = singleton_service::get_instance_of_booking_option($this->cmid, $optionid);
+        // TODO: reintegrate stuff below!
+        return null;
 
         // Currently, this will only get the description for the current user.
         $this->statusdescription = $bookingoption->get_option_text($bookinganswers);
-
-        return null;
 
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.

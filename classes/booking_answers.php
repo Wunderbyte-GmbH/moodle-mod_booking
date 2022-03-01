@@ -17,6 +17,7 @@
 namespace mod_booking;
 
 use stdClass;
+use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
