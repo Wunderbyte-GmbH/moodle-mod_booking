@@ -1636,3 +1636,8 @@ $string['cachedef_bookingoptionsanswers'] = 'Booking status of single options';
 $string['cachedef_bookingoptionstable'] = 'Tables of booking options with hashed sql queries';
 $string['cachedef_cachedpricecategories'] = 'Price categories Booking';
 $string['cachedef_cachedprices'] = 'Standard prices in Booking';
+$string['cachedef_cachedbookinginstances'] = 'Booking instances cache';
+$string['cachedef_bookingoptionsettings'] = 'Booking option settings cache';
+
+// Shortcodes.
+$string['search'] = 'Search...';

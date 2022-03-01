@@ -1390,13 +1390,13 @@ $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kateg
     Sie können Kategorien aber umbenennen oder deaktivieren.</p>';
 
 // Caches.
-
 $string['cachedef_bookingoptions'] = 'Buchungsoptionen allgemeine Infos';
 $string['cachedef_bookingoptionsanswers'] = 'Buchungsstatus von einzelnen Optionen';
 $string['cachedef_bookingoptionstable'] = 'Gesamte SQL Abfragen';
 $string['cachedef_cachedpricecategories'] = 'Preiskategorien in Booking';
 $string['cachedef_cachedprices'] = 'Standardpreise in Booking';
+$string['cachedef_cachedbookinginstances'] = 'Cache für Buchungsinstanzen';
+$string['cachedef_bookingoptionsettings'] = 'Booking option settings-Cache';
 
 // Shortcodes.
-
 $string['search'] = 'Suche...';
