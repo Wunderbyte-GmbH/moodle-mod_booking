@@ -139,3 +139,7 @@ tr.mod-booking-invisible {
     padding-right: 10px;
     border-radius: 15px;
 }
+
+.badge {
+    position: unset !important;
+}
