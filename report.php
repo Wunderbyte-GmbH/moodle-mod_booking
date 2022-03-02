@@ -527,6 +527,10 @@ if (!$tableallbookings->is_downloading()) {
                 $columns[] = 'city';
                 $headers[] = get_string('city');
                 break;
+            case 'department':
+                $columns[] = 'department';
+                $headers[] = get_string('department');
+                break;
             case 'waitinglist':
                 if ($bookingoption->option->limitanswers == 1 && $bookingoption->option->maxoverbooking > 0) {
                     $columns[] = 'waitinglist';
@@ -867,6 +871,7 @@ if (!$tableallbookings->is_downloading()) {
                     u.username AS username,
                     u.email AS email,
                     u.city,
+                    u.department,
                     ba.completed AS completed,
                     ba.numrec,
                     ba.waitinglist AS waitinglist,
