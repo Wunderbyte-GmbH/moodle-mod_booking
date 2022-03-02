@@ -627,7 +627,6 @@ class mod_booking_mod_form extends moodleform_mod {
                          '</a>');
 
         $mform->addElement('header', 'categoryadditionalfields', get_string('fields', 'booking'));
-        $additionalfields = array();
 
         $tmpaddfields = $DB->get_records('user_info_field', array());
 
@@ -640,6 +639,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'institution' => get_string('institution', 'mod_booking'),
             'waitinglist' => get_string('searchwaitinglist', 'mod_booking'),
             'city' => new lang_string('city'),
+            'department' => new lang_string('department'),
             'notes' => get_string('notes', 'mod_booking')
         );
 
