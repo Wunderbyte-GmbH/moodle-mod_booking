@@ -43,141 +43,119 @@ class semesters_form extends moodleform {
 
         $mform = $this->_form;
 
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /*
-        // Default price always needs to be there, ordernum has to be 1 and identifier has to be 'default'.
-        $defaultprice = $DB->get_record_sql("SELECT * FROM {booking_pricecategories} WHERE identifier = 'default'");
-        if (empty($defaultprice)) {
-            $defaultprice = new stdClass;
-            $defaultprice->ordernum = 1;
-            $defaultprice->identifier = 'default';
-            $defaultprice->name = get_string('price', 'booking');
-            $defaultprice->defaultvalue = 0;
-            $defaultprice->disabled = 0; // Default price cannot be disabled.
+        // Loop through already existing semesters.
+        $semesters = $DB->get_records_sql("SELECT * FROM {booking_semesters}");
+        $i = 1;
+        foreach ($semesters as $semester) {
 
-            $defaultprice->id = $DB->insert_record('booking_pricecategories', $defaultprice);
+            // Use 2 digits, so we can have up to 99 semesters.
+            $j = sprintf('%02d', $i);
+
+            $mform->addElement('hidden', 'semesterid' . $j, $semester->id);
+            $mform->setType('semesterid' . $j, PARAM_INT);
+
+            $mform->addElement('text', 'semesteridentifier' . $j, get_string('semesteridentifier', 'booking') . ' ' . $i);
+            $mform->setType('semesteridentifier' . $j, PARAM_TEXT);
+            $mform->setDefault('semesteridentifier' . $j, $semester->identifier);
+            $mform->addHelpButton('semesteridentifier' . $j, 'semesteridentifier', 'booking');
+            $mform->disabledIf('semesteridentifier' . $j, 'deletesemester' . $j, 'checked');
+
+            $mform->addElement('text', 'semestername' . $j, get_string('semestername', 'booking'));
+            $mform->setType('semestername' . $j, PARAM_RAW);
+            $mform->setDefault('semestername' . $j, $semester->name);
+            $mform->addHelpButton('semestername' . $j, 'semestername', 'booking');
+            $mform->disabledIf('semestername' . $j, 'deletesemester' . $j, 'checked');
+
+            $mform->addElement('date_selector', 'semesterstart' . $j, get_string('semesterstart', 'booking'));
+            $mform->addHelpButton('semesterstart' . $j, 'semesterstart', 'booking');
+            $mform->setDefault('semesterstart' . $j, $semester->start);
+            $mform->disabledIf('semesterstart' . $j, 'deletesemester' . $j, 'checked');
+
+            $mform->addElement('date_selector', 'semesterend' . $j, get_string('semesterend', 'booking'));
+            $mform->addHelpButton('semesterend' . $j, 'semesterend', 'booking');
+            $mform->setDefault('semesterend' . $j, $semester->end);
+            $mform->disabledIf('semesterend' . $j, 'deletesemester' . $j, 'checked');
+
+            $mform->addElement('advcheckbox', 'deletesemester' . $j,
+                get_string('deletesemester', 'booking') . ' ' . $j, null, null, [0, 1]);
+            $mform->setDefault('deletesemester' . $j, 0);
+            $mform->addHelpButton('deletesemester' . $j, 'deletesemester', 'booking');
+
+            $i++;
         }
 
-        $mform->addElement('hidden', 'pricecategoryid1', $defaultprice->id);
-        $mform->setType('pricecategoryid1', PARAM_INT);
-
-        $mform->addElement('hidden', 'pricecategoryordernum1', 1); // Order number is 1 for the default price.
-        $mform->setType('pricecategoryordernum1', PARAM_INT);
-
-        $mform->addElement('hidden', 'disablepricecategory1', 0); // Default price cannot be disabled.
-        $mform->setType('disablepricecategory1', PARAM_INT);
-
-        $mform->addElement('hidden', 'pricecategoryidentifier1', 'default'); // Identifier of the default price is 'default'.
-        $mform->setType('pricecategoryidentifier1', PARAM_TEXT);
-
-        $mform->addElement('text', 'pricecategoryname1', get_string('defaultpricecategoryname', 'booking'));
-        $mform->setType('pricecategoryname1', PARAM_TEXT);
-        $mform->setDefault('pricecategoryname1', $defaultprice->name);
-        $mform->addHelpButton('pricecategoryname1', 'pricecategoryname', 'booking');
-
-        $mform->addElement('float', 'defaultvalue1', get_string('defaultvalue', 'booking'), null);
-        $mform->setDefault('defaultvalue1', $defaultprice->defaultvalue);
-        $mform->addHelpButton('defaultvalue1', 'defaultvalue', 'booking');
-
-        $mform->addElement('header', 'additionalpricecategories', get_string('additionalpricecategories', 'booking'));
-
-        // Now, loop through already existing price categories.
-        $pricecategories = $DB->get_records_sql("SELECT * FROM {booking_pricecategories} WHERE identifier <> 'default'");
-        $j = 2;
-        foreach ($pricecategories as $pricecategory) {
-            $mform->addElement('hidden', 'pricecategoryid' . $j, $pricecategory->id);
-            $mform->setType('pricecategoryid' . $j, PARAM_INT);
-
-            $mform->addElement('hidden', 'pricecategoryordernum' . $j, $j);
-            $mform->setType('pricecategoryordernum' . $j, PARAM_INT);
-
-            $mform->addElement('text', 'pricecategoryidentifier' . $j, get_string('pricecategoryidentifier', 'booking') . ' ' . $j);
-            $mform->setType('pricecategoryidentifier' . $j, PARAM_TEXT);
-            $mform->setDefault('pricecategoryidentifier' . $j, $pricecategory->identifier);
-            $mform->addHelpButton('pricecategoryidentifier' . $j, 'pricecategoryidentifier', 'booking');
-            $mform->disabledIf('pricecategoryidentifier' . $j, 'disablepricecategory' . $j, 'checked');
-
-            $mform->addElement('text', 'pricecategoryname' . $j, get_string('pricecategoryname', 'booking'));
-            $mform->setType('pricecategoryname' . $j, PARAM_RAW);
-            $mform->setDefault('pricecategoryname' . $j, $pricecategory->name);
-            $mform->addHelpButton('pricecategoryname' . $j, 'pricecategoryname', 'booking');
-            $mform->disabledIf('pricecategoryname' . $j, 'disablepricecategory' . $j, 'checked');
-
-            $mform->addElement('float', 'defaultvalue' . $j, get_string('defaultvalue', 'booking'), null);
-            $mform->setDefault('defaultvalue' . $j, $pricecategory->defaultvalue);
-            $mform->addHelpButton('defaultvalue' . $j, 'defaultvalue', 'booking');
-            $mform->disabledIf('defaultvalue' . $j, 'disablepricecategory' . $j, 'checked');
-
-            $mform->addElement('advcheckbox', 'disablepricecategory' . $j,
-                get_string('disablepricecategory', 'booking') . ' ' . $j, null, null, [0, 1]);
-            $mform->setDefault('disablepricecategory' . $j, $pricecategory->disabled);
-            $mform->addHelpButton('disablepricecategory' . $j, 'disablepricecategory', 'booking');
-
-            $j++;
-        }
-
-        // Now, if there are less than the maximum number of price category fields allow adding additional ones.
-        if (count($pricecategories) < MAX_PRICE_CATEGORIES) {
-            // Between one to nine price categories are supported.
-            $start = count($pricecategories) + 2;
-            $this->addpricecategories($mform, $start);
+        // Now, if there are less than the maximum number of semesters allow adding additional ones.
+        if (count($semesters) < MAX_SEMESTERS) {
+            // Between 1 to 99 semesters are supported.
+            $start = count($semesters) + 1;
+            $this->add_semesters($mform, $start);
         }
 
         // Add "Save" and "Cancel" buttons.
         $this->add_action_buttons(true);
-        */
     }
 
     /**
-     * Helper function to create form elements for adding price categories.
-     * Start with 2, because 1 is the default price.
-     * @param int $counter if there already are existing price categories start with the succeeding number
+     * Helper function to create form elements for adding semesters.
+     *
+     * @param int $i if there already are existing semesters start with the succeeding number.
      */
-    public function addpricecategories($mform, $counter = 2) {
+    public function add_semesters($mform, $i = 1) {
 
-        // Add checkbox to add first price category.
-        $mform->addElement('checkbox', 'addpricecategory' . $counter, get_string('addpricecategory', 'booking'));
+        // Use 2 digits, so we can have up to 99 semesters.
+        $j = sprintf('%02d', $i);
 
-        while ($counter <= MAX_PRICE_CATEGORIES) {
-            // New elements have a default pricecategoryid of 0.
-            $mform->addElement('hidden', 'pricecategoryid' . $counter, 0);
-            $mform->setType('pricecategoryid' . $counter, PARAM_INT);
+        // Add checkbox to add first semester.
+        $mform->addElement('checkbox', 'addsemester' . $j, get_string('addsemester', 'booking'));
 
-            $mform->addElement('hidden', 'pricecategoryordernum' . $counter, $counter);
-            $mform->setType('pricecategoryordernum' . $counter, PARAM_INT);
+        while ($i <= MAX_SEMESTERS) {
 
-            $mform->addElement('text', 'pricecategoryidentifier' . $counter,
-                get_string('pricecategoryidentifier', 'booking') . ' ' . $counter);
-            $mform->setType('pricecategoryidentifier' . $counter, PARAM_TEXT);
-            $mform->addHelpButton('pricecategoryidentifier' . $counter, 'pricecategoryidentifier', 'booking');
-            $mform->hideIf('pricecategoryidentifier' . $counter, 'addpricecategory' . $counter, 'notchecked');
-            $mform->disabledIf('pricecategoryidentifier' . $counter, 'disablepricecategory' . $counter, 'checked');
+            // Use 2 digits, so we can have up to 99 semesters.
+            $j = sprintf('%02d', $i);
 
-            $mform->addElement('text', 'pricecategoryname' . $counter, get_string('pricecategoryname', 'booking'));
-            $mform->setType('pricecategoryname' . $counter, PARAM_RAW);
-            $mform->setDefault('pricecategoryname' . $counter, '');
-            $mform->addHelpButton('pricecategoryname' . $counter, 'pricecategoryname', 'booking');
-            $mform->hideIf('pricecategoryname' . $counter, 'addpricecategory' . $counter, 'notchecked');
-            $mform->disabledIf('pricecategoryname' . $counter, 'disablepricecategory' . $counter, 'checked');
+            // New elements have a default semesterid of 0.
+            $mform->addElement('hidden', 'semesterid' . $j, 0);
+            $mform->setType('semesterid' . $j, PARAM_INT);
 
-            $mform->addElement('float', 'defaultvalue' . $counter, get_string('defaultvalue', 'booking'), null);
-            $mform->setDefault('defaultvalue' . $counter, 0.00);
-            $mform->addHelpButton('defaultvalue' . $counter, 'defaultvalue', 'booking');
-            $mform->hideIf('defaultvalue' . $counter, 'addpricecategory' . $counter, 'notchecked');
-            $mform->disabledIf('defaultvalue' . $counter, 'disablepricecategory' . $counter, 'checked');
+            $mform->addElement('text', 'semesteridentifier' . $j,
+                get_string('semesteridentifier', 'booking') . ' ' . $i);
+            $mform->setType('semesteridentifier' . $j, PARAM_TEXT);
+            $mform->addHelpButton('semesteridentifier' . $j, 'semesteridentifier', 'booking');
+            $mform->hideIf('semesteridentifier' . $j, 'addsemester' . $j, 'notchecked');
+            $mform->disabledIf('semesteridentifier' . $j, 'deletesemester' . $j, 'checked');
 
-            $mform->addElement('advcheckbox', 'disablepricecategory' . $counter,
-                get_string('disablepricecategory', 'booking') . ' ' . $counter, null, null, [0, 1]);
-            $mform->setDefault('disablepricecategory' . $counter, 0);
-            $mform->addHelpButton('disablepricecategory' . $counter, 'disablepricecategory', 'booking');
-            $mform->hideIf('disablepricecategory' . $counter, 'addpricecategory' . $counter, 'notchecked');
+            $mform->addElement('text', 'semestername' . $j, get_string('semestername', 'booking'));
+            $mform->setType('semestername' . $j, PARAM_RAW);
+            $mform->setDefault('semestername' . $j, '');
+            $mform->addHelpButton('semestername' . $j, 'semestername', 'booking');
+            $mform->hideIf('semestername' . $j, 'addsemester' . $j, 'notchecked');
+            $mform->disabledIf('semestername' . $j, 'deletesemester' . $j, 'checked');
 
-            // Show checkbox to add a price category.
-            if ($counter < MAX_PRICE_CATEGORIES) {
-                $mform->addElement('checkbox', 'addpricecategory' . ($counter + 1), get_string('addpricecategory', 'booking'));
-                $mform->hideIf('addpricecategory' . ($counter + 1), 'addpricecategory' . $counter, 'notchecked');
+            $mform->addElement('date_selector', 'semesterstart' . $j, get_string('semesterstart', 'booking'));
+            $mform->addHelpButton('semesterstart' . $j, 'semesterstart', 'booking');
+            $mform->hideIf('semesterstart' . $j, 'addsemester' . $j, 'notchecked');
+            $mform->disabledIf('semesterstart' . $j, 'deletesemester' . $j, 'checked');
+
+            $mform->addElement('date_selector', 'semesterend' . $j, get_string('semesterend', 'booking'));
+            $mform->addHelpButton('semesterend' . $j, 'semesterend', 'booking');
+            $mform->hideIf('semesterend' . $j, 'addsemester' . $j, 'notchecked');
+            $mform->disabledIf('semesterend' . $j, 'deletesemester' . $j, 'checked');
+
+            $mform->addElement('advcheckbox', 'deletesemester' . $j,
+                get_string('deletesemester', 'booking') . ' ' . $j, null, null, [0, 1]);
+            $mform->setDefault('deletesemester' . $j, 0);
+            $mform->addHelpButton('deletesemester' . $j, 'deletesemester', 'booking');
+            $mform->hideIf('deletesemester' . $j, 'addsemester' . $j, 'notchecked');
+
+            // Show checkbox to add a semester.
+            if ($i < MAX_SEMESTERS) {
+                $next = sprintf('%02d', $i + 1); // Use two digits.
+
+                $mform->addElement('checkbox', 'addsemester' . $next, get_string('addsemester', 'booking'));
+                $mform->hideIf('addsemester' . $next, 'addsemester' . $j, 'notchecked');
             }
-            ++$counter;
+
+            $i++;
         }
     }
 
@@ -192,6 +170,8 @@ class semesters_form extends moodleform {
         global $DB;
 
         $errors = array();
+
+        // TODO: Continue here!
 
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /*

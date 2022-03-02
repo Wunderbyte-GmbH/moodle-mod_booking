@@ -33,6 +33,9 @@ use mod_booking\utils\wb_payment;
 // Currently up to 9 different price categories can be set.
 define('MAX_PRICE_CATEGORIES', 9);
 
+// Currently up to 99 different semesters can be created.
+define('MAX_SEMESTERS', 99);
+
 // Define description parameters.
 define('DESCRIPTION_WEBSITE', 1); // Shows link button with text "book now" and no link to TeamsMeeting etc.
 define('DESCRIPTION_CALENDAR', 2); // Shows link button with text "go to bookingoption" and meeting links via link.php.
