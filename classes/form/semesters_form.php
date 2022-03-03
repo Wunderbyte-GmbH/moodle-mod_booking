@@ -22,10 +22,9 @@ global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
 use moodleform;
-use stdClass;
 
 /**
- * Add price categories form.
+ * Add semesters form.
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -48,7 +47,7 @@ class semesters_form extends moodleform {
         $i = 1;
         foreach ($semesters as $semester) {
 
-            // Use 2 digits, so we can have up to 99 semesters.
+            // Use 2 digits, so we can have more than 9 semesters.
             $j = sprintf('%02d', $i);
 
             $mform->addElement('hidden', 'semesterid' . $j, $semester->id);
@@ -58,7 +57,7 @@ class semesters_form extends moodleform {
             $mform->setType('semesteridentifier' . $j, PARAM_TEXT);
             $mform->setDefault('semesteridentifier' . $j, $semester->identifier);
             $mform->addHelpButton('semesteridentifier' . $j, 'semesteridentifier', 'booking');
-            $mform->disabledIf('semesteridentifier' . $j, 'deletesemester' . $j, 'checked');
+            $mform->disabledIf('semesteridentifier' . $j, 'semesterid' . $j, 'neq', '0');
 
             $mform->addElement('text', 'semestername' . $j, get_string('semestername', 'booking'));
             $mform->setType('semestername' . $j, PARAM_RAW);
@@ -77,7 +76,7 @@ class semesters_form extends moodleform {
             $mform->disabledIf('semesterend' . $j, 'deletesemester' . $j, 'checked');
 
             $mform->addElement('advcheckbox', 'deletesemester' . $j,
-                get_string('deletesemester', 'booking') . ' ' . $j, null, null, [0, 1]);
+                get_string('deletesemester', 'booking'), null, null, [0, 1]);
             $mform->setDefault('deletesemester' . $j, 0);
             $mform->addHelpButton('deletesemester' . $j, 'deletesemester', 'booking');
 
@@ -86,7 +85,7 @@ class semesters_form extends moodleform {
 
         // Now, if there are less than the maximum number of semesters allow adding additional ones.
         if (count($semesters) < MAX_SEMESTERS) {
-            // Between 1 to 99 semesters are supported.
+            // Between 1 to MAX_SEMESTERS semesters are supported.
             $start = count($semesters) + 1;
             $this->add_semesters($mform, $start);
         }
@@ -102,7 +101,7 @@ class semesters_form extends moodleform {
      */
     public function add_semesters($mform, $i = 1) {
 
-        // Use 2 digits, so we can have up to 99 semesters.
+        // Use 2 digits, so we can have more than 9 semesters.
         $j = sprintf('%02d', $i);
 
         // Add checkbox to add first semester.
@@ -110,7 +109,7 @@ class semesters_form extends moodleform {
 
         while ($i <= MAX_SEMESTERS) {
 
-            // Use 2 digits, so we can have up to 99 semesters.
+            // Use 2 digits, so we can have more than 9 semesters.
             $j = sprintf('%02d', $i);
 
             // New elements have a default semesterid of 0.
@@ -160,7 +159,7 @@ class semesters_form extends moodleform {
     }
 
     /**
-     * Validate price categories.
+     * Validate semesters.
      *
      * {@inheritdoc}
      * @see moodleform::validation()
@@ -171,50 +170,68 @@ class semesters_form extends moodleform {
 
         $errors = array();
 
-        // TODO: Continue here!
+        // Validate semesters.
+        for ($i = 1; $i <= MAX_SEMESTERS; $i++) {
 
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /*
-        // Validate price categories.
-        for ($i = 1; $i <= MAX_PRICE_CATEGORIES; $i++) {
+            // Use 2 digits, so we can have more than 9 semesters.
+            $j = sprintf('%02d', $i);
 
-            if (isset($data['pricecategoryidentifier' . $i])) {
-                $pricecategoryidentifierx = $data['pricecategoryidentifier' . $i];
-                $pricecategorynamex = $data['pricecategoryname' . $i];
-                $defaultvaluex = $data['defaultvalue' . $i];
-
-                // The price category identifier is not allowed to be empty.
-                if (empty($pricecategoryidentifierx)) {
-                    $errors['pricecategoryidentifier' . $i] = get_string('erroremptypricecategoryidentifier', 'booking');
-                }
-
-                // The price category name is not allowed to be empty.
-                if (empty($pricecategorynamex)) {
-                    $errors['pricecategoryname' . $i] = get_string('erroremptypricecategoryname', 'booking');
-                }
-
-                // Not more than 2 decimals are allowed for the default price.
-                if (!empty($defaultvaluex) && is_float($defaultvaluex)) {
-                    $numberofdecimals = strlen(substr(strrchr($defaultvaluex, "."), 1));
-                    if ($numberofdecimals > 2) {
-                        $errors['defaultvalue' . $i] = get_string('errortoomanydecimals', 'booking');
-                    }
-                }
-
-                // The identifier of a price category needs to be unique.
-                $records = $DB->get_records('booking_pricecategories', ['identifier' => $pricecategoryidentifierx]);
-                if (count($records) > 1) {
-                    $errors['pricecategoryidentifier' . $i] = get_string('errorduplicatepricecategoryidentifier', 'booking');
-                }
-
-                // The name of a price category needs to be unique.
-                $records = $DB->get_records('booking_pricecategories', ['name' => $pricecategorynamex]);
-                if (count($records) > 1) {
-                    $errors['pricecategoryname' . $i] = get_string('errorduplicatepricecategoryname', 'booking');
+            // Check if values are set an initialize.
+            if (isset($data['semesteridentifier' . $j])) {
+                $semesteridentifierx = $data['semesteridentifier' . $j];
+            }
+            if (isset($data['semestername' . $j])) {
+                $semesternamex = $data['semestername' . $j];
+            }
+            if (isset($data['semesterstart' . $j])) {
+                $semesterstartx = $data['semesterstart' . $j];
+            }
+            if (isset($data['semesterend' . $j])) {
+                $semesterendx = $data['semesterend' . $j];
+            }
+            if (isset($data['addsemester' . $j])) {
+                $addsemesterx = $data['addsemester' . $j];
+            }
+            if (isset($data['deletesemester' . $j])) {
+                // If we delete, we need no validation.
+                if ($data['deletesemester' . $j] == '1') {
+                    continue;
                 }
             }
+
+            // If it's a new record, so we need to check the following...
+            if (empty($data['semesterid' . $j]) && $addsemesterx == '1') {
+
+                // The semester identifier is not allowed to be empty.
+                if (empty($semesteridentifierx)) {
+                    $errors['semesteridentifier' . $j] = get_string('erroremptysemesteridentifier', 'booking');
+                }
+
+                // The identifier of a semester needs to be unique.
+                $records = $DB->get_records('booking_semesters', ['identifier' => $semesteridentifierx]);
+                if (count($records) > 0) {
+                    $errors['semesteridentifier' . $j] = get_string('errorduplicatesemesteridentifier', 'booking');
+                }
+
+                // The name of a semester needs to be unique.
+                $records = $DB->get_records('booking_semesters', ['name' => $semesternamex]);
+                if (count($records) > 0) {
+                    $errors['semestername' . $j] = get_string('errorduplicatesemestername', 'booking');
+                }
+            }
+
+            // The semester name is not allowed to be empty.
+            if (empty($semesternamex)) {
+                $errors['semestername' . $j] = get_string('erroremptysemestername', 'booking');
+            }
+
+            // The semester end needs to be after semester start.
+            if ($semesterendx <= $semesterstartx) {
+                $errors['semesterstart' . $j] = get_string('errorsemesterstart', 'booking');
+                $errors['semesterend' . $j] = get_string('errorsemesterend', 'booking');
+            }
         }
-        */
+
         return $errors;
     }
 

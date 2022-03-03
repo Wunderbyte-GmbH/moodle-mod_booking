@@ -41,6 +41,11 @@ $ADMIN->add('modbookingfolder',
                 new moodle_url('/mod/booking/pricecategories.php')));
 
 $ADMIN->add('modbookingfolder',
+        new admin_externalpage('modbookingsemesters',
+                get_string('booking:semesters', 'mod_booking'),
+                new moodle_url('/mod/booking/semesters.php')));
+
+$ADMIN->add('modbookingfolder',
         new admin_externalpage('modbookingcustomfield',
                 get_string('customfieldconfigure', 'mod_booking'),
                 new moodle_url('/mod/booking/customfield.php')));

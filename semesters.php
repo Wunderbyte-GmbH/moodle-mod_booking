@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Price categories settings
+ * Semesters settings
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer, Bernhard Fischer
+ * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -54,119 +54,106 @@ if ($mform->is_cancelled()) {
 
     $existingsemesters = $DB->get_records('booking_semesters');
 
-    // TODO: Continue here!
-    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-    /*
-    if (empty($existingpricecategories)) {
-        // There are no price categories yet.
-        // Currently there can be up to nine price categories.
-        for ($i = 1; $i <= MAX_PRICE_CATEGORIES; $i++) {
+    if (empty($existingsemesters)) {
+        // There are no semesters yet.
+        // There can be up to MAX_SEMESTERS semesters.
+        for ($i = 1; $i <= MAX_SEMESTERS; $i++) {
 
-            $pricecategoryordernumx = 'pricecategoryordernum' . $i;
-            $pricecategoryidentifierx = 'pricecategoryidentifier' . $i;
-            $pricecategorynamex = 'pricecategoryname' . $i;
-            $defaultvaluex = 'defaultvalue' . $i;
-            $disablepricecategoryx = 'disablepricecategory' . $i;
+            // Use 2 digits, so we can have more than 9 semesters.
+            $j = sprintf('%02d', $i);
 
-            // Only add price categories if a name was entered.
-            if (!empty($data->{$pricecategoryidentifierx})) {
-                $pricecategory = new stdClass();
-                $pricecategory->ordernum = $data->{$pricecategoryordernumx};
-                $pricecategory->identifier = $data->{$pricecategoryidentifierx};
-                $pricecategory->name = $data->{$pricecategorynamex};
-                $pricecategory->defaultvalue = $data->{$defaultvaluex};
-                $pricecategory->disabled = $data->{$disablepricecategoryx};
+            $semesteridentifierx = 'semesteridentifier' . $j;
+            $semesternamex = 'semestername' . $j;
+            $semesterstartx = 'semesterstart' . $j;
+            $semesterendx = 'semesterend' . $j;
 
-                $DB->insert_record('booking_pricecategories', $pricecategory);
+            // Only add semesters if an identifier was entered.
+            if (!empty($data->{$semesteridentifierx})) {
+                $semester = new stdClass();
+                $semester->identifier = $data->{$semesteridentifierx};
+                $semester->name = $data->{$semesternamex};
+                $semester->start = $data->{$semesterstartx};
+                $semester->end = $data->{$semesterendx};
+
+                $DB->insert_record('booking_semesters', $semester);
             }
         }
     } else {
-
-        // There are already existing price categories.
-        // So we need to check for changes.
-        $oldpricecategories = $DB->get_records('booking_pricecategories');
-
-        if ($pricecategorychanges = pricecategories_get_changes($oldpricecategories, $data)) {
-            foreach ($pricecategorychanges['updates'] as $record) {
-                $DB->update_record('booking_pricecategories', $record);
+        if ($semesterchanges = semesters_get_changes($data)) {
+            foreach ($semesterchanges['updates'] as $record) {
+                $DB->update_record('booking_semesters', $record);
             }
-            if (count($pricecategorychanges['inserts']) > 0) {
-                $DB->insert_records('booking_pricecategories', $pricecategorychanges['inserts']);
+            foreach ($semesterchanges['deletes'] as $record) {
+                $DB->delete_records('booking_semesters', ['id' => $record]);
+            }
+            if (count($semesterchanges['inserts']) > 0) {
+                $DB->insert_records('booking_semesters', $semesterchanges['inserts']);
             }
         }
     }
 
-    // In any case, invalidate the cache after updating price categories.
-    cache_helper::purge_by_event('setbackpricecategories');
-
-    redirect($pageurl, get_string('pricecategoriessaved', 'booking'), 5);
-
-    */
-
-}
-// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-/* else {
-    // TODO
+    redirect($pageurl, get_string('semesterssaved', 'booking'), 5);
+} else {
     echo $OUTPUT->header();
-    echo $OUTPUT->heading(new lang_string('pricecategory', 'mod_booking'));
+    echo $OUTPUT->heading(new lang_string('semesters', 'mod_booking'));
 
-    echo get_string('pricecategoriessubtitle', 'booking');
+    echo get_string('semesterssubtitle', 'booking');
 
     // Show the mform.
     $mform->display();
 
     echo $OUTPUT->footer();
-} */
+}
 
 /**
- * Helper function to return arrays containing all relevant pricecategories update changes.
- * The returned arrays will have the prepared stdClasses for update and insert in booking_pricecategories table.
+ * Helper function to return arrays containing all relevant semesters update changes.
+ * The returned arrays will have the prepared stdClasses for update and insert in the
+ * booking_semesters table.
  *
- * @param $oldpricecategories the existing price categories
+ * @param $oldsemesters the existing semesters
  * @param $data the form data
  * @return array
  */
-function pricecategories_get_changes($oldpricecategories, $data) {
+function semesters_get_changes($data) {
 
-    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-    /*
     $updates = [];
     $inserts = [];
-
-    $existingordernumbers = [];
-
-    foreach ($oldpricecategories as $oldpricecategory) {
-        $existingordernumbers[] = $oldpricecategory->ordernum;
-    }
+    $deletes = [];
 
     foreach ($data as $key => $value) {
-        if (preg_match('/pricecategoryid[0-9]/', $key)) {
-            $counter = (int)substr($key, -1);
+        if (preg_match('/semesterid[0-9]{2}/', $key)) {
+            $j = substr($key, -2, 2); // Get the 2 digit counter as string.
 
-            if (in_array($counter, $existingordernumbers)) {
+            // First check if the field existed before.
+            if ($value != 0) {
 
-                // Create price category object and add to updates.
-                $pricecategory = new stdClass();
-                $pricecategory->id = $value;
-                $pricecategory->ordernum = $data->{'pricecategoryordernum' . $counter};
-                $pricecategory->identifier = $data->{'pricecategoryidentifier' . $counter};
-                $pricecategory->name = $data->{'pricecategoryname' . $counter};
-                $pricecategory->defaultvalue = $data->{'defaultvalue' . $counter};
-                $pricecategory->disabled = $data->{'disablepricecategory' . $counter};
+                // If the delete checkbox has been set, add to deletes.
+                if ($data->{'deletesemester' . $j} == 1) {
+                    $deletes[] = $value; // The ID of the semester that needs to be deleted.
+                    continue;
+                }
 
-                $updates[] = $pricecategory;
+                // Create semester object and add to updates.
+                $semester = new stdClass();
+                $semester->id = $value; // For update, ID is needed.
+                $semester->identifier = $data->{'semesteridentifier' . $j};
+                $semester->name = $data->{'semestername' . $j};
+                $semester->start = $data->{'semesterstart' . $j};
+                $semester->end = $data->{'semesterend' . $j};
+
+                $updates[] = $semester;
 
             } else {
-                // Create new price category and add to inserts.
-                if (!empty($data->{'pricecategoryidentifier' . $counter})) {
-                    $pricecategory = new stdClass();
-                    $pricecategory->ordernum = $data->{'pricecategoryordernum' . $counter};
-                    $pricecategory->identifier = $data->{'pricecategoryidentifier' . $counter};
-                    $pricecategory->name = $data->{'pricecategoryname' . $counter};
-                    $pricecategory->defaultvalue = $data->{'defaultvalue' . $counter};
-                    $pricecategory->disabled = $data->{'disablepricecategory' . $counter};
+                // Create new semester and add to inserts.
+                if (!empty($data->{'semesteridentifier' . $j})) {
+                    $semester = new stdClass();
+                    // No ID is set when inserting.
+                    $semester->identifier = $data->{'semesteridentifier' . $j};
+                    $semester->name = $data->{'semestername' . $j};
+                    $semester->start = $data->{'semesterstart' . $j};
+                    $semester->end = $data->{'semesterend' . $j};
 
-                    $inserts[] = $pricecategory;
+                    $inserts[] = $semester;
                 }
             }
         }
@@ -174,8 +161,7 @@ function pricecategories_get_changes($oldpricecategories, $data) {
 
     return [
             'inserts' => $inserts,
-            'updates' => $updates
+            'updates' => $updates,
+            'deletes' => $deletes
     ];
-
-    */
 }

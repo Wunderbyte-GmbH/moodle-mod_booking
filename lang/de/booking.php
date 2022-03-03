@@ -1390,7 +1390,28 @@ $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kateg
     Sie können Kategorien aber umbenennen oder deaktivieren.</p>';
 
 // Semesters.php.
+$string['booking:semesters'] = 'Booking: Semester';
 $string['semesters'] = 'Semester';
+$string['semesterssaved'] = 'Semester wurden gespeichert';
+$string['semesterssubtitle'] = '<p>Hier können Sie verschiedene Semester definieren.</p>';
+$string['addsemester'] = 'Neues Semester hinzufügen';
+$string['semesteridentifier'] = 'Identifikator des Semesters';
+$string['semesteridentifier_help'] = 'Kurztext zur Identifikation des Semesters, z.B. "ws22". Sie können Identifikatoren nach dem Speichern nicht mehr löschen.
+Jedoch können Sie falls notwendig ein Semester als ganzes löschen und ein neues anlegen.';
+$string['semestername'] = 'Bezeichnung des Semesters';
+$string['semestername_help'] = 'Geben Sie den vollen Namen des Semesters ein, z.B. "Wintersemester 2021/22"';
+$string['semesterstart'] = 'Semesterbeginn';
+$string['semesterstart_help'] = 'An welchem Tag beginnt das Semester?';
+$string['semesterend'] = 'Semesterende';
+$string['semesterend_help'] = 'An welchem Tag endet das Semester?';
+$string['deletesemester'] = 'Semester löschen';
+$string['deletesemester_help'] = 'Dies löscht diesen Semestereintrag, Buchungsoptionen sind davon nicht betroffen.';
+$string['erroremptysemesteridentifier'] = 'Identifikator des Semesters fehlt.';
+$string['erroremptysemestername'] = 'Name des Semesters wurde nicht angegeben.';
+$string['errorduplicatesemesteridentifier'] = 'Der Semesteridentifikator muss eindeutig sein.';
+$string['errorduplicatesemestername'] = 'Der Name des Semesters muss eindeutig sein.';
+$string['errorsemesterstart'] = 'Semesterstart muss vor dem Semesterende sein.';
+$string['errorsemesterend'] = 'Semesterende muss nach dem Semesterstart sein.';
 
 // Caches.
 $string['cachedef_bookingoptions'] = 'Buchungsoptionen allgemeine Infos';

@@ -1631,7 +1631,28 @@ $string['pricecategoriessubtitle'] = '<p>Here you can define different price cat
     Only disable or rename it.</p>';
 
 // Semesters.php.
+$string['booking:semesters'] = 'Booking: Semesters';
 $string['semesters'] = 'Semesters';
+$string['semesterssaved'] = 'Semesters have been saved';
+$string['semesterssubtitle'] = '<p>Here you can define different semesters.</p>';
+$string['addsemester'] = 'Add a new semester';
+$string['semesteridentifier'] = 'Semester identifier';
+$string['semesteridentifier_help'] = 'Short text to identify the semester, e.g. "ws22". You cannot change a semester identifier once it is created.
+However, you can just delete the semester and create a new one if necessary.';
+$string['semestername'] = 'Semester name';
+$string['semestername_help'] = 'Enter the full name of the semester, e.g. "Semester of Winter 2021/22"';
+$string['semesterstart'] = 'First day of semester';
+$string['semesterstart_help'] = 'The day the semester starts.';
+$string['semesterend'] = 'Last day of semester';
+$string['semesterend_help'] = 'The day the semester ends';
+$string['deletesemester'] = 'Delete this semester entry';
+$string['deletesemester_help'] = 'This will only delete this semester entry, it will not affect any booking options.';
+$string['erroremptysemesteridentifier'] = 'Semester identifier is needed!';
+$string['erroremptysemestername'] = 'Semester name is not allowed to be empty';
+$string['errorduplicatesemesteridentifier'] = 'Semester identifiers need to be unique.';
+$string['errorduplicatesemestername'] = 'Semester names need to be unique.';
+$string['errorsemesterstart'] = 'Semester start needs to be before semester end.';
+$string['errorsemesterend'] = 'Semester end needs to be after semester start.';
 
 // Cache.
 $string['cachedef_bookingoptions'] = 'General information of booking options';
