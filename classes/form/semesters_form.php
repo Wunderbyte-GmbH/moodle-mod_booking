@@ -141,7 +141,7 @@ class semesters_form extends moodleform {
             $mform->disabledIf('semesterend' . $j, 'deletesemester' . $j, 'checked');
 
             $mform->addElement('advcheckbox', 'deletesemester' . $j,
-                get_string('deletesemester', 'booking') . ' ' . $j, null, null, [0, 1]);
+                get_string('deletesemester', 'booking'), null, null, [0, 1]);
             $mform->setDefault('deletesemester' . $j, 0);
             $mform->addHelpButton('deletesemester' . $j, 'deletesemester', 'booking');
             $mform->hideIf('deletesemester' . $j, 'addsemester' . $j, 'notchecked');
@@ -173,10 +173,16 @@ class semesters_form extends moodleform {
         // Validate semesters.
         for ($i = 1; $i <= MAX_SEMESTERS; $i++) {
 
+            // Clear form variables.
+            $semesteridentifierx = null;
+            $semesterstartx = null;
+            $semesterendx = null;
+            $addsemesterx = null;
+
             // Use 2 digits, so we can have more than 9 semesters.
             $j = sprintf('%02d', $i);
 
-            // Check if values are set an initialize.
+            // Check if values are set and initialize.
             if (isset($data['semesteridentifier' . $j])) {
                 $semesteridentifierx = $data['semesteridentifier' . $j];
             }
@@ -189,9 +195,6 @@ class semesters_form extends moodleform {
             if (isset($data['semesterend' . $j])) {
                 $semesterendx = $data['semesterend' . $j];
             }
-            if (isset($data['addsemester' . $j])) {
-                $addsemesterx = $data['addsemester' . $j];
-            }
             if (isset($data['deletesemester' . $j])) {
                 // If we delete, we need no validation.
                 if ($data['deletesemester' . $j] == '1') {
@@ -199,12 +202,28 @@ class semesters_form extends moodleform {
                 }
             }
 
-            // If it's a new record, so we need to check the following...
-            if (empty($data['semesterid' . $j]) && $addsemesterx == '1') {
+            // If it's a new record...
+            if (empty($data['semesterid' . $j])) {
+
+                // Skip if both identifier and name are missing.
+                if (empty($semesteridentifierx) && empty($semesternamex)) {
+                    continue;
+                }
 
                 // The semester identifier is not allowed to be empty.
                 if (empty($semesteridentifierx)) {
                     $errors['semesteridentifier' . $j] = get_string('erroremptysemesteridentifier', 'booking');
+                }
+
+                // The semester name is not allowed to be empty.
+                if (empty($semesternamex)) {
+                    $errors['semestername' . $j] = get_string('erroremptysemestername', 'booking');
+                }
+
+                // The semester end needs to be after semester start.
+                if ($semesterendx <= $semesterstartx) {
+                    $errors['semesterstart' . $j] = get_string('errorsemesterstart', 'booking');
+                    $errors['semesterend' . $j] = get_string('errorsemesterend', 'booking');
                 }
 
                 // The identifier of a semester needs to be unique.
@@ -218,17 +237,20 @@ class semesters_form extends moodleform {
                 if (count($records) > 0) {
                     $errors['semestername' . $j] = get_string('errorduplicatesemestername', 'booking');
                 }
-            }
 
-            // The semester name is not allowed to be empty.
-            if (empty($semesternamex)) {
-                $errors['semestername' . $j] = get_string('erroremptysemestername', 'booking');
-            }
+            } else {
+                // It it's an exisiting record...
 
-            // The semester end needs to be after semester start.
-            if ($semesterendx <= $semesterstartx) {
-                $errors['semesterstart' . $j] = get_string('errorsemesterstart', 'booking');
-                $errors['semesterend' . $j] = get_string('errorsemesterend', 'booking');
+                // The semester name is not allowed to be empty.
+                if (empty($semesternamex)) {
+                    $errors['semestername' . $j] = get_string('erroremptysemestername', 'booking');
+                }
+
+                // The semester end needs to be after semester start.
+                if ($semesterendx <= $semesterstartx) {
+                    $errors['semesterstart' . $j] = get_string('errorsemesterstart', 'booking');
+                    $errors['semesterend' . $j] = get_string('errorsemesterend', 'booking');
+                }
             }
         }
 
