@@ -23,6 +23,7 @@ require_once("$CFG->libdir/formslib.php");
 
 use moodle_url;
 use stdClass;
+use mod_booking\optiondates_handler;
 
 /**
  * Add price categories form.
@@ -31,7 +32,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optiondate_form extends \core_form\dynamic_form {
-
     // TODO...
 
     /**
@@ -39,15 +39,9 @@ class optiondate_form extends \core_form\dynamic_form {
      * @see moodleform::definition()
      */
     public function definition() {
-        global $DB;
-
         $mform = $this->_form;
-
-        $mform->addElement('checkbox', 'includeholidays', 'includeholidays');
-
-        $mform->addElement('select', 'semester', 'semester', array('WS22', 'WS23', 'SS22'));
-        $mform->addElement('text', 'reocuringdatestring', get_string('reocuringdatestring', 'booking'));
-        $mform->setType('reocuringdatestring', PARAM_TEXT);
+        $optiondateshandler = new optiondates_handler();
+        $optiondateshandler->add_optiondates_for_semesters_to_mform($mform);
         $this->add_action_buttons(false, 'Add');
     }
 
@@ -69,13 +63,13 @@ class optiondate_form extends \core_form\dynamic_form {
      */
     public function process_dynamic_submission() {
         $data = $this->get_data();
-        echo json_encode($data);
-        $semester = $this->get_semester($data->semester);
-        $day = 'Monday';
-        //$day = $this->translate_string_to_day($data->reocuringdatestring);
-        //$dates = get_date_for_specific_day_between_dates($semester->startdate, $semester->enddate, $day);
-        $dates = $this->get_date_for_specific_day_between_dates($semester->startdate, $semester->enddate, 'Monday');
-
+        if (!isset($data->reocurringdatestring) || ($data->reocurringdatestring == '') || !isset($data->semester)) {
+            return false;
+        }
+        $optiondateshandler = new optiondates_handler();
+        $semester = $optiondateshandler->get_semester($data->semester);
+        $dayinfo = $optiondateshandler->translate_string_to_day($data->reocuringdatestring);
+        $dates = $optiondateshandler->get_date_for_specific_day_between_dates($semester->startdate, $semester->enddate, $dayinfo);
         return $dates;
 
     }

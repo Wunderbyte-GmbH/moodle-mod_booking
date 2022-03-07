@@ -61,8 +61,6 @@ class optiondates_handler {
         $mform->addElement('select', 'semester', 'semester', array('WS22', 'WS23', 'SS22'));
         $mform->addElement('text', 'reocuringdatestring', get_string('reocuringdatestring', 'booking'));
         $mform->setType('reocuringdatestring', PARAM_TEXT);
-        $mform->addElement('html', '<div class="datelist">');
-        $mform->addElement('html', '</div>');
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.InvalidEndChar
         // TODO: ins option form: $this->add_action_buttons(false, 'load_dates');
     }
@@ -120,12 +118,15 @@ class optiondates_handler {
      * @param string $daystring
      * @return array
      */
-    public function get_date_for_specific_day_between_dates(int $startdate, int $enddate, string $daystring): array {
-        for ($i = strtotime($daystring, $startdate); $i <= $enddate; $i = strtotime('+1 week', $i)) {
+    public function get_date_for_specific_day_between_dates(int $startdate, int $enddate, array $dayinfo): array {
+        $j = 1;
+        for ($i = strtotime($dayinfo['day'], $startdate); $i <= $enddate; $i = strtotime('+1 week', $i)) {
             $date = new stdClass();
             $date->date = date('Y-m-d', $i);
-            $date->starttime = '10:00';
-            $date->endtime = '11:00';
+            $date->starttime = $dayinfo['starttime'];
+            $date->endtime = $dayinfo['endtime'];
+            $date->dateid = 'dateid-' . $j;
+            $j++;
             $date->string = $date->date . " " .$date->starttime. "-" .$date->endtime;
             $datearray['dates'][] = $date;
         }
@@ -135,36 +136,38 @@ class optiondates_handler {
     /**
      * TODO: will be replaced by a regex function.
      * @param string $string
-     * @return string
+     * @return array
      */
-    public function translate_string_to_day(string $string): string {
-        if ($string == 'Monday') {
-            return $string;
+    public function translate_string_to_day(string $string): array {
+        $string = strtolower($string);
+        $string = str_replace('-', ' ', $string);
+        $string = preg_replace("/[[:blank:]]+/", " ", $string);
+        $strings = explode(' ',  $string);
+        if ($strings[0] == 'mo') {
+            $day = "Monday";
         }
-        $lowerstring = strtolower($string);
-        if (str_starts_with($lowerstring, 'mo')) {
-            $day = 'Monday';
-            return 'Monday';
+        if ($strings[0] == 'di') {
+            $day = "Tuesday";
         }
-        if ($string == 'di' || $string == 'dienstag' || $string == 'tuesday' || $string == 'tu') {
-            $day = 'Tuesday';
+        if ($strings[0] == 'mi') {
+            $day = "Wednesday";
         }
-        if ($string == 'mi' || $string == 'mittwoch' || $string == 'wednesday') {
-            $day = 'Wednesday';
+        if ($strings[0] == 'do') {
+            $day = "Thursday";
         }
-        if ($string == 'do' || $string == 'donnerstag' || $string == 'thursday') {
-            $day = 'Thursday';
+        if ($strings[0] == 'fr') {
+            $day = "Friday";
         }
-        if ($string == 'fr' || $string == 'freitag' || $string == 'friday') {
-            $day = 'Friday';
+        if ($strings[0] == 'sa') {
+            $day = "Saturday";
         }
-        if ($string == 'sa' || $string == 'saturday' || $string == 'samstag') {
-            $day = 'Saturday';
+        if ($strings[0] == 'so') {
+            $day = "Sunday";
         }
-        if ($string == 'so' || $string == 'sonntag' || $string == 'sunday') {
-            $day = 'Sunday';
-        }
-        return $day;
+        $dayinfo['day'] = $day;
+        $dayinfo['starttime'] = $strings[1];
+        $dayinfo['endtime'] = $strings[2];
+        return $dayinfo;
     }
 
     /**

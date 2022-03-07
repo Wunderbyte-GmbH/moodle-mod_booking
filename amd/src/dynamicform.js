@@ -24,8 +24,6 @@ import Templates from 'core/templates';
 // ...
 
 const dynamicForm1 = new DynamicForm(document.querySelector('#miniformcontainer'), 'mod_booking\\form\\optiondate_form');
-// When form is submitted - remove it from DOM:
-
 export const init = () => {
 dynamicForm1.load();
 datelistinit();

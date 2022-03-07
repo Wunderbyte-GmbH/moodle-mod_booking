@@ -1668,3 +1668,4 @@ $string['search'] = 'Search...';
 
 // Optiondates_handler.php.
 $string['datesforsemester'] = 'Create semester dates';
+$string['reocurringdatestring'] = 'Reocurring dates';

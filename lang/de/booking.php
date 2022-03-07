@@ -1427,3 +1427,4 @@ $string['search'] = 'Suche...';
 
 // Optiondates_handler.php.
 $string['datesforsemester'] = 'Termine für ein Semester erstellen';
+$string['reocurringdatestring'] = 'Widerkehrende Zeitangabe';
