@@ -28,6 +28,7 @@ const dynamicForm1 = new DynamicForm(document.querySelector('#miniformcontainer'
 
 export const init = () => {
 dynamicForm1.load();
+datelistinit();
 dynamicForm1.addEventListener(dynamicForm1.events.FORM_SUBMITTED, (e) => {
     e.preventDefault();
     console.log(e.target);
@@ -35,7 +36,6 @@ dynamicForm1.addEventListener(dynamicForm1.events.FORM_SUBMITTED, (e) => {
     Templates.renderForPromise('mod_booking/bookingoption_dates', response)
     // It returns a promise that needs to be resoved.
     .then(({html}) => {
-        datelistinit();
         // Here eventually I have my compiled template, and any javascript that it generated.
         // The templates object has append, prepend and replace functions.
         Templates.appendNodeContents('.datelist', html);

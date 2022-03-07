@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/bookingoption_changes
+    @template mod_booking/bookingoption_dates
 
     Classes required for JS:
     * none
@@ -23,7 +23,6 @@
     Data attributes required for JS:
     * data-region
 }}
-<h1>testetst</h1>
 <ul class="list-group p-2 dates">
     {{#dates}}
     <li class="mb-1">
@@ -35,7 +34,7 @@
     {{/dates}}
 </ul>
 {{#dates}}
-<input id="{{dateid}}" type="text">
+<input id="{{dateid}}" type="text" value="{{string}}" class="d-block"> 
 {{/dates}}
 
 
