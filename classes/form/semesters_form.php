@@ -263,7 +263,7 @@ class semesters_form extends dynamic_form {
      * {@inheritDoc}
      * @see moodleform::get_data()
      */
-    public function get_data(): stdClass {
+    public function get_data() {
         $data = parent::get_data();
         return $data;
     }

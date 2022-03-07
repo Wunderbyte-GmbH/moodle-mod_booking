@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 use mod_booking\booking;
 use mod_booking\booking_option;
-use mod_booking\form\optiondate_form;
+use mod_booking\form\semesters_optiondates_form;
 
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
@@ -45,7 +45,7 @@ if (!has_capability('mod/booking:manageoptiontemplates', $context)) {
 
 
 echo $OUTPUT->header();
-$form = new optiondate_form();
+$form = new semesters_optiondates_form();
 //$form->set_data_for_dynamic_submission();
 echo html_writer::div($form->render(), '', ['id' => 'formcontainer']);
 

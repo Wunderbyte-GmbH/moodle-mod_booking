@@ -1424,3 +1424,6 @@ $string['cachedef_bookingoptionsettings'] = 'Booking option settings-Cache';
 
 // Shortcodes.
 $string['search'] = 'Suche...';
+
+// Optiondates_handler.php.
+$string['datesforsemester'] = 'Termine für ein Semester erstellen';

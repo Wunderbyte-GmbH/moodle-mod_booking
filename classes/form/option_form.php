@@ -24,6 +24,7 @@ use mod_booking\customfield\booking_handler;
 use mod_booking\price;
 use stdClass;
 use html_writer;
+use mod_booking\optiondates_handler;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -96,17 +97,6 @@ class option_form extends \core_form\dynamic_form {
         }
         $boptionname = "$COURSE->fullname $eventtype";
         $mform->setDefault('text', $boptionname);
-
-        // Add Datestringpicker here.
-
-
-        $mform->addElement('checkbox', 'includeholidays', 'includeholidays');
-        $mform->addElement('select', 'semester', 'semester', array('WS22', 'WS23', 'SS22'));
-        $mform->addElement('text', 'reocuringdatestring', get_string('reocuringdatestring', 'booking'));
-        $mform->setType('reocuringdatestring', PARAM_TEXT);
-        $mform->addElement('html', '<div class="datelist">');
-        $mform->addElement('html', '</div>');
-        $this->add_action_buttons(false, 'load_dates');
 
         // Add custom fields here.
         $customfields = booking_option::get_customfield_settings();
@@ -324,14 +314,13 @@ class option_form extends \core_form\dynamic_form {
         $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
 
         // Add price.
-        //$pricehandler = new price($this->_customdata['optionid']);
-        //$pricehandler->add_price_to_mform($mform);
+        $price = new price($this->_customdata['optionid']);
+        $price->add_price_to_mform($mform);
 
-        // Add date handler.
-
-
-        // TODO: date handler analog zum price handler.
-        // eine date handler klasse, die sich um semester UND um die eingabe von daten kümmert
+        // Add semester dates interface.
+        $optiondateshandler = new optiondates_handler($this->_customdata['optionid']);
+        $optiondateshandler->add_optiondates_for_semesters_to_mform($mform);
+        $this->add_action_buttons(false, 'load_dates');
 
         // Add custom fields.
         $handler = booking_handler::create();
@@ -365,7 +354,7 @@ class option_form extends \core_form\dynamic_form {
         }
 
         // Templates - only visible when adding new.
-       /* if (has_capability('mod/booking:manageoptiontemplates', $this->_customdata['context'])
+        if (has_capability('mod/booking:manageoptiontemplates', $this->_customdata['context'])
             && $this->_customdata['optionid'] < 1) {
 
             $mform->addElement('header', 'templateheader',
@@ -386,7 +375,7 @@ class option_form extends \core_form\dynamic_form {
                 $mform->addElement('static', 'nolicense', get_string('licensekeycfg', 'mod_booking'),
                     get_string('licensekeycfgdesc', 'mod_booking'));
             }
-        } */
+        }
 
         // Buttons.
         $buttonarray = array();
@@ -498,7 +487,7 @@ class option_form extends \core_form\dynamic_form {
                 'maxbytes' => 0));
         $defaultvalues->myfilemanageroption = $draftitemid;
 
-        if ($defaultvalues->optionid > 0) {
+        if (isset($defaultvalues->optionid) && $defaultvalues->optionid > 0) {
             // Defaults for customfields.
             $cfdefaults = $DB->get_records('booking_customfields', array('optionid' => $defaultvalues->optionid));
             if (!empty($cfdefaults)) {
@@ -513,12 +502,13 @@ class option_form extends \core_form\dynamic_form {
         // We use instanceid for optionid.
         // But cf always uses the id key. we can't override it completly though.
         // Therefore, we change it to optionid just for the defaultvalues creation.
-        $handler = booking_handler::create();
-        $id = $defaultvalues->id;
-        $defaultvalues->id = $defaultvalues->optionid;
-        $handler->instance_form_before_set_data($defaultvalues);
-        $defaultvalues->id = $id;
-
+        if (isset($defaultvalues->id) && isset($defaultvalues->optionid)) {
+            $handler = booking_handler::create();
+            $id = $defaultvalues->id;
+            $defaultvalues->id = $defaultvalues->optionid;
+            $handler->instance_form_before_set_data($defaultvalues);
+            $defaultvalues->id = $id;
+        }
         parent::set_data($defaultvalues);
     }
 
@@ -563,8 +553,9 @@ class option_form extends \core_form\dynamic_form {
         echo json_encode($data);
         $semester = $this->get_semester($data->semester);
         $day = 'Monday';
-        //$day = $this->translate_string_to_day($data->reocuringdatestring);
-        //$dates = get_date_for_specific_day_between_dates($semester->startdate, $semester->enddate, $day);
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
+        // $day = $this->translate_string_to_day($data->reocuringdatestring);
+        // $dates = get_date_for_specific_day_between_dates($semester->startdate, $semester->enddate, $day);
         $dates = $this->get_date_for_specific_day_between_dates($semester->startdate, $semester->enddate, 'Monday');
 
         return $dates;
@@ -615,7 +606,7 @@ class option_form extends \core_form\dynamic_form {
 
     // Helper functions.
 
-    public function get_date_for_specific_day_between_dates($startdate, $enddate, $daystring) {
+    /*public function get_date_for_specific_day_between_dates($startdate, $enddate, $daystring) {
         for ($i = strtotime($daystring, $startdate); $i <= $enddate; $i = strtotime('+1 week', $i)) {
             $date = new stdClass();
             $date->date = date('Y-m-d', $i);
@@ -625,9 +616,9 @@ class option_form extends \core_form\dynamic_form {
             $datearray['dates'][] = $date;
         }
         return $datearray;
-    }
+    }*/
 
-    public function translate_string_to_day($string) {
+    /*public function translate_string_to_day($string) {
         if ($string == 'Monday') {
             return $string;
         }
@@ -655,14 +646,14 @@ class option_form extends \core_form\dynamic_form {
             $day = 'Sunday';
         }
         return $day;
-    }
+    }*/
 
-    public function get_semester($semesterid) {
+    /*public function get_semester($semesterid) {
         $semester = new stdClass();
         $semester->startdate = 1646598962;
         $semester->enddate = 1654505170;
         return $semester;
-    }
+    }*/
 
     /**
      *
@@ -684,5 +675,4 @@ class option_form extends \core_form\dynamic_form {
 
         return $categorynames;
     }
-
 }
