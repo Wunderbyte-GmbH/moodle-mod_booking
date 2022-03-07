@@ -190,11 +190,12 @@ if ($mform->is_cancelled()) {
     $PAGE->set_heading($course->fullname);
     echo $OUTPUT->header();
     if (isset($defaultvalues)) {
-        $mform->set_data($defaultvalues);
+        $mform->set_data_for_dynamic_submission($defaultvalues);
     }
-    $mform->display();
+    echo html_writer::div($mform->render(), '', ['id' => 'formcontainer']);
 }
 
 $PAGE->requires->js_call_amd('mod_booking/institutionautocomplete', 'init', array($id));
+$PAGE->requires->js_call_amd('mod_booking/dynamicform', 'init');
 
 echo $OUTPUT->footer();

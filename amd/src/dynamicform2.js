@@ -25,13 +25,15 @@ import Templates from 'core/templates';
 
 
 // Initialize the form - pass the container element and the form class name.
-const dynamicForm = new DynamicForm(document.querySelector('#formcontainer'), 'mod_booking\\form\\option_form');
+const dynamicForm = new DynamicForm(document.querySelector('#formcontainer'), 'mod_booking\\form\\optiondate_form');
 // By default the form is removed from the DOM after it is submitted, you may want to change this behavior:
 export const init = () => {
 console.log("init dynamicform");
 dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, (e) => {
     e.preventDefault();
+    console.log("submited");
     const response = e.detail;
+    console.log(response);
     Templates.renderForPromise('mod_booking/bookingoption_dates', response)
     // It returns a promise that needs to be resoved.
     .then(({html}) => {
@@ -60,7 +62,5 @@ export const datelistinit = () => {
         let element = '<li><span class="badge bg-primary">' + date.value + '</span> <i class="fa fa-window-close ml-2" data-action="delete"></i></li>';
         targetElement.insertAdjacentHTML('afterend', element);
         }
-    })
-
-
+    });
 }

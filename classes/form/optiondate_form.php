@@ -21,8 +21,8 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
-use stdClass;
 use moodle_url;
+use stdClass;
 
 /**
  * Add price categories form.
@@ -48,12 +48,10 @@ class optiondate_form extends \core_form\dynamic_form {
         $mform->addElement('select', 'semester', 'semester', array('WS22', 'WS23', 'SS22'));
         $mform->addElement('text', 'reocuringdatestring', get_string('reocuringdatestring', 'booking'));
         $mform->setType('reocuringdatestring', PARAM_TEXT);
-        $dates = $this->get_date_for_specific_day_between_dates(1646563577, 1656563577, 'Monday');
         $mform->addElement('html', '<div class="datelist">');
         $mform->addElement('html', '</div>');
-        $mform->addElement('html', '<div id="load-data" class="btn btn-primary">');
-        $mform->addElement('html', '</div>');
         $this->add_action_buttons(false, 'load_dates');
+        $this->add_action_buttons(false, 'bla');
     }
 
     /**
@@ -74,7 +72,7 @@ class optiondate_form extends \core_form\dynamic_form {
      */
     public function process_dynamic_submission() {
         $data = $this->get_data();
-
+        echo json_encode($data);
         $semester = $this->get_semester($data->semester);
         $day = 'Monday';
         //$day = $this->translate_string_to_day($data->reocuringdatestring);
@@ -123,7 +121,7 @@ class optiondate_form extends \core_form\dynamic_form {
      *
      * @return \moodle_url
      */
-    protected function get_page_url_for_dynamic_submission(): \moodle_url {
+    protected function get_page_url_for_dynamic_submission(): moodle_url {
         return new moodle_url('/user/files.php');
     }
 
