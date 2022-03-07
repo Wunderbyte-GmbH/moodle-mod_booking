@@ -82,9 +82,15 @@ if ($mform->is_cancelled()) {
         if ($semesterchanges = semesters_get_changes($data)) {
             foreach ($semesterchanges['updates'] as $record) {
                 $DB->update_record('booking_semesters', $record);
+
+                // Invalidate semester cache on update.
+                cache_helper::invalidate_by_event('setbacksemesters', [$record->id]);
             }
-            foreach ($semesterchanges['deletes'] as $record) {
-                $DB->delete_records('booking_semesters', ['id' => $record]);
+            foreach ($semesterchanges['deletes'] as $recordid) {
+                $DB->delete_records('booking_semesters', ['id' => $recordid]);
+
+                // Invalidate semester cache on delete.
+                cache_helper::invalidate_by_event('setbacksemesters', [$recordid]);
             }
             if (count($semesterchanges['inserts']) > 0) {
                 $DB->insert_records('booking_semesters', $semesterchanges['inserts']);
