@@ -45,10 +45,10 @@ if (!has_capability('mod/booking:manageoptiontemplates', $context)) {
 
 
 echo $OUTPUT->header();
-$form = new optiondate_form();
-//$form->set_data_for_dynamic_submission();
-echo html_writer::div($form->render(), '', ['id' => 'formcontainer']);
 
-$PAGE->requires->js_call_amd('mod_booking/dynamicform2', 'init');
+//$form->set_data_for_dynamic_submission();
+echo html_writer::div(html_writer::link('#', 'Load form', ['data-action' => 'loadform']));
+echo html_writer::div('', '', ['data-region' => 'form']);
+$PAGE->requires->js_call_amd('mod_booking/dynamicform2');
 
 echo $OUTPUT->footer();

@@ -108,7 +108,7 @@ class optiondate_form extends \core_form\dynamic_form {
      */
     protected function get_context_for_dynamic_submission(): \context {
         global $USER;
-        return \context_user::instance($USER->id);
+        return \context_module::instance(5);
     }
 
     /**
@@ -122,7 +122,7 @@ class optiondate_form extends \core_form\dynamic_form {
      * @return \moodle_url
      */
     protected function get_page_url_for_dynamic_submission(): moodle_url {
-        return new moodle_url('/user/files.php');
+        return new moodle_url('/mod/booking/editoptions', array());
     }
 
     /**
@@ -153,11 +153,14 @@ class optiondate_form extends \core_form\dynamic_form {
     // Helper functions.
 
     public function get_date_for_specific_day_between_dates($startdate, $enddate, $daystring) {
+        $j = 1;
         for ($i = strtotime($daystring, $startdate); $i <= $enddate; $i = strtotime('+1 week', $i)) {
             $date = new stdClass();
             $date->date = date('Y-m-d', $i);
             $date->starttime = '10:00';
             $date->endtime = '11:00';
+            $date->dateid = 'dateid-' . $j;
+            $j++;
             $date->string = $date->date . " " .$date->starttime. "-" .$date->endtime;
             $datearray['dates'][] = $date;
         }
