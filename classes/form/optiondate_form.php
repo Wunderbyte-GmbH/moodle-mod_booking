@@ -68,7 +68,7 @@ class optiondate_form extends \core_form\dynamic_form {
         }
         $optiondateshandler = new optiondates_handler();
         $semester = $optiondateshandler->get_semester($data->semester);
-        $dayinfo = $optiondateshandler->translate_string_to_day($data->reocuringdatestring);
+        $dayinfo = $optiondateshandler->translate_string_to_day($data->reocurringdatestring);
         $dates = $optiondateshandler->get_date_for_specific_day_between_dates($semester->startdate, $semester->enddate, $dayinfo);
         return $dates;
 
@@ -138,60 +138,5 @@ class optiondate_form extends \core_form\dynamic_form {
     public function get_data() {
         $data = parent::get_data();
         return $data;
-    }
-
-
-    // Helper functions.
-
-    public function get_date_for_specific_day_between_dates($startdate, $enddate, $daystring) {
-        $j = 1;
-        for ($i = strtotime($daystring, $startdate); $i <= $enddate; $i = strtotime('+1 week', $i)) {
-            $date = new stdClass();
-            $date->date = date('Y-m-d', $i);
-            $date->starttime = '10:00';
-            $date->endtime = '11:00';
-            $date->dateid = 'dateid-' . $j;
-            $j++;
-            $date->string = $date->date . " " .$date->starttime. "-" .$date->endtime;
-            $datearray['dates'][] = $date;
-        }
-        return $datearray;
-    }
-
-    public function translate_string_to_day($string) {
-        if ($string == 'Monday') {
-            return $string;
-        }
-        $lowerstring = strtolower($string);
-        if (str_starts_with($lowerstring, 'mo')) {
-            $day = 'Monday';
-            return 'Monday';
-        }
-        if ($string == 'di' || $string == 'dienstag' || $string == 'tuesday' || $string == 'tu') {
-            $day = 'Tuesday';
-        }
-        if ($string == 'mi' || $string == 'mittwoch' || $string == 'wednesday') {
-            $day = 'Wednesday';
-        }
-        if ($string == 'do' || $string == 'donnerstag' || $string == 'thursday') {
-            $day = 'Thursday';
-        }
-        if ($string == 'fr' || $string == 'freitag' || $string == 'friday') {
-            $day = 'Friday';
-        }
-        if ($string == 'sa' || $string == 'saturday' || $string == 'samstag') {
-            $day = 'Saturday';
-        }
-        if ($string == 'so' || $string == 'sonntag' || $string == 'sunday') {
-            $day = 'Sunday';
-        }
-        return $day;
-    }
-
-    public function get_semester($semesterid) {
-        $semester = new stdClass();
-        $semester->startdate = 1646598962;
-        $semester->enddate = 1654505170;
-        return $semester;
     }
 }

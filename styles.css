@@ -143,3 +143,7 @@ tr.mod-booking-invisible {
 .badge {
     position: unset !important;
 }
+
+.reocurringdates {
+    list-style-type: none;
+}

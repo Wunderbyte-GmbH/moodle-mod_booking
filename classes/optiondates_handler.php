@@ -59,10 +59,8 @@ class optiondates_handler {
             get_string('datesforsemester', 'booking'));
         $mform->addElement('checkbox', 'includeholidays', 'includeholidays');
         $mform->addElement('select', 'semester', 'semester', array('WS22', 'WS23', 'SS22'));
-        $mform->addElement('text', 'reocuringdatestring', get_string('reocuringdatestring', 'booking'));
-        $mform->setType('reocuringdatestring', PARAM_TEXT);
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.InvalidEndChar
-        // TODO: ins option form: $this->add_action_buttons(false, 'load_dates');
+        $mform->addElement('text', 'reocurringdatestring', get_string('reocurringdatestring', 'booking'));
+        $mform->setType('reocurringdatestring', PARAM_TEXT);
     }
 
 
@@ -120,12 +118,18 @@ class optiondates_handler {
      */
     public function get_date_for_specific_day_between_dates(int $startdate, int $enddate, array $dayinfo): array {
         $j = 1;
+        sscanf($dayinfo['starttime'], "%d:%d", $hours, $minutes);
+        $startseconds = ($hours * 60 * 60) + ($minutes * 60);
+        sscanf($dayinfo['endtime'], "%d:%d", $hours, $minutes);
+        $endseconds = $hours * 60 * 60 + $minutes * 60;
         for ($i = strtotime($dayinfo['day'], $startdate); $i <= $enddate; $i = strtotime('+1 week', $i)) {
             $date = new stdClass();
             $date->date = date('Y-m-d', $i);
             $date->starttime = $dayinfo['starttime'];
             $date->endtime = $dayinfo['endtime'];
             $date->dateid = 'dateid-' . $j;
+            $date->starttimestamp = $i + $startseconds;
+            $date->endtimestamp = $i + $endseconds;
             $j++;
             $date->string = $date->date . " " .$date->starttime. "-" .$date->endtime;
             $datearray['dates'][] = $date;
