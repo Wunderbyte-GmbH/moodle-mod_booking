@@ -28,10 +28,15 @@
     {{#dates}}
     <li class="mb-1">
         <span class="text-white small p-1 bg-primary">
-           {{string}}
+           {{string}} asdfs
         </span>
-        <i class="fa fa-window-close ml-2" data-action="delete"></i>
+        <i class="fa fa-window-close ml-2" data-action="delete" data-targetid="{{dateid}}"></i>
     </li>
     {{/dates}}
 </ul>
+{{#dates}}
+<input id="{{dateid}}" type="text">
+{{/dates}}
+
+
 

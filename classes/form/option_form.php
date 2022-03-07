@@ -98,15 +98,12 @@ class option_form extends \core_form\dynamic_form {
 
         // Add Datestringpicker here.
 
+        $mform->addElement('html', '<div id="miniformcontainer">');
+        $mform->addElement('html', '</div>');
 
-        $mform->addElement('checkbox', 'includeholidays', 'includeholidays');
-        $mform->addElement('select', 'semester', 'semester', array('WS22', 'WS23', 'SS22'));
-        $mform->addElement('text', 'reocuringdatestring', get_string('reocuringdatestring', 'booking'));
-        $mform->setType('reocuringdatestring', PARAM_TEXT);
+
         $mform->addElement('html', '<div class="datelist">');
         $mform->addElement('html', '</div>');
-        $this->add_action_buttons(false, 'load_dates');
-
         // Add custom fields here.
         $customfields = booking_option::get_customfield_settings();
         if (!empty($customfields)) {

@@ -48,10 +48,7 @@ class optiondate_form extends \core_form\dynamic_form {
         $mform->addElement('select', 'semester', 'semester', array('WS22', 'WS23', 'SS22'));
         $mform->addElement('text', 'reocuringdatestring', get_string('reocuringdatestring', 'booking'));
         $mform->setType('reocuringdatestring', PARAM_TEXT);
-        $mform->addElement('html', '<div class="datelist">');
-        $mform->addElement('html', '</div>');
-        $this->add_action_buttons(false, 'load_dates');
-        $this->add_action_buttons(false, 'bla');
+        $this->add_action_buttons(false, 'Add');
     }
 
     /**

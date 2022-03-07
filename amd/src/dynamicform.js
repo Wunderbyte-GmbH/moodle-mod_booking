@@ -50,17 +50,17 @@ dynamicForm1.addEventListener(dynamicForm1.events.FORM_SUBMITTED, (e) => {
 
 export const datelistinit = () => {
     document.querySelector(".datelist").addEventListener('click', function(e) {
-        let action = e.target.dataset.action;
-        let targetid = e.target.dataset.targetid;
-        if (action === 'delete') {
-        e.target.closest('li').remove();
-        document.getElementById(targetid).remove();
+            let action = e.target.dataset.action;
+            let targetid = e.target.dataset.targetid;
+            if (action === 'delete') {
+            e.target.closest('li').remove();
+            document.getElementById(targetid).remove();
         }
         if (action === 'add') {
-        let targetElement = e.target.closest('li');
-        let date = document.querySelector("#meeting-time");
-        let element = '<li><span class="badge bg-primary">' + date.value + '</span> <i class="fa fa-window-close ml-2" data-action="delete"></i></li>';
-        targetElement.insertAdjacentHTML('afterend', element);
+            let targetElement = e.target.closest('li');
+            let date = document.querySelector("#meeting-time");
+            let element = '<li><span class="badge bg-primary">' + date.value + '</span> <i class="fa fa-window-close ml-2" data-action="delete"></i></li>';
+            targetElement.insertAdjacentHTML('afterend', element);
         }
     })
 
