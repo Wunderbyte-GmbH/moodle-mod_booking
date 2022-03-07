@@ -21,45 +21,46 @@
 
 import DynamicForm from 'core_form/dynamicform';
 import Templates from 'core/templates';
+// ...
+
 
 // Initialize the form - pass the container element and the form class name.
-const dynamicForm = new DynamicForm(document.querySelector('#formcontainer'), 'mod_booking\\form\\semesters_optiondates_form');
+const dynamicForm = new DynamicForm(document.querySelector('#formcontainer'), 'mod_booking\\form\\optiondate_form');
 // By default the form is removed from the DOM after it is submitted, you may want to change this behavior:
 export const init = () => {
-    // CODE: console.log("init dynamicform");
-    dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, (e) => {
-        e.preventDefault();
-        // CODE: console.log("submited");
-        const response = e.detail;
-        // CODE: console.log(response);
-        Templates.renderForPromise('mod_booking/bookingoption_dates', response)
-            // It returns a promise that needs to be resolved.
-            .then(({html}) => {
-                datelistinit();
-                // Here eventually I have my compiled template, and any javascript that it generated.
-                // The templates object has append, prepend and replace functions.
-                Templates.appendNodeContents('.datelist', html);
-            })
-            // Deal with this exception (Using core/notify exception function is recommended).
-            .catch(ex => displayException(ex));
-            // It is recommended to reload the form after submission because the elements may change.
-            // This will also remove previous submission errors. You will need to pass the same arguments to the form
-            // that you passed when you rendered the form on the page.
-    });
+console.log("init dynamicform");
+dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, (e) => {
+    e.preventDefault();
+    console.log("submited");
+    const response = e.detail;
+    console.log(response);
+    Templates.renderForPromise('mod_booking/bookingoption_dates', response)
+    // It returns a promise that needs to be resoved.
+    .then(({html}) => {
+        datelistinit();
+        // Here eventually I have my compiled template, and any javascript that it generated.
+        // The templates object has append, prepend and replace functions.
+        Templates.appendNodeContents('.datelist', html);
+    })
+    // Deal with this exception (Using core/notify exception function is recommended).
+    .catch(ex => displayException(ex));
+    // It is recommended to reload the form after submission because the elements may change.
+    // This will also remove previous submission errors. You will need to pass the same arguments to the form
+    // that you passed when you rendered the form on the page.
+});
 };
 
 export const datelistinit = () => {
     document.querySelector(".datelist").addEventListener('click', function(e) {
         let action = e.target.dataset.action;
         if (action === 'delete') {
-            e.target.closest('li').remove();
+        e.target.closest('li').remove();
         }
         if (action === 'add') {
-            let targetElement = e.target.closest('li');
-            let date = document.querySelector("#meeting-time");
-            let element = '<li><span class="badge bg-primary">' + date.value +
-                '</span> <i class="fa fa-window-close ml-2" data-action="delete"></i></li>';
-            targetElement.insertAdjacentHTML('afterend', element);
+        let targetElement = e.target.closest('li');
+        let date = document.querySelector("#meeting-time");
+        let element = '<li><span class="badge bg-primary">' + date.value + '</span> <i class="fa fa-window-close ml-2" data-action="delete"></i></li>';
+        targetElement.insertAdjacentHTML('afterend', element);
         }
     });
-};
+}
