@@ -100,6 +100,11 @@ define(['jquery', 'core/config', 'mod_booking/jquery.barrating'],
                                 $('#studentsform [id=check' + selected + ']')
                                         .prop('checked', 'checked');
                             });
+                    $('#page-mod-booking-view #optioncheckboxall')
+                    .click(function() {
+                        $('#optionsform input:checkbox').not(this)
+                                .prop('checked', this.checked);
+                    });
                 }
             };
         });

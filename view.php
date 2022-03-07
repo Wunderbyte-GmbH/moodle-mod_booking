@@ -196,52 +196,82 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
     die();
 }
 
-// Before processing data user has to agree to booking policy and confirm booking.
-if ($form = data_submitted() && has_capability('mod/booking:choose', $context) && $download == '' &&
-         confirm_sesskey() && $confirm != 1 && $answer) {
-    booking_confirm_booking($answer, $USER, $cm, $url);
-    die();
+$form = data_submitted();
+
+if ($form && confirm_sesskey()) {
+    if (isset($form->massactions)) {
+        $allselectedoptions = [];
+
+        if (isset($form->option)) {
+            foreach ($form->option as $value) {
+                $allselectedoptions[] = array_keys($value)[0];
+            }
+        }
+
+        if (!empty($form->massactions)) {
+            // Check if at least one user need to be selected.
+            if (empty($allselectedoptions)) {
+                redirect(new moodle_url('view.php', $urlparams), get_string('selectatleastoneoption', 'booking'));
+            }
+
+            if ($form->massactions == 'deleteoptions' && has_capability('mod/booking:updatebooking', $context)) {
+                foreach ($allselectedoptions as $key => $value) {
+                    $tmpoption = new \mod_booking\booking_option($cm->id, $value);
+                    $tmpoption->delete_booking_option();
+                }
+
+                redirect(new moodle_url('view.php', $urlparams), get_string('alloptionsdeleted', 'booking'));
+            }
+        }
+    } else {
+        // Before processing data user has to agree to booking policy and confirm booking.
+        if (has_capability('mod/booking:choose', $context) && $download == '' &&
+            $confirm != 1 && $answer) {
+            booking_confirm_booking($answer, $USER, $cm, $url);
+            die();
+        }
+
+        // Submit any new data if there is any.
+        if ($download == '' && has_capability('mod/booking:choose', $context)) {
+            echo $OUTPUT->header();
+            $timenow = time();
+
+            $url = new moodle_url("view.php", array('id' => $cm->id));
+            $url->set_anchor("option" . $answer);
+            if (!empty($answer)) {
+                $bookingdata = new \mod_booking\booking_option($cm->id, $answer, array(), 0, 0, false);
+                $bookingdata->apply_tags();
+                if ($bookingdata->user_submit_response($USER)) {
+                    $contents = html_writer::tag('p', get_string('bookingsaved', 'booking'));
+                    if ($booking->settings->sendmail) {
+                        $contents .= html_writer::tag('p', get_string('mailconfirmationsent', 'booking') . ".");
+                    }
+                    $contents .= $OUTPUT->single_button($url,
+                            get_string('continue'), 'get');
+                    echo $OUTPUT->box($contents, 'box generalbox', 'notice');
+                    echo $OUTPUT->footer();
+                    die();
+                } else if (is_numeric($answer)) {
+                    $contents = get_string('bookingmeanwhilefull', 'booking') . " " . format_string($bookingdata->option->text);
+                    $contents .= $OUTPUT->single_button($url,
+                            get_string('continue'), 'get');
+                    echo $OUTPUT->box($contents, 'box generalbox', 'notice');
+                    echo $OUTPUT->footer();
+                    die();
+                }
+            } else {
+                $contents = get_string('nobookingselected', 'booking');
+                $contents .= $OUTPUT->single_button($url, get_string('continue'));
+                echo $OUTPUT->box($contents, 'box generalbox', 'notice');
+                echo $OUTPUT->footer();
+                die();
+            }
+        }
+    }
 }
 
 $PAGE->set_title(format_string($booking->settings->name));
 $PAGE->set_heading(format_string($booking->settings->name));
-
-// Submit any new data if there is any.
-if ($download == '' && $form = data_submitted() && has_capability('mod/booking:choose', $context)) {
-    echo $OUTPUT->header();
-    $timenow = time();
-
-    $url = new moodle_url("view.php", array('id' => $cm->id));
-    $url->set_anchor("option" . $answer);
-    if (!empty($answer)) {
-        $bookingdata = new \mod_booking\booking_option($cm->id, $answer, array(), 0, 0, false);
-        $bookingdata->apply_tags();
-        if ($bookingdata->user_submit_response($USER)) {
-            $contents = html_writer::tag('p', get_string('bookingsaved', 'booking'));
-            if ($booking->settings->sendmail) {
-                $contents .= html_writer::tag('p', get_string('mailconfirmationsent', 'booking') . ".");
-            }
-            $contents .= $OUTPUT->single_button($url,
-                    get_string('continue'), 'get');
-            echo $OUTPUT->box($contents, 'box generalbox', 'notice');
-            echo $OUTPUT->footer();
-            die();
-        } else if (is_numeric($answer)) {
-            $contents = get_string('bookingmeanwhilefull', 'booking') . " " . format_string($bookingdata->option->text);
-            $contents .= $OUTPUT->single_button($url,
-                    get_string('continue'), 'get');
-            echo $OUTPUT->box($contents, 'box generalbox', 'notice');
-            echo $OUTPUT->footer();
-            die();
-        }
-    } else {
-        $contents = get_string('nobookingselected', 'booking');
-        $contents .= $OUTPUT->single_button($url, get_string('continue'));
-        echo $OUTPUT->box($contents, 'box generalbox', 'notice');
-        echo $OUTPUT->footer();
-        die();
-    }
-}
 
 $event = \mod_booking\event\course_module_viewed::create(
         array('objectid' => $PAGE->cm->instance, 'context' => $PAGE->context));
@@ -314,9 +344,15 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $tablealloptions->is_downloadable(false);
     }
     $tablealloptions->show_download_buttons_at(array(TABLE_P_BOTTOM));
+    $tablealloptions->no_sorting('selected');
 
     $columns = array();
     $headers = array();
+
+    if (has_capability('mod/booking:updatebooking', $context)) {
+        $columns[] = 'selected';
+        $headers[] = '<input type="checkbox" id="optioncheckboxall" name="selectall" value="0" />';
+    }
 
     if (!$tablealloptions->is_downloading()) {
         comment::init();
@@ -492,8 +528,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
         $row = new html_table_row(
                 array("",
-                    '<input id="searchButton" type="submit" value="' . get_string('search') .
-                             '"><input id="buttonclear" type="button" value="' .
+                    '<input id="searchButton" type="submit" class="btn btn-default" value="' . get_string('search') .
+                             '">&nbsp;<input id="buttonclear" class="btn btn-default" type="button" value="' .
                              get_string('reset', 'booking') . '">', "", ""));
         $tabledata[] = $row;
         $rowclasses[] = "";
