@@ -29,13 +29,11 @@ dynamicForm1.load();
 datelistinit();
 dynamicForm1.addEventListener(dynamicForm1.events.FORM_SUBMITTED, (e) => {
     e.preventDefault();
-    console.log(e.target);
     const response = e.detail;
     Templates.renderForPromise('mod_booking/bookingoption_dates', response)
     // It returns a promise that needs to be resoved.
     .then(({html}) => {
-        // Here eventually I have my compiled template, and any javascript that it generated.
-        // The templates object has append, prepend and replace functions.
+        document.querySelector('.datelist').innerHTML = '';
         Templates.appendNodeContents('.datelist', html);
     })
     // Deal with this exception (Using core/notify exception function is recommended).

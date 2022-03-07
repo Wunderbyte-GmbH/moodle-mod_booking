@@ -137,6 +137,8 @@ class optiondates_handler {
         return $datearray;
     }
 
+
+
     /**
      * TODO: will be replaced by a regex function.
      * @param string $string
@@ -172,6 +174,23 @@ class optiondates_handler {
         $dayinfo['starttime'] = $strings[1];
         $dayinfo['endtime'] = $strings[2];
         return $dayinfo;
+    }
+
+    /**
+     * TODO: replace with DB call.
+     *
+     * @param int $timestamp
+     * @return bool
+     */
+    public function is_holiday(int $timestamp): bool {
+        // DB id date timestamp
+        $holidayarray['2022-12-24'] = 1;
+        $holidayarray['2022-12-31'] = 1;
+        $date = date('Y-m-d', $timestamp);
+        if (isset($holidayarray[$date])) {
+            return true;
+        }
+        return false;
     }
 
     /**
