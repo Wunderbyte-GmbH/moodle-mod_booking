@@ -284,10 +284,10 @@ class external extends external_api {
 
     public static function unenrol_user_parameters() {
         return new external_function_parameters(
-                array('cmid' => new external_value(PARAM_TEXT, 'cmid', 'CM ID', VALUE_REQUIRED, 0),
-                    'optionid' => new external_value(PARAM_INT, 'Option id', 'Option id',
+                array('cmid' => new external_value(PARAM_TEXT, 'CM ID', VALUE_REQUIRED, 0),
+                    'optionid' => new external_value(PARAM_INT, 'Option id',
                             VALUE_REQUIRED, 0),
-                    'courseid' => new external_value(PARAM_TEXT, 'course id', 'Course id',
+                    'courseid' => new external_value(PARAM_TEXT, 'course id',
                             VALUE_REQUIRED, 0)));
     }
 
@@ -513,4 +513,59 @@ class external extends external_api {
                 )
         );
     }
+
+
+    /**
+     * Returns description of method result value
+     *
+     * @return \external_single_structure
+     * @since Moodle 3.0
+     */
+    public static function get_booking_option_description_returns() {
+        return new external_single_structure(
+                array('content' => new external_value(PARAM_RAW, 'json object as string'),
+                      'template' => new \external_value(PARAM_TEXT, 'the template to render the content')
+                ));
+    }
+
+    /**
+     * Function get_booking_option_description
+     *
+     * @return external_function_parameters
+     */
+    public static function get_booking_option_description_parameters() {
+        return new external_function_parameters(
+                array('optionid' => new external_value(PARAM_INT, 'Option id', VALUE_REQUIRED, 0),
+                      'userid' => new external_value(PARAM_TEXT, 'userid', VALUE_REQUIRED, 0)
+                )
+        );
+    }
+
+    /**
+     * function get_booking_option_description
+     * @param int $optionid
+     * @param int $userid
+     * @return array
+     */
+    public static function get_booking_option_description($optionid, $userid) {
+
+        $params = self::validate_parameters(self::get_booking_option_description_parameters(),
+                array('optionid' => $optionid, 'userid' => $userid));
+
+        $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $userid);
+
+        // Check if user is booked.
+        $forbookeduser = $bookinganswer->user_status($userid) == 1 ? true : false;
+
+        $data = new \mod_booking\output\bookingoption_description($booking, $optionid,
+                null, DESCRIPTION_WEBSITE, true, $forbookeduser);
+
+        return ['content' => json_encode($data), 'template' => 'mod_booking/bookingoption_description'];
+    }
+
+
 }

@@ -86,6 +86,9 @@
                   {{#columnkeyclass}}</span>{{/columnkeyclass}}
                   {{#columnvalueclass}}<span class="{{.}} ">{{/columnvalueclass}}
                     {{{value}}}
+
+
+
                   {{#columnvalueclass}}</span>{{/columnvalueclass}}
                   <span {{^value}} style="display:none" {{/value}}>
                   {{#columniclassafter}}
@@ -110,5 +113,8 @@
     });
     require(['local_shopping_cart/cart'], function(cart) {
     cart.buttoninit(null, 'mod_booking');
+    });
+    require(['mod_booking/modal_init'], function(init) {
+    init.init();
     });
 {{/js}}

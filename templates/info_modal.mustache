@@ -27,18 +27,33 @@
 <a href="#" data-toggle="modal" data-target="#descriptionModal{{modalcounter}}">
     <h5><i class="fa fa-info-circle"></i> {{modaltitle}}</h5>
 </a>
-<div class="modal fade" id="descriptionModal{{modalcounter}}" tabindex="-1" role="dialog" aria-labelledby="descriptionModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="descriptionModalLabel">{{modaltitle}}</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        {{> booking/bookingoption_description }}
-      </div>
+<div class="modal fade" id="descriptionModal{{modalcounter}}" tabindex="-1" role="dialog"
+    aria-labelledby="descriptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="descriptionModalLabel">{{modaltitle}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-center" id="bo_modal_spinner_{{modalcounter}}" data-optionid="{{modalcounter}}">
+                    <div class="spinner-border" role="status">
+                    </div>
+                </div>
+                <div id="bo_modal_description_{{modalcounter}}" data-optionid="{{modalcounter}}">
+                    <div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
+
+{{#js}}
+    require(['mod_booking/modal_init'], function(init) {
+    init.init();
+    });
+{{/js}}

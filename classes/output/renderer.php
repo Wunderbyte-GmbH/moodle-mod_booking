@@ -28,6 +28,7 @@ use html_table_row;
 use rating;
 use rating_manager;
 use popup_action;
+use stdClass;
 use templatable;
 
 /**
@@ -433,6 +434,16 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /** Function to render bookingoption_description in template.
+     * This is actually nearly the same database as for bookingoption_description, only wrapped in a modal with ajax.
+     */
+    public function render_col_text_modal_js(stdClass $data) {
+        $o = '';
+        $data = (array)$data;
+        $o .= $this->render_from_template('mod_booking/col_text_modal', $data);
+        return $o;
+    }
+
 
     /**
      * Render function.
@@ -468,17 +479,6 @@ class renderer extends plugin_renderer_base {
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/col_coursestarttime', $data);
         return $o;
-    }
-
-    /**
-     * Render function.
-     * @param $data array
-     * @return string
-     */
-    public function render_col_text_with_description($data) {
-        $o = '';
-        $data = $data->export_for_template($this);
-        $o .= $this->render_from_template('mod_booking/col_text_with_description', $data);
     }
 
     /**
@@ -563,4 +563,6 @@ class renderer extends plugin_renderer_base {
         $o .= $this->render_from_template('mod_booking/col_availableplaces', $data);
         return $o;
     }
+
+
 }

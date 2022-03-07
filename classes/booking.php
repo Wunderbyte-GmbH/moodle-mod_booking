@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
 
+use course_modinfo;
 use html_writer;
 use stdClass;
 use moodle_url;
@@ -72,10 +73,11 @@ class booking {
      * Constructor for the booking class
      *
      * @param int $cmid
+     * @param course_modinfo|null $cm
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function __construct(int $cmid) {
+    public function __construct(int $cmid, course_modinfo $cm = null) {
         global $DB;
 
         // In the constructur, we call the booking_settings, where we get the values from db or cache.
@@ -83,7 +85,12 @@ class booking {
 
         $this->settings = $bosettings->return_settings_as_stdclass();
         $this->id = $this->settings->id;
-        $this->cm = get_coursemodule_from_id('booking', $cmid);
+        if (!$cm || ($cmid != $cm->id)) {
+            $this->cm = get_coursemodule_from_id('booking', $cmid);
+        } else {
+            $this->cm = $cm;
+        }
+
         $this->course = get_course($this->cm->course);
         $this->context = \context_module::instance($cmid);
 

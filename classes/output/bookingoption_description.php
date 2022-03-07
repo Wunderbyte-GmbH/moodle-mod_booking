@@ -24,6 +24,8 @@
 
 namespace mod_booking\output;
 
+use context_module;
+use Exception;
 use mod_booking\booking;
 use mod_booking\booking_answers;
 use mod_booking\booking_option;
@@ -31,6 +33,7 @@ use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use renderer_base;
 use renderable;
+use stdClass;
 use templatable;
 
 /**
@@ -91,7 +94,7 @@ class bookingoption_description implements renderable, templatable {
             bool $withcustomfields = true,
             bool $forbookeduser = null) {
 
-        global $CFG;
+        global $CFG, $PAGE;
 
         $this->cmid = $booking->cm->id;
 
@@ -124,7 +127,16 @@ class bookingoption_description implements renderable, templatable {
         $this->modalcounter = $settings->id;
         $this->duration = $settings->duration;
         // Description from booking option settings formatted as HTML.
-        $this->description = format_text($settings->description, FORMAT_HTML);
+
+        // When we call this via webservice, we don't have a context, this throws an error.
+        // It's no use passing the context object either.
+        try {
+            $this->description = format_text($settings->description, FORMAT_HTML);
+        } catch(Exception $e) {
+
+            $this->description = $settings->description;
+        }
+
 
         // TODO: reintegrate stuff below!
         return null;

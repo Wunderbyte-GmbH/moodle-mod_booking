@@ -70,6 +70,13 @@ $functions = array(
         'description' => 'Add Booking option',
         'type' => 'write',
         'ajax' => false
+    ),
+    'mod_booking_get_booking_option_description' => array(
+        'classname' => 'mod_booking\external',
+        'methodname' => 'get_booking_option_description',
+        'description' => 'Get booking option decription for a special option and user',
+        'type' => 'read',
+        'ajax' => true
     )
 );
 

@@ -92,6 +92,29 @@ class singleton_service {
      * Service to create and return singleton instance of booking.
      *
      * @param int $cmid
+     * @return booking
+     */
+    public static function get_instance_of_booking_by_optionid(int $optionid) {
+
+        $instance = self::get_instance();
+
+        $bookingoptionsettings = self::get_instance_of_booking_option_settings($optionid);
+
+        $cm = get_coursemodule_from_instance('booking', $bookingoptionsettings->bookingid);
+
+        if (isset($instance->bookings[$cm->id])) {
+            return $instance->bookings[$cm->id];
+        } else {
+            $booking = new booking($cm->id);
+            $instance->bookings[$cm->id] = $booking;
+            return $booking;
+        }
+    }
+
+    /**
+     * Service to create and return singleton instance of booking.
+     *
+     * @param int $cmid
      * @return booking_settings
      */
     public static function get_instance_of_booking_settings($cmid) {

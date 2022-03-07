@@ -120,41 +120,13 @@ class bookingoptions_table extends wunderbyte_table {
      */
     public function col_text($values) {
 
-        // If the data is being downloaded we show the original text including the separator and unique idnumber.
-        if (!$this->is_downloading()) {
-            // Remove identifier key and separator if necessary.
-            booking_option::transform_unique_bookingoption_name_to_display_name($values);
-        }
-
-        // Render col_text using a template.
-
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
-
-        // Check userstatus for the selected user. Normally this will be $USER.
-        $userid = 0;
-        if (isset($values->userid)) {
-            $userid = $values->userid;
-        }
-
-        // TODO: We call this two times in a row, also in col_bookings. There is perforamnce-potential in it.
-
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $userid);
-
-        $forbookeduser = $bookinganswer->user_status($userid) === STATUSPARAM_BOOKED ? true : false;
-
-        if (empty($this->booking)) {
-            $cm = get_coursemodule_from_instance('booking', $values->bookingid);
-            $this->booking = singleton_service::get_instance_of_booking($cm->id);
-        }
-
-        $data = new \mod_booking\output\bookingoption_description($this->booking, $values->id,
-                null, DESCRIPTION_WEBSITE, true, $forbookeduser);
-
         // We will have a number of modals on this site, therefore we have to distinguish them.
+        $data = new stdClass();
         $data->modalcounter = $values->id;
+        $data->modaltitle = $values->text;
 
         // We can go with the data from bookingoption_description directly to modal.
-        return $this->output->render_col_text_modal($data);
+        return $this->output->render_col_text_modal_js($data);
     }
 
 
