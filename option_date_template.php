@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 use mod_booking\booking;
 use mod_booking\booking_option;
-use mod_booking\form\semesters_optiondates_form;
+use mod_booking\form\optiondate_form;
 
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
@@ -24,7 +24,7 @@ $id = required_param('id', PARAM_INT);
 $optionid = required_param('optionid', PARAM_INT);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
 $PAGE->set_context(\context_system::instance());
-$url = new moodle_url('/mod/booking/option_date_template.php');
+$url = new moodle_url('/mod/booking/option_date_template.php', array('optionid' => $optionid, 'id' => $id));
 $PAGE->set_url($url);
 list($course, $cm) = get_course_and_cm_from_cmid($id);
 
@@ -45,10 +45,10 @@ if (!has_capability('mod/booking:manageoptiontemplates', $context)) {
 
 
 echo $OUTPUT->header();
-$form = new semesters_optiondates_form();
-//$form->set_data_for_dynamic_submission();
+$form = new optiondate_form();
+$form->set_data_for_dynamic_submission();
 echo html_writer::div($form->render(), '', ['id' => 'formcontainer']);
 
-$PAGE->requires->js_call_amd('mod_booking/dynamicform2', 'init');
+$PAGE->requires->js_call_amd('mod_booking/dynamicform', 'init');
 
 echo $OUTPUT->footer();

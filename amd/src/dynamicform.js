@@ -1,3 +1,4 @@
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -25,27 +26,32 @@ import Templates from 'core/templates';
 
 
 // Initialize the form - pass the container element and the form class name.
-const dynamicForm = new DynamicForm(document.querySelector('#formcontainer'), 'mod_booking\\form\\option_form');
+const dynamicForm = new DynamicForm(document.querySelector('#formcontainer'), 'mod_booking\\form\\optiondate_form');
 // By default the form is removed from the DOM after it is submitted, you may want to change this behavior:
 export const init = () => {
-console.log("init dynamicform");
 dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, (e) => {
     e.preventDefault();
     const response = e.detail;
+    console.log(response);
     Templates.renderForPromise('mod_booking/bookingoption_dates', response)
+
     // It returns a promise that needs to be resoved.
     .then(({html}) => {
         datelistinit();
         // Here eventually I have my compiled template, and any javascript that it generated.
         // The templates object has append, prepend and replace functions.
         Templates.appendNodeContents('.datelist', html);
+        console.log("test");
     })
+
     // Deal with this exception (Using core/notify exception function is recommended).
     .catch(ex => displayException(ex));
+
+
     // It is recommended to reload the form after submission because the elements may change.
     // This will also remove previous submission errors. You will need to pass the same arguments to the form
     // that you passed when you rendered the form on the page.
-});
+})
 };
 
 export const datelistinit = () => {
