@@ -41,7 +41,7 @@ class optiondate_form extends \core_form\dynamic_form {
         $mform = $this->_form;
         $optiondateshandler = new optiondates_handler();
         $optiondateshandler->add_optiondates_for_semesters_to_mform($mform);
-        $mform->addElement('hidden', 'cmid', $this->_customdata['id']);
+        $mform->addElement('hidden', 'cmid', $this->_ajaxformdata['id']);
         $mform->setType('cmid', PARAM_TEXT);
         $this->add_action_buttons(false, 'Add');
     }
