@@ -22,27 +22,26 @@
 import DynamicForm from 'core_form/dynamicform';
 import Templates from 'core/templates';
 
-const dynamicForm1 = new DynamicForm(document.querySelector('#miniformcontainer'), 'mod_booking\\form\\optiondate_form');
-export const init = () => {
-    dynamicForm1.load();
-    datelistinit();
-    dynamicForm1.addEventListener(dynamicForm1.events.FORM_SUBMITTED, (e) => {
-        e.preventDefault();
-        const response = e.detail;
-        Templates.renderForPromise('mod_booking/bookingoption_dates', response)
-        // It returns a promise that needs to be resoved.
-        // eslint-disable-next-line promise/always-return
-        .then(({html}) => {
-            document.querySelector('.datelist').innerHTML = '';
-            Templates.appendNodeContents('.datelist', html);
-        })
-        // Deal with this exception (Using core/notify exception function is recommended).
-        // eslint-disable-next-line no-undef
-        .catch(ex => displayException(ex));
-        // It is recommended to reload the form after submission because the elements may change.
-        // This will also remove previous submission errors. You will need to pass the same arguments to the form
-        // that you passed when you rendered the form on the page.
-    });
+const dynamicForm1 = new DynamicForm(document.querySelector('#dateform'), 'mod_booking\\form\\optiondate_form');
+export const init = (cmid) => {
+console.log(cmid);
+dynamicForm1.load({'id': cmid});
+datelistinit();
+dynamicForm1.addEventListener(dynamicForm1.events.FORM_SUBMITTED, (e) => {
+    e.preventDefault();
+    const response = e.detail;
+    Templates.renderForPromise('mod_booking/bookingoption_dates', response)
+    // It returns a promise that needs to be resoved.
+    .then(({html}) => {
+        document.querySelector('.datelist').innerHTML = '';
+        Templates.appendNodeContents('.datelist', html);
+    })
+    // Deal with this exception (Using core/notify exception function is recommended).
+    .catch(ex => displayException(ex));
+    // It is recommended to reload the form after submission because the elements may change.
+    // This will also remove previous submission errors. You will need to pass the same arguments to the form
+    // that you passed when you rendered the form on the page.
+});
 };
 
 export const datelistinit = () => {

@@ -147,3 +147,7 @@ tr.mod-booking-invisible {
 .reocurringdates {
     list-style-type: none;
 }
+
+.datepills {
+    border-radius: 10px;
+}

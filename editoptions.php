@@ -196,5 +196,5 @@ if ($mform->is_cancelled()) {
 }
 
 $PAGE->requires->js_call_amd('mod_booking/institutionautocomplete', 'init', array($id));
-$PAGE->requires->js_call_amd('mod_booking/dynamicform', 'init');
+$PAGE->requires->js_call_amd('mod_booking/dynamicform', 'init', array($cm->id));
 echo $OUTPUT->footer();

@@ -26,7 +26,7 @@
 <ul class="list-group p-2 reocurringdates">
     {{#dates}}
     <li class="mb-1">
-        <span class="text-white small p-1 bg-primary">
+        <span class="datepills text-white small py-1 px-4 bg-primary">
            {{string}}
         </span>
         <i class="fa fa-window-close ml-2" data-action="delete" data-targetid="{{dateid}}"></i>
@@ -34,7 +34,7 @@
     {{/dates}}
 </ul>
 {{#dates}}
-<input id="{{dateid}}" type="text" value="{{starttimestamp}} - {{endtimestamp}}" class="d-block"> 
+<input id="{{dateid}}" type="text" name="coursetime-{{dateid}}" value="{{starttimestamp}}-{{endtimestamp}}" class="d-block">
 {{/dates}}
 
 

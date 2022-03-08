@@ -95,13 +95,22 @@ class option_form extends \core_form\dynamic_form {
         $boptionname = "$COURSE->fullname $eventtype";
         $mform->setDefault('text', $boptionname);
 
-        // Add Datestringpicker here.
+        // Datesection for Dynamic Load.
 
-        $mform->addElement('html', '<div id="miniformcontainer">');
+        $mform->addElement('html', '<div id="dateform">');
         $mform->addElement('html', '</div>');
-
         $mform->addElement('html', '<div class="datelist">');
         $mform->addElement('html', '</div>');
+
+
+        // Entiessection for Dynamic Load.
+
+        $mform->addElement('html', '<div id="entitiesform">');
+        $mform->addElement('html', '</div>');
+        $mform->addElement('html', '<div class="entitieslist">');
+        $mform->addElement('html', '</div>');
+
+
         // Add custom fields here.
         $customfields = booking_option::get_customfield_settings();
         if (!empty($customfields)) {
