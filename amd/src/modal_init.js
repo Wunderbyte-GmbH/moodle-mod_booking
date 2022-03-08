@@ -28,10 +28,15 @@ import Notification from 'core/notification';
  * @param {int} optionid
  * @param {int} userid
  */
-export const init = () => {
+export const init = (optionid = null) => {
     // eslint-disable-next-line no-console
 
-    const spinners = document.querySelectorAll('[id^=bo_modal_spinner]');
+    let spinners = [];
+    if (optionid === null) {
+        spinners = document.querySelectorAll('[id^=bo_modal_spinner]');
+    } else {
+        spinners = [document.querySelector('[id^=bo_modal_spinner_' + optionid + ']')];
+    }
 
     // eslint-disable-next-line no-console
     console.log("found number of spinners: " + spinners.length);

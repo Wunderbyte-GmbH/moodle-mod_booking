@@ -25,6 +25,7 @@
 namespace mod_booking\output;
 
 use context_module;
+use context_system;
 use Exception;
 use mod_booking\booking;
 use mod_booking\booking_answers;
@@ -130,16 +131,10 @@ class bookingoption_description implements renderable, templatable {
 
         // When we call this via webservice, we don't have a context, this throws an error.
         // It's no use passing the context object either.
-        try {
-            $this->description = format_text($settings->description, FORMAT_HTML);
-        } catch(Exception $e) {
 
-            $this->description = $settings->description;
+        if (!isset($PAGE->context)) {
+            $PAGE->set_context(context_module::instance($this->cmid));
         }
-
-
-        // TODO: reintegrate stuff below!
-        return null;
 
         // Currently, this will only get the description for the current user.
         $this->statusdescription = $bookingoption->get_option_text($bookinganswers);
@@ -147,14 +142,9 @@ class bookingoption_description implements renderable, templatable {
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
 
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.InvalidEndChar
-        // Todo: Reintegrate!!
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $this->dates = $bookingoption->return_array_of_sessions($bookingevent,
-                $descriptionparam, $withcustomfields, $forbookeduser); */
-        $this->dates = [];
+        $this->dates = $bookingoption->return_array_of_sessions($bookingevent,
+                $descriptionparam, $withcustomfields, $forbookeduser);
 
-        // End.
 
         $teachers = $settings->teachers;
 
