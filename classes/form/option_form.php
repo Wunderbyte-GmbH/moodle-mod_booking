@@ -313,6 +313,7 @@ class option_form extends moodleform {
 
         // Add custom fields.
         $handler = booking_handler::create();
+
         $handler->instance_form_definition($mform, $optionid);
 
         // Templates and recurring 'events' - only visible when adding new.
