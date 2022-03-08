@@ -17,8 +17,6 @@
 namespace mod_booking;
 
 use cache;
-use cache_helper;
-use MoodleQuickForm;
 use stdClass;
 
 /**
@@ -98,5 +96,26 @@ class semester {
             debugging('Could not create semester for id: ' . $id);
             return null;
         }
+    }
+
+    /**
+     * Get an array of all semesters containing
+     * semester identifiers as keys
+     * and semester names as values.
+     *
+     * @return array
+     */
+    public static function get_semesters_identifier_name_array(): array {
+        global $DB;
+
+        $semestersarray = [];
+
+        $data = $DB->get_records('booking_semesters');
+
+        foreach ($data as $record) {
+            $semestersarray[$record->identifier] = $record->name . ' (' . $record->identifier . ')';
+        }
+
+        return $semestersarray;
     }
 }

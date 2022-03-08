@@ -22,6 +22,7 @@ global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
 use cache_helper;
+use mod_booking\semester;
 use MoodleQuickForm;
 use stdClass;
 
@@ -59,7 +60,9 @@ class optiondates_handler {
      */
     public function add_optiondates_for_semesters_to_mform(MoodleQuickForm &$mform) {
 
-        $mform->addElement('select', 'semester', 'semester', array('WS22', 'WS23', 'SS22'));
+        $semestersarray = semester::get_semesters_identifier_name_array();
+
+        $mform->addElement('select', 'semester', 'semester', $semestersarray);
         $mform->addElement('text', 'reocurringdatestring', get_string('reocurringdatestring', 'booking'));
         $mform->setType('reocurringdatestring', PARAM_TEXT);
     }
