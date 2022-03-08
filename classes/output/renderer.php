@@ -482,6 +482,18 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render function.
+     * @param $data array
+     * @return string
+     */
+    public function render_col_text_with_description($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/col_text_with_description', $data);
+        return $o;
+    }
+
+    /**
      * Render function to render a simple string of optiondates separated by ", ".
      * @param $data array
      * @return string
