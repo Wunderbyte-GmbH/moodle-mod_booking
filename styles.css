@@ -140,8 +140,8 @@ tr.mod-booking-invisible {
     border-radius: 15px;
 }
 
-.badge {
-    position: unset !important;
+.path-mod-booking .badge {
+    position: unset;
 }
 
 .reocurringdates {
