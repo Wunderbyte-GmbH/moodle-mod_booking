@@ -84,7 +84,7 @@
                     {{.}}
                   {{/keystring}}:
                   {{#columnkeyclass}}</span>{{/columnkeyclass}}
-                  {{#columnvalueclass}}<span class="{{.}} ">{{/columnvalueclass}}
+                  <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}} ">
                     {{{value}}}
 
 
