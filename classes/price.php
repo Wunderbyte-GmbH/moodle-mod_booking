@@ -31,7 +31,7 @@ use lang_string;
 class price {
 
     /** @var array An array of all price categories. */
-    private $pricecategories;
+    public $pricecategories;
 
     /** @var int $optionid */
     private $optionid;
@@ -104,34 +104,54 @@ class price {
                 $categoryidentifier = $pricecategory->identifier;
                 $currency = get_config('booking', 'globalcurrency');
 
-                // If we retrieve a price record for this entry, we update if necessary.
-                if ($data = $DB->get_record('booking_prices', ['optionid' => $fromform->optionid,
-                    'pricecategoryidentifier' => $categoryidentifier])) {
-
-                    if ($data->price != $price
-                    || $data->pricecategoryidentifier != $categoryidentifier
-                    || $data->currency != $currency) {
-
-                        $data->price = $price;
-                        $data->pricecategoryidentifier = $categoryidentifier;
-                        $data->currency = $currency;
-                        $DB->update_record('booking_prices', $data);
-                    }
-                } else { // If there is no price entry, we insert a new one.
-                    $data = new stdClass();
-                    $data->optionid = $fromform->optionid;
-                    $data->pricecategoryidentifier = $categoryidentifier;
-                    $data->price = $price;
-                    $data->currency = $currency;
-                    $DB->insert_record('booking_prices', $data);
-                }
-
-                // In any case, invalidate the cache after updating the booking option.
-                // If performance is an issue, one could update only the cache of a this single option by key.
-                // But right now, it seems reasonable to invalidate the cache from time to time.
-                cache_helper::purge_by_event('setbackprices');
+                self::add_price($fromform->optionid, $categoryidentifier, $price, $currency);
             }
         }
+    }
+
+
+    /**
+     * Add or update price to DB.
+     *
+     * @param int $optionid
+     * @param string $categoryidentifier
+     * @param string $price
+     * @param string $currency
+     * @return void
+     */
+    public static function add_price($optionid, $categoryidentifier, $price, $currency = null) {
+        global $DB;
+
+        if ($currency === null) {
+            $currency = get_config('booking', 'globalcurrency');
+        }
+
+        // If we retrieve a price record for this entry, we update if necessary.
+        if ($data = $DB->get_record('booking_prices', ['optionid' => $optionid,
+        'pricecategoryidentifier' => $categoryidentifier])) {
+            // Check if it's necessary to update.
+            if ($data->price != $price
+            || $data->pricecategoryidentifier != $categoryidentifier
+            || $data->currency != $currency) {
+
+                $data->price = $price;
+                $data->pricecategoryidentifier = $categoryidentifier;
+                $data->currency = $currency;
+                $DB->update_record('booking_prices', $data);
+            }
+        } else { // If there is no price entry, we insert a new one.
+            $data = new stdClass();
+            $data->optionid = $optionid;
+            $data->pricecategoryidentifier = $categoryidentifier;
+            $data->price = $price;
+            $data->currency = $currency;
+            $DB->insert_record('booking_prices', $data);
+        }
+
+        // In any case, invalidate the cache after updating the booking option.
+        // If performance is an issue, one could update only the cache of a this single option by key.
+        // But right now, it seems reasonable to invalidate the cache from time to time.
+        cache_helper::purge_by_event('setbackprices');
     }
 
     /**

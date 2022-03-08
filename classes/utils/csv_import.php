@@ -21,6 +21,7 @@ use stdClass;
 use mod_booking\booking_option;
 use html_writer;
 use mod_booking\customfield\booking_handler;
+use mod_booking\price;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -231,6 +232,13 @@ class csv_import {
                     $handler->field_save($optionid, $column, $value);
                 }
 
+                // Now we add the prices.
+                $price = new price($optionid);
+                foreach ($price->pricecategories as $category) {
+                    if (isset($csvrecord[$category->identifier])) {
+                        $price->add_price($optionid, $category->identifier, $csvrecord[$category->identifier]);
+                    }
+                }
 
                 // Finished option data, add user data to option:
                 foreach ($userdata as $userfield => $value) {
