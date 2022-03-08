@@ -156,7 +156,9 @@ class bookingoptions_table extends wunderbyte_table {
      */
     public function col_location($values) {
 
-        return 'Schmelz 1,<br>1030 Wien';
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
+
+        return $settings->location;
     }
 
     /**
