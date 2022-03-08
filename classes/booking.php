@@ -577,7 +577,7 @@ class booking {
         $from = "{booking_options} bo";
         $where = "bo.bookingid = :bookingid {$search}";
         // phpcs:ignore moodle.Commenting.InlineComment.NotCapital,Squiz.PHP.CommentedOutCode.Found
-        $order = ''; // "ORDER BY bo.coursestarttime ASC {$limit}";
+        $order = "ORDER BY CAST(bo.text AS int) ASC $limit";
         if (strlen($searchtext) !== 0) {
             $from .= "
                 JOIN {customfield_data} cfd
@@ -589,7 +589,6 @@ class booking {
             $where = substr($where, 0, -1);
             // Add another tag.
             $where .= " OR {$DB->sql_like('cfd.value', ':cfsearchtext', false)}) ";
-            $where .= $order;
             // In a future iteration, we can add the specification in which customfield we want to search.
             // For From JOIN {customfield_field} cff.
             // ON cfd.fieldid=cff.id .
@@ -597,6 +596,8 @@ class booking {
             // AND cff.name like 'fieldname'.
             $params['cfsearchtext'] = $searchtext;
         }
+
+        $where .= $order;
 
         return [$fields, $from, $where, $params];
     }
