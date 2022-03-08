@@ -135,6 +135,7 @@ class bookingoption_description implements renderable, templatable {
         if (!isset($PAGE->context)) {
             $PAGE->set_context(context_module::instance($this->cmid));
         }
+        $this->description = format_text($settings->description, FORMAT_HTML);
 
         // Currently, this will only get the description for the current user.
         $this->statusdescription = $bookingoption->get_option_text($bookinganswers);
