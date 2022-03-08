@@ -73,7 +73,16 @@ function respondToVisibility(optionid, userid, callback) {
         if (!isHidden(element)) {
             element = element.parentElement;
         } else {
+            if (element.dataset.observed) {
+                // eslint-disable-next-line no-console
+                console.log('element already observed ', element);
+                return;
+            }
+
             observer.observe(element, {attributes: true});
+            // eslint-disable-next-line no-console
+            console.log('set data to observed ', element);
+            element.dataset.observed = true;
             return;
         }
     }
