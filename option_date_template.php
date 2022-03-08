@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 use mod_booking\booking;
-use mod_booking\booking_option;
-use mod_booking\form\optiondate_form;
 
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
@@ -42,11 +40,10 @@ if (!has_capability('mod/booking:manageoptiontemplates', $context)) {
     throw new moodle_exception('nopermissions', 'error', '', 'manage booking option templates');
 }
 
-
-
 echo $OUTPUT->header();
 
-//$form->set_data_for_dynamic_submission();
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
+// $form->set_data_for_dynamic_submission();
 echo html_writer::div(html_writer::link('#', 'Load form', ['data-action' => 'loadform']));
 echo html_writer::div('', '', ['data-region' => 'form']);
 $PAGE->requires->js_call_amd('mod_booking/dynamicform2');

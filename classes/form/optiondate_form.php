@@ -22,7 +22,6 @@ global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
 use moodle_url;
-use stdClass;
 use mod_booking\optiondates_handler;
 
 /**

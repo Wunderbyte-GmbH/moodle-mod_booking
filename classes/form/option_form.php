@@ -16,13 +16,12 @@
 namespace mod_booking\form;
 
 use mod_booking\utils\wb_payment;
-use moodleform;
 use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\customfield\booking_handler;
+use mod_booking\optiondates_handler;
 use mod_booking\price;
 use stdClass;
-use html_writer;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -100,7 +99,6 @@ class option_form extends \core_form\dynamic_form {
 
         $mform->addElement('html', '<div id="miniformcontainer">');
         $mform->addElement('html', '</div>');
-
 
         $mform->addElement('html', '<div class="datelist">');
         $mform->addElement('html', '</div>');
@@ -320,11 +318,13 @@ class option_form extends \core_form\dynamic_form {
         $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
 
         // Add price.
-        //$pricehandler = new price($this->_customdata['optionid']);
-        //$pricehandler->add_price_to_mform($mform);
+        $price = new price($this->_customdata['optionid']);
+        $price->add_price_to_mform($mform);
 
-        // Add date handler.
-
+        // Add semester dates interface.
+        $optiondateshandler = new optiondates_handler($this->_customdata['optionid']);
+        $optiondateshandler->add_optiondates_for_semesters_to_mform($mform);
+        $this->add_action_buttons(false, 'load_dates');
 
         // Add custom fields.
         $handler = booking_handler::create();
@@ -358,7 +358,7 @@ class option_form extends \core_form\dynamic_form {
         }
 
         // Templates - only visible when adding new.
-       /* if (has_capability('mod/booking:manageoptiontemplates', $this->_customdata['context'])
+        if (has_capability('mod/booking:manageoptiontemplates', $this->_customdata['context'])
             && $this->_customdata['optionid'] < 1) {
 
             $mform->addElement('header', 'templateheader',
@@ -379,7 +379,7 @@ class option_form extends \core_form\dynamic_form {
                 $mform->addElement('static', 'nolicense', get_string('licensekeycfg', 'mod_booking'),
                     get_string('licensekeycfgdesc', 'mod_booking'));
             }
-        } */
+        }
 
         // Buttons.
         $buttonarray = array();
@@ -491,7 +491,7 @@ class option_form extends \core_form\dynamic_form {
                 'maxbytes' => 0));
         $defaultvalues->myfilemanageroption = $draftitemid;
 
-        if ($defaultvalues->optionid > 0) {
+        if (isset($defaultvalues->optionid) && $defaultvalues->optionid > 0) {
             // Defaults for customfields.
             $cfdefaults = $DB->get_records('booking_customfields', array('optionid' => $defaultvalues->optionid));
             if (!empty($cfdefaults)) {
@@ -506,11 +506,13 @@ class option_form extends \core_form\dynamic_form {
         // We use instanceid for optionid.
         // But cf always uses the id key. we can't override it completly though.
         // Therefore, we change it to optionid just for the defaultvalues creation.
-        $handler = booking_handler::create();
-        $id = $defaultvalues->id;
-        $defaultvalues->id = $defaultvalues->optionid;
-        $handler->instance_form_before_set_data($defaultvalues);
-        $defaultvalues->id = $id;
+        if (isset($defaultvalues->id) && isset($defaultvalues->optionid)) {
+            $handler = booking_handler::create();
+            $id = $defaultvalues->id;
+            $defaultvalues->id = $defaultvalues->optionid;
+            $handler->instance_form_before_set_data($defaultvalues);
+            $defaultvalues->id = $id;
+        }
 
         parent::set_data($defaultvalues);
     }
