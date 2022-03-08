@@ -19,7 +19,6 @@ use mod_booking\utils\wb_payment;
 use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\customfield\booking_handler;
-use mod_booking\optiondates_handler;
 use mod_booking\price;
 use stdClass;
 use moodle_url;
@@ -95,21 +94,12 @@ class option_form extends \core_form\dynamic_form {
         $boptionname = "$COURSE->fullname $eventtype";
         $mform->setDefault('text', $boptionname);
 
-        // Datesection for Dynamic Load.
-
-        $mform->addElement('html', '<div id="dateform">');
-        $mform->addElement('html', '</div>');
-        $mform->addElement('html', '<div class="datelist">');
-        $mform->addElement('html', '</div>');
-
-
-        // Entiessection for Dynamic Load.
-
-        $mform->addElement('html', '<div id="entitiesform">');
+        // Entities section for Dynamic Load.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /*$mform->addElement('html', '<div id="entitiesform">');
         $mform->addElement('html', '</div>');
         $mform->addElement('html', '<div class="entitieslist">');
-        $mform->addElement('html', '</div>');
-
+        $mform->addElement('html', '</div>');*/
 
         // Add custom fields here.
         $customfields = booking_option::get_customfield_settings();
@@ -290,6 +280,12 @@ class option_form extends \core_form\dynamic_form {
                 array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
                                 'accepted_types' => array('*')));
 
+        // Datesection for Dynamic Load.
+        $mform->addElement('header', 'datesheader',
+            get_string('add_dates', 'booking'));
+        $mform->addElement('html', '<div id="dateform"></div>');
+        $mform->addElement('html', '<div class="datelist"></div>');
+
         // Advanced options.
         $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));
 
@@ -329,11 +325,6 @@ class option_form extends \core_form\dynamic_form {
         // Add price.
         $price = new price($this->_customdata['optionid']);
         $price->add_price_to_mform($mform);
-
-        // Add semester dates interface.
-        $optiondateshandler = new optiondates_handler($this->_customdata['optionid']);
-        $optiondateshandler->add_optiondates_for_semesters_to_mform($mform);
-        $this->add_action_buttons(false, 'load_dates');
 
         // Add custom fields.
         $handler = booking_handler::create();
@@ -567,8 +558,9 @@ class option_form extends \core_form\dynamic_form {
         echo json_encode($data);
         $semester = $this->get_semester($data->semester);
         $day = 'Monday';
-        //$day = $this->translate_string_to_day($data->reocuringdatestring);
-        //$dates = get_date_for_specific_day_between_dates($semester->startdate, $semester->enddate, $day);
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
+        // $day = $this->translate_string_to_day($data->reocuringdatestring);
+        // $dates = get_date_for_specific_day_between_dates($semester->startdate, $semester->enddate, $day);
         $dates = $this->get_date_for_specific_day_between_dates($semester->startdate, $semester->enddate, 'Monday');
 
         return $dates;

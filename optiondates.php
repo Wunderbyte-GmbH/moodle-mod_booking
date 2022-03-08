@@ -218,7 +218,7 @@ if ($mform->is_cancelled()) {
         }
     }
 
-    // After Updating, we invalidate caches.
+    // After updating, we invalidate caches.
     cache_helper::purge_by_event('setbackoptionstable');
     cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
 

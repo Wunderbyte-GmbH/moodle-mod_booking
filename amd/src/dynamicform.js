@@ -47,9 +47,9 @@ dynamicForm1.addEventListener(dynamicForm1.events.FORM_SUBMITTED, (e) => {
 
 export const datelistinit = () => {
     document.querySelector(".datelist").addEventListener('click', function(e) {
-            let action = e.target.dataset.action;
-            let targetid = e.target.dataset.targetid;
-            if (action === 'delete') {
+        let action = e.target.dataset.action;
+        let targetid = e.target.dataset.targetid;
+        if (action === 'delete') {
             e.target.closest('li').remove();
             document.getElementById(targetid).remove();
         }

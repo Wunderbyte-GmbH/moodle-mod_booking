@@ -21,8 +21,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
-use mod_booking\semester;
-use moodle_url;
+use cache_helper;
 use MoodleQuickForm;
 use stdClass;
 
@@ -37,13 +36,18 @@ class optiondates_handler {
     /** @var int $optionid */
     public $optionid = 0;
 
+    /** @var int $bookingid */
+    public $bookingid = 0;
+
     /**
      * Constructor.
      * @param int $optionid
+     * @param int $bookingid
      */
-    public function __construct(int $optionid = 0) {
+    public function __construct(int $optionid = 0, int $bookingid = 0) {
 
         $this->optionid = $optionid;
+        $this->bookingid = $bookingid;
 
     }
 
@@ -55,58 +59,41 @@ class optiondates_handler {
      */
     public function add_optiondates_for_semesters_to_mform(MoodleQuickForm &$mform) {
 
-        $mform->addElement('header', 'headerdatesforsemester',
-            get_string('datesforsemester', 'booking'));
-        $mform->addElement('checkbox', 'includeholidays', 'includeholidays');
         $mform->addElement('select', 'semester', 'semester', array('WS22', 'WS23', 'SS22'));
         $mform->addElement('text', 'reocurringdatestring', get_string('reocurringdatestring', 'booking'));
         $mform->setType('reocurringdatestring', PARAM_TEXT);
     }
 
 
-    public function save_from_form(stdClass $fromform) {
+    /**
+     * Transform each optiondate and save.
+     *
+     * @param array $optiondates array of optiondates as strings (e.g. "11646647200-1646650800")
+     */
+    public function save_from_form(array $optiondates) {
         global $DB;
 
-        // TODO ...
+        if ($this->optionid && $this->bookingid) {
+            foreach ($optiondates as $optiondatestring) {
+                list($starttime, $endtime) = explode('-', $optiondatestring);
 
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /*foreach ($this->pricecategories as $pricecategory) {
-            if (isset($fromform->{'pricegroup_' . $pricecategory->identifier})) {
+                $optiondate = new stdClass();
+                $optiondate->bookingid = $this->bookingid;
+                $optiondate->optionid = $this->optionid;
+                $optiondate->eventid = 0; // TODO: We will implement this later.
+                $optiondate->coursestarttime = (int) $starttime;
+                $optiondate->courseendtime = (int) $endtime;
+                $optiondate->daystonotify = 0; // TODO: We will implement this later.
 
-                $pricegroup = $fromform->{'pricegroup_' . $pricecategory->identifier};
-
-                $price = $pricegroup['bookingprice_' . $pricecategory->identifier];
-                $categoryidentifier = $pricecategory->identifier;
-                $currency = get_config('booking', 'globalcurrency');
-
-                // If we retrieve a price record for this entry, we update if necessary.
-                if ($data = $DB->get_record('booking_prices', ['optionid' => $fromform->optionid,
-                    'pricecategoryidentifier' => $categoryidentifier])) {
-
-                    if ($data->price != $price
-                    || $data->pricecategoryidentifier != $categoryidentifier
-                    || $data->currency != $currency) {
-
-                        $data->price = $price;
-                        $data->pricecategoryidentifier = $categoryidentifier;
-                        $data->currency = $currency;
-                        $DB->update_record('booking_prices', $data);
-                    }
-                } else { // If there is no price entry, we insert a new one.
-                    $data = new stdClass();
-                    $data->optionid = $fromform->optionid;
-                    $data->pricecategoryidentifier = $categoryidentifier;
-                    $data->price = $price;
-                    $data->currency = $currency;
-                    $DB->insert_record('booking_prices', $data);
-                }
-
-                // In any case, invalidate the cache after updating the booking option.
-                // If performance is an issue, one could update only the cache of a this single option by key.
-                // But right now, it seems reasonable to invalidate the cache from time to time.
-                cache_helper::purge_by_event('setbackprices');
+                $DB->insert_record("booking_optiondates", $optiondate);
             }
-        }*/
+
+            // After updating, we invalidate caches.
+            cache_helper::purge_by_event('setbackoptionstable');
+            cache_helper::invalidate_by_event('setbackoptionsettings', [$this->optionid]);
+
+            booking_updatestartenddate($this->optionid);
+        }
     }
 
     /**
@@ -183,7 +170,7 @@ class optiondates_handler {
      * @return bool
      */
     public function is_holiday(int $timestamp): bool {
-        // DB id date timestamp
+        // DB id date timestamp.
         $holidayarray['2022-12-24'] = 1;
         $holidayarray['2022-12-31'] = 1;
         $date = date('Y-m-d', $timestamp);

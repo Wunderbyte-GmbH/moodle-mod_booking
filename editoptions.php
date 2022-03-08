@@ -20,6 +20,7 @@ require_once($CFG->libdir . '/formslib.php');
 use mod_booking\form\option_form;
 use \core\output\notification;
 use mod_booking\customfield\booking_handler;
+use mod_booking\optiondates_handler;
 use mod_booking\price;
 
 global $DB, $OUTPUT, $PAGE, $USER;
@@ -165,11 +166,22 @@ if ($mform->is_cancelled()) {
             }
         }
 
-        // Save the prices
+        // Save the prices.
         // Make sure we have the option id in the fromform.
         $fromform->optionid = $nbooking ?? $optionid;
         $price = new price($fromform->optionid);
         $price->save_from_form($fromform);
+
+        // Get all dynamically loaded dates from $_POST and save them.
+        $optiondates = [];
+        foreach ($_POST as $key => $value) {
+            if (substr($key, 0, 17) === 'coursetime-dateid') {
+                $optiondates[] = $value;
+            }
+        }
+        // Save the optiondates.
+        $optiondateshandler = new optiondates_handler($fromform->optionid, $fromform->bookingid);
+        $optiondateshandler->save_from_form($optiondates);
 
         // This is to save customfield data
         // The id key has to be set to option id.
