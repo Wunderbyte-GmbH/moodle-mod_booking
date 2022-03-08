@@ -20,7 +20,7 @@ stages:
         
         # Update node to current version
         - npm install -g n
-        - n 14.18.0
+        - n lts
 
         - cd ..
         - curl -sS https://getcomposer.org/installer | php
