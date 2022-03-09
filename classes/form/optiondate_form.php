@@ -80,8 +80,6 @@ class optiondate_form extends dynamic_form {
         $dayinfo = $optiondateshandler->translate_string_to_day($data->reoccurringdatestring);
         $dates = $optiondateshandler->get_optiondate_series($semester->start, $semester->end, $dayinfo);
         $dates['cmid'] = $this->_ajaxformdata['cmid'];
-        $dates['semesterid'] = $this->_ajaxformdata['chooseperiod'];
-        $dates['dayofweektime'] = $this->_ajaxformdata['reoccurringdatestring'];
         return $dates;
     }
 

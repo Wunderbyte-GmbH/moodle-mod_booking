@@ -576,5 +576,15 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-
+    /**
+     * Render bookingoption dates.
+     * @param $data array
+     * @return string
+     */
+    public function render_bookingoption_dates($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/bookingoption_dates', $data);
+        return $o;
+    }
 }

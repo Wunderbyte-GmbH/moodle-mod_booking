@@ -172,10 +172,10 @@ if ($mform->is_cancelled()) {
         $price = new price($fromform->optionid);
         $price->save_from_form($fromform);
 
-        // Get all dynamically loaded dates from $_POST and save them.
+        // Get all new dynamically loaded dates from $_POST and save them.
         $optiondates = [];
         foreach ($_POST as $key => $value) {
-            if (substr($key, 0, 17) === 'coursetime-dateid') {
+            if (substr($key, 0, 19) === 'coursetime-new-date') {
                 $optiondates[] = $value;
             }
         }

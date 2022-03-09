@@ -59,6 +59,7 @@ class optiondates_handler {
      * @return void
      */
     public function add_optiondates_for_semesters_to_mform(MoodleQuickForm &$mform) {
+        global $PAGE;
 
         $semestersarray = semester::get_semesters_identifier_name_array();
 
@@ -67,6 +68,11 @@ class optiondates_handler {
 
         $mform->addElement('text', 'reoccurringdatestring', get_string('reoccurringdatestring', 'booking'));
         $mform->setType('reoccurringdatestring', PARAM_TEXT);
+
+        // Add already existing optiondates to form.
+        $output = $PAGE->get_renderer('mod_booking');
+        $data = new \mod_booking\output\bookingoption_dates($this->optionid);
+        $mform->addElement('html', $output->render_bookingoption_dates($data));
     }
 
 
@@ -121,7 +127,7 @@ class optiondates_handler {
             $date->date = date('Y-m-d', $i);
             $date->starttime = $dayinfo['starttime'];
             $date->endtime = $dayinfo['endtime'];
-            $date->dateid = 'dateid-' . $j;
+            $date->dateid = 'new-date-' . $j;
             $date->starttimestamp = $i + $startseconds;
             $date->endtimestamp = $i + $endseconds;
             $j++;
@@ -130,8 +136,6 @@ class optiondates_handler {
         }
         return $datearray;
     }
-
-
 
     /**
      * TODO: will be replaced by a regex function.
@@ -186,24 +190,5 @@ class optiondates_handler {
             return true;
         }
         return false;
-    }
-
-    /**
-     * Returns an array of optiondates as stdClasses for a specific option id.
-     *
-     * @param int $optionid
-     *
-     * @return array
-     */
-    public static function get_optiondates_by_optionid(int $optionid): array {
-        global $DB;
-
-        $optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid]);
-
-        if (count($optiondates) > 0) {
-            return $optiondates;
-        } else {
-            return [];
-        }
     }
 }
