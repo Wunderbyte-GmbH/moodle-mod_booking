@@ -62,21 +62,25 @@ class optiondates_handler {
 
         $semestersarray = semester::get_semesters_identifier_name_array();
 
-        $mform->addElement('select', 'semester', 'semester', $semestersarray);
-        $mform->addElement('text', 'reocurringdatestring', get_string('reocurringdatestring', 'booking'));
-        $mform->setType('reocurringdatestring', PARAM_TEXT);
+        $mform->addElement('select', 'chooseperiod', get_string('chooseperiod', 'mod_booking'), $semestersarray);
+        $mform->addHelpButton('chooseperiod', 'chooseperiod', 'mod_booking');
+
+        $mform->addElement('text', 'reoccurringdatestring', get_string('reoccurringdatestring', 'booking'));
+        $mform->setType('reoccurringdatestring', PARAM_TEXT);
     }
 
 
     /**
      * Transform each optiondate and save.
      *
+     * @param stdClass $fromform form data
      * @param array $optiondates array of optiondates as strings (e.g. "11646647200-1646650800")
      */
-    public function save_from_form(array $optiondates) {
+    public function save_from_form(stdClass $fromform, array $optiondates) {
         global $DB;
 
         if ($this->optionid && $this->bookingid) {
+
             foreach ($optiondates as $optiondatestring) {
                 list($starttime, $endtime) = explode('-', $optiondatestring);
 
@@ -106,7 +110,7 @@ class optiondates_handler {
      * @param string $daystring
      * @return array
      */
-    public function get_date_for_specific_day_between_dates(int $startdate, int $enddate, array $dayinfo): array {
+    public function get_optiondate_series(int $startdate, int $enddate, array $dayinfo): array {
         $j = 1;
         sscanf($dayinfo['starttime'], "%d:%d", $hours, $minutes);
         $startseconds = ($hours * 60 * 60) + ($minutes * 60);
@@ -137,6 +141,7 @@ class optiondates_handler {
     public function translate_string_to_day(string $string): array {
         $string = strtolower($string);
         $string = str_replace('-', ' ', $string);
+        $string = str_replace(',', ' ', $string);
         $string = preg_replace("/[[:blank:]]+/", " ", $string);
         $strings = explode(' ',  $string);
         if ($strings[0] == 'mo') {
@@ -184,14 +189,21 @@ class optiondates_handler {
     }
 
     /**
-     * TODO: delete this function and replace it with semester class.
-     * @param int $semesterid
-     * @return stdClass
+     * Returns an array of optiondates as stdClasses for a specific option id.
+     *
+     * @param int $optionid
+     *
+     * @return array
      */
-    public function get_semester(int $semesterid): stdClass {
-        $semester = new stdClass();
-        $semester->startdate = 1646598962;
-        $semester->enddate = 1654505170;
-        return $semester;
+    public static function get_optiondates_by_optionid(int $optionid): array {
+        global $DB;
+
+        $optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid]);
+
+        if (count($optiondates) > 0) {
+            return $optiondates;
+        } else {
+            return [];
+        }
     }
 }

@@ -21,8 +21,13 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
+use context;
+use context_module;
+use core_form\dynamic_form;
 use moodle_url;
 use mod_booking\optiondates_handler;
+use mod_booking\semester;
+use stdClass;
 
 /**
  * Add price categories form.
@@ -30,8 +35,7 @@ use mod_booking\optiondates_handler;
  * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class optiondate_form extends \core_form\dynamic_form {
-    // TODO...
+class optiondate_form extends dynamic_form {
 
     /**
      * {@inheritdoc}
@@ -42,12 +46,14 @@ class optiondate_form extends \core_form\dynamic_form {
         $optiondateshandler = new optiondates_handler();
         $optiondateshandler->add_optiondates_for_semesters_to_mform($mform);
         $mform->addElement('hidden', 'cmid', $this->_ajaxformdata['id']);
-        $mform->setType('cmid', PARAM_TEXT);
+        $mform->setType('cmid', PARAM_INT);
         $this->add_action_buttons(false, 'Add');
     }
 
     /**
-     * Todo.
+     * Check access for dynamic submission.
+     *
+     * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
         require_capability('mod/booking:addeditownoption', $this->get_context_for_dynamic_submission());
@@ -63,17 +69,20 @@ class optiondate_form extends \core_form\dynamic_form {
      * @return mixed
      */
     public function process_dynamic_submission() {
+
         $data = $this->get_data();
-        if (!isset($data->reocurringdatestring) || ($data->reocurringdatestring == '') || !isset($data->semester)) {
+        if (empty($data->reoccurringdatestring) || !isset($data->chooseperiod)) {
             return false;
         }
-        $optiondateshandler = new optiondates_handler();
-        $semester = $optiondateshandler->get_semester($data->semester);
-        $dayinfo = $optiondateshandler->translate_string_to_day($data->reocurringdatestring);
-        $dates = $optiondateshandler->get_date_for_specific_day_between_dates($semester->startdate, $semester->enddate, $dayinfo);
-        $dates['cmid'] = $this->_ajaxformdata['id'];
-        return $dates;
 
+        $optiondateshandler = new optiondates_handler();
+        $semester = new semester($data->chooseperiod);
+        $dayinfo = $optiondateshandler->translate_string_to_day($data->reoccurringdatestring);
+        $dates = $optiondateshandler->get_optiondate_series($semester->start, $semester->end, $dayinfo);
+        $dates['cmid'] = $this->_ajaxformdata['cmid'];
+        $dates['semesterid'] = $this->_ajaxformdata['chooseperiod'];
+        $dates['dayofweektime'] = $this->_ajaxformdata['reoccurringdatestring'];
+        return $dates;
     }
 
 
@@ -87,7 +96,14 @@ class optiondate_form extends \core_form\dynamic_form {
      *     $this->set_data(get_entity($this->_ajaxformdata['id']));
      */
     public function set_data_for_dynamic_submission(): void {
-        $data = new \stdClass();
+        $data = new stdClass();
+
+        // TODO: get current optionid.
+        // TODO: get options of current optionid.
+        // TODO: load existing optiondates.
+
+        // TODO: load existing option dates.
+
         $this->set_data($data);
     }
 
@@ -97,14 +113,14 @@ class optiondate_form extends \core_form\dynamic_form {
      * If context depends on the form data, it is available in $this->_ajaxformdata or
      * by calling $this->optional_param()
      *
-     * @return \context
+     * @return context
      */
-    protected function get_context_for_dynamic_submission(): \context {
+    protected function get_context_for_dynamic_submission(): context {
         $id = $this->_ajaxformdata['id'];
         if (!$id) {
             $id = $this->optional_param('cmid', '', PARAM_RAW);
         }
-        return \context_module::instance($id);
+        return context_module::instance($id);
     }
 
     /**
@@ -115,10 +131,14 @@ class optiondate_form extends \core_form\dynamic_form {
      * If the form has arguments (such as 'id' of the element being edited), the URL should
      * also have respective argument.
      *
-     * @return \moodle_url
+     * @return moodle_url
      */
     protected function get_page_url_for_dynamic_submission(): moodle_url {
-        return new moodle_url('/mod/booking/editoptions', array('id' => 1));
+        $id = $this->_ajaxformdata['id'];
+        if (!$id) {
+            $id = $this->optional_param('cmid', '', PARAM_RAW);
+        }
+        return new moodle_url('/mod/booking/editoptions', array('id' => $id));
     }
 
     /**

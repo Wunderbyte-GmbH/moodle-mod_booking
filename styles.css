@@ -144,10 +144,15 @@ tr.mod-booking-invisible {
     position: unset;
 }
 
-.reocurringdates {
+.reoccurringdates {
     list-style-type: none;
 }
 
 .datepills {
     border-radius: 10px;
+    font-family: "Lucida Console", monospace;
+}
+
+.icon-red {
+    color: red;
 }

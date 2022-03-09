@@ -1667,5 +1667,7 @@ $string['cachedef_bookingoptionsettings'] = 'Booking option settings cache';
 $string['search'] = 'Search...';
 
 // Optiondates_handler.php.
-$string['add_dates'] = 'Add dates';
-$string['reocurringdatestring'] = 'Reocurring dates';
+$string['chooseperiod'] = 'Select time period';
+$string['chooseperiod_help'] = 'Select a time period within to create the date series.';
+$string['dates'] = 'Dates';
+$string['reoccurringdatestring'] = 'Reoccurring dates';

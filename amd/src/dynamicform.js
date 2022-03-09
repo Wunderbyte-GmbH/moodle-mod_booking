@@ -22,42 +22,46 @@
 import DynamicForm from 'core_form/dynamicform';
 import Templates from 'core/templates';
 
-const dynamicForm1 = new DynamicForm(document.querySelector('#dateform'), 'mod_booking\\form\\optiondate_form');
+const optiondateForm = new DynamicForm(document.querySelector('#dateform'), 'mod_booking\\form\\optiondate_form');
+
 export const init = (cmid) => {
-dynamicForm1.load({'id': cmid});
-datelistinit();
-dynamicForm1.addEventListener(dynamicForm1.events.FORM_SUBMITTED, (e) => {
-    e.preventDefault();
-    const response = e.detail;
-    Templates.renderForPromise('mod_booking/bookingoption_dates', response)
-    // It returns a promise that needs to be resolved.
-    // eslint-disable-next-line promise/always-return
-    .then(({html}) => {
-        document.querySelector('.datelist').innerHTML = '';
-        Templates.appendNodeContents('.datelist', html);
-    })
-    // Deal with this exception (Using core/notify exception function is recommended).
-    // eslint-disable-next-line no-undef
-    .catch(ex => displayException(ex));
-    // It is recommended to reload the form after submission because the elements may change.
-    // This will also remove previous submission errors. You will need to pass the same arguments to the form
-    // that you passed when you rendered the form on the page.
-});
+    optiondateForm.load({'id': cmid});
+    datelistinit();
+    optiondateForm.addEventListener(optiondateForm.events.FORM_SUBMITTED, (e) => {
+        e.preventDefault();
+        const response = e.detail;
+        Templates.renderForPromise('mod_booking/bookingoption_dates', response)
+        // It returns a promise that needs to be resolved.
+        // eslint-disable-next-line promise/always-return
+        .then(({html}) => {
+            document.querySelector('.datelist').innerHTML = '';
+            Templates.appendNodeContents('.datelist', html);
+        })
+        // Deal with this exception (Using core/notify exception function is recommended).
+        // eslint-disable-next-line no-undef
+        .catch(ex => displayException(ex));
+        // It is recommended to reload the form after submission because the elements may change.
+        // This will also remove previous submission errors. You will need to pass the same arguments to the form
+        // that you passed when you rendered the form on the page.
+    });
 };
 
 export const datelistinit = () => {
     document.querySelector(".datelist").addEventListener('click', function(e) {
+
         let action = e.target.dataset.action;
         let targetid = e.target.dataset.targetid;
+
         if (action === 'delete') {
             e.target.closest('li').remove();
             document.getElementById(targetid).remove();
         }
+
         if (action === 'add') {
             let targetElement = e.target.closest('li');
             let date = document.querySelector("#meeting-time");
             let element = '<li><span class="badge bg-primary">' + date.value +
-                '</span> <i class="fa fa-window-close ml-2" data-action="delete"></i></li>';
+                '</span> <i class="fa fa-trash ml-2 icon-red" data-action="delete"></i></li>';
             targetElement.insertAdjacentHTML('afterend', element);
         }
     });

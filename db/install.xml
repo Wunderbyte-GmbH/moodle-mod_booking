@@ -146,6 +146,8 @@
         <FIELD NAME="shorturl" TYPE="char" LENGTH="1333" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="duration" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Duration - information."/>
         <FIELD NAME="parentid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Parent id of booking option - only for recurring."/>
+        <FIELD NAME="semesterid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="ID of an associated semester."/>
+        <FIELD NAME="dayofweektime" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="String for reoccurring date series, e.g. 'FR 11:00-12:00'"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -368,7 +370,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="booking_semesters">
+    <TABLE NAME="booking_semesters" COMMENT="Semesters are time periods with a defined start and end date.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="identifier" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The identifier of the semester, e.g. 'WS21'."/>

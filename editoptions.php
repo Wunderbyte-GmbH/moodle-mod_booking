@@ -181,7 +181,7 @@ if ($mform->is_cancelled()) {
         }
         // Save the optiondates.
         $optiondateshandler = new optiondates_handler($fromform->optionid, $fromform->bookingid);
-        $optiondateshandler->save_from_form($optiondates);
+        $optiondateshandler->save_from_form($fromform, $optiondates);
 
         // This is to save customfield data
         // The id key has to be set to option id.

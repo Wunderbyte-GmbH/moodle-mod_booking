@@ -23,13 +23,13 @@
     Data attributes required for JS:
     * data-region
 }}
-<ul class="list-group p-2 reocurringdates">
+<ul class="list-group p-2 reoccurringdates">
     {{#dates}}
     <li class="mb-1">
         <span class="datepills text-white small py-1 px-4 bg-primary">
            {{string}}
         </span>
-        <i class="fa fa-window-close ml-2" data-action="delete" data-targetid="{{dateid}}"></i>
+        <i class="fa fa-trash ml-2 icon-red" data-action="delete" data-targetid="{{dateid}}"></i>
     </li>
     {{/dates}}
 </ul>

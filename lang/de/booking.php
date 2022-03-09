@@ -1426,5 +1426,7 @@ $string['cachedef_bookingoptionsettings'] = 'Booking option settings-Cache';
 $string['search'] = 'Suche...';
 
 // Optiondates_handler.php.
-$string['add_dates'] = 'Termine erstellen';
-$string['reocurringdatestring'] = 'Wiederkehrende Zeitangabe';
+$string['chooseperiod'] = 'Zeitraum auswählen';
+$string['chooseperiod_help'] = 'Wählen Sie den Zeitraum innerhalb dessen die Terminserie erstellt werden soll.';
+$string['dates'] = 'Termine';
+$string['reoccurringdatestring'] = 'Wiederkehrende Zeitangabe';

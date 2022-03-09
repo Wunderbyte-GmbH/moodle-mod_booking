@@ -30,19 +30,19 @@ use stdClass;
 class semester {
 
     /** @var int $id the semester id */
-    private $id = 0;
+    public $id = 0;
 
     /** @var string $identifier a short identifier of the semester */
-    private $identifier = '';
+    public $identifier = '';
 
     /** @var string $name the full name of the semester */
-    private $name = '';
+    public $name = '';
 
     /** @var int $start start date as unix timestamp */
-    private $start = 0;
+    public $start = 0;
 
     /** @var int $end end date as unix timestamp */
-    private $end = 0;
+    public $end = 0;
 
     /**
      * Constructor for the semester class.
@@ -88,8 +88,8 @@ class semester {
             $this->id = $id;
             $this->identifier = $dbrecord->identifier;
             $this->name = $dbrecord->name;
-            $this->start = $dbrecord->start;
-            $this->end = $dbrecord->end;
+            $this->start = (int) $dbrecord->start;
+            $this->end = (int) $dbrecord->end;
 
             return $dbrecord;
         } else {
@@ -99,9 +99,8 @@ class semester {
     }
 
     /**
-     * Get an array of all semesters containing
-     * semester identifiers as keys
-     * and semester names as values.
+     * Get an array of all semesters containing semester ids as keys
+     * and semester names (including identifier in parantheses) as values.
      *
      * @return array
      */
@@ -113,7 +112,7 @@ class semester {
         $data = $DB->get_records('booking_semesters');
 
         foreach ($data as $record) {
-            $semestersarray[$record->identifier] = $record->name . ' (' . $record->identifier . ')';
+            $semestersarray[$record->id] = $record->name . ' (' . $record->identifier . ')';
         }
 
         return $semestersarray;
