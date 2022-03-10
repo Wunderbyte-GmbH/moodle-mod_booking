@@ -277,6 +277,7 @@ class all_options extends table_sql {
         return $val;
     }
 
+    // Course end time.
     protected function col_courseendtime($values) {
         if ($values->courseendtime == 0) {
             return '';
