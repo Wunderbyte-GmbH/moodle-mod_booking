@@ -24,18 +24,30 @@ import Templates from 'core/templates';
 
 const optiondateForm = new DynamicForm(document.querySelector('#dateform'), 'mod_booking\\form\\optiondate_form');
 
-export const init = (cmid) => {
-    optiondateForm.load({'id': cmid});
-    datelistinit();
+export const init = (cmid, bookingid, optionid) => {
+
+    optiondateForm.load({
+        'cmid': cmid,
+        'bookingid': bookingid,
+        'optionid': optionid
+    })
+    .then(() => {
+        datelistinit();
+        return;
+    })
+    // Deal with this exception (Using core/notify exception function is recommended).
+    // eslint-disable-next-line no-undef
+    .catch(ex => displayException(ex));
+
     optiondateForm.addEventListener(optiondateForm.events.FORM_SUBMITTED, (e) => {
         e.preventDefault();
         const response = e.detail;
         Templates.renderForPromise('mod_booking/bookingoption_dates', response)
         // It returns a promise that needs to be resolved.
-        // eslint-disable-next-line promise/always-return
         .then(({html}) => {
             document.querySelector('.datelist').innerHTML = '';
             Templates.appendNodeContents('.datelist', html);
+            return;
         })
         // Deal with this exception (Using core/notify exception function is recommended).
         // eslint-disable-next-line no-undef
@@ -47,6 +59,10 @@ export const init = (cmid) => {
 };
 
 export const datelistinit = () => {
+
+    // const dateform = document.querySelector(".dateform");
+    // const datelist = document.querySelector(".datelist");
+
     document.querySelector(".datelist").addEventListener('click', function(e) {
 
         let action = e.target.dataset.action;
@@ -65,4 +81,10 @@ export const datelistinit = () => {
             targetElement.insertAdjacentHTML('afterend', element);
         }
     });
+
+    // TODO: continue by moving datelist after dateform
+    /*function insertAfter(newNode, existingNode) {
+        existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
+    };*/
 };
+

@@ -281,7 +281,7 @@ class option_form extends moodleform {
         $mform->addElement('header', 'datesheader',
             get_string('dates', 'booking'));
         $mform->addElement('html', '<div id="dateform"></div>');
-        $mform->addElement('html', '<div class="datelist"></div>');
+        // $mform->addElement('html', '<div class="datelist"></div>');
 
         // Advanced options.
         $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));

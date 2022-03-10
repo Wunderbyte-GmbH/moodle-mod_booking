@@ -27,7 +27,8 @@ use MoodleQuickForm;
 use stdClass;
 
 /**
- * Add price categories form.
+ * Control and manage option dates.
+ *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Thomas Winkler, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -46,10 +47,8 @@ class optiondates_handler {
      * @param int $bookingid
      */
     public function __construct(int $optionid = 0, int $bookingid = 0) {
-
         $this->optionid = $optionid;
         $this->bookingid = $bookingid;
-
     }
 
     /**
@@ -72,9 +71,10 @@ class optiondates_handler {
         // Add already existing optiondates to form.
         $output = $PAGE->get_renderer('mod_booking');
         $data = new \mod_booking\output\bookingoption_dates($this->optionid);
+        $mform->addElement('html', '<div class="datelist">');
         $mform->addElement('html', $output->render_bookingoption_dates($data));
+        $mform->addElement('html', '</div>');
     }
-
 
     /**
      * Transform each optiondate and save.
@@ -127,7 +127,7 @@ class optiondates_handler {
             $date->date = date('Y-m-d', $i);
             $date->starttime = $dayinfo['starttime'];
             $date->endtime = $dayinfo['endtime'];
-            $date->dateid = 'new-date-' . $j;
+            $date->dateid = 'newdate-' . $j;
             $date->starttimestamp = $i + $startseconds;
             $date->endtimestamp = $i + $endseconds;
             $j++;
@@ -190,5 +190,34 @@ class optiondates_handler {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Returns an array of optiondates as stdClasses for a specific option id.
+     *
+     * @param int $optionid
+     *
+     * @return array
+     */
+    public static function get_existing_optiondates(int $optionid): array {
+        global $DB;
+
+        $records = $DB->get_records('booking_optiondates', ['optionid' => $optionid]);
+
+        if (count($records) > 0) {
+
+            foreach ($records as $record) {
+                $date = new stdClass();
+                $date->dateid = 'dateid-' . $record->id;
+                $date->starttimestamp = $record->coursestarttime;
+                $date->endtimestamp = $record->courseendtime;
+                $date->string = date('Y-m-d H:i', $record->coursestarttime) . '-' . date('H:i', $record->courseendtime);
+                $datearray[] = $date;
+            }
+
+            return $datearray;
+        } else {
+            return [];
+        }
     }
 }

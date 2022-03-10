@@ -25,25 +25,28 @@ use mod_booking\price;
 
 global $DB, $OUTPUT, $PAGE, $USER;
 
-$id = required_param('id', PARAM_INT); // Course Module ID.
+$cmid = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $copyoptionid = optional_param('copyoptionid', 0, PARAM_INT);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
 
-$url = new moodle_url('/mod/booking/editoptions.php', array('id' => $id, 'optionid' => $optionid));
+$url = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => $optionid));
 $PAGE->set_url($url);
 $PAGE->requires->jquery_plugin('ui-css');
 
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+list($course, $cm) = get_course_and_cm_from_cmid($cmid);
+
+// Initialize bookingid.
+$bookingid = (int) $cm->instance;
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
 
-if (!$booking = new \mod_booking\booking($cm->id)) {
+if (!$booking = new \mod_booking\booking($cmid)) {
     throw new invalid_parameter_exception("Course module id is incorrect");
 }
 
-if (!$context = context_module::instance($cm->id)) {
+if (!$context = context_module::instance($cmid)) {
     throw new moodle_exception('badcontext');
 }
 
@@ -51,7 +54,7 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
     throw new moodle_exception('nopermissions');
 }
 
-$mform = new option_form(null, array('bookingid' => $cm->instance, 'optionid' => $optionid, 'cmid' => $cm->id,
+$mform = new option_form(null, array('bookingid' => $bookingid, 'optionid' => $optionid, 'cmid' => $cmid,
     'context' => $context));
 
 // Duplicate this booking option.
@@ -62,15 +65,15 @@ if ($optionid == -1 && $copyoptionid != 0) {
     $defaultvalues->text = $defaultvalues->text . get_string('copy', 'booking');
     $defaultvalues->optionid = -1;
     $defaultvalues->bookingname = $booking->settings->name;
-    $defaultvalues->bookingid = $cm->instance;
-    $defaultvalues->id = $cm->id;
+    $defaultvalues->bookingid = $bookingid;
+    $defaultvalues->id = $cmid;
 
     // Create a new duplicate of the old booking option.
     $optionid = booking_update_options($defaultvalues, $context);
     $defaultvalues->optionid = $optionid;
 
     // If there are associated teachers, let's duplicate them too.
-    $teacherstocopy = $DB->get_records('booking_teachers', ['bookingid' => $cm->instance, 'optionid' => $oldoptionid]);
+    $teacherstocopy = $DB->get_records('booking_teachers', ['bookingid' => $bookingid, 'optionid' => $oldoptionid]);
 
     // For each copied teacher change the old optionid to the new one and unset the old id.
     foreach ($teacherstocopy as $teachertocopy) {
@@ -82,11 +85,11 @@ if ($optionid == -1 && $copyoptionid != 0) {
                 array('bookingid' => $booking->settings->id, 'id' => $optionid))) {
     $defaultvalues->optionid = $optionid;
     $defaultvalues->bookingname = $booking->settings->name;
-    $defaultvalues->id = $cm->id;
+    $defaultvalues->id = $cmid;
 }
 
 if ($mform->is_cancelled()) {
-    $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
+    $redirecturl = new moodle_url('view.php', array('id' => $cmid));
     redirect($redirecturl, '', 0);
 } else if ($fromform = $mform->get_data()) {
     // Validated data.
@@ -108,19 +111,19 @@ if ($mform->is_cancelled()) {
             $fromform->bookingid = 0;
             $nbooking = booking_update_options($fromform, $context);
             if ($nbooking === 'BOOKING_OPTION_NOT_CREATED') {
-                $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
+                $redirecturl = new moodle_url('editoptions.php', array('id' => $cmid, 'optionid' => -1));
                 redirect($redirecturl, get_string('option_template_not_saved_no_valid_license', 'booking'), 0,
                     notification::NOTIFY_ERROR);
             } else if (isset($fromform->submittandaddnew)) {
-                $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
+                $redirecturl = new moodle_url('editoptions.php', array('id' => $cmid, 'optionid' => -1));
                 redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
             } else {
-                $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
+                $redirecturl = new moodle_url('view.php', array('id' => $cmid));
                 redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
             }
         }
 
-        $bookingdata = new \mod_booking\booking_option($cm->id, $nbooking);
+        $bookingdata = new \mod_booking\booking_option($cmid, $nbooking);
         $bookingdata->sync_waiting_list();
 
         if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 &&
@@ -156,7 +159,7 @@ if ($mform->is_cancelled()) {
                             $nbooking, array('subdirs' => false, 'maxfiles' => 50));
                 }
 
-                $bookingdata = new \mod_booking\booking_option($cm->id, $nbooking);
+                $bookingdata = new \mod_booking\booking_option($cmid, $nbooking);
                 $bookingdata->sync_waiting_list();
 
                 if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 &&
@@ -175,7 +178,7 @@ if ($mform->is_cancelled()) {
         // Get all new dynamically loaded dates from $_POST and save them.
         $optiondates = [];
         foreach ($_POST as $key => $value) {
-            if (substr($key, 0, 19) === 'coursetime-new-date') {
+            if (substr($key, 0, 18) === 'coursetime-newdate') {
                 $optiondates[] = $value;
             }
         }
@@ -191,9 +194,9 @@ if ($mform->is_cancelled()) {
 
         // Redirect after pressing one of the 2 submit buttons.
         if (isset($fromform->submittandaddnew)) {
-            $redirecturl = new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => -1));
+            $redirecturl = new moodle_url('editoptions.php', array('id' => $cmid, 'optionid' => -1));
         } else {
-            $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
+            $redirecturl = new moodle_url('view.php', array('id' => $cmid));
         }
         redirect($redirecturl, get_string('changessaved'), 0);
     }
@@ -207,6 +210,9 @@ if ($mform->is_cancelled()) {
     $mform->display();
 }
 
-$PAGE->requires->js_call_amd('mod_booking/institutionautocomplete', 'init', array($id));
-$PAGE->requires->js_call_amd('mod_booking/dynamicform', 'init', array($cm->id));
+$PAGE->requires->js_call_amd('mod_booking/institutionautocomplete', 'init', array($cmid));
+
+// Initialize dynamic optiondate form.
+$PAGE->requires->js_call_amd('mod_booking/dynamicoptiondateform', 'init', array($cmid, $bookingid, $optionid));
+
 echo $OUTPUT->footer();

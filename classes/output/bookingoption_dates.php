@@ -25,9 +25,9 @@
 
 namespace mod_booking\output;
 
+use mod_booking\optiondates_handler;
 use renderer_base;
 use renderable;
-use stdClass;
 use templatable;
 
 /**
@@ -47,36 +47,7 @@ class bookingoption_dates implements renderable, templatable {
      */
     public function __construct(int $optionid) {
 
-        $this->dates = $this->get_existing_optiondates($optionid);
-    }
-
-    /**
-     * Returns an array of optiondates as stdClasses for a specific option id.
-     *
-     * @param int $optionid
-     *
-     * @return array
-     */
-    public function get_existing_optiondates(int $optionid): array {
-        global $DB;
-
-        $records = $DB->get_records('booking_optiondates', ['optionid' => $optionid]);
-
-        if (count($records) > 0) {
-
-            foreach ($records as $record) {
-                $date = new stdClass();
-                $date->dateid = 'dateid-' . $record->id;
-                $date->starttimestamp = $record->coursestarttime;
-                $date->endtimestamp = $record->courseendtime;
-                $date->string = date('Y-m-d i:s', $record->coursestarttime) . '-' . date('i:s', $record->courseendtime);
-                $datearray[] = $date;
-            }
-
-            return $datearray;
-        } else {
-            return [];
-        }
+        $this->dates = optiondates_handler::get_existing_optiondates($optionid);
     }
 
     /**

@@ -43,11 +43,24 @@ class optiondate_form extends dynamic_form {
      */
     public function definition() {
         $mform = $this->_form;
-        $optiondateshandler = new optiondates_handler();
-        $optiondateshandler->add_optiondates_for_semesters_to_mform($mform);
-        $mform->addElement('hidden', 'cmid', $this->_ajaxformdata['id']);
+
+        $cmid = $this->_ajaxformdata['cmid'];
+        $bookingid = $this->_ajaxformdata['bookingid'];
+        $optionid = $this->_ajaxformdata['optionid'];
+
+        $mform->addElement('hidden', 'cmid', $cmid);
         $mform->setType('cmid', PARAM_INT);
-        $this->add_action_buttons(false, 'Add');
+
+        $mform->addElement('hidden', 'bookingid', $bookingid);
+        $mform->setType('bookingid', PARAM_INT);
+
+        $mform->addElement('hidden', 'optionid', $optionid);
+        $mform->setType('optionid', PARAM_INT);
+
+        $optiondateshandler = new optiondates_handler($optionid, $bookingid);
+        $optiondateshandler->add_optiondates_for_semesters_to_mform($mform);
+
+        $this->add_action_buttons(false, get_string('add_optiondate_series', 'mod_booking'));
     }
 
     /**
@@ -80,6 +93,7 @@ class optiondate_form extends dynamic_form {
         $dayinfo = $optiondateshandler->translate_string_to_day($data->reoccurringdatestring);
         $dates = $optiondateshandler->get_optiondate_series($semester->start, $semester->end, $dayinfo);
         $dates['cmid'] = $this->_ajaxformdata['cmid'];
+        $dates['optionid'] = $this->_ajaxformdata['optionid'];
         return $dates;
     }
 
@@ -91,17 +105,10 @@ class optiondate_form extends dynamic_form {
      * to preprocess editor and filemanager elements
      *
      * Example:
-     *     $this->set_data(get_entity($this->_ajaxformdata['id']));
+     *     $this->set_data(get_entity($this->_ajaxformdata['cmid']));
      */
     public function set_data_for_dynamic_submission(): void {
         $data = new stdClass();
-
-        // TODO: get current optionid.
-        // TODO: get options of current optionid.
-        // TODO: load existing optiondates.
-
-        // TODO: load existing option dates.
-
         $this->set_data($data);
     }
 
@@ -114,11 +121,11 @@ class optiondate_form extends dynamic_form {
      * @return context
      */
     protected function get_context_for_dynamic_submission(): context {
-        $id = $this->_ajaxformdata['id'];
-        if (!$id) {
-            $id = $this->optional_param('cmid', '', PARAM_RAW);
+        $cmid = $this->_ajaxformdata['cmid'];
+        if (!$cmid) {
+            $cmid = $this->optional_param('cmid', '', PARAM_RAW);
         }
-        return context_module::instance($id);
+        return context_module::instance($cmid);
     }
 
     /**
@@ -132,11 +139,11 @@ class optiondate_form extends dynamic_form {
      * @return moodle_url
      */
     protected function get_page_url_for_dynamic_submission(): moodle_url {
-        $id = $this->_ajaxformdata['id'];
-        if (!$id) {
-            $id = $this->optional_param('cmid', '', PARAM_RAW);
+        $cmid = $this->_ajaxformdata['cmid'];
+        if (!$cmid) {
+            $cmid = $this->optional_param('cmid', '', PARAM_RAW);
         }
-        return new moodle_url('/mod/booking/editoptions', array('id' => $id));
+        return new moodle_url('/mod/booking/editoptions', array('id' => $cmid));
     }
 
     /**

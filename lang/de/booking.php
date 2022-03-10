@@ -1430,3 +1430,6 @@ $string['chooseperiod'] = 'Zeitraum auswählen';
 $string['chooseperiod_help'] = 'Wählen Sie den Zeitraum innerhalb dessen die Terminserie erstellt werden soll.';
 $string['dates'] = 'Termine';
 $string['reoccurringdatestring'] = 'Wiederkehrende Zeitangabe';
+
+// Optiondate_form.php.
+$string['add_optiondate_series'] = 'Terminserie erstellen';

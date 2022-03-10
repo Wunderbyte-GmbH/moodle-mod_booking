@@ -1671,3 +1671,6 @@ $string['chooseperiod'] = 'Select time period';
 $string['chooseperiod_help'] = 'Select a time period within to create the date series.';
 $string['dates'] = 'Dates';
 $string['reoccurringdatestring'] = 'Reoccurring dates';
+
+// Optiondate_form.php.
+$string['add_optiondate_series'] = 'Create date series';

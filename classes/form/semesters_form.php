@@ -295,7 +295,7 @@ class semesters_form extends dynamic_form {
      * to preprocess editor and filemanager elements
      *
      * Example:
-     *     $this->set_data(get_entity($this->_ajaxformdata['id']));
+     *     $this->set_data(get_entity($this->_ajaxformdata['cmid']));
      */
     public function set_data_for_dynamic_submission(): void {
         $data = new stdClass();
