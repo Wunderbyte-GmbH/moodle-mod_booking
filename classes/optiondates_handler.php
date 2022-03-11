@@ -107,10 +107,10 @@ class optiondates_handler {
                 $optiondate = new stdClass();
                 $optiondate->bookingid = $this->bookingid;
                 $optiondate->optionid = $this->optionid;
-                $optiondate->eventid = 0; // TODO: We will implement this later.
+                $optiondate->eventid = 0; // TODO: We will implement this in a later release.
                 $optiondate->coursestarttime = (int) $starttime;
                 $optiondate->courseendtime = (int) $endtime;
-                $optiondate->daystonotify = 0; // TODO: We will implement this later.
+                $optiondate->daystonotify = 0; // TODO: We will implement this in a later release..
 
                 $DB->insert_record('booking_optiondates', $optiondate);
             }
@@ -125,6 +125,7 @@ class optiondates_handler {
 
     /**
      * Get date array for a specific weekday and time between two dates.
+     *
      * @param int $startdate
      * @param int $enddate
      * @param string $daystring
@@ -156,36 +157,77 @@ class optiondates_handler {
      * @param string $string
      * @return array
      */
-    public function translate_string_to_day(string $string): array {
+    public function prepare_day_info(string $string): array {
         $string = strtolower($string);
         $string = str_replace('-', ' ', $string);
         $string = str_replace(',', ' ', $string);
-        $string = preg_replace("/[[:blank:]]+/", " ", $string);
+        $string = preg_replace("/\s+/", " ", $string);
         $strings = explode(' ',  $string);
-        if ($strings[0] == 'mo') {
-            $day = "Monday";
+
+        $shortday = $strings[0];
+
+        switch ($shortday) {
+            case 'mo':
+            case 'mon':
+            case 'monday':
+            case 'montag':
+                $day = "Monday";
+                break;
+            case 'tu':
+            case 'tue':
+            case 'di':
+            case 'die':
+            case 'tuesday':
+            case 'dienstag':
+                $day = "Tuesday";
+                break;
+            case 'mi':
+            case 'mit':
+            case 'we':
+            case 'wed':
+            case 'mittwoch':
+            case 'wednesday':
+                $day = "Wednesday";
+                break;
+            case 'th':
+            case 'thu':
+            case 'do':
+            case 'don':
+            case 'thursday':
+            case 'donnerstag':
+                $day = "Thursday";
+                break;
+            case 'fr':
+            case 'fre':
+            case 'fri':
+            case 'freitag':
+            case 'friday':
+                $day = "Friday";
+                break;
+            case 'sa':
+            case 'sam':
+            case 'sat':
+            case 'samstag':
+            case 'saturday':
+                $day = "Saturday";
+                break;
+            case 'so':
+            case 'su':
+            case 'son':
+            case 'sun':
+            case 'sonntag':
+            case 'sunday':
+                $day = "Sunday";
+                break;
+            default:
+                // Invalid day identifier, so return empty array.
+                return [];
         }
-        if ($strings[0] == 'di') {
-            $day = "Tuesday";
-        }
-        if ($strings[0] == 'mi') {
-            $day = "Wednesday";
-        }
-        if ($strings[0] == 'do') {
-            $day = "Thursday";
-        }
-        if ($strings[0] == 'fr') {
-            $day = "Friday";
-        }
-        if ($strings[0] == 'sa') {
-            $day = "Saturday";
-        }
-        if ($strings[0] == 'so') {
-            $day = "Sunday";
-        }
+
         $dayinfo['day'] = $day;
         $dayinfo['starttime'] = $strings[1];
         $dayinfo['endtime'] = $strings[2];
+
         return $dayinfo;
     }
 

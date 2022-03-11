@@ -88,12 +88,25 @@ class optiondate_form extends dynamic_form {
             return false;
         }
 
+        if (!preg_match('/[a-zA-Z]+[,\s]+\d{1,2}:\d{1,2}\s*-\s*\d{1,2}:\d{1,2}/', $data->reoccurringdatestring)) {
+            return false;
+        }
+
         $optiondateshandler = new optiondates_handler();
+
+        $dayinfo = $optiondateshandler->prepare_day_info($data->reoccurringdatestring);
+
+        // If an invalid day string was entered, we'll have an empty $dayinfo array.
+        if (empty($dayinfo)) {
+            return false;
+        }
+
         $semester = new semester($data->chooseperiod);
-        $dayinfo = $optiondateshandler->translate_string_to_day($data->reoccurringdatestring);
         $dates = $optiondateshandler->get_optiondate_series($semester->start, $semester->end, $dayinfo);
+
         $dates['cmid'] = $this->_ajaxformdata['cmid'];
         $dates['optionid'] = $this->_ajaxformdata['optionid'];
+
         return $dates;
     }
 
