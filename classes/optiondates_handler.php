@@ -71,7 +71,7 @@ class optiondates_handler {
         // Add already existing optiondates to form.
         $output = $PAGE->get_renderer('mod_booking');
         $data = new \mod_booking\output\bookingoption_dates($this->optionid);
-        $mform->addElement('html', '<div class="datelist">');
+        $mform->addElement('html', '<div id="optiondates-list">');
         $mform->addElement('html', $output->render_bookingoption_dates($data));
         $mform->addElement('html', '</div>');
     }
@@ -82,11 +82,25 @@ class optiondates_handler {
      * @param stdClass $fromform form data
      * @param array $optiondates array of optiondates as strings (e.g. "11646647200-1646650800")
      */
-    public function save_from_form(stdClass $fromform, array $optiondates) {
+    public function save_from_form(stdClass $fromform, array $optiondates, array $stillexistingdateids) {
         global $DB;
 
         if ($this->optionid && $this->bookingid) {
 
+            // Get the currently saved optiondateids from DB.
+            $olddates = $DB->get_records('booking_optiondates', ['optionid' => $this->optionid], '', 'id');
+
+            // Now, let's check, if they have not been removed by the dynamic form.
+            foreach ($olddates as $olddate) {
+                if (in_array((int) $olddate->id, $stillexistingdateids)) {
+                    continue;
+                } else {
+                    // An existing optiondate has been removed by the dynamic form, so delete it from DB.
+                    $DB->delete_records('booking_optiondates', ['id' => (int) $olddate->id]);
+                }
+            }
+
+            // It's important that this happens AFTER deleting the removed dates.
             foreach ($optiondates as $optiondatestring) {
                 list($starttime, $endtime) = explode('-', $optiondatestring);
 
@@ -98,7 +112,7 @@ class optiondates_handler {
                 $optiondate->courseendtime = (int) $endtime;
                 $optiondate->daystonotify = 0; // TODO: We will implement this later.
 
-                $DB->insert_record("booking_optiondates", $optiondate);
+                $DB->insert_record('booking_optiondates', $optiondate);
             }
 
             // After updating, we invalidate caches.

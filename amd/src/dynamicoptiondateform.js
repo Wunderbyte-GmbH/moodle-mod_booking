@@ -22,7 +22,7 @@
 import DynamicForm from 'core_form/dynamicform';
 import Templates from 'core/templates';
 
-const optiondateForm = new DynamicForm(document.querySelector('#dateform'), 'mod_booking\\form\\optiondate_form');
+const optiondateForm = new DynamicForm(document.querySelector('#optiondates-form'), 'mod_booking\\form\\optiondate_form');
 
 export const init = (cmid, bookingid, optionid) => {
 
@@ -45,8 +45,8 @@ export const init = (cmid, bookingid, optionid) => {
         Templates.renderForPromise('mod_booking/bookingoption_dates', response)
         // It returns a promise that needs to be resolved.
         .then(({html}) => {
-            document.querySelector('.datelist').innerHTML = '';
-            Templates.appendNodeContents('.datelist', html);
+            document.querySelector('#optiondates-list').innerHTML = '';
+            Templates.appendNodeContents('#optiondates-list', html);
             return;
         })
         // Deal with this exception (Using core/notify exception function is recommended).
@@ -60,10 +60,13 @@ export const init = (cmid, bookingid, optionid) => {
 
 export const datelistinit = () => {
 
-    // const dateform = document.querySelector(".dateform");
-    // const datelist = document.querySelector(".datelist");
+    const dateform = document.querySelector("#optiondates-form");
+    const datelist = document.querySelector("#optiondates-list");
 
-    document.querySelector(".datelist").addEventListener('click', function(e) {
+    // Important: Move datelist after dateform so $_POST will work in PHP.
+    dateform.parentNode.insertBefore(datelist, dateform.nextSibling);
+
+    datelist.addEventListener('click', function(e) {
 
         let action = e.target.dataset.action;
         let targetid = e.target.dataset.targetid;
@@ -81,10 +84,5 @@ export const datelistinit = () => {
             targetElement.insertAdjacentHTML('afterend', element);
         }
     });
-
-    // TODO: continue by moving datelist after dateform
-    /*function insertAfter(newNode, existingNode) {
-        existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
-    };*/
 };
 

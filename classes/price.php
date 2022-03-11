@@ -93,7 +93,6 @@ class price {
 
 
     public function save_from_form(stdClass $fromform) {
-        global $DB;
 
         foreach ($this->pricecategories as $pricecategory) {
             if (isset($fromform->{'pricegroup_' . $pricecategory->identifier})) {

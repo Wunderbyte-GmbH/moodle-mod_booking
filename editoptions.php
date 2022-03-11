@@ -176,15 +176,22 @@ if ($mform->is_cancelled()) {
         $price->save_from_form($fromform);
 
         // Get all new dynamically loaded dates from $_POST and save them.
-        $optiondates = [];
+        $newoptiondates = [];
+
+        // Also, get the ids of the remaining existing dates.
+        $stillexistingdateids = [];
+
         foreach ($_POST as $key => $value) {
             if (substr($key, 0, 18) === 'coursetime-newdate') {
-                $optiondates[] = $value;
+                $newoptiondates[] = $value;
+            }
+            if (substr($key, 0, 17) === 'coursetime-dateid') {
+                $stillexistingdateids[] = (int) explode('-', $key)[2];
             }
         }
         // Save the optiondates.
         $optiondateshandler = new optiondates_handler($fromform->optionid, $fromform->bookingid);
-        $optiondateshandler->save_from_form($fromform, $optiondates);
+        $optiondateshandler->save_from_form($fromform, $newoptiondates, $stillexistingdateids);
 
         // This is to save customfield data
         // The id key has to be set to option id.
