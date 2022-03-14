@@ -57,8 +57,15 @@ class optiondate_form extends dynamic_form {
         $mform->addElement('hidden', 'optionid', $optionid);
         $mform->setType('optionid', PARAM_INT);
 
+        $loadexistingdates = false;
+
+        // Only when first loading the form, we'll load the existing dates.
+        if (!isset($this->_ajaxformdata['reoccurringdatestring'])) {
+            $loadexistingdates = true;
+        }
+
         $optiondateshandler = new optiondates_handler($optionid, $bookingid);
-        $optiondateshandler->add_optiondates_for_semesters_to_mform($mform);
+        $optiondateshandler->add_optiondates_for_semesters_to_mform($mform, $loadexistingdates);
 
         $this->add_action_buttons(false, get_string('add_optiondate_series', 'mod_booking'));
     }
@@ -88,12 +95,9 @@ class optiondate_form extends dynamic_form {
             return false;
         }
 
-        if (!preg_match('/^[a-zA-Z]+[,\s]+([0-1]?[0-9]|[2][0-3]):([0-5][0-9])\s*-\s*([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$/',
-            $data->reoccurringdatestring)) {
-
-            $dates = new stdClass;
-            $dates->stringformaterror = true;
-            return $dates;
+        // Only submit if we have a correct string.
+        if (!optiondates_handler::reoccurring_datestring_is_correct($data->reoccurringdatestring)) {
+            return false;
         }
 
         $optiondateshandler = new optiondates_handler();
@@ -171,9 +175,12 @@ class optiondate_form extends dynamic_form {
      */
     public function validation($data, $files) {
 
-        global $DB;
-
         $errors = array();
+
+        // Check if the string is valid.
+        if (!optiondates_handler::reoccurring_datestring_is_correct($data['reoccurringdatestring'])) {
+            $errors['reoccurringdatestring'] = 'string-format-error'; // TODO.
+        }
 
         return $errors;
     }

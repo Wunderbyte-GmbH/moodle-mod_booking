@@ -55,9 +55,10 @@ class optiondates_handler {
      * Add form fields to be passed on mform.
      *
      * @param MoodleQuickForm $mform
+     * @param bool $loadexistingdates Only if this param is set to true, we'll load the already existing dates.
      * @return void
      */
-    public function add_optiondates_for_semesters_to_mform(MoodleQuickForm &$mform) {
+    public function add_optiondates_for_semesters_to_mform(MoodleQuickForm &$mform, bool $loadexistingdates) {
         global $PAGE;
 
         $semestersarray = semester::get_semesters_identifier_name_array();
@@ -69,12 +70,16 @@ class optiondates_handler {
         $mform->addHelpButton('reoccurringdatestring', 'reoccurringdatestring', 'mod_booking');
         $mform->setType('reoccurringdatestring', PARAM_TEXT);
 
-        // Add already existing optiondates to form.
-        $output = $PAGE->get_renderer('mod_booking');
-        $data = new \mod_booking\output\bookingoption_dates($this->optionid);
-        $mform->addElement('html', '<div id="optiondates-list">');
-        $mform->addElement('html', $output->render_bookingoption_dates($data));
-        $mform->addElement('html', '</div>');
+        if ($loadexistingdates) {
+            // Add already existing optiondates to form.
+            $output = $PAGE->get_renderer('mod_booking');
+            $data = new \mod_booking\output\bookingoption_dates($this->optionid);
+            $mform->addElement('html', '<div id="optiondates-list">');
+            $mform->addElement('html', $output->render_bookingoption_dates($data));
+            $mform->addElement('html', '</div>');
+        } else {
+            $mform->addElement('html', '<div id="optiondates-list"></div>');
+        }
     }
 
     /**
@@ -261,5 +266,43 @@ class optiondates_handler {
         $weekdays['sunday'] = get_string('sunday', 'core_calendar');
 
         return $weekdays;
+    }
+
+    /**
+     * Check if the entered reoccuring date string is in a valid format.
+     *
+     * @param string $reoccuringdatestring e.g. Monday, 10:00-11:00 or Sun, 12:00-13:00
+     *
+     * @return bool
+     */
+    public static function reoccurring_datestring_is_correct(string $reoccuringdatestring): bool {
+
+        if (!preg_match('/^[a-zA-Z]+[,\s]+([0-1]?[0-9]|[2][0-3]):([0-5][0-9])\s*-\s*([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$/',
+            $reoccuringdatestring)) {
+            return false;
+        }
+
+        $string = strtolower($reoccuringdatestring);
+        $string = str_replace(',', ' ', $string);
+        $string = preg_replace("/\s+/", " ", $string);
+        $strings = explode(' ',  $string);
+        $daystring = $strings[0]; // Lower case weekday part of the string, e.g. "mo", "mon" or "monday".
+
+        $weekdays = self::get_localized_weekdays();
+        $allowedstrings = [];
+
+        foreach ($weekdays as $key => $value) {
+            // Make sure we have lower characters only.
+            $currentweekday = strtolower($value);
+            $allowedstrings[] = $currentweekday;
+            $allowedstrings[] = substr($currentweekday, 0, 2);
+            $allowedstrings[] = substr($currentweekday, 0, 3);
+        }
+
+        if (!in_array($daystring, $allowedstrings)) {
+            return false;
+        }
+
+        return true;
     }
 }

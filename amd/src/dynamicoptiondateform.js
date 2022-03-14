@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
- * @package    local_wunderbyte_table
+ * @package    mod_booking
  * @copyright  Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,18 +26,7 @@ const optiondateForm = new DynamicForm(document.querySelector('#optiondates-form
 
 export const init = (cmid, bookingid, optionid) => {
 
-    optiondateForm.load({
-        'cmid': cmid,
-        'bookingid': bookingid,
-        'optionid': optionid
-    })
-    .then(() => {
-        datelistinit();
-        return;
-    })
-    // Deal with this exception (Using core/notify exception function is recommended).
-    // eslint-disable-next-line no-undef
-    .catch(ex => displayException(ex));
+    loadform(cmid, bookingid, optionid);
 
     optiondateForm.addEventListener(optiondateForm.events.FORM_SUBMITTED, (e) => {
         e.preventDefault();
@@ -52,16 +41,38 @@ export const init = (cmid, bookingid, optionid) => {
         // Deal with this exception (Using core/notify exception function is recommended).
         // eslint-disable-next-line no-undef
         .catch(ex => displayException(ex));
+
         // It is recommended to reload the form after submission because the elements may change.
         // This will also remove previous submission errors. You will need to pass the same arguments to the form
         // that you passed when you rendered the form on the page.
+        var datelist = document.querySelector('#optiondates-list');
+        datelist.parentNode.removeChild(datelist);
+        loadform(cmid, bookingid, optionid);
     });
+};
+
+export const loadform = (cmid, bookingid, optionid) => {
+
+    optiondateForm.load({
+        'cmid': cmid,
+        'bookingid': bookingid,
+        'optionid': optionid
+    })
+    .then(() => {
+        datelistinit();
+        return;
+    })
+    // Deal with this exception (Using core/notify exception function is recommended).
+    // eslint-disable-next-line no-undef
+    .catch(ex => displayException(ex));
 };
 
 export const datelistinit = () => {
 
-    const dateform = document.querySelector("#optiondates-form");
-    const datelist = document.querySelector("#optiondates-list");
+    var dateform = document.querySelector("#optiondates-form");
+    var datelist = document.querySelector("#optiondates-list");
+
+    datelist.parentNode.removeChild(datelist);
 
     // Important: Move datelist after dateform so $_POST will work in PHP.
     dateform.parentNode.insertBefore(datelist, dateform.nextSibling);
@@ -77,6 +88,7 @@ export const datelistinit = () => {
         }
 
         if (action === 'add') {
+
             let targetElement = e.target.closest('li');
             let date = document.querySelector("#meeting-time");
             let element = '<li><span class="badge bg-primary">' + date.value +
@@ -85,4 +97,3 @@ export const datelistinit = () => {
         }
     });
 };
-
