@@ -1670,7 +1670,9 @@ $string['search'] = 'Search...';
 $string['chooseperiod'] = 'Select time period';
 $string['chooseperiod_help'] = 'Select a time period within to create the date series.';
 $string['dates'] = 'Dates';
-$string['reoccurringdatestring'] = 'Reoccurring dates';
+$string['reoccurringdatestring'] = 'Weekday, start and end time (Day, HH:MM - HH:MM)';
+$string['reoccurringdatestring_help'] = 'Enter a text in the following format:
+    "Day, HH:MM - HH:MM", e.g. "Monday, 10:00 - 11:00" or "Sun 09:00-10:00"';
 
 // Optiondate_form.php.
 $string['add_optiondate_series'] = 'Create date series';

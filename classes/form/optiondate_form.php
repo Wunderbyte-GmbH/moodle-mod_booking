@@ -88,8 +88,12 @@ class optiondate_form extends dynamic_form {
             return false;
         }
 
-        if (!preg_match('/[a-zA-Z]+[,\s]+\d{1,2}:\d{1,2}\s*-\s*\d{1,2}:\d{1,2}/', $data->reoccurringdatestring)) {
-            return false;
+        if (!preg_match('/^[a-zA-Z]+[,\s]+([0-1]?[0-9]|[2][0-3]):([0-5][0-9])\s*-\s*([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$/',
+            $data->reoccurringdatestring)) {
+
+            $dates = new stdClass;
+            $dates->stringformaterror = true;
+            return $dates;
         }
 
         $optiondateshandler = new optiondates_handler();

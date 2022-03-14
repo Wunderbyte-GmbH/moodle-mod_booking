@@ -1429,7 +1429,9 @@ $string['search'] = 'Suche...';
 $string['chooseperiod'] = 'Zeitraum auswählen';
 $string['chooseperiod_help'] = 'Wählen Sie den Zeitraum innerhalb dessen die Terminserie erstellt werden soll.';
 $string['dates'] = 'Termine';
-$string['reoccurringdatestring'] = 'Wiederkehrende Zeitangabe';
+$string['reoccurringdatestring'] = 'Wochentag, Start- und Endzeit (Tag, HH:MM - HH:MM)';
+$string['reoccurringdatestring_help'] = 'Geben Sie einen Text in folgendem Format ein:
+    "Tag, HH:MM - HH:MM", z.B. "Montag, 10:00 - 11:00" oder "So 09:00-10:00"';
 
 // Optiondate_form.php.
 $string['add_optiondate_series'] = 'Terminserie erstellen';

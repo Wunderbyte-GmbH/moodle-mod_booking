@@ -66,6 +66,7 @@ class optiondates_handler {
         $mform->addHelpButton('chooseperiod', 'chooseperiod', 'mod_booking');
 
         $mform->addElement('text', 'reoccurringdatestring', get_string('reoccurringdatestring', 'booking'));
+        $mform->addHelpButton('reoccurringdatestring', 'reoccurringdatestring', 'mod_booking');
         $mform->setType('reoccurringdatestring', PARAM_TEXT);
 
         // Add already existing optiondates to form.
@@ -164,64 +165,31 @@ class optiondates_handler {
         $string = preg_replace("/\s+/", " ", $string);
         $strings = explode(' ',  $string);
 
-        $shortday = $strings[0];
+        $daystring = $strings[0];
 
-        switch ($shortday) {
-            case 'mo':
-            case 'mon':
-            case 'monday':
-            case 'montag':
-                $day = "Monday";
+        $weekdays = self::get_localized_weekdays();
+
+        // Initialize the output day string.
+        $day = '';
+
+        foreach ($weekdays as $key => $value) {
+            // Make sure we have lower characters only.
+            $currentweekday = strtolower($value);
+            $currentweekday2char = substr($currentweekday, 0, 2);
+            $currentweekday3char = substr($currentweekday, 0, 3);
+
+            if ($daystring == $currentweekday2char ||
+                $daystring == $currentweekday3char ||
+                $daystring == $currentweekday) {
+
+                $day = $key;
                 break;
-            case 'tu':
-            case 'tue':
-            case 'di':
-            case 'die':
-            case 'tuesday':
-            case 'dienstag':
-                $day = "Tuesday";
-                break;
-            case 'mi':
-            case 'mit':
-            case 'we':
-            case 'wed':
-            case 'mittwoch':
-            case 'wednesday':
-                $day = "Wednesday";
-                break;
-            case 'th':
-            case 'thu':
-            case 'do':
-            case 'don':
-            case 'thursday':
-            case 'donnerstag':
-                $day = "Thursday";
-                break;
-            case 'fr':
-            case 'fre':
-            case 'fri':
-            case 'freitag':
-            case 'friday':
-                $day = "Friday";
-                break;
-            case 'sa':
-            case 'sam':
-            case 'sat':
-            case 'samstag':
-            case 'saturday':
-                $day = "Saturday";
-                break;
-            case 'so':
-            case 'su':
-            case 'son':
-            case 'sun':
-            case 'sonntag':
-            case 'sunday':
-                $day = "Sunday";
-                break;
-            default:
-                // Invalid day identifier, so return empty array.
-                return [];
+            }
+        }
+
+        // Invalid day identifier, so return empty array.
+        if ($day === '') {
+            return [];
         }
 
         $dayinfo['day'] = $day;
@@ -275,5 +243,23 @@ class optiondates_handler {
         } else {
             return [];
         }
+    }
+
+    /**
+     * Create an array of localized weekdays.
+     *
+     * @return array
+     */
+    public static function get_localized_weekdays(): array {
+        $weekdays = [];
+        $weekdays['monday'] = get_string('monday', 'core_calendar');
+        $weekdays['tuesday'] = get_string('tuesday', 'core_calendar');
+        $weekdays['wednesday'] = get_string('wednesday', 'core_calendar');
+        $weekdays['thursday'] = get_string('thursday', 'core_calendar');
+        $weekdays['friday'] = get_string('friday', 'core_calendar');
+        $weekdays['saturday'] = get_string('saturday', 'core_calendar');
+        $weekdays['sunday'] = get_string('sunday', 'core_calendar');
+
+        return $weekdays;
     }
 }
