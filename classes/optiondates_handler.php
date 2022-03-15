@@ -88,7 +88,7 @@ class optiondates_handler {
      * @param stdClass $fromform form data
      * @param array $optiondates array of optiondates as strings (e.g. "11646647200-1646650800")
      */
-    public function save_from_form(stdClass $fromform, array $optiondates, array $stillexistingdateids) {
+    public function save_from_form(stdClass $fromform) {
         global $DB;
 
         if ($this->optionid && $this->bookingid) {
@@ -98,7 +98,7 @@ class optiondates_handler {
 
             // Now, let's check, if they have not been removed by the dynamic form.
             foreach ($olddates as $olddate) {
-                if (in_array((int) $olddate->id, $stillexistingdateids)) {
+                if (in_array((int) $olddate->id, $fromform->stillexistingdateids)) {
                     continue;
                 } else {
                     // An existing optiondate has been removed by the dynamic form, so delete it from DB.
@@ -107,7 +107,7 @@ class optiondates_handler {
             }
 
             // It's important that this happens AFTER deleting the removed dates.
-            foreach ($optiondates as $optiondatestring) {
+            foreach ($fromform->newoptiondates as $optiondatestring) {
                 list($starttime, $endtime) = explode('-', $optiondatestring);
 
                 $optiondate = new stdClass();

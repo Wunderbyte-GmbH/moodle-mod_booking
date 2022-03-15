@@ -99,6 +99,26 @@ if ($mform->is_cancelled()) {
         if (!isset($fromform->limitanswers)) {
             $fromform->limitanswers = 0;
         }
+
+        // Get all new dynamically loaded dates from $_POST and save them.
+        $newoptiondates = [];
+
+        // Also, get the ids of the remaining existing dates.
+        $stillexistingdateids = [];
+
+        foreach ($_POST as $key => $value) {
+            if (substr($key, 0, 18) === 'coursetime-newdate') {
+                $newoptiondates[] = $value;
+            }
+            if (substr($key, 0, 17) === 'coursetime-dateid') {
+                $stillexistingdateids[] = (int) explode('-', $key)[2];
+            }
+        }
+
+        // Store the arrays in $fromform so we can use them later in booking_update_options.
+        $fromform->newoptiondates = $newoptiondates;
+        $fromform->stillexistingdateids = $stillexistingdateids;
+
         // Todo: nbooking should be call $optionid.
         $nbooking = booking_update_options($fromform, $context);
 
@@ -174,24 +194,6 @@ if ($mform->is_cancelled()) {
         $fromform->optionid = $nbooking ?? $optionid;
         $price = new price($fromform->optionid);
         $price->save_from_form($fromform);
-
-        // Get all new dynamically loaded dates from $_POST and save them.
-        $newoptiondates = [];
-
-        // Also, get the ids of the remaining existing dates.
-        $stillexistingdateids = [];
-
-        foreach ($_POST as $key => $value) {
-            if (substr($key, 0, 18) === 'coursetime-newdate') {
-                $newoptiondates[] = $value;
-            }
-            if (substr($key, 0, 17) === 'coursetime-dateid') {
-                $stillexistingdateids[] = (int) explode('-', $key)[2];
-            }
-        }
-        // Save the optiondates.
-        $optiondateshandler = new optiondates_handler($fromform->optionid, $fromform->bookingid);
-        $optiondateshandler->save_from_form($fromform, $newoptiondates, $stillexistingdateids);
 
         // This is to save customfield data
         // The id key has to be set to option id.

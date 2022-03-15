@@ -26,6 +26,7 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use mod_booking\booking_option;
 use mod_booking\booking_utils;
+use mod_booking\optiondates_handler;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\utils\wb_payment;
@@ -587,8 +588,16 @@ function booking_update_instance($booking) {
  */
 function booking_update_options($optionvalues, $context) {
     global $DB, $CFG, $PAGE, $USER;
+
     require_once("$CFG->dirroot/mod/booking/locallib.php");
     require_once("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
+
+    if (!empty($optionvalues->newoptiondates) || !empty($optionvalues->stillexistingdateids)) {
+        // Save the optiondates.
+        $optiondateshandler = new optiondates_handler($optionvalues->optionid, $optionvalues->bookingid);
+        $optiondateshandler->save_from_form($optionvalues);
+    }
+
     $customfields = booking_option::get_customfield_settings();
     if (!($booking = $DB->get_record('booking', array('id' => $optionvalues->bookingid)))) {
         $booking = new stdClass();
