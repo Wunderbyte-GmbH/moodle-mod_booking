@@ -26,33 +26,6 @@ const optiondateForm = new DynamicForm(document.querySelector('#optiondates-form
 
 export const init = (cmid, bookingid, optionid) => {
 
-    loadform(cmid, bookingid, optionid);
-
-    optiondateForm.addEventListener(optiondateForm.events.FORM_SUBMITTED, (e) => {
-        e.preventDefault();
-        const response = e.detail;
-        Templates.renderForPromise('mod_booking/bookingoption_dates', response)
-        // It returns a promise that needs to be resolved.
-        .then(({html}) => {
-            document.querySelector('#optiondates-list').innerHTML = '';
-            Templates.appendNodeContents('#optiondates-list', html);
-            return;
-        })
-        // Deal with this exception (Using core/notify exception function is recommended).
-        // eslint-disable-next-line no-undef
-        .catch(ex => displayException(ex));
-
-        // It is recommended to reload the form after submission because the elements may change.
-        // This will also remove previous submission errors. You will need to pass the same arguments to the form
-        // that you passed when you rendered the form on the page.
-        var datelist = document.querySelector('#optiondates-list');
-        datelist.parentNode.removeChild(datelist);
-        loadform(cmid, bookingid, optionid);
-    });
-};
-
-export const loadform = (cmid, bookingid, optionid) => {
-
     optiondateForm.load({
         'cmid': cmid,
         'bookingid': bookingid,
@@ -65,15 +38,63 @@ export const loadform = (cmid, bookingid, optionid) => {
     // Deal with this exception (Using core/notify exception function is recommended).
     // eslint-disable-next-line no-undef
     .catch(ex => displayException(ex));
+
+    optiondateForm.addEventListener(optiondateForm.events.FORM_SUBMITTED, (e) => {
+
+        var chooseperiodvalue = document.getElementsByName('chooseperiod')[0].value;
+        var reoccurringdatestringvalue = document.getElementsByName('reoccurringdatestring')[0].value;
+
+        // It is recommended to reload the form after submission because the elements may change.
+        // This will also remove previous submission errors. You will need to pass the same arguments to the form
+        // that you passed when you rendered the form on the page.
+
+        optiondateForm.load({
+            'cmid': cmid,
+            'bookingid': bookingid,
+            'optionid': optionid
+        })
+        .then(() => {
+
+            e.preventDefault();
+            const response = e.detail;
+
+            Templates.renderForPromise('mod_booking/bookingoption_dates', response)
+            // It returns a promise that needs to be resolved.
+            .then(({html}) => {
+                document.querySelector('.optiondates-list').innerHTML = '';
+                Templates.appendNodeContents('.optiondates-list', html);
+                return;
+            })
+            // Deal with this exception (Using core/notify exception function is recommended).
+            // eslint-disable-next-line no-undef
+            .catch(ex => displayException(ex));
+
+            var oldlists = document.getElementsByClassName('optiondates-list');
+            while (oldlists.length > 1) {
+                oldlists[oldlists.length - 1].parentNode.removeChild(oldlists[oldlists.length - 1]);
+            }
+
+            // This is needed to fix datelist bugs.
+            datelistinit();
+
+            // We need this, so we don't losse the form data after reloading.
+            document.getElementsByName('chooseperiod')[0].value = chooseperiodvalue;
+            document.getElementsByName('reoccurringdatestring')[0].value = reoccurringdatestringvalue;
+
+            return;
+        })
+        // Deal with this exception (Using core/notify exception function is recommended).
+        // eslint-disable-next-line no-undef
+        .catch(ex => displayException(ex));
+    });
 };
 
 export const datelistinit = () => {
 
     var dateform = document.querySelector("#optiondates-form");
-    var datelist = document.querySelector("#optiondates-list");
+    var datelist = document.querySelector(".optiondates-list");
 
     datelist.parentNode.removeChild(datelist);
-
     // Important: Move datelist after dateform so $_POST will work in PHP.
     dateform.parentNode.insertBefore(datelist, dateform.nextSibling);
 
@@ -88,7 +109,6 @@ export const datelistinit = () => {
         }
 
         if (action === 'add') {
-
             let targetElement = e.target.closest('li');
             let date = document.querySelector("#meeting-time");
             let element = '<li><span class="badge bg-primary">' + date.value +

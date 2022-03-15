@@ -74,11 +74,11 @@ class optiondates_handler {
             // Add already existing optiondates to form.
             $output = $PAGE->get_renderer('mod_booking');
             $data = new \mod_booking\output\bookingoption_dates($this->optionid);
-            $mform->addElement('html', '<div id="optiondates-list">');
+            $mform->addElement('html', '<div class="optiondates-list">');
             $mform->addElement('html', $output->render_bookingoption_dates($data));
             $mform->addElement('html', '</div>');
         } else {
-            $mform->addElement('html', '<div id="optiondates-list"></div>');
+            $mform->addElement('html', '<div class="optiondates-list"></div>');
         }
     }
 

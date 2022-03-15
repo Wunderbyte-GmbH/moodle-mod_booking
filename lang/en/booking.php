@@ -1676,3 +1676,5 @@ $string['reoccurringdatestring_help'] = 'Enter a text in the following format:
 
 // Optiondate_form.php.
 $string['add_optiondate_series'] = 'Create date series';
+$string['reoccurringdatestringerror'] = 'Enter a text in the following format:
+    Day, HH:MM - HH:MM';

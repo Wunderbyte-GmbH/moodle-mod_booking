@@ -179,7 +179,7 @@ class optiondate_form extends dynamic_form {
 
         // Check if the string is valid.
         if (!optiondates_handler::reoccurring_datestring_is_correct($data['reoccurringdatestring'])) {
-            $errors['reoccurringdatestring'] = 'string-format-error'; // TODO.
+            $errors['reoccurringdatestring'] = get_string('reoccurringdatestringerror', 'mod_booking');
         }
 
         return $errors;
