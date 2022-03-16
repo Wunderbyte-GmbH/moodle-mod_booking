@@ -91,7 +91,7 @@ class optiondate_form extends dynamic_form {
     public function process_dynamic_submission() {
 
         $data = $this->get_data();
-        if (empty($data->reoccurringdatestring) || !isset($data->chooseperiod)) {
+        if (empty($data->reoccurringdatestring) || empty($data->chooseperiod)) {
             return false;
         }
 
