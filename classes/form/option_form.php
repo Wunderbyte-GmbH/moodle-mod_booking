@@ -187,6 +187,12 @@ class option_form extends moodleform {
             $mform->setType('address', PARAM_CLEANHTML);
         }
 
+        // Upload an image for the booking option.
+        $mform->addElement('filemanager', 'bookingoptionimage',
+                get_string('bookingoptionimage', 'mod_booking'), null,
+                array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1,
+                                'accepted_types' => array('image')));
+
         $mform->addElement('checkbox', 'limitanswers', get_string('limitanswers', 'booking'));
         $mform->addHelpButton('limitanswers', 'limitanswers', 'mod_booking');
 
@@ -486,6 +492,12 @@ class option_form extends moodleform {
             $this->_customdata['optionid'], array('subdirs' => false, 'maxfiles' => 50, 'accepted_types' => array('*'),
                 'maxbytes' => 0));
         $defaultvalues->myfilemanageroption = $draftitemid;
+
+        $draftimageid = file_get_submitted_draft_itemid('bookingoptionimage');
+        file_prepare_draft_area($draftimageid, $this->_customdata['context']->id, 'mod_booking', 'bookingoptionimage',
+            $this->_customdata['optionid'], array('subdirs' => false, 'maxfiles' => 1, 'accepted_types' => array('image', '.webp'),
+                'maxbytes' => 0));
+        $defaultvalues->bookingoptionimage = $draftimageid;
 
         if (isset($defaultvalues->optionid) && $defaultvalues->optionid > 0) {
             // Defaults for customfields.

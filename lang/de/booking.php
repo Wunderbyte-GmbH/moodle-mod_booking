@@ -846,6 +846,7 @@ $string['option_template_not_saved_no_valid_license'] = 'Buchungsoption konnte n
                                                   zu können.';
 
 // Option_form.php.
+$string['bookingoptionimage'] = 'Bild hochladen';
 $string['submitandgoback'] = 'Speichern und zurück';
 $string['bookingoptionprice'] = 'Preis';
 $string['pricecategory'] = 'Preiskategorie';

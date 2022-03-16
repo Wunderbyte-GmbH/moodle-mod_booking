@@ -63,7 +63,8 @@ class optiondates_handler {
 
         $semestersarray = semester::get_semesters_identifier_name_array();
 
-        $mform->addElement('autocomplete', 'chooseperiod', get_string('chooseperiod', 'mod_booking'), $semestersarray, ['tags' => true]);
+        $mform->addElement('autocomplete', 'chooseperiod', get_string('chooseperiod', 'mod_booking'),
+            $semestersarray, ['tags' => true]);
         $mform->addHelpButton('chooseperiod', 'chooseperiod', 'mod_booking');
 
         $mform->addElement('text', 'reoccurringdatestring', get_string('reoccurringdatestring', 'booking'));

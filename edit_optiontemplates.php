@@ -73,6 +73,11 @@ if ($mform->is_cancelled()) {
                     $nbooking, array('subdirs' => false, 'maxfiles' => 50));
         }
 
+        if ($draftimageid = file_get_submitted_draft_itemid('bookingoptionimage')) {
+            file_save_draft_area_files($draftimageid, $context->id, 'mod_booking', 'bookingoptionimage',
+                    $nbooking, array('subdirs' => false, 'maxfiles' => 1));
+        }
+
         if (isset($fromform->addastemplate) && in_array($fromform->addastemplate, array(1, 2))) {
             if (isset($fromform->submittandaddnew)) {
                 $redirecturl = new moodle_url('edit_optiontemplates.php', array('id' => $cm->id, 'optionid' => -1));

@@ -31,6 +31,7 @@
     </div>
 {{/booknowbutton}}
 <h4>{{title}}</h4>
+{{#imageurl}}<img src="{{{.}}}" class="img-fluid"/>{{/imageurl}}
 {{#location}}<div class="bo_location">{{#str}}location, mod_booking{{/str}}: {{.}}</div>{{/location}}
 {{#institution}}<div class="bo_institution">{{#str}}institution, mod_booking{{/str}}: {{.}}</div>{{/institution}}
 {{#address}}<div class="bo_address">{{#str}}address, mod_booking{{/str}}:  {{.}}</div>{{/address}}

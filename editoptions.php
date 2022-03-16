@@ -126,6 +126,11 @@ if ($mform->is_cancelled()) {
                     $nbooking, array('subdirs' => false, 'maxfiles' => 50));
         }
 
+        if ($draftimageid = file_get_submitted_draft_itemid('bookingoptionimage')) {
+            file_save_draft_area_files($draftimageid, $context->id, 'mod_booking', 'bookingoptionimage',
+                    $nbooking, array('subdirs' => false, 'maxfiles' => 1));
+        }
+
         if (isset($fromform->addastemplate) && $fromform->addastemplate == 1) {
             $fromform->bookingid = 0;
             $nbooking = booking_update_options($fromform, $context);
@@ -176,6 +181,11 @@ if ($mform->is_cancelled()) {
                 if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
                     file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
                             $nbooking, array('subdirs' => false, 'maxfiles' => 50));
+                }
+
+                if ($draftimageid = file_get_submitted_draft_itemid('bookingoptionimage')) {
+                    file_save_draft_area_files($draftimageid, $context->id, 'mod_booking', 'bookingoptionimage',
+                            $nbooking, array('subdirs' => false, 'maxfiles' => 1));
                 }
 
                 $bookingdata = new \mod_booking\booking_option($cmid, $nbooking);

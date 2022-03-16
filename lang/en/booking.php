@@ -986,6 +986,7 @@ $string['option_template_not_saved_no_valid_license'] = 'Booking option template
                                                   Upgrade to PRO version to save an unlimited number of templates.';
 
 // Option_form.php.
+$string['bookingoptionimage'] = 'Upload an image';
 $string['submitandgoback'] = 'Save and go back';
 $string['bookingoptionprice'] = 'Price';
 $string['pricecategory'] = 'Price category';
