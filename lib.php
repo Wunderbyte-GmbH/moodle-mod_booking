@@ -592,7 +592,7 @@ function booking_update_options($optionvalues, $context) {
     require_once("$CFG->dirroot/mod/booking/locallib.php");
     require_once("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
 
-    if (!empty($optionvalues->newoptiondates) || !empty($optionvalues->stillexistingdateids)) {
+    if (!empty($optionvalues->newoptiondates) || !empty($optionvalues->stillexistingdates)) {
         // Save the optiondates.
         $optiondateshandler = new optiondates_handler($optionvalues->optionid, $optionvalues->bookingid);
         $optiondateshandler->save_from_form($optionvalues);

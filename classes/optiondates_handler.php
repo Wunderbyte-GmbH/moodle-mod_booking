@@ -94,12 +94,24 @@ class optiondates_handler {
         if ($this->optionid && $this->bookingid) {
 
             // Get the currently saved optiondateids from DB.
-            $olddates = $DB->get_records('booking_optiondates', ['optionid' => $this->optionid], '', 'id');
+            $olddates = $DB->get_records('booking_optiondates', ['optionid' => $this->optionid]);
 
             // Now, let's check, if they have not been removed by the dynamic form.
             foreach ($olddates as $olddate) {
-                if (in_array((int) $olddate->id, $fromform->stillexistingdateids)) {
-                    continue;
+
+                if (isset($fromform->stillexistingdates[(int) $olddate->id])) {
+
+                    $stillexistingdatestring = $fromform->stillexistingdates[(int) $olddate->id];
+                    list($starttime, $endtime) = explode('-', $stillexistingdatestring);
+
+                    // Check if start time or end time has changed.
+                    if ($olddate->coursestarttime != $starttime || $olddate->courseendtime != $endtime) {
+                        // If so, we update the record accordingly.
+                        $olddate->coursestarttime = (int)$starttime;
+                        $olddate->courseendtime = (int)$endtime;
+                        $DB->update_record('booking_optiondates', $olddate);
+                    }
+
                 } else {
                     // An existing optiondate has been removed by the dynamic form, so delete it from DB.
                     $DB->delete_records('booking_optiondates', ['id' => (int) $olddate->id]);

@@ -102,22 +102,21 @@ if ($mform->is_cancelled()) {
 
         // Get all new dynamically loaded dates from $_POST and save them.
         $newoptiondates = [];
-
-        // Also, get the ids of the remaining existing dates.
-        $stillexistingdateids = [];
+        // Also get the remaining existing dates.
+        $stillexistingdates = [];
 
         foreach ($_POST as $key => $value) {
             if (substr($key, 0, 18) === 'coursetime-newdate') {
                 $newoptiondates[] = $value;
             }
             if (substr($key, 0, 17) === 'coursetime-dateid') {
-                $stillexistingdateids[] = (int) explode('-', $key)[2];
+                $currentdateid = (int) explode('-', $key)[2];
+                $stillexistingdates[$currentdateid] = $value;
             }
         }
-
         // Store the arrays in $fromform so we can use them later in booking_update_options.
         $fromform->newoptiondates = $newoptiondates;
-        $fromform->stillexistingdateids = $stillexistingdateids;
+        $fromform->stillexistingdates = $stillexistingdates;
 
         // Todo: nbooking should be call $optionid.
         $nbooking = booking_update_options($fromform, $context);
