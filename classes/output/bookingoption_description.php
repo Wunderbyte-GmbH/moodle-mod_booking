@@ -124,6 +124,7 @@ class bookingoption_description implements renderable, templatable {
 
         // These fields can be gathered directly from settings.
         $this->title = $settings->text;
+        $this->imageurl = $settings->imageurl;
         $this->location = $settings->location;
         $this->address = $settings->address;
         $this->institution = $settings->institution;
@@ -142,21 +143,6 @@ class bookingoption_description implements renderable, templatable {
 
         // Currently, this will only get the description for the current user.
         $this->statusdescription = $bookingoption->get_option_text($bookinganswers);
-
-        $imgfile = null;
-        // Let's check if an image has been uploaded for the option.
-        if ($imgfile = $DB->get_record_sql("SELECT id, contextid, filepath, filename
-                                 FROM {files}
-                                 WHERE component = 'mod_booking'
-                                 AND itemid = :optionid
-                                 AND filearea = 'bookingoptionimage'
-                                 AND filesize > 0
-                                 AND source is not null", ['optionid' => $optionid])) {
-
-            // If an image has been uploaded for the option, let's create the according URL.
-            $this->imageurl = $CFG->wwwroot . "/pluginfile.php/" . $imgfile->contextid .
-                "/mod_booking/bookingoptionimage/" . $optionid . $imgfile->filepath . $imgfile->filename;
-        }
 
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.

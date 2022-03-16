@@ -230,6 +230,14 @@ class booking_option_settings {
             $this->duration = $dbrecord->duration;
             $this->parentid = $dbrecord->parentid;
 
+            // If the key "imageurl" is not yet set, we need to load from DB.
+            if (!isset($dbrecord->imageurl)) {
+                $this->load_imageurl_from_db($optionid);
+                $dbrecord->imageurl = $this->imageurl;
+            } else {
+                $this->imageurl = $dbrecord->imageurl;
+            }
+
             // If the key "sessions" is not yet set, we need to load from DB.
             if (!isset($dbrecord->sessions)) {
                 $this->load_sessions_from_db($optionid);
@@ -261,8 +269,12 @@ class booking_option_settings {
         }
     }
 
-    // Function to load Multisessions from DB.
-    private function load_sessions_from_db($optionid) {
+    /**
+     * Function to load multi-sessions from DB.
+     *
+     * @param int $optionid
+     */
+    private function load_sessions_from_db(int $optionid) {
         global $DB;
         // Multi-sessions.
         if (!$this->sessions = $DB->get_records_sql(
@@ -286,8 +298,12 @@ class booking_option_settings {
         }
     }
 
-    // Function to load Teachers from DB.
-    private function load_teachers_from_db($optionid) {
+    /**
+     * Function to load teachers from DB.
+     *
+     * @param int $optionid
+     */
+    private function load_teachers_from_db(int $optionid) {
         global $DB;
 
         $teachers = $DB->get_records_sql(
@@ -299,8 +315,39 @@ class booking_option_settings {
         $this->teachers = $teachers;
     }
 
+    /**
+     * Function to load the image URL of the option's image from the DB.
+     *
+     * @param int $optionid
+     */
+    private function load_imageurl_from_db(int $optionid) {
+        global $DB, $CFG;
 
-    private function load_customfields($optionid) {
+        $imgfile = null;
+        // Let's check if an image has been uploaded for the option.
+        if ($imgfile = $DB->get_record_sql("SELECT id, contextid, filepath, filename
+                                 FROM {files}
+                                 WHERE component = 'mod_booking'
+                                 AND itemid = :optionid
+                                 AND filearea = 'bookingoptionimage'
+                                 AND filesize > 0
+                                 AND source is not null", ['optionid' => $optionid])) {
+
+            // If an image has been uploaded for the option, let's create the according URL.
+            $this->imageurl = $CFG->wwwroot . "/pluginfile.php/" . $imgfile->contextid .
+                "/mod_booking/bookingoptionimage/" . $optionid . $imgfile->filepath . $imgfile->filename;
+        } else {
+            // Set to null if no image can be found in DB.
+            $this->imageurl = null;
+        }
+    }
+
+    /**
+     * Load custom fields.
+     *
+     * @param int $optionid
+     */
+    private function load_customfields(int $optionid) {
         $handler = booking_handler::create();
 
         $datas = $handler->get_instance_data($optionid);
@@ -320,8 +367,8 @@ class booking_option_settings {
 
     /**
      * Returns the cached settings as stClass.
-     * We will always have them in cache if we have constructed an instance, but just in case...
-     * ... we also deal with an empty cache object.
+     * We will always have them in cache if we have constructed an instance,
+     * but just in case we also deal with an empty cache object.
      *
      * @return stdClass
      */
