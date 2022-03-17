@@ -16,6 +16,7 @@
 
 namespace mod_booking;
 
+use context_module;
 use stdClass;
 use moodle_exception;
 use core_user;
@@ -112,7 +113,14 @@ class message_controller {
         int $optionid, int $userid, int $optiondateid = null, $changes = null,
         string $customsubject = '', string $custommessage = '') {
 
-        global $DB, $USER;
+        global $DB, $USER, $PAGE;
+
+        // When we call this via webservice, we don't have a context, this throws an error.
+        // It's no use passing the context object either.
+
+        if (!isset($PAGE->context)) {
+            $PAGE->set_context(context_module::instance($cmid));
+        }
 
         if (!$bookingid) {
             $booking = singleton_service::get_instance_of_booking($cmid);
@@ -390,7 +398,7 @@ class message_controller {
      */
     private function get_message_data_queue_adhoc(): stdClass {
 
-        global $USER;
+        global $USER, $PAGE;
 
         $messagedata = new stdClass();
 

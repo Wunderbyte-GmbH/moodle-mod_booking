@@ -17,9 +17,12 @@
 namespace mod_booking;
 
 use cache_helper;
+use context_system;
+use core_user;
 use MoodleQuickForm;
 use stdClass;
 use lang_string;
+use local_shopping_cart\shopping_cart;
 
 /**
  * Price class.
@@ -160,24 +163,15 @@ class price {
      * @param int $optionid
      * @return array
      */
-    public static function get_price(int $optionid):array {
+    public static function get_price(int $optionid, $user = null):array {
 
-        global $DB, $USER;
+        global $USER;
 
-        $categoryidentifier = 'default'; // Default.
-
-        // If a user profile field to story the price category identifiers for each user has been set,
-        // then retrieve it from config and set the correct category identifier for the current user.
-        $fieldid = get_config('booking', 'pricecategoryfield');
-        if (!empty($fieldid)) {
-            $categoryidentifier = $DB->get_field('user_info_data', 'data', ['fieldid' => $fieldid, 'userid' => $USER->id]);
-
-            // Make sure that the identifier exists and is active.
-            if (!$DB->get_record('booking_pricecategories', ['identifier' => $categoryidentifier, 'disabled' => 0])) {
-                // Fallback to 'default' if identifier not found or inactive.
-                $categoryidentifier = 'default';
-            }
+        if (!$user) {
+            $user = $USER;
         }
+
+        $categoryidentifier = self::get_pricecategory_for_user($user);
 
         $prices = self::get_prices_from_cache_or_db($optionid);
 
@@ -198,6 +192,66 @@ class price {
         }
 
         return [];
+    }
+
+
+    /**
+     * Return right user from userid.
+     * If there is no userid provided, we look in shopping cart cache, there might be a userid stored.
+     * If not, we use USER.
+     * @param integer $userid
+     * @return user
+     */
+    public static function return_user_to_buy_for(int $userid = 0) {
+
+        global $USER;
+
+        if ($userid === 0) {
+
+            $context = context_system::instance();
+            if (has_capability('local/shopping_cart:cachier', $context)) {
+                $userid = shopping_cart::return_buy_for_userid();
+            }
+        }
+        if ($userid) {
+            $user = singleton_service::get_instance_of_user($userid);
+        } else {
+            $user = $USER;
+        }
+        return $user;
+    }
+
+
+    /**
+     * Function to determine price category for user and return shortname of category.
+     * This function is optimized for speed and can be called often (as in a large table).
+     *
+     * @param user $user
+     * @return void
+     */
+    private static function get_pricecategory_for_user($user) {
+
+        global $CFG;
+
+        // If a user profile field to story the price category identifiers for each user has been set,
+        // then retrieve it from config and set the correct category identifier for the current user.
+        $fieldshortname = get_config('booking', 'pricecategoryfield');
+
+        if (!isset($user->profile) ||
+            !isset($user->profile[$fieldshortname])) {
+
+                require_once("$CFG->dirroot/user/profile/lib.php");
+                profile_load_custom_fields($user);
+        }
+
+        if (!isset($user->profile[$fieldshortname])
+            || empty($user->profile[$fieldshortname])) {
+            $categoryidentifier = 'default'; // Default.
+        } else {
+            $categoryidentifier = $user->profile[$fieldshortname];
+        }
+
+        return $categoryidentifier;
     }
 
     /**

@@ -90,14 +90,14 @@ if ($ADMIN->fulltree) {
             get_string('bookingpricesettings_desc', 'mod_booking')));
 
     // Choose the user profile field which is used to store each user's price category.
-    $userprofilefields = $DB->get_records('user_info_field', null, '', 'id, name');
+    $userprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
     if (!empty($userprofilefields)) {
         $userprofilefieldsarray = [];
         $userprofilefieldsarray[0] = get_string('pricecategoryfieldoff', 'mod_booking');
 
         // Create an array of key => value pairs for the dropdown.
         foreach ($userprofilefields as $userprofilefield) {
-            $userprofilefieldsarray[$userprofilefield->id] = $userprofilefield->name;
+            $userprofilefieldsarray[$userprofilefield->shortname] = $userprofilefield->name;
         }
 
         $settings->add(

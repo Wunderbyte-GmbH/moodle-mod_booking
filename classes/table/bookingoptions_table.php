@@ -34,6 +34,7 @@ use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_price;
 use mod_booking\output\col_text;
 use mod_booking\output\col_teacher;
+use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_exception;
 use moodle_url;
@@ -52,6 +53,8 @@ class bookingoptions_table extends wunderbyte_table {
 
     private $booking = null;
 
+    private $buyforuser = null;
+
     /**
      * Constructor
      * @param int $uniqueid all tables have to have a unique id, this is used
@@ -69,6 +72,10 @@ class bookingoptions_table extends wunderbyte_table {
         }
 
         $this->output = $PAGE->get_renderer('mod_booking');
+
+        // we set the buy for user here for speed.
+
+        $this->buyforuser = price::return_user_to_buy_for();
 
         // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
     }
@@ -104,8 +111,19 @@ class bookingoptions_table extends wunderbyte_table {
         // Render col_price using a template.
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
+        // First we check if the user is booked already.
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $values->id);
+
+        $bookingstatus = $bookinganswer->user_status($this->buyforuser->id);
+
+        if ($bookingstatus == STATUSPARAM_BOOKED) {
+            return get_string('booked', 'mod_booking');
+        } else if ($bookingstatus == STATUSPARAM_WAITINGLIST) {
+            return get_string('waitinglist', 'mod_booking');
+        }
+
         // We pass on the id of the booking option.
-        $data = new col_price($values, $settings);
+        $data = new col_price($values, $settings, $this->buyforuser);
 
         return $this->output->render_col_price($data);
     }
@@ -142,7 +160,7 @@ class bookingoptions_table extends wunderbyte_table {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
         // Render col_bookings using a template.
-        $data = new col_availableplaces($values, $settings);
+        $data = new col_availableplaces($values, $settings, $this->buyforuser);
         return $this->output->render_col_availableplaces($data);
     }
 

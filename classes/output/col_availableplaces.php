@@ -45,12 +45,17 @@ class col_availableplaces implements renderable, templatable {
     /** @var booking_answers $bookinganswers instance of class */
     private $bookinganswers = null;
 
+    /** @var stdClass $buyforuser user stdclass if we buy for user */
+    private $buyforuser = null;
+
     /**
      * The constructor takes the values from db.
      * @param stdClass $values
      * @param booking_option_settings $settings
      */
-    public function __construct($values, booking_option_settings $settings) {
+    public function __construct($values, booking_option_settings $settings, $buyforuser = null) {
+
+        $this->buyforuser = $buyforuser;
 
         $this->bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
     }
@@ -62,8 +67,14 @@ class col_availableplaces implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
+        if ($this->buyforuser) {
+            $userid = $this->buyforuser->id;
+        } else {
+            $userid = 0;
+        }
+
         // We got the array of all the booking information.
-        $bookinginformation = $this->bookinganswers->return_all_booking_information();
+        $bookinginformation = $this->bookinganswers->return_all_booking_information($userid);
 
         return $bookinginformation;
     }

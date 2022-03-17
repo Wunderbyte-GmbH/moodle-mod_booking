@@ -19,6 +19,7 @@ use cache_helper;
 use coding_exception;
 use completion_info;
 use context_module;
+use core_analytics\user;
 use dml_exception;
 use invalid_parameter_exception;
 use stdClass;
@@ -478,7 +479,14 @@ class booking_option {
      * @return string
      */
     public function get_option_text($bookinganswers, $userid = null) {
-        global $USER;
+        global $USER, $PAGE;
+
+        // When we call this via webservice, we don't have a context, this throws an error.
+        // It's no use passing the context object either.
+
+        if (!isset($PAGE->context)) {
+            $PAGE->set_context(context_module::instance($this->cmid));
+        }
 
         $userid = $userid ?? $USER->id;
 
@@ -1000,6 +1008,58 @@ class booking_option {
             }
         }
 
+        return $this->after_successful_booking_routine($user, $waitinglist);
+    }
+
+
+    /**
+     * Function to move user from reserved to booked status in DB.
+     *
+     * @param stdClass $user
+     * @return bool
+     */
+    public function user_confirm_response(stdClass $user):bool {
+
+        global $DB;
+
+        // We have to get all the records of the user, there might be more than one.
+        if (!$currentanswers = $DB->get_records('booking_answers',
+                array('userid' => $user->id, 'optionid' => $this->optionid, 'waitinglist' => STATUSPARAM_RESERVED))) {
+            return false;
+        }
+
+        $counter = 0;
+        foreach ($currentanswers as $currentanswer) {
+            // This should never happen, but if we have more than one reserveration, we just confirm the first and delete the rest.
+            if ($counter > 0) {
+                $DB->delete_records('booking_answers', array('id' => $currentanswer->id));
+            } else {
+                // When it's the first reserveration, we just confirm it.
+                $currentanswer->timemodified = time();
+                $currentanswer->waitinglist = STATUSPARAM_BOOKED;
+                $DB->update_record('booking_answers', $currentanswer);
+                $counter++;
+            }
+        }
+
+        if ($counter > 0) {
+            $this->after_successful_booking_routine($user, STATUSPARAM_BOOKED);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Once we introduced the booking answer to DB, we need to clean cache, notify etc.
+     *
+     * @param stdClass $user
+     * @param int $waitinglist
+     * @return bool
+     */
+    public function after_successful_booking_routine(stdClass $user, int $waitinglist) {
+
+        global $DB;
         // Before returning, we have to set back the answer cache.
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
 
@@ -1009,7 +1069,7 @@ class booking_option {
             return true;
         }
 
-        $this->enrol_user_coursestart($newanswer->userid);
+        $this->enrol_user_coursestart($user->id);
 
         $event = event\bookingoption_booked::create(
                 array('objectid' => $this->optionid,
@@ -1037,10 +1097,6 @@ class booking_option {
         }
         return true;
     }
-
-
-
-
 
     /**
      * Event that sends confirmation notification after user successfully booked.

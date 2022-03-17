@@ -16,6 +16,7 @@
 
 namespace mod_booking;
 
+use core_user;
 use mod_booking\booking;
 use mod_booking\booking_answers;
 use mod_booking\booking_option;
@@ -163,6 +164,42 @@ class singleton_service {
             $settings = new booking_option_settings($optionid);
             $instance->bookingoptionsettings[$optionid] = $settings;
             return $settings;
+        }
+    }
+
+    /**
+     * Service to create and return singleton instance of Moodle user.
+     *
+     * @param int $userid
+     * @return stdClass
+     */
+    public static function get_instance_of_user($userid) {
+        $instance = self::get_instance();
+
+        if (isset($instance->users[$userid])) {
+            return $instance->users[$userid];
+        } else {
+            $user = core_user::get_user($userid);
+            $instance->users[$userid] = $user;
+            return $user;
+        }
+    }
+
+    /**
+     * Service to create and return singleton instance of price class.
+     *
+     * @param int $optionid
+     * @return user
+     */
+    public static function get_instance_of_price($optionid) {
+        $instance = self::get_instance();
+
+        if (isset($instance->prices[$optionid])) {
+            return $instance->prices[$optionid];
+        } else {
+            $price = new price($optionid);
+            $instance->prices[$optionid] = $price;
+            return $price;
         }
     }
 }

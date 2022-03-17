@@ -60,22 +60,20 @@ class col_price implements renderable, templatable {
 
      * @param booking_option_settings $settings
      */
-    public function __construct(stdClass $values, booking_option_settings $settings) {
+    public function __construct(stdClass $values, booking_option_settings $settings, $buyforuser = null) {
 
         global $USER;
 
-        if (!isset($values->userid)) {
-            $userid = $USER->id;
-        } else {
-            $userid = $values->userid;
+        if (empty($buyforuser)) {
+            $buyforuser = $USER;
         }
 
         // Because of the caching logic, we have to create the booking_answers object here again.
         if ($values->id) {
             $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
             // A status bigger than 1 means, that the user is neither booked nor on waitinglist.
-            if ($bookinganswers->user_status($userid) > 1) {
-                if ($this->priceitem = price::get_price($values->id)) {
+            if ($bookinganswers->user_status($buyforuser->id) > 1) {
+                if ($this->priceitem = price::get_price($values->id, $buyforuser)) {
 
                     $cartitem = new cartitem($values->id,
                                      $values->text,

@@ -31,6 +31,7 @@ use local_shopping_cart\local\entities\cartitem;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\price;
+use mod_booking\singleton_service;
 use stdClass;
 
 /**
@@ -58,19 +59,22 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         // This is just fraud prevention and can not happen ordinarily.
         $cm = get_coursemodule_from_instance('booking', $bookingoption->bookingid);
 
-        // Find out if the executing user has the right to access this instance.
-        $context = context_module::instance($cm->id);
-        if (!has_capability('mod/quiz:view', $context)) {
-            return null;
-        }
+        // TODO: Find out if the executing user has the right to access this instance.
+        // This can lead to problems, rights should be checked further up.
+        // $context = context_module::instance($cm->id);
+        // if (!has_capability('mod/booking:choose', $context)) {
+        //     return null;
+        // }
+
+        $user = price::return_user_to_buy_for();
 
         // In booking, we always buy a booking option. Therefore, we have to first find out its price.
-        if (!$price = price::get_price($optionid)) {
+        if (!$price = price::get_price($optionid, $user)) {
             return null;
         }
 
         // Now we reserve the place for the user.
-        if (!$bookingoption->user_submit_response($USER, 0, 0, true)) {
+        if (!$bookingoption->user_submit_response($user, 0, 0, true)) {
             return null;
         }
 
@@ -103,15 +107,23 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
     /**
      * Callback function that handles inscripiton after fee was paid.
-     * @param integer $itemid
+     * @param integer $optionid
      * @param integer $paymentid
      * @param integer $userid
      * @return boolean
      */
-    public static function successful_checkout(int $itemid, int $paymentid, int $userid):bool {
-        global $DB;
+    public static function successful_checkout(int $optionid, string $paymentid, int $userid):bool {
+        global $USER;
 
-        // TODO: Set booking_answer to 1.
+        $bookingoption = booking_option::create_option_from_optionid($optionid);
+
+        if ($userid == 0) {
+            $user = $USER;
+        } else {
+            $user = singleton_service::get_instance_of_user($userid);
+        }
+
+        $bookingoption->user_confirm_response($user);
 
         return true;
     }
