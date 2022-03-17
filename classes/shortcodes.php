@@ -46,9 +46,9 @@ class shortcodes {
     public static function listofbookingoptions($shortcode, $args, $content, $env, $next) {
 
         // TODO: Define capality.
-        if (!has_capability('moodle/site:config', $env->context)) {
+        /* if (!has_capability('moodle/site:config', $env->context)) {
             return '';
-        }
+        } */
 
         // If the id argument was not passed on, we have a fallback in the connfig.
         if (!isset($args['id'])) {
