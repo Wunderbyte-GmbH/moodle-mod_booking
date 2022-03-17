@@ -29,7 +29,6 @@ import Notification from 'core/notification';
  * @param {int} userid
  */
 export const init = (optionid = null) => {
-    // eslint-disable-next-line no-console
 
     let spinners = [];
     if (optionid === null) {
@@ -37,16 +36,9 @@ export const init = (optionid = null) => {
     } else {
         spinners = [document.querySelector('[id^=bo_modal_spinner_' + optionid + ']')];
     }
-
-    // eslint-disable-next-line no-console
-    console.log("found number of spinners: " + spinners.length);
-
     spinners.forEach((spinner) => {
         const optionid = spinner.dataset.optionid;
         const userid = spinner.dataset.userid ?? 0;
-
-        // eslint-disable-next-line no-console
-        console.log("optionid: " + optionid + ' userid: ' + userid);
 
         respondToVisibility(optionid, userid, getBookingOptionDescription);
     });
@@ -74,14 +66,10 @@ function respondToVisibility(optionid, userid, callback) {
             element = element.parentElement;
         } else {
             if (element.dataset.observed) {
-                // eslint-disable-next-line no-console
-                console.log('element already observed ', element);
                 return;
             }
 
             observer.observe(element, {attributes: true});
-            // eslint-disable-next-line no-console
-            console.log('set data to observed ', element);
             element.dataset.observed = true;
             return;
         }
@@ -107,8 +95,6 @@ function isHidden(el) {
 export const getBookingOptionDescription = (
     optionid,
     userid) => {
-    // eslint-disable-next-line no-console
-    console.log('getBookingOptionDescription ' + optionid);
 
     let description = document.getElementById('bo_modal_description_' + optionid);
     let spinner = document.querySelector('#bo_modal_spinner_' + optionid + ' .spinner-border');
