@@ -41,6 +41,7 @@ export const init = (cmid, bookingid, optionid) => {
 
     optiondateForm.addEventListener(optiondateForm.events.FORM_SUBMITTED, (e) => {
 
+        // Remember values when form gets submitted.
         var chooseperiodvalue = document.getElementsByName('chooseperiod')[0].value;
         var reoccurringdatestringvalue = document.getElementsByName('reoccurringdatestring')[0].value;
 
@@ -77,9 +78,12 @@ export const init = (cmid, bookingid, optionid) => {
             // This is needed to fix datelist bugs.
             datelistinit();
 
-            // We need this, so we don't losse the form data after reloading.
+            // We need this, so we don't lose the form data after reloading.
             document.getElementsByName('chooseperiod')[0].value = chooseperiodvalue;
             document.getElementsByName('reoccurringdatestring')[0].value = reoccurringdatestringvalue;
+            // Also load the data into the hidden elements which we need to pass the values to the non-dynamic form.
+            document.querySelector('#semesterid').value = chooseperiodvalue;
+            document.querySelector('#dayofweektime').value = reoccurringdatestringvalue;
 
             return;
         })
@@ -115,5 +119,17 @@ export const datelistinit = () => {
                 '</span> <i class="fa fa-trash ml-2 icon-red" data-action="delete"></i></li>';
             targetElement.insertAdjacentHTML('afterend', element);
         }
+    });
+
+    // Add an event listener to the chooseperiod autocomplete to store semesterid in a hidden input field.
+    // We need this, so we can save it later via $_POST from the not dynamic moodle form.
+    document.getElementsByName('chooseperiod')[0].addEventListener('change', (e) => {
+        document.querySelector('#semesterid').value = e.target.value;
+    });
+
+    // Add an event listener to the reoccurring datestring to store it in a hidden input field.
+    // We need this, so we can save it later via $_POST from the not dynamic moodle form.
+    document.getElementsByName('reoccurringdatestring')[0].addEventListener('keyup', (e) => {
+        document.querySelector('#dayofweektime').value = e.target.value;
     });
 };

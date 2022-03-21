@@ -140,6 +140,12 @@ class booking_option_settings {
     /** @var int $parentid */
     public $parentid = null;
 
+    /** @var int $semesterid */
+    public $semesterid = null;
+
+    /** @var string $dayofweektime */
+    public $dayofweektime = null;
+
     /** @var array $sessions */
     public $sessions = [];
 
@@ -229,6 +235,8 @@ class booking_option_settings {
             $this->shorturl = $dbrecord->shorturl;
             $this->duration = $dbrecord->duration;
             $this->parentid = $dbrecord->parentid;
+            $this->semesterid = $dbrecord->semesterid;
+            $this->dayofweektime = $dbrecord->dayofweektime;
 
             // If the key "imageurl" is not yet set, we need to load from DB.
             if (!isset($dbrecord->imageurl)) {

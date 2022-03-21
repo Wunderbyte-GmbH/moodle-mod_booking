@@ -20,6 +20,7 @@ use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\customfield\booking_handler;
 use mod_booking\price;
+use mod_booking\singleton_service;
 use moodleform;
 
 class option_form extends moodleform {
@@ -287,6 +288,14 @@ class option_form extends moodleform {
         $mform->addElement('header', 'datesheader',
             get_string('dates', 'booking'));
         $mform->addElement('html', '<div id="optiondates-form"></div>');
+        // Save semesterid and dayofweektime string in hidden inputs, so we can access them via $_POST.
+        $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $mform->addElement('html',
+            '<input type="text" data-fieldtype="text" class="d-none felement" id="semesterid" name="semesterid" value="' .
+            $bookingoptionsettings->semesterid . '"></input>');
+        $mform->addElement('html',
+            '<input type="text" data-fieldtype="text" class="d-none felement" id="dayofweektime" name="dayofweektime" value="' .
+            $bookingoptionsettings->dayofweektime . '"></input>');
 
         // Advanced options.
         $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));

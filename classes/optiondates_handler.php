@@ -61,13 +61,17 @@ class optiondates_handler {
     public function add_optiondates_for_semesters_to_mform(MoodleQuickForm &$mform, bool $loadexistingdates) {
         global $PAGE;
 
+        $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+
         $semestersarray = semester::get_semesters_identifier_name_array();
 
         $mform->addElement('autocomplete', 'chooseperiod', get_string('chooseperiod', 'mod_booking'),
-            $semestersarray, ['tags' => true]);
+            $semestersarray, ['tags' => false]);
+        $mform->setDefault('chooseperiod', $bookingoptionsettings->semesterid);
         $mform->addHelpButton('chooseperiod', 'chooseperiod', 'mod_booking');
 
         $mform->addElement('text', 'reoccurringdatestring', get_string('reoccurringdatestring', 'booking'));
+        $mform->setDefault('reoccurringdatestring', $bookingoptionsettings->dayofweektime);
         $mform->addHelpButton('reoccurringdatestring', 'reoccurringdatestring', 'mod_booking');
         $mform->setType('reoccurringdatestring', PARAM_TEXT);
 

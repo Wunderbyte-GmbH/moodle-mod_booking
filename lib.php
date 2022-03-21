@@ -635,6 +635,16 @@ function booking_update_options($optionvalues, $context) {
         $option->parentid = $optionvalues->parentid;
     }
 
+    // Set semesterid and dayofweektime string which we got from the dynamic form (see editoptions.php).
+    if (!empty($optionvalues->semesterid)) {
+        $option->semesterid = $optionvalues->semesterid;
+    }
+    if (!empty($optionvalues->dayofweektime)) {
+        // TODO: We could add the optiondates_handler::reoccurring_datestring_is_correct check here...
+        // ...and only store if the string is correct, if this is needed.
+        $option->dayofweektime = $optionvalues->dayofweektime;
+    }
+
     $option->text = trim($optionvalues->text);
     if (!isset($optionvalues->howmanyusers) || empty($optionvalues->howmanyusers)) {
         $option->howmanyusers = 0;
