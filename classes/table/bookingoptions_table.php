@@ -215,15 +215,8 @@ class bookingoptions_table extends wunderbyte_table {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
-        if (isset($settings->customfields['dayofweektime'])) {
-
-            list($day, $starttime, $endtime) = explode('#', $settings->customfields['dayofweektime']);
-
-            $dayofweektimeformatted = $day .' '
-                . substr($starttime, 0, 2) . ':' . substr($starttime, 2, 2) . '-'
-                . substr($endtime, 0, 2) . ':' . substr($endtime, 2, 2);
-
-            return $dayofweektimeformatted;
+        if (!empty($settings->dayofweektime)) {
+            return $settings->dayofweektime;
         } else {
             return '';
         }
