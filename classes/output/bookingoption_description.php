@@ -31,6 +31,7 @@ use mod_booking\booking;
 use mod_booking\booking_answers;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\price;
 use mod_booking\singleton_service;
 use renderer_base;
 use renderable;
@@ -82,6 +83,11 @@ class bookingoption_description implements renderable, templatable {
     /** @var array $teachers by names */
     public $teachers = [];
 
+    /** @var float $price */
+    public $price = null;
+
+    /** @var string $currency */
+    public $currency = null;
 
     /**
      * Constructor.
@@ -158,6 +164,18 @@ class bookingoption_description implements renderable, templatable {
         }
         $this->teachers = $teachernames;
 
+        // Add price.
+        // TODO: Currently this will only use the logged in $USER, this won't work for the cachier use case!
+        $priceitem = price::get_price($optionid);
+        if (!empty($priceitem)) {
+            if (isset($priceitem['price'])) {
+                $this->price = $priceitem['price'];
+            }
+            if (isset($priceitem['currency'])) {
+                $this->currency = $priceitem['currency'];
+            }
+        }
+
         $baseurl = $CFG->wwwroot;
         $moodleurl = new \moodle_url($baseurl . '/mod/booking/view.php', array(
             'id' => $booking->cm->id,
@@ -227,7 +245,9 @@ class bookingoption_description implements renderable, templatable {
                 'duration' => $this->duration,
                 'dates' => $this->dates,
                 'booknowbutton' => $this->booknowbutton,
-                'teachers' => $this->teachers
+                'teachers' => $this->teachers,
+                'price' => $this->price,
+                'currency' => $this->currency
         );
 
         // In events we don't have the possibility, as on the website, to use display: none the same way.

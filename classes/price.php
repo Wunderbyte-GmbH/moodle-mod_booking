@@ -163,7 +163,7 @@ class price {
      * @param int $optionid
      * @return array
      */
-    public static function get_price(int $optionid, $user = null):array {
+    public static function get_price(int $optionid, $user = null): array {
 
         global $USER;
 
@@ -289,9 +289,9 @@ class price {
      * Only active price categories will be returned.
      *
      * @param string $identifier
-     * @return stdClass
+     * @return null|stdClass
      */
-    public static function get_active_pricecategory_from_cache_or_db(string $identifier): stdClass {
+    public static function get_active_pricecategory_from_cache_or_db(string $identifier) {
         global $DB;
 
         $cache = \cache::make('mod_booking', 'cachedpricecategories');

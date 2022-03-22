@@ -73,8 +73,7 @@ class bookingoptions_table extends wunderbyte_table {
 
         $this->output = $PAGE->get_renderer('mod_booking');
 
-        // we set the buy for user here for speed.
-
+        // We set buyforuser here for better performance.
         $this->buyforuser = price::return_user_to_buy_for();
 
         // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
