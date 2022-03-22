@@ -312,6 +312,7 @@ $string['completedratings'] = 'Nur diejenigen, die Aktivität abgeschlossen habe
 $string['shorturl'] = 'Verkürzter Link zu dieser Buchungsoption';
 $string['generatenewurl'] = 'Neue Kurz-URL generieren';
 $string['notes'] = 'Anmerkungen zur Buchung';
+$string['uploadheaderimages'] = 'Header-Bilder für Buchungsoptionen';
 
 // Mail templates (Instanz-spezifisch oder global).
 $string['mailtemplatesadvanced'] = 'Erweiterte Einstelllungen für E-Mail-Vorlagen aktivieren';

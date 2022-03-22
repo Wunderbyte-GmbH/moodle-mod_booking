@@ -345,7 +345,11 @@ class booking_option_settings {
             $this->imageurl = $CFG->wwwroot . "/pluginfile.php/" . $imgfile->contextid .
                 "/mod_booking/bookingoptionimage/" . $optionid . $imgfile->filepath . $imgfile->filename;
         } else {
-            // Set to null if no image can be found in DB.
+
+            // TODO: fallback to general images...
+
+            // Set to null if no image can be found in DB...
+            // ... AND if no fallback image has been uploaded to the bookingimages folder.
             $this->imageurl = null;
         }
     }

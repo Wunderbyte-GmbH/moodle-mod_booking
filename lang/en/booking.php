@@ -342,6 +342,7 @@ $string['completedratings'] = 'Only with completed activity';
 $string['shorturl'] = 'Short URL of this option';
 $string['generatenewurl'] = 'Generate new short url';
 $string['notes'] = 'Booking notes';
+$string['uploadheaderimages'] = 'Header images for booking options';
 
 // Mail templates (instance specific or global).
 $string['mailtemplatesadvanced'] = 'Activate advanced settings for e-mail templates';

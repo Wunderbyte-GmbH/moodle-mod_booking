@@ -234,6 +234,15 @@ class mod_booking_mod_form extends moodleform_mod {
         // Hide short info for the first two options.
         $mform->hideIf('coursepageshortinfo', 'showlistoncoursepage', 'in', [0, 1]);
 
+        // Upload general images which need to have the same name as the value of a certain customfield.
+        // These images will be used as a fallback for each option which has no image of its own.
+        $mform->addElement('header', 'uploadheaderimages',
+                get_string('uploadheaderimages', 'booking'));
+
+        $mform->addElement('filemanager', 'bookingimages', get_string('bookingimages', 'mod_booking'), null,
+        array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 500,
+            'accepted_types' => array('image')));
+
         // Confirmation message.
         $mform->addElement('header', 'confirmation',
                 get_string('confirmationmessagesettings', 'booking'));
