@@ -46,6 +46,7 @@ class shortcodes {
     public static function listofbookingoptions($shortcode, $args, $content, $env, $next) {
 
         // TODO: Define capality.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* if (!has_capability('moodle/site:config', $env->context)) {
             return '';
         } */
@@ -60,7 +61,7 @@ class shortcodes {
             return 'Set id of booking instance';
         }
 
-        if (!$booking = singleton_service::get_instance_of_booking($args['id'])) {
+        if (!$booking = singleton_service::get_instance_of_booking_by_cmid($args['id'])) {
             return 'Couldn\'t find right booking instance ' . $args['id'];
         }
 
@@ -155,6 +156,7 @@ class shortcodes {
     public static function listofbookingoptionscards($shortcode, $args, $content, $env, $next) {
 
         // TODO: Define capality.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* if (!has_capability('moodle/site:config', $env->context)) {
             return '';
         } */
@@ -169,7 +171,7 @@ class shortcodes {
             return 'Set id of booking instance';
         }
 
-        if (!$booking = singleton_service::get_instance_of_booking($args['id'])) {
+        if (!$booking = singleton_service::get_instance_of_booking_by_cmid($args['id'])) {
             return 'Couldn\'t find right booking instance ' . $args['id'];
         }
 
@@ -195,7 +197,6 @@ class shortcodes {
 
         $table->define_cache('mod_booking', 'bookingoptionstable');
 
-
         $table->add_subcolumns('itemcategory', ['sports']);
         $table->add_subcolumns('cardimage', ['image']);
 
@@ -203,7 +204,6 @@ class shortcodes {
         $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('cardbody', ['columvalueclass' => 'h6'], ['sports']);
         $table->add_classes_to_subcolumns('cardbody', ['columvalueclass' => 'h5'], ['text']);
-
 
         $table->add_subcolumns('cardlist', ['dayofweek', 'location', 'bookings']);
         $table->add_classes_to_subcolumns('cardlist', ['columnkeyclass' => 'd-none']);

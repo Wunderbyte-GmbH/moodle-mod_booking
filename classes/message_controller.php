@@ -123,14 +123,14 @@ class message_controller {
         }
 
         if (!$bookingid) {
-            $booking = singleton_service::get_instance_of_booking($cmid);
+            $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
             $this->bookingid = $booking->id;
         } else {
             $this->bookingid = $bookingid;
         }
 
         // Settings.
-        $this->bookingsettings = singleton_service::get_instance_of_booking_settings($cmid);
+        $this->bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
         $this->optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         // Get the booking manager.

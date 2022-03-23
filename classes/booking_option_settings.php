@@ -351,8 +351,7 @@ class booking_option_settings {
         } else {
             // Image fallback (general images to match with custom fields).
             // First, check if there's a customfield to match images with.
-            $cm = get_coursemodule_from_instance('booking', $bookingid);
-            $bookingsettings = singleton_service::get_instance_of_booking_settings($cm->id);
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
             $customfieldid = $bookingsettings->bookingimagescustomfield;
 
             if (!empty($customfieldid)) {

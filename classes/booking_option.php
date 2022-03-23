@@ -142,7 +142,7 @@ class booking_option {
         $this->id = $optionid; // Store it in id AND in optionid.
 
         $this->settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $this->booking = singleton_service::get_instance_of_booking($cmid);
+        $this->booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
         $this->bookingid = $this->booking->id;
 
@@ -1504,7 +1504,7 @@ class booking_option {
         if ($this->booking->course->id !== $targetcourse->id) {
             throw new invalid_parameter_exception("Target booking instance must be in same course");
         }
-        $targetbooking = singleton_service::get_instance_of_booking($targetcmid);
+        $targetbooking = singleton_service::get_instance_of_booking_by_cmid($targetcmid);
         $targetcontext = context_module::instance($targetcmid);
         // Get users of source option.
         // Check for completion errors on unsubscribe.

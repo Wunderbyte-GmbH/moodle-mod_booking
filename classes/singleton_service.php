@@ -71,20 +71,40 @@ class singleton_service {
     }
 
     /**
-     * Service to create and return singleton instance of booking.
+     * Service to create and return singleton instance of booking by cmid.
      *
      * @param int $cmid
      * @return booking
      */
-    public static function get_instance_of_booking(int $cmid) {
+    public static function get_instance_of_booking_by_cmid(int $cmid) {
 
         $instance = self::get_instance();
 
-        if (isset($instance->bookings[$cmid])) {
-            return $instance->bookings[$cmid];
+        if (isset($instance->bookingsbycmid[$cmid])) {
+            return $instance->bookingsbycmid[$cmid];
         } else {
             $booking = new booking($cmid);
-            $instance->bookings[$cmid] = $booking;
+            $instance->bookingsbycmid[$cmid] = $booking;
+            return $booking;
+        }
+    }
+
+    /**
+     * Service to create and return singleton instance of booking by bookingid.
+     *
+     * @param int $bookingid
+     * @return booking
+     */
+    public static function get_instance_of_booking_by_bookingid(int $bookingid) {
+
+        $instance = self::get_instance();
+
+        if (isset($instance->bookingsbybookingid[$bookingid])) {
+            return $instance->bookingsbybookingid[$bookingid];
+        } else {
+            $cm = get_coursemodule_from_instance('booking', $bookingid);
+            $booking = new booking($cm->id);
+            $instance->bookingsbybookingid[$bookingid] = $booking;
             return $booking;
         }
     }
@@ -113,19 +133,38 @@ class singleton_service {
     }
 
     /**
-     * Service to create and return singleton instance of booking.
+     * Service to create and return singleton instance of booking by cmid.
      *
      * @param int $cmid
      * @return booking_settings
      */
-    public static function get_instance_of_booking_settings($cmid) {
+    public static function get_instance_of_booking_settings_by_cmid(int $cmid): booking_settings {
         $instance = self::get_instance();
 
-        if (isset($instance->bookingsettings[$cmid])) {
-            return $instance->bookingsettings[$cmid];
+        if (isset($instance->bookingsettingsbycmid[$cmid])) {
+            return $instance->bookingsettingsbycmid[$cmid];
         } else {
             $settings = new booking_settings($cmid);
-            $instance->bookingsettings[$cmid] = $settings;
+            $instance->bookingsettingsbycmid[$cmid] = $settings;
+            return $settings;
+        }
+    }
+
+    /**
+     * Service to create and return singleton instance of booking by bookingid.
+     *
+     * @param int $bookingid
+     * @return booking_settings
+     */
+    public static function get_instance_of_booking_settings_by_bookingid(int $bookingid): booking_settings {
+        $instance = self::get_instance();
+
+        if (isset($instance->bookingsettingsbybookingid[$bookingid])) {
+            return $instance->bookingsettingsbybookingid[$bookingid];
+        } else {
+            $cm = get_coursemodule_from_instance('booking', $bookingid);
+            $settings = new booking_settings($cm->id);
+            $instance->bookingsettingsbybookingid[$bookingid] = $settings;
             return $settings;
         }
     }

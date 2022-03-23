@@ -81,7 +81,7 @@ class booking {
         global $DB;
 
         // In the constructur, we call the booking_settings, where we get the values from db or cache.
-        $bosettings = singleton_service::get_instance_of_booking_settings($cmid);
+        $bosettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
         $this->settings = $bosettings->return_settings_as_stdclass();
         $this->id = $this->settings->id;
