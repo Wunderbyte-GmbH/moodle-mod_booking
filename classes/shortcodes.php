@@ -197,7 +197,7 @@ class shortcodes {
 
         $table->add_subcolumns('cardimage', ['image']);
 
-        $table->add_subcolumns('cardbody', ['sports', 'text']);
+        $table->add_subcolumns('cardbody', ['sports', 'text', 'teacher']);
         $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('cardbody', ['columvalueclass' => 'h6'], ['sports']);
         $table->add_classes_to_subcolumns('cardbody', ['columvalueclass' => 'h5'], ['text']);
