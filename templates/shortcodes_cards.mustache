@@ -90,7 +90,7 @@
                     {{.}}
                   {{/keystring}}:
                   {{#columnkeyclass}}</span>{{/columnkeyclass}}
-                  <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}} ">
+                  <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}} {{key}}">
                     {{{value}}}
                     {{#columnvalueclass}}</span>{{/columnvalueclass}}
                   <span {{^value}} style="display:none" {{/value}}>
@@ -120,7 +120,7 @@
                       {{.}}
                     {{/keystring}}:
                     {{#columnkeyclass}}</span>{{/columnkeyclass}}
-                    <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}} ">
+                    <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}} {{key}}">
                       {{{value}}}
                       {{#columnvalueclass}}</span>{{/columnvalueclass}}
                     <span {{^value}} style="display:none" {{/value}}>
@@ -149,7 +149,7 @@
                       {{.}}
                     {{/keystring}}:
                     {{#columnkeyclass}}</span>{{/columnkeyclass}}
-                    <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}} ">
+                    <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}} {{key}}">
                       {{{value}}}
                       {{#columnvalueclass}}</span>{{/columnvalueclass}}
                     <span {{^value}} style="display:none" {{/value}}>

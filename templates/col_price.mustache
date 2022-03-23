@@ -35,8 +35,7 @@
         "pricecategoryname" : "student"
     }
 }}
-
 {{#price}}
-{{price}} {{currency}} {{> local_shopping_cart/addtocartdb }}
+<span class="pricecurrency"> {{price}} {{currency}}</span> {{> local_shopping_cart/addtocartdb }}
 <p><i>{{pricecategoryname}}</i></p>
 {{/price}}
