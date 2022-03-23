@@ -577,7 +577,7 @@ class booking {
         $from = "{booking_options} bo";
         $where = "bo.bookingid = :bookingid {$search}";
         // phpcs:ignore moodle.Commenting.InlineComment.NotCapital,Squiz.PHP.CommentedOutCode.Found
-        $order = "ORDER BY CAST(bo.text AS int) ASC $limit";
+        $order = ""; // "ORDER BY CAST(bo.text AS int) ASC $limit";
         if (strlen($searchtext) !== 0) {
             $from .= "
                 JOIN {customfield_data} cfd
