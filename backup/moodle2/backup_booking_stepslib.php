@@ -49,8 +49,9 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'scale', 'whichview', 'daystonotify2', 'enablepresence', 'completionmodule', 'responsesfields',
                     'reportfields', 'optionsfields', 'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
                     'signinsheetfields', 'comments', 'ratings', 'removeuseronunenrol', 'teacherroleid', 'allowupdatedays',
-                    'templateid', 'showdescriptionmode', 'showlistoncoursepage', 'coursepageshortinfo', 'defaultoptionsort',
-                    'showviews', 'customtemplateid', 'autcractive', 'autcrprofile', 'autcrvalue', 'autcrtemplate'));
+                    'templateid', 'showdescriptionmode', 'showlistoncoursepage', 'coursepageshortinfo', 'bookingimagescustomfield',
+                    'defaultoptionsort', 'showviews', 'customtemplateid', 'autcractive', 'autcrprofile', 'autcrvalue',
+                    'autcrtemplate'));
 
         $options = new backup_nested_element('options');
         $option = new backup_nested_element('option', array('id'),
@@ -61,7 +62,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'pollurlteachers', 'howmanyusers', 'pollsend', 'removeafterminutes',
                     'notificationtext', 'notificationtextformat', 'disablebookingusers',
                     'beforebookedtext', 'beforecompletedtext',
-                    'aftercompletedtext', 'shorturl', 'duration', 'parentid'));
+                    'aftercompletedtext', 'shorturl', 'duration', 'parentid', 'semesterid', 'dayofweektime'));
 
         $answers = new backup_nested_element('answers');
         $answer = new backup_nested_element('answer', array('id'),
