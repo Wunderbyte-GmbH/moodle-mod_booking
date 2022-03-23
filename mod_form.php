@@ -239,7 +239,12 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('header', 'uploadheaderimages',
                 get_string('uploadheaderimages', 'booking'));
 
-        $customfieldsrecords = $DB->get_records('customfield_field');
+        $customfieldsrecords = $DB->get_records_sql(
+            "SELECT cff.id, cff.name, cff.shortname
+            FROM {customfield_field} cff
+            LEFT JOIN {customfield_category} cfc
+            ON cff.categoryid = cfc.id
+            WHERE cfc.component = 'mod_booking'");
         $customfieldsarray = [];
         foreach ($customfieldsrecords as $customfieldsrecord) {
             $customfieldsarray[$customfieldsrecord->id] = $customfieldsrecord->name . ' (' . $customfieldsrecord->shortname . ')';
