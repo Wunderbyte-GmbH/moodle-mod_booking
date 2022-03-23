@@ -239,7 +239,16 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('header', 'uploadheaderimages',
                 get_string('uploadheaderimages', 'booking'));
 
-        $mform->addElement('filemanager', 'bookingimages', get_string('bookingimages', 'mod_booking'), null,
+        $customfieldsrecords = $DB->get_records('customfield_field');
+        $customfieldsarray = [];
+        foreach ($customfieldsrecords as $customfieldsrecord) {
+            $customfieldsarray[$customfieldsrecord->id] = $customfieldsrecord->name . ' (' . $customfieldsrecord->shortname . ')';
+        }
+
+        $mform->addElement('autocomplete', 'bookingimagescustomfield', get_string('bookingimagescustomfield', 'mod_booking'),
+            $customfieldsarray, ['tags' => false]);
+
+        $mform->addElement('filemanager', 'bookingimages', get_string('bookingimages', 'booking'), null,
         array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 500,
             'accepted_types' => array('image')));
 

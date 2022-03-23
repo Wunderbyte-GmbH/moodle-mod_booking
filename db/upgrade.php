@@ -2399,5 +2399,21 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022030901, 'booking');
     }
 
+    if ($oldversion < 2022032302) {
+
+        // Define field bookingimagescustomfield to be added to table booking.
+        $table = new xmldb_table('booking');
+
+        $field = new xmldb_field('bookingimagescustomfield', XMLDB_TYPE_INTEGER, '10', null,
+            null, null, '0', 'coursepageshortinfo');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022032302, 'booking');
+    }
+
     return true;
 }

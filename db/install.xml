@@ -91,6 +91,7 @@
         <FIELD NAME="showdescriptionmode" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Setting that specifies how to show descriptions (0 = modal / 1 = inline)."/>
         <FIELD NAME="showlistoncoursepage" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="Setting that specifies if a list of available booking options should be shown on the coursepage."/>
         <FIELD NAME="coursepageshortinfo" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="bookingimagescustomfield" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="defaultoptionsort" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="text" SEQUENCE="false"/>
         <FIELD NAME="showviews" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="mybooking,myoptions,showall,showactive,myinstitution" SEQUENCE="false" COMMENT="Which views are shown in view.php"/>
         <FIELD NAME="customtemplateid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>

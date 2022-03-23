@@ -343,6 +343,8 @@ $string['shorturl'] = 'Short URL of this option';
 $string['generatenewurl'] = 'Generate new short url';
 $string['notes'] = 'Booking notes';
 $string['uploadheaderimages'] = 'Header images for booking options';
+$string['bookingimagescustomfield'] = 'Booking option custom field to match the header images with';
+$string['bookingimages'] = 'Upload header images for booking options - they need to have the exact same name as the value of the customfield selected above in each booking option.';
 
 // Mail templates (instance specific or global).
 $string['mailtemplatesadvanced'] = 'Activate advanced settings for e-mail templates';
