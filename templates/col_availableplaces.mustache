@@ -50,28 +50,64 @@
 }}
 
 {{#iambooked}}
-    <div class="btn alert-success col-ap-booked">
-        {{#str}} booked, mod_booking {{/str}}
-    </div>
-{{/iambooked}}
-
-{{#onwaitinglist}}
-    <div class="btn alert-success col-ap-booked">
-        {{#str}} onwaitinglist, mod_booking {{/str}}
-    </div>
-{{/onwaitinglist}}
-
-{{#notbooked}}
     {{#maxanswers}}
-        <div class="col-ap-availableplaces">
+        <span class="col-ap-availableplaces">
             {{#fullybooked}}
                 <span class="text-danger font-weight-bold">{{booked}}</span>
             {{/fullybooked}}
             {{^fullybooked}}
                 <span class="text-success font-weight-bold">{{booked}}</span>
             {{/fullybooked}}
-             / {{maxanswers}} <i class="fa fa-users"></i>
+             / {{maxanswers}}
+        </span>
+    {{/maxanswers}}
+    {{^maxanswers}}
+        <div class="col-ap-availableplaces">
+            {{#str}} unlimited, mod_booking {{/str}}
         </div>
+    {{/maxanswers}}
+    {{#maxoverbooking}}
+        <div class="col-ap-waitingplacesavailable">
+            {{#str}} waitingplacesavailable, mod_booking, { "overbookingavailable": {{freeonwaitinglist}}, "maxoverbooking": {{maxoverbooking}} } {{/str}}
+        </div>
+    {{/maxoverbooking}}
+{{/iambooked}}
+
+{{#onwaitinglist}}
+    {{#maxanswers}}
+        <span class="col-ap-availableplaces">
+            {{#fullybooked}}
+                <span class="text-danger font-weight-bold">{{booked}}</span>
+            {{/fullybooked}}
+            {{^fullybooked}}
+                <span class="text-success font-weight-bold">{{booked}}</span>
+            {{/fullybooked}}
+             / {{maxanswers}}
+        </span>
+    {{/maxanswers}}
+    {{^maxanswers}}
+        <div class="col-ap-availableplaces">
+            {{#str}} unlimited, mod_booking {{/str}}
+        </div>
+    {{/maxanswers}}
+    {{#maxoverbooking}}
+        <div class="col-ap-waitingplacesavailable">
+            {{#str}} waitingplacesavailable, mod_booking, { "overbookingavailable": {{freeonwaitinglist}}, "maxoverbooking": {{maxoverbooking}} } {{/str}}
+        </div>
+    {{/maxoverbooking}}
+{{/onwaitinglist}}
+
+{{#notbooked}}
+    {{#maxanswers}}
+        <span class="col-ap-availableplaces">
+            {{#fullybooked}}
+                <span class="text-danger font-weight-bold">{{booked}}</span>
+            {{/fullybooked}}
+            {{^fullybooked}}
+                <span class="text-success font-weight-bold">{{booked}}</span>
+            {{/fullybooked}}
+             / {{maxanswers}}
+        </span>
     {{/maxanswers}}
     {{^maxanswers}}
         <div class="col-ap-availableplaces">
