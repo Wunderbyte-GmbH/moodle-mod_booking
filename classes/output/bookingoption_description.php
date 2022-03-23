@@ -89,6 +89,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $currency */
     public $currency = null;
 
+    /** @var string $pricecategoryname */
+    public $pricecategoryname = null;
+
     /**
      * Constructor.
      * @param $booking
@@ -102,7 +105,8 @@ class bookingoption_description implements renderable, templatable {
             $bookingevent = null,
             int $descriptionparam = DESCRIPTION_WEBSITE, // Default.
             bool $withcustomfields = true,
-            bool $forbookeduser = null) {
+            bool $forbookeduser = null,
+            object $user = null) {
 
         global $CFG, $DB, $PAGE;
 
@@ -173,6 +177,9 @@ class bookingoption_description implements renderable, templatable {
             }
             if (isset($priceitem['currency'])) {
                 $this->currency = $priceitem['currency'];
+            }
+            if (isset($priceitem['pricecategoryname'])) {
+                $this->pricecategoryname = $priceitem['pricecategoryname'];
             }
         }
 
@@ -247,7 +254,8 @@ class bookingoption_description implements renderable, templatable {
                 'booknowbutton' => $this->booknowbutton,
                 'teachers' => $this->teachers,
                 'price' => $this->price,
-                'currency' => $this->currency
+                'currency' => $this->currency,
+                'pricecategoryname' => $this->pricecategoryname
         );
 
         // In events we don't have the possibility, as on the website, to use display: none the same way.

@@ -37,7 +37,7 @@
 {{#address}}<div class="bo_address">{{#str}}address, mod_booking{{/str}}:  {{.}}</div>{{/address}}
 {{#statusdescription}}<div class="bo_statusdescription"><p>{{{.}}}</p></div>{{/statusdescription}}
 {{#description}}<div class="bo_description"><p>{{{.}}}</p></div>{{/description}}
-{{#price}}<div class="bo_price">{{.}} {{currency}}</div>{{/price}}
+{{#price}}<div class="bo_price">{{.}} {{currency}} {{pricecategoryname}}</div>{{/price}}
 <div {{^teachers}} style="display:none"{{/teachers}}>
     {{#str}}teachers, mod_booking{{/str}}:
     <ul>
