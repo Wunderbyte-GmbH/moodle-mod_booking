@@ -156,3 +156,32 @@ tr.mod-booking-invisible {
 .icon-red {
     color: red;
 }
+
+.wunderbyte-table-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    padding: 10px;
+    grid-gap: 20px;
+}
+
+.wunderbyte-table-grid .course-card-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.wunderbyte-table-grid ul.infolist,
+.course-content li.section li.activity ul ul.infolist {
+    list-style: none;
+}
+
+.wunderbyte-table-grid .infolist .fa {
+    width: 15px;
+    text-align: center;
+}
+
+.wunderbyte-table-grid .list-group-item {
+
+    border: 1px solid rgba(0, 0, 0, .125);
+
+}

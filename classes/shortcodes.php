@@ -141,4 +141,90 @@ class shortcodes {
         return $out;
     }
 
+    /**
+     * Prints out list of bookingoptions.
+     * Argumtents can be 'category' or 'perpage'.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return void
+     */
+    public static function listofbookingoptionscards($shortcode, $args, $content, $env, $next) {
+
+        // TODO: Define capality.
+        /* if (!has_capability('moodle/site:config', $env->context)) {
+            return '';
+        } */
+
+        // If the id argument was not passed on, we have a fallback in the connfig.
+        if (!isset($args['id'])) {
+            $args['id'] = get_config('booking', 'shortcodessetinstance');
+        }
+
+        // To prevent misconfiguration, id has to be there and int.
+        if (!(isset($args['id']) && $args['id'] && is_int((int)$args['id']))) {
+            return 'Set id of booking instance';
+        }
+
+        if (!$booking = singleton_service::get_instance_of_booking($args['id'])) {
+            return 'Couldn\'t find right booking instance ' . $args['id'];
+        }
+
+        if (!isset($args['category']) || !$category = ($args['category'])) {
+            $category = '';
+        }
+
+        if (!isset($args['perpage'])
+            || !is_int((int)$args['perpage'])
+            || !$perpage = ($args['perpage'])) {
+            $perpage = 1000;
+        }
+
+        $tablename = bin2hex(random_bytes(12));
+
+        $table = new bookingoptions_table($tablename, $booking);
+
+        list($fields, $from, $where, $params) = $booking->get_all_options_sql(null, null, $category, 'bo.*');
+
+        $table->set_sql($fields, $from, $where, $params);
+
+        $table->use_pages = false;
+
+        $table->define_cache('mod_booking', 'bookingoptionstable');
+
+        $table->add_subcolumns('cardimage', ['image']);
+
+        $table->add_subcolumns('cardbody', ['sports', 'text']);
+        $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-none']);
+        $table->add_classes_to_subcolumns('cardbody', ['columvalueclass' => 'h6'], ['sports']);
+        $table->add_classes_to_subcolumns('cardbody', ['columvalueclass' => 'h5'], ['text']);
+
+
+        $table->add_subcolumns('cardlist', ['dayofweek', 'location', 'bookings']);
+        $table->add_classes_to_subcolumns('cardlist', ['columnkeyclass' => 'd-none']);
+        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-map-marker'], ['location']);
+        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-clock-o'], ['dayofweek']);
+        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-users'], ['bookings']);
+
+        $table->add_subcolumns('cardfooter', ['price']);
+        $table->add_classes_to_subcolumns('cardfooter', ['columnkeyclass' => 'd-none']);
+
+        $table->set_tableclass('cardimageclass', 'w-100');
+
+        $table->is_downloading('', 'List of booking options');
+
+        $table->tabletemplate = 'mod_booking/shortcodes_cards';
+
+        ob_start();
+        $out = $table->out($perpage, true);
+
+        $out = ob_get_contents();
+        ob_end_clean();
+
+        return $out;
+    }
+
 }
