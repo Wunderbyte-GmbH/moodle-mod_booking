@@ -82,7 +82,9 @@ class bookingoptions_table extends wunderbyte_table {
 
     public function col_image($values) {
 
-        return "http://localhost:8000/pluginfile.php/643/mod_folder/content/0/workout-g897df7916_1280.jpg?forcedownload=1";
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
+
+        return $settings->imageurl;
     }
 
     /**
