@@ -90,9 +90,11 @@
                     {{.}}
                   {{/keystring}}:
                   {{#columnkeyclass}}</span>{{/columnkeyclass}}
-                  <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}} {{key}}">
-                    {{{value}}}
-                    {{#columnvalueclass}}</span>{{/columnvalueclass}}
+
+                    <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}} {{key}}">
+                      {{{value}}}
+                    </span>
+
                   <span {{^value}} style="display:none" {{/value}}>
                   {{#columniclassafter}}
                     <i class="value {{.}}" aria-hidden="true"></i>
@@ -122,7 +124,7 @@
                     {{#columnkeyclass}}</span>{{/columnkeyclass}}
                     <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}} {{key}}">
                       {{{value}}}
-                      {{#columnvalueclass}}</span>{{/columnvalueclass}}
+                    </span>
                     <span {{^value}} style="display:none" {{/value}}>
                     {{#columniclassafter}}
                       <i class="value {{.}}" aria-hidden="true"></i>
@@ -151,7 +153,7 @@
                     {{#columnkeyclass}}</span>{{/columnkeyclass}}
                     <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}} {{key}}">
                       {{{value}}}
-                      {{#columnvalueclass}}</span>{{/columnvalueclass}}
+                    </span>
                     <span {{^value}} style="display:none" {{/value}}>
                     {{#columniclassafter}}
                       <i class="value {{.}}" aria-hidden="true"></i>
