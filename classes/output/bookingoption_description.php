@@ -53,6 +53,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var int $modalcounter the title (column text) as it is saved in db */
     public $modalcounter = null;
 
+    /** @var int $userid */
+    public $userid = null;
+
     /** @var string $description from DB */
     public $description = null;
 
@@ -108,7 +111,7 @@ class bookingoption_description implements renderable, templatable {
             bool $forbookeduser = null,
             object $user = null) {
 
-        global $CFG, $DB, $PAGE;
+        global $CFG, $DB, $PAGE, $USER;
 
         $this->cmid = $booking->cm->id;
 
@@ -121,11 +124,15 @@ class bookingoption_description implements renderable, templatable {
         $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
         $bookingoption = singleton_service::get_instance_of_booking_option($this->cmid, $optionid);
 
+        if ($user === null) {
+            $user = $USER;
+        }
+
         /* We need the possibility to render for other users,
         so the user status of the current USER is not enough.
         But we use it if nothing else is specified. */
         if ($forbookeduser === null) {
-            if ($bookinganswers->user_status() == STATUSPARAM_BOOKED) {
+            if ($bookinganswers->user_status($user->id) == STATUSPARAM_BOOKED) {
                 $forbookeduser = true;
             } else {
                 $forbookeduser = false;
@@ -135,6 +142,9 @@ class bookingoption_description implements renderable, templatable {
         // These fields can be gathered directly from settings.
         $this->title = $settings->text;
         $this->imageurl = $settings->imageurl;
+
+        $this->userid = $user->id;
+
         $this->location = $settings->location;
         $this->address = $settings->address;
         $this->institution = $settings->institution;
@@ -170,7 +180,7 @@ class bookingoption_description implements renderable, templatable {
 
         // Add price.
         // TODO: Currently this will only use the logged in $USER, this won't work for the cachier use case!
-        $priceitem = price::get_price($optionid);
+        $priceitem = price::get_price($optionid, $user);
         if (!empty($priceitem)) {
             if (isset($priceitem['price'])) {
                 $this->price = $priceitem['price'];
@@ -243,6 +253,7 @@ class bookingoption_description implements renderable, templatable {
         $returnarray = array(
                 'title' => $this->title,
                 'modalcounter' => $this->modalcounter,
+                'userid' => $this->userid,
                 'description' => $this->description,
                 'statusdescription' => $this->statusdescription,
                 'imageurl' => $this->imageurl,

@@ -554,6 +554,13 @@ class external extends external_api {
 
         $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);
 
+        if ($userid > 0) {
+            $user = singleton_service::get_instance_of_user($userid);
+        } else {
+            $user = null;
+        }
+
+
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $userid);
@@ -562,7 +569,7 @@ class external extends external_api {
         $forbookeduser = $bookinganswer->user_status($userid) == 1 ? true : false;
 
         $data = new \mod_booking\output\bookingoption_description($booking, $optionid,
-                null, DESCRIPTION_WEBSITE, true, $forbookeduser);
+                null, DESCRIPTION_WEBSITE, true, $forbookeduser, $user);
 
         return ['content' => json_encode($data), 'template' => 'mod_booking/bookingoption_description'];
     }

@@ -149,6 +149,7 @@ class bookingoptions_table extends wunderbyte_table {
         $data = new stdClass();
         $data->modalcounter = $values->id;
         $data->modaltitle = $values->text;
+        $data->userid = $this->buyforuser->id;
 
         // We can go with the data from bookingoption_description directly to modal.
         return $this->output->render_col_text_modal_js($data);
