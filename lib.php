@@ -109,6 +109,7 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
 
     // Make sure the filearea is one of those used by the plugin.
     if ($filearea !== 'myfilemanager'
+        && $filearea !== 'bookingimages'
         && $filearea !== 'myfilemanageroption'
         && $filearea !== 'bookingoptionimage'
         && $filearea !== 'signinlogoheader'
@@ -418,6 +419,11 @@ function booking_add_instance($booking) {
                 $booking->id, array('subdirs' => false, 'maxfiles' => 50));
     }
 
+    if ($draftitemid = file_get_submitted_draft_itemid('bookingimages')) {
+        file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'bookingimages',
+                $booking->id, array('subdirs' => false, 'maxfiles' => 500));
+    }
+
     if ($draftitemid = file_get_submitted_draft_itemid('signinlogoheader')) {
         file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'signinlogoheader',
                 $booking->id, array('subdirs' => false, 'maxfiles' => 1));
@@ -521,6 +527,9 @@ function booking_update_instance($booking) {
 
     file_save_draft_area_files($booking->myfilemanager, $context->id, 'mod_booking',
             'myfilemanager', $booking->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 50));
+
+    file_save_draft_area_files($booking->bookingimages, $context->id, 'mod_booking',
+            'bookingimages', $booking->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 500));
 
     if (empty($booking->timerestrict)) {
         $booking->timeopen = 0;

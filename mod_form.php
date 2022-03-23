@@ -875,6 +875,11 @@ class mod_booking_mod_form extends moodleform_mod {
                     $this->current->id, $options);
             $defaultvalues['myfilemanager'] = $draftitemid;
 
+            $draftitemid = file_get_submitted_draft_itemid('bookingimages');
+            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'bookingimages',
+                    $this->current->id, $options);
+            $defaultvalues['bookingimages'] = $draftitemid;
+
             $draftitemid = file_get_submitted_draft_itemid('signinlogoheader');
             file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'signinlogoheader',
                     $this->current->id, $options);
@@ -889,6 +894,10 @@ class mod_booking_mod_form extends moodleform_mod {
             $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
             file_prepare_draft_area($draftitemid, null, 'mod_booking', 'myfilemanager', 0, $options);
             $defaultvalues['myfilemanager'] = $draftitemid;
+
+            $draftitemid = file_get_submitted_draft_itemid('bookingimages');
+            file_prepare_draft_area($draftitemid, null, 'mod_booking', 'bookingimages', 0, $options);
+            $defaultvalues['bookingimages'] = $draftitemid;
 
             $draftitemid = file_get_submitted_draft_itemid('signinlogoheader');
             file_prepare_draft_area($draftitemid, null, 'mod_booking', 'signinlogoheader', 0, $options);

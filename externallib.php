@@ -85,7 +85,7 @@ class mod_booking_external extends external_api {
             $returns[] = $cat;
 
             $subcategories = $DB->get_records('booking_category', array('course' => $courseid, 'cid' => $category->id));
-            if (count((array) $subcategories < 0)) {
+            if (count((array)$subcategories) < 0) {
                 foreach ($subcategories as $subcat) {
                     $cat = array();
 

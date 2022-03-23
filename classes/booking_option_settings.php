@@ -240,7 +240,7 @@ class booking_option_settings {
 
             // If the key "imageurl" is not yet set, we need to load from DB.
             if (!isset($dbrecord->imageurl)) {
-                $this->load_imageurl_from_db($optionid);
+                $this->load_imageurl_from_db($optionid, $dbrecord->bookingid);
                 $dbrecord->imageurl = $this->imageurl;
             } else {
                 $this->imageurl = $dbrecord->imageurl;
@@ -327,8 +327,9 @@ class booking_option_settings {
      * Function to load the image URL of the option's image from the DB.
      *
      * @param int $optionid
+     * @param int $bookingid
      */
-    private function load_imageurl_from_db(int $optionid) {
+    private function load_imageurl_from_db(int $optionid, int $bookingid) {
         global $DB, $CFG;
 
         $imgfile = null;
@@ -344,13 +345,48 @@ class booking_option_settings {
             // If an image has been uploaded for the option, let's create the according URL.
             $this->imageurl = $CFG->wwwroot . "/pluginfile.php/" . $imgfile->contextid .
                 "/mod_booking/bookingoptionimage/" . $optionid . $imgfile->filepath . $imgfile->filename;
-        } else {
 
-            // TODO: fallback to general images...
+            return;
+
+        } else {
+            // Image fallback (general images to match with custom fields).
+            // First, check if there's a customfield to match images with.
+            $cm = get_coursemodule_from_instance('booking', $bookingid);
+            $bookingsettings = singleton_service::get_instance_of_booking_settings($cm->id);
+            $customfieldid = $bookingsettings->bookingimagescustomfield;
+
+            if (!empty($customfieldid)) {
+                $customfieldvalue = $DB->get_field('customfield_data', 'value',
+                    ['fieldid' => $customfieldid, 'instanceid' => $optionid]);
+
+                if (!empty($customfieldvalue)) {
+                    $customfieldvalue = strtolower($customfieldvalue);
+
+                    $imgfile = $DB->get_record_sql("SELECT id, contextid, filepath, filename
+                                 FROM {files}
+                                 WHERE component = 'mod_booking'
+                                 AND itemid = :bookingid
+                                 AND filearea = 'bookingimages'
+                                 AND LOWER(filename) LIKE :customfieldvaluewithextension
+                                 AND filesize > 0
+                                 AND source is not null", ['bookingid' => $bookingid,
+                                    'customfieldvaluewithextension' => "$customfieldvalue.%"]);
+
+                    if (!empty($imgfile)) {
+                        // If a fallback image has been found for the customfield value, then use this one.
+                        $this->imageurl = $CFG->wwwroot . "/pluginfile.php/" . $imgfile->contextid .
+                            "/mod_booking/bookingimages/" . $bookingid . $imgfile->filepath . $imgfile->filename;
+
+                        return;
+                    }
+                }
+            }
 
             // Set to null if no image can be found in DB...
             // ... AND if no fallback image has been uploaded to the bookingimages folder.
             $this->imageurl = null;
+
+            return;
         }
     }
 
