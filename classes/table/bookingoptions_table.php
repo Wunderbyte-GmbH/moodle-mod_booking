@@ -80,6 +80,12 @@ class bookingoptions_table extends wunderbyte_table {
         // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
     }
 
+
+    public function col_image($values) {
+
+        return "http://localhost:8000/pluginfile.php/643/mod_folder/content/0/workout-g897df7916_1280.jpg?forcedownload=1";
+    }
+
     /**
      * This function is called for each data row to allow processing of the
      * teacher value.
