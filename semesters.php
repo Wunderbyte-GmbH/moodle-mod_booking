@@ -23,7 +23,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\form\semesters_form;
+use mod_booking\form\dynamicsemestersform;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
@@ -44,130 +44,18 @@ $PAGE->set_title(
     format_string($SITE->shortname) . ': ' . get_string('semesters', 'booking')
 );
 
-$mform = new semesters_form($pageurl);
+$form = new dynamicsemestersform($pageurl, null, 'post', '', [], true, ['arg1' => 'val1']);
 
-if ($mform->is_cancelled()) {
-    // If cancelled, go back to general booking settings.
-    redirect($settingsurl);
+// Set the form data with the same method that is called when loaded from JS.
+// It should correctly set the data for the supplied arguments.
+$form->set_data_for_dynamic_submission();
 
-} else if ($data = $mform->get_data()) {
+echo $OUTPUT->header();
+echo $OUTPUT->heading(new lang_string('semesters', 'mod_booking'));
 
-    $existingsemesters = $DB->get_records('booking_semesters');
+echo get_string('semesterssubtitle', 'booking');
 
-    if (empty($existingsemesters)) {
-        // There are no semesters yet.
-        // There can be up to MAX_SEMESTERS semesters.
-        for ($i = 1; $i <= MAX_SEMESTERS; $i++) {
+// Render the form in a specific container, there should be nothing else in the same container.
+echo html_writer::div($form->render(), '', ['id' => 'formcontainer']);
 
-            // Use 2 digits, so we can have more than 9 semesters.
-            $j = sprintf('%02d', $i);
-
-            $semesteridentifierx = 'semesteridentifier' . $j;
-            $semesternamex = 'semestername' . $j;
-            $semesterstartx = 'semesterstart' . $j;
-            $semesterendx = 'semesterend' . $j;
-
-            // Only add semesters if an identifier was entered.
-            if (!empty($data->{$semesteridentifierx})) {
-                $semester = new stdClass();
-                $semester->identifier = $data->{$semesteridentifierx};
-                $semester->name = $data->{$semesternamex};
-                $semester->startdate = $data->{$semesterstartx};
-                $semester->enddate = $data->{$semesterendx};
-
-                $DB->insert_record('booking_semesters', $semester);
-            }
-        }
-    } else {
-        if ($semesterchanges = semesters_get_changes($data)) {
-            foreach ($semesterchanges['updates'] as $record) {
-                $DB->update_record('booking_semesters', $record);
-
-                // Invalidate semester cache on update.
-                cache_helper::invalidate_by_event('setbacksemesters', [$record->id]);
-            }
-            foreach ($semesterchanges['deletes'] as $recordid) {
-                $DB->delete_records('booking_semesters', ['id' => $recordid]);
-
-                // Invalidate semester cache on delete.
-                cache_helper::invalidate_by_event('setbacksemesters', [$recordid]);
-            }
-            if (count($semesterchanges['inserts']) > 0) {
-                $DB->insert_records('booking_semesters', $semesterchanges['inserts']);
-            }
-        }
-    }
-
-    redirect($pageurl, get_string('semesterssaved', 'booking'), 5);
-} else {
-    echo $OUTPUT->header();
-    echo $OUTPUT->heading(new lang_string('semesters', 'mod_booking'));
-
-    echo get_string('semesterssubtitle', 'booking');
-
-    // Show the mform.
-    $mform->display();
-
-    echo $OUTPUT->footer();
-}
-
-/**
- * Helper function to return arrays containing all relevant semesters update changes.
- * The returned arrays will have the prepared stdClasses for update and insert in the
- * booking_semesters table.
- *
- * @param $oldsemesters the existing semesters
- * @param $data the form data
- * @return array
- */
-function semesters_get_changes($data) {
-
-    $updates = [];
-    $inserts = [];
-    $deletes = [];
-
-    foreach ($data as $key => $value) {
-        if (preg_match('/semesterid[0-9]{2}/', $key)) {
-            $j = substr($key, -2, 2); // Get the 2 digit counter as string.
-
-            // First check if the field existed before.
-            if ($value != 0) {
-
-                // If the delete checkbox has been set, add to deletes.
-                if ($data->{'deletesemester' . $j} == 1) {
-                    $deletes[] = $value; // The ID of the semester that needs to be deleted.
-                    continue;
-                }
-
-                // Create semester object and add to updates.
-                $semester = new stdClass();
-                $semester->id = $value; // For update, ID is needed.
-                $semester->identifier = $data->{'semesteridentifier' . $j};
-                $semester->name = $data->{'semestername' . $j};
-                $semester->startdate = $data->{'semesterstart' . $j};
-                $semester->enddate = $data->{'semesterend' . $j};
-
-                $updates[] = $semester;
-
-            } else {
-                // Create new semester and add to inserts.
-                if (!empty($data->{'semesteridentifier' . $j})) {
-                    $semester = new stdClass();
-                    // No ID is set when inserting.
-                    $semester->identifier = $data->{'semesteridentifier' . $j};
-                    $semester->name = $data->{'semestername' . $j};
-                    $semester->startdate = $data->{'semesterstart' . $j};
-                    $semester->enddate = $data->{'semesterend' . $j};
-
-                    $inserts[] = $semester;
-                }
-            }
-        }
-    }
-
-    return [
-            'inserts' => $inserts,
-            'updates' => $updates,
-            'deletes' => $deletes
-    ];
-}
+echo $OUTPUT->footer();

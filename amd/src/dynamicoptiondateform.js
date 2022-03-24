@@ -22,7 +22,7 @@
 import DynamicForm from 'core_form/dynamicform';
 import Templates from 'core/templates';
 
-const optiondateForm = new DynamicForm(document.querySelector('#optiondates-form'), 'mod_booking\\form\\optiondate_form');
+const optiondateForm = new DynamicForm(document.querySelector('#optiondates-form'), 'mod_booking\\form\\dynamicoptiondateform');
 
 export const init = (cmid, bookingid, optionid) => {
 

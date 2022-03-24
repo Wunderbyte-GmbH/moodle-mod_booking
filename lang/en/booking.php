@@ -1682,7 +1682,7 @@ $string['reoccurringdatestring'] = 'Weekday, start and end time (Day, HH:MM - HH
 $string['reoccurringdatestring_help'] = 'Enter a text in the following format:
     "Day, HH:MM - HH:MM", e.g. "Monday, 10:00 - 11:00" or "Sun 09:00-10:00"';
 
-// Optiondate_form.php.
+// Dynamicoptiondateform.php.
 $string['add_optiondate_series'] = 'Create date series';
 $string['reoccurringdatestringerror'] = 'Enter a text in the following format:
     Day, HH:MM - HH:MM';
