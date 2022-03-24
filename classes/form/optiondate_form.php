@@ -101,16 +101,7 @@ class optiondate_form extends dynamic_form {
         }
 
         $optiondateshandler = new optiondates_handler();
-
-        $dayinfo = $optiondateshandler->prepare_day_info($data->reoccurringdatestring);
-
-        // If an invalid day string was entered, we'll have an empty $dayinfo array.
-        if (empty($dayinfo)) {
-            return false;
-        }
-
-        $semester = new semester($data->chooseperiod);
-        $dates = $optiondateshandler->get_optiondate_series($semester->start, $semester->end, $dayinfo);
+        $dates = $optiondateshandler->get_optiondate_series($data->chooseperiod, $data->reoccurringdatestring);
 
         $dates['cmid'] = $this->_ajaxformdata['cmid'];
         $dates['optionid'] = $this->_ajaxformdata['optionid'];

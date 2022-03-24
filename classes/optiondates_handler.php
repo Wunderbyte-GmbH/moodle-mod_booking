@@ -149,18 +149,26 @@ class optiondates_handler {
     /**
      * Get date array for a specific weekday and time between two dates.
      *
-     * @param int $startdate
-     * @param int $enddate
-     * @param string $daystring
+     * @param int $semesterid
+     * @param string $reoccuringdatestring
      * @return array
      */
-    public function get_optiondate_series(int $startdate, int $enddate, array $dayinfo): array {
+    public function get_optiondate_series(int $semesterid, string $reoccurringdatestring): array {
+
+        $semester = new semester($semesterid);
+        $dayinfo = $this->prepare_day_info($reoccurringdatestring);
+
+        // If an invalid day string was entered, we'll have an empty $dayinfo array.
+        if (empty($dayinfo)) {
+            return [];
+        }
+
         $j = 1;
         sscanf($dayinfo['starttime'], "%d:%d", $hours, $minutes);
         $startseconds = ($hours * 60 * 60) + ($minutes * 60);
         sscanf($dayinfo['endtime'], "%d:%d", $hours, $minutes);
         $endseconds = $hours * 60 * 60 + $minutes * 60;
-        for ($i = strtotime($dayinfo['day'], $startdate); $i <= $enddate; $i = strtotime('+1 week', $i)) {
+        for ($i = strtotime($dayinfo['day'], $semester->start); $i <= $semester->end; $i = strtotime('+1 week', $i)) {
             $date = new stdClass();
             $date->date = date('Y-m-d', $i);
             $date->starttime = $dayinfo['starttime'];
@@ -176,16 +184,16 @@ class optiondates_handler {
     }
 
     /**
-     * TODO: will be replaced by a regex function.
-     * @param string $string
+     * Prepare an array containing the weekday, start time and end time.
+     * @param string $reoccurringdatestring
      * @return array
      */
-    public function prepare_day_info(string $string): array {
-        $string = strtolower($string);
-        $string = str_replace('-', ' ', $string);
-        $string = str_replace(',', ' ', $string);
-        $string = preg_replace("/\s+/", " ", $string);
-        $strings = explode(' ',  $string);
+    private function prepare_day_info(string $reoccurringdatestring): array {
+        $reoccurringdatestring = strtolower($reoccurringdatestring);
+        $reoccurringdatestring = str_replace('-', ' ', $reoccurringdatestring);
+        $reoccurringdatestring = str_replace(',', ' ', $reoccurringdatestring);
+        $reoccurringdatestring = preg_replace("/\s+/", " ", $reoccurringdatestring);
+        $strings = explode(' ',  $reoccurringdatestring);
 
         $daystring = $strings[0];
 
@@ -219,23 +227,6 @@ class optiondates_handler {
         $dayinfo['endtime'] = $strings[2];
 
         return $dayinfo;
-    }
-
-    /**
-     * TODO: replace with DB call.
-     *
-     * @param int $timestamp
-     * @return bool
-     */
-    public function is_holiday(int $timestamp): bool {
-        // DB id date timestamp.
-        $holidayarray['2022-12-24'] = 1;
-        $holidayarray['2022-12-31'] = 1;
-        $date = date('Y-m-d', $timestamp);
-        if (isset($holidayarray[$date])) {
-            return true;
-        }
-        return false;
     }
 
     /**

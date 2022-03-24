@@ -20,7 +20,6 @@ require_once($CFG->libdir . '/formslib.php');
 use mod_booking\form\option_form;
 use \core\output\notification;
 use mod_booking\customfield\booking_handler;
-use mod_booking\optiondates_handler;
 use mod_booking\price;
 
 global $DB, $OUTPUT, $PAGE, $USER;
