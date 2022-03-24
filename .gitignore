@@ -10,4 +10,3 @@ amd/package.json
 amd/package-lock.json
 amd/node_modules
 .vscode/launch.json
-amd/build
