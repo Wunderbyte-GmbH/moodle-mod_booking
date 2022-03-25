@@ -21,6 +21,7 @@ use stdClass;
 use mod_booking\booking_option;
 use html_writer;
 use mod_booking\customfield\booking_handler;
+use mod_booking\optiondates_handler;
 use mod_booking\price;
 
 defined('MOODLE_INTERNAL') || die();
@@ -343,6 +344,7 @@ class csv_import {
 
     /**
      * Prepare CSV values to be imported and saved to db.
+     * Here we do necessary transforms etc.
      *
      * @param $column
      * @param $value
@@ -400,6 +402,7 @@ class csv_import {
                         $DB->insert_record("booking_institutions", $institution);
                     }
                     break;
+
                     // We don't need this, because values are not transformed.
                     // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
                     /*case preg_match('/ms[1-3]cf[1-3]name/', $column) ? $column : !$column:
@@ -453,6 +456,17 @@ class csv_import {
             if (empty($csvrecord['institution'])) {
                 unset($csvrecord['institution']);
             }
+        }
+        if (isset($csvrecord['dayofweektime'])) {
+            if (empty($csvrecord['dayofweektime'])) {
+                unset($csvrecord['dayofweektime']);
+            } else {
+                if (!optiondates_handler::reoccurring_datestring_is_correct($csvrecord['dayofweektime'])) {
+                    $this->add_csverror('The Recurring date string must be in the following format: "Mo 10:00 - 12:00", not like this:' . $csvrecord['dayofweektime'], $linenumber);
+                    return false;
+                }
+            }
+
         }
         return true;
     }
