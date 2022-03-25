@@ -324,7 +324,7 @@ class booking_option_settings {
     }
 
     /**
-     * Function to load the image URL of the option's image from the DB.
+     * Function to load the URL of the option's image from the DB.
      *
      * @param int $optionid
      * @param int $bookingid
@@ -377,6 +377,24 @@ class booking_option_settings {
                             "/mod_booking/bookingimages/" . $bookingid . $imgfile->filepath . $imgfile->filename;
 
                         return;
+                    } else {
+                        // If still no image could be found, we check if there is a default image.
+                        $imgfile = $DB->get_record_sql("SELECT id, contextid, filepath, filename
+                                 FROM {files}
+                                 WHERE component = 'mod_booking'
+                                 AND itemid = :bookingid
+                                 AND filearea = 'bookingimages'
+                                 AND LOWER(filename) LIKE 'default.%'
+                                 AND filesize > 0
+                                 AND source is not null", ['bookingid' => $bookingid]);
+
+                        if (!empty($imgfile)) {
+                            // If a fallback image has been found for the customfield value, then use this one.
+                            $this->imageurl = $CFG->wwwroot . "/pluginfile.php/" . $imgfile->contextid .
+                                "/mod_booking/bookingimages/" . $bookingid . $imgfile->filepath . $imgfile->filename;
+
+                            return;
+                        }
                     }
                 }
             }
