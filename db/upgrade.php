@@ -2399,7 +2399,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022030901, 'booking');
     }
 
-    if ($oldversion < 2022032302) {
+    if ($oldversion < 2022032500) {
 
         // Define field bookingimagescustomfield to be added to table booking.
         $table = new xmldb_table('booking');
@@ -2412,7 +2412,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2022032302, 'booking');
+        upgrade_mod_savepoint(true, 2022032500, 'booking');
     }
 
     return true;
