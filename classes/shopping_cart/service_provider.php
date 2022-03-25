@@ -55,6 +55,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
         $bookingoption = booking_option::create_option_from_optionid($optionid);
 
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
         // Make sure that we only buy from instance the user has access to.
         // This is just fraud prevention and can not happen ordinarily.
         $cm = get_coursemodule_from_instance('booking', $bookingoption->bookingid);
@@ -85,7 +87,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                             $price['price'],
                             $price['currency'],
                             'mod_booking',
-                            $bookingoption->option->description);
+                            $bookingoption->option->description,
+                            $settings->imageurl);
     }
 
     /**
