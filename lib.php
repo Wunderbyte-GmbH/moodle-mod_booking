@@ -1004,7 +1004,7 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
     // Deal with new optiondates (Multisessions).
     // TODO: We should have an optiondates class to deal with all of this.
     // As of now, we do it the hacky way.
-    for ($i = 1; $i < 8; ++$i) {
+    for ($i = 1; $i < 20; ++$i) {
 
         $starttimekey = 'ms' . $i . 'starttime';
         $endtimekey = 'ms' . $i . 'endtime';
