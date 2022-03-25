@@ -153,10 +153,10 @@ class optiondates_handler {
      * @param string $reoccuringdatestring
      * @return array
      */
-    public function get_optiondate_series(int $semesterid, string $reoccurringdatestring): array {
+    public static function get_optiondate_series(int $semesterid, string $reoccurringdatestring): array {
 
         $semester = new semester($semesterid);
-        $dayinfo = $this->prepare_day_info($reoccurringdatestring);
+        $dayinfo = self::prepare_day_info($reoccurringdatestring);
 
         // If an invalid day string was entered, we'll have an empty $dayinfo array.
         if (empty($dayinfo)) {
@@ -188,7 +188,7 @@ class optiondates_handler {
      * @param string $reoccurringdatestring
      * @return array
      */
-    private function prepare_day_info(string $reoccurringdatestring): array {
+    private static function prepare_day_info(string $reoccurringdatestring): array {
         $reoccurringdatestring = strtolower($reoccurringdatestring);
         $reoccurringdatestring = str_replace('-', ' ', $reoccurringdatestring);
         $reoccurringdatestring = str_replace(',', ' ', $reoccurringdatestring);

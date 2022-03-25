@@ -261,6 +261,7 @@ class csv_import {
                         $this->add_csverror(get_string('noteacherfound', 'booking', $i), $i);
                     }
                 }
+
                 if (isset($userdata['useremail'])) {
 
                     $sql = "SELECT *
@@ -402,7 +403,24 @@ class csv_import {
                         $DB->insert_record("booking_institutions", $institution);
                     }
                     break;
-
+                case 'dayofweektime':
+                    // Deal with option dates.
+                    $sql = "SELECT MAX(id) AS id FROM {booking_semesters}";
+                    if ($semesterid = $DB->get_field_sql($sql)) {
+                        $msdates = optiondates_handler::get_optiondate_series($semesterid, $value);
+                        $counter = 1;
+                        if (isset($msdates['dates'])) {
+                            foreach ($msdates['dates'] as $msdate) {
+                                $startkey = 'ms' . $counter . 'starttime';
+                                $endkey = 'ms' . $counter . 'endtime';
+                                $bookingoption->$startkey = $msdate->starttimestamp;
+                                $bookingoption->$endkey = $msdate->endtimestamp;
+                                $counter++;
+                            }
+                        }
+                    }
+                    $bookingoption->$column = $value;
+                    break;
                     // We don't need this, because values are not transformed.
                     // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
                     /*case preg_match('/ms[1-3]cf[1-3]name/', $column) ? $column : !$column:
