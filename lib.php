@@ -589,6 +589,10 @@ function booking_update_instance($booking) {
     // When updating an instance, we need to invalidate the cache for booking instances.
     cache_helper::invalidate_by_event('setbackbookinginstances', [$cm->id]);
 
+    // Also purge caches for options table and booking_option_settings.
+    cache_helper::purge_by_event('setbackoptionstable');
+    cache_helper::purge_by_event('setbackoptionsettings');
+
     return $DB->update_record('booking', $booking);
 }
 
