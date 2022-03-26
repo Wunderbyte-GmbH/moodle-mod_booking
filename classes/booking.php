@@ -85,6 +85,7 @@ class booking {
 
         $this->settings = $bosettings->return_settings_as_stdclass();
         $this->id = $this->settings->id;
+        $this->cmid = $cmid;
         if (!$cm || ($cmid != $cm->id)) {
             $this->cm = get_coursemodule_from_id('booking', $cmid);
         } else {
