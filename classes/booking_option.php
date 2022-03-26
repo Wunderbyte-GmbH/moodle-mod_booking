@@ -21,6 +21,7 @@ use completion_info;
 use context_module;
 use core_analytics\user;
 use dml_exception;
+use Exception;
 use invalid_parameter_exception;
 use stdClass;
 use moodle_url;
@@ -1043,8 +1044,12 @@ class booking_option {
         }
 
         if ($counter > 0) {
-            $this->after_successful_booking_routine($user, STATUSPARAM_BOOKED);
-            return true;
+            try {
+                $this->after_successful_booking_routine($user, STATUSPARAM_BOOKED);
+                return true;
+            } catch (Exception $e) {
+                return false;
+            }
         } else {
             return false;
         }

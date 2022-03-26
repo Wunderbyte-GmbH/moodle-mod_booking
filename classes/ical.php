@@ -237,10 +237,10 @@ class ical {
         $eventid = false;
         if ($time) {
             // If it's an option date (a session), use the option date's eventid.
-            $fulldescription = get_rendered_eventdescription($this->option->id, $PAGE->cm->id, DESCRIPTION_ICAL);
+            $fulldescription = get_rendered_eventdescription($this->option->id, $this->booking->cmid, DESCRIPTION_ICAL);
         } else {
             // Use calendarid of the option if it's an option event.
-            $fulldescription = get_rendered_eventdescription($this->option->id, $PAGE->cm->id, DESCRIPTION_ICAL);
+            $fulldescription = get_rendered_eventdescription($this->option->id, $this->booking->cmid, DESCRIPTION_ICAL);
         }
 
         // Make sure we have not tags in full description.

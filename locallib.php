@@ -18,6 +18,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use mod_booking\booking_option;
 use mod_booking\event\bookingoptiondate_created;
+use mod_booking\singleton_service;
 
 global $CFG;
 require_once($CFG->dirroot . '/user/selector/lib.php');
@@ -382,7 +383,7 @@ function get_rendered_eventdescription(int $optionid, int $cmid,
     // - Rendered in calendar event -> use link.php? link.
     // - Rendered in ical file for mail -> use link.php? link.
 
-    $booking = new \mod_booking\booking($cmid);
+    $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
     $data = new \mod_booking\output\bookingoption_description($booking, $optionid, null, $descriptionparam, true, $forbookeduser);
     $output = $PAGE->get_renderer('mod_booking');

@@ -23,6 +23,7 @@
  */
 use mod_booking\booking_option;
 use mod_booking\calendar;
+use mod_booking\singleton_service;
 
 /**
  * Event observer for mod_booking.
@@ -116,7 +117,7 @@ class mod_booking_observer {
         $cmid = $event->contextinstanceid;
         $context = $event->get_context();
 
-        $bookingoption = new booking_option($cmid, $optionid);
+        $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
 
         $option = $bookingoption->option;
 
@@ -153,14 +154,14 @@ class mod_booking_observer {
 
             foreach ($optiondates as $optiondate) {
                 // Create or update the sessions.
-                option_optiondate_update_event($option, $optiondate, $PAGE->cm->id);
+                option_optiondate_update_event($option, $optiondate, $cmid);
             }
         } else { // This means that there are no multisessions.
             // This is for the course event.
             new calendar($event->contextinstanceid, $optionid, 0, calendar::TYPEOPTION);
 
             // This is for the user events.
-            option_optiondate_update_event($option, null, $PAGE->cm->id);
+            option_optiondate_update_event($option, null, $cmid);
         }
 
         $allteachers = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid AND calendarid > 0',
