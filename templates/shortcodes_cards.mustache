@@ -67,9 +67,14 @@
 <div class="no-overflow">
 <ul class="wunderbyte-table-grid">
  {{#rows}}
+    <div class="list-group-item wunderbyteTableJavascript"
     {{#itemcategory}}
-    <div class="list-group-item wunderbyteTableJavascript" data-category="{{value}}">
+        data-category="{{value}}"
     {{/itemcategory}}
+    {{#itemday}}
+        data-day="{{value}}"
+    {{/itemday}}
+    >
         <div class="{{cardimageclass}}">
           {{#cardimage}}
             <img class="w-100" src="{{{value}}}">

@@ -198,6 +198,7 @@ class shortcodes {
         $table->define_cache('mod_booking', 'bookingoptionstable');
 
         $table->add_subcolumns('itemcategory', ['sports']);
+        $table->add_subcolumns('itemday', ['dayofweek']);
         $table->add_subcolumns('cardimage', ['image']);
 
         $table->add_subcolumns('cardbody', ['sports', 'text', 'teacher']);
