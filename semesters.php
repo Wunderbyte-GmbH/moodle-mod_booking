@@ -72,8 +72,8 @@ if ($mform->is_cancelled()) {
                 $semester = new stdClass();
                 $semester->identifier = $data->{$semesteridentifierx};
                 $semester->name = $data->{$semesternamex};
-                $semester->start = $data->{$semesterstartx};
-                $semester->end = $data->{$semesterendx};
+                $semester->startdate = $data->{$semesterstartx};
+                $semester->enddate = $data->{$semesterendx};
 
                 $DB->insert_record('booking_semesters', $semester);
             }
@@ -144,8 +144,8 @@ function semesters_get_changes($data) {
                 $semester->id = $value; // For update, ID is needed.
                 $semester->identifier = $data->{'semesteridentifier' . $j};
                 $semester->name = $data->{'semestername' . $j};
-                $semester->start = $data->{'semesterstart' . $j};
-                $semester->end = $data->{'semesterend' . $j};
+                $semester->startdate = $data->{'semesterstart' . $j};
+                $semester->enddate = $data->{'semesterend' . $j};
 
                 $updates[] = $semester;
 
@@ -156,8 +156,8 @@ function semesters_get_changes($data) {
                     // No ID is set when inserting.
                     $semester->identifier = $data->{'semesteridentifier' . $j};
                     $semester->name = $data->{'semestername' . $j};
-                    $semester->start = $data->{'semesterstart' . $j};
-                    $semester->end = $data->{'semesterend' . $j};
+                    $semester->startdate = $data->{'semesterstart' . $j};
+                    $semester->enddate = $data->{'semesterend' . $j};
 
                     $inserts[] = $semester;
                 }

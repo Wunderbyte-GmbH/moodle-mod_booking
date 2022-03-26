@@ -39,10 +39,10 @@ class semester {
     public $name = '';
 
     /** @var int $start start date as unix timestamp */
-    public $start = 0;
+    public $startdate = 0;
 
     /** @var int $end end date as unix timestamp */
-    public $end = 0;
+    public $enddate = 0;
 
     /**
      * Constructor for the semester class.
@@ -88,8 +88,8 @@ class semester {
             $this->id = $id;
             $this->identifier = $dbrecord->identifier;
             $this->name = $dbrecord->name;
-            $this->start = (int) $dbrecord->start;
-            $this->end = (int) $dbrecord->end;
+            $this->startdate = (int) $dbrecord->startdate;
+            $this->enddate = (int) $dbrecord->enddate;
 
             return $dbrecord;
         } else {

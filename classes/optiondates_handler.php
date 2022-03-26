@@ -168,7 +168,7 @@ class optiondates_handler {
         $startseconds = ($hours * 60 * 60) + ($minutes * 60);
         sscanf($dayinfo['endtime'], "%d:%d", $hours, $minutes);
         $endseconds = $hours * 60 * 60 + $minutes * 60;
-        for ($i = strtotime($dayinfo['day'], $semester->start); $i <= $semester->end; $i = strtotime('+1 week', $i)) {
+        for ($i = strtotime($dayinfo['day'], $semester->startdate); $i <= $semester->enddate; $i = strtotime('+1 week', $i)) {
             $date = new stdClass();
             $date->date = date('Y-m-d', $i);
             $date->starttime = $dayinfo['starttime'];

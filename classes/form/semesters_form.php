@@ -69,12 +69,12 @@ class semesters_form extends dynamic_form {
 
             $mform->addElement('date_selector', 'semesterstart' . $j, get_string('semesterstart', 'booking'));
             $mform->addHelpButton('semesterstart' . $j, 'semesterstart', 'booking');
-            $mform->setDefault('semesterstart' . $j, $semester->start);
+            $mform->setDefault('semesterstart' . $j, $semester->startdate);
             $mform->disabledIf('semesterstart' . $j, 'deletesemester' . $j, 'checked');
 
             $mform->addElement('date_selector', 'semesterend' . $j, get_string('semesterend', 'booking'));
             $mform->addHelpButton('semesterend' . $j, 'semesterend', 'booking');
-            $mform->setDefault('semesterend' . $j, $semester->end);
+            $mform->setDefault('semesterend' . $j, $semester->enddate);
             $mform->disabledIf('semesterend' . $j, 'deletesemester' . $j, 'checked');
 
             $mform->addElement('advcheckbox', 'deletesemester' . $j,
