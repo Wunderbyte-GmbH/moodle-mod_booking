@@ -1,0 +1,135 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/bookingoption_description
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-region
+}}
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <h2 class="title" >{{title}}</h2>
+            <h6 class="h6-category">
+                {{sport}}
+            </h6>
+            {{#description}}<div class="content"><p>{{{.}}}</p></div>{{/description}}
+            <div {{^teachers}} style="display:none"{{/teachers}}>
+                {{#str}}teachers, mod_booking{{/str}}:
+                <ul>
+                    {{#teachers}}
+                        <li>
+                            {{.}}
+                        </li>
+                    {{/teachers}}
+                </ul>
+            </div>
+            <div class="list-group">
+                {{#dates}}
+                    <div class="list-group-item">
+                        <div>
+                            <b>{{{datestring}}}</b>
+                        </div>
+                        <div {{^customfields}}style="display:none"{{/customfields}}>
+                            <ul>
+                                {{#customfields}}
+                                    <li>
+                                        {{name}}{{{value}}}
+                                    </li>
+                                {{/customfields}}
+                            </ul>
+                        </div>
+                    </div>
+                {{/dates}}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card price-card">
+                <img class="w-100" src="{{imageurl}}">
+                <h3 class="price text-center"> {{price}} {{currency}}</h3>
+
+                <button class="btn wb_shopping_cart btn-primary"
+                        id="btn-mod_booking-{{modalcounter}}"
+                        data-id="id"
+                        data-objecttable="booking"
+                        data-component="mod_booking">
+                <span>{{#str}} addtocart, local_shopping_cart {{/str}}</span>
+                </button>
+
+
+              <div class="card-body">
+                <ul class="infolist">
+                    {{#dayofweektime}}
+                    <li>
+                        <span>
+                            <i class="fa fa-clock-o"></i>
+                        </span>
+                        <span class="d-md-none">
+                            {{#str}} dayofweektime, mod_booking {{/str}}
+                        </span>
+                            {{.}}
+                        <span>
+                        </span>
+                    </li>
+                    {{/dayofweektime}}
+                    {{#location}}
+                    <li>
+                        <span>
+                            <i class="fa fa-map-marker"></i>
+                        </span>
+                        <span class="d-md-none">
+                            {{#str}} location, mod_booking {{/str}}
+                        </span>
+                            {{.}}
+                        <span>
+                        </span>
+                    </li>
+                    {{/location}}
+                    {{#bookinginformation}}
+                    <li>
+                        <span>
+                        </span>
+                        <span class="d-md-none">
+                            TODO: bookings
+                        </span>
+
+                        <div class="col-ap-availableplaces" id="yui_3_17_2_1_1648034219116_756">
+                            <span><i class="fa fa-users"></i></span>
+                            {{> booking/col_availableplaces }}
+                        </div>
+
+                        <span>
+                        </span>
+                    </li>
+                    {{/bookinginformation}}
+                </ul>
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{#js}}
+    require(['local_shopping_cart/cart'], function(cart) {
+    cart.buttoninit({{modalcounter}}, "mod_booking");
+    });
+{{/js}}

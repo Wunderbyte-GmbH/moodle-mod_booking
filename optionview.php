@@ -21,6 +21,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\singleton_service;
+
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
 
@@ -43,19 +45,29 @@ if (!$context = context_module::instance($cm->id)) {
 }
 
 // Check if optionid is valid.
-$optionid = $DB->get_field('booking_options', 'id',
-        array('id' => $optionid, 'bookingid' => $bookingid), MUST_EXIST);
 
-$PAGE->navbar->add('...bla...');
-$PAGE->set_title(format_string('...blubb...'));
-$PAGE->set_heading('...heading...');
-$PAGE->set_pagelayout('standard');
+$booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
-echo $OUTPUT->header();
+if ($settings = singleton_service::get_instance_of_booking_option_settings($optionid)) {
 
-echo $OUTPUT->heading('...heading2...', 3, 'helptitle', 'uniqueid');
+    $user = $USER;
 
-$cancel = new moodle_url('view.php', array('id' => $cmid));
-$button = $OUTPUT->single_button($cancel, get_string('back'), 'get');
+    $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $user->id);
+
+    $output = $PAGE->get_renderer('mod_booking');
+    $data = new \mod_booking\output\bookingoption_description($booking, $settings->id,
+                null, DESCRIPTION_WEBSITE, true, null, $user);
+
+    $PAGE->navbar->add($data->title);
+    $PAGE->set_title(format_string($data->title));
+    $PAGE->set_heading($data->title);
+    $PAGE->set_pagelayout('standard');
+    echo $OUTPUT->header();
+    echo $output->render_booking_option_view($data);
+
+} else {
+    $url = new moodle_url('mod/booking/view.php', ['id' => $cmid]);
+    redirect($url);
+}
 
 echo $OUTPUT->footer();

@@ -244,26 +244,29 @@ class booking_answers {
 
         $returnarray = [];
 
+        $returnarray['waiting'] = count($this->usersonwaitinglist);
+        $returnarray['booked'] = count($this->usersonlist);
+
         // We can't set the value if it's not true, because of the way mustache templates work.
         if ($this->bookingoptionsettings->maxanswers != 0) {
             $returnarray['maxanswers'] = $this->bookingoptionsettings->maxanswers;
+
+            $returnarray['freeonlist'] = $returnarray['maxanswers'] - $returnarray['booked'];
+
+             // Determine if the option is booked out.
+            if ($returnarray['freeonlist'] <= 0) {
+                $returnarray['fullybooked'] = true;
+            } else {
+                $returnarray['fullybooked'] = false;
+            }
+        } else {
+            $returnarray['fullybooked'] = false;
         }
 
         if ($this->bookingoptionsettings->maxoverbooking != 0) {
             $returnarray['maxoverbooking'] = $this->bookingoptionsettings->maxoverbooking;
-        }
 
-        $returnarray['waiting'] = count($this->usersonwaitinglist);
-        $returnarray['booked'] = count($this->usersonlist);
-
-        $returnarray['freeonlist'] = $returnarray['maxanswers'] - $returnarray['booked'];
-        $returnarray['freeonwaitinglist'] = $returnarray['maxoverbooking'] - $returnarray['waiting'];
-
-        // Determine if the option is booked out.
-        if ($returnarray['freeonlist'] <= 0) {
-            $returnarray['fullybooked'] = true;
-        } else {
-            $returnarray['fullybooked'] = false;
+            $returnarray['freeonwaitinglist'] = $returnarray['maxoverbooking'] - $returnarray['waiting'];
         }
 
         if (isset($this->usersonlist[$userid]) && $this->usersonlist[$userid]->waitinglist < 2) {

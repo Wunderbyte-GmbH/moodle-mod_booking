@@ -95,6 +95,15 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $pricecategoryname */
     public $pricecategoryname = null;
 
+    /** @var string $dayofweektime */
+    public $dayofweektime = null;
+
+    /** @var array $customfields */
+    public $customfields = [];
+
+    /** @var array $bookinginformation */
+    public $bookinginformation = [];
+
     /**
      * Constructor.
      * @param $booking
@@ -151,11 +160,15 @@ class bookingoption_description implements renderable, templatable {
         // There can be more than one modal, therefore we use the id of this record.
         $this->modalcounter = $settings->id;
         $this->duration = $settings->duration;
-        // Description from booking option settings formatted as HTML.
 
+        $this->dayofweektime = $settings->dayofweektime;
+
+        // We got the array of all the booking information.
+        $this->bookinginformation = $bookinganswers->return_all_booking_information($user->id);
+
+        // Description from booking option settings formatted as HTML.
         // When we call this via webservice, we don't have a context, this throws an error.
         // It's no use passing the context object either.
-
         if (!isset($PAGE->context)) {
             $PAGE->set_context(context_module::instance($this->cmid));
         }
@@ -177,6 +190,11 @@ class bookingoption_description implements renderable, templatable {
             $teachernames[] = "$teacher->firstname $teacher->lastname";
         }
         $this->teachers = $teachernames;
+
+        if (isset($settings->customfields)) {
+            $this->customfields = $settings->customfields;
+        }
+
 
         // Add price.
         // TODO: Currently this will only use the logged in $USER, this won't work for the cachier use case!
@@ -266,8 +284,21 @@ class bookingoption_description implements renderable, templatable {
                 'teachers' => $this->teachers,
                 'price' => $this->price,
                 'currency' => $this->currency,
-                'pricecategoryname' => $this->pricecategoryname
+                'pricecategoryname' => $this->pricecategoryname,
+                'dayofweektime' => $this->dayofweektime,
+                'bookinginformation' => $this->bookinginformation
         );
+
+        // We return all the customfields of the option.
+        // But we make sure, the shortname of a customfield does not conflict with an existing key.
+        if ($this->customfields) {
+            foreach ($this->customfields as $key => $value) {
+                if (!isset($returnarray[$key])) {
+                    $returnarray[$key] = is_array($value) ? reset($value) : $value;
+                }
+            }
+        }
+
 
         // In events we don't have the possibility, as on the website, to use display: none the same way.
         // So we need two helper variables.

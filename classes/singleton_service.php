@@ -17,6 +17,7 @@
 namespace mod_booking;
 
 use core_user;
+use Exception;
 use mod_booking\booking;
 use mod_booking\booking_answers;
 use mod_booking\booking_option;
@@ -182,9 +183,14 @@ class singleton_service {
         if (isset($instance->bookingoptions[$optionid])) {
             return $instance->bookingoptions[$optionid];
         } else {
-            $option = new booking_option($cmid, $optionid);
-            $instance->bookingoptions[$optionid] = $option;
-            return $option;
+            try {
+                $option = new booking_option($cmid, $optionid);
+                $instance->bookingoptions[$optionid] = $option;
+                return $option;
+            } catch (Exception $e) {
+                return null;
+            }
+
         }
     }
 

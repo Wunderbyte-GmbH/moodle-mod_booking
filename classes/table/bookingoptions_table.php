@@ -145,14 +145,34 @@ class bookingoptions_table extends wunderbyte_table {
      */
     public function col_text($values) {
 
+        if (!$this->booking) {
+            $this->booking = singleton_service::get_instance_of_booking_by_optionid($values->id);
+        }
+
         // We will have a number of modals on this site, therefore we have to distinguish them.
         $data = new stdClass();
+
+        if ($this->booking) {
+            $url = new moodle_url('/mod/booking/optionview.php', ['optionid' => $values->id,
+                                                                  'cmid' => $this->booking->cmid,
+                                                                  'userid' => $this->buyforuser->id]);
+            $data->url = $url->out(false);
+            $data->cmid;
+        } else {
+            $data->url = '#';
+        }
+        $data->title = $values->text;
+
+        // This is in case we render modal.
         $data->modalcounter = $values->id;
         $data->modaltitle = $values->text;
         $data->userid = $this->buyforuser->id;
 
+        // To easily switch to modal view again.
+        // return $this->output->render_col_text_modal_js($data);
+
         // We can go with the data from bookingoption_description directly to modal.
-        return $this->output->render_col_text_modal_js($data);
+        return $this->output->render_col_text_link($data);
     }
 
 
