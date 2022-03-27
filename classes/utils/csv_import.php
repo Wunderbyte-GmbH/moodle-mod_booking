@@ -233,11 +233,13 @@ class csv_import {
                     $handler->field_save($optionid, $column, $value);
                 }
 
-                // Now we add the prices.
-                $price = new price($optionid);
-                foreach ($price->pricecategories as $category) {
-                    if (isset($csvrecord[$category->identifier])) {
-                        $price->add_price($optionid, $category->identifier, $csvrecord[$category->identifier]);
+                // Now only run throught prices if there is a 'default' column.
+                if (isset($this->columns['default'])) {
+                    $price = new price($optionid);
+                    foreach ($price->pricecategories as $category) {
+                        if (isset($csvrecord[$category->identifier])) {
+                            $price->add_price($optionid, $category->identifier, $csvrecord[$category->identifier]);
+                        }
                     }
                 }
 
