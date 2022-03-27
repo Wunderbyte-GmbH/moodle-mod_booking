@@ -23,6 +23,7 @@ use html_writer;
 use mod_booking\customfield\booking_handler;
 use mod_booking\optiondates_handler;
 use mod_booking\price;
+use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -137,14 +138,14 @@ class csv_import {
             }
         }
 
-        $this->customfields = booking_option::get_customfield_settings();
-        // TODO: now only possible add fields of type text, select multiselect still to implement.
-        // Add customfields.
-        foreach ($this->customfields as $customfield) {
-            if ($customfield['type'] == 'textfield') {
-                $this->additionalfields[] = $customfield['value'];
-            }
-        }
+        // $this->customfields = booking_option::get_customfield_settings();
+        // // TODO: now only possible add fields of type text, select multiselect still to implement.
+        // // Add customfields.
+        // foreach ($this->customfields as $customfield) {
+        //     if ($customfield['type'] == 'textfield') {
+        //         $this->additionalfields[] = $customfield['value'];
+        //     }
+        // }
     }
 
     /**
@@ -355,11 +356,11 @@ class csv_import {
     protected function prepare_data($column, $value, &$bookingoption) {
         global $DB;
         // Prepare custom fields.
-        foreach ($this->customfields as $key => $customfield) {
-            if ($customfield['value'] == $column) {
-                $bookingoption->{$key} = $value;
-            }
-        }
+        // foreach ($this->customfields as $key => $customfield) {
+        //     if ($customfield['value'] == $column) {
+        //         $bookingoption->{$key} = $value;
+        //     }
+        // }
         // Check if column is in bookingoption fields, otherwise it is user data.
         if (array_key_exists($column, $this->columns) || in_array($column, $this->additionalfields)) {
             switch ($column) {
