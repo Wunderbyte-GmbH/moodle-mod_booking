@@ -289,8 +289,7 @@ class csv_import {
                             continue;
                         }
 
-                        $option = new booking_option($this->booking->cm->id, $optionid,
-                            array(), 0, 0, false);
+                        $option = singleton_service::get_instance_of_booking_option($this->booking->cm->id, $optionid);
                         if ($option->user_submit_response($user) === false) {
                             $this->add_csverror("The user with username {$user->username} and e-mail {$user->email} was
                             not subscribed to the booking option", $i);
@@ -305,8 +304,7 @@ class csv_import {
                     $user = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
                         'username' => $userdata['user_username']), 'id', IGNORE_MULTIPLE);
                     if ($user !== false) {
-                        $option = new booking_option($this->booking->cm->id, $optionid,
-                            array(), 0, 0, false);
+                        $option = singleton_service::get_instance_of_booking_option($this->booking->cm->id, $optionid);
                         $option->user_submit_response($user);
                     }
                 }
