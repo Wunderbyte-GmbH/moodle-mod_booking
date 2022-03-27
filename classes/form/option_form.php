@@ -40,7 +40,11 @@ class option_form extends moodleform {
         }
 
         // Get booking option settings from cache or DB via singleton service.
-        $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if ($optionid != 0) {
+            $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        } else {
+            $bookingoptionsettings = null;
+        }
 
         // Hidden elements.
         $mform->addElement('hidden', 'id', $cmid);
@@ -292,12 +296,19 @@ class option_form extends moodleform {
             get_string('dates', 'booking'));
         $mform->addElement('html', '<div id="optiondates-form"></div>');
         // Save semesterid and dayofweektime string in hidden inputs, so we can access them via $_POST.
+
+        $semesterid = null;
+        $dayofweektime = '';
+        if ($bookingoptionsettings) {
+            $semesterid = $bookingoptionsettings->semesterid;
+            $dayofweektime = $bookingoptionsettings->dayofweektime;
+        }
         $mform->addElement('html',
             '<input type="text" data-fieldtype="text" class="d-none felement" id="semesterid" name="semesterid" value="' .
-            $bookingoptionsettings->semesterid . '"></input>');
+            $semesterid . '"></input>');
         $mform->addElement('html',
             '<input type="text" data-fieldtype="text" class="d-none felement" id="dayofweektime" name="dayofweektime" value="' .
-            $bookingoptionsettings->dayofweektime . '"></input>');
+            $dayofweektime . '"></input>');
 
         // Advanced options.
         $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));
