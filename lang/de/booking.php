@@ -1322,6 +1322,7 @@ $string['changenew'] = '[NEU] ';
 // Bookingoption_description.php.
 $string['gotobookingoption'] = 'Buchungsoption anzeigen';
 $string['dayofweektime'] = 'Tag & Uhrzeit';
+$string['showdates'] = 'Zeige Termine';
 
 // Bookingoptions_simple_table.php.
 $string['bsttext'] = 'Buchungsoption';

@@ -1563,6 +1563,7 @@ $string['changenew'] = '[NEW] ';
 // Bookingoption_description.php.
 $string['gotobookingoption'] = 'Go to booking option';
 $string['dayofweektime'] = 'Day & Time';
+$string['showdates'] = 'Show dates';
 
 // Bookingoptions_simple_table.php.
 $string['bsttext'] = 'Booking option';

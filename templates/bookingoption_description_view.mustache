@@ -43,6 +43,10 @@
                     {{/teachers}}
                 </ul>
             </div>
+            <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates" role="button" aria-expanded="false" aria-controls="collapseOptiondates">
+                {{#str}} showdates, mod_booking {{/str}}
+            </a>
+            <div id="collapseoptiondates" class="collapse">
             <div class="list-group">
                 {{#dates}}
                     <div class="list-group-item">
@@ -60,6 +64,7 @@
                         </div>
                     </div>
                 {{/dates}}
+            </div>
             </div>
         </div>
         <div class="col-md-4">
