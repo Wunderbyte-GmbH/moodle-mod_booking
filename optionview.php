@@ -30,6 +30,7 @@ global $DB, $PAGE, $OUTPUT, $USER;
 
 $cmid = required_param('cmid', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
+$userid = optional_param('userid', 0, PARAM_INT);
 
 $url = new moodle_url('/mod/booking/optionview.php', array('cmid' => $cmid, 'optionid' => $optionid));
 $PAGE->set_url($url);
@@ -50,7 +51,12 @@ $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
 if ($settings = singleton_service::get_instance_of_booking_option_settings($optionid)) {
 
-    $user = $USER;
+    if ($userid == $USER->id || $userid == 0) {
+        $user = $USER;
+    } else {
+        $user = singleton_service::get_instance_of_user($userid);
+    }
+
 
     $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $user->id);
 
