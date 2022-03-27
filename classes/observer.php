@@ -185,7 +185,7 @@ class mod_booking_observer {
             calendar::TYPEOPTIONDATE, $event->objectid);
 
         $cmid = $event->contextinstanceid;
-        $bookingoption = new booking_option($cmid, $optionid);
+        $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
 
         $users = $bookingoption->get_all_users_booked();
         foreach ($users as $user) {
