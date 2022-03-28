@@ -289,6 +289,14 @@ class bookingoption_description implements renderable, templatable {
                 'bookinginformation' => $this->bookinginformation
         );
 
+        if (isset($this->bookinginformation)) {
+            if (isset($this->bookinginformation['iambooked'])) {
+                $returnarray['bookingsstring'] = get_string('booked', 'mod_booking');
+            } else if (isset($this->bookinginformation['onwaitinglist'])) {
+                $returnarray['bookingsstring'] = get_string('waitinglist', 'mod_booking');
+            }
+        }
+
         // We return all the customfields of the option.
         // But we make sure, the shortname of a customfield does not conflict with an existing key.
         if ($this->customfields) {
