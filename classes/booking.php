@@ -17,6 +17,7 @@ namespace mod_booking;
 
 use course_modinfo;
 use html_writer;
+use moodle_exception;
 use stdClass;
 use moodle_url;
 
@@ -80,17 +81,22 @@ class booking {
     public function __construct(int $cmid, course_modinfo $cm = null) {
         global $DB;
 
-        // In the constructur, we call the booking_settings, where we get the values from db or cache.
-        $bosettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-
-        $this->settings = $bosettings->return_settings_as_stdclass();
-        $this->id = $this->settings->id;
         $this->cmid = $cmid;
         if (!$cm || ($cmid != $cm->id)) {
             $this->cm = get_coursemodule_from_id('booking', $cmid);
         } else {
             $this->cm = $cm;
         }
+
+        if (!$this->cm) {
+            throw new moodle_exception('instancedoesnotexist');
+        }
+
+        // In the constructur, we call the booking_settings, where we get the values from db or cache.
+        $bosettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+
+        $this->settings = $bosettings->return_settings_as_stdclass();
+        $this->id = $this->settings->id;
 
         $this->course = get_course($this->cm->course);
         $this->context = \context_module::instance($cmid);
@@ -577,6 +583,62 @@ class booking {
 
         $from = "{booking_options} bo";
         $where = "bo.bookingid = :bookingid {$search}";
+        // phpcs:ignore moodle.Commenting.InlineComment.NotCapital,Squiz.PHP.CommentedOutCode.Found
+        $order = "GROUP BY bo.id, bo.text
+                  ORDER BY bo.text ASC";
+        if (strlen($searchtext) !== 0) {
+            $from .= "
+                JOIN {customfield_data} cfd
+                ON bo.id=cfd.instanceid
+                JOIN {customfield_field} cff
+                ON cfd.fieldid=cff.id
+                ";
+            // Strip column close.
+            $where = substr($where, 0, -1);
+            // Add another tag.
+            $where .= " OR {$DB->sql_like('cfd.value', ':cfsearchtext', false)}) ";
+            // In a future iteration, we can add the specification in which customfield we want to search.
+            // For From JOIN {customfield_field} cff.
+            // ON cfd.fieldid=cff.id .
+            // And for Where.
+            // AND cff.name like 'fieldname'.
+            $params['cfsearchtext'] = $searchtext;
+        }
+
+        $where .= $order;
+
+        return [$fields, $from, $where, $params];
+    }
+
+    /**
+     * Genereate SQL and params array to fetch my options.
+     *
+     * @param integer $limitfrom
+     * @param integer $limitnum
+     * @param string $searchtext
+     * @param string $fields
+     * @return void
+     */
+    public function get_my_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "bo.id") {
+        global $DB, $USER;
+
+        $limit = '';
+        $rsearch = $this->searchparameters($searchtext);
+        $search = $rsearch['query'];
+        $params = array_merge(array('bookingid' => $this->id,
+                                    'userid' => $USER->id,
+                                    'booked' => STATUSPARAM_BOOKED), $rsearch['params']);
+
+        if ($limitnum != 0) {
+            $limit = " LIMIT {$limitfrom} OFFSET {$limitnum}";
+        }
+
+        $from = "{booking_options} bo
+                JOIN {booking_answers} ba
+                ON ba.optionid=bo.id";
+        $where = "bo.bookingid = :bookingid
+                  AND ba.userid = :userid
+                  AND ba.waitinglist = :booked {$search}";
         // phpcs:ignore moodle.Commenting.InlineComment.NotCapital,Squiz.PHP.CommentedOutCode.Found
         $order = "GROUP BY bo.id, bo.text
                   ORDER BY bo.text ASC";

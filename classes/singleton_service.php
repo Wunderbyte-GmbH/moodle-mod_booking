@@ -84,9 +84,15 @@ class singleton_service {
         if (isset($instance->bookingsbycmid[$cmid])) {
             return $instance->bookingsbycmid[$cmid];
         } else {
-            $booking = new booking($cmid);
-            $instance->bookingsbycmid[$cmid] = $booking;
-            return $booking;
+
+            // Before instating the new booking, we need to make sure that it already exists.
+            try {
+                $booking = new booking($cmid);
+                $instance->bookingsbycmid[$cmid] = $booking;
+                return $booking;
+            } catch (Exception $e) {
+                return null;
+            }
         }
     }
 
