@@ -1584,6 +1584,8 @@ $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the wai
 
 // Shortcodes.
 $string['shortcodeslistofbookingoptions'] = 'List of booking options';
+$string['shortcodeslistofbookingoptionsascards'] = 'List of booking options as cards';
+$string['shortcodeslistofmybookingoptionsascards'] = 'List of my booked booking options as cards';
 $string['shortcodessetdefaultinstance'] = 'Set default instance for shortcodes implementation';
 $string['shortcodessetdefaultinstancedesc'] = 'This allows you to change instances quickly when you want to change
 a lot of them at once. One example would be that you have a lot of teaching categories and they are listed on different

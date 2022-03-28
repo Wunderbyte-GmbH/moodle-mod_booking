@@ -1343,6 +1343,8 @@ $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der W
 
 // Shortcodes.
 $string['shortcodeslistofbookingoptions'] = 'Liste der buchbaren Optionen';
+$string['shortcodeslistofbookingoptionsascards'] = 'Liste der buchbaren Optionen als cards';
+$string['shortcodeslistofmybookingoptionsascards'] = 'Liste meiner gebuchte Optionen als cards';
 $string['shortcodessetdefaultinstance'] = 'Setze eine Standard Instanz für Shortcodes';
 $string['shortcodessetdefaultinstancedesc'] = 'Damit kann eine Standard-Buchungsinstanz definiert werden, die dann verwendet wird,
 wenn keine ID definiert wurde. Dies erlaubt den schnellen Wechsel (zum Beispiel von einem Semster zum nächsten), wenn es Überblicks-
