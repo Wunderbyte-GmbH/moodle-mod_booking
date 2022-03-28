@@ -1185,7 +1185,7 @@ class booking_option {
         $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
 
         $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-        if ($bookinganswers->user_status($userid) === STATUSPARAM_BOOKED) {
+        if ($bookinganswers->user_status($userid) == STATUSPARAM_BOOKED) {
             $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid)); // Enrol using the default role.
 
             // TODO: Track enrolment status in booking_answers. It makes no sense to track it in booking_options.
