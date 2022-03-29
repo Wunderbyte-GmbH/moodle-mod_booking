@@ -48,21 +48,26 @@
         {{/teachers}}
     </ul>
 </div>
-<div class="list-group">
-    {{#dates}}
-        <div class="list-group-item">
-            <div>
-                <b>{{{datestring}}}</b>
+<a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates" role="button" aria-expanded="false" aria-controls="collapseOptiondates">
+                {{#str}} showdates, mod_booking {{/str}}
+            </a>
+            <div id="collapseoptiondates" class="collapse">
+            <div class="list-group">
+                {{#dates}}
+                    <div class="list-group-item">
+                        <div>
+                            <b>{{{datestring}}}</b>
+                        </div>
+                        <div {{^customfields}}style="display:none"{{/customfields}}>
+                            <ul>
+                                {{#customfields}}
+                                    <li>
+                                        {{name}}{{{value}}}
+                                    </li>
+                                {{/customfields}}
+                            </ul>
+                        </div>
+                    </div>
+                {{/dates}}
             </div>
-            <div {{^customfields}}style="display:none"{{/customfields}}>
-                <ul>
-                    {{#customfields}}
-                        <li>
-                            {{name}}{{{value}}}
-                        </li>
-                    {{/customfields}}
-                </ul>
             </div>
-        </div>
-    {{/dates}}
-</div>

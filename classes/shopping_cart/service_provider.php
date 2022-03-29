@@ -30,6 +30,7 @@ use context_system;
 use local_shopping_cart\local\entities\cartitem;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\output\bookingoption_description;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use stdClass;
@@ -51,7 +52,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @return \shopping_cart\cartitem
      */
     public static function load_cartitem(int $optionid, int $userid = 0): cartitem {
-        global $DB, $USER;
+        global $DB, $USER, $PAGE;
 
         $bookingoption = booking_option::create_option_from_optionid($optionid);
 
@@ -82,12 +83,25 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
         // We need to register this action as a booking answer, where we only reserve, not actually book.
 
+        $user = singleton_service::get_instance_of_user($userid);
+        $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);
+
+        if (!isset($PAGE->context)) {
+            $PAGE->set_context(context_module::instance($booking->cmid));
+        }
+
+        $output = $PAGE->get_renderer('mod_booking');
+        $data = new bookingoption_description($booking, $optionid, null, DESCRIPTION_WEBSITE, false, null, $user);
+
+        $description = $output->render_bookingoption_description($data);
+
+
         return new cartitem($optionid,
                             $bookingoption->option->text,
                             $price['price'],
                             $price['currency'],
                             'mod_booking',
-                            $bookingoption->option->description,
+                            $description,
                             $settings->imageurl);
     }
 
