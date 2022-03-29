@@ -235,7 +235,7 @@ class csv_import {
                 }
 
                 // Now only run throught prices if there is a 'default' column.
-                if (isset($this->columns['default'])) {
+                if (isset($csvrecord['default'])) {
                     $price = new price($optionid);
                     foreach ($price->pricecategories as $category) {
                         if (isset($csvrecord[$category->identifier])) {
