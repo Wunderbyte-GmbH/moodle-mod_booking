@@ -232,7 +232,7 @@ class ical {
      * @return string $vevent vevent
      */
     protected function add_vevent ($uid, $dtstart, $dtend, $time = false) {
-        global $DB, $PAGE;
+        global $CFG, $DB, $PAGE;
 
         $eventid = false;
         if ($time) {
@@ -247,6 +247,13 @@ class ical {
         $fulldescription = rtrim(strip_tags(preg_replace( "/<br>|<\/p>/", "\n", $fulldescription)));
         $fulldescription = str_replace("\n", "\\n", $fulldescription );
 
+        // Make sure that we fall back onto some reasonable no-reply address.
+        $noreplyaddressdefault = 'noreply@' . get_host_from_url($CFG->wwwroot);
+        $noreplyaddress = empty($CFG->noreplyaddress) ? $noreplyaddressdefault : $CFG->noreplyaddress;
+
+        // If no bookingmanager was set, we fall back to the no-reply address.
+        $fromuseremail = empty($this->fromuser->email) ? $noreplyaddress : $this->fromuser->email;
+
         $veventparts = array(
             "BEGIN:VEVENT",
             "CLASS:PUBLIC",
@@ -260,7 +267,7 @@ class ical {
             // "SEQUENCE:0",
             "SUMMARY:{$this->summary}",
             "TRANSP:OPAQUE{$this->status}",
-            "ORGANIZER;CN={$this->fromuser->email}:MAILTO:{$this->fromuser->email}",
+            "ORGANIZER;CN={$fromuseremail}:MAILTO:{$fromuseremail}",
             "ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT=NEEDS-ACTION;RSVP=false;" .
                 "CN={$this->userfullname};LANGUAGE=en:MAILTO:{$this->user->email}",
             "UID:{$uid}"
