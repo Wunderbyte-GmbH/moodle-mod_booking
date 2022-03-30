@@ -138,14 +138,16 @@ class csv_import {
             }
         }
 
-        // $this->customfields = booking_option::get_customfield_settings();
-        // // TODO: now only possible add fields of type text, select multiselect still to implement.
-        // // Add customfields.
-        // foreach ($this->customfields as $customfield) {
-        //     if ($customfield['type'] == 'textfield') {
-        //         $this->additionalfields[] = $customfield['value'];
-        //     }
-        // }
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $this->customfields = booking_option::get_customfield_settings();
+        // TODO: now only possible add fields of type text, select multiselect still to implement.
+        // Add customfields.
+        foreach ($this->customfields as $customfield) {
+            if ($customfield['type'] == 'textfield') {
+                $this->additionalfields[] = $customfield['value'];
+            }
+        }
+        */
     }
 
     /**
@@ -244,7 +246,7 @@ class csv_import {
                     }
                 }
 
-                // Finished option data, add user data to option:
+                // Finished option data, add user data to option...
                 foreach ($userdata as $userfield => $value) {
                     $this->prepare_data($userfield, $value, $bookingoption);
                 }
@@ -355,12 +357,15 @@ class csv_import {
      */
     protected function prepare_data($column, $value, &$bookingoption) {
         global $DB;
+
         // Prepare custom fields.
-        // foreach ($this->customfields as $key => $customfield) {
-        //     if ($customfield['value'] == $column) {
-        //         $bookingoption->{$key} = $value;
-        //     }
-        // }
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /*foreach ($this->customfields as $key => $customfield) {
+            if ($customfield['value'] == $column) {
+                $bookingoption->{$key} = $value;
+            }
+        } */
+
         // Check if column is in bookingoption fields, otherwise it is user data.
         if (array_key_exists($column, $this->columns) || in_array($column, $this->additionalfields)) {
             switch ($column) {
@@ -481,11 +486,11 @@ class csv_import {
                 unset($csvrecord['dayofweektime']);
             } else {
                 if (!optiondates_handler::reoccurring_datestring_is_correct($csvrecord['dayofweektime'])) {
-                    $this->add_csverror('The Recurring date string must be in the following format: "Mo 10:00 - 12:00", not like this:' . $csvrecord['dayofweektime'], $linenumber);
+                    $this->add_csverror('The Recurring date string must be in the following format: ' .
+                        '"Mo 10:00 - 12:00", not like this:' . $csvrecord['dayofweektime'], $linenumber);
                     return false;
                 }
             }
-
         }
         return true;
     }
@@ -521,11 +526,12 @@ class csv_import {
         if (in_array('useremail', $this->fieldnames) AND in_array('user_username', $this->fieldnames)) {
             $error .= "CSV was not imported. Reason: You must not set useremail AND user_username. Choose only one of them.";
         }
-        foreach ($this->fieldnames as $fieldname) {
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* foreach ($this->fieldnames as $fieldname) {
             if (!array_key_exists($fieldname, $this->columns) AND !in_array($fieldname, $this->additionalfields)) {
                 // $error .= "CSV was not imported. Reason: Invalid booking option setting in csv: {$fieldname}";
             }
-        }
+        } */
         return $error;
     }
 
