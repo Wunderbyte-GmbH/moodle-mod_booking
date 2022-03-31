@@ -149,7 +149,6 @@ class bookingoptions_table extends wunderbyte_table {
             $this->booking = singleton_service::get_instance_of_booking_by_optionid($values->id);
         }
 
-        // We will have a number of modals on this site, therefore we have to distinguish them.
         $data = new stdClass();
 
         if ($this->booking) {
@@ -163,15 +162,24 @@ class bookingoptions_table extends wunderbyte_table {
         }
         $data->title = $values->text;
 
+        // We will have a number of modals on this site, therefore we have to distinguish them.
         // This is in case we render modal.
         $data->modalcounter = $values->id;
         $data->modaltitle = $values->text;
         $data->userid = $this->buyforuser->id;
 
-        // To easily switch to modal view again.
-        // return $this->output->render_col_text_modal_js($data);
+        // Get the URL to edit the option.
+        if (!empty($values->id)) {
+            $bookingsoptionsettings = singleton_service::get_instance_of_booking_option_settings($values->id);
+            if (!empty($bookingsoptionsettings)) {
+                $data->editoptionurl = $bookingsoptionsettings->editoptionurl;
+            }
+        }
 
-        // We can go with the data from bookingoption_description directly to modal.
+        // To easily switch to modal view again.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* return $this->output->render_col_text_modal_js($data); */
+
         return $this->output->render_col_text_link($data);
     }
 

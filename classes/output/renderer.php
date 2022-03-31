@@ -465,11 +465,6 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-
-
-
-
-
     /**
      * Render function.
      * @param $data array
