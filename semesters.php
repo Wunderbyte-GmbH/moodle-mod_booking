@@ -25,15 +25,16 @@
 
 use mod_booking\form\dynamicsemestersform;
 
-require_once(__DIR__ . '/../../config.php');
-require_once($CFG->libdir . '/adminlib.php');
+require_once('../../config.php');
+require_once($CFG->libdir.'/adminlib.php');
 
 global $OUTPUT;
 
 // No guest autologin.
 require_login(0, false);
 
-admin_externalpage_setup('modbookingsemesters');
+admin_externalpage_setup('modbookingsemesters', '', [],
+    new moodle_url('/mod/booking/semesters.php'));
 
 $settingsurl = new moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
 
@@ -44,18 +45,21 @@ $PAGE->set_title(
     format_string($SITE->shortname) . ': ' . get_string('semesters', 'booking')
 );
 
-$form = new dynamicsemestersform($pageurl, null, 'post', '', [], true, ['arg1' => 'val1']);
-
-// Set the form data with the same method that is called when loaded from JS.
-// It should correctly set the data for the supplied arguments.
+$form = new dynamicsemestersform();
 $form->set_data_for_dynamic_submission();
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(new lang_string('semesters', 'mod_booking'));
+echo $OUTPUT->heading(get_string('semesters', 'mod_booking'));
 
-echo get_string('semesterssubtitle', 'booking');
+echo html_writer::tag('p', get_string('semesterssubtitle', 'booking'));
 
 // Render the form in a specific container, there should be nothing else in the same container.
-echo html_writer::div($form->render(), '', ['id' => 'formcontainer']);
+echo html_writer::div($form->render(), '', ['data-region' => 'semestersformcontainer']);
+
+$PAGE->requires->js_call_amd(
+    'mod_booking/dynamicsemestersform',
+    'init',
+    ['[data-region=semestersformcontainer]', dynamicsemestersform::class]
+);
 
 echo $OUTPUT->footer();

@@ -20,16 +20,49 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * Dynamic semesters form.
+ *
+ * @module     mod_booking/dynamicsemestersform
+ * @copyright  2022 Wunderbyte GmbH
+ * @author     Bernhard Fischer
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 import DynamicForm from 'core_form/dynamicform';
+import Notification from 'core/notification';
+import {add as addToast} from 'core/toast';
 
-// Initialize the form.
-const semestersForm = new DynamicForm(document.querySelector('#formcontainer'),
-    'mod_booking\\form\\dynamicsemestersform');
+const addNotification = msg => {
+    addToast(msg);
+};
 
-// When form is submitted - remove it from DOM:
-semestersForm.addEventListener(semestersForm.events.FORM_SUBMITTED, e => {
-    const response = e.detail;
-    // eslint-disable-next-line no-console
-    console.log(response);
-    semestersForm.container.innerHTML = '';
-});
+export const init = (selector, formClass) => {
+
+    const form = new DynamicForm(document.querySelector(selector), formClass);
+    const formargs = {arg1: 'val1'};
+
+    form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
+        e.preventDefault();
+        const response = e.detail;
+        form.load({...formargs, name: response.name});
+        addNotification('Form submitted (todo: localize)');
+        Notification.addNotification({message: 'Form submitted: ' + JSON.stringify(response), type: 'success'});
+    });
+
+    // Cancel button does not make much sense in such forms but since it's there we'll just reload.
+    form.addEventListener(form.events.FORM_CANCELLED, (e) => {
+        e.preventDefault();
+        // eslint-disable-next-line promise/catch-or-return
+        form.notifyResetFormChanges()
+            .then(() => form.load(formargs));
+        addNotification('Form cancelled (todo: localize)');
+    });
+
+    // Demo of different events.
+    form.addEventListener(form.events.NOSUBMIT_BUTTON_PRESSED, () => addNotification('No submit button pressed.'));
+    form.addEventListener(form.events.CLIENT_VALIDATION_ERROR, () => addNotification('Client-side validation error'));
+    form.addEventListener(form.events.SERVER_VALIDATION_ERROR, () => addNotification('Server-side validation error'));
+    form.addEventListener(form.events.ERROR, (e) => addNotification('Oopsie - ' + e.detail.message));
+    form.addEventListener(form.events.SUBMIT_BUTTON_PRESSED, () => addNotification('Submit button pressed'));
+    form.addEventListener(form.events.CANCEL_BUTTON_PRESSED, () => addNotification('Cancel button pressed'));
+};
