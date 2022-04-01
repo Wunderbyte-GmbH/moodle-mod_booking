@@ -239,8 +239,15 @@ $bookingoption->option->cmid = $cm->id;
 $bookingoption->option->autoenrol = $bookingoption->booking->settings->autoenrol;
 
 $tableallbookings = new \mod_booking\all_userbookings('mod_booking_all_users_sort_new', $bookingoption, $cm, $optionid);
-$tableallbookings->is_downloading($download, format_string($bookingoption->option->text),
-    format_string($bookingoption->option->text));
+
+// Bugfix: Replace special characters to prevent errors.
+$filename = str_replace(' ', '_', $bookingoption->option->text); // Replaces all spaces with underscores.
+$filename = preg_replace('/[^A-Za-z0-9\_]/', '', $filename); // Removes special chars.
+$filename = preg_replace('/\_+/', '_', $filename); // Replace multiple underscores with exactly one.
+$filename = format_string($filename);
+$sheetname = $filename; // Use the same name for the sheet as for the file.
+
+$tableallbookings->is_downloading($download, $filename, $sheetname);
 
 // Remove page number from url otherwise empty results are shown when searching via first/lastname letters.
 $tablebaseurl = $currenturl;
