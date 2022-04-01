@@ -578,6 +578,7 @@ if (!$tableallbookings->is_downloading()) {
             u.username,
             u.institution,
             u.city,
+            u.department,
             ba.completed,
             ba.status,
             ba.timecreated,
