@@ -195,7 +195,6 @@ class bookingoption_description implements renderable, templatable {
             $this->customfields = $settings->customfields;
         }
 
-
         // Add price.
         // TODO: Currently this will only use the logged in $USER, this won't work for the cachier use case!
         $priceitem = price::get_price($optionid, $user);
@@ -306,7 +305,6 @@ class bookingoption_description implements renderable, templatable {
                 }
             }
         }
-
 
         // In events we don't have the possibility, as on the website, to use display: none the same way.
         // So we need two helper variables.

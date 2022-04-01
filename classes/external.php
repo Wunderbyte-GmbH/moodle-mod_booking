@@ -560,7 +560,6 @@ class external extends external_api {
             $user = null;
         }
 
-
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $userid);

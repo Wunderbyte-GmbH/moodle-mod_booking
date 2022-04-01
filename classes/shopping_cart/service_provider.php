@@ -64,10 +64,11 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
         // TODO: Find out if the executing user has the right to access this instance.
         // This can lead to problems, rights should be checked further up.
-        // $context = context_module::instance($cm->id);
-        // if (!has_capability('mod/booking:choose', $context)) {
-        //     return null;
-        // }
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $context = context_module::instance($cm->id);
+        if (!has_capability('mod/booking:choose', $context)) {
+            return null;
+        } */
 
         $user = price::return_user_to_buy_for();
 
@@ -94,7 +95,6 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         $data = new bookingoption_description($booking, $optionid, null, DESCRIPTION_WEBSITE, false, null, $user);
 
         $description = $output->render_bookingoption_description($data);
-
 
         return new cartitem($optionid,
                             $bookingoption->option->text,
