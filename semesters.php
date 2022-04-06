@@ -56,10 +56,12 @@ echo html_writer::tag('p', get_string('semesterssubtitle', 'booking'));
 // Render the form in a specific container, there should be nothing else in the same container.
 echo html_writer::div($form->render(), '', ['data-region' => 'semestersformcontainer']);
 
+$existingsemesters = $DB->get_records('booking_semesters');
+
 $PAGE->requires->js_call_amd(
     'mod_booking/dynamicsemestersform',
     'init',
-    ['[data-region=semestersformcontainer]', dynamicsemestersform::class]
+    ['[data-region=semestersformcontainer]', dynamicsemestersform::class, $existingsemesters]
 );
 
 echo $OUTPUT->footer();

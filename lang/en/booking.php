@@ -1640,14 +1640,15 @@ $string['pricecategoriessubtitle'] = '<p>Here you can define different price cat
 
 // Semesters.php.
 $string['booking:semesters'] = 'Booking: Semesters';
+$string['semester'] = 'Semester';
 $string['semesters'] = 'Semesters';
 $string['semesterssaved'] = 'Semesters have been saved';
-$string['semesterssubtitle'] = '<p>Here you can define different semesters.</p>';
+$string['semesterssubtitle'] = '<p>Here you can add, remove and configure semester time periods.</p>';
 $string['addsemester'] = 'Add a new semester';
-$string['semesteridentifier'] = 'Semester identifier';
+$string['semesteridentifier'] = 'Identifier';
 $string['semesteridentifier_help'] = 'Short text to identify the semester, e.g. "ws22". You cannot change a semester identifier once it is created.
 However, you can just delete the semester and create a new one if necessary.';
-$string['semestername'] = 'Semester name';
+$string['semestername'] = 'Name';
 $string['semestername_help'] = 'Enter the full name of the semester, e.g. "Semester of Winter 2021/22"';
 $string['semesterstart'] = 'First day of semester';
 $string['semesterstart_help'] = 'The day the semester starts.';

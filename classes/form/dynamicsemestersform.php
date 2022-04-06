@@ -21,42 +21,67 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
+use coding_exception;
+use context;
+use context_system;
 use core_form\dynamic_form;
+use html_writer;
+use moodle_url;
+use stdClass;
 
 /**
  * Add semesters form.
+ *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class dynamicsemestersform extends dynamic_form {
 
-    protected function get_context_for_dynamic_submission(): \context {
-        return \context_system::instance();
+    /**
+     * Get context for dynamic submission.
+     * @return context
+     */
+    protected function get_context_for_dynamic_submission(): context {
+        return context_system::instance();
     }
 
+    /**
+     * Check access for dynamic submission.
+     * @return void
+     */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('moodle/site:config', \context_system::instance());
+        require_capability('moodle/site:config', context_system::instance());
     }
 
-    protected function get_options(): array {
-        $rv = [];
-        if (!empty($this->_ajaxformdata['option']) && is_array($this->_ajaxformdata['option'])) {
-            foreach (array_values($this->_ajaxformdata['option']) as $idx => $option) {
-                $rv["option[$idx]"] = clean_param($option, PARAM_CLEANHTML);
+    /**
+     * Get semester data.
+     * @return array
+     */
+    protected function get_semester_data(): array {
+        $semesterdata = [];
+        if (!empty($this->_ajaxformdata['semesteridentifier']) && is_array($this->_ajaxformdata['semesteridentifier'])) {
+            foreach (array_values($this->_ajaxformdata['semesteridentifier']) as $idx => $semesteridentifier) {
+                $semesterdata["semesteridentifier[$idx]"] = clean_param($semesteridentifier, PARAM_TEXT);
             }
         }
-        return $rv;
+        return $semesterdata;
     }
 
+    /**
+     * Set data for dynamic submission.
+     * @return void
+     */
     public function set_data_for_dynamic_submission(): void {
-        $this->set_data([
-            'hidebuttons' => $this->optional_param('hidebuttons', false, PARAM_BOOL),
-            'name' => $this->optional_param('name', '', PARAM_TEXT),
-        ] + $this->get_options());
+        $this->set_data($this->get_semester_data());
     }
 
-    public function process_dynamic_submission() {
+    /**
+     * Process dynamic submission.
+     * @return stdClass|null
+     */
+    public function process_dynamic_submission(): stdClass {
+        // This is the correct place to save and update semesters.
         if ($this->get_data()->name === 'error') {
             // For testing exceptions.
             throw new \coding_exception('Name is error');
@@ -64,62 +89,59 @@ class dynamicsemestersform extends dynamic_form {
         return $this->get_data();
     }
 
-    public function definition() {
+    /**
+     * Form definition.
+     * @return void
+     */
+    public function definition(): void {
         $mform = $this->_form;
 
-        $mform->addElement('static', 'aboutform', '', 'This form has client-side validation that Name must be present '.
-            ' and server-side validation that Name must have at least three characters');
-
-        // Required field (client-side validation test).
-
-        $mform->addElement('text', 'name', get_string('fieldname', 'core_customfield'), 'size="50"');
-        $mform->addRule('name', null, 'required', null, 'client');
-        $mform->setType('name', PARAM_TEXT);
-
         // Repeated elements.
+        $repeatedsemesters = [];
 
-        $repeatarray = array();
-        $repeatarray[] = $mform->createElement('text', 'option', get_string('optionno', 'choice'));
-        $mform->setType('option', PARAM_CLEANHTML);
+        $semesterlabel = html_writer::tag('b', get_string('semester', 'booking') . ' {no}',
+            array('class' => 'semesterlabel'));
+        $repeatedsemesters[] = $mform->createElement('static', 'semesterlabel', $semesterlabel);
 
-        $this->repeat_elements($repeatarray, max(1, count($this->get_options())),
-            [], 'option_repeats', 'option_add_fields', 1, null, true);
+        $repeatedsemesters[] = $mform->createElement('text', 'semesteridentifier', get_string('semesteridentifier', 'booking'));
+        $mform->setType('semesteridentifier', PARAM_TEXT);
 
-        // Editor.
+        $repeatedsemesters[] = $mform->createElement('text', 'semestername', get_string('semestername', 'booking'));
+        $mform->setType('semestername', PARAM_TEXT);
 
-        $desceditoroptions = $this->get_description_text_options();
-        $mform->addElement('editor', 'description_editor', get_string('description', 'core_customfield'),
-            ['rows' => 2], $desceditoroptions);
-        $mform->addHelpButton('description_editor', 'description', 'core_customfield');
+        $repeatedsemesters[] = $mform->createElement('date_selector', 'semesterstart', get_string('semesterstart', 'booking'));
+
+        $repeatedsemesters[] = $mform->createElement('date_selector', 'semesterend', get_string('semesterend', 'booking'));
+
+        $this->repeat_elements($repeatedsemesters, max(1, count($this->get_semester_data())),
+            [], 'semesters', 'semester_add_fields', 1, null, true);
 
         // Buttons.
-
-        $mform->addElement('hidden', 'hidebuttons');
-        $mform->setType('hidebuttons', PARAM_BOOL);
-        if (empty($this->_ajaxformdata['hidebuttons'])) {
-            $this->add_action_buttons();
-        }
+        $this->add_action_buttons();
     }
 
-    public function validation($data, $files) {
+    /**
+     * Server-side form validation.
+     * @param array $data
+     * @param array $files
+     * @return array $errors
+     */
+    public function validation($data, $files): array {
         $errors = [];
-        if (strlen($data['name']) < 3) {
+
+        // TODO: Add server-side validations.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /*if (strlen($data['name']) < 3) {
             $errors['name'] = 'Name must be at least three characters long';
-        }
+        }*/
         return $errors;
     }
 
-    public function get_description_text_options() : array {
-        global $CFG;
-        require_once($CFG->libdir.'/formslib.php');
-        return [
-            'maxfiles' => EDITOR_UNLIMITED_FILES,
-            'maxbytes' => $CFG->maxbytes,
-            'context' => \context_system::instance()
-        ];
-    }
-
-    protected function get_page_url_for_dynamic_submission(): \moodle_url {
-        return new \moodle_url('/mod/booking/semester.php');
+    /**
+     * Get page URL for dynamic submission.
+     * @return moodle_url
+     */
+    protected function get_page_url_for_dynamic_submission(): moodle_url {
+        return new moodle_url('/mod/booking/semester.php');
     }
 }

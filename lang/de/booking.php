@@ -1400,14 +1400,15 @@ $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kateg
 
 // Semesters.php.
 $string['booking:semesters'] = 'Booking: Semester';
+$string['semester'] = 'Semester';
 $string['semesters'] = 'Semester';
 $string['semesterssaved'] = 'Semester wurden gespeichert';
-$string['semesterssubtitle'] = '<p>Hier können Sie verschiedene Semester definieren.</p>';
+$string['semesterssubtitle'] = '<p>Fügen Sie Semester-Zeitspannen hinzu oder löschen Sie diese.</p>';
 $string['addsemester'] = 'Neues Semester hinzufügen';
-$string['semesteridentifier'] = 'Identifikator des Semesters';
+$string['semesteridentifier'] = 'Identifikator';
 $string['semesteridentifier_help'] = 'Kurztext zur Identifikation des Semesters, z.B. "ws22". Sie können Identifikatoren nach dem Speichern nicht mehr löschen.
 Jedoch können Sie falls notwendig ein Semester als ganzes löschen und ein neues anlegen.';
-$string['semestername'] = 'Bezeichnung des Semesters';
+$string['semestername'] = 'Bezeichnung';
 $string['semestername_help'] = 'Geben Sie den vollen Namen des Semesters ein, z.B. "Wintersemester 2021/22"';
 $string['semesterstart'] = 'Semesterbeginn';
 $string['semesterstart_help'] = 'An welchem Tag beginnt das Semester?';
