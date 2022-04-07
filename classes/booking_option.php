@@ -2321,6 +2321,8 @@ class booking_option {
         }
 
         return "$starttime - $endtime";
+    }
+
     // Book users from group.
     public function book_from_group($groupid) {
         $users = groups_get_members($groupid);

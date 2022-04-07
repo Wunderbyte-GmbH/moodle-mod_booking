@@ -1984,7 +1984,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     // ========================================== Make upgrades from here for back compatibility. START ================================
 
-    if ($oldversion < 2022032803) {
+    if ($oldversion < 2022040700) {
         $table = new xmldb_table('booking');
         $field = new xmldb_field('customteplateid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'showviews');
 
@@ -2366,7 +2366,7 @@ function xmldb_booking_upgrade($oldversion) {
         $table = new xmldb_table('booking');
         $field = new xmldb_field('template', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'maxconfirmations');
 
-        // Conditionally launch add field template.
+        // Conditionally launch add field template.edt active
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -2379,7 +2379,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2022032803, 'booking');
+        upgrade_mod_savepoint(true, 2022040700, 'booking');
     }
 
     // ========================================== Make upgrades from here for back compatibility. STOP ================================

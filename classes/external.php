@@ -573,7 +573,7 @@ class external extends external_api {
         return ['content' => json_encode($data), 'template' => 'mod_booking/bookingoption_description'];
     }
 
-
+    /**
      * Describes the parameters for confirm_user_parameters.
      *
      * @return external_function_parameters

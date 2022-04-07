@@ -301,17 +301,10 @@ class all_userbookings extends \table_sql {
                 if ($result) {
                     $dynamicactivitymodulesdata = $DB->get_record($result->name,
                         array('id' => $result->instance));
-<<<<<<< HEAD
-                    echo '<div class="singlebutton">' .
-                        '<input type="submit" class="btn btn-secondary" name="deleteusersactivitycompletion" value="' .
-                        get_string('deleteresponsesactivitycompletion', 'booking',
-                            $dynamicactivitymodulesdata->name) . '" /></div>';
-=======
                         $manageusersoptions[] = [
                             'value' => 'deleteusersactivitycompletion',
                             'label' => get_string('deleteresponsesactivitycompletion', 'booking', $dynamicactivitymodulesdata->name)
                         ];
->>>>>>> 71a2499... UI enhancements and integration with tool_certificate.
                 }
             }
         }
@@ -412,14 +405,10 @@ class all_userbookings extends \table_sql {
                         if ($value->location != '') {
                             $string[] = $value->location;
                         }
-<<<<<<< HEAD
-                        $transferto[$value->id] = implode(', ', $string);
-=======
                         $transferto[] = [
                             'value' => $value->id,
                             'label' => implode($string, ', ')
                         ];
->>>>>>> 71a2499... UI enhancements and integration with tool_certificate.
                     }
 
                     $manageusersoptions[] = [
@@ -466,21 +455,6 @@ class all_userbookings extends \table_sql {
                             'value' => $value->id
                         ];
                     }
-<<<<<<< HEAD
-
-                    echo "<br>";
-
-                    echo html_writer::select($options, 'selectoptionid', '');
-
-                    $label = (empty(
-                            $this->bookingdata->booking->settings->booktootherbooking) ? get_string(
-                            'booktootherbooking', 'booking') : $this->bookingdata->booking->settings->booktootherbooking);
-
-                    echo '<div class="singlebutton">' .
-                        '<input type="submit" class="btn btn-secondary" name="booktootherbooking" value="' .
-                             $label . '" /></div>';
-=======
->>>>>>> 71a2499... UI enhancements and integration with tool_certificate.
                 } else {
                     $alllimits = $DB->get_records_sql(
                             "SELECT bo.*, b.text
@@ -496,21 +470,6 @@ class all_userbookings extends \table_sql {
                                 'value' => $value->optionid
                             ];
                         }
-<<<<<<< HEAD
-
-                        echo "<br>";
-
-                        echo html_writer::select($options, 'selectoptionid', '');
-
-                        $label = (empty(
-                                $this->bookingdata->booking->settings->booktootherbooking) ? get_string(
-                                'booktootherbooking', 'booking') : $this->bookingdata->booking->settings->booktootherbooking);
-
-                        echo '<div class="singlebutton">' .
-                            '<input type="submit" class="btn btn-secondary" name="booktootherbooking" value="' .
-                                 $label . '" /></div>';
-=======
->>>>>>> 71a2499... UI enhancements and integration with tool_certificate.
                     }
                 }
 
