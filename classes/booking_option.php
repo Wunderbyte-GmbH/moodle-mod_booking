@@ -1665,12 +1665,12 @@ class booking_option {
             'maxanswers' => $this->option->maxanswers,
             'maxoverbooking' => $this->option->maxoverbooking,
             'bookingclosingtime' => ($this->option->bookingclosingtime == 0 ? get_string('nodateset', 'booking') : userdate(
-                $this->option->bookingclosingtime, get_string('strftimedatetime'))),
+                $this->option->bookingclosingtime, get_string('strftimedatetime', 'langconfig'))),
             'duration' => $bu->get_pretty_duration($this->option->duration),
             'coursestarttime' => ($this->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate(
-                $this->option->coursestarttime, get_string('strftimedatetime'))),
+                $this->option->coursestarttime, get_string('strftimedatetime', 'langconfig'))),
             'courseendtime' => ($this->option->courseendtime == 0 ? get_string('nodateset', 'booking') : userdate(
-                $this->option->courseendtime, get_string('strftimedatetime'))),
+                $this->option->courseendtime, get_string('strftimedatetime', 'langconfig'))),
             'pollurl' => $this->option->pollurl,
             'pollurlteachers' => $this->option->pollurlteachers,
             'shorturl' => $this->option->shorturl
@@ -2309,15 +2309,15 @@ class booking_option {
             return '';
         }
 
-        $current = userdate($start, get_string('strftimedate'));
-        $previous = userdate($end, get_string('strftimedate'));
+        $current = userdate($start, get_string('strftimedate', 'langconfig'));
+        $previous = userdate($end, get_string('strftimedate', 'langconfig'));
 
         if ($current == $previous) {
-            $starttime = userdate($start, get_string('strftimedaydatetime'));
-            $endtime = userdate($end, get_string('strftimetime'));
+            $starttime = userdate($start, get_string('strftimedaydatetime', 'langconfig'));
+            $endtime = userdate($end, get_string('strftimetime', 'langconfig'));
         } else {
-            $starttime = userdate($start, get_string('strftimedaydatetime'));
-            $endtime = '<br>' . userdate($end, get_string('strftimedaydatetime'));
+            $starttime = userdate($start, get_string('strftimedaydatetime', 'langconfig'));
+            $endtime = '<br>' . userdate($end, get_string('strftimedaydatetime', 'langconfig'));
         }
 
         return "$starttime - $endtime";

@@ -36,7 +36,7 @@
 		    <input name="id" type="hidden" value="{{id}}">
 		    <input name="action" type="hidden" value="downloadpdf">
 		    <div class="container-fluid">
-			    <div class="row p-y-1">
+			    <div class="row p-y-1 mt-3">
 				    <div class="col-md-4 span4 col-4">
 					    <input id="signin-landscape" checked="checked" type="radio" class="m-r-1" name="orientation" value="L"/><label for="signin-landscape">{{#str}}pdflandscape, mod_booking{{/str}}</label><br>
 					    <input id="signin-portrait" type="radio" class="m-r-1" name="orientation" value="P"/><label for="signin-portrait">{{#str}}pdfportrait, mod_booking{{/str}}</label><br>
@@ -67,7 +67,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="row  p-y-1">
+				<div class="row  p-y-1 mt-3">
 				    <div class="col-md-6 span6 col-6">
 					    <label for="signin-pdftitle">{{#str}}choosepdftitle, mod_booking{{/str}}</label>
 					    <div>
@@ -82,22 +82,35 @@
 					    <label for="signin-onesession">{{#str}}signinonesession, mod_booking{{/str}}</label>
 					    <div>
 						    <select name="pdfsessions" id="signin-onesession" class="custom-select">
-						            <option value="0">{{#str}}all{{/str}}</option>
+								<option value="0">{{#str}}all{{/str}}</option>
+								<option value="-1">{{#str}}none{{/str}}</option>
 						        {{#sessions}}
-						            <option value="{{id}}">{{coursestarttime}} - {{courseendtime}}</option>
+						        <option value="{{id}}">{{coursestarttime}} - {{courseendtime}}</option>
 						        {{/sessions}}
 						    </select>
 					    </div>
 				    </div>
 			    </div>
-				{{#teachersexist}}
-				<div class="row  p-y-1">
-				<div class="col-md-12 span12 col-12">
-					<label for="includeteachers">{{#str}}includeteachers, mod_booking{{/str}}</label>
-					<input id="includeteachers" class="usercheckbox" name="includeteachers" value="1" type="checkbox">
+				<div class="row  p-y-1 mt-3">
+					{{#teachersexist}}
+					<div class="col-md-6 span6 col-6">
+						<label for="includeteachers">{{#str}}includeteachers, mod_booking{{/str}}</label>
+						<input id="includeteachers" class="usercheckbox" name="includeteachers" value="1" type="checkbox">
+					</div>
+					{{/teachersexist}}
+					<div class="col-md-6 span6 col-6">
+						<label for="signinextrasessioncols">{{#str}}signinextrasessioncols, mod_booking{{/str}}</label>
+					    <div>
+						    <select name="signinextrasessioncols" id="signinextrasessioncols" class="custom-select">
+								<option value="-1">{{#str}}none{{/str}}</option>
+								<option value="0">{{#str}}all{{/str}}</option>
+						        {{#sessions}}
+						        <option value="{{id}}">{{sessiondateonly}}</option>
+						        {{/sessions}}
+						    </select>
+					    </div>
+					</div>
 				</div>
-				</div>
-				{{/teachersexist}}
 		    </div>
 		</div>
 		<div class="card-footer"><button type="submit" class="btn btn-primary" name="downloadpdf">{{#str}} download {{/str}}</button></div>

@@ -188,8 +188,8 @@ class message_controller {
 
         $params = new stdClass();
 
-        $timeformat = get_string('strftimetime');
-        $dateformat = get_string('strftimedate');
+        $timeformat = get_string('strftimetime', 'langconfig');
+        $dateformat = get_string('strftimedate', 'langconfig');
 
         $courselink = '';
         if ($this->optionsettings->courseid) {

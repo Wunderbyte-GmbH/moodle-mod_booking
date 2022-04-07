@@ -38,6 +38,7 @@ $page = optional_param('page', '0', PARAM_INT);
 $orderby = optional_param('orderby', 'lastname', PARAM_ALPHANUM);
 $orientation = optional_param('orientation', 'L', PARAM_ALPHA);
 $pdfsessions = optional_param('pdfsessions', 0, PARAM_INT);
+$signinextrasessioncols = optional_param('signinextrasessioncols', -1, PARAM_INT);
 $pdftitle = optional_param('pdftitle', 1, PARAM_INT);
 $addemptyrows = optional_param('addemptyrows', 0, PARAM_INT);
 $includeteachers = optional_param('includeteachers', 0, PARAM_INT);
@@ -186,6 +187,7 @@ if ($action == 'downloadpdf') {
     $pdfoptions->orderby = $orderby;
     $pdfoptions->title = $pdftitle;
     $pdfoptions->sessions = $pdfsessions;
+    $pdfoptions->extrasessioncols = $signinextrasessioncols;
     $pdfoptions->addemptyrows = $addemptyrows;
     $pdfoptions->includeteachers = $includeteachers;
     $pdf = new mod_booking\signinsheet\generator($bookingoption , $pdfoptions);
@@ -660,8 +662,8 @@ if (!$tableallbookings->is_downloading()) {
 
     echo "<p>" .
              ($bookingoption->option->coursestarttime == 0 ? get_string('nodateset', 'booking') : userdate(
-                    $bookingoption->option->coursestarttime, get_string('strftimedatetime')) . " - " .
-             userdate($bookingoption->option->courseendtime, get_string('strftimedatetime'))) . " | " .
+                    $bookingoption->option->coursestarttime, get_string('strftimedatetime', 'langconfig')) . " - " .
+             userdate($bookingoption->option->courseendtime, get_string('strftimedatetime', 'langconfig'))) . " | " .
              (empty($bookingoption->booking->settings->lblteachname) ? get_string('teachers', 'booking') . ': ' :
                 $bookingoption->booking->settings->lblteachname . ': ') .
                     implode(', ', $teachers) . " {$linkst}</p>";
@@ -819,8 +821,8 @@ if (!$tableallbookings->is_downloading()) {
     echo ' | ' . html_writer::link($onlyoneurl, get_string('copyonlythisbookingurl', 'booking'),
             array('onclick' => 'copyToClipboard("' . htmlspecialchars_decode($onlyoneurl) . '"); return false;'));
 
-    echo ' | ' . html_writer::link($onlyoneurl, get_string('sign_in_sheet_download_show', 'booking'),
-            array('id' => 'sign_in_sheet_download_show'));
+    echo ' | ' . html_writer::link($onlyoneurl, get_string('sign_in_sheet_download', 'booking'),
+            array('id' => 'sign_in_sheet_download'));
     if (!empty($bookingoption->booking->settings->customtemplateid)) {
         echo ' | ' . html_writer::link(new moodle_url('/mod/booking/report.php',
                         array('id' => $cm->id, 'optionid' => $optionid, 'action' => 'postcustomreport')),

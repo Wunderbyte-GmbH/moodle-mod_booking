@@ -765,8 +765,9 @@ $string['reportfields'] = 'Buchungsdatenload als csv, xls, usw.';
 $string['responsesfields'] = 'Auf der Antworten verwalten-Seite';
 $string['optionsfields'] = 'Auf der Seite der Buchungsoptionsübersicht';
 $string['signinsheetfields'] = 'Auf der Unterschriftenliste (PDF-Download)';
-$string['signinonesession'] = 'Ausgewählte Session-Zeiten auf der Unterschriftenliste anzeigen';
-$string['signinaddemptyrows'] = 'Anzahl an hinzuzufügenden leeren Zeilen, für Personen die sich nicht registriert haben';
+$string['signinonesession'] = 'Termin(e) im Header anzeigen';
+$string['signinaddemptyrows'] = 'Leeren Zeilen hinzufügen';
+$string['signinextrasessioncols'] = 'Extra-Spalten für Termine hinzufügen';
 $string['includeteachers'] = 'Trainer/innen in Unterschriftenliste anführen';
 $string['choosepdftitle'] = 'Wählen Sie einen Titel für die Unterschriftenliste';
 $string['additionalfields'] = 'Zusätzliche Felder';
@@ -1032,7 +1033,7 @@ $string['selectanoption'] = 'Wählen Sie eine Buchungsoption aus!';
 $string['selectoptionid'] = 'Eine Auswahl treffen';
 $string['sendcustommessage'] = 'Persönliche Nachricht senden';
 $string['sendreminderemailsuccess'] = 'Benachrichtung wurde per E-Mail versandt';
-$string['sign_in_sheet_download'] = 'Download Anwesenheitsliste (PDF)';
+$string['sign_in_sheet_download'] = 'Unterschriftenliste herunterladen';
 $string['status_complete'] = "Abgeschlossen";
 $string['status_incomplete'] = "Nicht abgeschlossen";
 $string['status_noshow'] = "Nicht aufgetaucht";
@@ -1291,12 +1292,10 @@ $string['usedinbookinginstances'] = 'Die Vorlage wird in folgenden Buchungsinsta
 $string['optiontemplatename'] = 'Vorlagenname der Buchungsoption';
 
 // Locallib.php.
-$string['pdfdate'] = 'Buchungsdaten: ';
-$string['pdflocation'] = 'Ort: ';
-$string['pdfroom'] = 'Raum: ';
-$string['pdfstudentname'] = "Name Student/in";
-$string['pdfsignature'] = "Unterschrift";
-$string['pdftodaydate'] = 'Datum: ';
+$string['signinsheetdate'] = 'Termin(e): ';
+$string['signinsheetaddress'] = 'Adresse: ';
+$string['signinsheetlocation'] = 'Ort: ';
+$string['signinsheetdatetofillin'] = 'Datum: ';
 $string['linkgotobookingoption'] = 'Buchung anzeigen: {$a}</a>';
 
 // Link.php.

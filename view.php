@@ -185,9 +185,9 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
 
     if ($bookingdata->option->coursestarttime != 0) {
         $deletemessage .= "<br />" .
-                 userdate($bookingdata->option->coursestarttime, get_string('strftimedatetime')) .
+                 userdate($bookingdata->option->coursestarttime, get_string('strftimedatetime', 'langconfig')) .
                  " - " .
-                 userdate($bookingdata->option->courseendtime, get_string('strftimedatetime'));
+                 userdate($bookingdata->option->courseendtime, get_string('strftimedatetime', 'langconfig'));
     }
 
     echo $OUTPUT->confirm(get_string('deletebooking', 'booking', $deletemessage),
@@ -406,7 +406,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                      !has_capability('mod/booking:updatebooking', $context)) {
                 echo $OUTPUT->box(
                         get_string("notopenyet", "booking",
-                                userdate($booking->settings->timeopen, get_string('strftimedate'))),
+                                userdate($booking->settings->timeopen, get_string('strftimedate', 'langconfig'))),
                         "center");
                 echo $OUTPUT->footer();
                 exit();

@@ -310,8 +310,8 @@ function booking_confirm_booking($optionid, $user, $cm, $url) {
     $requestedcourse = "<br />" . $option->option->text;
     if ($option->option->coursestarttime != 0) {
         $requestedcourse .= "<br />" .
-                 userdate($option->option->coursestarttime, get_string('strftimedatetime')) . " - " .
-                 userdate($option->option->courseendtime, get_string('strftimedatetime'));
+                 userdate($option->option->coursestarttime, get_string('strftimedatetime', 'langconfig')) . " - " .
+                 userdate($option->option->courseendtime, get_string('strftimedatetime', 'langconfig'));
     }
     $message = "<h2>" . get_string('confirmbookingoffollowing', 'booking') . "</h2>" .
              $requestedcourse;
