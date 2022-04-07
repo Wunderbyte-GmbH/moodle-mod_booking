@@ -1982,51 +1982,6 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019092601, 'booking');
     }
 
-    if ($oldversion < 2020071300) {
-
-        // Define field autcractive to be added to booking.
-        $table = new xmldb_table('booking');
-        $field = new xmldb_field('customtemplateid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'showviews');
-
-        // Conditionally launch add field autcractive.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Define field autcractive to be added to booking.
-        $table = new xmldb_table('booking');
-        $field = new xmldb_field('autcractive', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'customtemplateid');
-
-        // Conditionally launch add field autcractive.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-         $field = new xmldb_field('autcrprofile', XMLDB_TYPE_CHAR, '264', null, null, null, null, 'autcractive');
-
-        // Conditionally launch add field autcrprofile.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('autcrvalue', XMLDB_TYPE_CHAR, '264', null, null, null, null, 'autcrprofile');
-
-        // Conditionally launch add field autcrvalue.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('autcrtemplate', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'autcrvalue');
-
-        // Conditionally launch add field autcrtemplate.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2020071300, 'booking');
-    }
-
     if ($oldversion < 2020083100) {
         // Define table booking_instancetemplate to be created.
         $table = new xmldb_table('booking_instancetemplate');
@@ -2067,6 +2022,45 @@ function xmldb_booking_upgrade($oldversion) {
     // ========================================== Make upgrades from here for back compatibility. START ================================
 
     if ($oldversion < 2022032803) {
+        // Define field autcractive to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('customtemplateid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'showviews');
+
+        // Conditionally launch add field autcractive.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field autcractive to be added to booking.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('autcractive', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'customtemplateid');
+
+        // Conditionally launch add field autcractive.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+         $field = new xmldb_field('autcrprofile', XMLDB_TYPE_CHAR, '264', null, null, null, null, 'autcractive');
+
+        // Conditionally launch add field autcrprofile.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('autcrvalue', XMLDB_TYPE_CHAR, '264', null, null, null, null, 'autcrprofile');
+
+        // Conditionally launch add field autcrvalue.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('autcrtemplate', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'autcrvalue');
+
+        // Conditionally launch add field autcrtemplate.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
         // Define field auth to be added to booking.
         $table = new xmldb_table('booking');
         $field = new xmldb_field('auth', XMLDB_TYPE_CHAR, '264', null, null, null, null, 'autcrtemplate');
