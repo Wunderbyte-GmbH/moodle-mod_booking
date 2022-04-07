@@ -34,7 +34,6 @@ define(['jquery'], function($) {
         init: function() {
             $("#sign_in_sheet_download_show").on('click', function() {
                 $("#signinsheet").toggle();
-
                 return false;
             });
         }

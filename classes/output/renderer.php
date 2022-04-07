@@ -398,6 +398,17 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /** Function to print booking option description for mail placeholder {bookingdetails}.
+     * @param bookingoption_description $data
+     * @return string
+     */
+    public function render_bookingoption_description_cartitem(mod_booking\output\bookingoption_description $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/bookingoption_description_cartitem', $data);
+        return $o;
+    }
+
     /** Function to print booking option changes ("What has changed?").
      * @param bookingoption_changes $data
      * @return string

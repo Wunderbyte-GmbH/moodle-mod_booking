@@ -65,16 +65,17 @@ class signin_downloadform implements renderable, templatable {
      * Constructor
      *
      * @param int $coursemoduleid
-     * @param \mod_booking\booking_option $data
+     * @param \mod_booking\booking_option $bookingoption
      * @param \moodle_url $url baseurl
      */
-    public function __construct(\mod_booking\booking_option $data, $url) {
-        $this->titleinstanceoption = format_string($data->booking->settings->name) . ' - ' . format_string($data->option->text);
-        $this->titleoption = format_string($data->option->text);
-        $this->instanceoption = format_string($data->booking->settings->name);
+    public function __construct(\mod_booking\booking_option $bookingoption, $url) {
+        $this->titleinstanceoption = format_string($bookingoption->booking->settings->name) . ' - ' .
+            format_string($bookingoption->settings->text);
+        $this->titleoption = format_string($bookingoption->settings->text);
+        $this->instanceoption = format_string($bookingoption->booking->settings->name);
         $this->sessions = array();
-        if (!empty($data->sessions)) {
-            foreach ($data->sessions as $session) {
+        if (!empty($bookingoption->settings->sessions)) {
+            foreach ($bookingoption->settings->sessions as $session) {
                 $this->sessions[] = array('coursestarttime' => userdate($session->coursestarttime),
                     'courseendtime' => userdate($session->courseendtime), 'id' => $session->id);
             }
@@ -82,7 +83,7 @@ class signin_downloadform implements renderable, templatable {
         $this->baseurl = $url->get_path();
         $this->id = $url->get_param('id');
         $this->optionid = $url->get_param('optionid');
-        if (!empty($data->teachers)) {
+        if (!empty($bookingoption->teachers)) {
             $this->teachersexist = true;
         }
     }

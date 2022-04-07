@@ -94,7 +94,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         $output = $PAGE->get_renderer('mod_booking');
         $data = new bookingoption_description($booking, $optionid, null, DESCRIPTION_WEBSITE, false, null, $user);
 
-        $description = $output->render_bookingoption_description($data);
+        $description = $output->render_bookingoption_description_cartitem($data);
 
         return new cartitem($optionid,
                             $bookingoption->option->text,
