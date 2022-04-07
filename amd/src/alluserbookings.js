@@ -23,7 +23,7 @@
  * Any exception thrown by the web service (or callback) is displayed as an error popup.
  *
  * @module     mod_booking/alluserbookings
- * @package    mod_booking
+ * @package
  * @copyright  2022 Andraž Prinčič
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      4.5
@@ -32,6 +32,9 @@
 define(['jquery', 'core/str', 'core/notification'], function ($, str, notification) {
     return {
         init: function () {
+            /**
+             * Hide all.
+             */
             function HideAll() {
                 $('#downloadtype_block_transferoption').hide();
                 $('#downloadtype_block_selectpresencestatus').hide();

@@ -23,7 +23,7 @@
  * Any exception thrown by the web service (or callback) is displayed as an error popup.
  *
  * @module     mod_booking/optionstemplateselect
- * @package    mod_booking
+ * @package
  * @copyright  2019 Andraž Prinčič
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      4.5

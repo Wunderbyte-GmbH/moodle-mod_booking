@@ -23,6 +23,12 @@
  * This plugin is available under the MIT license.
  * http://www.opensource.org/licenses/mit-license.php
  */
+
+/**
+ * Add description.
+ *
+ * @param {string=} factory - factory's name.
+ */
 (function(factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD
@@ -32,6 +38,9 @@
 
     var BarRating = (function() {
 
+        /**
+         * Add comment gere.
+         */
         function BarRating() {
             var self = this;
 

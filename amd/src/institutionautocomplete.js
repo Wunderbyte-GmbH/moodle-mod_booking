@@ -17,7 +17,7 @@
  * Javascript controller for booking module
  *
  * @module mod_booking/institutionautocomplete
- * @package mod_booking
+ * @package
  * @copyright 2018 Andraž Prinčič <atletek@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since 3.1
