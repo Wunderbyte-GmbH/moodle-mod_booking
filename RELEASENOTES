@@ -19,6 +19,7 @@
 * Improvement: Added a new option to booking - limit for completion status.
 * Improvement: UI enhancements.
 * Bugfix: Added institution when auto creation of option.
+* Other: Added behat tests.
 
 7.0.26 (2022021601)
 * New feature: Nicer presentation of availably places.
