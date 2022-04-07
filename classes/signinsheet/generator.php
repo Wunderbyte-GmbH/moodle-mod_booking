@@ -61,11 +61,11 @@ class generator {
     public $includeteachers = false;
 
     /**
-     * freesans for event
+     * sessionsstring for event
      *
      * @var string
      */
-    public $freesans;
+    public $sessionsstring;
 
     /**
      * global cfg setting of booking module for custom fields
@@ -129,7 +129,7 @@ class generator {
     protected $uselogo = false;
 
     /**
-     * Teachers are being processes
+     * Teachers are being processed
      * @var boolean
      */
     protected $processteachers = false;
@@ -214,7 +214,8 @@ class generator {
             }
         }
 
-        $this->get_bookingoption_freesans();
+        $this->get_bookingoption_sessionsstring();
+
         $cfgcustfields = get_config('booking', 'showcustfields');
         if ($cfgcustfields) {
             $this->cfgcustfields = explode(',', $cfgcustfields);
@@ -464,19 +465,26 @@ class generator {
     }
 
     /**
-     * Get the freesans of the booking option
+     * Get the sessionsstring of the booking option
      */
-    public function get_bookingoption_freesans() {
-        $this->freesans = get_string('datenotset', 'booking');
-        if ($this->bookingdata->option->coursestarttime == 0) {
-            return;
-        } else {
-            if (empty($this->bookingdata->optionfreesans)) {
-                $freesans = userdate($this->bookingdata->option->coursestarttime) . " - " .
+    public function get_bookingoption_sessionsstring() {
+
+        // If there are no sessions...
+        if (empty($this->bookingdata->settings->sessions)) {
+            // ... then we need to look if the option itself has start and end time.
+            if ($this->bookingdata->option->coursestarttime == 0 || $this->bookingdata->option->courseendtime == 0) {
+                $this->sessionsstring = get_string('datenotset', 'booking');
+                return;
+            } else {
+                $this->sessionsstring = userdate($this->bookingdata->option->coursestarttime) . " - " .
                          userdate($this->bookingdata->option->courseendtime);
-            } else if ($this->pdfsessions == 0) {
+                return;
+            }
+        } else {
+            // Show all sessions.
+            if ($this->pdfsessions == 0) {
                 $val = array();
-                foreach ($this->bookingdata->sessions as $time) {
+                foreach ($this->bookingdata->settings->sessions as $time) {
                     $tmpdate = new \stdClass();
                     $tmpdate->leftdate = userdate($time->coursestarttime,
                             get_string('strftimedatetime', 'langconfig'));
@@ -484,15 +492,17 @@ class generator {
                             get_string('strftimetime', 'langconfig'));
                     $val[] = get_string('leftandrightdate', 'booking', $tmpdate);
                 }
-                $freesans = implode("\n\r", $val);
+                $this->sessionsstring = implode("\n\r", $val);
+                return;
             } else {
-                $freesans = userdate($this->bookingdata->sessions[$this->pdfsessions]->coursestarttime,
+                // Show a specific selected session.
+                $this->sessionsstring = userdate($this->bookingdata->settings->sessions[$this->pdfsessions]->coursestarttime,
                         get_string('strftimedatetime', 'langconfig'));
-                $freesans .= ' - ' . userdate($this->bookingdata->sessions[$this->pdfsessions]->courseendtime,
+                $this->sessionsstring .= ' - ' . userdate($this->bookingdata->settings->sessions[$this->pdfsessions]->courseendtime,
                         get_string('strftimetime', 'langconfig'));
+                return;
             }
         }
-        $this->freesans = $freesans;
     }
 
     /**
@@ -577,7 +587,7 @@ class generator {
 
         $this->pdf->MultiCell($this->pdf->GetStringWidth(get_string('pdfdate', 'booking')) + 5, 0,
                 get_string('pdfdate', 'booking'), 0, 1, '', 0);
-        $this->pdf->MultiCell(0, 0, $this->freesans, 0, 1, '', 1);
+        $this->pdf->MultiCell(0, 0, $this->sessionsstring, 0, 1, '', 1);
 
         if (!empty($this->cfgcustfields)) {
             $customfields = \mod_booking\booking_option::get_customfield_settings();
