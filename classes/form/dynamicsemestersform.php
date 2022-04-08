@@ -113,8 +113,10 @@ class dynamicsemestersform extends dynamic_form {
 
         $repeatedsemesters[] = $mform->createElement('date_selector', 'semesterend', get_string('semesterend', 'booking'));
 
+        $repeatedsemesters[] = $mform->createElement('submit', 'deletesemester', get_string('deletesemester', 'mod_booking'));
+
         $this->repeat_elements($repeatedsemesters, max(1, count($this->get_semester_data())),
-            [], 'semesters', 'semester_add_fields', 1, null, true);
+            [], 'semesters', 'addsemester', 1, get_string('addsemester', 'mod_booking'), true, 'deletesemester');
 
         // Buttons.
         $this->add_action_buttons();

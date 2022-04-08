@@ -1404,7 +1404,7 @@ $string['semester'] = 'Semester';
 $string['semesters'] = 'Semester';
 $string['semesterssaved'] = 'Semester wurden gespeichert';
 $string['semesterssubtitle'] = '<p>Fügen Sie Semester-Zeitspannen hinzu oder löschen Sie diese.</p>';
-$string['addsemester'] = 'Neues Semester hinzufügen';
+$string['addsemester'] = 'Semester hinzufügen';
 $string['semesteridentifier'] = 'Identifikator';
 $string['semesteridentifier_help'] = 'Kurztext zur Identifikation des Semesters, z.B. "ws22". Sie können Identifikatoren nach dem Speichern nicht mehr löschen.
 Jedoch können Sie falls notwendig ein Semester als ganzes löschen und ein neues anlegen.';

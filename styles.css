@@ -189,8 +189,21 @@ tr.mod-booking-invisible {
     border: 1px solid rgba(0, 0, 0, .125);
 }
 
+input[name^='deletesemester'] {
+    color: #fff;
+    background-color: #ca3120;
+    border-color: #ca3120;
+}
+
+input[name^='addsemester'] {
+    color: #fff;
+    background-color: #357a32;
+    border-color: #357a32;
+}
+
 /* Fix a bug where menu was disappearing behind the top of the table
 if there only was one booking option. */
 #region-main div.no-overflow {
     overflow: visible;
 }
+
