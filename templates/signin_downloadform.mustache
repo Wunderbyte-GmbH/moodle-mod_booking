@@ -82,8 +82,9 @@
 					    <label for="signin-onesession">{{#str}}signinonesession, mod_booking{{/str}}</label>
 					    <div>
 						    <select name="pdfsessions" id="signin-onesession" class="custom-select">
-								<option value="0">{{#str}}all{{/str}}</option>
-								<option value="-1">{{#str}}none{{/str}}</option>
+								<option value="0">{{#str}} all {{/str}}</option>
+								<option value="-1">{{#str}} signinadddatemanually, booking {{/str}}</option>
+								<option value="-2">{{#str}} signinhidedate, booking {{/str}}</option>
 						        {{#sessions}}
 						        <option value="{{id}}">{{coursestarttime}} - {{courseendtime}}</option>
 						        {{/sessions}}

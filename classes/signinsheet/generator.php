@@ -241,9 +241,6 @@ class generator {
             array_unshift($this->allfields, 'rownumber');
         }
 
-        // If set, add extra columns for sessions.
-        $this->add_extra_session_columns();
-
         // If the signature column is present, alway move it to the right.
         foreach ($this->allfields as $key => $value) {
             if ($value == 'signature') {
@@ -294,14 +291,8 @@ class generator {
             $userfields = '';
         }
 
-        // Generate the SQL part to select empty columns for each session.
-        $sqlextrasessioncols = '';
-        foreach ($this->sessioncolnames as $sessioncolname) {
-            $sqlextrasessioncols .= ", '' as '" . $sessioncolname . "'";
-        }
-
         $users = $DB->get_records_sql(
-                "SELECT u.id, " . $mainuserfields . $userfields . $sqlextrasessioncols .
+                "SELECT u.id, " . $mainuserfields . $userfields .
             " FROM {booking_answers} ba
             LEFT JOIN {user} u ON u.id = ba.userid
             WHERE ba.optionid = :optionid AND ba.waitinglist = 0 " .
@@ -503,7 +494,9 @@ class generator {
                 return;
             }
         } else {
-            if ($this->pdfsessions == -1) {
+            // Value of -1 ... Add date manually.
+            // Value of -2 ... Hide date.
+            if ($this->pdfsessions == -1 || $this->pdfsessions == -2) {
                 // Do not show sessions.
                 $this->sessionsstring = '';
                 return;
@@ -533,29 +526,33 @@ class generator {
 
     /**
      * Add extra columns for sessions.
+     * @return array an array of strings, containing the dates (names) of the extra columns
      */
-    private function add_extra_session_columns() {
+    private function get_extra_session_columns() {
+
+        $sessioncolnames = [];
 
         // If there are no sessions...
         if (empty($this->bookingdata->settings->sessions)) {
-            return;
+            return [];
         } else {
             if ($this->extrasessioncols == -1) {
-                return;
+                return [];
             } else if ($this->extrasessioncols == 0) {
                 // Add columns for all sessions.
                 $val = array();
                 foreach ($this->bookingdata->settings->sessions as $session) {
-                    $this->sessioncolnames[] = userdate($session->coursestarttime, get_string('strftimedate', 'langconfig'));
+                    $sessioncolnames[] = userdate($session->coursestarttime,
+                        get_string('strftimedateshortmonthabbr', 'langconfig'));
                 }
-                return;
             } else {
                 // Add a column for a specific session.
-                $this->sessioncolnames[] = userdate($this->bookingdata->settings->sessions[$this->extrasessioncols]->coursestarttime,
-                        get_string('strftimedate', 'langconfig'));
-                return;
+                $sessioncolnames[] = userdate($this->bookingdata->settings->sessions[$this->extrasessioncols]->coursestarttime,
+                        get_string('strftimedateshortmonthabbr', 'langconfig'));
             }
         }
+
+        return $sessioncolnames;
     }
 
     /**
@@ -638,7 +635,8 @@ class generator {
                 0);
         $this->pdf->Ln();
 
-        // Do not show dates, if the option "none" (-1) was selected in the form.
+        // Do not show dates, if the option "Add date manually" (-1) or the option...
+        // ... "Hide date" (-2) was selected in the form.
         if ($this->pdfsessions != -1) {
             $this->pdf->MultiCell($this->pdf->GetStringWidth(get_string('signinsheetdate', 'booking')) + 5, 0,
                 get_string('signinsheetdate', 'booking'), 0, 1, '', 0);
@@ -681,11 +679,18 @@ class generator {
         }
         $this->pdf->Ln();
 
-        if (empty($this->bookingdata->settings->sessions) || $this->pdfsessions == -1) {
+        if ($this->pdfsessions == -1) {
             $this->pdf->Cell($this->pdf->GetStringWidth(get_string('signinsheetdatetofillin', 'booking')) + 1, 0,
                 get_string('signinsheetdatetofillin', 'booking'), 0, 0, '', 0);
             $this->pdf->Cell(100, 0, "", "B", 1, '', 0, '', 1);
             $this->pdf->Ln();
+        }
+
+        // If set, add extra columns for sessions.
+        // It is important, that this happens AFTER any DB-queries using the fields in $this->allfields.
+        $extrasessioncols = $this->get_extra_session_columns();
+        if (!empty($extrasessioncols)) {
+            $this->allfields = array_unique(array_merge($this->allfields, $extrasessioncols));
         }
 
         $this->set_table_headerrow();
@@ -694,7 +699,8 @@ class generator {
     /**
      * Setup the header row with the column headings for each column
      */
-    public function set_table_headerrow () {
+    private function set_table_headerrow () {
+
         $this->pdf->SetFont('freesans', 'B', 12);
         $c = 0;
         // Setup table header row.
@@ -756,7 +762,7 @@ class generator {
                     $name = new \lang_string('role');
                     break;
                 default:
-                    $name = '';
+                    $name = $value;
             }
             $this->pdf->Cell($w, 0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, '', 1);
         }
