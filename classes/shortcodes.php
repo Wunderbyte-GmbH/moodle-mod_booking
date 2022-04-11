@@ -45,13 +45,13 @@ class shortcodes {
      */
     public static function listofbookingoptions($shortcode, $args, $content, $env, $next) {
 
-        // TODO: Define capality.
+        // TODO: Define capability.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* if (!has_capability('moodle/site:config', $env->context)) {
             return '';
         } */
 
-        // If the id argument was not passed on, we have a fallback in the connfig.
+        // If the id argument was not passed on, we have a fallback in the config.
         if (!isset($args['id'])) {
             $args['id'] = get_config('booking', 'shortcodessetinstance');
         }
@@ -144,7 +144,7 @@ class shortcodes {
 
     /**
      * Prints out list of bookingoptions.
-     * Argumtents can be 'category' or 'perpage'.
+     * Arguments can be 'category' or 'perpage'.
      *
      * @param string $shortcode
      * @param array $args
@@ -161,7 +161,7 @@ class shortcodes {
             return '';
         } */
 
-        // If the id argument was not passed on, we have a fallback in the connfig.
+        // If the id argument was not passed on, we have a fallback in the config.
         if (!isset($args['id'])) {
             $args['id'] = get_config('booking', 'shortcodessetinstance');
         }
@@ -230,10 +230,9 @@ class shortcodes {
         return $out;
     }
 
-
     /**
      * Prints out list of bookingoptions.
-     * Argumtents can be 'category' or 'perpage'.
+     * Arguments can be 'category' or 'perpage'.
      *
      * @param string $shortcode
      * @param array $args
@@ -246,7 +245,7 @@ class shortcodes {
 
         global $DB;
 
-        // If the id argument was not passed on, we have a fallback in the connfig.
+        // If the id argument was not passed on, we have a fallback in the config.
         if (!isset($args['id'])) {
             $args['id'] = get_config('booking', 'shortcodessetinstance');
         }
