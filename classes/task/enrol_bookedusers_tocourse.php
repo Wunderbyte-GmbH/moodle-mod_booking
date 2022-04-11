@@ -48,6 +48,13 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
             } else {
                 mtrace("WARNING: Failed to get booking instance from option id: $optionid");
             }
+
+            // Bugfix for #185.
+            if (empty($cm->id)) {
+                mtrace('WARNING: bookingid could not be matched with an existing course module.');
+                continue;
+            }
+
             $boption = new booking_option($cm->id, $optionid);
             // Get all booked users of the relevant booking options.
             $bookedusers = $boption->get_all_users_booked();
