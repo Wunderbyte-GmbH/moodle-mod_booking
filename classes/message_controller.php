@@ -271,12 +271,22 @@ class message_controller {
             $params->changes = $output->render_bookingoption_changes($data);
         }
 
-        // This fixes an infinite loop which will exhaust the allowed memory size.
-        if ($this->msgcontrparam != MSGCONTRPARAM_DO_NOT_SEND) {
-            // Add placeholder {bookingdetails} so we can add the detailed option description (similar to calendar, modal...
-            // ... and ical) to mails.
-            $params->bookingdetails = get_rendered_eventdescription($this->optionsettings->id,
-                $this->cmid, DESCRIPTION_MAIL);
+        switch ($this->msgcontrparam) {
+            case MSGCONTRPARAM_SEND_NOW:
+            case MSGCONTRPARAM_QUEUE_ADHOC:
+                // Add placeholder {bookingdetails} so we can add the detailed option description (similar to calendar, modal...
+                // ... and ical) to mails.
+                $params->bookingdetails = get_rendered_eventdescription($this->optionsettings->id,
+                    $this->cmid, DESCRIPTION_MAIL);
+                break;
+            case MSGCONTRPARAM_VIEW_CONFIRMATION:
+                // For viewconfirmation.php.
+                $params->bookingdetails = get_rendered_eventdescription($this->optionsettings->id,
+                    $this->cmid, DESCRIPTION_WEBSITE);
+                break;
+            case MSGCONTRPARAM_DO_NOT_SEND:
+            default:
+                break;
         }
 
         // Params for session reminders.

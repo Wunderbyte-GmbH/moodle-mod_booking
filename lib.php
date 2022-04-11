@@ -71,6 +71,7 @@ define('STATUSPARAM_DELETED', 5);
 define('MSGCONTRPARAM_SEND_NOW', 1);
 define('MSGCONTRPARAM_QUEUE_ADHOC', 2);
 define('MSGCONTRPARAM_DO_NOT_SEND', 3);
+define('MSGCONTRPARAM_VIEW_CONFIRMATION', 4);
 
 /**
  * @param stdClass $cm
