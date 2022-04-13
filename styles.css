@@ -133,6 +133,6 @@ tr.mod-booking-invisible {
 
 /* Fix a bug where menu was disappearing behind the top of the table
 if there only was one booking option. */
-#page.container-fluid #region-main div.no-overflow {
+#region-main div.no-overflow {
     overflow: visible;
 }
