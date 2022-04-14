@@ -1457,6 +1457,10 @@ $string['pricecategoryfieldoff'] = 'Do not show';
 $string['pricecategoryfield'] = 'User profile field for price category';
 $string['pricecategoryfielddesc'] = 'Choose the user profile field, which stores the price category identifier for each user.';
 
+$string['duplicationrestore'] = 'Duplication, backup and restore';
+$string['duplicationrestoredesc'] = 'Here you can set which information you want to include when duplicating or backing up / restoring booking instances.';
+$string['duplicationrestoreteachers'] = 'Include Teachers';
+
 // Mobile.
 $string['next'] = 'Next';
 $string['previous'] = 'Previous';

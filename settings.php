@@ -124,6 +124,15 @@ if ($ADMIN->fulltree) {
             'EUR', $currencies));
 
     $settings->add(
+        new admin_setting_heading('duplicationrestore',
+            get_string('duplicationrestore', 'mod_booking'),
+            get_string('duplicationrestoredesc', 'mod_booking')));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/duplicationrestoreteachers',
+                get_string('duplicationrestoreteachers', 'mod_booking'), '', 1));
+
+    $settings->add(
         new admin_setting_heading('shortcodessetdefaultinstance',
             get_string('shortcodessetdefaultinstance', 'mod_booking'),
             get_string('shortcodessetdefaultinstancedesc', 'mod_booking')));

@@ -45,10 +45,14 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $paths[] = new restore_path_element('booking_customfield',
                 '/activity/booking/customfields/customfield');
 
+        // Only restore teachers, if config setting is set.
+        if (get_config('booking', 'duplicationrestoreteachers')) {
+            $paths[] = new restore_path_element('booking_teacher',
+                '/activity/booking/teachers/teacher');
+        }
+
         if ($userinfo) {
             $paths[] = new restore_path_element('booking_answer', '/activity/booking/answers/answer');
-            $paths[] = new restore_path_element('booking_teacher',
-                    '/activity/booking/teachers/teacher');
         }
 
         // Return the paths wrapped into standard activity structure.
@@ -120,9 +124,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data = (object) $data;
         $data->bookingid = $this->get_new_parentid('booking');
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
-        $data->userid = $this->get_mappingid('user', $data->userid);
+        // Only change userid, if a mapped id could be found.
+        if ($this->get_mappingid('user', $data->userid)) {
+            $data->userid = $this->get_mappingid('user', $data->userid);
+        }
         $DB->insert_record('booking_teachers', $data);
-        // No need to save this mapping as far as nothing depend on it.
+        // No need to save this mapping as far as nothing depends on it.
     }
 
     protected function process_booking_category($data) {
