@@ -190,12 +190,24 @@ tr.mod-booking-invisible {
 }
 
 input[name^='deletesemester'] {
+    color: #ca3120;
+    background-color: #fff;
+    border-color: #ca3120;
+}
+
+input[name^='deletesemester']:hover {
     color: #fff;
     background-color: #ca3120;
     border-color: #ca3120;
 }
 
 input[name^='addsemester'] {
+    color: #357a32;
+    background-color: #fff;
+    border-color: #357a32;
+}
+
+input[name^='addsemester']:hover {
     color: #fff;
     background-color: #357a32;
     border-color: #357a32;

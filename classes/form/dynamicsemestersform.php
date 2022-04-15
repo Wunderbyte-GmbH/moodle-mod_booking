@@ -55,17 +55,32 @@ class dynamicsemestersform extends dynamic_form {
     }
 
     /**
-     * Get semester data.
+     * Transform semester data from form to an array of semester classes.
+     * @param stdClass $semesterdata data from form
      * @return array
      */
-    protected function get_semester_data(): array {
-        $semesterdata = [];
-        if (!empty($this->_ajaxformdata['semesteridentifier']) && is_array($this->_ajaxformdata['semesteridentifier'])) {
-            foreach (array_values($this->_ajaxformdata['semesteridentifier']) as $idx => $semesteridentifier) {
-                $semesterdata["semesteridentifier[$idx]"] = clean_param($semesteridentifier, PARAM_TEXT);
+    protected function transform_data_to_semester_array(stdClass $semesterdata): array {
+        $semestersarray = [];
+
+        if (!empty($semesterdata->semesteridentifier) && is_array($semesterdata->semesteridentifier)
+            && !empty($semesterdata->semestername) && is_array($semesterdata->semestername)
+            && !empty($semesterdata->semesterstart) && is_array($semesterdata->semesterstart)
+            && !empty($semesterdata->semesterend) && is_array($semesterdata->semesterend)) {
+
+            foreach (array_values($semesterdata->semesteridentifier) as $idx => $semesteridentifier) {
+
+                $semester = new stdClass;
+                $semester->identifier = $semesterdata->semesteridentifier[$idx];
+                $semester->name = $semesterdata->semestername[$idx];
+                $semester->startdate = $semesterdata->semesterstart[$idx];
+                $semester->enddate = $semesterdata->semesterend[$idx];
+
+                if (!empty($semester->identifier)) {
+                    $semestersarray[$idx] = $semester;
+                }
             }
         }
-        return $semesterdata;
+        return $semestersarray;
     }
 
     /**
@@ -73,7 +88,29 @@ class dynamicsemestersform extends dynamic_form {
      * @return void
      */
     public function set_data_for_dynamic_submission(): void {
-        $this->set_data($this->get_semester_data());
+        global $DB;
+
+        $data = new stdClass;
+
+        if ($existingsemesters = $DB->get_records('booking_semesters')) {
+            $data->semesters = count($existingsemesters);
+            foreach ($existingsemesters as $existingsemester) {
+                $data->semesteridentifier[] = $existingsemester->identifier;
+                $data->semestername[] = $existingsemester->name;
+                $data->semesterstart[] = $existingsemester->startdate;
+                $data->semesterend[] = $existingsemester->enddate;
+            }
+
+        } else {
+            // No semesters found in DB.
+            $data->semesters = 0;
+            $data->semesteridentifier = [];
+            $data->semestername = [];
+            $data->semesterstart = [];
+            $data->semesterend = [];
+        }
+
+        $this->set_data($data);
     }
 
     /**
@@ -81,11 +118,40 @@ class dynamicsemestersform extends dynamic_form {
      * @return stdClass|null
      */
     public function process_dynamic_submission(): stdClass {
+        global $DB;
+
         // This is the correct place to save and update semesters.
-        if ($this->get_data()->name === 'error') {
-            // For testing exceptions.
-            throw new \coding_exception('Name is error');
+        $semesterdata = $this->get_data();
+        $semestersarray = $this->transform_data_to_semester_array($semesterdata);
+
+        $existingidentifiers = [];
+        $currentidentifiers = $semesterdata->semesteridentifier;
+
+        if ($existingsemesters = $DB->get_records('booking_semesters')) {
+            foreach ($existingsemesters as $existingsemester) {
+                $existingidentifiers[] = $existingsemester->identifier;
+            }
         }
+
+        foreach ($semestersarray as $semester) {
+            // If it's a new identifier: insert.
+            if (!in_array($semester->identifier, $existingidentifiers)) {
+                $DB->insert_record('booking_semesters', $semester);
+            } else {
+                // If it's an existing identifier: update.
+                $existingrecord = $DB->get_record('booking_semesters', ['identifier' => $semester->identifier]);
+                $semester->id = $existingrecord->id;
+                $DB->update_record('booking_semesters', $semester);
+            }
+        }
+
+        // Delete all semesters from DB which are not part of the form anymore.
+        foreach ($existingidentifiers as $existingidentifier) {
+            if (!in_array($existingidentifier, $currentidentifiers)) {
+                $DB->delete_records('booking_semesters', ['identifier' => $existingidentifier]);
+            }
+        }
+
         return $this->get_data();
     }
 
@@ -94,6 +160,8 @@ class dynamicsemestersform extends dynamic_form {
      * @return void
      */
     public function definition(): void {
+        global $DB;
+
         $mform = $this->_form;
 
         // Repeated elements.
@@ -110,12 +178,15 @@ class dynamicsemestersform extends dynamic_form {
         $mform->setType('semestername', PARAM_TEXT);
 
         $repeatedsemesters[] = $mform->createElement('date_selector', 'semesterstart', get_string('semesterstart', 'booking'));
-
         $repeatedsemesters[] = $mform->createElement('date_selector', 'semesterend', get_string('semesterend', 'booking'));
-
         $repeatedsemesters[] = $mform->createElement('submit', 'deletesemester', get_string('deletesemester', 'mod_booking'));
 
-        $this->repeat_elements($repeatedsemesters, max(1, count($this->get_semester_data())),
+        $numberofsemesterstoshow = 1;
+        if ($existingsemesters = $DB->get_records('booking_semesters')) {
+            $numberofsemesterstoshow = count($existingsemesters);
+        }
+
+        $this->repeat_elements($repeatedsemesters, $numberofsemesterstoshow,
             [], 'semesters', 'addsemester', 1, get_string('addsemester', 'mod_booking'), true, 'deletesemester');
 
         // Buttons.
