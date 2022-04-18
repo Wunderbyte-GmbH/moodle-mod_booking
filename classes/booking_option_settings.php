@@ -351,37 +351,18 @@ class booking_option_settings {
 
     /**
      * Function to generate the URL to edit an option.
-     * Will be null if capability to edit options is missing.
      *
      * @param int $optionid
      */
     private function generate_editoption_url(int $optionid) {
 
-        if (!$context = context_module::instance($this->cmid)) {
-            $this->editoptionurl = null;
-            return;
-        }
-
-        // If the user has no capability to editoptions, we make the URL null.
-        if ((has_capability('mod/booking:updatebooking', $context) ||
-                has_capability('mod/booking:addeditownoption', $context)) == false) {
-            $this->editoptionurl = null;
-            return;
-        }
-
-        // Only if we have the capability, cmid and optionid, we generate the link.
         if (!empty($this->cmid) && !empty($optionid)) {
             $editoptionmoodleurl = new moodle_url('/mod/booking/editoptions.php',
                 ['id' => $this->cmid, 'optionid' => $optionid]);
 
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
             $this->editoptionurl = html_entity_decode($editoptionmoodleurl->out());
-
-            return;
         }
-
-        $this->editoptionurl = null;
-        return;
     }
 
     /**
