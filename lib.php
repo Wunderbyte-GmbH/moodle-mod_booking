@@ -120,7 +120,7 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
     }
 
     // Make sure the user is logged in and has access to the module.
-    require_login($course, true, $cm);
+    // require_login($course, true, $cm);
 
     // Leave this line out if you set the itemid to null in make_pluginfile_url (set $itemid to 0 instead).
     $itemid = array_shift($args); // The first item in the $args array.
