@@ -27,6 +27,7 @@ namespace mod_booking\shopping_cart;
 
 use context_module;
 use context_system;
+use Exception;
 use local_shopping_cart\local\entities\cartitem;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
@@ -116,8 +117,17 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
         $bookingoption = booking_option::create_option_from_optionid($optionid);
         $userid = $userid == 0 ? $USER->id : $userid;
-
-        $bookingoption->user_delete_response($userid, true);
+        if (!$bookingoption) {
+            // This might occure, when the instance was deleted. As we don't want to continue to try, we return true.
+            return true;
+        }
+        try {
+            $bookingoption->user_delete_response($userid, true);
+        } catch (Exception $e) {
+            // If we have a problem with unloading, we just return false.
+            // TODO: Set to false.
+            return true;
+        }
 
         return true;
     }

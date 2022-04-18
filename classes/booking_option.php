@@ -178,12 +178,16 @@ class booking_option {
     public static function create_option_from_optionid($optionid, $boid = null) {
         global $DB;
 
-        if (!$boid && !($settings = singleton_service::get_instance_of_booking_option_settings($optionid))) {
+        if (!$boid && (!$settings = singleton_service::get_instance_of_booking_option_settings($optionid))) {
             if (is_null($boid)) {
                 $boid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid]);
             }
         } else {
             $boid = $settings->bookingid;
+        }
+
+        if (!$boid) {
+            return null;
         }
 
         $cm = get_coursemodule_from_instance('booking', $boid);
