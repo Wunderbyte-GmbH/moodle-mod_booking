@@ -68,6 +68,7 @@ class price {
             $mform->addElement('static', 'nopricecategoriesyet', get_string('nopricecategoriesyet', 'booking'));
         }
 
+        $defaultexists = false;
         foreach ($this->pricecategories as $pricecategory) {
             $formgroup = array();
 
@@ -87,7 +88,11 @@ class price {
                 ['optionid' => $this->optionid, 'pricecategoryidentifier' => $pricecategory->identifier])) {
                 // If there already are saved prices, we use them.
                 $mform->setDefault($pricearrayidentifier, $existingprice);
-            } else {
+
+                // If there is at least one price in DB, we don't use the defaults anymore.
+                // This is to prevent unvolonteraly overriding empty price fields with default prices.
+                $defaultexists = true;
+            } else if (!$defaultexists) {
                 // Else we use the price category default values.
                 $mform->setDefault($pricearrayidentifier, $pricecategory->defaultvalue);
             }
@@ -114,6 +119,7 @@ class price {
 
     /**
      * Add or update price to DB.
+     * This also deletes an entry, if the price === "".
      *
      * @param int $optionid
      * @param string $categoryidentifier
@@ -136,12 +142,17 @@ class price {
             || $data->pricecategoryidentifier != $categoryidentifier
             || $data->currency != $currency) {
 
-                $data->price = $price;
-                $data->pricecategoryidentifier = $categoryidentifier;
-                $data->currency = $currency;
-                $DB->update_record('booking_prices', $data);
+                // If there is a change and the new price is "", we delete the entry.
+                if ($price === "") {
+                    $DB->delete_records('booking_prices', ['id' => $data->id]);
+                } else {
+                    $data->price = $price;
+                    $data->pricecategoryidentifier = $categoryidentifier;
+                    $data->currency = $currency;
+                    $DB->update_record('booking_prices', $data);
+                }
             }
-        } else { // If there is no price entry, we insert a new one.
+        } else if ($price !== "") { // If there is a price but no price entry, we insert a new one.
             $data = new stdClass();
             $data->optionid = $optionid;
             $data->pricecategoryidentifier = $categoryidentifier;
@@ -260,7 +271,7 @@ class price {
      * @param int $optionid
      * @return array
      */
-    private static function get_prices_from_cache_or_db(int $optionid):array {
+    public static function get_prices_from_cache_or_db(int $optionid):array {
         global $DB;
 
         $cache = \cache::make('mod_booking', 'cachedprices');
@@ -294,6 +305,10 @@ class price {
     public static function get_active_pricecategory_from_cache_or_db(string $identifier) {
         global $DB;
 
+        if ($pricecategory = singleton_service::get_price_category($identifier)) {
+            return $pricecategory;
+        }
+
         $cache = \cache::make('mod_booking', 'cachedpricecategories');
         $cachedpricecategory = $cache->get($identifier);
 
@@ -312,6 +327,8 @@ class price {
         } else {
             $pricecategory = json_decode($cachedpricecategory);
         }
+
+        singleton_service::set_price_category($identifier, $pricecategory);
         return (object) $pricecategory;
     }
 

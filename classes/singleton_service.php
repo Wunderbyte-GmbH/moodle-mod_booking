@@ -253,4 +253,35 @@ class singleton_service {
             return $price;
         }
     }
+
+    /**
+     * Get pricecategory from singleton service.
+     * This function does not automatically get the right category but needs the setter function below to be useful.
+     *
+     * @param string $identifier
+     * @return stdClass
+     */
+    public static function get_price_category($identifier) {
+        $instance = self::get_instance();
+
+        if (isset($instance->pricecategory[$identifier])) {
+            return $instance->pricecategory[$identifier];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Set pricecategory to singleton service.
+     *
+     * @param string $identifier
+     * @param stdClass $pricecategory
+     * @return bool
+     */
+    public static function set_price_category($identifier, $pricecategory) {
+        $instance = self::get_instance();
+
+        $instance->pricecategory[$identifier] = $pricecategory;
+        return true;
+    }
 }
