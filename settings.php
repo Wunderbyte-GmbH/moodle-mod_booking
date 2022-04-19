@@ -132,18 +132,7 @@ if ($ADMIN->fulltree) {
         new admin_setting_configcheckbox('booking/duplicationrestoreteachers',
                 get_string('duplicationrestoreteachers', 'mod_booking'), '', 1));
 
-    $settings->add(
-        new admin_setting_heading('shortcodessetdefaultinstance',
-            get_string('shortcodessetdefaultinstance', 'mod_booking'),
-            get_string('shortcodessetdefaultinstancedesc', 'mod_booking')));
-
-    $settings->add(
-        new admin_setting_configtext('booking/shortcodessetinstance',
-            get_string('shortcodessetinstance', 'mod_booking'),
-            get_string('shortcodessetinstancedesc', 'mod_booking'),
-            '', PARAM_INT));
-
-            // TODO.
+    // TODO.
     $settings->add(
         new admin_setting_heading('uniqueoptionnameheading',
             get_string('uniqueoptionnameheading', 'mod_booking'),
