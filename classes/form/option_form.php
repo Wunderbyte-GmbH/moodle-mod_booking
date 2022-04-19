@@ -248,7 +248,12 @@ class option_form extends moodleform {
             1 => get_string('caladdascourseevent', 'booking')
         ];
         $mform->addElement('select', 'addtocalendar', get_string('addtocalendar', 'booking'), $caleventtypes);
-        $mform->setDefault('addtocalendar', get_config('booking', 'addtocalendar'));
+        if (!get_config('booking', 'addtocalendar')) {
+            $addtocalendar = 0;
+        } else {
+            $addtocalendar = 1;
+        }
+        $mform->setDefault('addtocalendar', $addtocalendar);
         if (get_config('booking', 'addtocalendar_locked')) {
             // If the setting is locked in settings.php it will be frozen.
             $mform->freeze('addtocalendar');
