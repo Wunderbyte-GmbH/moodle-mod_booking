@@ -70,8 +70,8 @@ class dynamicsemestersform extends dynamic_form {
             foreach (array_values($semesterdata->semesteridentifier) as $idx => $semesteridentifier) {
 
                 $semester = new stdClass;
-                $semester->identifier = $semesterdata->semesteridentifier[$idx];
-                $semester->name = $semesterdata->semestername[$idx];
+                $semester->identifier = trim($semesterdata->semesteridentifier[$idx]);
+                $semester->name = trim($semesterdata->semestername[$idx]);
                 $semester->startdate = $semesterdata->semesterstart[$idx];
                 $semester->enddate = $semesterdata->semesterend[$idx];
 
@@ -95,8 +95,8 @@ class dynamicsemestersform extends dynamic_form {
         if ($existingsemesters = $DB->get_records('booking_semesters')) {
             $data->semesters = count($existingsemesters);
             foreach ($existingsemesters as $existingsemester) {
-                $data->semesteridentifier[] = $existingsemester->identifier;
-                $data->semestername[] = $existingsemester->name;
+                $data->semesteridentifier[] = trim($existingsemester->identifier);
+                $data->semestername[] = trim($existingsemester->name);
                 $data->semesterstart[] = $existingsemester->startdate;
                 $data->semesterend[] = $existingsemester->enddate;
             }
@@ -129,11 +129,15 @@ class dynamicsemestersform extends dynamic_form {
 
         if ($existingsemesters = $DB->get_records('booking_semesters')) {
             foreach ($existingsemesters as $existingsemester) {
-                $existingidentifiers[] = $existingsemester->identifier;
+                $existingidentifiers[] = trim($existingsemester->identifier);
             }
         }
 
         foreach ($semestersarray as $semester) {
+
+            $semester->identifier = trim($semester->identifier);
+            $semester->name = trim($semester->name);
+
             // If it's a new identifier: insert.
             if (!in_array($semester->identifier, $existingidentifiers)) {
                 $DB->insert_record('booking_semesters', $semester);
@@ -202,11 +206,37 @@ class dynamicsemestersform extends dynamic_form {
     public function validation($data, $files): array {
         $errors = [];
 
-        // TODO: Add server-side validations.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /*if (strlen($data['name']) < 3) {
-            $errors['name'] = 'Name must be at least three characters long';
-        }*/
+        $data['semesteridentifier'] = array_map('trim', $data['semesteridentifier']);
+        $data['semestername'] = array_map('trim', $data['semestername']);
+
+        $semesteridentifiercounts = array_count_values($data['semesteridentifier']);
+        $semesternamecounts = array_count_values($data['semestername']);
+
+        foreach ($data['semesteridentifier'] as $idx => $semesteridentifier) {
+            if (empty($semesteridentifier)) {
+                $errors["semesteridentifier[$idx]"] = get_string('erroremptysemesteridentifier', 'booking');
+            }
+            if ($semesteridentifiercounts[$semesteridentifier] > 1) {
+                $errors["semesteridentifier[$idx]"] = get_string('errorduplicatesemesteridentifier', 'booking');
+            }
+        }
+
+        foreach ($data['semestername'] as $idx => $semestername) {
+            if (empty($semestername)) {
+                $errors["semestername[$idx]"] = get_string('erroremptysemestername', 'booking');
+            }
+            if ($semesternamecounts[$semestername] > 1) {
+                $errors["semestername[$idx]"] = get_string('errorduplicatesemestername', 'booking');
+            }
+        }
+
+        foreach ($data['semesterstart'] as $idx => $semesterstart) {
+            if ($semesterstart >= $data['semesterend'][$idx]) {
+                $errors["semesterstart[$idx]"] = get_string('errorsemesterstart', 'booking');
+                $errors["semesterend[$idx]"] = get_string('errorsemesterend', 'booking');
+            }
+        }
+
         return $errors;
     }
 
