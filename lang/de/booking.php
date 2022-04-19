@@ -274,9 +274,9 @@ $string['errorpagination'] = 'Geben Sie ein Zahl ein, die größer als 0 ist';
 $string['notconectedbooking'] = 'Nicht vorgeschaltete Buchung';
 $string['conectedbooking_help'] = 'Buchung von der Teilnehmer/innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer/innen übernommen werden.';
 $string['cancancelbook'] = 'Nutzer/innen das Stornieren und buchen nach dem Buchungsstart erlauben?';
-$string['addtocalendar'] = 'Zum Kalender hinzufügen';
+$string['addtocalendar'] = 'Zum Kurs-Kalender hinzufügen';
 $string['caleventtype'] = 'Kalenderereignis ist sichtbar für';
-$string['caldonotadd'] = 'Nicht zum Kalender hinzufügen';
+$string['caldonotadd'] = 'Nicht zum Kurs-Kalender hinzufügen';
 $string['caladdascourseevent'] = 'Zum Kalender hinzufügen (nur für Kursteilnehmer*innen sichtbar)';
 $string['caladdassiteevent'] = 'Zum Kalender hinzufügen (für alle Benutzer*innen sichtbar)';
 $string['limitanswers'] = 'Teilnehmeranzahl beschränken';
@@ -1287,6 +1287,11 @@ $string['pricecategoryfielddesc'] = 'Wählen Sie ein Nutzerprofilfeld aus, in de
 $string['duplicationrestore'] = 'Duplizieren, Backup und Wiederherstellen';
 $string['duplicationrestoredesc'] = 'Hier können Sie einstellen, welche Informationen beim Duplizieren bzw. beim Backup / Wiederherstellen von Buchungsinstanzen inkludiert werden sollen.';
 $string['duplicationrestoreteachers'] = 'Kursleiter/innen inkludieren';
+
+$string['bookingoptiondefaults'] = 'Standard-Einstellungen für Buchungsoptionen';
+$string['bookingoptiondefaultsdesc'] = 'Hier können Sie Standardwerte für die Erstellung von Buchungsoptionen setzen und diese gegebenenfalls sperren.';
+$string['addtocalendardesc'] = 'Kurs-Kalenderevents können von ALLEN Kursteilnehmer_innen des Kurses gesehen werden. Falls Sie nicht möchten, dass Kurs-Kalenderevents
+erstellt werden, können Sie diese Einstellung standardmäßig ausschalten und sperren. Keine Sorge: Normale Kalenderevents für gebuchte Optionen (User-Events) werden weiterhin erstellt.';
 
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';

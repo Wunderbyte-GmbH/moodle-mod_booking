@@ -304,9 +304,9 @@ $string['conectedbooking_help'] = 'Booking instance eligible for transferring bo
 $string['cancancelbook'] = 'Allow user to cancel the booking during the booking period?';
 $string['cancancelbookdays'] = 'Disallow users to cancel their booking n days before start';
 $string['cancancelbookdaysno'] = "Don't limit";
-$string['addtocalendar'] = 'Add to calendar';
+$string['addtocalendar'] = 'Add to course calendar';
 $string['caleventtype'] = 'Calendar event visibility';
-$string['caldonotadd'] = 'Do not add to calendar';
+$string['caldonotadd'] = 'Do not add to course calendar';
 $string['caladdascourseevent'] = 'Add to calendar (visible only to course participants)';
 $string['caladdassiteevent'] = 'Add to calendar (visible to all users)';
 $string['limitanswers'] = 'Limit the number of participants';
@@ -1460,6 +1460,11 @@ $string['pricecategoryfielddesc'] = 'Choose the user profile field, which stores
 $string['duplicationrestore'] = 'Duplication, backup and restore';
 $string['duplicationrestoredesc'] = 'Here you can set which information you want to include when duplicating or backing up / restoring booking instances.';
 $string['duplicationrestoreteachers'] = 'Include Teachers';
+
+$string['bookingoptiondefaults'] = 'Default settings for booking options';
+$string['bookingoptiondefaultsdesc'] = 'Here you can set default settings for the creation of booking options and lock them if needed.';
+$string['addtocalendardesc'] = 'Course calendar events are visible to ALL users within a course. If you do not want them to be created at all,
+you can turn this setting off and lock it by default. Don\'t worry: user calendar events for booked options will still be created anyways.';
 
 // Mobile.
 $string['next'] = 'Next';
