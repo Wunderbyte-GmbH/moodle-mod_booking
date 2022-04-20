@@ -174,18 +174,27 @@ class dynamicsemestersform extends dynamic_form {
         // Repeated elements.
         $repeatedsemesters = [];
 
+        // Options to store help button texts etc.
+        $repeateloptions = [];
+
         $semesterlabel = html_writer::tag('b', get_string('semester', 'booking') . ' {no}',
             array('class' => 'semesterlabel'));
         $repeatedsemesters[] = $mform->createElement('static', 'semesterlabel', $semesterlabel);
 
         $repeatedsemesters[] = $mform->createElement('text', 'semesteridentifier', get_string('semesteridentifier', 'booking'));
         $mform->setType('semesteridentifier', PARAM_TEXT);
+        $repeateloptions['semesteridentifier']['helpbutton'] = ['semesteridentifier', 'mod_booking'];
 
         $repeatedsemesters[] = $mform->createElement('text', 'semestername', get_string('semestername', 'booking'));
         $mform->setType('semestername', PARAM_TEXT);
+        $repeateloptions['semestername']['helpbutton'] = ['semestername', 'mod_booking'];
 
         $repeatedsemesters[] = $mform->createElement('date_selector', 'semesterstart', get_string('semesterstart', 'booking'));
+        $repeateloptions['semesterstart']['helpbutton'] = ['semesterstart', 'mod_booking'];
+
         $repeatedsemesters[] = $mform->createElement('date_selector', 'semesterend', get_string('semesterend', 'booking'));
+        $repeateloptions['semesterend']['helpbutton'] = ['semesterend', 'mod_booking'];
+
         $repeatedsemesters[] = $mform->createElement('submit', 'deletesemester', get_string('deletesemester', 'mod_booking'));
 
         $numberofsemesterstoshow = 1;
@@ -194,7 +203,7 @@ class dynamicsemestersform extends dynamic_form {
         }
 
         $this->repeat_elements($repeatedsemesters, $numberofsemesterstoshow,
-            [], 'semesters', 'addsemester', 1, get_string('addsemester', 'mod_booking'), true, 'deletesemester');
+            $repeateloptions, 'semesters', 'addsemester', 1, get_string('addsemester', 'mod_booking'), true, 'deletesemester');
 
         // Buttons.
         $this->add_action_buttons();

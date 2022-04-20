@@ -1646,8 +1646,7 @@ $string['semesterssaved'] = 'Semesters have been saved';
 $string['semesterssubtitle'] = '<p>Here you can add, remove and configure semester time periods.</p>';
 $string['addsemester'] = 'Add semester';
 $string['semesteridentifier'] = 'Identifier';
-$string['semesteridentifier_help'] = 'Short text to identify the semester, e.g. "ws22". You cannot change a semester identifier once it is created.
-However, you can just delete the semester and create a new one if necessary.';
+$string['semesteridentifier_help'] = 'Short text to identify the semester, e.g. "ws22".';
 $string['semestername'] = 'Name';
 $string['semestername_help'] = 'Enter the full name of the semester, e.g. "Semester of Winter 2021/22"';
 $string['semesterstart'] = 'First day of semester';
@@ -1655,7 +1654,6 @@ $string['semesterstart_help'] = 'The day the semester starts.';
 $string['semesterend'] = 'Last day of semester';
 $string['semesterend_help'] = 'The day the semester ends';
 $string['deletesemester'] = 'Delete semester';
-$string['deletesemester_help'] = 'This will only delete this semester entry, it will not affect any booking options.';
 $string['erroremptysemesteridentifier'] = 'Semester identifier is needed!';
 $string['erroremptysemestername'] = 'Semester name is not allowed to be empty';
 $string['errorduplicatesemesteridentifier'] = 'Semester identifiers need to be unique.';

@@ -1406,8 +1406,7 @@ $string['semesterssaved'] = 'Semester wurden gespeichert';
 $string['semesterssubtitle'] = '<p>Fügen Sie Semester-Zeitspannen hinzu oder löschen Sie diese.</p>';
 $string['addsemester'] = 'Semester hinzufügen';
 $string['semesteridentifier'] = 'Identifikator';
-$string['semesteridentifier_help'] = 'Kurztext zur Identifikation des Semesters, z.B. "ws22". Sie können Identifikatoren nach dem Speichern nicht mehr löschen.
-Jedoch können Sie falls notwendig ein Semester als ganzes löschen und ein neues anlegen.';
+$string['semesteridentifier_help'] = 'Kurztext zur Identifikation des Semesters, z.B. "ws22".';
 $string['semestername'] = 'Bezeichnung';
 $string['semestername_help'] = 'Geben Sie den vollen Namen des Semesters ein, z.B. "Wintersemester 2021/22"';
 $string['semesterstart'] = 'Semesterbeginn';
@@ -1415,7 +1414,6 @@ $string['semesterstart_help'] = 'An welchem Tag beginnt das Semester?';
 $string['semesterend'] = 'Semesterende';
 $string['semesterend_help'] = 'An welchem Tag endet das Semester?';
 $string['deletesemester'] = 'Semester löschen';
-$string['deletesemester_help'] = 'Dies löscht diesen Semestereintrag, Buchungsoptionen sind davon nicht betroffen.';
 $string['erroremptysemesteridentifier'] = 'Identifikator des Semesters fehlt.';
 $string['erroremptysemestername'] = 'Name des Semesters wurde nicht angegeben.';
 $string['errorduplicatesemesteridentifier'] = 'Der Semesteridentifikator muss eindeutig sein.';
