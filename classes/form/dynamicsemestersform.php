@@ -26,6 +26,7 @@ use context;
 use context_system;
 use core_form\dynamic_form;
 use html_writer;
+use moodle_exception;
 use moodle_url;
 use stdClass;
 
@@ -67,16 +68,18 @@ class dynamicsemestersform extends dynamic_form {
             && !empty($semesterdata->semesterstart) && is_array($semesterdata->semesterstart)
             && !empty($semesterdata->semesterend) && is_array($semesterdata->semesterend)) {
 
-            foreach (array_values($semesterdata->semesteridentifier) as $idx => $semesteridentifier) {
+            foreach ($semesterdata->semesteridentifier as $idx => $semesteridentifier) {
 
                 $semester = new stdClass;
-                $semester->identifier = trim($semesterdata->semesteridentifier[$idx]);
+                $semester->identifier = trim($semesteridentifier);
                 $semester->name = trim($semesterdata->semestername[$idx]);
                 $semester->startdate = $semesterdata->semesterstart[$idx];
                 $semester->enddate = $semesterdata->semesterend[$idx];
 
                 if (!empty($semester->identifier)) {
-                    $semestersarray[$idx] = $semester;
+                    $semestersarray[] = $semester;
+                } else {
+                    throw new moodle_exception('ERROR: Semester identifier must not be empty.');
                 }
             }
         }
