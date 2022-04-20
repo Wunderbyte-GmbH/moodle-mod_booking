@@ -104,7 +104,7 @@ class semester {
      *
      * @return array
      */
-    public static function get_semesters_identifier_name_array(): array {
+    public static function get_semesters_id_name_array(): array {
         global $DB;
 
         $semestersarray = [];
@@ -113,6 +113,26 @@ class semester {
 
         foreach ($data as $record) {
             $semestersarray[$record->id] = $record->name . ' (' . $record->identifier . ')';
+        }
+
+        return $semestersarray;
+    }
+
+    /**
+     * Get an array of all semesters containing semester identifiers as keys
+     * and semester names (including identifier in parantheses) as values.
+     *
+     * @return array
+     */
+    public static function get_semesters_identifier_name_array(): array {
+        global $DB;
+
+        $semestersarray = [];
+
+        $data = $DB->get_records('booking_semesters');
+
+        foreach ($data as $record) {
+            $semestersarray[$record->identifier] = $record->name . ' (' . $record->identifier . ')';
         }
 
         return $semestersarray;

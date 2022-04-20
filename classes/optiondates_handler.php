@@ -63,7 +63,7 @@ class optiondates_handler {
 
         $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
 
-        $semestersarray = semester::get_semesters_identifier_name_array();
+        $semestersarray = semester::get_semesters_id_name_array();
 
         $mform->addElement('autocomplete', 'chooseperiod', get_string('chooseperiod', 'mod_booking'),
             $semestersarray, ['tags' => false]);

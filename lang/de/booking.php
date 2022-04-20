@@ -1398,7 +1398,7 @@ $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kateg
     <b>Achtung:</b> Sobald Sie eine Kategorie erstellt haben, können Sie diese nicht mehr löschen.
     Sie können Kategorien aber umbenennen oder deaktivieren.</p>';
 
-// Semesters.php.
+// Semesters.
 $string['booking:semesters'] = 'Booking: Semester';
 $string['semester'] = 'Semester';
 $string['semesters'] = 'Semester';
@@ -1420,8 +1420,17 @@ $string['errorduplicatesemesteridentifier'] = 'Der Semesteridentifikator muss ei
 $string['errorduplicatesemestername'] = 'Der Name des Semesters muss eindeutig sein.';
 $string['errorsemesterstart'] = 'Semesterstart muss vor dem Semesterende sein.';
 $string['errorsemesterend'] = 'Semesterende muss nach dem Semesterstart sein.';
+$string['choosesemester'] = "Semester auswählen";
+$string['choosesemester_help'] = "Wählen Sie das Semester aus, für das der oder die Feiertag(e) erstellt werden sollen.";
 $string['holidays'] = "Ferien und Feiertage";
-$string['holiday'] = "Ferien-Zeitraum";
+$string['holiday'] = "Ferien oder Feiertag";
+$string['holidayname'] = "Name der Ferien oder des Feiertags (optional)";
+$string['holidayname_help'] = "Der Name ist optional. Sie können dieses Feld leer lassen, wenn Sie möchten.";
+$string['holidaystart'] = 'Beginn bzw. Feiertagsdatum';
+$string['holidaystart_help'] = 'Beginn des Ferienzeitraums oder Datum eines Feiertags.';
+$string['holidayend'] = 'Ende';
+$string['holidayend_help'] = 'Ende des Ferienzeitraums';
+$string['addholiday'] = 'Ferien oder Feiertag hinzufügen';
 
 // Caches.
 $string['cachedef_bookingoptions'] = 'Buchungsoptionen allgemeine Infos';

@@ -1638,7 +1638,7 @@ $string['pricecategoriessubtitle'] = '<p>Here you can define different price cat
     <b>Be careful:</b> Once you have added a category, you cannot delete it.
     Only disable or rename it.</p>';
 
-// Semesters.php.
+// Semesters.
 $string['booking:semesters'] = 'Booking: Semesters';
 $string['semester'] = 'Semester';
 $string['semesters'] = 'Semesters';
@@ -1660,8 +1660,17 @@ $string['errorduplicatesemesteridentifier'] = 'Semester identifiers need to be u
 $string['errorduplicatesemestername'] = 'Semester names need to be unique.';
 $string['errorsemesterstart'] = 'Semester start needs to be before semester end.';
 $string['errorsemesterend'] = 'Semester end needs to be after semester start.';
+$string['choosesemester'] = "Choose semester";
+$string['choosesemester_help'] = "Choose the semester for which the holiday(s) should be created.";
 $string['holidays'] = "Holidays";
 $string['holiday'] = "Holiday";
+$string['holidayname'] = "Name of the holiday (optional)";
+$string['holidayname_help'] = "The holiday name is optional. You can leave this empty if you want.";
+$string['holidaystart'] = 'Start';
+$string['holidaystart_help'] = 'Start of holidays time period or specific date.';
+$string['holidayend'] = 'End';
+$string['holidayend_help'] = 'End of the holidays time period.';
+$string['addholiday'] = 'Add holiday(s)';
 
 // Cache.
 $string['cachedef_bookingoptions'] = 'General information of booking options';
