@@ -120,7 +120,8 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
     }
 
     // Make sure the user is logged in and has access to the module.
-    // require_login($course, true, $cm);
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* require_login($course, true, $cm); */
 
     // Leave this line out if you set the itemid to null in make_pluginfile_url (set $itemid to 0 instead).
     $itemid = array_shift($args); // The first item in the $args array.
@@ -1240,7 +1241,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             $completion = new \completion_info($course);
             if ($completion->is_enabled($cm)) {
                 $settingnode->add(get_string('bookuserswithoutcompletedactivity', 'booking'),
-                        new moodle_url('/mod/booking/subscribeusersctivity.php',
+                        new moodle_url('/mod/booking/subscribeusersactivity.php',
                                 array('id' => $cm->id, 'optionid' => $optionid)));
             }
         }

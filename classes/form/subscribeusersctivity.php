@@ -20,7 +20,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
 
-class subscribeusersctivity extends \moodleform {
+class subscribeusersactivity extends \moodleform {
     public function definition() {
         global $CFG, $DB;
 

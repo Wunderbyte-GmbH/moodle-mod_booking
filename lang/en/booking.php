@@ -1498,7 +1498,7 @@ $string['active'] = "Active";
 $string['terminated'] = "Terminated";
 $string['notstarted'] = "Not yet started";
 
-// Subscribeusersctivity.php.
+// Subscribeusersactivity.php.
 $string['transefusers'] = "Transfer users";
 $string['transferhelp'] = 'Transfer users, that have not completed activity from selected option to {$a}.';
 $string['sucesfullytransfered'] = 'Users were sucesfully transfered.';
