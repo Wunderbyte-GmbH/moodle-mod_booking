@@ -24,6 +24,7 @@
  */
 
 use mod_booking\form\dynamicsemestersform;
+use mod_booking\output\semesters_holidays;
 
 require_once('../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
@@ -51,17 +52,26 @@ $form->set_data_for_dynamic_submission();
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('semesters', 'mod_booking'));
 
-echo html_writer::tag('p', get_string('semesterssubtitle', 'booking'));
+$renderedsemestersform = $form->render();
+$renderedholidaysform = "TODO: implement this!";
 
-// Render the form in a specific container, there should be nothing else in the same container.
-echo html_writer::div($form->render(), '', ['data-region' => 'semestersformcontainer']);
+$output = $PAGE->get_renderer('mod_booking');
+$data = new semesters_holidays($renderedsemestersform, $renderedholidaysform);
+echo $output->render_semesters_holidays($data);
 
 $existingsemesters = $DB->get_records('booking_semesters');
-
 $PAGE->requires->js_call_amd(
     'mod_booking/dynamicsemestersform',
     'init',
     ['[data-region=semestersformcontainer]', dynamicsemestersform::class, $existingsemesters]
+);
+
+// TODO: implement this correctly!
+$existingholidays = $DB->get_records('booking_semesters');
+$PAGE->requires->js_call_amd(
+    'mod_booking/dynamicholidaysform',
+    'init',
+    ['[data-region=holidaysformcontainer]', dynamicholidaysform::class, $existingholidays]
 );
 
 echo $OUTPUT->footer();

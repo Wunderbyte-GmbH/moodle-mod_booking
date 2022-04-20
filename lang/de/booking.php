@@ -1420,6 +1420,8 @@ $string['errorduplicatesemesteridentifier'] = 'Der Semesteridentifikator muss ei
 $string['errorduplicatesemestername'] = 'Der Name des Semesters muss eindeutig sein.';
 $string['errorsemesterstart'] = 'Semesterstart muss vor dem Semesterende sein.';
 $string['errorsemesterend'] = 'Semesterende muss nach dem Semesterstart sein.';
+$string['holidays'] = "Ferien und Feiertage";
+$string['holiday'] = "Ferien-Zeitraum";
 
 // Caches.
 $string['cachedef_bookingoptions'] = 'Buchungsoptionen allgemeine Infos';

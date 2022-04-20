@@ -1660,6 +1660,8 @@ $string['errorduplicatesemesteridentifier'] = 'Semester identifiers need to be u
 $string['errorduplicatesemestername'] = 'Semester names need to be unique.';
 $string['errorsemesterstart'] = 'Semester start needs to be before semester end.';
 $string['errorsemesterend'] = 'Semester end needs to be after semester start.';
+$string['holidays'] = "Holidays";
+$string['holiday'] = "Holiday";
 
 // Cache.
 $string['cachedef_bookingoptions'] = 'General information of booking options';
