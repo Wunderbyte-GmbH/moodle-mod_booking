@@ -622,7 +622,7 @@ class booking {
 
         $bookingid = $this->id;
 
-        $fields = 'DISTINCT bo.*';
+        $fields = 'DISTINCT bo.id, bo.text';
         $from = '{booking_options} bo
                 LEFT JOIN {booking_teachers} bt
                 ON bo.id = bt.optionid';
@@ -647,7 +647,14 @@ class booking {
      * @param string $fields
      * @return void
      */
-    public function get_my_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "bo.id") {
+    public function get_my_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '',
+        $fields = "bo.id, bo.bookingid, bo.text, bo.maxanswers, bo.maxoverbooking, bo.bookingclosingtime, bo.courseid,
+        bo.coursestarttime, bo.courseendtime, bo.enrolmentstatus, bo.description, bo.descriptionformat, bo.limitanswers,
+        bo.timemodified, bo.addtocalendar, bo.calendarid, bo.pollurl, bo.groupid, bo.sent, bo.location, bo.institution,
+        bo.address, bo.pollurlteachers, bo.howmanyusers, bo.pollsend, bo.removeafterminutes, bo.notificationtext,
+        bo.notificationtextformat, bo.disablebookingusers, bo.sent2, bo.sentteachers, bo.beforebookedtext, bo.beforecompletedtext,
+        bo.aftercompletedtext, bo.shorturl, bo.duration, bo.parentid, bo.semesterid, bo.dayofweektime") {
+
         global $DB, $USER;
 
         $limit = '';
@@ -667,8 +674,7 @@ class booking {
         $where = "bo.bookingid = :bookingid
                   AND ba.userid = :userid
                   AND ba.waitinglist = :booked {$search}";
-        // phpcs:ignore moodle.Commenting.InlineComment.NotCapital,Squiz.PHP.CommentedOutCode.Found
-        $order = "GROUP BY bo.id, bo.text
+        $order = "GROUP BY $fields
                   ORDER BY bo.text ASC";
         if (strlen($searchtext) !== 0) {
             $from .= "
