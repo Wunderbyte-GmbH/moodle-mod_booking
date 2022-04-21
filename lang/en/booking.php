@@ -1643,7 +1643,8 @@ $string['booking:semesters'] = 'Booking: Semesters';
 $string['semester'] = 'Semester';
 $string['semesters'] = 'Semesters';
 $string['semesterssaved'] = 'Semesters have been saved';
-$string['semesterssubtitle'] = '<p>Here you can add, remove and configure semester time periods.</p>';
+$string['semesterssubtitle'] = 'Here you can add, change or delete <strong>semesters and holidays</strong>.
+    After saving, the entries will be ordered by their <strong>start date</strong>.';
 $string['addsemester'] = 'Add semester';
 $string['semesteridentifier'] = 'Identifier';
 $string['semesteridentifier_help'] = 'Short text to identify the semester, e.g. "ws22".';
@@ -1664,13 +1665,18 @@ $string['choosesemester'] = "Choose semester";
 $string['choosesemester_help'] = "Choose the semester for which the holiday(s) should be created.";
 $string['holidays'] = "Holidays";
 $string['holiday'] = "Holiday";
-$string['holidayname'] = "Name of the holiday (optional)";
-$string['holidayname_help'] = "The holiday name is optional. You can leave this empty if you want.";
+$string['holidayname'] = "Name of the holiday";
+$string['holidayname_help'] = "The holiday name needs to be unique, e.g. 'Winter holidays 2022'.";
 $string['holidaystart'] = 'Start';
 $string['holidaystart_help'] = 'Start of holidays time period or specific date.';
 $string['holidayend'] = 'End';
 $string['holidayend_help'] = 'End of the holidays time period.';
 $string['addholiday'] = 'Add holiday(s)';
+$string['erroremptyholidayname'] = 'Holiday name is missing.';
+$string['errorduplicateholidayname'] = 'Holiday name is not unique. (Try adding the year.)';
+$string['errorholidaystart'] = 'Holiday is not allowed to start after the end date.';
+$string['errorholidayend'] = 'Holiday is not allowed to end before the start date.';
+$string['deleteholiday'] = 'Delete holiday';
 
 // Cache.
 $string['cachedef_bookingoptions'] = 'General information of booking options';

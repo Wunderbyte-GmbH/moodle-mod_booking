@@ -23,6 +23,12 @@
     Data attributes required for JS:
     * data-region
 }}
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+  {{#str}} semesterssubtitle, mod_booking {{/str}}
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
 <nav>
   <div class="nav nav-tabs" id="nav-tab" role="tablist">
     <a class="nav-link active" id="semesters-tab" data-toggle="tab" href="#semestersform" role="tab" aria-controls="semestersform" aria-selected="true">
@@ -35,7 +41,6 @@
 </nav>
 <div class="tab-content" id="nav-tabContent">
   <div data-region="semestersformcontainer" class="tab-pane fade show active" id="semestersform" role="tabpanel" aria-labelledby="semesters-tab">
-    <p>{{#str}} semesterssubtitle, mod_booking {{/str}}</p>
     {{{ renderedsemestersform }}}
   </div>
   <div data-region="holidaysformcontainer" class="tab-pane fade" id="holidaysform" role="tabpanel" aria-labelledby="holidays-tab">

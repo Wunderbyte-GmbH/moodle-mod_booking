@@ -1403,7 +1403,8 @@ $string['booking:semesters'] = 'Booking: Semester';
 $string['semester'] = 'Semester';
 $string['semesters'] = 'Semester';
 $string['semesterssaved'] = 'Semester wurden gespeichert';
-$string['semesterssubtitle'] = '<p>Fügen Sie Semester-Zeitspannen hinzu oder löschen Sie diese.</p>';
+$string['semesterssubtitle'] = 'Hier können Sie <strong>Semester, Ferien und Feiertage</strong> anlegen, ändern und löschen.
+    Die Einträge werden nach dem Speichern nach ihrem <strong>Start-Datum</strong> sortiert.';
 $string['addsemester'] = 'Semester hinzufügen';
 $string['semesteridentifier'] = 'Identifikator';
 $string['semesteridentifier_help'] = 'Kurztext zur Identifikation des Semesters, z.B. "ws22".';
@@ -1424,13 +1425,18 @@ $string['choosesemester'] = "Semester auswählen";
 $string['choosesemester_help'] = "Wählen Sie das Semester aus, für das der oder die Feiertag(e) erstellt werden sollen.";
 $string['holidays'] = "Ferien und Feiertage";
 $string['holiday'] = "Ferien oder Feiertag";
-$string['holidayname'] = "Name der Ferien oder des Feiertags (optional)";
-$string['holidayname_help'] = "Der Name ist optional. Sie können dieses Feld leer lassen, wenn Sie möchten.";
+$string['holidayname'] = "Name der Ferien oder des Feiertags";
+$string['holidayname_help'] = "Der Name muss eindeutig sein, z.B. 'Winterferien 2022'.";
 $string['holidaystart'] = 'Beginn bzw. Feiertagsdatum';
 $string['holidaystart_help'] = 'Beginn des Ferienzeitraums oder Datum eines Feiertags.';
 $string['holidayend'] = 'Ende';
 $string['holidayend_help'] = 'Ende des Ferienzeitraums';
 $string['addholiday'] = 'Ferien oder Feiertag hinzufügen';
+$string['erroremptyholidayname'] = 'Name der Ferien bzw. des Feiertags fehlt.';
+$string['errorduplicateholidayname'] = 'Name muss eindeutig sein (fügen Sie z.B. die Jahreszahl hinzu).';
+$string['errorholidaystart'] = 'Ferienbeginn darf nicht nach dem Ferienende liegen.';
+$string['errorholidayend'] = 'Ferienende darf nicht vor dem Ferienbeginn liegen.';
+$string['deleteholiday'] = 'Ferien oder Feiertag löschen';
 
 // Caches.
 $string['cachedef_bookingoptions'] = 'Buchungsoptionen allgemeine Infos';

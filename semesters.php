@@ -23,6 +23,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\form\dynamicholidaysform;
 use mod_booking\form\dynamicsemestersform;
 use mod_booking\output\semesters_holidays;
 
@@ -46,14 +47,16 @@ $PAGE->set_title(
     format_string($SITE->shortname) . ': ' . get_string('semesters', 'booking')
 );
 
-$form = new dynamicsemestersform();
-$form->set_data_for_dynamic_submission();
-
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('semesters', 'mod_booking'));
 
-$renderedsemestersform = $form->render();
-$renderedholidaysform = "TODO: implement this!";
+$semestersform = new dynamicsemestersform();
+$semestersform->set_data_for_dynamic_submission();
+$renderedsemestersform = $semestersform->render();
+
+$holidaysform = new dynamicholidaysform();
+$holidaysform->set_data_for_dynamic_submission();
+$renderedholidaysform = $holidaysform->render();
 
 $output = $PAGE->get_renderer('mod_booking');
 $data = new semesters_holidays($renderedsemestersform, $renderedholidaysform);
@@ -66,8 +69,7 @@ $PAGE->requires->js_call_amd(
     ['[data-region=semestersformcontainer]', dynamicsemestersform::class, $existingsemesters]
 );
 
-// TODO: implement this correctly!
-$existingholidays = $DB->get_records('booking_semesters');
+$existingholidays = $DB->get_records('booking_holidays');
 $PAGE->requires->js_call_amd(
     'mod_booking/dynamicholidaysform',
     'init',
