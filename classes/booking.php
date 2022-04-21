@@ -611,6 +611,34 @@ class booking {
     }
 
     /**
+     * Function to return all bookings for teacher.
+     *
+     * @param integer $limitfrom
+     * @param integer $limitnum
+     * @param [type] $teacherid
+     * @return void
+     */
+    public function get_all_options_of_teacher_sql($teacherid) {
+
+        $bookingid = $this->id;
+
+        $fields = 'DISTINCT bo.*';
+        $from = '{booking_options} bo
+                LEFT JOIN {booking_teachers} bt
+                ON bo.id = bt.optionid';
+        $where = 'bo.bookingid = :bookingid
+                AND bt.userid = :teacherid
+                GROUP BY bo.id, bo.text
+                ORDER BY bo.text ASC';
+        $params = [
+            'bookingid' => $bookingid,
+            'teacherid' => $teacherid
+        ];
+
+        return [$fields, $from, $where, $params];
+    }
+
+    /**
      * Genereate SQL and params array to fetch my options.
      *
      * @param integer $limitfrom
