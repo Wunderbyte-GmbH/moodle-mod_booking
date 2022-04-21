@@ -124,23 +124,6 @@ if ($ADMIN->fulltree) {
             'EUR', $currencies));
 
     $settings->add(
-        new admin_setting_heading('bookingoptiondefaults',
-            get_string('bookingoptiondefaults', 'mod_booking'),
-            get_string('bookingoptiondefaultsdesc', 'mod_booking')));
-
-    $caleventtypes = [
-        0 => get_string('caldonotadd', 'booking'),
-        1 => get_string('caladdascourseevent', 'booking')
-    ];
-
-    $setting = new admin_setting_configselect('booking/addtocalendar',
-            get_string('addtocalendar', 'booking'),
-            get_string('addtocalendardesc', 'booking'),
-            0, $caleventtypes);
-    $setting->set_locked_flag_options(admin_setting_flag::ENABLED, false);
-    $settings->add($setting);
-
-    $settings->add(
         new admin_setting_heading('duplicationrestore',
             get_string('duplicationrestore', 'mod_booking'),
             get_string('duplicationrestoredesc', 'mod_booking')));
