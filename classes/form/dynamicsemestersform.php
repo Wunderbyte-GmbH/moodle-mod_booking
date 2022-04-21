@@ -260,6 +260,6 @@ class dynamicsemestersform extends dynamic_form {
      * @return moodle_url
      */
     protected function get_page_url_for_dynamic_submission(): moodle_url {
-        return new moodle_url('/mod/booking/semester.php');
+        return new moodle_url('/mod/booking/semesters.php');
     }
 }
