@@ -182,8 +182,7 @@ class dynamicholidaysform extends dynamic_form {
 
         $holidaylabel = html_writer::tag('b', get_string('holiday', 'booking') . ' {no}',
             array('class' => 'holidaylabel'));
-        $repeatedholidays[] = $mform->createElement('header', 'holidaylabel', $holidaylabel);
-        $repeateloptions['holidaylabel']['expanded'] = true;
+        $repeatedholidays[] = $mform->createElement('static', 'holidaylabel', $holidaylabel);
 
         $semestersarray = semester::get_semesters_identifier_name_array();
         $repeatedholidays[] = $mform->createElement('select', 'semesteridentifier',
@@ -207,8 +206,6 @@ class dynamicholidaysform extends dynamic_form {
         if ($existingholidays = $DB->get_records('booking_holidays')) {
             $numberofholidaystoshow = count($existingholidays);
         }
-
-        $mform->closeHeaderBefore('addholiday');
 
         $this->repeat_elements($repeatedholidays, $numberofholidaystoshow,
             $repeateloptions, 'holidays', 'addholiday', 1, get_string('addholiday', 'mod_booking'), true, 'deleteholiday');

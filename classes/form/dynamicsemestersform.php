@@ -179,8 +179,7 @@ class dynamicsemestersform extends dynamic_form {
 
         $semesterlabel = html_writer::tag('b', get_string('semester', 'booking') . ' {no}',
             array('class' => 'semesterlabel'));
-        $repeatedsemesters[] = $mform->createElement('header', 'semesterlabel', $semesterlabel);
-        $repeateloptions['semesterlabel']['expanded'] = true;
+        $repeatedsemesters[] = $mform->createElement('static', 'semesterlabel', $semesterlabel);
 
         $repeatedsemesters[] = $mform->createElement('text', 'semesteridentifier', get_string('semesteridentifier', 'booking'));
         $mform->setType('semesteridentifier', PARAM_TEXT);
@@ -202,8 +201,6 @@ class dynamicsemestersform extends dynamic_form {
         if ($existingsemesters = $DB->get_records('booking_semesters')) {
             $numberofsemesterstoshow = count($existingsemesters);
         }
-
-        $mform->closeHeaderBefore('addsemester');
 
         $this->repeat_elements($repeatedsemesters, $numberofsemesterstoshow,
             $repeateloptions, 'semesters', 'addsemester', 1, get_string('addsemester', 'mod_booking'), true, 'deletesemester');
