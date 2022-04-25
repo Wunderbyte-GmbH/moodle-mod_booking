@@ -170,17 +170,47 @@ class optiondates_handler {
         $endseconds = $hours * 60 * 60 + $minutes * 60;
         for ($i = strtotime($dayinfo['day'], $semester->startdate); $i <= $semester->enddate; $i = strtotime('+1 week', $i)) {
             $date = new stdClass();
+            $date->starttimestamp = $i + $startseconds;
+            $date->endtimestamp = $i + $endseconds;
+
+            // Check if the date is on a holiday and only add if it isn't.
+            if (self::is_on_a_holiday($semester->identifier, $date)) {
+                continue;
+            }
+
             $date->date = date('Y-m-d', $i);
             $date->starttime = $dayinfo['starttime'];
             $date->endtime = $dayinfo['endtime'];
             $date->dateid = 'newdate-' . $j;
-            $date->starttimestamp = $i + $startseconds;
-            $date->endtimestamp = $i + $endseconds;
             $j++;
+
             $date->string = $date->date . " " .$date->starttime. "-" .$date->endtime;
             $datearray['dates'][] = $date;
         }
         return $datearray;
+    }
+
+    /**
+     * Helper function to check if a certain date is during holidays.
+     *
+     * @param string $semesteridentifier the semester identifier string, e.g. "ws22"
+     * @param stdClass $dateobj a date object having the attributes starttimestamp and endtimestamp (unix timestamps)
+     * @return bool true if on a holiday, else false
+     */
+    private static function is_on_a_holiday(string $semesteridentifier, stdClass $dateobj) {
+        global $DB;
+        if ($holidays = $DB->get_records('booking_holidays', ['semesteridentifier' => $semesteridentifier])) {
+            foreach ($holidays as $holiday) {
+                // Add 23:59:59 (in seconds) to the end time.
+                $holiday->enddate += 86399;
+                if ($holiday->startdate <= $dateobj->starttimestamp && $dateobj->endtimestamp <= $holiday->enddate) {
+                    // It's on a holiday.
+                    return true;
+                }
+            }
+            // It's not on a holiday.
+            return false;
+        }
     }
 
     /**
