@@ -197,7 +197,7 @@ class optiondates_handler {
      * @param stdClass $dateobj a date object having the attributes starttimestamp and endtimestamp (unix timestamps)
      * @return bool true if on a holiday, else false
      */
-    private static function is_on_a_holiday(string $semesteridentifier, stdClass $dateobj) {
+    private static function is_on_a_holiday(string $semesteridentifier, stdClass $dateobj): bool {
         global $DB;
         if ($holidays = $DB->get_records('booking_holidays', ['semesteridentifier' => $semesteridentifier])) {
             foreach ($holidays as $holiday) {
