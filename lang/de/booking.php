@@ -1462,3 +1462,4 @@ $string['reoccurringdatestring_help'] = 'Geben Sie einen Text in folgendem Forma
 $string['add_optiondate_series'] = 'Terminserie erstellen';
 $string['reoccurringdatestringerror'] = 'Geben Sie einen Text in folgendem Format ein:
     Tag, HH:MM - HH:MM';
+$string['singledate'] = '<i class="fa fa-plus-square"></i> Spezifische Termine...';

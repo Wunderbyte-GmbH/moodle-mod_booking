@@ -15,7 +15,7 @@
 
 /*
  * @package    mod_booking
- * @copyright  Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright  2022 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -130,6 +130,12 @@ export const datelistinit = () => {
     // Add an event listener to the reoccurring datestring to store it in a hidden input field.
     // We need this, so we can save it later via $_POST from the not dynamic moodle form.
     document.getElementsByName('reoccurringdatestring')[0].addEventListener('keyup', (e) => {
+        const submitbutton = document.querySelector('#optiondates-form input[name="submitbutton"]');
+        if (e.target.value.trim().toLowerCase() === "block") {
+            submitbutton.disabled = true;
+        } else {
+            submitbutton.disabled = false;
+        }
         document.querySelector('#dayofweektime').value = e.target.value;
     });
 };

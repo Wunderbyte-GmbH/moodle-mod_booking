@@ -1702,3 +1702,4 @@ $string['reoccurringdatestring_help'] = 'Enter a text in the following format:
 $string['add_optiondate_series'] = 'Create date series';
 $string['reoccurringdatestringerror'] = 'Enter a text in the following format:
     Day, HH:MM - HH:MM';
+$string['singledate'] = '<i class="fa fa-plus-square"></i> Specific dates...';

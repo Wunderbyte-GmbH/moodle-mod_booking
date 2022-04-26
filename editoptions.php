@@ -235,4 +235,11 @@ $PAGE->requires->js_call_amd('mod_booking/institutionautocomplete', 'init', arra
 // Initialize dynamic optiondate form.
 $PAGE->requires->js_call_amd('mod_booking/dynamicoptiondateform', 'init', array($cmid, $bookingid, $optionid));
 
+// Also initialize the modal form to create single dates which are not part of the date series.
+$PAGE->requires->js_call_amd(
+    'mod_booking/modaloptiondateform',
+    'init',
+    ['[data-action=opendateformmodal]', \mod_booking\form\modaloptiondateform::class, '[data-region=results]', true]
+);
+
 echo $OUTPUT->footer();
