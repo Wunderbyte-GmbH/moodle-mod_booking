@@ -315,12 +315,17 @@ class optiondates_handler {
      */
     public static function reoccurring_datestring_is_correct(string $reoccuringdatestring): bool {
 
+        $string = strtolower($reoccuringdatestring);
+        $string = trim($string);
+        if (str_contains($string, 'block')) {
+            return true;
+        }
+
         if (!preg_match('/^[a-zA-Z]+[,\s]+([0-1]?[0-9]|[2][0-3]):([0-5][0-9])\s*-\s*([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$/',
             $reoccuringdatestring)) {
             return false;
         }
 
-        $string = strtolower($reoccuringdatestring);
         $string = str_replace(',', ' ', $string);
         $string = preg_replace("/\s+/", " ", $string);
         $strings = explode(' ',  $string);

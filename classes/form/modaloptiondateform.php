@@ -16,6 +16,8 @@
 
 namespace mod_booking\form;
 
+use html_writer;
+
 /**
  * Modal form to create single option dates which are not part of the date series.
  *
@@ -33,7 +35,7 @@ class modaloptiondateform extends \core_form\dynamic_form {
         require_capability('moodle/site:config', \context_system::instance());
     }
 
-    protected function get_options(): array {
+    protected function get_custom_optiondates(): array {
         $rv = [];
         if (!empty($this->_ajaxformdata['option']) && is_array($this->_ajaxformdata['option'])) {
             foreach (array_values($this->_ajaxformdata['option']) as $idx => $option) {
@@ -44,77 +46,64 @@ class modaloptiondateform extends \core_form\dynamic_form {
     }
 
     public function set_data_for_dynamic_submission(): void {
-        $this->set_data([
-            'hidebuttons' => $this->optional_param('hidebuttons', false, PARAM_BOOL),
-            'name' => $this->optional_param('name', '', PARAM_TEXT),
-        ] + $this->get_options());
+        $this->set_data($this->get_custom_optiondates());
     }
 
     public function process_dynamic_submission() {
-        if ($this->get_data()->name === 'error') {
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /*if ($this->get_data()->name === 'error') {
             // For testing exceptions.
             throw new \coding_exception('Name is error');
-        }
+        }*/
         return $this->get_data();
     }
 
     public function definition() {
+        global $DB;
+
         $mform = $this->_form;
 
-        $mform->addElement('static', 'aboutform', '', 'This form has client-side validation that Name must be present '.
-            ' and server-side validation that Name must have at least three characters');
+        $mform->addElement('static', 'aboutmodaloptiondateform', '', get_string('aboutmodaloptiondateform', 'mod_booking'));
 
-        // Required field (client-side validation test).
+        $repeatedoptiondates = [];
 
-        $mform->addElement('text', 'name', get_string('fieldname', 'core_customfield'), 'size="50"');
-        $mform->addRule('name', null, 'required', null, 'client');
-        $mform->setType('name', PARAM_TEXT);
+        // Options to store help button texts etc.
+        $repeateloptions = [];
 
-        // Repeated elements.
+        $optiondatelabel = html_writer::tag('b', get_string('optiondate', 'booking') . ' {no}',
+            array('class' => 'optiondatelabel'));
+        $repeatedoptiondates[] = $mform->createElement('static', 'optiondatelabel', $optiondatelabel);
 
-        $repeatarray = array();
-        $repeatarray[] = $mform->createElement('text', 'option', get_string('optionno', 'choice'));
-        $mform->setType('option', PARAM_CLEANHTML);
+        $repeatedoptiondates[] = $mform->createElement('date_time_selector', 'optiondatestart',
+            get_string('optiondatestart', 'booking'));
+        $repeateloptions['optiondatestart']['helpbutton'] = ['optiondatestart', 'mod_booking'];
 
-        $this->repeat_elements($repeatarray, max(1, count($this->get_options())),
-            [], 'option_repeats', 'option_add_fields', 1, null, true);
+        $repeatedoptiondates[] = $mform->createElement('date_time_selector', 'optiondateend',
+            get_string('optiondateend', 'booking'));
+        $repeateloptions['optiondateend']['helpbutton'] = ['optiondateend', 'mod_booking'];
 
-        // Editor.
+        $repeatedoptiondates[] = $mform->createElement('submit', 'deleteoptiondate', get_string('deleteoptiondate', 'mod_booking'));
 
-        $desceditoroptions = $this->get_description_text_options();
-        $mform->addElement('editor', 'description_editor', get_string('description', 'core_customfield'),
-            ['rows' => 2], $desceditoroptions);
-        $mform->addHelpButton('description_editor', 'description', 'core_customfield');
+        $numberofoptiondatestoshow = 1;
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /*if ($existingoptiondates = $DB->get_records('booking_optiondates')) {
+            $numberofoptiondatestoshow = count($existingoptiondates);
+        }*/
 
-        // Buttons.
+        $this->repeat_elements($repeatedoptiondates, $numberofoptiondatestoshow,
+            $repeateloptions, 'optiondates', 'addoptiondate', 1, get_string('addoptiondate', 'mod_booking'),
+            true, 'deleteoptiondate');
 
-        $mform->addElement('hidden', 'hidebuttons');
-        $mform->setType('hidebuttons', PARAM_BOOL);
-        if (empty($this->_ajaxformdata['hidebuttons'])) {
-            $this->add_action_buttons();
-        }
+        $this->add_action_buttons();
     }
 
     public function validation($data, $files) {
         $errors = [];
-        if (strlen($data['name']) < 3) {
-            $errors['name'] = 'Name must be at least three characters long';
-        }
+
         return $errors;
     }
 
-    public function get_description_text_options() : array {
-        global $CFG;
-        require_once($CFG->libdir.'/formslib.php');
-        return [
-            'maxfiles' => EDITOR_UNLIMITED_FILES,
-            'maxbytes' => $CFG->maxbytes,
-            'context' => \context_system::instance()
-        ];
-    }
-
     protected function get_page_url_for_dynamic_submission(): \moodle_url {
-        return new \moodle_url('/local/modalformexamples/test.php');
+        return new \moodle_url('/mod/booking/editoptions.php');
     }
-
 }

@@ -129,12 +129,13 @@ export const datelistinit = () => {
 
     // Add an event listener to the reoccurring datestring to store it in a hidden input field.
     // We need this, so we can save it later via $_POST from the not dynamic moodle form.
-    document.getElementsByName('reoccurringdatestring')[0].addEventListener('keyup', (e) => {
+    const reoccurringdatestring = document.querySelector('input[name="reoccurringdatestring"]');
+    reoccurringdatestring.addEventListener('keyup', (e) => {
         const submitbutton = document.querySelector('#optiondates-form input[name="submitbutton"]');
-        if (e.target.value.trim().toLowerCase() === "block") {
-            submitbutton.disabled = true;
+        if (e.target.value.trim().toLowerCase().includes('block')) {
+            submitbutton.style.display = 'none'; // Hide the button.
         } else {
-            submitbutton.disabled = false;
+            submitbutton.style.display = 'block'; // Show the button.
         }
         document.querySelector('#dayofweektime').value = e.target.value;
     });

@@ -1456,10 +1456,15 @@ $string['chooseperiod_help'] = 'Wählen Sie den Zeitraum innerhalb dessen die Te
 $string['dates'] = 'Termine';
 $string['reoccurringdatestring'] = 'Wochentag, Start- und Endzeit (Tag, HH:MM - HH:MM)';
 $string['reoccurringdatestring_help'] = 'Geben Sie einen Text in folgendem Format ein:
-    "Tag, HH:MM - HH:MM", z.B. "Montag, 10:00 - 11:00" oder "So 09:00-10:00"';
+    "Tag, HH:MM - HH:MM", z.B. "Montag, 10:00 - 11:00" oder "So 09:00-10:00" oder "Block" bzw. "Blockveranstaltung.';
 
 // Dynamicoptiondateform.php.
 $string['add_optiondate_series'] = 'Terminserie erstellen';
 $string['reoccurringdatestringerror'] = 'Geben Sie einen Text in folgendem Format ein:
-    Tag, HH:MM - HH:MM';
-$string['singledate'] = '<i class="fa fa-plus-square"></i> Spezifische Termine...';
+    Tag, HH:MM - HH:MM oder "Block" bzw. "Blockveranstaltung."';
+$string['customdatesbtn'] = '<i class="fa fa-plus-square"></i> Benutzerdefinierte Termine...';
+
+// Modaloptiondateform.php.
+$string['aboutmodaloptiondateform'] = 'Hier können Sie benutzerdefinierte Termine anlegen
+(z.B. bei Block-Veranstaltungen oder wenn einzelne Termine von der Terminserie abweichen).';
+$string['modaloptiondateformtitle'] = 'Benutzerdefinierte Termine';

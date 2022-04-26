@@ -18,6 +18,7 @@ require_once("locallib.php");
 require_once($CFG->libdir . '/formslib.php');
 
 use mod_booking\form\option_form;
+use mod_booking\form\modaloptiondateform;
 use \core\output\notification;
 use mod_booking\customfield\booking_handler;
 use mod_booking\price;
@@ -230,16 +231,24 @@ if ($mform->is_cancelled()) {
     $mform->display();
 }
 
-$PAGE->requires->js_call_amd('mod_booking/institutionautocomplete', 'init', array($cmid));
+$PAGE->requires->js_call_amd(
+    'mod_booking/institutionautocomplete',
+    'init',
+    array($cmid)
+);
 
 // Initialize dynamic optiondate form.
-$PAGE->requires->js_call_amd('mod_booking/dynamicoptiondateform', 'init', array($cmid, $bookingid, $optionid));
+$PAGE->requires->js_call_amd(
+    'mod_booking/dynamicoptiondateform',
+    'init',
+    array($cmid, $bookingid, $optionid)
+);
 
 // Also initialize the modal form to create single dates which are not part of the date series.
 $PAGE->requires->js_call_amd(
     'mod_booking/modaloptiondateform',
     'init',
-    ['[data-action=opendateformmodal]', \mod_booking\form\modaloptiondateform::class, '[data-region=results]', true]
+    array(get_string('modaloptiondateformtitle', 'mod_booking'), modaloptiondateform::class, '[data-region=results]', true)
 );
 
 echo $OUTPUT->footer();

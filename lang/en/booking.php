@@ -1696,10 +1696,15 @@ $string['chooseperiod_help'] = 'Select a time period within to create the date s
 $string['dates'] = 'Dates';
 $string['reoccurringdatestring'] = 'Weekday, start and end time (Day, HH:MM - HH:MM)';
 $string['reoccurringdatestring_help'] = 'Enter a text in the following format:
-    "Day, HH:MM - HH:MM", e.g. "Monday, 10:00 - 11:00" or "Sun 09:00-10:00"';
+    "Day, HH:MM - HH:MM", e.g. "Monday, 10:00 - 11:00" or "Sun 09:00-10:00" or "block" for blocked events.';
 
 // Dynamicoptiondateform.php.
 $string['add_optiondate_series'] = 'Create date series';
 $string['reoccurringdatestringerror'] = 'Enter a text in the following format:
-    Day, HH:MM - HH:MM';
-$string['singledate'] = '<i class="fa fa-plus-square"></i> Specific dates...';
+    Day, HH:MM - HH:MM or "block" for blocked events.';
+$string['customdatesbtn'] = '<i class="fa fa-plus-square"></i> Custom dates...';
+
+// Modaloptiondateform.php.
+$string['aboutmodaloptiondateform'] = 'Create custom dates
+(e.g. for blocked events or for single dates that differ from the date series).';
+$string['modaloptiondateformtitle'] = 'Custom dates';

@@ -1,3 +1,5 @@
+/* eslint-disable promise/always-return */
+/* eslint-disable promise/catch-or-return */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -30,33 +32,59 @@ const addNotification = msg => {
 };
 
 
-export const init = (linkSelector, formClass, resultSelector, addArgs = false) => {
-    document.querySelector(linkSelector).addEventListener('click', (e) => {
-        e.preventDefault();
-        const form = new ModalForm({
-            formClass,
-            args: addArgs ? {hidebuttons: 1, option: ['green', 'yellow'], name: 'Test2'} : {hidebuttons: 1},
-            modalConfig: {title: 'Test2'},
-            returnFocus: e.currentTarget
-        });
-        // If necessary extend functionality by overriding class methods, for example:
-        form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
-            const response = e.detail;
-            addNotification('Form submitted...');
-            document.querySelector(resultSelector).innerHTML = '<pre>' + JSON.stringify(response) + '</pre>';
-        });
+export const init = (modalTitle, formClass, resultSelector) => {
+    waitForElm('button[name="customdatesbtn"]').then((customdatesbtn) => {
+        customdatesbtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const form = new ModalForm({
+                formClass,
+                modalConfig: {title: modalTitle},
+                returnFocus: e.currentTarget
+            });
+            // If necessary extend functionality by overriding class methods, for example:
+            form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
+                const response = e.detail;
+                addNotification('Form submitted...');
+                document.querySelector(resultSelector).innerHTML = '<pre>' + JSON.stringify(response) + '</pre>';
+            });
 
-        // Demo of different events.
-        form.addEventListener(form.events.LOADED, () => addNotification('Form loaded'));
-        form.addEventListener(form.events.NOSUBMIT_BUTTON_PRESSED,
-            (e) => addNotification('No submit button pressed ' + e.detail.getAttribute('name')));
-        form.addEventListener(form.events.CLIENT_VALIDATION_ERROR, () => addNotification('Client-side validation error'));
-        form.addEventListener(form.events.SERVER_VALIDATION_ERROR, () => addNotification('Server-side validation error'));
-        form.addEventListener(form.events.ERROR, (e) => addNotification('Oopsie - ' + e.detail.message));
-        form.addEventListener(form.events.SUBMIT_BUTTON_PRESSED, () => addNotification('Submit button pressed'));
-        form.addEventListener(form.events.CANCEL_BUTTON_PRESSED, () => addNotification('Cancel button pressed'));
+            // Demo of different events.
+            form.addEventListener(form.events.LOADED, () => addNotification('Form loaded'));
+            form.addEventListener(form.events.NOSUBMIT_BUTTON_PRESSED,
+                (e) => addNotification('No submit button pressed ' + e.detail.getAttribute('name')));
+            form.addEventListener(form.events.CLIENT_VALIDATION_ERROR, () => addNotification('Client-side validation error'));
+            form.addEventListener(form.events.SERVER_VALIDATION_ERROR, () => addNotification('Server-side validation error'));
+            form.addEventListener(form.events.ERROR, (e) => addNotification('Oopsie - ' + e.detail.message));
+            form.addEventListener(form.events.SUBMIT_BUTTON_PRESSED, () => addNotification('Submit button pressed'));
+            form.addEventListener(form.events.CANCEL_BUTTON_PRESSED, () => addNotification('Cancel button pressed'));
 
-        form.show();
+            form.show();
+        });
     });
-
 };
+
+/**
+ * Wait until a certain element is loaded.
+ * @param {string} selector - The element selector.
+ * @returns {Promise}
+ */
+function waitForElm(selector) {
+    // eslint-disable-next-line consistent-return
+    return new Promise(resolve => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
+        }
+
+        const observer = new MutationObserver(() => {
+            if (document.querySelector(selector)) {
+                resolve(document.querySelector(selector));
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+}
