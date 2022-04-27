@@ -17,6 +17,8 @@
 namespace mod_booking\form;
 
 use html_writer;
+use stdClass;
+use moodle_exception;
 
 /**
  * Modal form to create single option dates which are not part of the date series.
@@ -27,37 +29,10 @@ use html_writer;
  */
 class modaloptiondateform extends \core_form\dynamic_form {
 
-    protected function get_context_for_dynamic_submission(): \context {
-        return \context_system::instance();
-    }
-
-    protected function check_access_for_dynamic_submission(): void {
-        require_capability('moodle/site:config', \context_system::instance());
-    }
-
-    protected function get_custom_optiondates(): array {
-        $rv = [];
-        if (!empty($this->_ajaxformdata['option']) && is_array($this->_ajaxformdata['option'])) {
-            foreach (array_values($this->_ajaxformdata['option']) as $idx => $option) {
-                $rv["option[$idx]"] = clean_param($option, PARAM_CLEANHTML);
-            }
-        }
-        return $rv;
-    }
-
-    public function set_data_for_dynamic_submission(): void {
-        $this->set_data($this->get_custom_optiondates());
-    }
-
-    public function process_dynamic_submission() {
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /*if ($this->get_data()->name === 'error') {
-            // For testing exceptions.
-            throw new \coding_exception('Name is error');
-        }*/
-        return $this->get_data();
-    }
-
+    /**
+     * {@inheritdoc}
+     * @see moodleform::definition()
+     */
     public function definition() {
         global $DB;
 
@@ -93,8 +68,84 @@ class modaloptiondateform extends \core_form\dynamic_form {
         $this->repeat_elements($repeatedoptiondates, $numberofoptiondatestoshow,
             $repeateloptions, 'optiondates', 'addoptiondate', 1, get_string('addoptiondate', 'mod_booking'),
             true, 'deleteoptiondate');
+    }
 
-        $this->add_action_buttons();
+    /**
+     * Returns form context
+     *
+     * If context depends on the form data, it is available in $this->_ajaxformdata or
+     * by calling $this->optional_param()
+     *
+     * @return context
+     */
+    protected function get_context_for_dynamic_submission(): \context {
+        return \context_system::instance();
+    }
+
+    protected function check_access_for_dynamic_submission(): void {
+        require_capability('moodle/site:config', \context_system::instance());
+    }
+
+    protected function get_custom_optiondates(): array {
+        $rv = [];
+        if (!empty($this->_ajaxformdata['option']) && is_array($this->_ajaxformdata['option'])) {
+            foreach (array_values($this->_ajaxformdata['option']) as $idx => $option) {
+                $rv["option[$idx]"] = clean_param($option, PARAM_CLEANHTML);
+            }
+        }
+        return $rv;
+    }
+
+    public function set_data_for_dynamic_submission(): void {
+        $this->set_data($this->get_custom_optiondates());
+    }
+
+    public function process_dynamic_submission() {
+        $data = $this->get_data();
+        // Transform optiondates into an array of objects.
+        $optiondatesarray = $this->transform_data_to_optiondates_array($data);
+
+        return $optiondatesarray;
+    }
+
+    /**
+     * Transform optiondates data from form to an array of optiondates objects.
+     * @param stdClass $data data from form
+     * @return array
+     */
+    protected function transform_data_to_optiondates_array(stdClass $data): array {
+        $optiondatesarray = [];
+        $resultarray = [];
+
+        if (!empty($data->optiondatestart) && is_array($data->optiondatestart)
+            && !empty($data->optiondateend) && is_array($data->optiondateend)) {
+
+            foreach ($data->optiondatestart as $idx => $optiondatestart) {
+
+                $optiondate = new stdClass;
+                $randomid = bin2hex(random_bytes(4));
+                $optiondate->dateid = 'customdate-' . $randomid;
+                $optiondate->starttimestamp = $optiondatestart;
+                $optiondate->endtimestamp = $data->optiondateend[$idx];
+
+                $stringstartdate = date('Y-m-d', $optiondate->starttimestamp);
+                $stringenddate = date('Y-m-d', $optiondate->endtimestamp);
+                $stringstarttime = date('H:i', $optiondate->starttimestamp);
+                $stringendtime = date('H:i', $optiondate->endtimestamp);
+
+                if ($stringstartdate === $stringenddate) {
+                    // If they are one the same day, show date only once.
+                    $optiondate->string = $stringstartdate . ' ' . $stringstarttime . '-' . $stringendtime;
+                } else {
+                    // Else show both dates.
+                    $optiondate->string = $stringstartdate . ' ' . $stringstarttime . ' - ' . $stringenddate . ' ' . $stringendtime;
+                }
+
+                $optiondatesarray[] = $optiondate;
+            }
+        }
+        $resultarray['dates'] = $optiondatesarray;
+        return $resultarray;
     }
 
     public function validation($data, $files) {

@@ -99,6 +99,11 @@ class dynamicoptiondateform extends dynamic_form {
             return false;
         }
 
+        // If the string contains the keyword 'block' we don't do anything.
+        if (strpos(strtolower($data->reoccurringdatestring), 'block') !== false) {
+            return false;
+        }
+
         // Only submit if we have a correct string.
         if (!optiondates_handler::reoccurring_datestring_is_correct($data->reoccurringdatestring)) {
             return false;
@@ -159,7 +164,7 @@ class dynamicoptiondateform extends dynamic_form {
         if (!$cmid) {
             $cmid = $this->optional_param('cmid', '', PARAM_RAW);
         }
-        return new moodle_url('/mod/booking/editoptions', array('id' => $cmid));
+        return new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid));
     }
 
     /**

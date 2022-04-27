@@ -1463,8 +1463,11 @@ $string['add_optiondate_series'] = 'Terminserie erstellen';
 $string['reoccurringdatestringerror'] = 'Geben Sie einen Text in folgendem Format ein:
     Tag, HH:MM - HH:MM oder "Block" bzw. "Blockveranstaltung."';
 $string['customdatesbtn'] = '<i class="fa fa-plus-square"></i> Benutzerdefinierte Termine...';
-
-// Modaloptiondateform.php.
 $string['aboutmodaloptiondateform'] = 'Hier können Sie benutzerdefinierte Termine anlegen
 (z.B. bei Block-Veranstaltungen oder wenn einzelne Termine von der Terminserie abweichen).';
 $string['modaloptiondateformtitle'] = 'Benutzerdefinierte Termine';
+$string['optiondate'] = 'Termin';
+$string['addoptiondate'] = 'Termin hinzufügen';
+$string['deleteoptiondate'] = 'Termin entfernen';
+$string['optiondatestart'] = 'Beginn';
+$string['optiondateend'] = 'Ende';

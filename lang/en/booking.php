@@ -1703,8 +1703,11 @@ $string['add_optiondate_series'] = 'Create date series';
 $string['reoccurringdatestringerror'] = 'Enter a text in the following format:
     Day, HH:MM - HH:MM or "block" for blocked events.';
 $string['customdatesbtn'] = '<i class="fa fa-plus-square"></i> Custom dates...';
-
-// Modaloptiondateform.php.
 $string['aboutmodaloptiondateform'] = 'Create custom dates
 (e.g. for blocked events or for single dates that differ from the date series).';
 $string['modaloptiondateformtitle'] = 'Custom dates';
+$string['optiondate'] = 'Date';
+$string['addoptiondate'] = 'Add date';
+$string['deleteoptiondate'] = 'Remove date';
+$string['optiondatestart'] = 'Start';
+$string['optiondateend'] = 'End';

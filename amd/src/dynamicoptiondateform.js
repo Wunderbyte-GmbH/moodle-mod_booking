@@ -1,3 +1,5 @@
+/* eslint-disable promise/always-return */
+/* eslint-disable promise/catch-or-return */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -20,19 +22,24 @@
  */
 
 import DynamicForm from 'core_form/dynamicform';
+import ModalForm from 'core_form/modalform';
 import Templates from 'core/templates';
 
 const optiondateForm = new DynamicForm(document.querySelector('#optiondates-form'), 'mod_booking\\form\\dynamicoptiondateform');
 
-export const init = (cmid, bookingid, optionid) => {
+export const initdynamicoptiondateform = (cmid, bookingid, optionid, modalTitle, formClass, resultSelector) => {
 
     optiondateForm.load({
         'cmid': cmid,
         'bookingid': bookingid,
-        'optionid': optionid
+        'optionid': optionid,
+        'modalTitle': modalTitle,
+        'formClass': formClass,
+        'resultSelector': resultSelector
     })
     .then(() => {
         datelistinit();
+        initmodaloptiondateform(modalTitle, formClass, resultSelector);
         return;
     })
     // Deal with this exception (Using core/notify exception function is recommended).
@@ -42,8 +49,8 @@ export const init = (cmid, bookingid, optionid) => {
     optiondateForm.addEventListener(optiondateForm.events.FORM_SUBMITTED, (e) => {
 
         // Remember values when form gets submitted.
-        var chooseperiodvalue = document.getElementsByName('chooseperiod')[0].value;
-        var reoccurringdatestringvalue = document.getElementsByName('reoccurringdatestring')[0].value;
+        var chooseperiodvalue = document.querySelector('[name="chooseperiod"]').value;
+        var reoccurringdatestringvalue = document.querySelector('[name="reoccurringdatestring"]').value;
 
         // It is recommended to reload the form after submission because the elements may change.
         // This will also remove previous submission errors. You will need to pass the same arguments to the form
@@ -79,11 +86,14 @@ export const init = (cmid, bookingid, optionid) => {
             datelistinit();
 
             // We need this, so we don't lose the form data after reloading.
-            document.getElementsByName('chooseperiod')[0].value = chooseperiodvalue;
-            document.getElementsByName('reoccurringdatestring')[0].value = reoccurringdatestringvalue;
+            document.querySelector('[name="chooseperiod"]').value = chooseperiodvalue;
+            document.querySelector('[name="reoccurringdatestring"]').value = reoccurringdatestringvalue;
             // Also load the data into the hidden elements which we need to pass the values to the non-dynamic form.
             document.querySelector('#semesterid').value = chooseperiodvalue;
             document.querySelector('#dayofweektime').value = reoccurringdatestringvalue;
+
+            // Initialize modal again.
+            initmodaloptiondateform(modalTitle, formClass, resultSelector);
 
             return;
         })
@@ -123,7 +133,7 @@ export const datelistinit = () => {
 
     // Add an event listener to the chooseperiod autocomplete to store semesterid in a hidden input field.
     // We need this, so we can save it later via $_POST from the not dynamic moodle form.
-    document.getElementsByName('chooseperiod')[0].addEventListener('change', (e) => {
+    document.querySelector('[name="chooseperiod"]').addEventListener('change', (e) => {
         document.querySelector('#semesterid').value = e.target.value;
     });
 
@@ -140,3 +150,68 @@ export const datelistinit = () => {
         document.querySelector('#dayofweektime').value = e.target.value;
     });
 };
+
+export const initmodaloptiondateform = (modalTitle, formClass) => {
+    waitForElm('button[name="customdatesbtn"]').then((customdatesbtn) => {
+        customdatesbtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const modalform = new ModalForm({
+                formClass,
+                modalConfig: {title: modalTitle},
+                returnFocus: e.currentTarget
+            });
+            // If necessary extend functionality by overriding class methods, for example:
+            modalform.addEventListener(modalform.events.FORM_SUBMITTED, (e) => {
+                const response = e.detail;
+
+                Templates.renderForPromise('mod_booking/bookingoption_dates_custom_list_items', response)
+                // It returns a promise that needs to be resolved.
+                .then(({html}) => {
+                    Templates.appendNodeContents('ul.reoccurringdates', html);
+                    return;
+                })
+                // Deal with this exception (Using core/notify exception function is recommended).
+                // eslint-disable-next-line no-undef
+                .catch(ex => displayException(ex));
+
+                Templates.renderForPromise('mod_booking/bookingoption_dates_custom_hidden_inputs', response)
+                // It returns a promise that needs to be resolved.
+                .then(({html}) => {
+                    Templates.appendNodeContents('div.optiondates-list', html);
+                    return;
+                })
+                // Deal with this exception (Using core/notify exception function is recommended).
+                // eslint-disable-next-line no-undef
+                .catch(ex => displayException(ex));
+            });
+            // Show the modal.
+            modalform.show();
+        });
+    });
+};
+
+/**
+ * Wait until a certain element is loaded.
+ * @param {string} selector - The element selector.
+ * @returns {Promise}
+ */
+ function waitForElm(selector) {
+    // eslint-disable-next-line consistent-return
+    return new Promise(resolve => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
+        }
+
+        const observer = new MutationObserver(() => {
+            if (document.querySelector(selector)) {
+                resolve(document.querySelector(selector));
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+}

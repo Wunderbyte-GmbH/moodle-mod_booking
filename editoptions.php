@@ -106,9 +106,17 @@ if ($mform->is_cancelled()) {
         $stillexistingdates = [];
 
         foreach ($_POST as $key => $value) {
+            // New option dates (created with date series function).
             if (substr($key, 0, 18) === 'coursetime-newdate') {
                 $newoptiondates[] = $value;
             }
+
+            // Also add custom dates to the new option dates.
+            if (substr($key, 0, 21) === 'coursetime-customdate') {
+                $newoptiondates[] = $value;
+            }
+
+            // Dates loaded from DB which have not been removed.
             if (substr($key, 0, 17) === 'coursetime-dateid') {
                 $currentdateid = (int) explode('-', $key)[2];
                 $stillexistingdates[$currentdateid] = $value;
@@ -240,15 +248,11 @@ $PAGE->requires->js_call_amd(
 // Initialize dynamic optiondate form.
 $PAGE->requires->js_call_amd(
     'mod_booking/dynamicoptiondateform',
-    'init',
-    array($cmid, $bookingid, $optionid)
-);
-
-// Also initialize the modal form to create single dates which are not part of the date series.
-$PAGE->requires->js_call_amd(
-    'mod_booking/modaloptiondateform',
-    'init',
-    array(get_string('modaloptiondateformtitle', 'mod_booking'), modaloptiondateform::class, '[data-region=results]', true)
+    'initdynamicoptiondateform',
+    array($cmid, $bookingid, $optionid,
+        get_string('modaloptiondateformtitle', 'mod_booking'),
+        modaloptiondateform::class,
+        '[data-region=results]', true)
 );
 
 echo $OUTPUT->footer();

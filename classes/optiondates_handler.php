@@ -155,6 +155,12 @@ class optiondates_handler {
      */
     public static function get_optiondate_series(int $semesterid, string $reoccurringdatestring): array {
 
+        // Skip this, if it's a blocked event.
+        $reoccurringdatestring = strtolower($reoccurringdatestring);
+        if (strpos($reoccurringdatestring, 'block') !== false) {
+            return [];
+        }
+
         $semester = new semester($semesterid);
         $dayinfo = self::prepare_day_info($reoccurringdatestring);
 
@@ -208,9 +214,9 @@ class optiondates_handler {
                     return true;
                 }
             }
-            // It's not on a holiday.
-            return false;
         }
+        // It's not on a holiday.
+        return false;
     }
 
     /**
@@ -313,16 +319,16 @@ class optiondates_handler {
      *
      * @return bool
      */
-    public static function reoccurring_datestring_is_correct(string $reoccuringdatestring): bool {
+    public static function reoccurring_datestring_is_correct(string $reoccurringdatestring): bool {
 
-        $string = strtolower($reoccuringdatestring);
+        $string = strtolower($reoccurringdatestring);
         $string = trim($string);
-        if (str_contains($string, 'block')) {
+        if (strpos($string, 'block') !== false) {
             return true;
         }
 
         if (!preg_match('/^[a-zA-Z]+[,\s]+([0-1]?[0-9]|[2][0-3]):([0-5][0-9])\s*-\s*([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$/',
-            $reoccuringdatestring)) {
+            $reoccurringdatestring)) {
             return false;
         }
 

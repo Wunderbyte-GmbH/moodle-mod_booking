@@ -245,3 +245,6 @@ if there only was one booking option. */
     overflow: visible;
 }
 
+button[name="customdatesbtn"] {
+    background-color: ghostwhite;
+}
