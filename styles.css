@@ -241,7 +241,7 @@ input[name^='addholiday']:hover {
 
 /* Fix a bug where menu was disappearing behind the top of the table
 if there only was one booking option. */
-#region-main div.no-overflow {
+#page-mod-booking-view #region-main div.no-overflow {
     overflow: visible;
 }
 
