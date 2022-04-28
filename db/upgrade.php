@@ -1985,14 +1985,6 @@ function xmldb_booking_upgrade($oldversion) {
     // ========================================== Make upgrades from here for back compatibility. START ================================
 
     if ($oldversion < 2022040700) {
-        $table = new xmldb_table('booking');
-        $field = new xmldb_field('customteplateid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'showviews');
-
-        // Conditionally launch renaming the field.
-        if ($dbman->field_exists($table, $field)) {
-            $dbman->rename_field($table, $field, 'customtemplateid');
-        }
-
         // Define field distance to be added to booking_teachers.
         $table = new xmldb_table('booking_teachers');
         $field = new xmldb_field('distance', XMLDB_TYPE_NUMBER, '8, 2', null, null, null, null, 'calendarid');
