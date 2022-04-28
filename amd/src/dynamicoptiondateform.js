@@ -45,6 +45,12 @@ export const initdynamicoptiondateform = (cmid, bookingid, optionid, modalTitle,
     // eslint-disable-next-line no-undef
     .catch(ex => displayException(ex));
 
+    optiondateForm.addEventListener(optiondateForm.events.SERVER_VALIDATION_ERROR, () => {
+        datelistinit();
+        initmodaloptiondateform(modalTitle, formClass);
+        return;
+    });
+
     optiondateForm.addEventListener(optiondateForm.events.FORM_SUBMITTED, (e) => {
 
         // Remember values when form gets submitted.
