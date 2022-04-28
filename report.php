@@ -300,12 +300,17 @@ if (!$tableallbookings->is_downloading()) {
                         $allselectedusers[] = array_keys($value)[0];
                     }
                 }
-                booking_generatenewnumners($bookingdata->booking->settings, $cm->id, $optionid, $allselectedusers);
+                booking_generatenewnumners($bookingoption->booking->settings, $cm->id, $optionid, $allselectedusers);
                 redirect($url, get_string('generaterecnumnotification', 'booking'), 5);
             }
 
+            if ($_POST['massactions'] == 'clearactivitycompletion' && ($isteacher || has_capability('mod/booking:updatebooking', $context))) {
+                $bookingoption->clearactivitycompletion();
+                redirect($url, get_string('allclearactivitycompletion', 'booking'), 5);
+            }
+
             if ($_POST['massactions'] == 'deleteusersactivitycompletion' && has_capability('mod/booking:deleteresponses', $context)) {
-                $res = $bookingdata->delete_responses_activitycompletion();
+                $res = $bookingoption->delete_responses_activitycompletion();
 
                 $data = new stdClass();
                 $data->all = count($res);
@@ -328,15 +333,15 @@ if (!$tableallbookings->is_downloading()) {
 
             if ($_POST['massactions'] == 'issuecertificateall' && (has_capability('mod/booking:readresponses', $context) || $isteacher)) {
                 $allusers = $DB->get_records('booking_answers', array('optionid' => $optionid));
-                $issuedata = $bookingdata->get_data_for_certificate();
+                $issuedata = $bookingoption->get_data_for_certificate();
 
-                if (!empty($bookingdata->booking->settings->template)) {
-                    $template = \tool_certificate\template::instance($bookingdata->booking->settings->template);
+                if (!empty($bookingoption->booking->settings->template)) {
+                    $template = \tool_certificate\template::instance($bookingoption->booking->settings->template);
 
                     foreach ($allusers as $user) {
                         $template->issue_certificate(
                             $user->userid,
-                            $bookingdata->booking->settings->expires,
+                            $bookingoption->booking->settings->expires,
                             $issuedata,
                             'mod_booking',
                             $course->id
@@ -349,15 +354,15 @@ if (!$tableallbookings->is_downloading()) {
 
             if ($_POST['massactions'] == 'issuecertificateconfirmed' && (has_capability('mod/booking:readresponses', $context) || $isteacher)) {
                 $allusers = $DB->get_records('booking_answers', array('optionid' => $optionid, 'completed' => 1));
-                $issuedata = $bookingdata->get_data_for_certificate();
+                $issuedata = $bookingoption->get_data_for_certificate();
 
-                if (!empty($bookingdata->booking->settings->template)) {
-                    $template = \tool_certificate\template::instance($bookingdata->booking->settings->template);
+                if (!empty($bookingoption->booking->settings->template)) {
+                    $template = \tool_certificate\template::instance($bookingoption->booking->settings->template);
 
                     foreach ($allusers as $user) {
                         $template->issue_certificate(
                             $user->userid,
-                            $bookingdata->booking->settings->expires,
+                            $bookingoption->booking->settings->expires,
                             $issuedata,
                             'mod_booking',
                             $course->id
@@ -370,16 +375,16 @@ if (!$tableallbookings->is_downloading()) {
 
             // Check if at least one user need to be selected.
             if (empty($allselectedusers)) {
-                redirect($url, get_string('selectatleastoneuser', 'booking', $bookingdata->option->howmanyusers), 5);
+                redirect($url, get_string('selectatleastoneuser', 'booking', $bookingoption->option->howmanyusers), 5);
             }
 
             if ($_POST['massactions'] == 'changepresencestatus' && (has_capability('mod/booking:readresponses', $context) || $isteacher)) {
-                $bookingdata->changepresencestatus($allselectedusers, $_POST['selectpresencestatus']);
+                $bookingoption->changepresencestatus($allselectedusers, $_POST['selectpresencestatus']);
                 redirect($url, get_string('userssucesfullygetnewpresencestatus', 'booking'), 5);
             }
 
             if ($_POST['massactions'] == 'deleteusers' && has_capability('mod/booking:deleteresponses', $context)) {
-                $res = $bookingdata->delete_responses($allselectedusers);
+                $res = $bookingoption->delete_responses($allselectedusers);
 
                 $data = new stdClass();
 
@@ -395,15 +400,15 @@ if (!$tableallbookings->is_downloading()) {
             }
 
             if ($_POST['massactions'] == 'issuecertificateselected' && (has_capability('mod/booking:readresponses', $context) || $isteacher)) {
-                $issuedata = $bookingdata->get_data_for_certificate();
+                $issuedata = $bookingoption->get_data_for_certificate();
 
-                if (!empty($bookingdata->booking->settings->template)) {
-                    $template = \tool_certificate\template::instance($bookingdata->booking->settings->template);
+                if (!empty($bookingoption->booking->settings->template)) {
+                    $template = \tool_certificate\template::instance($bookingoption->booking->settings->template);
 
                     foreach ($allselectedusers as $selecteduserid) {
                         $template->issue_certificate(
                             $selecteduserid,
-                            $bookingdata->booking->settings->expires,
+                            $bookingoption->booking->settings->expires,
                             $issuedata,
                             'mod_booking',
                             $course->id
@@ -415,9 +420,9 @@ if (!$tableallbookings->is_downloading()) {
             }
 
             if ($_POST['massactions'] == 'subscribetocourse') { // Subscription submitted.
-                if ($bookingdata->option->courseid != 0) {
+                if ($bookingoption->option->courseid != 0) {
                     foreach ($allselectedusers as $selecteduserid) {
-                        $bookingdata->enrol_user($selecteduserid, true);
+                        $bookingoption->enrol_user($selecteduserid, true);
                     }
                     redirect($url, get_string('userssuccessfullenrolled', 'booking'), 5);
                 } else {
@@ -427,27 +432,27 @@ if (!$tableallbookings->is_downloading()) {
             }
 
             if ($_POST['massactions'] == 'sendpollurl' && has_capability('mod/booking:communicate', $context)) {
-                booking_sendpollurl($allselectedusers, $bookingdata, $cm->id, $optionid);
+                booking_sendpollurl($allselectedusers, $bookingoption, $cm->id, $optionid);
                 redirect($url, get_string('allmailssend', 'booking'), 5);
             }
 
             if ($_POST['massactions'] == 'activitycompletion' && ($isteacher ||
                 has_capability('mod/booking:readresponses', $context))) {
 
-                booking_activitycompletion($allselectedusers, $bookingdata->booking->settings, $cm->id, $optionid);
+                booking_activitycompletion($allselectedusers, $bookingoption->booking->settings, $cm->id, $optionid);
                 redirect($url,
-                        (empty($bookingdata->option->notificationtext) ? get_string(
-                                'activitycompletionsuccess', 'booking') : $bookingdata->option->notificationtext),
+                        (empty($bookingoption->option->notificationtext) ? get_string(
+                                'activitycompletionsuccess', 'booking') : $bookingoption->option->notificationtext),
                         5);
             }
 
             if ($_POST['massactions'] == 'sendreminderemail' && has_capability('mod/booking:communicate', $context)) {
-                booking_sendreminderemail($allselectedusers, $bookingdata->booking->settings, $cm->id, $optionid);
+                booking_sendreminderemail($allselectedusers, $bookingoption->booking->settings, $cm->id, $optionid);
                 redirect($url, get_string('sendreminderemailsuccess', 'booking'), 5);
             }
 
             if ($_POST['massactions'] == 'transferheading' && $_POST['transferoption'] != "") {
-                $result = $bookingdata->transfer_users_to_otheroption($_POST['transferoption'], $allselectedusers);
+                $result = $bookingoption->transfer_users_to_otheroption($_POST['transferoption'], $allselectedusers);
                 if ($result->success) {
                     redirect($url, get_string('transfersuccess', 'mod_booking', $result), 5);
                 } else {
@@ -463,16 +468,16 @@ if (!$tableallbookings->is_downloading()) {
 
             if ($_POST['massactions'] == 'connectedbookings' && $_POST['booktootherbooking'] != "" && ($isteacher
             || has_capability('mod/booking:readresponses', $context))) {
-                if (count($allselectedusers) > $bookingdata->calculate_how_many_can_book_to_other(
+                if (count($allselectedusers) > $bookingoption->calculate_how_many_can_book_to_other(
                         $_POST['booktootherbooking'])) {
                     redirect($url,
                             get_string('toomuchusersbooked', 'booking',
-                                    $bookingdata->calculate_how_many_can_book_to_other(
+                                    $bookingoption->calculate_how_many_can_book_to_other(
                                             $_POST['booktootherbooking'])), 5);
                 }
 
                 $connectedbooking = $DB->get_record("booking",
-                        array('conectedbooking' => $bookingdata->booking->settings->id), 'id', IGNORE_MULTIPLE);
+                        array('conectedbooking' => $bookingoption->booking->settings->id), 'id', IGNORE_MULTIPLE);
 
                 $tmpcmid = $DB->get_record_sql(
                         "SELECT cm.id FROM {course_modules} cm
@@ -494,7 +499,7 @@ if (!$tableallbookings->is_downloading()) {
         }
 
         if (isset($_POST['postratingsubmit']) && ($isteacher || has_capability('moodle/rating:rate', $context))) {
-            $allusers = $bookingdata->get_all_users();
+            $allusers = $bookingoption->get_all_users();
             $bookedusers = array();
             $ratings = array();
             foreach ($allusers as $baid => $user) {

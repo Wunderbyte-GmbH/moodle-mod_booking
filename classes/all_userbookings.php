@@ -336,6 +336,11 @@ class all_userbookings extends \table_sql {
                 ];
             }
 
+            $manageusersoptions[] = [
+                'value' => 'clearactivitycompletion',
+                'label' => get_string('clearactivitycompletion', 'booking')
+            ];
+
             // Output rating button.
             if (has_capability('moodle/rating:rate', \context_module::instance($this->cm->id)) &&
                      $this->bookingdata->booking->settings->assessed != 0) {

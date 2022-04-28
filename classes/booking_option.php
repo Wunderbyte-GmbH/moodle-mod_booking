@@ -623,6 +623,17 @@ class booking_option {
     }
 
     /**
+     * Removes completion status from users that has alredy a completion status in other option.
+     *
+     * @return void
+     */
+    public function clearactivitycompletion() {
+        global $DB;
+
+        $DB->execute("UPDATE {booking_answers} SET completed = 0 WHERE userid IN (select ba.userid from {booking_answers} ba where completed = 1 and bookingid = {$this->bookingid} group by userid having count(ba.userid) > 1) AND completed = 1 AND optionid = {$this->optionid}");
+    }
+
+    /**
      * Mass delete all users with activity completion.
      *
      * @return array
