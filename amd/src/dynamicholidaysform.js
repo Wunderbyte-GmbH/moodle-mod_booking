@@ -29,62 +29,22 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 import DynamicForm from 'core_form/dynamicform';
-// eslint-disable-next-line capitalized-comments
-// eslint-disable-next-line spaced-comment
-/*import Notification from 'core/notification';
-import {add as addToast} from 'core/toast';*/
-
-// eslint-disable-next-line capitalized-comments
-// eslint-disable-next-line spaced-comment
-/*const addNotification = msg => {
-    addToast(msg);
-};*/
 
 export const init = (selector, formClass, existingholidays) => {
-
-    // eslint-disable-next-line capitalized-comments
-    // addNotification('existingholidays:' + JSON.stringify(existingholidays));
 
     const form = new DynamicForm(document.querySelector(selector), formClass);
 
     form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
         e.preventDefault();
-
-        // eslint-disable-next-line capitalized-comments
-        // addNotification('existingholidays:' + JSON.stringify(existingholidays));
-
         const response = e.detail;
         form.load({...existingholidays, response});
-        // eslint-disable-next-line capitalized-comments
-        // addNotification('Form submitted');
-        // eslint-disable-next-line capitalized-comments
-        // Notification.addNotification({message: 'Form submitted: ' + JSON.stringify(response), type: 'success'});
     });
 
     // Cancel button does not make much sense in such forms but since it's there we'll just reload.
     form.addEventListener(form.events.FORM_CANCELLED, (e) => {
         e.preventDefault();
-
-        // eslint-disable-next-line capitalized-comments
-        // addNotification('existingholidays:' + JSON.stringify(existingholidays));
-
         // eslint-disable-next-line promise/catch-or-return
         form.notifyResetFormChanges()
             .then(() => form.load(existingholidays));
-        // AddNotification('Form cancelled');
     });
-
-    // Demo of different events.
-    // eslint-disable-next-line capitalized-comments
-    // form.addEventListener(form.events.NOSUBMIT_BUTTON_PRESSED, () => addNotification('No submit button pressed.'));
-    // eslint-disable-next-line capitalized-comments
-    // form.addEventListener(form.events.CLIENT_VALIDATION_ERROR, () => addNotification('Client-side validation error'));
-    // eslint-disable-next-line capitalized-comments
-    // form.addEventListener(form.events.SERVER_VALIDATION_ERROR, () => addNotification('Server-side validation error'));
-    // eslint-disable-next-line capitalized-comments
-    // form.addEventListener(form.events.ERROR, (e) => addNotification('There was a form error: ' + e.detail.message));
-    // eslint-disable-next-line capitalized-comments
-    // form.addEventListener(form.events.SUBMIT_BUTTON_PRESSED, () => addNotification('Submit button pressed'));
-    // eslint-disable-next-line capitalized-comments
-    // form.addEventListener(form.events.CANCEL_BUTTON_PRESSED, () => addNotification('Cancel button pressed'));
 };

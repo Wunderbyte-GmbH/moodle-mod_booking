@@ -64,15 +64,19 @@ class dynamicholidaysform extends dynamic_form {
         $holidaysarray = [];
 
         if (!empty($data->semesteridentifier) && is_array($data->semesteridentifier)
-            && !empty($data->holidayname) && is_array($data->holidayname)
             && !empty($data->holidaystart) && is_array($data->holidaystart)
             && !empty($data->holidayend) && is_array($data->holidayend)) {
 
             foreach ($data->semesteridentifier as $idx => $semesteridentifier) {
 
                 $holiday = new stdClass;
+                $holiday->id = $data->holidayid[$idx];
                 $holiday->semesteridentifier = $semesteridentifier;
-                $holiday->name = trim($data->holidayname[$idx]);
+                if (!empty($data->holidayname[$idx])) {
+                    $holiday->name = trim($data->holidayname[$idx]);
+                } else {
+                    $holiday->name = '';
+                }
                 $holiday->startdate = $data->holidaystart[$idx];
                 $holiday->enddate = $data->holidayend[$idx];
 
@@ -80,10 +84,6 @@ class dynamicholidaysform extends dynamic_form {
                     $holidaysarray[] = $holiday;
                 } else {
                     throw new moodle_exception('ERROR: Semester identifier for holiday must not be empty.');
-                }
-
-                if (empty($holiday->name)) {
-                    throw new moodle_exception('ERROR: Holiday name must not be empty.');
                 }
             }
         }
@@ -102,6 +102,7 @@ class dynamicholidaysform extends dynamic_form {
         if ($existingholidays = $DB->get_records_sql("SELECT * FROM {booking_holidays} ORDER BY startdate ASC")) {
             $data->holidays = count($existingholidays);
             foreach ($existingholidays as $existingholiday) {
+                $data->holidayid[] = $existingholiday->id;
                 $data->semesteridentifier[] = $existingholiday->semesteridentifier;
                 $data->holidayname[] = trim($existingholiday->name);
                 $data->holidaystart[] = $existingholiday->startdate;
@@ -111,6 +112,7 @@ class dynamicholidaysform extends dynamic_form {
         } else {
             // No holidays found in DB.
             $data->holidays = 0;
+            $data->id = [];
             $data->semesteridentifier = [];
             $data->holidayname = [];
             $data->holidaystart = [];
@@ -131,34 +133,32 @@ class dynamicholidaysform extends dynamic_form {
         $holidaydata = $this->get_data();
         $holidaysarray = $this->transform_data_to_holidays_array($holidaydata);
 
-        $existingholidaynames = [];
-        $currentholidaynames = $holidaydata->holidayname;
+        $existingholidayids = [];
+        $currentholidayids = $holidaydata->holidayid;
 
         if ($existingholidays = $DB->get_records('booking_holidays')) {
             foreach ($existingholidays as $existingholiday) {
-                $existingholidaynames[] = trim($existingholiday->name);
+                $existingholidayids[] = $existingholiday->id;
             }
         }
 
         foreach ($holidaysarray as $holiday) {
 
-            $holiday->name = trim($holiday->name);
-
-            // If it's a new holiday name: insert.
-            if (!in_array($holiday->name, $existingholidaynames)) {
+            // If it's a new holiday id: insert.
+            if (!in_array($holiday->id, $existingholidayids)) {
                 $DB->insert_record('booking_holidays', $holiday);
             } else {
-                // If it's an existing holiday name: update.
-                $existingrecord = $DB->get_record('booking_holidays', ['name' => $holiday->name]);
+                // If it's an existing holiday id: update.
+                $existingrecord = $DB->get_record('booking_holidays', ['id' => $holiday->id]);
                 $holiday->id = $existingrecord->id;
                 $DB->update_record('booking_holidays', $holiday);
             }
         }
 
         // Delete all holidays from DB which are not part of the form anymore.
-        foreach ($existingholidaynames as $existingholidayname) {
-            if (!in_array($existingholidayname, $currentholidaynames)) {
-                $DB->delete_records('booking_holidays', ['name' => $existingholidayname]);
+        foreach ($existingholidayids as $existingholidayid) {
+            if (!in_array($existingholidayid, $currentholidayids)) {
+                $DB->delete_records('booking_holidays', ['id' => $existingholidayid]);
             }
         }
 
@@ -190,15 +190,18 @@ class dynamicholidaysform extends dynamic_form {
         $mform->setType('semesteridentifier', PARAM_TEXT);
         $repeateloptions['semesteridentifier']['helpbutton'] = ['choosesemester', 'mod_booking'];
 
-        $repeatedholidays[] = $mform->createElement('text', 'holidayname', get_string('holidayname', 'booking'));
-        $mform->setType('holidayname', PARAM_TEXT);
-        $repeateloptions['holidayname']['helpbutton'] = ['holidayname', 'mod_booking'];
+        $repeatedholidays[] = $mform->createElement('hidden', 'holidayid', 0);
+        $mform->setType('holidayid', PARAM_INT);
 
         $repeatedholidays[] = $mform->createElement('date_selector', 'holidaystart', get_string('holidaystart', 'booking'));
         $repeateloptions['holidaystart']['helpbutton'] = ['holidaystart', 'mod_booking'];
 
         $repeatedholidays[] = $mform->createElement('date_selector', 'holidayend', get_string('holidayend', 'booking'));
         $repeateloptions['holidayend']['helpbutton'] = ['holidayend', 'mod_booking'];
+
+        $repeatedholidays[] = $mform->createElement('text', 'holidayname', get_string('holidayname', 'booking'));
+        $mform->setType('holidayname', PARAM_TEXT);
+        $repeateloptions['holidayname']['helpbutton'] = ['holidayname', 'mod_booking'];
 
         $repeatedholidays[] = $mform->createElement('submit', 'deleteholiday', get_string('deleteholiday', 'mod_booking'));
 
@@ -223,21 +226,9 @@ class dynamicholidaysform extends dynamic_form {
     public function validation($data, $files): array {
         $errors = [];
 
-        $data['holidayname'] = array_map('trim', $data['holidayname']);
-        $holidaynamecounts = array_count_values($data['holidayname']);
-
         foreach ($data['semesteridentifier'] as $idx => $semesteridentifier) {
             if (empty($semesteridentifier)) {
                 $errors["semesteridentifier[$idx]"] = get_string('erroremptysemesteridentifier', 'booking');
-            }
-        }
-
-        foreach ($data['holidayname'] as $idx => $holidayname) {
-            if (empty($holidayname)) {
-                $errors["holidayname[$idx]"] = get_string('erroremptyholidayname', 'booking');
-            }
-            if ($holidaynamecounts[$holidayname] > 1) {
-                $errors["holidayname[$idx]"] = get_string('errorduplicateholidayname', 'booking');
             }
         }
 
