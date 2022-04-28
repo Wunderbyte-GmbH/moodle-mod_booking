@@ -1471,3 +1471,5 @@ $string['addoptiondate'] = 'Termin hinzufügen';
 $string['deleteoptiondate'] = 'Termin entfernen';
 $string['optiondatestart'] = 'Beginn';
 $string['optiondateend'] = 'Ende';
+$string['erroroptiondatestart'] = 'Terminbeginn muss vor dem Terminende liegen.';
+$string['erroroptiondateend'] = 'Terminende muss nach dem Terminbeginn liegen.';

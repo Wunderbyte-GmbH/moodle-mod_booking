@@ -1711,3 +1711,5 @@ $string['addoptiondate'] = 'Add date';
 $string['deleteoptiondate'] = 'Remove date';
 $string['optiondatestart'] = 'Start';
 $string['optiondateend'] = 'End';
+$string['erroroptiondatestart'] = 'Date start needs to be before date end.';
+$string['erroroptiondateend'] = 'Date end needs to be after date start.';

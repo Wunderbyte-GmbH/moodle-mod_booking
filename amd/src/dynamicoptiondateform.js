@@ -27,19 +27,18 @@ import Templates from 'core/templates';
 
 const optiondateForm = new DynamicForm(document.querySelector('#optiondates-form'), 'mod_booking\\form\\dynamicoptiondateform');
 
-export const initdynamicoptiondateform = (cmid, bookingid, optionid, modalTitle, formClass, resultSelector) => {
+export const initdynamicoptiondateform = (cmid, bookingid, optionid, modalTitle, formClass) => {
 
     optiondateForm.load({
         'cmid': cmid,
         'bookingid': bookingid,
         'optionid': optionid,
         'modalTitle': modalTitle,
-        'formClass': formClass,
-        'resultSelector': resultSelector
+        'formClass': formClass
     })
     .then(() => {
         datelistinit();
-        initmodaloptiondateform(modalTitle, formClass, resultSelector);
+        initmodaloptiondateform(modalTitle, formClass);
         return;
     })
     // Deal with this exception (Using core/notify exception function is recommended).
@@ -55,13 +54,16 @@ export const initdynamicoptiondateform = (cmid, bookingid, optionid, modalTitle,
         // It is recommended to reload the form after submission because the elements may change.
         // This will also remove previous submission errors. You will need to pass the same arguments to the form
         // that you passed when you rendered the form on the page.
-
         optiondateForm.load({
             'cmid': cmid,
             'bookingid': bookingid,
-            'optionid': optionid
+            'optionid': optionid,
+            'modalTitle': modalTitle,
+            'formClass': formClass
         })
         .then(() => {
+            // Only do this, if it's not a blocked event.
+            /* if (!reoccurringdatestringvalue.trim().toLowerCase().includes('block')) {} */
 
             e.preventDefault();
             const response = e.detail;
@@ -93,7 +95,7 @@ export const initdynamicoptiondateform = (cmid, bookingid, optionid, modalTitle,
             document.querySelector('#dayofweektime').value = reoccurringdatestringvalue;
 
             // Initialize modal again.
-            initmodaloptiondateform(modalTitle, formClass, resultSelector);
+            initmodaloptiondateform(modalTitle, formClass);
 
             return;
         })
@@ -135,6 +137,15 @@ export const datelistinit = () => {
     // We need this, so we can save it later via $_POST from the not dynamic moodle form.
     document.querySelector('[name="chooseperiod"]').addEventListener('change', (e) => {
         document.querySelector('#semesterid').value = e.target.value;
+    });
+
+    waitForElm('input[name="reoccurringdatestring"]').then((stringelm) => {
+        const submitbutton = document.querySelector('#optiondates-form input[name="submitbutton"]');
+        if (stringelm.value.trim().toLowerCase().includes('block')) {
+            submitbutton.style.display = 'none'; // Hide the button.
+        } else {
+            submitbutton.style.display = 'block'; // Show the button.
+        }
     });
 
     // Add an event listener to the reoccurring datestring to store it in a hidden input field.
@@ -201,14 +212,12 @@ export const initmodaloptiondateform = (modalTitle, formClass) => {
         if (document.querySelector(selector)) {
             return resolve(document.querySelector(selector));
         }
-
         const observer = new MutationObserver(() => {
             if (document.querySelector(selector)) {
                 resolve(document.querySelector(selector));
                 observer.disconnect();
             }
         });
-
         observer.observe(document.body, {
             childList: true,
             subtree: true

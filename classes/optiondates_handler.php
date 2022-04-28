@@ -70,10 +70,17 @@ class optiondates_handler {
         $mform->setDefault('chooseperiod', $bookingoptionsettings->semesterid);
         $mform->addHelpButton('chooseperiod', 'chooseperiod', 'mod_booking');
 
-        $mform->addElement('text', 'reoccurringdatestring', get_string('reoccurringdatestring', 'booking'));
+        // Turn off submit on enter (keycode: 13).
+        // We will work with the submit button only (as it has some sophisticated JS listeners).
+        $mform->addElement('text', 'reoccurringdatestring', get_string('reoccurringdatestring', 'booking'),
+            ['onkeypress' => 'return event.keyCode != 13;']);
         $mform->setDefault('reoccurringdatestring', $bookingoptionsettings->dayofweektime);
         $mform->addHelpButton('reoccurringdatestring', 'reoccurringdatestring', 'mod_booking');
         $mform->setType('reoccurringdatestring', PARAM_TEXT);
+
+        // Add a button to create specific single dates which are not part of the date series.
+        $mform->addElement('button', 'customdatesbtn', get_string('customdatesbtn', 'mod_booking'),
+            ['data-action' => 'opendateformmodal']);
 
         if ($loadexistingdates) {
             // Add already existing optiondates to form.
@@ -284,7 +291,20 @@ class optiondates_handler {
                 $date->dateid = 'dateid-' . $record->id;
                 $date->starttimestamp = $record->coursestarttime;
                 $date->endtimestamp = $record->courseendtime;
-                $date->string = date('Y-m-d H:i', $record->coursestarttime) . '-' . date('H:i', $record->courseendtime);
+
+                $stringstartdate = date('Y-m-d', $date->starttimestamp);
+                $stringenddate = date('Y-m-d', $date->endtimestamp);
+                $stringstarttime = date('H:i', $date->starttimestamp);
+                $stringendtime = date('H:i', $date->endtimestamp);
+
+                if ($stringstartdate === $stringenddate) {
+                    // If they are one the same day, show date only once.
+                    $date->string = $stringstartdate . ' ' . $stringstarttime . '-' . $stringendtime;
+                } else {
+                    // Else show both dates.
+                    $date->string = $stringstartdate . ' ' . $stringstarttime . ' - ' . $stringenddate . ' ' . $stringendtime;
+                }
+
                 $datearray[] = $date;
             }
 

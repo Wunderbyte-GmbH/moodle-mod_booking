@@ -151,6 +151,13 @@ class modaloptiondateform extends \core_form\dynamic_form {
     public function validation($data, $files) {
         $errors = [];
 
+        foreach ($data['optiondatestart'] as $idx => $optiondatestart) {
+            if ($optiondatestart >= $data['optiondateend'][$idx]) {
+                $errors["optiondatestart[$idx]"] = get_string('erroroptiondatestart', 'booking');
+                $errors["optiondateend[$idx]"] = get_string('erroroptiondateend', 'booking');
+            }
+        }
+
         return $errors;
     }
 

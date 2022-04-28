@@ -24,15 +24,6 @@
     * data-region
 }}
 <ul class="list-group p-2 reoccurringdates">
-    {{#dates}}
-    <li class="mb-1">
-        <span class="datepills text-white small py-1 px-4 bg-primary">
-           {{string}}
-        </span>
-        <i class="fa fa-trash ml-2 icon-red" data-action="delete" data-targetid="{{dateid}}"></i>
-    </li>
-    {{/dates}}
+    {{> mod_booking/bookingoption_dates_custom_list_items }}
 </ul>
-{{#dates}}
-<input id="{{dateid}}" type="text" name="coursetime-{{dateid}}" data-fieldtype="text" value="{{starttimestamp}}-{{endtimestamp}}" class="d-none felement">
-{{/dates}}
+{{> mod_booking/bookingoption_dates_custom_hidden_inputs }}

@@ -251,8 +251,7 @@ $PAGE->requires->js_call_amd(
     'initdynamicoptiondateform',
     array($cmid, $bookingid, $optionid,
         get_string('modaloptiondateformtitle', 'mod_booking'),
-        modaloptiondateform::class,
-        '[data-region=results]', true)
+        modaloptiondateform::class)
 );
 
 echo $OUTPUT->footer();
