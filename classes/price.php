@@ -338,17 +338,21 @@ class price {
      * @return array[currencycode => currencyname]
      */
     public static function get_possible_currencies(): array {
-        $codes = \core_payment\helper::get_supported_currencies();
+        if (class_exists("core_payment")) {
+            $codes = \core_payment\helper::get_supported_currencies();
 
-        $currencies = [];
-        foreach ($codes as $c) {
-            $currencies[$c] = new lang_string($c, 'core_currencies');
+            $currencies = [];
+            foreach ($codes as $c) {
+                $currencies[$c] = new lang_string($c, 'core_currencies');
+            }
+
+            uasort($currencies, function($a, $b) {
+                return strcmp($a, $b);
+            });
+
+            return $currencies;
         }
 
-        uasort($currencies, function($a, $b) {
-            return strcmp($a, $b);
-        });
-
-        return $currencies;
+        return [];
     }
 }
