@@ -167,21 +167,33 @@ class generator {
     protected $rownumber = null;
 
     /**
-     * 0 for all sessions, or id of the session
-     * @var integer
+     * 0 for all sessions, -1 for none, or id of a specific session
+     * @var int
      */
     protected $pdfsessions = 0;
 
     /**
+     * 0 for all sessions, -1 for none, or id of a specific session
+     * @var int
+     */
+    protected $extrasessioncols = -1;
+
+    /**
+     * An array containing the names of the extra session columns.
+     * @var array
+     */
+    protected $sessioncolnames = [];
+
+    /**
      * Width of the cell where teacher names are placed
-     * @var integer
+     * @var int
      */
     protected $cellwidthteachers = 200;
 
     /**
      * Margin top of page
      *
-     * @var integer
+     * @var int
      */
     public $margintop = 12;
 
@@ -196,6 +208,7 @@ class generator {
         $this->orientation = $pdfoptions->orientation;
         $this->title = $pdfoptions->title;
         $this->pdfsessions = $pdfoptions->sessions;
+        $this->extrasessioncols = $pdfoptions->extrasessioncols;
         $this->addemptyrows = $pdfoptions->addemptyrows;
         $this->includeteachers = $pdfoptions->includeteachers;
 
@@ -228,6 +241,7 @@ class generator {
             array_unshift($this->allfields, 'rownumber');
         }
 
+        // If the signature column is present, alway move it to the right.
         foreach ($this->allfields as $key => $value) {
             if ($value == 'signature') {
                 unset($this->allfields[$key]);
@@ -278,11 +292,10 @@ class generator {
         }
 
         $users = $DB->get_records_sql(
-                'SELECT u.id, ' . $mainuserfields . $userfields .
-                         '
-            FROM {booking_answers} ba
+                "SELECT u.id, " . $mainuserfields . $userfields .
+            " FROM {booking_answers} ba
             LEFT JOIN {user} u ON u.id = ba.userid
-            WHERE ba.optionid = :optionid AND ba.waitinglist = 0 ' .
+            WHERE ba.optionid = :optionid AND ba.waitinglist = 0 " .
                          $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
                         array_merge($groupparams,
                                 array('optionid' => $this->bookingdata->option->id)));
@@ -467,7 +480,7 @@ class generator {
     /**
      * Get the sessionsstring of the booking option
      */
-    public function get_bookingoption_sessionsstring() {
+    private function get_bookingoption_sessionsstring() {
 
         // If there are no sessions...
         if (empty($this->bookingdata->settings->sessions)) {
@@ -481,8 +494,14 @@ class generator {
                 return;
             }
         } else {
-            // Show all sessions.
-            if ($this->pdfsessions == 0) {
+            // Value of -1 ... Add date manually.
+            // Value of -2 ... Hide date.
+            if ($this->pdfsessions == -1 || $this->pdfsessions == -2) {
+                // Do not show sessions.
+                $this->sessionsstring = '';
+                return;
+            } else if ($this->pdfsessions == 0) {
+                // Show all sessions.
                 $val = array();
                 foreach ($this->bookingdata->settings->sessions as $time) {
                     $tmpdate = new \stdClass();
@@ -503,6 +522,37 @@ class generator {
                 return;
             }
         }
+    }
+
+    /**
+     * Add extra columns for sessions.
+     * @return array an array of strings, containing the dates (names) of the extra columns
+     */
+    private function get_extra_session_columns() {
+
+        $sessioncolnames = [];
+
+        // If there are no sessions...
+        if (empty($this->bookingdata->settings->sessions)) {
+            return [];
+        } else {
+            if ($this->extrasessioncols == -1) {
+                return [];
+            } else if ($this->extrasessioncols == 0) {
+                // Add columns for all sessions.
+                $val = array();
+                foreach ($this->bookingdata->settings->sessions as $session) {
+                    $sessioncolnames[] = userdate($session->coursestarttime,
+                        get_string('strftimedateshortmonthabbr', 'langconfig'));
+                }
+            } else {
+                // Add a column for a specific session.
+                $sessioncolnames[] = userdate($this->bookingdata->settings->sessions[$this->extrasessioncols]->coursestarttime,
+                        get_string('strftimedateshortmonthabbr', 'langconfig'));
+            }
+        }
+
+        return $sessioncolnames;
     }
 
     /**
@@ -585,9 +635,15 @@ class generator {
                 0);
         $this->pdf->Ln();
 
-        $this->pdf->MultiCell($this->pdf->GetStringWidth(get_string('pdfdate', 'booking')) + 5, 0,
-                get_string('pdfdate', 'booking'), 0, 1, '', 0);
-        $this->pdf->MultiCell(0, 0, $this->sessionsstring, 0, 1, '', 1);
+        // Do not show dates, if the option "Add date manually" (-1) or the option...
+        // ... "Hide date" (-2) was selected in the form.
+        if ($this->pdfsessions != -1) {
+            $this->pdf->MultiCell($this->pdf->GetStringWidth(get_string('signinsheetdate', 'booking')) + 5, 0,
+                get_string('signinsheetdate', 'booking'), 0, 1, '', 0);
+            $this->pdf->SetFont('freesans', 'B', 10);
+            $this->pdf->MultiCell(0, 0, $this->sessionsstring, 0, 1, '', 1);
+            $this->pdf->SetFont('freesans', '', 10);
+        }
 
         if (!empty($this->cfgcustfields)) {
             $customfields = \mod_booking\booking_option::get_customfield_settings();
@@ -612,27 +668,39 @@ class generator {
 
         if (!empty($this->bookingdata->option->address)) {
             $this->pdf->Cell(0, 0,
-                    get_string('pdflocation', 'booking') . format_string($this->bookingdata->option->address), 0, 1,
+                    get_string('signinsheetaddress', 'booking') . format_string($this->bookingdata->option->address), 0, 1,
                     '', 0, '', 1);
         }
 
         if (!empty($this->bookingdata->option->location)) {
             $this->pdf->Cell(0, 0,
-                    get_string('pdfroom', 'booking') . format_string($this->bookingdata->option->location), 0, 1, '',
+                    get_string('signinsheetlocation', 'booking') . format_string($this->bookingdata->option->location), 0, 1, '',
                     0, '', 1);
         }
         $this->pdf->Ln();
-        $this->pdf->Cell($this->pdf->GetStringWidth(get_string('pdftodaydate', 'booking')) + 1, 0,
-                get_string('pdftodaydate', 'booking'), 0, 0, '', 0);
-        $this->pdf->Cell(100, 0, "", "B", 1, '', 0, '', 1);
-        $this->pdf->Ln();
+
+        if ($this->pdfsessions == -1) {
+            $this->pdf->Cell($this->pdf->GetStringWidth(get_string('signinsheetdatetofillin', 'booking')) + 1, 0,
+                get_string('signinsheetdatetofillin', 'booking'), 0, 0, '', 0);
+            $this->pdf->Cell(100, 0, "", "B", 1, '', 0, '', 1);
+            $this->pdf->Ln();
+        }
+
+        // If set, add extra columns for sessions.
+        // It is important, that this happens AFTER any DB-queries using the fields in $this->allfields.
+        $extrasessioncols = $this->get_extra_session_columns();
+        if (!empty($extrasessioncols)) {
+            $this->allfields = array_unique(array_merge($this->allfields, $extrasessioncols));
+        }
+
         $this->set_table_headerrow();
     }
 
     /**
      * Setup the header row with the column headings for each column
      */
-    public function set_table_headerrow () {
+    private function set_table_headerrow () {
+
         $this->pdf->SetFont('freesans', 'B', 12);
         $c = 0;
         // Setup table header row.
@@ -694,7 +762,7 @@ class generator {
                     $name = new \lang_string('role');
                     break;
                 default:
-                    $name = '';
+                    $name = $value;
             }
             $this->pdf->Cell($w, 0, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, '', 1);
         }

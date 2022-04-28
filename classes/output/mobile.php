@@ -335,8 +335,8 @@ class mobile {
 
                 if ($values->option->coursestarttime != 0) {
                     $deletemessage .= "<br />" . userdate($values->option->coursestarttime,
-                            get_string('strftimedatetime')) . " - " . userdate(
-                            $values->option->courseendtime, get_string('strftimedatetime'));
+                            get_string('strftimedatetime', 'langconfig')) . " - " . userdate(
+                            $values->option->courseendtime, get_string('strftimedatetime', 'langconfig'));
                 }
 
                 $cmessage = get_string('deletebooking', 'booking', $deletemessage);
@@ -367,7 +367,7 @@ class mobile {
             if ($values->option->coursestarttime != 0) {
                 $message .= "<br>" . userdate($values->option->coursestarttime,
                         get_string('strftimedatetime')) . " - " . userdate(
-                        $values->option->courseendtime, get_string('strftimedatetime'));
+                        $values->option->courseendtime, get_string('strftimedatetime', 'langconfig'));
             }
             $message .= '<br><br>' . get_string('confirmbookingoffollowing', 'booking');
             if (!empty($booking->settings->bookingpolicy)) {

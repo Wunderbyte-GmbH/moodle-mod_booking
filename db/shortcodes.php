@@ -31,15 +31,5 @@ $shortcodes = [
         'callback' => 'mod_booking\shortcodes::listofbookingoptions',
         'wraps' => false,
         'description' => 'shortcodeslistofbookingoptions'
-    ],
-    'listofbookingscards' => [
-        'callback' => 'mod_booking\shortcodes::listofbookingoptionscards',
-        'wraps' => false,
-        'description' => 'shortcodeslistofbookingoptionsascards'
-    ],
-    'listmybookedcourses' => [
-        'callback' => 'mod_booking\shortcodes::listmybookedcourses',
-        'wraps' => false,
-        'description' => 'shortcodeslistofmybookingoptionsascards'
     ]
 ];

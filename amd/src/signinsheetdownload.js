@@ -32,7 +32,7 @@
 define(['jquery'], function($) {
     return {
         init: function() {
-            $("#sign_in_sheet_download_show").on('click', function() {
+            $("#sign_in_sheet_download").on('click', function() {
                 $("#signinsheet").toggle();
                 return false;
             });

@@ -137,10 +137,14 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $optiondate->set_source_table('booking_optiondates', array('bookingid' => backup::VAR_PARENTID));
         $customfield->set_source_table('booking_customfields', array('bookingid' => backup::VAR_PARENTID));
 
+        // Only backup teachers, if config setting is set.
+        if (get_config('booking', 'duplicationrestoreteachers')) {
+            $teacher->set_source_table('booking_teachers', array('bookingid' => backup::VAR_PARENTID));
+        }
+
         // All the rest of elements only happen if we are including user info.
         if ($userinfo) {
             $answer->set_source_table('booking_answers', array('bookingid' => backup::VAR_PARENTID));
-            $teacher->set_source_table('booking_teachers', array('bookingid' => backup::VAR_PARENTID));
         }
 
         // Define id annotations.

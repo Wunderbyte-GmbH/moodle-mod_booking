@@ -27,6 +27,7 @@ class option_form extends moodleform {
 
     public function definition() {
         global $CFG, $COURSE, $DB, $PAGE;
+
         $mform = & $this->_form;
 
         $cmid = 0;
@@ -247,8 +248,19 @@ class option_form extends moodleform {
             1 => get_string('caladdascourseevent', 'booking')
         ];
         $mform->addElement('select', 'addtocalendar', get_string('addtocalendar', 'booking'), $caleventtypes);
-        $mform->setDefault('addtocalendar', 0);
-        $mform->disabledIf('addtocalendar', 'startendtimeknown', 'notchecked');
+        if (!get_config('booking', 'addtocalendar')) {
+            $addtocalendar = 0;
+        } else {
+            $addtocalendar = 1;
+        }
+        $mform->setDefault('addtocalendar', $addtocalendar);
+        if (get_config('booking', 'addtocalendar_locked')) {
+            // If the setting is locked in settings.php it will be frozen.
+            $mform->freeze('addtocalendar');
+        } else {
+            // Otherwise, we have the usual behavior depending on the startendtimeknown checkbox.
+            $mform->disabledIf('addtocalendar', 'startendtimeknown', 'notchecked');
+        }
 
         $mform->addElement('date_time_selector', 'coursestarttime',
                 get_string("coursestarttime", "booking"));

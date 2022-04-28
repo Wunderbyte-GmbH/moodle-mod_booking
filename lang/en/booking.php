@@ -306,9 +306,9 @@ $string['conectedbooking_help'] = 'Booking instance eligible for transferring bo
 $string['cancancelbook'] = 'Allow user to cancel the booking during the booking period?';
 $string['cancancelbookdays'] = 'Disallow users to cancel their booking n days before start';
 $string['cancancelbookdaysno'] = "Don't limit";
-$string['addtocalendar'] = 'Add to calendar';
+$string['addtocalendar'] = 'Add to course calendar';
 $string['caleventtype'] = 'Calendar event visibility';
-$string['caldonotadd'] = 'Do not add to calendar';
+$string['caldonotadd'] = 'Do not add to course calendar';
 $string['caladdascourseevent'] = 'Add to calendar (visible only to course participants)';
 $string['caladdassiteevent'] = 'Add to calendar (visible to all users)';
 $string['limitanswers'] = 'Limit the number of participants';
@@ -907,8 +907,11 @@ $string['reportfields'] = 'Downlodable responses fields (csv, xls-Download)';
 $string['responsesfields'] = 'Fields on the manage responses page';
 $string['optionsfields'] = 'Fields on the booking options overview page';
 $string['signinsheetfields'] = 'Sign-in sheet fields (PDF)';
-$string['signinonesession'] = 'Display selected session time on the sign-in sheet';
-$string['signinaddemptyrows'] = 'Number of empty rows to add for people who did not sign up';
+$string['signinonesession'] = 'Display date(s) in the header';
+$string['signinaddemptyrows'] = 'Add empty rows';
+$string['signinextrasessioncols'] = 'Add extra columns for dates';
+$string['signinadddatemanually'] = 'Add date manually';
+$string['signinhidedate'] = 'Hide date';
 $string['includeteachers'] = 'Include teachers in the sign-in sheet';
 $string['choosepdftitle'] = 'Select a title for the sign-in sheet';
 $string['addtogroup'] = 'Automatically enrol users in group';
@@ -1217,8 +1220,7 @@ $string['sendpollurltoteachers'] = 'Send poll url';
 $string['copytoclipboard'] = 'Copy to clipboard: Ctrl+C, Enter';
 $string['yes'] = 'Yes';
 $string['sendreminderemailsuccess'] = 'Notification e-mail has been sent!';
-$string['sign_in_sheet_download'] = 'Download Sign in Sheet';
-$string['sign_in_sheet_download_show'] = 'Show Sign in sheet download form';
+$string['sign_in_sheet_download'] = 'Download sign-in sheet';
 $string['status_complete'] = "Complete";
 $string['status_incomplete'] = "Incomplete";
 $string['status_noshow'] = "No show";
@@ -1336,12 +1338,10 @@ $string['nocfnameselected'] = "Nothing selected. Either type new name or select 
 
 
 // File: locallib.php.
-$string['pdfdate'] = 'Booking Date(s): ';
-$string['pdflocation'] = 'Location: ';
-$string['pdfroom'] = 'Room: ';
-$string['pdfstudentname'] = "Student Name";
-$string['pdfsignature'] = "Signature";
-$string['pdftodaydate'] = 'Date: ';
+$string['signinsheetdate'] = 'Date(s): ';
+$string['signinsheetaddress'] = 'Address: ';
+$string['signinsheetlocation'] = 'Location: ';
+$string['signinsheetdatetofillin'] = 'Date: ';
 $string['booking:readallinstitutionusers'] = 'Show all users';
 $string['manageoptiontemplates'] = 'Manage option templates';
 $string['linkgotobookingoption'] = 'Go to booked option: {$a}</a>';
@@ -1469,6 +1469,15 @@ $string['remoteapicall'] = 'Remote API call';
 $string['addnewremoteapicall'] = 'Add new remote API call';
 $string['remoteapikey'] = 'URL';
 $string['remoteapikey_desc'] = '{ID} - use this placeholder to replace it with booking id.';
+$string['duplicationrestore'] = 'Duplication, backup and restore';
+$string['duplicationrestoredesc'] = 'Here you can set which information you want to include when duplicating or backing up / restoring booking instances.';
+$string['duplicationrestoreteachers'] = 'Include Teachers';
+
+$string['bookingoptiondefaults'] = 'Default settings for booking options';
+$string['bookingoptiondefaultsdesc'] = 'Here you can set default settings for the creation of booking options and lock them if needed.';
+$string['addtocalendardesc'] = 'Course calendar events are visible to ALL users within a course. If you do not want them to be created at all,
+you can turn this setting off and lock it by default. Don\'t worry: user calendar events for booked options will still be created anyways.';
+
 // Mobile.
 $string['remoteapiurl'] = '';
 $string['remoteapiurl_help'] = '{ID} - use this placeholder to replace it with booking id.';
@@ -1509,7 +1518,7 @@ $string['active'] = "Active";
 $string['terminated'] = "Terminated";
 $string['notstarted'] = "Not yet started";
 
-// Subscribeusersctivity.php.
+// Subscribeusersactivity.php.
 $string['transefusers'] = "Transfer users";
 $string['transferhelp'] = 'Transfer users, that have not completed activity from selected option to {$a}.';
 $string['sucesfullytransfered'] = 'Users were sucesfully transfered.';
@@ -1604,15 +1613,6 @@ $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the wai
 
 // Shortcodes.
 $string['shortcodeslistofbookingoptions'] = 'List of booking options';
-$string['shortcodeslistofbookingoptionsascards'] = 'List of booking options as cards';
-$string['shortcodeslistofmybookingoptionsascards'] = 'List of my booked booking options as cards';
-$string['shortcodessetdefaultinstance'] = 'Set default instance for shortcodes implementation';
-$string['shortcodessetdefaultinstancedesc'] = 'This allows you to change instances quickly when you want to change
-a lot of them at once. One example would be that you have a lot of teaching categories and they are listed on different
-pages, but you need to change the booking options form one semester to the next.';
-$string['shortcodessetinstance'] = 'Set the moodle ID of the booking instance which should be used by default';
-$string['shortcodessetinstancedesc'] = 'If you use this setting, you can use the shortcode like this: [listofbookings category="philosophy"]
-So no need to specify the ID';
 
 $string['tableheader_text'] = 'Course name';
 $string['tableheader_teacher'] = 'Teacher(s)';
@@ -1658,29 +1658,45 @@ $string['pricecategoriessubtitle'] = '<p>Here you can define different price cat
     <b>Be careful:</b> Once you have added a category, you cannot delete it.
     Only disable or rename it.</p>';
 
-// Semesters.php.
+// Semesters.
 $string['booking:semesters'] = 'Booking: Semesters';
+$string['semester'] = 'Semester';
 $string['semesters'] = 'Semesters';
 $string['semesterssaved'] = 'Semesters have been saved';
-$string['semesterssubtitle'] = '<p>Here you can define different semesters.</p>';
-$string['addsemester'] = 'Add a new semester';
-$string['semesteridentifier'] = 'Semester identifier';
-$string['semesteridentifier_help'] = 'Short text to identify the semester, e.g. "ws22". You cannot change a semester identifier once it is created.
-However, you can just delete the semester and create a new one if necessary.';
-$string['semestername'] = 'Semester name';
+$string['semesterssubtitle'] = 'Here you can add, change or delete <strong>semesters and holidays</strong>.
+    After saving, the entries will be ordered by their <strong>start date</strong>.';
+$string['addsemester'] = 'Add semester';
+$string['semesteridentifier'] = 'Identifier';
+$string['semesteridentifier_help'] = 'Short text to identify the semester, e.g. "ws22".';
+$string['semestername'] = 'Name';
 $string['semestername_help'] = 'Enter the full name of the semester, e.g. "Semester of Winter 2021/22"';
 $string['semesterstart'] = 'First day of semester';
 $string['semesterstart_help'] = 'The day the semester starts.';
 $string['semesterend'] = 'Last day of semester';
 $string['semesterend_help'] = 'The day the semester ends';
-$string['deletesemester'] = 'Delete this semester entry';
-$string['deletesemester_help'] = 'This will only delete this semester entry, it will not affect any booking options.';
+$string['deletesemester'] = 'Delete semester';
 $string['erroremptysemesteridentifier'] = 'Semester identifier is needed!';
 $string['erroremptysemestername'] = 'Semester name is not allowed to be empty';
 $string['errorduplicatesemesteridentifier'] = 'Semester identifiers need to be unique.';
 $string['errorduplicatesemestername'] = 'Semester names need to be unique.';
 $string['errorsemesterstart'] = 'Semester start needs to be before semester end.';
 $string['errorsemesterend'] = 'Semester end needs to be after semester start.';
+$string['choosesemester'] = "Choose semester";
+$string['choosesemester_help'] = "Choose the semester for which the holiday(s) should be created.";
+$string['holidays'] = "Holidays";
+$string['holiday'] = "Holiday";
+$string['holidayname'] = "Name of the holiday";
+$string['holidayname_help'] = "The holiday name needs to be unique, e.g. 'Winter holidays 2022'.";
+$string['holidaystart'] = 'Start';
+$string['holidaystart_help'] = 'Start of holidays time period or specific date.';
+$string['holidayend'] = 'End';
+$string['holidayend_help'] = 'End of the holidays time period.';
+$string['addholiday'] = 'Add holiday(s)';
+$string['erroremptyholidayname'] = 'Holiday name is missing.';
+$string['errorduplicateholidayname'] = 'Holiday name is not unique. (Try adding the year.)';
+$string['errorholidaystart'] = 'Holiday is not allowed to start after the end date.';
+$string['errorholidayend'] = 'Holiday is not allowed to end before the start date.';
+$string['deleteholiday'] = 'Delete holiday';
 
 // Cache.
 $string['cachedef_bookingoptions'] = 'General information of booking options';
@@ -1702,7 +1718,7 @@ $string['reoccurringdatestring'] = 'Weekday, start and end time (Day, HH:MM - HH
 $string['reoccurringdatestring_help'] = 'Enter a text in the following format:
     "Day, HH:MM - HH:MM", e.g. "Monday, 10:00 - 11:00" or "Sun 09:00-10:00"';
 
-// Optiondate_form.php.
+// Dynamicoptiondateform.php.
 $string['add_optiondate_series'] = 'Create date series';
 $string['reoccurringdatestringerror'] = 'Enter a text in the following format:
     Day, HH:MM - HH:MM';

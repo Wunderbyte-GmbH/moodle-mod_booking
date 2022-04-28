@@ -32,20 +32,14 @@ $cmid = required_param('cmid', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $userid = optional_param('userid', 0, PARAM_INT);
 
-$url = new moodle_url('/mod/booking/optionview.php', array('cmid' => $cmid, 'optionid' => $optionid));
-$PAGE->set_url($url);
-
-list($course, $cm) = get_course_and_cm_from_cmid($cmid);
-
-$bookingid = $cm->instance;
-
-require_course_login($course, false, $cm);
-
-if (!$context = context_module::instance($cm->id)) {
+if (!$context = context_system::instance()) {
     throw new moodle_exception('badcontext');
 }
 
-// Check if optionid is valid.
+$PAGE->set_context($context);
+
+$url = new moodle_url('/mod/booking/optionview.php', array('cmid' => $cmid, 'optionid' => $optionid));
+$PAGE->set_url($url);
 
 $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
@@ -60,15 +54,20 @@ if ($settings = singleton_service::get_instance_of_booking_option_settings($opti
 
     $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $user->id);
 
+    $PAGE->navbar->add($settings->text);
+    $PAGE->set_title(format_string($settings->text));
+    $PAGE->set_heading($settings->text);
+    $PAGE->set_pagelayout('standard');
+
+    echo $OUTPUT->header();
+
+    // TODO: The following lines change the contedt of the PAGE object and have therefore to be called after printing the header.
+    // This needs to be fixed.
+
     $output = $PAGE->get_renderer('mod_booking');
     $data = new \mod_booking\output\bookingoption_description($booking, $settings->id,
                 null, DESCRIPTION_WEBSITE, true, null, $user);
 
-    $PAGE->navbar->add($data->title);
-    $PAGE->set_title(format_string($data->title));
-    $PAGE->set_heading($data->title);
-    $PAGE->set_pagelayout('standard');
-    echo $OUTPUT->header();
     echo $output->render_booking_option_view($data);
 
 } else {

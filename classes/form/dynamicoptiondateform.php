@@ -26,16 +26,15 @@ use context_module;
 use core_form\dynamic_form;
 use moodle_url;
 use mod_booking\optiondates_handler;
-use mod_booking\semester;
 use stdClass;
 
 /**
- * Add price categories form.
+ * Dynamic optiondate form.
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class optiondate_form extends dynamic_form {
+class dynamicoptiondateform extends dynamic_form {
 
     /**
      * {@inheritdoc}

@@ -160,11 +160,10 @@ class booking {
         $mygroups = groups_get_all_groups($courseid, $USER->id);
         $mygroupids = array_keys($mygroups);
         list($insql, $params) = $DB->get_in_or_equal($mygroupids, SQL_PARAMS_NAMED, 'book_', true, -1);
-        $groupsql = "SELECT u.id
+        $groupsql = "SELECT DISTINCT u.id
                        FROM {user} u, {groups_members} gm
                       WHERE u.deleted = 0
-                        AND u.id = gm.userid AND gm.groupid $insql
-                   GROUP BY u.id";
+                        AND u.id = gm.userid AND gm.groupid $insql";
         return array($groupsql, $params);
     }
 
@@ -579,8 +578,10 @@ class booking {
      * @param string $fields
      * @return void
      */
-    public function get_all_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "bo.id") {
+    public function get_all_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "bo.*") {
         global $DB;
+
+        $fields = "DISTINCT " . $fields;
 
         $limit = '';
         $rsearch = $this->searchparameters($searchtext);
@@ -594,8 +595,7 @@ class booking {
         $from = "{booking_options} bo";
         $where = "bo.bookingid = :bookingid {$search}";
         // phpcs:ignore moodle.Commenting.InlineComment.NotCapital,Squiz.PHP.CommentedOutCode.Found
-        $order = "GROUP BY bo.id, bo.text
-                  ORDER BY bo.text ASC";
+        $order = " ORDER BY bo.text ASC";
         if (strlen($searchtext) !== 0) {
             $from .= "
                 JOIN {customfield_data} cfd
@@ -621,6 +621,35 @@ class booking {
     }
 
     /**
+     * Function to return all bookings for teacher.
+     *
+     * @param integer $limitfrom
+     * @param integer $limitnum
+     * @param [type] $teacherid
+     * @return void
+     */
+    public function get_all_options_of_teacher_sql($teacherid,
+        $fields = "bo.*") {
+
+        $fields = "DISTINCT " . $fields;
+
+        $bookingid = $this->id;
+
+        $from = '{booking_options} bo
+                LEFT JOIN {booking_teachers} bt
+                ON bo.id = bt.optionid';
+        $where = "bo.bookingid = :bookingid
+                AND bt.userid = :teacherid
+                ORDER BY bo.text ASC";
+        $params = [
+            'bookingid' => $bookingid,
+            'teacherid' => $teacherid
+        ];
+
+        return [$fields, $from, $where, $params];
+    }
+
+    /**
      * Genereate SQL and params array to fetch my options.
      *
      * @param integer $limitfrom
@@ -629,8 +658,12 @@ class booking {
      * @param string $fields
      * @return void
      */
-    public function get_my_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "bo.id") {
+    public function get_my_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '',
+        $fields = "bo.*") {
+
         global $DB, $USER;
+
+        $fields = "DISTINCT " . $fields;
 
         $limit = '';
         $rsearch = $this->searchparameters($searchtext);
@@ -649,9 +682,7 @@ class booking {
         $where = "bo.bookingid = :bookingid
                   AND ba.userid = :userid
                   AND ba.waitinglist = :booked {$search}";
-        // phpcs:ignore moodle.Commenting.InlineComment.NotCapital,Squiz.PHP.CommentedOutCode.Found
-        $order = "GROUP BY bo.id, bo.text
-                  ORDER BY bo.text ASC";
+        $order = " ORDER BY bo.text ASC";
         if (strlen($searchtext) !== 0) {
             $from .= "
                 JOIN {customfield_data} cfd
