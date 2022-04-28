@@ -23,17 +23,20 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\form\semesters_form;
+use mod_booking\form\dynamicholidaysform;
+use mod_booking\form\dynamicsemestersform;
+use mod_booking\output\semesters_holidays;
 
-require_once(__DIR__ . '/../../config.php');
-require_once($CFG->libdir . '/adminlib.php');
+require_once('../../config.php');
+require_once($CFG->libdir.'/adminlib.php');
 
 global $OUTPUT;
 
 // No guest autologin.
 require_login(0, false);
 
-admin_externalpage_setup('modbookingsemesters');
+admin_externalpage_setup('modbookingsemesters', '', [],
+    new moodle_url('/mod/booking/semesters.php'));
 
 $settingsurl = new moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
 
@@ -44,130 +47,33 @@ $PAGE->set_title(
     format_string($SITE->shortname) . ': ' . get_string('semesters', 'booking')
 );
 
-$mform = new semesters_form($pageurl);
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('semesters', 'mod_booking'));
 
-if ($mform->is_cancelled()) {
-    // If cancelled, go back to general booking settings.
-    redirect($settingsurl);
+$semestersform = new dynamicsemestersform();
+$semestersform->set_data_for_dynamic_submission();
+$renderedsemestersform = $semestersform->render();
 
-} else if ($data = $mform->get_data()) {
+$holidaysform = new dynamicholidaysform();
+$holidaysform->set_data_for_dynamic_submission();
+$renderedholidaysform = $holidaysform->render();
 
-    $existingsemesters = $DB->get_records('booking_semesters');
+$output = $PAGE->get_renderer('mod_booking');
+$data = new semesters_holidays($renderedsemestersform, $renderedholidaysform);
+echo $output->render_semesters_holidays($data);
 
-    if (empty($existingsemesters)) {
-        // There are no semesters yet.
-        // There can be up to MAX_SEMESTERS semesters.
-        for ($i = 1; $i <= MAX_SEMESTERS; $i++) {
+$existingsemesters = $DB->get_records('booking_semesters');
+$PAGE->requires->js_call_amd(
+    'mod_booking/dynamicsemestersform',
+    'init',
+    ['[data-region=semestersformcontainer]', dynamicsemestersform::class, $existingsemesters]
+);
 
-            // Use 2 digits, so we can have more than 9 semesters.
-            $j = sprintf('%02d', $i);
+$existingholidays = $DB->get_records('booking_holidays');
+$PAGE->requires->js_call_amd(
+    'mod_booking/dynamicholidaysform',
+    'init',
+    ['[data-region=holidaysformcontainer]', dynamicholidaysform::class, $existingholidays]
+);
 
-            $semesteridentifierx = 'semesteridentifier' . $j;
-            $semesternamex = 'semestername' . $j;
-            $semesterstartx = 'semesterstart' . $j;
-            $semesterendx = 'semesterend' . $j;
-
-            // Only add semesters if an identifier was entered.
-            if (!empty($data->{$semesteridentifierx})) {
-                $semester = new stdClass();
-                $semester->identifier = $data->{$semesteridentifierx};
-                $semester->name = $data->{$semesternamex};
-                $semester->startdate = $data->{$semesterstartx};
-                $semester->enddate = $data->{$semesterendx};
-
-                $DB->insert_record('booking_semesters', $semester);
-            }
-        }
-    } else {
-        if ($semesterchanges = semesters_get_changes($data)) {
-            foreach ($semesterchanges['updates'] as $record) {
-                $DB->update_record('booking_semesters', $record);
-
-                // Invalidate semester cache on update.
-                cache_helper::invalidate_by_event('setbacksemesters', [$record->id]);
-            }
-            foreach ($semesterchanges['deletes'] as $recordid) {
-                $DB->delete_records('booking_semesters', ['id' => $recordid]);
-
-                // Invalidate semester cache on delete.
-                cache_helper::invalidate_by_event('setbacksemesters', [$recordid]);
-            }
-            if (count($semesterchanges['inserts']) > 0) {
-                $DB->insert_records('booking_semesters', $semesterchanges['inserts']);
-            }
-        }
-    }
-
-    redirect($pageurl, get_string('semesterssaved', 'booking'), 5);
-} else {
-    echo $OUTPUT->header();
-    echo $OUTPUT->heading(new lang_string('semesters', 'mod_booking'));
-
-    echo get_string('semesterssubtitle', 'booking');
-
-    // Show the mform.
-    $mform->display();
-
-    echo $OUTPUT->footer();
-}
-
-/**
- * Helper function to return arrays containing all relevant semesters update changes.
- * The returned arrays will have the prepared stdClasses for update and insert in the
- * booking_semesters table.
- *
- * @param $oldsemesters the existing semesters
- * @param $data the form data
- * @return array
- */
-function semesters_get_changes($data) {
-
-    $updates = [];
-    $inserts = [];
-    $deletes = [];
-
-    foreach ($data as $key => $value) {
-        if (preg_match('/semesterid[0-9]{2}/', $key)) {
-            $j = substr($key, -2, 2); // Get the 2 digit counter as string.
-
-            // First check if the field existed before.
-            if ($value != 0) {
-
-                // If the delete checkbox has been set, add to deletes.
-                if ($data->{'deletesemester' . $j} == 1) {
-                    $deletes[] = $value; // The ID of the semester that needs to be deleted.
-                    continue;
-                }
-
-                // Create semester object and add to updates.
-                $semester = new stdClass();
-                $semester->id = $value; // For update, ID is needed.
-                $semester->identifier = $data->{'semesteridentifier' . $j};
-                $semester->name = $data->{'semestername' . $j};
-                $semester->startdate = $data->{'semesterstart' . $j};
-                $semester->enddate = $data->{'semesterend' . $j};
-
-                $updates[] = $semester;
-
-            } else {
-                // Create new semester and add to inserts.
-                if (!empty($data->{'semesteridentifier' . $j})) {
-                    $semester = new stdClass();
-                    // No ID is set when inserting.
-                    $semester->identifier = $data->{'semesteridentifier' . $j};
-                    $semester->name = $data->{'semestername' . $j};
-                    $semester->startdate = $data->{'semesterstart' . $j};
-                    $semester->enddate = $data->{'semesterend' . $j};
-
-                    $inserts[] = $semester;
-                }
-            }
-        }
-    }
-
-    return [
-            'inserts' => $inserts,
-            'updates' => $updates,
-            'deletes' => $deletes
-    ];
-}
+echo $OUTPUT->footer();

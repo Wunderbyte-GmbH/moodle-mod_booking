@@ -75,7 +75,7 @@ class all_options extends table_sql {
     }
 
     protected function col_id($values) {
-        global $OUTPUT, $USER;
+        global $OUTPUT;
 
         $ddoptions = array();
         $ret = '<div class="menubar" id="action-menu-' . $values->id . '-menubar" role="menubar">';
@@ -225,7 +225,7 @@ class all_options extends table_sql {
             if ($values->coursestarttime == 0) {
                 return '';
             } else {
-                return userdate($values->coursestarttime, get_string('strftimedatetime'));
+                return userdate($values->coursestarttime, get_string('strftimedatetime', 'langconfig'));
             }
         }
 
@@ -282,7 +282,7 @@ class all_options extends table_sql {
         if ($values->courseendtime == 0) {
             return '';
         } else {
-            return userdate($values->courseendtime, get_string('strftimedatetime'));
+            return userdate($values->courseendtime, get_string('strftimedatetime', 'langconfig'));
         }
     }
 
@@ -340,7 +340,7 @@ class all_options extends table_sql {
 
             if (count($tmp) == 2) {
                 if ($tmp[0] == 'datetime') {
-                    return userdate($tmp[1], get_string('strftimedate'));
+                    return userdate($tmp[1], get_string('strftimedate', 'langconfig'));
                 } else {
                     return $tmp[1];
                 }

@@ -188,3 +188,60 @@ tr.mod-booking-invisible {
 .wunderbyte-table-grid .list-group-item {
     border: 1px solid rgba(0, 0, 0, .125);
 }
+
+/* Semesters form */
+input[name^='deletesemester'] {
+    color: #ca3120;
+    background-color: #fff;
+    border-color: #ca3120;
+}
+
+input[name^='deletesemester']:hover {
+    color: #fff;
+    background-color: #ca3120;
+    border-color: #ca3120;
+}
+
+input[name^='addsemester'] {
+    color: #357a32;
+    background-color: #fff;
+    border-color: #357a32;
+}
+
+input[name^='addsemester']:hover {
+    color: #fff;
+    background-color: #357a32;
+    border-color: #357a32;
+}
+
+/* Holidays form */
+input[name^='deleteholiday'] {
+    color: #ca3120;
+    background-color: #fff;
+    border-color: #ca3120;
+}
+
+input[name^='deleteholiday']:hover {
+    color: #fff;
+    background-color: #ca3120;
+    border-color: #ca3120;
+}
+
+input[name^='addholiday'] {
+    color: #357a32;
+    background-color: #fff;
+    border-color: #357a32;
+}
+
+input[name^='addholiday']:hover {
+    color: #fff;
+    background-color: #357a32;
+    border-color: #357a32;
+}
+
+/* Fix a bug where menu was disappearing behind the top of the table
+if there only was one booking option. */
+#page-mod-booking-view #region-main div.no-overflow {
+    overflow: visible;
+}
+

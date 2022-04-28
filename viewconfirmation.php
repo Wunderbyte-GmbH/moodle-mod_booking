@@ -70,7 +70,7 @@ if ($answer->waitinglist == 1) {
 
 // New message controller.
 $messagecontroller = new message_controller(
-    MSGCONTRPARAM_DO_NOT_SEND,
+    MSGCONTRPARAM_VIEW_CONFIRMATION,
     $msgparam,
     $cmid,
     $bookingoption->bookingid,

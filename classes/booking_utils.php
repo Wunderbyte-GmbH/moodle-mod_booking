@@ -114,8 +114,8 @@ class booking_utils {
                 $params->teacher = '';
             }
 
-            $timeformat = get_string('strftimetime');
-            $dateformat = get_string('strftimedate');
+            $timeformat = get_string('strftimetime', 'langconfig');
+            $dateformat = get_string('strftimedate', 'langconfig');
 
             $duration = '';
             if ($option->coursestarttime && $option->courseendtime) {
@@ -464,15 +464,15 @@ class booking_utils {
             return '';
         }
 
-        $current = userdate($start, get_string('strftimedate'));
-        $previous = userdate($end, get_string('strftimedate'));
+        $current = userdate($start, get_string('strftimedate', 'langconfig'));
+        $previous = userdate($end, get_string('strftimedate', 'langconfig'));
 
         if ($current == $previous) {
-            $starttime = userdate($start, get_string('strftimedaydatetime'));
-            $endtime = userdate($end, get_string('strftimetime'));
+            $starttime = userdate($start, get_string('strftimedaydatetime', 'langconfig'));
+            $endtime = userdate($end, get_string('strftimetime', 'langconfig'));
         } else {
-            $starttime = userdate($start, get_string('strftimedaydatetime'));
-            $endtime = '<br>' . userdate($end, get_string('strftimedaydatetime'));
+            $starttime = userdate($start, get_string('strftimedaydatetime', 'langconfig'));
+            $endtime = '<br>' . userdate($end, get_string('strftimedaydatetime', 'langconfig'));
         }
 
         return "$starttime - $endtime";

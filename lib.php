@@ -72,6 +72,8 @@ define('STATUSPARAM_DELETED', 5);
 define('MSGCONTRPARAM_SEND_NOW', 1);
 define('MSGCONTRPARAM_QUEUE_ADHOC', 2);
 define('MSGCONTRPARAM_DO_NOT_SEND', 3);
+define('MSGCONTRPARAM_VIEW_CONFIRMATION', 4);
+
 function booking_cron() {
     global $DB, $CFG;
 
@@ -228,7 +230,8 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
     }
 
     // Make sure the user is logged in and has access to the module.
-    require_login($course, true, $cm);
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* require_login($course, true, $cm); */
 
     // Leave this line out if you set the itemid to null in make_pluginfile_url (set $itemid to 0 instead).
     $itemid = array_shift($args); // The first item in the $args array.
@@ -1367,7 +1370,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             $completion = new \completion_info($course);
             if ($completion->is_enabled($cm)) {
                 $settingnode->add(get_string('bookuserswithoutcompletedactivity', 'booking'),
-                        new moodle_url('/mod/booking/subscribeusersctivity.php',
+                        new moodle_url('/mod/booking/subscribeusersactivity.php',
                                 array('id' => $cm->id, 'optionid' => $optionid)));
             }
         }

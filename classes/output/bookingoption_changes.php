@@ -65,36 +65,36 @@ class bookingoption_changes implements renderable, templatable {
                     if (isset($entry['oldvalue']) && isset($entry['newvalue'])) {
                         $temparray = [
                             'fieldname' => get_string('coursestarttime', 'booking'),
-                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime')),
-                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
+                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig')),
+                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig'))
                         ];
                     } else if (isset($entry['newvalue'])) {
                         $temparray = [
                             'fieldname' => get_string('coursestarttime', 'booking'),
-                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
+                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig'))
                         ];
                     } else {
                         $temparray = [
                             'fieldname' => get_string('coursestarttime', 'booking'),
-                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime'))
+                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig'))
                         ];
                     }
                 } else if ($entry['fieldname'] == 'courseendtime') {
                     if (isset($entry['oldvalue']) && isset($entry['newvalue'])) {
                         $temparray = [
                             'fieldname' => get_string('courseendtime', 'booking'),
-                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime')),
-                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
+                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig')),
+                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig'))
                         ];
                     } else if (isset($entry['newvalue'])) {
                         $temparray = [
                             'fieldname' => get_string('courseendtime', 'booking'),
-                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime'))
+                            'newvalue' => userdate($entry['newvalue'], get_string('strftimedatetime', 'langconfig'))
                         ];
                     } else {
                         $temparray = [
                             'fieldname' => get_string('courseendtime', 'booking'),
-                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime'))
+                            'oldvalue' => userdate($entry['oldvalue'], get_string('strftimedatetime', 'langconfig'))
                         ];
                     }
                 } else {

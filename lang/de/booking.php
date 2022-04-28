@@ -274,9 +274,9 @@ $string['errorpagination'] = 'Geben Sie ein Zahl ein, die größer als 0 ist';
 $string['notconectedbooking'] = 'Nicht vorgeschaltete Buchung';
 $string['conectedbooking_help'] = 'Buchung von der Teilnehmer/innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer/innen übernommen werden.';
 $string['cancancelbook'] = 'Nutzer/innen das Stornieren und buchen nach dem Buchungsstart erlauben?';
-$string['addtocalendar'] = 'Zum Kalender hinzufügen';
+$string['addtocalendar'] = 'Zum Kurs-Kalender hinzufügen';
 $string['caleventtype'] = 'Kalenderereignis ist sichtbar für';
-$string['caldonotadd'] = 'Nicht zum Kalender hinzufügen';
+$string['caldonotadd'] = 'Nicht zum Kurs-Kalender hinzufügen';
 $string['caladdascourseevent'] = 'Zum Kalender hinzufügen (nur für Kursteilnehmer*innen sichtbar)';
 $string['caladdassiteevent'] = 'Zum Kalender hinzufügen (für alle Benutzer*innen sichtbar)';
 $string['limitanswers'] = 'Teilnehmeranzahl beschränken';
@@ -765,8 +765,11 @@ $string['reportfields'] = 'Buchungsdatenload als csv, xls, usw.';
 $string['responsesfields'] = 'Auf der Antworten verwalten-Seite';
 $string['optionsfields'] = 'Auf der Seite der Buchungsoptionsübersicht';
 $string['signinsheetfields'] = 'Auf der Unterschriftenliste (PDF-Download)';
-$string['signinonesession'] = 'Ausgewählte Session-Zeiten auf der Unterschriftenliste anzeigen';
-$string['signinaddemptyrows'] = 'Anzahl an hinzuzufügenden leeren Zeilen, für Personen die sich nicht registriert haben';
+$string['signinonesession'] = 'Termin(e) im Header anzeigen';
+$string['signinaddemptyrows'] = 'Leeren Zeilen hinzufügen';
+$string['signinextrasessioncols'] = 'Extra-Spalten für Termine hinzufügen';
+$string['signinadddatemanually'] = 'Datum händisch eintragen';
+$string['signinhidedate'] = 'Datum ausblenden';
 $string['includeteachers'] = 'Trainer/innen in Unterschriftenliste anführen';
 $string['choosepdftitle'] = 'Wählen Sie einen Titel für die Unterschriftenliste';
 $string['additionalfields'] = 'Zusätzliche Felder';
@@ -1032,7 +1035,7 @@ $string['selectanoption'] = 'Wählen Sie eine Buchungsoption aus!';
 $string['selectoptionid'] = 'Eine Auswahl treffen';
 $string['sendcustommessage'] = 'Persönliche Nachricht senden';
 $string['sendreminderemailsuccess'] = 'Benachrichtung wurde per E-Mail versandt';
-$string['sign_in_sheet_download'] = 'Download Anwesenheitsliste (PDF)';
+$string['sign_in_sheet_download'] = 'Unterschriftenliste herunterladen';
 $string['status_complete'] = "Abgeschlossen";
 $string['status_incomplete'] = "Nicht abgeschlossen";
 $string['status_noshow'] = "Nicht aufgetaucht";
@@ -1281,6 +1284,15 @@ $string['pricecategoryfieldoff'] = 'Nicht anzeigen';
 $string['pricecategoryfield'] = 'Nutzerprofilfeld für die Preiskategorie';
 $string['pricecategoryfielddesc'] = 'Wählen Sie ein Nutzerprofilfeld aus, in dem für jede/n Benutzer/in der Identifikator der Preiskategorie gesichert wird.';
 
+$string['duplicationrestore'] = 'Duplizieren, Backup und Wiederherstellen';
+$string['duplicationrestoredesc'] = 'Hier können Sie einstellen, welche Informationen beim Duplizieren bzw. beim Backup / Wiederherstellen von Buchungsinstanzen inkludiert werden sollen.';
+$string['duplicationrestoreteachers'] = 'Kursleiter/innen inkludieren';
+
+$string['bookingoptiondefaults'] = 'Standard-Einstellungen für Buchungsoptionen';
+$string['bookingoptiondefaultsdesc'] = 'Hier können Sie Standardwerte für die Erstellung von Buchungsoptionen setzen und diese gegebenenfalls sperren.';
+$string['addtocalendardesc'] = 'Kurs-Kalenderevents können von ALLEN Kursteilnehmer_innen des Kurses gesehen werden. Falls Sie nicht möchten, dass Kurs-Kalenderevents
+erstellt werden, können Sie diese Einstellung standardmäßig ausschalten und sperren. Keine Sorge: Normale Kalenderevents für gebuchte Optionen (User-Events) werden weiterhin erstellt.';
+
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
 $string['defaulttemplate'] = 'Standard-Vorlage';
@@ -1291,12 +1303,10 @@ $string['usedinbookinginstances'] = 'Die Vorlage wird in folgenden Buchungsinsta
 $string['optiontemplatename'] = 'Vorlagenname der Buchungsoption';
 
 // Locallib.php.
-$string['pdfdate'] = 'Buchungsdaten: ';
-$string['pdflocation'] = 'Ort: ';
-$string['pdfroom'] = 'Raum: ';
-$string['pdfstudentname'] = "Name Student/in";
-$string['pdfsignature'] = "Unterschrift";
-$string['pdftodaydate'] = 'Datum: ';
+$string['signinsheetdate'] = 'Termin(e): ';
+$string['signinsheetaddress'] = 'Adresse: ';
+$string['signinsheetlocation'] = 'Ort: ';
+$string['signinsheetdatetofillin'] = 'Datum: ';
 $string['linkgotobookingoption'] = 'Buchung anzeigen: {$a}</a>';
 
 // Link.php.
@@ -1343,15 +1353,6 @@ $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der W
 
 // Shortcodes.
 $string['shortcodeslistofbookingoptions'] = 'Liste der buchbaren Optionen';
-$string['shortcodeslistofbookingoptionsascards'] = 'Liste der buchbaren Optionen als cards';
-$string['shortcodeslistofmybookingoptionsascards'] = 'Liste meiner gebuchte Optionen als cards';
-$string['shortcodessetdefaultinstance'] = 'Setze eine Standard Instanz für Shortcodes';
-$string['shortcodessetdefaultinstancedesc'] = 'Damit kann eine Standard-Buchungsinstanz definiert werden, die dann verwendet wird,
-wenn keine ID definiert wurde. Dies erlaubt den schnellen Wechsel (zum Beispiel von einem Semster zum nächsten), wenn es Überblicks-
-Seiten für unterschiedliche Kategorien gibt.';
-$string['shortcodessetinstance'] = 'Definiere die Moodle ID jener Buchungsinstanz, die standardmäßig verwendet werden soll.';
-$string['shortcodessetinstancedesc'] = 'Wenn Du hier einen Wert setzt, kann der Shortcode so verwendet werden: [listofbookings category="philosophy"]
-Es ist also nicht mehr nötig, eine id zu übergeben.';
 
 $string['tableheader_text'] = 'Kursbezeichnung';
 $string['tableheader_teacher'] = 'Trainer*in(nen)';
@@ -1397,29 +1398,45 @@ $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kateg
     <b>Achtung:</b> Sobald Sie eine Kategorie erstellt haben, können Sie diese nicht mehr löschen.
     Sie können Kategorien aber umbenennen oder deaktivieren.</p>';
 
-// Semesters.php.
+// Semesters.
 $string['booking:semesters'] = 'Booking: Semester';
+$string['semester'] = 'Semester';
 $string['semesters'] = 'Semester';
 $string['semesterssaved'] = 'Semester wurden gespeichert';
-$string['semesterssubtitle'] = '<p>Hier können Sie verschiedene Semester definieren.</p>';
-$string['addsemester'] = 'Neues Semester hinzufügen';
-$string['semesteridentifier'] = 'Identifikator des Semesters';
-$string['semesteridentifier_help'] = 'Kurztext zur Identifikation des Semesters, z.B. "ws22". Sie können Identifikatoren nach dem Speichern nicht mehr löschen.
-Jedoch können Sie falls notwendig ein Semester als ganzes löschen und ein neues anlegen.';
-$string['semestername'] = 'Bezeichnung des Semesters';
+$string['semesterssubtitle'] = 'Hier können Sie <strong>Semester, Ferien und Feiertage</strong> anlegen, ändern und löschen.
+    Die Einträge werden nach dem Speichern nach ihrem <strong>Start-Datum</strong> sortiert.';
+$string['addsemester'] = 'Semester hinzufügen';
+$string['semesteridentifier'] = 'Identifikator';
+$string['semesteridentifier_help'] = 'Kurztext zur Identifikation des Semesters, z.B. "ws22".';
+$string['semestername'] = 'Bezeichnung';
 $string['semestername_help'] = 'Geben Sie den vollen Namen des Semesters ein, z.B. "Wintersemester 2021/22"';
 $string['semesterstart'] = 'Semesterbeginn';
 $string['semesterstart_help'] = 'An welchem Tag beginnt das Semester?';
 $string['semesterend'] = 'Semesterende';
 $string['semesterend_help'] = 'An welchem Tag endet das Semester?';
 $string['deletesemester'] = 'Semester löschen';
-$string['deletesemester_help'] = 'Dies löscht diesen Semestereintrag, Buchungsoptionen sind davon nicht betroffen.';
 $string['erroremptysemesteridentifier'] = 'Identifikator des Semesters fehlt.';
 $string['erroremptysemestername'] = 'Name des Semesters wurde nicht angegeben.';
 $string['errorduplicatesemesteridentifier'] = 'Der Semesteridentifikator muss eindeutig sein.';
 $string['errorduplicatesemestername'] = 'Der Name des Semesters muss eindeutig sein.';
 $string['errorsemesterstart'] = 'Semesterstart muss vor dem Semesterende sein.';
 $string['errorsemesterend'] = 'Semesterende muss nach dem Semesterstart sein.';
+$string['choosesemester'] = "Semester auswählen";
+$string['choosesemester_help'] = "Wählen Sie das Semester aus, für das der oder die Feiertag(e) erstellt werden sollen.";
+$string['holidays'] = "Ferien und Feiertage";
+$string['holiday'] = "Ferien oder Feiertag";
+$string['holidayname'] = "Name der Ferien oder des Feiertags";
+$string['holidayname_help'] = "Der Name muss eindeutig sein, z.B. 'Winterferien 2022'.";
+$string['holidaystart'] = 'Beginn bzw. Feiertagsdatum';
+$string['holidaystart_help'] = 'Beginn des Ferienzeitraums oder Datum eines Feiertags.';
+$string['holidayend'] = 'Ende';
+$string['holidayend_help'] = 'Ende des Ferienzeitraums';
+$string['addholiday'] = 'Ferien oder Feiertag hinzufügen';
+$string['erroremptyholidayname'] = 'Name der Ferien bzw. des Feiertags fehlt.';
+$string['errorduplicateholidayname'] = 'Name muss eindeutig sein (fügen Sie z.B. die Jahreszahl hinzu).';
+$string['errorholidaystart'] = 'Ferienbeginn darf nicht nach dem Ferienende liegen.';
+$string['errorholidayend'] = 'Ferienende darf nicht vor dem Ferienbeginn liegen.';
+$string['deleteholiday'] = 'Ferien oder Feiertag löschen';
 
 // Caches.
 $string['cachedef_bookingoptions'] = 'Buchungsoptionen allgemeine Infos';
@@ -1441,7 +1458,7 @@ $string['reoccurringdatestring'] = 'Wochentag, Start- und Endzeit (Tag, HH:MM - 
 $string['reoccurringdatestring_help'] = 'Geben Sie einen Text in folgendem Format ein:
     "Tag, HH:MM - HH:MM", z.B. "Montag, 10:00 - 11:00" oder "So 09:00-10:00"';
 
-// Optiondate_form.php.
+// Dynamicoptiondateform.php.
 $string['add_optiondate_series'] = 'Terminserie erstellen';
 $string['reoccurringdatestringerror'] = 'Geben Sie einen Text in folgendem Format ein:
     Tag, HH:MM - HH:MM';

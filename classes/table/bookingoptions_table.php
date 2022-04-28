@@ -265,12 +265,12 @@ class bookingoptions_table extends wunderbyte_table {
 
         // Prepare date string.
         if ($values->coursestarttime != 0) {
-            $returnarray[] = userdate($values->coursestarttime, get_string('strftimedatetime'));
+            $returnarray[] = userdate($values->coursestarttime, get_string('strftimedatetime', 'langconfig'));
         }
 
         // Prepare date string.
         if ($values->courseendtime != 0) {
-            $returnarray[] = userdate($values->courseendtime, get_string('strftimedatetime'));
+            $returnarray[] = userdate($values->courseendtime, get_string('strftimedatetime', 'langconfig'));
         }
 
         return implode(' - ', $returnarray);

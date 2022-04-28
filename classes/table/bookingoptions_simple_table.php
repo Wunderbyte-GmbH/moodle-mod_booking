@@ -94,7 +94,7 @@ class bookingoptions_simple_table extends wunderbyte_table {
     public function col_coursestarttime($values) {
         // Prepare date string.
         if ($values->coursestarttime != 0) {
-            $coursestarttime = userdate($values->coursestarttime, get_string('strftimedatetime'));
+            $coursestarttime = userdate($values->coursestarttime, get_string('strftimedatetime', 'langconfig'));
         } else {
             $coursestarttime = '';
         }
@@ -113,7 +113,7 @@ class bookingoptions_simple_table extends wunderbyte_table {
     public function col_courseendtime($values) {
         // Prepare date string.
         if ($values->courseendtime != 0) {
-            $courseendtime = userdate($values->courseendtime, get_string('strftimedatetime'));
+            $courseendtime = userdate($values->courseendtime, get_string('strftimedatetime', 'langconfig'));
         } else {
             $courseendtime = '';
         }

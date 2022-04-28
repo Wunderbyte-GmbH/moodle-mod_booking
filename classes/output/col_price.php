@@ -25,6 +25,7 @@
 
 namespace mod_booking\output;
 
+use context;
 use local_shopping_cart\local\entities\cartitem;
 use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
@@ -49,7 +50,9 @@ class col_price implements renderable, templatable {
     public $cartitem = [];
 
     /** @var array $priceitem array of priceitem */
-    public $priceitem = [];
+    public $priceitems = [];
+
+    private $context = null;
 
     /**
      * Only when the user is not booked, we store a price during construction.
@@ -60,9 +63,18 @@ class col_price implements renderable, templatable {
 
      * @param booking_option_settings $settings
      */
-    public function __construct(stdClass $values, booking_option_settings $settings, $buyforuser = null) {
+    public function __construct(stdClass $values, booking_option_settings $settings, $buyforuser = null, context $context = null) {
 
         global $USER;
+
+        // First, we see if we deal with a guest. Guests get all prices.
+        if ($context && is_guest($context)) {
+
+            $this->context = $context;
+            $this->priceitems = price::get_prices_from_cache_or_db($values->id);
+            // When we render for guest, we don't need the rest.
+            return;
+        }
 
         if (empty($buyforuser)) {
             $buyforuser = $USER;
@@ -95,7 +107,22 @@ class col_price implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output) {
-        if (!$this->cartitem) {
+
+        if ($this->context && is_guest($this->context)) {
+
+            foreach ($this->priceitems as $priceitem) {
+
+                $pricecategory = price::get_active_pricecategory_from_cache_or_db($priceitem->pricecategoryidentifier);
+
+                $priceitemarray = (array)$priceitem;
+                $priceitemarray['pricecategoryname'] = $pricecategory->name;
+
+                $returnarray['priceitems'][] = $priceitemarray;
+            }
+
+            return $returnarray;
+
+        } else if (!$this->cartitem) {
             return [];
         }
         return [
@@ -106,8 +133,7 @@ class col_price implements renderable, templatable {
             'componentname' => $this->cartitem['componentname'],
             'description' => $this->cartitem['description'],
             'imageurl' => $this->cartitem['imageurl'],
-            'pricecategoryidentifier' => $this->priceitem['pricecategoryidentifier'],
-            'pricecategoryname' => $this->priceitem['pricecategoryname'],
+            'priceitems' => $this->priceitem
         ];
     }
 }

@@ -618,4 +618,16 @@ class renderer extends plugin_renderer_base {
         $o .= $this->render_from_template('mod_booking/bookingoption_dates', $data);
         return $o;
     }
+
+    /**
+     * Render semesters and holidays form.
+     * @param $data array
+     * @return string
+     */
+    public function render_semesters_holidays($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/semesters_holidays', $data);
+        return $o;
+    }
 }
