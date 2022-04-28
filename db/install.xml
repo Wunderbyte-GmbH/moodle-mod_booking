@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/booking/db" VERSION="20220125" COMMENT="XMLDB file for Moodle mod/booking"
+<XMLDB PATH="mod/booking/db" VERSION="20220428" COMMENT="XMLDB file for Moodle mod/booking"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -111,6 +111,22 @@
       <INDEXES>
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
         <INDEX NAME="templateid" UNIQUE="false" FIELDS="templateid" COMMENT="The templateid used as default for options."/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="booking_remoteapi" COMMENT="booking_remoteapi table retrofitted from MySQL">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="url" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="18" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="18" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="18" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="mdl_bookremo_cou_uix" TYPE="unique" FIELDS="course"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="mdl_bookremo_use_ix" UNIQUE="false" FIELDS="usermodified"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="booking_options" COMMENT="Defines booking options">
@@ -367,7 +383,7 @@
     <TABLE NAME="booking_pricecategories" COMMENT="Different price categories for different types of users (e.g. students, academics, employees, externals...)">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="ordernum" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="A number defining the sort order of the categories."/>
+        <FIELD NAME="ordernum" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="A number defining the sort order of the categories."/>
         <FIELD NAME="identifier" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The identifier of the price category, e.g. 'student'."/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The full name of the price category, e.g. 'Student price'."/>
         <FIELD NAME="defaultvalue" TYPE="number" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="A default value for every price in this category."/>
