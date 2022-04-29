@@ -41,25 +41,31 @@ echo $OUTPUT->heading(get_string('mybookings', 'mod_booking'));
 
 echo $OUTPUT->box_start();
 
-$table = new mybookings_table('myvookings');
+$table = new mybookings_table('mybookings');
+
 $fields = 'ba.id id, c.id courseid, c.fullname fullname, b.id bookingid, b.name name, bo.text text, bo.id optionid,
     bo.coursestarttime coursestarttime, bo.courseendtime courseendtime, cm.id cmid';
-$table->set_sql($fields,
-    "{booking_answers} ba
+$from = "{booking_answers} ba
     LEFT JOIN
-{booking_options} bo ON ba.optionid = bo.id
+    {booking_options} bo
+    ON ba.optionid = bo.id
     LEFT JOIN
-{booking} b ON b.id = bo.bookingid
+    {booking} b
+    ON b.id = bo.bookingid
     LEFT JOIN
-{course} c ON c.id = b.course
+    {course} c
+    ON c.id = b.course
     LEFT JOIN
-    {course_modules} cm ON cm.module = (SELECT
-            id
-        FROM
-            {modules}
-        WHERE
-            name = 'booking')
-        AND instance = b.id", "userid = {$USER->id} AND cm.visible = 1");
+    {course_modules} cm
+    ON cm.module = (
+        SELECT m.id
+        FROM {modules} m
+        WHERE m.name = 'booking'
+    ) AND cm.instance = b.id";
+$where = "userid = :userid AND cm.visible = 1 AND bo.invisible = 0";
+$params = ['userid' => $USER->id];
+
+$table->set_sql($fields, $from, $where, $params);
 
 $table->define_baseurl($url);
 $table->out(25, true);

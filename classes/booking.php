@@ -605,6 +605,12 @@ class booking {
             $params['cfsearchtext'] = $searchtext;
         }
 
+        // If the user does not have the capability to see invisible options...
+        if (!has_capability('mod/booking:canseeinvisibleoptions', $this->context)) {
+            // ... then only show visible options.
+            $where .= " AND bo.invisible = 0";
+        }
+
         $where .= $order;
 
         return [$fields, $from, $where, $params];

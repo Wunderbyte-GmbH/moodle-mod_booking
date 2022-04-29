@@ -25,17 +25,11 @@
 namespace mod_booking\output;
 
 use context_module;
-use context_system;
-use Exception;
 use mod_booking\booking;
-use mod_booking\booking_answers;
-use mod_booking\booking_option;
-use mod_booking\booking_option_settings;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use renderer_base;
 use renderable;
-use stdClass;
 use templatable;
 
 /**
