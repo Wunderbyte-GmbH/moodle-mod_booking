@@ -243,6 +243,22 @@ class option_form extends moodleform {
         $mform->addElement('checkbox', 'startendtimeknown',
                 get_string('startendtimeknown', 'booking'));
 
+        $mform->addElement('date_time_selector', 'coursestarttime',
+                get_string("coursestarttime", "booking"));
+        $mform->setType('coursestarttime', PARAM_INT);
+        $mform->disabledIf('coursestarttime', 'startendtimeknown', 'notchecked');
+
+        $mform->addElement('advcheckbox', 'enrolmentstatus', get_string('enrolmentstatus', 'mod_booking'),
+            '', array('group' => 1), array(2, 0));
+        $mform->setType('enrolmentstatus', PARAM_INT);
+        $mform->disabledIf('enrolmentstatus', 'startendtimeknown', 'notchecked');
+
+        $mform->addElement('date_time_selector', 'courseendtime',
+            get_string("courseendtime", "booking"));
+        $mform->setType('courseendtime', PARAM_INT);
+        $mform->disabledIf('courseendtime', 'startendtimeknown', 'notchecked');
+
+        // Add to course calendar dropdown.
         $caleventtypes = [
             0 => get_string('caldonotadd', 'booking'),
             1 => get_string('caladdascourseevent', 'booking')
@@ -261,21 +277,6 @@ class option_form extends moodleform {
             // Otherwise, we have the usual behavior depending on the startendtimeknown checkbox.
             $mform->disabledIf('addtocalendar', 'startendtimeknown', 'notchecked');
         }
-
-        $mform->addElement('date_time_selector', 'coursestarttime',
-                get_string("coursestarttime", "booking"));
-        $mform->setType('coursestarttime', PARAM_INT);
-        $mform->disabledIf('coursestarttime', 'startendtimeknown', 'notchecked');
-
-        $mform->addElement('advcheckbox', 'enrolmentstatus', get_string('enrolmentstatus', 'mod_booking'),
-            '', array('group' => 1), array(2, 0));
-        $mform->setType('enrolmentstatus', PARAM_INT);
-        $mform->disabledIf('enrolmentstatus', 'startendtimeknown', 'notchecked');
-
-        $mform->addElement('date_time_selector', 'courseendtime',
-            get_string("courseendtime", "booking"));
-        $mform->setType('courseendtime', PARAM_INT);
-        $mform->disabledIf('courseendtime', 'startendtimeknown', 'notchecked');
 
         $mform->addElement('editor', 'description', get_string('description'));
         $mform->setType('description', PARAM_CLEANHTML);
