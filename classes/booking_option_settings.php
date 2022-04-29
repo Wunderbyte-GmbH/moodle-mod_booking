@@ -152,6 +152,9 @@ class booking_option_settings {
     /** @var string $dayofweektime */
     public $dayofweektime = null;
 
+    /** @var int $invisible */
+    public $invisible = null;
+
     /** @var array $sessions */
     public $sessions = [];
 
@@ -246,12 +249,19 @@ class booking_option_settings {
             $this->parentid = $dbrecord->parentid;
             $this->semesterid = $dbrecord->semesterid;
             $this->dayofweektime = $dbrecord->dayofweektime;
+            $this->invisible = $dbrecord->invisible;
 
-            // If the course module id (cmid) is not yet set, we load it.
+            // If the course module id (cmid) is not yet set, we load it. //TODO: bookingid 0 bei option templates berücksichtigen!!
             if (!isset($dbrecord->cmid)) {
                 $cm = get_coursemodule_from_instance('booking', $dbrecord->bookingid);
-                $this->cmid = $cm->id;
-                $dbrecord->cmid = $cm->id;
+                if (!$cm) {
+                    // Set cmid to 0 for option templates as they are set globally (not only for one instance).
+                    $this->cmid = 0;
+                    $dbrecord->cmid = 0;
+                } else {
+                    $this->cmid = $cm->id;
+                    $dbrecord->cmid = $cm->id;
+                }
             } else {
                 $this->cmid = $dbrecord->cmid;
             }
@@ -391,6 +401,12 @@ class booking_option_settings {
             return;
 
         } else {
+            // Fix: Option templates have bookingid 0 as they are global and not instance-specific.
+            if (empty($bookingid)) {
+                $this->imageurl = null;
+                return;
+            }
+
             // Image fallback (general images to match with custom fields).
             // First, check if there's a customfield to match images with.
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);

@@ -2439,5 +2439,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022042100, 'booking');
     }
 
+    if ($oldversion < 2022042900) {
+
+        // Define field invisible to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('invisible', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'dayofweektime');
+
+        // Conditionally launch add field invisible.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022042900, 'booking');
+    }
+
     return true;
 }

@@ -61,8 +61,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'groupid', 'sent', 'sent2', 'sentteachers', 'location', 'institution', 'address',
                     'pollurlteachers', 'howmanyusers', 'pollsend', 'removeafterminutes',
                     'notificationtext', 'notificationtextformat', 'disablebookingusers',
-                    'beforebookedtext', 'beforecompletedtext',
-                    'aftercompletedtext', 'shorturl', 'duration', 'parentid', 'semesterid', 'dayofweektime'));
+                    'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext', 'shorturl', 'duration',
+                    'parentid', 'semesterid', 'dayofweektime', 'invisible'));
 
         $answers = new backup_nested_element('answers');
         $answer = new backup_nested_element('answer', array('id'),

@@ -857,6 +857,10 @@ $string['submitandgoback'] = 'Speichern und zurück';
 $string['bookingoptionprice'] = 'Preis';
 $string['pricecategory'] = 'Preiskategorie';
 $string['pricecurrency'] = 'Währung';
+$string['optionvisibility'] = 'Sichtbarkeit';
+$string['optionvisibility_help'] = 'Stellen Sie ein, ob die Buchungsoption für jede_n sichtbar sein soll oder nur für berechtigte Nutzer_innen.';
+$string['optionvisible'] = 'Für alle sichtbar (Standard)';
+$string['optioninvisible'] = 'Vor normalen Nutzer_innen verstecken (nur für berechtigte Personen sichtbar)';
 
 // Importoptions.php.
 $string['csvfile'] = 'CSV Datei';

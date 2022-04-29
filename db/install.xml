@@ -149,6 +149,7 @@
         <FIELD NAME="parentid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Parent id of booking option - only for recurring."/>
         <FIELD NAME="semesterid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="ID of an associated semester."/>
         <FIELD NAME="dayofweektime" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="String for reoccurring date series, e.g. 'FR 11:00-12:00'"/>
+        <FIELD NAME="invisible" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If set to 0 (default), it's visible to everyone. If set to 1, it's visible to entitled users only."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
