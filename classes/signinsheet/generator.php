@@ -637,7 +637,7 @@ class generator {
 
         // Do not show dates, if the option "Add date manually" (-1) or the option...
         // ... "Hide date" (-2) was selected in the form.
-        if ($this->pdfsessions != -1) {
+        if ($this->pdfsessions != -1 && $this->pdfsessions != -2) {
             $this->pdf->MultiCell($this->pdf->GetStringWidth(get_string('signinsheetdate', 'booking')) + 5, 0,
                 get_string('signinsheetdate', 'booking'), 0, 1, '', 0);
             $this->pdf->SetFont('freesans', 'B', 10);
