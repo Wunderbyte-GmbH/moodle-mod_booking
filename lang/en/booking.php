@@ -1003,6 +1003,7 @@ $string['optionvisibility'] = 'Visibility';
 $string['optionvisibility_help'] = 'Here you can choose whether the option should be visible for everyone or if it should be hidden from normal users and be visible to entitled users only.';
 $string['optionvisible'] = 'Visible to everyone (default)';
 $string['optioninvisible'] = 'Hide from normal users (visible to entitled users only)';
+$string['invisibleoption'] = 'Invisible booking option';
 
 // Importoptions.php.
 $string['csvfile'] = 'CSV file';

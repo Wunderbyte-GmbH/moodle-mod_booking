@@ -47,6 +47,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var int $modalcounter the title (column text) as it is saved in db */
     public $modalcounter = null;
 
+    /** @var bool $invisible is the booking option invisible to normal users? */
+    public $invisible = null;
+
     /** @var int $userid */
     public $userid = null;
 
@@ -145,6 +148,9 @@ class bookingoption_description implements renderable, templatable {
         // These fields can be gathered directly from settings.
         $this->title = $settings->text;
         $this->imageurl = $settings->imageurl;
+
+        // Is this an invisible option?
+        $this->invisible = $settings->invisible;
 
         $this->userid = $user->id;
 
@@ -263,6 +269,7 @@ class bookingoption_description implements renderable, templatable {
 
         $returnarray = array(
                 'title' => $this->title,
+                'invisible' => $this->invisible,
                 'modalcounter' => $this->modalcounter,
                 'userid' => $this->userid,
                 'description' => $this->description,

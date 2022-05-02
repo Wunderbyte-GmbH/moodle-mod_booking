@@ -570,8 +570,13 @@ class external extends external_api {
         $data = new \mod_booking\output\bookingoption_description($booking, $optionid,
                 null, DESCRIPTION_WEBSITE, true, $forbookeduser, $user);
 
+        // Fix invisible attribute, by converting to boolean.
+        if (isset($data->invisible) && $data->invisible == 1) {
+            $data->invisible = true;
+        } else {
+            $data->invisible = false;
+        }
+
         return ['content' => json_encode($data), 'template' => 'mod_booking/bookingoption_description'];
     }
-
-
 }
