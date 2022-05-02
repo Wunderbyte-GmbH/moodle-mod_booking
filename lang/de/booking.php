@@ -1237,8 +1237,8 @@ $string['showlistoncoursepagelbl_help'] = 'Wenn Sie diese Einstellung aktivieren
                                 Buchungsoptionen direkt auf der Kursseite unter dem Link der Buchungsinstanz angezeigt.
                                 Sie können auch nur den Kursnamen, eine Kurzinfo und einen Button, der auf die
                                 verfügbaren Buchungsoptionen zeigt, anzeigen lassen.';
-$string['showlistoncoursepage'] = 'Ja, Liste auf Kursseite anzeigen (Standard)';
-$string['hidelistoncoursepage'] = 'Nein, Liste nicht auf Kursseite anzeigen';
+$string['showlistoncoursepage'] = 'Ja, Liste auf Kursseite anzeigen';
+$string['hidelistoncoursepage'] = 'Nein, Liste nicht auf Kursseite anzeigen (Standard)';
 $string['showcoursenameandbutton'] = 'Kursnamen, Kurzinfo und einen Button, der die verfügbaren Buchungsoptionen öffnet, anzeigen';
 
 $string['coursepageshortinfolbl'] = 'Kurzinfo';

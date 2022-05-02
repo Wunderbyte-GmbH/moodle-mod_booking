@@ -1409,8 +1409,8 @@ $string['showlistoncoursepagelbl_help'] = 'If you activate this setting, a list 
                                             shown right on the course page below the link of the booking instance.
                                             You can also choose to show only the course name, a short info and a button
                                             redirecting to the available booking options.';
-$string['showlistoncoursepage'] = 'Show list on course page (default)';
-$string['hidelistoncoursepage'] = 'Hide list on course page';
+$string['showlistoncoursepage'] = 'Show list on course page';
+$string['hidelistoncoursepage'] = 'Hide list on course page (default)';
 $string['showcoursenameandbutton'] = 'Show course name, short info and a button redirecting to the available booking options';
 
 $string['coursepageshortinfolbl'] = 'Short info';

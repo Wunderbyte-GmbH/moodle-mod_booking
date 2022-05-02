@@ -222,7 +222,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $listoncoursepageoptions[2] = get_string('showcoursenameandbutton', 'booking');
         $mform->addElement('select', 'showlistoncoursepage',
             get_string('showlistoncoursepagelbl', 'booking'), $listoncoursepageoptions);
-        $mform->setDefault('showlistoncoursepage', 1); // List on course page is activated by default.
+        $mform->setDefault('showlistoncoursepage', 0); // List on course page is activated by default.
         $mform->addHelpButton('showlistoncoursepage', 'showlistoncoursepagelbl', 'booking');
         $mform->setType('showlistoncoursepage', PARAM_INT);
 
