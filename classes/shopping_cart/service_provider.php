@@ -154,4 +154,29 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
         return true;
     }
+
+
+    /**
+     * This cancels an already booked course.
+     *
+     * @param integer $itemid
+     * @param integer $userid
+     * @return boolean
+     */
+    public static function cancel_purchase(int $optionid, int $userid = 0): bool {
+
+        global $USER;
+
+        $bookingoption = booking_option::create_option_from_optionid($optionid);
+
+        if ($userid == 0) {
+            $user = $USER;
+        } else {
+            $user = singleton_service::get_instance_of_user($userid);
+        }
+
+        $bookingoption->user_delete_response($user->id);
+
+        return true;
+    }
 }

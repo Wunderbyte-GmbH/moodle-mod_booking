@@ -36,7 +36,10 @@
     }
 }}
 {{#price}}
-<span class="pricecurrency"> {{price}} {{currency}}</span> {{> local_shopping_cart/addtocartdb }}
+<span class="pricecurrency">
+    {{price}} {{currency}}
+</span>
+{{> local_shopping_cart/addtocartdb }}
 {{#priceitems}}
     <p><i>{{pricecategoryname}}</i></p>
 {{/priceitems}}
