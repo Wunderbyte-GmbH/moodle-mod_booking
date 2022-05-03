@@ -866,6 +866,9 @@ $string['optionvisible'] = 'Für alle sichtbar (Standard)';
 $string['optioninvisible'] = 'Vor normalen Nutzer_innen verstecken (nur für berechtigte Personen sichtbar)';
 $string['invisibleoption'] = 'Unsichtbare Buchungsoption';
 
+// Optionview.php.
+$string['invisibleoption:notallowed'] = 'Sie sind nicht berechtigt, diese Buchungsoption zu sehen.';
+
 // Importoptions.php.
 $string['csvfile'] = 'CSV Datei';
 $string['dateerror'] = 'Falsche Datumsangabe in Zeile {$a}: ';

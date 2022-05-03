@@ -28,6 +28,9 @@ require_once("locallib.php");
 
 global $DB, $PAGE, $OUTPUT, $USER;
 
+// No guest autologin.
+require_login(0, false);
+
 $cmid = required_param('cmid', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $userid = optional_param('userid', 0, PARAM_INT);
@@ -68,8 +71,19 @@ if ($settings = singleton_service::get_instance_of_booking_option_settings($opti
     $data = new \mod_booking\output\bookingoption_description($booking, $settings->id,
                 null, DESCRIPTION_WEBSITE, true, null, $user);
 
-    echo $output->render_booking_option_view($data);
+    if (isset($data->invisible) && $data->invisible == 1) {
+        // If the user does have the capability to see invisible options...
+        if (has_capability('mod/booking:canseeinvisibleoptions', $context)) {
+            // ... then show it.
+            echo $output->render_bookingoption_description_view($data);
+        } else {
+            // User is not entitled to see invisible options.
+            echo get_string('invisibleoption:notallowed', 'mod_booking');
+        }
 
+    } else {
+        echo $output->render_bookingoption_description_view($data);
+    }
 } else {
     $url = new moodle_url('mod/booking/view.php', ['id' => $cmid]);
     redirect($url);

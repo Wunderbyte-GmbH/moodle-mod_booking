@@ -1005,6 +1005,9 @@ $string['optionvisible'] = 'Visible to everyone (default)';
 $string['optioninvisible'] = 'Hide from normal users (visible to entitled users only)';
 $string['invisibleoption'] = 'Invisible booking option';
 
+// Optionview.php.
+$string['invisibleoption:notallowed'] = 'You are not allowed to see this booking option.';
+
 // Importoptions.php.
 $string['csvfile'] = 'CSV file';
 $string['dateerror'] = 'Wrong date in line {$a}: ';
@@ -1334,7 +1337,6 @@ $string['erroremptycustomfieldvalue'] = 'Custom field value is not allowed to be
 $string['daystonotifysession'] = 'Number of days in advance of the session start to notify participants';
 $string['daystonotifysession_help'] = "Enter 0 to deactivate the e-mail notification for this session.";
 $string['nocfnameselected'] = "Nothing selected. Either type new name or select one from the list.";
-
 
 // File: locallib.php.
 $string['signinsheetdate'] = 'Date(s): ';

@@ -409,6 +409,17 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /** Function to print booking option single view on optionview.php
+     * @param bookingoption_description $data
+     * @return string
+     */
+    public function render_bookingoption_description_view(mod_booking\output\bookingoption_description $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/bookingoption_description_view', $data);
+        return $o;
+    }
+
     /** Function to print booking option changes ("What has changed?").
      * @param bookingoption_changes $data
      * @return string
@@ -417,17 +428,6 @@ class renderer extends plugin_renderer_base {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/bookingoption_changes', $data);
-        return $o;
-    }
-
-    /** Function to print booking option single view on optionview.php
-     * @param bookingoption_description $data
-     * @return string
-     */
-    public function render_booking_option_view(mod_booking\output\bookingoption_description $data) {
-        $o = '';
-        $data = $data->export_for_template($this);
-        $o .= $this->render_from_template('mod_booking/bookingoption_description_view', $data);
         return $o;
     }
 

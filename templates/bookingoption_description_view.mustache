@@ -29,6 +29,9 @@
     <div class="row">
         <div class="col-md-8">
             <h2 class="title" >{{title}}</h2>
+            {{#invisible}}
+                <div class="booking-option-info-invisible">{{#str}} invisibleoption, mod_booking {{/str}}</div>
+            {{/invisible}}
             <h6 class="h6-category">
                 {{sport}}
             </h6>
