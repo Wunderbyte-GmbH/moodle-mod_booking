@@ -23,7 +23,6 @@
     Data attributes required for JS:
     * data-region
 }}
-
 <a href="#" data-toggle="modal" data-target="#descriptionModal{{modalcounter}}">
     <i class="fa fa-info-circle fa-lg">
     </i>
@@ -41,5 +40,9 @@
         {{> booking/bookingoption_description }}
       </div>
     </div>
-  </div>
 </div>
+
+{{#invisible}}
+<div class="booking-option-info-invisible">{{#str}} invisibleoption, mod_booking {{/str}}</div>
+{{/invisible}}
+

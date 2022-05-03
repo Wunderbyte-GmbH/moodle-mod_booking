@@ -608,6 +608,9 @@ function booking_update_options($optionvalues, $context) {
     $option->institution = trim($optionvalues->institution);
     $option->address = trim($optionvalues->address);
 
+    // Visibility of the option.
+    $option->invisible = $optionvalues->invisible;
+
     $option->pollurl = $optionvalues->pollurl;
     $option->pollurlteachers = $optionvalues->pollurlteachers;
     if ($optionvalues->limitanswers == 0) {

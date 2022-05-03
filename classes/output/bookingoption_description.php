@@ -53,6 +53,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var int $modalcounter the title (column text) as it is saved in db */
     public $modalcounter = null;
 
+    /** @var bool $invisible is the booking option invisible to normal users? */
+    public $invisible = null;
+
     /** @var string $description from DB */
     public $description = null;
 
@@ -117,6 +120,7 @@ class bookingoption_description implements renderable, templatable {
         $this->location = $bookingoption->option->location;
         $this->address = $bookingoption->option->address;
         $this->institution = $bookingoption->option->institution;
+        $this->invisible = $bookingoption->option->invisible;
 
         // There can be more than one modal, therefor we use the id of this record
         $this->modalcounter = $bookingoption->option->id;
@@ -198,6 +202,7 @@ class bookingoption_description implements renderable, templatable {
 
         $returnarray = array(
                 'title' => $this->title,
+                'invisible' => $this->invisible,
                 'modalcounter' => $this->modalcounter,
                 'description' => $this->description,
                 'statusdescription' => $this->statusdescription,

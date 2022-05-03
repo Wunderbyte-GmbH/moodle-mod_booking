@@ -31,6 +31,11 @@
     </div>
 {{/booknowbutton}}
 <h4>{{title}}</h4>
+
+{{#invisible}}
+<div class="booking-option-info-invisible">{{#str}} invisibleoption, mod_booking {{/str}}</div>
+{{/invisible}}
+
 {{#location}}<div class="bo_location">{{#str}}location, mod_booking{{/str}}: {{.}}</div>{{/location}}
 {{#institution}}<div class="bo_institution">{{#str}}institution, mod_booking{{/str}}: {{.}}</div>{{/institution}}
 {{#address}}<div class="bo_address">{{#str}}address, mod_booking{{/str}}:  {{.}}</div>{{/address}}
@@ -63,4 +68,5 @@
             </div>
         </div>
     {{/dates}}
+</div>
 </div>

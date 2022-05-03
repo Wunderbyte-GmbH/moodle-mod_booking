@@ -59,6 +59,8 @@ $string['booking:viewallratings'] = 'View all raw ratings given by individuals';
 $string['booking:viewanyrating'] = 'View total ratings that anyone received';
 $string['booking:viewrating'] = 'View the total rating you received';
 $string['booking:addeditownoption'] = 'Add new option and edit own options.';
+$string['booking:canseeinvisibleoptions'] = 'View invisible options.';
+$string['booking:changelockedcustomfields'] = 'Can change locked custom booking option fields.';
 $string['booking:comment'] = 'Add comments';
 $string['booking:managecomments'] = 'Manage comments';
 $string['bookingclose'] = 'Until';
@@ -988,6 +990,11 @@ $string['option_template_not_saved_no_valid_license'] = 'Booking option template
 
 // Option_form.php.
 $string['submitandgoback'] = 'Save and go back';
+$string['optionvisibility'] = 'Visibility';
+$string['optionvisibility_help'] = 'Here you can choose whether the option should be visible for everyone or if it should be hidden from normal users and be visible to entitled users only.';
+$string['optionvisible'] = 'Visible to everyone (default)';
+$string['optioninvisible'] = 'Hide from normal users (visible to entitled users only)';
+$string['invisibleoption'] = 'Invisible booking option';
 
 // importoptions.php
 $string['csvfile'] = 'CSV file';

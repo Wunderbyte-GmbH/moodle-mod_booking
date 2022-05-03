@@ -30,6 +30,7 @@ class option_form extends moodleform {
         $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
+        // Option templates.
         $optiontemplates = array('' => '');
         $alloptiontemplates = $DB->get_records('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
 
@@ -47,6 +48,7 @@ class option_form extends moodleform {
         $mform->addElement('select', 'optiontemplateid', get_string('populatefromtemplate', 'booking'),
             $optiontemplates);
 
+        // Booking option name.
         $mform->addElement('text', 'text', get_string('bookingoptionname', 'booking'), array('size' => '64'));
         $mform->addRule('text', get_string('required'), 'required', null, 'client');
         $mform->addRule('text', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
@@ -69,7 +71,6 @@ class option_form extends moodleform {
         }
         $boptionname = "$COURSE->fullname $eventtype";
         $mform->setDefault('text', $boptionname);
-
 
         // Add custom fields here.
         $customfields = booking_option::get_customfield_settings();
@@ -108,6 +109,17 @@ class option_form extends moodleform {
             }
         }
 
+        // Visibility.
+        $visibilityoptions = [
+            0 => get_string('optionvisible', 'mod_booking'),
+            1 => get_string('optioninvisible', 'mod_booking')
+        ];
+        $mform->addElement('select', 'invisible', get_string('optionvisibility', 'mod_booking'), $visibilityoptions);
+        $mform->setType('invisible', PARAM_INT);
+        $mform->setDefault('invisible', 0);
+        $mform->addHelpButton('invisible', 'optionvisibility', 'mod_booking');
+
+        // Location.
         $sql = 'SELECT DISTINCT location FROM {booking_options} ORDER BY location';
         $locationarray = $DB->get_fieldset_sql($sql);
 
@@ -128,6 +140,7 @@ class option_form extends moodleform {
         }
         $mform->addHelpButton('location', 'location', 'mod_booking');
 
+        // Institution.
         $sql = 'SELECT DISTINCT institution FROM {booking_options} ORDER BY institution';
         $institutionarray = $DB->get_fieldset_sql($sql);
 

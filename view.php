@@ -552,6 +552,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                          bo.limitanswers,
                          bo.maxanswers,
                          bo.maxoverbooking,
+                         bo.invisible,
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
@@ -631,7 +632,13 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $from = "{booking} b LEFT JOIN {booking_options} bo ON bo.bookingid = b.id";
         $where = "b.id = :bookingid " .
                  (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions));
-        
+
+        // If the user does not have the capability to see invisible options...
+        if (!has_capability('mod/booking:canseeinvisibleoptions', $context)) {
+            // ... then only show visible options.
+            $where .= " AND bo.invisible = 0";
+        }
+
         $defaultorder = ($booking->settings->defaultoptionsort !== 'availableplaces') ? SORT_ASC : SORT_DESC;
         if (!in_array('coursestarttime', $columns) && ($booking->settings->defaultoptionsort === 'coursestarttime')) {
             // Fixed: If sort by is set to coursestarttime but coursestarttime column is missing, we still want to order by coursestarttime.

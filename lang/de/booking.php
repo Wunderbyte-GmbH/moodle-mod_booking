@@ -46,6 +46,9 @@ $string['booking:updatebooking'] = 'Buchungen verwalten';
 $string['booking:viewallratings'] = 'Alle Bewertungen sehen';
 $string['booking:viewanyrating'] = 'Alle Bewertungen sehen';
 $string['booking:viewrating'] = 'Gesamtbewertung sehen';
+$string['booking:addeditownoption'] = 'Neue Buchungsoptionen anlegen und eigene bearbeiten.';
+$string['booking:canseeinvisibleoptions'] = 'Unsichtbare Buchungsoptionen sehen.';
+$string['booking:changelockedcustomfields'] = 'Kann gesperrte benutzerdefinierte Buchungsoptionsfelder verändern.';
 $string['manageoptiontemplates'] = 'Kann Buchungsoptionsvorlagen erstellen';
 $string['bookingclose'] = 'Bis';
 $string['bookingfull'] = 'Ausgebucht';
@@ -848,6 +851,11 @@ $string['option_template_not_saved_no_valid_license'] = 'Buchungsoption konnte n
 
 // Option_form.php.
 $string['submitandgoback'] = 'Speichern und zurück';
+$string['optionvisibility'] = 'Sichtbarkeit';
+$string['optionvisibility_help'] = 'Stellen Sie ein, ob die Buchungsoption für jede_n sichtbar sein soll oder nur für berechtigte Nutzer_innen.';
+$string['optionvisible'] = 'Für alle sichtbar (Standard)';
+$string['optioninvisible'] = 'Vor normalen Nutzer_innen verstecken (nur für berechtigte Personen sichtbar)';
+$string['invisibleoption'] = 'Unsichtbare Buchungsoption';
 
 // Importoptions.php.
 $string['csvfile'] = 'CSV Datei';
