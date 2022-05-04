@@ -1,6 +1,100 @@
+## Version 7.1.0 (2022050400)
+**New features:**
+* New possibility to make options invisible for users without permission.
+* Add and edit holidays (dynamic form).
+* Create date series and take care of holidays.
+* Add custom dates to date series (and support blocked events).
+
+**Improvements:**
+* Do not show list of booking options on course page by default.
+
+**Bugfixes:**
+* Fixed a CSS bug which disabled scrolling possibility.
+* Hide dates title in signin sheet did not work correctly.
+
+## Version 7.0.30 (2022042100)
+**New features:**
+* Add new config setting to include/not-include teachers.
+* New default setting for addtocalendar with locking possibility.
+
+**Improvements:**
+* New dynamic semesters form.
+* Add collapsible option dates to booking option description.
+* New edit button in listofbookings and listofbookingscards.
+* Improved sign-in-sheet with possibility to add columns for every optiondate.
+* Display all prices for users which are not logged in.
+* Take out shortcodes default instance.
+
+**Bugfixes:**
+* Fix a bug where prices were not imported.
+* use no-reply email if no booking manager was set.
+* Fix nullpointer when saving booking instances.
+* department still missing in SQL
+* Excel download not working with special characters.
+* Missing minified files for sign-in-sheet.
+* Fixed broken sessions in sign-in-sheet.
+* Fix issue #185 - Error enrol users in scheduled task
+* Fix missing {bookingdetails}-placeholder on viewconfirmation.php
+* Option menu hidden behind top of table (if there's only one option).
+* Fixed teacher duplication.
+* Show images for users which are not logged in.
+* Fix bug where edioptionsurl was specific to user who generated cache.
+* Small fix if addtocalendar is not found in config.
+
+**Other:**
+* Fixed typo: subecribeusersctivity => subecribeusersactivity.
+
+## Version 7.0.28 (2022032800)
+**New features:**
+* Add new shortcode 'mybookings'.
+
+**Improvements:**
+* Improve booking creation via singleton service.
+
+**Bugfixes:**
+* Fix a typo in settings.php which led to an error.
+* Fix fallback to default image.
+* Fix auto enrolment.
+* Show 'booked' string when booked in booking option description.
+
+## Version 7.0.27 (2022032601)
+**New features:**
+* New interface to add and edit semesters.
+* Create date series with a string for reoccurring dates (e.g. 'Mo, 18:00 - 19:30').
+* Upload images to booking options and show them in bookingoption_description.
+* Image fallbacks: define images for a certain category (defined by custom field) and define a default image for booking options.
+* New possibility to show a list of bookings (also as cards) via shortcodes.
+* Display a booking option on a separate page (including possibility to buy the option, see the price etc.)
+
+**Improvements:**
+* Show booked places (instead of free ones).
+* Added import of custom fields, dayofweektime string and prices to CSV importer (identified by keys).
+* Refactoring for better performance.
+* New singleton_service for better performance.
+* Nicer presentation of booking options.
+* Improved caching.
+* Added collapsible description in manager view of block_booking.
+* Better descriptions of booking options.
+* Better date interface.
+* Don't show 'booked' instead of available places.
+* Added price and price category to booking option description.
+* Only show booking-specific custom fields.
+
+**Bugfixes:**
+* Fixed a bug which broke the instance duplication feature.
+* Fixed several bugs in caching.
+* Fixed several rendering bugs.
+* Added missing department to responses fields.
+* Fixed badge styling.
+* Fixed JS for modal loading.
+* Do not show sports badge if no value exists.
+* Display correct price in modal in buyforuser scenario.
+* Fixed cachier's checkout.
+* Fix in CSV-importer: Only run through prices if default column is present.
+
 ## Version 7.0.26 (2022021601)
 **New features:**
-* Nicer presentation of availably places.
+* Nicer presentation of available places.
 
 ## Version 7.0.25 (2022021600)
 **New features:**

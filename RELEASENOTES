@@ -1,11 +1,83 @@
+7.1.0 (2022050400)
+* New feature: New possibility to make options invisible for users without permission.
+* New feature: Add and edit holidays (dynamic form).
+* New feature: Create date series and take care of holidays.
+* New feature: Add custom dates to date series (and support blocked events).
+* Improvement: Do not show list of booking options on course page by default.
+* Bugfix: Fixed a CSS bug which disabled scrolling possibility.
+* Bugfix: Hide dates title in signin sheet did not work correctly.
+
+7.0.30 (2022042100)
+* New feature: Add new config setting to include/not-include teachers.
+* New feature: New default setting for addtocalendar with locking possibility.
+* Improvement: New dynamic semesters form.
+* Improvement: Add collapsible option dates to booking option description.
+* Improvement: New edit button in listofbookings and listofbookingscards.
+* Improvement: Improved sign-in-sheet with possibility to add columns for every optiondate.
+* Improvement: Display all prices for users which are not logged in.
+* Improvement: Take out shortcodes default instance.
+* Bugfix: Fix a bug where prices were not imported.
+* Bugfix: use no-reply email if no booking manager was set.
+* Bugfix: Fix nullpointer when saving booking instances.
+* Bugfix: department still missing in SQL
+* Bugfix: Excel download not working with special characters.
+* Bugfix: Missing minified files for sign-in-sheet.
+* Bugfix: Fixed broken sessions in sign-in-sheet.
+* Bugfix: Fix issue #185 - Error enrol users in scheduled task
+* Bugfix: Fix missing {bookingdetails}-placeholder on viewconfirmation.php
+* Bugfix: Option menu hidden behind top of table (if there's only one option).
+* Bugfix: Fixed teacher duplication.
+* Bugfix: Show images for users which are not logged in.
+* Bugfix: Fix bug where edioptionsurl was specific to user who generated cache.
+* Bugfix: Small fix if addtocalendar is not found in config.
+* Other: Fixed typo: subecribeusersctivity => subecribeusersactivity.
+
+7.0.28 (2022032800)
+* New feature: Add new shortcode 'mybookings'.
+* Improvement: Improve booking creation via singleton service.
+* Bugfix: Fix a typo in settings.php which led to an error.
+* Bugfix: Fix fallback to default image.
+* Bugfix: Fix auto enrolment.
+* Bugfix: Show 'booked' string when booked in booking option description.
+
+7.0.27 (2022032601)
+* New feature: New interface to add and edit semesters.
+* New feature: Create date series with a string for reoccurring dates (e.g. 'Mo, 18:00 - 19:30').
+* New feature: Upload images to booking options and show them in bookingoption_description.
+* New feature: Image fallbacks: define images for a certain category (defined by custom field) and define a default image for booking options.
+* New feature: New possibility to show a list of bookings (also as cards) via shortcodes.
+* New feature: Display a booking option on a separate page (including possibility to buy the option, see the price etc.)
+* Improvement: Show booked places (instead of free ones).
+* Improvement: Added import of custom fields, dayofweektime string and prices to CSV importer (identified by keys).
+* Improvement: Refactoring for better performance.
+* Improvement: New singleton_service for better performance.
+* Improvement: Nicer presentation of booking options.
+* Improvement: Improved caching.
+* Improvement: Added collapsible description in manager view of block_booking.
+* Improvement: Better descriptions of booking options.
+* Improvement: Better date interface.
+* Improvement: Don't show 'booked' instead of available places.
+* Improvement: Added price and price category to booking option description.
+* Improvement: Only show booking-specific custom fields.
+* Bugfix: Fixed a bug which broke the instance duplication feature.
+* Bugfix: Fixed several bugs in caching.
+* Bugfix: Fixed several rendering bugs.
+* Bugfix: Added missing department to responses fields.
+* Bugfix: Fixed badge styling.
+* Bugfix: Fixed JS for modal loading.
+* Bugfix: Do not show sports badge if no value exists.
+* Bugfix: Display correct price in modal in buyforuser scenario.
+* Bugfix: Fixed cachier's checkout.
+* Bugfix: Fix in CSV-importer: Only run through prices if default column is present.
+
 7.0.26 (2022021601)
-* New feature: Nicer presentation of availably places.
+* New feature: Nicer presentation of available places.
 
 7.0.25 (2022021600)
 * New feature: New sports badge
 * New feature: Caching of shortcodes table data
 * New feature: Show description modal in shortcodes pages 
-* Improvement:Implement shopping cart & transition towards "unreal" deletion of booking_answers
+* Improvement:Implement shopping cart & transition towards 'unreal' deletion of booking_answers
 * Improvement:Support shortcode without category (returns all options)
 * Bugfix: Fix a bug with PostgreSQL
 
