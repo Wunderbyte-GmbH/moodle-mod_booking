@@ -584,8 +584,6 @@ class booking {
 
         $from = "{booking_options} bo";
         $where = "bo.bookingid = :bookingid {$search}";
-        // phpcs:ignore moodle.Commenting.InlineComment.NotCapital,Squiz.PHP.CommentedOutCode.Found
-        $order = " ORDER BY bo.text ASC";
         if (strlen($searchtext) !== 0) {
             $from .= "
                 JOIN {customfield_data} cfd
@@ -610,8 +608,6 @@ class booking {
             // ... then only show visible options.
             $where .= " AND bo.invisible = 0";
         }
-
-        $where .= $order;
 
         return [$fields, $from, $where, $params];
     }
