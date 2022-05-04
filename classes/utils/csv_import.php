@@ -515,6 +515,7 @@ class csv_import {
         $bookingoption->maxoverbooking = 0;
         $bookingoption->description = '';
         $bookingoption->institution = '';
+        $bookingoption->invisible = 0;
     }
 
     /**
