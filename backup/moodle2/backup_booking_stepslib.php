@@ -73,6 +73,10 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $optiondate = new backup_nested_element('optiondate', array('id'),
                 array('bookingid', 'optionid', 'eventid', 'coursestarttime', 'courseendtime', 'daystonotify', 'sent'));
 
+        $optiondatesteachers = new backup_nested_element('optiondates_teachers');
+        $optiondatesteacher = new backup_nested_element('optiondates_teacher', array('id'),
+                array('optiondateid', 'userid'));
+
         $categories = new backup_nested_element('categories');
         $category = new backup_nested_element('category', array('id'),
                 array('cid', 'name'));
@@ -107,6 +111,9 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $booking->add_child($optiondates);
         $optiondates->add_child($optiondate);
 
+        $optiondate->add_child($optiondatesteachers);
+        $optiondatesteachers->add_child($optiondatesteacher);
+
         $booking->add_child($categories);
         $categories->add_child($category);
 
@@ -140,6 +147,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         // Only backup teachers, if config setting is set.
         if (get_config('booking', 'duplicationrestoreteachers')) {
             $teacher->set_source_table('booking_teachers', array('bookingid' => backup::VAR_PARENTID));
+            // Also backup teaching reports (which teacher was there at which session).
+            $optiondatesteacher->set_source_table('booking_optiondates_teachers', array('optiondateid' => backup::VAR_PARENTID));
         }
 
         // All the rest of elements only happen if we are including user info.

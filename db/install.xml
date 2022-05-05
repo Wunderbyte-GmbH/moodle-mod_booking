@@ -270,6 +270,18 @@
         <INDEX NAME="optionid" UNIQUE="false" FIELDS="optionid"/>
       </INDEXES>
     </TABLE>
+    <TABLE NAME="booking_optiondates_teachers" COMMENT="Track teachers for each session.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="optiondateid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The userid of the teacher."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_optiondateid" TYPE="foreign" FIELDS="optiondateid" REFTABLE="booking_optiondates" REFFIELDS="id"/>
+        <KEY NAME="fk_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
     <TABLE NAME="booking_customfields" COMMENT="Default comment for the table, please edit me">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
