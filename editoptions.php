@@ -22,6 +22,7 @@ use mod_booking\form\modaloptiondateform;
 use \core\output\notification;
 use mod_booking\customfield\booking_handler;
 use mod_booking\price;
+use local_entities\entitiesrelation_handler;
 
 global $DB, $OUTPUT, $PAGE, $USER;
 
@@ -214,6 +215,11 @@ if ($mform->is_cancelled()) {
         $fromform->optionid = $nbooking ?? $optionid;
         $price = new price($fromform->optionid);
         $price->save_from_form($fromform);
+
+        // This is to save er data
+        // The id key has to be set to option id.
+        $erhandler = new entitiesrelation_handler('bookingoption');
+        $erhandler->instance_form_save($fromform, $fromform->optionid);
 
         // This is to save customfield data
         // The id key has to be set to option id.
