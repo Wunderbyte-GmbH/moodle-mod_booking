@@ -68,7 +68,7 @@ class col_price implements renderable, templatable {
         global $USER;
 
         // First, we see if we deal with a guest. Guests get all prices.
-        if ($context && is_guest($context)) {
+        if ($context && !isloggedin()) {
 
             $this->context = $context;
             $this->priceitems = price::get_prices_from_cache_or_db($values->id);
