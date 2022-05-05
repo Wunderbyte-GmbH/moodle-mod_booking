@@ -1,3 +1,12 @@
+## Version 7.1.1 (2022050501)
+**Improvements:**
+* Add entities relation handler.
+
+**Bugfixes:**
+* CSV-import: add default value for column 'invisible'.
+* Fix table sort order for PostgreSQL.
+* Fix a bug where users couldn't see the corresponding prices.
+
 ## Version 7.1.0 (2022050400)
 **New features:**
 * New possibility to make options invisible for users without permission.
