@@ -1489,3 +1489,4 @@ $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="ale
 $string['optiondatesteachersreport'] = 'Training-Journal / Vertretungen';
 $string['optiondatesteachersreport_desc'] = 'In diesem Report erhalten Sie eine Übersicht, welche_r Trainer_in an welchem Termin geleitet hat.<br>
 Standardmäßig werden alle Termine mit dem/den eingestellten Trainer_innen der Buchungsoption befüllt. Sie können einzelne Termine mit Vertretungen überschreiben.';
+$string['teacher'] = 'Trainer_in';

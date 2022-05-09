@@ -23,6 +23,7 @@ require_once(__DIR__ . '/../../lib.php');
 require_once($CFG->libdir.'/tablelib.php');
 
 use dml_exception;
+use mod_booking\optiondates_handler;
 use table_sql;
 
 defined('MOODLE_INTERNAL') || die();
@@ -50,12 +51,27 @@ class optiondates_teachers_table extends table_sql {
      * optiondateid value.
      *
      * @param object $values Contains object with all the values of record.
+     * @return string $string Rendered name (text) of the booking option.
+     * @throws dml_exception
+     */
+    public function col_optionname(object $values): string {
+
+        return "$values->text";
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * optiondateid value.
+     *
+     * @param object $values Contains object with all the values of record.
      * @return string $string Rendered date and time of the optiondate.
      * @throws dml_exception
      */
-    public function col_optiondateid(object $values): string {
+    public function col_optiondate(object $values): string {
 
-        return "$values->optiondateid";
+        return optiondates_handler::prettify_optiondates_start_end($values->coursestarttime,
+            $values->courseendtime, current_language());
+
     }
 
     /**
@@ -66,9 +82,9 @@ class optiondates_teachers_table extends table_sql {
      * @return string $string Rendered teacher(s) for the specific optiondate.
      * @throws dml_exception
      */
-    public function col_userid(object $values): string {
+    public function col_teacher(object $values): string {
 
-        return "$values->userid";
+        return "$values->teachers";
     }
 
     /**

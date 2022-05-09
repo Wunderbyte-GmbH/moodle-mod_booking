@@ -17,6 +17,7 @@
 namespace mod_booking\form;
 
 use html_writer;
+use mod_booking\optiondates_handler;
 use stdClass;
 use moodle_exception;
 
@@ -128,18 +129,9 @@ class modaloptiondateform extends \core_form\dynamic_form {
                 $optiondate->starttimestamp = $optiondatestart;
                 $optiondate->endtimestamp = $data->optiondateend[$idx];
 
-                $stringstartdate = date('Y-m-d', $optiondate->starttimestamp);
-                $stringenddate = date('Y-m-d', $optiondate->endtimestamp);
-                $stringstarttime = date('H:i', $optiondate->starttimestamp);
-                $stringendtime = date('H:i', $optiondate->endtimestamp);
-
-                if ($stringstartdate === $stringenddate) {
-                    // If they are one the same day, show date only once.
-                    $optiondate->string = $stringstartdate . ' ' . $stringstarttime . '-' . $stringendtime;
-                } else {
-                    // Else show both dates.
-                    $optiondate->string = $stringstartdate . ' ' . $stringstarttime . ' - ' . $stringenddate . ' ' . $stringendtime;
-                }
+                // If dates are on the same day, then show date only once.
+                $optiondate->string = optiondates_handler::prettify_optiondates_start_end($optiondate->starttimestamp,
+                    $optiondate->endtimestamp, current_language());
 
                 $optiondatesarray[] = $optiondate;
             }

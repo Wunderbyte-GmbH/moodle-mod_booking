@@ -292,18 +292,9 @@ class optiondates_handler {
                 $date->starttimestamp = $record->coursestarttime;
                 $date->endtimestamp = $record->courseendtime;
 
-                $stringstartdate = date('Y-m-d', $date->starttimestamp);
-                $stringenddate = date('Y-m-d', $date->endtimestamp);
-                $stringstarttime = date('H:i', $date->starttimestamp);
-                $stringendtime = date('H:i', $date->endtimestamp);
-
-                if ($stringstartdate === $stringenddate) {
-                    // If they are one the same day, show date only once.
-                    $date->string = $stringstartdate . ' ' . $stringstarttime . '-' . $stringendtime;
-                } else {
-                    // Else show both dates.
-                    $date->string = $stringstartdate . ' ' . $stringstarttime . ' - ' . $stringenddate . ' ' . $stringendtime;
-                }
+                // If dates are on the same day, then show date only once.
+                $date->string = self::prettify_optiondates_start_end($date->starttimestamp,
+                    $date->endtimestamp, current_language());
 
                 $datearray[] = $date;
             }
@@ -312,6 +303,46 @@ class optiondates_handler {
         } else {
             return [];
         }
+    }
+
+    /**
+     * Helper function to format option dates. If they are on the same day, show date only once.
+     * Else show both dates.
+     * @param int $starttimestamp
+     * @param int $endtimestamp
+     * @param string $lang optional language parameter
+     * @param bool $monthname if true, the full month name (e.g. "January") will be shown
+     * @return string the prettified string from start to end date
+     */
+    public static function prettify_optiondates_start_end(int $starttimestamp, int $endtimestamp,
+        string $lang = 'en'): string {
+
+        $prettifiedstring = '';
+
+        switch($lang) {
+            case 'de':
+                $stringstartdate = date('d.m.Y', $starttimestamp);
+                $stringenddate = date('d.m.Y', $endtimestamp);
+                break;
+            case 'en':
+            default:
+                $stringstartdate = date('Y-m-d', $starttimestamp);
+                $stringenddate = date('Y-m-d', $endtimestamp);
+                break;
+        }
+
+        $stringstarttime = date('H:i', $starttimestamp);
+        $stringendtime = date('H:i', $endtimestamp);
+
+        if ($stringstartdate === $stringenddate) {
+            // If they are one the same day, show date only once.
+            $prettifiedstring = $stringstartdate . ', ' . $stringstarttime . '-' . $stringendtime;
+        } else {
+            // Else show both dates.
+            $prettifiedstring = $stringstartdate . ', ' . $stringstarttime . ' - ' . $stringenddate . ', ' . $stringendtime;
+        }
+
+        return $prettifiedstring;
     }
 
     /**

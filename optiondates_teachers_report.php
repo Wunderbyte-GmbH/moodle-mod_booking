@@ -59,6 +59,8 @@ $optiondatesteacherstable->is_downloading($download, 'test', 'test123');
 $tablebaseurl = $baseurl;
 $tablebaseurl->remove_params('page');
 $optiondatesteacherstable->define_baseurl($tablebaseurl);
+$optiondatesteacherstable->defaultdownloadformat = 'pdf';
+$optiondatesteacherstable->sortable(false);
 
 $optiondatesteacherstable->show_download_buttons_at(array(TABLE_P_BOTTOM));
 
@@ -68,62 +70,79 @@ if (!$optiondatesteacherstable->is_downloading()) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('optiondatesteachersreport', 'mod_booking'));
 
-    // Columns.
-    $optiondatesteacherstable->define_columns([
-        'optiondateid',
-        'optionid',
-        'coursestarttime',
-        'courseendtime',
-        'userid'
-    ]);
+    // Dismissible alert containing the description of the report.
+    echo '<div class="alert alert-info alert-dismissible fade show" role="alert">' .
+        get_string('optiondatesteachersreport_desc', 'mod_booking') .
+        '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        </button>
+    </div>';
 
     // Header.
     $optiondatesteacherstable->define_headers([
-        'optiondateid',
-        'optionid',
-        'coursestarttime',
-        'courseendtime',
-        'userid'
+        get_string('name'),
+        get_string('optiondate', 'mod_booking'),
+        get_string('teacher', 'mod_booking'),
+        get_string('edit')
+    ]);
+
+
+    // Columns.
+    $optiondatesteacherstable->define_columns([
+        'optionname',
+        'optiondate',
+        'teacher',
+        'edit'
     ]);
 
     // SQL query.
-    $fields = "bodt.optiondateid, bod.optionid, bod.coursestarttime, bod.courseendtime, bodt.userid";
-    $from = "{booking_optiondates_teachers} bodt
-            LEFT JOIN {booking_optiondates} bod
-            ON bodt.optiondateid = bod.id";
-    $where = "bod.optionid = :optionid";
+    $fields = "bod.id optiondateid, bod.optionid, bo.text, bod.coursestarttime, bod.courseendtime, " .
+        $DB->sql_group_concat('u.id', ' & ', 'u.id') . ' teachers';
+    $from = "{booking_optiondates} bod
+            LEFT JOIN {booking_optiondates_teachers} bodt
+            ON bodt.optiondateid = bod.id
+            LEFT JOIN {booking_options} bo
+            ON bo.id = bod.optionid
+            LEFT JOIN {user} u
+            ON u.id = bodt.userid";
+    $where = "bod.optionid = :optionid
+            GROUP BY bod.id, bod.optionid, bo.text, bod.coursestarttime, bod.courseendtime
+            ORDER BY bod.coursestarttime ASC";
     $params = ['optionid' => $optionid];
 
     // Now build the table.
     $optiondatesteacherstable->set_sql($fields, $from, $where, $params);
-    $optiondatesteacherstable->out(100, true);
+    $optiondatesteacherstable->out(100, false);
 
     echo $OUTPUT->footer();
 } else {
-    // Columns.
-    $optiondatesteacherstable->define_columns([
-        'optiondateid',
-        'optionid',
-        'coursestarttime',
-        'courseendtime',
-        'userid'
+    // Header.
+    $optiondatesteacherstable->define_headers([
+        get_string('name'),
+        get_string('optiondate', 'mod_booking'),
+        get_string('teacher', 'mod_booking')
     ]);
 
-    // Headers.
-    $optiondatesteacherstable->define_headers([
-        'optiondateid',
-        'optionid',
-        'coursestarttime',
-        'courseendtime',
-        'userid'
+
+    // Columns.
+    $optiondatesteacherstable->define_columns([
+        'optionname',
+        'optiondate',
+        'teacher'
     ]);
 
     // SQL query.
-    $fields = "bodt.id, bodt.optiondateid, bod.optionid, bod.coursestarttime, bod.courseendtime, bodt.userid";
-    $from = "{booking_optiondates_teachers} bodt
-            LEFT JOIN {booking_optiondates} bod
-            ON bodt.optiondateid = bod.id";
-    $where = "bod.optionid = :optionid";
+    $fields = "bodt.optiondateid, bod.optionid, bo.text, bod.coursestarttime, bod.courseendtime, bodt.userid,
+                u.firstname, u.lastname";
+    $from = "{booking_optiondates} bod
+            LEFT JOIN {booking_optiondates_teachers} bodt
+            ON bodt.optiondateid = bod.id
+            LEFT JOIN {booking_options} bo
+            ON bo.id = bod.optionid
+            LEFT JOIN {user} u
+            ON u.id = bodt.userid";
+    $where = "bod.optionid = :optionid
+            ORDER BY bod.coursestarttime ASC";
     $params = ['optionid' => $optionid];
 
     // Now build the table.
