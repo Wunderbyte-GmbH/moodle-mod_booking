@@ -1482,3 +1482,10 @@ $string['optiondatestart'] = 'Beginn';
 $string['optiondateend'] = 'Ende';
 $string['erroroptiondatestart'] = 'Terminbeginn muss vor dem Terminende liegen.';
 $string['erroroptiondateend'] = 'Terminende muss nach dem Terminbeginn liegen.';
+
+// Optiondates_teachers_report.php.
+$string['accessdenied'] = 'Zugriff verweigert';
+$string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="alert">Sie sind nicht berechtigt, auf diese Seite zuzugreifen.</div>';
+$string['optiondatesteachersreport'] = 'Training-Journal / Vertretungen';
+$string['optiondatesteachersreport_desc'] = 'In diesem Report erhalten Sie eine Übersicht, welche_r Trainer_in an welchem Termin geleitet hat.<br>
+Standardmäßig werden alle Termine mit dem/den eingestellten Trainer_innen der Buchungsoption befüllt. Sie können einzelne Termine mit Vertretungen überschreiben.';

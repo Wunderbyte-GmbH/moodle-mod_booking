@@ -1720,3 +1720,10 @@ $string['optiondatestart'] = 'Start';
 $string['optiondateend'] = 'End';
 $string['erroroptiondatestart'] = 'Date start needs to be before date end.';
 $string['erroroptiondateend'] = 'Date end needs to be after date start.';
+
+// Optiondates_teachers_report.php.
+$string['accessdenied'] = 'Access denied';
+$string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="alert">You have no permission to access this page.</div>';
+$string['optiondatesteachersreport'] = 'Teaching Report / Replacement teachers';
+$string['optiondatesteachersreport_desc'] = 'This report gives an overview of which teacher was present at which specific date.<br>
+By default, every date will be filled in with the option\'s teacher. You can overwrite specific dates with replacement teachers.';
