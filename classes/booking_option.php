@@ -1407,6 +1407,8 @@ class booking_option {
             $result = false;
         }
 
+        // TODO: delete from optiondates_teachers by optionid!!
+
         if (!$DB->delete_records("booking_options", array("id" => $this->optionid))) {
             $result = false;
         }

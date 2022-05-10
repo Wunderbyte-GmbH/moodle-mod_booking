@@ -262,6 +262,9 @@ class csv_import {
                         $newteacher->userid = $teacher->id;
                         $newteacher->optionid = $optionid;
                         $DB->insert_record('booking_teachers', $newteacher, true);
+
+                        // When inserting a new teacher, we also need to insert the teacher for each optiondate.
+                        optiondates_handler::subscribe_teacher_to_all_optiondates($optionid, $teacher->id);
                     } else {
                         $this->add_csverror(get_string('noteacherfound', 'booking', $i), $i);
                     }

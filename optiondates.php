@@ -24,6 +24,7 @@
 use mod_booking\booking_option;
 use mod_booking\calendar;
 use mod_booking\form\optiondatesadd_form;
+use mod_booking\optiondates_handler;
 
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
@@ -81,6 +82,9 @@ if ($delete != '') {
     // Now we can delete the session.
     $DB->delete_records("booking_optiondates", array('optionid' => $optionid, 'id' => $delete));
 
+    // We also need to delete the associated records in booking_optiondates_teachers.
+    optiondates_handler::remove_teachers_from_deleted_optiondate($delete);
+
     // If there are no sessions left, we switch from multisession to simple option.
     if (!$DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
         $bu = new \mod_booking\booking_utils();
@@ -120,7 +124,11 @@ if ($duplicate != '') {
         $record->eventid = 0; // No calendar event found to duplicate.
     }
 
-    $edit = $DB->insert_record("booking_optiondates", $record);
+    $edit = $DB->insert_record('booking_optiondates', $record);
+
+    // Add teachers of the booking option to newly created optiondate.
+    optiondates_handler::subscribe_existing_teachers_to_new_optiondate($edit);
+
     booking_updatestartenddate($optionid);
     optiondate_duplicatecustomfields($duplicate, $edit);
 
@@ -181,7 +189,11 @@ if ($mform->is_cancelled()) {
     } else {
         // It's a new session.
         $changes = [];
-        if ($optiondateid = $DB->insert_record("booking_optiondates", $optiondate)) {
+        if ($optiondateid = $DB->insert_record('booking_optiondates', $optiondate)) {
+
+            // Add teachers of the booking option to newly created optiondate.
+            optiondates_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
+
             // Add info that a session has been added (do this only at coursestarttime, we don't need it twice).
             $changes[] = [  'info' => get_string('changeinfosessionadded', 'booking'),
                             'fieldname' => 'coursestarttime',

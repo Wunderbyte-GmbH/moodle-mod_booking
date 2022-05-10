@@ -33,6 +33,7 @@ use core_privacy\local\request\contextlist;
 use core_privacy\local\request\helper;
 use core_privacy\local\request\writer;
 use dml_exception;
+use mod_booking\optiondates_handler;
 use stdClass;
 
 class provider implements
@@ -256,6 +257,9 @@ class provider implements
             // Delete all teachers within the instance.
             $DB->delete_records('booking_teachers', ['bookingid' => $cm->instance]);
 
+            // Also delete all entries for booking_optiondates_teachers in context.
+            optiondates_handler::delete_booking_optiondates_teachers_by_bookingid($cm->instance);
+
             // Find all ratings within the instance.
             $ratingswhere = 'id IN (SELECT id
                 FROM {booking_ratings} br
@@ -316,6 +320,8 @@ class provider implements
             $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
             $DB->delete_records('booking_answers', ['bookingid' => $instanceid, 'userid' => $userid]);
             $DB->delete_records('booking_teachers', ['bookingid' => $instanceid, 'userid' => $userid]);
+            // Also delete all entries for booking_optiondates_teachers in context for the user.
+            optiondates_handler::delete_booking_optiondates_teachers_by_bookingid($instanceid, $userid);
         }
 
         // Ratings, icalsequence and userevents do not have a booking id and will therefore be deleted independent of contexts.

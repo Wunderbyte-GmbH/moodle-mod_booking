@@ -23,6 +23,7 @@ require_once("$CFG->libdir/formslib.php");
 
 use cache_helper;
 use mod_booking\semester;
+use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
@@ -127,6 +128,9 @@ class optiondates_handler {
                 } else {
                     // An existing optiondate has been removed by the dynamic form, so delete it from DB.
                     $DB->delete_records('booking_optiondates', ['id' => (int) $olddate->id]);
+
+                    // We also need to delete the associated records in booking_optiondates_teachers.
+                    self::remove_teachers_from_deleted_optiondate((int)$olddate->id);
                 }
             }
 
@@ -142,7 +146,10 @@ class optiondates_handler {
                 $optiondate->courseendtime = (int) $endtime;
                 $optiondate->daystonotify = 0; // TODO: We will implement this in a later release..
 
-                $DB->insert_record('booking_optiondates', $optiondate);
+                $optiondateid = $DB->insert_record('booking_optiondates', $optiondate);
+
+                // Add teachers of the booking option to newly created optiondate.
+                self::subscribe_existing_teachers_to_new_optiondate($optiondateid);
             }
 
             // After updating, we invalidate caches.
@@ -404,5 +411,131 @@ class optiondates_handler {
         }
 
         return true;
+    }
+
+    /**
+     * Helper function to add a new teacher to every (currently existing)
+     * optiondate of an option.
+     * @param int $optionid the booking option id
+     * @param int $userid the user id of the teacher
+     */
+    public static function subscribe_teacher_to_all_optiondates(int $optionid, int $userid) {
+        global $DB;
+
+        if (empty($optionid) || empty ($userid)) {
+            throw new moodle_exception('Could not connect teacher to optiondates because of missing userid or optionid.');
+        }
+
+        // 1. Get all currently existing optiondates of the option.
+        $existingoptiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid], '', 'id');
+        if (!empty($existingoptiondates)) {
+            foreach ($existingoptiondates as $existingoptiondate) {
+                $newentry = new stdClass;
+                $newentry->optiondateid = $existingoptiondate->id;
+                $newentry->userid = $userid;
+                // 2. Insert the teacher into booking_optiondates_teachers for every optiondate.
+                $DB->insert_record('booking_optiondates_teachers', $newentry);
+            }
+        }
+    }
+
+    /**
+     * Helper function to add the option's teacher(s) to a newly created optiondate.
+     * @param int $optiondateid the id of the newly created optiondate
+     */
+    public static function subscribe_existing_teachers_to_new_optiondate(int $optiondateid) {
+        global $DB;
+
+        if (empty($optiondateid)) {
+            throw new moodle_exception(
+                'Could not subscribe existing teacher(s) to the new optiondate because of missing optiondateid.'
+            );
+        }
+
+        if ($optiondate = $DB->get_record('booking_optiondates', ['id' => $optiondateid])) {
+            // Get all currently set teachers of the option.
+            $teachers = $DB->get_records('booking_teachers', ['optionid' => $optiondate->optionid]);
+            if (!empty($teachers)) {
+                foreach ($teachers as $teacher) {
+                    $newentry = new stdClass;
+                    $newentry->optiondateid = $optiondate->id;
+                    $newentry->userid = $teacher->userid;
+                    // Insert the newly created optiondate with each teacher.
+                    $DB->insert_record('booking_optiondates_teachers', $newentry);
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper function to remove a teacher from every (currently existing)
+     * optiondate of an option.
+     * @param int $optionid the booking option id
+     * @param int $userid the user id of the teacher
+     */
+    public static function remove_teacher_from_all_optiondates(int $optionid, int $userid) {
+        global $DB;
+
+        if (empty($optionid) || empty ($userid)) {
+            throw new moodle_exception('Could not remove teacher from optiondates because of missing userid or optionid.');
+        }
+
+        // 1. Get all currently existing optiondates of the option.
+        $existingoptiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid], '', 'id');
+        if (!empty($existingoptiondates)) {
+            foreach ($existingoptiondates as $existingoptiondate) {
+                // 2. Delete the teacher from every optiondate.
+                $DB->delete_records('booking_optiondates_teachers', [
+                    'optiondateid' => $existingoptiondate->id,
+                    'userid' => $userid
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Helper function to remove the option's teacher(s) from a deleted optiondate.
+     * @param int $optiondateid the id of the deleted optiondate
+     */
+    public static function remove_teachers_from_deleted_optiondate(int $optiondateid) {
+        global $DB;
+
+        if (empty($optiondateid)) {
+            throw new moodle_exception(
+                'Could not delete teacher(s) from the deleted optiondate because of missing optiondateid.'
+            );
+        }
+
+        // Delete all entries in booking_optiondates_teachers associated with the optiondate.
+        $DB->delete_records('booking_optiondates_teachers', ['optiondateid' => $optiondateid]);
+    }
+
+    /**
+     * Helper function to remove all entries in booking_optiondates_teachers
+     * for a specific booking instance (by bookingid).
+     * @param int $bookingid the id of the booking instance
+     * @param int $userid (optional) teacher id - if set only entries for this teacher will be deleted
+     */
+    public static function delete_booking_optiondates_teachers_by_bookingid(int $bookingid, int $userid = null) {
+        global $DB;
+
+        if (empty($bookingid)) {
+            throw new moodle_exception('Could not clear entries from booking_optiondates_teachers because of missing booking id.');
+        }
+
+        // Get all currently existing optiondates of the option.
+        $existingoptiondates = $DB->get_records('booking_optiondates', ['bookingid' => $bookingid], '', 'id');
+        if (!empty($existingoptiondates)) {
+            foreach ($existingoptiondates as $existingoptiondate) {
+                if (empty($userid)) {
+                    $DB->delete_records('booking_optiondates_teachers', ['optiondateid' => $existingoptiondate->id]);
+                } else {
+                    $DB->delete_records('booking_optiondates_teachers', [
+                        'optiondateid' => $existingoptiondate->id,
+                        'userid' => $userid
+                    ]);
+                }
+            }
+        }
     }
 }

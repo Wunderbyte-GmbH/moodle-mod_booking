@@ -1024,7 +1024,10 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
             if (!empty($optionvalues->$daystonotify)) {
                 $optiondate->daystonotify = $optionvalues->$daystonotify;
             }
-            $optiondateid = $DB->insert_record("booking_optiondates", $optiondate);
+            $optiondateid = $DB->insert_record('booking_optiondates', $optiondate);
+
+            // Add teachers of the booking option to newly created optiondate.
+            optiondates_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
 
             for ($j = 1; $j < 4; ++$j) {
                 $cfname = 'ms' . $i . 'cf' . $j . 'name';
@@ -1803,6 +1806,9 @@ function booking_delete_instance($id) {
 
     if (!$DB->delete_records("booking_optiondates", array("bookingid" => "$booking->id"))) {
         $result = false;
+    } else {
+        // If optiondates are deleted we also have to delete the associated entries in booking_optiondates_teachers.
+        optiondates_handler::delete_booking_optiondates_teachers_by_bookingid($booking->id);
     }
 
     if (!$DB->delete_records("event", array("instance" => "$booking->id"))) {
@@ -1979,6 +1985,9 @@ function subscribe_teacher_to_booking_option($userid, $optionid, $cm, $groupid =
 
     $inserted = $DB->insert_record("booking_teachers", $sub);
 
+    // When inserting a new teacher, we also need to insert the teacher for each optiondate.
+    optiondates_handler::subscribe_teacher_to_all_optiondates($optionid, $userid);
+
     if (!empty($groupid)) {
         groups_add_member($groupid, $userid);
     }
@@ -2010,6 +2019,9 @@ function unsubscribe_teacher_from_booking_option($userid, $optionid, $cm) {
                 'context' => context_module::instance($cm->id)
             ));
     $event->trigger();
+
+    // Also delete the teacher from every optiondate.
+    optiondates_handler::remove_teacher_from_all_optiondates($optionid, $userid);
 
     return ($DB->delete_records('booking_teachers',
             array('userid' => $userid, 'optionid' => $optionid)));

@@ -85,8 +85,6 @@ if (!$optiondatesteacherstable->is_downloading()) {
         get_string('teacher', 'mod_booking'),
         get_string('edit')
     ]);
-
-
     // Columns.
     $optiondatesteacherstable->define_columns([
         'optionname',
@@ -94,20 +92,24 @@ if (!$optiondatesteacherstable->is_downloading()) {
         'teacher',
         'edit'
     ]);
-
-    // SQL query.
-    $fields = "bod.id optiondateid, bod.optionid, bo.text, bod.coursestarttime, bod.courseendtime, " .
-        $DB->sql_group_concat('u.id', ' & ', 'u.id') . ' teachers';
-    $from = "{booking_optiondates} bod
-            LEFT JOIN {booking_optiondates_teachers} bodt
-            ON bodt.optiondateid = bod.id
-            LEFT JOIN {booking_options} bo
-            ON bo.id = bod.optionid
-            LEFT JOIN {user} u
-            ON u.id = bodt.userid";
-    $where = "bod.optionid = :optionid
-            GROUP BY bod.id, bod.optionid, bo.text, bod.coursestarttime, bod.courseendtime
-            ORDER BY bod.coursestarttime ASC";
+    // SQL query. The subselect will fix the "Did you remember to make the first column something...
+    // ...unique in your call to get_records?" bug.
+    $fields = "s.optiondateid, s.optionid, s.text, s.coursestarttime, s.courseendtime, s.teachers";
+    $from = "(
+        SELECT bod.id optiondateid, bod.optionid, bo.text, bod.coursestarttime, bod.courseendtime, " .
+        $DB->sql_group_concat('u.id', ',', 'u.id') . " teachers
+        FROM {booking_optiondates_teachers} bodt
+        LEFT JOIN {booking_optiondates} bod
+        ON bodt.optiondateid = bod.id
+        LEFT JOIN {booking_options} bo
+        ON bo.id = bod.optionid
+        LEFT JOIN {user} u
+        ON u.id = bodt.userid
+        WHERE bod.optionid = :optionid
+        GROUP BY bod.id, bod.optionid, bo.text, bod.coursestarttime, bod.courseendtime
+        ORDER BY bod.coursestarttime ASC
+        ) s";
+    $where = "1=1";
     $params = ['optionid' => $optionid];
 
     // Now build the table.
@@ -116,22 +118,22 @@ if (!$optiondatesteacherstable->is_downloading()) {
 
     echo $OUTPUT->footer();
 } else {
+    // The table is being downloaded.
+
     // Header.
     $optiondatesteacherstable->define_headers([
         get_string('name'),
         get_string('optiondate', 'mod_booking'),
         get_string('teacher', 'mod_booking')
     ]);
-
-
     // Columns.
     $optiondatesteacherstable->define_columns([
         'optionname',
         'optiondate',
         'teacher'
     ]);
-
     // SQL query.
+    // TODO: copy from above and adapt accordingly!
     $fields = "bodt.optiondateid, bod.optionid, bo.text, bod.coursestarttime, bod.courseendtime, bodt.userid,
                 u.firstname, u.lastname";
     $from = "{booking_optiondates} bod
