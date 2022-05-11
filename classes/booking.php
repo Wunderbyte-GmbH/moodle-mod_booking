@@ -639,8 +639,6 @@ class booking {
             // ... then only show visible options.
             $where .= " AND bo.invisible = 0";
         }
-        // ...now do the sorting.
-        $where .= " ORDER BY bo.text ASC";
 
         $params = [
             'bookingid' => $bookingid,
@@ -683,7 +681,6 @@ class booking {
         $where = "bo.bookingid = :bookingid
                   AND ba.userid = :userid
                   AND ba.waitinglist = :booked {$search}";
-        $order = " ORDER BY bo.text ASC";
         if (strlen($searchtext) !== 0) {
             $from .= "
                 JOIN {customfield_data} cfd
@@ -702,8 +699,6 @@ class booking {
             // AND cff.name like 'fieldname'.
             $params['cfsearchtext'] = $searchtext;
         }
-
-        $where .= $order;
 
         return [$fields, $from, $where, $params];
     }
