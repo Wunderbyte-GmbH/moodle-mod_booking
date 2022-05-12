@@ -91,13 +91,13 @@ class optiondates_teachers_table extends table_sql {
             foreach ($teacherids as $teacherid) {
                 if ($teacheruser = $DB->get_record('user', ['id' => $teacherid])) {
                     $teacherprofileurl = new moodle_url('/user/profile.php', ['id' => $teacherid]);
-                    $teacherlink = "<a href='$teacherprofileurl' class='btn btn-secondary btn-sm'>" .
+                    $teacherlink = "<a href='$teacherprofileurl'>" .
                         "$teacheruser->firstname $teacheruser->lastname</a>";
                     $teacherlinks[] = $teacherlink;
                 }
             }
         }
-        return implode(' ', $teacherlinks);
+        return implode(' | ', $teacherlinks);
     }
 
     /**

@@ -23,6 +23,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\booking_option;
+use mod_booking\singleton_service;
 use mod_booking\table\optiondates_teachers_table;
 
 require_once(__DIR__ . '/../../config.php');
@@ -71,32 +73,41 @@ if (!$optiondatesteacherstable->is_downloading()) {
     echo $OUTPUT->heading(get_string('optiondatesteachersreport', 'mod_booking'));
 
     // Dismissible alert containing the description of the report.
-    echo '<div class="alert alert-info alert-dismissible fade show" role="alert">' .
+    echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert">' .
         get_string('optiondatesteachersreport_desc', 'mod_booking') .
         '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
         </button>
     </div>';
 
+    $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+    booking_option::transform_unique_bookingoption_name_to_display_name($settings);
+
+    // Show header with booking option name.
+    echo "<h2 class='mt-5'>$settings->text</h2>";
+
     // Header.
     $optiondatesteacherstable->define_headers([
-        get_string('name'),
         get_string('optiondate', 'mod_booking'),
         get_string('teacher', 'mod_booking'),
         get_string('edit')
     ]);
+
     // Columns.
     $optiondatesteacherstable->define_columns([
-        'optionname',
         'optiondate',
         'teacher',
         'edit'
     ]);
+
+    // Header column.
+    $optiondatesteacherstable->define_header_column('optiondate');
+
     // SQL query. The subselect will fix the "Did you remember to make the first column something...
     // ...unique in your call to get_records?" bug.
-    $fields = "s.optiondateid, s.optionid, s.text, s.coursestarttime, s.courseendtime, s.teachers";
+    $fields = "s.optiondateid, s.optionid, s.coursestarttime, s.courseendtime, s.teachers";
     $from = "(
-        SELECT bod.id optiondateid, bod.optionid, bo.text, bod.coursestarttime, bod.courseendtime, " .
+        SELECT bod.id optiondateid, bod.optionid, bod.coursestarttime, bod.courseendtime, " .
         $DB->sql_group_concat('u.id', ',', 'u.id') . " teachers
         FROM {booking_optiondates_teachers} bodt
         LEFT JOIN {booking_optiondates} bod
@@ -106,15 +117,18 @@ if (!$optiondatesteacherstable->is_downloading()) {
         LEFT JOIN {user} u
         ON u.id = bodt.userid
         WHERE bod.optionid = :optionid
-        GROUP BY bod.id, bod.optionid, bo.text, bod.coursestarttime, bod.courseendtime
+        GROUP BY bod.id, bod.optionid, bod.coursestarttime, bod.courseendtime
         ORDER BY bod.coursestarttime ASC
         ) s";
     $where = "1=1";
     $params = ['optionid' => $optionid];
 
+    // We only have 3 columns, so no need to collapse anything.
+    $optiondatesteacherstable->collapsible(false);
+
     // Now build the table.
     $optiondatesteacherstable->set_sql($fields, $from, $where, $params);
-    $optiondatesteacherstable->out(100, false);
+    $optiondatesteacherstable->out(TABLE_SHOW_ALL_PAGE_SIZE, false);
 
     echo $OUTPUT->footer();
 } else {
@@ -150,7 +164,7 @@ if (!$optiondatesteacherstable->is_downloading()) {
     // Now build the table.
     $optiondatesteacherstable->set_sql($fields, $from, $where, $params);
     $optiondatesteacherstable->setup();
-    $optiondatesteacherstable->query_db(100);
+    $optiondatesteacherstable->query_db(TABLE_SHOW_ALL_PAGE_SIZE);
     $optiondatesteacherstable->build_table();
     $optiondatesteacherstable->finish_output();
 }
