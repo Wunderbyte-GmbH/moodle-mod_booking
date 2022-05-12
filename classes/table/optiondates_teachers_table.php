@@ -24,6 +24,7 @@ require_once($CFG->libdir.'/tablelib.php');
 
 use dml_exception;
 use mod_booking\optiondates_handler;
+use moodle_url;
 use table_sql;
 
 defined('MOODLE_INTERNAL') || die();
@@ -83,8 +84,20 @@ class optiondates_teachers_table extends table_sql {
      * @throws dml_exception
      */
     public function col_teacher(object $values): string {
-
-        return "$values->teachers";
+        global $DB;
+        $teacherlinks = [];
+        if (!empty($values->teachers)) {
+            $teacherids = explode(',', $values->teachers);
+            foreach ($teacherids as $teacherid) {
+                if ($teacheruser = $DB->get_record('user', ['id' => $teacherid])) {
+                    $teacherprofileurl = new moodle_url('/user/profile.php', ['id' => $teacherid]);
+                    $teacherlink = "<a href='$teacherprofileurl' class='btn btn-secondary btn-sm'>" .
+                        "$teacheruser->firstname $teacheruser->lastname</a>";
+                    $teacherlinks[] = $teacherlink;
+                }
+            }
+        }
+        return implode(' ', $teacherlinks);
     }
 
     /**
@@ -97,6 +110,6 @@ class optiondates_teachers_table extends table_sql {
      */
     public function col_edit(object $values): string {
 
-        return "edit";
+        return "<i class='fa fa-edit'></i> " . get_string('edit');
     }
 }
