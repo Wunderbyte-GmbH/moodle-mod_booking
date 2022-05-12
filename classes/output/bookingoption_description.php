@@ -106,6 +106,9 @@ class bookingoption_description implements renderable, templatable {
         $this->bu = new booking_utils();
         $bookingoption = new booking_option($booking->cm->id, $option->id);
 
+		// Remove separator and id from the "text" attribute.
+        booking_option::transform_unique_bookingoption_name_to_display_name($bookingoption);
+
         // We need the possibility to render for other users, so the iambookedflag is not enough.
         // But we use it if nothing else is specified.
         if ($forbookeduser === null) {
