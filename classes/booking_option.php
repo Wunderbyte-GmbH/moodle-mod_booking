@@ -2028,7 +2028,7 @@ class booking_option {
     /**
      * The booking option data should have a display name without unique key in text.
      * Therefore, we use the separtor and only display first part as text (name) wihtout key.
-     * @param $data
+     * @param $data an object containing the ->text attribute
      * @throws \dml_exception
      */
     public static function transform_unique_bookingoption_name_to_display_name(&$data) {
