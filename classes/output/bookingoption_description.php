@@ -26,6 +26,7 @@ namespace mod_booking\output;
 
 use context_module;
 use mod_booking\booking;
+use mod_booking\booking_option;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use renderer_base;
@@ -129,6 +130,9 @@ class bookingoption_description implements renderable, templatable {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
         $bookingoption = singleton_service::get_instance_of_booking_option($this->cmid, $optionid);
+
+        // Remove separator and id from the "text" attribute.
+        booking_option::transform_unique_bookingoption_name_to_display_name($settings);
 
         if ($user === null) {
             $user = $USER;
