@@ -832,6 +832,8 @@ $string['importcsvbookingoption'] = 'Buchungsoptionen via CSV-Datei importieren'
 $string['importexcelbutton'] = 'Aktivitätsabschluss importieren';
 $string['activitycompletiontext'] = 'Nachricht an Benutzer/in, wenn Buchungsoption abgeschlossen ist';
 $string['activitycompletiontextsubject'] = 'Buchungsoption abgeschlossen';
+$string['changesemester'] = 'Ändere Semester';
+$string['choosesemester'] = 'Wähle Semester';
 $string['activitycompletiontextmessage'] = 'Sie haben die folgende Buchungsoption abgeschlossen:
 
 {$a->bookingdetails}

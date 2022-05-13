@@ -1198,6 +1198,8 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 new moodle_url('tagtemplates.php', array('id' => $cm->id)));
         $settingnode->add(get_string('importexcelbutton', 'booking'),
                 new moodle_url('importexcel.php', array('id' => $cm->id)));
+        $settingnode->add(get_string('changesemester', 'booking'),
+                new moodle_url('semesters.php', array('id' => $cm->id)));
     }
 
     if (!is_null($optionid) AND $optionid > 0) {

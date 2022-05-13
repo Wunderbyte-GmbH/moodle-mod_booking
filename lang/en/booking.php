@@ -969,6 +969,8 @@ $string['importcsvbookingoption'] = 'Import CSV with booking options';
 $string['importexcelbutton'] = 'Import activity completion';
 $string['activitycompletiontext'] = 'Message to be sent to user when booking option is completed';
 $string['activitycompletiontextsubject'] = 'Booking option completed';
+$string['changesemester'] = 'Change Semester';
+$string['choosesemester'] = 'Choose Semester';
 $string['activitycompletiontextmessage'] = 'You have completed the following booking option:
 
 {$a->bookingdetails}

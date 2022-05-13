@@ -22,10 +22,13 @@ global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
 use cache_helper;
+use context_module;
 use mod_booking\semester;
 use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
+
+use function PHPUnit\Framework\isEmpty;
 
 /**
  * Control and manage option dates.
@@ -411,6 +414,50 @@ class optiondates_handler {
         }
 
         return true;
+    }
+
+
+    /**
+     * Delete all the optiondates and create them anew.
+     *
+     * @param int $cmid
+     * @param int $semesterid
+     * @return void
+     */
+    public static function change_semester($cmid, $semesterid) {
+
+        global $DB;
+        // First we delete all optiondates on this instance.
+
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+        $bookingid = $booking->id;
+
+        $DB->delete_records('booking_optiondates', ['bookingid' => $bookingid]);
+
+        // Now we run through all the bookingoptions.
+
+        $options = $DB->get_records('booking_options', ["bookingid" => $bookingid]);
+
+        foreach ($options as $option) {
+
+            if (empty($option->dayofweektime)) {
+                continue;
+            }
+
+            $msdates = self::get_optiondate_series($semesterid, $option->dayofweektime);
+            $counter = 1;
+            if (isset($msdates['dates'])) {
+                foreach ($msdates['dates'] as $msdate) {
+                    $startkey = 'ms' . $counter . 'starttime';
+                    $endkey = 'ms' . $counter . 'endtime';
+                    $option->$startkey = $msdate->starttimestamp;
+                    $option->$endkey = $msdate->endtimestamp;
+                    $counter++;
+                }
+            }
+            $context = context_module::instance($cmid);
+            booking_update_options($option, $context);
+        }
     }
 
     /**

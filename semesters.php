@@ -23,6 +23,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\form\dynamicchangesemesterform;
 use mod_booking\form\dynamicholidaysform;
 use mod_booking\form\dynamicsemestersform;
 use mod_booking\output\semesters_holidays;
@@ -34,6 +35,8 @@ global $OUTPUT;
 
 // No guest autologin.
 require_login(0, false);
+
+$cmid = optional_param('id', 0, PARAM_INT);
 
 admin_externalpage_setup('modbookingsemesters', '', [],
     new moodle_url('/mod/booking/semesters.php'));
@@ -58,8 +61,17 @@ $holidaysform = new dynamicholidaysform();
 $holidaysform->set_data_for_dynamic_submission();
 $renderedholidaysform = $holidaysform->render();
 
+if ($cmid) {
+    $changesemesterform = new dynamicchangesemesterform();
+
+    $changesemesterform->set_data_for_dynamic_submission();
+    $renderedchangesemesterform = $changesemesterform->render();
+} else {
+    $renderedchangesemesterform = '';
+}
+
 $output = $PAGE->get_renderer('mod_booking');
-$data = new semesters_holidays($renderedsemestersform, $renderedholidaysform);
+$data = new semesters_holidays($renderedsemestersform, $renderedholidaysform, $renderedchangesemesterform);
 echo $output->render_semesters_holidays($data);
 
 $existingsemesters = $DB->get_records('booking_semesters');
@@ -75,5 +87,16 @@ $PAGE->requires->js_call_amd(
     'init',
     ['[data-region=holidaysformcontainer]', dynamicholidaysform::class, $existingholidays]
 );
+
+if ($cmid) {
+    $data = new stdClass();
+    $data->cmid = $cmid;
+    $existingsemester = $data;
+    $PAGE->requires->js_call_amd(
+    'mod_booking/dynamicchangesemesterform',
+    'init',
+    ['[data-region=changesemestercontainer]', dynamicchangesemesterform::class, $existingsemester]
+    );
+}
 
 echo $OUTPUT->footer();

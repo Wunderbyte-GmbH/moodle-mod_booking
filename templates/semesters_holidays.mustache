@@ -31,19 +31,29 @@
 </div>
 <nav>
   <div class="nav nav-tabs" id="nav-tab" role="tablist">
-    <a class="nav-link active" id="semesters-tab" data-toggle="tab" href="#semestersform" role="tab" aria-controls="semestersform" aria-selected="true">
+    <a class="nav-link {{^renderedchangesemesterform}}active{{/renderedchangesemesterform}}" id="semesters-tab" data-toggle="tab" href="#semestersform" role="tab" aria-controls="semestersform" aria-selected="true">
       {{#str}} semesters, mod_booking {{/str}}
     </a>
     <a class="nav-link" id="holidays-tab" data-toggle="tab" href="#holidaysform" role="tab" aria-controls="holidaysform" aria-selected="false">
       {{#str}} holidays, mod_booking {{/str}}
     </a>
+    {{#renderedchangesemesterform}}
+    <a class="nav-link active" id="choosesemester-tab" data-toggle="tab" href="#choosesemester" role="tab" aria-controls="choosesemesterform" aria-selected="false">
+      {{#str}} choosesemester, mod_booking {{/str}}
+    </a>
+    {{/renderedchangesemesterform}}
   </div>
 </nav>
 <div class="tab-content" id="nav-tabContent">
-  <div data-region="semestersformcontainer" class="tab-pane fade show active" id="semestersform" role="tabpanel" aria-labelledby="semesters-tab">
+  <div data-region="semestersformcontainer" class="tab-pane fade {{^renderedchangesemesterform}}show active{{/renderedchangesemesterform}}" id="semestersform" role="tabpanel" aria-labelledby="semesters-tab">
     {{{ renderedsemestersform }}}
   </div>
   <div data-region="holidaysformcontainer" class="tab-pane fade" id="holidaysform" role="tabpanel" aria-labelledby="holidays-tab">
     {{{ renderedholidaysform }}}
   </div>
+  {{#renderedchangesemesterform}}
+    <div data-region="changesemestercontainer" class="tab-pane fade show active" id="choosesemesterform" role="tabpanel" aria-labelledby="choosesemesters-tab">
+      {{{ renderedchangesemesterform }}}
+    </div>
+  {{/renderedchangesemesterform}}
 </div>

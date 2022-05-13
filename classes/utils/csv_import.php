@@ -414,6 +414,7 @@ class csv_import {
                     break;
                 case 'dayofweektime':
                     // Deal with option dates.
+                    // TODO: get semester from csv file!!!!
                     $sql = "SELECT MAX(id) AS id FROM {booking_semesters}";
                     if ($semesterid = $DB->get_field_sql($sql)) {
                         $msdates = optiondates_handler::get_optiondate_series($semesterid, $value);

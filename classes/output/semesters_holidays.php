@@ -45,10 +45,11 @@ class semesters_holidays implements renderable, templatable {
      * @param string $renderedsemestersform the rendered semesters form
      * @param string $renderedholidaysform the rendered holidays form
      */
-    public function __construct(string $renderedsemestersform, string $renderedholidaysform) {
+    public function __construct(string $renderedsemestersform, string $renderedholidaysform, string $renderedchangesemesterform) {
 
         $this->renderedsemestersform = $renderedsemestersform;
         $this->renderedholidaysform = $renderedholidaysform;
+        $this->renderedchangesemesterform = $renderedchangesemesterform;
     }
 
     /**
@@ -58,9 +59,16 @@ class semesters_holidays implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
-        return [
+        $returnarray = [
             'renderedsemestersform' => $this->renderedsemestersform,
             'renderedholidaysform' => $this->renderedholidaysform
         ];
+
+        // We only add the key if it's not empty.
+        if ($this->renderedchangesemesterform != '') {
+            $returnarray['renderedchangesemesterform'] = $this->renderedchangesemesterform;
+        }
+
+        return $returnarray;
     }
 }
