@@ -19,7 +19,6 @@ namespace mod_booking\form;
 use html_writer;
 use mod_booking\optiondates_handler;
 use stdClass;
-use moodle_exception;
 
 /**
  * Modal form to create single option dates which are not part of the date series.

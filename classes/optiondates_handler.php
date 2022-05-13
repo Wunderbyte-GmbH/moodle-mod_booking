@@ -523,7 +523,7 @@ class optiondates_handler {
             throw new moodle_exception('Could not clear entries from booking_optiondates_teachers because of missing booking id.');
         }
 
-        // Get all currently existing optiondates of the option.
+        // Get all currently existing optiondates of the booking instance.
         $existingoptiondates = $DB->get_records('booking_optiondates', ['bookingid' => $bookingid], '', 'id');
         if (!empty($existingoptiondates)) {
             foreach ($existingoptiondates as $existingoptiondate) {
@@ -535,6 +535,27 @@ class optiondates_handler {
                         'userid' => $userid
                     ]);
                 }
+            }
+        }
+    }
+
+    /**
+     * Helper function to remove all entries in booking_optiondates_teachers
+     * for a specific booking option (by optionid).
+     * @param int $optionid the id of the booking option
+     */
+    public static function delete_booking_optiondates_teachers_by_optionid(int $optionid) {
+        global $DB;
+
+        if (empty($optionid)) {
+            throw new moodle_exception('Could not clear entries from booking_optiondates_teachers because of missing option id.');
+        }
+
+        // Get all currently existing optiondates of the option.
+        $existingoptiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid], '', 'id');
+        if (!empty($existingoptiondates)) {
+            foreach ($existingoptiondates as $existingoptiondate) {
+                $DB->delete_records('booking_optiondates_teachers', ['optiondateid' => $existingoptiondate->id]);
             }
         }
     }

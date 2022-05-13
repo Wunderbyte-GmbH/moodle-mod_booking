@@ -23,6 +23,7 @@ require_once(__DIR__ . '/../../lib.php');
 require_once($CFG->libdir.'/tablelib.php');
 
 use dml_exception;
+use html_writer;
 use mod_booking\optiondates_handler;
 use moodle_url;
 use table_sql;
@@ -110,6 +111,14 @@ class optiondates_teachers_table extends table_sql {
      */
     public function col_edit(object $values): string {
 
-        return "<i class='fa fa-edit'></i> " . get_string('edit');
+        global $PAGE;
+
+        $ret = '';
+        $ret .= html_writer::div(html_writer::link('#', "<h5><i class='fa fa-edit'></i></h5>",
+            ['class' => 'btn-modal-edit-teachers',
+            'data-cmid' => $_GET['id'],
+            'data-optiondateid' => $values->optiondateid]));
+
+        return $ret;
     }
 }

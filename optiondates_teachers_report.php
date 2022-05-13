@@ -130,7 +130,14 @@ if (!$optiondatesteacherstable->is_downloading()) {
     $optiondatesteacherstable->set_sql($fields, $from, $where, $params);
     $optiondatesteacherstable->out(TABLE_SHOW_ALL_PAGE_SIZE, false);
 
+    // Require JS.
+    $PAGE->requires->js_call_amd(
+        'mod_booking/editteachersforoptiondate_form',
+        'initbuttons'
+    );
+
     echo $OUTPUT->footer();
+
 } else {
     // The table is being downloaded.
 
