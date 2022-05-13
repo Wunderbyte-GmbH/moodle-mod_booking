@@ -33,8 +33,14 @@
     </button>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <a class="dropdown-item" href="{{.}}" target="_self">
-          <i class="fa fa-edit"></i> {{#str}}updatebooking, mod_booking{{/str}}
+          <i class="fa fa-edit"></i> {{#str}} updatebooking, mod_booking {{/str}}
         </a>
+        {{#optiondatesteachersurl}}
+        <h6 class="dropdown-header">{{#str}} reports {{/str}}</h6>
+        <a class="dropdown-item" href="{{.}}" target="_self">
+          <i class="fa fa-table"></i> {{#str}} optiondatesteachersreport, mod_booking {{/str}}
+        </a>
+        {{/optiondatesteachersurl}}
     </div>
   </div>
   {{/editoptionurl}}

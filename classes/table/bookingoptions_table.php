@@ -149,6 +149,9 @@ class bookingoptions_table extends wunderbyte_table {
             $this->booking = singleton_service::get_instance_of_booking_by_optionid($values->id);
         }
 
+        // Get rid of separator and identifier in this view.
+        booking_option::transform_unique_bookingoption_name_to_display_name($values);
+
         $data = new stdClass();
 
         if ($this->booking) {
@@ -168,11 +171,13 @@ class bookingoptions_table extends wunderbyte_table {
         $data->modaltitle = $values->text;
         $data->userid = $this->buyforuser->id;
 
-        // Get the URL to edit the option.
         if (!empty($values->id)) {
             $bookingsoptionsettings = singleton_service::get_instance_of_booking_option_settings($values->id);
             if (!empty($bookingsoptionsettings)) {
+                // Get the URL to edit the option.
                 $data->editoptionurl = $bookingsoptionsettings->editoptionurl;
+                // Get the URL for the optiondates-teachers-report.
+                $data->optiondatesteachersurl = $bookingsoptionsettings->optiondatesteachersurl;
             }
         }
 

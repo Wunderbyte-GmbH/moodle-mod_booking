@@ -274,6 +274,14 @@ class booking_option_settings {
                 $this->editoptionurl = $dbrecord->editoptionurl;
             }
 
+            // If the key "optiondatesteachersurl" is not yet set, we need to generate it.
+            if (!isset($dbrecord->optiondatesteachersurl)) {
+                $this->generate_optiondatesteachers_url($optionid);
+                $dbrecord->optiondatesteachersurl = $this->optiondatesteachersurl;
+            } else {
+                $this->optiondatesteachersurl = $dbrecord->optiondatesteachersurl;
+            }
+
             // If the key "imageurl" is not yet set, we need to load from DB.
             if (!isset($dbrecord->imageurl)) {
                 $this->load_imageurl_from_db($optionid, $dbrecord->bookingid);
@@ -372,6 +380,22 @@ class booking_option_settings {
 
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
             $this->editoptionurl = html_entity_decode($editoptionmoodleurl->out());
+        }
+    }
+
+    /**
+     * Function to generate the optiondates-teachers-report URL.
+     * @param int $cmid course module id
+     * @param int $optionid option id
+     */
+    private function generate_optiondatesteachers_url(int $optionid) {
+
+        if (!empty($this->cmid) && !empty($optionid)) {
+            $optiondatesteachersmoodleurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
+                ['id' => $this->cmid, 'optionid' => $optionid]);
+
+            // Use html_entity_decode to convert "&amp;" to a simple "&" character.
+            $this->optiondatesteachersurl = html_entity_decode($optiondatesteachersmoodleurl->out());
         }
     }
 
