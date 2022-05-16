@@ -87,8 +87,6 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
 
         $mform->addElement('autocomplete', 'teachersforoptiondate', get_string('teachers', 'mod_booking'),
             $allowedusers, $options);
-
-        $this->add_action_buttons();
     }
 
     public function validation($data, $files) {
