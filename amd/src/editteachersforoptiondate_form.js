@@ -29,29 +29,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 import ModalForm from 'core_form/modalform';
-/* Import {
-    get_string as getString
-} from 'core/str';*/
-
-export const init = (linkSelector, formClass, resultSelector, addArgs = false) => {
-    document.querySelector(linkSelector).addEventListener('click', (e) => {
-        e.preventDefault();
-        const form = new ModalForm({
-            formClass,
-            args: addArgs ? {hidebuttons: 1, option: ['green', 'yellow'], name: 'Test2'} : {hidebuttons: 1},
-            modalConfig: {title: 'Test2'},
-            returnFocus: e.currentTarget
-        });
-        // If necessary extend functionality by overriding class methods, for example:
-        form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
-            const response = e.detail;
-            document.querySelector(resultSelector).innerHTML = '<pre>' + JSON.stringify(response) + '</pre>';
-        });
-
-        form.show();
-    });
-
-};
+import {get_string as getString} from 'core/str';
 
 export const initbuttons = () => {
     let buttons = document.querySelectorAll('.btn-modal-edit-teachers');
@@ -75,7 +53,6 @@ export const initbuttons = () => {
     const cmid = button.dataset.cmid;
     const optiondateid = button.dataset.optiondateid;
 
-
     const modalForm = new ModalForm({
 
         // Name of the class where form is defined (must extend \core_form\dynamic_form):
@@ -86,14 +63,20 @@ export const initbuttons = () => {
             'optiondateid': optiondateid,
         },
         // Pass any configuration settings to the modal dialogue, for example, the title:
-        modalConfig: {title: 'xxxxxx'}, // GetString('xxxxx', 'mod_booking'
+        modalConfig: {title: getString('teachers', 'mod_booking')},
         // DOM element that should get the focus after the modal dialogue is closed:
         returnFocus: button
     });
+
     // Listen to events if you want to execute something on form submit.
     // Event detail will contain everything the process() function returned:
     modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, (e) => {
-        window.console.log(e.detail);
+        e.preventDefault();
+        const response = e.detail;
+
+        // eslint-disable-next-line no-console
+        console.log('response: ', response);
+        modalForm.load({response});
     });
 
     // Show the form.

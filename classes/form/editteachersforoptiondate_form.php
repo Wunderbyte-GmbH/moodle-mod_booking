@@ -60,10 +60,13 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
     }
 
     public function process_dynamic_submission() {
-        return $this->get_data();
+        $data = $this->get_data();
+        return $data;
     }
 
     public function definition() {
+        global $DB;
+
         $mform = $this->_form;
 
         $options = [
@@ -71,10 +74,21 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
             'multiple' => true
         ];
 
-        $existingteachers = []; // TODO.
+        /* Important note: Currently, all users can be added as teachers for optiondates.
+        In the future, there might be a user profile field defining users which are allowed
+        to be added as substitute teachers. */
+        $userrecords = $DB->get_records_sql(
+            "SELECT id, firstname, lastname, email FROM {user}"
+        );
+        $allowedusers = [];
+        foreach ($userrecords as $userrecord) {
+            $allowedusers[$userrecord->id] = "$userrecord->firstname $userrecord->lastname ($userrecord->email)";
+        }
 
-        $mform->addElement('autocomplete', 'teachersforoptiondate', 'todo blabla....',
-            $existingteachers, $options);
+        $mform->addElement('autocomplete', 'teachersforoptiondate', get_string('teachers', 'mod_booking'),
+            $allowedusers, $options);
+
+        $this->add_action_buttons();
     }
 
     public function validation($data, $files) {

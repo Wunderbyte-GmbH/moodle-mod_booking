@@ -96,7 +96,6 @@ class dynamicchangesemesterform extends dynamic_form {
      * @return stdClass|null
      */
     public function process_dynamic_submission(): stdClass {
-        global $DB;
 
         $data = $this->get_data();
 

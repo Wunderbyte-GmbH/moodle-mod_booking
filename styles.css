@@ -261,3 +261,11 @@ button[name="customdatesbtn"] {
     padding-bottom: 3px;
     margin-bottom: 5px;
 }
+
+#page-mod-booking-optiondates_teachers_report .modal-body {
+    overflow-y: visible;
+}
+
+#page-mod-booking-optiondates_teachers_report .modal-content {
+    overflow: visible;
+}
