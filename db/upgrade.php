@@ -2322,5 +2322,29 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2021111608, 'booking');
     }
+
+    // Fix https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/188 #188.
+    if ($oldversion < 2021111609) {
+
+        // Define field parentid to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('parentid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'duration');
+
+        // Conditionally launch add field parentid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $index = new xmldb_index('parentid', XMLDB_INDEX_NOTUNIQUE, ['parentid']);
+
+        // Conditionally launch add index parentid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2021111609, 'booking');
+    }
+
     return true;
 }
