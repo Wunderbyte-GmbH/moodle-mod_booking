@@ -37,11 +37,9 @@ export const initbuttons = () => {
     buttons.forEach(button => {
         button.addEventListener('click', (e) => {
             e.preventDefault();
-
             openEditTeachersModal(button);
         });
     });
-
 };
 
 /**
@@ -76,7 +74,6 @@ export const initbuttons = () => {
 
         // eslint-disable-next-line no-console
         console.log('response: ', response);
-        modalForm.load({response});
     });
 
     // Show the form.

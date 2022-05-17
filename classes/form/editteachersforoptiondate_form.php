@@ -18,6 +18,8 @@ namespace mod_booking\form;
 
 use context;
 use context_module;
+use context_system;
+use moodle_url;
 use stdClass;
 
 /**
@@ -32,6 +34,12 @@ use stdClass;
  */
 class editteachersforoptiondate_form extends \core_form\dynamic_form {
 
+    /** @var int $cmid course module id */
+    private $cmid = null;
+
+    /** @var int $optiondateid specific optiondate id (id of the session) */
+    private $optiondateid = null;
+
     /**
      * Returns form context
      *
@@ -41,8 +49,9 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
      * @return context
      */
     protected function get_context_for_dynamic_submission(): context {
-        $cmid = $this->_ajaxformdata['cmid'];
-        return context_module::instance($cmid);
+        return context_system::instance();
+        // $cmid = $this->_ajaxformdata['cmid'];
+        // return context_module::instance($cmid);
     }
 
     /**
@@ -68,6 +77,15 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
         global $DB;
 
         $mform = $this->_form;
+
+        $cmid = $this->_ajaxformdata['cmid'];
+        $optiondateid = $this->_ajaxformdata['optiondateid'];
+
+        $mform->addElement('hidden', 'cmid', $cmid);
+        $mform->setType('cmid', PARAM_INT);
+
+        $mform->addElement('hidden', 'optiondateid', $optiondateid);
+        $mform->setType('optiondateid', PARAM_INT);
 
         $options = [
             'tags' => false,
@@ -95,6 +113,12 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
     }
 
     protected function get_page_url_for_dynamic_submission(): \moodle_url {
-        return new \moodle_url('/mod/booking/optiondates_teachers_report.php');
+        // $cmid = $this->_ajaxformdata['cmid'];
+        // $optionid = $this->_ajaxformdata['optionid'];
+
+        /*if (!$cmid) {
+            $cmid = $this->optional_param('cmid', '', PARAM_RAW);
+        }*/
+        return new moodle_url('/mod/booking/optiondates_teachers_report.php' /*, array('id' => $cmid, 'optionid' => $optionid)*/);
     }
 }
