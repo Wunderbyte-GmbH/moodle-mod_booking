@@ -36,20 +36,23 @@ export const initbuttons = () => {
 
     buttons.forEach(button => {
         button.addEventListener('click', (e) => {
-            e.preventDefault();
-            openEditTeachersModal(button);
+            // E.preventDefault();
+            openEditTeachersModal(button, e);
         });
     });
 };
 
 /**
  *
- * @param {*} button
+ * @param {*} button the edit button
+ * @param {*} e the click event
  */
- function openEditTeachersModal(button) {
+ function openEditTeachersModal(button, e) {
 
     const cmid = button.dataset.cmid;
+    const optionid = button.dataset.optionid;
     const optiondateid = button.dataset.optiondateid;
+    const teachers = button.dataset.teachers;
 
     const modalForm = new ModalForm({
 
@@ -58,22 +61,23 @@ export const initbuttons = () => {
         // Add as many arguments as you need, they will be passed to the form:
         args: {
             'cmid': cmid,
+            'optionid': optionid,
             'optiondateid': optiondateid,
+            'teachers': teachers
         },
         // Pass any configuration settings to the modal dialogue, for example, the title:
         modalConfig: {title: getString('teachers', 'mod_booking')},
         // DOM element that should get the focus after the modal dialogue is closed:
-        returnFocus: button
+        returnFocus: e.currentTarget
     });
 
     // Listen to events if you want to execute something on form submit.
     // Event detail will contain everything the process() function returned:
     modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, (e) => {
-        e.preventDefault();
         const response = e.detail;
-
         // eslint-disable-next-line no-console
-        console.log('response: ', response);
+        console.log('Response of the modal: ', response);
+        window.location.reload();
     });
 
     // Show the form.

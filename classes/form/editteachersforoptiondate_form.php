@@ -34,12 +34,6 @@ use stdClass;
  */
 class editteachersforoptiondate_form extends \core_form\dynamic_form {
 
-    /** @var int $cmid course module id */
-    private $cmid = null;
-
-    /** @var int $optiondateid specific optiondate id (id of the session) */
-    private $optiondateid = null;
-
     /**
      * Returns form context
      *
@@ -49,9 +43,8 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
      * @return context
      */
     protected function get_context_for_dynamic_submission(): context {
-        return context_system::instance();
-        // $cmid = $this->_ajaxformdata['cmid'];
-        // return context_module::instance($cmid);
+        $cmid = $this->_ajaxformdata['cmid'];
+        return context_module::instance($cmid);
     }
 
     /**
@@ -63,29 +56,85 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
         require_capability('mod/booking:addeditownoption', $this->get_context_for_dynamic_submission());
     }
 
+    /**
+     * Here we can prepare the data before submission.
+     */
     public function set_data_for_dynamic_submission(): void {
         $data = new stdClass();
+        $data->cmid = $this->_ajaxformdata['cmid'];
+        $data->optionid = $this->_ajaxformdata['optionid'];
+        $data->optiondateid = $this->_ajaxformdata['optiondateid'];
+        // Teachers will be retrieved from $data->teachersforoptiondate in process_dynamic_submission.
         $this->set_data($data);
     }
 
+    /**
+     * This is the correct place to insert and delete data from DB after modal form submission.
+     */
     public function process_dynamic_submission() {
+        global $DB;
+
         $data = $this->get_data();
+        $teachersforoptiondate = $data->teachersforoptiondate;
+
+        // First get already existing teachers.
+        $existingteacherrecords = $DB->get_records('booking_optiondates_teachers', ['optiondateid' => $data->optiondateid]);
+        // Transform into an array of userids.
+        $existingteacherids = [];
+        if (!empty($existingteacherrecords)) {
+            foreach ($existingteacherrecords as $existingteacherrecord) {
+                $existingteacherids[] = $existingteacherrecord->userid;
+            }
+        }
+        // Delete teachers from existing teachers if they have been removed.
+        if (!empty($existingteacherids)) {
+            foreach ($existingteacherids as $existingteacherid) {
+                if (!in_array($existingteacherid, $teachersforoptiondate)) {
+                    $DB->delete_records('booking_optiondates_teachers', [
+                        'optiondateid' => $data->optiondateid,
+                        'userid' => $existingteacherid
+                    ]);
+                }
+            }
+        }
+        // Add teachers if they have been added in autocomplete.
+        if (!empty($teachersforoptiondate)) {
+            foreach ($teachersforoptiondate as $teacherforoptiondate) {
+                if (!in_array($teacherforoptiondate, $existingteacherids)) {
+                    $newteacherrecord = new stdClass;
+                    $newteacherrecord->optiondateid = $data->optiondateid;
+                    $newteacherrecord->userid = $teacherforoptiondate;
+                    $DB->insert_record('booking_optiondates_teachers', $newteacherrecord);
+                }
+            }
+        }
         return $data;
     }
 
+    /**
+     * The form definition.
+     */
     public function definition() {
         global $DB;
 
         $mform = $this->_form;
 
         $cmid = $this->_ajaxformdata['cmid'];
+        $optionid = $this->_ajaxformdata['optionid'];
         $optiondateid = $this->_ajaxformdata['optiondateid'];
+        $teachers = explode(',', $this->_ajaxformdata['teachers']);
 
         $mform->addElement('hidden', 'cmid', $cmid);
         $mform->setType('cmid', PARAM_INT);
 
+        $mform->addElement('hidden', 'optionid', $optionid);
+        $mform->setType('optionid', PARAM_INT);
+
         $mform->addElement('hidden', 'optiondateid', $optiondateid);
         $mform->setType('optiondateid', PARAM_INT);
+
+        $mform->addElement('hidden', 'teachers', $teachers);
+        $mform->setType('teachers', PARAM_RAW);
 
         $options = [
             'tags' => false,
@@ -105,20 +154,36 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
 
         $mform->addElement('autocomplete', 'teachersforoptiondate', get_string('teachers', 'mod_booking'),
             $allowedusers, $options);
+        $mform->setDefault('teachersforoptiondate', $teachers);
     }
 
+    /**
+     * Validation - currently not needed.
+     * @param array $data
+     * @param array $files
+     */
     public function validation($data, $files) {
         $errors = [];
+
+        if (empty($data['teachersforoptiondate'])) {
+            $errors['teachersforoptiondate'] = get_string('teachersemptyerror', 'mod_booking');
+        }
+
         return $errors;
     }
 
-    protected function get_page_url_for_dynamic_submission(): \moodle_url {
-        // $cmid = $this->_ajaxformdata['cmid'];
-        // $optionid = $this->_ajaxformdata['optionid'];
+    /**
+     * This seems to be not needed - we'll do it anyway.
+     */
+    protected function get_page_url_for_dynamic_submission(): moodle_url {
+        $cmid = $this->_ajaxformdata['cmid'];
+        $optionid = $this->_ajaxformdata['optionid'];
 
-        /*if (!$cmid) {
+        if (!$cmid) {
             $cmid = $this->optional_param('cmid', '', PARAM_RAW);
-        }*/
-        return new moodle_url('/mod/booking/optiondates_teachers_report.php' /*, array('id' => $cmid, 'optionid' => $optionid)*/);
+        }
+
+        $url = new moodle_url('/mod/booking/optiondates_teachers_report.php' , array('id' => $cmid, 'optionid' => $optionid));
+        return $url;
     }
 }

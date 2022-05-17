@@ -1491,4 +1491,9 @@ $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="ale
 $string['optiondatesteachersreport'] = 'Training-Journal / Vertretungen';
 $string['optiondatesteachersreport_desc'] = 'In diesem Report erhalten Sie eine Übersicht, welche_r Trainer_in an welchem Termin geleitet hat.<br>
 Standardmäßig werden alle Termine mit dem/den eingestellten Trainer_innen der Buchungsoption befüllt. Sie können einzelne Termine mit Vertretungen überschreiben.';
+$string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">Um Trainer_innen zu ALLEN Terminen hinzuzufügen bzw. von ALLEN Terminen zu löschen, klicken Sie bitte hier.</a></h5></p>';
+$string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">Klicken Sie hier, um die Trainer_innen für spezifische Termine zu protokollieren.</a></h5></p>';
 $string['teacher'] = 'Trainer_in';
+
+// Editteachersforoptiondate_form.php.
+$string['teachersemptyerror'] = 'Sie müssen mindestens eine_n Trainer_in pro Termin eintragen!';

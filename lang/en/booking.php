@@ -1729,4 +1729,9 @@ $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="ale
 $string['optiondatesteachersreport'] = 'Teaching Report / Replacement teachers';
 $string['optiondatesteachersreport_desc'] = 'This report gives an overview of which teacher was present at which specific date.<br>
 By default, every date will be filled in with the option\'s teacher. You can overwrite specific dates with replacement teachers.';
+$string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">Click here if you want to add or remove teachers to/from EVERY date.</a></h5></p>';
+$string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">Click here if you want to add or remove teachers to/from specific dates only (for reporting).</a></h5></p>';
 $string['teacher'] = 'Teacher';
+
+// Editteachersforoptiondate_form.php.
+$string['teachersemptyerror'] = 'You need to have at least one teacher for every session!';

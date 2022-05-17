@@ -137,6 +137,12 @@ if ($edit === 1) {
     echo $output->heading(get_string('teachers', 'booking') . " [{$booking->option->text}]");
 }
 
+$optiondatesteachersreporturl = new moodle_url('/mod/booking/optiondates_teachers_report.php', [
+    'id' => $id,
+    'optionid' => $optionid
+]);
+echo get_string('linktoreportfromeditteachers', 'mod_booking', $optiondatesteachersreporturl->out());
+
 echo html_writer::link(
         new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)),
         get_string('users', 'booking'), array('style' => 'float:right;'));

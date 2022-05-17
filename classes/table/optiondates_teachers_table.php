@@ -24,6 +24,7 @@ require_once($CFG->libdir.'/tablelib.php');
 
 use dml_exception;
 use html_writer;
+use mod_booking\booking_option;
 use mod_booking\optiondates_handler;
 use moodle_url;
 use table_sql;
@@ -57,8 +58,8 @@ class optiondates_teachers_table extends table_sql {
      * @throws dml_exception
      */
     public function col_optionname(object $values): string {
-
-        return "$values->text";
+        booking_option::transform_unique_bookingoption_name_to_display_name($values);
+        return $values->text;
     }
 
     /**
@@ -86,19 +87,34 @@ class optiondates_teachers_table extends table_sql {
      */
     public function col_teacher(object $values): string {
         global $DB;
-        $teacherlinks = [];
-        if (!empty($values->teachers)) {
-            $teacherids = explode(',', $values->teachers);
-            foreach ($teacherids as $teacherid) {
-                if ($teacheruser = $DB->get_record('user', ['id' => $teacherid])) {
-                    $teacherprofileurl = new moodle_url('/user/profile.php', ['id' => $teacherid]);
-                    $teacherlink = "<a href='$teacherprofileurl'>" .
-                        "$teacheruser->firstname $teacheruser->lastname</a>";
-                    $teacherlinks[] = $teacherlink;
+
+        if ($this->is_downloading()) {
+            $teacherstrings = [];
+            if (!empty($values->teachers)) {
+                $teacherids = explode(',', $values->teachers);
+                foreach ($teacherids as $teacherid) {
+                    if ($teacheruser = $DB->get_record('user', ['id' => $teacherid])) {
+                        $teacherstring = "$teacheruser->firstname $teacheruser->lastname ($teacheruser->email)";
+                        $teacherstrings[] = $teacherstring;
+                    }
                 }
             }
+            return implode(', ', $teacherstrings);
+        } else {
+            $teacherlinks = [];
+            if (!empty($values->teachers)) {
+                $teacherids = explode(',', $values->teachers);
+                foreach ($teacherids as $teacherid) {
+                    if ($teacheruser = $DB->get_record('user', ['id' => $teacherid])) {
+                        $teacherprofileurl = new moodle_url('/user/profile.php', ['id' => $teacherid]);
+                        $teacherlink = "<a href='$teacherprofileurl'>" .
+                            "$teacheruser->firstname $teacheruser->lastname</a>";
+                        $teacherlinks[] = $teacherlink;
+                    }
+                }
+            }
+            return implode(' | ', $teacherlinks);
         }
-        return implode(' | ', $teacherlinks);
     }
 
     /**
@@ -111,12 +127,12 @@ class optiondates_teachers_table extends table_sql {
      */
     public function col_edit(object $values): string {
 
-        global $PAGE;
-
         $ret = '';
         $ret .= html_writer::div(html_writer::link('#', "<h5><i class='fa fa-edit'></i></h5>",
             ['class' => 'btn-modal-edit-teachers',
             'data-cmid' => $_GET['id'],
+            'data-optionid' => $values->optionid,
+            'data-teachers' => $values->teachers,
             'data-optiondateid' => $values->optiondateid]));
 
         return $ret;

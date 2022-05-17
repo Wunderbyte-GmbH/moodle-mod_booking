@@ -54,9 +54,15 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
     echo $OUTPUT->footer();
 }
 
+$settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+booking_option::transform_unique_bookingoption_name_to_display_name($settings);
+$bookingoptionname = $settings->text;
+// File name and sheet name.
+$fileandsheetname = $bookingoptionname . "_teachers";
+
 $optiondatesteacherstable = new optiondates_teachers_table('optiondates_teachers_table');
 
-$optiondatesteacherstable->is_downloading($download, 'test', 'test123');
+$optiondatesteacherstable->is_downloading($download, $fileandsheetname, $fileandsheetname);
 
 $tablebaseurl = $baseurl;
 $tablebaseurl->remove_params('page');
@@ -72,6 +78,8 @@ if (!$optiondatesteacherstable->is_downloading()) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('optiondatesteachersreport', 'mod_booking'));
 
+    $editteachersurl = new moodle_url('/mod/booking/teachers.php', $urlparams);
+
     // Dismissible alert containing the description of the report.
     echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert">' .
         get_string('optiondatesteachersreport_desc', 'mod_booking') .
@@ -80,11 +88,10 @@ if (!$optiondatesteacherstable->is_downloading()) {
         </button>
     </div>';
 
-    $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-    booking_option::transform_unique_bookingoption_name_to_display_name($settings);
+    echo get_string('linkfromreporttoeditteachers', 'mod_booking', $editteachersurl->out());
 
     // Show header with booking option name.
-    echo "<h2 class='mt-5'>$settings->text</h2>";
+    echo "<h2 class='mt-5'>$bookingoptionname</h2>";
 
     // Header.
     $optiondatesteacherstable->define_headers([
@@ -153,19 +160,25 @@ if (!$optiondatesteacherstable->is_downloading()) {
         'optiondate',
         'teacher'
     ]);
-    // SQL query.
-    // TODO: copy from above and adapt accordingly!
-    $fields = "bodt.optiondateid, bod.optionid, bo.text, bod.coursestarttime, bod.courseendtime, bodt.userid,
-                u.firstname, u.lastname";
-    $from = "{booking_optiondates} bod
-            LEFT JOIN {booking_optiondates_teachers} bodt
-            ON bodt.optiondateid = bod.id
-            LEFT JOIN {booking_options} bo
-            ON bo.id = bod.optionid
-            LEFT JOIN {user} u
-            ON u.id = bodt.userid";
-    $where = "bod.optionid = :optionid
-            ORDER BY bod.coursestarttime ASC";
+
+    // SQL query. The subselect will fix the "Did you remember to make the first column something...
+    // ...unique in your call to get_records?" bug.
+    $fields = "s.optiondateid, s.text, s.optionid, s.coursestarttime, s.courseendtime, s.teachers";
+    $from = "(
+        SELECT bod.id optiondateid, bo.text, bod.optionid, bod.coursestarttime, bod.courseendtime, " .
+        $DB->sql_group_concat('u.id', ',', 'u.id') . " teachers
+        FROM {booking_optiondates_teachers} bodt
+        LEFT JOIN {booking_optiondates} bod
+        ON bodt.optiondateid = bod.id
+        LEFT JOIN {booking_options} bo
+        ON bo.id = bod.optionid
+        LEFT JOIN {user} u
+        ON u.id = bodt.userid
+        WHERE bod.optionid = :optionid
+        GROUP BY bod.id, bod.optionid, bod.coursestarttime, bod.courseendtime
+        ORDER BY bod.coursestarttime ASC
+        ) s";
+    $where = "1=1";
     $params = ['optionid' => $optionid];
 
     // Now build the table.
