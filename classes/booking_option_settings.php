@@ -18,6 +18,7 @@ namespace mod_booking;
 
 use context_module;
 use context_system;
+use local_entities\entitiesrelation_handler;
 use mod_booking\customfield\booking_handler;
 use stdClass;
 use moodle_url;
@@ -169,6 +170,9 @@ class booking_option_settings {
 
     /** @var string $editteachersurl */
     public $editteachersurl = null;
+
+    /** @var array $entity for displaying enity information [id, name]*/
+    public $entity = [];
 
     /**
      * Constructor for the booking option settings class.
@@ -323,6 +327,14 @@ class booking_option_settings {
                 $dbrecord->customfields = $this->customfields;
             } else {
                 $this->customfields = $dbrecord->customfields;
+            }
+
+            // If the key "entity" is not yet set, we need to load them via handler first.
+            if (!isset($dbrecord->entity)) {
+                $this->load_entity($optionid);
+                $dbrecord->entity = $this->entity;
+            } else {
+                $this->entity = $dbrecord->entity;
             }
 
             return $dbrecord;
@@ -536,6 +548,20 @@ class booking_option_settings {
             if (!empty($value)) {
                 $this->customfields[$shortname] = $value;
             }
+        }
+    }
+
+    /**
+     * Load entity array from handler
+     *
+     * @param int $optionid
+     */
+    private function load_entity(int $optionid) {
+        $handler = new entitiesrelation_handler('bookingoption');
+        $data = $handler->get_instance_data($optionid);
+
+        if (isset($data->id) && isset($data->name)) {
+            $this->entity = ['id' => $data->id, 'name' => $data->name];
         }
     }
 
