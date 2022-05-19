@@ -108,7 +108,6 @@ $string['spaceleft'] = 'space available';
 $string['spacesleft'] = 'spaces available';
 $string['subscribersto'] = 'Teachers for \'{$a}\'';
 $string['taken'] = 'Taken';
-$string['teachers'] = 'Teachers';
 $string['timerestrict'] = 'Restrict answering to this time period: This is deprecated and will be removed. Please use "Restrict Access" settings for making the booking activity available for a certain period';
 $string['timecloseoption'] = 'Limit the availability of this booking option until a certain date';
 $string['to'] = 'to';
@@ -1253,7 +1252,10 @@ $string['messagesubject'] = 'Subject';
 $string['messagetext'] = 'Message';
 
 // Teachers.php.
-$string['users'] = '<< Manage responses';
+$string['teachers'] = 'Teachers';
+$string['gotomanageresponses'] = '<< Manage responses';
+$string['warningonteacherspage'] = '<b>BE CAREFUL: </b>When adding teachers here, they will also be <b>added to EACH date</b> in the teaching report.
+When deleting teachers here, they will be <b>removed from EACH date</b> in the teaching report!';
 
 // Lib.php.
 $string['pollstrftimedate'] = '%Y-%m-%d';
@@ -1723,15 +1725,13 @@ $string['optiondateend'] = 'End';
 $string['erroroptiondatestart'] = 'Date start needs to be before date end.';
 $string['erroroptiondateend'] = 'Date end needs to be after date start.';
 
-// Optiondates_teachers_report.php.
+// Optiondates_teachers_report.php & optiondates_teachers_table.php.
 $string['accessdenied'] = 'Access denied';
 $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="alert">You have no permission to access this page.</div>';
 $string['optiondatesteachersreport'] = 'Teaching Report / Replacement teachers';
 $string['optiondatesteachersreport_desc'] = 'This report gives an overview of which teacher was present at which specific date.<br>
 By default, every date will be filled in with the option\'s teacher. You can overwrite specific dates with replacement teachers.';
-$string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">Click here if you want to add or remove teachers to/from EVERY date.</a></h5></p>';
-$string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">Click here if you want to add or remove teachers to/from specific dates only (for reporting).</a></h5></p>';
+$string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Click here if you want to add or remove teachers to/from EACH date.</a></h5></p>';
+$string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Teaching report: Click here if you want to add or remove teachers to/from specific dates only (for reporting).</a></h5></p>';
 $string['teacher'] = 'Teacher';
-
-// Editteachersforoptiondate_form.php.
-$string['teachersemptyerror'] = 'You need to have at least one teacher for every session!';
+$string['noteacherset'] = 'No teacher set';

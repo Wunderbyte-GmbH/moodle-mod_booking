@@ -137,6 +137,14 @@ if ($edit === 1) {
     echo $output->heading(get_string('teachers', 'booking') . " [{$booking->option->text}]");
 }
 
+// Dismissible alert warning.
+echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">' .
+get_string('warningonteacherspage', 'mod_booking') .
+'<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>';
+
 $optiondatesteachersreporturl = new moodle_url('/mod/booking/optiondates_teachers_report.php', [
     'id' => $id,
     'optionid' => $optionid
@@ -145,7 +153,7 @@ echo get_string('linktoreportfromeditteachers', 'mod_booking', $optiondatesteach
 
 echo html_writer::link(
         new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)),
-        get_string('users', 'booking'), array('style' => 'float:right;'));
+        get_string('gotomanageresponses', 'booking'), array('style' => 'float:right;'));
 echo '<br>';
 
 if (empty($USER->subscriptionsediting)) {

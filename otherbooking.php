@@ -53,7 +53,7 @@ echo $OUTPUT->heading(get_string("editotherbooking", "booking") . " [{$option->o
 
 echo html_writer::link(
         new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid)),
-        get_string('users', 'booking'), array('style' => 'float:right;'));
+        get_string('gotomanageresponses', 'booking'), array('style' => 'float:right;'));
 echo '<br>';
 
 $table = new html_table();

@@ -164,11 +164,6 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
      */
     public function validation($data, $files) {
         $errors = [];
-
-        if (empty($data['teachersforoptiondate'])) {
-            $errors['teachersforoptiondate'] = get_string('teachersemptyerror', 'mod_booking');
-        }
-
         return $errors;
     }
 

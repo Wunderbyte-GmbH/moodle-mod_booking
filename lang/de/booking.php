@@ -1082,7 +1082,9 @@ $string['messagetext'] = 'Nachricht';
 
 // Teachers.php.
 $string['teachers'] = 'Trainer/innen';
-$string['users'] = '<< Antworten bearbeiten';
+$string['gotomanageresponses'] = '<< Antworten bearbeiten';
+$string['warningonteacherspage'] = '<b>ACHTUNG:</b> Wenn Sie hier Trainer_innen hinzufügen werden diese im Training-Journal <b>zu JEDEM EINZELNEN Termin hinzugefügt</b>.
+Wenn Sie hier Trainer_innen löschen, werden diese im Training-Journal <b>von JEDEM EINZELNEN Termin entfernt</b>.';
 
 // Lib.php.
 $string['pollstrftimedate'] = '%Y-%m-%d';
@@ -1485,15 +1487,13 @@ $string['optiondateend'] = 'Ende';
 $string['erroroptiondatestart'] = 'Terminbeginn muss vor dem Terminende liegen.';
 $string['erroroptiondateend'] = 'Terminende muss nach dem Terminbeginn liegen.';
 
-// Optiondates_teachers_report.php.
+// Optiondates_teachers_report.php & optiondates_teachers_table.php.
 $string['accessdenied'] = 'Zugriff verweigert';
 $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="alert">Sie sind nicht berechtigt, auf diese Seite zuzugreifen.</div>';
 $string['optiondatesteachersreport'] = 'Training-Journal / Vertretungen';
 $string['optiondatesteachersreport_desc'] = 'In diesem Report erhalten Sie eine Übersicht, welche_r Trainer_in an welchem Termin geleitet hat.<br>
 Standardmäßig werden alle Termine mit dem/den eingestellten Trainer_innen der Buchungsoption befüllt. Sie können einzelne Termine mit Vertretungen überschreiben.';
-$string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">Um Trainer_innen zu ALLEN Terminen hinzuzufügen bzw. von ALLEN Terminen zu löschen, klicken Sie bitte hier.</a></h5></p>';
-$string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">Klicken Sie hier, um die Trainer_innen für spezifische Termine zu protokollieren.</a></h5></p>';
+$string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Um Trainer_innen zu ALLEN Terminen hinzuzufügen bzw. von ALLEN Terminen zu löschen, klicken Sie bitte hier.</a></h5></p>';
+$string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Training-Journal: Klicken Sie hier, um die Trainer_innen für spezifische Termine zu protokollieren.</a></h5></p>';
 $string['teacher'] = 'Trainer_in';
-
-// Editteachersforoptiondate_form.php.
-$string['teachersemptyerror'] = 'Sie müssen mindestens eine_n Trainer_in pro Termin eintragen!';
+$string['noteacherset'] = 'Kein/e Trainer/in ausgewählt';

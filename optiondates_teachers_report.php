@@ -116,8 +116,8 @@ if (!$optiondatesteacherstable->is_downloading()) {
     $from = "(
         SELECT bod.id optiondateid, bod.optionid, bod.coursestarttime, bod.courseendtime, " .
         $DB->sql_group_concat('u.id', ',', 'u.id') . " teachers
-        FROM {booking_optiondates_teachers} bodt
-        LEFT JOIN {booking_optiondates} bod
+        FROM {booking_optiondates} bod
+        LEFT JOIN {booking_optiondates_teachers} bodt
         ON bodt.optiondateid = bod.id
         LEFT JOIN {booking_options} bo
         ON bo.id = bod.optionid
@@ -167,8 +167,8 @@ if (!$optiondatesteacherstable->is_downloading()) {
     $from = "(
         SELECT bod.id optiondateid, bo.text, bod.optionid, bod.coursestarttime, bod.courseendtime, " .
         $DB->sql_group_concat('u.id', ',', 'u.id') . " teachers
-        FROM {booking_optiondates_teachers} bodt
-        LEFT JOIN {booking_optiondates} bod
+        FROM {booking_optiondates} bod
+        LEFT JOIN {booking_optiondates_teachers} bodt
         ON bodt.optiondateid = bod.id
         LEFT JOIN {booking_options} bo
         ON bo.id = bod.optionid

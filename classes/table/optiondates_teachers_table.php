@@ -102,6 +102,7 @@ class optiondates_teachers_table extends table_sql {
             return implode(', ', $teacherstrings);
         } else {
             $teacherlinks = [];
+            $returnstring = '';
             if (!empty($values->teachers)) {
                 $teacherids = explode(',', $values->teachers);
                 foreach ($teacherids as $teacherid) {
@@ -113,7 +114,13 @@ class optiondates_teachers_table extends table_sql {
                     }
                 }
             }
-            return implode(' | ', $teacherlinks);
+            if (!empty($teacherlinks)) {
+                $returnstring = implode(' | ', $teacherlinks);
+            } else {
+                $returnstring = get_string('noteacherset', 'mod_booking');
+            }
+
+            return $returnstring;
         }
     }
 
