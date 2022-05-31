@@ -53,6 +53,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                 '/activity/booking/teachers/teacher');
         }
 
+        // Only restore prices, if config setting is set.
+        if (get_config('booking', 'duplicationrestoreprices')) {
+            $paths[] = new restore_path_element('booking_price',
+                '/activity/booking/options/option/prices/price');
+        }
+
         if ($userinfo) {
             $paths[] = new restore_path_element('booking_answer', '/activity/booking/answers/answer');
         }
@@ -176,7 +182,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data = (object) $data;
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
         $DB->insert_record('booking_other', $data);
-        // No need to save this mapping as far as nothing depend on it.
+        // No need to save this mapping as far as nothing depends on it.
     }
 
     protected function process_booking_customfield($data) {
@@ -190,7 +196,16 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->optiondateid = $this->get_mappingid('booking_optiondate', $data->optiondateid);
 
         $DB->insert_record('booking_customfields', $data);
-        // No need to save this mapping as far as nothing depend on it.
+        // No need to save this mapping as far as nothing depends on it.
+    }
+
+    protected function process_booking_price($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
+        $DB->insert_record('booking_prices', $data);
+        // No need to save this mapping as far as nothing depends on it.
     }
 
     protected function after_execute() {

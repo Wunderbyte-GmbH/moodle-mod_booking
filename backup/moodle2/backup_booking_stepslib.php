@@ -97,6 +97,10 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $other = new backup_nested_element('other', array('id'),
                 array('optionid', 'otheroptionid', 'userslimit'));
 
+        $prices = new backup_nested_element('prices');
+        $price = new backup_nested_element('price', array('id'),
+                array('optionid', 'pricecategoryidentifier', 'price', 'currency'));
+
         $customfields = new backup_nested_element('customfields');
         $customfield = new backup_nested_element('customfield', array('id'),
                 array('bookingid', 'optionid', 'optiondateid', 'cfgname', 'value'));
@@ -129,6 +133,9 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $option->add_child($others);
         $others->add_child($other);
 
+        $option->add_child($prices);
+        $prices->add_child($price);
+
         $booking->add_child($customfields);
         $customfields->add_child($customfield);
 
@@ -144,11 +151,16 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $optiondate->set_source_table('booking_optiondates', array('bookingid' => backup::VAR_PARENTID));
         $customfield->set_source_table('booking_customfields', array('bookingid' => backup::VAR_PARENTID));
 
-        // Only backup teachers, if config setting is set.
+        // Only backup (or duplicate) teachers, if config setting is set.
         if (get_config('booking', 'duplicationrestoreteachers')) {
             $teacher->set_source_table('booking_teachers', array('bookingid' => backup::VAR_PARENTID));
             // Also backup teaching reports (which teacher was there at which session).
             $optiondatesteacher->set_source_table('booking_optiondates_teachers', array('optiondateid' => backup::VAR_PARENTID));
+        }
+
+        // Only backup (or duplicate) prices, if config setting is set.
+        if (get_config('booking', 'duplicationrestoreprices')) {
+            $price->set_source_table('booking_prices', array('optionid' => backup::VAR_PARENTID));
         }
 
         // All the rest of elements only happen if we are including user info.

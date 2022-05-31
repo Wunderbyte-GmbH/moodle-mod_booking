@@ -370,7 +370,7 @@ class option_form extends moodleform {
         $price = new price($this->_customdata['optionid']);
         $price->add_price_to_mform($mform);
 
-        // Add entities
+        // Add entities.
         $erhandler = new entitiesrelation_handler('bookingoption');
         $erhandler->instance_form_definition($mform, $optionid);
 

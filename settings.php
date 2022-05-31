@@ -132,6 +132,10 @@ if ($ADMIN->fulltree) {
         new admin_setting_configcheckbox('booking/duplicationrestoreteachers',
                 get_string('duplicationrestoreteachers', 'mod_booking'), '', 1));
 
+    $settings->add(
+        new admin_setting_configcheckbox('booking/duplicationrestoreprices',
+                get_string('duplicationrestoreprices', 'mod_booking'), '', 1));
+
     // TODO.
     $settings->add(
         new admin_setting_heading('uniqueoptionnameheading',
