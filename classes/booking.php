@@ -202,7 +202,7 @@ class booking {
         list($fields, $from, $where, $params) = $this->get_all_options_sql($limitfrom, $limitnum, $searchtext, $fields);
 
         return $DB->get_records_sql(
-            "SELECT $fields FROM $from $where", $params);
+            "SELECT $fields FROM $from WHERE $where", $params);
     }
 
     public function get_all_options_count($searchtext = '') {
