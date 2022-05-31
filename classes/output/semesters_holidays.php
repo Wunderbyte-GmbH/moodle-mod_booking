@@ -65,7 +65,7 @@ class semesters_holidays implements renderable, templatable {
         ];
 
         // We only add the key if it's not empty.
-        if ($this->renderedchangesemesterform != '') {
+        if (!empty($this->renderedchangesemesterform)) {
             $returnarray['renderedchangesemesterform'] = $this->renderedchangesemesterform;
         }
 
