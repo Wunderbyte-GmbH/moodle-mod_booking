@@ -438,25 +438,28 @@ class optiondates_handler {
 
         $options = $DB->get_records('booking_options', ["bookingid" => $bookingid]);
 
-        foreach ($options as $option) {
+        foreach ($options as $optionvalues) {
 
-            if (empty($option->dayofweektime)) {
+            // Set the id of the option correctly, so that update will work.
+            $optionvalues->optionid = $optionvalues->id;
+
+            if (empty($optionvalues->dayofweektime)) {
                 continue;
             }
 
-            $msdates = self::get_optiondate_series($semesterid, $option->dayofweektime);
+            $msdates = self::get_optiondate_series($semesterid, $optionvalues->dayofweektime);
             $counter = 1;
             if (isset($msdates['dates'])) {
                 foreach ($msdates['dates'] as $msdate) {
                     $startkey = 'ms' . $counter . 'starttime';
                     $endkey = 'ms' . $counter . 'endtime';
-                    $option->$startkey = $msdate->starttimestamp;
-                    $option->$endkey = $msdate->endtimestamp;
+                    $optionvalues->$startkey = $msdate->starttimestamp;
+                    $optionvalues->$endkey = $msdate->endtimestamp;
                     $counter++;
                 }
             }
             $context = context_module::instance($cmid);
-            booking_update_options($option, $context);
+            booking_update_options($optionvalues, $context);
         }
     }
 
