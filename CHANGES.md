@@ -1,3 +1,17 @@
+## Version 7.1.2 (2022060100)
+**New features:**
+* New teaching report (teaching journal) - allowing to define different teachers for each session, including export functionality-
+* Change the semester for a booking instance - all dates of booking options will be generated newly for the selected semester.
+* Added possibility to turn duplication / restoring of prices on and off in plugin settings (if turned off, default prices will be used)-
+
+**Improvements:**
+* Better presentation of teachers and link to profiles.
+* Added prices to the backup routine, so they will be duplicated and backed up (if turned on in the plugin settings).
+
+**Bugfixes:**
+* Do not show separator and unique id in bookingoption_description.
+* Fix a bug where the mobile service didn't get all booking options.
+
 ## Version 7.1.1 (2022050501)
 **Improvements:**
 * Add entities relation handler.
