@@ -20,6 +20,7 @@ use mod_booking\booking;
 use stdClass;
 use mod_booking\booking_option;
 use html_writer;
+use local_entities\entitiesrelation_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\optiondates_handler;
 use mod_booking\price;
@@ -243,6 +244,20 @@ class csv_import {
                         if (isset($csvrecord[$category->identifier])) {
                             $price->add_price($optionid, $category->identifier, $csvrecord[$category->identifier]);
                         }
+                    }
+                }
+
+                // We see if we can match the location to an entity
+                if (!empty($bookingoption->location)) {
+
+                    // Now we check if we have an entity to which we can match the value.
+                    $erhandler = new entitiesrelation_handler('bookingoption');
+
+                    $entities = $erhandler->get_entities_by_name($bookingoption->location);
+                    // If we have exactly one entiity, we create the entities entry.
+                    if (count($entities) === 1) {
+                        $entity = reset($entities);
+                        $erhandler->save_entity_relation($optionid, $entity->id);
                     }
                 }
 
