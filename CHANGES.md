@@ -1,3 +1,7 @@
+## Version 7.1.3 (v7.1.3)
+**New features:**
+* Import entities via csv import
+
 ## Version 7.1.2 (2022060100)
 **New features:**
 * New teaching report (teaching journal) - allowing to define different teachers for each session, including export functionality-
