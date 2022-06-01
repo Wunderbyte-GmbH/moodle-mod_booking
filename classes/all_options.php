@@ -92,8 +92,8 @@ class all_options extends table_sql {
                 html_writer::link(new moodle_url('/mod/booking/optiondates.php',
                     array('id' => $this->cm->id, 'optionid' => $values->id)),
                     $OUTPUT->pix_icon('t/edit',
-                        get_string('optiondates', 'booking')) .
-                    get_string('optiondates', 'booking')) . '</div>';
+                        get_string('optiondatesmanager', 'booking')) .
+                    get_string('optiondatesmanager', 'booking')) . '</div>';
 
             // Book teachers.
             if (has_capability('mod/booking:updatebooking', $this->context)) {

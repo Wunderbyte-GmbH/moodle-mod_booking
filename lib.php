@@ -1230,7 +1230,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                     new moodle_url('/mod/booking/report.php',
                             array('id' => $cm->id, 'optionid' => $optionid,
                                 'action' => 'deletebookingoption')));
-            $settingnode->add(get_string('optiondates', 'booking'),
+            $settingnode->add(get_string('optiondatesmanager', 'booking'),
                     new moodle_url('/mod/booking/optiondates.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
         }

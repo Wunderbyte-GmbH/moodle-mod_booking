@@ -245,13 +245,13 @@ if ($mform->is_cancelled()) {
     redirect($url, get_string('optiondatessuccessfullysaved', 'booking'), 5);
 
 } else {
-    $PAGE->navbar->add(get_string('optiondates', 'mod_booking'));
-    $PAGE->set_title(format_string(get_string('optiondates', 'mod_booking')));
-    $PAGE->set_heading(get_string('optiondates', 'mod_booking'));
+    $PAGE->navbar->add(get_string('optiondatesmanager', 'mod_booking'));
+    $PAGE->set_title(format_string(get_string('optiondatesmanager', 'mod_booking')));
+    $PAGE->set_heading(get_string('optiondatesmanager', 'mod_booking'));
     $PAGE->set_pagelayout('standard');
 
     echo $OUTPUT->header();
-    echo $OUTPUT->heading(get_string('optiondates', 'mod_booking'), 3, 'helptitle', 'uniqueid');
+    echo $OUTPUT->heading(get_string('optiondatesmanager', 'mod_booking'), 3, 'helptitle', 'uniqueid');
 
     $table = new html_table();
     $table->head = array(get_string('optiondatestime', 'mod_booking'), '');
