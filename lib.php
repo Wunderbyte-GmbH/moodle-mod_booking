@@ -1831,6 +1831,12 @@ function booking_delete_instance($id) {
         optiondates_handler::delete_booking_optiondates_teachers_by_bookingid($booking->id);
     }
 
+    // Delete any entity relations for the booking instance.
+    // TODO: this should be moved into delete_booking_option.
+    if (!entitiesrelation_handler::delete_entities_relations_by_bookingid($booking->id)) {
+        $result = false;
+    }
+
     if (!$DB->delete_records("event", array("instance" => "$booking->id"))) {
         $result = false;
     }

@@ -1303,6 +1303,7 @@ $string['duplicationrestore'] = 'Duplizieren, Backup und Wiederherstellen';
 $string['duplicationrestoredesc'] = 'Hier können Sie einstellen, welche Informationen beim Duplizieren bzw. beim Backup / Wiederherstellen von Buchungsinstanzen inkludiert werden sollen.';
 $string['duplicationrestoreteachers'] = 'Kursleiter/innen inkludieren';
 $string['duplicationrestoreprices'] = 'Preise inkludieren';
+$string['duplicationrestoreentities'] = 'Entities inkludieren';
 
 $string['bookingoptiondefaults'] = 'Standard-Einstellungen für Buchungsoptionen';
 $string['bookingoptiondefaultsdesc'] = 'Hier können Sie Standardwerte für die Erstellung von Buchungsoptionen setzen und diese gegebenenfalls sperren.';

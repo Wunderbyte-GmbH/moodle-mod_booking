@@ -2183,7 +2183,7 @@ class booking_option {
             case DESCRIPTION_WEBSITE:
                 // We don't want to show these Buttons at all if the user is not booked.
                 if (!$forbookeduser) {
-                    return null;
+                    return [];
                 } else {
                     // We are booked on the web site, we check if we show the real link.
                     if (!$this->show_conference_link($sessionid)) {
@@ -2219,7 +2219,7 @@ class booking_option {
                             'value' => "<a href=$encodedlink class='btn btn-info'>$field->cfgname</a>"
                     ];
                 } else {
-                    return null;
+                    return [];
                 }
             case DESCRIPTION_ICAL:
                 // User is booked, for ical no button but link only.

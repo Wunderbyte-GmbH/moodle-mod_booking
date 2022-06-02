@@ -151,7 +151,10 @@ class bookingoption_description implements renderable, templatable {
 
         // These fields can be gathered directly from settings.
         $this->title = $settings->text;
-        $this->imageurl = $settings->imageurl;
+
+        if (!empty($settings->imageurl)) {
+            $this->imageurl = $settings->imageurl;
+        }
 
         // Is this an invisible option?
         $this->invisible = $settings->invisible;

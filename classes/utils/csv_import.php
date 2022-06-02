@@ -247,7 +247,7 @@ class csv_import {
                     }
                 }
 
-                // We see if we can match the location to an entity
+                // We see if we can match the location to an entity.
                 if (!empty($bookingoption->location)) {
 
                     // Now we check if we have an entity to which we can match the value.

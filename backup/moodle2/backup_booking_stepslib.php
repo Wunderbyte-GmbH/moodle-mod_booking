@@ -22,6 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_entities\entitiesrelation_handler;
+
 /**
  * Define the complete booking structure for backup, with file and id annotations
  */
@@ -101,6 +103,10 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $price = new backup_nested_element('price', array('id'),
                 array('optionid', 'pricecategoryidentifier', 'price', 'currency'));
 
+        $entitiesrelations = new backup_nested_element('entitiesrelations');
+        $entitiesrelation = new backup_nested_element('entitiesrelation', array('id'),
+                array('entityid', 'modulename', 'instanceid', 'timecreated'));
+
         $customfields = new backup_nested_element('customfields');
         $customfield = new backup_nested_element('customfield', array('id'),
                 array('bookingid', 'optionid', 'optiondateid', 'cfgname', 'value'));
@@ -136,6 +142,9 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $option->add_child($prices);
         $prices->add_child($price);
 
+        $option->add_child($entitiesrelations);
+        $entitiesrelations->add_child($entitiesrelation);
+
         $booking->add_child($customfields);
         $customfields->add_child($customfield);
 
@@ -161,6 +170,11 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         // Only backup (or duplicate) prices, if config setting is set.
         if (get_config('booking', 'duplicationrestoreprices')) {
             $price->set_source_table('booking_prices', array('optionid' => backup::VAR_PARENTID));
+        }
+
+        // Only backup (or duplicate) entities, if config setting is set.
+        if (get_config('booking', 'duplicationrestoreentities')) {
+            $entitiesrelation->set_source_table('local_entities_relations', ['instanceid' => backup::VAR_PARENTID]);
         }
 
         // All the rest of elements only happen if we are including user info.

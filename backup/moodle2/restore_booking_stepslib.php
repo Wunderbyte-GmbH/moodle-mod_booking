@@ -59,6 +59,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                 '/activity/booking/options/option/prices/price');
         }
 
+        // Only restore entitiesrelations, if config setting is set.
+        if (get_config('booking', 'duplicationrestoreentities')) {
+            $paths[] = new restore_path_element('booking_entity',
+                '/activity/booking/options/option/entitiesrelations/entitiesrelation');
+        }
+
         if ($userinfo) {
             $paths[] = new restore_path_element('booking_answer', '/activity/booking/answers/answer');
         }
@@ -182,6 +188,16 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data = (object) $data;
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
         $DB->insert_record('booking_other', $data);
+        // No need to save this mapping as far as nothing depends on it.
+    }
+
+    protected function process_booking_entity($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->instanceid = $this->get_mappingid('booking_option', $data->instanceid);
+        $data->timecreated = time();
+        $DB->insert_record('local_entities_relations', $data);
         // No need to save this mapping as far as nothing depends on it.
     }
 
