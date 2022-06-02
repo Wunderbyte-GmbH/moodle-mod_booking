@@ -482,7 +482,7 @@ class booking_option_settings {
                 if (!empty($customfieldvalue)) {
                     $customfieldvalue = strtolower($customfieldvalue);
 
-                    $imgfile = $DB->get_record_sql("SELECT id, contextid, filepath, filename
+                    if (!$imgfiles = $DB->get_records_sql("SELECT id, contextid, filepath, filename
                                  FROM {files}
                                  WHERE component = 'mod_booking'
                                  AND itemid = :bookingid
@@ -490,7 +490,12 @@ class booking_option_settings {
                                  AND LOWER(filename) LIKE :customfieldvaluewithextension
                                  AND filesize > 0
                                  AND source is not null", ['bookingid' => $bookingid,
-                                    'customfieldvaluewithextension' => "$customfieldvalue.%"]);
+                                    'customfieldvaluewithextension' => "$customfieldvalue.%"])) {
+                                        return;
+                    }
+
+                    // There might be more than one image, so we only use the first one.
+                    $imgfile = reset($imgfiles);
 
                     if (!empty($imgfile)) {
                         // If a fallback image has been found for the customfield value, then use this one.
