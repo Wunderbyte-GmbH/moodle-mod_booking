@@ -300,7 +300,9 @@ class booking_option_settings {
             // If the key "imageurl" is not yet set, we need to load from DB.
             if (!isset($dbrecord->imageurl)) {
                 $this->load_imageurl_from_db($optionid, $dbrecord->bookingid);
-                $dbrecord->imageurl = $this->imageurl;
+                if (!empty($this->imageurl)) {
+                    $dbrecord->imageurl = $this->imageurl;
+                }
             } else {
                 $this->imageurl = $dbrecord->imageurl;
             }
