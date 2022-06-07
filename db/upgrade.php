@@ -2382,6 +2382,18 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define fields to be added to booking_options.
         $table = new xmldb_table('booking_options');
+
+        // Fix #190 - https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/190.
+        $parentid = new xmldb_field('parentid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'duration');
+        if (!$dbman->field_exists($table, $parentid)) {
+            $dbman->add_field($table, $parentid);
+        }
+        $index = new xmldb_index('parentid', XMLDB_INDEX_NOTUNIQUE, ['parentid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        // End of fix #190.
+
         $semesterid = new xmldb_field('semesterid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'parentid');
         $dayofweektime = new xmldb_field('dayofweektime', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'semesterid');
 
