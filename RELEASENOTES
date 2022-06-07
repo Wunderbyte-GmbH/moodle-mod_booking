@@ -1,3 +1,16 @@
+7.1.5 (2022060700)
+* New feature: Added possibility to backup/duplicate/restore entities relations.
+* Improvement: If entity is set, we use it to set location and address.
+* Bugfix: Restored correct order of upgrades.
+* Bugfix: Fixed issue #190 (Upgrade fails) - https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/190
+
+7.1.4 (2022060200)
+* Bugfix: If there are multiple image files with the same name, the first one found will be used.
+
+7.1.3 (2022060101)
+* Improvement: Better language strings.
+* New feature: Added possibility to import entities via CSV.
+
 7.1.2 (2022060100)
 * New feature: New teaching report (teaching journal) - allowing to define different teachers for each session, including export functionality-
 * New feature: Change the semester for a booking instance - all dates of booking options will be generated newly for the selected semester.

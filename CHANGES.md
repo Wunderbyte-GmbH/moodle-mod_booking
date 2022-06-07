@@ -1,6 +1,24 @@
-## Version 7.1.3 (v7.1.3)
+## Version 7.1.5 (2022060700)
 **New features:**
-* Import entities via csv import
+* Added possibility to backup/duplicate/restore entities relations.
+
+**Improvements:**
+* If entity is set, we use it to set location and address.
+
+**Bugfixes:**
+* Restored correct order of upgrades.
+* Fixed issue #190 (Upgrade fails) - https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/190
+
+## Version 7.1.4 (2022060200)
+**Bugfixes:**
+* If there are multiple image files with the same name, the first one found will be used.
+
+## Version 7.1.3 (2022060101)
+**New features:**
+* Added possibility to import entities via CSV.
+
+**Improvements:**
+* Better language strings.
 
 ## Version 7.1.2 (2022060100)
 **New features:**
