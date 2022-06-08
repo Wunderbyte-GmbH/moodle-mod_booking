@@ -1481,6 +1481,10 @@ $string['bookingoptiondefaultsdesc'] = 'Here you can set default settings for th
 $string['addtocalendardesc'] = 'Course calendar events are visible to ALL users within a course. If you do not want them to be created at all,
 you can turn this setting off and lock it by default. Don\'t worry: user calendar events for booked options will still be created anyways.';
 
+$string['optionformconfig'] = 'Booking: Configure booking option form';
+$string['optionformconfigsaved'] = 'Configuration for the booking option form saved.';
+$string['optionformconfigsubtitle'] = 'Turn off features you do not need, in order to make the booking option form clearer for your administrators.';
+
 // Mobile.
 $string['next'] = 'Next';
 $string['previous'] = 'Previous';
