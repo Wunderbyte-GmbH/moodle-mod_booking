@@ -954,7 +954,7 @@ $string['enablepresence'] = 'Enable presence';
 $string['removeuseronunenrol'] = 'Remove user from booking upon unenrolment from associated course?';
 
 // Editoptions.php.
-$string['addeditbooking'] = 'Edit booking option';
+$string['editbookingoption'] = 'Edit booking option';
 $string['addnewbookingoption'] = 'Add a new booking option';
 $string['addnewbookingoptionfromtemplate'] = 'Add a new booking option from template';
 $string['choosecourse'] = 'Choose a course';
@@ -1481,10 +1481,6 @@ $string['bookingoptiondefaultsdesc'] = 'Here you can set default settings for th
 $string['addtocalendardesc'] = 'Course calendar events are visible to ALL users within a course. If you do not want them to be created at all,
 you can turn this setting off and lock it by default. Don\'t worry: user calendar events for booked options will still be created anyways.';
 
-$string['optionformconfig'] = 'Booking: Configure booking option form';
-$string['optionformconfigsaved'] = 'Configuration for the booking option form saved.';
-$string['optionformconfigsubtitle'] = 'Turn off features you do not need, in order to make the booking option form clearer for your administrators.';
-
 // Mobile.
 $string['next'] = 'Next';
 $string['previous'] = 'Previous';
@@ -1741,3 +1737,9 @@ $string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">
 $string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Teaching report: Click here if you want to add or remove teachers to/from specific dates only (for reporting).</a></h5></p>';
 $string['teacher'] = 'Teacher';
 $string['noteacherset'] = 'No teacher set';
+
+// Optionformconfig.php / optionformconfig_form.php.
+$string['optionformconfig'] = 'Booking: Configure booking option form';
+$string['optionformconfigsaved'] = 'Configuration for the booking option form saved.';
+$string['optionformconfigsubtitle'] = 'Turn off features you do not need, in order to make the booking option form clearer for your administrators.';
+$string['optionformconfig:nobooking'] = 'You need to create at least one booking instance before you can use this form!';

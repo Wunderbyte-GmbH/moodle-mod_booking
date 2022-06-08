@@ -238,7 +238,17 @@ if ($mform->is_cancelled()) {
 } else {
     $PAGE->set_title(format_string($booking->settings->name));
     $PAGE->set_heading($course->fullname);
+
     echo $OUTPUT->header();
+
+    if (empty($optionid)) {
+        $heading = get_string('addnewbookingoption', 'mod_booking');
+    } else {
+        $heading = get_string('editbookingoption', 'mod_booking');
+    }
+
+    echo $OUTPUT->heading($heading);
+
     if (isset($defaultvalues)) {
         $mform->set_data($defaultvalues);
     }

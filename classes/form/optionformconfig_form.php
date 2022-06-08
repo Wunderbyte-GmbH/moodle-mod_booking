@@ -16,6 +16,9 @@
 
 namespace mod_booking\form;
 
+use context_module;
+use moodle_exception;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -39,16 +42,57 @@ class optionformconfig_form extends \moodleform {
 
         $mform = $this->_form;
 
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $optionformdummy = new option_form(0); */
+        // Find module id for 'booking'.
+        if (!$moduleid = $DB->get_field('modules', 'id', ['name' => 'booking'])) {
+            return;
+        }
 
-        $mform->addElement('text', 'dummyelement', 'dummylabel');
-        $mform->setType('dummyelement', PARAM_TEXT);
-        $mform->setDefault('dummyelement', 'dummydefault');
-        $mform->addHelpButton('dummyelement', 'pricecategoryname', 'booking'); // TODO.
+        // Check if there is at least one booking instance.
+        if ($firstcm = $DB->get_records('course_modules', ['module' => $moduleid], '', '*', 0, 1)) {
 
-        // Add "Save" and "Cancel" buttons.
-        $this->add_action_buttons(true);
+            $cm = reset($firstcm);
+            $bookingid = $cm->instance;
+            $cmid = $cm->id;
+            if (!$context = context_module::instance($cmid)) {
+                throw new moodle_exception('badcontext');
+            }
+
+            // Instantiate an option_form object, so we can get its elements.
+            $optionformdummy = new option_form(null,
+                ['bookingid' => $bookingid, 'optionid' => 0, 'cmid' => $cmid, 'context' => $context]);
+
+            if ($elements = $optionformdummy->_form->_elements) {
+
+                foreach ($elements as $element) {
+
+                    if (isset($element->_attributes['type']) && $element->_attributes['type'] == 'hidden') {
+                        continue;
+                    }
+
+                    if ($element->_type == "html") {
+                        continue;
+                    }
+
+                    if (empty($element->_label) && empty($element->_text)) {
+                        continue;
+                    }
+
+                    if (empty($element->_label) && !empty($element->_text)) {
+                        $element->_label = $element->_text;
+                    }
+
+                    $mform->addElement('advcheckbox', $element->_attributes['name'], $element->_label);
+                    $mform->setType($element->_attributes['name'], PARAM_INT);
+                    $mform->setDefault($element->_attributes['name'], 1);
+                }
+            }
+
+            // Add "Save" and "Cancel" buttons.
+            $this->add_action_buttons(true);
+
+        } else {
+            return;
+        }
     }
 
 

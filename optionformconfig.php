@@ -61,10 +61,19 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(new lang_string('optionformconfig', 'mod_booking'));
 
-    echo get_string('optionformconfigsubtitle', 'mod_booking');
+    // Dismissible alert.
+    echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert">' .
+    get_string('optionformconfigsubtitle', 'mod_booking') .
+    '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+    </button>
+    </div>';
 
-    // Show the mform.
-    $mform->display();
+    if (!$firstinstancefound = $DB->get_records('booking', null, '', '*', 0, 1)) {
+        echo html_writer::div(get_string('optionformconfig:nobooking', 'mod_booking'), 'alert alert-danger');
+    } else {
+        $mform->display();
+    }
 
     echo $OUTPUT->footer();
 }

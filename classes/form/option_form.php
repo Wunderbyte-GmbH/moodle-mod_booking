@@ -61,8 +61,7 @@ class option_form extends moodleform {
         $mform->addElement('hidden', 'bookingname');
         $mform->setType('bookingname', PARAM_TEXT);
 
-        // Header.
-        $mform->addElement('header', '', get_string('addeditbooking', 'booking'));
+        // Header "General".
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         // Option templates.

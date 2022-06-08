@@ -818,7 +818,7 @@ $string['enablepresence'] = 'Präsenzstatus aktivieren';
 $string['removeuseronunenrol'] = 'Nutzer/in von Buchungsoption autom. entfernen wenn diese/r aus dem dazugehörenden Moodle-Kurs ausgetragen wurde?';
 
 // Editoptions.php.
-$string['addeditbooking'] = 'Buchung bearbeiten';
+$string['editbookingoption'] = 'Buchungsoption bearbeiten';
 $string['addnewbookingoption'] = 'Neue Buchungsoption hinzufügen';
 $string['addnewbookingoptionfromtemplate'] = 'Neue Buchungsoption von Vorlage erstellen';
 $string['choosecourse'] = 'Einen Kurs auswählen';
@@ -1310,10 +1310,6 @@ $string['bookingoptiondefaultsdesc'] = 'Hier können Sie Standardwerte für die 
 $string['addtocalendardesc'] = 'Kurs-Kalenderevents können von ALLEN Kursteilnehmer_innen des Kurses gesehen werden. Falls Sie nicht möchten, dass Kurs-Kalenderevents
 erstellt werden, können Sie diese Einstellung standardmäßig ausschalten und sperren. Keine Sorge: Normale Kalenderevents für gebuchte Optionen (User-Events) werden weiterhin erstellt.';
 
-$string['optionformconfig'] = 'Buchung: Formular für Buchungsoptionen anpassen';
-$string['optionformconfigsaved'] = 'Konfiguration für das Buchungsoptionsformular gespeichert.';
-$string['optionformconfigsubtitle'] = 'Hier können Sie nicht benötigte Funktionalitäten entfernen, um das Formular für die Erstellung von Buchungsoptionen übersichtlicher zu gestalten.';
-
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
 $string['defaulttemplate'] = 'Standard-Vorlage';
@@ -1503,3 +1499,9 @@ $string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">
 $string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Training-Journal: Klicken Sie hier, um die Trainer_innen für spezifische Termine zu protokollieren.</a></h5></p>';
 $string['teacher'] = 'Trainer_in';
 $string['noteacherset'] = 'Kein/e Trainer/in ausgewählt';
+
+// Optionformconfig.php / optionformconfig_form.php.
+$string['optionformconfig'] = 'Buchung: Formular für Buchungsoptionen anpassen';
+$string['optionformconfigsaved'] = 'Konfiguration für das Buchungsoptionsformular gespeichert.';
+$string['optionformconfigsubtitle'] = 'Hier können Sie nicht benötigte Funktionalitäten entfernen, um das Formular für die Erstellung von Buchungsoptionen übersichtlicher zu gestalten.';
+$string['optionformconfig:nobooking'] = 'Sie müssen zumindest eine Buchungsinstanz anlegen, bevor Sie dieses Formular nutzen können!';
