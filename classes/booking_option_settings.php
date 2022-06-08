@@ -449,6 +449,8 @@ class booking_option_settings {
     private function load_imageurl_from_db(int $optionid, int $bookingid) {
         global $DB, $CFG;
 
+        $this->imageurl = null;
+
         $imgfile = null;
         // Let's check if an image has been uploaded for the option.
         if ($imgfile = $DB->get_record_sql("SELECT id, contextid, filepath, filename
@@ -468,7 +470,6 @@ class booking_option_settings {
         } else {
             // Fix: Option templates have bookingid 0 as they are global and not instance-specific.
             if (empty($bookingid)) {
-                $this->imageurl = null;
                 return;
             }
 
