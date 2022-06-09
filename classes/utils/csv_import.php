@@ -251,13 +251,15 @@ class csv_import {
                 if (!empty($bookingoption->location)) {
 
                     // Now we check if we have an entity to which we can match the value.
-                    $erhandler = new entitiesrelation_handler('bookingoption');
+                    if (class_exists('entitiesrelation_handler')) {
+                        $erhandler = new entitiesrelation_handler('bookingoption');
 
-                    $entities = $erhandler->get_entities_by_name($bookingoption->location);
-                    // If we have exactly one entiity, we create the entities entry.
-                    if (count($entities) === 1) {
-                        $entity = reset($entities);
-                        $erhandler->save_entity_relation($optionid, $entity->id);
+                        $entities = $erhandler->get_entities_by_name($bookingoption->location);
+                        // If we have exactly one entiity, we create the entities entry.
+                        if (count($entities) === 1) {
+                            $entity = reset($entities);
+                            $erhandler->save_entity_relation($optionid, $entity->id);
+                        }
                     }
                 }
 
