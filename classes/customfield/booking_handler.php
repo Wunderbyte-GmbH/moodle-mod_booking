@@ -142,6 +142,8 @@ class booking_handler extends \core_customfield\handler {
     public function instance_form_definition(\MoodleQuickForm $mform, int $instanceid = 0,
     ?string $headerlangidentifier = null, ?string $headerlangcomponent = null) {
 
+        global $DB;
+
         $editablefields = $this->get_editable_fields($instanceid);
         $fieldswithdata = api::get_instance_fields_data($editablefields, $instanceid);
         $lastcategoryid = null;
@@ -156,7 +158,17 @@ class booking_handler extends \core_customfield\handler {
                     $categoryname = get_string($headerlangidentifier, $headerlangcomponent, $categoryname);
                 }
 
-                $mform->addElement('header', 'category_' . $categoryid, $categoryname);
+                // Workaround: Only show header, if it is not turned off in the option form config.
+                // We currently need this, because hideIf does not work with headers.
+                $showheader = true;
+                $cfgheader = $DB->get_field('booking_optionformconfig', 'active', ['elementname' => 'category_' . $categoryid]);
+                if ($cfgheader === "0") {
+                    $showheader = false;
+                }
+                if ($showheader) {
+                    $mform->addElement('header', 'category_' . $categoryid, $categoryname);
+                }
+
                 $lastcategoryid = $categoryid;
             }
             $data->instance_form_definition($mform);

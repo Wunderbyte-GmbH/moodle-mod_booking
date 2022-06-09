@@ -25,7 +25,7 @@ global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
 /**
- * With this form, the booking option form can be configured (reduced).
+ * With this form the booking option form can be configured (reduced).
  *
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Bernhard Fischer
@@ -65,25 +65,39 @@ class optionformconfig_form extends \moodleform {
 
                 foreach ($elements as $element) {
 
-                    if (isset($element->_attributes['type']) && $element->_attributes['type'] == 'hidden') {
+                    if (empty($element->_attributes['name']) && empty($element->_name)) {
                         continue;
                     }
-
-                    if ($element->_type == "html") {
+                    if (empty($element->_attributes['name']) && !empty($element->_name)) {
+                        $element->_attributes['name'] = $element->_name;
+                    }
+                    if ($element->_attributes['name'] == 'text') {
                         continue;
                     }
-
+                    if ($element->_type == 'hidden' || $element->_type == "html") {
+                        continue;
+                    }
                     if (empty($element->_label) && empty($element->_text)) {
                         continue;
                     }
-
                     if (empty($element->_label) && !empty($element->_text)) {
                         $element->_label = $element->_text;
                     }
 
-                    $mform->addElement('advcheckbox', $element->_attributes['name'], $element->_label);
-                    $mform->setType($element->_attributes['name'], PARAM_INT);
-                    $mform->setDefault($element->_attributes['name'], 1);
+                    $mform->addElement('advcheckbox', 'cfg_' . $element->_attributes['name'], $element->_label .
+                        " <span class='text-muted'>[" . $element->_type . "]</span>");
+                    $mform->setType('cfg_' . $element->_attributes['name'], PARAM_INT);
+
+                    if ($existingrecord = $DB->get_record('booking_optionformconfig',
+                        ['elementname' => $element->_attributes['name']])) {
+                        if ($existingrecord->active == 0 || $existingrecord->active == 1) {
+                            $mform->setDefault('cfg_' . $element->_attributes['name'], $existingrecord->active);
+                        } else {
+                            $mform->setDefault('cfg_' . $element->_attributes['name'], 1);
+                        }
+                    } else {
+                        $mform->setDefault('cfg_' . $element->_attributes['name'], 1);
+                    }
                 }
             }
 
@@ -104,8 +118,8 @@ class optionformconfig_form extends \moodleform {
      */
     public function validation($data, $files) {
 
+        // We need not validation in this form.
         $errors = array();
-
         return $errors;
     }
 

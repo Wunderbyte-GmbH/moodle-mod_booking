@@ -29,6 +29,16 @@ class option_form extends moodleform {
     public function definition() {
         global $CFG, $COURSE, $DB, $PAGE;
 
+        /* At first get the option form configuration from DB.
+        Unfortunately, we need this, because hideIf does not work with
+        editors, headers and html elements. */
+        $optionformconfig = [];
+        if ($optionformconfigrecords = $DB->get_records('booking_optionformconfig')) {
+            foreach ($optionformconfigrecords as $optionformconfigrecord) {
+                $optionformconfig[$optionformconfigrecord->elementname] = $optionformconfigrecord->active;
+            }
+        }
+
         $mform = & $this->_form;
 
         $cmid = 0;
@@ -190,9 +200,13 @@ class option_form extends moodleform {
         if (isset($COURSE->id)) {
             $url .= '?courseid=' . $COURSE->id;
         }
-        $mform->addElement('html',
+
+        // Only show, if it is not turned off in the option form config.
+        if (!isset($optionformconfig['institution']) || $optionformconfig['institution'] == 1) {
+            $mform->addElement('html',
                 '<a target="_blank" href="' . $url . '">' . get_string('editinstitutions', 'booking') .
                          '</a>');
+        }
 
         $mform->addElement('text', 'address', get_string('address', 'booking'),
                 array('size' => '64'));
@@ -284,8 +298,12 @@ class option_form extends moodleform {
             $mform->disabledIf('addtocalendar', 'startendtimeknown', 'notchecked');
         }
 
-        $mform->addElement('editor', 'description', get_string('description'));
-        $mform->setType('description', PARAM_CLEANHTML);
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with editors.
+        if (!isset($optionformconfig['description']) || $optionformconfig['description'] == 1) {
+            $mform->addElement('editor', 'description', get_string('description'));
+            $mform->setType('description', PARAM_CLEANHTML);
+        }
 
         $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'), array('size' => '64'));
         $mform->setType('pollurl', PARAM_TEXT);
@@ -310,33 +328,44 @@ class option_form extends moodleform {
                 array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
                                 'accepted_types' => array('*')));
 
-        // Datesection for Dynamic Load.
-        $mform->addElement('header', 'datesheader',
-            get_string('dates', 'booking'));
-        $mform->addElement('html', '<div id="optiondates-form"></div>');
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with editors.
+        if (!isset($optionformconfig['datesheader']) || $optionformconfig['datesheader'] == 1) {
+            // Datesection for Dynamic Load.
+            $mform->addElement('header', 'datesheader', get_string('dates', 'booking'));
+            $mform->addElement('html', '<div id="optiondates-form"></div>');
 
-        $semesterid = null;
-        $dayofweektime = '';
-        if ($bookingoptionsettings) {
-            $semesterid = $bookingoptionsettings->semesterid;
-            $dayofweektime = $bookingoptionsettings->dayofweektime;
+            $semesterid = null;
+            $dayofweektime = '';
+            if ($bookingoptionsettings) {
+                $semesterid = $bookingoptionsettings->semesterid;
+                $dayofweektime = $bookingoptionsettings->dayofweektime;
+            }
+            // Save semesterid and dayofweektime string in hidden inputs, so we can access them via $_POST.
+            $mform->addElement('html',
+                '<input type="text" data-fieldtype="text" class="d-none felement" id="semesterid" name="semesterid" value="' .
+                $semesterid . '"></input>');
+            $mform->addElement('html',
+                '<input type="text" data-fieldtype="text" class="d-none felement" id="dayofweektime" name="dayofweektime" value="' .
+                $dayofweektime . '"></input>');
         }
-        // Save semesterid and dayofweektime string in hidden inputs, so we can access them via $_POST.
-        $mform->addElement('html',
-            '<input type="text" data-fieldtype="text" class="d-none felement" id="semesterid" name="semesterid" value="' .
-            $semesterid . '"></input>');
-        $mform->addElement('html',
-            '<input type="text" data-fieldtype="text" class="d-none felement" id="dayofweektime" name="dayofweektime" value="' .
-            $dayofweektime . '"></input>');
 
-        // Advanced options.
-        $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with headers.
+        if (!isset($optionformconfig['advancedoptions']) || $optionformconfig['advancedoptions'] == 1) {
+            // Advanced options.
+            $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));
+        }
 
-        $mform->addElement('editor', 'notificationtext', get_string('notificationtext', 'booking'));
-        $mform->setType('notificationtext', PARAM_CLEANHTML);
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with editors.
+        if (!isset($optionformconfig['notificationtext']) || $optionformconfig['notificationtext'] == 1) {
+            $mform->addElement('editor', 'notificationtext', get_string('notificationtext', 'booking'));
+            $mform->setType('notificationtext', PARAM_CLEANHTML);
+        }
 
-        $mform->addElement('selectyesno', 'disablebookingusers',
-                get_string("disablebookingusers", "booking"));
+        $mform->addElement('selectyesno', 'disablebookingusers', get_string('disablebookingusers', 'mod_booking'));
+        $mform->setType('disablebookingusers', PARAM_INT);
 
         $mform->addElement('text', 'shorturl', get_string('shorturl', 'booking'),
                 array('size' => '1333'));
@@ -346,24 +375,40 @@ class option_form extends moodleform {
         $mform->addElement('checkbox', 'generatenewurl', get_string('generatenewurl', 'booking'));
         $mform->disabledIf('generatenewurl', 'optionid', 'eq', -1);
 
-        // Booking option text.
-        $mform->addElement('header', 'bookingoptiontextheader',
-                get_string('bookingoptiontext', 'booking'));
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with headers.
+        if (!isset($optionformconfig['bookingoptiontextheader']) || $optionformconfig['bookingoptiontextheader'] == 1) {
+            // Booking option text.
+            $mform->addElement('header', 'bookingoptiontextheader',
+                    get_string('bookingoptiontext', 'booking'));
+        }
 
-        $mform->addElement('editor', 'beforebookedtext', get_string("beforebookedtext", "booking"),
-                null, null);
-        $mform->setType('beforebookedtext', PARAM_CLEANHTML);
-        $mform->addHelpButton('beforebookedtext', 'beforebookedtext', 'mod_booking');
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with editors.
+        if (!isset($optionformconfig['beforebookedtext']) || $optionformconfig['beforebookedtext'] == 1) {
+            $mform->addElement('editor', 'beforebookedtext', get_string("beforebookedtext", "booking"),
+                    null, null);
+            $mform->setType('beforebookedtext', PARAM_CLEANHTML);
+            $mform->addHelpButton('beforebookedtext', 'beforebookedtext', 'mod_booking');
+        }
 
-        $mform->addElement('editor', 'beforecompletedtext',
-                get_string("beforecompletedtext", "booking"), null, null);
-        $mform->setType('beforecompletedtext', PARAM_CLEANHTML);
-        $mform->addHelpButton('beforecompletedtext', 'beforecompletedtext', 'mod_booking');
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with editors.
+        if (!isset($optionformconfig['beforecompletedtext']) || $optionformconfig['beforecompletedtext'] == 1) {
+            $mform->addElement('editor', 'beforecompletedtext',
+                    get_string("beforecompletedtext", "booking"), null, null);
+            $mform->setType('beforecompletedtext', PARAM_CLEANHTML);
+            $mform->addHelpButton('beforecompletedtext', 'beforecompletedtext', 'mod_booking');
+        }
 
-        $mform->addElement('editor', 'aftercompletedtext',
-                get_string("aftercompletedtext", "booking"), null, null);
-        $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
-        $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with editors.
+        if (!isset($optionformconfig['aftercompletedtext']) || $optionformconfig['aftercompletedtext'] == 1) {
+            $mform->addElement('editor', 'aftercompletedtext',
+                    get_string("aftercompletedtext", "booking"), null, null);
+            $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
+            $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
+        }
 
         // Add price.
         $price = new price($this->_customdata['optionid']);
@@ -382,8 +427,14 @@ class option_form extends moodleform {
 
         // Templates and recurring 'events' - only visible when adding new.
         if ($this->_customdata['optionid'] == -1) {
-            $mform->addElement('header', 'recurringheader',
-                        get_string('recurringheader', 'booking'));
+
+            // Workaround: Only show, if it is not turned off in the option form config.
+            // We currently need this, because hideIf does not work with headers.
+            if (!isset($optionformconfig['recurringheader']) || $optionformconfig['recurringheader'] == 1) {
+                $mform->addElement('header', 'recurringheader',
+                            get_string('recurringheader', 'booking'));
+            }
+
             $mform->addElement('checkbox', 'repeatthisbooking',
                         get_string('repeatthisbooking', 'booking'));
             $mform->disabledIf('repeatthisbooking', 'startendtimeknown', 'notchecked');
@@ -410,8 +461,12 @@ class option_form extends moodleform {
         if (has_capability('mod/booking:manageoptiontemplates', $this->_customdata['context'])
             && $this->_customdata['optionid'] < 1) {
 
-            $mform->addElement('header', 'templateheader',
-                get_string('addastemplate', 'booking'));
+            // Workaround: Only show, if it is not turned off in the option form config.
+            // We currently need this, because hideIf does not work with headers.
+            if (!isset($optionformconfig['templateheader']) || $optionformconfig['templateheader'] == 1) {
+                $mform->addElement('header', 'templateheader',
+                    get_string('addastemplate', 'booking'));
+            }
 
             $numberoftemplates = $DB->count_records('booking_options', array('bookingid' => 0));
 
@@ -427,6 +482,17 @@ class option_form extends moodleform {
             } else {
                 $mform->addElement('static', 'nolicense', get_string('licensekeycfg', 'mod_booking'),
                     get_string('licensekeycfgdesc', 'mod_booking'));
+            }
+        }
+
+        // Hide all elements which have been removed in the option form config.
+        if ($cfgelements = $DB->get_records('booking_optionformconfig')) {
+            foreach ($cfgelements as $cfgelement) {
+                if ($cfgelement->active == 0) {
+                    $mform->addElement('hidden', 'cfg_' . $cfgelement->elementname, (int) $cfgelement->active);
+                    $mform->setType('cfg_' . $cfgelement->elementname, PARAM_INT);
+                    $mform->hideIf($cfgelement->elementname, 'cfg_' . $cfgelement->elementname, 'eq', 0);
+                }
             }
         }
 
@@ -479,22 +545,25 @@ class option_form extends moodleform {
         global $DB;
         $errors = parent::validation($data, $files);
 
-        if (strlen($data['pollurl']) > 0) {
+        if (isset($data['pollurl']) && strlen($data['pollurl']) > 0) {
             if (!filter_var($data['pollurl'], FILTER_VALIDATE_URL)) {
                 $errors['pollurl'] = get_string('entervalidurl', 'booking');
             }
         }
 
-        if (strlen($data['pollurlteachers']) > 0) {
+        if (isset($data['pollurlteachers']) && strlen($data['pollurlteachers']) > 0) {
             if (!filter_var($data['pollurlteachers'], FILTER_VALIDATE_URL)) {
                 $errors['pollurlteachers'] = get_string('entervalidurl', 'booking');
             }
         }
 
         $groupname = $data['bookingname'] . ' - ' . $data['text'];
-        $groupid = groups_get_group_by_name($data['courseid'], $groupname);
-        if ($groupid && $data['optionid'] == 0) {
-            $errors['text'] = get_string('groupexists', 'booking');
+
+        if (isset($data['courseid'])) {
+            $groupid = groups_get_group_by_name($data['courseid'], $groupname);
+            if ($groupid && $data['optionid'] == 0) {
+                $errors['text'] = get_string('groupexists', 'booking');
+            }
         }
 
         return $errors;
@@ -580,15 +649,39 @@ class option_form extends moodleform {
         $data = parent::get_data();
 
         if ($data) {
-            $data->descriptionformat = $data->description['format'];
-            $data->description = $data->description['text'];
+            if (isset($data->description)) {
+                $data->descriptionformat = $data->description['format'];
+                $data->description = $data->description['text'];
+            } else {
+                $data->descriptionformat = 0;
+                $data->description = '';
+            }
 
-            $data->notificationtextformat = $data->notificationtext['format'];
-            $data->notificationtext = $data->notificationtext['text'];
+            if (isset($data->notificationtext)) {
+                $data->notificationtextformat = $data->notificationtext['format'];
+                $data->notificationtext = $data->notificationtext['text'];
+            } else {
+                $data->notificationtextformat = 0;
+                $data->notificationtext = '';
+            }
 
-            $data->beforebookedtext = $data->beforebookedtext['text'];
-            $data->beforecompletedtext = $data->beforecompletedtext['text'];
-            $data->aftercompletedtext = $data->aftercompletedtext['text'];
+            if (isset($data->beforebookedtext)) {
+                $data->beforebookedtext = $data->beforebookedtext['text'];
+            } else {
+                $data->beforebookedtext = '';
+            }
+
+            if (isset($data->beforecompletedtext)) {
+                $data->beforecompletedtext = $data->beforecompletedtext['text'];
+            } else {
+                $data->beforecompletedtext = '';
+            }
+
+            if (isset($data->aftercompletedtext)) {
+                $data->aftercompletedtext = $data->aftercompletedtext['text'];
+            } else {
+                $data->aftercompletedtext = '';
+            }
         }
 
         $handler = booking_handler::create();

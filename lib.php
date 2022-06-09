@@ -677,21 +677,49 @@ function booking_update_options($optionvalues, $context) {
     } else {
         $option->notificationtext = $optionvalues->notificationtext;
     }
-    $option->disablebookingusers = $optionvalues->disablebookingusers;
+    if (empty($optionvalues->disablebookingusers)) {
+        $option->disablebookingusers = 0;
+    } else {
+        $option->disablebookingusers = $optionvalues->disablebookingusers;
+    }
 
     $option->sent = 0;
     $option->sent2 = 0;
     $option->sentteachers = 0;
 
-    $option->location = trim($optionvalues->location);
-    $option->institution = trim($optionvalues->institution);
-    $option->address = trim($optionvalues->address);
+    if (isset($optionvalues->location)) {
+        $option->location = trim($optionvalues->location);
+    } else {
+        $option->location = '';
+    }
+
+    if (isset($optionvalues->institution)) {
+        $option->institution = trim($optionvalues->institution);
+    } else {
+        $option->institution = '';
+    }
+
+    if (isset($optionvalues->address)) {
+        $option->address = trim($optionvalues->address);
+    } else {
+        $option->address = '';
+    }
 
     // Visibility of the option.
     $option->invisible = $optionvalues->invisible;
 
-    $option->pollurl = $optionvalues->pollurl;
-    $option->pollurlteachers = $optionvalues->pollurlteachers;
+    if (isset($optionvalues->pollurl)) {
+        $option->pollurl = $optionvalues->pollurl;
+    } else {
+        $option->pollurl = '';
+    }
+
+    if (isset($optionvalues->pollurlteachers)) {
+        $option->pollurlteachers = $optionvalues->pollurlteachers;
+    } else {
+        $option->pollurlteachers = '';
+    }
+
     if ($optionvalues->limitanswers == 0) {
         $option->limitanswers = 0;
         $option->maxanswers = 0;
@@ -720,7 +748,11 @@ function booking_update_options($optionvalues, $context) {
     } else {
         $option->enrolmentstatus = 0;
     }
-    $option->description = $optionvalues->description;
+    if (empty($option->description)) {
+        $option->description = "";
+    } else {
+        $option->description = $optionvalues->description;
+    }
     $option->beforebookedtext = $optionvalues->beforebookedtext;
     $option->beforecompletedtext = $optionvalues->beforecompletedtext;
     $option->aftercompletedtext = $optionvalues->aftercompletedtext;

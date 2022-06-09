@@ -126,9 +126,14 @@ if ($mform->is_cancelled()) {
         // Store the arrays in $fromform so we can use them later in booking_update_options.
         $fromform->newoptiondates = $newoptiondates;
         $fromform->stillexistingdates = $stillexistingdates;
+
         // Also, get semesterid and dayofweektime string from the dynamic form and load it into $fromform.
-        $fromform->semesterid = $_POST['semesterid'];
-        $fromform->dayofweektime = $_POST['dayofweektime'];
+        if (isset($_POST['semesterid'])) {
+            $fromform->semesterid = $_POST['semesterid'];
+        }
+        if (isset($_POST['dayofweektime'])) {
+            $fromform->dayofweektime = $_POST['dayofweektime'];
+        }
 
         // Todo: nbooking should be call $optionid.
         $nbooking = booking_update_options($fromform, $context);

@@ -1741,5 +1741,6 @@ $string['noteacherset'] = 'No teacher set';
 // Optionformconfig.php / optionformconfig_form.php.
 $string['optionformconfig'] = 'Booking: Configure booking option form';
 $string['optionformconfigsaved'] = 'Configuration for the booking option form saved.';
-$string['optionformconfigsubtitle'] = 'Turn off features you do not need, in order to make the booking option form clearer for your administrators.';
+$string['optionformconfigsubtitle'] = '<p>Turn off features you do not need, in order to make the booking option form clearer for your administrators.</p>
+<p><strong>BE CAREFUL:</strong> Only deactivate fields if you are completely sure that you won\'t need them!</p>';
 $string['optionformconfig:nobooking'] = 'You need to create at least one booking instance before you can use this form!';

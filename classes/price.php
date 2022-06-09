@@ -60,8 +60,18 @@ class price {
 
         global $DB;
 
-        $mform->addElement('header', 'bookingoptionprice',
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with headers.
+        $showpriceheader = true;
+        $cfgpriceheader = $DB->get_field('booking_optionformconfig', 'active', ['elementname' => 'bookingoptionprice']);
+        if ($cfgpriceheader === "0") {
+            $showpriceheader = false;
+        }
+
+        if ($showpriceheader) {
+            $mform->addElement('header', 'bookingoptionprice',
                 get_string('bookingoptionprice', 'booking'));
+        }
 
         // If there are no price categories yet, show an info text.
         if (empty($this->pricecategories)) {

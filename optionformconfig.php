@@ -28,7 +28,7 @@ use mod_booking\form\optionformconfig_form;
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-global $OUTPUT;
+global $DB, $OUTPUT;
 
 // No guest autologin.
 require_login(0, false);
@@ -54,6 +54,34 @@ if ($mform->is_cancelled()) {
 } else if ($data = $mform->get_data()) {
 
     // TODO: Insert, delete or update data in DB.
+    foreach ($data as $key => $value) {
+
+        // Remove 'cfg_' part of the key.
+        $key = str_replace('cfg_', '', $key);
+
+        // Do not write empty keys into DB.
+        if (empty($key)) {
+            continue;
+        }
+
+        // Do not add special elements like "submitbutton".
+        if (!is_int($value)) {
+            continue;
+        }
+
+        $el = new stdClass;
+        $el->elementname = $key;
+        $el->active = $value;
+
+        if ($dbrecord = $DB->get_record('booking_optionformconfig', ['elementname' => $key])) {
+            // Record exists: Update.
+            $el->id = $dbrecord->id;
+            $DB->update_record('booking_optionformconfig', $el);
+        } else {
+            // New record: Insert.
+            $DB->insert_record('booking_optionformconfig', $el);
+        }
+    }
 
     redirect($pageurl, get_string('optionformconfigsaved', 'mod_booking'), 5);
 
@@ -62,7 +90,7 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->heading(new lang_string('optionformconfig', 'mod_booking'));
 
     // Dismissible alert.
-    echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert">' .
+    echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">' .
     get_string('optionformconfigsubtitle', 'mod_booking') .
     '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
     <span aria-hidden="true">&times;</span>

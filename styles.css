@@ -269,3 +269,14 @@ button[name="customdatesbtn"] {
 #page-mod-booking-optiondates_teachers_report .modal-content {
     overflow: visible;
 }
+
+#page-admin-mod-booking-optionformconfig .col-md-3 {
+    display: none;
+}
+
+#page-admin-mod-booking-optionformconfig .mform {
+    padding-top: 15px;
+    padding-bottom: 5px;
+    background-color: ghostwhite;
+    border-radius: 12px;
+}
