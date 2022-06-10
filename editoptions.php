@@ -32,6 +32,8 @@ $copyoptionid = optional_param('copyoptionid', 0, PARAM_INT);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
 $action = optional_param('action', '', PARAM_RAW);
 
+$returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
+
 $url = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => $optionid));
 $PAGE->set_url($url);
 $PAGE->requires->jquery_plugin('ui-css');
@@ -96,8 +98,13 @@ if ($optionid == -1 && $copyoptionid != 0) {
 }
 
 if ($mform->is_cancelled()) {
-    $redirecturl = new moodle_url('view.php', array('id' => $cmid));
-    redirect($redirecturl, '', 0);
+
+    if (!empty($returnurl)) {
+        redirect($returnurl);
+    } else {
+        $redirecturl = new moodle_url('view.php', array('id' => $cmid));
+        redirect($redirecturl, '', 0);
+    }
 } else if ($fromform = $mform->get_data()) {
     // Validated data.
     if (confirm_sesskey() &&
@@ -244,7 +251,12 @@ if ($mform->is_cancelled()) {
         if (isset($fromform->submittandaddnew)) {
             $redirecturl = new moodle_url('editoptions.php', array('id' => $cmid, 'optionid' => -1));
         } else {
-            $redirecturl = new moodle_url('view.php', array('id' => $cmid));
+
+            if (!empty($returnurl)) {
+                $redirecturl = $returnurl;
+            } else {
+                $redirecturl = new moodle_url('view.php', array('id' => $cmid));
+            }
         }
         redirect($redirecturl, get_string('changessaved'), 0);
     }
@@ -270,6 +282,12 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->heading($heading);
 
     if (isset($defaultvalues)) {
+
+        // We need to set the returnurl if present.
+        if (!empty($returnurl)) {
+            $defaultvalues->returnurl = $returnurl;
+        }
+
         $mform->set_data($defaultvalues);
     }
     $mform->display();

@@ -71,6 +71,12 @@ class option_form extends moodleform {
         $mform->addElement('hidden', 'bookingname');
         $mform->setType('bookingname', PARAM_TEXT);
 
+        $mform->addElement('hidden', 'returnurl');
+        $mform->setType('returnurl', PARAM_LOCALURL);
+
+        $mform->addElement('hidden', 'scrollpos');
+        $mform->setType('scrollpos', PARAM_INT);
+
         // Header "General".
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
