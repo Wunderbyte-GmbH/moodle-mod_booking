@@ -725,8 +725,16 @@ function booking_update_options($optionvalues, $context) {
         $option->maxanswers = 0;
         $option->maxoverbooking = 0;
     } else {
-        $option->maxanswers = $optionvalues->maxanswers;
-        $option->maxoverbooking = $optionvalues->maxoverbooking;
+        if (isset($optionvalues->maxanswers)) {
+            $option->maxanswers = $optionvalues->maxanswers;
+        } else {
+            $option->maxanswers = 0;
+        }
+        if (isset($optionvalues->maxoverbooking)) {
+            $option->maxoverbooking = $optionvalues->maxoverbooking;
+        } else {
+            $option->maxoverbooking = 0;
+        }
         $option->limitanswers = 1;
     }
 
@@ -802,8 +810,15 @@ function booking_update_options($optionvalues, $context) {
 
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
              $optionvalues->optionid != -1) { // Existing booking option record.
+
         $option->id = $optionvalues->optionid;
-        $option->shorturl = $optionvalues->shorturl;
+
+        if (isset($optionvalues->shorturl)) {
+            $option->shorturl = $optionvalues->shorturl;
+        } else {
+            $option->shorturl = '';
+        }
+
         if (isset($optionvalues->text) && $optionvalues->text != '') {
             $option->calendarid = $DB->get_field('booking_options', 'calendarid',
                     array('id' => $option->id));
