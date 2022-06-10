@@ -34,6 +34,7 @@ use mod_booking\booking_option_settings;
 use mod_booking\output\bookingoption_description;
 use mod_booking\price;
 use mod_booking\singleton_service;
+use moodle_exception;
 use stdClass;
 
 /**
@@ -71,11 +72,12 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             return null;
         } */
 
-        $user = price::return_user_to_buy_for();
+        $user = price::return_user_to_buy_for($userid);
 
         // In booking, we always buy a booking option. Therefore, we have to first find out its price.
         if (!$price = price::get_price($optionid, $user)) {
-            return null;
+            throw new moodle_exception('invalidpricecategoryforuser', 'mod_booking', '', '', "Price was empty.
+                This was most probably due to invalid price cateogry configuration for the given user $user->id");
         }
 
         // Now we reserve the place for the user.
