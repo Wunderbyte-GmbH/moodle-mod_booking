@@ -30,7 +30,7 @@ $cmid = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $copyoptionid = optional_param('copyoptionid', 0, PARAM_INT);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
-$action = optional_param('action', '', PARAM_RAW);
+$mode = optional_param('mode', '', PARAM_RAW);
 
 $returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
 
@@ -58,9 +58,19 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
     throw new moodle_exception('nopermissions');
 }
 
-if ($action === 'toggleformmode') {
-    // TODO: Save as user preferences.
-
+if (has_capability('mod/booking:cantoggleformmode', $context)) {
+    // Switch mode after button has been clicked.
+    switch ($mode) {
+        case 'formmodesimple':
+            set_user_preference('optionform_mode', 'simple');
+            break;
+        case 'formmodeexpert':
+            set_user_preference('optionform_mode', 'expert');
+            break;
+    }
+} else {
+    // Without the capability, we always use simple mode.
+    set_user_preference('optionform_mode', 'simple');
 }
 
 $mform = new option_form(null, array('bookingid' => $bookingid, 'optionid' => $optionid, 'cmid' => $cmid,
@@ -266,13 +276,31 @@ if ($mform->is_cancelled()) {
 
     echo $OUTPUT->header();
 
-    // Add action button
-    $url = new moodle_url('editoptions.php', ['action' => 'toggleformmode', 'id' => $cmid, 'optionid' => $optionid]);
+    if (has_capability('mod/booking:cantoggleformmode', $context)) {
 
-    echo html_writer::link($url->out(false),
-        get_string('toggleformmode', 'mod_booking'),
-        ['action' => 'toggleformmode', 'id' => $cmid, 'optionid' => $optionid, 'class' => 'btn btn-primary']);
+        $currentpref = get_user_preferences('optionform_mode');
+        switch ($currentpref) {
+            case 'expert':
+                $togglemode = 'formmodesimple';
+                $formmodelabel = get_string('toggleformmode_simple', 'mod_booking');
+                break;
+            case 'simple':
+            default:
+                $togglemode = 'formmodeexpert';
+                $formmodelabel = get_string('toggleformmode_expert', 'mod_booking');
+                break;
+        }
 
+        // Add a button to toggle between simple and expert mode.
+        $formmodeurl = new moodle_url('editoptions.php', ['mode' => $togglemode, 'id' => $cmid, 'optionid' => $optionid]);
+
+        echo html_writer::link($formmodeurl->out(false),
+            $formmodelabel,
+            ['id' => $cmid, 'optionid' => $optionid,
+                'class' => 'btn btn-secondary float-right']);
+    }
+
+    // Heading.
     if (empty($optionid)) {
         $heading = get_string('addnewbookingoption', 'mod_booking');
     } else {

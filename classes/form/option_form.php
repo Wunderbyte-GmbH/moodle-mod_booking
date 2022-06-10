@@ -38,6 +38,12 @@ class option_form extends moodleform {
                 $optionformconfig[$optionformconfigrecord->elementname] = $optionformconfigrecord->active;
             }
         }
+        // Also get the form mode, which can be 'simple' or 'expert'.
+        $formmode = get_user_preferences('optionform_mode');
+        if (empty($formmode)) {
+            // Default: Simple mode.
+            $formmode = 'simple';
+        }
 
         $mform = & $this->_form;
 
@@ -208,7 +214,9 @@ class option_form extends moodleform {
         }
 
         // Only show, if it is not turned off in the option form config.
-        if (!isset($optionformconfig['institution']) || $optionformconfig['institution'] == 1) {
+        // In expert mode we do not hide anything.
+        if ($formmode == 'expert' ||
+            !isset($optionformconfig['institution']) || $optionformconfig['institution'] == 1) {
             $mform->addElement('html',
                 '<a target="_blank" href="' . $url . '">' . get_string('editinstitutions', 'booking') .
                          '</a>');
@@ -306,7 +314,9 @@ class option_form extends moodleform {
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with editors.
-        if (!isset($optionformconfig['description']) || $optionformconfig['description'] == 1) {
+        // In expert mode, we do not hide anything.
+        if ($formmode == 'expert' ||
+            !isset($optionformconfig['description']) || $optionformconfig['description'] == 1) {
             $mform->addElement('editor', 'description', get_string('description'));
             $mform->setType('description', PARAM_CLEANHTML);
         }
@@ -336,7 +346,9 @@ class option_form extends moodleform {
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with editors.
-        if (!isset($optionformconfig['datesheader']) || $optionformconfig['datesheader'] == 1) {
+        // In expert mode, we do not hide anything.
+        if ($formmode == 'expert' ||
+            !isset($optionformconfig['datesheader']) || $optionformconfig['datesheader'] == 1) {
             // Datesection for Dynamic Load.
             $mform->addElement('header', 'datesheader', get_string('dates', 'booking'));
             $mform->addElement('html', '<div id="optiondates-form"></div>');
@@ -358,14 +370,18 @@ class option_form extends moodleform {
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with headers.
-        if (!isset($optionformconfig['advancedoptions']) || $optionformconfig['advancedoptions'] == 1) {
+        // In expert mode, we do not hide anything.
+        if ($formmode == 'expert' ||
+            !isset($optionformconfig['advancedoptions']) || $optionformconfig['advancedoptions'] == 1) {
             // Advanced options.
             $mform->addElement('header', 'advancedoptions', get_string('advancedoptions', 'booking'));
         }
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with editors.
-        if (!isset($optionformconfig['notificationtext']) || $optionformconfig['notificationtext'] == 1) {
+        // In expert mode, we do not hide anything.
+        if ($formmode == 'expert' ||
+            !isset($optionformconfig['notificationtext']) || $optionformconfig['notificationtext'] == 1) {
             $mform->addElement('editor', 'notificationtext', get_string('notificationtext', 'booking'));
             $mform->setType('notificationtext', PARAM_CLEANHTML);
         }
@@ -383,7 +399,9 @@ class option_form extends moodleform {
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with headers.
-        if (!isset($optionformconfig['bookingoptiontextheader']) || $optionformconfig['bookingoptiontextheader'] == 1) {
+        // In expert mode, we do not hide anything.
+        if ($formmode == 'expert' ||
+            !isset($optionformconfig['bookingoptiontextheader']) || $optionformconfig['bookingoptiontextheader'] == 1) {
             // Booking option text.
             $mform->addElement('header', 'bookingoptiontextheader',
                     get_string('bookingoptiontext', 'booking'));
@@ -391,7 +409,9 @@ class option_form extends moodleform {
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with editors.
-        if (!isset($optionformconfig['beforebookedtext']) || $optionformconfig['beforebookedtext'] == 1) {
+        // In expert mode, we do not hide anything.
+        if ($formmode == 'expert' ||
+            !isset($optionformconfig['beforebookedtext']) || $optionformconfig['beforebookedtext'] == 1) {
             $mform->addElement('editor', 'beforebookedtext', get_string("beforebookedtext", "booking"),
                     null, null);
             $mform->setType('beforebookedtext', PARAM_CLEANHTML);
@@ -400,7 +420,9 @@ class option_form extends moodleform {
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with editors.
-        if (!isset($optionformconfig['beforecompletedtext']) || $optionformconfig['beforecompletedtext'] == 1) {
+        // In expert mode, we do not hide anything.
+        if ($formmode == 'expert' ||
+            !isset($optionformconfig['beforecompletedtext']) || $optionformconfig['beforecompletedtext'] == 1) {
             $mform->addElement('editor', 'beforecompletedtext',
                     get_string("beforecompletedtext", "booking"), null, null);
             $mform->setType('beforecompletedtext', PARAM_CLEANHTML);
@@ -409,7 +431,9 @@ class option_form extends moodleform {
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with editors.
-        if (!isset($optionformconfig['aftercompletedtext']) || $optionformconfig['aftercompletedtext'] == 1) {
+        // In expert mode, we do not hide anything.
+        if ($formmode == 'expert' ||
+            !isset($optionformconfig['aftercompletedtext']) || $optionformconfig['aftercompletedtext'] == 1) {
             $mform->addElement('editor', 'aftercompletedtext',
                     get_string("aftercompletedtext", "booking"), null, null);
             $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
@@ -436,7 +460,9 @@ class option_form extends moodleform {
 
             // Workaround: Only show, if it is not turned off in the option form config.
             // We currently need this, because hideIf does not work with headers.
-            if (!isset($optionformconfig['recurringheader']) || $optionformconfig['recurringheader'] == 1) {
+            // In expert mode, we do not hide anything.
+            if ($formmode == 'expert' ||
+                !isset($optionformconfig['recurringheader']) || $optionformconfig['recurringheader'] == 1) {
                 $mform->addElement('header', 'recurringheader',
                             get_string('recurringheader', 'booking'));
             }
@@ -469,7 +495,9 @@ class option_form extends moodleform {
 
             // Workaround: Only show, if it is not turned off in the option form config.
             // We currently need this, because hideIf does not work with headers.
-            if (!isset($optionformconfig['templateheader']) || $optionformconfig['templateheader'] == 1) {
+            // In expert mode, we do not hide anything.
+            if ($formmode == 'expert' ||
+                !isset($optionformconfig['templateheader']) || $optionformconfig['templateheader'] == 1) {
                 $mform->addElement('header', 'templateheader',
                     get_string('addastemplate', 'booking'));
             }
@@ -492,7 +520,8 @@ class option_form extends moodleform {
         }
 
         // Hide all elements which have been removed in the option form config.
-        if ($cfgelements = $DB->get_records('booking_optionformconfig')) {
+        // Only do this, if the form mode is set to 'simple'. In expert mode we do not hide anything.
+        if ($formmode == 'simple' && $cfgelements = $DB->get_records('booking_optionformconfig')) {
             foreach ($cfgelements as $cfgelement) {
                 if ($cfgelement->active == 0) {
                     $mform->addElement('hidden', 'cfg_' . $cfgelement->elementname, (int) $cfgelement->active);

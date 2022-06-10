@@ -993,6 +993,8 @@ $string['usedinbookinginstances'] = 'Template is used in following booking insta
 $string['optiontemplatename'] = 'Option template name';
 $string['option_template_not_saved_no_valid_license'] = 'Booking option template could not be saved as template.
                                                   Upgrade to PRO version to save an unlimited number of templates.';
+$string['toggleformmode_simple'] = '<i class="fa fa-compress" aria-hidden="true"></i> Switch to simple mode';
+$string['toggleformmode_expert'] = '<i class="fa fa-expand" aria-hidden="true"></i> Switch to expert mode';
 
 // Option_form.php.
 $string['bookingoptionimage'] = 'Upload an image';

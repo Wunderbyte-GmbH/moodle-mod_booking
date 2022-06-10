@@ -855,6 +855,8 @@ $string['newtemplatesaved'] = 'Neue Buchungsoptionsvorlage wurde gespeichert.';
 $string['option_template_not_saved_no_valid_license'] = 'Buchungsoption konnte nicht als Vorlage gespeichert werden.
                                                   Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen
                                                   zu können.';
+$string['toggleformmode_simple'] = '<i class="fa fa-compress" aria-hidden="true"></i> Wechsle zu Einfach-Modus';
+$string['toggleformmode_expert'] = '<i class="fa fa-expand" aria-hidden="true"></i> Wechsle zu Experten-Modus';
 
 // Option_form.php.
 $string['bookingoptionimage'] = 'Bild hochladen';

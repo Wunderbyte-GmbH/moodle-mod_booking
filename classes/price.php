@@ -62,12 +62,15 @@ class price {
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with headers.
+        // In expert mode, we always show everything.
         $showpriceheader = true;
-        $cfgpriceheader = $DB->get_field('booking_optionformconfig', 'active', ['elementname' => 'bookingoptionprice']);
-        if ($cfgpriceheader === "0") {
-            $showpriceheader = false;
+        $formmode = get_user_preferences('optionform_mode');
+        if ($formmode !== 'expert') {
+            $cfgpriceheader = $DB->get_field('booking_optionformconfig', 'active', ['elementname' => 'bookingoptionprice']);
+            if ($cfgpriceheader === "0") {
+                $showpriceheader = false;
+            }
         }
-
         if ($showpriceheader) {
             $mform->addElement('header', 'bookingoptionprice',
                 get_string('bookingoptionprice', 'booking'));

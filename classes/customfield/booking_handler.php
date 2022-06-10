@@ -160,10 +160,14 @@ class booking_handler extends \core_customfield\handler {
 
                 // Workaround: Only show header, if it is not turned off in the option form config.
                 // We currently need this, because hideIf does not work with headers.
+                // In expert mode, we always show everything.
                 $showheader = true;
-                $cfgheader = $DB->get_field('booking_optionformconfig', 'active', ['elementname' => 'category_' . $categoryid]);
-                if ($cfgheader === "0") {
-                    $showheader = false;
+                $formmode = get_user_preferences('optionform_mode');
+                if ($formmode !== 'expert') {
+                    $cfgheader = $DB->get_field('booking_optionformconfig', 'active', ['elementname' => 'category_' . $categoryid]);
+                    if ($cfgheader === "0") {
+                        $showheader = false;
+                    }
                 }
                 if ($showheader) {
                     $mform->addElement('header', 'category_' . $categoryid, $categoryname);
