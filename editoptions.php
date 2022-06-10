@@ -30,6 +30,7 @@ $cmid = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $copyoptionid = optional_param('copyoptionid', 0, PARAM_INT);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
+$action = optional_param('action', '', PARAM_RAW);
 
 $url = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => $optionid));
 $PAGE->set_url($url);
@@ -53,6 +54,11 @@ if (!$context = context_module::instance($cmid)) {
 
 if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mod/booking:addeditownoption', $context)) == false) {
     throw new moodle_exception('nopermissions');
+}
+
+if ($action === 'toggleformmode') {
+    // TODO: Save as user preferences.
+
 }
 
 $mform = new option_form(null, array('bookingid' => $bookingid, 'optionid' => $optionid, 'cmid' => $cmid,
@@ -247,6 +253,13 @@ if ($mform->is_cancelled()) {
     $PAGE->set_heading($course->fullname);
 
     echo $OUTPUT->header();
+
+    // Add action button
+    $url = new moodle_url('editoptions.php', ['action' => 'toggleformmode', 'id' => $cmid, 'optionid' => $optionid]);
+
+    echo html_writer::link($url->out(false),
+        get_string('toggleformmode', 'mod_booking'),
+        ['action' => 'toggleformmode', 'id' => $cmid, 'optionid' => $optionid, 'class' => 'btn btn-primary']);
 
     if (empty($optionid)) {
         $heading = get_string('addnewbookingoption', 'mod_booking');
