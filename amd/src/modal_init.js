@@ -26,7 +26,6 @@ import Notification from 'core/notification';
 /**
  * Gets called from mustache template.
  * @param {int} optionid
- * @param {int} userid
  */
 export const init = (optionid = null) => {
 

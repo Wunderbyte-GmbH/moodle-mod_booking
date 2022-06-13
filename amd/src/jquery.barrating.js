@@ -22,6 +22,8 @@
  *
  * This plugin is available under the MIT license.
  * http://www.opensource.org/licenses/mit-license.php
+ *
+ * @param {any} factory factory
  */
 (function(factory) {
     if (typeof define === 'function' && define.amd) {
@@ -32,6 +34,9 @@
 
     var BarRating = (function() {
 
+        /**
+         * BarRating function.
+         */
         function BarRating() {
             var self = this;
 

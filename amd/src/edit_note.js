@@ -23,7 +23,6 @@
  * Any exception thrown by the web service (or callback) is displayed as an error popup.
  *
  * @module     mod_booking/edit_note
- * @package    mod_booking
  * @copyright  2018 David Bogner
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      3.3

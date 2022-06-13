@@ -17,7 +17,6 @@
  * Javascript controller for booking module
  *
  * @module mod_booking/view_actions
- * @package mod_booking
  * @copyright 2017 David Bogner <info@edulabs.org>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since 3.1
