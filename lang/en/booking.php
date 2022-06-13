@@ -223,7 +223,7 @@ $string['closed'] = 'Booking closed';
 $string['confirmbookingoffollowing'] = 'Please confirm the booking of following course';
 $string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option?';
 $string['coursedate'] = 'Date';
-$string['createdby'] = 'Booking module created by Wunderbyte GmbH';
+$string['createdbywunderbyte'] = 'Booking module created by Wunderbyte GmbH';
 $string['deletebooking'] = 'Do you really want to unsubscribe from following course? <br /><br /> <b>{$a} </b>';
 $string['deletebookingoption'] = 'Delete this booking option';
 $string['deleteuserfrombooking'] = 'Do you really want to delete the users from the booking?';
@@ -240,7 +240,6 @@ $string['showactive'] = 'Active bookings';
 $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
 $string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option?';
 $string['norighttobook'] = 'Booking is not possible for your user role. Please contact the site administrator to give you the appropriate rights or enrol/sign in.';
-$string['createdby'] = 'Booking module created by Wunderbyte GmbH';
 $string['maxperuserwarning'] = 'You currently have used {$a->count} out of {$a->limit} maximum available bookings ({$a->eventtype}) for your user account';
 $string['bookedpast'] = 'Booked (course terminated)';
 $string['bookotherusers'] = 'Book other users';
@@ -1697,7 +1696,7 @@ $string['holidayend_help'] = 'End of the holidays time period.';
 $string['addholiday'] = 'Add holiday(s)';
 $string['errorholidaystart'] = 'Holiday is not allowed to start after the end date.';
 $string['errorholidayend'] = 'Holiday is not allowed to end before the start date.';
-$string['deleteholiday'] = 'Delete holiday';
+$string['deleteholiday'] = 'Delete this holiday';
 
 // Cache.
 $string['cachedef_bookingoptions'] = 'General information of booking options';

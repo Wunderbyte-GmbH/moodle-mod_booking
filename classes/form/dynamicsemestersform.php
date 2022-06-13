@@ -176,6 +176,7 @@ class dynamicsemestersform extends dynamic_form {
 
         // Options to store help button texts etc.
         $repeateloptions = [];
+        // Info: We removed help buttons for now as they were causing problems with Moodle 4.0.
 
         $semesterlabel = html_writer::tag('b', get_string('semester', 'booking') . ' {no}',
             array('class' => 'semesterlabel'));
@@ -183,17 +184,12 @@ class dynamicsemestersform extends dynamic_form {
 
         $repeatedsemesters[] = $mform->createElement('text', 'semesteridentifier', get_string('semesteridentifier', 'booking'));
         $mform->setType('semesteridentifier', PARAM_TEXT);
-        $repeateloptions['semesteridentifier']['helpbutton'] = ['semesteridentifier', 'mod_booking'];
 
         $repeatedsemesters[] = $mform->createElement('text', 'semestername', get_string('semestername', 'booking'));
         $mform->setType('semestername', PARAM_TEXT);
-        $repeateloptions['semestername']['helpbutton'] = ['semestername', 'mod_booking'];
 
         $repeatedsemesters[] = $mform->createElement('date_selector', 'semesterstart', get_string('semesterstart', 'booking'));
-        $repeateloptions['semesterstart']['helpbutton'] = ['semesterstart', 'mod_booking'];
-
         $repeatedsemesters[] = $mform->createElement('date_selector', 'semesterend', get_string('semesterend', 'booking'));
-        $repeateloptions['semesterend']['helpbutton'] = ['semesterend', 'mod_booking'];
 
         $repeatedsemesters[] = $mform->createElement('submit', 'deletesemester', get_string('deletesemester', 'mod_booking'));
 
