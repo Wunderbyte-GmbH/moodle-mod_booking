@@ -45,7 +45,7 @@ $defaultvalues->optionid = $optionid;
 $defaultvalues->id = $id;
 $defaultvalues->uids = $uids;
 
-$redirecturl = new moodle_url('report.php', array('id' => $id, 'optionid' => $optionid));
+$redirecturl = new moodle_url('/mod/booking/report.php', array('id' => $id, 'optionid' => $optionid));
 
 $mform = new mod_booking_sendmessage_form();
 

@@ -155,7 +155,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
         echo $OUTPUT->header();
         $contents = html_writer::tag('p', get_string('bookingdeleted', 'booking'));
         $options = array('id' => $cm->id);
-        $contents .= $OUTPUT->single_button(new moodle_url('view.php', $options),
+        $contents .= $OUTPUT->single_button(new moodle_url('/mod/booking/view.php', $options),
                 get_string('continue'), 'get');
         echo $OUTPUT->box($contents, 'box generalbox', 'notice');
         echo $OUTPUT->footer();
@@ -164,7 +164,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
         echo $OUTPUT->header();
         $contents = get_string('cannotremovesubscriber', 'booking');
         $options = array('id' => $cm->id);
-        $contents .= $OUTPUT->single_button(new moodle_url('view.php', $options),
+        $contents .= $OUTPUT->single_button(new moodle_url('/mod/booking/view.php', $options),
                 get_string('continue'), 'get');
         echo $OUTPUT->box($contents, 'box generalbox', 'notice');
         echo $OUTPUT->footer();
@@ -191,7 +191,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
     }
 
     echo $OUTPUT->confirm(get_string('deletebooking', 'booking', $deletemessage),
-            new moodle_url('view.php', $options), $urlcancel);
+            new moodle_url('/mod/booking/view.php', $options), $urlcancel);
     echo $OUTPUT->footer();
     die();
 }
@@ -211,7 +211,7 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
     echo $OUTPUT->header();
     $timenow = time();
 
-    $url = new moodle_url("view.php", array('id' => $cm->id));
+    $url = new moodle_url("/mod/booking/view.php", array('id' => $cm->id));
     $url->set_anchor("option" . $answer);
     if (!empty($answer)) {
         $bookingdata = new \mod_booking\booking_option($cm->id, $answer, array(), 0, 0, false);
@@ -376,7 +376,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                 foreach ($categoryies as $category) {
                     $tmpcat = $DB->get_record('booking_category', array('id' => $category));
                     if ($tmpcat) {
-                        $surl = new moodle_url('category.php', array('id' => $id, 'category' => $tmpcat->id));
+                        $surl = new moodle_url('/mod/booking/category.php', array('id' => $id, 'category' => $tmpcat->id));
                         $links[] = html_writer::link($surl, $tmpcat->name, array());
                     }
                 }

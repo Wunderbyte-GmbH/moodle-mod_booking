@@ -89,7 +89,7 @@ if ($settings = singleton_service::get_instance_of_booking_option_settings($opti
         echo $output->render_bookingoption_description_view($data);
     }
 } else {
-    $url = new moodle_url('mod/booking/view.php', ['id' => $cmid]);
+    $url = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
     redirect($url);
 }
 

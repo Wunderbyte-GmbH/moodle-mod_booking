@@ -73,9 +73,9 @@ $rulestable = array();
 
 foreach ($rules as $rule) {
 
-    $edit = new moodle_url('otherbookingaddrule.php',
+    $edit = new moodle_url('/mod/booking/otherbookingaddrule.php',
             array('id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id));
-    $delete = new moodle_url('otherbookingaddrule.php',
+    $delete = new moodle_url('/mod/booking/otherbookingaddrule.php',
             array('id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id,
                 'delete' => 1));
 
@@ -96,8 +96,8 @@ foreach ($rules as $rule) {
 $table->data = $rulestable;
 echo html_writer::table($table);
 
-$cancel = new moodle_url('report.php', array('id' => $cm->id, 'optionid' => $optionid));
-$addnew = new moodle_url('otherbookingaddrule.php', array('id' => $cm->id, 'optionid' => $optionid));
+$cancel = new moodle_url('/mod/booking/report.php', array('id' => $cm->id, 'optionid' => $optionid));
+$addnew = new moodle_url('/mod/booking/otherbookingaddrule.php', array('id' => $cm->id, 'optionid' => $optionid));
 
 echo '<div style="width: 100%; text-align: center; display:table;">';
 $button = $OUTPUT->single_button($cancel, get_string('cancel', 'booking'), 'get');

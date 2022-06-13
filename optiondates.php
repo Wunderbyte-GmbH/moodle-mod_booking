@@ -268,14 +268,14 @@ if ($mform->is_cancelled()) {
                     array('class' => 'p-x-2'));
             $editing = 'alert alert-success';
         } else {
-            $editurl = new moodle_url('optiondates.php',
+            $editurl = new moodle_url('/mod/booking/optiondates.php',
                     array('id' => $cm->id, 'optionid' => $optionid, 'edit' => $time->id));
             $button = $OUTPUT->single_button($editurl, get_string('edittag', 'mod_booking'), 'get');
         }
-        $delete = new moodle_url('optiondates.php',
+        $delete = new moodle_url('/mod/booking/optiondates.php',
                 array('id' => $id, 'optionid' => $optionid, 'delete' => $time->id));
         $buttondelete = $OUTPUT->single_button($delete, get_string('delete'), 'get');
-        $duplicate = new moodle_url('optiondates.php',
+        $duplicate = new moodle_url('/mod/booking/optiondates.php',
                 array('id' => $id, 'optionid' => $optionid, 'duplicate' => $time->id));
         $buttonduplicate = $OUTPUT->single_button($duplicate, get_string('duplicate'), 'get');
 
@@ -292,7 +292,7 @@ if ($mform->is_cancelled()) {
     $table->data = $timestable;
     echo html_writer::table($table);
 
-    $cancel = new moodle_url('view.php', array('id' => $cm->id));
+    $cancel = new moodle_url('/mod/booking/view.php', array('id' => $cm->id));
     $defaultvalues = new stdClass();
     if ($edit != '') {
         $defaultvalues = $DB->get_record('booking_optiondates', array('id' => $edit), '*',

@@ -44,7 +44,7 @@ require_capability('mod/booking:addinstance', $context);
 
 $PAGE->set_pagelayout('standard');
 
-$redirecturl = new moodle_url('institutions.php', array('courseid' => $courseid));
+$redirecturl = new moodle_url('/mod/booking/institutions.php', array('courseid' => $courseid));
 
 if ($delete == 1) {
     $DB->delete_records("booking_institutions", array("id" => $cid));

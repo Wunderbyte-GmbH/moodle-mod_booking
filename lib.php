@@ -1194,7 +1194,7 @@ function booking_myprofile_navigation(core_user\output\myprofile\tree $tree, $us
  * @return void
  */
 function booking_extend_settings_navigation(settings_navigation $settings, navigation_node $navref) {
-    global $PAGE, $DB, $USER;
+    global $PAGE, $DB;
 
     $cm = $PAGE->cm;
     if (!$cm) {
@@ -1228,11 +1228,11 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
     if (has_capability('mod/booking:manageoptiontemplates', $context)) {
         $settingnode->add(get_string("saveinstanceastemplate", "mod_booking"),
-            new moodle_url('instancetemplateadd.php', array('id' => $cm->id)));
+            new moodle_url('/mod/booking/instancetemplateadd.php', array('id' => $cm->id)));
 
         if (is_null($optionid)) {
             $settingnode->add(get_string("managecustomreporttemplates", "mod_booking"),
-                new moodle_url('customreporttemplates.php', array('id' => $cm->id)));
+                new moodle_url('/mod/booking/customreporttemplates.php', array('id' => $cm->id)));
         }
     }
 
@@ -1242,13 +1242,13 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 navigation_node::TYPE_CONTAINER);
 
         $settingnode->add(get_string('addnewbookingoption', 'booking'),
-                new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => '')));
+                new moodle_url('/mod/booking/editoptions.php', array('id' => $cm->id, 'optionid' => '')));
                 // Fixed: For a new booking option, optionid needs to be empty.
     }
 
     if (has_capability('mod/booking:manageoptiontemplates', $context)) {
         $settingnode->add(get_string("manageoptiontemplates", "mod_booking"),
-            new moodle_url('optiontemplatessettings.php', array('id' => $cm->id)));
+            new moodle_url('/mod/booking/optiontemplatessettings.php', array('id' => $cm->id)));
     }
 
     $urlparam = array('id' => $cm->id, 'optionid' => -1);
@@ -1261,13 +1261,13 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
     if (has_capability('mod/booking:updatebooking', $context)) {
         $settingnode->add(get_string('importcsvbookingoption', 'booking'),
-                new moodle_url('importoptions.php', array('id' => $cm->id)));
+                new moodle_url('/mod/booking/importoptions.php', array('id' => $cm->id)));
         $settingnode->add(get_string('tagtemplates', 'booking'),
-                new moodle_url('tagtemplates.php', array('id' => $cm->id)));
+                new moodle_url('/mod/booking/tagtemplates.php', array('id' => $cm->id)));
         $settingnode->add(get_string('importexcelbutton', 'booking'),
-                new moodle_url('importexcel.php', array('id' => $cm->id)));
+                new moodle_url('/mod/booking/importexcel.php', array('id' => $cm->id)));
         $settingnode->add(get_string('changesemester', 'booking'),
-                new moodle_url('semesters.php', array('id' => $cm->id)));
+                new moodle_url('/mod/booking/semesters.php', array('id' => $cm->id)));
     }
 
     if (!is_null($optionid) AND $optionid > 0) {

@@ -67,8 +67,8 @@ $tagstable = array();
 
 foreach ($tags->get_all_tags() as $tag) {
 
-    $edit = new moodle_url('tagtemplatesadd.php', array('id' => $cm->id, 'tagid' => $tag->id));
-    $delete = new moodle_url('tagtemplates.php', array('id' => $id, 'tagid' => $tag->id, 'action' => 'delete'));
+    $edit = new moodle_url('/mod/booking/tagtemplatesadd.php', array('id' => $cm->id, 'tagid' => $tag->id));
+    $delete = new moodle_url('/mod/booking/tagtemplates.php', array('id' => $id, 'tagid' => $tag->id, 'action' => 'delete'));
     $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get') .
         $OUTPUT->single_button($delete, get_string('delete'), 'get');
 
@@ -80,8 +80,8 @@ foreach ($tags->get_all_tags() as $tag) {
 $table->data = $tagstable;
 echo html_writer::table($table);
 
-$cancel = new moodle_url('view.php', array('id' => $cm->id));
-$addnew = new moodle_url('tagtemplatesadd.php', array('id' => $cm->id));
+$cancel = new moodle_url('/mod/booking/view.php', array('id' => $cm->id));
+$addnew = new moodle_url('/mod/booking/tagtemplatesadd.php', array('id' => $cm->id));
 
 echo '<div style="width: 100%; text-align: center; display:table;">';
 $button = $OUTPUT->single_button($cancel, get_string('cancel', 'booking'), 'get');

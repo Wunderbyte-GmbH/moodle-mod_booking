@@ -25,7 +25,7 @@ $optionid = required_param('optionid', PARAM_INT);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
 
 $url = new moodle_url('/mod/booking/edit_optiontemplate.php', array('optionid' => $optionid, 'id' => $id));
-$redirecturl = new moodle_url('optiontemplatessettings.php', array('optionid' => $optionid, 'id' => $id));
+$redirecturl = new moodle_url('/mod/booking/optiontemplatessettings.php', array('optionid' => $optionid, 'id' => $id));
 $PAGE->set_url($url);
 $PAGE->requires->jquery_plugin('ui-css');
 list($course, $cm) = get_course_and_cm_from_cmid($id);
@@ -80,14 +80,14 @@ if ($mform->is_cancelled()) {
 
         if (isset($fromform->addastemplate) && in_array($fromform->addastemplate, array(1, 2))) {
             if (isset($fromform->submittandaddnew)) {
-                $redirecturl = new moodle_url('edit_optiontemplates.php', array('id' => $cm->id, 'optionid' => -1));
+                $redirecturl = new moodle_url('/mod/booking/edit_optiontemplates.php', array('id' => $cm->id, 'optionid' => -1));
             }
 
             redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
         }
 
         if (isset($fromform->submittandaddnew)) {
-            $redirecturl = new moodle_url('edit_optiontemplates.php', array('id' => $cm->id, 'optionid' => -1));
+            $redirecturl = new moodle_url('/mod/booking/edit_optiontemplates.php', array('id' => $cm->id, 'optionid' => -1));
             redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
         } else {
             redirect($redirecturl, get_string('changessaved'), 0);

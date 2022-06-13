@@ -112,7 +112,7 @@ if ($mform->is_cancelled()) {
     if (!empty($returnurl)) {
         redirect($returnurl);
     } else {
-        $redirecturl = new moodle_url('view.php', array('id' => $cmid));
+        $redirecturl = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
         redirect($redirecturl, '', 0);
     }
 } else if ($fromform = $mform->get_data()) {
@@ -175,14 +175,14 @@ if ($mform->is_cancelled()) {
             $fromform->bookingid = 0;
             $nbooking = booking_update_options($fromform, $context);
             if ($nbooking === 'BOOKING_OPTION_NOT_CREATED') {
-                $redirecturl = new moodle_url('editoptions.php', array('id' => $cmid, 'optionid' => -1));
+                $redirecturl = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => -1));
                 redirect($redirecturl, get_string('option_template_not_saved_no_valid_license', 'booking'), 0,
                     notification::NOTIFY_ERROR);
             } else if (isset($fromform->submittandaddnew)) {
-                $redirecturl = new moodle_url('editoptions.php', array('id' => $cmid, 'optionid' => -1));
+                $redirecturl = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => -1));
                 redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
             } else {
-                $redirecturl = new moodle_url('view.php', array('id' => $cmid));
+                $redirecturl = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
                 redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
             }
         }
@@ -259,13 +259,13 @@ if ($mform->is_cancelled()) {
 
         // Redirect after pressing one of the 2 submit buttons.
         if (isset($fromform->submittandaddnew)) {
-            $redirecturl = new moodle_url('editoptions.php', array('id' => $cmid, 'optionid' => -1));
+            $redirecturl = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => -1));
         } else {
 
             if (!empty($returnurl)) {
                 $redirecturl = $returnurl;
             } else {
-                $redirecturl = new moodle_url('view.php', array('id' => $cmid));
+                $redirecturl = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
             }
         }
         redirect($redirecturl, get_string('changessaved'), 0);
@@ -292,7 +292,7 @@ if ($mform->is_cancelled()) {
         }
 
         // Add a button to toggle between simple and expert mode.
-        $formmodeurl = new moodle_url('editoptions.php', ['mode' => $togglemode, 'id' => $cmid, 'optionid' => $optionid]);
+        $formmodeurl = new moodle_url('/mod/booking/editoptions.php', ['mode' => $togglemode, 'id' => $cmid, 'optionid' => $optionid]);
 
         echo html_writer::link($formmodeurl->out(false),
             $formmodelabel,

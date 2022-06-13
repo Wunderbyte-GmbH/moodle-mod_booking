@@ -97,7 +97,7 @@ if (!$explanationstring) {
 
 $contents = html_writer::tag('p', $explanationstring);
 $options = array('id' => $cm->id, 'optionid' => $optionid, 'action' => 'showonlyone', 'whichview' => 'showonlyone');
-$contents .= $OUTPUT->single_button(new moodle_url('view.php', $options),
+$contents .= $OUTPUT->single_button(new moodle_url('/mod/booking/view.php', $options),
         get_string('continue'), 'get');
 echo $OUTPUT->box($contents, 'box generalbox', 'notice');
 echo $OUTPUT->footer();

@@ -55,8 +55,8 @@ echo $OUTPUT->heading(get_string('customreporttemplates', 'booking'));
 
 $table->out(25, true);
 
-$cancel = new moodle_url('view.php', array('id' => $cm->id));
-$addnew = new moodle_url('customreporttemplatesadd.php', array('id' => $cm->id));
+$cancel = new moodle_url('/mod/booking/view.php', array('id' => $cm->id));
+$addnew = new moodle_url('/mod/booking/customreporttemplatesadd.php', array('id' => $cm->id));
 
 echo '<div style="width: 100%; text-align: center; display:table;">';
 $button = $OUTPUT->single_button($cancel, get_string('cancel', 'booking'), 'get');
