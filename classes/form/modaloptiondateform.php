@@ -51,11 +51,15 @@ class modaloptiondateform extends \core_form\dynamic_form {
 
         $repeatedoptiondates[] = $mform->createElement('date_time_selector', 'optiondatestart',
             get_string('optiondatestart', 'booking'));
-        $repeateloptions['optiondatestart']['helpbutton'] = ['optiondatestart', 'mod_booking'];
+        // Info: Help buttons in repeat_elements groups are causing problems with Moodle 4.0.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $repeateloptions['optiondatestart']['helpbutton'] = ['optiondatestart', 'mod_booking']; */
 
         $repeatedoptiondates[] = $mform->createElement('date_time_selector', 'optiondateend',
             get_string('optiondateend', 'booking'));
-        $repeateloptions['optiondateend']['helpbutton'] = ['optiondateend', 'mod_booking'];
+        // Info: Help buttons in repeat_elements groups are causing problems with Moodle 4.0.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $repeateloptions['optiondateend']['helpbutton'] = ['optiondateend', 'mod_booking']; */
 
         $repeatedoptiondates[] = $mform->createElement('submit', 'deleteoptiondate', get_string('deleteoptiondate', 'mod_booking'));
 

@@ -188,20 +188,28 @@ class dynamicholidaysform extends dynamic_form {
         $repeatedholidays[] = $mform->createElement('select', 'semesteridentifier',
             get_string('choosesemester', 'mod_booking'), $semestersarray);
         $mform->setType('semesteridentifier', PARAM_TEXT);
-        $repeateloptions['semesteridentifier']['helpbutton'] = ['choosesemester', 'mod_booking'];
+        // Info: Help buttons in repeat_elements groups are causing problems with Moodle 4.0.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $repeateloptions['semesteridentifier']['helpbutton'] = ['choosesemester', 'mod_booking']; */
 
         $repeatedholidays[] = $mform->createElement('hidden', 'holidayid', 0);
         $mform->setType('holidayid', PARAM_INT);
 
         $repeatedholidays[] = $mform->createElement('date_selector', 'holidaystart', get_string('holidaystart', 'booking'));
-        $repeateloptions['holidaystart']['helpbutton'] = ['holidaystart', 'mod_booking'];
+        // Info: Help buttons in repeat_elements groups are causing problems with Moodle 4.0.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $repeateloptions['holidaystart']['helpbutton'] = ['holidaystart', 'mod_booking']; */
 
         $repeatedholidays[] = $mform->createElement('date_selector', 'holidayend', get_string('holidayend', 'booking'));
-        $repeateloptions['holidayend']['helpbutton'] = ['holidayend', 'mod_booking'];
+        // Info: Help buttons in repeat_elements groups are causing problems with Moodle 4.0.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $repeateloptions['holidayend']['helpbutton'] = ['holidayend', 'mod_booking']; */
 
         $repeatedholidays[] = $mform->createElement('text', 'holidayname', get_string('holidayname', 'booking'));
         $mform->setType('holidayname', PARAM_TEXT);
-        $repeateloptions['holidayname']['helpbutton'] = ['holidayname', 'mod_booking'];
+        // Info: Help buttons in repeat_elements groups are causing problems with Moodle 4.0.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $repeateloptions['holidayname']['helpbutton'] = ['holidayname', 'mod_booking']; */
 
         $repeatedholidays[] = $mform->createElement('submit', 'deleteholiday', get_string('deleteholiday', 'mod_booking'));
 
