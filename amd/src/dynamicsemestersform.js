@@ -36,14 +36,20 @@ export const init = (selector, formClass, existingsemesters) => {
 
     waitForElm(selector).then((elm) => {
         // eslint-disable-next-line no-console
-        console.log('selector loaded');
-        const form = new DynamicForm(document.querySelector(elm), formClass);
+        console.log('form element loaded: ', elm);
+        const form = new DynamicForm(elm, formClass);
+
+        // eslint-disable-next-line no-console
+        console.log('form element created: ', form);
 
         form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
             e.preventDefault();
 
             const response = e.detail;
             form.load({...existingsemesters, response});
+
+            // eslint-disable-next-line no-console
+            console.log('form submitted');
         });
 
         // Cancel button does not make much sense in such forms but since it's there we'll just reload.
@@ -56,7 +62,9 @@ export const init = (selector, formClass, existingsemesters) => {
             // eslint-disable-next-line promise/catch-or-return
             form.notifyResetFormChanges()
                 .then(() => form.load(existingsemesters));
-            // AddNotification('Form cancelled');
+
+            // eslint-disable-next-line no-console
+            console.log('form cancelled');
         });
 
         // Demo of different events.
