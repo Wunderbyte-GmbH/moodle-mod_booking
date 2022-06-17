@@ -1253,23 +1253,12 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         return;
     }
 
-    if (has_capability('mod/booking:manageoptiontemplates', $context) ||
-        has_capability('mod/booking:updatebooking', $context) ||
-        has_capability('mod/booking:addeditownoption', $context) ||
-        has_capability ( 'mod/booking:subscribeusers', $context ) ||
-        has_capability ( 'mod/booking:subscribeusersgromgroup', $context ) ||
-        has_capability ( 'mod/booking:readresponses', $context ) ||
-        $bookingisteacher) {
-        $settingnode = $navref->add(get_string("thisinstance", "booking"), null,
-        navigation_node::TYPE_CONTAINER);
-    }
-
     if (has_capability('mod/booking:manageoptiontemplates', $context)) {
-        $settingnode->add(get_string("saveinstanceastemplate", "mod_booking"),
+        $navref->add(get_string("saveinstanceastemplate", "mod_booking"),
             new moodle_url('instancetemplateadd.php', array('id' => $cm->id)));
 
         if (is_null($optionid)) {
-            $settingnode->add(get_string("managecustomreporttemplates", "mod_booking"),
+            $navref->add(get_string("managecustomreporttemplates", "mod_booking"),
                 new moodle_url('customreporttemplates.php', array('id' => $cm->id)));
         }
     }
@@ -1284,25 +1273,22 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     if (has_capability('mod/booking:updatebooking', $context)) {
         if (!empty($rurl)) {
             $rurl = str_replace('{ID}', $booking->settings->id, $rurl);
-            $settingnode->add(get_string('callremotesync', 'booking'),
+            $navref->add(get_string('callremotesync', 'booking'),
                 new moodle_url($rurl, null, '" target="_blank"'));
         }
-        $settingnode->add(get_string("reports", "mod_booking"),
+        $navref->add(get_string("reports", "mod_booking"),
                 new moodle_url('reports.php', array('id' => $cm->id)));
     }
 
     if (has_capability('mod/booking:updatebooking', $context) ||
             has_capability('mod/booking:addeditownoption', $context)) {
-        $settingnode = $navref->add(get_string("bookingoptionsmenu", "booking"), null,
-                navigation_node::TYPE_CONTAINER);
-
-        $settingnode->add(get_string('addnewbookingoption', 'booking'),
+        $navref->add(get_string('addnewbookingoption', 'booking'),
                 new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => '')));
                 // Fixed: For a new booking option, optionid needs to be empty.
     }
 
     if (has_capability('mod/booking:manageoptiontemplates', $context)) {
-        $settingnode->add(get_string("manageoptiontemplates", "mod_booking"),
+        $navref->add(get_string("manageoptiontemplates", "mod_booking"),
             new moodle_url('optiontemplatessettings.php', array('id' => $cm->id)));
     }
 
@@ -1315,68 +1301,58 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     }
 
     if (has_capability('mod/booking:updatebooking', $context)) {
-        $settingnode->add(get_string('importcsvbookingoption', 'booking'),
+        $navref->add(get_string('importcsvbookingoption', 'booking'),
                 new moodle_url('importoptions.php', array('id' => $cm->id)));
-        $settingnode->add(get_string('tagtemplates', 'booking'),
+        $navref->add(get_string('tagtemplates', 'booking'),
                 new moodle_url('tagtemplates.php', array('id' => $cm->id)));
-        $settingnode->add(get_string('importexcelbutton', 'booking'),
+        $navref->add(get_string('importexcelbutton', 'booking'),
                 new moodle_url('importexcel.php', array('id' => $cm->id)));
     }
 
     if (!is_null($optionid) AND $optionid > 0) {
         $option = $DB->get_record('booking_options', array('id' => $optionid));
         $booking = $DB->get_record('booking', array('id' => $option->bookingid));
-        $settingnode = $navref->add(get_string("optionmenu", "booking"), null,
-                navigation_node::TYPE_CONTAINER);
-        $keys = $settingnode->parent->get_children_key_list();
-        foreach ($keys as $key => $name) {
-            if ($name == 'modedit' || $name == 'roleassign' || $name == 'roleoverride' ||
-                        $name == 'rolecheck' || $name == 'filtermanage' || $name == 'logreport' ||
-                        $name == 'backup' || $name == 'restore') {
-                $node = $settingnode->parent->get($name)->remove();
-            }
-        }
 
         if (has_capability('mod/booking:updatebooking', $context) ||
             has_capability('mod/booking:addeditownoption', $context)) {
-            $settingnode->add(get_string('edit', 'core'),
+            $navref->add(get_string('edit', 'core'),
                     new moodle_url('/mod/booking/editoptions.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
         }
         if (has_capability('mod/booking:updatebooking', $context)) {
-            $settingnode->add(get_string('duplicatebooking', 'booking'),
+            $navref->add(get_string('duplicatebooking', 'booking'),
                     new moodle_url('/mod/booking/editoptions.php',
                             array('id' => $cm->id, 'optionid' => -1, 'copyoptionid' => $optionid)));
-            $settingnode->add(get_string('deletebookingoption', 'booking'),
+            $navref->add(get_string('deletebookingoption', 'booking'),
                     new moodle_url('/mod/booking/report.php',
                             array('id' => $cm->id, 'optionid' => $optionid,
                                 'action' => 'deletebookingoption')));
-            $settingnode->add(get_string('optiondates', 'booking'),
+            $navref->add(get_string('optiondates', 'booking'),
                     new moodle_url('/mod/booking/optiondates.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
         }
 
         if (has_capability('mod/booking:manageoptiontemplates', $context)) {
-            $settingnode->add(get_string('copytotemplate', 'booking'),
+            $navref->add(get_string('copytotemplate', 'booking'),
                         new moodle_url('/mod/booking/report.php',
                                 array('id' => $cm->id, 'optionid' => $optionid,
                                     'action' => 'copytotemplate', 'sesskey' => sesskey())));
         }
 
         if (has_capability ( 'mod/booking:subscribeusers', $context ) || booking_check_if_teacher ($option )) {
-            $settingnode->add(get_string('bookotherusers', 'booking'),
+            $navref->add(get_string('bookotherusers', 'booking'),
                     new moodle_url('/mod/booking/subscribeusers.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
             $completion = new \completion_info($course);
             if ($completion->is_enabled($cm)) {
-                $settingnode->add(get_string('bookuserswithoutcompletedactivity', 'booking'),
+                $navref->add(get_string('bookuserswithoutcompletedactivity', 'booking'),
                         new moodle_url('/mod/booking/subscribeusersactivity.php',
                                 array('id' => $cm->id, 'optionid' => $optionid)));
             }
         }
 
         if (has_capability('mod/booking:subscribeusersgromgroup', $context )) {
-            $settingnode->add(get_string('subscribegroup', 'booking'),
+            $navref->add(get_string('subscribegroup', 'booking'),
                     new moodle_url('/mod/booking/subscribegroup.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
         }
@@ -1384,20 +1360,20 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $modinfo = get_fast_modinfo($course);
         $bookinginstances = isset($modinfo->instances['booking']) ? count($modinfo->instances['booking']) : 0;
         if (has_capability('mod/booking:updatebooking', $contextcourse) && $bookinginstances > 1) {
-            $settingnode->add(get_string('moveoptionto', 'booking'),
+            $navref->add(get_string('moveoptionto', 'booking'),
                 new moodle_url('/mod/booking/moveoption.php',
                     array('id' => $cm->id, 'optionid' => $optionid, 'sesskey' => sesskey())));
         }
         if (has_capability ( 'mod/booking:readresponses', $context ) || booking_check_if_teacher ($option )) {
             $completion = new \completion_info($course);
             if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $booking->enablecompletion > 0) {
-                $settingnode->add(get_string('confirmuserswith', 'booking'),
+                $navref->add(get_string('confirmuserswith', 'booking'),
                 new moodle_url('/mod/booking/confirmactivity.php', array('id' => $cm->id, 'optionid' => $optionid)));
             }
         }
         if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id)) &&
                 $booking->conectedbooking > 0) {
-            $settingnode->add(get_string('editotherbooking', 'booking'),
+            $navref->add(get_string('editotherbooking', 'booking'),
                     new moodle_url('/mod/booking/otherbooking.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));
         }
