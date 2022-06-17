@@ -134,7 +134,7 @@
 * Fixed JS for modal loading.
 * Do not show sports badge if no value exists.
 * Display correct price in modal in buyforuser scenario.
-* Fixed cachier's checkout.
+* Fixed cashier's checkout.
 * Fix in CSV-importer: Only run through prices if default column is present.
 
 ## Version 7.0.26 (2022021601)

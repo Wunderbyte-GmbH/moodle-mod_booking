@@ -95,7 +95,7 @@
 * Bugfix: Fixed JS for modal loading.
 * Bugfix: Do not show sports badge if no value exists.
 * Bugfix: Display correct price in modal in buyforuser scenario.
-* Bugfix: Fixed cachier's checkout.
+* Bugfix: Fixed cashier's checkout.
 * Bugfix: Fix in CSV-importer: Only run through prices if default column is present.
 
 7.0.26 (2022021601)

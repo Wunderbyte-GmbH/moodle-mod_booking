@@ -233,7 +233,7 @@ class price {
         if ($userid === 0) {
 
             $context = context_system::instance();
-            if (has_capability('local/shopping_cart:cachier', $context)) {
+            if (has_capability('local/shopping_cart:cashier', $context)) {
                 $userid = shopping_cart::return_buy_for_userid();
             }
         }

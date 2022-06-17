@@ -52,6 +52,7 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
     echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
     echo get_string('nopermissiontoaccesspage', 'mod_booking');
     echo $OUTPUT->footer();
+    die();
 }
 
 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);

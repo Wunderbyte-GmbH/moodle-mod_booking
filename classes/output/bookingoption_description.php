@@ -203,7 +203,7 @@ class bookingoption_description implements renderable, templatable {
         }
 
         // Add price.
-        // TODO: Currently this will only use the logged in $USER, this won't work for the cachier use case!
+        // TODO: Currently this will only use the logged in $USER, this won't work for the cashier use case!
         $priceitem = price::get_price($optionid, $user);
         if (!empty($priceitem)) {
             if (isset($priceitem['price'])) {
