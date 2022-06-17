@@ -34,75 +34,19 @@ import DynamicForm from 'core_form/dynamicform';
 
 export const init = (selector, formClass, existingsemesters) => {
 
-    waitForElm(selector).then((elm) => {
-        // eslint-disable-next-line no-console
-        console.log('form element loaded: ', elm);
-        const form = new DynamicForm(elm, formClass);
+    const form = new DynamicForm(document.querySelector(selector), formClass);
 
-        // eslint-disable-next-line no-console
-        console.log('form element created: ', form);
+    form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
+        e.preventDefault();
 
-        form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
-            e.preventDefault();
+        const response = e.detail;
+        form.load({...existingsemesters, response});
+    });
 
-            const response = e.detail;
-            form.load({...existingsemesters, response});
-
-            // eslint-disable-next-line no-console
-            console.log('form submitted');
-        });
-
-        // Cancel button does not make much sense in such forms but since it's there we'll just reload.
-        form.addEventListener(form.events.FORM_CANCELLED, (e) => {
-            e.preventDefault();
-
-            // eslint-disable-next-line capitalized-comments
-            // addNotification('existingsemesters:' + JSON.stringify(existingsemesters));
-
-            // eslint-disable-next-line promise/catch-or-return
-            form.notifyResetFormChanges()
-                .then(() => form.load(existingsemesters));
-
-            // eslint-disable-next-line no-console
-            console.log('form cancelled');
-        });
-
-        // Demo of different events.
-        // eslint-disable-next-line capitalized-comments
-        // form.addEventListener(form.events.NOSUBMIT_BUTTON_PRESSED, () => addNotification('No submit button pressed.'));
-        // eslint-disable-next-line capitalized-comments
-        // form.addEventListener(form.events.CLIENT_VALIDATION_ERROR, () => addNotification('Client-side validation error'));
-        // eslint-disable-next-line capitalized-comments
-        // form.addEventListener(form.events.SERVER_VALIDATION_ERROR, () => addNotification('Server-side validation error'));
-        // eslint-disable-next-line capitalized-comments
-        // form.addEventListener(form.events.ERROR, (e) => addNotification('There was a form error: ' + e.detail.message));
-        // eslint-disable-next-line capitalized-comments
-        // form.addEventListener(form.events.SUBMIT_BUTTON_PRESSED, () => addNotification('Submit button pressed'));
-        // eslint-disable-next-line capitalized-comments
-        // form.addEventListener(form.events.CANCEL_BUTTON_PRESSED, () => addNotification('Cancel button pressed'));
+    // Cancel button does not make much sense in such forms but since it's there we'll just reload.
+    form.addEventListener(form.events.FORM_CANCELLED, (e) => {
+        e.preventDefault();
+        form.notifyResetFormChanges()
+            .then(() => form.load(existingsemesters));
     });
 };
-
-/**
- * Wait until a certain element is loaded.
- * @param {string} selector - The element selector.
- * @returns {Promise}
- */
- function waitForElm(selector) {
-    // eslint-disable-next-line consistent-return
-    return new Promise(resolve => {
-        if (document.querySelector(selector)) {
-            return resolve(document.querySelector(selector));
-        }
-        const observer = new MutationObserver(() => {
-            if (document.querySelector(selector)) {
-                resolve(document.querySelector(selector));
-                observer.disconnect();
-            }
-        });
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    });
-}
