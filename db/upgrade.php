@@ -2402,5 +2402,18 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022042100, 'booking');
     }
 
+    if ($oldversion < 2022061700) {
+
+        // Define key id (primary) to be added to booking_remoteapi.
+        $table = new xmldb_table('booking_remoteapi');
+        $key = new xmldb_key('id', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Launch add key id.
+        $dbman->add_key($table, $key);
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022061700, 'booking');
+    }
+
     return true;
 }

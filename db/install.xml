@@ -124,6 +124,7 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="mdl_bookremo_cou_uix" TYPE="unique" FIELDS="course"/>
+        <KEY NAME="id" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="mdl_bookremo_use_ix" UNIQUE="false" FIELDS="usermodified"/>
