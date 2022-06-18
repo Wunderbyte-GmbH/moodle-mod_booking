@@ -17,6 +17,7 @@
 // General strings.
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
+$string['booking:cantoggleformmode'] = 'Nutzerin darf alle Einstellungen verwalten';
 
 // Renderer.php.
 $string['showonlymyinstitutions'] = "Meine Institution";

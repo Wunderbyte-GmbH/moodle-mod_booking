@@ -17,6 +17,7 @@
 // General strings.
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['booking:manageoptiontemplates'] = "Manage option templates";
+$string['booking:cantoggleformmode'] = 'User can edit all settings';
 
 // Index.php.
 $string['week'] = "Week";
