@@ -57,6 +57,9 @@ class booking_answers {
     /** @var array array of all user objects (only with deleted booking answer) */
     public $usersdeleted = [];
 
+    /** @var array array of all user objects (only those to notify) */
+    public $userstonotify = [];
+
     /**
      * Constructor for the booking answers class.
      *
@@ -121,6 +124,9 @@ class booking_answers {
 
         $this->answers = $answers;
 
+        // TODO: we have to cache the whole booking_answer class, not only the results from DB.
+        // The calculation doesn't change and has'nt to be done every time.
+
         // Set back all the lists.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* $this->users =
@@ -148,8 +154,6 @@ class booking_answers {
                 }
             }
 
-            $myvar = STATUSPARAM_DELETED;
-
             // A user might have one or more 'deleted' entries, but else, there should be only one.
             if ($answer->waitinglist != STATUSPARAM_DELETED) {
                 $this->users[$answer->userid] = $answer;
@@ -173,6 +177,9 @@ class booking_answers {
                 case STATUSPARAM_DELETED:
                     $this->usersdeleted[$answer->userid] = $answer;
                     break;
+                case STATUSPARAM_NOTIFYMELIST:
+                    $this->userstonotify[$answer->userid] = $answer;
+                    break;
             }
         }
     }
@@ -193,7 +200,7 @@ class booking_answers {
         }
 
         if (isset($this->users[$userid])) {
-            return $this->users[$userid]->waitinglist;
+            return $this->users[$userid]->waitinglist; // The waitinglist key holds all the different status.
         } else {
             return STATUSPARAM_NOTBOOKED;
         }
@@ -247,6 +254,8 @@ class booking_answers {
         $returnarray['waiting'] = count($this->usersonwaitinglist);
         $returnarray['booked'] = count($this->usersonlist);
 
+        $returnarray['onnotifylist'] = $this->user_on_notificationlist($userid);
+
         // We can't set the value if it's not true, because of the way mustache templates work.
         if ($this->bookingoptionsettings->maxanswers != 0) {
             $returnarray['maxanswers'] = $this->bookingoptionsettings->maxanswers;
@@ -284,7 +293,19 @@ class booking_answers {
         return $returnarray;
     }
 
+    /**
+     * Verify if a user is actually on the booked list or not.
+     *
+     * @param integer $userid
+     * @return void
+     */
+    public function user_on_notificationlist(int $userid) {
 
+        if (isset($this->userstonotify[$userid])) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Load values of booking_option from db, should rarely be necessary.

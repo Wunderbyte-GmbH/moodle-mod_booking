@@ -83,20 +83,30 @@ class col_price implements renderable, templatable {
         // Because of the caching logic, we have to create the booking_answers object here again.
         if ($values->id) {
             $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
-            // A status bigger than 1 means, that the user is neither booked nor on waitinglist.
-            if ($bookinganswers->user_status($buyforuser->id) > 1) {
-                if ($this->priceitem = price::get_price($values->id, $buyforuser)) {
 
-                    $cartitem = new cartitem($values->id,
-                                     $values->text,
-                                     $this->priceitem['price'],
-                                     $this->priceitem['currency'],
-                                     'mod_booking',
-                                     $values->description
-                                );
+            // We only show the price when we can actually buy.
+            // That is only possible when not booked.
+            // When reserved, the item is at the moment in the cart, this shows the inactive cart.
+            // When deleted, we can book again.
 
-                    $this->cartitem = $cartitem->getitem();
-                }
+            switch ($bookinganswers->user_status($buyforuser->id)) {
+                case STATUSPARAM_RESERVED:
+                case STATUSPARAM_NOTBOOKED:
+                case STATUSPARAM_DELETED:
+                case STATUSPARAM_NOTIFYMELIST:
+                    if ($this->priceitem = price::get_price($values->id, $buyforuser)) {
+
+                        $cartitem = new cartitem($values->id,
+                                         $values->text,
+                                         $this->priceitem['price'],
+                                         $this->priceitem['currency'],
+                                         'mod_booking',
+                                         $values->description
+                                    );
+
+                        $this->cartitem = $cartitem->getitem();
+                    }
+                    break;
             }
         }
     }

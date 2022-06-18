@@ -145,6 +145,15 @@ if ($ADMIN->fulltree) {
         new admin_setting_configcheckbox('booking/duplicationrestoreentities',
                 get_string('duplicationrestoreentities', 'mod_booking'), '', 1));
 
+    $settings->add(
+        new admin_setting_heading('notificationlist',
+            get_string('notificationlist', 'mod_booking'),
+            get_string('notificationlistdesc', 'mod_booking')));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/usenotificationlist',
+                get_string('usenotificationlist', 'mod_booking'), '', 0));
+
     // TODO.
     $settings->add(
         new admin_setting_heading('uniqueoptionnameheading',

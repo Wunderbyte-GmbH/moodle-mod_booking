@@ -197,6 +197,8 @@ $string['attachedfiles'] = 'Dateianhänge';
 $string['availability'] = 'Noch verfügbar ';
 $string['available'] = 'Plätze verfügbar';
 $string['booked'] = 'Gebucht';
+$string['notifyme'] = 'Benachrichtigen wenn frei';
+$string['alreadyonlist'] = 'Sie werden benachrichtigt';
 $string['bookedpast'] = 'Gebucht (Kurs wurde bereits beendet)';
 $string['bookingdeleted'] = 'Ihre Buchung wurde erfolgreich storniert';
 $string['bookingmeanwhilefull'] = 'Leider hat inzwischen jemand anderer den letzten Platz gebucht';
@@ -1308,6 +1310,10 @@ $string['duplicationrestoreteachers'] = 'Kursleiter/innen inkludieren';
 $string['duplicationrestoreprices'] = 'Preise inkludieren';
 $string['duplicationrestoreentities'] = 'Entities inkludieren';
 
+$string['notificationlist'] = 'Benachrichtigungsliste';
+$string['notificationlistdesc'] = 'Wenn es bei einer Buchungsoption keine Buchungsmöglichkeit mehr gibt, können sich TeilnehmerInnnen registrieren lassen, um eine Benachrichtung zu erhalten.';
+$string['usenotificationlist'] = 'Verwende Benachrtichtigungsliste';
+
 $string['bookingoptiondefaults'] = 'Standard-Einstellungen für Buchungsoptionen';
 $string['bookingoptiondefaultsdesc'] = 'Hier können Sie Standardwerte für die Erstellung von Buchungsoptionen setzen und diese gegebenenfalls sperren.';
 $string['addtocalendardesc'] = 'Kurs-Kalenderevents können von ALLEN Kursteilnehmer_innen des Kurses gesehen werden. Falls Sie nicht möchten, dass Kurs-Kalenderevents
@@ -1509,3 +1515,7 @@ $string['optionformconfigsaved'] = 'Konfiguration für das Buchungsoptionsformul
 $string['optionformconfigsubtitle'] = '<p>Hier können Sie nicht benötigte Funktionalitäten entfernen, um das Formular für die Erstellung von Buchungsoptionen übersichtlicher zu gestalten.</p>
 <p><strong>ACHTUNG:</strong> Deaktivieren Sie nur Felder, von denen Sie sicher sind, dass Sie sie nicht benötigen!</p>';
 $string['optionformconfig:nobooking'] = 'Sie müssen zumindest eine Buchungsinstanz anlegen, bevor Sie dieses Formular nutzen können!';
+
+// tasks
+$string['optionbookabletitle'] = '{$a->title} wieder buchbar';
+$string['optionbookablebody'] = 'Sie können {$a->title} ab sofort wieder buchen. Klicken Sie <a href="{$a->url}">hier</a>, um direkt zur Buchungsmöglichkeit zu gelangen.';

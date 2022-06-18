@@ -618,4 +618,16 @@ class renderer extends plugin_renderer_base {
         $o .= $this->render_from_template('mod_booking/semesters_holidays', $data);
         return $o;
     }
+
+    /**
+     * Render notifyme button.
+     * @param $data array
+     * @return string
+     */
+    public function render_notifyme_button($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/button_notifyme', $data);
+        return $o;
+    }
 }

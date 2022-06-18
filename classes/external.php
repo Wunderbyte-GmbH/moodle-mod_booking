@@ -23,6 +23,7 @@
  */
 namespace mod_booking;
 
+use context_module;
 use external_api;
 use external_function_parameters;
 use external_value;
@@ -578,5 +579,47 @@ class external extends external_api {
         }
 
         return ['content' => json_encode($data), 'template' => 'mod_booking/bookingoption_description'];
+    }
+
+    /**
+     * Functionality of toggle_notify_user
+     *
+     * @return external_function_parameters
+     */
+    public static function toggle_notify_user(int $userid, int $optionid) {
+
+        $params = self::validate_parameters(self::toggle_notify_user_parameters(),
+                array('optionid' => $optionid, 'userid' => $userid));
+
+        $result = booking_option::toggle_notify_user($params['userid'], $params['optionid']);
+
+        return $result;
+    }
+
+    /**
+     * Function for toggle_notify_user returns
+     *
+     * @return external_function_parameters
+     */
+    public static function toggle_notify_user_returns() {
+        return new external_function_parameters(
+                array('status' => new external_value(PARAM_INT, 'Status 1 for user is now on list, 0 for not on list.', VALUE_REQUIRED),
+                      'optionid' => new external_value(PARAM_INT, 'Optionid', VALUE_REQUIRED),
+                      'error' => new external_value(PARAM_RAW, 'Optionid', VALUE_OPTIONAL, ''),
+                )
+        );
+    }
+
+    /**
+     * Function for toggle_notify_user paramters
+     *
+     * @return external_function_parameters
+     */
+    public static function toggle_notify_user_parameters() {
+        return new external_function_parameters(
+                array('userid' => new external_value(PARAM_INT, 'Option id', VALUE_REQUIRED, 0),
+                      'optionid' => new external_value(PARAM_TEXT, 'Userid', VALUE_REQUIRED, 0)
+                )
+        );
     }
 }

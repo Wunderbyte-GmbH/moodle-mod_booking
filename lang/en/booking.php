@@ -35,7 +35,6 @@ $string['addusertogroup'] = 'Add user to group: ';
 
 // View.php.
 $string['addmorebookings'] = 'Add more bookings';
-$string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
 $string['answered'] = 'Answered';
 $string['attachical'] = 'Attach single iCal event per booking';
@@ -211,6 +210,8 @@ $string['attachedfiles'] = 'Attached files';
 $string['availability'] = 'Still available';
 $string['available'] = 'Places available';
 $string['booked'] = 'Booked';
+$string['notifyme'] = 'Notify when available';
+$string['alreadyonlist'] = 'You will be notified';
 $string['bookedpast'] = 'Booked (course finished)';
 $string['bookingdeleted'] = 'Your booking was cancelled';
 $string['bookingmeanwhilefull'] = 'Meanwhile someone took already the last place';
@@ -1479,6 +1480,10 @@ $string['duplicationrestoreteachers'] = 'Include teachers';
 $string['duplicationrestoreprices'] = 'Include prices';
 $string['duplicationrestoreentities'] = 'Include entities';
 
+$string['notificationlist'] = 'Notification list';
+$string['notificationlistdesc'] = 'When no place is available anymore, users can still register to be notified when there is an opening';
+$string['usenotificationlist'] = 'Use notificationlist';
+
 $string['bookingoptiondefaults'] = 'Default settings for booking options';
 $string['bookingoptiondefaultsdesc'] = 'Here you can set default settings for the creation of booking options and lock them if needed.';
 $string['addtocalendardesc'] = 'Course calendar events are visible to ALL users within a course. If you do not want them to be created at all,
@@ -1747,3 +1752,7 @@ $string['optionformconfigsaved'] = 'Configuration for the booking option form sa
 $string['optionformconfigsubtitle'] = '<p>Turn off features you do not need, in order to make the booking option form clearer for your administrators.</p>
 <p><strong>BE CAREFUL:</strong> Only deactivate fields if you are completely sure that you won\'t need them!</p>';
 $string['optionformconfig:nobooking'] = 'You need to create at least one booking instance before you can use this form!';
+
+// tasks
+$string['optionbookabletitle'] = '{$a->title} is available again';
+$string['optionbookablebody'] = 'You can book {$a->title} now again. <a href="{$a->url}">Click on here</a> to directly go there.';

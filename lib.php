@@ -65,6 +65,7 @@ define('MSGPARAM_CUSTOM_MESSAGE', 14);
 define('STATUSPARAM_BOOKED', 0);
 define('STATUSPARAM_WAITINGLIST', 1);
 define('STATUSPARAM_RESERVED', 2);
+define('STATUSPARAM_NOTIFYMELIST', 3); // Get message when place is open.
 define('STATUSPARAM_NOTBOOKED', 4);
 define('STATUSPARAM_DELETED', 5);
 

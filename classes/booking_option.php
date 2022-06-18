@@ -939,7 +939,7 @@ class booking_option {
         $waitinglist = $this->check_if_limit();
 
         if ($waitinglist === false) {
-            echo "Couldn't subscribe user $user->username because of waitinglist <br>";
+            echo "Couldn't subscribe user $user->username because of full waitinglist <br>";
             return false;
         } else if ($addedtocart) {
             $waitinglist = STATUSPARAM_RESERVED;
@@ -958,6 +958,10 @@ class booking_option {
 
         // This variable is used to detect errors.
         $numberofanswers = count($currentanswers);
+
+        // These variables will be used for update an entry.
+        $currentanswerid = null;
+        $timecreated = null;
 
         // Ignore all deleted entries
         // And use some shortcuts, if possible.
@@ -983,6 +987,13 @@ class booking_option {
                     }
                     // Else, we might move from waitinglist to booked, we just continue.
                     $currentanswerid = $currentanswer->id;
+                    $timecreated = $currentanswer->timecreated;
+                    break;
+                case STATUSPARAM_NOTIFYMELIST:
+                    // If we have a notification...
+                    // ... we override it here, because all alternatives are higher.
+                    $currentanswerid = $currentanswer->id;
+                    // We don't pass the creation date on, as it is not interesting in this case.
                     break;
             }
         }
@@ -993,27 +1004,63 @@ class booking_option {
                 "$user->id has too many answers in $this->optionid");
         }
 
+        self::write_user_answer_to_db($this->booking->id,
+                                       $frombookingid,
+                                       $user->id,
+                                       $this->optionid,
+                                       $waitinglist,
+                                       $currentanswerid,
+                                       $timecreated);
+
+        return $this->after_successful_booking_routine($user, $waitinglist);
+    }
+
+    /**
+     * Handles the actual writing or updating.
+     *
+     * @param integer $bookingid
+     * @param integer $frombookingid
+     * @param integer $userid
+     * @param integer $optionid
+     * @param integer $waitinglist
+     * @param [type] $currentanswerid
+     * @param [type] $timecreated
+     * @return void
+     */
+    public static function write_user_answer_to_db(int $bookingid,
+                                            int $frombookingid,
+                                            int $userid,
+                                            int $optionid,
+                                            int $waitinglist,
+                                            $currentanswerid = null,
+                                            $timecreated = null) {
+
+        global $DB;
+
+        $now = time();
+
         $newanswer = new stdClass();
-        $newanswer->bookingid = $this->booking->id;
+        $newanswer->bookingid = $bookingid;
         $newanswer->frombookingid = $frombookingid;
-        $newanswer->userid = $user->id;
-        $newanswer->optionid = $this->optionid;
-        $newanswer->timemodified = time();
-        $newanswer->timecreated = time();
+        $newanswer->userid = $userid;
+        $newanswer->optionid = $optionid;
+        $newanswer->timemodified = $now;
+        $newanswer->timecreated = $timecreated ?? $now;
         $newanswer->waitinglist = $waitinglist;
 
         if (isset($currentanswerid)) {
             $newanswer->id = $currentanswerid;
-            if (!$DB->update_record("booking_answers", $newanswer)) {
+            if (!$DB->update_record('booking_answers', $newanswer)) {
                 new \moodle_exception("dmlwriteexception");
             }
         } else {
-            if (!$DB->insert_record("booking_answers", $newanswer)) {
+            if (!$DB->insert_record('booking_answers', $newanswer)) {
                 new \moodle_exception("dmlwriteexception");
             }
         }
 
-        return $this->after_successful_booking_routine($user, $waitinglist);
+        // After writing, cache has to be invalidated.
+        cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
     }
 
 
@@ -1042,7 +1089,15 @@ class booking_option {
                 // When it's the first reserveration, we just confirm it.
                 $currentanswer->timemodified = time();
                 $currentanswer->waitinglist = STATUSPARAM_BOOKED;
-                $DB->update_record('booking_answers', $currentanswer);
+
+                self::write_user_answer_to_db($currentanswer->bookingid,
+                                               $currentanswer->frombookingid,
+                                               $currentanswer->userid,
+                                               $currentanswer->optionid,
+                                               $currentanswer->waitinglist,
+                                               $currentanswer->id,
+                                               $currentanswer->timecreated);
+
                 $counter++;
             }
         }
@@ -1069,8 +1124,6 @@ class booking_option {
     public function after_successful_booking_routine(stdClass $user, int $waitinglist) {
 
         global $DB;
-        // Before returning, we have to set back the answer cache.
-        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
 
         // If we have only put the option in the shopping card (reserved) we will skip the rest of the fucntion here.
         if ($waitinglist == STATUSPARAM_RESERVED) {
@@ -1461,30 +1514,27 @@ class booking_option {
     /**
      * Check if user can enrol
      *
-     * @return mixed false on full, or if can enrol 0 or 1 for waiting list.
+     * @return mixed false if enrolement is not possible, 0 for can book, 1 for waitinglist and 2 for notification list.
      */
-    private function check_if_limit() {
+    private function check_if_limit(int $userid = 0) {
         global $DB;
 
-        if ($this->option->limitanswers) {
-            $maxplacesavailable = $this->option->maxanswers + $this->option->maxoverbooking;
-            $bookedusers = $DB->count_records("booking_answers",
-                    array('optionid' => $this->optionid, 'waitinglist' => 0));
-            $waitingusers = $DB->count_records("booking_answers",
-                    array('optionid' => $this->optionid, 'waitinglist' => 1));
-            $alluserscount = $bookedusers + $waitingusers;
+        $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($bookingoptionsettings, $userid);
 
-            if ($maxplacesavailable > $alluserscount) {
-                if ($this->option->maxanswers > $bookedusers) {
-                    return STATUSPARAM_BOOKED;
-                } else {
-                    return STATUSPARAM_WAITINGLIST;
-                }
+        // We get the booking information of a specific user.
+        $bookingstatus = $bookinganswer->return_all_booking_information($userid);
+
+        // We get different arrays from return_all_booking_information as this is used for template as well.
+        // Therefore, we take the one array which actually is present.
+        if ($bookingstatus = reset($bookingstatus)) {
+            if (isset($bookingstatus['fullybooked']) && !$bookingstatus['fullybooked']) {
+                return STATUSPARAM_BOOKED;
+            } else if (!isset($bookingstatus['maxoverbooking']) || $bookingstatus['freeonwaitinglist'] > 0) {
+                return STATUSPARAM_WAITINGLIST;
             } else {
                 return false;
             }
-        } else {
-            return STATUSPARAM_BOOKED;
         }
     }
 
@@ -2328,5 +2378,64 @@ class booking_option {
         }
 
         return "$starttime - $endtime";
+    }
+
+    /**
+     * Takes the user on the notification list or off it, depending on the actual status at the moment.
+     * Returns the status and error, if there is any.
+     *
+     * @param integer $userid
+     * @param integer $optionid
+     * @return array
+     */
+    public static function toggle_notify_user(int $userid, int $optionid) {
+
+        global $USER, $DB;
+
+        $error = '';
+        $status = null;
+
+        $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);
+
+        $context = context_module::instance($booking->cmid);
+
+         // If the given user tries this for somebody else, the user has to have the rights of access.
+        if ($USER->id != $userid
+            || !has_capability('mod/booking:subscribeusers', $context)) {
+            $status = 0;
+            $optionid = 0;
+            $error = get_string('accessdenied', 'mod_booking');
+        } else {
+            // If the user does this for herself or she has the right to do it for others, we toggle the state.
+
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings, $userid);
+
+            if (!$bookinganswer->user_on_notificationlist($userid)) {
+                self::write_user_answer_to_db($booking->id,
+                                                    0,
+                                                    $userid,
+                                                    $optionid,
+                                                    STATUSPARAM_NOTIFYMELIST);
+                $status = 1;
+            } else {
+                // As the deletion here has no further consequences, we can do it directly in DB.
+                $DB->delete_records('booking_answers', ['userid' => $userid,
+                    'optionid' => $optionid,
+                    'waitinglist' => STATUSPARAM_NOTIFYMELIST]);
+
+                // Before returning, we have to set back the answer cache.
+                $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
+                $cache->delete($optionid);
+
+                $status = 0;
+            }
+        }
+
+        return [
+            'status' => $status,
+            'optionid' => $optionid,
+            'error' => $error
+        ];
     }
 }

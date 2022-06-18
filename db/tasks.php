@@ -23,4 +23,6 @@ $tasks = array(
         'minute' => '10', 'hour' => '*', 'day' => '*', 'dayofweek' => '*', 'month' => '*'),
     array('classname' => 'mod_booking\task\send_reminder_mails', 'blocking' => 0,
         'minute' => '7', 'hour' => '*', 'day' => '*', 'dayofweek' => '*', 'month' => '*'),
+    array('classname' => 'mod_booking\task\send_notification_mails', 'blocking' => 0,
+        'minute' => '7', 'hour' => '4', 'day' => '*', 'dayofweek' => '*', 'month' => '*'),
 );

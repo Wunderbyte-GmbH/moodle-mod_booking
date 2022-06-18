@@ -1,0 +1,104 @@
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/*
+ * @package    mod_booking
+ * @copyright  Wunderbyte GmbH <info@wunderbyte.at>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+import Ajax from 'core/ajax';
+import {get_string as getString} from 'core/str';
+// import Notification from 'core/notification';
+
+/**
+ * Gets called from mustache template.
+ * @param {int} optionid
+ * @param {int} userid
+ */
+export const init = () => {
+
+    const buttons = document.querySelectorAll(".booking-button-notify-me");
+
+    if (buttons) {
+        buttons.forEach(button => {
+
+            if (button.dataset.initialized) {
+                return;
+            }
+            const userid = button.dataset.userid;
+            const optionid = button.dataset.optionid;
+
+            button.addEventListener('click', () => {
+                toggleNotifiy(button, userid, optionid);
+            });
+            button.dataset.initialized = true;
+        });
+    }
+};
+
+/**
+ * Toggle Notify
+ * @param {any} button
+ * @param {int} userid
+ * @param {int} optionid
+ */
+ export const toggleNotifiy = (
+    button,
+    userid,
+    optionid) => {
+
+    // eslint-disable-next-line no-console
+    console.log('we trigger call', userid, optionid);
+
+    Ajax.call([{
+        methodname: "mod_booking_toggle_notify_user",
+        args: {
+            'userid': userid,
+            'optionid': optionid
+        },
+        done: function(res) {
+
+            // eslint-disable-next-line no-console
+            console.log(res);
+
+            toggleButton(button, res.status);
+
+            return true;
+        },
+        fail: function(err) {
+
+            // eslint-disable-next-line no-console
+            console.log('something went wrong', err);
+        }
+    }]);
+};
+
+/**
+ *
+ * @param {*} button
+ * @param {*} status
+ */
+function toggleButton(button, status) {
+    const statusstring = status == 1 ? 'alreadyonlist' : 'notifyme';
+
+    getString(statusstring, 'mod_booking').then(res => {
+        button.textContent = res;
+        return;
+    }).catch(e => {
+        // eslint-disable-next-line no-console
+        console.log(e);
+    });
+}

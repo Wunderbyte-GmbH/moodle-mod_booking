@@ -77,6 +77,13 @@ $functions = array(
         'description' => 'Get booking option decription for a special option and user',
         'type' => 'read',
         'ajax' => true
+    ),
+    'mod_booking_toggle_notify_user' => array(
+        'classname' => 'mod_booking\external',
+        'methodname' => 'toggle_notify_user',
+        'description' => 'Puts user on and off the notification list',
+        'type' => 'read',
+        'ajax' => true
     )
 );
 
