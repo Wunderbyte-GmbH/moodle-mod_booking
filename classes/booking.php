@@ -568,7 +568,7 @@ class booking {
      * @param integer $limitfrom
      * @param integer $limitnum
      * @param string $searchtext
-     * @param string $fields
+     * @param string $fields∂ƒ
      * @return void
      */
     public function get_all_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "bo.*") {
