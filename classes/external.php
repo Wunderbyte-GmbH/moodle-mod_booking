@@ -517,7 +517,7 @@ class external extends external_api {
 
 
     /**
-     * Returns description of method result value
+     * Returns description of method result value.
      *
      * @return \external_single_structure
      * @since Moodle 3.0
@@ -603,10 +603,12 @@ class external extends external_api {
      */
     public static function toggle_notify_user_returns() {
         return new external_function_parameters(
-                array('status' => new external_value(PARAM_INT, 'Status 1 for user is now on list, 0 for not on list.', VALUE_REQUIRED),
-                      'optionid' => new external_value(PARAM_INT, 'Optionid', VALUE_REQUIRED),
-                      'error' => new external_value(PARAM_RAW, 'Optionid', VALUE_OPTIONAL, ''),
-                )
+                [
+                    'status' => new external_value(PARAM_INT, 'Status 1 for user is now on list, 0 for not on list.',
+                        VALUE_REQUIRED),
+                    'optionid' => new external_value(PARAM_INT, 'option id', VALUE_REQUIRED),
+                    'error' => new external_value(PARAM_RAW, 'error', VALUE_OPTIONAL, ''),
+                ]
         );
     }
 
@@ -617,8 +619,8 @@ class external extends external_api {
      */
     public static function toggle_notify_user_parameters() {
         return new external_function_parameters(
-                array('userid' => new external_value(PARAM_INT, 'Option id', VALUE_REQUIRED, 0),
-                      'optionid' => new external_value(PARAM_TEXT, 'Userid', VALUE_REQUIRED, 0)
+                array('userid' => new external_value(PARAM_INT, 'user id', VALUE_REQUIRED, 0),
+                      'optionid' => new external_value(PARAM_TEXT, 'option id', VALUE_REQUIRED, 0)
                 )
         );
     }
