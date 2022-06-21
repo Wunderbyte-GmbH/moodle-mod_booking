@@ -622,7 +622,7 @@ class booking {
         // If the user does not have the capability to see invisible options...
         if (!has_capability('mod/booking:canseeinvisibleoptions', $this->context)) {
             // ... then only show visible options.
-            $where = "bo.invisible = 0 ";
+            $where = "s1.invisible = 0 ";
         } else {
             // The "Where"-clause is always added so we have to have something here for the sql to work.
             $where = "1=1 ";
