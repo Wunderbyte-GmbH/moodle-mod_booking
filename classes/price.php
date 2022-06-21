@@ -77,6 +77,20 @@ class price {
                 get_string('bookingoptionprice', 'booking'));
         }
 
+        // Only when there is an actual price formula, we do apply it.
+        $priceformula = get_config('booking', 'defaultpriceformula');
+        if (!empty($priceformula)) {
+            // First we see if we want to show the checkbox at all.
+            $mform->addElement('checkbox', 'defaultpriceformula_use', get_string('defaultpriceformula_use', 'booking'));
+
+            // Then we show statically, what the formula will do.
+            $formulastring = self::return_formula_as_string($priceformula);
+
+            $newprice = self::calculate_price($priceformula, 'default');
+
+            $mform->addElement('static', 'defaultpriceformula_string', get_string('defaultpriceformula_string', 'booking'), $formulastring);
+        }
+
         // If there are no price categories yet, show an info text.
         if (empty($this->pricecategories)) {
             $mform->addElement('static', 'nopricecategoriesyet', get_string('nopricecategoriesyet', 'booking'));
@@ -113,6 +127,123 @@ class price {
         }
     }
 
+    public static function calculate_price(string $priceformula, $pricecategoryidentifier, $bookingoption = null) {
+
+        global $DB;
+
+        // For testing.
+        if (!$bookingoption) {
+            $bookingoption = new stdClass();
+            $bookingoption->dayofweektime = "Mo, 10:00 - 20:00";
+        }
+
+        if (!$pricecategory = $DB->get_record('booking_pricecategories', ['disabled' => 0, 'identifier' => $pricecategoryidentifier])) {
+            // We return the 0 price. This will cause the form not to validate, if we try to apply the formula.
+            return 0;
+        }
+
+        if (!$jsonobject = json_decode($priceformula)) {
+            // We return the 0 price. This will cause the form not to validate, if we try to apply the formula.
+            return 0;
+        }
+
+        // We need the dayofweektime split up.
+        $dayinfo = optiondates_handler::prepare_day_info($bookingoption->dayofweektime);
+
+        // We start with the baseprice.
+        $price = $pricecategory->defaultvalue;
+
+        if ($price == 0) {
+            // We return the 0 price. This will cause the form not to validate, if we try to apply the formula.
+            return 0;
+        }
+
+        foreach ($jsonobject as $formulacomponent) {
+
+            $key = key($formulacomponent);
+            $value = $formulacomponent->$key;
+
+            switch ($key) {
+                case 'starttime':
+                    // We apply the time identifier, but only once, after application we break the loop.
+                    self::apply_time_factor($value, $dayinfo, $price);
+                break;
+                case 'customfield':
+                    // We apply the time identifier, but only once, after application we break the loop.
+                    self::apply_customfield_factor($value, null, $price);
+                break;
+                case 'mod_entities':
+                    // We apply the time identifier, but only once, after application we break the loop.
+                    self::apply_entities_factor($value, null, $price);
+                break;
+            }
+        }
+
+        return $price;
+    }
+
+    /**
+     * Interprets the timepart of the jsonobject and applies the multiplier to the price, if necessary.
+     *
+     * @param array $timeobject
+     * @param array $dayinfo
+     * @param float $price
+     * @return void
+     */
+    private static function apply_time_factor($timeobject, $dayinfo, &$price) {
+        foreach ($timeobject as $range) {
+            if (self::is_in_time_scope($dayinfo, $range)) {
+                $price = $price * $range->multiplier;
+                break;
+            }
+        }
+    }
+
+    /**
+     * Interprets the timepart of the jsonobject and applies the multiplier to the price, if necessary.
+     *
+     * @param array $timeobject
+     * @param array $dayinfo
+     * @param float $price
+     * @return void
+     */
+    private static function apply_customfield_factor($customfieldobject, $bookingoption, &$price) {
+
+        // For testing.
+        if (!$bookingoption) {
+            $bookingoption = new stdClass();
+            $bookingoption->customfield_sport = "Basketball";
+        }
+
+        foreach ($customfieldobject as $object) {
+            $key = "customfield_" . $object->name;
+            $value = strtolower($object->value);
+            if (isset($bookingoption->$key)) {
+                $fieldvalue = strtolower($bookingoption->$key);
+                if ($fieldvalue == $value) {
+                    $price = $price * $object->multiplier;
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Interprets the timepart of the jsonobject and applies the multiplier to the price, if necessary.
+     *
+     * @param array $timeobject
+     * @param array $dayinfo
+     * @param float $price
+     * @return void
+     */
+    private static function apply_entities_factor($customfieldobject, $bookingoption, &$price) {
+
+        // For testing.
+        if (!$bookingoption) {
+            $bookingoption = new stdClass();
+            $bookingoption->customfield_sport = "Basketball";
+        }
+    }
 
     public function save_from_form(stdClass $fromform) {
 
@@ -364,5 +495,86 @@ class price {
         });
 
         return $currencies;
+    }
+
+    /**
+     * Translates the priceformula to a readable string.
+     *
+     * @param string $priceformula
+     * @return void
+     */
+    private static function return_formula_as_string(string $priceformula) {
+
+        $jsonobject = json_decode($priceformula);
+        $returnstring = '';
+
+        foreach ($jsonobject as $formulacomponent) {
+
+            $key = key($formulacomponent);
+            $value = $formulacomponent->$key;
+
+            switch ($key) {
+                case 'starttime':
+                    $key = get_string($key, 'booking');
+                    $returnstring .= $key . "<br>";
+                    foreach ($value as $item) {
+
+                        $returnstring .= "    " . $item->starttime
+                                      . " - " . $item->endtime
+                                      . ", " . $item->weekdays
+                                      . ": times "
+                                      . $item->multiplier . "<br>";
+                    }
+                    break;
+                case 'customfield':
+                case 'mod_entities':
+                    $key = get_string($key, 'booking');
+                default:
+                    $returnstring .= $key;
+                    $returnstring .= "<br>";
+                    break;
+            }
+        }
+        return $returnstring;
+    }
+
+    /**
+     * Check for weekdays & time to be in certain range
+     * @param array $dayinfo
+     * @param object $rangeinfo
+     * @return boolean
+     */
+    public static function is_in_time_scope(array $dayinfo, object $rangeinfo) {
+
+        // Only if a weekday is specified in the range, we check for it.
+        if (isset($rangeinfo->weekdays)) {
+            $needle = substr($dayinfo['day'], 0, 2);
+            $needle = strtolower($needle);
+            $weekdays = strtolower($rangeinfo->weekdays);
+            $haystack = explode(',', strtolower($weekdays));
+
+            if (!in_array($needle, $haystack)) {
+                return false;
+            }
+        }
+
+        sscanf($dayinfo['starttime'], "%d:%d", $hours, $minutes);
+        $framestartseconds = ($hours * 60 * 60) + ($minutes * 60);
+        sscanf($dayinfo['endtime'], "%d:%d", $hours, $minutes);
+        $frameendseconds = $hours * 60 * 60 + $minutes * 60;
+
+        sscanf($rangeinfo->starttime, "%d:%d", $hours, $minutes);
+        $startseconds = $hours * 60 * 60 + $minutes * 60;
+
+        sscanf($rangeinfo->endtime, "%d:%d", $hours, $minutes);
+        $endseconds = $hours * 60 * 60 + $minutes * 60;
+
+        if ($framestartseconds < $startseconds
+            && $frameendseconds > $startseconds) {
+
+                return true;
+        }
+
+        return false;
     }
 }

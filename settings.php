@@ -129,6 +129,11 @@ if ($ADMIN->fulltree) {
             'EUR', $currencies));
 
     $settings->add(
+        new admin_setting_configtextarea('booking/defaultpriceformula',
+            get_string('defaultpriceformula', 'booking'),
+            get_string('defaultpriceformuladesc', 'booking'), '', PARAM_TEXT, 60, 10));
+
+    $settings->add(
         new admin_setting_heading('duplicationrestore',
             get_string('duplicationrestore', 'mod_booking'),
             get_string('duplicationrestoredesc', 'mod_booking')));

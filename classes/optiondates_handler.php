@@ -241,7 +241,7 @@ class optiondates_handler {
      * @param string $reoccurringdatestring
      * @return array
      */
-    private static function prepare_day_info(string $reoccurringdatestring): array {
+    public static function prepare_day_info(string $reoccurringdatestring): array {
         $reoccurringdatestring = strtolower($reoccurringdatestring);
         $reoccurringdatestring = str_replace('-', ' ', $reoccurringdatestring);
         $reoccurringdatestring = str_replace(',', ' ', $reoccurringdatestring);

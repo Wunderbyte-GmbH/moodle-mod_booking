@@ -1426,6 +1426,11 @@ $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kateg
     <b>Achtung:</b> Sobald Sie eine Kategorie erstellt haben, können Sie diese nicht mehr löschen.
     Sie können Kategorien aber umbenennen oder deaktivieren.</p>';
 
+$string['defaultpriceformula'] = "Preisformel";
+$string['defaultpriceformuladesc'] = "Das JSON Objekt erlaubt die Konfiguation der automatischen Preisberechnung.";
+$string['defaultpriceformula_use'] = "Wende die Preisformel für diese Buchungsoption an.";
+$string['defaultpriceformula_string'] = "Die Formel sieht derzeit so aus:";
+
 // Semesters.
 $string['booking:semesters'] = 'Booking: Semester';
 $string['semester'] = 'Semester';
