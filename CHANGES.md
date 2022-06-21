@@ -1,3 +1,22 @@
+## Version 7.2.0 (2022062100)
+**New features:**
+* Possibility to reduce booking option form to necessary elements only (configure simple mode).
+* Toggle between simple mode and expert mode for booking option form.
+* Notification list (observer list) functionality.
+
+**Improvements:**
+* Add support for returnurl for the booking options form
+
+**Bugfixes:**
+* Fixed an error with image URL.
+* Make sure entities are only used when they are installed
+* Fix some unset properties.
+* Fixed bug in shopping cart where wrong price was taken.
+* Fixed JavaScript for Moodle 4.0.
+* Fixed broken URLs for Moodle 4.0.
+* Commented out helpbuttons in repeat_elements groups as they cause problems with Moodle 4.0.
+* Fixed navigation nodes for Moodle 4.0.
+
 ## Version 7.1.5 (2022060700)
 **New features:**
 * Added possibility to backup/duplicate/restore entities relations.
