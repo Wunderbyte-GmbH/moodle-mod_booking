@@ -514,6 +514,39 @@ class external extends external_api {
         );
     }
 
+    /**
+     * Function get_booking_option_description_returns.
+     * TODO: When merging replace this with the actual function.
+     * This is only a dummy to fix issue #192.
+     *
+     * @return \external_single_structure
+     */
+    public static function get_booking_option_description_returns() {
+        return new external_single_structure(
+                ['dummy' => new external_value(PARAM_RAW, 'dummy string')]
+        );
+    }
 
+    /**
+     * Function get_booking_option_description_parameters.
+     * TODO: When merging replace this with the actual function.
+     * This is only a dummy to fix issue #192.
+     *
+     * @return external_function_parameters
+     */
+    public static function get_booking_option_description_parameters() {
+        return new external_function_parameters([
+            'dummyparam' => new external_value(PARAM_RAW, 'dummy param', VALUE_REQUIRED, 'dummy')
+        ]);
+    }
 
+    /**
+     * Function get_booking_option_description.
+     * TODO: When merging replace this with the actual function.
+     * This is only a dummy to fix issue #192.
+     * @return array
+     */
+    public static function get_booking_option_description($dummyparam) {
+        return ['dummy' => $dummyparam];
+    }
 }

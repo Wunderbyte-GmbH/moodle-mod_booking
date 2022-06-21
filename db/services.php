@@ -70,6 +70,14 @@ $functions = array(
         'description' => 'Add Booking option',
         'type' => 'write',
         'ajax' => false
+    ),
+    // Bugfix #192 - This is actually not implemented in this version.
+    'mod_booking_get_booking_option_description' => array(
+        'classname' => 'mod_booking\external',
+        'methodname' => 'get_booking_option_description',
+        'description' => 'Bugfix #192 - This is actually not implemented in this version.',
+        'type' => 'read',
+        'ajax' => true
     )
 );
 
