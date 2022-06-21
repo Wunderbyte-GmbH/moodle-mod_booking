@@ -226,7 +226,15 @@ class booking_option_settings {
 
         // If we don't get the cached object, we have to fetch it here.
         if ($dbrecord === null) {
-            $dbrecord = $DB->get_record("booking_options", array("id" => $optionid));
+
+            list($select, $from, $where, $params) = booking::get_option_sql($optionid);
+
+            $sql = "SELECT $select
+                    FROM $from
+                    WHERE $where";
+
+            $dbrecord = $DB->get_record_sql($sql, $params, IGNORE_MISSING);
+
         }
 
         if ($dbrecord) {
@@ -642,7 +650,7 @@ class booking_option_settings {
     public static function return_sql_for_customfield($searchparams = []): array {
 
         // Testing.
-        $searchparams = [['sportart' => 'basketball'], ['sportart' => 'fussball'], ['sportart' => 'bodystyling']];
+        // $searchparams = [['sportart' => 'basketball'], ['sportart' => 'fussball'], ['sportart' => 'bodystyling']];
 
         global $DB;
 
@@ -723,7 +731,7 @@ class booking_option_settings {
     public static function return_sql_for_teachers($searchparams = []): array {
 
         // Testing.
-        $searchparams = [['firstname' => 'billy']];
+        $searchparams = [['name' => 'y t']];
 
         global $DB;
 
@@ -738,6 +746,10 @@ class booking_option_settings {
             "u.firstname",
             "'\", \"lastname\":\"'",
             "u.lastname",
+            "'\", \"name\":\"'",
+            "u.firstname",
+            "' '",
+            'u.lastname',
             "'\"}'"]);
         // $innerselect = 'bt.id';
         $where = '';
@@ -767,7 +779,7 @@ class booking_option_settings {
             // We can't use this syntax at them moment, because the moodle sql_group_concat function doesn't let us create a json object.
             // $where .= $DB->sql_like('s1.customfields', '\"fieldname\"\:\"' . $key . '\", \"fieldvalue\"\:\"' . $value .'\"', false);
 
-            $value = "%\"$key\"\:\"$value\"%";
+            $value = "%\"$key\"\:%$value%";
 
             // Make sure we never use the param more than once.
             if (isset($params[$key])) {
@@ -784,6 +796,56 @@ class booking_option_settings {
         // If we ran through the loop at least once, we close it again here.
         $where .= $counter > 0 ? ') ' : '';
 
+        return [$select, $from, $where, $params];
+    }
+
+    public static function return_sql_for_files($searchparams = []): array {
+
+        // Testing.
+        // $searchparams = [['filename' => 'basketball']];
+
+        global $DB;
+
+        // $select = 'GROUP_CONCAT('{id:"', bt1.id, '", firstname:"',bt1.firstname,'", lastname:"',bt1.lastname,'"}') as teacherobjects';
+        $select = ' f.filename ';
+
+        $where = '';
+        $params = ['componentname3' => 'mod_booking'];
+
+        $from = ' LEFT JOIN {files} f
+            ON f.itemid=bo.id and f.component=:componentname3';
+
+        // As this is a complete subrequest, we have to add the "where" to the outer table, where it is already rendered.
+        $counter = 0;
+        foreach ($searchparams as $searchparam) {
+
+            if (!$key = key($searchparam)) {
+                throw new moodle_exception('wrongstructureofsearchparams', 'mod_booking');
+            }
+            $value = $searchparam[$key];
+
+            // Only add Or if we are not in the first line.
+            $where .= $counter > 0 ? ' OR ' : ' AND (';
+
+            // We can't use this syntax at them moment, because the moodle sql_group_concat function doesn't let us create a json object.
+            // $where .= $DB->sql_like('s1.customfields', '\"fieldname\"\:\"' . $key . '\", \"fieldvalue\"\:\"' . $value .'\"', false);
+
+            $value = "%$value%";
+
+            // Make sure we never use the param more than once.
+            if (isset($params[$key])) {
+                $key = $key . $counter;
+            }
+
+            // $value = "%\"fieldname\"\:\"%";
+            $where .= $DB->sql_like('s1.filename', ":$key", false);
+
+            // Now we have to add the values to our params array.
+            $params[$key] = $value;
+            $counter++;
+        }
+        // If we ran through the loop at least once, we close it again here.
+        $where .= $counter > 0 ? ') ' : '';
 
         return [$select, $from, $where, $params];
     }
