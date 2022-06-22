@@ -246,7 +246,7 @@ if ($mform->is_cancelled()) {
 
         // This is to save er data
         // The id key has to be set to option id.
-        if (class_exists('entitiesrelation_handler')) {
+        if (class_exists('local/entitiesrelation_handler')) {
             $erhandler = new entitiesrelation_handler('bookingoption');
             $erhandler->instance_form_save($fromform, $fromform->optionid);
         }

@@ -566,7 +566,7 @@ class booking_option_settings {
      * @param int $optionid
      */
     private function load_entity(int $optionid) {
-        if (class_exists('entitiesrelation_handler')) {
+        if (class_exists('local/entitiesrelation_handler')) {
             $handler = new entitiesrelation_handler('bookingoption');
             $data = $handler->get_instance_data($optionid);
         }

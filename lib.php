@@ -793,7 +793,7 @@ function booking_update_options($optionvalues, $context) {
     // Every time we save an entity, we want to make sure that the name of the entity is stored in location.
     if (!empty($optionvalues->local_entities_entityid)) {
         // We might have more than one address, this will lead to more than one record which comes back.
-        if (class_exists('entitiesrelation_handler')) {
+        if (class_exists('local/entitiesrelation_handler')) {
             $entities = entitiesrelation_handler::get_entity_by_id($optionvalues->local_entities_entityid);
             $option->address = '';
             foreach ($entities as $entity) {

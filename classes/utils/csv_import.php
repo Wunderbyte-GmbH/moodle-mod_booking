@@ -251,7 +251,7 @@ class csv_import {
                 if (!empty($bookingoption->location)) {
 
                     // Now we check if we have an entity to which we can match the value.
-                    if (class_exists('entitiesrelation_handler')) {
+                    if (class_exists('local/entitiesrelation_handler')) {
                         $erhandler = new entitiesrelation_handler('bookingoption');
 
                         $entities = $erhandler->get_entities_by_name($bookingoption->location);

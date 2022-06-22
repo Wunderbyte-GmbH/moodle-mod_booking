@@ -445,7 +445,7 @@ class option_form extends moodleform {
         $price->add_price_to_mform($mform);
 
         // Add entities.
-        if (class_exists('entitiesrelation_handler')) {
+        if (class_exists('local_entities\entitiesrelation_handler')) {
             $erhandler = new entitiesrelation_handler('bookingoption');
             $erhandler->instance_form_definition($mform, $optionid);
         }
@@ -670,7 +670,7 @@ class option_form extends moodleform {
             $id = $defaultvalues->id;
             $defaultvalues->id = $defaultvalues->optionid;
             $handler->instance_form_before_set_data($defaultvalues);
-            if (class_exists('entitiesrelation_handler')) {
+            if (class_exists('local_entities\entitiesrelation_handler')) {
                 $erhandler = new entitiesrelation_handler('bookingoption');
                 $erhandler->instance_form_before_set_data($this->_form, $defaultvalues, $defaultvalues->optionid);
             }
