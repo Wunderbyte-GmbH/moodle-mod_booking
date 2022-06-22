@@ -292,7 +292,11 @@ if ($mform->is_cancelled()) {
         }
 
         // Add a button to toggle between simple and expert mode.
-        $formmodeurl = new moodle_url('/mod/booking/editoptions.php', ['mode' => $togglemode, 'id' => $cmid, 'optionid' => $optionid]);
+        $formmodeurl = new moodle_url('/mod/booking/editoptions.php', [
+            'mode' => $togglemode,
+            'id' => $cmid,
+            'optionid' => $optionid
+        ]);
 
         echo html_writer::link($formmodeurl->out(false),
             $formmodelabel,

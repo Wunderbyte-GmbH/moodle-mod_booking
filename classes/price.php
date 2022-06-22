@@ -66,7 +66,8 @@ class price {
         $showpriceheader = true;
         $formmode = get_user_preferences('optionform_mode');
         if ($formmode !== 'expert') {
-            $cfgpriceheader = $DB->get_field('booking_optionformconfig', 'active', ['elementname' => 'bookingoptionprice']);
+            $cfgpriceheader = $DB->get_field('booking_optionformconfig', 'active',
+                ['elementname' => 'bookingoptionprice']);
             if ($cfgpriceheader === "0") {
                 $showpriceheader = false;
             }
