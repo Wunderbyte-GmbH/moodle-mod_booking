@@ -88,7 +88,8 @@ class price {
 
             $newprice = self::calculate_price($priceformula, 'default');
 
-            $mform->addElement('static', 'defaultpriceformula_string', get_string('defaultpriceformula_string', 'booking'), $formulastring);
+            $mform->addElement('static', 'defaultpriceformula_string', get_string('defaultpriceformula_string', 'booking'),
+                $formulastring);
         }
 
         // If there are no price categories yet, show an info text.
@@ -137,7 +138,8 @@ class price {
             $bookingoption->dayofweektime = "Mo, 10:00 - 20:00";
         }
 
-        if (!$pricecategory = $DB->get_record('booking_pricecategories', ['disabled' => 0, 'identifier' => $pricecategoryidentifier])) {
+        if (!$pricecategory = $DB->get_record('booking_pricecategories', ['disabled' => 0,
+            'identifier' => $pricecategoryidentifier])) {
             // We return the 0 price. This will cause the form not to validate, if we try to apply the formula.
             return 0;
         }
