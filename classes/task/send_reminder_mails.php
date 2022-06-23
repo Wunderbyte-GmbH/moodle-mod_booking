@@ -128,7 +128,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
             AND bo.coursestarttime > 0  AND bo.coursestarttime > :now
             AND bo.sentteachers = 0', array('now' => $now));
 
-        if (count($toprocess) > 0)  {
+        if (count($toprocess) > 0) {
             echo "send_reminder_mails task: send teacher notifications - START" . "\n";
             foreach ($toprocess as $record) {
 
@@ -152,10 +152,9 @@ class send_reminder_mails extends \core\task\scheduled_task {
     /**
      * Function to send notification mail to all users if the time is right.
      * Returns true if sent and false if not.
-     * @param $record
-     * @param $daystonotify
-     * @param bool $issession false for option (default), true for sessions (optiondates)
-     * @param array $tousers an array of user ids to receive the notification (for teacher notification this should be an array of the teacher ids)
+     * @param stdClass $record
+     * @param int $daystonotify
+     * @param int $notificationmailparam
      * @return bool
      */
     private function send_notification($record, $daystonotify, $notificationmailparam = MAIL_NOTIFICATION_PARTICIPANTS) {
@@ -169,7 +168,6 @@ class send_reminder_mails extends \core\task\scheduled_task {
 
                     $subject = get_string('sessionremindermailsubject', 'booking');
                     booking_send_notification($record->id, $subject, array(), true, false);
-
                     break;
 
                 case MAIL_NOTIFICATION_TEACHERS:
@@ -180,10 +178,12 @@ class send_reminder_mails extends \core\task\scheduled_task {
                     foreach ($teachers as $teacher) {
                         $teacherids[] = $teacher->userid;
                     }
-
-                    $subject = get_string('notificationsubject', 'booking');
-                    booking_send_notification($record->id, $subject, $teacherids, false, true);
-
+                    // Bugfix: Only do this if we have teacherids.
+                    // Otherwise, participants will get the message.
+                    if (!empty($teacherids)) {
+                        $subject = get_string('notificationsubject', 'booking');
+                        booking_send_notification($record->id, $subject, $teacherids, false, true);
+                    }
                     break;
 
                 case MAIL_NOTIFICATION_PARTICIPANTS:
@@ -191,7 +191,6 @@ class send_reminder_mails extends \core\task\scheduled_task {
 
                     $subject = get_string('notificationsubject', 'booking');
                     booking_send_notification($record->id, $subject, array(), false, false);
-
                     break;
             }
             mtrace('booking - send notification triggered');
