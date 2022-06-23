@@ -183,7 +183,11 @@ class send_reminder_mails extends \core\task\scheduled_task {
                     foreach ($teachers as $teacher) {
                         $teacherids[] = $teacher->userid;
                     }
-                    $bookingoption->sendmessage_notification($messageparam, $teacherids);
+                    // Bugfix: Only do this if we have teacherids.
+                    // Otherwise, participants will get the message.
+                    if (!empty($teacherids)) {
+                        $bookingoption->sendmessage_notification($messageparam, $teacherids);
+                    }
                     break;
 
                 case MSGPARAM_REMINDER_PARTICIPANT:
