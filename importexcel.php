@@ -127,6 +127,7 @@ if ($mform->is_cancelled()) {
 
     // In this case you process validated data. $mform->get_data() returns data posted in form.
 } else {
+    $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string("importexceltitle", "booking"), 3, 'helptitle', 'uniqueid');
 

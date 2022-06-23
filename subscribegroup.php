@@ -66,6 +66,7 @@ if ($mform->is_cancelled()) {
 } else {
     $PAGE->set_title(format_string($booking->settings->name));
     $PAGE->set_heading($course->fullname);
+    $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
     echo $OUTPUT->header();
     if (isset($defaultvalues)) {
         $mform->set_data($defaultvalues);

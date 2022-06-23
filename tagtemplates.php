@@ -55,6 +55,7 @@ $PAGE->set_title(format_string(get_string("tagtemplates", "booking")));
 $PAGE->set_heading(get_string("tagtemplates", "booking"));
 $PAGE->set_pagelayout('standard');
 
+$PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("tagtemplates", "booking"), 3, 'helptitle', 'uniqueid');
 

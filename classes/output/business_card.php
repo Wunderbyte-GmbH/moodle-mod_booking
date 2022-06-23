@@ -77,7 +77,8 @@ class business_card implements renderable, templatable {
         $userpictureurl = $userpic->get_url($PAGE);
         $userprofileurl = new \moodle_url('../../user/profile.php', ['id' => $user->id]);
         $sendmessageurl = new \moodle_url('../../message/index.php', ['id' => $user->id]);
-        $description = format_text($booking->settings->intro, $booking->settings->introformat);
+        // $description = format_text($booking->settings->intro, $booking->settings->introformat);
+        $description = '';
         $userdescription = format_text($user->description, $user->descriptionformat);
 
         $this->username = "$user->firstname $user->lastname";

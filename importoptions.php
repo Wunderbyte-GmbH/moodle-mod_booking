@@ -61,7 +61,7 @@ if ($mform->is_cancelled()) {
     redirect($urlredirect, '', 0);
     die();
 } else if ($fromform = $mform->get_data()) {
-
+    $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string("importcsvtitle", "mod_booking"), 3, 'helptitle', 'uniqueid');
     $continue = $OUTPUT->single_button($urlredirect, get_string("continue"), 'get');
@@ -85,6 +85,7 @@ if ($mform->is_cancelled()) {
 
     // In this case you process validated data. $mform->get_data() returns data posted in form.
 } else {
+    $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string("importcsvtitle", "booking"), 3, 'helptitle', 'uniqueid');
     $mform->display();

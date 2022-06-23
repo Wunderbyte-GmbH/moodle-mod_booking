@@ -1322,11 +1322,11 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         if (has_capability('mod/booking:updatebooking', $context)) {
             $navref->add(get_string('duplicatebooking', 'booking'),
                     new moodle_url('/mod/booking/editoptions.php',
-                            array('id' => $cm->id, 'optionid' => -1, 'copyoptionid' => $optionid)));
+                            array('id' => $cm->id, 'optionid' => 0, 'copyoptionid' => $optionid)));
             $navref->add(get_string('deletebookingoption', 'booking'),
                     new moodle_url('/mod/booking/report.php',
                             array('id' => $cm->id, 'optionid' => $optionid,
-                                'action' => 'deletebookingoption')));
+                                'action' => 'deletebookingoption', 'sesskey' => sesskey())));
             $navref->add(get_string('optiondates', 'booking'),
                     new moodle_url('/mod/booking/optiondates.php',
                             array('id' => $cm->id, 'optionid' => $optionid)));

@@ -65,6 +65,7 @@ $PAGE->set_title(get_string('modulename', 'booking'));
 $PAGE->set_heading($COURSE->fullname);
 $PAGE->navbar->add(get_string('booking:subscribeusers', 'booking'), $url);
 if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
+    $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
     echo $OUTPUT->header();
     $alright = false;
     $message = "<p><b>" . get_string('agreetobookingpolicy', 'booking') . ":</b></p>";
@@ -154,6 +155,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
         $existingselector->set_potential_users($bookingoption->bookedvisibleusers);
     }
 }
+$PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($bookingoption->option->text), 3, 'helptitle', 'uniqueid');
 

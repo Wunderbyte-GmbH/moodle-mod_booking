@@ -130,6 +130,7 @@ if (has_capability('mod/booking:updatebooking', $context)) {
 } else {
     unset($USER->subscriptionsediting);
 }
+$PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
 echo $output->header();
 if ($edit === 1) {
     echo $output->heading(get_string('addteachers', 'booking') . " [{$booking->option->text}]");

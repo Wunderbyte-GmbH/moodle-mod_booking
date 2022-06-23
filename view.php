@@ -356,6 +356,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
 
     if (!$tablealloptions->is_downloading()) {
         comment::init();
+        $PAGE->activityheader->set_attrs(['hidecompletion' => true]);
         echo $OUTPUT->header();
 
         echo '<div class="clearer"></div>';
@@ -877,6 +878,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         exit();
     }
 } else {
+    $PAGE->activityheader->set_attrs(['hidecompletion' => true]);
     echo $OUTPUT->header();
     echo $OUTPUT->error_text(get_string("norighttobook", "booking"));
     echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id' => $course->id)));

@@ -72,6 +72,7 @@ if ($mform->is_cancelled()) {
 
     redirect($urlredirect, get_string('templatesuccessfullysaved', 'booking'), 5);
 } else {
+    $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string("addnewreporttemplate", "booking"), 3, 'helptitle', 'uniqueid');
 

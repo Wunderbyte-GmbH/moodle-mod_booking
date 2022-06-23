@@ -68,6 +68,7 @@ if ($mform->is_cancelled()) {
     $PAGE->set_title(format_string("Reports"));
     $PAGE->set_heading(format_string("Reports"));
 
+    $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
     echo $OUTPUT->header();
 
     $mform->display();

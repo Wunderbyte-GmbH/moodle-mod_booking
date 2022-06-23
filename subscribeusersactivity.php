@@ -67,6 +67,7 @@ $PAGE->set_url($url);
 $PAGE->set_title(get_string('modulename', 'booking'));
 $PAGE->set_heading($COURSE->fullname);
 
+$PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
 echo $OUTPUT->header();
 echo $OUTPUT->heading("{$bookingoption->option->text}", 3, 'helptitle', 'uniqueid');
 

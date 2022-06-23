@@ -208,6 +208,8 @@ if ($action == 'deletebookingoption' && $confirm == 1 &&
     redirect("view.php?id=$cm->id");
 } else if ($action == 'deletebookingoption' && has_capability('mod/booking:updatebooking', $context) &&
          confirm_sesskey()) {
+
+    $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
     echo $OUTPUT->header();
     $confirmarray['action'] = 'deletebookingoption';
     $confirmarray['confirm'] = 1;
@@ -662,6 +664,7 @@ if (!$tableallbookings->is_downloading()) {
 
     // ALL USERS - STOP.
 
+    $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
     echo $OUTPUT->header();
 
     echo $OUTPUT->heading(

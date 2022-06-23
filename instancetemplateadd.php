@@ -79,6 +79,7 @@ if ($mform->is_cancelled()) {
     }
 
 } else {
+    $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
     echo $OUTPUT->header();
 
     $defaultvalues = new stdClass();

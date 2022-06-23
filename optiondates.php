@@ -238,6 +238,7 @@ if ($mform->is_cancelled()) {
     $PAGE->set_heading(get_string('optiondates', 'mod_booking'));
     $PAGE->set_pagelayout('standard');
 
+    $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('optiondates', 'mod_booking'), 3, 'helptitle', 'uniqueid');
 
