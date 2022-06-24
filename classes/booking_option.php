@@ -701,23 +701,9 @@ class booking_option {
             return false;
         }
 
-        if ($cancelreservation) {
-            $DB->delete_records('booking_answers',
-                array('userid' => $userid,
-                      'optionid' => $this->optionid,
-                      'completed' => 0,
-                      'waitinglist' => STATUSPARAM_RESERVED));
-        } else {
-            foreach ($results as $result) {
-                if ($result->waitinglist != STATUSPARAM_DELETED) {
-                    $result->waitinglist = STATUSPARAM_DELETED;
-                    $result->timemodified = time();
-                    // We mark all the booking answers as deleted.
-
-                    $DB->update_record('booking_answers', $result);
-                }
-            }
-        }
+        $DB->delete_records('booking_answers',
+            array('userid' => $userid,
+                  'optionid' => $this->optionid));
 
         // Sync the waiting list and send status change mails.
         $this->sync_waiting_list();
@@ -725,10 +711,6 @@ class booking_option {
         // Before returning, we have to set back the answer cache.
         $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
         $cache->delete($this->optionid);
-
-        if ($cancelreservation) {
-            return true;
-        }
 
         if ($userid == $USER->id) {
             $user = $USER;

@@ -106,12 +106,12 @@ class coursepage_available_options implements renderable, templatable {
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
                      AND ba.status > 0
-                     AND ba.userid = :userid2) AS status,
+                     AND ba.userid = :userid2 LIMIT 1) AS status,
 
                   (SELECT DISTINCT(ba.waitinglist)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
-                     AND ba.userid = :userid3) AS waitinglist,
+                     AND ba.userid = :userid3 LIMIT 1) AS waitinglist,
                          b.btnbooknowname,
                          b.maxperuser,
 
@@ -142,7 +142,7 @@ class coursepage_available_options implements renderable, templatable {
                   (SELECT rate
                   FROM {booking_ratings} br
                   WHERE br.optionid = bo.id
-                    AND br.userid = :userid6) AS myrating
+                    AND br.userid = :userid6 LIMIT 1) AS myrating
                 ";
         $from = "FROM {booking} b LEFT JOIN {booking_options} bo ON bo.bookingid = b.id
         ";

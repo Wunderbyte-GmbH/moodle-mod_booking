@@ -636,13 +636,13 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                    WHERE ba.optionid = bo.id
                    AND ba.waitinglist < 2
                      AND ba.status > 0
-                     AND ba.userid = :userid6) AS status,
+                     AND ba.userid = :userid6 LIMIT 1) AS status,
 
                   (SELECT DISTINCT(ba.waitinglist)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
                    AND ba.waitinglist < 2
-                     AND ba.userid = :userid1) AS waitinglist,
+                     AND ba.userid = :userid1 LIMIT 1) AS waitinglist,
                          b.btnbooknowname,
                          b.maxperuser,
 
@@ -673,7 +673,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                   (SELECT rate
                   FROM {booking_ratings} br
                   WHERE br.optionid = bo.id
-                    AND br.userid = :userid5) AS myrating
+                    AND br.userid = :userid5 LIMIT 1) AS myrating
                 ";
         $from = "{booking} b LEFT JOIN {booking_options} bo ON bo.bookingid = b.id";
         $where = "b.id = :bookingid " .
