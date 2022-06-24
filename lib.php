@@ -991,8 +991,8 @@ function booking_update_options($optionvalues, $context) {
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$option->id]);
 
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
-        // $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
-        // $cache->delete($option->id);
+        $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
+        $cache->delete($option->id);
 
         return $option->id;
     } else if (!empty($optionvalues->text)) { // New booking option record.
@@ -1099,8 +1099,8 @@ function booking_update_options($optionvalues, $context) {
         // phpcs:ignore moodle.Commenting.InlineComment.InvalidEndChar,moodle.Commenting.InlineComment.NotCapital
         // cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
-        // $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
-        // $cache->delete($optionid);
+        $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
+        $cache->delete($optionid);
 
         return $optionid;
     }
@@ -1230,7 +1230,7 @@ function booking_myprofile_navigation(core_user\output\myprofile\tree $tree, $us
  * @return void
  */
 function booking_extend_settings_navigation(settings_navigation $settings, navigation_node $navref) {
-    global $PAGE, $DB, $USER;
+    global $PAGE, $DB;
 
     $cm = $PAGE->cm;
     if (!$cm) {
@@ -1243,24 +1243,36 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     $optionid = $PAGE->url->get_param('optionid');
     $booking = new booking($cm->id);
 
-    $bookingisteacher = false; // Set to false by default.
     if (!is_null($optionid) && $optionid > 0) {
         $option = new booking_option($cm->id, $optionid);
-        $bookingisteacher = booking_check_if_teacher ($option->option);
     }
 
     if (!$course) {
         return;
     }
 
+    if (!is_null($optionid) AND $optionid > 0) {
+        $option = $DB->get_record('booking_options', array('id' => $optionid));
+        $booking = $DB->get_record('booking', array('id' => $option->bookingid));
+
+        if (has_capability('mod/booking:updatebooking', $context) ||
+            has_capability('mod/booking:addeditownoption', $context)) {
+            $navref->add(get_string('edit', 'core'),
+                    new moodle_url('/mod/booking/editoptions.php',
+                            array('id' => $cm->id, 'optionid' => $optionid)));
+        }
+
+        $navref->add(get_string('sign_in_sheet_download', 'booking'),
+                    new moodle_url('/mod/booking/editoptions.php',
+                            array('id' => $cm->id, 'optionid' => $optionid),
+                            60,
+                            null,
+                            'sign_in_sheet_download'));
+    }
+
     if (has_capability('mod/booking:manageoptiontemplates', $context)) {
         $navref->add(get_string("saveinstanceastemplate", "mod_booking"),
             new moodle_url('instancetemplateadd.php', array('id' => $cm->id)));
-
-        if (is_null($optionid)) {
-            $navref->add(get_string("managecustomreporttemplates", "mod_booking"),
-                new moodle_url('customreporttemplates.php', array('id' => $cm->id)));
-        }
     }
 
     $remoterul = $DB->get_record('booking_remoteapi', ['course' => $course->id]);
@@ -1303,8 +1315,10 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     if (has_capability('mod/booking:updatebooking', $context)) {
         $navref->add(get_string('importcsvbookingoption', 'booking'),
                 new moodle_url('importoptions.php', array('id' => $cm->id)));
-        $navref->add(get_string('tagtemplates', 'booking'),
+        if (is_null($optionid)) {
+            $navref->add(get_string('tagtemplates', 'booking'),
                 new moodle_url('tagtemplates.php', array('id' => $cm->id)));
+        }
         $navref->add(get_string('importexcelbutton', 'booking'),
                 new moodle_url('importexcel.php', array('id' => $cm->id)));
     }
@@ -1313,12 +1327,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $option = $DB->get_record('booking_options', array('id' => $optionid));
         $booking = $DB->get_record('booking', array('id' => $option->bookingid));
 
-        if (has_capability('mod/booking:updatebooking', $context) ||
-            has_capability('mod/booking:addeditownoption', $context)) {
-            $navref->add(get_string('edit', 'core'),
-                    new moodle_url('/mod/booking/editoptions.php',
-                            array('id' => $cm->id, 'optionid' => $optionid)));
-        }
         if (has_capability('mod/booking:updatebooking', $context)) {
             $navref->add(get_string('duplicatebooking', 'booking'),
                     new moodle_url('/mod/booking/editoptions.php',

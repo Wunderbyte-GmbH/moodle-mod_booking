@@ -173,7 +173,11 @@ class booking_option_settings {
     public function __construct(int $optionid) {
 
         $cache = \cache::make('mod_booking', 'bookingoptionsettings');
-        $cachedoption = $cache->get($optionid);
+        if ($optionid > 0) {
+            $cachedoption = $cache->get($optionid);
+        } else {
+            $cachedoption = null;
+        }
 
         if (!$cachedoption) {
             $cachedoption = null;

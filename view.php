@@ -152,6 +152,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
     $bookingdata->apply_tags();
 
     if ($bookingdata->user_delete_response($USER->id)) {
+        $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
         echo $OUTPUT->header();
         $contents = html_writer::tag('p', get_string('bookingdeleted', 'booking'));
         $options = array('id' => $cm->id);
@@ -161,6 +162,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
         echo $OUTPUT->footer();
         die();
     } else {
+        $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
         echo $OUTPUT->header();
         $contents = get_string('cannotremovesubscriber', 'booking');
         $options = array('id' => $cm->id);
@@ -173,6 +175,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
 } else if ($action == 'delbooking' and confirm_sesskey() and
          has_capability('mod/booking:choose', $context) and
          ($booking->settings->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
+    $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
     echo $OUTPUT->header();
 
     $bookingdata = new \mod_booking\booking_option($cm->id, $optionid);
@@ -233,6 +236,7 @@ if ($form && confirm_sesskey()) {
 
         // Submit any new data if there is any.
         if ($download == '' && has_capability('mod/booking:choose', $context)) {
+            $PAGE->activityheader->set_attrs(['hidecompletion' => true, 'description' => false]);
             echo $OUTPUT->header();
             $timenow = time();
 
