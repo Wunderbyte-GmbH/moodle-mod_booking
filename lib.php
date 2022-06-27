@@ -1526,8 +1526,8 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             $countcomplete = $DB->count_records('booking_answers',
                     array('bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1'));
 
-            if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcomplete) {
-                $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);
+            if ($completion->is_enabled($cm) && $booking->enablecompletion >= $countcomplete) {
+                $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser, true);
             }
         } else {
             $countcompletebefore = $DB->count_records('booking_answers',
@@ -1546,10 +1546,10 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
 
                 $DB->update_record('booking_answers', $userdata);
                 $countcomplete = $DB->count_records('booking_answers',
-                        array('bookingid' => $booking->id, 'userid' => $ui, 'completed' => '1'));
+                        array('bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1'));
 
                 if ($completion->is_enabled($cm) && $booking->enablecompletion <= $countcomplete) {
-                    $completion->update_state($cm, COMPLETION_COMPLETE, $ui);
+                    $completion->update_state($cm, COMPLETION_COMPLETE, $selecteduser);
                 }
             }
         }
