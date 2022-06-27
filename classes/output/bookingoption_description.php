@@ -51,6 +51,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var bool $invisible is the booking option invisible to normal users? */
     public $invisible = null;
 
+    /** @var string $annotation internal annotation */
+    public $annotation = null;
+
     /** @var int $userid */
     public $userid = null;
 
@@ -181,6 +184,9 @@ class bookingoption_description implements renderable, templatable {
         }
         $this->description = format_text($settings->description, FORMAT_HTML);
 
+        // Do the same for internal annotation.
+        $this->annotation = format_text($settings->annotation, FORMAT_HTML);
+
         // Currently, this will only get the description for the current user.
         $this->statusdescription = $bookingoption->get_option_text($bookinganswers);
 
@@ -277,6 +283,7 @@ class bookingoption_description implements renderable, templatable {
         $returnarray = array(
                 'title' => $this->title,
                 'invisible' => $this->invisible,
+                'annotation' => $this->annotation,
                 'modalcounter' => $this->modalcounter,
                 'userid' => $this->userid,
                 'description' => $this->description,

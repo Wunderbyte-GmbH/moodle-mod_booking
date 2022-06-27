@@ -156,6 +156,9 @@ class booking_option_settings {
     /** @var int $invisible */
     public $invisible = null;
 
+    /** @var int $annotation */
+    public $annotation = null;
+
     /** @var array $sessions */
     public $sessions = [];
 
@@ -257,6 +260,7 @@ class booking_option_settings {
             $this->semesterid = $dbrecord->semesterid;
             $this->dayofweektime = $dbrecord->dayofweektime;
             $this->invisible = $dbrecord->invisible;
+            $this->annotation = $dbrecord->annotation;
 
             // If the course module id (cmid) is not yet set, we load it. //TODO: bookingid 0 bei option templates berücksichtigen!!
             if (!isset($dbrecord->cmid)) {

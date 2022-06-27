@@ -21,12 +21,9 @@
 
 import Ajax from 'core/ajax';
 import {get_string as getString} from 'core/str';
-// import Notification from 'core/notification';
 
 /**
  * Gets called from mustache template.
- * @param {int} optionid
- * @param {int} userid
  */
 export const init = () => {
 

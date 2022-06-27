@@ -1008,6 +1008,8 @@ $string['optionvisibility_help'] = 'Here you can choose whether the option shoul
 $string['optionvisible'] = 'Visible to everyone (default)';
 $string['optioninvisible'] = 'Hide from normal users (visible to entitled users only)';
 $string['invisibleoption'] = 'Invisible booking option';
+$string['optionannotation'] = 'Internal annotation';
+$string['optionannotation_help'] = 'Add internal remarks, annotations or anything you want. It will only be shown in this form and nowhere else.';
 
 // Optionview.php.
 $string['invisibleoption:notallowed'] = 'You are not allowed to see this booking option.';
@@ -1752,6 +1754,6 @@ $string['optionformconfigsubtitle'] = '<p>Turn off features you do not need, in 
 <p><strong>BE CAREFUL:</strong> Only deactivate fields if you are completely sure that you won\'t need them!</p>';
 $string['optionformconfig:nobooking'] = 'You need to create at least one booking instance before you can use this form!';
 
-// tasks
+// Tasks.
 $string['optionbookabletitle'] = '{$a->title} is available again';
 $string['optionbookablebody'] = 'You can book {$a->title} now again. <a href="{$a->url}">Click on here</a> to directly go there.';

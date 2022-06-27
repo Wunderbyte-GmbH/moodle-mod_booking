@@ -2512,5 +2512,21 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022060900, 'booking');
     }
 
+    if ($oldversion < 2022062700) {
+
+        // Define field annotation to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('annotation', XMLDB_TYPE_TEXT, null, null, null, null, null,
+                'invisible');
+
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022062700, 'booking');
+    }
+
     return true;
 }

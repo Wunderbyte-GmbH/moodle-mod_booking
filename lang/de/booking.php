@@ -872,6 +872,8 @@ $string['optionvisibility_help'] = 'Stellen Sie ein, ob die Buchungsoption für 
 $string['optionvisible'] = 'Für alle sichtbar (Standard)';
 $string['optioninvisible'] = 'Vor normalen Nutzer_innen verstecken (nur für berechtigte Personen sichtbar)';
 $string['invisibleoption'] = 'Unsichtbare Buchungsoption';
+$string['optionannotation'] = 'Interne Anmerkung';
+$string['optionannotation_help'] = 'Fügen Sie interne Notizen bzw. Anmerkungen hinzu. Diese werden NUR in DIESEM Formular und sonst nirgendwo angezeigt.';
 
 // Optionview.php.
 $string['invisibleoption:notallowed'] = 'Sie sind nicht berechtigt, diese Buchungsoption zu sehen.';
@@ -1516,6 +1518,6 @@ $string['optionformconfigsubtitle'] = '<p>Hier können Sie nicht benötigte Funk
 <p><strong>ACHTUNG:</strong> Deaktivieren Sie nur Felder, von denen Sie sicher sind, dass Sie sie nicht benötigen!</p>';
 $string['optionformconfig:nobooking'] = 'Sie müssen zumindest eine Buchungsinstanz anlegen, bevor Sie dieses Formular nutzen können!';
 
-// tasks
+// Tasks.
 $string['optionbookabletitle'] = '{$a->title} wieder buchbar';
 $string['optionbookablebody'] = 'Sie können {$a->title} ab sofort wieder buchen. Klicken Sie <a href="{$a->url}">hier</a>, um direkt zur Buchungsmöglichkeit zu gelangen.';

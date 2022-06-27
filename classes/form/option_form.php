@@ -170,6 +170,17 @@ class option_form extends moodleform {
         $mform->setDefault('invisible', 0);
         $mform->addHelpButton('invisible', 'optionvisibility', 'mod_booking');
 
+        // Internal annotation.
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with editors.
+        // In expert mode, we do not hide anything.
+        if ($formmode == 'expert' ||
+            !isset($optionformconfig['annotation']) || $optionformconfig['annotation'] == 1) {
+            $mform->addElement('editor', 'annotation', get_string('optionannotation', 'mod_booking'));
+            $mform->setType('annotation', PARAM_CLEANHTML);
+            $mform->addHelpButton('annotation', 'optionannotation', 'mod_booking');
+        }
+
         // Location.
         $sql = 'SELECT DISTINCT location FROM {booking_options} ORDER BY location';
         $locationarray = $DB->get_fieldset_sql($sql);
@@ -631,6 +642,9 @@ class option_form extends moodleform {
         $defaultvalues->aftercompletedtext = array('text' => (isset($defaultvalues->aftercompletedtext) ?
             $defaultvalues->aftercompletedtext : ''), 'format' => FORMAT_HTML);
 
+        $defaultvalues->annotation = array('text' => (isset($defaultvalues->annotation) ?
+            $defaultvalues->annotation : ''), 'format' => FORMAT_HTML);
+
         if (isset($defaultvalues->bookingclosingtime) && $defaultvalues->bookingclosingtime) {
             $defaultvalues->restrictanswerperiod = "checked";
         }
@@ -716,6 +730,12 @@ class option_form extends moodleform {
                 $data->aftercompletedtext = $data->aftercompletedtext['text'];
             } else {
                 $data->aftercompletedtext = '';
+            }
+
+            if (isset($data->annotation)) {
+                $data->annotation = $data->annotation['text'];
+            } else {
+                $data->annotation = '';
             }
         }
 

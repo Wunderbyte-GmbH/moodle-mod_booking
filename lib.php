@@ -709,6 +709,12 @@ function booking_update_options($optionvalues, $context) {
     // Visibility of the option.
     $option->invisible = $optionvalues->invisible;
 
+    if (empty($optionvalues->annotation)) {
+        $option->annotation = "";
+    } else {
+        $option->annotation = $optionvalues->annotation;
+    }
+
     if (isset($optionvalues->pollurl)) {
         $option->pollurl = $optionvalues->pollurl;
     } else {
@@ -757,7 +763,7 @@ function booking_update_options($optionvalues, $context) {
     } else {
         $option->enrolmentstatus = 0;
     }
-    if (empty($option->description)) {
+    if (empty($optionvalues->description)) {
         $option->description = "";
     } else {
         $option->description = $optionvalues->description;

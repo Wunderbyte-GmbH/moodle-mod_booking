@@ -537,6 +537,7 @@ class csv_import {
         $bookingoption->description = '';
         $bookingoption->institution = '';
         $bookingoption->invisible = 0;
+        $bookingoption->annotation = '';
     }
 
     /**
