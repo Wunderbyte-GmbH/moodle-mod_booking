@@ -1251,6 +1251,33 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         return;
     }
 
+    if (is_null($optionid)) {
+        $navref->add(get_string('goenrol', 'booking'),
+                    new moodle_url('#goenrol'));
+    }
+
+    if (has_capability('mod/booking:updatebooking', $context) ||
+            has_capability('mod/booking:addeditownoption', $context)) {
+        $navref->add(get_string('addnewbookingoption', 'booking'),
+                new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => '')));
+                // Fixed: For a new booking option, optionid needs to be empty.
+    }
+
+    if (has_capability('mod/booking:updatebooking', $context)) {
+        $navref->add(get_string("reports", "mod_booking"),
+                new moodle_url('reports.php', array('id' => $cm->id)));
+    }
+
+    if (has_capability('mod/booking:updatebooking', $context)) {
+        $navref->add(get_string('importcsvbookingoption', 'booking'),
+                new moodle_url('importoptions.php', array('id' => $cm->id)));
+    }
+
+    if (has_capability('mod/booking:manageoptiontemplates', $context)) {
+        $navref->add(get_string("manageoptiontemplates", "mod_booking"),
+            new moodle_url('optiontemplatessettings.php', array('id' => $cm->id)));
+    }
+
     if (!is_null($optionid) AND $optionid > 0) {
         $option = $DB->get_record('booking_options', array('id' => $optionid));
         $booking = $DB->get_record('booking', array('id' => $option->bookingid));
@@ -1288,20 +1315,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             $navref->add(get_string('callremotesync', 'booking'),
                 new moodle_url($rurl, null, '" target="_blank"'));
         }
-        $navref->add(get_string("reports", "mod_booking"),
-                new moodle_url('reports.php', array('id' => $cm->id)));
-    }
-
-    if (has_capability('mod/booking:updatebooking', $context) ||
-            has_capability('mod/booking:addeditownoption', $context)) {
-        $navref->add(get_string('addnewbookingoption', 'booking'),
-                new moodle_url('editoptions.php', array('id' => $cm->id, 'optionid' => '')));
-                // Fixed: For a new booking option, optionid needs to be empty.
-    }
-
-    if (has_capability('mod/booking:manageoptiontemplates', $context)) {
-        $navref->add(get_string("manageoptiontemplates", "mod_booking"),
-            new moodle_url('optiontemplatessettings.php', array('id' => $cm->id)));
     }
 
     $urlparam = array('id' => $cm->id, 'optionid' => -1);
@@ -1313,8 +1326,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     }
 
     if (has_capability('mod/booking:updatebooking', $context)) {
-        $navref->add(get_string('importcsvbookingoption', 'booking'),
-                new moodle_url('importoptions.php', array('id' => $cm->id)));
         if (is_null($optionid)) {
             $navref->add(get_string('tagtemplates', 'booking'),
                 new moodle_url('tagtemplates.php', array('id' => $cm->id)));

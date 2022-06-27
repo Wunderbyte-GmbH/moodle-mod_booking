@@ -23,6 +23,7 @@
     Data attributes required for JS:
     * data-region
 }}
+{{#bookingoptions.length}}
 <div class='list-group bookingoptions'>
 {{#bookingoptions}}
         <a class="list-group-item list-group-item-action" href={{linktooption}}>
@@ -45,3 +46,4 @@
         </a>
 {{/bookingoptions}}
 </div>
+{{/bookingoptions.length}}
