@@ -295,7 +295,8 @@ class booking_utils {
 
             $url = new moodle_url($baseurl . '/mod/booking/view.php', $buttonoptions);
 
-            $button = '<div class="col-ap-booknow">' . $OUTPUT->single_button($url,
+            $button = '<div class="col-ap-booknow">' .
+            $OUTPUT->single_button($url,
                     (empty($values->btnbooknowname) ? get_string('booknow', 'booking') : $values->btnbooknowname),
                     $buttonmethod) . '</div>';
         }

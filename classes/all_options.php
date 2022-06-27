@@ -64,16 +64,6 @@ class all_options extends table_sql {
         $this->tags = new booking_tags($cm->course);
     }
 
-    protected function col_selected($values) {
-        if (!$this->is_downloading()) {
-            return '<input id="check' . $values->id .
-                     '" type="checkbox" class="optioncheckbox" name="option[][' . $values->id .
-                     ']" value="' . $values->id . '" />';
-        } else {
-            return '';
-        }
-    }
-
     protected function col_id($values) {
         global $OUTPUT;
 
@@ -348,51 +338,6 @@ class all_options extends table_sql {
                 return '';
             }
         }
-    }
-
-    public function wrap_html_start() {
-        echo '<form method="post" id="optionsform" class="mform">' . "\n";
-    }
-
-    public function wrap_html_finish() {
-        global $OUTPUT;
-
-        echo '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
-
-        $manageusersoptions = [];
-
-        if (has_capability('mod/booking:updatebooking', \context_module::instance($this->cm->id))) {
-            $manageusersoptions[] = [
-                'value' => 'deleteoptions',
-                'label' => get_string('deleteselectedoptions', 'booking')
-            ];
-        }
-
-        if (!empty($manageusersoptions)) {
-            array_unshift($manageusersoptions, ['value' => '', 'label' => '']);
-            $data = array(
-                'label' => get_string('selectaction', 'mod_booking'),
-                'base' => '',
-                'name' => 'massactions',
-                'params' => [],
-                'options' => $manageusersoptions,
-                'submit' => s(get_string('submit')),
-            );
-
-            $availableoptions = $OUTPUT->render_from_template('booking/dataformat_selector', $data);
-
-            echo '<br>';
-            echo '<div class="container-fluid">';
-            echo '  <div class="row">';
-            echo '      <div class="col-6">';
-            echo            $availableoptions;
-            echo '      </div>';
-            echo '  </div>';
-            echo '</div>';
-        }
-
-        echo '</form>';
-        echo "<hr>";
     }
 
     /**

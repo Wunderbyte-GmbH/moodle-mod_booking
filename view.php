@@ -348,15 +348,9 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $tablealloptions->is_downloadable(false);
     }
     $tablealloptions->show_download_buttons_at(array(TABLE_P_BOTTOM));
-    $tablealloptions->no_sorting('selected');
 
     $columns = array();
     $headers = array();
-
-    if (has_capability('mod/booking:updatebooking', $context)) {
-        $columns[] = 'selected';
-        $headers[] = '<input type="checkbox" id="optioncheckboxall" name="selectall" value="0" />';
-    }
 
     if (!$tablealloptions->is_downloading()) {
         comment::init();
