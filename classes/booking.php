@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
 
+use block_xp\local\sql\limit;
 use course_modinfo;
 use html_writer;
 use moodle_exception;
@@ -195,11 +196,11 @@ class booking {
      *
      * @return array of booking options records
      */
-    public function get_all_options($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "bo.id") {
+    public function get_all_options($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "*") {
 
         global $DB;
 
-        list($fields, $from, $where, $params) = $this->get_all_options_sql($limitfrom, $limitnum, $searchtext, $fields);
+        list($fields, $from, $where, $params) = self::get_all_options_sql($limitfrom, $limitnum, $searchtext, $fields, $this->context);
 
         return $DB->get_records_sql(
             "SELECT $fields FROM $from WHERE $where", $params);
@@ -564,17 +565,44 @@ class booking {
 
     /**
      * Genereate SQL and params array to fetch all options.
+     * No prefixes for the columsn we retrieve, so *, id, etc.
+     * If we don't pass on the context object, invisible options are excluded.
      *
      * @param integer $limitfrom
      * @param integer $limitnum
      * @param string $searchtext
-     * @param string $fields∂ƒ
+     * @param string $fields
+     * @param object $context
      * @return void
      */
-    public function get_all_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "bo.*") {
+    public static function get_all_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = null, $context = null) {
         global $DB;
 
-        $fields = "s1.*";
+        return self::get_options_filter_sql($limitfrom, $limitnum, $searchtext, $fields, $context);
+    }
+
+
+    public static function get_options_filter_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "*", $context = null, $filterarray = []) {
+
+        if (empty($fields)) {
+            $fields = "*";
+        }
+
+        // While we get in die Fields selector only the columns or *, we need to use the right prefix internally.
+        $fieldsarray = explode(', ', $fields);
+        $fields = '';
+
+        $counter = 1;
+        foreach ($fieldsarray as $field) {
+            $fields .= "s1.$field";
+            if (count($fieldsarray) < $counter) {
+                $fields .= ", ";
+            }
+            $counter++;
+        }
+
+        $fields .= " ";
+
         $where = '';
 
         $params = [];
@@ -588,9 +616,9 @@ class booking {
                     ) s1";
 
         // If the user does not have the capability to see invisible options...
-        if (!has_capability('mod/booking:canseeinvisibleoptions', $this->context)) {
+        if (!$context || !has_capability('mod/booking:canseeinvisibleoptions', $context)) {
             // ... then only show visible options.
-            $where = "bo.invisible = 0 ";
+            $where = "s1.invisible = 0 ";
         } else {
             // The "Where"-clause is always added so we have to have something here for the sql to work.
             $where = "1=1 ";
@@ -626,13 +654,12 @@ class booking {
         $where .= " $where2 ";
         $where .= " $where3 ";
 
+        foreach ($filterarray as $key => $value) {
+            $where .= " AND s1.$key LIKE $value ";
+        }
+
         return [$fields, $from, $where, $params];
-    }
 
-    public static function get_option_sql(int $optionid) {
-
-        $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);
-        return $booking->get_all_options(0, 0, "optionid=$optionid");
     }
 
     /**
@@ -643,32 +670,9 @@ class booking {
      * @param [type] $teacherid
      * @return void
      */
-    public function get_all_options_of_teacher_sql($teacherid,
-        $fields = "bo.*") {
+    public function get_all_options_of_teacher_sql($teacherid) {
 
-        $fields = "DISTINCT " . $fields;
-
-        $bookingid = $this->id;
-
-        $from = '{booking_options} bo
-                LEFT JOIN {booking_teachers} bt
-                ON bo.id = bt.optionid';
-
-        $where = "bo.bookingid = :bookingid
-                AND bt.userid = :teacherid";
-
-        // If the user does not have the capability to see invisible options...
-        if (!has_capability('mod/booking:canseeinvisibleoptions', $this->context)) {
-            // ... then only show visible options.
-            $where .= " AND bo.invisible = 0";
-        }
-
-        $params = [
-            'bookingid' => $bookingid,
-            'teacherid' => $teacherid
-        ];
-
-        return [$fields, $from, $where, $params];
+        return self::get_options_filter_sql(0, 0, '', '*', null, null, ['teacherobjects' => "$teacherid"]);
     }
 
     /**
