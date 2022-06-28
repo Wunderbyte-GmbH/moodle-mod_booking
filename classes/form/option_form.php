@@ -170,6 +170,15 @@ class option_form extends moodleform {
         $mform->setDefault('invisible', 0);
         $mform->addHelpButton('invisible', 'optionvisibility', 'mod_booking');
 
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with editors.
+        // In expert mode, we do not hide anything.
+        if ($formmode == 'expert' ||
+            !isset($optionformconfig['description']) || $optionformconfig['description'] == 1) {
+            $mform->addElement('editor', 'description', get_string('description'));
+            $mform->setType('description', PARAM_CLEANHTML);
+        }
+
         // Internal annotation.
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with editors.
@@ -321,15 +330,6 @@ class option_form extends moodleform {
         } else {
             // Otherwise, we have the usual behavior depending on the startendtimeknown checkbox.
             $mform->disabledIf('addtocalendar', 'startendtimeknown', 'notchecked');
-        }
-
-        // Workaround: Only show, if it is not turned off in the option form config.
-        // We currently need this, because hideIf does not work with editors.
-        // In expert mode, we do not hide anything.
-        if ($formmode == 'expert' ||
-            !isset($optionformconfig['description']) || $optionformconfig['description'] == 1) {
-            $mform->addElement('editor', 'description', get_string('description'));
-            $mform->setType('description', PARAM_CLEANHTML);
         }
 
         $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'booking'), array('size' => '64'));
