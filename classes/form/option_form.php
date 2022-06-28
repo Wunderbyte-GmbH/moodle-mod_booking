@@ -58,7 +58,7 @@ class option_form extends moodleform {
         }
 
         // Get booking option settings from cache or DB via singleton service.
-        if ($optionid != 0) {
+        if ($optionid > 0) {
             $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
         } else {
             $bookingoptionsettings = null;
