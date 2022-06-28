@@ -874,6 +874,10 @@ $string['optioninvisible'] = 'Vor normalen Nutzer_innen verstecken (nur für ber
 $string['invisibleoption'] = 'Unsichtbare Buchungsoption';
 $string['optionannotation'] = 'Interne Anmerkung';
 $string['optionannotation_help'] = 'Fügen Sie interne Notizen bzw. Anmerkungen hinzu. Diese werden NUR in DIESEM Formular und sonst nirgendwo angezeigt.';
+$string['optionidentifier'] = 'Identifikator';
+$string['optionidentifier_help'] = 'Geben Sie einen eindeutigen Identifikator für diese Buchungsoption an.';
+$string['titleprefix'] = 'Sichtbares Präfix';
+$string['titleprefix_help'] = 'Fügen Sie ein Präfix hinzu, das vor dem Kursnamen angezeigt wird, z.B. "BB42".';
 
 // Optionview.php.
 $string['invisibleoption:notallowed'] = 'Sie sind nicht berechtigt, diese Buchungsoption zu sehen.';

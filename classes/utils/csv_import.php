@@ -538,6 +538,8 @@ class csv_import {
         $bookingoption->institution = '';
         $bookingoption->invisible = 0;
         $bookingoption->annotation = '';
+        $bookingoption->identifier = substr(str_shuffle(md5(microtime())), 0, 8);
+        $bookingoption->titleprefix = '';
     }
 
     /**

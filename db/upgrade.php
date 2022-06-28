@@ -2528,5 +2528,25 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022062700, 'booking');
     }
 
+    if ($oldversion < 2022062800) {
+
+        // Define field identifier to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $identifier = new xmldb_field('identifier', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'annotation');
+        // Conditionally launch add field identifier.
+        if (!$dbman->field_exists($table, $identifier)) {
+            $dbman->add_field($table, $identifier);
+        }
+
+        $titleprefix = new xmldb_field('titleprefix', XMLDB_TYPE_CHAR, '10', null, null, null, null, 'identifier');
+        // Conditionally launch add field identifier.
+        if (!$dbman->field_exists($table, $titleprefix)) {
+            $dbman->add_field($table, $titleprefix);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022062800, 'booking');
+    }
+
     return true;
 }

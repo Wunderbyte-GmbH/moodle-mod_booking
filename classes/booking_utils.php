@@ -1032,7 +1032,7 @@ class booking_utils {
                 // This will be set to true as soon as we have a really unique name.
                 $isreallyunique = false;
 
-                $key = substr(str_shuffle(md5(microtime())), 0, 5);
+                $key = substr(str_shuffle(md5(microtime())), 0, 8);
 
                 $uniquetext = $visiblename . $separator . $key;
 

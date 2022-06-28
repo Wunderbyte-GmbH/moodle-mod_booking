@@ -1010,6 +1010,10 @@ $string['optioninvisible'] = 'Hide from normal users (visible to entitled users 
 $string['invisibleoption'] = 'Invisible booking option';
 $string['optionannotation'] = 'Internal annotation';
 $string['optionannotation_help'] = 'Add internal remarks, annotations or anything you want. It will only be shown in this form and nowhere else.';
+$string['optionidentifier'] = 'Unique identifier';
+$string['optionidentifier_help'] = 'Add a unique identifier for this booking option.';
+$string['titleprefix'] = 'Visible prefix';
+$string['titleprefix_help'] = 'Add a prefix which will be shown before the option title, e.g. "BB42".';
 
 // Optionview.php.
 $string['invisibleoption:notallowed'] = 'You are not allowed to see this booking option.';

@@ -662,7 +662,23 @@ function booking_update_options($optionvalues, $context) {
         $option->dayofweektime = $optionvalues->dayofweektime;
     }
 
+    // Prefix to be shown before title of the booking option.
+    if (empty($optionvalues->titleprefix)) {
+        $option->titleprefix = '';
+    } else {
+        $option->titleprefix = $optionvalues->titleprefix;
+    }
+
+    // Unique identifier of the booking option.
+    if (empty($optionvalues->identifier)) {
+        $option->identifier = substr(str_shuffle(md5(microtime())), 0, 8);
+    } else {
+        $option->identifier = $optionvalues->identifier;
+    }
+
+    // Title of the booking option.
     $option->text = trim($optionvalues->text);
+
     if (!isset($optionvalues->howmanyusers) || empty($optionvalues->howmanyusers)) {
         $option->howmanyusers = 0;
     } else {

@@ -330,6 +330,7 @@ class external extends external_api {
      */
     public static function addbookingoption(
         $name,
+        $titleprefix = null,
         $targetcourseid = null,
         $courseid = null,
         $bookingid = null,
@@ -370,6 +371,7 @@ class external extends external_api {
 
         $params = self::validate_parameters(self::addbookingoption_parameters(),
                 array('name' => $name,
+                        'titleprefix' => $titleprefix, // Optional prefix to be shown before title.
                         'targetcourseid' => $targetcourseid, // Id of course where the booking option should be created.
                         'courseid' => $courseid, // Id of course where users should be inscribed when booked.
                         'bookingcmid' => $bookingid, // Moodle cm ID of the target booking instance.
@@ -425,6 +427,8 @@ class external extends external_api {
                 array(
                         'name' => new external_value(PARAM_TEXT,
                             'Booking option name', VALUE_REQUIRED),
+                        'titleprefix' => new external_value(PARAM_RAW,
+                            'Optional prefix to be shown before title', VALUE_DEFAULT, null),
                         'targetcourseid' => new external_value(PARAM_INT,
                                 'Id of course where this booking option should be created.', VALUE_DEFAULT, null),
                         'courseid' => new external_value(PARAM_INT,

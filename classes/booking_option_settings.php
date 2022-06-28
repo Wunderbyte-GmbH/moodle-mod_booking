@@ -42,6 +42,9 @@ class booking_option_settings {
     /** @var int $cmid */
     public $cmid = null;
 
+    /** @var string $identifier unique identifier of the booking option */
+    public $identifier = null;
+
     /** @var string $text */
     public $text = null;
 
@@ -214,14 +217,13 @@ class booking_option_settings {
         // If we don't get the cached object, we have to fetch it here.
         if ($dbrecord === null) {
             $dbrecord = $DB->get_record("booking_options", array("id" => $optionid));
-
         }
 
         if ($dbrecord) {
-
             // Fields in DB.
             $this->id = $optionid;
             $this->bookingid = $dbrecord->bookingid;
+            $this->identifier = $dbrecord->identifier;
             $this->text = $dbrecord->text;
             $this->maxanswers = $dbrecord->maxanswers;
             $this->maxoverbooking = $dbrecord->maxoverbooking;

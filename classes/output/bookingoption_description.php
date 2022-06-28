@@ -42,6 +42,9 @@ use templatable;
  */
 class bookingoption_description implements renderable, templatable {
 
+    /** @var string $identifier unique identifier of the booking option */
+    public $identifier = null;
+
     /** @var string $title the title (column text) as it is saved in db */
     public $title = null;
 
@@ -154,6 +157,8 @@ class bookingoption_description implements renderable, templatable {
 
         // These fields can be gathered directly from settings.
         $this->title = $settings->text;
+
+        $this->identifier = $settings->identifier;
 
         if (!empty($settings->imageurl)) {
             $this->imageurl = $settings->imageurl;
@@ -284,6 +289,7 @@ class bookingoption_description implements renderable, templatable {
                 'title' => $this->title,
                 'invisible' => $this->invisible,
                 'annotation' => $this->annotation,
+                'identifier' => $this->identifier,
                 'modalcounter' => $this->modalcounter,
                 'userid' => $this->userid,
                 'description' => $this->description,
