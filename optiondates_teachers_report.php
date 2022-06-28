@@ -57,7 +57,9 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
 
 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 booking_option::transform_unique_bookingoption_name_to_display_name($settings);
+
 $bookingoptionname = $settings->text;
+
 // File name and sheet name.
 $fileandsheetname = $bookingoptionname . "_teachers";
 
@@ -91,7 +93,10 @@ if (!$optiondatesteacherstable->is_downloading()) {
 
     echo get_string('linkfromreporttoeditteachers', 'mod_booking', $editteachersurl->out());
 
-    // Show header with booking option name.
+    // Show header with booking option name (and prefix if present).
+    if (!empty($settings->titleprefix)) {
+        $bookingoptionname = $settings->titleprefix . " - " . $bookingoptionname;
+    }
     echo "<h2 class='mt-5'>$bookingoptionname</h2>";
 
     // Header.

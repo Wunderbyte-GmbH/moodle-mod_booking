@@ -48,7 +48,10 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $title the title (column text) as it is saved in db */
     public $title = null;
 
-    /** @var int $modalcounter the title (column text) as it is saved in db */
+    /** @var string $titleprefix prefix to be shown before title */
+    public $titleprefix = null;
+
+    /** @var int $modalcounter */
     public $modalcounter = null;
 
     /** @var bool $invisible is the booking option invisible to normal users? */
@@ -157,6 +160,9 @@ class bookingoption_description implements renderable, templatable {
 
         // These fields can be gathered directly from settings.
         $this->title = $settings->text;
+
+        // Prefix to be shown before title.
+        $this->titleprefix = $settings->titleprefix;
 
         $this->identifier = $settings->identifier;
 
@@ -287,6 +293,7 @@ class bookingoption_description implements renderable, templatable {
 
         $returnarray = array(
                 'title' => $this->title,
+                'titleprefix' => $this->titleprefix,
                 'invisible' => $this->invisible,
                 'annotation' => $this->annotation,
                 'identifier' => $this->identifier,

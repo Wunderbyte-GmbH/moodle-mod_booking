@@ -43,6 +43,9 @@ class col_text_with_description implements renderable, templatable {
     /** @var string $text */
     public $text = null;
 
+    /** @var string $titleprefix */
+    public $titleprefix = null;
+
     /** @var string $description */
     public $description = null;
 
@@ -50,11 +53,13 @@ class col_text_with_description implements renderable, templatable {
      * Constructor
      * @param int $optionid option id
      * @param string $text the option's title (field 'text')
+     * @param string $titleprefix prefix to be shown before the title
      * @param string $description the option's description
      */
-    public function __construct(int $optionid, string $text, string $description) {
+    public function __construct(int $optionid, string $text, string $titleprefix, string $description) {
         $this->optionid = $optionid;
         $this->text = $text;
+        $this->titleprefix = $titleprefix;
         $this->description = $description;
     }
 
@@ -67,6 +72,7 @@ class col_text_with_description implements renderable, templatable {
         return array(
                 'optionid' => $this->optionid,
                 'text' => $this->text,
+                'titleprefix' => $this->titleprefix,
                 'description' => $this->description
         );
     }

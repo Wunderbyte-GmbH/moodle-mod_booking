@@ -62,6 +62,7 @@ class coursepage_available_options implements renderable, templatable {
         $this->bu = new booking_utils();
         $bookingid = $booking->id;
         $fields = "SELECT DISTINCT bo.id,
+                         bo.titleprefix,
                          bo.text,
                          bo.address,
                          bo.description,
@@ -210,6 +211,7 @@ class coursepage_available_options implements renderable, templatable {
 
             $this->bookingoptions[] = [
                     'bookingoptionname' => $record->text,
+                    'titleprefix' => $record->titleprefix,
                     'dates' => $dates,
                     'button' => $button,
                     'linktooption' => $linkonoption

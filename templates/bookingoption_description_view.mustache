@@ -28,7 +28,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-8">
-            <h2 class="title" >{{title}}</h2>
+            <h2 class="title" >{{#titleprefix}}{{.}} - {{/titleprefix}}{{title}}</h2>
             {{#invisible}}
                 <div class="booking-option-info-invisible">{{#str}} invisibleoption, mod_booking {{/str}}</div>
             {{/invisible}}

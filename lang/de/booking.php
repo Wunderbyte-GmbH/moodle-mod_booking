@@ -877,7 +877,8 @@ $string['optionannotation_help'] = 'Fügen Sie interne Notizen bzw. Anmerkungen 
 $string['optionidentifier'] = 'Identifikator';
 $string['optionidentifier_help'] = 'Geben Sie einen eindeutigen Identifikator für diese Buchungsoption an.';
 $string['titleprefix'] = 'Sichtbares Präfix';
-$string['titleprefix_help'] = 'Fügen Sie ein Präfix hinzu, das vor dem Kursnamen angezeigt wird, z.B. "BB42".';
+$string['titleprefix_help'] = 'Fügen Sie ein Präfix hinzu, das vor dem Titel angezeigt wird, z.B. "BB42".';
+$string['error:identifierexists'] = 'Wählen Sie einen anderen Identifikator. Dieser existiert bereits.';
 
 // Optionview.php.
 $string['invisibleoption:notallowed'] = 'Sie sind nicht berechtigt, diese Buchungsoption zu sehen.';

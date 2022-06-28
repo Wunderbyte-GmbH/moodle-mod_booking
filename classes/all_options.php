@@ -33,6 +33,7 @@ use stdClass;
 use table_sql;
 use mod_booking\booking;
 use mod_booking\booking_tags;
+use mod_booking\output\bookingoption_description;
 
 class all_options extends table_sql {
 
@@ -269,7 +270,7 @@ class all_options extends table_sql {
 
         $forbookeduser = $values->iambooked == 1 ? true : false;
 
-        $data = new \mod_booking\output\bookingoption_description($this->booking, $values->id,
+        $data = new bookingoption_description($this->booking, $values->id,
             null, DESCRIPTION_WEBSITE, true, $forbookeduser);
 
         $data->invisible = false;

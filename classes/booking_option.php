@@ -1504,7 +1504,7 @@ class booking_option {
     public function get_other_options() {
         global $DB;
         return $result = $DB->get_records_sql(
-                'SELECT obo.id, obo.text, oba.id, oba.userid
+                'SELECT obo.id, obo.text, obo.titleprefix, oba.id, oba.userid
                   FROM {booking_answers} oba
              LEFT JOIN {booking_options} obo ON obo.id = oba.optionid
                  WHERE oba.frombookingid = ?',

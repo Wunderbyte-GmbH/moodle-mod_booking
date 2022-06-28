@@ -1014,6 +1014,7 @@ $string['optionidentifier'] = 'Unique identifier';
 $string['optionidentifier_help'] = 'Add a unique identifier for this booking option.';
 $string['titleprefix'] = 'Visible prefix';
 $string['titleprefix_help'] = 'Add a prefix which will be shown before the option title, e.g. "BB42".';
+$string['error:identifierexists'] = 'Choose another identifier. This one already exists.';
 
 // Optionview.php.
 $string['invisibleoption:notallowed'] = 'You are not allowed to see this booking option.';

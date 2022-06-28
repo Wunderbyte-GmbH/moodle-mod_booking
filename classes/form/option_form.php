@@ -105,18 +105,20 @@ class option_form extends moodleform {
             $optiontemplates);
 
         // Booking option identifier.
-        $mform->addElement('text', 'identifier', get_string('optionidentifier', 'mod_booking'), array('size' => '28'));
-        $mform->addRule('text', get_string('required'), 'required', null, 'client');
-        $mform->addRule('text', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-        $mform->setType('text', PARAM_TEXT);
+        $mform->addElement('text', 'identifier', get_string('optionidentifier', 'mod_booking'), array('size' => '10'));
+        $mform->addRule('identifier', get_string('required'), 'required', null, 'client');
+        $mform->addRule('identifier', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+        $mform->setType('identifier', PARAM_TEXT);
+        $mform->addHelpButton('identifier', 'optionidentifier', 'mod_booking');
         // By default, a random identifier will be generated.
         $randomidentifier = substr(str_shuffle(md5(microtime())), 0, 8);
         $mform->setDefault('identifier', $randomidentifier);
 
         // Prefix to be shown before the title.
         $mform->addElement('text', 'titleprefix', get_string('titleprefix', 'mod_booking'), array('size' => '10'));
-        $mform->addRule('text', get_string('maximumchars', '', 10), 'maxlength', 10, 'client');
-        $mform->setType('text', PARAM_TEXT);
+        $mform->addRule('titleprefix', get_string('maximumchars', '', 10), 'maxlength', 10, 'client');
+        $mform->setType('titleprefix', PARAM_TEXT);
+        $mform->addHelpButton('titleprefix', 'titleprefix', 'mod_booking');
 
         // Booking option name.
         $mform->addElement('text', 'text', get_string('bookingoptionname', 'mod_booking'), array('size' => '64'));
@@ -623,6 +625,14 @@ class option_form extends moodleform {
             $groupid = groups_get_group_by_name($data['courseid'], $groupname);
             if ($groupid && $data['optionid'] == 0) {
                 $errors['text'] = get_string('groupexists', 'mod_booking');
+            }
+        }
+
+        if (isset($data['identifier'])) {
+            $sql = "SELECT id FROM {booking_options} WHERE id <> :optionid AND identifier = :identifier";
+            $params = ['optionid' => $data['optionid'], 'identifier' => $data['identifier']];
+            if ($DB->get_records_sql($sql, $params)) {
+                $errors['identifier'] = get_string('error:identifierexists', 'mod_booking');
             }
         }
 

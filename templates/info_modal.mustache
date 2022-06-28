@@ -24,7 +24,7 @@
     * data-region
 }}
 <a href="#" data-toggle="modal" data-target="#descriptionModal{{modalcounter}}">
-    <h5><i class="fa fa-info-circle"></i> {{modaltitle}}</h5>
+    <h5><i class="fa fa-info-circle"></i> {{#titleprefix}}{{.}} - {{/titleprefix}}{{modaltitle}}</h5>
 </a>
 <div class="modal fade" id="descriptionModal{{modalcounter}}" tabindex="-1" role="dialog"
     aria-labelledby="descriptionModalLabel" aria-hidden="true">

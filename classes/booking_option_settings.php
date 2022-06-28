@@ -45,6 +45,9 @@ class booking_option_settings {
     /** @var string $identifier unique identifier of the booking option */
     public $identifier = null;
 
+    /** @var string $titleprefix prefix to be shown before title of the booking option */
+    public $titleprefix = null;
+
     /** @var string $text */
     public $text = null;
 
@@ -224,6 +227,7 @@ class booking_option_settings {
             $this->id = $optionid;
             $this->bookingid = $dbrecord->bookingid;
             $this->identifier = $dbrecord->identifier;
+            $this->titleprefix = $dbrecord->titleprefix;
             $this->text = $dbrecord->text;
             $this->maxanswers = $dbrecord->maxanswers;
             $this->maxoverbooking = $dbrecord->maxoverbooking;

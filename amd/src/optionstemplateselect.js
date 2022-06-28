@@ -48,6 +48,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
 
                             // General
                             $("#id_text").val(obj.text);
+                            $("#id_titleprefix").val(obj.titleprefix);
                             $("#id_invisible").val(obj.invisible);
                             $("#id_annotation").val(obj.annotation);
                             $("#id_location").val(obj.location);

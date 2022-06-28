@@ -219,8 +219,14 @@ if ($action == 'deletebookingoption' && $confirm == 1 &&
     die();
 }
 
-$PAGE->navbar->add(format_string($bookingoption->option->text));
-$PAGE->set_title(format_string($bookingoption->booking->settings->name) . ": " . format_string($bookingoption->option->text));
+// Create title string and add prefix if one exists.
+$titlestring = $bookingoption->option->text;
+if (!empty($bookingoption->option->titleprefix)) {
+    $titlestring = $bookingoption->option->titleprefix . ' - ' . $titlestring;
+}
+
+$PAGE->navbar->add(format_string($titlestring));
+$PAGE->set_title(format_string($bookingoption->booking->settings->name) . ": " . format_string($titlestring));
 $PAGE->set_heading(format_string($course->fullname));
 
 if (isset($action) && $action == 'sendpollurlteachers' &&
@@ -243,7 +249,7 @@ $bookingoption->option->autoenrol = $bookingoption->booking->settings->autoenrol
 $tableallbookings = new \mod_booking\all_userbookings('mod_booking_all_users_sort_new', $bookingoption, $cm, $optionid);
 
 // Bugfix: Replace special characters to prevent errors.
-$filename = str_replace(' ', '_', $bookingoption->option->text); // Replaces all spaces with underscores.
+$filename = str_replace(' ', '_', $titlestring); // Replaces all spaces with underscores.
 $filename = preg_replace('/[^A-Za-z0-9\_]/', '', $filename); // Removes special chars.
 $filename = preg_replace('/\_+/', '_', $filename); // Replace multiple underscores with exactly one.
 $filename = format_string($filename);
@@ -615,7 +621,7 @@ if (!$tableallbookings->is_downloading()) {
     echo $OUTPUT->heading(
             html_writer::link(new moodle_url('/mod/booking/view.php', array('id' => $cm->id)),
                     format_string($bookingoption->booking->settings->name)) . ' > ' .
-                        format_string($bookingoption->option->text), 4);
+                        format_string($titlestring), 4);
 
     $teachers = array();
 
@@ -791,7 +797,11 @@ if (!$tableallbookings->is_downloading()) {
             foreach ($tableallbookings->rawdata as $answer) {
                 foreach ($otheroptions as $option) {
                     if ($answer->userid == $option->userid) {
-                        $answer->otheroptions .= format_string($option->text) . ", ";
+                        $otheroptiontitle = $option->text;
+                        if (!empty($option->titleprefix)) {
+                            $otheroptiontitle = $option->titleprefix . " - " . $otheroptiontitle;
+                        }
+                        $answer->otheroptions .= format_string($otheroptiontitle) . ", ";
                     }
                 }
                 $answer->otheroptions = trim($answer->otheroptions, ', ');

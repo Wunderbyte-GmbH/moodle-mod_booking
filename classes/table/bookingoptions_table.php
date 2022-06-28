@@ -164,6 +164,7 @@ class bookingoptions_table extends wunderbyte_table {
             $data->url = '#';
         }
         $data->title = $values->text;
+        $data->titleprefix = $values->titleprefix;
 
         // We will have a number of modals on this site, therefore we have to distinguish them.
         // This is in case we render modal.

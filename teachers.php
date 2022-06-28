@@ -131,10 +131,17 @@ if (has_capability('mod/booking:updatebooking', $context)) {
     unset($USER->subscriptionsediting);
 }
 echo $output->header();
+
+// Create title string and add prefix if one exists.
+$titlestring = $booking->option->text;
+if (!empty($booking->option->titleprefix)) {
+    $titlestring = $booking->option->titleprefix . ' - ' . $titlestring;
+}
+
 if ($edit === 1) {
-    echo $output->heading(get_string('addteachers', 'booking') . " [{$booking->option->text}]");
+    echo $output->heading(get_string('addteachers', 'booking') . " [{$titlestring}]");
 } else {
-    echo $output->heading(get_string('teachers', 'booking') . " [{$booking->option->text}]");
+    echo $output->heading(get_string('teachers', 'booking') . " [{$titlestring}]");
 }
 
 // Dismissible alert warning.
