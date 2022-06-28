@@ -194,15 +194,21 @@ class booking_option_settings {
      * Constructor for the booking option settings class.
      *
      * @param int $optionid Booking option id.
+     * @param stdClass $dbrecord of bookig option.
      * @throws dml_exception
      */
-    public function __construct(int $optionid) {
+    public function __construct(int $optionid, stdClass $dbrecord = null) {
 
         $cache = \cache::make('mod_booking', 'bookingoptionsettings');
         $cachedoption = $cache->get($optionid);
 
         if (!$cachedoption) {
-            $cachedoption = null;
+            if (!$dbrecord) {
+                $cachedoption = null;
+            } else {
+                $cachedoption = $dbrecord;
+            }
+
         }
 
         // If we have no object to pass to set values, the function will retrieve the values from db.
