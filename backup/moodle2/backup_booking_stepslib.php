@@ -172,8 +172,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
             $price->set_source_table('booking_prices', array('optionid' => backup::VAR_PARENTID));
         }
 
-        // Only backup (or duplicate) entities, if config setting is set.
-        if (get_config('booking', 'duplicationrestoreentities')) {
+        // Only backup (or duplicate) entities, if config setting is set AND if entities are available.
+        if (get_config('booking', 'duplicationrestoreentities') && class_exists('local_entities/entitiesrelation_handler')) {
             $entitiesrelation->set_source_table('local_entities_relations', ['instanceid' => backup::VAR_PARENTID]);
         }
 

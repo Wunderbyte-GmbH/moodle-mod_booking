@@ -23,6 +23,7 @@
  */
 
 use mod_booking\optiondates_handler;
+use local_entities\entitiesrelation_handler;
 
 /**
  * Structure step to restore one booking activity
@@ -194,11 +195,14 @@ class restore_booking_activity_structure_step extends restore_activity_structure
     protected function process_booking_entity($data) {
         global $DB;
 
-        $data = (object) $data;
-        $data->instanceid = $this->get_mappingid('booking_option', $data->instanceid);
-        $data->timecreated = time();
-        $DB->insert_record('local_entities_relations', $data);
-        // No need to save this mapping as far as nothing depends on it.
+        // Make sure, we have local_entities installed.
+        if (get_config('booking', 'duplicationrestoreentities') && class_exists('local_entities/entitiesrelation_handler')) {
+            $data = (object) $data;
+            $data->instanceid = $this->get_mappingid('booking_option', $data->instanceid);
+            $data->timecreated = time();
+            $DB->insert_record('local_entities_relations', $data);
+            // No need to save this mapping as far as nothing depends on it.
+        }
     }
 
     protected function process_booking_customfield($data) {
