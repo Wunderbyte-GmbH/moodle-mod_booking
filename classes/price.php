@@ -77,21 +77,6 @@ class price {
                 get_string('bookingoptionprice', 'booking'));
         }
 
-        // Only when there is an actual price formula, we do apply it.
-        $priceformula = get_config('booking', 'defaultpriceformula');
-        if (!empty($priceformula)) {
-            // First we see if we want to show the checkbox at all.
-            $mform->addElement('checkbox', 'defaultpriceformula_use', get_string('defaultpriceformula_use', 'booking'));
-
-            // Then we show statically, what the formula will do.
-            $formulastring = self::return_formula_as_string($priceformula);
-
-            $newprice = self::calculate_price($priceformula, 'default');
-
-            $mform->addElement('static', 'defaultpriceformula_string', get_string('defaultpriceformula_string', 'booking'),
-                $formulastring);
-        }
-
         // If there are no price categories yet, show an info text.
         if (empty($this->pricecategories)) {
             $mform->addElement('static', 'nopricecategoriesyet', get_string('nopricecategoriesyet', 'booking'));
@@ -125,6 +110,44 @@ class price {
                 // Else we use the price category default values.
                 $mform->setDefault($pricearrayidentifier, $pricecategory->defaultvalue);
             }
+        }
+
+        // Only when there is an actual price formula, we do apply it.
+        $priceformula = get_config('booking', 'defaultpriceformula');
+        if (!empty($priceformula) && is_json($priceformula)) {
+
+            // Then we show statically, what the formula will do.
+            $formulastring = self::return_formula_as_string($priceformula);
+            // TODO: show pre-calculated prices.
+            $newprice = self::calculate_price($priceformula, 'default');
+
+            // Elements to apply price formula.
+            $mform->addElement('advcheckbox', 'priceformulaisactive', get_string('priceformulaisactive', 'mod_booking'),
+            null, null, [0, 1]);
+            $mform->setDefault('priceformulaisactive', 1);
+
+            $formulaobj = new stdClass;
+            $formulaobj->formula = $formulastring;
+
+            $formulainfo = '<div class="alert alert-warning" role="alert">' .
+                get_string('priceformulainfo', 'mod_booking', $formulaobj) . '</div>';
+
+            $formulagroup = [];
+            $formulagroup[] = $mform->createElement('static', 'priceformulainfo', '', $formulainfo);
+            $mform->addGroup($formulagroup, 'priceformulagroup', '', ' ', false);
+            $mform->hideIf('priceformulagroup', 'priceformulaisactive', 'noteq', 1);
+
+            // Manual factor (multiplier).
+            $mform->addElement('float', 'manualfactor', get_string('manualfactor', 'mod_booking'), null);
+            $mform->setDefault('manualfactor', 1);
+            $mform->addHelpButton('manualfactor', 'manualfactor', 'mod_booking');
+            $mform->hideIf('manualfactor', 'priceformulaisactive', 'noteq', 1);
+
+            // Absolute value (summand).
+            $mform->addElement('float', 'absolutevalue', get_string('absolutevalue', 'mod_booking'), null);
+            $mform->setDefault('absolutevalue', 0);
+            $mform->addHelpButton('absolutevalue', 'absolutevalue', 'mod_booking');
+            $mform->hideIf('absolutevalue', 'priceformulaisactive', 'noteq', 1);
         }
     }
 
@@ -161,6 +184,12 @@ class price {
         }
 
         foreach ($jsonobject as $formulacomponent) {
+
+            // For invalid JSON.
+            if (is_string($formulacomponent)) {
+                // We return the 0 price. This will cause the form not to validate, if we try to apply the formula.
+                return 0;
+            }
 
             $key = key($formulacomponent);
             $value = $formulacomponent->$key;
@@ -511,6 +540,12 @@ class price {
         $returnstring = '';
 
         foreach ($jsonobject as $formulacomponent) {
+
+            // For invalid JSON.
+            if (is_string($formulacomponent)) {
+                // We return the 0 price. This will cause the form not to validate, if we try to apply the formula.
+                continue;
+            }
 
             $key = key($formulacomponent);
             $value = $formulacomponent->$key;

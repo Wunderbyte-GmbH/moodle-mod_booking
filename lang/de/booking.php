@@ -1405,6 +1405,15 @@ $string['message_sent'] = 'Nachricht gesendet';
 
 // Price.php.
 $string['nopricecategoriesyet'] = 'Es wurden noch keine Preiskategorien angelegt.';
+$string['priceformulaisactive'] = 'Beim Speichern Preise mit Preisformel neu berechnen (aktuelle Preise werden überschrieben).';
+$string['priceformulainfo'] = 'Beim Speichern werden die folgenden Formel-Parameter verwendet, um die neuen Preise zu berechnen:<br>
+<code>{$a->formula}</code><br>
+<a href="/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Formel bearbeiten...</a><br>
+Unterhalb können Sie zusätzlich einen manuellen Faktor (Multiplikation) und einen Absolutwert (Addition) hinzufügen.';
+$string['manualfactor'] = 'Manueller Faktor';
+$string['manualfactor_help'] = 'Zusätzlicher Wert mit dem das Ergebnis <strong>multipliziert</strong> werden soll.';
+$string['absolutevalue'] = 'Absolutwert';
+$string['absolutevalue_help'] = 'Zusätzlicher Wert, der zum Ergebnis <strong>addiert</strong> werden soll.';
 
 // Pricecategories_form.php.
 $string['price'] = 'Preis';
@@ -1433,8 +1442,6 @@ $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kateg
 
 $string['defaultpriceformula'] = "Preisformel";
 $string['defaultpriceformuladesc'] = "Das JSON Objekt erlaubt die Konfiguation der automatischen Preisberechnung.";
-$string['defaultpriceformula_use'] = "Wende die Preisformel für diese Buchungsoption an.";
-$string['defaultpriceformula_string'] = "Die Formel sieht derzeit so aus:";
 
 // Semesters.
 $string['booking:semesters'] = 'Booking: Semester';

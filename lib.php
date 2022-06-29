@@ -2256,3 +2256,13 @@ function mod_booking_cm_info_view(cm_info $cm) {
         }
     }
 }
+
+/**
+ * Helper function to check if a string is valid JSON.
+ * @param $string the string to check
+ * @return bool true if valid json
+ */
+function is_json($string) {
+    json_decode($string);
+    return json_last_error() === JSON_ERROR_NONE;
+}
