@@ -1,3 +1,14 @@
+7.2.2 (2022062900)
+* New feature: Internal annotations for booking options.
+* Improvement: Moved 'description' up to a more prominent place in booking option form.
+* Bugfix: When no teacher was set for a booking option, teacher notifications were sent to participants.
+* Bugfix: Fixed broken duplication of booking options.
+
+7.2.1 (2022062200)
+* Bugfix: Fixed bug relating to invisible options.
+* Bugfix: Fixed bugs relating to (missing) entitities (removed dependencies to local_entitities).
+* Bugfix: Fixed missing JavaScript.
+
 7.2.0 (2022062100)
 * New feature: Possibility to reduce booking option form to necessary elements only (configure simple mode).
 * New feature: Toggle between simple mode and expert mode for booking option form.
