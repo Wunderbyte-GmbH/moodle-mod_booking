@@ -99,8 +99,13 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
         $description = $output->render_bookingoption_description_cartitem($data);
 
+        $optiontitle = $bookingoption->option->text;
+        if (!empty($bookingoption->option->titleprefix)) {
+            $optiontitle = $bookingoption->option->titleprefix . ' - ' . $optiontitle;
+        }
+
         return new cartitem($optionid,
-                            $bookingoption->option->text,
+                            $optiontitle,
                             $price['price'],
                             $price['currency'],
                             'mod_booking',
