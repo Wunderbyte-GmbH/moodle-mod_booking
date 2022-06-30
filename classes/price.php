@@ -119,15 +119,6 @@ class price {
         $priceformula = get_config('booking', 'defaultpriceformula');
         if (!empty($priceformula) && is_json($priceformula)) {
 
-            // Then we show statically, what the formula will do.
-
-            // Pre-calculate prices with formula.
-            $precalculatedprices = '';
-            foreach ($this->pricecategories as $pricecategory) {
-                $precalculatedprices .= '<strong>' . $pricecategory->identifier . ': </strong>' .
-                    self::calculate_price($priceformula, $pricecategory->identifier, $this->bookingoptionsettings) . '<br>';
-            }
-
             // Elements to apply price formula.
             $mform->addElement('advcheckbox', 'priceformulaisactive', get_string('priceformulaisactive', 'mod_booking'),
             null, null, [0, 1]);
@@ -135,7 +126,6 @@ class price {
 
             $formulaobj = new stdClass;
             $formulaobj->formula = $priceformula;
-            $formulaobj->precalculation = $precalculatedprices;
 
             $formulainfo = '<div class="alert alert-warning" role="alert">' .
                 get_string('priceformulainfo', 'mod_booking', $formulaobj) . '</div>';
@@ -320,16 +310,30 @@ class price {
 
     public function save_from_form(stdClass $fromform) {
 
+        $currency = get_config('booking', 'globalcurrency');
+        $formulastring = get_config('booking', 'defaultpriceformula');
+
         foreach ($this->pricecategories as $pricecategory) {
-            if (isset($fromform->{'pricegroup_' . $pricecategory->identifier})) {
+            if (!empty($fromform->priceformulaisactive) && $fromform->priceformulaisactive == "1") {
+                // Price formula is active, so let's calculate the values.
+                $price = self::calculate_price(
+                    $formulastring,
+                    $pricecategory->identifier,
+                    $this->bookingoptionsettings
+                );
 
-                $pricegroup = $fromform->{'pricegroup_' . $pricecategory->identifier};
+                // Add absolute value and multiply with manual factor.
+                $price *= $fromform->manualfactor;
+                $price += $fromform->absolutevalue;
+                self::add_price($fromform->optionid, $pricecategory->identifier, $price, $currency);
 
-                $price = $pricegroup['bookingprice_' . $pricecategory->identifier];
-                $categoryidentifier = $pricecategory->identifier;
-                $currency = get_config('booking', 'globalcurrency');
-
-                self::add_price($fromform->optionid, $categoryidentifier, $price, $currency);
+            } else {
+                if (isset($fromform->{'pricegroup_' . $pricecategory->identifier})) {
+                    // Price formula is not active, just save the values from form.
+                    $pricegroup = $fromform->{'pricegroup_' . $pricecategory->identifier};
+                    $price = $pricegroup['bookingprice_' . $pricecategory->identifier];
+                    self::add_price($fromform->optionid, $pricecategory->identifier, $price, $currency);
+                }
             }
         }
     }

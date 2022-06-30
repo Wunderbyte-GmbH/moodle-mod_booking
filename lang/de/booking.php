@@ -1412,12 +1412,6 @@ $string['priceformulainfo'] = '<a data-toggle="collapse" href="#priceformula" ro
 <div class="collapse" id="priceformula">
 <samp>{$a->formula}</samp>
 </div><br>
-<a data-toggle="collapse" href="#precalculation" role="button" aria-expanded="false" aria-controls="precalculation">
-<i class="fa fa-calculator"></i> Vorberechnung (nur Formel, ohne manuellen Faktor und Absolutwert)...
-</a>
-<div class="collapse" id="precalculation">
-<samp>{$a->precalculation}</samp>
-</div><br>
 <a href="/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Formel bearbeiten...</a><br><br>
 Unterhalb können Sie zusätzlich einen manuellen Faktor (Multiplikation) und einen Absolutwert (Addition) hinzufügen.';
 $string['manualfactor'] = 'Manueller Faktor';
