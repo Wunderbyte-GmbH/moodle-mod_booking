@@ -173,7 +173,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         }
 
         // Only backup (or duplicate) entities, if config setting is set AND if entities are available.
-        if (get_config('booking', 'duplicationrestoreentities') && class_exists('local_entities/entitiesrelation_handler')) {
+        if (get_config('booking', 'duplicationrestoreentities') && class_exists('local_entities\entitiesrelation_handler')) {
             $entitiesrelation->set_source_table('local_entities_relations', ['instanceid' => backup::VAR_PARENTID]);
         }
 

@@ -22,7 +22,9 @@ use core_user;
 use MoodleQuickForm;
 use stdClass;
 use lang_string;
+use local_entities\entitiesrelation_handler;
 use local_shopping_cart\shopping_cart;
+use mod_booking\booking_option_settings;
 
 /**
  * Price class.
@@ -48,6 +50,7 @@ class price {
 
         $this->pricecategories = $DB->get_records('booking_pricecategories', ['disabled' => 0]);
         $this->optionid = $optionid;
+        $this->bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
     }
 
     /**
@@ -117,9 +120,13 @@ class price {
         if (!empty($priceformula) && is_json($priceformula)) {
 
             // Then we show statically, what the formula will do.
-            $formulastring = self::return_formula_as_string($priceformula);
-            // TODO: show pre-calculated prices.
-            $newprice = self::calculate_price($priceformula, 'default');
+
+            // Pre-calculate prices with formula.
+            $precalculatedprices = '';
+            foreach ($this->pricecategories as $pricecategory) {
+                $precalculatedprices .= '<strong>' . $pricecategory->identifier . ': </strong>' .
+                    self::calculate_price($priceformula, $pricecategory->identifier, $this->bookingoptionsettings) . '<br>';
+            }
 
             // Elements to apply price formula.
             $mform->addElement('advcheckbox', 'priceformulaisactive', get_string('priceformulaisactive', 'mod_booking'),
@@ -127,7 +134,8 @@ class price {
             $mform->setDefault('priceformulaisactive', 1);
 
             $formulaobj = new stdClass;
-            $formulaobj->formula = $formulastring;
+            $formulaobj->formula = $priceformula;
+            $formulaobj->precalculation = $precalculatedprices;
 
             $formulainfo = '<div class="alert alert-warning" role="alert">' .
                 get_string('priceformulainfo', 'mod_booking', $formulaobj) . '</div>';
@@ -151,15 +159,27 @@ class price {
         }
     }
 
-    public static function calculate_price(string $priceformula, $pricecategoryidentifier, $bookingoption = null) {
+    /**
+     * Calculate the price using the JSON formula
+     * for a specific pricecategory within a booking option.
+     *
+     * @param string $priceformula the JSON string
+     * @param string $pricecategoryidentifier identifier of the price category
+     * @param booking_option_settings settings object of the booking option
+     *
+     * @return void
+     */
+    public static function calculate_price(string $priceformula, string $pricecategoryidentifier,
+        booking_option_settings $bookingoptionsettings = null) {
 
         global $DB;
 
         // For testing.
-        if (!$bookingoption) {
-            $bookingoption = new stdClass();
-            $bookingoption->dayofweektime = "Mo, 10:00 - 20:00";
-        }
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /*if (!$bookingoptionsettings) {
+            $bookingoptionsettings = new stdClass();
+            $bookingoptionsettings->dayofweektime = "Mo, 10:00 - 20:00";
+        }*/
 
         if (!$pricecategory = $DB->get_record('booking_pricecategories', ['disabled' => 0,
             'identifier' => $pricecategoryidentifier])) {
@@ -173,7 +193,7 @@ class price {
         }
 
         // We need the dayofweektime split up.
-        $dayinfo = optiondates_handler::prepare_day_info($bookingoption->dayofweektime);
+        $dayinfo = optiondates_handler::prepare_day_info($bookingoptionsettings->dayofweektime);
 
         // We start with the baseprice.
         $price = $pricecategory->defaultvalue;
@@ -195,18 +215,19 @@ class price {
             $value = $formulacomponent->$key;
 
             switch ($key) {
-                case 'starttime':
-                    // We apply the time identifier, but only once, after application we break the loop.
+                // We apply each factor only once, after application we break the loop.
+                case 'timeslot':
                     self::apply_time_factor($value, $dayinfo, $price);
-                break;
+                    break;
+                case 'unit':
+                    self::apply_unit_factor($value, $dayinfo, $price);
+                    break;
                 case 'customfield':
-                    // We apply the time identifier, but only once, after application we break the loop.
-                    self::apply_customfield_factor($value, null, $price);
-                break;
-                case 'mod_entities':
-                    // We apply the time identifier, but only once, after application we break the loop.
-                    self::apply_entities_factor($value, null, $price);
-                break;
+                    self::apply_customfield_factor($value, $bookingoptionsettings, $price);
+                    break;
+                case 'entity':
+                    self::apply_entity_factor($value, $bookingoptionsettings, $price);
+                    break;
             }
         }
 
@@ -231,26 +252,43 @@ class price {
     }
 
     /**
-     * Interprets the timepart of the jsonobject and applies the multiplier to the price, if necessary.
+     * Interprets the unit length of the dayinfo part of the jsonobject
+     * and applies the multiplier to the price, if necessary.
      *
-     * @param array $timeobject
+     * @param stdClass $unitobject
      * @param array $dayinfo
      * @param float $price
      * @return void
      */
-    private static function apply_customfield_factor($customfieldobject, $bookingoption, &$price) {
+    private static function apply_unit_factor($unitobject, $dayinfo, &$price) {
+        sscanf($dayinfo['starttime'], "%d:%d", $hours, $minutes);
+        $startminutes = $hours * 60 + $minutes;
+        sscanf($dayinfo['endtime'], "%d:%d", $hours, $minutes);
+        $endminutes = $hours * 60 + $minutes;
 
-        // For testing.
-        if (!$bookingoption) {
-            $bookingoption = new stdClass();
-            $bookingoption->customfield_sport = "Basketball";
+        $durationminutes = $endminutes - $startminutes;
+
+        if ($durationminutes > 0 && !empty($unitobject->length) && $unitobject->length != "0") {
+            $multiplier = round($durationminutes / $unitobject->length, 1);
+            $price = $price * $multiplier;
         }
+    }
+
+    /**
+     * Interprets the customfield part of the jsonobject and applies the multiplier to the price, if necessary.
+     *
+     * @param stdClass $customfieldobject
+     * @param booking_option_settings $bookingoptionsettings
+     * @param float $price
+     * @return void
+     */
+    private static function apply_customfield_factor($customfieldobject, $bookingoptionsettings, &$price) {
 
         foreach ($customfieldobject as $object) {
-            $key = "customfield_" . $object->name;
+            $key = $object->name;
             $value = strtolower($object->value);
-            if (isset($bookingoption->$key)) {
-                $fieldvalue = strtolower($bookingoption->$key);
+            if (!empty($bookingoptionsettings->customfields[$key][0])) {
+                $fieldvalue = strtolower($bookingoptionsettings->customfields[$key][0]);
                 if ($fieldvalue == $value) {
                     $price = $price * $object->multiplier;
                     break;
@@ -260,19 +298,23 @@ class price {
     }
 
     /**
-     * Interprets the timepart of the jsonobject and applies the multiplier to the price, if necessary.
+     * Interprets the entity part of the jsonobject and applies the multiplier to the price, if necessary.
      *
-     * @param array $timeobject
-     * @param array $dayinfo
+     * @param stdClass $entityobject
+     * @param booking_option_settings $bookingoptionsettings
      * @param float $price
      * @return void
      */
-    private static function apply_entities_factor($customfieldobject, $bookingoption, &$price) {
-
-        // For testing.
-        if (!$bookingoption) {
-            $bookingoption = new stdClass();
-            $bookingoption->customfield_sport = "Basketball";
+    private static function apply_entity_factor($entityobject, $bookingoptionsettings, &$price) {
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            if (!empty($bookingoptionsettings->entity['id'])) {
+                foreach ($entityobject as $object) {
+                    if (isset($object->entityid) && $object->entityid == $bookingoptionsettings->entity['id']) {
+                        $price = $price * $object->multiplier;
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -529,53 +571,6 @@ class price {
     }
 
     /**
-     * Translates the priceformula to a readable string.
-     *
-     * @param string $priceformula
-     * @return void
-     */
-    private static function return_formula_as_string(string $priceformula) {
-
-        $jsonobject = json_decode($priceformula);
-        $returnstring = '';
-
-        foreach ($jsonobject as $formulacomponent) {
-
-            // For invalid JSON.
-            if (is_string($formulacomponent)) {
-                // We return the 0 price. This will cause the form not to validate, if we try to apply the formula.
-                continue;
-            }
-
-            $key = key($formulacomponent);
-            $value = $formulacomponent->$key;
-
-            switch ($key) {
-                case 'starttime':
-                    $key = get_string($key, 'booking');
-                    $returnstring .= $key . "<br>";
-                    foreach ($value as $item) {
-
-                        $returnstring .= "    " . $item->starttime
-                                      . " - " . $item->endtime
-                                      . ", " . $item->weekdays
-                                      . ": times "
-                                      . $item->multiplier . "<br>";
-                    }
-                    break;
-                case 'customfield':
-                case 'mod_entities':
-                    $key = get_string($key, 'booking');
-                default:
-                    $returnstring .= $key;
-                    $returnstring .= "<br>";
-                    break;
-            }
-        }
-        return $returnstring;
-    }
-
-    /**
      * Check for weekdays & time to be in certain range
      * @param array $dayinfo
      * @param object $rangeinfo
@@ -596,22 +591,22 @@ class price {
         }
 
         sscanf($dayinfo['starttime'], "%d:%d", $hours, $minutes);
-        $framestartseconds = ($hours * 60 * 60) + ($minutes * 60);
+        $optionstartseconds = ($hours * 60 * 60) + ($minutes * 60);
         sscanf($dayinfo['endtime'], "%d:%d", $hours, $minutes);
-        $frameendseconds = $hours * 60 * 60 + $minutes * 60;
+        $optionendseconds = $hours * 60 * 60 + $minutes * 60;
 
         sscanf($rangeinfo->starttime, "%d:%d", $hours, $minutes);
-        $startseconds = $hours * 60 * 60 + $minutes * 60;
+        $rangestartseconds = $hours * 60 * 60 + $minutes * 60;
 
         sscanf($rangeinfo->endtime, "%d:%d", $hours, $minutes);
-        $endseconds = $hours * 60 * 60 + $minutes * 60;
+        $rangeendseconds = $hours * 60 * 60 + $minutes * 60;
 
-        if ($framestartseconds < $startseconds
-            && $frameendseconds > $startseconds) {
-
+        if ($rangestartseconds <= $optionstartseconds
+            && $rangeendseconds >= $optionendseconds) {
+                // It's in the time scope!
                 return true;
         }
-
+        // It's not in the time scope.
         return false;
     }
 }

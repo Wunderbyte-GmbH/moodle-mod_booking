@@ -244,9 +244,9 @@ if ($mform->is_cancelled()) {
         $price = new price($fromform->optionid);
         $price->save_from_form($fromform);
 
-        // This is to save er data
+        // This is to save entity relation data.
         // The id key has to be set to option id.
-        if (class_exists('local_entities/entitiesrelation_handler')) {
+        if (class_exists('local_entities\entitiesrelation_handler')) {
             $erhandler = new entitiesrelation_handler('bookingoption');
             $erhandler->instance_form_save($fromform, $fromform->optionid);
         }

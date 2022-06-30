@@ -196,7 +196,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         global $DB;
 
         // Make sure, we have local_entities installed.
-        if (get_config('booking', 'duplicationrestoreentities') && class_exists('local_entities/entitiesrelation_handler')) {
+        if (get_config('booking', 'duplicationrestoreentities') && class_exists('local_entities\entitiesrelation_handler')) {
             $data = (object) $data;
             $data->instanceid = $this->get_mappingid('booking_option', $data->instanceid);
             $data->timecreated = time();

@@ -1642,9 +1642,19 @@ $string['message_sent'] = 'Message sent';
 // Price.php.
 $string['nopricecategoriesyet'] = 'No price categories have been created yet.';
 $string['priceformulaisactive'] = 'On saving, calculate prices with price formula (this will overwrite current prices).';
-$string['priceformulainfo'] = 'On saving, the following formula parameters will be used to calculate the prices:<br>
-<code>{$a->formula}</code><br>
-<a href="/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Edit formula...</a><br>
+$string['priceformulainfo'] = '<a data-toggle="collapse" href="#priceformula" role="button" aria-expanded="false" aria-controls="priceformula">
+<i class="fa fa-code"></i> Show JSON for price formula...
+</a>
+<div class="collapse" id="priceformula">
+<samp>{$a->formula}</samp>
+</div><br>
+<a data-toggle="collapse" href="#precalculation" role="button" aria-expanded="false" aria-controls="precalculation">
+<i class="fa fa-calculator"></i> Pre-calculation (formula-only, without manual factor or absolute value)...
+</a>
+<div class="collapse" id="precalculation">
+<samp>{$a->precalculation}</samp>
+</div><br>
+<a href="/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Edit formula...</a><br><br>
 Below, you can additionally add a manual factor (multiplication) and an absolute value (addition) to be added to the formula.';
 $string['manualfactor'] = 'Manual factor';
 $string['manualfactor_help'] = 'Additional value to <strong>multiply</strong> the result with.';
