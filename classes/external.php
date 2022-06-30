@@ -366,6 +366,7 @@ class external extends external_api {
         $userusername = null,
         $coursestarttime = null,
         $courseendtime = null,
+        $invisible = null,
         $mergeparam = null
     ) {
 
@@ -407,6 +408,7 @@ class external extends external_api {
                         'user_username' => $userusername,
                         'coursestarttime' => $coursestarttime,
                         'courseendtime' => $courseendtime,
+                        'invisible' => $invisible,
                         'mergeparam' => $mergeparam));
 
         // We want to pass on an object to, so we clean all unnecessary values.
@@ -499,6 +501,9 @@ class external extends external_api {
                             'Time when booking option starts.', VALUE_DEFAULT, null),
                         'courseendtime' => new external_value(PARAM_TEXT,
                             'Time when booking option ends.', VALUE_DEFAULT, null),
+                        'invisible' => new external_value(PARAM_INT,
+                            'Default is 0 and visible. 1 will make the option invisible to students.',
+                            VALUE_DEFAULT, 0),
                         'mergeparam' => new external_value(PARAM_INT,
                             'To upload multisession in consecutive steps or to add teachers to option.
                             0 is no multisession, 1 is create ms, 2 is merge with previous, 3 is merge teacher to option',
