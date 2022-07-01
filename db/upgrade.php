@@ -2533,19 +2533,36 @@ function xmldb_booking_upgrade($oldversion) {
         // Define field identifier to be added to booking_options.
         $table = new xmldb_table('booking_options');
         $identifier = new xmldb_field('identifier', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'annotation');
-        // Conditionally launch add field identifier.
         if (!$dbman->field_exists($table, $identifier)) {
             $dbman->add_field($table, $identifier);
         }
 
         $titleprefix = new xmldb_field('titleprefix', XMLDB_TYPE_CHAR, '10', null, null, null, null, 'identifier');
-        // Conditionally launch add field identifier.
         if (!$dbman->field_exists($table, $titleprefix)) {
             $dbman->add_field($table, $titleprefix);
         }
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2022062800, 'booking');
+    }
+
+    if ($oldversion < 2022070100) {
+
+        $table = new xmldb_table('booking_options');
+
+        $priceformulaadd = new xmldb_field('priceformulaadd', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, '0', 'titleprefix');
+        if (!$dbman->field_exists($table, $priceformulaadd)) {
+            $dbman->add_field($table, $priceformulaadd);
+        }
+
+        $priceformulamultiply = new xmldb_field('priceformulamultiply', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, '1',
+            'priceformulaadd');
+        if (!$dbman->field_exists($table, $priceformulamultiply)) {
+            $dbman->add_field($table, $priceformulamultiply);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022070100, 'booking');
     }
 
     return true;

@@ -725,16 +725,25 @@ function booking_update_options($optionvalues, $context) {
     // Visibility of the option.
     $option->invisible = $optionvalues->invisible;
 
+    // Annotation field for internal remarks.
     if (empty($optionvalues->annotation)) {
         $option->annotation = "";
     } else {
         $option->annotation = $optionvalues->annotation;
     }
 
-    if (isset($optionvalues->pollurl)) {
-        $option->pollurl = $optionvalues->pollurl;
+    // Absolute value to be added to price calculation with formula.
+    if (isset($optionvalues->priceformulaadd)) {
+        $option->priceformulaadd = $optionvalues->priceformulaadd;
     } else {
-        $option->pollurl = '';
+        $option->priceformulaadd = 0; // Default: Add 0.
+    }
+
+    // Manual factor to be applied to price calculation with formula.
+    if (isset($optionvalues->priceformulamultiply)) {
+        $option->priceformulamultiply = $optionvalues->priceformulamultiply;
+    } else {
+        $option->priceformulamultiply = 1; // Default: Multiply with 1.
     }
 
     if (isset($optionvalues->pollurlteachers)) {

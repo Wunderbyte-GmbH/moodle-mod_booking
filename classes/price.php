@@ -135,16 +135,16 @@ class price {
             $mform->hideIf('priceformulagroup', 'priceformulaisactive', 'noteq', 1);
 
             // Manual factor (multiplier).
-            $mform->addElement('float', 'manualfactor', get_string('manualfactor', 'mod_booking'), null);
-            $mform->setDefault('manualfactor', 1);
-            $mform->addHelpButton('manualfactor', 'manualfactor', 'mod_booking');
-            $mform->hideIf('manualfactor', 'priceformulaisactive', 'noteq', 1);
+            $mform->addElement('float', 'priceformulamultiply', get_string('priceformulamultiply', 'mod_booking'), null);
+            $mform->setDefault('priceformulamultiply', 1);
+            $mform->addHelpButton('priceformulamultiply', 'priceformulamultiply', 'mod_booking');
+            $mform->hideIf('priceformulamultiply', 'priceformulaisactive', 'noteq', 1);
 
             // Absolute value (summand).
-            $mform->addElement('float', 'absolutevalue', get_string('absolutevalue', 'mod_booking'), null);
-            $mform->setDefault('absolutevalue', 0);
-            $mform->addHelpButton('absolutevalue', 'absolutevalue', 'mod_booking');
-            $mform->hideIf('absolutevalue', 'priceformulaisactive', 'noteq', 1);
+            $mform->addElement('float', 'priceformulaadd', get_string('priceformulaadd', 'mod_booking'), null);
+            $mform->setDefault('priceformulaadd', 0);
+            $mform->addHelpButton('priceformulaadd', 'priceformulaadd', 'mod_booking');
+            $mform->hideIf('priceformulaadd', 'priceformulaisactive', 'noteq', 1);
         }
     }
 
@@ -328,8 +328,8 @@ class price {
                 );
 
                 // Add absolute value and multiply with manual factor.
-                $price *= $fromform->manualfactor;
-                $price += $fromform->absolutevalue;
+                $price *= $fromform->priceformulamultiply;
+                $price += $fromform->priceformulaadd;
                 self::add_price($fromform->optionid, $pricecategory->identifier, $price, $currency);
 
             } else {

@@ -96,6 +96,12 @@ class bookingoption_description implements renderable, templatable {
     /** @var float $price */
     public $price = null;
 
+    /** @var float $priceformulaadd */
+    public $priceformulaadd = null;
+
+    /** @var float $priceformulamultiply */
+    public $priceformulamultiply = null;
+
     /** @var string $currency */
     public $currency = null;
 
@@ -234,6 +240,12 @@ class bookingoption_description implements renderable, templatable {
             }
         }
 
+        // Absolute value to be added to price calculation with formula.
+        $this->priceformulaadd = $settings->priceformulaadd;
+
+        // Manual factor to be applied to price calculation with formula.
+        $this->priceformulamultiply = $settings->priceformulamultiply;
+
         $baseurl = $CFG->wwwroot;
         $moodleurl = new \moodle_url($baseurl . '/mod/booking/view.php', array(
             'id' => $booking->cm->id,
@@ -310,6 +322,8 @@ class bookingoption_description implements renderable, templatable {
                 'booknowbutton' => $this->booknowbutton,
                 'teachers' => $this->teachers,
                 'price' => $this->price,
+                'priceformulaadd' => $this->priceformulaadd,
+                'priceformulamultiply' => $this->priceformulamultiply,
                 'currency' => $this->currency,
                 'pricecategoryname' => $this->pricecategoryname,
                 'dayofweektime' => $this->dayofweektime,

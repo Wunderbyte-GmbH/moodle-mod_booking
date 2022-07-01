@@ -183,6 +183,12 @@ class booking_option_settings {
     /** @var array $entity for displaying enity information [id, name]*/
     public $entity = [];
 
+    /** @var float $priceformulaadd */
+    public $priceformulaadd = null;
+
+    /** @var float $priceformulamultiply */
+    public $priceformulamultiply = null;
+
     /**
      * Constructor for the booking option settings class.
      *
@@ -267,6 +273,20 @@ class booking_option_settings {
             $this->dayofweektime = $dbrecord->dayofweektime;
             $this->invisible = $dbrecord->invisible;
             $this->annotation = $dbrecord->annotation;
+
+            // Price formula: absolute value.
+            if (isset($dbrecord->priceformulaadd)) {
+                $this->priceformulaadd = $dbrecord->priceformulaadd;
+            } else {
+                $this->priceformulaadd = 0; // Default: Add 0.
+            }
+
+            // Price formula: manual factor.
+            if (isset($dbrecord->priceformulamultiply)) {
+                $this->priceformulamultiply = $dbrecord->priceformulamultiply;
+            } else {
+                $this->priceformulamultiply = 1; // Default: Multiply with 1.
+            }
 
             // If the course module id (cmid) is not yet set, we load it. //TODO: bookingid 0 bei option templates berücksichtigen!!
             if (!isset($dbrecord->cmid)) {

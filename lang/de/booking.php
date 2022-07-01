@@ -1414,10 +1414,10 @@ $string['priceformulainfo'] = '<a data-toggle="collapse" href="#priceformula" ro
 </div><br>
 <a href="/admin/settings.php?section=modsettingbooking" target="_blank"><i class="fa fa-edit"></i> Formel bearbeiten...</a><br><br>
 Unterhalb können Sie zusätzlich einen manuellen Faktor (Multiplikation) und einen Absolutwert (Addition) hinzufügen.';
-$string['manualfactor'] = 'Manueller Faktor';
-$string['manualfactor_help'] = 'Zusätzlicher Wert mit dem das Ergebnis <strong>multipliziert</strong> werden soll.';
-$string['absolutevalue'] = 'Absolutwert';
-$string['absolutevalue_help'] = 'Zusätzlicher Wert, der zum Ergebnis <strong>addiert</strong> werden soll.';
+$string['priceformulamultiply'] = 'Manueller Faktor';
+$string['priceformulamultiply_help'] = 'Zusätzlicher Wert mit dem das Ergebnis <strong>multipliziert</strong> werden soll.';
+$string['priceformulaadd'] = 'Absolutwert';
+$string['priceformulaadd_help'] = 'Zusätzlicher Wert, der zum Ergebnis <strong>addiert</strong> werden soll.';
 
 // Pricecategories_form.php.
 $string['price'] = 'Preis';

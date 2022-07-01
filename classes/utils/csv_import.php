@@ -540,6 +540,8 @@ class csv_import {
         $bookingoption->annotation = '';
         $bookingoption->identifier = substr(str_shuffle(md5(microtime())), 0, 8);
         $bookingoption->titleprefix = '';
+        $bookingoption->priceformulamultiply = 1;
+        $bookingoption->priceformulaadd = 0;
     }
 
     /**

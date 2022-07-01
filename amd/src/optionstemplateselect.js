@@ -135,6 +135,10 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $("#id_beforecompletedtexteditable").html(obj.beforecompletedtext);
                             $("#id_aftercompletedtexteditable").html(obj.aftercompletedtext);
 
+                            // Price formula: manual factor and absolute value.
+                            $("#id_priceformulamultiply").val(obj.priceformulamultiply);
+                            $("#id_priceformulaadd").val(obj.priceformulaadd);
+
                             // Trigger clicks to fix autocomplete bugs.
                             $("#fitem_id_location .form-autocomplete-downarrow").trigger('click');
                             $("#fitem_id_institution .form-autocomplete-downarrow").trigger('click');
