@@ -48,10 +48,16 @@ class col_coursestarttime implements renderable, templatable {
      */
     public function __construct($booking, $bookingoption) {
 
+        $this->optionid = $bookingoption->id;
         $this->bu = new booking_utils();
         $bookingoption = new booking_option($booking->cm->id, $bookingoption->id);
 
         $this->datestrings = $bookingoption->return_array_of_sessions();
+
+        // Show a collapse button for the dates.
+        if (!empty($this->datestrings)) {
+            $this->showcollapsebtn = true;
+        }
     }
 
     public function export_for_template(renderer_base $output) {
@@ -59,7 +65,9 @@ class col_coursestarttime implements renderable, templatable {
             return [];
         }
         return array(
-                'datestrings' => $this->datestrings
+                'optionid' => $this->optionid,
+                'datestrings' => $this->datestrings,
+                'showcollapsebtn' => $this->showcollapsebtn
         );
     }
 }

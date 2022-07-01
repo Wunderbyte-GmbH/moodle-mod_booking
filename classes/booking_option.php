@@ -2152,7 +2152,7 @@ class booking_option {
             }
         } else {
             $returnitem[] = [
-                    'datesstring' => $this->return_string_from_dates(
+                    'datestring' => $this->return_string_from_dates(
                             $this->settings->coursestarttime,
                             $this->settings->courseendtime)
             ];
