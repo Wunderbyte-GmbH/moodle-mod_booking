@@ -121,7 +121,7 @@ class price {
             // Elements to apply price formula.
             $mform->addElement('advcheckbox', 'priceformulaisactive', get_string('priceformulaisactive', 'mod_booking'),
             null, null, [0, 1]);
-            $mform->setDefault('priceformulaisactive', 1);
+            $mform->setDefault('priceformulaisactive', 0);
 
             $formulaobj = new stdClass;
             $formulaobj->formula = $priceformula;
