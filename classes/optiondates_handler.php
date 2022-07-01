@@ -362,13 +362,13 @@ class optiondates_handler {
      */
     public static function get_localized_weekdays(): array {
         $weekdays = [];
-        $weekdays['monday'] = get_string('monday', 'core_calendar');
-        $weekdays['tuesday'] = get_string('tuesday', 'core_calendar');
-        $weekdays['wednesday'] = get_string('wednesday', 'core_calendar');
-        $weekdays['thursday'] = get_string('thursday', 'core_calendar');
-        $weekdays['friday'] = get_string('friday', 'core_calendar');
-        $weekdays['saturday'] = get_string('saturday', 'core_calendar');
-        $weekdays['sunday'] = get_string('sunday', 'core_calendar');
+        $weekdays['monday'] = get_string('monday', 'mod_booking');
+        $weekdays['tuesday'] = get_string('tuesday', 'mod_booking');
+        $weekdays['wednesday'] = get_string('wednesday', 'mod_booking');
+        $weekdays['thursday'] = get_string('thursday', 'mod_booking');
+        $weekdays['friday'] = get_string('friday', 'mod_booking');
+        $weekdays['saturday'] = get_string('saturday', 'mod_booking');
+        $weekdays['sunday'] = get_string('sunday', 'mod_booking');
 
         return $weekdays;
     }

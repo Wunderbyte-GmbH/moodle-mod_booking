@@ -1741,6 +1741,15 @@ $string['reoccurringdatestring'] = 'Weekday, start and end time (Day, HH:MM - HH
 $string['reoccurringdatestring_help'] = 'Enter a text in the following format:
     "Day, HH:MM - HH:MM", e.g. "Monday, 10:00 - 11:00" or "Sun 09:00-10:00" or "block" for blocked events.';
 
+// Weekdays.
+$string['monday'] = 'Monday';
+$string['tuesday'] = 'Tuesday';
+$string['wednesday'] = 'Wednesday';
+$string['thursday'] = 'Thursday';
+$string['friday'] = 'Friday';
+$string['saturday'] = 'Saturday';
+$string['sunday'] = 'Sunday';
+
 // Dynamicoptiondateform.php.
 $string['add_optiondate_series'] = 'Create date series';
 $string['reoccurringdatestringerror'] = 'Enter a text in the following format:
