@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use mod_booking\semester;
 use mod_booking\utils\wb_payment;
 
 defined('MOODLE_INTERNAL') || die();
@@ -107,6 +108,18 @@ class mod_booking_mod_form extends moodleform_mod {
         $eventstrings = [];
         foreach ($eventtypearray as $item) {
             $eventstrings[$item] = $item;
+        }
+
+        $semestersarray = semester::get_semesters_id_name_array();
+        if (!empty($semestersarray)) {
+            $semesteridoptions = [
+                'tags' => false,
+                'multiple' => false
+            ];
+            $mform->addElement('autocomplete', 'semesterid',
+                get_string('choosesemester', 'mod_booking'), $semestersarray, $semesteridoptions);
+            $mform->setType('semesterid', PARAM_INT);
+            $mform->setDefault('semesterid', semester::get_semester_with_highest_id());
         }
 
         $options = array(

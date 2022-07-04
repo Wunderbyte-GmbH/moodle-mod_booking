@@ -310,6 +310,9 @@ class booking_settings {
     /** @var int $autcrtemplate */
     public $autcrtemplate = null;
 
+    /** @var int $semesterid */
+    public $semesterid = null;
+
     /** @var user $bookingmanageruser */
     public $bookingmanageruser = null;
 
@@ -464,6 +467,7 @@ class booking_settings {
             $this->autcrprofile = $dbrecord->autcrprofile;
             $this->autcrvalue = $dbrecord->autcrvalue;
             $this->autcrtemplate = $dbrecord->autcrtemplate;
+            $this->semesterid = $dbrecord->semesterid;
 
             $dbrecord->cmid = $cmid;
 

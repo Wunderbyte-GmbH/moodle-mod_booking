@@ -99,6 +99,7 @@
         <FIELD NAME="autcrprofile" TYPE="char" LENGTH="264" NOTNULL="false" SEQUENCE="false" COMMENT="Auto create user profile field to check."/>
         <FIELD NAME="autcrvalue" TYPE="char" LENGTH="264" NOTNULL="false" SEQUENCE="false" COMMENT="Auto create user profile field value to check."/>
         <FIELD NAME="autcrtemplate" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Template to create an option from auto create option."/>
+        <FIELD NAME="semesterid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Semester ID"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

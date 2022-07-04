@@ -137,4 +137,20 @@ class semester {
 
         return $semestersarray;
     }
+
+    /**
+     * Get the most recently added semester.
+     *
+     * @return int id of the most recently added semester
+     */
+    public static function get_semester_with_highest_id() {
+        global $DB;
+
+        if ($semesterobj = $DB->get_record_sql("SELECT max(id) as semesterid FROM {booking_semesters}")) {
+            return $semesterobj->semesterid;
+        } else {
+            // No semesters in DB!
+            return 0;
+        }
+    }
 }
