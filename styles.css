@@ -194,12 +194,20 @@ input[name^='deletesemester'] {
     color: #ca3120;
     background-color: #fff;
     border-color: #ca3120;
+    padding: 0.25rem 0.5rem;
+    font-size: .8203125rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
 }
 
 input[name^='deletesemester']:hover {
     color: #fff;
     background-color: #ca3120;
     border-color: #ca3120;
+    padding: 0.25rem 0.5rem;
+    font-size: .8203125rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
 }
 
 input[name^='addsemester'] {
@@ -219,12 +227,20 @@ input[name^='deleteholiday'] {
     color: #ca3120;
     background-color: #fff;
     border-color: #ca3120;
+    padding: 0.25rem 0.5rem;
+    font-size: .8203125rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
 }
 
 input[name^='deleteholiday']:hover {
     color: #fff;
     background-color: #ca3120;
     border-color: #ca3120;
+    padding: 0.25rem 0.5rem;
+    font-size: .8203125rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
 }
 
 input[name^='addholiday'] {

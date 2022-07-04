@@ -650,8 +650,9 @@ function booking_update_options($optionvalues, $context) {
     if (!empty($optionvalues->semesterid)) {
         $option->semesterid = $optionvalues->semesterid;
     }
+
     if (!empty($optionvalues->dayofweektime)) {
-        // TODO: We could add the optiondates_handler::reoccurring_datestring_is_correct check here...
+        // Possible improvement: We could add the optiondates_handler::reoccurring_datestring_is_correct check here...
         // ...and only store if the string is correct, if this is needed.
         $option->dayofweektime = $optionvalues->dayofweektime;
     }
@@ -1112,7 +1113,7 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
     // Deal with new optiondates (Multisessions).
     // TODO: We should have an optiondates class to deal with all of this.
     // As of now, we do it the hacky way.
-    for ($i = 1; $i < 20; ++$i) {
+    for ($i = 1; $i < 30; ++$i) {
 
         $starttimekey = 'ms' . $i . 'starttime';
         $endtimekey = 'ms' . $i . 'endtime';

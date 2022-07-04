@@ -42,10 +42,6 @@ export const init = (selector, formClass, existingsemester) => {
         const response = e.detail;
         // eslint-disable-next-line no-console
         console.log('response', response);
-        // eslint-disable-next-line no-console
-        console.log('existingsemester', existingsemester);
-
-        form.load({...existingsemester, response});
     });
 
     // Cancel button does not make much sense in such forms but since it's there we'll just reload.

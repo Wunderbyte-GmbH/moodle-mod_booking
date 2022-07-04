@@ -66,12 +66,19 @@ class optiondates_handler {
         global $PAGE;
 
         $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
 
         $semestersarray = semester::get_semesters_id_name_array();
 
         $mform->addElement('autocomplete', 'chooseperiod', get_string('chooseperiod', 'mod_booking'),
             $semestersarray, ['tags' => false]);
-        $mform->setDefault('chooseperiod', $bookingoptionsettings->semesterid);
+        // If a semesterid for the booking option was already set, use it.
+        if (!empty($bookingoptionsettings->semesterid)) {
+            $mform->setDefault('chooseperiod', $bookingoptionsettings->semesterid);
+        } else if (!empty($bookingsettings->semesterid)) {
+            // If not, use the semesterid from the booking instance.
+            $mform->setDefault('chooseperiod', $bookingsettings->semesterid);
+        }
         $mform->addHelpButton('chooseperiod', 'chooseperiod', 'mod_booking');
 
         // Turn off submit on enter (keycode: 13).
@@ -426,7 +433,7 @@ class optiondates_handler {
      */
     public static function change_semester($cmid, $semesterid) {
 
-        global $DB;
+        global $DB, $PAGE;
         // First we delete all optiondates on this instance.
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -442,6 +449,9 @@ class optiondates_handler {
 
             // Set the id of the option correctly, so that update will work.
             $optionvalues->optionid = $optionvalues->id;
+
+            // Save the semesterid within every option.
+            $optionvalues->semesterid = $semesterid;
 
             if (empty($optionvalues->dayofweektime)) {
                 continue;
@@ -461,6 +471,18 @@ class optiondates_handler {
             $context = context_module::instance($cmid);
             booking_update_options($optionvalues, $context);
         }
+
+        // Lastly, we also need to change the semester for the booking instance itself!
+        if ($bookinginstancerecord = $DB->get_record('booking', ['id' => $bookingid])) {
+            $bookinginstancerecord->semesterid = $semesterid;
+            $DB->update_record('booking', $bookinginstancerecord);
+        }
+
+        // When updating an instance, we need to invalidate the cache for booking instances.
+        cache_helper::invalidate_by_event('setbackbookinginstances', [$cmid]);
+        // Also purge caches for options table and booking_option_settings.
+        cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::purge_by_event('setbackoptionsettings');
     }
 
     /**

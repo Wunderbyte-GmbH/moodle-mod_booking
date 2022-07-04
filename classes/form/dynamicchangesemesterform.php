@@ -40,6 +40,7 @@ use stdClass;
  */
 class dynamicchangesemesterform extends dynamic_form {
 
+    /** @param int $cmid */
     private $cmid = null;
 
     /**
@@ -96,6 +97,7 @@ class dynamicchangesemesterform extends dynamic_form {
      * @return stdClass|null
      */
     public function process_dynamic_submission(): stdClass {
+        global $PAGE;
 
         $data = $this->get_data();
 
@@ -109,7 +111,12 @@ class dynamicchangesemesterform extends dynamic_form {
      * @return void
      */
     public function definition(): void {
-        global $DB;
+
+        $cmid = optional_param('id', 0, PARAM_INT);
+
+        if (empty($this->bookingsettings)) {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        }
 
         $mform = $this->_form;
 
@@ -122,8 +129,11 @@ class dynamicchangesemesterform extends dynamic_form {
         $mform->settype('cmid', PARAM_INT);
 
         $selectarray = semester::get_semesters_id_name_array();
-
         $mform->addElement('select', 'choosesemester', get_string('choosesemester', 'mod_booking'), $selectarray);
+        if (!empty($bookingsettings->semesterid)) {
+            // If the booking instance has an associated semester, set it as default.
+            $mform->setDefault('choosesemester', $bookingsettings->semesterid);
+        }
 
         // Buttons.
         $this->add_action_buttons();
