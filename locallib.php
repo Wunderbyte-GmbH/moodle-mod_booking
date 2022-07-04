@@ -17,6 +17,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 use mod_booking\booking_option;
+use mod_booking\booking_utils;
 use mod_booking\event\bookingoptiondate_created;
 use mod_booking\singleton_service;
 
@@ -328,24 +329,28 @@ function booking_confirm_booking($optionid, $user, $cm, $url) {
 function booking_updatestartenddate($optionid) {
     global $DB;
 
-    $result = $DB->get_record_sql(
+    // Bugfix: Only update start end date depending on session IF there actually are sessions.
+    if (booking_utils::booking_option_has_optiondates($optionid)) {
+        // Update start and end date of the option depending on the sessions.
+        $result = $DB->get_record_sql(
             'SELECT MIN(coursestarttime) AS coursestarttime, MAX(courseendtime) AS courseendtime
              FROM {booking_optiondates}
              WHERE optionid = ?',
             array($optionid));
 
-    $save = new stdClass();
-    $save->id = $optionid;
+        $optionobj = new stdClass();
+        $optionobj->id = $optionid;
 
-    if (is_null($result->coursestarttime)) {
-        $save->coursestarttime = 0;
-        $save->courseendtime = 0;
-    } else {
-        $save->coursestarttime = $result->coursestarttime;
-        $save->courseendtime = $result->courseendtime;
+        if (is_null($result->coursestarttime)) {
+            $optionobj->coursestarttime = 0;
+            $optionobj->courseendtime = 0;
+        } else {
+            $optionobj->coursestarttime = $result->coursestarttime;
+            $optionobj->courseendtime = $result->courseendtime;
+        }
+
+        $DB->update_record("booking_options", $optionobj);
     }
-
-    $DB->update_record("booking_options", $save);
 }
 
 /**

@@ -613,12 +613,6 @@ function booking_update_options($optionvalues, $context) {
     require_once("$CFG->dirroot/mod/booking/locallib.php");
     require_once("{$CFG->dirroot}/mod/booking/classes/GoogleUrlApi.php");
 
-    if (!empty($optionvalues->newoptiondates) || !empty($optionvalues->stillexistingdates)) {
-        // Save the optiondates.
-        $optiondateshandler = new optiondates_handler($optionvalues->optionid, $optionvalues->bookingid);
-        $optiondateshandler->save_from_form($optionvalues);
-    }
-
     $customfields = booking_option::get_customfield_settings();
     if (!($booking = $DB->get_record('booking', array('id' => $optionvalues->bookingid)))) {
         $booking = new stdClass();
@@ -971,16 +965,19 @@ function booking_update_options($optionvalues, $context) {
             }
         }
 
-        // Bugfix: Only update start end date depending on session IF there actually are sessions.
-        if (booking_utils::booking_option_has_optiondates($option->id)) {
-            // Update start and end date of the option depending on the sessions.
-            booking_updatestartenddate($option->id);
-        }
+        // Update start and end date of the option depending on the sessions.
+        booking_updatestartenddate($option->id);
 
         // At the very last moment, when everything is done, we invalidate the table cache.
         cache_helper::purge_by_event('setbackoptionstable');
         cache_helper::invalidate_by_event('setbackoptionsettings', [$option->id]);
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$option->id]);
+
+        if (!empty($optionvalues->newoptiondates) || !empty($optionvalues->stillexistingdates)) {
+            // Save the optiondates.
+            $optiondateshandler = new optiondates_handler($optionvalues->optionid, $optionvalues->bookingid);
+            $optiondateshandler->save_from_form($optionvalues);
+        }
 
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
         // $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
@@ -1073,6 +1070,13 @@ function booking_update_options($optionvalues, $context) {
                     $DB->insert_record('booking_customfields', $customfield);
                 }
             }
+        }
+
+        // Fixed: Also create optiondates for new options!
+        if (!empty($optionvalues->newoptiondates) || !empty($optionvalues->stillexistingdates) && !empty($optionid)) {
+            // Save the optiondates.
+            $optiondateshandler = new optiondates_handler($optionid, $optionvalues->bookingid);
+            $optiondateshandler->save_from_form($optionvalues);
         }
 
         deal_with_multisessions($optionvalues, $booking, $optionid, $context);
