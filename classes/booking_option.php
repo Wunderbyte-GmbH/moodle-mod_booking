@@ -1243,7 +1243,22 @@ class booking_option {
 
         $instance = reset($instances); // Use the first manual enrolment plugin in the course.
         if ($bookinganswers->user_status($userid) == STATUSPARAM_BOOKED) {
-            $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid)); // Enrol using the default role.
+
+            // If a semester is set for the booking option...
+            // ...then we only want to enrol from semester startdate to semester enddate.
+            if (empty($this->settings->semesterid)) {
+                // Enrol using the default role.
+                $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid));
+            } else {
+                if ($semesterobj = $DB->get_record('booking_semesters', ['id' => $this->settings->semesterid])) {
+                    // Enrol using the default role from semester start until semester end.
+                    $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid),
+                        $semesterobj->startdate, $semesterobj->enddate);
+                } else {
+                    // Enrol using the default role.
+                    $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid));
+                }
+            }
 
             // TODO: Track enrolment status in booking_answers. It makes no sense to track it in booking_options.
 
