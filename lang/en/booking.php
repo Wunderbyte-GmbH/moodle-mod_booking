@@ -1801,4 +1801,5 @@ $string['optionformconfig:nobooking'] = 'You need to create at least one booking
 
 // Tasks.
 $string['optionbookabletitle'] = '{$a->title} is available again';
-$string['optionbookablebody'] = 'You can book {$a->title} now again. <a href="{$a->url}">Click on here</a> to directly go there.';
+$string['optionbookablebody'] = '{$a->title} is now available again. <a href="{$a->url}">Click here</a> to directly go there.<br><br>
+(You receive this mail because you have clicked on the notification button for this option.)';

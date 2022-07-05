@@ -1550,4 +1550,5 @@ $string['optionformconfig:nobooking'] = 'Sie müssen zumindest eine Buchungsinst
 
 // Tasks.
 $string['optionbookabletitle'] = '{$a->title} wieder buchbar';
-$string['optionbookablebody'] = 'Sie können {$a->title} ab sofort wieder buchen. Klicken Sie <a href="{$a->url}">hier</a>, um direkt zur Buchungsmöglichkeit zu gelangen.';
+$string['optionbookablebody'] = 'Sie können {$a->title} ab sofort wieder buchen. Klicken Sie <a href="{$a->url}">hier</a>, um direkt zur Buchungsmöglichkeit zu gelangen.<br><br>
+(Sie erhalten diese Nachricht, da Sie bei der Buchungsmöglichkeit auf den Benachrichtigungs-Button geklickt haben.)';
