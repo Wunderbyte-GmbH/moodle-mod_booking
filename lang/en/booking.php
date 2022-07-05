@@ -1498,24 +1498,39 @@ you can turn this setting off and lock it by default. Don\'t worry: user calenda
 // Mobile.
 $string['next'] = 'Next';
 $string['previous'] = 'Previous';
+
 // Privacy API.
-$string['privacy:metadata:booking_answers'] = 'Represents a booking to an event';
+$string['privacy:metadata:booking_answers'] = 'Represents a booking of an event';
 $string['privacy:metadata:booking_answers:userid'] = 'User that is booked for this event';
-$string['privacy:metadata:booking_answers:bookingid'] = 'ID of the event';
-$string['privacy:metadata:booking_answers:optionid'] = 'Specifies which version of an event, eg summerterm or winterterm';
+$string['privacy:metadata:booking_answers:bookingid'] = 'ID of the booking instance';
+$string['privacy:metadata:booking_answers:optionid'] = 'ID of the booking option';
 $string['privacy:metadata:booking_answers:timemodified'] = 'Timestamp when booking was last modified';
 $string['privacy:metadata:booking_answers:timecreated'] = 'Timestamp when booking was created';
-$string['privacy:metadata:booking_answers:waitinglist'] = 'If this user is on a waitinglist';
-$string['privacy:metadata:booking_answers:status'] = 'Statusinfo for this booking';
+$string['privacy:metadata:booking_answers:waitinglist'] = 'True if user is on the waitinglist';
+$string['privacy:metadata:booking_answers:status'] = 'Status info for this booking';
 $string['privacy:metadata:booking_answers:notes'] = 'Additional notes';
-$string['privacy:metadata:booking_ratings'] = 'Represents your rating of an event';
+$string['privacy:metadata:booking_ratings'] = 'Your rating of an event';
 $string['privacy:metadata:booking_ratings:userid'] = 'User that rated this event';
-$string['privacy:metadata:booking_ratings:optionid'] = 'Which version of an event was rated';
+$string['privacy:metadata:booking_ratings:optionid'] = 'ID of the rated booking option';
 $string['privacy:metadata:booking_ratings:rate'] = 'Rate that was assigned';
-$string['privacy:metadata:booking_teachers'] = 'Represents the teacher of an event';
+$string['privacy:metadata:booking_teachers'] = 'Teacher(s) of an event';
 $string['privacy:metadata:booking_teachers:userid'] = 'User that is teaching this event';
-$string['privacy:metadata:booking_teachers:optionid'] = 'Which version of an event is taught';
-$string['privacy:metadata:booking_teachers:completed'] = 'If task is completed';
+$string['privacy:metadata:booking_teachers:optionid'] = 'ID of the booking option which is taught';
+$string['privacy:metadata:booking_teachers:completed'] = 'If task is completed for the teacher';
+$string['privacy:metadata:booking_answers:completed'] = 'User that booked has completed the task';
+$string['privacy:metadata:booking_answers:frombookingid'] = 'ID of connected booking';
+$string['privacy:metadata:booking_answers:numrec'] = 'Record number';
+$string['privacy:metadata:booking_icalsequence'] = 'Ical sequence';
+$string['privacy:metadata:booking_icalsequence:userid'] = 'User ID for ical';
+$string['privacy:metadata:booking_icalsequence:optionid'] = 'Booking option ID for ical';
+$string['privacy:metadata:booking_icalsequence:sequencevalue'] = 'Ical sequence value';
+$string['privacy:metadata:booking_teachers:bookingid'] = 'ID of booking instance for teacher';
+$string['privacy:metadata:booking_teachers:calendarid'] = 'ID of calendar event for teacher';
+$string['privacy:metadata:booking_userevents'] = 'User events in calendar';
+$string['privacy:metadata:booking_userevents:userid'] = 'User ID for user event';
+$string['privacy:metadata:booking_userevents:optionid'] = 'ID of booking option for user event';
+$string['privacy:metadata:booking_userevents:optiondateid'] = 'ID of optiondate (session) for user event';
+$string['privacy:metadata:booking_userevents:eventid'] = 'ID of event in events table';
 
 // Calendar.php.
 $string['usercalendarentry'] = 'You are booked for <a href="{$a}">this session</a>.';
