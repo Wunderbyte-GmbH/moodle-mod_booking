@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 defined('MOODLE_INTERNAL') || die();
-ini_set('max_execution_time', 600);
+core_php_time_limit::raise(600);
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . "/externallib.php");
