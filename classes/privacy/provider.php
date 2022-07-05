@@ -29,8 +29,10 @@ use context;
 use context_module;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\helper;
+use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 use dml_exception;
 use mod_booking\optiondates_handler;
@@ -39,6 +41,9 @@ use stdClass;
 class provider implements
     // This plugin stores personal data.
     \core_privacy\local\metadata\provider,
+
+    // This plugin is capable of determining which users have data within it.
+    \core_privacy\local\request\core_userlist_provider,
 
     // This plugin is a core_user_data_provider.
     \core_privacy\local\request\plugin\provider {
@@ -355,5 +360,73 @@ class provider implements
 
         // Write generic module intro files.
         helper::export_context_files($context, $user);
+    }
+
+    /**
+     * Get the list of users who have data within a context.
+     *
+     * @param   userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     */
+    public static function get_users_in_context(userlist $userlist) {
+
+        $context = $userlist->get_context();
+
+        if (!$context instanceof \context_module) {
+            return;
+        }
+
+        // Add all users with booking_answers.
+        $userlist->add_from_sql('userid', "SELECT userid FROM {booking_answers}", []);
+
+        // Add teachers of booking options.
+        $userlist->add_from_sql('userid', "SELECT userid FROM {booking_teachers}", []);
+
+        // Add teachers of specific sessions.
+        $userlist->add_from_sql('userid', "SELECT userid FROM {booking_optiondates_teachers}", []);
+
+        // Add users with user events.
+        $userlist->add_from_sql('userid', "SELECT userid FROM {booking_userevents}", []);
+
+        // Add users with ratings.
+        $userlist->add_from_sql('userid', "SELECT userid FROM {booking_ratings}", []);
+
+        // Add users with entries in ical sequence table.
+        $userlist->add_from_sql('userid', "SELECT userid FROM {booking_icalsequence}", []);
+    }
+
+    /**
+     * Delete multiple users within a single context.
+     *
+     * @param approved_userlist $userlist The approved context and user information to delete information for.
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+
+        global $DB;
+
+        $context = $userlist->get_context();
+
+        if (!$context instanceof \context_module) {
+            return;
+        }
+
+        $cm = get_coursemodule_from_id('booking', $context->instanceid);
+
+        if (!$cm) {
+            return;
+        }
+
+        $userids = $userlist->get_userids();
+        list($usersql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        $select = "userid $usersql";
+
+        // Now delete everything related to the selected userids.
+        $DB->delete_records_select('booking_answers', $select, $params);
+        $DB->delete_records_select('booking_teachers', $select, $params);
+        $DB->delete_records_select('booking_optiondates_teachers', $select, $params);
+        $DB->delete_records_select('booking_userevents', $select, $params);
+        $DB->delete_records_select('booking_ratings', $select, $params);
+        $DB->delete_records_select('booking_icalsequence', $select, $params);
     }
 }
