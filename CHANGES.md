@@ -1,3 +1,23 @@
+## Version 7.2.3 (2022070500)
+**New features:**
+* Calculate prices for specific booking options using a sophisticated JSON formula.
+* Direct connection between booking instances and semesters.
+* If we have a semester, only enrol from semester start until semester end.
+
+**Improvements:**
+* New identifier field for booking options.
+* New annotation field for booking options for internal remarks and comments.
+* New title prefix field for booking options (e.g. for non-unique course number).
+* Show collapsible optiondates in all_options.php.
+* Several improvements for handling of semesters.
+* Implement user data deletion requests for Privacy API - closes #197
+* Better notification button (for observer list), fixed toggle and improved strings for notification mails.
+
+**Bugfixes:**
+* Fix bug where no invisible was provided in webservice.
+* Also create optiondates for new booking options.
+* Added strings for Privacy API - closes #198
+
 ## Version 7.2.2 (2022062900)
 **New features:**
 * Internal annotations for booking options.
