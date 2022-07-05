@@ -2416,7 +2416,7 @@ class booking_option {
 
          // If the given user tries this for somebody else, the user has to have the rights of access.
         if ($USER->id != $userid
-            || !has_capability('mod/booking:subscribeusers', $context)) {
+            && !has_capability('mod/booking:subscribeusers', $context)) {
             $status = 0;
             $optionid = 0;
             $error = get_string('accessdenied', 'mod_booking');

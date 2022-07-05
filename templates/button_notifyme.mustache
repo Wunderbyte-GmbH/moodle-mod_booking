@@ -23,21 +23,29 @@
     Data attributes required for JS:
     * data-region
 }}
-
-
-<a class="btn btn-primary booking-button-notify-me"
+{{^onlist}}
+    <a class="booking-button-notify-me h3"
     data-userid="{{userid}}"
-    data-optionid="{{optionid}}">
-    {{^onlist}}
-        {{#str}} notifyme, mod_booking{{/str}}
-    {{/onlist}}
-    {{#onlist}}
-        {{#str}} alreadyonlist, mod_booking {{/str}}
-    {{/onlist}}
-</a>
+    data-optionid="{{optionid}}"
+    data-toggle="tooltip"
+    data-placement="top"
+    title="{{#str}} notifyme, mod_booking {{/str}}">
+    <i class="fa fa-bell-o" aria-hidden="true"></i>
+    </a>
+{{/onlist}}
+{{#onlist}}
+    <a class="booking-button-notify-me h3"
+    data-userid="{{userid}}"
+    data-optionid="{{optionid}}"
+    data-toggle="tooltip"
+    data-placement="top"
+    title="{{#str}} alreadyonlist, mod_booking {{/str}}">
+    <i class="fa fa-bell" aria-hidden="true"></i>
+    </a>
+{{/onlist}}
 
 {{#js}}
     require(['mod_booking/button_notifyme'], function(init) {
-    init.init();
+        init.init();
     });
 {{/js}}

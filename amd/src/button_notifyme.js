@@ -69,7 +69,7 @@ export const init = () => {
         done: function(res) {
 
             // eslint-disable-next-line no-console
-            console.log(res);
+            console.log('res.status: ', res.status);
 
             toggleButton(button, res.status);
 
@@ -92,7 +92,13 @@ function toggleButton(button, status) {
     const statusstring = status == 1 ? 'alreadyonlist' : 'notifyme';
 
     getString(statusstring, 'mod_booking').then(res => {
-        button.textContent = res;
+        if (status == 1) {
+            button.innerHTML = '<i class="fa fa-bell" aria-hidden="true"></i>';
+        } else {
+            button.innerHTML = '<i class="fa fa-bell-o" aria-hidden="true"></i>';
+        }
+        button.setAttribute('title', res);
+        button.removeAttribute('data-original-title');
         return;
     }).catch(e => {
         // eslint-disable-next-line no-console
