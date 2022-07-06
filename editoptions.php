@@ -57,7 +57,7 @@ $mform = new option_form(null, array('bookingid' => $bookingid, 'optionid' => $o
     'context' => $context));
 
 // Duplicate this booking option.
-if ($optionid == 0 && $copyoptionid != 0) {
+if ($optionid == -1 && $copyoptionid != 0) {
     // Adding new booking option - default values.
     $defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid));
     $oldoptionid = $defaultvalues->id;
