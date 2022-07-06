@@ -192,6 +192,8 @@ class booking_option_settings {
 
     /**
      * Constructor for the booking option settings class.
+     * The constructor can take the dbrecord stdclass which is the initial DB request for this option.
+     * This permits performance increase, because we can request all the records once and then
      *
      * @param int $optionid Booking option id.
      * @param stdClass $dbrecord of bookig option.
@@ -236,7 +238,7 @@ class booking_option_settings {
             // At this point, we don't now anything about any other context, so we get system.
             $context = context_system::instance();
 
-            list($select, $from, $where, $params) = booking::get_options_filter_sql(null, 1, null, '*', $context, ['id' => $optionid]);
+            list($select, $from, $where, $params) = booking::get_options_filter_sql(null, 1, null, '*', $context, [], ['id' => $optionid]);
 
             $sql = "SELECT $select
                     FROM $from
@@ -784,12 +786,8 @@ class booking_option_settings {
      */
     public static function return_sql_for_teachers($searchparams = []): array {
 
-        // Testing.
-        $searchparams = [['name' => 'y t']];
-
         global $DB;
 
-        // $select = 'GROUP_CONCAT('{id:"', bt1.id, '", firstname:"',bt1.firstname,'", lastname:"',bt1.lastname,'"}') as teacherobjects';
         $select = $DB->sql_group_concat('bt1.teacherobject') . ' as teacherobjects';
 
         // We have to create the teacher object beforehand, in order to be able to use group_concat afterwards.

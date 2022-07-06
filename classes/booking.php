@@ -200,10 +200,10 @@ class booking {
 
         global $DB;
 
-        list($fields, $from, $where, $params) = self::get_all_options_sql($limitfrom, $limitnum, $searchtext, $fields, $this->context);
+        list($fields, $from, $where, $params, $filter) = self::get_all_options_sql($limitfrom, $limitnum, $searchtext, $fields, $this->context);
 
         return $DB->get_records_sql(
-            "SELECT $fields FROM $from WHERE $where", $params);
+            "SELECT $fields FROM $from WHERE $where $filter", $params);
     }
 
     public function get_all_options_count($searchtext = '') {
@@ -573,7 +573,7 @@ class booking {
      * @param string $searchtext
      * @param string $fields
      * @param object $context
-     * @return void
+     * @return array
      */
     public static function get_all_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = null, $context = null) {
         global $DB;
@@ -582,7 +582,31 @@ class booking {
     }
 
 
-    public static function get_options_filter_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = "*", $context = null, $filterarray = []) {
+    /**
+     * This function is our central way of getting the whole sql calling the standard table as well as the filtered one.
+     * We have the simple searchtext also, which will be used from now on as fulltext search.
+     * The filterarray should be used for temporary filtering all records, opposed to where. Its a subset of all records.
+     * Where means that it restricts the number of total records.
+     * This distinction is important for the automatic filter generation of Wunderbyte Table.
+     *
+     * @param integer $limitfrom
+     * @param integer $limitnum
+     * @param string $searchtext
+     * @param string $fields
+     * @param [type] $context
+     * @param array $filterarray
+     * @param array $wherearray
+     * @return void
+     */
+    public static function get_options_filter_sql($limitfrom = 0,
+                                                $limitnum = 0,
+                                                $searchtext = '',
+                                                $fields = "*",
+                                                $context = null,
+                                                $filterarray = [],
+                                                $wherearray = []) {
+
+        global $DB;
 
         if (empty($fields)) {
             $fields = "*";
@@ -605,6 +629,8 @@ class booking {
 
         $where = '';
 
+        $filter = '';
+
         $params = [];
 
         $outerfrom = "(
@@ -624,9 +650,10 @@ class booking {
             $where = "1=1 ";
         }
 
-        list($select1, $from1, $where1, $params1) = booking_option_settings::return_sql_for_customfield();
-        list($select2, $from2, $where2, $params2) = booking_option_settings::return_sql_for_teachers();
-        list($select3, $from3, $where3, $params3) = booking_option_settings::return_sql_for_files();
+        // Instead of "where" we return "filter". This is to support the filter functionality of wunderbyte table.
+        list($select1, $from1, $filter1, $params1) = booking_option_settings::return_sql_for_customfield();
+        list($select2, $from2, $filter2, $params2) = booking_option_settings::return_sql_for_teachers();
+        list($select3, $from3, $filter3, $params3) = booking_option_settings::return_sql_for_files();
 
         // The $outerfrom takes all the select from the supplementary selects.
         $outerfrom .= ", $select1 ";
@@ -645,20 +672,42 @@ class booking {
         $from = $outerfrom;
         $from .= $innerfrom;
 
-
         // Finally, we add the outer group by.
         $from .= $groupby;
 
         // Add the where at the right place.
-        $where .= " $where1 ";
-        $where .= " $where2 ";
-        $where .= " $where3 ";
+        $filter .= " $filter1 ";
+        $filter .= " $filter2 ";
+        $filter .= " $filter3 ";
 
+        $counter = 1;
         foreach ($filterarray as $key => $value) {
-            $where .= " AND s1.$key LIKE $value ";
+
+            // Be sure to have a lower key string;
+            $paramsvaluekey = "param";
+            while (isset($params[$paramsvaluekey])) {
+                $paramsvaluekey .= $counter;
+                $counter++;
+            }
+
+            $filter .= " AND " . $DB->sql_like("s1.$key", ":$paramsvaluekey");
+            $params[$paramsvaluekey] = $value;
         }
 
-        return [$fields, $from, $where, $params];
+        foreach ($wherearray as $key => $value) {
+
+            // Be sure to have a lower key string;
+            $paramsvaluekey = "param";
+            while (isset($params[$paramsvaluekey])) {
+                $paramsvaluekey .= $counter;
+                $counter++;
+            }
+
+            $where .= " AND " . $DB->sql_like("s1.$key", ":$paramsvaluekey");
+            $params[$paramsvaluekey] = $value;
+        }
+
+        return [$fields, $from, $where, $params, $filter];
 
     }
 
@@ -672,7 +721,7 @@ class booking {
      */
     public function get_all_options_of_teacher_sql($teacherid) {
 
-        return self::get_options_filter_sql(0, 0, '', '*', null, null, ['teacherobjects' => "$teacherid"]);
+        return self::get_options_filter_sql(0, 0, '', '*', null, [], ['teacherobjects' => '%"id":' . $teacherid . ',%']);
     }
 
     /**
