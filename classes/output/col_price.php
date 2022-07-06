@@ -118,6 +118,8 @@ class col_price implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
+        $returnarray = [];
+
         if ($this->context && is_guest($this->context)) {
 
             foreach ($this->priceitems as $priceitem) {
