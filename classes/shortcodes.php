@@ -79,7 +79,7 @@ class shortcodes {
 
         $table = new bookingoptions_table($tablename, $booking);
 
-        list($fields, $from, $where, $params, $filter) = $booking::get_all_options_sql(null, null, $category, null, $booking->context);
+        list($fields, $from, $where, $params, $filter) = $booking->get_all_options_sql(null, null, $category, null, $booking->context);
 
         $table->set_filter_sql($fields, $from, $where, $params, $filter);
 

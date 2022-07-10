@@ -200,7 +200,7 @@ class booking {
 
         global $DB;
 
-        list($fields, $from, $where, $params, $filter) = self::get_all_options_sql($limitfrom, $limitnum, $searchtext, $fields, $this->context);
+        list($fields, $from, $where, $params, $filter) = $this->get_all_options_sql($limitfrom, $limitnum, $searchtext, $fields, $this->context);
 
         return $DB->get_records_sql(
             "SELECT $fields FROM $from WHERE $where $filter", $params);
@@ -575,10 +575,10 @@ class booking {
      * @param object $context
      * @return array
      */
-    public static function get_all_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = null, $context = null) {
+    public function get_all_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = null, $context = null) {
         global $DB;
 
-        return self::get_options_filter_sql($limitfrom, $limitnum, $searchtext, $fields, $context);
+        return self::get_options_filter_sql($limitfrom, $limitnum, $searchtext, $fields, $context, [], ['bookingid' => $this->id]);
     }
 
 
@@ -721,6 +721,7 @@ class booking {
      */
     public function get_all_options_of_teacher_sql($teacherid) {
 
+        // To fetch the teacher, we
         return self::get_options_filter_sql(0, 0, '', '*', null, [], ['teacherobjects' => '%"id":' . $teacherid . ',%']);
     }
 
