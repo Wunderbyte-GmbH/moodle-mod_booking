@@ -612,20 +612,21 @@ class booking {
             $fields = "*";
         }
 
+        // TODO: Get rid of this code as it is not necessary.
         // While we get in die Fields selector only the columns or *, we need to use the right prefix internally.
-        $fieldsarray = explode(', ', $fields);
-        $fields = '';
+        // $fieldsarray = explode(', ', $fields);
+        // $fields = '';
 
-        $counter = 1;
-        foreach ($fieldsarray as $field) {
-            $fields .= "s1.$field";
-            if (count($fieldsarray) < $counter) {
-                $fields .= ", ";
-            }
-            $counter++;
-        }
+        // $counter = 1;
+        // foreach ($fieldsarray as $field) {
+        //     $fields .= "s1.$field";
+        //     if (count($fieldsarray) < $counter) {
+        //         $fields .= ", ";
+        //     }
+        //     $counter++;
+        // }
 
-        $fields .= " ";
+        // $fields .= " ";
 
         $where = '';
 
@@ -691,8 +692,12 @@ class booking {
                 $counter++;
             }
 
-            $filter .= " AND " . $DB->sql_like("s1.$key", ":$paramsvaluekey");
-            $params[$paramsvaluekey] = $value;
+            if (gettype($value) == 'integer') {
+                $filter .= " AND   s1.$key = $value";
+            } else {
+                $filter .= " AND " . $DB->sql_like("s1.$key", ":$paramsvaluekey");
+                $params[$paramsvaluekey] = $value;
+            }
         }
 
         foreach ($wherearray as $key => $value) {
