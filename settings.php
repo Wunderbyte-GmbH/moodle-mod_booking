@@ -151,18 +151,12 @@ if ($ADMIN->fulltree) {
                 get_string('duplicationrestoreentities', 'mod_booking'), '', 1));
 
 
-    $sql = 'SELECT cff.shortname FROM {customfield_category} cfc LEFT JOIN
+    $sql = "SELECT cff.shortname FROM {customfield_category} cfc LEFT JOIN
     {customfield_field} cff on cfc.id = cff.categoryid
-    where component = "mod_booking"';
+    where cfc.component = 'mod_booking'";
     global $DB;
 
-    // Make sure no error is thrown when there are no categories yet.
-    try {
-        $records = $DB->get_records_sql($sql);
-    } catch (Exception $e) {
-        $records = [];
-    }
-
+    $records = $DB->get_records_sql($sql);
 
     foreach ($records as $record) {
         $options[$record->shortname] = $record->shortname;
