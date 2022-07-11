@@ -827,6 +827,7 @@ $string['addnewbookingoptionfromtemplate'] = 'Neue Buchungsoption von Vorlage er
 $string['choosecourse'] = 'Einen Kurs auswählen';
 $string['courseendtime'] = 'Kursende';
 $string['coursestarttime'] = 'Kursbeginn';
+$string['newcourse'] = 'Neuer Kurs';
 $string['donotselectcourse'] = 'Kein Kurs ausgewählt';
 $string['donotselectinstitution'] = 'Keine Institution ausgewählt';
 $string['donotselectlocation'] = 'Kein Ort ausgewählt';

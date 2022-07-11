@@ -23,6 +23,8 @@ require_once($CFG->dirroot . '/question/category_class.php');
 require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->dirroot . '/user/selector/lib.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
+require_once($CFG->dirroot .'/course/externallib.php');
+
 
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking_option;
@@ -31,6 +33,7 @@ use mod_booking\optiondates_handler;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\utils\wb_payment;
+use stdClass;
 
 // Currently up to 9 different price categories can be set.
 define('MAX_PRICE_CATEGORIES', 9);
@@ -833,6 +836,50 @@ function booking_update_options($optionvalues, $context) {
                 $option->address = substr($option->address, 0, -2);
             }
         };
+    }
+
+    // Create a new course and put it either in a new coursecategory or in an already existing.
+    if ($option->courseid == -1) {
+        $categoryid = 0;
+        // TODO shortnamefalback?
+        if (!empty(get_config('booking', 'newcoursecategorycfield'))) {
+            // FEATURE add more settingfields add customfield_ to settingsvalue from customfields allwo only Textfields or Selects.
+            $cfforcategory = 'customfield_' . get_config('booking', 'newcoursecategorycfield');
+            $category = new stdClass();
+            $category->name = $_POST[$cfforcategory];
+
+            if (!empty($category->name)) {
+                $categories = core_course_external::get_categories(array(
+                    array('key' => 'name', 'value' => $category->name)
+                ));
+
+                if (empty($categories)) {
+                    $category->idnumber = $category->name;
+                    $categories = array(
+                        array('name' => $category->name, 'idnumber' => $category->idnumber, 'parent' => 0)
+                    );
+                    $createdcats = core_course_external::create_categories($categories);
+                    $categoryid = $createdcats[0]['id'];
+                } else {
+                    $categoryid = $categories[0]['id'];
+                }
+            }
+        }
+
+        // Create course.
+        $i = 1;
+        $shortname = $option->text;
+        while ($DB->get_record('course', array('shortname' => $shortname))) {
+            $shortname = $option->text . '_' . $i;
+            $i++;
+        };
+        $newcourse['fullname'] = $option->text;
+        $newcourse['shortname'] = $shortname;
+        $newcourse['categoryid'] = $categoryid;
+
+        $courses = array($newcourse);
+        $createdcourses = core_course_external::create_courses($courses);
+        $option->courseid = $createdcourses[0]['id'];
     }
 
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&

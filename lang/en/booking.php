@@ -961,6 +961,7 @@ $string['addnewbookingoptionfromtemplate'] = 'Add a new booking option from temp
 $string['choosecourse'] = 'Choose a course';
 $string['courseendtime'] = 'End time of the course';
 $string['coursestarttime'] = 'Start time of the course';
+$string['newcourse'] = 'New course';
 $string['donotselectcourse'] = 'No course selected';
 $string['donotselectinstitution'] = 'No institution selected';
 $string['donotselectlocation'] = 'No location selected';

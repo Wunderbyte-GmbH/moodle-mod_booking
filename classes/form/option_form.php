@@ -298,6 +298,7 @@ class option_form extends moodleform {
         $allcourses = get_courses_search(array(), 'c.shortname ASC', 0, 9999999,
             $totalcount, array('enrol/manual:enrol'));
 
+        $coursearray[-1] = get_string('newcourse', 'booking');
         foreach ($allcourses as $id => $courseobject) {
             $coursearray[$id] = $courseobject->shortname;
         }
@@ -621,12 +622,12 @@ class option_form extends moodleform {
 
         $groupname = $data['bookingname'] . ' - ' . $data['text'];
 
-        if (isset($data['courseid'])) {
+      /*  if (isset($data['courseid'])) {
             $groupid = groups_get_group_by_name($data['courseid'], $groupname);
             if ($groupid && $data['optionid'] == 0) {
                 $errors['text'] = get_string('groupexists', 'mod_booking');
             }
-        }
+        }*/
 
         if (isset($data['identifier'])) {
             $sql = "SELECT id FROM {booking_options} WHERE id <> :optionid AND identifier = :identifier";
