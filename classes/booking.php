@@ -578,7 +578,7 @@ class booking {
     public function get_all_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = null, $context = null) {
         global $DB;
 
-        return self::get_options_filter_sql($limitfrom, $limitnum, $searchtext, $fields, $context, [], ['bookingid' => $this->id]);
+        return self::get_options_filter_sql($limitfrom, $limitnum, $searchtext, $fields, $context, [], []);
     }
 
 
@@ -638,9 +638,6 @@ class booking {
 
         $innerfrom = "FROM {booking_options} bo";
 
-        $groupby = "GROUP BY bo.id
-                    ) s1";
-
         // If the user does not have the capability to see invisible options...
         if (!$context || !has_capability('mod/booking:canseeinvisibleoptions', $context)) {
             // ... then only show visible options.
@@ -673,6 +670,10 @@ class booking {
         $from .= $innerfrom;
 
         // Finally, we add the outer group by.
+        // For Postgres, group by must contain cfd1 & filename as well.
+        $groupby = "GROUP BY bo.id, cfd1.value, f.filename
+                    ) s1";
+
         $from .= $groupby;
 
         // Add the where at the right place.
@@ -703,8 +704,12 @@ class booking {
                 $counter++;
             }
 
-            $where .= " AND " . $DB->sql_like("s1.$key", ":$paramsvaluekey");
-            $params[$paramsvaluekey] = $value;
+            if (gettype($value) == 'integer') {
+                $where .= " AND   s1.$key = $value";
+            } else {
+                $where .= " AND " . $DB->sql_like("s1.$key", ":$paramsvaluekey");
+                $params[$paramsvaluekey] = $value;
+            }
         }
 
         return [$fields, $from, $where, $params, $filter];
