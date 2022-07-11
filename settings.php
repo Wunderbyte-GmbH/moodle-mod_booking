@@ -155,7 +155,15 @@ if ($ADMIN->fulltree) {
     {customfield_field} cff on cfc.id = cff.categoryid
     where component = "mod_booking"';
     global $DB;
-    $records = $DB->get_records_sql($sql);
+
+    // Make sure no error is thrown when there are no categories yet.
+    try {
+        $records = $DB->get_records_sql($sql);
+    } catch (Exception $e) {
+        $records = [];
+    }
+
+
     foreach ($records as $record) {
         $options[$record->shortname] = $record->shortname;
     }
