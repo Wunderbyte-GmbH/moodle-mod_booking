@@ -418,7 +418,8 @@ class price {
         }
 
         foreach ($prices as $pricerecord) {
-            if ($pricerecord->pricecategoryidentifier == $categoryidentifier) {
+            // We want to support string matching like category student for student@univie.ac.at.
+            if (strpos($categoryidentifier, $pricerecord->pricecategoryidentifier) !== false) {
                 return [
                     "price" => $pricerecord->price,
                     "currency" => $pricerecord->currency,
@@ -465,7 +466,7 @@ class price {
      * This function is optimized for speed and can be called often (as in a large table).
      *
      * @param user $user
-     * @return void
+     * @return string
      */
     private static function get_pricecategory_for_user($user) {
 
