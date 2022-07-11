@@ -658,6 +658,14 @@ function booking_update_options($optionvalues, $context) {
         // Possible improvement: We could add the optiondates_handler::reoccurring_datestring_is_correct check here...
         // ...and only store if the string is correct, if this is needed.
         $option->dayofweektime = $optionvalues->dayofweektime;
+
+        // This is only for sql filtering, but we need the weekday in an extra column.
+
+        $dayinfo = optiondates_handler::prepare_day_info($optionvalues->dayofweektime);
+        if (!empty($dayinfo['day'])) {
+            $option->dayofweek = $dayinfo['day'];
+        }
+
     }
 
     // Prefix to be shown before title of the booking option.

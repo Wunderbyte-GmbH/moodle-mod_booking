@@ -293,6 +293,7 @@ class booking_option_settings {
             $this->dayofweektime = $dbrecord->dayofweektime;
             $this->invisible = $dbrecord->invisible;
             $this->annotation = $dbrecord->annotation;
+            $this->dayofweek = $dbrecord->dayofweek;
 
             // Price formula: absolute value.
             if (isset($dbrecord->priceformulaadd)) {
