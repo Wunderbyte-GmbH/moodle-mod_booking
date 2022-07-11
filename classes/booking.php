@@ -578,7 +578,7 @@ class booking {
     public function get_all_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = null, $context = null) {
         global $DB;
 
-        return self::get_options_filter_sql($limitfrom, $limitnum, $searchtext, $fields, $context, [], []);
+        return self::get_options_filter_sql($limitfrom, $limitnum, $searchtext, $fields, $context, [], ['bookingid' => (int)$this->id]);
     }
 
 
