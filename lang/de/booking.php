@@ -1327,6 +1327,9 @@ $string['bookingoptiondefaultsdesc'] = 'Hier können Sie Standardwerte für die 
 $string['addtocalendardesc'] = 'Kurs-Kalenderevents können von ALLEN Kursteilnehmer_innen des Kurses gesehen werden. Falls Sie nicht möchten, dass Kurs-Kalenderevents
 erstellt werden, können Sie diese Einstellung standardmäßig ausschalten und sperren. Keine Sorge: Normale Kalenderevents für gebuchte Optionen (User-Events) werden weiterhin erstellt.';
 
+$string['newcoursecategorycfield'] = 'newcoursecategorycfield';
+$string['newcoursecategorycfielddesc'] = 'newcoursecategorycfielddesc';
+
 // Optiontemplatessettings.php.
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
 $string['defaulttemplate'] = 'Standard-Vorlage';
