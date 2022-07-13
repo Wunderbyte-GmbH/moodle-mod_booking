@@ -690,9 +690,9 @@ class booking_option_settings {
             $select .= "cfd$counter.value as $name ";
 
             // After the last instance, we don't add a comma
-            $select .= $counter > count($customfields) ? ", " : "";
+            $select .= $counter >= count($customfields) ? "" : ", ";
 
-            $from .= "LEFT JOIN
+            $from .= " LEFT JOIN
             (
                 SELECT cfd.instanceid, cfd.value
                 FROM {customfield_data} cfd
@@ -715,65 +715,7 @@ class booking_option_settings {
                     $params[$key] = $value;
                 }
             }
-
-            // $innerselect = $DB->sql_concat_join("''", [
-            //     "'{\"fieldname\":\"'",
-            //     "cff.name",
-            //     "'\", \"fieldvalue\":\"'",
-            //     "cfd.value",
-            //     "'\"}'"]);
-
-            // // Todo: Find a way to create a json object with the cff.name values, so we can cater to different customfields here.
-            // // Right now, this is limited to search one expression over all customfields of this component.
-            // $from = "LEFT JOIN
-            // (
-            //     SELECT cfo.instanceid, " . $DB->sql_group_concat('cfo.cfdobjects') . " as cfobjects
-            //     FROM (
-            //         SELECT cfd.instanceid, " . $innerselect . " as cfdobjects
-            //         FROM {customfield_data} cfd
-            //         JOIN {customfield_field} cff
-            //         ON cfd.fieldid=cff.id
-            //         JOIN {customfield_category} cfc
-            //         ON cff.categoryid=cfc.id and cfc.component=:componentname
-            //     ) as cfo
-
-            //     GROUP BY cfo.instanceid
-            // ) cfd1
-            // ON bo.id = cfd1.instanceid
-            // ";
-
-            // As this is a complete subrequest, we have to add the "where" to the outer table, where it is already rendered.
-            // $counter = 0;
-            // foreach ($filterarray as $searchparam) {
-
-            //     if (!$key = key($searchparam)) {
-            //         throw new moodle_exception('wrongstructureofsearchparams', 'mod_booking');
-            //     }
-            //     $value = $searchparam[$key];
-
-            //     // Only add Or if we are not in the first line.
-            //     $where .= $counter > 0 ? ' OR ' : ' AND (';
-
-            //     // We can't use this syntax at them moment, because the moodle sql_group_concat function doesn't let us create a json object.
-            //     // $where .= $DB->sql_like('s1.customfields', '\"fieldname\"\:\"' . $key . '\", \"fieldvalue\"\:\"' . $value .'\"', false);
-
-            //     $value = "%\"fieldname\"\:\"$key\", \"fieldvalue\"\:\"$value\"%";
-
-            //     // Make sure we never use the param more than once.
-            //     if (isset($params[$key])) {
-            //         $key = $key . $counter;
-            //     }
-
-            //     // $value = "%\"fieldname\"\:\"%";
-            //     $where .= $DB->sql_like('s1.customfields', ":$key", false);
-
-            //     // Now we have to add the values to our params array.
-            //     $params[$key] = $value;
-            //     $counter++;
-            // }
-            // // If we ran through the loop at least once, we close it again here.
-            // $where .= $counter > 0 ? ') ' : '';
-
+            $counter++;
         }
 
         return [$select, $from, $where, $params];
