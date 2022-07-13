@@ -609,24 +609,8 @@ class booking {
         global $DB;
 
         if (empty($fields)) {
-            $fields = "*";
+            $fields = "s1.*";
         }
-
-        // TODO: Get rid of this code as it is not necessary.
-        // While we get in die Fields selector only the columns or *, we need to use the right prefix internally.
-        // $fieldsarray = explode(', ', $fields);
-        // $fields = '';
-
-        // $counter = 1;
-        // foreach ($fieldsarray as $field) {
-        //     $fields .= "s1.$field";
-        //     if (count($fieldsarray) < $counter) {
-        //         $fields .= ", ";
-        //     }
-        //     $counter++;
-        // }
-
-        // $fields .= " ";
 
         $where = '';
 
@@ -642,7 +626,7 @@ class booking {
         // If the user does not have the capability to see invisible options...
         if (!$context || !has_capability('mod/booking:canseeinvisibleoptions', $context)) {
             // ... then only show visible options.
-            $where = "s1.invisible = 0 ";
+            $where = "invisible = 0 ";
         } else {
             // The "Where"-clause is always added so we have to have something here for the sql to work.
             $where = "1=1 ";
@@ -693,9 +677,9 @@ class booking {
             }
 
             if (gettype($value) == 'integer') {
-                $filter .= " AND   s1.$key = $value";
+                $filter .= " AND   $key = $value";
             } else {
-                $filter .= " AND " . $DB->sql_like("s1.$key", ":$paramsvaluekey");
+                $filter .= " AND " . $DB->sql_like("$key", ":$paramsvaluekey");
                 $params[$paramsvaluekey] = $value;
             }
         }
@@ -710,9 +694,9 @@ class booking {
             }
 
             if (gettype($value) == 'integer') {
-                $where .= " AND   s1.$key = $value";
+                $where .= " AND   $key = $value";
             } else {
-                $where .= " AND " . $DB->sql_like("s1.$key", ":$paramsvaluekey");
+                $where .= " AND " . $DB->sql_like("$key", ":$paramsvaluekey");
                 $params[$paramsvaluekey] = $value;
             }
         }
