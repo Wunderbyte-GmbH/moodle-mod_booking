@@ -679,7 +679,7 @@ class booking {
             if (gettype($value) == 'integer') {
                 $filter .= " AND   $key = $value";
             } else {
-                $filter .= " AND " . $DB->sql_like("$key", ":$paramsvaluekey");
+                $filter .= " AND " . $DB->sql_like("$key", ":$paramsvaluekey", false);
                 $params[$paramsvaluekey] = $value;
             }
         }
@@ -696,7 +696,7 @@ class booking {
             if (gettype($value) == 'integer') {
                 $where .= " AND   $key = $value";
             } else {
-                $where .= " AND " . $DB->sql_like("$key", ":$paramsvaluekey");
+                $where .= " AND " . $DB->sql_like("$key", ":$paramsvaluekey", false);
                 $params[$paramsvaluekey] = $value;
             }
         }
