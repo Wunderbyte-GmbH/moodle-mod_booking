@@ -1363,6 +1363,9 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         $navref->add(get_string('changesemester', 'booking'),
                 new moodle_url('/mod/booking/semesters.php', array('id' => $cm->id)),
                 navigation_node::TYPE_CUSTOM, null, 'nav_changesemester');
+        $navref->add(get_string('recalculateprices', 'booking'),
+                new moodle_url('/mod/booking/recalculateprices.php', array('id' => $cm->id)),
+                navigation_node::TYPE_CUSTOM, null, 'nav_recalculateprices');
     }
 
     if (!is_null($optionid) AND $optionid > 0) {
