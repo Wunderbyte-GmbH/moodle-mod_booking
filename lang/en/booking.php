@@ -1807,3 +1807,10 @@ $string['optionformconfig:nobooking'] = 'You need to create at least one booking
 $string['optionbookabletitle'] = '{$a->title} is available again';
 $string['optionbookablebody'] = '{$a->title} is now available again. <a href="{$a->url}">Click here</a> to directly go there.<br><br>
 (You receive this mail because you have clicked on the notification button for this option.)';
+
+// Calculate prices.
+$string['recalculateprices'] = 'Calculate all prices from instance with formula';
+$string['recalculateall'] = 'Calculate all prices';
+$string['alertrecalculate'] = '<b>Caution!</b> All prices will be recalculated and all old prices will be overwritten.';
+$string['successfullcalculation'] = 'Pricecalculation successfull!';
+

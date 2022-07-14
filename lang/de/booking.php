@@ -1556,3 +1556,9 @@ $string['optionformconfig:nobooking'] = 'Sie müssen zumindest eine Buchungsinst
 $string['optionbookabletitle'] = '{$a->title} wieder buchbar';
 $string['optionbookablebody'] = 'Sie können {$a->title} ab sofort wieder buchen. Klicken Sie <a href="{$a->url}">hier</a>, um direkt zur Buchungsmöglichkeit zu gelangen.<br><br>
 (Sie erhalten diese Nachricht, da Sie bei der Buchungsmöglichkeit auf den Benachrichtigungs-Button geklickt haben.)';
+
+// Calculate prices.
+$string['recalculateprices'] = 'Preise mit Formel neu berechnen';
+$string['recalculateall'] = 'alle Preise der Instanz berechnen';
+$string['alertrecalculate'] = '<b>Vorsicht!</b> Alle Preise der Instanz werden neu mit der eingetragenen Formel neu berechnet und alle alten Preise werden überschrieben.';
+$string['successfullcalculation'] = 'Preise erfolgreich neu berechnet!';

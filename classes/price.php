@@ -221,6 +221,79 @@ class price {
         return $price;
     }
 
+     /**
+     * Calculate the price using the JSON formula
+     * for a specific pricecategory within a booking option.
+     *
+     * @param stdClass $bo data from bookingoption
+     * @param string $priceformula the JSON string
+     * @param string $pricecategoryidentifier identifier of the price category
+     *
+     * @return void
+     */
+    public static function calculate_price_bo($bo, string $priceformula, string $pricecategoryidentifier) {
+
+        global $DB;
+
+        if (!$pricecategory = $DB->get_record('booking_pricecategories', ['disabled' => 0,
+            'identifier' => $pricecategoryidentifier])) {
+            // We return the 0 price. This will cause the form not to validate, if we try to apply the formula.
+            return 0;
+        }
+
+        if (!$jsonobject = json_decode($priceformula)) {
+            // We return the 0 price. This will cause the form not to validate, if we try to apply the formula.
+            return 0;
+        }
+
+        if (!empty($bo->dayofweektime)) {
+            // We need the dayofweektime split up.
+            $dayinfo = optiondates_handler::prepare_day_info($bo->dayofweektime);
+        }
+
+        // We start with the baseprice.
+        $price = $pricecategory->defaultvalue;
+
+        if ($price == 0) {
+            // We return the 0 price. This will cause the form not to validate, if we try to apply the formula.
+            return 0;
+        }
+
+        foreach ($jsonobject as $formulacomponent) {
+
+            // For invalid JSON.
+            if (is_string($formulacomponent)) {
+                // We return the 0 price. This will cause the form not to validate, if we try to apply the formula.
+                return 0;
+            }
+
+            $key = key($formulacomponent);
+            $value = $formulacomponent->$key;
+
+            switch ($key) {
+                // We apply each factor only once, after application we break the loop.
+                case 'timeslot':
+                    if (!empty($dayinfo)) {
+                        self::apply_time_factor($value, $dayinfo, $price);
+                    }
+                    break;
+                case 'unit':
+                    if (!empty($dayinfo)) {
+                        self::apply_unit_factor($value, $dayinfo, $price);
+                    }
+                    break;
+                case 'customfield':
+                    self::apply_customfield_factor($value, $bo, $price);
+                    break;
+                case 'entity':
+                    self::apply_entity_factor($value, $bo, $price);
+                    break;
+            }
+        }
+
+        return $price;
+    }
+
     /**
      * Interprets the timepart of the jsonobject and applies the multiplier to the price, if necessary.
      *
@@ -269,7 +342,7 @@ class price {
      * @param float $price
      * @return void
      */
-    private static function apply_customfield_factor(array $customfieldobjects, stdClass $fromform, float &$price) {
+    private static function apply_customfield_factor(array $customfieldobjects, $fromform, float &$price) {
 
         // First get all customfields from form.
         $customfields = [];
@@ -300,7 +373,7 @@ class price {
      * @param float $price
      * @return void
      */
-    private static function apply_entity_factor(array $entityobjects, stdClass $fromform, float &$price) {
+    private static function apply_entity_factor(array $entityobjects, $fromform, float &$price) {
         if (class_exists('local_entities\entitiesrelation_handler')) {
             if (!empty($fromform->local_entities_entityid)) {
                 foreach ($entityobjects as $object) {
