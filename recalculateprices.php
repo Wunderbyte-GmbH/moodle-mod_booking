@@ -29,6 +29,7 @@ use mod_booking\form\dynamicchangesemesterform;
 use mod_booking\form\dynamicholidaysform;
 use mod_booking\form\dynamicsemestersform;
 use mod_booking\output\semesters_holidays;
+use moodle_url;
 use stdClass;
 
 require_once('../../config.php');
@@ -36,16 +37,8 @@ require_once($CFG->libdir.'/adminlib.php');
 
 global $OUTPUT;
 
-
-
 $cmid = required_param('id', PARAM_INT);
 $submit = optional_param('submit', false, PARAM_BOOL);
-
-
-admin_externalpage_setup('modbookingsemesters', '', [],
-    new \moodle_url('/mod/booking/semesters.php'));
-
-$settingsurl = new \moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
 
 $pageurl = new \moodle_url('/mod/booking/recalculateprices.php');
 $PAGE->set_url($pageurl);
@@ -66,8 +59,15 @@ $data->alertmsg = get_string('alertrecalculate', 'booking');
 
 if ($submit) {
     $price = new price();
+    $currency = get_config('booking', 'globalcurrency');
+    $formulastring = get_config('booking', 'defaultpriceformula');
     if (empty($price->pricecategories)) {
         $data->alertmsg = get_string('nopricecategoriesyet', 'booking');
+        $data->alert = 1;
+    } else if (empty($formulastring)) {
+        $url = new moodle_url("/admin/category.php", ['category' => 'modbookingfolder'], 'admin-defaultpriceformula');
+        $a->url = $url->out(false);
+        $data->alertmsg = get_string('nopriceformulaset', 'booking', $a);
         $data->alert = 1;
     } else {
         $bosettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
@@ -76,8 +76,6 @@ if ($submit) {
             $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
             $settings = new stdClass();
             $settings = $bo->settings;
-            $currency = get_config('booking', 'globalcurrency');
-            $formulastring = get_config('booking', 'defaultpriceformula');
             foreach ($price->pricecategories as $pricecategory) {
                 $price->add_price(
                 $optionid,
