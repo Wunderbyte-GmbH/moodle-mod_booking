@@ -1812,6 +1812,6 @@ $string['optionbookablebody'] = '{$a->title} is now available again. <a href="{$
 $string['recalculateprices'] = 'Calculate all prices from instance with formula';
 $string['recalculateall'] = 'Calculate all prices';
 $string['alertrecalculate'] = '<b>Caution!</b> All prices will be recalculated and all old prices will be overwritten.';
-$string['nopriceformulaset'] = 'No formular set on setting page. <a href="{$a->url}" target="_blank">Set here.</a>';
-$string['successfullcalculation'] = 'Pricecalculation successfull!';
+$string['nopriceformulaset'] = 'No formula set on setting page. <a href="{$a->url}" target="_blank">Set it here.</a>';
+$string['successfulcalculation'] = 'Price calculation successful!';
 

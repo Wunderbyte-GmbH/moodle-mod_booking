@@ -1559,8 +1559,8 @@ $string['optionbookablebody'] = 'Sie können {$a->title} ab sofort wieder buchen
 
 // Calculate prices.
 $string['recalculateprices'] = 'Preise mit Formel neu berechnen';
-$string['recalculateall'] = 'alle Preise der Instanz berechnen';
-$string['alertrecalculate'] = '<b>Vorsicht!</b> Alle Preise der Instanz werden neu mit der eingetragenen Formel neu berechnet und alle alten Preise werden überschrieben.';
-$string['successfullcalculation'] = 'Preise erfolgreich neu berechnet!';
-$string['nopriceformulaset'] = 'Sie müssen zuerst eine Formel in den Buchungseinstellungen eintragen <a href="{$a->url}" target="_blank">Zu der Einstellung.</a>';
+$string['recalculateall'] = 'Alle Preise der Instanz berechnen';
+$string['alertrecalculate'] = '<b>Vorsicht!</b> Alle Preise der Instanz werden mit der eingetragenen Formel neu berechnet und alle alten Preise werden überschrieben.';
+$string['successfulcalculation'] = 'Preise erfolgreich neu berechnet!';
+$string['nopriceformulaset'] = 'Sie müssen zuerst eine Formel in den Buchungseinstellungen eintragen. <a href="{$a->url}" target="_blank">Formel hier bearbeiten.</a>';
 

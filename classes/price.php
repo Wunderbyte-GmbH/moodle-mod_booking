@@ -22,7 +22,6 @@ use core_user;
 use MoodleQuickForm;
 use stdClass;
 use lang_string;
-use local_entities\entitiesrelation_handler;
 use local_shopping_cart\shopping_cart;
 use mod_booking\booking_option_settings;
 
@@ -158,7 +157,7 @@ class price {
      *
      * @return void
      */
-    public static function calculate_price(stdClass $fromform, string $priceformula, string $pricecategoryidentifier) {
+    public static function calculate_price_from_form(stdClass $fromform, string $priceformula, string $pricecategoryidentifier) {
 
         global $DB;
 
@@ -210,10 +209,10 @@ class price {
                     }
                     break;
                 case 'customfield':
-                    self::apply_customfield_factor($value, $fromform, $price);
+                    self::apply_customfield_factor_from_form($value, $fromform, $price);
                     break;
                 case 'entity':
-                    self::apply_entity_factor($value, $fromform, $price);
+                    self::apply_entity_factor_from_form($value, $fromform, $price);
                     break;
             }
         }
@@ -221,17 +220,18 @@ class price {
         return $price;
     }
 
-     /**
+    /**
      * Calculate the price using the JSON formula
      * for a specific pricecategory within a booking option.
      *
-     * @param stdClass $bo data from bookingoption
+     * @param booking_option_settings $bookingoptionsettings data from bookingoption
      * @param string $priceformula the JSON string
      * @param string $pricecategoryidentifier identifier of the price category
      *
      * @return void
      */
-    public static function calculate_price_bo($bo, string $priceformula, string $pricecategoryidentifier) {
+    public static function calculate_price_with_bookingoptionsettings($bookingoptionsettings, string $priceformula,
+        string $pricecategoryidentifier) {
 
         global $DB;
 
@@ -246,9 +246,9 @@ class price {
             return 0;
         }
 
-        if (!empty($bo->dayofweektime)) {
+        if (!empty($bookingoptionsettings->dayofweektime)) {
             // We need the dayofweektime split up.
-            $dayinfo = optiondates_handler::prepare_day_info($bo->dayofweektime);
+            $dayinfo = optiondates_handler::prepare_day_info($bookingoptionsettings->dayofweektime);
         }
 
         // We start with the baseprice.
@@ -283,10 +283,10 @@ class price {
                     }
                     break;
                 case 'customfield':
-                    self::apply_customfield_factor($value, $bo, $price);
+                    self::apply_customfield_factor_with_bookingoptionsettings($value, $bookingoptionsettings, $price);
                     break;
                 case 'entity':
-                    self::apply_entity_factor($value, $bo, $price);
+                    self::apply_entity_factor_with_bookingoptionsettings($value, $bookingoptionsettings, $price);
                     break;
             }
         }
@@ -342,7 +342,7 @@ class price {
      * @param float $price
      * @return void
      */
-    private static function apply_customfield_factor(array $customfieldobjects, $fromform, float &$price) {
+    private static function apply_customfield_factor_from_form(array $customfieldobjects, stdClass $fromform, float &$price) {
 
         // First get all customfields from form.
         $customfields = [];
@@ -373,11 +373,66 @@ class price {
      * @param float $price
      * @return void
      */
-    private static function apply_entity_factor(array $entityobjects, $fromform, float &$price) {
+    private static function apply_entity_factor_from_form(array $entityobjects, stdClass $fromform, float &$price) {
         if (class_exists('local_entities\entitiesrelation_handler')) {
             if (!empty($fromform->local_entities_entityid)) {
                 foreach ($entityobjects as $object) {
                     if (isset($object->entityid) && $object->entityid == $fromform->local_entities_entityid) {
+                        $price = $price * $object->multiplier;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Interprets the customfield part of the jsonobject and applies the multiplier to the price, if necessary.
+     *
+     * @param array $customfieldobjects
+     * @param booking_option_settings $bookingoptionsettings
+     * @param float $price
+     * @return void
+     */
+    private static function apply_customfield_factor_with_bookingoptionsettings(array $customfieldobjects,
+        booking_option_settings $bookingoptionsettings, float &$price) {
+
+        // First get all customfields from settings object.
+        $customfields = [];
+        foreach ($bookingoptionsettings->customfields as $fieldname => $fieldvalue) {
+            if (!empty($fieldvalue[0])) {
+                $customfields[$fieldname] = strtolower($fieldvalue[0]);
+            }
+        }
+
+        // Now get all customfields set in formula.
+        foreach ($customfieldobjects as $object) {
+            $key = $object->name;
+            $value = strtolower($object->value);
+            foreach ($customfields as $customfieldname => $customfieldvalue) {
+                if ($key === $customfieldname && $value === $customfieldvalue) {
+                    $price = $price * $object->multiplier;
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Interprets the entity part of the jsonobject and applies the multiplier to the price, if necessary.
+     *
+     * @param array $entityobjects
+     * @param booking_option_settings $bookingoptionsettings
+     * @param float $price
+     * @return void
+     */
+    private static function apply_entity_factor_with_bookingoptionsettings(array $entityobjects,
+        booking_option_settings $bookingoptionsettings, float &$price) {
+
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            if (!empty($bookingoptionsettings->entity)) {
+                foreach ($entityobjects as $object) {
+                    if (isset($object->entityid) && $object->entityid == $bookingoptionsettings->entity['id']) {
                         $price = $price * $object->multiplier;
                         break;
                     }
@@ -394,7 +449,7 @@ class price {
         foreach ($this->pricecategories as $pricecategory) {
             if (!empty($fromform->priceformulaisactive) && $fromform->priceformulaisactive == "1") {
                 // Price formula is active, so let's calculate the values.
-                $price = self::calculate_price(
+                $price = self::calculate_price_from_form(
                     $fromform,
                     $formulastring,
                     $pricecategory->identifier

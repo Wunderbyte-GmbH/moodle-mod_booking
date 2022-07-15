@@ -22,13 +22,9 @@
  * @author Thomas Winkler
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace mod_booking;
 
-use mod_booking\form\dynamicchangesemesterform;
-use mod_booking\form\dynamicholidaysform;
-use mod_booking\form\dynamicsemestersform;
-use mod_booking\output\semesters_holidays;
+use context_system;
 use moodle_url;
 use stdClass;
 
@@ -37,6 +33,12 @@ require_once($CFG->libdir.'/adminlib.php');
 
 global $OUTPUT;
 
+// No guest autologin.
+require_login(0, false);
+
+$context = context_system::instance();
+$PAGE->set_context($context);
+
 $cmid = required_param('id', PARAM_INT);
 $submit = optional_param('submit', false, PARAM_BOOL);
 
@@ -44,53 +46,50 @@ $pageurl = new \moodle_url('/mod/booking/recalculateprices.php');
 $PAGE->set_url($pageurl);
 
 $PAGE->set_title(
-    format_string($SITE->shortname) . ': ' . get_string('recalculateprices', 'booking')
+    format_string($SITE->shortname) . ': ' . get_string('recalculateprices', 'mod_booking')
 );
 
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('recalculateprices', 'booking'));
-
+$data = new stdClass;
 $data->cmid = $cmid;
 $url = new \moodle_url('/mod/booking/view.php', ['id' => $cmid]);
 $data->back = $url->out(false);
 $url = new \moodle_url('/mod/booking/recalculateprices.php', ['id' => $cmid, 'submit' => true]);
 $data->continue = $url->out(false);
-$data->alertmsg = get_string('alertrecalculate', 'booking');
+$data->alertmsg = get_string('alertrecalculate', 'mod_booking');
 
 if ($submit) {
     $price = new price();
     $currency = get_config('booking', 'globalcurrency');
     $formulastring = get_config('booking', 'defaultpriceformula');
     if (empty($price->pricecategories)) {
-        $data->alertmsg = get_string('nopricecategoriesyet', 'booking');
+        $data->alertmsg = get_string('nopricecategoriesyet', 'mod_booking');
         $data->alert = 1;
     } else if (empty($formulastring)) {
         $url = new moodle_url("/admin/category.php", ['category' => 'modbookingfolder'], 'admin-defaultpriceformula');
         $a->url = $url->out(false);
-        $data->alertmsg = get_string('nopriceformulaset', 'booking', $a);
+        $data->alertmsg = get_string('nopriceformulaset', 'mod_booking', $a);
         $data->alert = 1;
     } else {
-        $bosettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-        $alloptionsid = \mod_booking\booking::get_all_optionids($bosettings->id);
-        foreach ($alloptionsid as $optionid) {
-            $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
-            $settings = new stdClass();
-            $settings = $bo->settings;
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        $alloptionids = \mod_booking\booking::get_all_optionids($bookingsettings->id);
+        foreach ($alloptionids as $optionid) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             foreach ($price->pricecategories as $pricecategory) {
                 $price->add_price(
-                $optionid,
-                $price->pricecategories[1]->identifier,
-                price::calculate_price_bo($settings, $formulastring, $pricecategory->identifier),
-                $currency
+                    $optionid,
+                    $pricecategory->identifier,
+                    price::calculate_price_with_bookingoptionsettings($settings, $formulastring, $pricecategory->identifier),
+                    $currency
                 );
             }
         }
-        $msg = get_string('successfullcalculation', 'booking');
+        $msg = get_string('successfulcalculation', 'mod_booking');
         redirect($data->back, $msg, 5);
     }
 }
 
-
+// Page output.
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('recalculateprices', 'mod_booking'));
 echo $OUTPUT->render_from_template('mod_booking/recalculateprices', $data);
-
 echo $OUTPUT->footer();
