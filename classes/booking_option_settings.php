@@ -190,6 +190,9 @@ class booking_option_settings {
     /** @var float $priceformulamultiply */
     public $priceformulamultiply = null;
 
+    /** @var string $dayofweek */
+    public $dayofweek = null;
+
     /**
      * Constructor for the booking option settings class.
      * The constructor can take the dbrecord stdclass which is the initial DB request for this option.
@@ -238,7 +241,8 @@ class booking_option_settings {
             // At this point, we don't now anything about any other context, so we get system.
             $context = context_system::instance();
 
-            list($select, $from, $where, $params) = booking::get_options_filter_sql(null, 1, null, '*', $context, [], ['id' => $optionid]);
+            list($select, $from, $where, $params) = booking::get_options_filter_sql(null, 1, null, '*',
+                $context, [], ['id' => $optionid]);
 
             $sql = "SELECT $select
                     FROM $from
@@ -661,9 +665,6 @@ class booking_option_settings {
      */
     public static function return_sql_for_customfield(array &$filterarray = []): array {
 
-        // Testing.
-        // $searchparams = [['sportart' => 'basketball'], ['sportart' => 'fussball'], ['sportart' => 'bodystyling']];
-
         global $DB;
 
          // Find out how many customfields are there for mod_booking.
@@ -689,7 +690,7 @@ class booking_option_settings {
 
             $select .= "cfd$counter.value as $name ";
 
-            // After the last instance, we don't add a comma
+            // After the last instance, we don't add a comma.
             $select .= $counter >= count($customfields) ? "" : ", ";
 
             $from .= " LEFT JOIN
@@ -746,7 +747,6 @@ class booking_option_settings {
             "' '",
             'u.lastname',
             "'\"}'"]);
-        // $innerselect = 'bt.id';
         $where = '';
         $params = [];
 
@@ -771,9 +771,6 @@ class booking_option_settings {
             // Only add Or if we are not in the first line.
             $where .= $counter > 0 ? ' OR ' : ' AND (';
 
-            // We can't use this syntax at them moment, because the moodle sql_group_concat function doesn't let us create a json object.
-            // $where .= $DB->sql_like('s1.customfields', '\"fieldname\"\:\"' . $key . '\", \"fieldvalue\"\:\"' . $value .'\"', false);
-
             $value = "%\"$key\"\:%$value%";
 
             // Make sure we never use the param more than once.
@@ -781,7 +778,6 @@ class booking_option_settings {
                 $key = $key . $counter;
             }
 
-            // $value = "%\"fieldname\"\:\"%";
             $where .= $DB->sql_like('s1.teacherobjects', ":$key", false);
 
             // Now we have to add the values to our params array.
@@ -796,12 +792,8 @@ class booking_option_settings {
 
     public static function return_sql_for_files($searchparams = []): array {
 
-        // Testing.
-        // $searchparams = [['filename' => 'basketball']];
-
         global $DB;
 
-        // $select = 'GROUP_CONCAT('{id:"', bt1.id, '", firstname:"',bt1.firstname,'", lastname:"',bt1.lastname,'"}') as teacherobjects';
         $select = ' f.filename ';
 
         $where = '';
@@ -823,9 +815,6 @@ class booking_option_settings {
             // Only add Or if we are not in the first line.
             $where .= $counter > 0 ? ' OR ' : ' AND (';
 
-            // We can't use this syntax at them moment, because the moodle sql_group_concat function doesn't let us create a json object.
-            // $where .= $DB->sql_like('s1.customfields', '\"fieldname\"\:\"' . $key . '\", \"fieldvalue\"\:\"' . $value .'\"', false);
-
             $value = "%$value%";
 
             // Make sure we never use the param more than once.
@@ -833,7 +822,6 @@ class booking_option_settings {
                 $key = $key . $counter;
             }
 
-            // $value = "%\"fieldname\"\:\"%";
             $where .= $DB->sql_like('s1.filename', ":$key", false);
 
             // Now we have to add the values to our params array.
