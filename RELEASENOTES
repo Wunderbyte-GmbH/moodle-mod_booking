@@ -1,3 +1,14 @@
+## Version 7.2.4 (2022071800)
+* New feature: Added automatic course creation.
+* New feature: Added price calculation for all options of instance.
+* Improvement: Updated automated tests config for M4.
+* Improvement: Performance improvement for construction of booking_settings.
+* Improvement: Added missing language strings.
+* Bugfix: Fixed unit testing fail in externallib.
+* Bugfix: Fixed possible error with price on guest view.
+* Bugfix: Fixed postgres errors.
+* Bugfix: Fixed broken commenting feature for booking options.
+
 7.2.3 (2022070500)
 * New feature: Calculate prices for specific booking options using a sophisticated JSON formula.
 * New feature: Direct connection between booking instances and semesters.
