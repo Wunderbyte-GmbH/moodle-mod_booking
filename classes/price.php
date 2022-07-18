@@ -24,6 +24,7 @@ use stdClass;
 use lang_string;
 use local_shopping_cart\shopping_cart;
 use mod_booking\booking_option_settings;
+use local_entities\entitiesrelation_handler;
 
 /**
  * Price class.
@@ -432,8 +433,9 @@ class price {
         if (class_exists('local_entities\entitiesrelation_handler')) {
             if (!empty($bookingoptionsettings->entity)) {
                 foreach ($entityobjects as $object) {
-                    if (isset($object->entityid) && $object->entityid == $bookingoptionsettings->entity['id']) {
-                        $price = $price * $object->multiplier;
+                    if (isset($object->entityid) && $object->entityid == $bookingoptionsettings->entity['id']
+                    && $entitiespricefactor = entitiesrelation_handler::get_pricefactor_by_entityid($object->entityid)) {
+                        $price = $price * $entitiespricefactor;
                         break;
                     }
                 }
