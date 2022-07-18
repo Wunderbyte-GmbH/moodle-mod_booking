@@ -33,6 +33,7 @@ use mod_booking\optiondates_handler;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\utils\wb_payment;
+use mod_booking\booking_elective;
 
 // Currently up to 9 different price categories can be set.
 define('MAX_PRICE_CATEGORIES', 9);
@@ -503,6 +504,25 @@ function booking_update_instance($booking) {
         $booking->templateid = 0;
     }
 
+    // Elective.
+    if (isset($booking->iselective) && $booking->iselective > 0) {
+        $booking->iselective = $booking->iselective;
+    } else {
+        $booking->iselective = 0;
+    }
+
+    if (isset($booking->enforceorder) && $booking->enforceorder > 0) {
+        $booking->enforceorder = $booking->enforceorder;
+    } else {
+        $booking->enforceorder = 0;
+    }
+
+    if (isset($booking->consumeatonce) && $booking->consumeatonce > 0) {
+        $booking->consumeatonce = $booking->consumeatonce;
+    } else {
+        $booking->consumeatonce = 0;
+    }
+
     if (isset($booking->optionsfields) && is_array($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
     }
@@ -627,6 +647,7 @@ function booking_update_options($optionvalues, $context) {
         if (!$originaloption = $DB->get_record('booking_options', ['id' => $optionvalues->optionid])) {
             $originaloption = false;
         }
+
     }
 
     $option = new stdClass();
@@ -814,6 +835,22 @@ function booking_update_options($optionvalues, $context) {
 
     $option->timemodified = time();
 
+    // Elective Credits.
+    $option->credits = $optionvalues->credits;
+
+    // Fixed: record should not get inserted a 2nd time here:
+    $db_record = $DB->get_record("booking_options", ['text' => $option->text]);
+    if (empty($db_record)){
+        $id = $DB->insert_record("booking_options", $option);
+    } else {
+        $id = $db_record->id;
+    }
+
+    // Elective.
+    // Save combination arrays to DB.
+    booking_elective::addcombinations($id, $optionvalues->mustcombine, 1);
+    booking_elective::addcombinations($id, $optionvalues->mustnotcombine, 0);
+
     // Add to calendar option.
     if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar == 1) {
         // 1 ... Add to calendar as COURSE event.
@@ -893,6 +930,11 @@ function booking_update_options($optionvalues, $context) {
              $optionvalues->optionid != -1) { // Existing booking option record.
 
         $option->id = $optionvalues->optionid;
+
+        // Elective.
+        // Save combination arrays to DB.
+        booking_elective::addcombinations($option->id, $optionvalues->mustcombine, 1);
+        booking_elective::addcombinations($option->id, $optionvalues->mustnotcombine, 0);
 
         if (isset($optionvalues->shorturl)) {
             $option->shorturl = $optionvalues->shorturl;

@@ -107,6 +107,20 @@ if ($optionid == -1 && $copyoptionid != 0) {
     $defaultvalues->id = $cmid;
 }
 
+// Elective. Retrieve values.
+
+$mustcombinearray = \mod_booking\booking_elective::get_combine_array($optionid, 1);
+
+if (count($mustcombinearray) != 0) {
+    $defaultvalues->mustcombine = $mustcombinearray;
+}
+
+$mustnotcombinearray = \mod_booking\booking_elective::get_combine_array($optionid, 0);
+
+if (count($mustnotcombinearray) != 0) {
+    $defaultvalues->mustnotcombine = $mustnotcombinearray;
+}
+
 if ($mform->is_cancelled()) {
 
     if (!empty($returnurl)) {

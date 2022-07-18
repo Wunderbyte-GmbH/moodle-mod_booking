@@ -24,6 +24,7 @@
 use mod_booking\booking_option;
 use mod_booking\calendar;
 use mod_booking\singleton_service;
+use mod_booking\booking_elective;
 
 /**
  * Event observer for mod_booking.
@@ -276,5 +277,31 @@ class mod_booking_observer {
      */
     public static function teacher_removed(\mod_booking\event\teacher_removed $event) {
         new calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, calendar::TYPETEACHERREMOVE);
+    }
+
+    /**
+     * When a course is completed, check if the user needs to be enrolled in the next course.
+     *
+     * @param \core\event\course_completed $event
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function course_completed(\core\event\course_completed $event) {
+        global $DB;
+
+        // Check if there is an associated booking_answer with status 'booked' for the userid and courseid.
+        $sql = 'SELECT ba.userid, bo.courseid
+                FROM {booking_answers} ba
+                JOIN {booking_options} bo
+                ON ba.optionid = bo.id
+                WHERE ba.userid = :userid AND ba.waitinglist = 0 AND bo.courseid = :courseid';
+        $params = ['userid' => $event->relateduserid, 'courseid' => $event->courseid];
+
+        // Only execute if there are associated booking_answers.
+        if ($bookedanswers = $DB->get_records_sql($sql, $params)) {
+            // Call the enrolment function.
+            booking_elective::enrol_booked_users_to_course();
+        }
     }
 }

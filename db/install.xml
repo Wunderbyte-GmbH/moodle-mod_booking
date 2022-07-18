@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/booking/db" VERSION="20200806" COMMENT="XMLDB file for Moodle mod/booking"
+<XMLDB PATH="mod/booking/db" VERSION="20220718" COMMENT="XMLDB file for Moodle mod/booking"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -385,7 +385,7 @@
     <TABLE NAME="booking_pricecategories" COMMENT="Different price categories for different types of users (e.g. students, academics, employees, externals...)">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="ordernum" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="A number defining the sort order of the categories."/>
+        <FIELD NAME="ordernum" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="A number defining the sort order of the categories."/>
         <FIELD NAME="identifier" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The identifier of the price category, e.g. 'student'."/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The full name of the price category, e.g. 'Student price'."/>
         <FIELD NAME="defaultvalue" TYPE="number" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="A default value for every price in this category."/>
@@ -425,6 +425,18 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="elementname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the booking option form element"/>
         <FIELD NAME="active" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="0...the element is disabled; 1...the element is enabled"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="booking_combinations" COMMENT="Booking option can define necessary or forbidden combination with other booking option.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Which booking option is concerned"/>
+        <FIELD NAME="otheroptionid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The OTHER booking option, with which a relation is defined here"/>
+        <FIELD NAME="othercourseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Instead of a booking option, we can also define a relation to a course (must be booked, finished etc.)"/>
+        <FIELD NAME="cancombine" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="0 is can't combine, 1 is must combine, 3 is must not be finished, 4 is must be finished&quot;"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

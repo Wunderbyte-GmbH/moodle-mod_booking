@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking\form;
 
+use mod_booking\booking_elective;
 use mod_booking\utils\wb_payment;
 use mod_booking\booking;
 use mod_booking\booking_option;
@@ -372,6 +373,7 @@ class option_form extends moodleform {
                 array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 50,
                                 'accepted_types' => array('*')));
 
+
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with editors.
         // In expert mode, we do not hide anything.
@@ -471,6 +473,9 @@ class option_form extends moodleform {
         // Add price.
         $price = new price($this->_customdata['optionid']);
         $price->add_price_to_mform($mform);
+
+        // Add Electives.
+        booking_elective::add_elective_to_option_form($mform, $cmid, $optionid);
 
         // Add entities.
         if (class_exists('local_entities\entitiesrelation_handler')) {

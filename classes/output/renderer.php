@@ -290,6 +290,18 @@ class renderer extends plugin_renderer_base {
 
         return $ratinghtml;
     }
+    /**
+     * Render the modal to confirm electives, including the button to call it.
+     *
+     * @param mod_booking\output\elective_modal $data
+     * @return string rendered html
+     */
+    public function render_elective_modal(mod_booking\output\elective_modal $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/elective_modal', $data);
+        return $o;
+    }
 
     /**
      * display all the bookings of the whole moodle site

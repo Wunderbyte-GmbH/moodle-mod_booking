@@ -17,6 +17,7 @@
 namespace mod_booking\task;
 
 use mod_booking\booking_option;
+use mod_booking\booking_elective;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -82,5 +83,8 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
             list($insql, $params) = $DB->get_in_or_equal(array_keys($boids));
             $DB->set_field_select('booking_options', 'enrolmentstatus', '1', 'id ' . $insql, $params);
         }
+
+        // Call the enrolment function.
+        booking_elective::enrol_booked_users_to_course();
     }
 }
