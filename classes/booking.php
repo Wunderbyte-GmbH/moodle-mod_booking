@@ -608,8 +608,10 @@ class booking {
 
         global $DB;
 
+        $groupby = " bo.id ";
+
         if (empty($fields)) {
-            $fields = "s1.*";
+            $fields = " DISTINCT s1.*";
         }
 
         $where = '';
@@ -647,6 +649,24 @@ class booking {
         $innerfrom .= " $from2 ";
         $innerfrom .= " $from3 ";
 
+        $pattern = '/as.*?,/';
+        $addgroupby = preg_replace($pattern, ',', $select1 . ",");
+
+        $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
+
+        $addgroupby = preg_replace($pattern, ',', $select3 . ",");
+        $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
+
+        $groupbyarray = (array)explode(',', $groupby);
+
+        foreach ($groupbyarray as $key => $value) {
+            if (empty(trim($value))) {
+                unset($groupbyarray[$key]);
+            }
+        }
+
+        $groupby = implode(" , ", $groupbyarray);
+
         // Now we merge all the params arrays.
         $params = array_merge($params, $params1, $params2, $params3);
 
@@ -656,7 +676,7 @@ class booking {
 
         // Finally, we add the outer group by.
         // For Postgres, group by must contain cfd1 & filename as well.
-        $groupby = "GROUP BY bo.id, cfd1.value, f.filename
+        $groupby = "GROUP BY " . $groupby . "
                     ) s1";
 
         $from .= $groupby;
