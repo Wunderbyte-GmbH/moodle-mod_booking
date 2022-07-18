@@ -1,3 +1,11 @@
+## Version 7.2.5 (2022071801)
+**Improvements:**
+* New price calculations with entity factor from entity manager.
+
+**Bugfixes:**
+* Hotfix - Missing quote character in install.xml.
+* Added missing "dayofweek" in backup.
+
 ## Version 7.2.4 (2022071800)
 **New features:**
 * Added automatic course creation.

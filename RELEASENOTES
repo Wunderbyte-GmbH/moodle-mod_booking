@@ -1,4 +1,9 @@
-## Version 7.2.4 (2022071800)
+7.2.5 (2022071801)
+* Improvement: New price calculations with entity factor from entity manager.
+* Bugfix: Hotfix - Missing quote character in install.xml.
+* Bugfix: Added missing dayofweek in backup.
+
+7.2.4 (2022071800)
 * New feature: Added automatic course creation.
 * New feature: Added price calculation for all options of instance.
 * Improvement: Updated automated tests config for M4.
