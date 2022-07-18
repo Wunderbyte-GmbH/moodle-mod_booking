@@ -213,7 +213,7 @@ class price {
                     self::apply_customfield_factor_from_form($value, $fromform, $price);
                     break;
                 case 'entity':
-                    self::apply_entity_factor_from_form($value, $fromform, $price);
+                    self::apply_entity_factor_from_form($fromform, $price);
                     break;
             }
         }
@@ -287,7 +287,7 @@ class price {
                     self::apply_customfield_factor_with_bookingoptionsettings($value, $bookingoptionsettings, $price);
                     break;
                 case 'entity':
-                    self::apply_entity_factor_with_bookingoptionsettings($value, $bookingoptionsettings, $price);
+                    self::apply_entity_factor_with_bookingoptionsettings($bookingoptionsettings, $price);
                     break;
             }
         }
@@ -374,14 +374,12 @@ class price {
      * @param float $price
      * @return void
      */
-    private static function apply_entity_factor_from_form(array $entityobjects, stdClass $fromform, float &$price) {
+    private static function apply_entity_factor_from_form(stdClass $fromform, float &$price) {
         if (class_exists('local_entities\entitiesrelation_handler')) {
             if (!empty($fromform->local_entities_entityid)) {
-                foreach ($entityobjects as $object) {
-                    if (isset($object->entityid) && $object->entityid == $fromform->local_entities_entityid) {
-                        $price = $price * $object->multiplier;
-                        break;
-                    }
+                if ($entitiespricefactor = entitiesrelation_handler::get_pricefactor_by_entityid(
+                    $fromform->local_entities_entityid)) {
+                    $price = $price * $entitiespricefactor;
                 }
             }
         }
@@ -420,24 +418,20 @@ class price {
     }
 
     /**
-     * Interprets the entity part of the jsonobject and applies the multiplier to the price, if necessary.
+     * Applies the entity multiplier to the price, if it exists.
      *
-     * @param array $entityobjects
      * @param booking_option_settings $bookingoptionsettings
      * @param float $price
      * @return void
      */
-    private static function apply_entity_factor_with_bookingoptionsettings(array $entityobjects,
+    private static function apply_entity_factor_with_bookingoptionsettings(
         booking_option_settings $bookingoptionsettings, float &$price) {
 
         if (class_exists('local_entities\entitiesrelation_handler')) {
             if (!empty($bookingoptionsettings->entity)) {
-                foreach ($entityobjects as $object) {
-                    if (isset($object->entityid) && $object->entityid == $bookingoptionsettings->entity['id']
-                    && $entitiespricefactor = entitiesrelation_handler::get_pricefactor_by_entityid($object->entityid)) {
-                        $price = $price * $entitiespricefactor;
-                        break;
-                    }
+                if ($entitiespricefactor = entitiesrelation_handler::get_pricefactor_by_entityid(
+                    $bookingoptionsettings->entity['id'])) {
+                    $price = $price * $entitiespricefactor;
                 }
             }
         }
