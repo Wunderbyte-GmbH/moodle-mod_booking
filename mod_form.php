@@ -557,7 +557,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('selectyesno', 'allowupdate', get_string("allowdelete", "booking"));
         $opts = array(0 => get_string('cancancelbookdaysno', 'mod_booking'));
-        $extraopts = array_combine(range(1, 100), range(1, 100));
+        $extraopts = array_combine(range(-100, 100), range(-100, 100));
         $opts = $opts + $extraopts;
         $mform->addElement('select', 'allowupdatedays', get_string('cancancelbookdays', 'mod_booking'), $opts);
         $mform->setDefault('allowupdatedays', 0);

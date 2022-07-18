@@ -104,13 +104,30 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $optiontitle = $bookingoption->option->titleprefix . ' - ' . $optiontitle;
         }
 
+        $now = time();
+
+        $allowedupdatedays = $booking->settings->allowupdatedays;
+        if (!empty($allowupdatedays)) {
+            // Different string depending on plus or minus.
+            if ($allowedupdatedays >= 0) {
+                $datestring = " - $allowedupdatedays days";
+            } else {
+                $allowedupdatedays = abs($allowedupdatedays);
+                $datestring = " + abs($allowedupdatedays) days";
+            }
+            $canceluntil = strtotime($datestring, $now);
+        } else {
+            $canceluntil = null;
+        }
+
         return new cartitem($optionid,
                             $optiontitle,
                             $price['price'],
                             $price['currency'],
                             'mod_booking',
                             $description,
-                            $settings->imageurl);
+                            $settings->imageurl,
+                            $canceluntil);
     }
 
     /**
