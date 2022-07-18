@@ -100,6 +100,10 @@
         <FIELD NAME="autcrvalue" TYPE="char" LENGTH="264" NOTNULL="false" SEQUENCE="false" COMMENT="Auto create user profile field value to check."/>
         <FIELD NAME="autcrtemplate" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Template to create an option from auto create option."/>
         <FIELD NAME="semesterid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Semester ID"/>
+        <FIELD NAME="iselective" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Use this Instance with elective functionality"/>
+        <FIELD NAME="consumeatonce" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="All credits will have to be consumed with one booking step"/>
+        <FIELD NAME="maxcredits" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="How many credits can be used in this instance by user"/>
+        <FIELD NAME="enforceorder" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="1 if enrolement in booked courses should wait for previous booked course to be completed."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
