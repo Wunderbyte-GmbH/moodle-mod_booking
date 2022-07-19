@@ -792,4 +792,30 @@ class booking {
 
         return $encodedlink;
     }
+
+    // Elective.
+
+    /**
+     * @param $booking
+     * @return bool
+     */
+    public function is_elective() {
+        if ($this->settings->iselective == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Function to check booking settings if we should use credits function
+     * Part of elective functinoality
+     * @return bool
+     */
+    public function uses_credits() {
+        if ($this->settings->iselective == 1
+                && $this->settings->maxcredits > 0) {
+            return true;
+        }
+        return false;
+    }
 }

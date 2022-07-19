@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use mod_booking\booking_elective;
 use mod_booking\all_options;
 use mod_booking\booking;
 use mod_booking\output\business_card;
@@ -421,7 +422,12 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             }
         }
 
-        echo $OUTPUT->box($booking->show_maxperuser($USER), 'mdl-align');
+        if (!$iselective) {
+            echo $OUTPUT->box($booking->show_maxperuser($USER), 'mdl-align');
+        } else {
+            $message = booking_elective::show_credits_message($booking, $optionid);
+            echo $OUTPUT->box($message, 'mdl-align');
+        }
 
         $output = $PAGE->get_renderer('mod_booking');
         $output->print_booking_tabs($urlparams, $whichview, $mybookings->mybookings,
@@ -555,6 +561,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                          bo.maxanswers,
                          bo.maxoverbooking,
                          bo.invisible,
+                         bo.credits,
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id

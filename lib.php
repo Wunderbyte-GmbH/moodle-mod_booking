@@ -33,6 +33,7 @@ use mod_booking\optiondates_handler;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\utils\wb_payment;
+use mod_booking\booking_elective;
 
 // Currently up to 9 different price categories can be set.
 define('MAX_PRICE_CATEGORIES', 9);
@@ -372,6 +373,25 @@ function booking_add_instance($booking) {
     } else {
         $booking->templateid = 0;
     }
+    // Elective implementation start.
+    if (isset($booking->iselective) && $booking->iselective > 0) {
+        $booking->iselective = $booking->iselective;
+    } else {
+        $booking->iselective = 0;
+    }
+
+    if (isset($booking->enforceorder) && $booking->enforceorder > 0) {
+        $booking->enforceorder = $booking->enforceorder;
+    } else {
+        $booking->enforceorder = 0;
+    }
+
+    if (isset($booking->consumeatonce) && $booking->consumeatonce > 0) {
+        $booking->consumeatonce = $booking->consumeatonce;
+    } else {
+        $booking->consumeatonce = 0;
+    }
+    // Elective implementation end.
 
     if (empty($booking->timerestrict)) {
         $booking->timeopen = $booking->timeclose = 0;
@@ -893,7 +913,13 @@ function booking_update_options($optionvalues, $context) {
              $optionvalues->optionid != -1) { // Existing booking option record.
 
         $option->id = $optionvalues->optionid;
-
+       
+        // Elective.
+        // Save combination arrays to DB.
+        booking_elective::addcombinations($option->id, $optionvalues->mustcombine, 1);
+        booking_elective::addcombinations($option->id, $optionvalues->mustnotcombine, 0);
+        $option->credits = $optionvalues->credits;
+        
         if (isset($optionvalues->shorturl)) {
             $option->shorturl = $optionvalues->shorturl;
         } else {
@@ -1055,6 +1081,8 @@ function booking_update_options($optionvalues, $context) {
                 }
             }
         }
+        // Elective Credits.
+        $option->credits = $optionvalues->credits;
 
         // Make sure it's no template by checking if bookingid is something else than 0.
         if ($option->bookingid != 0) {
@@ -1076,6 +1104,10 @@ function booking_update_options($optionvalues, $context) {
                 $optionid = $dbrecord->id;
             }
         }
+        // Elective.
+        // Save combination arrays to DB.
+        booking_elective::addcombinations($optionid, $optionvalues->mustcombine, 1);
+        booking_elective::addcombinations($optionid, $optionvalues->mustnotcombine, 0);
 
         // Create group in target course if there is a course specified only.
         if (!empty($option->courseid) && !empty($booking->addtogroup)) {

@@ -203,6 +203,29 @@ $string['bookingoptiondate_updated'] = 'Booking option date updated';
 $string['bookingoptiondate_deleted'] = 'Booking option date deleted';
 $string['custom_field_changed'] = 'Custom field changed';
 
+// Elective.
+$string['electivesettings'] = 'Elective Settings';
+$string['iselective'] = 'Use instance as elective';
+$string['maxcredits'] = 'Max credits to use';
+$string['maxcredits_help'] = 'You can define the max amount of credits users can or must use when booking options. You can define in every booking option how many credits it is worth.';
+$string['unlimitedcredits'] = 'Don\'t use credits';
+$string['enforceorder'] = 'Enforce booking order';
+$string['enforceorder_help'] = 'Users will be inscribed only once they have completed the previous booking option';
+$string['consumeatonce'] = 'All credits have to be consumed at once';
+$string['consumeatonce_help'] = 'Uses can only book once, and they have to book all options in one step.';
+$string['credits'] = 'Credits';
+$string['credits_help'] = 'The number of credits which will be used by booking this option.';
+$string['mustcombine'] = 'Necessary booking options';
+$string['mustcombine_help'] = 'Booking options which have to be combined with this option';
+$string['mustnotcombine'] = 'Excluded booking options';
+$string['mustnotcombine_help'] = 'Booking options which can\'t be  combined with this option';
+$string['nooptionselected'] = 'No booking option selected';
+$string['creditsmessage'] = 'You have {$a->creditsleft} of {$a->maxcredits} credits left.';
+$string['mustcombine'] = 'Necessary booking options';
+$string['mustcombine_help'] = 'Booking options which have to be combined with this option';
+$string['mustnotcombine'] = 'Excluded booking options';
+$string['mustnotcombine_help'] = 'Booking options which can\'t be  combined with this option';
+
 // View.php.
 $string['agreetobookingpolicy'] = 'I have read and agree to the following booking policies';
 $string['allbookingoptions'] = 'Download users for all booking options';

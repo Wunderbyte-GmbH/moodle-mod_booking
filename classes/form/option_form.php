@@ -22,6 +22,7 @@ use mod_booking\customfield\booking_handler;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use local_entities\entitiesrelation_handler;
+use mod_booking\booking_elective;
 use moodleform;
 
 class option_form extends moodleform {
@@ -205,7 +206,6 @@ class option_form extends moodleform {
             $mform->setType('annotation', PARAM_CLEANHTML);
             $mform->addHelpButton('annotation', 'optionannotation', 'mod_booking');
         }
-
         // Location.
         $sql = 'SELECT DISTINCT location FROM {booking_options} ORDER BY location';
         $locationarray = $DB->get_fieldset_sql($sql);
@@ -249,6 +249,8 @@ class option_form extends moodleform {
             $url .= '?courseid=' . $COURSE->id;
         }
 
+        // Elective.
+        booking_elective::add_electives_to_option_form($mform, $cmid, $optionid);
         // Only show, if it is not turned off in the option form config.
         // In expert mode we do not hide anything.
         if ($formmode == 'expert' ||
