@@ -1,0 +1,82 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/elective_modal
+
+    Displays the value that can be edited inline.
+
+    Classes required for JS:
+    * jqueryui
+
+    Context variables required for this template:
+    * none
+
+    Example context (json):
+    {
+        "id" : "1"
+    }
+}}
+
+<button type="button" class="{{modalbuttonclass}}" data-toggle="modal" data-target="#electiveModalCenter">
+  {{#str}} bookelectivesbtn, mod_booking {{/str}}
+</button>
+
+<div class="modal fade" id="electiveModalCenter" tabindex="-1" role="dialog" aria-labelledby="electiveModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="electiveModalLongTitle">{{#str}} confirmbookingtitle, mod_booking {{/str}}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>
+            {{#str}} sortbookingoptions, mod_booking {{/str}}
+        </p>
+        <ul id="sortable" class="list-group">
+            {{#arrayofoptions}}
+                <li class="list-group-item" data-id={{id}}>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-1">
+                                <i class="fa fa-arrows-alt"></i>
+                             </div>
+                            <div class="col-6 text-left">
+                                    <h3>{{text}}</h3>
+                            </div>
+                            <div class="col-5 text-right">
+                                    {{#str}} credits, mod_booking {{/str}}: {{credits}}
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            {{/arrayofoptions}}
+            {{^arrayofoptions}}
+                {{#str}} selectoptionsfirst, mod_booking {{/str}}
+            {{/arrayofoptions}}
+        </ul>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        {{{confirmbutton}}}
+      </div>
+    </div>
+  </div>
+</div>
+
