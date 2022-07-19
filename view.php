@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 use mod_booking\booking_elective;
+use core\output\notification;
+use mod_booking\booking_option;
 use mod_booking\all_options;
 use mod_booking\booking;
 use mod_booking\output\business_card;
@@ -40,6 +42,9 @@ $searchinstitution = optional_param('searchinstitution', '', PARAM_TEXT);
 $searchname = optional_param('searchname', '', PARAM_TEXT);
 $searchsurname = optional_param('searchsurname', '', PARAM_TEXT);
 $page = optional_param('page', '0', PARAM_INT);
+// This Param is for electives, to know in which order booking was done.
+$done = optional_param('done', '0', PARAM_INT);
+$listorder = optional_param('list', '', PARAM_TEXT);
 
 $perpage = 10;
 $conditions = array();
@@ -63,6 +68,24 @@ if (!empty($whichview)) {
 } else {
     $urlparams['whichview'] = $booking->settings->whichview;
     $whichview = $booking->settings->whichview;
+}
+
+// Store selected electives in user preferences.
+$iselective = $booking->is_elective();
+
+if ($iselective && $answer) {
+
+    $arrayofoptions = json_decode($listorder);
+
+    if (in_array($answer, $arrayofoptions)) {
+        $key = array_search($answer, $arrayofoptions);
+        array_splice($arrayofoptions, $key, 1);
+
+    } else {
+        $arrayofoptions[] = (int)$answer;
+    }
+    $listorder = json_encode($arrayofoptions);
+    $_GET['list'] = $listorder;
 }
 
 if ($optionid > 0) {
@@ -198,7 +221,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
 }
 
 // Before processing data user has to agree to booking policy and confirm booking.
-if ($form = data_submitted() && has_capability('mod/booking:choose', $context) && $download == '' &&
+if (!$iselective && $form = data_submitted() && has_capability('mod/booking:choose', $context) && $download == '' &&
          confirm_sesskey() && $confirm != 1 && $answer) {
     booking_confirm_booking($answer, $USER, $cm, $url);
     die();
@@ -208,7 +231,7 @@ $PAGE->set_title(format_string($booking->settings->name));
 $PAGE->set_heading(format_string($booking->settings->name));
 
 // Submit any new data if there is any.
-if ($download == '' && $form = data_submitted() && has_capability('mod/booking:choose', $context)) {
+if (!$iselective && $download == '' && $form = data_submitted() && has_capability('mod/booking:choose', $context)) {
     echo $OUTPUT->header();
     $timenow = time();
 
@@ -242,6 +265,48 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
         echo $OUTPUT->footer();
         die();
     }
+} else if ($iselective  && !$done && $download == '' && $action == 'multibooking' && has_capability('mod/booking:choose', $context)) {
+    if ($listorder) {
+        $electivesarray = json_decode($listorder);
+        // booking_elective::set_electivesarray_to_user_prefs($electivesarray);
+    }
+
+    if ( count($electivesarray) == 1 && $electivesarray[0] == '') {
+        array_pop($electivesarray);
+    }
+
+    $success = true;
+    if (!empty($electivesarray)) { //  && !
+        foreach ($electivesarray as $answer) {
+            if (!empty($answer)) {
+                // Now submit a response for every selected elective.
+                $bookingdata = new booking_option($cm->id, (int)$answer, array(), 0, 0, false);
+                $bookingdata->apply_tags();
+
+                if (!$bookingdata->user_submit_response($USER)) {
+                    $success = false;
+                }
+            }
+        }
+
+        $urlparameters['id'] = $cm->id;
+        $urlparameters['done'] = 1;
+        $url = new moodle_url("view.php", $urlparameters);
+
+        if ($success) {
+            redirect($url, get_string('electivesbookedsuccess', 'booking'), null, notification::NOTIFY_SUCCESS);
+        } else {
+            redirect($url, get_string('errormultibooking', 'booking'), null, notification::NOTIFY_ERROR);
+        }
+        die();
+    } else {
+        $urlparameters['id'] = $cm->id;
+        $urlparameters['done'] = 1;
+        $url = new moodle_url("view.php", $urlparameters);
+        redirect($url, get_string('nobookingselected', 'booking'), null, notification::NOTIFY_WARNING);
+        die();
+    }    
+
 }
 
 $event = \mod_booking\event\course_module_viewed::create(
@@ -643,6 +708,39 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                     AND br.userid = :userid5) AS myrating
                 ";
         $from = "{booking} b LEFT JOIN {booking_options} bo ON bo.bookingid = b.id";
+        if ($iselective) {
+
+            if (!isset($_GET['list'])
+                    || (!$electivesarray = json_decode($_GET['list']))) {
+                $electivesarray = [];
+                $listorder = '[]';
+            } else {
+                $listorder = $_GET['list'];
+            }
+
+            $electivesarray = json_decode($listorder);
+
+            $selectedarray = $electivesarray && $electivesarray[0] != '' ? implode(",", $electivesarray) : '0';
+            $selectedarray = rtrim($selectedarray, ',');
+
+            if ($selectedarray == "") {
+                $selectedarray = 0;
+            }
+
+            if ($whichview !== 'mybooking') {
+                $from .= " LEFT JOIN {booking_combinations} bc ON bo.id = bc.optionid
+                    AND bc.cancombine=0
+                    AND bc.otheroptionid IN (". $selectedarray . ")";
+                $conditions[] = "(bc.cancombine IS null)";
+
+                if ($booking->uses_credits()) {
+                    $conditions[] = "((bo.credits <= :creditsleft) 
+                OR bo.id IN (". $selectedarray . "))";
+                }
+            }
+
+            $conditionsparams['creditsleft'] = booking_elective::return_credits_left($booking);
+        }
         $where = "b.id = :bookingid " .
                  (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions));
 
@@ -858,6 +956,18 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
     echo $OUTPUT->header();
     echo $OUTPUT->error_text(get_string("norighttobook", "booking"));
     echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id' => $course->id)));
+}
+
+// Render this only if we are in elective mode.
+if ($iselective) {
+
+    $rawdata = $tablealloptions->rawdata;
+
+    if ($rawdata) {
+        $data = new \mod_booking\output\elective_modal($booking, $rawdata, $listorder);
+        $renderer = $PAGE->get_renderer('mod_booking');
+        echo $renderer->render_elective_modal($data);
+    }
 }
 echo $OUTPUT->box('<a href="http://www.wunderbyte.at">' . get_string('createdbywunderbyte', 'mod_booking') . "</a>",
         'box mdl-align');

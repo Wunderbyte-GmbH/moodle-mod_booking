@@ -204,6 +204,10 @@ $string['bookingoptiondate_deleted'] = 'Booking option date deleted';
 $string['custom_field_changed'] = 'Custom field changed';
 
 // Elective.
+$string['sortbookingoptions'] = "Please sort your bookings in the right order. You will only be able to access the associated coures one after the other. Top comes first.";
+$string['selectoptionsfirst'] = "Please select booking options first.";
+$string['confirmbookingtitle'] = "Confirm booking";
+$string['bookelectivesbtn'] = 'Book selected electives';
 $string['electivesettings'] = 'Elective Settings';
 $string['iselective'] = 'Use instance as elective';
 $string['maxcredits'] = 'Max credits to use';
