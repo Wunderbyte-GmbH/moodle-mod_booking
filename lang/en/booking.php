@@ -291,6 +291,12 @@ $string['tagdeleted'] = 'Tag template was deleted!';
 $string['showdescription'] = 'Show description';
 $string['hidedescription'] = 'Hide description';
 $string['editteacherslink'] = 'Edit teachers';
+$string['electiveselectbtn'] = 'Select elective';
+$string['electivedeselectbtn'] = 'Deselect elective';
+$string['confirmbookingtitle'] = "Confirm booking";
+$string['sortbookingoptions'] = "Please sort your bookings in the right order. You will only be able to access the associated coures one after the other. Top comes first.";
+$string['selectoptionsfirst'] = "Please select booking options first.";
+
 
 // Mod_form.
 $string['signinlogoheader'] = 'Logo in header to display on the sign-in sheet';
