@@ -74,6 +74,12 @@ if ($submit) {
         $alloptionids = \mod_booking\booking::get_all_optionids($bookingsettings->id);
         foreach ($alloptionids as $optionid) {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+            // If priceformulaoff is set to 1, we're not doing anything!
+            if (isset($settings->priceformulaoff) && $settings->priceformulaoff == 1) {
+                continue;
+            }
+
             foreach ($price->pricecategories as $pricecategory) {
                 $price->add_price(
                     $optionid,

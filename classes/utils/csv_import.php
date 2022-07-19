@@ -542,6 +542,7 @@ class csv_import {
         $bookingoption->titleprefix = '';
         $bookingoption->priceformulamultiply = 1;
         $bookingoption->priceformulaadd = 0;
+        $bookingoption->priceformulaoff = 0;
     }
 
     /**

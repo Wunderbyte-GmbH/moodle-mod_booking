@@ -1424,6 +1424,9 @@ $string['priceformulamultiply'] = 'Manueller Faktor';
 $string['priceformulamultiply_help'] = 'Zusätzlicher Wert mit dem das Ergebnis <strong>multipliziert</strong> werden soll.';
 $string['priceformulaadd'] = 'Absolutwert';
 $string['priceformulaadd_help'] = 'Zusätzlicher Wert, der zum Ergebnis <strong>addiert</strong> werden soll.';
+$string['priceformulaoff'] = 'Neuberechnung der Preise verhindern';
+$string['priceformulaoff_help'] = 'Aktivieren Sie diese Option, um zu verhindern, dass die Funktion "Alle Preise der Instanz mit Formel neu berechnen"
+ die Preise für diese Buchungsoption neu berechnet.';
 
 // Pricecategories_form.php.
 $string['price'] = 'Preis';
@@ -1561,8 +1564,7 @@ $string['optionbookablebody'] = 'Sie können {$a->title} ab sofort wieder buchen
 
 // Calculate prices.
 $string['recalculateprices'] = 'Preise mit Formel neu berechnen';
-$string['recalculateall'] = 'Alle Preise der Instanz berechnen';
+$string['recalculateall'] = 'Alle Preise der Instanz mit Formel neu berechnen';
 $string['alertrecalculate'] = '<b>Vorsicht!</b> Alle Preise der Instanz werden mit der eingetragenen Formel neu berechnet und alle alten Preise werden überschrieben.';
 $string['successfulcalculation'] = 'Preise erfolgreich neu berechnet!';
 $string['nopriceformulaset'] = 'Sie müssen zuerst eine Formel in den Buchungseinstellungen eintragen. <a href="{$a->url}" target="_blank">Formel hier bearbeiten.</a>';
-

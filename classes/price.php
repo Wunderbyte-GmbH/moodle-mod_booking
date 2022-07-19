@@ -118,10 +118,14 @@ class price {
         $priceformula = get_config('booking', 'defaultpriceformula');
         if (!empty($priceformula) && is_json($priceformula)) {
 
-            // Elements to apply price formula.
             $mform->addElement('advcheckbox', 'priceformulaisactive', get_string('priceformulaisactive', 'mod_booking'),
             null, null, [0, 1]);
             $mform->setDefault('priceformulaisactive', 0);
+
+            $mform->addElement('advcheckbox', 'priceformulaoff', get_string('priceformulaoff', 'mod_booking'),
+            null, null, [0, 1]);
+            $mform->addHelpButton('priceformulaoff', 'priceformulaoff', 'mod_booking');
+            $mform->setDefault('priceformulaoff', 0);
 
             $formulaobj = new stdClass;
             $formulaobj->formula = $priceformula;

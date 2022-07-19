@@ -1673,6 +1673,9 @@ $string['priceformulamultiply'] = 'Manual factor';
 $string['priceformulamultiply_help'] = 'Additional value to <strong>multiply</strong> the result with.';
 $string['priceformulaadd'] = 'Absolute value';
 $string['priceformulaadd_help'] = 'Additional value to <strong>add</strong> to the result.';
+$string['priceformulaoff'] = 'Prevent recalculation of prices';
+$string['priceformulaoff_help'] = 'Activate this option, in order to prevent the function "Calculate all prices from
+ instance with formula" from recalculating the prices for this booking option.';
 
 // Pricecategories_form.php.
 $string['price'] = 'Price';
@@ -1814,4 +1817,3 @@ $string['recalculateall'] = 'Calculate all prices';
 $string['alertrecalculate'] = '<b>Caution!</b> All prices will be recalculated and all old prices will be overwritten.';
 $string['nopriceformulaset'] = 'No formula set on setting page. <a href="{$a->url}" target="_blank">Set it here.</a>';
 $string['successfulcalculation'] = 'Price calculation successful!';
-

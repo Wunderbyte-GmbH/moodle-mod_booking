@@ -138,6 +138,8 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             // Price formula: manual factor and absolute value.
                             $("#id_priceformulamultiply").val(obj.priceformulamultiply);
                             $("#id_priceformulaadd").val(obj.priceformulaadd);
+                            // Flag if price formula is turned on or off.
+                            $("#id_priceformulaoff").val(obj.priceformulaoff);
 
                             // Trigger clicks to fix autocomplete bugs.
                             $("#fitem_id_location .form-autocomplete-downarrow").trigger('click');

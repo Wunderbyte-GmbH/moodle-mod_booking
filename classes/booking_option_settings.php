@@ -190,6 +190,9 @@ class booking_option_settings {
     /** @var float $priceformulamultiply */
     public $priceformulamultiply = null;
 
+    /** @var int $priceformulaoff */
+    public $priceformulaoff = null;
+
     /** @var string $dayofweek */
     public $dayofweek = null;
 
@@ -311,6 +314,13 @@ class booking_option_settings {
                 $this->priceformulamultiply = $dbrecord->priceformulamultiply;
             } else {
                 $this->priceformulamultiply = 1; // Default: Multiply with 1.
+            }
+
+            // Flag if price formula is turned on or off.
+            if (isset($dbrecord->priceformulaoff)) {
+                $this->priceformulaoff = $dbrecord->priceformulaoff;
+            } else {
+                $this->priceformulaoff = 0; // Default: Turned on.
             }
 
             // If the course module id (cmid) is not yet set, we load it. //TODO: bookingid 0 bei option templates berücksichtigen!!

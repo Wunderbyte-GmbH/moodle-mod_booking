@@ -751,6 +751,13 @@ function booking_update_options($optionvalues, $context) {
         $option->priceformulamultiply = 1; // Default: Multiply with 1.
     }
 
+    // Flag if price formula is turned on or off.
+    if (isset($optionvalues->priceformulaoff)) {
+        $option->priceformulaoff = $optionvalues->priceformulaoff;
+    } else {
+        $option->priceformulaoff = 0; // Default: Turned on.
+    }
+
     if (isset($optionvalues->pollurlteachers)) {
         $option->pollurlteachers = $optionvalues->pollurlteachers;
     } else {
