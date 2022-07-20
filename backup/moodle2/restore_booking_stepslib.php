@@ -104,6 +104,32 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->identifier = substr(str_shuffle(md5(microtime())), 0, 8);
 
         $newitemid = $DB->insert_record('booking_options', $data);
+
+        // Important: Also copy custom fields (e.g. sports).
+        // Note: Do not confuse normal customfields (stored in customfield_data) with booking_customfields (used for optiondates).
+        // This SQL will only select customfields for the mod_booking component.
+        $sql = "SELECT cfd.*
+            FROM {customfield_data} cfd
+            LEFT JOIN {customfield_field} cff
+            ON cff.id = cfd.fieldid
+            LEFT JOIN {customfield_category} cfc
+            ON cfc.id = cff.categoryid
+            WHERE cfc.component = 'mod_booking'
+            AND cfd.instanceid = :oldid";
+
+        $params = [
+            'oldid' => $oldid
+        ];
+
+        $oldcustomfields = $DB->get_records_sql($sql, $params);
+        foreach ($oldcustomfields as $cf) {
+            unset($cf->id);
+            $cf->timecreated = time();
+            $cf->timemodified = time();
+            $cf->instanceid = $newitemid;
+            $DB->insert_record('customfield_data', $cf);
+        }
+
         $this->set_mapping('booking_option', $oldid, $newitemid);
     }
 

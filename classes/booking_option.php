@@ -26,6 +26,7 @@ use invalid_parameter_exception;
 use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
+use mod_booking\customfield\booking_handler;
 use mod_booking\message_controller;
 use mod_booking\task\send_completion_mails;
 use moodle_exception;
@@ -1466,10 +1467,14 @@ class booking_option {
             }
         }
 
-        // Delete custom fields belonging to the option.
+        // Delete optiondate custom fields belonging to the option.
         if (!$DB->delete_records('booking_customfields', ['optionid' => $this->optionid])) {
             $result = false;
         }
+
+        // Delete Moodle custom fields belonging to the option (e.g. "sports" customfield).
+        $cfhandler = booking_handler::create();
+        $cfhandler->delete_instance($this->optionid);
 
         // Delete sessions (option dates).
         if (!$DB->delete_records('booking_optiondates', ['optionid' => $this->optionid])) {

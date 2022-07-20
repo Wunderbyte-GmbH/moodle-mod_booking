@@ -102,6 +102,29 @@ if ($optionid == -1 && $copyoptionid != 0) {
         subscribe_teacher_to_booking_option($teachertocopy->userid, $optionid, $cm);
     }
 
+    // Also duplicate associated Moodle custom fields (e.g. "sports").
+    $sql = "SELECT cfd.*
+        FROM {customfield_data} cfd
+        LEFT JOIN {customfield_field} cff
+        ON cff.id = cfd.fieldid
+        LEFT JOIN {customfield_category} cfc
+        ON cfc.id = cff.categoryid
+        WHERE cfc.component = 'mod_booking'
+        AND cfd.instanceid = :oldoptionid";
+
+    $params = [
+        'oldoptionid' => $oldoptionid
+    ];
+
+    $oldcustomfields = $DB->get_records_sql($sql, $params);
+    foreach ($oldcustomfields as $cf) {
+        unset($cf->id);
+        $cf->timecreated = time();
+        $cf->timemodified = time();
+        $cf->instanceid = $optionid;
+        $DB->insert_record('customfield_data', $cf);
+    }
+
 } else if ($optionid > 0 && $defaultvalues = $DB->get_record('booking_options',
                 array('bookingid' => $booking->settings->id, 'id' => $optionid))) {
     $defaultvalues->optionid = $optionid;

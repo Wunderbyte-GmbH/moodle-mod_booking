@@ -215,9 +215,6 @@ class booking_handler extends \core_customfield\handler {
         return true;
     }
 
-
-
-
     /**
      * Sets parent context for the course
      *
