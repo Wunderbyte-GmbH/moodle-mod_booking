@@ -109,6 +109,9 @@ class booking_option_settings {
     /** @var string $address */
     public $address = null;
 
+    /** @var int $credits */
+    public $credits = null;
+
     /** @var string $pollurlteachers */
     public $pollurlteachers = null;
 
@@ -278,6 +281,7 @@ class booking_option_settings {
             $this->location = $dbrecord->location;
             $this->institution = $dbrecord->institution;
             $this->address = $dbrecord->address;
+            $this->credits = $dbrecord->credits;
             $this->pollurlteachers = $dbrecord->pollurlteachers;
             $this->howmanyusers = $dbrecord->howmanyusers;
             $this->pollsend = $dbrecord->pollsend;

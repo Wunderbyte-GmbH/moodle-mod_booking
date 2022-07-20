@@ -71,6 +71,7 @@ class coursepage_available_options implements renderable, templatable {
                          bo.limitanswers,
                          bo.maxanswers,
                          bo.maxoverbooking,
+                         bo.credits,
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id

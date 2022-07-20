@@ -78,6 +78,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $address as saved in db */
     public $address = null;
 
+    /** @var string $credits as saved in db */
+    public $credits = null;
+
     /** @var string $institution as saved in db */
     public $institution = null;
 
@@ -183,6 +186,7 @@ class bookingoption_description implements renderable, templatable {
 
         $this->location = $settings->location;
         $this->address = $settings->address;
+        $this->credits = $settings->credits;
         $this->institution = $settings->institution;
         // There can be more than one modal, therefore we use the id of this record.
         $this->modalcounter = $settings->id;
@@ -316,6 +320,7 @@ class bookingoption_description implements renderable, templatable {
                 'imageurl' => $this->imageurl,
                 'location' => $this->location,
                 'address' => $this->address,
+                'credits' => $this->credits,
                 'institution' => $this->institution,
                 'duration' => $this->duration,
                 'dates' => $this->dates,

@@ -347,6 +347,7 @@ class booking_answers {
             $this->location = $dbrecord->location;
             $this->institution = $dbrecord->institution;
             $this->address = $dbrecord->address;
+            $this->credits = $dbrecord->credits;
             $this->pollurlteachers = $dbrecord->pollurlteachers;
             $this->howmanyusers = $dbrecord->howmanyusers;
             $this->pollsend = $dbrecord->pollsend;

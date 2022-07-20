@@ -1741,6 +1741,7 @@ class booking_option {
             'location' => $this->option->location,
             'institution' => $this->option->institution,
             'address' => $this->option->address,
+            'credits' => $this->option->credits,
             'maxanswers' => $this->option->maxanswers,
             'maxoverbooking' => $this->option->maxoverbooking,
             'bookingclosingtime' => ($this->option->bookingclosingtime == 0 ? get_string('nodateset', 'booking') : userdate(

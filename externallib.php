@@ -197,6 +197,7 @@ class mod_booking_external extends external_api {
                         $option['institution'] = $record->institution;
                         $option['institutionid'] = $institutionid->id;
                         $option['address'] = $record->address;
+                        $option['credits'] = $record->credits;
                         $option['users'] = array();
                         $option['teachers'] = array();
 
@@ -293,6 +294,7 @@ class mod_booking_external extends external_api {
                             'institution' => new external_value(PARAM_TEXT, 'Institution'),
                             'institutionid' => new external_value(PARAM_INT, 'Institution ID'),
                             'address' => new external_value(PARAM_TEXT, 'Address'),
+                            'credits' => new external_value(PARAM_TEXT, 'Credits'),
                             'users' => new external_multiple_structure(new external_single_structure(
                                 array(
                                     'id' => new external_value(PARAM_INT, 'User ID'),

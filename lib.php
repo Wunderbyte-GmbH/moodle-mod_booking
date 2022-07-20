@@ -748,6 +748,12 @@ function booking_update_options($optionvalues, $context) {
         $option->address = '';
     }
 
+    if (isset($optionvalues->address)) {
+        $option->address = trim($optionvalues->address);
+    } else {
+        $option->address = '';
+    }
+
     // Visibility of the option.
     $option->invisible = $optionvalues->invisible;
 
@@ -837,6 +843,11 @@ function booking_update_options($optionvalues, $context) {
 
     // Elective Credits.
     $option->credits = $optionvalues->credits;
+    if (isset($optionvalues->credits)) {
+        $option->credits = trim($optionvalues->credits);
+    } else {
+        $option->credits = '';
+    }
 
     // Fixed: record should not get inserted a 2nd time here:
     $db_record = $DB->get_record("booking_options", ['text' => $option->text]);
