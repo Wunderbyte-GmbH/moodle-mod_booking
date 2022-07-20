@@ -100,6 +100,9 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->addtocalendar = 0;
         $data->calendarid = 0;
 
+        // Unique identifier must not be copied, instead we create a new random one.
+        $data->identifier = substr(str_shuffle(md5(microtime())), 0, 8);
+
         $newitemid = $DB->insert_record('booking_options', $data);
         $this->set_mapping('booking_option', $oldid, $newitemid);
     }

@@ -81,11 +81,13 @@ if ($optionid == -1 && $copyoptionid != 0) {
     // Adding new booking option - default values.
     $defaultvalues = $DB->get_record('booking_options', array('id' => $copyoptionid));
     $oldoptionid = $defaultvalues->id;
-    $defaultvalues->text = $defaultvalues->text . get_string('copy', 'booking');
+    $defaultvalues->text = $defaultvalues->text . get_string('copy', 'mod_booking');
     $defaultvalues->optionid = -1;
     $defaultvalues->bookingname = $booking->settings->name;
     $defaultvalues->bookingid = $bookingid;
     $defaultvalues->id = $cmid;
+    // Identifier needs to be unique, so create a new random one.
+    $defaultvalues->identifier = substr(str_shuffle(md5(microtime())), 0, 8);
 
     // Create a new duplicate of the old booking option.
     $optionid = booking_update_options($defaultvalues, $context);
@@ -176,14 +178,14 @@ if ($mform->is_cancelled()) {
             $nbooking = booking_update_options($fromform, $context);
             if ($nbooking === 'BOOKING_OPTION_NOT_CREATED') {
                 $redirecturl = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => -1));
-                redirect($redirecturl, get_string('option_template_not_saved_no_valid_license', 'booking'), 0,
+                redirect($redirecturl, get_string('option_template_not_saved_no_valid_license', 'mod_booking'), 0,
                     notification::NOTIFY_ERROR);
             } else if (isset($fromform->submittandaddnew)) {
                 $redirecturl = new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid, 'optionid' => -1));
-                redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
+                redirect($redirecturl, get_string('newtemplatesaved', 'mod_booking'), 0);
             } else {
                 $redirecturl = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
-                redirect($redirecturl, get_string('newtemplatesaved', 'booking'), 0);
+                redirect($redirecturl, get_string('newtemplatesaved', 'mod_booking'), 0);
             }
         }
 
