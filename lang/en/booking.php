@@ -295,6 +295,7 @@ $string['tagdeleted'] = 'Tag template was deleted!';
 $string['showdescription'] = 'Show description';
 $string['hidedescription'] = 'Hide description';
 $string['editteacherslink'] = 'Edit teachers';
+$string['cancelallusers'] = 'Cancel all booked users';
 
 // Mod_form.
 $string['signinlogoheader'] = 'Logo in header to display on the sign-in sheet';
@@ -1828,6 +1829,12 @@ $string['successfulcalculation'] = 'Price calculation successful!';
 // Col_text_link.mustache.
 $string['cancelallusers'] = 'Cancel booking for all users';
 
-
 // Col_availableplaces.mustache.
 $string['manageresponses'] = 'booking(s)';
+
+// Bo conditions.
+$string['bo_cond_normal_booking_time_available'] = 'Wihting normal booking times.';
+$string['bo_cond_normal_booking_time_available_full'] = 'Wihting normal booking times. From {$a} until {$b}';
+$string['bo_cond_normal_booking_time_not_available'] = 'Not within normal booking times.';
+$string['bo_cond_normal_booking_time_not_available'] = 'Not within normal booking times. From {$a} until {$b}';
+

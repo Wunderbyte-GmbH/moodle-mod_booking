@@ -272,6 +272,7 @@ $string['edittag'] = 'Bearbeiten';
 $string['showdescription'] = 'Beschreibung anzeigen';
 $string['hidedescription'] = 'Beschreibung verstecken';
 $string['editteacherslink'] = 'Trainer/innen bearbeiten';
+$string['cancelallusers'] = 'Alle gebuchten Userinnen stornieren';
 
 // Mod_form.
 $string['signinlogoheader'] = 'Logo in der Kopfzeile auf der Unterschriftenliste';
@@ -1582,3 +1583,10 @@ $string['cancelallusers'] = 'Storniere Buchung für alle Nutzer*innen';
 
 // Col_availableplaces.mustache.
 $string['manageresponses'] = 'Buchung(en)';
+
+// Bo conditions.
+$string['bo_cond_normal_booking_time_available'] = 'Innerhalb der normalen Buchungszeiten.';
+$string['bo_cond_normal_booking_time_available_full'] = 'Innerhalb der normalen Buchungszeiten, von {$a} bis {$b}';
+$string['bo_cond_normal_booking_time_not_available'] = 'Nicht innerhalb der normalen Buchungszeiten.';
+$string['bo_cond_normal_booking_time_not_available'] = 'Nicht innerhalb der normalen Buchungszeiten, von {$a} bis {$b}';
+
