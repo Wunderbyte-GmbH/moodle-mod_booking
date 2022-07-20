@@ -567,6 +567,7 @@ class booking_option {
                   AND u.deleted = 0
                   AND ba.bookingid = :bookingid
                   AND ba.optionid = :optionid
+                  AND ba.waitinglist = 0
              ORDER BY ba.timemodified ASC";
 
         $params = array("bookingid" => $this->booking->id, "optionid" => $this->optionid);
