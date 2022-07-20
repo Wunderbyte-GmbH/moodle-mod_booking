@@ -161,6 +161,7 @@
         <FIELD NAME="priceformulaadd" TYPE="number" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
         <FIELD NAME="priceformulamultiply" TYPE="number" LENGTH="10" NOTNULL="false" DEFAULT="1" SEQUENCE="false" DECIMALS="2"/>
         <FIELD NAME="dayofweek" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="String for reoccurring date series, like 'Friday'."/>
+        <FIELD NAME="credits" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="Credits can define the 'price' of this booking option."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
