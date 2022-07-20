@@ -32,11 +32,14 @@
       <i class="fa fa-gear"></i>
     </button>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="{{editoptionurl}}" target="_self">
+        <a class="dropdown-item editoption" href="{{editoptionurl}}" target="_self">
           <i class="fa fa-edit"></i> {{#str}} updatebooking, mod_booking {{/str}}
         </a>
-        <a class="dropdown-item" href="{{editteachersurl}}" target="_self">
+        <a class="dropdown-item editteachers" href="{{editteachersurl}}" target="_self">
           <i class="fa fa-users"></i> {{#str}} editteacherslink, mod_booking {{/str}}
+        </a>
+        <a class="dropdown-item cancelallusers hidden" href="#" data-id="{{id}}" data-componentname="{{componentname}}">
+          <i class="fa fa-users"></i> {{#str}} cancelallusers, mod_booking {{/str}}
         </a>
         {{#optiondatesteachersurl}}
         <h6 class="dropdown-header">{{#str}} reports {{/str}}</h6>
