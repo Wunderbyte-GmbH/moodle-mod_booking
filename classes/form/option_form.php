@@ -74,6 +74,9 @@ class option_form extends moodleform {
         $mform->addElement('hidden', 'optionid', $this->_customdata['optionid']);
         $mform->setType('optionid', PARAM_INT);
 
+        $mform->addElement('hidden', 'copyoptionid', $this->_customdata['copyoptionid']);
+        $mform->setType('copyoptionid', PARAM_INT);
+
         $mform->addElement('hidden', 'bookingname');
         $mform->setType('bookingname', PARAM_TEXT);
 
@@ -620,15 +623,6 @@ class option_form extends moodleform {
             }
         }
 
-        $groupname = $data['bookingname'] . ' - ' . $data['text'];
-
-      /*  if (isset($data['courseid'])) {
-            $groupid = groups_get_group_by_name($data['courseid'], $groupname);
-            if ($groupid && $data['optionid'] == 0) {
-                $errors['text'] = get_string('groupexists', 'mod_booking');
-            }
-        }*/
-
         if (isset($data['identifier'])) {
             $sql = "SELECT id FROM {booking_options} WHERE id <> :optionid AND identifier = :identifier";
             $params = ['optionid' => $data['optionid'], 'identifier' => $data['identifier']];
@@ -683,11 +677,28 @@ class option_form extends moodleform {
                 'maxbytes' => 0));
         $defaultvalues->myfilemanageroption = $draftitemid;
 
-        $draftimageid = file_get_submitted_draft_itemid('bookingoptionimage');
-        file_prepare_draft_area($draftimageid, $this->_customdata['context']->id, 'mod_booking', 'bookingoptionimage',
-            $this->_customdata['optionid'], array('subdirs' => false, 'maxfiles' => 1, 'accepted_types' => array('image', '.webp'),
-                'maxbytes' => 0));
-        $defaultvalues->bookingoptionimage = $draftimageid;
+        // If we duplicated, we already have an image file with an itemid.
+        if ($filefromdb = $DB->get_record_sql("SELECT *
+            FROM {files}
+            WHERE component = 'mod_booking'
+            AND filearea = 'bookingoptionimage'
+            AND filesize > 0
+            AND mimetype LIKE 'image%'
+            AND itemid = :optionid", ['optionid' => $defaultvalues->copyoptionid])) {
+
+            $draftimageid = file_get_submitted_draft_itemid('bookingoptionimage');
+            file_prepare_draft_area($draftimageid, $filefromdb->contextid, 'mod_booking', 'bookingoptionimage',
+                $defaultvalues->copyoptionid, array('subdirs' => false, 'maxfiles' => 1,
+                'accepted_types' => array('image', '.webp'), 'maxbytes' => 0));
+            $defaultvalues->bookingoptionimage = $draftimageid;
+        } else {
+            // If an image has already been saved before, load it.
+            $draftimageid = file_get_submitted_draft_itemid('bookingoptionimage');
+            file_prepare_draft_area($draftimageid, $this->_customdata['context']->id, 'mod_booking', 'bookingoptionimage',
+                $this->_customdata['optionid'], array('subdirs' => false, 'maxfiles' => 1,
+                    'accepted_types' => array('image', '.webp'), 'maxbytes' => 0));
+            $defaultvalues->bookingoptionimage = $draftimageid;
+        }
 
         if (isset($defaultvalues->optionid) && $defaultvalues->optionid > 0) {
             // Defaults for customfields.
