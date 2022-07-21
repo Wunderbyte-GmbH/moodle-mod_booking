@@ -200,7 +200,8 @@ class booking {
 
         global $DB;
 
-        list($fields, $from, $where, $params, $filter) = $this->get_all_options_sql($limitfrom, $limitnum, $searchtext, $fields, $this->context);
+        list($fields, $from, $where, $params, $filter) = $this->get_all_options_sql($limitfrom, $limitnum,
+            $searchtext, $fields, $this->context);
 
         return $DB->get_records_sql(
             "SELECT $fields FROM $from WHERE $where $filter", $params);
@@ -578,7 +579,8 @@ class booking {
     public function get_all_options_sql($limitfrom = 0, $limitnum = 0, $searchtext = '', $fields = null, $context = null) {
         global $DB;
 
-        return self::get_options_filter_sql($limitfrom, $limitnum, $searchtext, $fields, $context, [], ['bookingid' => (int)$this->id]);
+        return self::get_options_filter_sql($limitfrom, $limitnum, $searchtext, $fields, $context, [],
+            ['bookingid' => (int)$this->id]);
     }
 
 
@@ -637,7 +639,7 @@ class booking {
         // Instead of "where" we return "filter". This is to support the filter functionality of wunderbyte table.
         list($select1, $from1, $filter1, $params1) = booking_option_settings::return_sql_for_customfield();
         list($select2, $from2, $filter2, $params2) = booking_option_settings::return_sql_for_teachers();
-        list($select3, $from3, $filter3, $params3) = booking_option_settings::return_sql_for_files();
+        list($select3, $from3, $filter3, $params3) = booking_option_settings::return_sql_for_imagefiles();
 
         // The $outerfrom takes all the select from the supplementary selects.
         $outerfrom .= ", $select1 ";
@@ -689,7 +691,7 @@ class booking {
         $counter = 1;
         foreach ($filterarray as $key => $value) {
 
-            // Be sure to have a lower key string;
+            // Be sure to have a lower key string.
             $paramsvaluekey = "param";
             while (isset($params[$paramsvaluekey])) {
                 $paramsvaluekey .= $counter;
@@ -706,7 +708,7 @@ class booking {
 
         foreach ($wherearray as $key => $value) {
 
-            // Be sure to have a lower key string;
+            // Be sure to have a lower key string.
             $paramsvaluekey = "param";
             while (isset($params[$paramsvaluekey])) {
                 $paramsvaluekey .= $counter;
@@ -735,7 +737,6 @@ class booking {
      */
     public function get_all_options_of_teacher_sql($teacherid) {
 
-        // To fetch the teacher, we
         return self::get_options_filter_sql(0, 0, '', '*', null, [], ['teacherobjects' => '%"id":' . $teacherid . ',%']);
     }
 

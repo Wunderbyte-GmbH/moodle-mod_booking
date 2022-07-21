@@ -800,7 +800,7 @@ class booking_option_settings {
         return [$select, $from, $where, $params];
     }
 
-    public static function return_sql_for_files($searchparams = []): array {
+    public static function return_sql_for_imagefiles($searchparams = []): array {
 
         global $DB;
 
@@ -810,8 +810,10 @@ class booking_option_settings {
         $params = ['componentname3' => 'mod_booking',
             'bookingoptionimage' => 'bookingoptionimage'];
 
-        $from = ' LEFT JOIN {files} f
-            ON f.itemid=bo.id and f.component=:componentname3 and f.filearea=:bookingoptionimage';
+        $from = " LEFT JOIN {files} f
+            ON f.itemid=bo.id and f.component=:componentname3
+            AND f.filearea=:bookingoptionimage
+            AND f.mimetype LIKE 'image%'";
 
         // As this is a complete subrequest, we have to add the "where" to the outer table, where it is already rendered.
         $counter = 0;
