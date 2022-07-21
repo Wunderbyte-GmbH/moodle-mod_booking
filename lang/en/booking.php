@@ -1817,3 +1817,6 @@ $string['recalculateall'] = 'Calculate all prices';
 $string['alertrecalculate'] = '<b>Caution!</b> All prices will be recalculated and all old prices will be overwritten.';
 $string['nopriceformulaset'] = 'No formula set on setting page. <a href="{$a->url}" target="_blank">Set it here.</a>';
 $string['successfulcalculation'] = 'Price calculation successful!';
+
+// Col_text_link.mustache.
+$string['cancelallusers'] = 'Cancel booking for all users';

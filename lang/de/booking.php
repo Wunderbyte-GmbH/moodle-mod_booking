@@ -1568,3 +1568,6 @@ $string['recalculateall'] = 'Alle Preise der Instanz mit Formel neu berechnen';
 $string['alertrecalculate'] = '<b>Vorsicht!</b> Alle Preise der Instanz werden mit der eingetragenen Formel neu berechnet und alle alten Preise werden überschrieben.';
 $string['successfulcalculation'] = 'Preise erfolgreich neu berechnet!';
 $string['nopriceformulaset'] = 'Sie müssen zuerst eine Formel in den Buchungseinstellungen eintragen. <a href="{$a->url}" target="_blank">Formel hier bearbeiten.</a>';
+
+// Col_text_link.mustache.
+$string['cancelallusers'] = 'Storniere Buchung für alle Nutzer*innen';
