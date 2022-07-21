@@ -74,9 +74,6 @@ class option_form extends moodleform {
         $mform->addElement('hidden', 'optionid', $this->_customdata['optionid']);
         $mform->setType('optionid', PARAM_INT);
 
-        $mform->addElement('hidden', 'copyoptionid', $this->_customdata['copyoptionid']);
-        $mform->setType('copyoptionid', PARAM_INT);
-
         $mform->addElement('hidden', 'bookingname');
         $mform->setType('bookingname', PARAM_TEXT);
 
