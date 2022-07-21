@@ -843,24 +843,13 @@ function booking_update_options($optionvalues, $context) {
 
     // Elective Credits.
     $option->credits = $optionvalues->credits;
+
     if (isset($optionvalues->credits)) {
         $option->credits = trim($optionvalues->credits);
     } else {
         $option->credits = '';
     }
 
-    // Fixed: record should not get inserted a 2nd time here:
-    $db_record = $DB->get_record("booking_options", ['text' => $option->text]);
-    if (empty($db_record)){
-        $id = $DB->insert_record("booking_options", $option);
-    } else {
-        $id = $db_record->id;
-    }
-
-    // Elective.
-    // Save combination arrays to DB.
-    booking_elective::addcombinations($id, $optionvalues->mustcombine, 1);
-    booking_elective::addcombinations($id, $optionvalues->mustnotcombine, 0);
 
     // Add to calendar option.
     if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar == 1) {
