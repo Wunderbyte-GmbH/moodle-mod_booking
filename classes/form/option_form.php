@@ -675,7 +675,7 @@ class option_form extends moodleform {
         $defaultvalues->myfilemanageroption = $draftitemid;
 
         // If we duplicated, we already have an image file with an itemid.
-        if ($filefromdb = $DB->get_record_sql("SELECT *
+        if (!empty($defaultvalues->copyoptionid) && $filefromdb = $DB->get_record_sql("SELECT *
             FROM {files}
             WHERE component = 'mod_booking'
             AND filearea = 'bookingoptionimage'

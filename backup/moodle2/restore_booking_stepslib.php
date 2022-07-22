@@ -23,7 +23,6 @@
  */
 
 use mod_booking\optiondates_handler;
-use local_entities\entitiesrelation_handler;
 
 /**
  * Structure step to restore one booking activity
@@ -96,6 +95,17 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->bookingid = $this->get_new_parentid('booking');
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
+        $cmid = null;
+        $cmidsql = "SELECT cm.id AS cmid
+                    FROM {course_modules} cm
+                    LEFT JOIN {modules} m
+                    ON m.id = cm.module
+                    WHERE m.name = 'booking' AND cm.instance = :newbookingid";
+
+        if ($cmidrecord = $DB->get_record_sql($cmidsql, ['newbookingid' => $data->bookingid])) {
+            $cmid = $cmidrecord->cmid;
+        }
+
         // Calendarid should not be copied or set.
         $data->addtocalendar = 0;
         $data->calendarid = 0;
@@ -105,7 +115,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
         $newitemid = $DB->insert_record('booking_options', $data);
 
-        // Important: Also copy custom fields (e.g. sports).
+        // Also copy custom fields (e.g. sports).
         // Note: Do not confuse normal customfields (stored in customfield_data) with booking_customfields (used for optiondates).
         // This SQL will only select customfields for the mod_booking component.
         $sql = "SELECT cfd.*
@@ -128,6 +138,53 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             $cf->timemodified = time();
             $cf->instanceid = $newitemid;
             $DB->insert_record('customfield_data', $cf);
+        }
+
+        // Also copy image files associated with the booking option.
+        $filesql = "SELECT component, contextid, filepath, filename, userid, source, author, license
+            FROM {files}
+            WHERE component = 'mod_booking'
+            AND filearea = 'bookingoptionimage'
+            AND filesize > 0
+            AND mimetype LIKE 'image%'
+            AND itemid = :oldoptionid";
+
+        $params = [
+            'oldoptionid' => $oldid
+        ];
+
+        $fs = get_file_storage();
+        $oldimagefiles = $DB->get_records_sql($filesql, $params);
+        foreach ($oldimagefiles as $oldimagefile) {
+            // Prepare file record object.
+            $fileinfo = [
+                'component' => 'mod_booking',
+                'filearea' => 'bookingoptionimage',
+                'itemid' => $oldid,
+                'contextid' => $oldimagefile->contextid,
+                'filepath' => $oldimagefile->filepath,
+                'filename' => $oldimagefile->filename,
+                'userid' => $oldimagefile->userid,
+                'source' => $oldimagefile->source,
+                'author' => $oldimagefile->author,
+                'license' => $oldimagefile->license
+            ];
+
+            // Get file.
+            $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+                                $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+
+            // Read contents of the old image file.
+            if ($file && $cmid) {
+                $contents = $file->get_content();
+                // Now store a copied image file with the new optionid.
+                // Prepare new file record object.
+                $fileinfo['itemid'] = $newitemid; // New optionid of the duplicate.
+                // Important: set the correct context of the new instance.
+                $context = context_module::instance($cmid);
+                $fileinfo['contextid'] = $context->id;
+                $fs->create_file_from_string($fileinfo, $contents);
+            }
         }
 
         $this->set_mapping('booking_option', $oldid, $newitemid);
