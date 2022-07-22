@@ -126,51 +126,6 @@ if ($optionid == -1 && $copyoptionid != 0) {
         $DB->insert_record('customfield_data', $cf);
     }
 
-    // Not needed, but do not delete yet, because we probably need it for instance duplication/restore.
-    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-    /*$filesql = "SELECT component, contextid, filepath, filename, userid, source, author, license
-        FROM {files}
-        WHERE component = 'mod_booking'
-        AND filearea = 'bookingoptionimage'
-        AND filesize > 0
-        AND mimetype LIKE 'image%'
-        AND itemid = :oldoptionid";
-
-    $fs = get_file_storage();
-    $oldimagefiles = $DB->get_records_sql($filesql, $params);
-    foreach ($oldimagefiles as $oldimagefile) {
-        // Prepare file record object.
-        $fileinfo = [
-            'component' => 'mod_booking',
-            'filearea' => 'bookingoptionimage',
-            'itemid' => $oldoptionid,
-            'contextid' => $oldimagefile->contextid,
-            'filepath' => $oldimagefile->filepath,
-            'filename' => $oldimagefile->filename,
-            'userid' => $oldimagefile->userid,
-            'source' => $oldimagefile->source,
-            'author' => $oldimagefile->author,
-            'license' => $oldimagefile->license
-        ];
-
-        // Get file.
-        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-                            $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
-
-        // Read contents of the old image file.
-        if ($file) {
-            $contents = $file->get_content();
-            // Now store a copied image file with the new optionid.
-            // Prepare new file record object.
-
-            $fileinfo['itemid'] = $optionid; // New optionid of the duplicate.
-            $fs->create_file_from_string($fileinfo, $contents);
-
-        } else {
-            throw new coding_exception('couldnotreadimagefile');
-        }
-    }*/
-
 } else if ($optionid > 0 && $defaultvalues = $DB->get_record('booking_options',
                 array('bookingid' => $booking->settings->id, 'id' => $optionid))) {
     $defaultvalues->optionid = $optionid;

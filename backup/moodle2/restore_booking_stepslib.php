@@ -80,10 +80,69 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->course = $this->get_courseid();
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
+        $oldbookingid = $data->id;
+
         // Insert the booking record.
-        $newitemid = $DB->insert_record('booking', $data);
+        $newbookingid = $DB->insert_record('booking', $data);
         // Immediately after inserting "activity" record, call this.
-        $this->apply_activity_instance($newitemid);
+        $this->apply_activity_instance($newbookingid);
+
+        $cmid = null;
+        $cmidsql = "SELECT cm.id AS cmid
+                    FROM {course_modules} cm
+                    LEFT JOIN {modules} m
+                    ON m.id = cm.module
+                    WHERE m.name = 'booking' AND cm.instance = :newbookingid";
+
+        if ($cmidrecord = $DB->get_record_sql($cmidsql, ['newbookingid' => $newbookingid])) {
+            $cmid = $cmidrecord->cmid;
+
+            // Also copy associated header images (images on instance level).
+            $filesql = "SELECT id, component, contextid, filepath, filename, userid, source, author, license
+                        FROM {files}
+                        WHERE component = 'mod_booking'
+                        AND filearea = 'bookingimages'
+                        AND filesize > 0
+                        AND mimetype LIKE 'image%'
+                        AND itemid = :oldbookingid";
+
+            $params = [
+                'oldbookingid' => $oldbookingid
+            ];
+
+            $fs = get_file_storage();
+            $oldimagefiles = $DB->get_records_sql($filesql, $params);
+            foreach ($oldimagefiles as $oldimagefile) {
+                // Prepare file record object.
+                $fileinfo = [
+                    'component' => 'mod_booking',
+                    'filearea' => 'bookingimages',
+                    'itemid' => $oldbookingid,
+                    'contextid' => $oldimagefile->contextid,
+                    'filepath' => $oldimagefile->filepath,
+                    'filename' => $oldimagefile->filename,
+                    'userid' => $oldimagefile->userid,
+                    'source' => $oldimagefile->source,
+                    'author' => $oldimagefile->author,
+                    'license' => $oldimagefile->license
+                ];
+
+                // Get file.
+                $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+                                    $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+
+                // Read contents of the old image file.
+                if ($file && $cmid) {
+                    $contents = $file->get_content();
+                    // Now store a copied image file with the new bookingid.
+                    $fileinfo['itemid'] = $newbookingid; // New bookingid of the instance duplicate.
+                    // Important: set the correct context of the new instance.
+                    $context = context_module::instance($cmid);
+                    $fileinfo['contextid'] = $context->id;
+                    $fs->create_file_from_string($fileinfo, $contents);
+                }
+            }
+        }
     }
 
     protected function process_booking_option($data) {
@@ -141,7 +200,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         }
 
         // Also copy image files associated with the booking option.
-        $filesql = "SELECT component, contextid, filepath, filename, userid, source, author, license
+        $filesql = "SELECT id, component, contextid, filepath, filename, userid, source, author, license
             FROM {files}
             WHERE component = 'mod_booking'
             AND filearea = 'bookingoptionimage'
