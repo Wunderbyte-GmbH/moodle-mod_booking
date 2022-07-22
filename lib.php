@@ -1977,8 +1977,8 @@ function booking_delete_instance($id) {
 
     $result = true;
 
-    $alloptionsid = \mod_booking\booking::get_all_optionids($id);
-    foreach ($alloptionsid as $optionid) {
+    $alloptionids = \mod_booking\booking::get_all_optionids($id);
+    foreach ($alloptionids as $optionid) {
         $bookingoption = new booking_option($cm->id, $optionid);
         $bookingoption->delete_booking_option();
     }

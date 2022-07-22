@@ -19,6 +19,7 @@ use cache_helper;
 use coding_exception;
 use completion_info;
 use context_module;
+use context_system;
 use core_analytics\user;
 use dml_exception;
 use Exception;
@@ -1482,6 +1483,46 @@ class booking_option {
         } else {
             // Also delete associated entries in booking_optiondates_teachers.
             optiondates_handler::delete_booking_optiondates_teachers_by_optionid($this->optionid);
+        }
+
+        // Delete image files belonging to the option.
+        $imgfilesql = "SELECT contextid, filepath, filename, userid, source, author, license
+            FROM {files}
+            WHERE component = 'mod_booking'
+            AND filearea = 'bookingoptionimage'
+            AND filesize > 0
+            AND mimetype LIKE 'image%'
+            AND itemid = :optionid";
+
+        $imgfileparams = [
+            'optionid' => $this->optionid
+        ];
+
+        if ($filerecord = $DB->get_record_sql($imgfilesql, $imgfileparams)) {
+            $fs = get_file_storage();
+            $fileinfo = [
+                'component' => 'mod_booking',
+                'filearea' => 'bookingoptionimage',
+                'itemid' => $this->optionid,
+                'contextid' => $filerecord->contextid,
+                'filepath' => $filerecord->filepath,
+                'filename' => $filerecord->filename
+            ];
+            // Get file.
+            $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+                    $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+            // Delete it if it exists.
+            if ($file) {
+                $file->delete();
+                // Also delete remaining artifacts.
+                $DB->delete_records('files', [
+                    'component' => 'mod_booking',
+                    'filearea' => 'bookingoptionimage',
+                    'itemid' => $this->optionid,
+                    'contextid' => $filerecord->contextid,
+                    'filepath' => $filerecord->filepath
+                ]);
+            }
         }
 
         if (!$DB->delete_records("booking_options", array("id" => $this->optionid))) {
