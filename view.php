@@ -76,7 +76,7 @@ $iselective = $booking->is_elective();
 if ($iselective && $answer) {
 
     $arrayofoptions = json_decode($listorder);
-    $arrayofoptions = [];
+    // $arrayofoptions = [];
     if (in_array($answer, $arrayofoptions)) {
         $key = array_search($answer, $arrayofoptions);
         array_splice($arrayofoptions, $key, 1);

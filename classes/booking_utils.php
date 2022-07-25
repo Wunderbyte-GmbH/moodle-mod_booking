@@ -212,6 +212,7 @@ class booking_utils {
         $delete = '';
         $availability = '';
         $button = '';
+        $electivebutton = '';
         $booked = '';
         $manage = '';
         $inpast = $values->courseendtime && ($values->courseendtime < time());
@@ -286,6 +287,36 @@ class booking_utils {
                     $buttonoptions['confirm'] = 1;
                 }
                 $buttonmethod = 'post';
+            }
+            if ($this->booking->is_elective()) {
+                $buttonoptions['whichview'] = $_GET['whichview'];
+                $buttonoptions['optionid'] = $values->id;
+
+                if (!isset($_GET['list'])
+                    || (!$electivesarray = json_decode($_GET['list']))) {
+                    $electivesarray = [];
+                    $listorder = '[]';
+                } else {
+                    $listorder = $_GET['list'];
+                }
+                $buttonoptions['list'] = $listorder;
+
+                // Create URL for the buttons and add an anchor, so we can jump to it later on.
+                $anchor = 'btnanswer' . $values->id;
+                $url = new moodle_url('view.php', $buttonoptions, $anchor);
+
+                // Check if already selected.
+                // Show the select button if the elective was not already selected.
+                if (!in_array($buttonoptions['answer'], $electivesarray)) {
+                    // Add an id and use an anchor# to jump to active selection.
+                    $electivebutton = html_writer::link($url, get_string('electiveselectbtn', 'booking'),
+                        [ 'class' => 'btn btn-info', 'id' => 'btnanswer' . $values->id]);
+                } else {
+                    // Else, show a deselect button.
+                    // Add an id and use an anchor# to jump to active selection.
+                    $electivebutton = html_writer::link($url, get_string('electivedeselectbtn', 'booking'),
+                        ['class' => 'btn btn-danger', 'id' => 'btnanswer' . $values->id]);
+                }
             } else {
                 $buttonmethod = 'get';
                 $buttonoptions = array('id' => $booking->cm->id, 'action' => 'showonlyone',
@@ -360,7 +391,7 @@ class booking_utils {
         }
 
         if (!$values->limitanswers) {
-            return $button . $booked . $delete . $limit . $manage;
+            return $electivebutton . $button . $booked . $delete . $limit . $manage;
         } else {
             $places = new places($values->maxanswers, $values->availableplaces, $values->maxoverbooking,
                     $values->maxoverbooking - $values->waiting);
@@ -439,7 +470,7 @@ class booking_utils {
                 }
             }
 
-            return $button . $booked . $delete . $availableplaces . $waitingplaces . $manage;
+            return $electivebutton . $button . $booked . $delete . $availableplaces . $waitingplaces . $manage;
         }
     }
 
