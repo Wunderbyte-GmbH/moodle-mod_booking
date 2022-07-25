@@ -642,9 +642,9 @@ class booking {
         list($select3, $from3, $filter3, $params3) = booking_option_settings::return_sql_for_imagefiles();
 
         // The $outerfrom takes all the select from the supplementary selects.
-        $outerfrom .= ", $select1 ";
-        $outerfrom .= ", $select2 ";
-        $outerfrom .= ", $select3 ";
+        $outerfrom .= !empty($select1) ? ", $select1 " : '';
+        $outerfrom .= !empty($select2) ? ", $select2 " : '';
+        $outerfrom .= !empty($select3) ? ", $select3 " : '';
 
         // The innerfrom takes all the froms from the supplementary froms.
         $innerfrom .= " $from1 ";
