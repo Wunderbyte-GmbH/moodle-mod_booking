@@ -677,7 +677,6 @@ class booking {
         $from .= $innerfrom;
 
         // Finally, we add the outer group by.
-        // For Postgres, group by must contain cfd1 & filename as well.
         $groupby = "GROUP BY " . $groupby . "
                     ) s1";
 
