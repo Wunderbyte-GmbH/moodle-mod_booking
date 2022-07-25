@@ -20,6 +20,7 @@ use mod_booking\output\business_card;
 use mod_booking\output\instance_description;
 use mod_booking\booking_elective;
 use mod_booking\booking_option;
+use notification;
 
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");

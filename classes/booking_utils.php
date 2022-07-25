@@ -321,13 +321,14 @@ class booking_utils {
                 $buttonoptions = array('id' => $booking->cm->id, 'action' => 'showonlyone',
                         'whichview' => 'showonlyone',
                         'optionid' => $values->id);
+                $url = new moodle_url($baseurl . '/mod/booking/view.php', $buttonoptions);
+                $button = '<div class="col-ap-booknow">' . $OUTPUT->single_button($url,
+                        (empty($values->btnbooknowname) ? get_string('booknow', 'booking') : $values->btnbooknowname),
+                        $buttonmethod) . '</div>';
             }
 
             $url = new moodle_url($baseurl . '/mod/booking/view.php', $buttonoptions);
 
-/*              $button = '<div class="col-ap-booknow">' . $OUTPUT->single_button($url,
-                    (empty($values->btnbooknowname) ? get_string('booknow', 'booking') : $values->btnbooknowname),
-                    $buttonmethod) . '</div>'; */
         }
 
         if (($values->limitanswers && ($availability == "full")) || ($availability == "closed") || !$underlimit ||
