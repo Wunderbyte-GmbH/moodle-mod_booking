@@ -212,7 +212,6 @@ class booking_utils {
         $delete = '';
         $availability = '';
         $button = '';
-        $electivebutton = '';
         $booked = '';
         $manage = '';
         $inpast = $values->courseendtime && ($values->courseendtime < time());
@@ -309,12 +308,12 @@ class booking_utils {
                 // Show the select button if the elective was not already selected.
                 if (!in_array($buttonoptions['answer'], $electivesarray)) {
                     // Add an id and use an anchor# to jump to active selection.
-                    $electivebutton = html_writer::link($url, get_string('electiveselectbtn', 'booking'),
+                    $button = html_writer::link($url, get_string('electiveselectbtn', 'booking'),
                         [ 'class' => 'btn btn-info', 'id' => 'btnanswer' . $values->id]);
                 } else {
                     // Else, show a deselect button.
                     // Add an id and use an anchor# to jump to active selection.
-                    $electivebutton = html_writer::link($url, get_string('electivedeselectbtn', 'booking'),
+                    $button = html_writer::link($url, get_string('electivedeselectbtn', 'booking'),
                         ['class' => 'btn btn-danger', 'id' => 'btnanswer' . $values->id]);
                 }
             } else {
@@ -326,9 +325,9 @@ class booking_utils {
 
             $url = new moodle_url($baseurl . '/mod/booking/view.php', $buttonoptions);
 
-            $button = '<div class="col-ap-booknow">' . $OUTPUT->single_button($url,
+/*              $button = '<div class="col-ap-booknow">' . $OUTPUT->single_button($url,
                     (empty($values->btnbooknowname) ? get_string('booknow', 'booking') : $values->btnbooknowname),
-                    $buttonmethod) . '</div>';
+                    $buttonmethod) . '</div>'; */
         }
 
         if (($values->limitanswers && ($availability == "full")) || ($availability == "closed") || !$underlimit ||
@@ -391,7 +390,7 @@ class booking_utils {
         }
 
         if (!$values->limitanswers) {
-            return $electivebutton . $button . $booked . $delete . $limit . $manage;
+            return $button . $booked . $delete . $limit . $manage;
         } else {
             $places = new places($values->maxanswers, $values->availableplaces, $values->maxoverbooking,
                     $values->maxoverbooking - $values->waiting);
@@ -470,7 +469,7 @@ class booking_utils {
                 }
             }
 
-            return $electivebutton . $button . $booked . $delete . $availableplaces . $waitingplaces . $manage;
+            return $button . $booked . $delete . $availableplaces . $waitingplaces . $manage;
         }
     }
 
