@@ -1,3 +1,20 @@
+## Version 7.2.6 (2022072500)
+**New features:**
+* New feature: Prevent option from recalculating prices.
+* New feature: Cancel for all participants.
+* New feature: Image duplication (both for options and booking instance header images).
+
+**Improvements:**
+* Improvement: Correctly delete image files when deleting booking options.
+* Improvement: Duplication of images for individual booking options now working wiht backup/restore.
+
+**Bugfixes:**
+* Bugfix: When duplicating or restoring options create new random unique identifiers.
+* Bugfix: Fix sql problem in the book for others panel.
+* Bugfix: Correct duplication, restoring and deleting of custom fields.
+* Bugfix: Fix SQL bug for image files.
+* Bugfix: Fix SQL comma bug with get_options_filter_sql.
+
 ## Version 7.2.5 (2022071801)
 **Improvements:**
 * New price calculations with entity factor from entity manager.
