@@ -1983,6 +1983,49 @@ function booking_delete_instance($id) {
         $bookingoption->delete_booking_option();
     }
 
+    // Delete option header images.
+    // Delete image files belonging to the option.
+    $imgfilesql = "SELECT contextid, filepath, filename, userid, source, author, license
+    FROM {files}
+    WHERE component = 'mod_booking'
+    AND filearea = 'bookingimages'
+    AND filesize > 0
+    AND mimetype LIKE 'image%'
+    AND itemid = :bookingid";
+
+    $imgfileparams = [
+        'bookingid' => $booking->id
+    ];
+
+    if ($imgfilerecords = $DB->get_records_sql($imgfilesql, $imgfileparams)) {
+        foreach ($imgfilerecords as $imgfilerecord) {
+            $fs = get_file_storage();
+            $fileinfo = [
+                'component' => 'mod_booking',
+                'filearea' => 'bookingimages',
+                'itemid' => $booking->id,
+                'contextid' => $imgfilerecord->contextid,
+                'filepath' => $imgfilerecord->filepath,
+                'filename' => $imgfilerecord->filename
+            ];
+            // Get file.
+            $imgfile = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+                    $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+            // Delete it if it exists.
+            if ($imgfile) {
+                $imgfile->delete();
+                // Also delete remaining artifacts.
+                $DB->delete_records('files', [
+                    'component' => 'mod_booking',
+                    'filearea' => 'bookingimages',
+                    'itemid' => $booking->id,
+                    'contextid' => $imgfilerecord->contextid,
+                    'filepath' => $imgfilerecord->filepath
+                ]);
+            }
+        }
+    }
+
     if (!$DB->delete_records("booking_answers", array("bookingid" => "$booking->id"))) {
         $result = false;
     }
@@ -1991,6 +2034,7 @@ function booking_delete_instance($id) {
         $result = false;
     } else {
         // If optiondates are deleted we also have to delete the associated entries in booking_optiondates_teachers.
+        // TODO: this should be moved into delete_booking_option.
         optiondates_handler::delete_booking_optiondates_teachers_by_bookingid($booking->id);
     }
 
