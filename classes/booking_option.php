@@ -972,6 +972,7 @@ class booking_option {
             switch($currentanswer->waitinglist) {
                 case STATUSPARAM_DELETED:
                     --$numberofanswers;
+                    $currentanswerid = $currentanswer->id;
                     break;
                 case STATUSPARAM_BOOKED:
                     // If we are already booked, we don't do anything.
