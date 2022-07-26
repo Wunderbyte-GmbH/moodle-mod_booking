@@ -20,7 +20,6 @@ use mod_booking\output\business_card;
 use mod_booking\output\instance_description;
 use mod_booking\booking_elective;
 use mod_booking\booking_option;
-use notification;
 
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
@@ -297,16 +296,16 @@ if ($download == '' && $form = data_submitted() && has_capability('mod/booking:c
         $url = new moodle_url("view.php", $urlparameters);
 
         if ($success) {
-            redirect($url, get_string('electivesbookedsuccess', 'booking'), null, notification::NOTIFY_SUCCESS);
+            redirect($url, get_string('electivesbookedsuccess', 'booking'), null, core\output\notification::NOTIFY_SUCCESS);
         } else {
-            redirect($url, get_string('errormultibooking', 'booking'), null, notification::NOTIFY_ERROR);
+            redirect($url, get_string('errormultibooking', 'booking'), null, core\output\notification::NOTIFY_ERROR);
         }
         die();
     } else {
         $urlparameters['id'] = $cm->id;
         $urlparameters['done'] = 1;
         $url = new moodle_url("view.php", $urlparameters);
-        redirect($url, get_string('nobookingselected', 'booking'), null, notification::NOTIFY_WARNING);
+        redirect($url, get_string('nobookingselected', 'booking'), null, core\output\notification::NOTIFY_WARNING);
         die();
     }
 }
