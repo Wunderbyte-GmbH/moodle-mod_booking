@@ -23,6 +23,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core_calendar\local\event\entities\event;
 use mod_booking\form\pricecategories_form;
 
 require_once(__DIR__ . '/../../config.php');
@@ -86,6 +87,24 @@ if ($mform->is_cancelled()) {
         if ($pricecategorychanges = pricecategories_get_changes($oldpricecategories, $data)) {
             foreach ($pricecategorychanges['updates'] as $record) {
                 $DB->update_record('booking_pricecategories', $record);
+
+                $oldidentifier = $oldpricecategories[$record->id]->identifier;
+                $newidentifier = $record->identifier;
+
+                // If identifier has changed, we also need to update associated prices.
+                if ($oldidentifier != $newidentifier) {
+                    $event = \mod_booking\event\pricecategory_changed::create(
+                        ['objectid' => $record->id,
+                            'context' => \context_system::instance(),
+                            'relateduserid' => $USER->id,
+                            'other' => [
+                                'oldidentifier' => $oldidentifier,
+                                'newidentifier' => $newidentifier
+                            ]
+                        ]
+                    );
+                    $event->trigger();
+                }
             }
             if (count($pricecategorychanges['inserts']) > 0) {
                 $DB->insert_records('booking_pricecategories', $pricecategorychanges['inserts']);

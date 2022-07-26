@@ -202,6 +202,7 @@ $string['bookingoptiondate_created'] = 'Booking option date created';
 $string['bookingoptiondate_updated'] = 'Booking option date updated';
 $string['bookingoptiondate_deleted'] = 'Booking option date deleted';
 $string['custom_field_changed'] = 'Custom field changed';
+$string['pricecategory_changed'] = 'Price category changed';
 
 // View.php.
 $string['agreetobookingpolicy'] = 'I have read and agree to the following booking policies';

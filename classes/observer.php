@@ -277,4 +277,21 @@ class mod_booking_observer {
     public static function teacher_removed(\mod_booking\event\teacher_removed $event) {
         new calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, calendar::TYPETEACHERREMOVE);
     }
+
+    /**
+     * When a price category identifier was changed
+     * we need to update the identifiers of all associated prices.
+     *
+     * @param \mod_booking\event\pricecategory_changed $event
+     */
+    public static function pricecategory_changed(\mod_booking\event\pricecategory_changed $event) {
+        global $DB;
+        $oldidentifier = $event->other['oldidentifier'];
+        $newidentifier = $event->other['newidentifier'];
+        $pricestochange = $DB->get_records('booking_prices', ['pricecategoryidentifier' => $oldidentifier]);
+        foreach ($pricestochange as $price) {
+            $price->pricecategoryidentifier = $newidentifier;
+            $DB->update_record('booking_prices', $price);
+        }
+    }
 }
