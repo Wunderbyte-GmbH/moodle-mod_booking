@@ -135,7 +135,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
     }
 
     public function find_users($search) {
-        global $DB, $USER;
+        global $DB;
 
         $onlygroupmembers = false;
         if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS and
@@ -177,7 +177,14 @@ class booking_potential_user_selector extends booking_user_selector_base {
         AND u.suspended = 0
         AND u.id IN (SELECT nnn.id FROM ($esql) AS nnn WHERE nnn.id > 1)
         $groupsql
-        AND u.id NOT IN (SELECT ba.userid FROM {booking_answers} ba WHERE ba.optionid = {$this->options['optionid']})";
+        AND u.id NOT IN (
+            SELECT ba.userid
+            FROM {booking_answers} ba
+            WHERE ba.optionid = {$this->options['optionid']}
+            AND waitinglist <> :statusparamdeleted
+        )";
+
+        $searchparams['statusparamdeleted'] = STATUSPARAM_DELETED;
 
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;

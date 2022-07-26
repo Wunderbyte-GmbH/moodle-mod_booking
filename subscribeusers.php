@@ -76,13 +76,15 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
     echo $OUTPUT->footer();
     die();
 } else {
-    $options = array('bookingid' => $cm->instance,
+    $subscribeduseroptions = array('bookingid' => $cm->instance,
                     'accesscontext' => $context, 'optionid' => $optionid, 'cm' => $cm, 'course' => $course,
                     'potentialusers' => $bookingoption->bookedvisibleusers);
+    $potentialuseroptions = $subscribeduseroptions;
+    $potentialuseroptions['potentialusers'] = $bookingoption->potentialusers;
     $bookingoutput = $PAGE->get_renderer('mod_booking');
-    $existingoptions = $options;
-    $existingselector = new booking_existing_user_selector('removeselect', $existingoptions);
-    $subscriberselector = new booking_potential_user_selector('addselect', $options);
+
+    $existingselector = new booking_existing_user_selector('removeselect', $subscribeduseroptions);
+    $subscriberselector = new booking_potential_user_selector('addselect', $potentialuseroptions);
 
     if (data_submitted()) {
         require_sesskey();
