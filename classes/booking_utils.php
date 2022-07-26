@@ -288,7 +288,9 @@ class booking_utils {
                 $buttonmethod = 'post';
             }
             if ($this->booking->is_elective()) {
-                $buttonoptions['whichview'] = $_GET['whichview'];
+                if (isset($_GET['whichview'])) {
+                    $buttonoptions['whichview'] = $_GET['whichview'];
+                }
                 $buttonoptions['optionid'] = $values->id;
 
                 if (!isset($_GET['list'])
@@ -306,16 +308,20 @@ class booking_utils {
 
                 // Check if already selected.
                 // Show the select button if the elective was not already selected.
-                if (!in_array($buttonoptions['answer'], $electivesarray)) {
-                    // Add an id and use an anchor# to jump to active selection.
-                    $button = html_writer::link($url, get_string('electiveselectbtn', 'booking'),
+                if (!isset($_GET['answer'])) {
+                    // $buttonoptions['answer'] = $_GET['answer'];
+                    if ((!in_array($buttonoptions['answer'], $electivesarray))) {
+                        // Add an id and use an anchor# to jump to active selection.
+                        $button = html_writer::link($url, get_string('electiveselectbtn', 'booking'),
                         [ 'class' => 'btn btn-info', 'id' => 'btnanswer' . $values->id]);
-                } else {
-                    // Else, show a deselect button.
-                    // Add an id and use an anchor# to jump to active selection.
-                    $button = html_writer::link($url, get_string('electivedeselectbtn', 'booking'),
+                    } else {
+                        // Else, show a deselect button.
+                        // Add an id and use an anchor# to jump to active selection.
+                        $button = html_writer::link($url, get_string('electivedeselectbtn', 'booking'),
                         ['class' => 'btn btn-danger', 'id' => 'btnanswer' . $values->id]);
+                    }
                 }
+
             } else {
                 $buttonmethod = 'get';
                 $buttonoptions = array('id' => $booking->cm->id, 'action' => 'showonlyone',
