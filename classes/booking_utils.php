@@ -301,25 +301,22 @@ class booking_utils {
                     $listorder = $_GET['list'];
                 }
                 $buttonoptions['list'] = $listorder;
-
+                $buttonoptions['answer'] = $values->id;
                 // Create URL for the buttons and add an anchor, so we can jump to it later on.
                 $anchor = 'btnanswer' . $values->id;
                 $url = new moodle_url('view.php', $buttonoptions, $anchor);
 
                 // Check if already selected.
                 // Show the select button if the elective was not already selected.
-                if (!isset($_GET['answer'])) {
-                    // $buttonoptions['answer'] = $_GET['answer'];
-                    if ((!in_array($buttonoptions['answer'], $electivesarray))) {
-                        // Add an id and use an anchor# to jump to active selection.
-                        $button = html_writer::link($url, get_string('electiveselectbtn', 'booking'),
-                        [ 'class' => 'btn btn-info', 'id' => 'btnanswer' . $values->id]);
-                    } else {
-                        // Else, show a deselect button.
-                        // Add an id and use an anchor# to jump to active selection.
-                        $button = html_writer::link($url, get_string('electivedeselectbtn', 'booking'),
-                        ['class' => 'btn btn-danger', 'id' => 'btnanswer' . $values->id]);
-                    }
+                if ((!in_array($buttonoptions['answer'], $electivesarray))) {
+                    // Add an id and use an anchor# to jump to active selection.
+                    $button = html_writer::link($url, get_string('electiveselectbtn', 'booking'),
+                    [ 'class' => 'btn btn-info', 'id' => 'btnanswer' . $values->id]);
+                } else {
+                    // Else, show a deselect button.
+                    // Add an id and use an anchor# to jump to active selection.
+                    $button = html_writer::link($url, get_string('electivedeselectbtn', 'booking'),
+                    ['class' => 'btn btn-danger', 'id' => 'btnanswer' . $values->id]);
                 }
 
             } else {
