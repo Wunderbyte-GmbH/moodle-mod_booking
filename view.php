@@ -620,6 +620,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $fields = "DISTINCT bo.id,
                          bo.text,
                          bo.address,
+                         bo.credits,
                          bo.description,
                          bo.coursestarttime,
                          bo.courseendtime,

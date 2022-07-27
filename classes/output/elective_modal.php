@@ -85,7 +85,7 @@ class elective_modal implements renderable, templatable {
         // ... when no more credits are left.
         if ($booking->settings->consumeatonce == 1 && booking_elective::return_credits_left($booking) !== 0) {
             $selectbtnoptions['class'] = 'btn btn-primary disabled';
-        } elseif (count($arrayofoptions) == 0) {
+        } else if (count($arrayofoptions) == 0) {
             // Also, disable the button when there is nothing selected.
             $selectbtnoptions['class'] = 'btn btn-primary disabled';
         } else {
