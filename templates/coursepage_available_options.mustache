@@ -28,9 +28,12 @@
         <a class="list-group-item list-group-item-action" href={{linktooption}}>
             <div class="d-flex w-100 justify-content-between">
                   <h5 class="mb-1">{{#titleprefix}}{{titleprefix}} - {{/titleprefix}}{{bookingoptionname}}</h5>
+                    
+                    {{^iselective}}
                     <div>
                       {{{button}}}
                     </div>
+                    {{/iselective}}
             </div>
             <div class="container">
                 <div class="row">

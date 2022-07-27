@@ -46,6 +46,9 @@ class coursepage_available_options implements renderable, templatable {
     /** @var array */
     public $bookingoptions = [];
 
+    /** @var boolean */
+    public $iselective = null;
+
     /** @var null booking_utils instance*/
     public $bu = null;
 
@@ -219,6 +222,10 @@ class coursepage_available_options implements renderable, templatable {
             ];
         }
         $this->bookinginstancename = $booking->settings->name;
+
+        if ($booking->settings->iselective == 1) {
+            $this->iselective = true;
+        }
     }
 
     /**
@@ -228,7 +235,8 @@ class coursepage_available_options implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
         return array(
                 'bookinginstancename' => $this->bookinginstancename,
-                'bookingoptions' => $this->bookingoptions
+                'bookingoptions' => $this->bookingoptions,
+                'iselective' => $this->iselective,
         );
     }
 }
