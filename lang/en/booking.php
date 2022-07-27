@@ -211,6 +211,7 @@ $string['attachedfiles'] = 'Attached files';
 $string['availability'] = 'Still available';
 $string['available'] = 'Places available';
 $string['booked'] = 'Booked';
+$string['fullybooked'] = 'Fully booked';
 $string['notifyme'] = 'Notify when available';
 $string['alreadyonlist'] = 'You will be notified';
 $string['bookedpast'] = 'Booked (course finished)';

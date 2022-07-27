@@ -198,6 +198,7 @@ $string['attachedfiles'] = 'Dateianhänge';
 $string['availability'] = 'Noch verfügbar ';
 $string['available'] = 'Plätze verfügbar';
 $string['booked'] = 'Gebucht';
+$string['fullybooked'] = 'Ausgebucht';
 $string['notifyme'] = 'Benachrichtigen wenn frei';
 $string['alreadyonlist'] = 'Sie werden benachrichtigt';
 $string['bookedpast'] = 'Gebucht (Kurs wurde bereits beendet)';
