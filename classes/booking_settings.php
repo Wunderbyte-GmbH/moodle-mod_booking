@@ -319,7 +319,7 @@ class booking_settings {
     /**
      * Constructor for the booking settings class.
      *
-     * @param int $bookingid Booking instance id (cm->instance)
+     * @param int $cmid course module id of the booking instance
      * @throws \coding_exception
      * @throws \dml_exception
      */
@@ -348,7 +348,7 @@ class booking_settings {
      * Set all the values from DB, if necessary.
      * If we have passed on the cached object, we use this one.
      *
-     * @param integer $bookingid
+     * @param int $cmid
      * @param object|null $dbrecord
      * @return void
      */
@@ -478,7 +478,7 @@ class booking_settings {
 
             return $dbrecord;
         } else {
-            debugging('Could not create settings class for bookingid: ' . $cmid);
+            debugging('Could not create settings class for booking with course module id (cmid): ' . $cmid);
         }
     }
 
