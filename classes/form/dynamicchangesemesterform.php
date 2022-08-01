@@ -125,6 +125,9 @@ class dynamicchangesemesterform extends dynamic_form {
 
         $mform->addElement('static', 'changesemesterlabel', $changesemesterlabel);
 
+        $mform->addElement('html', '<div class="alert alert-danger">' .
+                get_string('changesemester:warning', 'mod_booking') . '</div>');
+
         $mform->addElement('hidden', 'cmid', 0);
         $mform->settype('cmid', PARAM_INT);
 

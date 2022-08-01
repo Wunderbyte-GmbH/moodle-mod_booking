@@ -841,6 +841,8 @@ $string['importexcelbutton'] = 'Aktivitätsabschluss importieren';
 $string['activitycompletiontext'] = 'Nachricht an Benutzer/in, wenn Buchungsoption abgeschlossen ist';
 $string['activitycompletiontextsubject'] = 'Buchungsoption abgeschlossen';
 $string['changesemester'] = 'Ändere Semester';
+$string['changesemester:warning'] = '<strong>Achtung:</strong> Durch Klicken auf "Änderungen speichern" werden alle bisherigen Termine gelöscht und durch die Termine
+ im ausgewählten Semester ersetzt.';
 $string['choosesemester'] = 'Wähle Semester';
 $string['activitycompletiontextmessage'] = 'Sie haben die folgende Buchungsoption abgeschlossen:
 

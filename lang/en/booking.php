@@ -973,6 +973,8 @@ $string['importexcelbutton'] = 'Import activity completion';
 $string['activitycompletiontext'] = 'Message to be sent to user when booking option is completed';
 $string['activitycompletiontextsubject'] = 'Booking option completed';
 $string['changesemester'] = 'Change Semester';
+$string['changesemester:warning'] = '<strong>Be careful:</strong> By clicking "Save changes" all dates will be deleted
+ and be replaced with dates of the chosen semester.';
 $string['choosesemester'] = 'Choose Semester';
 $string['activitycompletiontextmessage'] = 'You have completed the following booking option:
 
