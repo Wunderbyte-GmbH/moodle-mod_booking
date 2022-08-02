@@ -829,6 +829,7 @@ $string['editbookingoption'] = 'Buchungsoption bearbeiten';
 $string['addnewbookingoption'] = 'Neue Buchungsoption hinzufügen';
 $string['addnewbookingoptionfromtemplate'] = 'Neue Buchungsoption von Vorlage erstellen';
 $string['choosecourse'] = 'Einen Kurs auswählen';
+$string['choosecourse_help'] = 'Wählen Sie Neuer Kurs, wenn Sie wollen, dass ein neuer Moodle-Kurs für diese Buchungsoption angelegt werden soll.';
 $string['courseendtime'] = 'Kursende';
 $string['coursestarttime'] = 'Kursbeginn';
 $string['newcourse'] = 'Neuer Kurs';

@@ -961,6 +961,7 @@ $string['editbookingoption'] = 'Edit booking option';
 $string['addnewbookingoption'] = 'Add a new booking option';
 $string['addnewbookingoptionfromtemplate'] = 'Add a new booking option from template';
 $string['choosecourse'] = 'Choose a course';
+$string['choosecourse_help'] = 'Choose New courseif you want a new Moodle course to be created for this booking option.';
 $string['courseendtime'] = 'End time of the course';
 $string['coursestarttime'] = 'Start time of the course';
 $string['newcourse'] = 'New course';

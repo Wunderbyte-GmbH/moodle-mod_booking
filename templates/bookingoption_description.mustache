@@ -38,7 +38,8 @@
 {{#dayofweektime}}<div class="bo_dayofweektime">{{#str}}dayofweektime, mod_booking{{/str}}: {{.}}</div>{{/dayofweektime}}
 {{#location}}<div class="bo_location">{{#str}}location, mod_booking{{/str}}: {{.}}</div>{{/location}}
 {{#institution}}<div class="bo_institution">{{#str}}institution, mod_booking{{/str}}: {{.}}</div>{{/institution}}
-{{#address}}<div class="bo_address">{{#str}}address, mod_booking{{/str}}:  {{.}}</div>{{/address}}
+{{#address}}<div class="bo_address">{{#str}}address, mod_booking{{/str}}: {{.}}</div>{{/address}}
+{{#result}}<div class="bo_duration">{{#str}}bookingduration, mod_booking{{/str}}: {{.}}</div>{{/result}}
 {{#statusdescription}}<div class="bo_statusdescription"><p>{{{.}}}</p></div>{{/statusdescription}}
 {{#description}}<div class="bo_description"><p>{{{.}}}</p></div>{{/description}}
 {{#price}}<div class="bo_price">{{.}} {{currency}} {{pricecategoryname}}</div>{{/price}}
@@ -54,7 +55,7 @@
 </div>
 <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates_{{modalcounter}}"
     role="button" aria-expanded="false" aria-controls="collapseOptiondates">
-    {{#str}} showdates, mod_booking {{/str}}
+   
 </a>
 <div id="collapseoptiondates_{{modalcounter}}" class="collapse list-group-item">
     <div class="list-group">

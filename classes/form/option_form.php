@@ -319,6 +319,7 @@ class option_form extends moodleform {
             'noselectionstring' => get_string('donotselectcourse', 'mod_booking'),
         );
         $mform->addElement('autocomplete', 'courseid', get_string("choosecourse", "booking"), $coursearray, $options);
+        $mform->addHelpButton('courseid', 'choosecourse', 'mod_booking');
 
         $mform->addElement('duration', 'duration', get_string('bookingduration', 'mod_booking'));
         $mform->setType('duration', PARAM_INT);
