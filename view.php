@@ -427,7 +427,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         $output->print_booking_tabs($urlparams, $whichview, $mybookings->mybookings,
                 $myoptions->myoptions, $booking);
 
-        $search = '<a class="btn btn-info" href="#" id="showHideSearch">' . get_string('search') . "</a>";
+        $search = '<div class="d-flex flex-row"><a class="btn btn-primary" href="#" id="showHideSearch">'
+            . '<i class="fa fa-search" aria-hidden="true"></i>&nbsp;' . get_string('search') . "</a></div>";
 
         if ($whichview != 'showonlyone') {
             echo $OUTPUT->box("{$search}", 'booking-search mdl-align');

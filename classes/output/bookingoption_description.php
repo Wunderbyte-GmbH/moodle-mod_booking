@@ -82,11 +82,8 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $institution as saved in db */
     public $institution = null;
 
-    /** @var string $duration as saved in db in minutes */
+    /** @var string $duration is saved in db as seconds and will be formatted in this class */
     public $duration = null;
-
-    /** @var string $identifier unique identifier of the booking option */
-    public $result = null;
 
     /** @var string $booknowbutton as saved in db in minutes */
     public $booknowbutton = null;
@@ -188,16 +185,18 @@ class bookingoption_description implements renderable, templatable {
         $this->location = $settings->location;
         $this->address = $settings->address;
         $this->institution = $settings->institution;
-        // There can be more than one modal, therefore we use the id of this record
+
+        // There can be more than one modal, therefore we use the id of this record.
         $this->modalcounter = $settings->id;
-        $this->duration = $settings->duration;
+
+        // Format the duration correctly.
         $seconds = $settings->duration;
         $minutes = $seconds / 60;
         $d = floor ($minutes / 1440);
         $h = floor (($minutes - $d * 1440) / 60);
         $m = $minutes - ($d * 1440) - ($h * 60);
+        $this->duration = "{$d} " . get_string("days") . "  {$h} " . get_string("hours") . "  {$m} " . get_string("minutes");
 
-        $this->result = "{$d} " . get_string("days") . "  {$h} " . get_string("hours") . "  {$m} " . get_string("minutes") . " ";
         $this->dayofweektime = $settings->dayofweektime;
 
         // We got the array of all the booking information.
@@ -328,7 +327,6 @@ class bookingoption_description implements renderable, templatable {
                 'address' => $this->address,
                 'institution' => $this->institution,
                 'duration' => $this->duration,
-                'result' => $this->result,
                 'dates' => $this->dates,
                 'booknowbutton' => $this->booknowbutton,
                 'teachers' => $this->teachers,

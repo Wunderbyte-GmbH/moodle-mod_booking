@@ -39,7 +39,7 @@
 {{#location}}<div class="bo_location">{{#str}}location, mod_booking{{/str}}: {{.}}</div>{{/location}}
 {{#institution}}<div class="bo_institution">{{#str}}institution, mod_booking{{/str}}: {{.}}</div>{{/institution}}
 {{#address}}<div class="bo_address">{{#str}}address, mod_booking{{/str}}: {{.}}</div>{{/address}}
-{{#result}}<div class="bo_duration">{{#str}}bookingduration, mod_booking{{/str}}: {{.}}</div>{{/result}}
+{{#duration}}<div class="bo_duration">{{#str}}bookingduration, mod_booking{{/str}}: {{.}}</div>{{/duration}}
 {{#statusdescription}}<div class="bo_statusdescription"><p>{{{.}}}</p></div>{{/statusdescription}}
 {{#description}}<div class="bo_description"><p>{{{.}}}</p></div>{{/description}}
 {{#price}}<div class="bo_price">{{.}} {{currency}} {{pricecategoryname}}</div>{{/price}}
@@ -52,28 +52,4 @@
             </li>
         {{/teachers}}
     </ul>
-</div>
-<a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates_{{modalcounter}}"
-    role="button" aria-expanded="false" aria-controls="collapseOptiondates">
-   
-</a>
-<div id="collapseoptiondates_{{modalcounter}}" class="collapse list-group-item">
-    <div class="list-group">
-        {{#dates}}
-            <div class="list-group-item">
-                <div>
-                    <b>{{{datestring}}}</b>
-                </div>
-                <div {{^customfields}}style="display:none"{{/customfields}}>
-                    <ul>
-                        {{#customfields}}
-                            <li>
-                                {{name}}{{{value}}}
-                            </li>
-                        {{/customfields}}
-                    </ul>
-                </div>
-            </div>
-        {{/dates}}
-    </div>
 </div>
