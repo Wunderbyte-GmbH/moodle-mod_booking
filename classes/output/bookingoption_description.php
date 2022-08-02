@@ -87,6 +87,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $duration as saved in db in minutes */
     public $duration = null;
 
+    /** @var string $identifier unique identifier of the booking option */
+    public $result = null;
+
     /** @var string $booknowbutton as saved in db in minutes */
     public $booknowbutton = null;
 
@@ -194,6 +197,20 @@ class bookingoption_description implements renderable, templatable {
 
         $this->dayofweektime = $settings->dayofweektime;
 
+        $seconds = $settings->duration;
+        $minutes = $seconds / 60;
+        $d = floor ($minutes / 1440);
+        $h = floor (($minutes - $d * 1440) / 60);
+        $m = $minutes - ($d * 1440) - ($h * 60);
+
+        if (!empty($d)) {
+            $this->result = "{$d} " . get_string("days") . "  {$h} " . get_string("hours") . "  {$m} " . get_string("minutes") . " ";
+        } else if (!empty($h)) {
+            $this->result = "  {$h} " . get_string("hours") . "  {$m} " . get_string("minutes") . " ";
+        } else if (!empty($m)) {
+            $this->result = "  {$m} " . get_string("minutes") . " ";
+        }
+        
         // We got the array of all the booking information.
         $this->bookinginformation = $bookinganswers->return_all_booking_information($user->id);
 
@@ -323,6 +340,7 @@ class bookingoption_description implements renderable, templatable {
                 'credits' => $this->credits,
                 'institution' => $this->institution,
                 'duration' => $this->duration,
+                'result' => $this->result,
                 'dates' => $this->dates,
                 'booknowbutton' => $this->booknowbutton,
                 'teachers' => $this->teachers,
