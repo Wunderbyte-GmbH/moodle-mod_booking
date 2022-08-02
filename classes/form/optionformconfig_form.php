@@ -59,13 +59,16 @@ class optionformconfig_form extends \moodleform {
 
             // Instantiate an option_form object, so we can get its elements.
             $optionformdummy = new option_form(null,
-                ['bookingid' => $bookingid, 'optionid' => 0, 'cmid' => $cmid, 'context' => $context]);
+                ['formmode' => 'expert', 'bookingid' => $bookingid, 'optionid' => 0, 'cmid' => $cmid, 'context' => $context]);
 
             if ($elements = $optionformdummy->_form->_elements) {
 
                 foreach ($elements as $element) {
 
                     if (empty($element->_attributes['name']) && empty($element->_name)) {
+                        continue;
+                    }
+                    if ($element->_attributes['name'] == "local_entities_entityname") {
                         continue;
                     }
                     if (empty($element->_attributes['name']) && !empty($element->_name)) {
