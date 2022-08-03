@@ -2625,5 +2625,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022080800, 'booking');
     }
 
+	if ($oldversion < 2022080900) {
+
+        // Define field availability to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('availability', XMLDB_TYPE_TEXT, null, null, null, null, null, 'dayofweek');
+
+        // Conditionally launch add field availability.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022080900, 'booking');
+    }
+
     return true;
 }
