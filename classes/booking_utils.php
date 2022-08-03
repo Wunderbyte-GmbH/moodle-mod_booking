@@ -289,6 +289,7 @@ class booking_utils {
                 $buttonmethod = 'post';
             }
 
+            // If elective settings are NOT selected...
             if (!($this->booking->is_elective())) {
                 if (isset($_GET['whichview'])) {
                     $buttonoptions['whichview'] = $_GET['whichview'];
@@ -299,6 +300,8 @@ class booking_utils {
                                 (empty($values->btnbooknowname) ? get_string('booknow', 'booking') : $values->btnbooknowname),
                                 $buttonmethod) . '</div>';
             }
+
+            // If elective settings are selected...
             if ($this->booking->is_elective()) {
                 if (isset($_GET['whichview'])) {
                     $buttonoptions['whichview'] = $_GET['whichview'];
