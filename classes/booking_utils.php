@@ -212,6 +212,7 @@ class booking_utils {
         $delete = '';
         $availability = '';
         $button = '';
+        $bookbutton = '';
         $booked = '';
         $manage = '';
         $inpast = $values->courseendtime && ($values->courseendtime < time());
@@ -287,6 +288,17 @@ class booking_utils {
                 }
                 $buttonmethod = 'post';
             }
+
+            if (!($this->booking->is_elective())) {
+                if (isset($_GET['whichview'])) {
+                    $buttonoptions['whichview'] = $_GET['whichview'];
+                }
+                $buttonoptions['optionid'] = $values->id;
+                $url = new moodle_url($baseurl . '/mod/booking/view.php', $buttonoptions);
+                $bookbutton = '<div class="col-ap-booknow">' . $OUTPUT->single_button($url,
+                                (empty($values->btnbooknowname) ? get_string('booknow', 'booking') : $values->btnbooknowname),
+                                $buttonmethod) . '</div>';
+            }
             if ($this->booking->is_elective()) {
                 if (isset($_GET['whichview'])) {
                     $buttonoptions['whichview'] = $_GET['whichview'];
@@ -319,29 +331,21 @@ class booking_utils {
                     ['class' => 'btn btn-danger', 'id' => 'btnanswer' . $values->id]);
                 }
 
-            } else {
-                $buttonmethod = 'get';
-                $buttonoptions = array('id' => $booking->cm->id, 'action' => 'showonlyone',
-                        'whichview' => 'showonlyone',
-                        'optionid' => $values->id);
-                $url = new moodle_url($baseurl . '/mod/booking/view.php', $buttonoptions);
-                $button = '<div class="col-ap-booknow">' . $OUTPUT->single_button($url,
-                        (empty($values->btnbooknowname) ? get_string('booknow', 'booking') : $values->btnbooknowname),
-                        $buttonmethod) . '</div>';
             }
-
-            $url = new moodle_url($baseurl . '/mod/booking/view.php', $buttonoptions);
 
         }
 
         if (($values->limitanswers && ($availability == "full")) || ($availability == "closed") || !$underlimit ||
                 $values->disablebookingusers) {
             $button = '';
+            $bookbutton = '';
+
         }
 
         if ($values->cancancelbook == 0 && $values->courseendtime > 0 &&
                 $values->courseendtime < time()) {
             $button = '';
+            $bookbutton = '';
             $delete = '';
         }
 
@@ -351,6 +355,7 @@ class booking_utils {
             foreach ($disabledusernames as $value) {
                 if (strpos($USER->username, trim($value)) !== false) {
                     $button = '';
+                    $bookbutton = '';
                 }
             }
         }
@@ -358,6 +363,7 @@ class booking_utils {
         // Check if user has right to book.
         if (!has_capability('mod/booking:choose', $context, $USER->id, false)) {
             $button = '<div class="col-ap-norighttobook">' . get_string('norighttobook', 'booking') . "</div><br/>";
+            $bookbutton = '<div class="col-ap-norighttobook">' . get_string('norighttobook', 'booking') . "</div><br/>";
         }
 
         // We only run this if we are not on coursepage.
@@ -394,7 +400,7 @@ class booking_utils {
         }
 
         if (!$values->limitanswers) {
-            return $button . $booked . $delete . $limit . $manage;
+            return $bookbutton . $button . $booked . $delete . $limit . $manage;
         } else {
             $places = new places($values->maxanswers, $values->availableplaces, $values->maxoverbooking,
                     $values->maxoverbooking - $values->waiting);
@@ -473,7 +479,7 @@ class booking_utils {
                 }
             }
 
-            return $button . $booked . $delete . $availableplaces . $waitingplaces . $manage;
+            return $bookbutton . $button . $booked . $delete . $availableplaces . $waitingplaces . $manage;
         }
     }
 
