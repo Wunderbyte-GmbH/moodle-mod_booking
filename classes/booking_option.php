@@ -172,29 +172,30 @@ class booking_option {
      * Saves db query when booking id is given as well, but uses already cached settings.
      *
      * @param $optionid
-     * @param int $boid booking id
+     * @param int $bookingid booking id
      * @return booking_option
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function create_option_from_optionid($optionid, $boid = null) {
+    public static function create_option_from_optionid($optionid, $bookingid = null) {
         global $DB;
 
-        if (!$boid && (!$settings = singleton_service::get_instance_of_booking_option_settings($optionid))) {
-            if (is_null($boid)) {
-                $boid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid]);
+        if (empty($bookingid)) {
+            if ($settings = singleton_service::get_instance_of_booking_option_settings($optionid)) {
+                $bookingid = $settings->bookingid;
+            } else {
+                $bookingid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid]);
             }
-        } else {
-            $boid = $settings->bookingid;
         }
 
-        if (!$boid) {
+        // If we could not retrieve it, we have to return null.
+        if (empty($bookingid)) {
             return null;
         }
 
-        $cm = get_coursemodule_from_instance('booking', $boid);
+        $cm = get_coursemodule_from_instance('booking', $bookingid);
 
-        return singleton_service::get_instance_of_booking_option($cm->id, $optionid, $settings);
+        return singleton_service::get_instance_of_booking_option($cm->id, $optionid);
     }
 
     /**
