@@ -65,7 +65,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                     'notificationtext', 'notificationtextformat', 'disablebookingusers',
                     'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext', 'shorturl', 'duration',
                     'parentid', 'semesterid', 'dayofweektime', 'invisible', 'annotation', 'identifier', 'titleprefix',
-                    'priceformulaadd', 'priceformulamultiply', 'priceformulaoff', 'dayofweek'
+                    'priceformulaadd', 'priceformulamultiply', 'priceformulaoff', 'dayofweek', 'availability'
                 ));
 
         $answers = new backup_nested_element('answers');
