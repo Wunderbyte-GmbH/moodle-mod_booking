@@ -51,7 +51,7 @@ class max_number_of_bookings implements bo_condition {
      */
     public static function is_available(booking_option_settings $settings, $userid, $not = false):bool {
 
-        global $Db;
+        global $DB;
 
         $isavailable = false;
 
