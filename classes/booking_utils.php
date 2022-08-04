@@ -280,7 +280,11 @@ class booking_utils {
                     . $completed . $status . '</div>';
             }
         } else {
-            if (!$coursepage) {
+            // Once in the if statement, we had only (!courspage), but in this situation, we can not book from directly on the courspage.
+            // In the booking settings, we can show booking information and book buttons for booking.
+            // If only we use (!courspage), then it gives us id error messages.
+            // Because of that we need $coursepage in the if statement...
+            if (!$coursepage || $coursepage) {
                 $buttonoptions = array('answer' => $values->id, 'id' => $booking->cm->id,
                         'sesskey' => $USER->sesskey);
                 if (empty($this->booking->settings->bookingpolicy)) {
