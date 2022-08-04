@@ -842,14 +842,12 @@ function booking_update_options($optionvalues, $context) {
     $option->timemodified = time();
 
     // Elective Credits.
-    $option->credits = $optionvalues->credits;
-
     if (isset($optionvalues->credits)) {
+        // $option->credits = $optionvalues->credits;
         $option->credits = trim($optionvalues->credits);
     } else {
         $option->credits = '';
     }
-
 
     // Add to calendar option.
     if (isset($optionvalues->addtocalendar) && $optionvalues->addtocalendar == 1) {
