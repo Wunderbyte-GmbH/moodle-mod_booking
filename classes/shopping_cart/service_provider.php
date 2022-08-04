@@ -106,14 +106,14 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
         $now = time();
 
-        $allowedupdatedays = $booking->settings->allowupdatedays;
+        $allowupdatedays = $booking->settings->allowupdatedays;
         if (!empty($allowupdatedays)) {
             // Different string depending on plus or minus.
-            if ($allowedupdatedays >= 0) {
-                $datestring = " - $allowedupdatedays days";
+            if ($allowupdatedays >= 0) {
+                $datestring = " - $allowupdatedays days";
             } else {
-                $allowedupdatedays = abs($allowedupdatedays);
-                $datestring = " + abs($allowedupdatedays) days";
+                $allowupdatedays = abs($allowupdatedays);
+                $datestring = " + $allowupdatedays days";
             }
             $canceluntil = strtotime($datestring, $now);
         } else {
