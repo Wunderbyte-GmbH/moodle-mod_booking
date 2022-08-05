@@ -475,7 +475,9 @@ class option_form extends moodleform {
         $price->add_price_to_mform($mform);
 
         // Add Electives.
-        booking_elective::add_elective_to_option_form($mform, $cmid, $optionid);
+        if ($booking->settings->iselective == 1) {
+            booking_elective::add_elective_to_option_form($mform, $cmid, $optionid);
+        }
 
         // Add entities.
         if (class_exists('local_entities\entitiesrelation_handler')) {

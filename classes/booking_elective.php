@@ -114,40 +114,51 @@ class booking_elective {
     public static function add_elective_to_option_form(MoodleQuickForm &$mform, $cmid, $optionid) {
         global $DB;
 
-        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
-
-        // Elective.
-        $mform->addElement('header', 'electiveoptions', get_string('electivesettings', 'booking'));
-        $mform->setExpanded('electiveoptions', true);
-
-        $opts = array_combine(range(0, 50), range(0, 50));
-        $extraopts = array_combine(range(55, 500, 5), range(55, 500, 5));
-        $opts = $opts + $extraopts;
-        $mform->addElement('select', 'credits', get_string('credits', 'mod_booking'), $opts);
-        $mform->addHelpButton('credits', 'credits', 'mod_booking');
-
-        $options = array(
-                'multiple' => true,
-                'noselectionstring' => get_string('nooptionselected', 'booking'),
-        );
-
-        // Retrieve all the other Booking options.
-        $alloptions = $DB->get_records('booking_options', array('bookingid' => $booking->id));
-        $optionsarray = [];
-        // $optionid = self::_customdata['optionid'];
-
-        foreach ($alloptions as $key => $optionobject) {
-            // Do not show self.
-            if ($optionid == $key) {
-                continue;
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with headers.
+        // In expert mode, we always show everything.
+        $showelectiveheader = true;
+        $formmode = get_user_preferences('optionform_mode');
+        if ($formmode !== 'expert') {
+            $cfgelectiveheader = $DB->get_field('booking_optionformconfig', 'active',
+                ['elementname' => 'electivesettings']);
+            if ($cfgelectiveheader === "0") {
+                $showelectiveheader = false;
             }
-            $optionsarray[$key] = $optionobject->text;
         }
-
-        $mform->addElement('autocomplete', 'mustcombine', get_string("mustcombine", "booking"), $optionsarray, $options);
-        $mform->addHelpButton('mustcombine', 'mustcombine', 'mod_booking');
-        $mform->addElement('autocomplete', 'mustnotcombine', get_string("mustnotcombine", "booking"), $optionsarray, $options);
-        $mform->addHelpButton('mustnotcombine', 'mustnotcombine', 'mod_booking');
+        if ($showelectiveheader) {
+            $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+            $mform->addElement('header', 'electiveoptions', get_string('electivesettings', 'booking'));
+            $mform->setExpanded('electiveoptions', true);
+            $opts = array_combine(range(0, 50), range(0, 50));
+            $extraopts = array_combine(range(55, 500, 5), range(55, 500, 5));
+            $opts = $opts + $extraopts;
+            $mform->addElement('select', 'credits', get_string('credits', 'mod_booking'), $opts);
+            $mform->addHelpButton('credits', 'credits', 'mod_booking');
+    
+            $options = array(
+                    'multiple' => true,
+                    'noselectionstring' => get_string('nooptionselected', 'booking'),
+            );
+    
+            // Retrieve all the other Booking options.
+            $alloptions = $DB->get_records('booking_options', array('bookingid' => $booking->id));
+            $optionsarray = [];
+            // $optionid = self::_customdata['optionid'];
+    
+            foreach ($alloptions as $key => $optionobject) {
+                // Do not show self.
+                if ($optionid == $key) {
+                    continue;
+                }
+                $optionsarray[$key] = $optionobject->text;
+            }
+    
+            $mform->addElement('autocomplete', 'mustcombine', get_string("mustcombine", "booking"), $optionsarray, $options);
+            $mform->addHelpButton('mustcombine', 'mustcombine', 'mod_booking');
+            $mform->addElement('autocomplete', 'mustnotcombine', get_string("mustnotcombine", "booking"), $optionsarray, $options);
+            $mform->addHelpButton('mustnotcombine', 'mustnotcombine', 'mod_booking');
+        }
 
     }
 
