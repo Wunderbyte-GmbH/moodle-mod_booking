@@ -267,7 +267,9 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
     switch ($whichview) {
         case 'mybooking':
             $conditions[] = "bo.id IN (SELECT optionid FROM {booking_answers}
-                             WHERE userid = :myuserid AND bookingid = :mybookingid)";
+                             WHERE userid = :myuserid
+                             AND bookingid = :mybookingid
+                             AND waitinglist < 2)";
             $conditionsparams['myuserid'] = $USER->id;
             $conditionsparams['mybookingid'] = $booking->id;
             break;
