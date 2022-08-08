@@ -58,6 +58,9 @@ class booking_option_settings {
     /** @var int $maxoverbooking */
     public $maxoverbooking = null;
 
+    /** @var int $bookingopeningtime */
+    public $bookingopeningtime = null;
+
     /** @var int $bookingclosingtime */
     public $bookingclosingtime = null;
 
@@ -264,6 +267,7 @@ class booking_option_settings {
             $this->text = $dbrecord->text;
             $this->maxanswers = $dbrecord->maxanswers;
             $this->maxoverbooking = $dbrecord->maxoverbooking;
+            $this->bookingopeningtime = $dbrecord->bookingopeningtime;
             $this->bookingclosingtime = $dbrecord->bookingclosingtime;
             $this->courseid = $dbrecord->courseid;
             $this->coursestarttime = $dbrecord->coursestarttime;

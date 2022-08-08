@@ -296,13 +296,19 @@ class option_form extends moodleform {
         $mform->setType('maxoverbooking', PARAM_INT);
         $mform->disabledIf('maxoverbooking', 'limitanswers', 'notchecked');
 
-        $mform->addElement('checkbox', 'restrictanswerperiod',
-                get_string('timecloseoption', 'mod_booking'));
+        $mform->addElement('checkbox', 'restrictanswerperiodopening',
+                get_string('restrictanswerperiodopening', 'mod_booking'));
 
-        $mform->addElement('date_time_selector', 'bookingclosingtime',
-                get_string("bookingclose", "booking"));
+        $mform->addElement('date_time_selector', 'bookingopeningtime', get_string('bookingopeningtime', 'mod_booking'));
+        $mform->setType('bookingopeningtime', PARAM_INT);
+        $mform->disabledIf('bookingopeningtime', 'restrictanswerperiodopening', 'notchecked');
+
+        $mform->addElement('checkbox', 'restrictanswerperiodclosing',
+                get_string('restrictanswerperiodclosing', 'mod_booking'));
+
+        $mform->addElement('date_time_selector', 'bookingclosingtime', get_string('bookingclosingtime', 'mod_booking'));
         $mform->setType('bookingclosingtime', PARAM_INT);
-        $mform->disabledIf('bookingclosingtime', 'restrictanswerperiod', 'notchecked');
+        $mform->disabledIf('bookingclosingtime', 'restrictanswerperiodclosing', 'notchecked');
 
         $coursearray = array();
         $coursearray[0] = get_string('donotselectcourse', 'mod_booking');
@@ -676,7 +682,10 @@ class option_form extends moodleform {
             $defaultvalues->annotation : ''), 'format' => FORMAT_HTML);
 
         if (isset($defaultvalues->bookingclosingtime) && $defaultvalues->bookingclosingtime) {
-            $defaultvalues->restrictanswerperiod = "checked";
+            $defaultvalues->restrictanswerperiodclosing = "checked";
+        }
+        if (isset($defaultvalues->bookingopeningtime) && $defaultvalues->bookingopeningtime) {
+            $defaultvalues->restrictanswerperiodopening = "checked";
         }
         if (isset($defaultvalues->coursestarttime) && $defaultvalues->coursestarttime) {
             $defaultvalues->startendtimeknown = "checked";

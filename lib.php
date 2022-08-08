@@ -782,11 +782,18 @@ function booking_update_options($optionvalues, $context) {
         $option->limitanswers = 1;
     }
 
-    if (isset($optionvalues->restrictanswerperiod)) {
+    if (isset($optionvalues->restrictanswerperiodopening) && !empty($optionvalues->bookingopeningtime)) {
+        $option->bookingopeningtime = $optionvalues->bookingopeningtime;
+    } else {
+        $option->bookingopeningtime = 0;
+    }
+
+    if (isset($optionvalues->restrictanswerperiodclosing) && !empty($optionvalues->bookingclosingtime)) {
         $option->bookingclosingtime = $optionvalues->bookingclosingtime;
     } else {
         $option->bookingclosingtime = 0;
     }
+
     if (isset($optionvalues->startendtimeknown)) {
         $option->coursestarttime = $optionvalues->coursestarttime;
         $option->courseendtime = $optionvalues->courseendtime;

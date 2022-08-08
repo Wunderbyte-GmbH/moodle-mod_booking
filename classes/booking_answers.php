@@ -330,6 +330,7 @@ class booking_answers {
             $this->text = $dbrecord->text;
             $this->maxanswers = $dbrecord->maxanswers;
             $this->maxoverbooking = $dbrecord->maxoverbooking;
+            $this->bookingopeningtime = $dbrecord->bookingopeningtime;
             $this->bookingclosingtime = $dbrecord->bookingclosingtime;
             $this->courseid = $dbrecord->courseid;
             $this->coursestarttime = $dbrecord->coursestarttime;

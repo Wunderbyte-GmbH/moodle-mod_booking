@@ -296,11 +296,14 @@ class mobile {
         if (!$values->option->limitanswers) {
             $status = "available";
         } else if (($values->waiting + $values->booked) >= ($values->option->maxanswers + $values->option->maxoverbooking)) {
-            // TO-DO: Seštej, koliko jih je na listi.
             $status = "full";
         }
 
         if (time() > $values->option->bookingclosingtime && $values->option->bookingclosingtime != 0) {
+            $status = "closed";
+        }
+
+        if (time() < $values->option->bookingopeningtime && $values->option->bookingopeningtime != 0) {
             $status = "closed";
         }
 

@@ -221,16 +221,19 @@ if ($mform->is_cancelled()) {
             subscribe_teacher_to_booking_option($USER->id, $nbooking, $cm);
         }
 
-        // Recurring.
+        // Recurring - Do we still need this? Currently we do not use this anymore.
         if ($optionid == -1 && isset($fromform->startendtimeknown) && $fromform->startendtimeknown == 1 &&
             isset($fromform->repeatthisbooking) && $fromform->repeatthisbooking == 1 && $fromform->howmanytimestorepeat > 0) {
 
             $fromform->parentid = $nbooking;
             $name = $fromform->text;
 
-            $restrictanswerperiod = 0;
-            if (isset($fromform->restrictanswerperiod) && $fromform->restrictanswerperiod) {
-                $restrictanswerperiod = $fromform->coursestarttime - $fromform->bookingclosingtime;
+            // NOTICE: We currently do not handle bookingopeningtime. Maybe we will need to add it in a later release.
+
+            // Handle booking closing time. Is this correct?
+            $restrictanswerperiodclosing = 0;
+            if (isset($fromform->restrictanswerperiodclosing) && $fromform->restrictanswerperiodclosing) {
+                $restrictanswerperiodclosing = $fromform->coursestarttime - $fromform->bookingclosingtime;
             }
 
             for ($i = 0; $i < $fromform->howmanytimestorepeat; $i++) {
@@ -238,8 +241,8 @@ if ($mform->is_cancelled()) {
                 $fromform->coursestarttime = $fromform->coursestarttime + $fromform->howoftentorepeat;
                 $fromform->courseendtime = $fromform->courseendtime + $fromform->howoftentorepeat;
 
-                if ($restrictanswerperiod != 0) {
-                    $fromform->bookingclosingtime = $fromform->coursestarttime + $restrictanswerperiod;
+                if ($restrictanswerperiodclosing != 0) {
+                    $fromform->bookingclosingtime = $fromform->coursestarttime + $restrictanswerperiodclosing;
                 }
 
                 $nbooking = booking_update_options($fromform, $context, $cm);

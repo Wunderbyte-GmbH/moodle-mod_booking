@@ -95,6 +95,7 @@ class coursepage_available_options implements renderable, templatable {
                          b.allowupdate,
                          b.allowupdatedays,
                          bo.bookingclosingtime,
+                         bo.bookingopeningtime,
                          b.btncancelname,
 
                   (SELECT COUNT(*)

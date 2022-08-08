@@ -54,14 +54,29 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             $("#id_location").val(obj.location);
                             $("#id_institution").val(obj.institution);
                             $("#id_address").val(obj.address);
-                            if ($('#id_limitanswers').is(':checked') != (obj.bookingclosingtime == 0 ? false : true)) {
+                            if ($('#id_limitanswers').is(':checked') != (obj.bookingclosingtime == 0 ? false : true) ||
+                                $('#id_limitanswers').is(':checked') != (obj.bookingopeningtime == 0 ? false : true)) {
                                 $("#id_limitanswers").trigger('click');
                             }
                             $("#id_maxanswers").val(obj.maxanswers);
                             $("#id_maxoverbooking").val(obj.maxoverbooking);
-                            if ($('#id_restrictanswerperiod').is(':checked') != (obj.bookingclosingtime == 0 ? false : true)) {
-                                $("#id_restrictanswerperiod").trigger('click');
+
+                            if ($('#id_restrictanswerperiodopening').is(':checked') !=
+                                (obj.bookingopeningtime == 0 ? false : true)) {
+                                $("#id_restrictanswerperiodopening").trigger('click');
                             }
+
+                            if ($('#id_restrictanswerperiodclosing').is(':checked') !=
+                                (obj.bookingclosingtime == 0 ? false : true)) {
+                                $("#id_restrictanswerperiodclosing").trigger('click');
+                            }
+
+                            var datebookingopeningtime = new Date(obj.bookingopeningtime * 1000);
+                            $("#id_bookingopeningtime_day").val(datebookingopeningtime.getDate());
+                            $("#id_bookingopeningtime_month").val(datebookingopeningtime.getMonth() + 1);
+                            $("#id_bookingopeningtime_year").val(datebookingopeningtime.getFullYear());
+                            $("#id_bookingopeningtime_hour").val(datebookingopeningtime.getHours());
+                            $("#id_bookingopeningtime_minute").val(datebookingopeningtime.getMinutes());
 
                             var datebookingclosingtime = new Date(obj.bookingclosingtime * 1000);
                             $("#id_bookingclosingtime_day").val(datebookingclosingtime.getDate());

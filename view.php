@@ -582,6 +582,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                      AND ba.userid = :userid) AS iambooked,
                          b.allowupdate,
                          b.allowupdatedays,
+                         bo.bookingopeningtime,
                          bo.bookingclosingtime,
                          b.btncancelname,
 

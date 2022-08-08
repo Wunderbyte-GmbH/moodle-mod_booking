@@ -226,6 +226,9 @@ class booking_utils {
             $availability = "full";
         }
 
+        if (time() < $values->bookingopeningtime and $values->bookingopeningtime != 0) {
+            $availability = "closed";
+        }
         if (time() > $values->bookingclosingtime and $values->bookingclosingtime != 0) {
             $availability = "closed";
         }

@@ -396,6 +396,7 @@ class csv_import {
                     $bookingoption->$column = $this->fix_encoding($value);
                     break;
                 case 'bookingclosingtime':
+                case 'bookingopeningtime':
                 case 'coursestarttime':
                 case 'courseendtime':
                     $date = date_create_from_format($this->formdata->dateparseformat, $value);
@@ -493,6 +494,15 @@ class csv_import {
                 if (!date_create_from_format($this->formdata->dateparseformat, $csvrecord['bookingclosingtime']) AND
                     !strtotime($csvrecord['bookingclosingtime'])) {
                     $this->add_csverror('Booking closing time hadd a problem with the date format.', $linenumber);
+                    return false;
+                }
+            }
+        }
+        if (isset($csvrecord['bookingopeningtime'])) {
+            if (!is_null($this->formdata->dateparseformat)) {
+                if (!date_create_from_format($this->formdata->dateparseformat, $csvrecord['bookingopeningtime']) AND
+                    !strtotime($csvrecord['bookingopeningtime'])) {
+                    $this->add_csverror('Booking opening time hadd a problem with the date format.', $linenumber);
                     return false;
                 }
             }
