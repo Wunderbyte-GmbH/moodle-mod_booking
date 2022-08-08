@@ -271,31 +271,33 @@ class mod_booking_mod_form extends moodleform_mod {
             'accepted_types' => array('image')));
 
         // Elective.
-        $mform->addElement('header', 'electivesettings',
-                get_string('electivesettings', 'booking'));
-        $mform->setExpanded('electivesettings', true);
+        if (wb_payment::is_currently_valid_licensekey()) {
+            $mform->addElement('header', 'electivesettings',
+                    get_string('electivesettings', 'booking'));
+            $mform->setExpanded('electivesettings', true);
 
-        $mform->addElement('checkbox', 'iselective', get_string('iselective', 'booking'));
+            $mform->addElement('checkbox', 'iselective', get_string('iselective', 'booking'));
 
-        $mform->addElement('checkbox', 'enforceorder', get_string('enforceorder', 'booking'));
-        $mform->addHelpButton('enforceorder', 'enforceorder', 'mod_booking');
+            $mform->addElement('checkbox', 'enforceorder', get_string('enforceorder', 'booking'));
+            $mform->addHelpButton('enforceorder', 'enforceorder', 'mod_booking');
 
-        $mform->addElement('checkbox', 'consumeatonce', get_string('consumeatonce', 'booking'));
-        $mform->addHelpButton('consumeatonce', 'consumeatonce', 'mod_booking');
+            $mform->addElement('checkbox', 'consumeatonce', get_string('consumeatonce', 'booking'));
+            $mform->addHelpButton('consumeatonce', 'consumeatonce', 'mod_booking');
 
-        $opts = array(0 => get_string('unlimitedcredits', 'mod_booking'));
-        $extraopts = array_combine(range(1, 50), range(1, 50));
-        $opts = $opts + $extraopts;
-        $extraopts = array_combine(range(55, 500, 5), range(55, 500, 5));
-        $opts = $opts + $extraopts;
-        $mform->addElement('select', 'maxcredits', get_string('maxcredits', 'mod_booking'), $opts);
-        $mform->addHelpButton('maxcredits', 'maxcredits', 'mod_booking');
+            $opts = array(0 => get_string('unlimitedcredits', 'mod_booking'));
+            $extraopts = array_combine(range(1, 50), range(1, 50));
+            $opts = $opts + $extraopts;
+            $extraopts = array_combine(range(55, 500, 5), range(55, 500, 5));
+            $opts = $opts + $extraopts;
+            $mform->addElement('select', 'maxcredits', get_string('maxcredits', 'mod_booking'), $opts);
+            $mform->addHelpButton('maxcredits', 'maxcredits', 'mod_booking');
 
-        // Only if the Instance is used as elective, we show these settings.
-        $mform->disabledIf('enforceorder', 'iselective', 'notchecked');
-        $mform->disabledIf('maxcredits', 'iselective', 'notchecked');
-        $mform->disabledIf('consumeatonce', 'iselective', 'notchecked');
-        $mform->disabledIf('consumeatonce', 'maxcredits', 'eq', 0);
+            // Only if the Instance is used as elective, we show these settings.
+            $mform->disabledIf('enforceorder', 'iselective', 'notchecked');
+            $mform->disabledIf('maxcredits', 'iselective', 'notchecked');
+            $mform->disabledIf('consumeatonce', 'iselective', 'notchecked');
+            $mform->disabledIf('consumeatonce', 'maxcredits', 'eq', 0);
+        }
 
         // Confirmation message.
         $mform->addElement('header', 'confirmation',
