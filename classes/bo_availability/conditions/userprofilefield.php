@@ -48,6 +48,9 @@ class userprofilefield implements bo_condition {
     /** @var int $iscustomizable marker to see if class can take json. */
     public $iscustomizable = true;
 
+    /** @var stdClass $customsettings an stdclass coming from the json which passes custom settings */
+    public $customsettings = null;
+
     /**
      * Constructor.
      *
@@ -71,35 +74,50 @@ class userprofilefield implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, $userid, $not = false):bool {
 
-        global $DB, $USER;
-
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        $jsonstring = $settings->availability ?? '';
-
-        $jsonobject = json_decode($jsonstring);
-
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* "name" : "bo_condition_user_customfielld",
-        "overridestimes": false,
-        "customfieldshortname" : "Geschlecht",
-        "operator" : "=",
-        "value" : "f" */
-
-        if (!isset($jsonobject->profilefield)) {
+        if (!isset($this->customsettings->profilefield)) {
             $isavailable = true;
         } else {
 
             // Profilefield is set.
             $user = singleton_service::get_instance_of_user($userid);
-            $profilefield = $jsonobject->profilefield;
+            $profilefield = $this->customsettings->profilefield;
 
-            // TODO: If the profilefield is not here right away, we might need to retrieve it.
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /*if (!isset($user->$profilefield)) {
+            // If the profilefield is not here right away, we might need to retrieve it.
+            if (!isset($user->$profilefield)) {
+                profile_load_custom_fields($user);
+                $value = $user->profile[$profilefield] ?? null;
+            } else {
+                $value = $user->$profilefield;
+            }
 
-            }*/
+            // If value is not null, we compare it.
+            if ($value) {
+                switch ($this->customsettings->operator) {
+                    case '=':
+                        if ($value == $this->customsettings->value) {
+                            $isavailable = true;
+                        }
+                        break;
+                    case '<':
+                        if ($value < $this->customsettings->value) {
+                            $isavailable = true;
+                        }
+                        break;
+                    case '>':
+                        if ($value > $this->customsettings->value) {
+                            $isavailable = true;
+                        }
+                        break;
+                    case '~':
+                        if (strpos($this->customsettings->value, $value)) {
+                            $isavailable = true;
+                        }
+                        break;
+                }
+            }
 
         }
 
@@ -135,11 +153,13 @@ class userprofilefield implements bo_condition {
         $isavailable = $this->is_available($settings, $userid, $not);
 
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_priceisset_full_available', 'mod_booking') :
-                get_string('bo_cond_priceisset_available', 'mod_booking');
+            $description = $full ? get_string('bo_cond_userprofilefield_full_available', 'mod_booking') :
+                get_string('bo_cond_userprofilefield_available', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_priceisset_full_not_available', 'mod_booking') :
-                get_string('bo_cond_priceisset_not_available', 'mod_booking');
+            $description = $full ? get_string('bo_cond_userprofilefield_full_not_available',
+                'mod_booking',
+                $this->customsettings) :
+                get_string('bo_cond_userprofilefield_not_available', 'mod_booking');
         }
 
         return [$isavailable, $description];

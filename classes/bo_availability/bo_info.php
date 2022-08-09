@@ -128,14 +128,16 @@ class bo_info {
             } else {
                 // Else we need to instantiate the condition first.
 
-                $classname = $condition->name;
+                $classname = 'mod_booking\bo_availability\conditions\\' . $condition->name;
 
                 if (class_exists($classname)) {
-                    $instance = new $classname();
+
                     // We now set the id from the json for this instance.
                     // We might actually use a hardcoded condition with a negative id...
                     // ... also as customized condition with positive id.
-                    $instance->id = $condition->id;
+                    $instance = new $classname($condition->id);
+                    $instance->customsettings = $condition;
+
                 } else {
                     // Should never happen, but just go on in case of.
                     continue;

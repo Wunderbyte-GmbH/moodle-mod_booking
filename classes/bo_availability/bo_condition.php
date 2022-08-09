@@ -27,6 +27,7 @@
 namespace mod_booking\bo_availability;
 
 use mod_booking\booking_option_settings;
+use MoodleQuickForm;
 
 /**
  * Base class for a single bo availability condition.
@@ -80,4 +81,15 @@ interface bo_condition {
      *   this item
      */
     public function get_description($full, booking_option_settings $settings, $userid, $not);
+
+
+    /**
+     * Adds the right form elements to add this condition.
+     *
+     * @param MoodleQuickForm $mform
+     * @return void
+     */
+    public function add_condition_to_mform(MoodleQuickForm &$mform);
+
+
 }

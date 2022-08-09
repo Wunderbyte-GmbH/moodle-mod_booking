@@ -1867,3 +1867,8 @@ $string['bo_cond_priceisset_available'] = 'Book it';
 $string['bo_cond_priceisset_full_available'] = 'Booking is possible';
 $string['bo_cond_priceisset_not_available'] = 'You need to pay';
 $string['bo_cond_priceisset_full_not_available'] = 'A price is set, payment required';
+
+$string['bo_cond_userprofilefield_available'] = 'Book it';
+$string['bo_cond_userprofilefield_full_available'] = 'Booking is possible';
+$string['bo_cond_userprofilefield_not_available'] = 'Not allowed to book';
+$string['bo_cond_userprofilefield_full_not_available'] = 'Only user with customfield {$a->profilefield} set to value {$a->value} are allowed to book';
