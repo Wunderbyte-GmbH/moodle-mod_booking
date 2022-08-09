@@ -32,8 +32,7 @@ use mod_booking\singleton_service;
 
 
 /**
- * If a price is set for the option, normal booking is not available.
- * Booking only via payment.
+ * This class takes the configuration from json in the available column of booking_options table.
  *
  * All bo condition types must extend this class.
  *
@@ -66,21 +65,34 @@ class userprofilefield implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, $userid, $not = false):bool {
 
-        global $DB;
+        global $DB, $USER;
 
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        // Get the booking answers for this instance.
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-        $user = singleton_service::get_instance_of_user($userid);
+        $jsonstring = $settings->availability ?? '';
 
-        $priceitems = price::get_prices_from_cache_or_db($settings->id);
+        $jsonobject = json_decode($jsonstring);
 
-        // If the user is not yet booked we return true.
-        if (count($priceitems) == 0) {
+        // "name" : "bo_condition_user_customfielld",
+        // "overridestimes": false,
+        // "customfieldshortname" : "Geschlecht",
+        // "operator" : "=",
+        // "value" : "f"
 
+        if (!isset($jsonobject->profilefield)) {
             $isavailable = true;
+        } else {
+
+            // Profilefield is set.
+            $user = singleton_service::get_instance_of_user($userid);
+            $profilefield = $jsonobject->profilefield;
+
+            // If the profilefield is not here right away, we might need to retrieve it.
+            if (!isset($user->$profilefield)) {
+
+            }
+
         }
 
         // If it's inversed, we inverse.
