@@ -223,7 +223,7 @@ class bo_info {
      * @param MoodleQuickForm $mform
      * @return void
      */
-    public function add_conditions_to_mform(MoodleQuickForm &$mform) {
+    public static function add_conditions_to_mform(MoodleQuickForm &$mform) {
 
         global $DB;
 
@@ -247,6 +247,8 @@ class bo_info {
      * @return array
      */
     public static function get_conditions($all = false, $onlycustomizable = false):array {
+
+        global $CFG;
 
         $conditions = [];
         // First, we get all the available conditions from our directory.
