@@ -1827,3 +1827,7 @@ $string['successfulcalculation'] = 'Price calculation successful!';
 
 // Col_text_link.mustache.
 $string['cancelallusers'] = 'Cancel booking for all users';
+
+
+// Col_availableplaces.mustache.
+$string['manageresponses'] = 'booking(s)';

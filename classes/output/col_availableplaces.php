@@ -25,6 +25,7 @@
 
 namespace mod_booking\output;
 
+use context_module;
 use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
@@ -48,6 +49,12 @@ class col_availableplaces implements renderable, templatable {
     /** @var stdClass $buyforuser user stdclass if we buy for user */
     private $buyforuser = null;
 
+    /** @var int $cmid */
+    private $cmid = null;
+
+    /** @var int $optionid */
+    private $optionid = null;
+
     /**
      * The constructor takes the values from db.
      * @param stdClass $values
@@ -58,6 +65,15 @@ class col_availableplaces implements renderable, templatable {
         $this->buyforuser = $buyforuser;
 
         $this->bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+
+        $this->cmid = $settings->cmid;
+        $this->optionid = $settings->id;
+
+        $context = context_module::instance($settings->cmid);
+        if (has_capability('mod/booking:updatebooking', $context) ||
+             has_capability('mod/booking:addeditownoption', $context)) {
+            $this->showmanageresponses = true;
+        }
     }
 
     /**
@@ -75,6 +91,20 @@ class col_availableplaces implements renderable, templatable {
 
         // We got the array of all the booking information.
         $bookinginformation = $this->bookinganswers->return_all_booking_information($userid);
+
+        // Add additional information.
+        $bookinginformation['cmid'] = $this->cmid;
+        $bookinginformation['optionid'] = $this->optionid;
+
+        if (!empty($bookinginformation['iambooked'])) {
+            $bookinginformation['numberofresponses'] = $bookinginformation['iambooked']['booked'];
+        }
+        if (!empty($bookinginformation['notbooked'])) {
+            $bookinginformation['numberofresponses'] = $bookinginformation['notbooked']['booked'];
+        }
+        if (!empty($this->showmanageresponses && !empty($bookinginformation['numberofresponses']))) {
+            $bookinginformation['showmanageresponses'] = $this->showmanageresponses;
+        }
 
         return $bookinginformation;
     }

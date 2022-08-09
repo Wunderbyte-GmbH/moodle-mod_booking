@@ -15,37 +15,14 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/col_text
+    @template mod_booking/col_availableplaces
 
     Classes required for JS:
     * none
 
     Example context (json):
     {
-        "iambooked" : [
-            "maxanswers" : "10",
-            "maxoverbooking" : "10",
-            "waiting" : "3",
-            "booked" : "10",
-            "freeonlist" : "0",
-            "freeonwaitinglist" : "7",
-        ],
-        "onwaitinglist" : [
-            "maxanswers" : "10",
-            "maxoverbooking" : "10",
-            "waiting" : "3",
-            "booked" : "10",
-            "freeonlist" : "0",
-            "freeonwaitinglist" : "7",
-        ],
-        "notbooked" : [
-            "maxanswers" : "10",
-            "maxoverbooking" : "10",
-            "waiting" : "3",
-            "booked" : "10",
-            "freeonlist" : "0",
-            "freeonwaitinglist" : "7",
-        ],
+        "todo" : "todo"
     }
 }}
 
@@ -120,3 +97,13 @@
         </div>
     {{/maxoverbooking}}
 {{/notbooked}}
+</a>
+{{#showmanageresponses}}
+<div>
+<a href="/mod/booking/report.php?id={{cmid}}&optionid={{optionid}}" style="text-decoration: none;" class="btn btn-light p-0">
+    <i class="fa fa-ticket" aria-hidden="true"></i>
+    {{#numberofresponses}}{{.}}{{/numberofresponses}}
+    {{#str}} manageresponses, mod_booking {{/str}}
+</a>
+</div>
+{{/showmanageresponses}}

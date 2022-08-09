@@ -1579,3 +1579,6 @@ $string['nopriceformulaset'] = 'Sie müssen zuerst eine Formel in den Buchungsei
 
 // Col_text_link.mustache.
 $string['cancelallusers'] = 'Storniere Buchung für alle Nutzer*innen';
+
+// Col_availableplaces.mustache.
+$string['manageresponses'] = 'Buchung(en)';
