@@ -44,9 +44,6 @@ use MoodleQuickForm;
  */
 class onwaitinglist implements bo_condition {
 
-    /** @var string $condition */
-    public $condition = 'onwaitinglist';
-
     /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
     public $id = -2;
 

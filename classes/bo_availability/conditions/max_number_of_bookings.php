@@ -44,9 +44,6 @@ use MoodleQuickForm;
  */
 class max_number_of_bookings implements bo_condition {
 
-    /** @var string $condition */
-    public $condition = 'max_number_of_bookings';
-
     /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
     public $id = -4;
 

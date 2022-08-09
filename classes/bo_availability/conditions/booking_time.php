@@ -41,9 +41,6 @@ use MoodleQuickForm;
  */
 class booking_time implements bo_condition {
 
-    /** @var string $condition */
-    public $condition = 'booking_time';
-
     /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
     public $id = -5;
 

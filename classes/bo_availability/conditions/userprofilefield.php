@@ -42,9 +42,6 @@ use MoodleQuickForm;
  */
 class userprofilefield implements bo_condition {
 
-    /** @var string $condition */
-    public $condition = 'userprofilefield';
-
     /** @var int $id Id is set via json during construction */
     public $id = null;
 
