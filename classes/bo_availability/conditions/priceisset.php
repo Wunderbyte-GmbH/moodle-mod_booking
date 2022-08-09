@@ -24,43 +24,65 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\bo_availability;
+ namespace mod_booking\bo_availability\conditions;
 
+use mod_booking\bo_availability\bo_condition;
+use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
+use mod_booking\output\col_price;
+use mod_booking\price;
+use mod_booking\singleton_service;
+
 
 /**
- * Base class for a single bo availability condition.
+ * If a price is set for the option, normal booking is not available.
+ * Booking only via payment.
  *
  * All bo condition types must extend this class.
- *
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-interface bo_condition {
+class priceisset implements bo_condition {
+
+    /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
+    public $id = -6;
 
     /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
-     *
-     * If implementations require a course or modinfo, they should use
-     * the get methods in $info.
-     *
-     * The $not option is potentially confusing. This option always indicates
-     * the 'real' value of NOT. For example, a condition inside a 'NOT AND'
-     * group will get this called with $not = true, but if you put another
-     * 'NOT OR' group inside the first group, then a condition inside that will
-     * be called with $not = false. We need to use the real values, rather than
-     * the more natural use of the current value at this point inside the tree,
-     * so that the information displayed to users makes sense.
-     *
      * @param booking_option_settings $settings Item we're checking
      * @param int $userid User ID to check availability for
      * @param bool $not Set true if we are inverting the condition
      * @return bool True if available
      */
-    public function is_available(booking_option_settings $settings, $userid, $not);
+    public function is_available(booking_option_settings $settings, $userid, $not = false):bool {
+
+        global $DB;
+
+        // This is the return value. Not available to begin with.
+        $isavailable = false;
+
+        // Get the booking answers for this instance.
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+        $user = singleton_service::get_instance_of_user($userid);
+
+        $priceitems = price::get_prices_from_cache_or_db($settings->id);
+
+        // If the user is not yet booked we return true.
+        if (count($priceitems) == 0) {
+
+            $isavailable = true;
+        }
+
+        // If it's inversed, we inverse.
+        if ($not) {
+            $isavailable = !$isavailable;
+        }
+
+        return $isavailable;
+    }
 
     /**
      * Obtains a string describing this restriction (whether or not
@@ -74,10 +96,25 @@ interface bo_condition {
      *
      * @param bool $full Set true if this is the 'full information' view
      * @param booking_option_settings $settings Item we're checking
-     * @param int $userid userid of the user we want the description for.
+     * @param int $userid User ID to check availability for
      * @param bool $not Set true if we are inverting the condition
-     * @return string Information string (for admin) about all restrictions on
+     * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description($full, booking_option_settings $settings, $userid, $not);
+    public function get_description($full = false, booking_option_settings $settings, $userid = null, $not = false):array {
+
+        $description = '';
+
+        $isavailable = $this->is_available($settings, $userid, $not);
+
+        if ($isavailable) {
+            $description = $full ? get_string('bo_cond_priceisset_full_available', 'mod_booking') :
+                get_string('bo_cond_priceisset_available', 'mod_booking');
+        } else {
+            $description = $full ? get_string('bo_cond_priceisset_full_not_available', 'mod_booking') :
+                get_string('bo_cond_priceisset_not_available', 'mod_booking');
+        }
+
+        return [$isavailable, $description];
+    }
 }

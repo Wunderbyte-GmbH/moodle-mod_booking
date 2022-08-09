@@ -24,9 +24,12 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
- namespace mod_booking\bo_availability;
+ namespace mod_booking\bo_availability\conditions;
 
+use mod_booking\bo_availability\bo_condition;
 use mod_booking\booking_option_settings;
+use mod_booking\singleton_service;
+
 
 /**
  * Base class for a single bo availability condition.
@@ -38,7 +41,10 @@ use mod_booking\booking_option_settings;
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class normal_booking_time implements bo_condition {
+class alreadybooked implements bo_condition {
+
+    /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
+    public $id = -1;
 
     /**
      * Determines whether a particular item is currently available
@@ -48,17 +54,25 @@ class normal_booking_time implements bo_condition {
      * @param bool $not Set true if we are inverting the condition
      * @return bool True if available
      */
-    public static function is_available(booking_option_settings $settings, $userid, $not = false):bool {
+    public function is_available(booking_option_settings $settings, $userid, $not = false):bool {
 
-        $now = time();
+        global $DB;
+
+        // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        if ($now > $settings->bookingclosingtime
-        // && $now < $settings->bookingopeningtime // We dont have the bookingopeningtime yet, but we will have it.
-            ) {
+        // Get the booking answers for this instance.
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+
+        $bookinginformation = $bookinganswer->return_all_booking_information($userid);
+
+        // If the user is not yet booked we return true.
+        if (!isset($bookinginformation['iambooked'])) {
+
             $isavailable = true;
         }
 
+        // If it's inversed, we inverse.
         if ($not) {
             $isavailable = !$isavailable;
         }
@@ -80,21 +94,23 @@ class normal_booking_time implements bo_condition {
      * @param booking_option_settings $settings Item we're checking
      * @param int $userid User ID to check availability for
      * @param bool $not Set true if we are inverting the condition
-     * @return string Information string (for admin) about all restrictions on
+     * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public static function get_description($full = false, booking_option_settings $settings, $userid = null, $not = false):string {
+    public function get_description($full = false, booking_option_settings $settings, $userid = null, $not = false):array {
 
         $description = '';
 
-        if (self::is_available($settings, $not, $userid, $not)) {
-            $description = $full ? get_string('bo_cond_normal_booking_time_available', $settings) :
-                get_string('bo_condition_normal_booking_time_full_available', $settings);
+        $isavailable = $this->is_available($settings, $userid, $not);
+
+        if ($isavailable) {
+            $description = $full ? get_string('bo_cond_alreadybooked_full_available', 'mod_booking') :
+                get_string('bo_cond_alreadybooked_available', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_normal_booking_time_not_available', $settings) :
-                get_string('bo_condition_normal_booking_time_full_not_available', $settings);
+            $description = $full ? get_string('bo_cond_alreadybooked_full_not_available', 'mod_booking') :
+                get_string('bo_cond_alreadybooked_not_available', 'mod_booking');
         }
 
-        return $description;
+        return [$isavailable, $description];
     }
 }

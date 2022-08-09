@@ -24,27 +24,18 @@
 
 namespace mod_booking\bo_availability;
 
+use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use moodle_exception;
 
-defined('MOODLE_INTERNAL') || die();
-
-define('MAXNUMBEROFBOOKINGS', '[
-    "name" : "bo_condition_user_customfielld",
-    "overridestimes": false,
-    "customfieldshortname" : "Geschlecht",
-    "operator" : "=",
-    "value" : "f"
-    ]');
-
 /**
- * Base class for conditional availability information of a booking option
+ * class for conditional availability information of a booking option
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class info {
+class bo_info {
 
     /** @var bool Visibility flag (eye icon) */
     protected $visible;
@@ -52,11 +43,22 @@ abstract class info {
     /** @var string Availability data as JSON string */
     protected $availability;
 
+    /** @var int Optionid for a given option */
+    protected $optionid;
+
+    /** @var int userid for a given user */
+    protected $userid;
+
     /**
      * Constructs with item details.
      *
      */
-    public function __construct($setting) {
+    public function __construct(booking_option_settings $settings) {
+
+        global $USER;
+
+        $this->optionid = $settings->id;
+        $this->userid = $USER->id;
 
     }
 
@@ -79,18 +81,38 @@ abstract class info {
      *
      * @param int optionid
      * @param int $userid If set, specifies a different user ID to check availability for
-     * @return bool True if this item is available to the user, false otherwise
+     * @return array [isavailable, description]
      */
-    public function is_available(int $optionid, int $userid = 0):bool {
+    public function is_available(int $optionid = null, int $userid = 0):array {
 
-        global $USER;
+        global $USER, $CFG;
+
+        if (!$optionid) {
+            $optionid = $this->optionid;
+        }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        // We have hardcoded concitions that are always checked. We add them to the conditions array from the start.
+        // First, we get all the available conditions from our directory.
+        $path = $CFG->dirroot . '/mod/booking/classes/bo_availability/conditions/*.php';
+        $filelist = glob($path);
+
         $conditions = [];
 
-        $conditions[] = json_decode(MAXNUMBEROFBOOKINGS);
+        // We just want to filenames, as they are also the classnames.
+        foreach ($filelist as $filepath) {
+            $path = pathinfo($filepath);
+            $filename = 'mod_booking\bo_availability\conditions\\' . $path['filename'];
+
+            // We instantiate all the classes, because we need some information.
+            if (class_exists($filename)) {
+                $instance = new $filename();
+
+                if (isset($instance->id) && $instance->id < 0) {
+                    $conditions[] = $instance;
+                }
+            }
+        }
 
         // If there are availabilities defines, we
         if (!empty($settings->availability)) {
@@ -111,39 +133,69 @@ abstract class info {
             $userid = $USER->id;
         }
 
+        $resultsarray = [];
+
         // Run through all the individual conditions to make sure they are fullfilled.
         foreach ($conditions as $condition) {
 
+            // First, we have the hardcoded conditions already as instances.
+            if ($condition->id < 0) {
+                list($isavailable, $description) = $condition->get_description(true, $settings, $userid);
+                $resultsarray[$condition->id] = ['id' => $condition->id,
+                    'isavailable' => $isavailable,
+                    'description' => $description];
+            } else {
+                // Else we need to instantiate the condition first.
+
+                $classname = $condition->name;
+
+                if (class_exists($classname)) {
+                    $instance = new $classname();
+                    // We now set the id from the json for this instance.
+                    // We might actually use a hardcoded condition with a negative id...
+                    // ... also as customized condition with positive id.
+                    $instance->id = $condition->id;
+                } else {
+                    // Should never happen, but just go on in case of.
+                    continue;
+                }
+                // Then pass the availability-parameters.
+                list($isavailable, $description) = $instance->get_description(true, $settings, $userid);
+                $resultsarray[$condition->id] = ['id' => $condition->id,
+                    'isavailable' => $isavailable,
+                    'description' => $description];
+
+                // Now we might need to override the result of a previous condition which has been resolved as false before.
+            }
+
             // We check each condition for it's availability.
-            echo $condition;
+            // echo $condition;
         }
 
-        return true;
+        $results = array_filter($resultsarray, function ($item) {
+            if ($item['isavailable'] == false) {
+                return true;
+            }
+            return false;
+        });
 
-    }
-
-    /**
-     * Checks whether this activity is going to be available for all users.
-     *
-     * Normally, if there are any conditions, then it may be hidden depending
-     * on the user. However in the case of date conditions there are some
-     * conditions which will definitely not result in it being hidden for
-     * anyone.
-     *
-     * @return bool True if activity is available for all
-     */
-    public function is_available_for_all() {
-        global $CFG;
-        if (is_null($this->availability) || empty($CFG->enableavailability)) {
-            return true;
+        if (count($results) === 0) {
+            $isavailable = true;
+            $description = '';
         } else {
-            try {
-                return $this->get_availability_tree()->is_available_for_all();
-            } catch (\coding_exception $e) {
-                $this->warn_about_invalid_availability($e);
-                return false;
+            $id = 0;
+            $isavailable = false;
+            foreach ($results as $result) {
+                // If no Id has been defined or if id is higher, we take the descpription to return.
+                if ($id === 0 || $result['id'] > $id) {
+                    $description = $result['description'];
+                    $id = $result['id'];
+                }
             }
         }
+
+        return [$id, $isavailable, $description];
+
     }
 
     /**
@@ -166,80 +218,21 @@ abstract class info {
         if (is_null($this->availability)) {
             return '';
         }
-
-
     }
 
     /**
-     * Stores an updated availability tree JSON structure into the relevant
-     * database table.
+     * Obtains an array with the id, the availability and the description of the actually blocking condition.
      *
-     * @param string $availabilty New JSON value
+     * @param bool $full Set true if this is the 'full information' view
+     * @param booking_option_settings $settings Item we're checking
+     * @param int $userid User ID to check availability for
+     * @param bool $not Set true if we are inverting the condition
+     * @return array availability and Information string (for admin) about all restrictions on
+     *   this item
      */
-    protected abstract function set_in_database($availabilty);
+    public function get_description($full = false, booking_option_settings $settings, $userid = null):array {
 
-    /**
-     * Formats the $cm->availableinfo string for display. This includes
-     * filling in the names of any course-modules that might be mentioned.
-     * Should be called immediately prior to display, or at least somewhere
-     * that we can guarantee does not happen from within building the modinfo
-     * object.
-     *
-     * @param \renderable|string $inforenderable Info string or renderable
-     * @param int|\stdClass $courseorid
-     * @return string Correctly formatted info string
-     */
-    public static function format_info($inforenderable, $courseorid) {
-        global $PAGE, $OUTPUT;
-
-        // Use renderer if required.
-        if (is_string($inforenderable)) {
-            $info = $inforenderable;
-        } else {
-            $renderable = new \core_availability\output\availability_info($inforenderable);
-            $info = $OUTPUT->render($renderable);
-        }
-
-        // Don't waste time if there are no special tags.
-        if (strpos($info, '<AVAILABILITY_') === false) {
-            return $info;
-        }
-
-        // Handle CMNAME tags.
-        $modinfo = get_fast_modinfo($courseorid);
-        $context = \context_course::instance($modinfo->courseid);
-        $info = preg_replace_callback('~<AVAILABILITY_CMNAME_([0-9]+)/>~',
-                function($matches) use($modinfo, $context) {
-                    $cm = $modinfo->get_cm($matches[1]);
-                    if ($cm->has_view() and $cm->get_user_visible()) {
-                        // Help student by providing a link to the module which is preventing availability.
-                        return \html_writer::link($cm->get_url(), format_string($cm->get_name(), true, ['context' => $context]));
-                    } else {
-                        return format_string($cm->get_name(), true, ['context' => $context]);
-                    }
-                }, $info);
-        $info = preg_replace_callback('~<AVAILABILITY_FORMAT_STRING>(.*?)</AVAILABILITY_FORMAT_STRING>~s',
-                function($matches) use ($context) {
-                    $decoded = htmlspecialchars_decode($matches[1], ENT_NOQUOTES);
-                    return format_string($decoded, true, ['context' => $context]);
-                }, $info);
-        $info = preg_replace_callback('~<AVAILABILITY_CALLBACK type="([a-z0-9_]+)">(.*?)</AVAILABILITY_CALLBACK>~s',
-                function($matches) use ($modinfo, $context) {
-                    // Find the class, it must have already been loaded by now.
-                    $fullclassname = 'availability_' . $matches[1] . '\condition';
-                    if (!class_exists($fullclassname, false)) {
-                        return '<!-- Error finding class ' . $fullclassname .' -->';
-                    }
-                    // Load the parameters.
-                    $params = [];
-                    $encodedparams = preg_split('~<P/>~', $matches[2], 0);
-                    foreach ($encodedparams as $encodedparam) {
-                        $params[] = htmlspecialchars_decode($encodedparam, ENT_NOQUOTES);
-                    }
-                    return $fullclassname::get_description_callback_value($modinfo, $context, $params);
-                }, $info);
-
-        return $info;
+        return $this->is_available($settings->id, $userid, false);
     }
 
 }

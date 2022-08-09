@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\bo_availability\conditions;
+ namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\booking_answers;
@@ -33,7 +33,7 @@ use mod_booking\singleton_service;
 
 
 /**
- * Base class for a single bo availability condition.
+ * This condition just overrides the explanation of fullybooked when this returns negative.
  *
  * All bo condition types must extend this class.
  *
@@ -42,10 +42,13 @@ use mod_booking\singleton_service;
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class max_number_of_bookings implements bo_condition {
+class onnotifylist implements bo_condition {
 
     /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
-    public $id = -4;
+    public $id = -7;
+
+    /** @var array $dependson value is used to override negative descriptions */
+    public $dependson = [-3];
 
     /**
      * Determines whether a particular item is currently available
@@ -55,26 +58,28 @@ class max_number_of_bookings implements bo_condition {
      * @param bool $not Set true if we are inverting the condition
      * @return bool True if available
      */
-    public function is_available(booking_option_settings $settings, $userid, $not = false): bool {
+    public function is_available(booking_option_settings $settings, $userid, $not = false):bool {
 
         global $DB;
 
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        $booking = singleton_service::get_instance_of_booking_by_optionid($settings->id);
+        $usenotificationlist = get_config('booking', 'usenotificationlist');
 
-        // This value comes from booking instance settings, not $settings, which would be from booking option.
-        $maxperuser = $booking->settings->maxperuser;
+        // TODO: Fix this condition to make it useful. right now, it always returns true.
+        return true;
 
-        if (empty($maxperuser)) {
-            $isavailable = true;
-        } else {
-            // Get the number of bookings, either STATUSPARAM_BOOKED or STATUSPARAM_WAITINGLIST.
-            $numberofbookings = booking_answers::number_of_active_bookings_for_user($userid, $settings->bookingid);
+        if ($usenotificationlist) {
+            // Get the booking answers for this instance.
+            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
-            // If the $maxperuser-value is smaller then the value we are looking for, we return true.
-            if ($numberofbookings < $maxperuser) {
+            $bookinginformation = $bookinganswer->return_all_booking_information($userid);
+
+            // If the user is not yet booked, and option is not fully booked, we return true.
+            if (isset($bookinginformation['notbooked'])
+                && $bookinginformation['notbooked']['onnotifylist'] === false) {
+
                 $isavailable = true;
             }
         }
@@ -104,18 +109,18 @@ class max_number_of_bookings implements bo_condition {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description($full = false, booking_option_settings $settings, $userid = null, $not = false): array {
+    public function get_description($full = false, booking_option_settings $settings, $userid = null, $not = false):array {
 
         $description = '';
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_max_number_of_bookings_full_available', 'mod_booking') :
-                get_string('bo_cond_max_number_of_bookings_available', 'mod_booking');
+            $description = $full ? get_string('bo_cond_onnotifylist_full_available', 'mod_booking') :
+                get_string('bo_cond_onnotifylist_available', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_max_number_of_bookings_full_not_available', 'mod_booking') :
-                get_string('bo_cond_max_number_of_bookings_not_available', 'mod_booking');
+            $description = $full ? get_string('bo_cond_onnotifylist_full_not_available', 'mod_booking') :
+                get_string('bo_cond_onnotifylist_not_available', 'mod_booking');
         }
 
         return [$isavailable, $description];

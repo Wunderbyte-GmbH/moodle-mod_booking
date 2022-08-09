@@ -24,7 +24,8 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Class for booking answers.
+ * Class for booking answers. An instance is linked to one specific option.
+ * But the class provides static functions to get information about a users answers for the whole instance as well.
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
@@ -413,5 +414,29 @@ class booking_answers {
     public static function get_instance_from_optionid($optionid) {
         $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
         return singleton_service::get_instance_of_booking_answers($bookingoptionsettings);
+    }
+
+
+    /**
+     * Returns the number of active bookings for a given user for the whole instance.
+     *
+     * @param integer $userid
+     * @param integer $bookingid not cmid
+     * @return integer
+     */
+    public static function number_of_active_bookings_for_user(int $userid, int $bookingid) {
+        global $DB;
+
+        $params = ['statuswaitinglist' => STATUSPARAM_WAITINGLIST,
+                   'bookingid' => $bookingid,
+                   'userid' => $userid];
+
+        $sql = "SELECT COUNT(*)
+                FROM {booking_answers}
+                WHERE waitinglist <= :statuswaitinglist
+                AND bookingid = :bookingid
+                AND userid = :userid";
+
+        return $DB->count_records_sql($sql, $params);
     }
 }

@@ -24,28 +24,24 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\bo_availability\conditions;
+ namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
-use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
-use mod_booking\singleton_service;
-
 
 /**
- * Base class for a single bo availability condition.
- *
- * All bo condition types must extend this class.
- *
+ * Class for a single bo availability condition.
+ * This returns true or false based on the standard booking times
+ * OR a custom time passed on via the availability json
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class max_number_of_bookings implements bo_condition {
+class booking_time implements bo_condition {
 
     /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
-    public $id = -4;
+    public $id = -5;
 
     /**
      * Determines whether a particular item is currently available
@@ -55,31 +51,40 @@ class max_number_of_bookings implements bo_condition {
      * @param bool $not Set true if we are inverting the condition
      * @return bool True if available
      */
-    public function is_available(booking_option_settings $settings, $userid, $not = false): bool {
+    public function is_available(booking_option_settings $settings, $userid, $not = false):bool {
 
-        global $DB;
+        $now = time();
 
-        // This is the return value. Not available to begin with.
-        $isavailable = false;
+        // Here, the logic is easier when we set available to true first.
+        $isavailable = true;
 
-        $booking = singleton_service::get_instance_of_booking_by_optionid($settings->id);
+        // This condition is either hardcoded with the standard booking opening or booking closing time, or its customized.
 
-        // This value comes from booking instance settings, not $settings, which would be from booking option.
-        $maxperuser = $booking->settings->maxperuser;
-
-        if (empty($maxperuser)) {
-            $isavailable = true;
+        if ($this->id == -2) {
+            $openingtime = $settings->bookingopeningtime ?? null;
+            $closingtime = $settings->bookingclosingtime ?? null;
         } else {
-            // Get the number of bookings, either STATUSPARAM_BOOKED or STATUSPARAM_WAITINGLIST.
-            $numberofbookings = booking_answers::number_of_active_bookings_for_user($userid, $settings->bookingid);
 
-            // If the $maxperuser-value is smaller then the value we are looking for, we return true.
-            if ($numberofbookings < $maxperuser) {
-                $isavailable = true;
-            }
+            $jsonstring = $settings->availability ?? '';
+
+            $jsonobject = json_decode($jsonstring);
+
+            $openingtime = $jsonobject->openingtime ?? null;
+            $closingtime = $jsonobject->closingtime ?? null;
         }
 
-        // If it's inversed, we inverse.
+        // If there is a bookingopeningtime and now is smaller, we return false.
+        if (!empty($openingtime)
+            && ($now < $openingtime)) {
+            $isavailable = false;
+        }
+
+        // If there is a bookingclosingtime and now is bigger, we return false.
+        if (!empty($closingtime)
+            && ($now > $closingtime)) {
+            $isavailable = false;
+        }
+
         if ($not) {
             $isavailable = !$isavailable;
         }
@@ -104,18 +109,18 @@ class max_number_of_bookings implements bo_condition {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description($full = false, booking_option_settings $settings, $userid = null, $not = false): array {
+    public function get_description($full = false, booking_option_settings $settings, $userid = null, $not = false):array {
 
         $description = '';
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_max_number_of_bookings_full_available', 'mod_booking') :
-                get_string('bo_cond_max_number_of_bookings_available', 'mod_booking');
+            $description = $full ? get_string('bo_cond_booking_time_full_available', 'mod_booking') :
+                get_string('bo_cond_booking_time_available', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_max_number_of_bookings_full_not_available', 'mod_booking') :
-                get_string('bo_cond_max_number_of_bookings_not_available', 'mod_booking');
+            $description = $full ? get_string('bo_cond_booking_time_full_not_available', 'mod_booking') :
+                get_string('bo_cond_booking_time_not_available', 'mod_booking');
         }
 
         return [$isavailable, $description];
