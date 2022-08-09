@@ -25,6 +25,8 @@ use mod_booking\customfield\booking_handler;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use local_entities\entitiesrelation_handler;
+use mod_booking\bo_availability\bo_info;
+use moodleform;
 
 class option_form extends \moodleform {
 
@@ -499,6 +501,8 @@ class option_form extends \moodleform {
             $erhandler = new entitiesrelation_handler('bookingoption');
             $erhandler->instance_form_definition($mform, $optionid, $this->formmode);
         }
+
+        bo_info::add_conditions_to_mform($mform);
 
         // Add custom fields.
         $handler = booking_handler::create();

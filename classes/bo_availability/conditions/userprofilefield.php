@@ -54,8 +54,11 @@ class userprofilefield implements bo_condition {
      * @param integer $id
      * @return void
      */
-    public function __construct(int $id) {
-        $this->id = $id;
+    public function __construct(int $id = null) {
+
+        if ($id) {
+            $this->id = $id;
+        }
     }
 
     /**
