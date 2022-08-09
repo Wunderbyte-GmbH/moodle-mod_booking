@@ -1,3 +1,21 @@
+## Version 7.2.7 (2022080900)
+**New features:**
+* New feature: Added booking opening time (can be used like booking closing time).
+
+**Improvements:**
+* Improvement: New event listener for price category identifier changes updates prices of booking options automatically.
+* Improvement: Also delete header images from DB when deleting an instance.#
+* Improvement: Added a warning text for semester change.
+* Improvement: Better display of course duration (days, hours, minutes).
+* Improvement: Better display of search button.
+
+**Bugfixes:**
+* Bugfix: Fixed 'book other users' feature of booking (broken since 'unreal' deletion of booking answers).
+* Bugfix: Booked out courses may not be bookable.
+* Bugfix: Fixed some bugs with simple / expert mode and showing entitities.
+* Bugfix: Bugfix where canceluntil didn't work on negative values (after course started).
+* Bugfix: Fix errors in create_option_from_optionid.
+
 ## Version 7.2.6 (2022072500)
 **New features:**
 * New feature: Prevent option from recalculating prices.
