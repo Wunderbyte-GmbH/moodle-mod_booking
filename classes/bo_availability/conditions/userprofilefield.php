@@ -80,11 +80,12 @@ class userprofilefield implements bo_condition {
 
         $jsonobject = json_decode($jsonstring);
 
-        // "name" : "bo_condition_user_customfielld",
-        // "overridestimes": false,
-        // "customfieldshortname" : "Geschlecht",
-        // "operator" : "=",
-        // "value" : "f"
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* "name" : "bo_condition_user_customfielld",
+        "overridestimes": false,
+        "customfieldshortname" : "Geschlecht",
+        "operator" : "=",
+        "value" : "f" */
 
         if (!isset($jsonobject->profilefield)) {
             $isavailable = true;
@@ -94,10 +95,11 @@ class userprofilefield implements bo_condition {
             $user = singleton_service::get_instance_of_user($userid);
             $profilefield = $jsonobject->profilefield;
 
-            // If the profilefield is not here right away, we might need to retrieve it.
-            if (!isset($user->$profilefield)) {
+            // TODO: If the profilefield is not here right away, we might need to retrieve it.
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /*if (!isset($user->$profilefield)) {
 
-            }
+            }*/
 
         }
 

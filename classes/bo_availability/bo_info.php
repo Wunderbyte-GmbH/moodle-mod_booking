@@ -96,7 +96,6 @@ class bo_info {
 
         $conditions = self::get_conditions();
 
-        // If there are availabilities defines, we
         if (!empty($settings->availability)) {
 
             $availabilityobject = json_decode($settings->availability);
@@ -151,7 +150,8 @@ class bo_info {
             }
 
             // We check each condition for it's availability.
-            // echo $condition;
+            // phpcs:ignore moodle.Commenting.InlineComment.InvalidEndChar
+            // Echo $condition;
         }
 
         $results = array_filter($resultsarray, function ($item) {
