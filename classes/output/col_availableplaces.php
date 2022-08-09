@@ -102,7 +102,7 @@ class col_availableplaces implements renderable, templatable {
         if (!empty($bookinginformation['notbooked'])) {
             $bookinginformation['numberofresponses'] = $bookinginformation['notbooked']['booked'];
         }
-        if (!empty($this->showmanageresponses && !empty($bookinginformation['numberofresponses']))) {
+        if (!empty($this->showmanageresponses) && !empty($bookinginformation['numberofresponses'])) {
             $bookinginformation['showmanageresponses'] = $this->showmanageresponses;
         }
 
