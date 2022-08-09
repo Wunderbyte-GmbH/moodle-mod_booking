@@ -164,6 +164,7 @@ class bo_info {
         });
 
         if (count($results) === 0) {
+            $id = 0;
             $isavailable = true;
             $description = '';
         } else {
