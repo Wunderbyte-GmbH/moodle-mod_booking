@@ -30,7 +30,7 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
-
+use MoodleQuickForm;
 
 /**
  * Base class for a single bo availability condition.
@@ -46,6 +46,9 @@ class max_number_of_bookings implements bo_condition {
 
     /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
     public $id = -4;
+
+    /** @var int $iscustomizable marker to see if class can take json. */
+    public $iscustomizable = false;
 
     /**
      * Determines whether a particular item is currently available
@@ -119,5 +122,15 @@ class max_number_of_bookings implements bo_condition {
         }
 
         return [$isavailable, $description];
+    }
+
+    /**
+     * Only customizable functions need to return their necessary form elements.
+     *
+     * @param MoodleQuickForm $mform
+     * @return void
+     */
+    public function add_condition_to_mform(MoodleQuickForm &$mform) {
+        // Do nothing.
     }
 }

@@ -28,6 +28,7 @@
 
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\booking_option_settings;
+use MoodleQuickForm;
 
 /**
  * Class for a single bo availability condition.
@@ -42,6 +43,9 @@ class booking_time implements bo_condition {
 
     /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
     public $id = -5;
+
+    /** @var int $iscustomizable marker to see if class can take json. */
+    public $iscustomizable = true;
 
     /**
      * Determines whether a particular item is currently available
@@ -124,5 +128,24 @@ class booking_time implements bo_condition {
         }
 
         return [$isavailable, $description];
+    }
+
+    /**
+     * Only customizable functions need to return their necessary form elements.
+     *
+     * @param MoodleQuickForm $mform
+     * @return void
+     */
+    public function add_condition_to_mform(MoodleQuickForm &$mform) {
+
+        $mform->addElement('advcheckbox', 'priceformulaisactive', get_string('priceformulaisactive', 'mod_booking'),
+            null, null, [0, 1]);
+        $mform->setDefault('priceformulaisactive', 0);
+
+        $mform->addElement('advcheckbox', 'priceformulaoff', get_string('priceformulaoff', 'mod_booking'),
+        null, null, [0, 1]);
+        $mform->addHelpButton('priceformulaoff', 'priceformulaoff', 'mod_booking');
+        $mform->setDefault('priceformulaoff', 0);
+
     }
 }

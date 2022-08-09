@@ -27,6 +27,7 @@ namespace mod_booking\bo_availability;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use moodle_exception;
+use MoodleQuickForm;
 
 /**
  * class for conditional availability information of a booking option
@@ -93,26 +94,7 @@ class bo_info {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        // First, we get all the available conditions from our directory.
-        $path = $CFG->dirroot . '/mod/booking/classes/bo_availability/conditions/*.php';
-        $filelist = glob($path);
-
-        $conditions = [];
-
-        // We just want to filenames, as they are also the classnames.
-        foreach ($filelist as $filepath) {
-            $path = pathinfo($filepath);
-            $filename = 'mod_booking\bo_availability\conditions\\' . $path['filename'];
-
-            // We instantiate all the classes, because we need some information.
-            if (class_exists($filename)) {
-                $instance = new $filename();
-
-                if (isset($instance->id) && $instance->id < 0) {
-                    $conditions[] = $instance;
-                }
-            }
-        }
+        $conditions = self::get_conditions();
 
         // If there are availabilities defines, we
         if (!empty($settings->availability)) {
@@ -235,4 +217,61 @@ class bo_info {
         return $this->is_available($settings->id, $userid, false);
     }
 
+    /**
+     * Add form fields to passed on mform.
+     *
+     * @param MoodleQuickForm $mform
+     * @return void
+     */
+    public function add_conditions_to_mform(MoodleQuickForm &$mform) {
+
+        global $DB;
+
+        $mform->addElement('header', 'bookingoptionprice',
+                get_string('bookingoptionprice', 'booking'));
+
+        $conditions = self::get_conditions(null, true);
+
+        foreach ($conditions as $condition) {
+
+            $condition->add_condition_to_mform($mform);
+
+        }
+    }
+
+    /**
+     * Returns all installed hardcoded conditions. Only includes those that need customization if $all is true.
+     * If $onlycustomisable is true, we only return those which can be customized.
+     *
+     * @param boolean $all
+     * @return array
+     */
+    public static function get_conditions($all = false, $onlycustomizable = false):array {
+
+        $conditions = [];
+        // First, we get all the available conditions from our directory.
+        $path = $CFG->dirroot . '/mod/booking/classes/bo_availability/conditions/*.php';
+        $filelist = glob($path);
+
+        $conditions = [];
+
+        // We just want to filenames, as they are also the classnames.
+        foreach ($filelist as $filepath) {
+            $path = pathinfo($filepath);
+            $filename = 'mod_booking\bo_availability\conditions\\' . $path['filename'];
+
+            // We instantiate all the classes, because we need some information.
+            if (class_exists($filename)) {
+                $instance = new $filename();
+
+                if ($onlycustomizable && $instance->iscustomizable) {
+                    $conditions[] = $instance;
+                } else if ($all || !empty($instance->id)) {
+                    $conditions[] = $instance;
+                }
+            }
+        }
+
+        return $conditions;
+    }
 }
