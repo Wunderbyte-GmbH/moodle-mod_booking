@@ -230,15 +230,14 @@ class bo_info {
 
         global $DB;
 
-        $mform->addElement('header', 'bookingoptionprice',
-                get_string('bookingoptionprice', 'booking'));
+        $mform->addElement('header', 'availabilityconditions',
+                get_string('availabilityconditions', 'mod_booking'));
 
         $conditions = self::get_conditions(null, true);
 
         foreach ($conditions as $condition) {
-
+            // For each condition, add the appropriate form fields.
             $condition->add_condition_to_mform($mform);
-
         }
     }
 
@@ -247,9 +246,10 @@ class bo_info {
      * If $onlycustomisable is true, we only return those which can be customized.
      *
      * @param boolean $all
+     * @param boolean $onlycustomizable
      * @return array
      */
-    public static function get_conditions($all = false, $onlycustomizable = false):array {
+    public static function get_conditions($all = false, $onlycustomizable = false): array {
 
         global $CFG;
 

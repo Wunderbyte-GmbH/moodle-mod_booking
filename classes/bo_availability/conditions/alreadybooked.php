@@ -43,6 +43,9 @@ use MoodleQuickForm;
  */
 class alreadybooked implements bo_condition {
 
+    /** @var string $condition */
+    public $condition = 'alreadybooked';
+
     /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
     public $id = -1;
 

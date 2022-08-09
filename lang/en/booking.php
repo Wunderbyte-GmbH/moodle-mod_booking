@@ -1833,8 +1833,10 @@ $string['cancelallusers'] = 'Cancel booking for all users';
 $string['manageresponses'] = 'booking(s)';
 
 // Bo conditions.
-$string['bo_cond_booking_time_available'] = 'Wihting normal booking times';
-$string['bo_cond_booking_time_full_available'] = 'Wihting normal booking times. From {$a} until {$b}';
+$string['availabilityconditions'] = 'Availability conditions';
+
+$string['bo_cond_booking_time_available'] = 'Within normal booking times';
+$string['bo_cond_booking_time_full_available'] = 'Within normal booking times. From {$a} until {$b}';
 $string['bo_cond_booking_time_not_available'] = 'Not within normal booking times.';
 $string['bo_cond_booking_time_full_not_available'] = 'Not within normal booking times. From {$a} until {$b}';
 
@@ -1872,3 +1874,19 @@ $string['bo_cond_userprofilefield_available'] = 'Book it';
 $string['bo_cond_userprofilefield_full_available'] = 'Booking is possible';
 $string['bo_cond_userprofilefield_not_available'] = 'Not allowed to book';
 $string['bo_cond_userprofilefield_full_not_available'] = 'Only user with customfield {$a->profilefield} set to value {$a->value} are allowed to book';
+
+// BO conditions in mform.
+$string['userinfofieldoff'] = 'No user profile field selected';
+$string['restrictwithuserprofilefield'] = 'A chosen user profile field should have a certain value';
+$string['bo_cond_userprofilefield_field'] = 'Profile field';
+$string['bo_cond_userprofilefield_value'] = 'Value';
+$string['bo_cond_userprofilefield_operator'] = 'Operator';
+$string['equals'] = 'has exactly this value (text or number)';
+$string['contains'] = 'contains (text)';
+$string['lowerthan'] = 'is lower than (number)';
+$string['biggerthan'] = 'is bigger than (number)';
+$string['overrideconditioncheckbox'] = 'Has relation to other condition';
+$string['overridecondition'] = 'Condition';
+$string['overrideoperator'] = 'Operator';
+$string['overrideoperator:and'] = 'AND';
+$string['overrideoperator:or'] = 'OR';

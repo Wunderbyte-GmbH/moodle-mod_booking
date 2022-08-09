@@ -1585,6 +1585,8 @@ $string['cancelallusers'] = 'Storniere Buchung für alle Nutzer*innen';
 $string['manageresponses'] = 'Buchung(en)';
 
 // Bo conditions. TODO: Übersetzen.
+$string['availabilityconditions'] = 'Verfügbarkeit einschränken';
+
 $string['bo_cond_booking_time_available'] = 'Wihting normal booking times';
 $string['bo_cond_booking_time_full_available'] = 'Wihting normal booking times. From {$a} until {$b}';
 $string['bo_cond_booking_time_not_available'] = 'Not within normal booking times.';
@@ -1619,3 +1621,18 @@ $string['bo_cond_priceisset_available'] = 'Book it';
 $string['bo_cond_priceisset_full_available'] = 'Booking is possible';
 $string['bo_cond_priceisset_not_available'] = 'You need to pay';
 $string['bo_cond_priceisset_full_not_available'] = 'A price is set, payment required';
+
+$string['userinfofieldoff'] = 'Kein User-Profilfeld ausgewählt';
+$string['restrictwithuserprofilefield'] = 'Ein ausgewähltes Userprofilfeld soll einen bestimmten Wert haben';
+$string['bo_cond_userprofilefield_field'] = 'Profilfeld';
+$string['bo_cond_userprofilefield_value'] = 'Wert';
+$string['bo_cond_userprofilefield_operator'] = 'Operator';
+$string['equals'] = 'hat genau diesen Wert (Text oder Zahl)';
+$string['contains'] = 'beinhaltet (Text)';
+$string['lowerthan'] = 'ist kleiner als (Zahl)';
+$string['biggerthan'] = 'ist größer als (Zahl)';
+$string['overrideconditioncheckbox'] = 'Steht in Bezug zu einer anderen Einschränkung';
+$string['overridecondition'] = 'Einschränkung';
+$string['overrideoperator'] = 'Operator';
+$string['overrideoperator:and'] = 'UND';
+$string['overrideoperator:or'] = 'ODER';

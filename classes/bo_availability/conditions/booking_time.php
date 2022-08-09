@@ -41,6 +41,9 @@ use MoodleQuickForm;
  */
 class booking_time implements bo_condition {
 
+    /** @var string $condition */
+    public $condition = 'booking_time';
+
     /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
     public $id = -5;
 
@@ -138,14 +141,18 @@ class booking_time implements bo_condition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform) {
 
-        $mform->addElement('advcheckbox', 'priceformulaisactive', get_string('priceformulaisactive', 'mod_booking'),
-            null, null, [0, 1]);
-        $mform->setDefault('priceformulaisactive', 0);
+        $mform->addElement('checkbox', 'restrictanswerperiodopening',
+                get_string('restrictanswerperiodopening', 'mod_booking'));
 
-        $mform->addElement('advcheckbox', 'priceformulaoff', get_string('priceformulaoff', 'mod_booking'),
-        null, null, [0, 1]);
-        $mform->addHelpButton('priceformulaoff', 'priceformulaoff', 'mod_booking');
-        $mform->setDefault('priceformulaoff', 0);
+        $mform->addElement('date_time_selector', 'bookingopeningtime', get_string('bookingopeningtime', 'mod_booking'));
+        $mform->setType('bookingopeningtime', PARAM_INT);
+        $mform->hideIf('bookingopeningtime', 'restrictanswerperiodopening', 'notchecked');
 
+        $mform->addElement('checkbox', 'restrictanswerperiodclosing',
+                get_string('restrictanswerperiodclosing', 'mod_booking'));
+
+        $mform->addElement('date_time_selector', 'bookingclosingtime', get_string('bookingclosingtime', 'mod_booking'));
+        $mform->setType('bookingclosingtime', PARAM_INT);
+        $mform->hideIf('bookingclosingtime', 'restrictanswerperiodclosing', 'notchecked');
     }
 }

@@ -42,6 +42,9 @@ use MoodleQuickForm;
  */
 class userprofilefield implements bo_condition {
 
+    /** @var string $condition */
+    public $condition = 'userprofilefield';
+
     /** @var int $id Id is set via json during construction */
     public $id = null;
 
@@ -172,15 +175,70 @@ class userprofilefield implements bo_condition {
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform) {
+        global $DB;
 
-        $mform->addElement('advcheckbox', 'priceformulaisactive', get_string('priceformulaisactive', 'mod_booking'),
-            null, null, [0, 1]);
-        $mform->setDefault('priceformulaisactive', 0);
+        // Choose the user profile field which is used to store each user's price category.
+        $userprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
+        if (!empty($userprofilefields)) {
+            $userprofilefieldsarray = [];
+            $userprofilefieldsarray[0] = get_string('userinfofieldoff', 'mod_booking');
 
-        $mform->addElement('advcheckbox', 'priceformulaoff', get_string('priceformulaoff', 'mod_booking'),
-        null, null, [0, 1]);
-        $mform->addHelpButton('priceformulaoff', 'priceformulaoff', 'mod_booking');
-        $mform->setDefault('priceformulaoff', 0);
+            // Create an array of key => value pairs for the dropdown.
+            foreach ($userprofilefields as $userprofilefield) {
+                $userprofilefieldsarray[$userprofilefield->shortname] = $userprofilefield->name;
+            }
 
+            $mform->addElement('checkbox', 'restrictwithuserprofilefield',
+                get_string('restrictwithuserprofilefield', 'mod_booking'));
+
+            $mform->addElement('select', 'bo_cond_userprofilefield_field',
+                get_string('bo_cond_userprofilefield_field', 'mod_booking'), $userprofilefieldsarray);
+            $mform->hideIf('bo_cond_userprofilefield_field', 'restrictwithuserprofilefield', 'notchecked');
+
+            $operators = [
+                '=' => get_string('equals', 'mod_booking'),
+                '<' => get_string('lowerthan', 'mod_booking'),
+                '>' => get_string('biggerthan', 'mod_booking'),
+                '~' => get_string('contains', 'mod_booking')
+            ];
+            $mform->addElement('select', 'bo_cond_userprofilefield_operator',
+                get_string('bo_cond_userprofilefield_operator', 'mod_booking'), $operators);
+            $mform->hideIf('bo_cond_userprofilefield_operator', 'bo_cond_userprofilefield_field', 'eq', 0);
+
+            $mform->addElement('text', 'bo_cond_userprofilefield_value',
+                get_string('bo_cond_userprofilefield_value', 'mod_booking'));
+            $mform->setType('bo_cond_userprofilefield_value', PARAM_RAW);
+            $mform->hideIf('bo_cond_userprofilefield_value', 'bo_cond_userprofilefield_field', 'eq', 0);
+
+            $mform->addElement('checkbox', 'overrideconditioncheckbox',
+                get_string('overrideconditioncheckbox', 'mod_booking'));
+            $mform->hideIf('overrideconditioncheckbox', 'bo_cond_userprofilefield_field', 'eq', 0);
+
+            $overrideoperators = [
+                'AND' => get_string('overrideoperator:and', 'mod_booking'),
+                'OR' => get_string('overrideoperator:or', 'mod_booking')
+            ];
+            $mform->addElement('select', 'overrideoperator',
+                get_string('overrideoperator', 'mod_booking'), $overrideoperators);
+            $mform->hideIf('overrideoperator', 'overrideconditioncheckbox', 'notchecked');
+
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* TODO: bo_info::get_conditions(true);*/
+
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /*{
+            "conditions":[
+                {
+                    "id":"1",
+                    "name":"userprofilefield",
+                    "overrides":"-3",
+                    "overrideoperator":"OR",
+                    "profilefield":"xyz",
+                    "operator":"=",
+                    "value":"f"
+                }
+            ]
+            }*/
+        }
     }
 }
