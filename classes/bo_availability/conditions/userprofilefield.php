@@ -221,23 +221,27 @@ class userprofilefield implements bo_condition {
             $mform->addElement('select', 'bo_cond_userprofilefield_operator',
                 get_string('bo_cond_userprofilefield_operator', 'mod_booking'), $operators);
             $mform->hideIf('bo_cond_userprofilefield_operator', 'bo_cond_userprofilefield_field', 'eq', 0);
+            $mform->hideIf('bo_cond_userprofilefield_operator', 'restrictwithuserprofilefield', 'notchecked');
 
             $mform->addElement('text', 'bo_cond_userprofilefield_value',
                 get_string('bo_cond_userprofilefield_value', 'mod_booking'));
             $mform->setType('bo_cond_userprofilefield_value', PARAM_RAW);
             $mform->hideIf('bo_cond_userprofilefield_value', 'bo_cond_userprofilefield_field', 'eq', 0);
+            $mform->hideIf('bo_cond_userprofilefield_value', 'restrictwithuserprofilefield', 'notchecked');
 
-            $mform->addElement('checkbox', 'overrideconditioncheckbox',
+            $mform->addElement('checkbox', 'bo_cond_userprofilefield_overrideconditioncheckbox',
                 get_string('overrideconditioncheckbox', 'mod_booking'));
-            $mform->hideIf('overrideconditioncheckbox', 'bo_cond_userprofilefield_field', 'eq', 0);
+            $mform->hideIf('bo_cond_userprofilefield_overrideconditioncheckbox', 'bo_cond_userprofilefield_field', 'eq', 0);
+            $mform->hideIf('bo_cond_userprofilefield_overrideconditioncheckbox', 'restrictwithuserprofilefield', 'notchecked');
 
             $overrideoperators = [
                 'AND' => get_string('overrideoperator:and', 'mod_booking'),
                 'OR' => get_string('overrideoperator:or', 'mod_booking')
             ];
-            $mform->addElement('select', 'overrideoperator',
+            $mform->addElement('select', 'bo_cond_userprofilefield_overrideoperator',
                 get_string('overrideoperator', 'mod_booking'), $overrideoperators);
-            $mform->hideIf('overrideoperator', 'overrideconditioncheckbox', 'notchecked');
+            $mform->hideIf('bo_cond_userprofilefield_overrideoperator', 'bo_cond_userprofilefield_overrideconditioncheckbox',
+                'notchecked');
 
             $overrideconditions = bo_info::get_conditions(CONDPARAM_HARDCODED_ONLY);
             $overrideconditionsarray = [];
@@ -249,9 +253,14 @@ class userprofilefield implements bo_condition {
                 $overrideconditionsarray[$overridecondition->id] =
                     get_string('bo_cond_' . $shortclassname, 'mod_booking');
             }
-            $mform->addElement('select', 'overridecondition',
+
+            // TODO: Check for json conditions that might have been saved before.
+            // Do we have the  optionid here, so we can get them?
+
+            $mform->addElement('select', 'bo_cond_userprofilefield_overridecondition',
                 get_string('overridecondition', 'mod_booking'), $overrideconditionsarray);
-            $mform->hideIf('overridecondition', 'overrideconditioncheckbox', 'notchecked');
+            $mform->hideIf('bo_cond_userprofilefield_overridecondition', 'bo_cond_userprofilefield_overrideconditioncheckbox',
+                'notchecked');
         }
     }
 
@@ -277,9 +286,9 @@ class userprofilefield implements bo_condition {
             $conditionobject->operator = $fromform->bo_cond_userprofilefield_operator;
             $conditionobject->value = $fromform->bo_cond_userprofilefield_value;
 
-            if (!empty($fromform->overrideconditioncheckbox)) {
-                $conditionobject->overrides = $fromform->overridecondition;
-                $conditionobject->overrideoperator = $fromform->overrideoperator;
+            if (!empty($fromform->bo_cond_userprofilefield_overrideconditioncheckbox)) {
+                $conditionobject->overrides = $fromform->bo_cond_userprofilefield_overridecondition;
+                $conditionobject->overrideoperator = $fromform->bo_cond_userprofilefield_overrideoperator;
             }
 
             return $conditionobject;
@@ -300,9 +309,9 @@ class userprofilefield implements bo_condition {
             $defaultvalues->bo_cond_userprofilefield_value = $acdefault->value;
         }
         if (!empty($acdefault->overrides)) {
-            $defaultvalues->overrideconditioncheckbox = "1";
-            $defaultvalues->overridecondition = $acdefault->overrides;
-            $defaultvalues->overrideoperator = $acdefault->overrideoperator;
+            $defaultvalues->bo_cond_userprofilefield_overrideconditioncheckbox = "1";
+            $defaultvalues->bo_cond_userprofilefield_overridecondition = $acdefault->overrides;
+            $defaultvalues->bo_cond_userprofilefield_overrideoperator = $acdefault->overrideoperator;
         }
     }
 }

@@ -275,8 +275,6 @@ class bo_info {
      */
     public static function add_conditions_to_mform(MoodleQuickForm &$mform) {
 
-        global $DB;
-
         $mform->addElement('header', 'availabilityconditions',
                 get_string('availabilityconditions', 'mod_booking'));
 
@@ -305,7 +303,10 @@ class bo_info {
             foreach ($conditions as $condition) {
                 if (!empty($condition)) {
                     // For each condition, add the appropriate form fields.
-                    $arrayforjson[] = $condition->get_condition_object_for_json($fromform);
+                    $conditionobject = $condition->get_condition_object_for_json($fromform);
+                    if (!empty($conditionobject->class)) {
+                        $arrayforjson[] = $conditionobject;
+                    }
                 }
             }
             // This will be saved in the table booking_options in the 'availability' field.

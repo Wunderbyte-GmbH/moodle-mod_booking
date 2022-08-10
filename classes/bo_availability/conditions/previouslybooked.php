@@ -27,6 +27,7 @@
  namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -162,24 +163,111 @@ class previouslybooked implements bo_condition {
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform) {
+        global $DB;
 
-        $mform->addElement('html', '<p class="text-danger text-center">...todo: previously booked...</p>');
+        $bookingoptionarray = [];
+        if ($bookingoptionrecords = $DB->get_records_sql(
+            "SELECT bo.id optionid, bo.text optionname, b.name instancename
+            FROM {booking_options} bo
+            LEFT JOIN {booking} b
+            ON bo.bookingid = b.id")) {
+            foreach ($bookingoptionrecords as $bookingoptionrecord) {
+                $bookingoptionarray[$bookingoptionrecord->optionid] =
+                    "$bookingoptionrecord->optionname ($bookingoptionrecord->instancename)";
+            }
+        }
+
+        $mform->addElement('checkbox', 'restrictwithpreviouslybooked',
+                get_string('bo_cond_previouslybooked', 'mod_booking'));
+
+        $previouslybookedoptions = [
+            'tags' => false,
+            'multiple' => false
+        ];
+        $mform->addElement('autocomplete', 'bo_cond_previouslybooked_optionid',
+            get_string('bo_cond_previouslybooked_optionid', 'mod_booking'), $bookingoptionarray, $previouslybookedoptions);
+        $mform->setType('bo_cond_previouslybooked_optionid', PARAM_INT);
+        $mform->hideIf('bo_cond_previouslybooked_optionid', 'restrictwithpreviouslybooked', 'notchecked');
+
+        $mform->addElement('checkbox', 'bo_cond_previouslybooked_overrideconditioncheckbox',
+            get_string('overrideconditioncheckbox', 'mod_booking'));
+        $mform->hideIf('bo_cond_previouslybooked_overrideconditioncheckbox', 'restrictwithpreviouslybooked', 'notchecked');
+
+        $overrideoperators = [
+            'AND' => get_string('overrideoperator:and', 'mod_booking'),
+            'OR' => get_string('overrideoperator:or', 'mod_booking')
+        ];
+        $mform->addElement('select', 'bo_cond_previouslybooked_overrideoperator',
+            get_string('overrideoperator', 'mod_booking'), $overrideoperators);
+        $mform->hideIf('bo_cond_previouslybooked_overrideoperator',
+            'bo_cond_previouslybooked_overrideconditioncheckbox', 'notchecked');
+
+        $overrideconditions = bo_info::get_conditions(CONDPARAM_HARDCODED_ONLY);
+        $overrideconditionsarray = [];
+        foreach ($overrideconditions as $overridecondition) {
+            // Remove the namespace from classname.
+            $fullclassname = get_class($overridecondition); // With namespace.
+            $classnameparts = explode('\\', $fullclassname);
+            $shortclassname = end($classnameparts); // Without namespace.
+            $overrideconditionsarray[$overridecondition->id] =
+                get_string('bo_cond_' . $shortclassname, 'mod_booking');
+        }
+
+        // TODO: Check for json conditions that might have been saved before.
+        // Do we have the  optionid here, so we can get them?
+
+        $mform->addElement('select', 'bo_cond_previouslybooked_overridecondition',
+            get_string('overridecondition', 'mod_booking'), $overrideconditionsarray);
+        $mform->hideIf('bo_cond_previouslybooked_overridecondition', 'bo_cond_previouslybooked_overrideconditioncheckbox',
+            'notchecked');
 
         $mform->addElement('html', '<hr class="w-50"/>');
-
     }
 
     /**
      * Returns a condition object which is needed to create the condition JSON.
      *
-     * @param stdClass &$fromform
-     * @return stdClass the object for the JSON
+     * @param stdClass $fromform
+     * @return stdClass|null the object for the JSON
      */
-    public function get_condition_object_for_json(stdClass &$fromform): stdClass {
-        $conditionobject = new stdClass;
+    public function get_condition_object_for_json(stdClass $fromform): stdClass {
+        if (!empty($fromform->restrictwithpreviouslybooked)) {
+            $conditionobject = new stdClass;
 
-        // TODO.
+            // Remove the namespace from classname.
+            $classname = __CLASS__;
+            $classnameparts = explode('\\', $classname);
+            $shortclassname = end($classnameparts); // Without namespace.
 
-        return $conditionobject;
+            $conditionobject->id = BO_COND_JSON_PREVIOUSLYBOOKED;
+            $conditionobject->name = $shortclassname;
+            $conditionobject->class = $classname;
+            $conditionobject->optionid = $fromform->bo_cond_previouslybooked_optionid;
+
+            if (!empty($fromform->bo_cond_previouslybooked_overrideconditioncheckbox)) {
+                $conditionobject->overrides = $fromform->bo_cond_previouslybooked_overridecondition;
+                $conditionobject->overrideoperator = $fromform->bo_cond_previouslybooked_overrideoperator;
+            }
+
+            return $conditionobject;
+        }
+        return null;
+    }
+
+    /**
+     * Set default values to be shown in form when loaded from DB.
+     * @param stdClass &$defaultvalues the default values
+     * @param stdClass $acdefault the condition object from JSON
+     */
+    public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
+        if (!empty($acdefault->optionid)) {
+            $defaultvalues->restrictwithpreviouslybooked = "1";
+            $defaultvalues->bo_cond_previouslybooked_optionid = $acdefault->optionid;
+        }
+        if (!empty($acdefault->overrides)) {
+            $defaultvalues->bo_cond_previouslybooked_overrideconditioncheckbox = "1";
+            $defaultvalues->bo_cond_previouslybooked_overridecondition = $acdefault->overrides;
+            $defaultvalues->bo_cond_previouslybooked_overrideoperator = $acdefault->overrideoperator;
+        }
     }
 }

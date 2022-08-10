@@ -1592,7 +1592,7 @@ $string['bo_cond_booking_time'] = 'Nur in einer bestimmten Zeit buchbar';
 $string['bo_cond_fullybooked'] = 'Ausgebucht';
 $string['bo_cond_max_number_of_bookings'] = 'Maximum an User/innen erreicht, die dieser User buchen darf';
 $string['bo_cond_onwaitinglist'] = 'Auf Warteliste';
-$string['bo_cond_previouslybooked'] = 'User hat früher eine bestimmt Option gebucht';
+$string['bo_cond_previouslybooked'] = 'User hat früher eine bestimmte Option gebucht';
 $string['bo_cond_priceisset'] = 'Preis ist vorhanden';
 $string['bo_cond_userprofilefield'] = 'User-Profilfeld hat einen bestimmten Wert';
 
@@ -1645,3 +1645,4 @@ $string['overridecondition'] = 'Einschränkung';
 $string['overrideoperator'] = 'Operator';
 $string['overrideoperator:and'] = 'UND';
 $string['overrideoperator:or'] = 'ODER';
+$string['bo_cond_previouslybooked_optionid'] = 'Buchungsoption';
