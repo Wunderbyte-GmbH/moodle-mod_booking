@@ -77,6 +77,14 @@ define('MSGCONTRPARAM_QUEUE_ADHOC', 2);
 define('MSGCONTRPARAM_DO_NOT_SEND', 3);
 define('MSGCONTRPARAM_VIEW_CONFIRMATION', 4);
 
+// Define booking availability condition ids.
+define('BO_COND_ALREADYBOOKED', 100);
+define('BO_COND_BOOKING_TIME', 60);
+define('BO_COND_FULLYBOOKED', 80);
+define('BO_COND_MAX_NUMBER_OF_BOOKINGS', 70);
+define('BO_COND_ONWAITINGLIST', 90);
+define('BO_COND_PRICEISSET', 50);
+
 // Define conditions parameters.
 define('CONDPARAM_ALL', 0);
 define('CONDPARAM_HARDCODED_ONLY', 1);

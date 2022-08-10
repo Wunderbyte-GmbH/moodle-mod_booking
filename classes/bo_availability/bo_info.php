@@ -119,8 +119,10 @@ class bo_info {
         // Run through all the individual conditions to make sure they are fullfilled.
         foreach ($conditions as $condition) {
 
+            $classname = get_class($condition);
+
             // First, we have the hardcoded conditions already as instances.
-            if ($condition->id < 0) {
+            if ($classname !== 'stdClass') {
                 list($isavailable, $description) = $condition->get_description(true, $settings, $userid);
                 $resultsarray[$condition->id] = ['id' => $condition->id,
                     'isavailable' => $isavailable,

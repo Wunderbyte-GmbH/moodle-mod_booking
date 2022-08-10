@@ -31,6 +31,10 @@ use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
 /**
  * Base class for a single bo availability condition.
  *
@@ -44,7 +48,7 @@ use MoodleQuickForm;
 class fullybooked implements bo_condition {
 
     /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
-    public $id = -3;
+    public $id = BO_COND_FULLYBOOKED;
 
     /**
      * Needed to see if class can take JSON.

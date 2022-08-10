@@ -24,12 +24,16 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
- namespace mod_booking\bo_availability\conditions;
+namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Base class for a single bo availability condition.

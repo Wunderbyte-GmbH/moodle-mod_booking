@@ -34,6 +34,10 @@ use mod_booking\price;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
 /**
  * If a price is set for the option, normal booking is not available.
  * Booking only via payment.
@@ -47,7 +51,7 @@ use MoodleQuickForm;
 class priceisset implements bo_condition {
 
     /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
-    public $id = -6;
+    public $id = BO_COND_PRICEISSET;
 
     /**
      * Needed to see if class can take JSON.

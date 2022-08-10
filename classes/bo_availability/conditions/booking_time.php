@@ -30,6 +30,10 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\booking_option_settings;
 use MoodleQuickForm;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
 /**
  * Class for a single bo availability condition.
  * This returns true or false based on the standard booking times
@@ -42,7 +46,7 @@ use MoodleQuickForm;
 class booking_time implements bo_condition {
 
     /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
-    public $id = -5;
+    public $id = BO_COND_BOOKING_TIME;
 
     /**
      * Needed to see if class can take JSON.
