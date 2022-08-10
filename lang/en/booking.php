@@ -1894,6 +1894,12 @@ $string['bo_cond_isbookable_full_available'] = 'Booking is possible';
 $string['bo_cond_isbookable_not_available'] = 'Not allowed to book';
 $string['bo_cond_isbookable_full_not_available'] = 'Booking is forbidden for this booking option.';
 
+
+$string['bo_cond_isloggedin_available'] = 'Book it';
+$string['bo_cond_isloggedin_full_available'] = 'Booking is possible';
+$string['bo_cond_isloggedin_not_available'] = 'Log in to book this optin.';
+$string['bo_cond_isloggedin_full_not_available'] = 'User is not logged in.';
+
 // BO conditions in mform.
 $string['userinfofieldoff'] = 'No user profile field selected';
 $string['restrictwithuserprofilefield'] = 'A chosen user profile field should have a certain value';
