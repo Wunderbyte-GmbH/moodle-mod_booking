@@ -140,7 +140,7 @@ class col_price implements renderable, templatable {
         return [
             'itemid' => $this->cartitem['itemid'],
             'itemname' => $this->cartitem['itemname'],
-            'price' => $this->cartitem['price'],
+            'price' => number_format($this->cartitem['price'], 2),
             'currency' => $this->cartitem['currency'],
             'componentname' => $this->cartitem['componentname'],
             'description' => $this->cartitem['description'],
