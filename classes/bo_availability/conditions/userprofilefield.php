@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
- namespace mod_booking\bo_availability\conditions;
+namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
@@ -32,6 +32,10 @@ use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/user/profile/lib.php');
 
 /**
  * This class takes the configuration from json in the available column of booking_options table.
@@ -96,44 +100,45 @@ class userprofilefield implements bo_condition {
             $isavailable = true;
         } else {
 
-            // Profilefield is set.
-            $user = singleton_service::get_instance_of_user($userid);
-            $profilefield = $this->customsettings->profilefield;
+            if (isloggedin()) {
+                // Profilefield is set.
+                $user = singleton_service::get_instance_of_user($userid);
+                $profilefield = $this->customsettings->profilefield;
 
-            // If the profilefield is not here right away, we might need to retrieve it.
-            if (!isset($user->$profilefield)) {
-                profile_load_custom_fields($user);
-                $value = $user->profile[$profilefield] ?? null;
-            } else {
-                $value = $user->$profilefield;
-            }
+                // If the profilefield is not here right away, we might need to retrieve it.
+                if (!isset($user->$profilefield)) {
+                    profile_load_custom_fields($user);
+                    $value = $user->profile[$profilefield] ?? null;
+                } else {
+                    $value = $user->$profilefield;
+                }
 
-            // If value is not null, we compare it.
-            if ($value) {
-                switch ($this->customsettings->operator) {
-                    case '=':
-                        if ($value == $this->customsettings->value) {
-                            $isavailable = true;
-                        }
-                        break;
-                    case '<':
-                        if ($value < $this->customsettings->value) {
-                            $isavailable = true;
-                        }
-                        break;
-                    case '>':
-                        if ($value > $this->customsettings->value) {
-                            $isavailable = true;
-                        }
-                        break;
-                    case '~':
-                        if (strpos($this->customsettings->value, $value)) {
-                            $isavailable = true;
-                        }
-                        break;
+                // If value is not null, we compare it.
+                if ($value) {
+                    switch ($this->customsettings->operator) {
+                        case '=':
+                            if ($value == $this->customsettings->value) {
+                                $isavailable = true;
+                            }
+                            break;
+                        case '<':
+                            if ($value < $this->customsettings->value) {
+                                $isavailable = true;
+                            }
+                            break;
+                        case '>':
+                            if ($value > $this->customsettings->value) {
+                                $isavailable = true;
+                            }
+                            break;
+                        case '~':
+                            if (strpos($this->customsettings->value, $value)) {
+                                $isavailable = true;
+                            }
+                            break;
+                    }
                 }
             }
-
         }
 
         // If it's inversed, we inverse.
