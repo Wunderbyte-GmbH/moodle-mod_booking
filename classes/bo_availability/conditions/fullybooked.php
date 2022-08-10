@@ -47,7 +47,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class fullybooked implements bo_condition {
 
-    /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
+    /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = BO_COND_FULLYBOOKED;
 
     /**

@@ -48,7 +48,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class max_number_of_bookings implements bo_condition {
 
-    /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
+    /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = BO_COND_MAX_NUMBER_OF_BOOKINGS;
 
     /**
