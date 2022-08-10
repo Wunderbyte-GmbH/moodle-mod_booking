@@ -44,8 +44,21 @@ class booking_time implements bo_condition {
     /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
     public $id = -5;
 
-    /** @var int $iscustomizable marker to see if class can take json. */
-    public $iscustomizable = true;
+    /**
+     * Needed to see if class can take JSON.
+     * @return bool
+     */
+    public function is_json_compatible(): bool {
+        return false; // Hardcoded condition, but still shown in mform.
+    }
+
+    /**
+     * Needed to see if it shows up in mform.
+     * @return bool
+     */
+    public function is_shown_in_mform(): bool {
+        return true; // Hardcoded condition, but still shown in mform.
+    }
 
     /**
      * Determines whether a particular item is currently available
@@ -151,5 +164,7 @@ class booking_time implements bo_condition {
         $mform->addElement('date_time_selector', 'bookingclosingtime', get_string('bookingclosingtime', 'mod_booking'));
         $mform->setType('bookingclosingtime', PARAM_INT);
         $mform->hideIf('bookingclosingtime', 'restrictanswerperiodclosing', 'notchecked');
+
+        $mform->addElement('html', '<hr class="w-50"/>');
     }
 }

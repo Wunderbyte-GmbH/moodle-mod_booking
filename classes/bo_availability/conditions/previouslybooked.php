@@ -46,9 +46,6 @@ class previouslybooked implements bo_condition {
     /** @var int $id Id is set via json during construction */
     public $id = null;
 
-    /** @var int $iscustomizable marker to see if class can take json. */
-    public $iscustomizable = true;
-
     /** @var stdClass $customsettings an stdclass coming from the json which passes custom settings */
     public $customsettings = null;
 
@@ -63,6 +60,22 @@ class previouslybooked implements bo_condition {
         if ($id) {
             $this->id = $id;
         }
+    }
+
+    /**
+     * Needed to see if class can take JSON.
+     * @return bool
+     */
+    public function is_json_compatible(): bool {
+        return true; // Customizable condition.
+    }
+
+    /**
+     * Needed to see if it shows up in mform.
+     * @return bool
+     */
+    public function is_shown_in_mform(): bool {
+        return true;
     }
 
     /**

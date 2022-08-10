@@ -49,8 +49,21 @@ class priceisset implements bo_condition {
     /** @var int $id Negative ids are for hardcoded conditions that can not exist multiple times. */
     public $id = -6;
 
-    /** @var int $iscustomizable marker to see if class can take json. */
-    public $iscustomizable = false;
+    /**
+     * Needed to see if class can take JSON.
+     * @return bool
+     */
+    public function is_json_compatible(): bool {
+        return false; // Hardcoded condition.
+    }
+
+    /**
+     * Needed to see if it shows up in mform.
+     * @return bool
+     */
+    public function is_shown_in_mform(): bool {
+        return false;
+    }
 
     /**
      * Determines whether a particular item is currently available

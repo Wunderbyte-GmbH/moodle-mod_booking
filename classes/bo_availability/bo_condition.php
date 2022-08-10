@@ -42,6 +42,19 @@ use MoodleQuickForm;
 interface bo_condition {
 
     /**
+     * True, if it's a customizable / JSON-compatible condition.
+     * False, if it's a hardcoded condition (not stored with JSON).
+     * @return bool
+     */
+    public function is_json_compatible(): bool;
+
+    /**
+     * True, if it should show up in mform, else false.
+     * @return bool
+     */
+    public function is_shown_in_mform(): bool;
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      *

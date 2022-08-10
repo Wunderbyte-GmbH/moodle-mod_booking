@@ -94,7 +94,7 @@ class bo_info {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        $conditions = self::get_conditions();
+        $conditions = self::get_conditions(CONDPARAM_HARDCODED_ONLY);
 
         if (!empty($settings->availability)) {
 
@@ -233,7 +233,7 @@ class bo_info {
         $mform->addElement('header', 'availabilityconditions',
                 get_string('availabilityconditions', 'mod_booking'));
 
-        $conditions = self::get_conditions(null, true);
+        $conditions = self::get_conditions(CONDPARAM_MFORM_ONLY);
 
         foreach ($conditions as $condition) {
             // For each condition, add the appropriate form fields.
@@ -242,18 +242,18 @@ class bo_info {
     }
 
     /**
-     * Returns all installed hardcoded conditions. Only includes those that need customization if $all is true.
-     * If $onlycustomisable is true, we only return those which can be customized.
+     * Returns conditions depending on the conditions param.
      *
-     * @param boolean $all
-     * @param boolean $onlycustomizable
+     * @param int $condparam conditions parameter
+     *  0 ... all conditions (default)
+     *  1 ... hardcoded conditions only
+     *  2 ... customizable conditions only
      * @return array
      */
-    public static function get_conditions($all = false, $onlycustomizable = false): array {
+    public static function get_conditions(int $condparam = CONDPARAM_ALL): array {
 
         global $CFG;
 
-        $conditions = [];
         // First, we get all the available conditions from our directory.
         $path = $CFG->dirroot . '/mod/booking/classes/bo_availability/conditions/*.php';
         $filelist = glob($path);
@@ -269,10 +269,26 @@ class bo_info {
             if (class_exists($filename)) {
                 $instance = new $filename();
 
-                if ($onlycustomizable && $instance->iscustomizable) {
-                    $conditions[] = $instance;
-                } else if ($all || !empty($instance->id)) {
-                    $conditions[] = $instance;
+                switch ($condparam) {
+                    case CONDPARAM_HARDCODED_ONLY:
+                        if ($instance->is_json_compatible() === false) {
+                            $conditions[] = $instance;
+                        }
+                        break;
+                    case CONDPARAM_CUSTOMIZABLE_ONLY:
+                        if ($instance->is_json_compatible() === true) {
+                            $conditions[] = $instance;
+                        }
+                        break;
+                    case CONDPARAM_MFORM_ONLY:
+                        if ($instance->is_shown_in_mform()) {
+                            $conditions[] = $instance;
+                        }
+                        break;
+                    case CONDPARAM_ALL:
+                    default:
+                        $conditions[] = $instance;
+                        break;
                 }
             }
         }

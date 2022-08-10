@@ -77,6 +77,12 @@ define('MSGCONTRPARAM_QUEUE_ADHOC', 2);
 define('MSGCONTRPARAM_DO_NOT_SEND', 3);
 define('MSGCONTRPARAM_VIEW_CONFIRMATION', 4);
 
+// Define conditions parameters.
+define('CONDPARAM_ALL', 0);
+define('CONDPARAM_HARDCODED_ONLY', 1);
+define('CONDPARAM_CUSTOMIZABLE_ONLY', 2);
+define('CONDPARAM_MFORM_ONLY', 3);
+
 /**
  * @param stdClass $cm
  * @return cached_cm_info
