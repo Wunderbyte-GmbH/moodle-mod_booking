@@ -151,11 +151,51 @@ class bo_info {
                     'description' => $description];
 
                 // Now we might need to override the result of a previous condition which has been resolved as false before.
-            }
+                if (!empty($condition->overrides)
+                    && isset($resultsarray[$condition->overrides])) {
 
-            // We check each condition for it's availability.
-            // phpcs:ignore moodle.Commenting.InlineComment.InvalidEndChar
-            // Echo $condition;
+                    // We know we have a result to override. It depends now on the operator what to do.
+                    // If the operator is or, we change the previous result from false to true, if this result is true.
+                    // OR we change this result to true, if the previous was true.
+
+                    switch ($condition->overrideoperator) {
+                        case 'OR':
+                            // If one of the two results is true, both are true.
+                            if ($resultsarray[$condition->overrides]['isavailable']
+                                || $resultsarray[$condition->id]['isavailable']) {
+                                    $resultsarray[$condition->overrides]['isavailable'] = true;
+                                    $resultsarray[$condition->id]['isavailable'] = true;
+                            };
+                            break;
+                        case 'AND':
+                            // We need to return the right description which actually failed.
+                            // If both fail, we want to return both descriptions.
+
+                            $description = '';
+                            if (!$resultsarray[$condition->overrides]['isavailable']) {
+                                $description = $resultsarray[$condition->overrides]['description'];
+                            }
+                            if (!$resultsarray[$condition->id]['isavailable']) {
+                                if (empty($description)) {
+                                    $description = $resultsarray[$condition->id]['description'];
+                                } else {
+                                    $description .= '<br>' . $resultsarray[$condition->id]['description'];
+                                }
+                            }
+                            // Only now: If NOT both are true, we set both to false.
+                            if (!($resultsarray[$condition->overrides]['isavailable']
+                                && $resultsarray[$condition->id]['isavailable'])) {
+                                    $resultsarray[$condition->overrides]['isavailable'] = false;
+                                    $resultsarray[$condition->id]['isavailable'] = false;
+                                    // Both get the same descripiton.
+                                    // if one of them bubbles up as the blocking one, we see the right description.
+                                    $resultsarray[$condition->overrides]['description'] = $description;
+                                    $resultsarray[$condition->id]['description'] = $description;
+                            };
+                    }
+                }
+
+            }
         }
 
         $results = array_filter($resultsarray, function ($item) {
