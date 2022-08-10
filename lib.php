@@ -80,12 +80,14 @@ define('MSGCONTRPARAM_VIEW_CONFIRMATION', 4);
 // Define booking availability condition ids.
 define('BO_COND_JSON_USERPROFILEFIELD', 1);
 define('BO_COND_JSON_PREVIOUSLYBOOKED', 2);
+
 define('BO_COND_ALREADYBOOKED', 100);
-define('BO_COND_BOOKING_TIME', 60);
-define('BO_COND_FULLYBOOKED', 80);
-define('BO_COND_MAX_NUMBER_OF_BOOKINGS', 70);
-define('BO_COND_ONWAITINGLIST', 90);
-define('BO_COND_PRICEISSET', 50);
+define('BO_COND_ISBOOKABLE', 90);
+define('BO_COND_ONWAITINGLIST', 80);
+define('BO_COND_FULLYBOOKED', 70);
+define('BO_COND_MAX_NUMBER_OF_BOOKINGS', 60);
+define('BO_COND_BOOKING_TIME', 50);
+define('BO_COND_PRICEISSET', 40);
 
 // Define conditions parameters.
 define('CONDPARAM_ALL', 0);

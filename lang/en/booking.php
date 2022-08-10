@@ -1889,6 +1889,11 @@ $string['bo_cond_previouslybooked_full_available'] = 'Booking is possible';
 $string['bo_cond_previouslybooked_not_available'] = 'Not allowed to book';
 $string['bo_cond_previouslybooked_full_not_available'] = 'Only user who have previously booked this <a href="{$a}">option</a> are allowed to book';
 
+$string['bo_cond_isbookable_available'] = 'Book it';
+$string['bo_cond_isbookable_full_available'] = 'Booking is possible';
+$string['bo_cond_isbookable_not_available'] = 'Not allowed to book';
+$string['bo_cond_isbookable_full_not_available'] = 'Booking is forbidden for this booking option.';
+
 // BO conditions in mform.
 $string['userinfofieldoff'] = 'No user profile field selected';
 $string['restrictwithuserprofilefield'] = 'A chosen user profile field should have a certain value';
