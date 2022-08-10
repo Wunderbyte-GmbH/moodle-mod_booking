@@ -88,6 +88,10 @@ class bo_info {
 
         global $USER, $CFG;
 
+        // We only get full description when we book for another user.
+        // It's a clear sign of higher rights.
+        $full = $USER->id == $userid ? false : true;
+
         if (!$optionid) {
             $optionid = $this->optionid;
         }
@@ -123,7 +127,7 @@ class bo_info {
 
             // First, we have the hardcoded conditions already as instances.
             if ($classname !== 'stdClass') {
-                list($isavailable, $description) = $condition->get_description(true, $settings, $userid);
+                list($isavailable, $description) = $condition->get_description($full, $settings, $userid);
                 $resultsarray[$condition->id] = ['id' => $condition->id,
                     'isavailable' => $isavailable,
                     'description' => $description];
@@ -145,7 +149,7 @@ class bo_info {
                     continue;
                 }
                 // Then pass the availability-parameters.
-                list($isavailable, $description) = $instance->get_description(true, $settings, $userid);
+                list($isavailable, $description) = $instance->get_description($full, $settings, $userid);
                 $resultsarray[$condition->id] = ['id' => $condition->id,
                     'isavailable' => $isavailable,
                     'description' => $description];
