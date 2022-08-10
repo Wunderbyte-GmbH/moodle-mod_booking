@@ -27,9 +27,11 @@
  namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
+use stdClass;
 
 /**
  * This class takes the configuration from json in the available column of booking_options table.
@@ -232,23 +234,70 @@ class userprofilefield implements bo_condition {
                 get_string('overrideoperator', 'mod_booking'), $overrideoperators);
             $mform->hideIf('overrideoperator', 'overrideconditioncheckbox', 'notchecked');
 
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /* TODO: bo_info::get_conditions(true);*/
+            $overrideconditions = bo_info::get_conditions(CONDPARAM_HARDCODED_ONLY);
+            $overrideconditionsarray = [];
+            foreach ($overrideconditions as $overridecondition) {
+                // Remove the namespace from classname.
+                $fullclassname = get_class($overridecondition); // With namespace.
+                $classnameparts = explode('\\', $fullclassname);
+                $shortclassname = end($classnameparts); // Without namespace.
+                $overrideconditionsarray[$overridecondition->id] =
+                    get_string('bo_cond_' . $shortclassname, 'mod_booking');
+            }
+            $mform->addElement('select', 'overridecondition',
+                get_string('overridecondition', 'mod_booking'), $overrideconditionsarray);
+            $mform->hideIf('overridecondition', 'overrideconditioncheckbox', 'notchecked');
+        }
+    }
 
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /*{
-            "conditions":[
-                {
-                    "id":"1",
-                    "name":"userprofilefield",
-                    "overrides":"-3",
-                    "overrideoperator":"OR",
-                    "profilefield":"xyz",
-                    "operator":"=",
-                    "value":"f"
-                }
-            ]
-            }*/
+    /**
+     * Returns a condition object which is needed to create the condition JSON.
+     *
+     * @param stdClass $fromform
+     * @return stdClass|null the object for the JSON
+     */
+    public function get_condition_object_for_json(stdClass $fromform): stdClass {
+        if (!empty($fromform->restrictwithuserprofilefield)) {
+            $conditionobject = new stdClass;
+
+            // Remove the namespace from classname.
+            $classname = __CLASS__;
+            $classnameparts = explode('\\', $classname);
+            $shortclassname = end($classnameparts); // Without namespace.
+
+            $conditionobject->id = BO_COND_JSON_USERPROFILEFIELD;
+            $conditionobject->name = $shortclassname;
+            $conditionobject->class = $classname;
+            $conditionobject->profilefield = $fromform->bo_cond_userprofilefield_field;
+            $conditionobject->operator = $fromform->bo_cond_userprofilefield_operator;
+            $conditionobject->value = $fromform->bo_cond_userprofilefield_value;
+
+            if (!empty($fromform->overrideconditioncheckbox)) {
+                $conditionobject->overrides = $fromform->overridecondition;
+                $conditionobject->overrideoperator = $fromform->overrideoperator;
+            }
+
+            return $conditionobject;
+        }
+        return null;
+    }
+
+    /**
+     * Set default values to be shown in form when loaded from DB.
+     * @param stdClass &$defaultvalues the default values
+     * @param stdClass $acdefault the condition object from JSON
+     */
+    public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
+        if (!empty($acdefault->profilefield)) {
+            $defaultvalues->restrictwithuserprofilefield = "1";
+            $defaultvalues->bo_cond_userprofilefield_field = $acdefault->profilefield;
+            $defaultvalues->bo_cond_userprofilefield_operator = $acdefault->operator;
+            $defaultvalues->bo_cond_userprofilefield_value = $acdefault->value;
+        }
+        if (!empty($acdefault->overrides)) {
+            $defaultvalues->overrideconditioncheckbox = "1";
+            $defaultvalues->overridecondition = $acdefault->overrides;
+            $defaultvalues->overrideoperator = $acdefault->overrideoperator;
         }
     }
 }

@@ -28,6 +28,7 @@ use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use moodle_exception;
 use MoodleQuickForm;
+use stdClass;
 
 /**
  * class for conditional availability information of a booking option
@@ -288,6 +289,38 @@ class bo_info {
     }
 
     /**
+     * Save all mform conditions.
+     *
+     * @param stdClass &$fromform reference to the form data
+     * @return void
+     */
+    public static function save_json_conditions_from_form(stdClass &$fromform) {
+
+        $optionid = $fromform->optionid;
+
+        if (!empty($optionid)) {
+            $conditions = self::get_conditions(CONDPARAM_JSON_ONLY);
+            $arrayforjson = [];
+
+            foreach ($conditions as $condition) {
+                if (!empty($condition)) {
+                    // For each condition, add the appropriate form fields.
+                    $arrayforjson[] = $condition->get_condition_object_for_json($fromform);
+                }
+            }
+            // This will be saved in the table booking_options in the 'availability' field.
+            $fromform->availability = json_encode($arrayforjson);
+        }
+        // Without an optionid we do nothing.
+    }
+
+    /**
+     * Set default values to be loaded into mform (from JSON in DB).
+     * @param &$defaultvalues
+     * @return void
+     */
+
+    /**
      * Returns conditions depending on the conditions param.
      *
      * @param int $condparam conditions parameter
@@ -321,7 +354,7 @@ class bo_info {
                             $conditions[] = $instance;
                         }
                         break;
-                    case CONDPARAM_CUSTOMIZABLE_ONLY:
+                    case CONDPARAM_JSON_ONLY:
                         if ($instance->is_json_compatible() === true) {
                             $conditions[] = $instance;
                         }

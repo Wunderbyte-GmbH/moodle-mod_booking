@@ -31,6 +31,7 @@ use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use moodle_url;
 use MoodleQuickForm;
+use stdClass;
 
 /**
  * This class takes the configuration from json in the available column of booking_options table.
@@ -162,14 +163,23 @@ class previouslybooked implements bo_condition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform) {
 
-        $mform->addElement('advcheckbox', 'priceformulaisactive', get_string('priceformulaisactive', 'mod_booking'),
-            null, null, [0, 1]);
-        $mform->setDefault('priceformulaisactive', 0);
+        $mform->addElement('html', '<p class="text-danger text-center">...todo: previously booked...</p>');
 
-        $mform->addElement('advcheckbox', 'priceformulaoff', get_string('priceformulaoff', 'mod_booking'),
-        null, null, [0, 1]);
-        $mform->addHelpButton('priceformulaoff', 'priceformulaoff', 'mod_booking');
-        $mform->setDefault('priceformulaoff', 0);
+        $mform->addElement('html', '<hr class="w-50"/>');
 
+    }
+
+    /**
+     * Returns a condition object which is needed to create the condition JSON.
+     *
+     * @param stdClass &$fromform
+     * @return stdClass the object for the JSON
+     */
+    public function get_condition_object_for_json(stdClass &$fromform): stdClass {
+        $conditionobject = new stdClass;
+
+        // TODO.
+
+        return $conditionobject;
     }
 }

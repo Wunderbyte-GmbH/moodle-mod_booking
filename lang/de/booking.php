@@ -1587,6 +1587,15 @@ $string['manageresponses'] = 'Buchung(en)';
 // Bo conditions. TODO: Übersetzen.
 $string['availabilityconditions'] = 'Verfügbarkeit einschränken';
 
+$string['bo_cond_alreadybooked'] = 'Von diesem User bereits gebucht';
+$string['bo_cond_booking_time'] = 'Nur in einer bestimmten Zeit buchbar';
+$string['bo_cond_fullybooked'] = 'Ausgebucht';
+$string['bo_cond_max_number_of_bookings'] = 'Maximum an User/innen erreicht, die dieser User buchen darf';
+$string['bo_cond_onwaitinglist'] = 'Auf Warteliste';
+$string['bo_cond_previouslybooked'] = 'User hat früher eine bestimmt Option gebucht';
+$string['bo_cond_priceisset'] = 'Preis ist vorhanden';
+$string['bo_cond_userprofilefield'] = 'User-Profilfeld hat einen bestimmten Wert';
+
 $string['bo_cond_booking_time_available'] = 'Wihting normal booking times';
 $string['bo_cond_booking_time_full_available'] = 'Wihting normal booking times. From {$a} until {$b}';
 $string['bo_cond_booking_time_not_available'] = 'Not within normal booking times.';

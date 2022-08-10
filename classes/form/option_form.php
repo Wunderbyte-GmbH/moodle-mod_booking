@@ -406,6 +406,24 @@ class option_form extends \moodleform {
                 $dayofweektime . '"></input>');
         }
 
+        // Add price.
+        $price = new price($this->_customdata['optionid']);
+        $price->add_price_to_mform($mform);
+
+        // Add entities.
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $erhandler = new entitiesrelation_handler('bookingoption');
+            $erhandler->instance_form_definition($mform, $optionid, $this->formmode);
+        }
+
+        // Add custom fields.
+        $handler = booking_handler::create();
+        $handler->instance_form_definition($mform, $optionid);
+
+        // TODO: expert/simple mode needs to work with this too!
+        // Add availability conditions.
+        bo_info::add_conditions_to_mform($mform);
+
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with headers.
         // In expert mode, we do not hide anything.
@@ -477,23 +495,6 @@ class option_form extends \moodleform {
             $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
             $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
         }
-
-        // Add price.
-        $price = new price($this->_customdata['optionid']);
-        $price->add_price_to_mform($mform);
-
-        // Add entities.
-        if (class_exists('local_entities\entitiesrelation_handler')) {
-            $erhandler = new entitiesrelation_handler('bookingoption');
-            $erhandler->instance_form_definition($mform, $optionid, $this->formmode);
-        }
-
-        bo_info::add_conditions_to_mform($mform);
-
-        // Add custom fields.
-        $handler = booking_handler::create();
-
-        $handler->instance_form_definition($mform, $optionid);
 
         // Templates and recurring 'events' - only visible when adding new.
         if ($this->_customdata['optionid'] == -1) {
@@ -719,6 +720,18 @@ class option_form extends \moodleform {
                 foreach ($cfdefaults as $defaultval) {
                     $cfgvalue = $defaultval->cfgname;
                     $defaultvalues->$cfgvalue = $defaultval->value;
+                }
+            }
+
+            // Defaults for availability conditions.
+            if ($acdefaultsjson = $DB->get_field('booking_options', 'availability',
+                ['id' => $defaultvalues->optionid])) {
+                $acdefaults = (array) json_decode($acdefaultsjson);
+                foreach ($acdefaults as $acdefault) {
+                    if (!empty($acdefault->class)) {
+                        $condition = new $acdefault->class;
+                        $condition->set_defaults($defaultvalues, $acdefault);
+                    }
                 }
             }
         }

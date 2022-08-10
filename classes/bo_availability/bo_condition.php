@@ -28,6 +28,7 @@ namespace mod_booking\bo_availability;
 
 use mod_booking\booking_option_settings;
 use MoodleQuickForm;
+use stdClass;
 
 /**
  * Base class for a single bo availability condition.
@@ -103,6 +104,5 @@ interface bo_condition {
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform);
-
 
 }

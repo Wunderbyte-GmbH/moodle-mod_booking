@@ -78,6 +78,8 @@ define('MSGCONTRPARAM_DO_NOT_SEND', 3);
 define('MSGCONTRPARAM_VIEW_CONFIRMATION', 4);
 
 // Define booking availability condition ids.
+define('BO_COND_JSON_USERPROFILEFIELD', 1);
+define('BO_COND_JSON_PREVIOUSLYBOOKED', 2);
 define('BO_COND_ALREADYBOOKED', 100);
 define('BO_COND_BOOKING_TIME', 60);
 define('BO_COND_FULLYBOOKED', 80);
@@ -88,7 +90,7 @@ define('BO_COND_PRICEISSET', 50);
 // Define conditions parameters.
 define('CONDPARAM_ALL', 0);
 define('CONDPARAM_HARDCODED_ONLY', 1);
-define('CONDPARAM_CUSTOMIZABLE_ONLY', 2);
+define('CONDPARAM_JSON_ONLY', 2);
 define('CONDPARAM_MFORM_ONLY', 3);
 
 /**
@@ -695,6 +697,14 @@ function booking_update_options($optionvalues, $context) {
         $option->identifier = $optionvalues->identifier;
     }
 
+    // Customizable availability conditions (json).
+    // Make sure json availability conditions are saved, if they exist.
+    if (!empty($optionvalues->availability)) {
+        $option->availability = $optionvalues->availability;
+    } else {
+        $option->availability = null;
+    }
+
     // Title of the booking option.
     $option->text = trim($optionvalues->text);
 
@@ -1167,6 +1177,7 @@ function booking_update_options($optionvalues, $context) {
             $optiondateshandler->save_from_form($optionvalues);
         }
 
+        // Deal with multiple option dates (multisessions).
         deal_with_multisessions($optionvalues, $booking, $optionid, $context);
 
         $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,

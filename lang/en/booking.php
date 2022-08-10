@@ -1835,6 +1835,15 @@ $string['manageresponses'] = 'booking(s)';
 // Bo conditions.
 $string['availabilityconditions'] = 'Availability conditions';
 
+$string['bo_cond_alreadybooked'] = 'Is already booked by this user';
+$string['bo_cond_booking_time'] = 'Only bookable within a certain time';
+$string['bo_cond_fullybooked'] = 'Fully booked';
+$string['bo_cond_max_number_of_bookings'] = 'Maximum number of bookings per user reached';
+$string['bo_cond_onwaitinglist'] = 'User is on waiting list';
+$string['bo_cond_previouslybooked'] = 'User has previously booked a certain option';
+$string['bo_cond_priceisset'] = 'Price is set';
+$string['bo_cond_userprofilefield'] = 'User profile field has a certain value';
+
 $string['bo_cond_booking_time_available'] = 'Within normal booking times';
 $string['bo_cond_booking_time_full_available'] = 'Within normal booking times. From {$a} until {$b}';
 $string['bo_cond_booking_time_not_available'] = 'Not within normal booking times.';

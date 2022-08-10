@@ -23,6 +23,7 @@ use \core\output\notification;
 use mod_booking\customfield\booking_handler;
 use mod_booking\price;
 use local_entities\entitiesrelation_handler;
+use mod_booking\bo_availability\bo_info;
 
 global $DB, $OUTPUT, $PAGE, $USER;
 
@@ -184,7 +185,10 @@ if ($mform->is_cancelled()) {
             $fromform->dayofweektime = $_POST['dayofweektime'];
         }
 
-        // Todo: nbooking should be call $optionid.
+        // Save the additional JSON conditions (the ones which have been added to the mform).
+        bo_info::save_json_conditions_from_form($fromform);
+
+        // Todo: Should nbooking be renamed to $optionid?
         $nbooking = booking_update_options($fromform, $context);
 
         if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
@@ -267,9 +271,10 @@ if ($mform->is_cancelled()) {
             }
         }
 
-        // Save the prices.
         // Make sure we have the option id in the fromform.
         $fromform->optionid = $nbooking ?? $optionid;
+
+        // Save the prices.
         $price = new price($fromform->optionid);
         $price->save_from_form($fromform);
 
