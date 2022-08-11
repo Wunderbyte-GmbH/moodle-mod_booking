@@ -34,6 +34,11 @@ $ADMIN->add('modsettings',
         new admin_category('modbookingfolder', new lang_string('pluginname', 'mod_booking'),
                 $module->is_enabled() === false));
 
+$ADMIN->add('modbookingfolder',
+        new admin_externalpage('modbookinginstancetemplatessettings',
+                get_string('bookinginstancetemplatessettings', 'mod_booking'),
+                new moodle_url('/mod/booking/instancetemplatessettings.php')));
+
 $ADMIN->add('modbookingfolder', $settings);
 
 if ($ADMIN->fulltree) {

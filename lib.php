@@ -771,14 +771,19 @@ function booking_update_options($optionvalues, $context) {
             if ($changes = $bu->booking_option_get_changes($originaloption, $option)) {
 
                 // Fix a bug where $PAGE->cm->id is not set for webservice importer.
-                if ($PAGE->cm->id != null) {
+                if (!empty($PAGE->cm->id)) {
                     $cmid = $PAGE->cm->id;
                 } else {
                     $cm = get_coursemodule_from_instance('booking', $option->bookingid);
-                    $cmid = $cm->id;
+                    if (!empty($cm->id)) {
+                        $cmid = $cm->id;
+                    }
                 }
-
-                $bu->react_on_changes($cmid, $context, $option->id, $changes);
+                // If we have no cmid, it's most possibly a template.
+                if (!empty($cmid)) {
+                    // We only react on changes, if a cmid exists.
+                    $bu->react_on_changes($cmid, $context, $option->id, $changes);
+                }
             }
         }
 
