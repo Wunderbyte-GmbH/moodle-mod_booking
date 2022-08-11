@@ -103,15 +103,15 @@ class bo_info {
 
         if (!empty($settings->availability)) {
 
-            $availabilityobject = json_decode($settings->availability);
+            $availabilityarray = json_decode($settings->availability);
 
             // If the json is not valid, we throw an error.
-            if (!$availabilityobject
-                || empty($availabilityobject->conditions)) {
+            if (!$availabilityarray
+                || empty($availabilityarray)) {
                 throw new moodle_exception('availabilityjsonerror', 'mod_booking');
             }
 
-            $conditions = array_merge($conditions, $availabilityobject->conditions);
+            $conditions = array_merge($conditions, $availabilityarray);
         }
 
         // Resolve optional parameters.
