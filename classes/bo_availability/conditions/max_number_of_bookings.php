@@ -145,9 +145,10 @@ class max_number_of_bookings implements bo_condition {
      * Only customizable functions need to return their necessary form elements.
      *
      * @param MoodleQuickForm $mform
+     * @param int $optionid
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         // Do nothing.
     }
 }

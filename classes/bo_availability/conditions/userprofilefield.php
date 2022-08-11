@@ -189,9 +189,10 @@ class userprofilefield implements bo_condition {
      * Only customizable functions need to return their necessary form elements.
      *
      * @param MoodleQuickForm $mform
+     * @param int $optionid
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
 
         // Choose the user profile field which is used to store each user's price category.
@@ -254,8 +255,24 @@ class userprofilefield implements bo_condition {
                     get_string('bo_cond_' . $shortclassname, 'mod_booking');
             }
 
-            // TODO: Check for json conditions that might have been saved before.
-            // Do we have the  optionid here, so we can get them?
+            // Check for json conditions that might have been saved before.
+            if (!empty($optionid)) {
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+                if (!empty($settings->availability)) {
+
+                    $jsonconditions = json_decode($settings->availability);
+
+                    if (!empty($jsonconditions)) {
+                        foreach ($jsonconditions as $jsoncondition) {
+                            // Currently conditions of the same type cannot be combined with each other.
+                            if ($jsoncondition->id != BO_COND_JSON_USERPROFILEFIELD) {
+                                $overrideconditionsarray[$jsoncondition->id] = get_string('bo_cond_' .
+                                    $jsoncondition->name, 'mod_booking');
+                            }
+                        }
+                    }
+                }
+            }
 
             $mform->addElement('select', 'bo_cond_userprofilefield_overridecondition',
                 get_string('overridecondition', 'mod_booking'), $overrideconditionsarray);

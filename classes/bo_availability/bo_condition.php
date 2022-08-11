@@ -101,8 +101,9 @@ interface bo_condition {
      * Adds the right form elements to add this condition.
      *
      * @param MoodleQuickForm $mform
+     * @param int $optionid
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform);
+    public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid);
 
 }

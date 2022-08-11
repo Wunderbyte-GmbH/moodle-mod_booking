@@ -422,7 +422,7 @@ class option_form extends \moodleform {
 
         // TODO: expert/simple mode needs to work with this too!
         // Add availability conditions.
-        bo_info::add_conditions_to_mform($mform);
+        bo_info::add_conditions_to_mform($mform, $optionid);
 
         // Workaround: Only show, if it is not turned off in the option form config.
         // We currently need this, because hideIf does not work with headers.

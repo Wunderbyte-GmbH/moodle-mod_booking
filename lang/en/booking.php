@@ -1835,14 +1835,16 @@ $string['manageresponses'] = 'booking(s)';
 // Bo conditions.
 $string['availabilityconditions'] = 'Availability conditions';
 
-$string['bo_cond_alreadybooked'] = 'Is already booked by this user';
-$string['bo_cond_booking_time'] = 'Only bookable within a certain time';
-$string['bo_cond_fullybooked'] = 'Fully booked';
-$string['bo_cond_max_number_of_bookings'] = 'Maximum number of bookings per user reached';
-$string['bo_cond_onwaitinglist'] = 'User is on waiting list';
-$string['bo_cond_previouslybooked'] = 'User has previously booked a certain option';
-$string['bo_cond_priceisset'] = 'Price is set';
-$string['bo_cond_userprofilefield'] = 'User profile field has a certain value';
+$string['bo_cond_alreadybooked'] = 'alreadybooked: Is already booked by this user';
+$string['bo_cond_booking_time'] = 'booking_time: Only bookable within a certain time';
+$string['bo_cond_fullybooked'] = 'fullybooked: Fully booked';
+$string['bo_cond_max_number_of_bookings'] = 'max_number_of_bookings: Maximum number of bookings per user reached';
+$string['bo_cond_onwaitinglist'] = 'onwaitinglist: User is on waiting list';
+$string['bo_cond_previouslybooked'] = 'previouslybooked: User has previously booked a certain option';
+$string['bo_cond_priceisset'] = 'priceisset: Price is set';
+$string['bo_cond_userprofilefield'] = 'userprofilefield: User profile field has a certain value';
+$string['bo_cond_isbookable'] = 'isbookable: Booking is allowed';
+$string['bo_cond_isloggedin'] = 'isloggedin: User is logged in';
 
 $string['bo_cond_booking_time_available'] = 'Within normal booking times';
 $string['bo_cond_booking_time_full_available'] = 'Within normal booking times. From {$a} until {$b}';
@@ -1903,6 +1905,7 @@ $string['bo_cond_isloggedin_full_not_available'] = 'User is not logged in.';
 // BO conditions in mform.
 $string['userinfofieldoff'] = 'No user profile field selected';
 $string['restrictwithuserprofilefield'] = 'A chosen user profile field should have a certain value';
+$string['restrictwithpreviouslybooked'] = 'User has previously booked a certain option';
 $string['bo_cond_userprofilefield_field'] = 'Profile field';
 $string['bo_cond_userprofilefield_value'] = 'Value';
 $string['bo_cond_userprofilefield_operator'] = 'Operator';

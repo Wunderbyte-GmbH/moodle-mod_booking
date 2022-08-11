@@ -106,8 +106,7 @@ class bo_info {
             $availabilityarray = json_decode($settings->availability);
 
             // If the json is not valid, we throw an error.
-            if (!$availabilityarray
-                || empty($availabilityarray)) {
+            if (!$availabilityarray || empty($availabilityarray)) {
                 throw new moodle_exception('availabilityjsonerror', 'mod_booking');
             }
 
@@ -271,9 +270,10 @@ class bo_info {
      * Add form fields to passed on mform.
      *
      * @param MoodleQuickForm $mform
+     * @param int $optionid
      * @return void
      */
-    public static function add_conditions_to_mform(MoodleQuickForm &$mform) {
+    public static function add_conditions_to_mform(MoodleQuickForm &$mform, int $optionid) {
 
         $mform->addElement('header', 'availabilityconditions',
                 get_string('availabilityconditions', 'mod_booking'));
@@ -282,7 +282,7 @@ class bo_info {
 
         foreach ($conditions as $condition) {
             // For each condition, add the appropriate form fields.
-            $condition->add_condition_to_mform($mform);
+            $condition->add_condition_to_mform($mform, $optionid);
         }
     }
 

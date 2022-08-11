@@ -151,9 +151,10 @@ class booking_time implements bo_condition {
      * Only customizable functions need to return their necessary form elements.
      *
      * @param MoodleQuickForm $mform
+     * @param int $optionid
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
 
         $mform->addElement('checkbox', 'restrictanswerperiodopening',
                 get_string('restrictanswerperiodopening', 'mod_booking'));
