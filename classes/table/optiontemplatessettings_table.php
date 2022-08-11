@@ -13,7 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-namespace mod_booking;
+namespace mod_booking\table;
 
 use moodle_url;
 use table_sql;

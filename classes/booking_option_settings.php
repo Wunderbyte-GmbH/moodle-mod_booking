@@ -361,7 +361,9 @@ class booking_option_settings {
             // If the key "optiondatesteachersurl" is not yet set, we need to generate it.
             if (!isset($dbrecord->optiondatesteachersurl)) {
                 $this->generate_optiondatesteachers_url($optionid);
-                $dbrecord->optiondatesteachersurl = $this->optiondatesteachersurl;
+                if (isset($this->optiondatesteachersurl)) {
+                    $dbrecord->optiondatesteachersurl = $this->optiondatesteachersurl;
+                }
             } else {
                 $this->optiondatesteachersurl = $dbrecord->optiondatesteachersurl;
             }

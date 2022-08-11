@@ -36,6 +36,11 @@ $ADMIN->add('modsettings',
                 $module->is_enabled() === false));
 
 $ADMIN->add('modbookingfolder',
+        new admin_externalpage('modbookinginstancetemplatessettings',
+                get_string('bookinginstancetemplatessettings', 'mod_booking'),
+                new moodle_url('/mod/booking/instancetemplatessettings.php')));
+
+$ADMIN->add('modbookingfolder',
         new admin_externalpage('modbookingoptionformconfig',
                 get_string('optionformconfig', 'mod_booking'),
                 new moodle_url('/mod/booking/optionformconfig.php')));

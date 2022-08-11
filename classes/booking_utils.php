@@ -482,6 +482,12 @@ class booking_utils {
      */
     public function react_on_changes($cmid, $context, $optionid, $changes) {
         global $DB, $USER;
+
+        // If we have no $cmid, we don't react on changes because it's most likely a template.
+        if (empty($cmid)) {
+            return;
+        }
+
         $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
 
         // If changes concern only the add to calendar_field, we don't want to send a mail.
