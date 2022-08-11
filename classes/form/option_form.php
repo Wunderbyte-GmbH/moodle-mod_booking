@@ -15,6 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking\form;
 
+defined('MOODLE_INTERNAL') || die();
+require_once("$CFG->libdir/formslib.php");
+
 use mod_booking\utils\wb_payment;
 use moodleform;
 use mod_booking\booking;
@@ -23,6 +26,8 @@ use mod_booking\booking_option;
 defined('MOODLE_INTERNAL') || die();
 
 class option_form extends moodleform {
+
+class option_form extends \moodleform {
 
     public function definition() {
         global $CFG, $COURSE, $DB, $PAGE;

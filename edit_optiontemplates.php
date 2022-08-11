@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 use mod_booking\booking;
-use mod_booking\booking_option;
 use mod_booking\form\option_form;
+use moodleform;
 
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
