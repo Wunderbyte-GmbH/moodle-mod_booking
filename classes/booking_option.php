@@ -337,12 +337,12 @@ class booking_option {
         }
 
         if (isset($this->filters['searchname']) && strlen($this->filters['searchname']) > 0) {
-            $options .= " AND u.firstname LIKE :searchname";
+            $options .= " AND LOWER(u.firstname) LIKE LOWER(:searchname)";
             $params['searchname'] = '%' . $this->filters['searchname'] . '%';
         }
 
         if (isset($this->filters['searchsurname']) && strlen($this->filters['searchsurname']) > 0) {
-            $options .= " AND u.lastname LIKE :searchsurname";
+            $options .= " AND LOWER(u.lastname) LIKE LOWER(:searchsurname)";
             $params['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
         }
         if (groups_get_activity_groupmode($this->booking->cm) == SEPARATEGROUPS and

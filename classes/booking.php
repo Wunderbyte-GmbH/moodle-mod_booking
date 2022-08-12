@@ -181,8 +181,9 @@ class booking {
 
         if (!empty($searchtext)) {
             $searchtext = $DB->sql_like_escape($searchtext);
-            $search = " AND ({$DB->sql_like('bo.text', ':text', false)} OR {$DB->sql_like('bo.location', ':location', false)}" .
-            " OR {$DB->sql_like('bo.institution', ':institution', false)})";
+            $search = " AND ({$DB->sql_like('LOWER(bo.text)', 'LOWER(:text)', false)}" .
+            " OR {$DB->sql_like('LOWER(bo.location)', 'LOWER(:location)', false)}" .
+            " OR {$DB->sql_like('LOWER(bo.institution)', 'LOWER(:institution)', false)})";
             $params['text'] = "%{$searchtext}%";
             $params['location'] = "%{$searchtext}%";
             $params['institution'] = "%{$searchtext}%";

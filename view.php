@@ -71,21 +71,21 @@ if ($optionid > 0) {
 $urlparams['searchtext'] = "";
 if (strlen($searchtext) > 0) {
     $urlparams['searchtext'] = $searchtext;
-    $conditions[] = "bo.text LIKE :searchtext";
+    $conditions[] = "LOWER(bo.text) LIKE LOWER(:searchtext)";
     $conditionsparams['searchtext'] = "%{$searchtext}%";
 }
 
 $urlparams['searchlocation'] = "";
 if (strlen($searchlocation) > 0) {
     $urlparams['searchlocation'] = $searchlocation;
-    $conditions[] = "bo.location LIKE :searchlocation";
+    $conditions[] = "LOWER(bo.location) LIKE LOWER(:searchlocation)";
     $conditionsparams['searchlocation'] = "%{$searchlocation}%";
 }
 
 $urlparams['searchinstitution'] = "";
 if (strlen($searchinstitution) > 0) {
     $urlparams['searchinstitution'] = $searchinstitution;
-    $conditions[] = "bo.institution LIKE :searchinstitution";
+    $conditions[] = "LOWER(bo.institution) LIKE LOWER(:searchinstitution)";
     $conditionsparams['searchinstitution'] = "%{$searchinstitution}%";
 }
 
@@ -97,13 +97,13 @@ $searchnyname = array();
 if (strlen($searchname) > 0) {
     $urlparams['searchname'] = $searchname;
     $conditionsparams['searchname'] = "%{$searchname}%";
-    $searchnyname[] = 'u.firstname LIKE :searchname';
+    $searchnyname[] = 'LOWER(u.firstname) LIKE LOWER(:searchname)';
 }
 
 if (strlen($searchsurname) > 0) {
     $urlparams['searchsurname'] = $searchsurname;
     $conditionsparams['searchsurname'] = "%{$searchsurname}%";
-    $searchnyname[] = 'u.lastname LIKE :searchsurname';
+    $searchnyname[] = 'LOWER(u.lastname) LIKE LOWER(:searchsurname)';
 }
 
 if (!empty($searchnyname)) {
