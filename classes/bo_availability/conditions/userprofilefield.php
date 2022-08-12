@@ -288,9 +288,10 @@ class userprofilefield implements bo_condition {
      * @return stdClass|null the object for the JSON
      */
     public function get_condition_object_for_json(stdClass $fromform): stdClass {
-        if (!empty($fromform->restrictwithuserprofilefield)) {
-            $conditionobject = new stdClass;
 
+        $conditionobject = new stdClass;
+
+        if (!empty($fromform->restrictwithuserprofilefield)) {
             // Remove the namespace from classname.
             $classname = __CLASS__;
             $classnameparts = explode('\\', $classname);
@@ -307,10 +308,9 @@ class userprofilefield implements bo_condition {
                 $conditionobject->overrides = $fromform->bo_cond_userprofilefield_overridecondition;
                 $conditionobject->overrideoperator = $fromform->bo_cond_userprofilefield_overrideoperator;
             }
-
-            return $conditionobject;
         }
-        return null;
+        // Might be an empty object.
+        return $conditionobject;
     }
 
     /**

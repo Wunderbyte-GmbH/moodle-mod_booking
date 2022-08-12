@@ -248,9 +248,8 @@ class previouslybooked implements bo_condition {
      * @return stdClass|null the object for the JSON
      */
     public function get_condition_object_for_json(stdClass $fromform): stdClass {
+        $conditionobject = new stdClass;
         if (!empty($fromform->restrictwithpreviouslybooked)) {
-            $conditionobject = new stdClass;
-
             // Remove the namespace from classname.
             $classname = __CLASS__;
             $classnameparts = explode('\\', $classname);
@@ -265,10 +264,9 @@ class previouslybooked implements bo_condition {
                 $conditionobject->overrides = $fromform->bo_cond_previouslybooked_overridecondition;
                 $conditionobject->overrideoperator = $fromform->bo_cond_previouslybooked_overrideoperator;
             }
-
-            return $conditionobject;
         }
-        return null;
+        // Might be an empty object if restriction is not set.
+        return $conditionobject;
     }
 
     /**
