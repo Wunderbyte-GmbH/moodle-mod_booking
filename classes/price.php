@@ -352,8 +352,16 @@ class price {
         // First get all customfields from form.
         $customfields = [];
         foreach ($fromform as $formelementname => $formelementvalue) {
-            if (substr($formelementname, 0, 12) === 'customfield_' && !empty($formelementvalue[0])) {
-                $customfields[substr($formelementname, 12)] = strtolower($formelementvalue[0]);
+            if (substr($formelementname, 0, 12) === 'customfield_' && !empty($formelementvalue)) {
+                if (is_array($formelementvalue)) {
+                    // Could be an array.
+                    foreach ($formelementvalue as $val) {
+                        $customfields[substr($formelementname, 12)][] = strtolower($val);
+                    }
+                } else {
+                    // Or a simple string which we also store in an array.
+                    $customfields[substr($formelementname, 12)][] = strtolower($formelementvalue);
+                }
             }
         }
 
@@ -361,10 +369,11 @@ class price {
         foreach ($customfieldobjects as $object) {
             $key = $object->name;
             $value = strtolower($object->value);
-            foreach ($customfields as $customfieldname => $customfieldvalue) {
-                if ($key === $customfieldname && $value === $customfieldvalue) {
-                    $price = $price * $object->multiplier;
-                    break;
+            foreach ($customfields as $customfieldname => $customfieldvalues) {
+                foreach ($customfieldvalues as $cfval) {
+                    if ($key == $customfieldname && $value === strtolower($cfval)) {
+                        $price = $price * $object->multiplier;
+                    }
                 }
             }
         }
@@ -402,9 +411,11 @@ class price {
 
         // First get all customfields from settings object.
         $customfields = [];
-        foreach ($bookingoptionsettings->customfields as $fieldname => $fieldvalue) {
-            if (!empty($fieldvalue[0])) {
-                $customfields[$fieldname] = strtolower($fieldvalue[0]);
+        foreach ($bookingoptionsettings->customfields as $fieldname => $fieldvalues) {
+            foreach ($fieldvalues as $fval) {
+                if (!empty($fval)) {
+                    $customfields[$fieldname][] = strtolower($fval);
+                }
             }
         }
 
@@ -412,10 +423,11 @@ class price {
         foreach ($customfieldobjects as $object) {
             $key = $object->name;
             $value = strtolower($object->value);
-            foreach ($customfields as $customfieldname => $customfieldvalue) {
-                if ($key === $customfieldname && $value === $customfieldvalue) {
-                    $price = $price * $object->multiplier;
-                    break;
+            foreach ($customfields as $customfieldname => $customfieldvalues) {
+                foreach ($customfieldvalues as $cfval) {
+                    if ($key == $customfieldname && $value === strtolower($cfval)) {
+                        $price = $price * $object->multiplier;
+                    }
                 }
             }
         }
