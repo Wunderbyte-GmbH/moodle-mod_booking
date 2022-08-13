@@ -78,5 +78,7 @@ $capabilities = array(
     'mod/booking:changelockedcustomfields' => array('captype' => 'write', 'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array('manager' => CAP_ALLOW)),
     'mod/booking:cantoggleformmode' => array('captype' => 'write', 'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array('editingteacher' => CAP_ALLOW, 'manager' => CAP_ALLOW)),
+    'mod/booking:bookforothers' => array('captype' => 'write', 'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array('editingteacher' => CAP_ALLOW, 'manager' => CAP_ALLOW))
 );

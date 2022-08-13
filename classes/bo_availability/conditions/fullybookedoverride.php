@@ -26,6 +26,7 @@
 
  namespace mod_booking\bo_availability\conditions;
 
+use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
@@ -45,10 +46,10 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class fullybooked implements bo_condition {
+class fullybookedoverride implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_FULLYBOOKED;
+    public $id = BO_COND_FULLYBOOKEDOVERRIDE;
 
     /**
      * Needed to see if class can take JSON.
@@ -78,8 +79,10 @@ class fullybooked implements bo_condition {
 
         global $DB;
 
-        // This is the return value. Not available to begin with.
-        $isavailable = false;
+        // This is the return value. This will not block, UNLESS the user actually has the right.
+        // The reason for this is, that we want to react on the ID of this condition and allow buying nevertheless.
+        // The Id is only returned, when it blocks.
+        $isavailable = true;
 
         // Get the booking answers for this instance.
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
@@ -88,8 +91,16 @@ class fullybooked implements bo_condition {
 
         // If the user is not yet booked, and option is not fully booked, we return true.
         if (isset($bookinginformation['notbooked'])) {
-            if ($bookinginformation['notbooked']['fullybooked'] === false) {
-                $isavailable = true;
+            if ($bookinginformation['notbooked']['fullybooked'] === true) {
+                // If it's already fully booked, we check if the user has the right to override a booking.
+                $context = context_system::instance();
+                if (has_capability('mod/booking:bookforothers', $context)) {
+
+                    // The sense of this override is to expose this ID as a hook.
+                    // It will still 'block' booking, but another ID will be returned,
+                    // on which we can act.
+                    $isavailable = false;
+                }
             }
         }
 
@@ -125,11 +136,11 @@ class fullybooked implements bo_condition {
         $isavailable = $this->is_available($settings, $userid, $not);
 
         if ($isavailable) {
-            $description = $full ? get_string('bo_cond_fullybooked_full_available', 'mod_booking') :
-                get_string('bo_cond_fullybooked_available', 'mod_booking');
+            $description = $full ? get_string('bo_cond_fullybookedoverride_full_available', 'mod_booking') :
+                get_string('bo_cond_fullybookedoverride_available', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_fullybooked_full_not_available', 'mod_booking') :
-                get_string('bo_cond_fullybooked_not_available', 'mod_booking');
+            $description = $full ? get_string('bo_cond_fullybookedoverride_full_not_available', 'mod_booking') :
+                get_string('bo_cond_fullybookedoverride_not_available', 'mod_booking');
         }
 
         return [$isavailable, $description];

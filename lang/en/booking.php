@@ -1861,6 +1861,11 @@ $string['bo_cond_fullybooked_full_available'] = 'Booking is possible';
 $string['bo_cond_fullybooked_not_available'] = 'Fully booked';
 $string['bo_cond_fullybooked_full_not_available'] = 'Fully booked. Booking not possible anymore.';
 
+$string['bo_cond_fullybookedoverride_available'] = 'Book it';
+$string['bo_cond_fullybookedoverride_full_available'] = 'Booking is possible';
+$string['bo_cond_fullybookedoverride_not_available'] = 'Fully booked';
+$string['bo_cond_fullybookedoverride_full_not_available'] = 'Already fully booked, but you have the right to book a user anyways.';
+
 $string['bo_cond_max_number_of_bookings_available'] = 'Book it';
 $string['bo_cond_max_number_of_bookings_full_available'] = 'Booking is possible';
 $string['bo_cond_max_number_of_bookings_not_available'] = 'Max number of bookings reached';
