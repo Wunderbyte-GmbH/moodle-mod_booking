@@ -106,7 +106,7 @@ class bo_info {
             $availabilityarray = json_decode($settings->availability);
 
             // If the json is not valid, we throw an error.
-            if (!$availabilityarray || empty($availabilityarray)) {
+            if (!is_array($availabilityarray) && (!$availabilityarray || empty($availabilityarray))) {
                 throw new moodle_exception('availabilityjsonerror', 'mod_booking');
             }
 
