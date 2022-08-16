@@ -120,7 +120,7 @@ if ($ADMIN->fulltree) {
     // Currency dropdown.
     $currenciesobjects = price::get_possible_currencies();
 
-    $currencies = [];
+    $currencies = ['EUR' => 'Euro (EUR)'];
 
     foreach ($currenciesobjects as $currenciesobject) {
         $currencyidentifier = $currenciesobject->get_identifier();
