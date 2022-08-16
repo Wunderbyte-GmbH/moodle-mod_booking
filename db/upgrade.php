@@ -2600,12 +2600,6 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2022081600, 'booking');
-    }
-
-    if ($oldversion < 2022081600) {
-
         // Define field showdescriptionmode to be added to booking.
         $table = new xmldb_table('booking');
         $field = new xmldb_field('showdescriptionmode', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'templateid');
@@ -2614,13 +2608,6 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2022081600, 'booking');
-    }
-
-    if ($oldversion < 2022081600) {
-
         // Define field showlistoncoursepage to be added to booking.
         $table = new xmldb_table('booking');
         $field = new xmldb_field('showlistoncoursepage', XMLDB_TYPE_INTEGER, '1', null, null, null, '1', 'showdescriptionmode');
@@ -2629,13 +2616,6 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2022081600, 'booking');
-    }
-
-    if ($oldversion < 2022081600) {
-
         // Define field coursepageshortinfo to be added to booking.
         $table = new xmldb_table('booking');
         $field = new xmldb_field('coursepageshortinfo', XMLDB_TYPE_TEXT, null, null, null, null, null, 'showlistoncoursepage');
@@ -2644,13 +2624,6 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2022081600, 'booking');
-    }
-
-    if ($oldversion < 2022081600) {
-
         // Define field activitycompletiontext to be added to booking.
         $table = new xmldb_table('booking');
         $field = new xmldb_field('activitycompletiontext', XMLDB_TYPE_TEXT, null, null, null, null, null,
@@ -2660,13 +2633,6 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2022081600, 'booking');
-    }
-
-    if ($oldversion < 2022081600) {
-
         // Define field bookingimagescustomfield to be added to table booking.
         $table = new xmldb_table('booking');
 
