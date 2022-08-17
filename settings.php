@@ -126,6 +126,10 @@ if ($hassiteconfig) {
             $currencies[$currencyidentifier] = $currenciesobject->out(current_language()) . ' (' . $currencyidentifier . ')';
         }
 
+        if (empty($currencies)) {
+            $currencies['EUR'] = 'EUR';
+        }
+
         $settings->add(
             new admin_setting_configselect('booking/globalcurrency',
                 get_string('globalcurrency', 'booking'),
