@@ -1845,6 +1845,7 @@ $string['bo_cond_priceisset'] = 'priceisset: Price is set';
 $string['bo_cond_userprofilefield'] = 'userprofilefield: User profile field has a certain value';
 $string['bo_cond_isbookable'] = 'isbookable: Booking is allowed';
 $string['bo_cond_isloggedin'] = 'isloggedin: User is logged in';
+$string['bo_cond_fullybookedoverride'] = 'fullybookedoverride: Can be overbooked by staff';
 
 $string['bo_cond_booking_time_available'] = 'Within normal booking times';
 $string['bo_cond_booking_time_full_available'] = 'Within normal booking times. From {$a} until {$b}';
