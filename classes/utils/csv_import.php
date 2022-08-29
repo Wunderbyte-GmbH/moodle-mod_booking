@@ -270,20 +270,24 @@ class csv_import {
                 if (isset($userdata['teacheremail'])) {
                     $teacher = $DB->get_record('user', array('suspended' => 0, 'deleted' => 0, 'confirmed' => 1,
                         'email' => $userdata['teacheremail']), 'id', IGNORE_MULTIPLE);
-                    $teacherexists = $DB->record_exists('booking_teachers',
-                        array('bookingid' => $this->booking->id, 'userid' => $teacher->id,
-                            'optionid' => $optionid));
-                    if ($teacherexists === false && $teacher !== false && $teacher->id > 0 && $optionid > 0) {
-                        $newteacher = new stdClass();
-                        $newteacher->bookingid = $this->booking->id;
-                        $newteacher->userid = $teacher->id;
-                        $newteacher->optionid = $optionid;
-                        $DB->insert_record('booking_teachers', $newteacher, true);
+                    if (isset($teacher->id)) {
+                        $teacherexists = $DB->record_exists('booking_teachers',
+                            array('bookingid' => $this->booking->id, 'userid' => $teacher->id,
+                                'optionid' => $optionid));
+                        if ($teacherexists === false && $teacher !== false && $teacher->id > 0 && $optionid > 0) {
+                            $newteacher = new stdClass();
+                            $newteacher->bookingid = $this->booking->id;
+                            $newteacher->userid = $teacher->id;
+                            $newteacher->optionid = $optionid;
+                            $DB->insert_record('booking_teachers', $newteacher, true);
 
-                        // When inserting a new teacher, we also need to insert the teacher for each optiondate.
-                        optiondates_handler::subscribe_teacher_to_all_optiondates($optionid, $teacher->id);
+                            // When inserting a new teacher, we also need to insert the teacher for each optiondate.
+                            optiondates_handler::subscribe_teacher_to_all_optiondates($optionid, $teacher->id);
+                        } else {
+                            $this->add_csverror(get_string('noteacherfound', 'booking', $i), $i);
+                        }
                     } else {
-                        $this->add_csverror(get_string('noteacherfound', 'booking', $i), $i);
+                        $this->add_csverror(get_string('teacher user not found', 'booking', $i), $i);
                     }
                 }
 
@@ -470,6 +474,13 @@ class csv_import {
      * @return bool true on validation false on error
      */
     protected function validate_data(array &$csvrecord, $linenumber) {
+
+        // Set to false if error occured in csv-line.
+        if (empty($csvrecord['text'])) {
+            $this->add_csverror('There seems to be an empty line.', $linenumber);
+                    return false;
+        }
+
         // Set to false if error occured in csv-line.
         if (isset($csvrecord['coursestarttime'])) {
             if (!is_null($this->formdata->dateparseformat)) {
