@@ -2625,7 +2625,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022080800, 'booking');
     }
 
-	if ($oldversion < 2022080900) {
+    if ($oldversion < 2022080900) {
 
         // Define field availability to be added to booking_options.
         $table = new xmldb_table('booking_options');
@@ -2638,6 +2638,32 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2022080900, 'booking');
+    }
+
+    if ($oldversion < 2022082900) {
+
+        // Define field semesteridentifier to be dropped from booking_holidays.
+        $table = new xmldb_table('booking_holidays');
+        $semesteridentifier = new xmldb_field('semesteridentifier');
+        $name = new xmldb_field('name');
+        $key = new xmldb_key('fk_semesteridentifier', XMLDB_KEY_FOREIGN, ['semesteridentifier'],
+            'booking_semesters', ['identifier']);
+
+        // Launch drop key fk_semesteridentifier.
+        $dbman->drop_key($table, $key);
+
+        // Conditionally launch drop field semesteridentifier.
+        if ($dbman->field_exists($table, $semesteridentifier)) {
+            $dbman->drop_field($table, $semesteridentifier);
+        }
+
+        // Conditionally launch drop field name.
+        if ($dbman->field_exists($table, $name)) {
+            $dbman->drop_field($table, $name);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022082900, 'booking');
     }
 
     return true;

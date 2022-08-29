@@ -25,8 +25,6 @@ use context;
 use context_system;
 use core_form\dynamic_form;
 use html_writer;
-use mod_booking\semester;
-use moodle_exception;
 use moodle_url;
 use stdClass;
 
@@ -63,28 +61,19 @@ class dynamicholidaysform extends dynamic_form {
     protected function transform_data_to_holidays_array(stdClass $data): array {
         $holidaysarray = [];
 
-        if (!empty($data->semesteridentifier) && is_array($data->semesteridentifier)
-            && !empty($data->holidaystart) && is_array($data->holidaystart)
-            && !empty($data->holidayend) && is_array($data->holidayend)) {
+        if (!empty($data->holidaystart) && is_array($data->holidaystart)) {
 
-            foreach ($data->semesteridentifier as $idx => $semesteridentifier) {
-
+            foreach ($data->holidaystart as $idx => $holidaystart) {
                 $holiday = new stdClass;
                 $holiday->id = $data->holidayid[$idx];
-                $holiday->semesteridentifier = $semesteridentifier;
-                if (!empty($data->holidayname[$idx])) {
-                    $holiday->name = trim($data->holidayname[$idx]);
-                } else {
-                    $holiday->name = '';
-                }
                 $holiday->startdate = $data->holidaystart[$idx];
-                $holiday->enddate = $data->holidayend[$idx];
-
-                if (!empty($holiday->semesteridentifier)) {
-                    $holidaysarray[] = $holiday;
+                if ($data->holidayendactive[$idx] == 1) {
+                    $holiday->enddate = $data->holidayend[$idx];
                 } else {
-                    throw new moodle_exception('ERROR: Semester identifier for holiday must not be empty.');
+                    // If we have no end date, it is the same as start date.
+                    $holiday->enddate = $holiday->startdate;
                 }
+                $holidaysarray[] = $holiday;
             }
         }
         return $holidaysarray;
@@ -99,13 +88,16 @@ class dynamicholidaysform extends dynamic_form {
 
         $data = new stdClass;
 
-        if ($existingholidays = $DB->get_records_sql("SELECT * FROM {booking_holidays} ORDER BY startdate ASC")) {
+        if ($existingholidays = $DB->get_records_sql("SELECT * FROM {booking_holidays} ORDER BY startdate DESC")) {
             $data->holidays = count($existingholidays);
             foreach ($existingholidays as $existingholiday) {
                 $data->holidayid[] = $existingholiday->id;
-                $data->semesteridentifier[] = $existingholiday->semesteridentifier;
-                $data->holidayname[] = trim($existingholiday->name);
                 $data->holidaystart[] = $existingholiday->startdate;
+                if ($existingholiday->startdate == $existingholiday->enddate) {
+                    $data->holidayendactive[] = 0;
+                } else {
+                    $data->holidayendactive[] = 1;
+                }
                 $data->holidayend[] = $existingholiday->enddate;
             }
 
@@ -113,9 +105,8 @@ class dynamicholidaysform extends dynamic_form {
             // No holidays found in DB.
             $data->holidays = 0;
             $data->id = [];
-            $data->semesteridentifier = [];
-            $data->holidayname = [];
             $data->holidaystart = [];
+            $data->holidayendactive = [];
             $data->holidayend = [];
         }
 
@@ -180,38 +171,24 @@ class dynamicholidaysform extends dynamic_form {
         // Options to store help button texts etc.
         $repeateloptions = [];
 
-        $holidaylabel = html_writer::tag('b', get_string('holiday', 'booking') . ' {no}',
-            array('class' => 'holidaylabel'));
-        $repeatedholidays[] = $mform->createElement('static', 'holidaylabel', $holidaylabel);
-
-        $semestersarray = semester::get_semesters_identifier_name_array();
-        $repeatedholidays[] = $mform->createElement('select', 'semesteridentifier',
-            get_string('choosesemester', 'mod_booking'), $semestersarray);
-        $mform->setType('semesteridentifier', PARAM_TEXT);
-        // Info: Help buttons in repeat_elements groups are causing problems with Moodle 4.0.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $repeateloptions['semesteridentifier']['helpbutton'] = ['choosesemester', 'mod_booking']; */
-
         $repeatedholidays[] = $mform->createElement('hidden', 'holidayid', 0);
         $mform->setType('holidayid', PARAM_INT);
 
-        $repeatedholidays[] = $mform->createElement('date_selector', 'holidaystart', get_string('holidaystart', 'booking'));
-        // Info: Help buttons in repeat_elements groups are causing problems with Moodle 4.0.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $repeateloptions['holidaystart']['helpbutton'] = ['holidaystart', 'mod_booking']; */
+        // Holiday start date.
+        $repeatedholidays[] = $mform->createElement('date_selector', 'holidaystart', get_string('holidaystart', 'mod_booking'));
 
-        $repeatedholidays[] = $mform->createElement('date_selector', 'holidayend', get_string('holidayend', 'booking'));
-        // Info: Help buttons in repeat_elements groups are causing problems with Moodle 4.0.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $repeateloptions['holidayend']['helpbutton'] = ['holidayend', 'mod_booking']; */
+        // Checkbox for end date.
+        $repeatedholidays[] = $mform->createElement('advcheckbox', 'holidayendactive',
+            get_string('holidayendactive', 'mod_booking'), null, null, [0, 1]);
+        $repeateloptions['holidayend']['hideif'] = array('holidayendactive', 'eq', 0);
 
-        $repeatedholidays[] = $mform->createElement('text', 'holidayname', get_string('holidayname', 'booking'));
-        $mform->setType('holidayname', PARAM_TEXT);
-        // Info: Help buttons in repeat_elements groups are causing problems with Moodle 4.0.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $repeateloptions['holidayname']['helpbutton'] = ['holidayname', 'mod_booking']; */
+        // Holiday end date.
+        $repeatedholidays[] = $mform->createElement('date_selector', 'holidayend', get_string('holidayend', 'mod_booking'));
 
+        // Delete holiday button.
         $repeatedholidays[] = $mform->createElement('submit', 'deleteholiday', get_string('deleteholiday', 'mod_booking'));
+
+        $repeatedholidays[] = $mform->createElement('html', '<hr/>');
 
         $numberofholidaystoshow = 1;
         if ($existingholidays = $DB->get_records('booking_holidays')) {
@@ -234,14 +211,8 @@ class dynamicholidaysform extends dynamic_form {
     public function validation($data, $files): array {
         $errors = [];
 
-        foreach ($data['semesteridentifier'] as $idx => $semesteridentifier) {
-            if (empty($semesteridentifier)) {
-                $errors["semesteridentifier[$idx]"] = get_string('erroremptysemesteridentifier', 'booking');
-            }
-        }
-
         foreach ($data['holidaystart'] as $idx => $holidaystart) {
-            if ($holidaystart > $data['holidayend'][$idx]) {
+            if ($data['holidayendactive'][$idx] && $holidaystart > $data['holidayend'][$idx]) {
                 $errors["holidaystart[$idx]"] = get_string('errorholidaystart', 'booking');
                 $errors["holidayend[$idx]"] = get_string('errorholidayend', 'booking');
             }

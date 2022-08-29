@@ -95,7 +95,7 @@ class dynamicsemestersform extends dynamic_form {
 
         $data = new stdClass;
 
-        if ($existingsemesters = $DB->get_records_sql("SELECT * FROM {booking_semesters} ORDER BY startdate ASC")) {
+        if ($existingsemesters = $DB->get_records_sql("SELECT * FROM {booking_semesters} ORDER BY startdate DESC")) {
             $data->semesters = count($existingsemesters);
             foreach ($existingsemesters as $existingsemester) {
                 $data->semesteridentifier[] = trim($existingsemester->identifier);

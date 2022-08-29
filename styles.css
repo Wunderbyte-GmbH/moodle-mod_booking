@@ -190,6 +190,10 @@ tr.mod-booking-invisible {
 }
 
 /* Semesters form */
+#page-admin-mod-booking-semesters #semestersform {
+    padding-top: 1rem;
+}
+
 input[name^='deletesemester'] {
     color: #ca3120;
     background-color: #fff;
@@ -223,6 +227,10 @@ input[name^='addsemester']:hover {
 }
 
 /* Holidays form */
+#page-admin-mod-booking-semesters #holidaysform {
+    padding-top: 1rem;
+}
+
 input[name^='deleteholiday'] {
     color: #ca3120;
     background-color: #fff;

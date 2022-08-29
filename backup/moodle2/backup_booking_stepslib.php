@@ -34,6 +34,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         // To know if we are including userinfo.
         $userinfo = $this->get_setting_value('userinfo');
 
+        // Notice: Semesters and holidays are not backed up with booking instances, as they are set for the whole site.
+
         // Define each element separated.
         $booking = new backup_nested_element('booking', array('id'),
                 array('course', 'name', 'intro', 'introformat', 'bookingmanager', 'mailtemplatessource', 'sendmail',

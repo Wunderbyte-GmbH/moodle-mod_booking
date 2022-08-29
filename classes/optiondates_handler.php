@@ -204,7 +204,7 @@ class optiondates_handler {
             $date->endtimestamp = $i + $endseconds;
 
             // Check if the date is on a holiday and only add if it isn't.
-            if (self::is_on_a_holiday($semester->identifier, $date)) {
+            if (self::is_on_a_holiday($date)) {
                 continue;
             }
 
@@ -223,13 +223,12 @@ class optiondates_handler {
     /**
      * Helper function to check if a certain date is during holidays.
      *
-     * @param string $semesteridentifier the semester identifier string, e.g. "ws22"
      * @param stdClass $dateobj a date object having the attributes starttimestamp and endtimestamp (unix timestamps)
      * @return bool true if on a holiday, else false
      */
-    private static function is_on_a_holiday(string $semesteridentifier, stdClass $dateobj): bool {
+    private static function is_on_a_holiday(stdClass $dateobj): bool {
         global $DB;
-        if ($holidays = $DB->get_records('booking_holidays', ['semesteridentifier' => $semesteridentifier])) {
+        if ($holidays = $DB->get_records('booking_holidays')) {
             foreach ($holidays as $holiday) {
                 // Add 23:59:59 (in seconds) to the end time.
                 $holiday->enddate += 86399;
