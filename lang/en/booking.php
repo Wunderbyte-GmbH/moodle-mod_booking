@@ -1822,6 +1822,8 @@ $string['recalculateall'] = 'Calculate all prices';
 $string['alertrecalculate'] = '<b>Caution!</b> All prices will be recalculated and all old prices will be overwritten.';
 $string['nopriceformulaset'] = 'No formula set on setting page. <a href="{$a->url}" target="_blank">Set it here.</a>';
 $string['successfulcalculation'] = 'Price calculation successful!';
+$string['roundpricesafterformula'] = 'Round prices (price formula)';
+$string['roundpricesafterformula_desc'] = 'If active, prices will be rounded to full numbers (no decimals) after the <strong>price formula</strong> has been applied.';
 
 // Col_text_link.mustache.
 $string['cancelallusers'] = 'Cancel booking for all users';

@@ -134,6 +134,11 @@ if ($ADMIN->fulltree) {
             'EUR', $currencies));
 
     $settings->add(
+        new admin_setting_configcheckbox('booking/roundpricesafterformula',
+                get_string('roundpricesafterformula', 'mod_booking'),
+                get_string('roundpricesafterformula_desc', 'mod_booking'), 1));
+
+    $settings->add(
         new admin_setting_configtextarea('booking/defaultpriceformula',
             get_string('defaultpriceformula', 'booking'),
             get_string('defaultpriceformuladesc', 'booking'), '', PARAM_TEXT, 60, 10));

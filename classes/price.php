@@ -160,7 +160,7 @@ class price {
      * @param string $priceformula the JSON string
      * @param string $pricecategoryidentifier identifier of the price category
      *
-     * @return void
+     * @return float the calculated price
      */
     public static function calculate_price_from_form(stdClass $fromform, string $priceformula, string $pricecategoryidentifier) {
 
@@ -222,6 +222,11 @@ class price {
             }
         }
 
+        // If setting to round prices is turned on, then round to integer.
+        if (get_config('booking', 'roundpricesafterformula')) {
+            $price = round($price);
+        }
+
         return $price;
     }
 
@@ -233,7 +238,7 @@ class price {
      * @param string $priceformula the JSON string
      * @param string $pricecategoryidentifier identifier of the price category
      *
-     * @return void
+     * @return float the calculated price
      */
     public static function calculate_price_with_bookingoptionsettings($bookingoptionsettings, string $priceformula,
         string $pricecategoryidentifier) {
@@ -294,6 +299,11 @@ class price {
                     self::apply_entity_factor_with_bookingoptionsettings($bookingoptionsettings, $price);
                     break;
             }
+        }
+
+        // If setting to round prices is turned on, then round to integer.
+        if (get_config('booking', 'roundpricesafterformula')) {
+            $price = round($price);
         }
 
         return $price;
