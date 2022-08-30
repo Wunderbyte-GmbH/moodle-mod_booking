@@ -1746,7 +1746,7 @@ $string['holidayendactive'] = 'End is not on the same day';
 $string['addholiday'] = 'Add holiday(s)';
 $string['errorholidaystart'] = 'Holiday is not allowed to start after the end date.';
 $string['errorholidayend'] = 'Holiday is not allowed to end before the start date.';
-$string['deleteholiday'] = 'Delete this holiday';
+$string['deleteholiday'] = 'Delete holiday';
 
 // Cache.
 $string['cachedef_bookingoptions'] = 'General information of booking options';

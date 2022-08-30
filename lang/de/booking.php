@@ -1492,13 +1492,13 @@ $string['choosesemester'] = "Semester auswählen";
 $string['choosesemester_help'] = "Wählen Sie das Semester aus, für das der oder die Feiertag(e) erstellt werden sollen.";
 $string['holidays'] = "Ferien und Feiertage";
 $string['holiday'] = "Ferien / Feiertag(e)";
-$string['holidaystart'] = 'Feiertag / Ferienbeginn';
+$string['holidaystart'] = 'Feiertag / Beginn';
 $string['holidayend'] = 'Ende';
 $string['holidayendactive'] = 'Ende nicht am selben Tag';
 $string['addholiday'] = 'Ferien(tag) hinzufügen';
 $string['errorholidaystart'] = 'Ferienbeginn darf nicht nach dem Ferienende liegen.';
 $string['errorholidayend'] = 'Ferienende darf nicht vor dem Ferienbeginn liegen.';
-$string['deleteholiday'] = 'Diesen Eintrag löschen';
+$string['deleteholiday'] = 'Eintrag löschen';
 
 // Caches.
 $string['cachedef_bookingoptions'] = 'Buchungsoptionen allgemeine Infos';

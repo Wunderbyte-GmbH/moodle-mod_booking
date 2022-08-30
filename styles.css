@@ -214,13 +214,13 @@ input[name^='deletesemester']:hover {
     border-radius: 0.2rem;
 }
 
-input[name^='addsemester'] {
+input[name^='addsemester']:hover {
     color: #357a32;
     background-color: #fff;
     border-color: #357a32;
 }
 
-input[name^='addsemester']:hover {
+input[name^='addsemester'] {
     color: #fff;
     background-color: #357a32;
     border-color: #357a32;
@@ -236,7 +236,7 @@ input[name^='deleteholiday'] {
     background-color: #fff;
     border-color: #ca3120;
     padding: 0.25rem 0.5rem;
-    font-size: .8203125rem;
+    font-size: .8rem;
     line-height: 1.5;
     border-radius: 0.2rem;
 }
@@ -246,21 +246,25 @@ input[name^='deleteholiday']:hover {
     background-color: #ca3120;
     border-color: #ca3120;
     padding: 0.25rem 0.5rem;
-    font-size: .8203125rem;
+    font-size: .8rem;
     line-height: 1.5;
     border-radius: 0.2rem;
 }
 
-input[name^='addholiday'] {
+input[name^='addholiday']:hover {
     color: #357a32;
     background-color: #fff;
     border-color: #357a32;
 }
 
-input[name^='addholiday']:hover {
+input[name^='addholiday'] {
     color: #fff;
     background-color: #357a32;
     border-color: #357a32;
+}
+
+#page-admin-mod-booking-semesters #holidaysform .form-check label {
+    margin-bottom: 0;
 }
 
 /* Fix a bug where menu was disappearing behind the top of the table

@@ -34,6 +34,14 @@ export const init = (selector, formClass, existingholidays) => {
 
     const form = new DynamicForm(document.querySelector(selector), formClass);
 
+    // We need this in order to fix a bug with repeat elements.
+    // Clicking on labels does not work correctly, so we remove the "for" attribut if one is clicked.
+    document.getElementById("holidaysform").addEventListener("click", function(e) {
+        if (e.target && e.target.matches(".form-check label")) {
+            e.target.removeAttribute("for");
+        }
+    });
+
     form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
         e.preventDefault();
         const response = e.detail;
