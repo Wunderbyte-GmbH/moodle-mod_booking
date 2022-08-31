@@ -80,7 +80,7 @@ if ($delete != '') {
     }
 
     // Now we can delete the session.
-    $DB->delete_records("booking_optiondates", array('optionid' => $optionid, 'id' => $delete));
+    $DB->delete_records('booking_optiondates', array('optionid' => $optionid, 'id' => $delete));
 
     // We also need to delete the associated records in booking_optiondates_teachers.
     optiondates_handler::remove_teachers_from_deleted_optiondate($delete);

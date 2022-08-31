@@ -2071,7 +2071,7 @@ function booking_delete_instance($id) {
         $result = false;
     }
 
-    if (!$DB->delete_records("booking_optiondates", array("bookingid" => "$booking->id"))) {
+    if (!$DB->delete_records('booking_optiondates', array("bookingid" => "$booking->id"))) {
         $result = false;
     } else {
         // If optiondates are deleted we also have to delete the associated entries in booking_optiondates_teachers.

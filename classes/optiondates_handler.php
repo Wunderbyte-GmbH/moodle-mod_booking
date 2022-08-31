@@ -138,7 +138,6 @@ class optiondates_handler {
                 } else {
                     // An existing optiondate has been removed by the dynamic form, so delete it from DB.
                     $DB->delete_records('booking_optiondates', ['id' => (int) $olddate->id]);
-
                     // We also need to delete the associated records in booking_optiondates_teachers.
                     self::remove_teachers_from_deleted_optiondate((int)$olddate->id);
                 }
@@ -439,9 +438,10 @@ class optiondates_handler {
         $bookingid = $booking->id;
 
         $DB->delete_records('booking_optiondates', ['bookingid' => $bookingid]);
+        // If optiondates are deleted we also have to delete the associated entries in booking_optiondates_teachers.
+        self::delete_booking_optiondates_teachers_by_bookingid($bookingid);
 
         // Now we run through all the bookingoptions.
-
         $options = $DB->get_records('booking_options', ["bookingid" => $bookingid]);
 
         foreach ($options as $optionvalues) {
