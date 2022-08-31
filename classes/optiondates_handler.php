@@ -213,7 +213,7 @@ class optiondates_handler {
             $date->dateid = 'newdate-' . $j;
             $j++;
 
-            $date->string = $date->date . " " .$date->starttime. "-" .$date->endtime;
+            $date->string = self::prettify_optiondates_start_end($date->starttimestamp, $date->endtimestamp, current_language());
             $datearray['dates'][] = $date;
         }
         return $datearray;
@@ -336,13 +336,13 @@ class optiondates_handler {
 
         switch($lang) {
             case 'de':
-                $stringstartdate = date('d.m.Y', $starttimestamp);
-                $stringenddate = date('d.m.Y', $endtimestamp);
+                $stringstartdate = date('D, d.m.Y', $starttimestamp);
+                $stringenddate = date('D, d.m.Y', $endtimestamp);
                 break;
             case 'en':
             default:
-                $stringstartdate = date('Y-m-d', $starttimestamp);
-                $stringenddate = date('Y-m-d', $endtimestamp);
+                $stringstartdate = date('D, Y-m-d', $starttimestamp);
+                $stringenddate = date('D, Y-m-d', $endtimestamp);
                 break;
         }
 
@@ -351,10 +351,35 @@ class optiondates_handler {
 
         if ($stringstartdate === $stringenddate) {
             // If they are one the same day, show date only once.
-            $prettifiedstring = $stringstartdate . ', ' . $stringstarttime . '-' . $stringendtime;
+            $prettifiedstring = $stringstartdate . ' ' . $stringstarttime . '-' . $stringendtime;
         } else {
             // Else show both dates.
-            $prettifiedstring = $stringstartdate . ', ' . $stringstarttime . ' - ' . $stringenddate . ', ' . $stringendtime;
+            $prettifiedstring = $stringstartdate . ' ' . $stringstarttime . ' - ' . $stringenddate . ' ' . $stringendtime;
+        }
+
+        // Little hack that is necessary because date does not support appropriate internationalization.
+        if ($lang == 'de') {
+            // Note: If we want to support further languages, this should be moved to a separate function...
+            // ...and be implemented with switch.
+            $weekdaysenglishpatterns = [
+                0 => '/Mon/',
+                1 => '/Tue/',
+                2 => '/Wed/',
+                3 => '/Thu/',
+                4 => '/Fri/',
+                5 => '/Sat/',
+                6 => '/Sun/',
+            ];
+            $weekdaysreplacements = [
+                0 => 'Mo',
+                1 => 'Di',
+                2 => 'Mi',
+                3 => 'Do',
+                4 => 'Fr',
+                5 => 'Sa',
+                6 => 'So',
+            ];
+            $prettifiedstring = preg_replace($weekdaysenglishpatterns, $weekdaysreplacements, $prettifiedstring);
         }
 
         return $prettifiedstring;

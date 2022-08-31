@@ -34,6 +34,7 @@ $string['attachicalsessdesc'] = 'Im iCal-Anhang der E-Mail Benachrichtigungen we
 $string['icalcancel'] = 'Einen iCal Anhang in die Benachrichtigungsmail einfügen, wenn eine Buchung storniert wurde.';
 $string['icalcanceldesc'] = 'Wenn ein User eine Buchung storniert oder von der Buchungsliste entfernt wurde, ein iCal-Event mit dem stornierten Event anhängen. (Das fügt den Termin als abgesagten Termin in den Kalender ein bzw. berichtigt den Termin)';
 $string['booking'] = 'Buchung';
+$string['bookinginstance'] = 'Buchungsinstanz';
 $string['booking:addinstance'] = 'Neue Buchungsinstanz anlegen';
 $string['booking:choose'] = 'Buchen';
 $string['booking:deleteresponses'] = 'Anworten löschen';
@@ -830,8 +831,8 @@ $string['removeuseronunenrol'] = 'Nutzer/in von Buchungsoption autom. entfernen 
 
 // Editoptions.php.
 $string['editbookingoption'] = 'Buchungsoption bearbeiten';
-$string['addnewbookingoption'] = 'Neue Buchungsoption hinzufügen';
-$string['addnewbookingoptionfromtemplate'] = 'Neue Buchungsoption von Vorlage erstellen';
+$string['createnewbookingoption'] = 'Neue Buchungsoption';
+$string['createnewbookingoptionfromtemplate'] = 'Neue Buchungsoption von Vorlage erstellen';
 $string['choosecourse'] = 'Einen Kurs auswählen';
 $string['choosecourse_help'] = 'Wählen Sie "Neuer Kurs", wenn Sie wollen, dass ein neuer Moodle-Kurs für diese Buchungsoption angelegt werden soll.';
 $string['courseendtime'] = 'Kursende';
@@ -1310,7 +1311,7 @@ $string['nobookingpossible'] = 'Keine Buchung möglich.';
 
 $string['pricecategories'] = 'Buchung: Preiskategorien';
 
-$string['bookingpricesettings'] = 'Price settings';
+$string['bookingpricesettings'] = 'Preis-Einstellungen';
 $string['bookingpricesettings_desc'] = 'Individuelle Einstellungen für die Preise von Buchungen.';
 
 $string['bookingpricecategory'] = 'Preiskategorie"';
@@ -1322,6 +1323,10 @@ $string['addpricecategory_info'] = 'Sie können eine weitere Preiskategorie defi
 $string['pricecategoryfieldoff'] = 'Nicht anzeigen';
 $string['pricecategoryfield'] = 'Nutzerprofilfeld für die Preiskategorie';
 $string['pricecategoryfielddesc'] = 'Wählen Sie ein Nutzerprofilfeld aus, in dem für jede/n Benutzer/in der Identifikator der Preiskategorie gesichert wird.';
+
+$string['teachingreportfortrainer'] = 'Leistungs-Report für Trainer*in';
+$string['educationalunitinminutes'] = 'Länge einer Unterrichtseinheit (Minuten)';
+$string['educationalunitinminutes_desc'] = 'Hier können Sie die Länge einer Unterrichtseinheit in Minuten angeben. Diese wird zur Berechnung der geleisteten UEs herangezogen.';
 
 $string['duplicationrestore'] = 'Duplizieren, Backup und Wiederherstellen';
 $string['duplicationrestoredesc'] = 'Hier können Sie einstellen, welche Informationen beim Duplizieren bzw. beim Backup / Wiederherstellen von Buchungsinstanzen inkludiert werden sollen.';
@@ -1655,3 +1660,13 @@ $string['overrideoperator'] = 'Operator';
 $string['overrideoperator:and'] = 'UND';
 $string['overrideoperator:or'] = 'ODER';
 $string['bo_cond_previouslybooked_optionid'] = 'Buchungsoption';
+
+// Teacher_performed_units_report.php.
+$string['error:wrongteacherid'] = 'Fehler: Für die angegebene "teacherid" wurde kein*e Nutzer*in gefunden.';
+$string['duration:minutes'] = 'Dauer (Minuten)';
+$string['duration:units'] = 'Einheiten ({$a} min)';
+$string['teachingreportfortrainer:subtitle'] = '<strong>Hinweis:</strong> Sie können die Dauer einer Unterrichtseinheit
+in den Einstellungen anpassen. (Z.B. 45 statt 60 Minuten).<br/>
+<a href="/admin/settings.php?section=modsettingbooking" target="_blank">
+&gt;&gt; Zu den Einstellungen...
+</a>';

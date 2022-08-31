@@ -95,6 +95,23 @@ if ($ADMIN->fulltree) {
             $licensekeydesc, ''));
 
     $settings->add(
+        new admin_setting_heading('teachingreportfortrainer',
+            get_string('teachingreportfortrainer', 'mod_booking'), ''));
+
+    $allowedlengthsofunit = [
+        '60' => '60 min', // Default value.
+        '55' => '55 min',
+        '50' => '50 min',
+        '45' => '45 min',
+        '40' => '40 min'
+    ];
+    $settings->add(
+        new admin_setting_configselect('booking/educationalunitinminutes',
+            get_string('educationalunitinminutes', 'mod_booking'),
+            get_string('educationalunitinminutes_desc', 'mod_booking'),
+            '60', $allowedlengthsofunit));
+
+    $settings->add(
         new admin_setting_heading('bookingpricesettings_heading',
             get_string('bookingpricesettings', 'mod_booking'),
             get_string('bookingpricesettings_desc', 'mod_booking')));

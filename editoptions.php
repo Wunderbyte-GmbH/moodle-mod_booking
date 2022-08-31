@@ -340,7 +340,7 @@ if ($mform->is_cancelled()) {
 
     // Heading.
     if (empty($optionid)) {
-        $heading = get_string('addnewbookingoption', 'mod_booking');
+        $heading = get_string('createnewbookingoption', 'mod_booking');
     } else {
         $heading = get_string('editbookingoption', 'mod_booking');
     }

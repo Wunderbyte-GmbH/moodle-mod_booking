@@ -45,6 +45,7 @@ $string['attachicalsessdesc'] = 'Email notifications will include all session da
 $string['icalcancel'] = 'Include iCal event when booking is cancelled as cancelled event';
 $string['icalcanceldesc'] = 'When a users cancels a booking or is removed from the booked users list, then attach an iCal attachment as cancelled event.';
 $string['booking'] = 'Booking';
+$string['bookinginstance'] = 'Booking instance';
 $string['booking:addinstance'] = 'Add new booking';
 $string['booking:choose'] = 'Book';
 $string['booking:deleteresponses'] = 'Delete responses';
@@ -961,8 +962,8 @@ $string['removeuseronunenrol'] = 'Remove user from booking upon unenrolment from
 
 // Editoptions.php.
 $string['editbookingoption'] = 'Edit booking option';
-$string['addnewbookingoption'] = 'Add a new booking option';
-$string['addnewbookingoptionfromtemplate'] = 'Add a new booking option from template';
+$string['createnewbookingoption'] = 'New booking option';
+$string['createnewbookingoptionfromtemplate'] = 'Add a new booking option from template';
 $string['choosecourse'] = 'Choose a course';
 $string['choosecourse_help'] = 'Choose "New course" if you want a new Moodle course to be created for this booking option.';
 $string['courseendtime'] = 'End time of the course';
@@ -1489,6 +1490,10 @@ $string['pricecategoryfieldoff'] = 'Do not show';
 $string['pricecategoryfield'] = 'User profile field for price category';
 $string['pricecategoryfielddesc'] = 'Choose the user profile field, which stores the price category identifier for each user.';
 
+$string['teachingreportfortrainer'] = 'Report of performed teaching units for trainer';
+$string['educationalunitinminutes'] = 'Length of an educational unit (minutes)';
+$string['educationalunitinminutes_desc'] = 'Enter the length of an educational unit in minutes. It will be used to calculate the performed teaching units.';
+
 $string['duplicationrestore'] = 'Duplication, backup and restore';
 $string['duplicationrestoredesc'] = 'Here you can set which information you want to include when duplicating or backing up / restoring booking instances.';
 $string['duplicationrestoreteachers'] = 'Include teachers';
@@ -1931,3 +1936,13 @@ $string['overrideoperator'] = 'Operator';
 $string['overrideoperator:and'] = 'AND';
 $string['overrideoperator:or'] = 'OR';
 $string['bo_cond_previouslybooked_optionid'] = 'Booking option';
+
+// Teacher_performed_units_report.php.
+$string['error:wrongteacherid'] = 'Error: No user could be found for the provided "teacherid".';
+$string['duration:minutes'] = 'Duration (minutes)';
+$string['duration:units'] = 'Units ({$a} min)';
+$string['teachingreportfortrainer:subtitle'] = '<strong>Hint:</strong> You can change the duration of
+an educational unit in the plugin settings (e.g. 45 instead of 60 minutes).<br/>
+<a href="/admin/settings.php?section=modsettingbooking" target="_blank">
+&gt;&gt; Go to plugin settings...
+</a>';

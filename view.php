@@ -443,7 +443,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                 $hidden .= '<input value="' . $value . '" type="hidden" name="' . $key . '">';
             }
         }
-        $labelbooking = (empty($booking->settings->lblbooking) ? get_string('booking', 'booking') : $booking->settings->lblbooking);
+        $labelbooking = (empty($booking->settings->lblbooking) ? get_string('booking', 'mod_booking') :
+            $booking->settings->lblbooking);
         $labellocation = (empty($booking->settings->lbllocation) ? get_string('location', 'booking') :
             $booking->settings->lbllocation);
         $labelinstitution = (empty($booking->settings->lblinstitution) ? get_string('institution', 'booking') :
