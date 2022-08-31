@@ -33,7 +33,7 @@ class send_notification_mails extends \core\task\scheduled_task {
      * @throws \coding_exception
      */
     public function get_name() {
-        return get_string('modulename', 'mod_booking');
+        return get_string('task_send_notification_mails', 'mod_booking');
     }
 
     /**

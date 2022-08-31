@@ -31,7 +31,7 @@ const MAIL_NOTIFICATION_TEACHERS = 3;
 class send_reminder_mails extends \core\task\scheduled_task {
 
     public function get_name() {
-        return get_string('modulename', 'mod_booking');
+        return get_string('task_send_reminder_mails', 'mod_booking');
     }
 
     public function execute() {

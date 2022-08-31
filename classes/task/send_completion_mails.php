@@ -35,7 +35,7 @@ class send_completion_mails extends \core\task\adhoc_task {
      * @throws \coding_exception
      */
     public function get_name() {
-        return get_string('modulename', 'mod_booking');
+        return get_string('task_send_completion_mails', 'mod_booking');
     }
 
     /**

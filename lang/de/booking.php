@@ -1564,6 +1564,13 @@ $string['optionformconfigsubtitle'] = '<p>Hier können Sie nicht benötigte Funk
 $string['optionformconfig:nobooking'] = 'Sie müssen zumindest eine Buchungsinstanz anlegen, bevor Sie dieses Formular nutzen können!';
 
 // Tasks.
+$string['task_remove_activity_completion'] = 'Booking: Activitätsabschluss entfernen';
+$string['task_enrol_bookedusers_tocourse'] = 'Booking: Gebuchte User in Kurs einschreiben';
+$string['task_send_completion_mails'] = 'Booking: Abschluss-Mails versenden';
+$string['task_send_confirmation_mails'] = 'Booking: Bestätigungs-Mails versenden';
+$string['task_send_notification_mails'] = 'Booking: Benachrichtigungs-Mails versenden';
+$string['task_send_reminder_mails'] = 'Booking: Erinnerungs-Mails versenden';
+$string['task_clean_booking_db'] = 'Booking: Datenbank aufräumen';
 $string['optionbookabletitle'] = '{$a->title} wieder buchbar';
 $string['optionbookablebody'] = 'Sie können {$a->title} ab sofort wieder buchen. Klicken Sie <a href="{$a->url}">hier</a>, um direkt zur Buchungsmöglichkeit zu gelangen.<br><br>
 (Sie erhalten diese Nachricht, da Sie bei der Buchungsmöglichkeit auf den Benachrichtigungs-Button geklickt haben.)';
