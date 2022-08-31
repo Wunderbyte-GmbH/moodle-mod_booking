@@ -69,7 +69,8 @@ $teacherperformedunitstable->is_downloading($download, $fileandsheetname, $filea
 $tablebaseurl = $baseurl;
 $tablebaseurl->remove_params('page');
 $teacherperformedunitstable->define_baseurl($tablebaseurl);
-$teacherperformedunitstable->sortable(true);
+$teacherperformedunitstable->sortable(false);
+$teacherperformedunitstable->collapsible(false);
 $teacherperformedunitstable->show_download_buttons_at(array(TABLE_P_TOP));
 
 // Get unit length from config (should be something like 45, 50 or 60 minutes).
@@ -124,7 +125,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
             JOIN {booking_options} bo
             on bo.id = bod.optionid";
 
-    $where = "bodt.userid = :teacherid";
+    $where = "bodt.userid = :teacherid ORDER BY bod.coursestarttime ASC";
 
     $params = [
         'unitlength' => (int) $unitlength,
@@ -146,7 +147,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
         get_string('lastname'),
         get_string('email'),
         get_string('bookinginstance', 'mod_booking'),
-        get_string('course', 'mod_booking'),
+        get_string('course'),
         get_string('optiondatestart', 'mod_booking'),
         get_string('optiondateend', 'mod_booking'),
         get_string('duration:minutes', 'mod_booking'),
@@ -189,7 +190,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
             JOIN {booking} b
             ON b.id = bo.bookingid";
 
-    $where = "bodt.userid = :teacherid";
+    $where = "bodt.userid = :teacherid ORDER BY bod.coursestarttime ASC";
 
     $params = [
         'unitlength' => (int) $unitlength,

@@ -71,7 +71,7 @@ class teacher_performed_units_table extends table_sql {
     public function col_coursestarttime($values) {
         // Prepare date string.
         if ($values->coursestarttime != 0) {
-            $coursestarttime = userdate($values->coursestarttime, get_string('strftimedatetime', 'langconfig'));
+            $coursestarttime = date("Y-m-d H:i", $values->coursestarttime);
         } else {
             $coursestarttime = '';
         }
@@ -90,7 +90,7 @@ class teacher_performed_units_table extends table_sql {
     public function col_courseendtime($values) {
         // Prepare date string.
         if ($values->courseendtime != 0) {
-            $courseendtime = userdate($values->courseendtime, get_string('strftimedatetime', 'langconfig'));
+            $courseendtime = date("Y-m-d H:i", $values->courseendtime);
         } else {
             $courseendtime = '';
         }
