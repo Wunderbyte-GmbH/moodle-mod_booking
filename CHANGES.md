@@ -1,3 +1,27 @@
+## Version 7.3.0 (2022090100)
+**New features:**
+* New feature: Booking availability conditions introduced.
+* New feature: New report for teachers (performed units).
+* New feature: Manage instance templates (from plugin settings).
+* New feature: New setting to round prices after price formula application.
+
+**Improvements:**
+* Improvement: Price formula - add support for multiple custom fields.
+* Improvement: get_options_filter_sql function now support userid and bookingparam (booked, waitinglist etc.)
+* Improvement: More intuitive and simpler holidays interface.
+* Improvement: Better displaying of prices.
+* Improvement: Now allowing up to 100 option dates.
+* Improvement: Search in view.php is now case-insensitive.
+* Improvement: Correct feedback when teacher user does not exist (in CSV import).
+* Improvement: New scheduled task to clean DB and better task names.
+* Improvement: Better string for invalid link (for booked meetings, e.g. teams customfield).
+* Improvement: Add possibility to fetch filtersql for special user with booked params.
+
+**Bugfixes:**
+* Bugfix: Fix mybookings view to not show reserved and deleted bookings.
+* Bugfix: Fix issue #193 (stuck on settings page).
+* Bugfix: Correctly delete entries in booking_optiondates_teachers for 'change semester' function.
+
 ## Version 7.2.7 (2022080900)
 **New features:**
 * New feature: Added booking opening time (can be used like booking closing time).

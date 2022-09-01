@@ -23,8 +23,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2022083100;
+$plugin->version = 2022090100;
 $plugin->requires = 2021051700; // Requires this Moodle version. Current: Moodle 3.11.
-$plugin->release = 'v7.2.7';
+$plugin->release = 'v7.3.0';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'mod_booking';
