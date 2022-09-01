@@ -608,7 +608,9 @@ class booking {
                                                 $fields = "*",
                                                 $context = null,
                                                 $filterarray = [],
-                                                $wherearray = []) {
+                                                $wherearray = [],
+                                                $userid = null,
+                                                $bookingparam = STATUSPARAM_BOOKED) {
 
         global $DB;
 
@@ -636,6 +638,19 @@ class booking {
         } else {
             // The "Where"-clause is always added so we have to have something here for the sql to work.
             $where = "1=1 ";
+        }
+
+        if ($userid !== null) {
+            $innerfrom .= " JOIN {booking_answers} ba
+                          ON ba.optionid=bo.id ";
+
+            $outerfrom .= ", ba.waitinglist, ba.userid as bookeduserid ";
+            $where .= " AND waitinglist=:bookingparam
+                        AND bookeduserid=:bookeduserid ";
+            $groupby .= " , ba.waitinglist, ba.userid ";
+
+            $params['bookeduserid'] = $userid;
+            $params['bookingparam'] = $bookingparam;
         }
 
         // Instead of "where" we return "filter". This is to support the filter functionality of wunderbyte table.
