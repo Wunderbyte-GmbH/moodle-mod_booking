@@ -23,12 +23,16 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\form\teacher_performed_units_report_form;
 use mod_booking\table\teacher_performed_units_table;
 
 require_once(__DIR__ . '/../../config.php');
 
 $teacherid = required_param('teacherid', PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
+
+$filterstartdate = 0;
+$filterenddate = 0;
 
 // No guest autologin.
 require_login(0, false);
@@ -78,6 +82,26 @@ if (!$unitlength = get_config('booking', 'educationalunitinminutes')) {
     $unitlength = '60';
 }
 
+// Initialize the Moodle form for filtering the table.
+$mform = new teacher_performed_units_report_form();
+$mform->set_data(['teacherid' => $teacherid]);
+
+// Form processing and displaying is done here.
+if ($fromform = $mform->get_data()) {
+
+    if (!empty($fromform->filterstartdate) && !empty($fromform->filterenddate)) {
+        $filterstartdate = $fromform->filterstartdate;
+        // Add 23:59:59 (in seconds) to the end time.
+        $filterenddate = $fromform->filterenddate + 86399;
+
+        // Little hack, so we don't use the dates with downloading.
+        set_user_preference('unitsreport_filterstartdate', $filterstartdate);
+        set_user_preference('unitsreport_filterenddate', $filterenddate);
+    } else {
+        debugging('error:missingfilters');
+    }
+}
+
 if (!$teacherperformedunitstable->is_downloading()) {
 
     // Table will be shown normally.
@@ -91,6 +115,9 @@ if (!$teacherperformedunitstable->is_downloading()) {
           <span aria-hidden="true">&times;</span>
         </button>
       </div>';
+
+    // Now show the mform for filtering.
+    $mform->display();
 
     // Headers.
     $teacherperformedunitstable->define_headers([
@@ -125,11 +152,17 @@ if (!$teacherperformedunitstable->is_downloading()) {
             JOIN {booking_options} bo
             on bo.id = bod.optionid";
 
-    $where = "bodt.userid = :teacherid ORDER BY bod.coursestarttime ASC";
+    $where = "bodt.userid = :teacherid
+            AND bod.coursestarttime >= :filterstartdate
+            AND bod.courseendtime <= :filterenddate
+            ORDER BY bod.coursestarttime ASC";
 
+    // Set the SQL filtering params now.
     $params = [
         'unitlength' => (int) $unitlength,
-        'teacherid' => $teacherid
+        'teacherid' => $teacherid,
+        'filterstartdate' => $filterstartdate,
+        'filterenddate' => $filterenddate
     ];
 
     // Now build the table.
@@ -190,11 +223,17 @@ if (!$teacherperformedunitstable->is_downloading()) {
             JOIN {booking} b
             ON b.id = bo.bookingid";
 
-    $where = "bodt.userid = :teacherid ORDER BY bod.coursestarttime ASC";
+    $where = "bodt.userid = :teacherid
+            AND bod.coursestarttime >= :filterstartdate
+            AND bod.courseendtime <= :filterenddate
+            ORDER BY bod.coursestarttime ASC";
 
+    // Set the SQL filtering params now.
     $params = [
         'unitlength' => (int) $unitlength,
-        'teacherid' => $teacherid
+        'teacherid' => $teacherid,
+        'filterstartdate' => (int) get_user_preferences('unitsreport_filterstartdate'),
+        'filterenddate' => (int) get_user_preferences('unitsreport_filterenddate')
     ];
 
     // Now build the table.

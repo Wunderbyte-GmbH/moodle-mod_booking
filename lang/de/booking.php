@@ -1671,3 +1671,9 @@ in den Einstellungen anpassen. (Z.B. 45 statt 60 Minuten).<br/>
 <a href="/admin/settings.php?section=modsettingbooking" target="_blank">
 &gt;&gt; Zu den Einstellungen...
 </a>';
+$string['error:missingteacherid'] = 'Fehler: Report kann nicht geladen werden, da die teacherid fehlt.';
+
+// Teacher_performed_units_report_form.php.
+$string['filterstartdate'] = 'Von';
+$string['filterenddate'] = 'Bis';
+$string['filterbtn'] = 'Filtern';

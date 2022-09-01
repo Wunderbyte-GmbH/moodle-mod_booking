@@ -1947,3 +1947,9 @@ an educational unit in the plugin settings (e.g. 45 instead of 60 minutes).<br/>
 <a href="/admin/settings.php?section=modsettingbooking" target="_blank">
 &gt;&gt; Go to plugin settings...
 </a>';
+$string['error:missingteacherid'] = 'Error: Report cannot be loaded because of missing teacherid.';
+
+// Teacher_performed_units_report_form.php.
+$string['filterstartdate'] = 'From';
+$string['filterenddate'] = 'Until';
+$string['filterbtn'] = 'Filter';
