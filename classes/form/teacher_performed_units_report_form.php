@@ -65,6 +65,14 @@ class teacher_performed_units_report_form extends moodleform {
      * Custom validation should be added here.
      */
     public function validation($data, $files) {
-        return array();
+
+        $errors = [];
+
+        if ($data['filterstartdate'] > $data['filterenddate']) {
+            $errors['filterstartdate'] = get_string('erroroptiondatestart', 'mod_booking');
+            $errors['filterenddate'] = get_string('erroroptiondateend', 'mod_booking');
+        }
+
+        return $errors;
     }
 }
