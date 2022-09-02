@@ -412,7 +412,7 @@ class all_userbookings extends \table_sql {
                         }
                         $transferto[] = [
                             'value' => $value->id,
-                            'label' => implode($string, ', ')
+                            'label' => implode(', ', $string)
                         ];
                     }
 
