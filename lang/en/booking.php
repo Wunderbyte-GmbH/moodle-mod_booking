@@ -1904,6 +1904,11 @@ $string['bo_cond_userprofilefield_full_available'] = 'Booking is possible';
 $string['bo_cond_userprofilefield_not_available'] = 'Not allowed to book';
 $string['bo_cond_userprofilefield_full_not_available'] = 'Only user with customfield {$a->profilefield} set to value {$a->value} are allowed to book';
 
+$string['bo_cond_customuserprofilefield_available'] = 'Book it';
+$string['bo_cond_customuserprofilefield_full_available'] = 'Booking is possible';
+$string['bo_cond_customuserprofilefield_not_available'] = 'Not allowed to book';
+$string['bo_cond_customuserprofilefield_full_not_available'] = 'Only user with customfield {$a->profilefield} set to value {$a->value} are allowed to book';
+
 $string['bo_cond_previouslybooked_available'] = 'Book it';
 $string['bo_cond_previouslybooked_full_available'] = 'Booking is possible';
 $string['bo_cond_previouslybooked_not_available'] = 'Not allowed to book';
@@ -1927,6 +1932,12 @@ $string['restrictwithpreviouslybooked'] = 'User has previously booked a certain 
 $string['bo_cond_userprofilefield_field'] = 'Profile field';
 $string['bo_cond_userprofilefield_value'] = 'Value';
 $string['bo_cond_userprofilefield_operator'] = 'Operator';
+
+$string['restrictwithcustomuserprofilefield'] = 'A chosen user profile field should have a certain value';
+$string['bo_cond_customuserprofilefield_field'] = 'Profile field';
+$string['bo_cond_customuserprofilefield_value'] = 'Value';
+$string['bo_cond_customuserprofilefield_operator'] = 'Operator';
+
 $string['equals'] = 'has exactly this value (text or number)';
 $string['contains'] = 'contains (text)';
 $string['lowerthan'] = 'is lower than (number)';

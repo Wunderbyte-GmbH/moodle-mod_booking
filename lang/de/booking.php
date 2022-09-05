@@ -1651,6 +1651,12 @@ $string['restrictwithpreviouslybooked'] = 'User hat früher bereits eine bestimm
 $string['bo_cond_userprofilefield_field'] = 'Profilfeld';
 $string['bo_cond_userprofilefield_value'] = 'Wert';
 $string['bo_cond_userprofilefield_operator'] = 'Operator';
+
+$string['restrictwithcustomuserprofilefield'] = 'Ein ausgewähltes benutzerdefiniertes Userprofilfeld soll einen bestimmten Wert haben';
+$string['bo_cond_customuserprofilefield_field'] = 'Profilfeld';
+$string['bo_cond_customuserprofilefield_value'] = 'Wert';
+$string['bo_cond_customuserprofilefield_operator'] = 'Operator';
+
 $string['equals'] = 'hat genau diesen Wert (Text oder Zahl)';
 $string['contains'] = 'beinhaltet (Text)';
 $string['lowerthan'] = 'ist kleiner als (Zahl)';
