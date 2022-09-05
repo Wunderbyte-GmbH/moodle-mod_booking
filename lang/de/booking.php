@@ -1610,40 +1610,40 @@ $string['bo_cond_userprofilefield'] = 'userprofilefield: User-Profilfeld hat ein
 $string['bo_cond_isbookable'] = 'isbookable: Buchen ist erlaubt';
 $string['bo_cond_isloggedin'] = 'isloggedin: User ist eingeloggt';
 
-$string['bo_cond_booking_time_available'] = 'Wihting normal booking times';
-$string['bo_cond_booking_time_full_available'] = 'Wihting normal booking times. From {$a} until {$b}';
-$string['bo_cond_booking_time_not_available'] = 'Not within normal booking times.';
-$string['bo_cond_booking_time_full_not_available'] = 'Not within normal booking times. From {$a} until {$b}';
+$string['bo_cond_booking_time_available'] = 'Innerhalb der normalen Buchungszeiten';
+$string['bo_cond_booking_time_full_available'] = 'Innerhalb der normalen Buchungszeiten. Von {$a} bis {$b}';
+$string['bo_cond_booking_time_not_available'] = 'Nicht innerhalb der normalen Buchungszeiten.';
+$string['bo_cond_booking_time_full_not_available'] = 'Nicht innerhalb der normalen Buchungszeiten. Von {$a} bis {$b}';
 
-$string['bo_cond_alreadybooked_available'] = 'Not yet booked';
-$string['bo_cond_alreadybooked_full_available'] = 'The user has not yet booked';
-$string['bo_cond_alreadybooked_not_available'] = 'Booked';
-$string['bo_cond_alreadybooked_full_not_available'] = 'The user has already booked this option';
+$string['bo_cond_alreadybooked_available'] = 'Noch nicht gebucht';
+$string['bo_cond_alreadybooked_full_available'] = 'Benutzer*in hat noch nicht gebucht';
+$string['bo_cond_alreadybooked_not_available'] = 'Gebucht';
+$string['bo_cond_alreadybooked_full_not_available'] = 'Benutzer*in hat diese Option bereits gebucht';
 
-$string['bo_cond_fullybooked_available'] = 'Book it';
-$string['bo_cond_fullybooked_full_available'] = 'Booking is possible';
-$string['bo_cond_fullybooked_not_available'] = 'Fully booked';
-$string['bo_cond_fullybooked_full_not_available'] = 'Fully booked. Booking not possible anymore.';
+$string['bo_cond_fullybooked_available'] = 'Buchen';
+$string['bo_cond_fullybooked_full_available'] = 'Buchen möglich';
+$string['bo_cond_fullybooked_not_available'] = 'Ausgebucht';
+$string['bo_cond_fullybooked_full_not_available'] = 'Ausgebucht. Buchen nicht mehr möglich.';
 
-$string['bo_cond_max_number_of_bookings_available'] = 'Book it';
+$string['bo_cond_max_number_of_bookings_available'] = 'Buchen';
 $string['bo_cond_max_number_of_bookings_full_available'] = 'Booking is possible';
-$string['bo_cond_max_number_of_bookings_not_available'] = 'Max number of bookings reached';
-$string['bo_cond_max_number_of_bookings_full_not_available'] = 'User has reached the max number of bookings';
+$string['bo_cond_max_number_of_bookings_not_available'] = 'Max. Buchungsanzahl erreicht';
+$string['bo_cond_max_number_of_bookings_full_not_available'] = 'Benutzer*in hat die max. Buchungsanzahl erreicht';
 
-$string['bo_cond_onnotifylist_available'] = 'Book it';
-$string['bo_cond_onnotifylist_full_available'] = 'Booking is possible';
-$string['bo_cond_onnotifylist_not_available'] = 'Max number of bookings reached';
-$string['bo_cond_onnotifylist_full_not_available'] = 'User has reached the max number of bookings';
+$string['bo_cond_onnotifylist_available'] = 'Buchen';
+$string['bo_cond_onnotifylist_full_available'] = 'Buchen möglich';
+$string['bo_cond_onnotifylist_not_available'] = 'Max. Buchungsanzahl erreicht';
+$string['bo_cond_onnotifylist_full_not_available'] = 'Benutzer*in hat die max. Buchungsanzahl erreicht';
 
-$string['bo_cond_onwaitinglist_available'] = 'Book it';
-$string['bo_cond_onwaitinglist_full_available'] = 'Booking is possible';
-$string['bo_cond_onwaitinglist_not_available'] = 'On waitinglist';
-$string['bo_cond_onwaitinglist_full_not_available'] = 'User is on waitinglist';
+$string['bo_cond_onwaitinglist_available'] = 'Buchen';
+$string['bo_cond_onwaitinglist_full_available'] = 'Buchen möglich';
+$string['bo_cond_onwaitinglist_not_available'] = 'Auf der Warteliste';
+$string['bo_cond_onwaitinglist_full_not_available'] = 'Benutzer*in ist auf der Warteliste';
 
-$string['bo_cond_priceisset_available'] = 'Book it';
-$string['bo_cond_priceisset_full_available'] = 'Booking is possible';
-$string['bo_cond_priceisset_not_available'] = 'You need to pay';
-$string['bo_cond_priceisset_full_not_available'] = 'A price is set, payment required';
+$string['bo_cond_priceisset_available'] = 'Buchen';
+$string['bo_cond_priceisset_full_available'] = 'Buchen möglich';
+$string['bo_cond_priceisset_not_available'] = 'Muss bezahlt werden';
+$string['bo_cond_priceisset_full_not_available'] = 'Preis gesetzt, Bezahlung nötig';
 
 $string['userinfofieldoff'] = 'Kein User-Profilfeld ausgewählt';
 $string['restrictwithuserprofilefield'] = 'Ein ausgewähltes Userprofilfeld soll einen bestimmten Wert haben';
