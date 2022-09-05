@@ -228,14 +228,21 @@ class userprofilefield implements bo_condition {
         global $DB;
 
         // Choose the user profile field which is used to store each user's price category.
-        $userprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
+        $userprofilefields = $DB->get_columns('user', true);
         if (!empty($userprofilefields)) {
             $userprofilefieldsarray = [];
             $userprofilefieldsarray[0] = get_string('userinfofieldoff', 'mod_booking');
 
+            $stringmanager = get_string_manager();
+
             // Create an array of key => value pairs for the dropdown.
-            foreach ($userprofilefields as $userprofilefield) {
-                $userprofilefieldsarray[$userprofilefield->shortname] = $userprofilefield->name;
+            foreach ($userprofilefields as $key => $value) {
+
+                if ($stringmanager->string_exists($key, 'core')) {
+                    $userprofilefieldsarray[$key] = get_string($key);
+                } else {
+                    $userprofilefieldsarray[$key] = $key;
+                }
             }
 
             $mform->addElement('checkbox', 'restrictwithuserprofilefield',
@@ -247,9 +254,15 @@ class userprofilefield implements bo_condition {
 
             $operators = [
                 '=' => get_string('equals', 'mod_booking'),
+                '!=' => get_string('equalsnot', 'mod_booking'),
                 '<' => get_string('lowerthan', 'mod_booking'),
                 '>' => get_string('biggerthan', 'mod_booking'),
-                '~' => get_string('contains', 'mod_booking')
+                '~' => get_string('contains', 'mod_booking'),
+                '!~' => get_string('containsnot', 'mod_booking'),
+                '[]' => get_string('inarray', 'mod_booking'),
+                '[!]' => get_string('notinarray', 'mod_booking'),
+                '()' => get_string('isempty', 'mod_booking'),
+                '(!)' => get_string('isnotempty', 'mod_booking')
             ];
             $mform->addElement('select', 'bo_cond_userprofilefield_operator',
                 get_string('bo_cond_userprofilefield_operator', 'mod_booking'), $operators);
