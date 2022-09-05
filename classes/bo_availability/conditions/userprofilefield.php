@@ -136,6 +136,38 @@ class userprofilefield implements bo_condition {
                                 $isavailable = true;
                             }
                             break;
+                        case '!=':
+                            if ($value != $this->customsettings->value) {
+                                $isavailable = true;
+                            }
+                            break;
+                        case '!~':
+                            if (!strpos($this->customsettings->value, $value)) {
+                                $isavailable = true;
+                            }
+                            break;
+                        case '[]':
+                            $array = explode(",", $this->customsettings->value);
+                            if (in_array($value, $array)) {
+                                $isavailable = true;
+                            }
+                            break;
+                        case '[!]':
+                            $array = explode(",", $this->customsettings->value);
+                            if (!in_array($value, $array)) {
+                                $isavailable = true;
+                            }
+                            break;
+                        case '()':
+                            if (empty($value)) {
+                                $isavailable = true;
+                            }
+                            break;
+                        case '(!)':
+                            if (!empty($value)) {
+                                $isavailable = true;
+                            }
+                            break;
                     }
                 }
             }

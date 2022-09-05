@@ -1931,6 +1931,13 @@ $string['equals'] = 'has exactly this value (text or number)';
 $string['contains'] = 'contains (text)';
 $string['lowerthan'] = 'is lower than (number)';
 $string['biggerthan'] = 'is bigger than (number)';
+$string['equalsnot'] = 'has not exactly this value (text or number)';
+$string['containsnot'] = 'does not contain (text)';
+$string['inarray'] = 'user has one of these comma separated values';
+$string['notinarray'] = 'user has none of these comma separated values';
+$string['isempty'] = 'field is empty';
+$string['isnotempty'] = 'field is not empty';
+
 $string['overrideconditioncheckbox'] = 'Has relation to other condition';
 $string['overridecondition'] = 'Condition';
 $string['overrideoperator'] = 'Operator';
