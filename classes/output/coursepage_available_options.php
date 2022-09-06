@@ -91,6 +91,7 @@ class coursepage_available_options implements renderable, templatable {
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
+                     AND ba.waitinglist < 2
                      AND ba.userid = :userid) AS iambooked,
                          b.allowupdate,
                          b.allowupdatedays,
@@ -101,18 +102,21 @@ class coursepage_available_options implements renderable, templatable {
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
+                     AND ba.waitinglist < 2
                      AND ba.completed = 1
                      AND ba.userid = :userid1) AS completed,
 
                   (SELECT status
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
+                     AND ba.waitinglist < 2
                      AND ba.status > 0
                      AND ba.userid = :userid2) AS status,
 
                   (SELECT DISTINCT(ba.waitinglist)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
+                     AND ba.waitinglist < 2
                      AND ba.userid = :userid3) AS waitinglist,
                          b.btnbooknowname,
                          b.maxperuser,
@@ -122,11 +126,12 @@ class coursepage_available_options implements renderable, templatable {
                     LEFT JOIN
                         {booking_options} bo ON bo.id = ba.optionid
                    WHERE ba.bookingid = b.id
+                     AND ba.waitinglist < 2
                      AND ba.userid = :userid4
-                    AND (bo.courseendtime = 0
-                    OR bo.courseendtime > :timestampnow)) AS bookinggetuserbookingcount,
-                         b.cancancelbook,
-                         bo.disablebookingusers,
+                     AND (bo.courseendtime = 0 OR bo.courseendtime > :timestampnow)) AS bookinggetuserbookingcount,
+
+                  b.cancancelbook,
+                  bo.disablebookingusers,
 
                   (SELECT COUNT(*)
                    FROM {booking_teachers} ba

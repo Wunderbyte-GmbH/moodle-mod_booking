@@ -616,7 +616,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                     LEFT JOIN
                         {booking_options} bo ON bo.id = ba.optionid
                    WHERE ba.bookingid = b.id
-                     AND ba.userid = :userid2
+                    AND ba.userid = :userid2
+                    AND ba.waitinglist < 2
                     AND (bo.courseendtime = 0
                     OR bo.courseendtime > :timestampnow)) AS bookinggetuserbookingcount,
                          b.cancancelbook,
