@@ -168,13 +168,18 @@ class previouslybooked implements bo_condition {
 
         $bookingoptionarray = [];
         if ($bookingoptionrecords = $DB->get_records_sql(
-            "SELECT bo.id optionid, bo.text optionname, b.name instancename
+            "SELECT bo.id optionid, bo.titleprefix, bo.text optionname, b.name instancename
             FROM {booking_options} bo
             LEFT JOIN {booking} b
             ON bo.bookingid = b.id")) {
             foreach ($bookingoptionrecords as $bookingoptionrecord) {
-                $bookingoptionarray[$bookingoptionrecord->optionid] =
-                    "$bookingoptionrecord->optionname ($bookingoptionrecord->instancename)";
+                if (!empty($bookingoptionrecord->titleprefix)) {
+                    $bookingoptionarray[$bookingoptionrecord->optionid] =
+                        "$bookingoptionrecord->titleprefix - $bookingoptionrecord->optionname ($bookingoptionrecord->instancename)";
+                } else {
+                    $bookingoptionarray[$bookingoptionrecord->optionid] =
+                        "$bookingoptionrecord->optionname ($bookingoptionrecord->instancename)";
+                }
             }
         }
 
