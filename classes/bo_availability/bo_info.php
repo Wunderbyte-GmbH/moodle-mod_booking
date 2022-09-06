@@ -339,7 +339,7 @@ class bo_info {
 
         $conditions = [];
 
-        // We just want to filenames, as they are also the classnames.
+        // We just want filenames, as they are also the classnames.
         foreach ($filelist as $filepath) {
             $path = pathinfo($filepath);
             $filename = 'mod_booking\bo_availability\conditions\\' . $path['filename'];

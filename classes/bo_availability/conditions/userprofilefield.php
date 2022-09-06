@@ -323,6 +323,8 @@ class userprofilefield implements bo_condition {
                 get_string('overridecondition', 'mod_booking'), $overrideconditionsarray);
             $mform->hideIf('bo_cond_userprofilefield_overridecondition', 'bo_cond_userprofilefield_overrideconditioncheckbox',
                 'notchecked');
+
+            $mform->addElement('html', '<hr class="w-50"/>');
         }
     }
 

@@ -46,7 +46,7 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class customuserprofilefield implements bo_condition {
+class userprofilefield_custom implements bo_condition {
 
     /** @var int $id Id is set via json during construction */
     public $id = null;
@@ -270,8 +270,10 @@ class customuserprofilefield implements bo_condition {
 
             $mform->addElement('checkbox', 'bo_cond_customuserprofilefield_overrideconditioncheckbox',
                 get_string('overrideconditioncheckbox', 'mod_booking'));
-            $mform->hideIf('bo_cond_customuserprofilefield_overrideconditioncheckbox', 'bo_cond_customuserprofilefield_field', 'eq', 0);
-            $mform->hideIf('bo_cond_customuserprofilefield_overrideconditioncheckbox', 'restrictwithcustomuserprofilefield', 'notchecked');
+            $mform->hideIf('bo_cond_customuserprofilefield_overrideconditioncheckbox', 'bo_cond_customuserprofilefield_field',
+                'eq', 0);
+            $mform->hideIf('bo_cond_customuserprofilefield_overrideconditioncheckbox', 'restrictwithcustomuserprofilefield',
+                'notchecked');
 
             $overrideoperators = [
                 'AND' => get_string('overrideoperator:and', 'mod_booking'),
@@ -279,8 +281,8 @@ class customuserprofilefield implements bo_condition {
             ];
             $mform->addElement('select', 'bo_cond_customuserprofilefield_overrideoperator',
                 get_string('overrideoperator', 'mod_booking'), $overrideoperators);
-            $mform->hideIf('bo_cond_customuserprofilefield_overrideoperator', 'bo_cond_customuserprofilefield_overrideconditioncheckbox',
-                'notchecked');
+            $mform->hideIf('bo_cond_customuserprofilefield_overrideoperator',
+                'bo_cond_customuserprofilefield_overrideconditioncheckbox', 'notchecked');
 
             $overrideconditions = bo_info::get_conditions(CONDPARAM_HARDCODED_ONLY);
             $overrideconditionsarray = [];
@@ -314,8 +316,8 @@ class customuserprofilefield implements bo_condition {
 
             $mform->addElement('select', 'bo_cond_customuserprofilefield_overridecondition',
                 get_string('overridecondition', 'mod_booking'), $overrideconditionsarray);
-            $mform->hideIf('bo_cond_customuserprofilefield_overridecondition', 'bo_cond_customuserprofilefield_overrideconditioncheckbox',
-                'notchecked');
+            $mform->hideIf('bo_cond_customuserprofilefield_overridecondition',
+                'bo_cond_customuserprofilefield_overrideconditioncheckbox', 'notchecked');
         }
     }
 
