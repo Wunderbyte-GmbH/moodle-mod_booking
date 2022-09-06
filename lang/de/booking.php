@@ -329,7 +329,7 @@ $string['generatenewurl'] = 'Neue Kurz-URL generieren';
 $string['notes'] = 'Anmerkungen zur Buchung';
 $string['uploadheaderimages'] = 'Header-Bilder für Buchungsoptionen';
 $string['bookingimagescustomfield'] = 'Benutzerdefiniertes Feld von Buchungsoptionen, mit dem die Header-Bilder gematcht werden';
-$string['bookingimages'] = 'Header-Bilder für Buchungsoptionen hochladen - diese müssen exakt den selben Namen haben, wie der jeweilige Wert, den das unterhalb ausgewählte benutzerdefinierte Feld in der jeweiligen Buchungsoption hat.';
+$string['bookingimages'] = 'Header-Bilder für Buchungsoptionen hochladen - diese müssen exakt den selben Namen haben, wie der jeweilige Wert, den das ausgewählte benutzerdefinierte Feld in der jeweiligen Buchungsoption hat.';
 
 // Mail templates (Instanz-spezifisch oder global).
 $string['mailtemplatesadvanced'] = 'Erweiterte Einstelllungen für E-Mail-Vorlagen aktivieren';
