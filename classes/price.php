@@ -716,16 +716,22 @@ class price {
      * @return array[currencycode => currencyname]
      */
     public static function get_possible_currencies(): array {
-        $codes = \core_payment\helper::get_supported_currencies();
-
+        // Fix bug with Moodle versions older than 3.11.
         $currencies = [];
-        foreach ($codes as $c) {
-            $currencies[$c] = new lang_string($c, 'core_currencies');
-        }
+        if (class_exists('core_payment\helper')) {
+            $codes = \core_payment\helper::get_supported_currencies();
 
-        uasort($currencies, function($a, $b) {
-            return strcmp($a, $b);
-        });
+            foreach ($codes as $c) {
+                $currencies[$c] = new lang_string($c, 'core_currencies');
+            }
+
+            uasort($currencies, function($a, $b) {
+                return strcmp($a, $b);
+            });
+        } else {
+            $currencies['EUR'] = 'Euro';
+            $currencies['USD'] = 'US Dollar';
+        }
 
         return $currencies;
     }
