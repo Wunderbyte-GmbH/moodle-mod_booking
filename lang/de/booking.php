@@ -889,7 +889,7 @@ $string['optionannotation'] = 'Interne Anmerkung';
 $string['optionannotation_help'] = 'Fügen Sie interne Notizen bzw. Anmerkungen hinzu. Diese werden NUR in DIESEM Formular und sonst nirgendwo angezeigt.';
 $string['optionidentifier'] = 'Identifikator';
 $string['optionidentifier_help'] = 'Geben Sie einen eindeutigen Identifikator für diese Buchungsoption an.';
-$string['titleprefix'] = 'Sichtbares Präfix';
+$string['titleprefix'] = 'Präfix';
 $string['titleprefix_help'] = 'Fügen Sie ein Präfix hinzu, das vor dem Titel angezeigt wird, z.B. "BB42".';
 $string['error:identifierexists'] = 'Wählen Sie einen anderen Identifikator. Dieser existiert bereits.';
 
@@ -1336,7 +1336,7 @@ $string['duplicationrestoreentities'] = 'Entities inkludieren';
 
 $string['notificationlist'] = 'Benachrichtigungsliste';
 $string['notificationlistdesc'] = 'Wenn es bei einer Buchungsoption keine Buchungsmöglichkeit mehr gibt, können sich TeilnehmerInnnen registrieren lassen, um eine Benachrichtung zu erhalten.';
-$string['usenotificationlist'] = 'Verwende Benachrtichtigungsliste';
+$string['usenotificationlist'] = 'Verwende Benachrichtigungsliste';
 
 $string['bookingoptiondefaults'] = 'Standard-Einstellungen für Buchungsoptionen';
 $string['bookingoptiondefaultsdesc'] = 'Hier können Sie Standardwerte für die Erstellung von Buchungsoptionen setzen und diese gegebenenfalls sperren.';

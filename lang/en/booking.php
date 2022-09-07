@@ -1022,7 +1022,7 @@ $string['optionannotation'] = 'Internal annotation';
 $string['optionannotation_help'] = 'Add internal remarks, annotations or anything you want. It will only be shown in this form and nowhere else.';
 $string['optionidentifier'] = 'Unique identifier';
 $string['optionidentifier_help'] = 'Add a unique identifier for this booking option.';
-$string['titleprefix'] = 'Visible prefix';
+$string['titleprefix'] = 'Prefix';
 $string['titleprefix_help'] = 'Add a prefix which will be shown before the option title, e.g. "BB42".';
 $string['error:identifierexists'] = 'Choose another identifier. This one already exists.';
 
@@ -1502,7 +1502,7 @@ $string['duplicationrestoreentities'] = 'Include entities';
 
 $string['notificationlist'] = 'Notification list';
 $string['notificationlistdesc'] = 'When no place is available anymore, users can still register to be notified when there is an opening';
-$string['usenotificationlist'] = 'Use notificationlist';
+$string['usenotificationlist'] = 'Use notification list';
 
 $string['bookingoptiondefaults'] = 'Default settings for booking options';
 $string['bookingoptiondefaultsdesc'] = 'Here you can set default settings for the creation of booking options and lock them if needed.';

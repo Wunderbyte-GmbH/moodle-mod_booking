@@ -121,6 +121,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
 
     // Headers.
     $teacherperformedunitstable->define_headers([
+        get_string('titleprefix', 'mod_booking'),
         get_string('course'),
         get_string('time'),
         get_string('duration:minutes', 'mod_booking'),
@@ -129,6 +130,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
 
     // Columns.
     $teacherperformedunitstable->define_columns([
+        'titleprefix',
         'optionname',
         'optiondate',
         'duration_min',
@@ -140,11 +142,12 @@ if (!$teacherperformedunitstable->is_downloading()) {
 
     // SQL query. The subselect will fix the "Did you remember to make the first column something...
     // ...unique in your call to get_records?" bug.
-    $fields = "s.id, s.optionname, s.coursestarttime, s.courseendtime,
+    $fields = "s.id, s.prefix, s.optionname, s.coursestarttime, s.courseendtime,
                s.duration_min, s.duration_units";
 
     $from = "(
             SELECT bodt.id,
+                bo.titleprefix prefix,
                 bo.text optionname,
                 bod.coursestarttime, bod.courseendtime,
                 ROUND((bod.courseendtime - bod.coursestarttime)/60) as duration_min,
@@ -187,6 +190,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
         get_string('lastname'),
         get_string('email'),
         get_string('bookinginstance', 'mod_booking'),
+        get_string('titleprefix', 'mod_booking'),
         get_string('course'),
         get_string('optiondatestart', 'mod_booking'),
         get_string('optiondateend', 'mod_booking'),
@@ -200,6 +204,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
         'lastname',
         'email',
         'instancename',
+        'titleprefix',
         'optionname',
         'coursestarttime',
         'courseendtime',

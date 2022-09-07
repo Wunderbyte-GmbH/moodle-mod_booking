@@ -97,4 +97,21 @@ class teacher_performed_units_table extends table_sql {
 
         return $courseendtime;
     }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * titleprefix value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $titleprefix Returns titleprefix as a readable string.
+     * @throws coding_exception
+     */
+    public function col_titleprefix($values) {
+        // Prepare titleprefix string.
+        if (!empty($values->titleprefix)) {
+            return $values->titleprefix;
+        } else {
+            return '';
+        }
+    }
 }
