@@ -140,22 +140,29 @@ if (!$teacherperformedunitstable->is_downloading()) {
 
     // SQL query. The subselect will fix the "Did you remember to make the first column something...
     // ...unique in your call to get_records?" bug.
-    $fields = "bodt.id,
-        bo.text optionname,
-        bod.coursestarttime, bod.courseendtime,
-        ROUND((bod.courseendtime - bod.coursestarttime)/60) as duration_min,
-        ROUND(((bod.courseendtime - bod.coursestarttime)/60) / :unitlength, 2) as duration_units";
+    $fields = "s.id, s.optionname, s.coursestarttime, s.courseendtime,
+               s.duration_min, s.duration_units";
 
-    $from = "{booking_optiondates_teachers} bodt
-            JOIN {booking_optiondates} bod
-            ON bod.id = bodt.optiondateid
-            JOIN {booking_options} bo
-            on bo.id = bod.optionid";
+    $from = "(
+            SELECT bodt.id,
+                bo.text optionname,
+                bod.coursestarttime, bod.courseendtime,
+                ROUND((bod.courseendtime - bod.coursestarttime)/60) as duration_min,
+                ROUND(((bod.courseendtime - bod.coursestarttime)/60) / :unitlength, 2) as duration_units
+            FROM
+                {booking_optiondates_teachers} bodt
+                JOIN {booking_optiondates} bod
+                ON bod.id = bodt.optiondateid
+                JOIN {booking_options} bo
+                on bo.id = bod.optionid
+            WHERE
+                bodt.userid = :teacherid
+                AND bod.coursestarttime >= :filterstartdate
+                AND bod.courseendtime <= :filterenddate
+                ORDER BY bod.coursestarttime ASC
+            ) s";
 
-    $where = "bodt.userid = :teacherid
-            AND bod.coursestarttime >= :filterstartdate
-            AND bod.courseendtime <= :filterenddate
-            ORDER BY bod.coursestarttime ASC";
+    $where = "1=1";
 
     // Set the SQL filtering params now.
     $params = [
