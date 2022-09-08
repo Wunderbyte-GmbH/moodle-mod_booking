@@ -814,9 +814,16 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                 JOIN {user} tu ON tu.id = tba.userid
                 JOIN {booking_options} tbo ON tbo.id = tba.optionid
                 LEFT JOIN {booking_options} otherbookingoption ON otherbookingoption.id = tba.frombookingid';
-        $where = 'tu.deleted = 0 AND tu.suspended = 0 AND tba.optionid IN (SELECT DISTINCT bo.id FROM {booking} b
-                                    LEFT JOIN {booking_options} bo ON bo.bookingid = b.id WHERE b.id = :bookingid ' .
-                 (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions)) . ')';
+        $where = 'tu.deleted = 0
+              AND tu.suspended = 0
+              AND tba.waitinglist < 2
+              AND tba.optionid IN (
+                SELECT DISTINCT bo.id
+                FROM {booking} b
+                LEFT JOIN {booking_options} bo
+                ON bo.bookingid = b.id
+                WHERE b.id = :bookingid ' .
+            (empty($conditions) ? '' : ' AND ' . implode(' AND ', $conditions)) . ')';
 
         $conditionsparams['userid'] = $USER->id;
         $conditionsparams['userid1'] = $USER->id;
