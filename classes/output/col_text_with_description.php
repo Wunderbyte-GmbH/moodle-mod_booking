@@ -69,11 +69,18 @@ class col_text_with_description implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output) {
-        return array(
-                'optionid' => $this->optionid,
-                'text' => $this->text,
-                'titleprefix' => $this->titleprefix,
-                'description' => $this->description
-        );
+
+        $returnarr = [
+            'optionid' => $this->optionid,
+            'text' => $this->text,
+            'description' => $this->description
+        ];
+
+        // Only add titleprefix if it exists.
+        if (!empty($this->titleprefix)) {
+            $returnarr['titleprefix'] = $this->titleprefix;
+        }
+
+        return $returnarr;
     }
 }
