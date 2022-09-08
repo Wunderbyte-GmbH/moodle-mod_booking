@@ -49,9 +49,6 @@ $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
 if ($settings = singleton_service::get_instance_of_booking_option_settings($optionid)) {
 
-    // Get rid of separator and identifier in this view.
-    booking_option::transform_unique_bookingoption_name_to_display_name($settings);
-
     if ($userid == $USER->id || $userid == 0) {
         $user = $USER;
     } else {

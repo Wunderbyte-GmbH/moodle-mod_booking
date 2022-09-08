@@ -56,7 +56,6 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
 }
 
 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-booking_option::transform_unique_bookingoption_name_to_display_name($settings);
 
 $bookingoptionname = $settings->text;
 

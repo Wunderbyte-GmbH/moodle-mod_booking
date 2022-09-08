@@ -147,9 +147,6 @@ class bookingoption_description implements renderable, templatable {
         $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
         $bookingoption = singleton_service::get_instance_of_booking_option($this->cmid, $optionid);
 
-        // Remove separator and id from the "text" attribute.
-        booking_option::transform_unique_bookingoption_name_to_display_name($settings);
-
         if ($user === null) {
             $user = $USER;
         }

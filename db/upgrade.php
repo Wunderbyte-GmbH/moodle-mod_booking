@@ -15,7 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 function xmldb_booking_upgrade($oldversion) {
-    global $DB;
+    global $CFG, $DB;
+
+    require_once($CFG->dirroot . '/mod/booking/db/upgradelib.php');
 
     $dbman = $DB->get_manager();
 
@@ -2664,6 +2666,15 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2022082900, 'booking');
+    }
+
+    if ($oldversion < 2022090802) {
+        // Get rid of the old "unique option names" workaround.
+        // We use a separate "identifier" field now.
+        migrate_booking_option_identifiers();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022090802, 'booking');
     }
 
     return true;

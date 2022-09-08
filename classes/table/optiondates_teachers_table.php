@@ -58,7 +58,6 @@ class optiondates_teachers_table extends table_sql {
      * @throws dml_exception
      */
     public function col_optionname(object $values): string {
-        booking_option::transform_unique_bookingoption_name_to_display_name($values);
         return $values->text;
     }
 

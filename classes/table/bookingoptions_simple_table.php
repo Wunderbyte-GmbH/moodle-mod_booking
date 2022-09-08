@@ -70,9 +70,6 @@ class bookingoptions_simple_table extends wunderbyte_table {
 
             global $PAGE;
 
-            // Remove identifier key and separator if necessary.
-            booking_option::transform_unique_bookingoption_name_to_display_name($values);
-
             // Use the renderer to output this column.
             $data = new col_text_with_description($values->optionid, $values->text,
                 $values->titleprefix ?? '', $values->description);

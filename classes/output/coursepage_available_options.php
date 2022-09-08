@@ -213,8 +213,6 @@ class coursepage_available_options implements renderable, templatable {
             $url = new \moodle_url($baseurl . '/mod/booking/view.php', $urlparams);
             $linkonoption = $url->out(false);
 
-            booking_option::transform_unique_bookingoption_name_to_display_name($record);
-
             $this->bookingoptions[] = [
                     'bookingoptionname' => $record->text,
                     'titleprefix' => $record->titleprefix,

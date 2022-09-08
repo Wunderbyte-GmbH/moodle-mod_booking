@@ -1373,6 +1373,7 @@ class booking_option {
      * @throws \moodle_exception
      */
     public static function generate_group_data(stdClass $bookingsettings, stdClass $optionsettings): stdClass {
+        global $DB;
 
         // Replace tags with content. This alters the booking settings so cloning them.
         $newbookingsettings = clone $bookingsettings;
@@ -1385,7 +1386,7 @@ class booking_option {
         $newgroupdata = new stdClass();
         $newgroupdata->courseid = $newoptionsettings->courseid;
 
-        $optionname = booking_utils::return_unique_bookingoption_name($newoptionsettings);
+        $optionname = $DB->get_field('booking_options', 'text', array('id' => $newoptionsettings->id));
         // Before setting name, we have to resolve the id Tag.
         $newgroupdata->name = "{$newbookingsettings->name} - $optionname ({$newoptionsettings->id})";
         $newgroupdata->description = "{$newbookingsettings->name} - $optionname ({$newoptionsettings->id})";
@@ -2140,24 +2141,6 @@ class booking_option {
         }
 
         return $status;
-    }
-
-    /**
-     * The booking option data should have a display name without unique key in text.
-     * Therefore, we use the separtor and only display first part as text (name) wihtout key.
-     * @param $data an object containing the ->text attribute
-     * @throws \dml_exception
-     */
-    public static function transform_unique_bookingoption_name_to_display_name(&$data) {
-        if (isset($data->text)) {
-            $separator = get_config('booking', 'uniqueoptionnameseparator');
-            // We only need to do this if the separator is part of the text string.
-            if (strlen($separator) != 0 && strpos($data->text, $separator) !== false) {
-                list($displayname, $key) = explode($separator, $data->text);
-                $data->text = $displayname;
-                $data->idnumber = $key;
-            }
-        }
     }
 
     /**
