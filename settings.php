@@ -68,19 +68,6 @@ if ($ADMIN->fulltree) {
             get_string('licensekey', 'mod_booking'),
             $licensekeydesc, ''));
 
-    // TODO
-    $settings->add(
-        new admin_setting_heading('uniqueoptionnameheading',
-            get_string('uniqueoptionnameheading', 'mod_booking'),
-            get_string('uniqueoptionnameheadingdesc', 'mod_booking')));
-
-    $settings->add(
-        new admin_setting_configtext('booking/uniqueoptionnameseparator',
-            get_string('uniqueoptionnameseparator', 'mod_booking'),
-            get_string('uniqueoptionnameseparatordesc', 'mod_booking'),
-            '#?#', PARAM_RAW_TRIMMED));
-            // PARAM_RAW_TRIMMED makes sure that there are no leading or trailing whitespaces.
-
     $settings->add(
             new admin_setting_heading('mod_booking_icalcfg',
                 get_string('icalcfg', 'mod_booking'),

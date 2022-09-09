@@ -105,9 +105,6 @@ class bookingoption_description implements renderable, templatable {
         $this->bu = new booking_utils();
         $bookingoption = new booking_option($booking->cm->id, $option->id);
 
-		// Remove separator and id from the "text" attribute.
-        booking_utils::transform_unique_bookingoption_name_to_display_name($bookingoption);
-
         // We need the possibility to render for other users, so the iambookedflag is not enough.
         // But we use it if nothing else is specified.
         if ($forbookeduser === null) {
@@ -120,20 +117,20 @@ class bookingoption_description implements renderable, templatable {
         $this->address = $bookingoption->option->address;
         $this->institution = $bookingoption->option->institution;
 
-        // There can be more than one modal, therefor we use the id of this record
+        // There can be more than one modal, therefor we use the id of this record.
         $this->modalcounter = $bookingoption->option->id;
 
-        // $this->duration = $bookingoption->option->duration;
         $this->description = format_text($bookingoption->option->description, FORMAT_HTML);
 
         // For these fields we do need some conversion.
-        // For Description we need to know the booking status
+        // For description we need to know the booking status.
         $this->statusdescription = $bookingoption->get_option_text();
 
         // Every date will be an array of datestring and customfields.
         // But customfields will only be shown if we show booking option information inline.
 
-        $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent, $descriptionparam, $withcustomfields, $forbookeduser);
+        $this->dates = $this->bu->return_array_of_sessions($bookingoption, $bookingevent, $descriptionparam,
+            $withcustomfields, $forbookeduser);
 
         $teachers = $bookingoption->get_teachers();
         $teachernames = [];
@@ -173,6 +170,7 @@ class bookingoption_description implements renderable, templatable {
                         . "</a>";
                 // TODO: We would need an event tracking status changes between notbooked, iambooked and onwaitinglist...
                 // TODO: ...in order to update the event table accordingly.
+                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
                 /*if ($bookingoption->onwaitinglist == 1) {
                     // If onwaitinglist is 1, we show a short info text that the user is on the waiting list.
                     $this->booknowbutton .= '<br><p>' . get_string('infowaitinglist', 'booking') . '</p>';
@@ -213,7 +211,7 @@ class bookingoption_description implements renderable, templatable {
         );
 
         // In events don't have the possibility, as on the website, to use display: none the same way.
-        // So we need two helpervariables:
+        // So we need two helpervariables...
         if (count($this->dates) > 0) {
             $returnarray['showdateslabel'] = 1;
         }

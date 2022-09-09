@@ -1177,15 +1177,6 @@ $string['licensekey'] = 'PRO-Lizenz-Schlüssel';
 $string['licensekeydesc'] = 'Laden Sie hier einen gültigen Schlüssel hoch, um die PRO-Version zu aktivieren.';
 $string['license_activated'] = 'PRO-Version wurde erfolgreich aktiviert.<br>(Läuft ab am: ';
 $string['license_invalid'] = 'Ungültiger Lizenz-Schlüssel.';
-$string['uniqueoptionnameheading'] = 'Eindeutige Namen für Buchungsoptionen';
-$string['uniqueoptionnameheadingdesc'] = 'Wenn Sie den CSV-Import verwenden wollen, müssen Buchungsoptionen eindeutige Namen haben.
-Falls es dennoch mehrere Buchungsoptionen mit dem selben Namen gibt, wird intern ein eindeutiger Schlüssel (idnumber) zum Namen der Option hinzugefügt.
-Sie können hier die Zeichenkette definieren, mit der der Name vom Schlüssel getrennt wird.
-
-Beispiel: Name der Option = "Option A", Separator = "#?#", idnumber = "00313" => Interner Name: "Option A#?#00313"';
-$string['uniqueoptionnameseparator'] = 'Separator für eindeutige Namen von Buchungsoptionen';
-$string['uniqueoptionnameseparatordesc'] = 'Der Separator darf keine Leerzeichen enthalten und darf keine Zeichenkette sein,
-die in einem Buchungsoptionsnamen enthalten ist.';
 $string['icalcfg'] = 'iCal-Attachments konfigurieren';
 $string['icalcfgdesc'] = 'Konfigurieren Sie die iCal.ics-Dateien, die an E-Mails angehängt werden. Mit diesen Dateien können Sie Buchungstermine zum persönlichen Kalender hinzufügen.';
 $string['icalfieldlocation'] = 'Text, der im iCal-Feld angezeigt werden soll';

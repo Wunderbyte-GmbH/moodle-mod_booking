@@ -753,10 +753,6 @@ function booking_update_options($optionvalues, $context) {
                 }
             }
 
-            // If there already is an option with the same name within the same instance...
-            // ... then generate a unique name (with separator from plugin config and automatically generated key.
-            $option->text = booking_utils::booking_option_get_unique_name($option);
-
             $DB->update_record("booking_options", $option);
 
             if (!empty($booking->addtogroup) && $option->courseid > 0) {
@@ -813,11 +809,6 @@ function booking_update_options($optionvalues, $context) {
 
         // Make sure it's no template by checking if bookingid is something else than 0.
         if ($option->bookingid != 0) {
-
-            // If there already is an option with the same name within the same instance...
-            // ... then generate a unique name (with separator from plugin config and automatically generated key.
-            $option->text = booking_utils::booking_option_get_unique_name($option);
-
             // A booking option will always be inserted, even if it has the same name (text) as a template.
             $optionid = $DB->insert_record("booking_options", $option);
         } else {

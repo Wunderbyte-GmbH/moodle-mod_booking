@@ -168,8 +168,6 @@ class booking_option {
         $booked = $DB->get_record_sql("SELECT COUNT(*) rnum FROM {booking_answers} WHERE optionid = :optionid
             AND waitinglist = 0", array('optionid' => $optionid));
         $this->booked = $booked->rnum;
-        // To deal with the necessity of unique booking names.
-        booking_utils::transform_unique_bookingoption_name_to_display_name($this->option);
     }
 
     /**
@@ -1351,6 +1349,7 @@ class booking_option {
      * @throws \moodle_exception
      */
     public static function generate_group_data(stdClass $bookingsettings, stdClass $optionsettings) {
+        global $DB;
         // Replace tags with content. This alters the booking settings so cloning them.
         $booking = clone $bookingsettings;
         $option = clone $optionsettings;
@@ -1360,7 +1359,7 @@ class booking_option {
         $newgroupdata = new stdClass();
         $newgroupdata->courseid = $option->courseid;
         // Before setting name, we have to resolve the id Tag.
-        $optionname = booking_utils::return_unique_bookingoption_name($option);
+        $optionname = $DB->get_field('booking_options', 'text', array('id' => $option->id));
         $newgroupdata->name = "{$booking->name} - $optionname ({$option->id})";
         $newgroupdata->description = "{$booking->name} - $optionname ({$option->id})";
         $newgroupdata->descriptionformat = FORMAT_HTML;

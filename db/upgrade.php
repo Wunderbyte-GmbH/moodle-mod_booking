@@ -17,7 +17,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 function xmldb_booking_upgrade($oldversion) {
-    global $DB;
+    global $CFG, $DB;
+
+    require_once($CFG->dirroot . '/mod/booking/db/upgradelib.php');
 
     $dbman = $DB->get_manager();
 
@@ -1864,7 +1866,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2019071701) {
 
-        // Change title of booking option to char
+        // Change title of booking option to char.
         $table = new xmldb_table('booking_options');
         $field = new xmldb_field('text', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'bookingid');
         if ($dbman->field_exists($table, $field)) {
@@ -1950,7 +1952,8 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('showviews', XMLDB_TYPE_CHAR, '255', null, null, null, 'mybooking,myoptions,showall,showactive,myinstitution', 'defaultoptionsort');
+        $field = new xmldb_field('showviews', XMLDB_TYPE_CHAR, '255', null, null, null,
+            'mybooking,myoptions,showall,showactive,myinstitution', 'defaultoptionsort');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -1973,7 +1976,8 @@ function xmldb_booking_upgrade($oldversion) {
         }
         // Add field for views to show in view.php.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('showviews', XMLDB_TYPE_CHAR, '255', null, null, null, 'mybooking,myoptions,showall,showactive,myinstitution', 'defaultoptionsort');
+        $field = new xmldb_field('showviews', XMLDB_TYPE_CHAR, '255', null, null, null,
+            'mybooking,myoptions,showall,showactive,myinstitution', 'defaultoptionsort');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -1986,7 +1990,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Define field autcractive to be added to booking.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('customtemplateid', XMLDB_TYPE_INTEGER, '10', null, null, null, null,'showviews');
+        $field = new xmldb_field('customtemplateid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'showviews');
 
         // Conditionally launch add field autcractive.
         if (!$dbman->field_exists($table, $field)) {
@@ -2030,7 +2034,7 @@ function xmldb_booking_upgrade($oldversion) {
     if ($oldversion < 2020082601) {
         // Define field to be renamed.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('customteplateid', XMLDB_TYPE_INTEGER, '10', null, null, null, null,'showviews');
+        $field = new xmldb_field('customteplateid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'showviews');
 
         // Conditionally launch renaming the field.
         if ($dbman->field_exists($table, $field)) {
@@ -2303,6 +2307,16 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2021080901, 'booking');
+    }
+
+    if ($oldversion < 2021112908) {
+
+        // Get rid of the old "unique option names" workaround.
+        // We use a separate "identifier" field now.
+        migrate_booking_option_identifiers();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2021112908, 'booking');
     }
 
     return true;
