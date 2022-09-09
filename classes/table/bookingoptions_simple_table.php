@@ -87,15 +87,15 @@ class bookingoptions_simple_table extends wunderbyte_table {
      * @return string $coursestarttime Returns course start time as a readable string.
      * @throws coding_exception
      */
-    public function col_coursestarttime($values) {
-        // Prepare date string.
-        if ($values->coursestarttime != 0) {
-            $coursestarttime = userdate($values->coursestarttime, get_string('strftimedatetime'));
-        } else {
-            $coursestarttime = '';
-        }
+    protected function col_coursestarttime($values) {
 
-        return $coursestarttime;
+        global $PAGE;
+
+        // Use the renderer to output this column.
+        $data = new \mod_booking\output\col_coursestarttime(null, $values, $values->cmid);
+        $output = $PAGE->get_renderer('mod_booking');
+        // We can go with the data from bookingoption_description directly to modal.
+        return $output->render_col_coursestarttime($data);
     }
 
     /**

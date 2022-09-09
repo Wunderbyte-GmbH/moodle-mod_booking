@@ -26,7 +26,9 @@ namespace mod_booking\output;
 
 defined('MOODLE_INTERNAL') || die();
 
-use mod_booking\booking_option;use mod_booking\booking_utils;use renderer_base;
+use mod_booking\booking_option;use mod_booking\booking_utils;
+use moodle_exception;
+use renderer_base;
 use renderable;
 use templatable;
 
@@ -48,12 +50,24 @@ class col_coursestarttime implements renderable, templatable {
      *
      * @param \stdClass $data
      */
-    public function __construct($booking, $bookingoption) {
+    public function __construct($booking=null, $bookingoption, $cmid = null) {
+
+        if (empty($booking) && empty($cmid)) {
+            throw new moodle_exception('Error: either booking instance or cmid have to be provided.');
+        } else if (!empty($booking) && empty($cmid)) {
+            $cmid = $booking->cm->id;
+        }
+
+        if (empty($bookingoption->id) && empty($bookingoption->optionid)) {
+            throw new moodle_exception('Error: missing optionid');
+        } else if (empty($bookingoption->id)) {
+            $bookingoption->id = $bookingoption->optionid;
+        }
 
         $this->bu = new booking_utils();
-        $bookingoption = new booking_option($booking->cm->id, $bookingoption->id);
+        $bookingoption = new booking_option($cmid, $bookingoption->id);
 
-        $this->datestrings = $this->bu->return_array_of_sessions($bookingoption, null, null,null, false);
+        $this->datestrings = $this->bu->return_array_of_sessions($bookingoption, null, null, null, false);
     }
 
     public function export_for_template(renderer_base $output) {

@@ -1532,8 +1532,7 @@ $string['gotobookingoption'] = 'Go to booking option';
 
 // Bookingoptions_simple_table.php.
 $string['bsttext'] = 'Booking option';
-$string['bstcoursestarttime'] = 'Start time';
-$string['bstcourseendtime'] = 'End time';
+$string['bstcoursestarttime'] = 'Date / Time';
 $string['bstlocation'] = 'Location';
 $string['bstinstitution'] = 'Institution';
 $string['bstparticipants'] = 'Participants';

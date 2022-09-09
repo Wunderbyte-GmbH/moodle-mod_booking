@@ -1290,8 +1290,7 @@ $string['gotobookingoption'] = 'Buchungsoption anzeigen';
 
 // Bookingoptions_simple_table.php.
 $string['bsttext'] = 'Buchungsoption';
-$string['bstcoursestarttime'] = 'Startzeit';
-$string['bstcourseendtime'] = 'Endzeit';
+$string['bstcoursestarttime'] = 'Datum / Uhrzeit';
 $string['bstlocation'] = 'Ort';
 $string['bstinstitution'] = 'Institution';
 $string['bstparticipants'] = 'Teilnehmer/innen';
