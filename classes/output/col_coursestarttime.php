@@ -24,10 +24,13 @@
 
 namespace mod_booking\output;
 
-use mod_booking\booking_option;use mod_booking\booking_utils;use renderer_base;
+use mod_booking\booking_option;
+use moodle_exception;
+use renderer_base;
 use renderable;
 use templatable;
-
+use mod_booking\optiondates_handler;
+use mod_booking\singleton_service;
 
 /**
  * This class prepares data for displaying a booking instance
@@ -42,20 +45,26 @@ class col_coursestarttime implements renderable, templatable {
     public $datestrings = null;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param \stdClass $data
+     * @param mod_booking\booking booking instance
+     * @param int $optionid
+     * @param int $cmid course module id of the booking instance
+     * @param bool $collapsed set to true, if dates should be collapsed
      */
-    public function __construct($booking, $bookingoption) {
+    public function __construct($booking=null, $optionid, $cmid = null, $collapsed = true) {
 
-        $this->optionid = $bookingoption->id;
-        $this->bu = new booking_utils();
-        $bookingoption = new booking_option($booking->cm->id, $bookingoption->id);
+        if (empty($booking) && empty($cmid)) {
+            throw new moodle_exception('Error: either booking instance or cmid have to be provided.');
+        } else if (!empty($booking) && empty($cmid)) {
+            $cmid = $booking->cm->id;
+        }
 
-        $this->datestrings = $bookingoption->return_array_of_sessions();
+        $this->optionid = $optionid;
+        $this->datestrings = optiondates_handler::return_array_of_sessions_simple($optionid);
 
         // Show a collapse button for the dates.
-        if (!empty($this->datestrings)) {
+        if (!empty($this->datestrings) && $collapsed == true) {
             $this->showcollapsebtn = true;
         }
     }
@@ -64,10 +73,16 @@ class col_coursestarttime implements renderable, templatable {
         if (!$this->datestrings) {
             return [];
         }
-        return array(
-                'optionid' => $this->optionid,
-                'datestrings' => $this->datestrings,
-                'showcollapsebtn' => $this->showcollapsebtn
-        );
+
+        $returnarr = [
+            'optionid' => $this->optionid,
+            'datestrings' => $this->datestrings
+        ];
+
+        if (!empty($this->showcollapsebtn)) {
+            $returnarr['showcollapsebtn'] = $this->showcollapsebtn;
+        }
+
+        return $returnarr;
     }
 }

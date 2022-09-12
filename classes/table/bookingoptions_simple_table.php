@@ -91,33 +91,13 @@ class bookingoptions_simple_table extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_coursestarttime($values) {
-        // Prepare date string.
-        if ($values->coursestarttime != 0) {
-            $coursestarttime = userdate($values->coursestarttime, get_string('strftimedatetime', 'langconfig'));
-        } else {
-            $coursestarttime = '';
-        }
+        global $PAGE;
 
-        return $coursestarttime;
-    }
-
-    /**
-     * This function is called for each data row to allow processing of the
-     * courseendtime value.
-     *
-     * @param object $values Contains object with all the values of record.
-     * @return string $courseendtime Returns course end time as a readable string.
-     * @throws coding_exception
-     */
-    public function col_courseendtime($values) {
-        // Prepare date string.
-        if ($values->courseendtime != 0) {
-            $courseendtime = userdate($values->courseendtime, get_string('strftimedatetime', 'langconfig'));
-        } else {
-            $courseendtime = '';
-        }
-
-        return $courseendtime;
+        // Use the renderer to output this column.
+        // For bookingoptions_simple_table we DO NOT collapse dates but show all of them within the table.
+        $data = new \mod_booking\output\col_coursestarttime(null, $values->optionid, $values->cmid, false);
+        $output = $PAGE->get_renderer('mod_booking');
+        return $output->render_col_coursestarttime($data);
     }
 
     /**

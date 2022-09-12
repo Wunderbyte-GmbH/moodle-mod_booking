@@ -2187,8 +2187,8 @@ class booking_option {
 
                 // We show this only if timevalues are not 0.
                 if ($session->coursestarttime != 0 && $session->courseendtime != 0) {
-                    $returnsession['datestring'] = self::return_string_from_dates($session->coursestarttime,
-                        $session->courseendtime);
+                    $returnsession['datestring'] = optiondates_handler::prettify_optiondates_start_end($session->coursestarttime,
+                        $session->courseendtime, current_language());
                     // Customfields can only be displayed in combination with timevalues.
                     if ($withcustomfields) {
                         $returnsession['customfields'] = $this->return_array_of_customfields($fields, $session->id,
@@ -2201,9 +2201,10 @@ class booking_option {
             }
         } else {
             $returnitem[] = [
-                    'datestring' => $this->return_string_from_dates(
+                    'datestring' => optiondates_handler::prettify_optiondates_start_end(
                             $this->settings->coursestarttime,
-                            $this->settings->courseendtime)
+                            $this->settings->courseendtime,
+                            current_language())
             ];
         }
 
@@ -2399,34 +2400,6 @@ class booking_option {
             }
             return false;
         }
-    }
-
-    /**
-     * Function to determine the way start and end date are displayed on course page
-     * Also, if there are no dates set, we return an empty string
-     * @param $start
-     * @param $end
-     * @return string
-     */
-    public static function return_string_from_dates($start, $end) {
-
-        // If start or end is 0, we return no dates.
-        if ($start == 0 || $end == 0) {
-            return '';
-        }
-
-        $current = userdate($start, get_string('strftimedate', 'langconfig'));
-        $previous = userdate($end, get_string('strftimedate', 'langconfig'));
-
-        if ($current == $previous) {
-            $starttime = userdate($start, get_string('strftimedaydatetime', 'langconfig'));
-            $endtime = userdate($end, get_string('strftimetime', 'langconfig'));
-        } else {
-            $starttime = userdate($start, get_string('strftimedaydatetime', 'langconfig'));
-            $endtime = '<br>' . userdate($end, get_string('strftimedaydatetime', 'langconfig'));
-        }
-
-        return "$starttime - $endtime";
     }
 
     /**

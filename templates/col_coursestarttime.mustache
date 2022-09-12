@@ -29,9 +29,20 @@
         <i class="fa fa-calendar"></i> {{#str}}showdates, mod_booking{{/str}}
     </a>
     <div class="collapse" id="optiondates{{{optionid}}}">
+        <small>
         {{#datestrings}}
             <div>{{{datestring}}}</div>
         {{/datestrings}}
+        </small>
+    </div>
+{{/showcollapsebtn}}
+{{^showcollapsebtn}}
+    <div id="optiondates{{{optionid}}}">
+        <small>
+        {{#datestrings}}
+            <div>{{{datestring}}}</div>
+        {{/datestrings}}
+        </small>
     </div>
 {{/showcollapsebtn}}
 {{^datestrings}}

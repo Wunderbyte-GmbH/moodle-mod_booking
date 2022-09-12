@@ -326,23 +326,30 @@ class optiondates_handler {
      * @param int $starttimestamp
      * @param int $endtimestamp
      * @param string $lang optional language parameter
-     * @param bool $monthname if true, the full month name (e.g. "January") will be shown
+     * @param bool $showweekdays if true, weekdays will be shown
      * @return string the prettified string from start to end date
      */
     public static function prettify_optiondates_start_end(int $starttimestamp, int $endtimestamp,
-        string $lang = 'en'): string {
+        string $lang = 'en', bool $showweekdays = true): string {
 
         $prettifiedstring = '';
 
+        // Only show weekdays, if they haven't been turned off.
+        if ($showweekdays) {
+            $weekdayformat = 'D, ';
+        } else {
+            $weekdayformat = '';
+        }
+
         switch($lang) {
             case 'de':
-                $stringstartdate = date('D, d.m.Y', $starttimestamp);
-                $stringenddate = date('D, d.m.Y', $endtimestamp);
+                $stringstartdate = date($weekdayformat . 'd.m.Y', $starttimestamp);
+                $stringenddate = date($weekdayformat . 'd.m.Y', $endtimestamp);
                 break;
             case 'en':
             default:
-                $stringstartdate = date('D, Y-m-d', $starttimestamp);
-                $stringenddate = date('D, Y-m-d', $endtimestamp);
+                $stringstartdate = date($weekdayformat . 'Y-m-d', $starttimestamp);
+                $stringenddate = date($weekdayformat . 'Y-m-d', $endtimestamp);
                 break;
         }
 
@@ -351,35 +358,23 @@ class optiondates_handler {
 
         if ($stringstartdate === $stringenddate) {
             // If they are one the same day, show date only once.
-            $prettifiedstring = $stringstartdate . ' ' . $stringstarttime . '-' . $stringendtime;
+            $prettifiedstring = $stringstartdate . ' | ' . $stringstarttime . '-' . $stringendtime;
         } else {
             // Else show both dates.
-            $prettifiedstring = $stringstartdate . ' ' . $stringstarttime . ' - ' . $stringenddate . ' ' . $stringendtime;
+            $prettifiedstring = $stringstartdate . ' | ' . $stringstarttime . ' - ' . $stringenddate . ' | ' . $stringendtime;
         }
 
         // Little hack that is necessary because date does not support appropriate internationalization.
-        if ($lang == 'de') {
-            // Note: If we want to support further languages, this should be moved to a separate function...
-            // ...and be implemented with switch.
-            $weekdaysenglishpatterns = [
-                0 => '/Mon/',
-                1 => '/Tue/',
-                2 => '/Wed/',
-                3 => '/Thu/',
-                4 => '/Fri/',
-                5 => '/Sat/',
-                6 => '/Sun/',
-            ];
-            $weekdaysreplacements = [
-                0 => 'Mo',
-                1 => 'Di',
-                2 => 'Mi',
-                3 => 'Do',
-                4 => 'Fr',
-                5 => 'Sa',
-                6 => 'So',
-            ];
-            $prettifiedstring = preg_replace($weekdaysenglishpatterns, $weekdaysreplacements, $prettifiedstring);
+        if ($showweekdays) {
+            if ($lang == 'de') {
+                // Note: If we want to support further languages, this should be moved to a separate function...
+                // ...and be implemented with switch.
+                $weekdaysenglishpatterns = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                $weekdaysreplacements = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+                for ($i = 0; $i < 7; $i++) {
+                    $prettifiedstring = str_replace($weekdaysenglishpatterns[$i], $weekdaysreplacements[$i], $prettifiedstring);
+                }
+            }
         }
 
         return $prettifiedstring;
@@ -654,5 +649,61 @@ class optiondates_handler {
                 $DB->delete_records('booking_optiondates_teachers', ['optiondateid' => $existingoptiondate->id]);
             }
         }
+    }
+
+    /**
+     * Static helper function for mustache templates to return array with optiondates only.
+     * It will return only one item containing course start and endtime if no optiondates exist.
+     *
+     * @param int $optionid
+     * @return array an array of optiondates objects
+     * @throws \dml_exception
+     */
+    public static function return_array_of_sessions_simple(int $optionid) {
+
+        global $DB;
+
+        if (!$option = $DB->get_record('booking_options', ['id' => $optionid], 'id, coursestarttime, courseendtime')) {
+            return [];
+        }
+
+        // Get all currently existing optiondates of the option.
+        if (!$sessions = $DB->get_records('booking_optiondates', ['optionid' => $optionid], '',
+            'id, coursestarttime, courseendtime')) {
+            $session = new stdClass();
+            $session->id = 1;
+            $session->coursestarttime = $option->coursestarttime;
+            $session->courseendtime = $option->courseendtime;
+            $sessions = [$session];
+        }
+
+        $returnitem = [];
+
+        if (count($sessions) > 0) {
+            foreach ($sessions as $session) {
+
+                $returnsession = [];
+
+                // We show this only if timevalues are not 0.
+                if ($session->coursestarttime != 0 && $session->courseendtime != 0) {
+                    /* Important: Last param needs to be false, as the weekdays conversion can cause
+                    problems ("Allowed memory size exhausted...")if too many options are loaded. */
+                    $returnsession['datestring'] = self::prettify_optiondates_start_end($session->coursestarttime,
+                        $session->courseendtime, current_language());
+                }
+                if ($returnsession) {
+                    $returnitem[] = $returnsession;
+                }
+            }
+        } else {
+            $returnitem[] = [
+                    'datestring' => self::prettify_optiondates_start_end(
+                            $option->coursestarttime,
+                            $option->courseendtime,
+                            current_language())
+            ];
+        }
+
+        return $returnitem;
     }
 }

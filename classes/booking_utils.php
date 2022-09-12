@@ -447,34 +447,6 @@ class booking_utils {
     }
 
     /**
-     * Function to determine the way start and end date are displayed on course page
-     * Also, if there are no dates set, we return an empty string
-     * @param $start
-     * @param $end
-     * @return string
-     */
-    public function return_string_from_dates($start, $end) {
-
-        // If start or end is 0, we return no dates.
-        if ($start == 0 || $end == 0) {
-            return '';
-        }
-
-        $current = userdate($start, get_string('strftimedate', 'langconfig'));
-        $previous = userdate($end, get_string('strftimedate', 'langconfig'));
-
-        if ($current == $previous) {
-            $starttime = userdate($start, get_string('strftimedaydatetime', 'langconfig'));
-            $endtime = userdate($end, get_string('strftimetime', 'langconfig'));
-        } else {
-            $starttime = userdate($start, get_string('strftimedaydatetime', 'langconfig'));
-            $endtime = '<br>' . userdate($end, get_string('strftimedaydatetime', 'langconfig'));
-        }
-
-        return "$starttime - $endtime";
-    }
-
-    /**
      * Function to define reaction on changes of booking options and its sessions.
      * @param $option
      * @param $changes
