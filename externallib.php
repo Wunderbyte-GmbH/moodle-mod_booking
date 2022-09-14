@@ -171,7 +171,7 @@ class mod_booking_external extends external_api {
                         }
                     }
 
-                    foreach ($bookingdata->get_all_options(0, 0, '', 'bo.*') as $record) {
+                    foreach ($bookingdata->get_all_options(0, 0, '', '*') as $record) {
 
                         $institutionid = new stdClass();
                         $institutionid->id = 0;
