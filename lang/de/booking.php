@@ -1497,13 +1497,14 @@ $string['errorholidayend'] = 'Ferienende darf nicht vor dem Ferienbeginn liegen.
 $string['deleteholiday'] = 'Eintrag löschen';
 
 // Caches.
-$string['cachedef_bookingoptions'] = 'Buchungsoptionen allgemeine Infos';
-$string['cachedef_bookingoptionsanswers'] = 'Buchungsstatus von einzelnen Optionen';
-$string['cachedef_bookingoptionstable'] = 'Gesamte SQL Abfragen';
-$string['cachedef_cachedpricecategories'] = 'Preiskategorien in Booking';
-$string['cachedef_cachedprices'] = 'Standardpreise in Booking';
-$string['cachedef_cachedbookinginstances'] = 'Cache für Buchungsinstanzen';
-$string['cachedef_bookingoptionsettings'] = 'Booking option settings-Cache';
+$string['cachedef_bookingoptions'] = 'Buchungsoptionen (Cache)';
+$string['cachedef_bookingoptionsanswers'] = 'Buchungen (Antworten) von Buchungsoptionen (Cache)';
+$string['cachedef_bookingoptionstable'] = 'Tabelle mit gesamten SQL-Abfragen (Cache)';
+$string['cachedef_cachedpricecategories'] = 'Preiskategorien in Booking (Cache)';
+$string['cachedef_cachedprices'] = 'Standardpreise in Booking (Cache)';
+$string['cachedef_cachedbookinginstances'] = 'Buchungsinstanzen (Cache)';
+$string['cachedef_bookingoptionsettings'] = 'Settings für Buchungsoptionen (Cache)';
+$string['cachedef_cachedsemesters'] = 'Semester (Cache)';
 
 // Shortcodes.
 $string['search'] = 'Suche...';

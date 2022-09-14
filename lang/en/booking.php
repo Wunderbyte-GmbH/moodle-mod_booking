@@ -1746,13 +1746,14 @@ $string['errorholidayend'] = 'Holiday is not allowed to end before the start dat
 $string['deleteholiday'] = 'Delete holiday';
 
 // Cache.
-$string['cachedef_bookingoptions'] = 'General information of booking options';
-$string['cachedef_bookingoptionsanswers'] = 'Booking status of single options';
-$string['cachedef_bookingoptionstable'] = 'Tables of booking options with hashed sql queries';
-$string['cachedef_cachedpricecategories'] = 'Price categories Booking';
-$string['cachedef_cachedprices'] = 'Standard prices in Booking';
-$string['cachedef_cachedbookinginstances'] = 'Booking instances cache';
-$string['cachedef_bookingoptionsettings'] = 'Booking option settings cache';
+$string['cachedef_bookingoptions'] = 'Booking options (cache)';
+$string['cachedef_bookingoptionsanswers'] = 'Booking options answers (cache)';
+$string['cachedef_bookingoptionstable'] = 'Tables of booking options with hashed sql queries (cache)';
+$string['cachedef_cachedpricecategories'] = 'Booking price categories (cache)';
+$string['cachedef_cachedprices'] = 'Prices in booking (cache)';
+$string['cachedef_cachedbookinginstances'] = 'Booking instances (cache)';
+$string['cachedef_bookingoptionsettings'] = 'Booking option settings (cache)';
+$string['cachedef_cachedsemesters'] = 'Semesters (cache)';
 
 // Shortcodes.
 $string['search'] = 'Search...';
