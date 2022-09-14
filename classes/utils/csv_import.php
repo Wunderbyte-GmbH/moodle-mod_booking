@@ -203,9 +203,15 @@ class csv_import {
                 $this->add_csverror('No value set for booking option name (required)', $i);
             }
             $this->set_defaults($bookingoption);
-            // Validate data.
-            $optionid = $DB->get_field('booking_options', 'id',
-                ['bookingid' => $this->booking->id, 'text' => $csvrecord['text']]);
+
+            // Fetch a potentially existing booking option which will be updated.
+            if (isset($csvrecord['identifier'])) {
+                $optionid = $DB->get_field('booking_options', 'id',
+                ['bookingid' => $this->booking->id, 'identifier' => $csvrecord['identifier']]);
+            } else {
+                $optionid = false;
+            }
+
             if ($optionid) {
                 $bookingoption->id = $optionid;
                 // Unset all option fields in order to skip validation as existing data is used.
@@ -215,6 +221,8 @@ class csv_import {
                     }
                 }
             }
+
+            // Validate data.
             if ($this->validate_data($csvrecord, $i)) {
                 // Save validated data to db.
                 $userdata = [];
