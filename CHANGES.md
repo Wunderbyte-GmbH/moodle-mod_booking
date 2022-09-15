@@ -1,3 +1,27 @@
+## Version 7.4.0 (2022091500)
+**New features:**
+* New feature: New availability condition for custom profile fields.
+* New feature: New performance report for teachers (performed hours/units).
+* New feature: CSV Import now works with "identifier" and "titleprefix".
+* New feature: 
+
+**Improvements:**
+* Improvement: New operators for user profile field availability condition.
+* Improvement: Added German translations for availability condition strings.
+* Improvement: Added titleprefix ("course number") for previously booked availability condition.
+* Improvement: Migrate old option names containing separator and identifier and use new "identifier" field.
+* Improvement: Better optiondates handling for quickfinder block (bookingoptions_simple_table).
+
+**Bugfixes:**
+* Bugfix: Do not show or count reserved and deleted bookings (view.php / coursepage_available_options).
+* Bugfix: Fixed Moodle 3.9 compatibility issues.
+* Bugfix: Missing titleprefix caused quickfinder block not to work.
+* Bugfix: Fixed yet another waitinglist bug on view.php.
+* Bugfix: Unique option names are not necessary anymore (we use identifier now).
+* Bugfix: Better cachedef strings - closes #210
+* Bugfix: Fixed an SQL bug.
+* Bugfix: Fixed "isbookable" availability condition.
+
 ## Version 7.3.0 (2022090100)
 **New features:**
 * New feature: Booking availability conditions introduced.
