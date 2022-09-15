@@ -78,7 +78,7 @@ class isbookable implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        if ($settings->disablebookingusers !== 1) {
+        if ($settings->disablebookingusers != 1) {
             $isavailable = true;
         }
 
