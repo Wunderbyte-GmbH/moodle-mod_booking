@@ -1894,22 +1894,26 @@ $string['bo_cond_priceisset_full_not_available'] = 'A price is set, payment requ
 $string['bo_cond_userprofilefield_available'] = 'Book it';
 $string['bo_cond_userprofilefield_full_available'] = 'Booking is possible';
 $string['bo_cond_userprofilefield_not_available'] = 'Not allowed to book';
-$string['bo_cond_userprofilefield_full_not_available'] = 'Only user with customfield {$a->profilefield} set to value {$a->value} are allowed to book';
+$string['bo_cond_userprofilefield_full_not_available'] = 'Only user with customfield {$a->profilefield} set to value {$a->value} are allowed to book.
+    <br>But you have the right to book a user anyways.';
 
 $string['bo_cond_customuserprofilefield_available'] = 'Book it';
 $string['bo_cond_customuserprofilefield_full_available'] = 'Booking is possible';
 $string['bo_cond_customuserprofilefield_not_available'] = 'Not allowed to book';
-$string['bo_cond_customuserprofilefield_full_not_available'] = 'Only user with customfield {$a->profilefield} set to value {$a->value} are allowed to book';
+$string['bo_cond_customuserprofilefield_full_not_available'] = 'Only user with customfield {$a->profilefield} set to value {$a->value} are allowed to book.
+    <br>But you have the right to book a user anyways.';
 
 $string['bo_cond_previouslybooked_available'] = 'Book it';
 $string['bo_cond_previouslybooked_full_available'] = 'Booking is possible';
 $string['bo_cond_previouslybooked_not_available'] = 'Not allowed to book';
-$string['bo_cond_previouslybooked_full_not_available'] = 'Only user who have previously booked this <a href="{$a}">option</a> are allowed to book';
+$string['bo_cond_previouslybooked_full_not_available'] = 'Only user who have previously booked this <a href="{$a}">option</a> are allowed to book.
+    <br>But you have the right to book a user anyways.';
 
 $string['bo_cond_isbookable_available'] = 'Book it';
 $string['bo_cond_isbookable_full_available'] = 'Booking is possible';
 $string['bo_cond_isbookable_not_available'] = 'Not allowed to book';
-$string['bo_cond_isbookable_full_not_available'] = 'Booking is forbidden for this booking option.';
+$string['bo_cond_isbookable_full_not_available'] = 'Booking is forbidden for this booking option.
+    <br>But you have the right to book a user anyways.';
 
 
 $string['bo_cond_isloggedin_available'] = 'Book it';
