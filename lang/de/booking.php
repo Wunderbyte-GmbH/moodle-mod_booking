@@ -76,6 +76,8 @@ $string['full'] = 'Ausgebucht';
 $string['goenrol'] = 'Gehe zu "Buchung vornehmen"';
 $string['gotop'] = 'Nach oben';
 $string['infonobookingoption'] = 'Um eine Buchungsoption zu erstellen, nutzen Sie den Block Einstellungen oder das Einstellungs-Icon';
+$string['infotext:additionalpluginsnecessary'] = '<small>Um dieses Feature zu nutzen, müssen Sie möglicherweise weitere Plugins installieren und konfigurieren.
+ <a href="https://wunderbyte.at/kontakt" target="_blank">Kontaktieren Sie Wunderbyte</a>, wenn Sie hierbei Hilfe benötigen.</small>';
 $string['limit'] = 'Maximale Anzahl';
 $string['modulename'] = 'Buchung';
 $string['modulenameplural'] = 'Buchungen';
@@ -88,6 +90,7 @@ $string['notopenyet'] = 'Diese Aktivität ist bis {$a} nicht verfügbar';
 $string['pluginadministration'] = 'Booking administration';
 $string['pluginname'] = 'Booking';
 $string['potentialsubscribers'] = 'Mögliche Nutzer/innen';
+$string['proversiononly'] = 'Nur in der PRO-Version verfügbar.';
 $string['removeresponses'] = 'Alle Antworten löschen';
 $string['responses'] = 'Antworten';
 $string['responsesto'] = 'Antworten zu {$a} ';

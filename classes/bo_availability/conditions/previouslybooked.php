@@ -30,6 +30,7 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
+use mod_booking\utils\wb_payment;
 use moodle_url;
 use MoodleQuickForm;
 use stdClass;
@@ -166,83 +167,96 @@ class previouslybooked implements bo_condition {
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
 
-        $bookingoptionarray = [];
-        if ($bookingoptionrecords = $DB->get_records_sql(
-            "SELECT bo.id optionid, bo.titleprefix, bo.text optionname, b.name instancename
-            FROM {booking_options} bo
-            LEFT JOIN {booking} b
-            ON bo.bookingid = b.id")) {
-            foreach ($bookingoptionrecords as $bookingoptionrecord) {
-                if (!empty($bookingoptionrecord->titleprefix)) {
-                    $bookingoptionarray[$bookingoptionrecord->optionid] =
-                        "$bookingoptionrecord->titleprefix - $bookingoptionrecord->optionname ($bookingoptionrecord->instancename)";
-                } else {
-                    $bookingoptionarray[$bookingoptionrecord->optionid] =
-                        "$bookingoptionrecord->optionname ($bookingoptionrecord->instancename)";
+        // Check if PRO version is activated.
+        if (wb_payment::is_currently_valid_licensekey()) {
+
+            $bookingoptionarray = [];
+            if ($bookingoptionrecords = $DB->get_records_sql(
+                "SELECT bo.id optionid, bo.titleprefix, bo.text optionname, b.name instancename
+                FROM {booking_options} bo
+                LEFT JOIN {booking} b
+                ON bo.bookingid = b.id")) {
+                foreach ($bookingoptionrecords as $bookingoptionrecord) {
+                    if (!empty($bookingoptionrecord->titleprefix)) {
+                        $bookingoptionarray[$bookingoptionrecord->optionid] =
+                            "$bookingoptionrecord->titleprefix - $bookingoptionrecord->optionname " .
+                                "($bookingoptionrecord->instancename)";
+                    } else {
+                        $bookingoptionarray[$bookingoptionrecord->optionid] =
+                            "$bookingoptionrecord->optionname ($bookingoptionrecord->instancename)";
+                    }
                 }
             }
-        }
 
-        $mform->addElement('checkbox', 'restrictwithpreviouslybooked',
-                get_string('restrictwithpreviouslybooked', 'mod_booking'));
+            $mform->addElement('checkbox', 'restrictwithpreviouslybooked',
+                    get_string('restrictwithpreviouslybooked', 'mod_booking'));
 
-        $previouslybookedoptions = [
-            'tags' => false,
-            'multiple' => false
-        ];
-        $mform->addElement('autocomplete', 'bo_cond_previouslybooked_optionid',
-            get_string('bo_cond_previouslybooked_optionid', 'mod_booking'), $bookingoptionarray, $previouslybookedoptions);
-        $mform->setType('bo_cond_previouslybooked_optionid', PARAM_INT);
-        $mform->hideIf('bo_cond_previouslybooked_optionid', 'restrictwithpreviouslybooked', 'notchecked');
+            $previouslybookedoptions = [
+                'tags' => false,
+                'multiple' => false
+            ];
+            $mform->addElement('autocomplete', 'bo_cond_previouslybooked_optionid',
+                get_string('bo_cond_previouslybooked_optionid', 'mod_booking'), $bookingoptionarray, $previouslybookedoptions);
+            $mform->setType('bo_cond_previouslybooked_optionid', PARAM_INT);
+            $mform->hideIf('bo_cond_previouslybooked_optionid', 'restrictwithpreviouslybooked', 'notchecked');
 
-        $mform->addElement('checkbox', 'bo_cond_previouslybooked_overrideconditioncheckbox',
-            get_string('overrideconditioncheckbox', 'mod_booking'));
-        $mform->hideIf('bo_cond_previouslybooked_overrideconditioncheckbox', 'restrictwithpreviouslybooked', 'notchecked');
+            $mform->addElement('checkbox', 'bo_cond_previouslybooked_overrideconditioncheckbox',
+                get_string('overrideconditioncheckbox', 'mod_booking'));
+            $mform->hideIf('bo_cond_previouslybooked_overrideconditioncheckbox', 'restrictwithpreviouslybooked', 'notchecked');
 
-        $overrideoperators = [
-            'AND' => get_string('overrideoperator:and', 'mod_booking'),
-            'OR' => get_string('overrideoperator:or', 'mod_booking')
-        ];
-        $mform->addElement('select', 'bo_cond_previouslybooked_overrideoperator',
-            get_string('overrideoperator', 'mod_booking'), $overrideoperators);
-        $mform->hideIf('bo_cond_previouslybooked_overrideoperator',
-            'bo_cond_previouslybooked_overrideconditioncheckbox', 'notchecked');
+            $overrideoperators = [
+                'AND' => get_string('overrideoperator:and', 'mod_booking'),
+                'OR' => get_string('overrideoperator:or', 'mod_booking')
+            ];
+            $mform->addElement('select', 'bo_cond_previouslybooked_overrideoperator',
+                get_string('overrideoperator', 'mod_booking'), $overrideoperators);
+            $mform->hideIf('bo_cond_previouslybooked_overrideoperator',
+                'bo_cond_previouslybooked_overrideconditioncheckbox', 'notchecked');
 
-        $overrideconditions = bo_info::get_conditions(CONDPARAM_HARDCODED_ONLY);
-        $overrideconditionsarray = [];
-        foreach ($overrideconditions as $overridecondition) {
-            // Remove the namespace from classname.
-            $fullclassname = get_class($overridecondition); // With namespace.
-            $classnameparts = explode('\\', $fullclassname);
-            $shortclassname = end($classnameparts); // Without namespace.
-            $overrideconditionsarray[$overridecondition->id] =
-                get_string('bo_cond_' . $shortclassname, 'mod_booking');
-        }
+            $overrideconditions = bo_info::get_conditions(CONDPARAM_HARDCODED_ONLY);
+            $overrideconditionsarray = [];
+            foreach ($overrideconditions as $overridecondition) {
+                // Remove the namespace from classname.
+                $fullclassname = get_class($overridecondition); // With namespace.
+                $classnameparts = explode('\\', $fullclassname);
+                $shortclassname = end($classnameparts); // Without namespace.
+                $overrideconditionsarray[$overridecondition->id] =
+                    get_string('bo_cond_' . $shortclassname, 'mod_booking');
+            }
 
-        // Check for json conditions that might have been saved before.
-        if (!empty($optionid)) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            if (!empty($settings->availability)) {
+            // Check for json conditions that might have been saved before.
+            if (!empty($optionid)) {
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+                if (!empty($settings->availability)) {
 
-                $jsonconditions = json_decode($settings->availability);
+                    $jsonconditions = json_decode($settings->availability);
 
-                if (!empty($jsonconditions)) {
-                    foreach ($jsonconditions as $jsoncondition) {
-                        // Currently conditions of the same type cannot be combined with each other.
-                        if ($jsoncondition->id != BO_COND_JSON_PREVIOUSLYBOOKED) {
-                            $overrideconditionsarray[$jsoncondition->id] = get_string('bo_cond_' .
-                                $jsoncondition->name, 'mod_booking');
+                    if (!empty($jsonconditions)) {
+                        foreach ($jsonconditions as $jsoncondition) {
+                            // Currently conditions of the same type cannot be combined with each other.
+                            if ($jsoncondition->id != BO_COND_JSON_PREVIOUSLYBOOKED) {
+                                $overrideconditionsarray[$jsoncondition->id] = get_string('bo_cond_' .
+                                    $jsoncondition->name, 'mod_booking');
+                            }
                         }
                     }
                 }
             }
+
+            $mform->addElement('select', 'bo_cond_previouslybooked_overridecondition',
+                get_string('overridecondition', 'mod_booking'), $overrideconditionsarray);
+            $mform->hideIf('bo_cond_previouslybooked_overridecondition',
+                'bo_cond_previouslybooked_overrideconditioncheckbox',
+                'notchecked');
+
+            $mform->addElement('static', 'infotextadditionalpluginsnecessary',
+                '', get_string('infotext:additionalpluginsnecessary', 'mod_booking'));
+        } else {
+            // No PRO license is active.
+            $mform->addElement('static', 'restrictwithpreviouslybooked',
+                get_string('restrictwithpreviouslybooked', 'mod_booking'),
+                get_string('proversiononly', 'mod_booking'));
         }
-
-        $mform->addElement('select', 'bo_cond_previouslybooked_overridecondition',
-            get_string('overridecondition', 'mod_booking'), $overrideconditionsarray);
-        $mform->hideIf('bo_cond_previouslybooked_overridecondition', 'bo_cond_previouslybooked_overrideconditioncheckbox',
-            'notchecked');
-
         $mform->addElement('html', '<hr class="w-50"/>');
     }
 

@@ -91,6 +91,8 @@ $string['full'] = 'Full';
 $string['goenrol'] = 'Go to registration';
 $string['gotop'] = 'Go to top';
 $string['infonobookingoption'] = 'In order to add a booking option please use the settings block or the settings-icon on top of the page';
+$string['infotext:additionalpluginsnecessary'] = '<small>If you want to use this feature, you might need to install and configure additional plugins.
+ <a href="https://wunderbyte.at/kontakt" target="_blank">Contact Wunderbyte</a> if you need help with this.</small>';
 $string['limit'] = 'Limit';
 $string['modulename'] = 'Booking';
 $string['modulenameplural'] = 'Bookings';
@@ -103,6 +105,7 @@ $string['notopenyet'] = 'Sorry, this activity is not available until {$a} ';
 $string['pluginadministration'] = 'Booking administration';
 $string['pluginname'] = 'Booking';
 $string['potentialsubscribers'] = 'Potential subscribers';
+$string['proversiononly'] = 'Upgrade to Booking PRO to use this feature.';
 $string['removeresponses'] = 'Remove all responses';
 $string['responses'] = 'Responses';
 $string['responsesto'] = 'Responses to {$a} ';
@@ -1929,7 +1932,7 @@ $string['bo_cond_userprofilefield_field'] = 'Profile field';
 $string['bo_cond_userprofilefield_value'] = 'Value';
 $string['bo_cond_userprofilefield_operator'] = 'Operator';
 
-$string['restrictwithcustomuserprofilefield'] = 'A chosen user profile field should have a certain value';
+$string['restrictwithcustomuserprofilefield'] = 'A custom user profile field should have a certain value';
 $string['bo_cond_customuserprofilefield_field'] = 'Profile field';
 $string['bo_cond_customuserprofilefield_value'] = 'Value';
 $string['bo_cond_customuserprofilefield_operator'] = 'Operator';
