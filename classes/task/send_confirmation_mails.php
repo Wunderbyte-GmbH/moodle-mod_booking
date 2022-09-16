@@ -55,14 +55,17 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                     // Hack to support multiple attachments.
                     if (!booking_email_to_user($taskdata->userto, $taskdata->userfrom,
                         $taskdata->subject, $taskdata->messagetext, $taskdata->messagehtml,
-                        $taskdata->attachment, 'booking.ics')) {
+                        $taskdata->attachment ?? '', 'booking.ics')) {
+
                         throw new \coding_exception('Confirmation email was not sent');
                     } else {
-                        foreach ($taskdata->attachment as $key => $attached) {
-                            $search = str_replace($CFG->tempdir . '/', '', $attached);
-                            if ($DB->count_records_select('task_adhoc', "customdata LIKE '%$search%'") == 1) {
-                                if (file_exists($attached)) {
-                                    unlink($attached);
+                        if (!empty($taskdata->attachment)) {
+                            foreach ($taskdata->attachment as $key => $attached) {
+                                $search = str_replace($CFG->tempdir . '/', '', $attached);
+                                if ($DB->count_records_select('task_adhoc', "customdata LIKE '%$search%'") == 1) {
+                                    if (file_exists($attached)) {
+                                        unlink($attached);
+                                    }
                                 }
                             }
                         }
