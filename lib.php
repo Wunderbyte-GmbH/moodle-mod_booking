@@ -2597,6 +2597,17 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     $params->gotobookingoption = html_writer::link($gotobookingoptionlink, $gotobookingoptionlink->out());
 
     // Add user profile fields to e-mail params.
+    // If user profile fields are missing, we need to load them correctly.
+    if (empty($user->profile)) {
+        $user->profile = [];
+        profile_load_data($user);
+        foreach ($user as $userkey => $uservalue) {
+            if (substr($userkey, 0, 14) == "profile_field_") {
+                $profilefieldkey = str_replace('profile_field_', '', $userkey);
+                $user->profile[$profilefieldkey] = $uservalue;
+            }
+        }
+    }
     // Ignore fields that use a reserved param name.
     foreach ($user->profile as $profilefieldkey => $profilefieldvalue) {
         if (isset($params->{$profilefieldkey})) {
