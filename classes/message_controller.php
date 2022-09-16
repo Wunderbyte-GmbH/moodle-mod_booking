@@ -319,6 +319,18 @@ class message_controller {
 
         }
 
+        // Add user profile fields to e-mail params.
+        // Ignore fields that use a reserved param name.
+        foreach ($this->user->profile as $profilefieldkey => $profilefieldvalue) {
+            if (isset($params->{$profilefieldkey})) {
+                continue;
+            } else {
+                $params->{$profilefieldkey} = $profilefieldvalue;
+            }
+            // Example: There is a user profile field called "Title".
+            // We can now use the placeholder {Title}. (Keep in mind that this is case-sensitive!).
+        }
+
         return $params;
     }
 
