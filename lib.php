@@ -2596,6 +2596,18 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     ));
     $params->gotobookingoption = html_writer::link($gotobookingoptionlink, $gotobookingoptionlink->out());
 
+    // Add user profile fields to e-mail params.
+    // Ignore fields that use a reserved param name.
+    foreach ($user->profile as $profilefieldkey => $profilefieldvalue) {
+        if (isset($params->{$profilefieldkey})) {
+            continue;
+        } else {
+            // Example: There is a user profile field called "Title".
+            // We can now use the placeholder {Title}. (Keep in mind that this is case-sensitive!).
+            $params->{$profilefieldkey} = $profilefieldvalue;
+        }
+    }
+
     return $params;
 }
 
