@@ -106,7 +106,8 @@ class optiondates_teachers_table extends table_sql {
                 $teacherids = explode(',', $values->teachers);
                 foreach ($teacherids as $teacherid) {
                     if ($teacheruser = $DB->get_record('user', ['id' => $teacherid])) {
-                        $teacherprofileurl = new moodle_url('/user/profile.php', ['id' => $teacherid]);
+                        $teacherprofileurl = new moodle_url('/mod/booking/teacher_performed_units_report.php',
+                            ['teacherid' => $teacherid]);
                         $teacherlink = "<a href='$teacherprofileurl'>" .
                             "$teacheruser->firstname $teacheruser->lastname</a>";
                         $teacherlinks[] = $teacherlink;
