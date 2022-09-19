@@ -1,3 +1,10 @@
+7.4.1 (2022091900)
+* New feature: Add user profile fields to e-mail params.
+* Improvement: PRO availability conditions and info texts (and fixed correct order).
+* Bugfix: Cleaning override of override concept
+* Bugfix: Deal with missing attachments.
+* Bugfix: If user profile fields are missing, we need to load them correctly.
+
 7.4.0 (2022091500)
 * New feature: New availability condition for custom profile fields.
 * New feature: New performance report for teachers (performed hours/units).

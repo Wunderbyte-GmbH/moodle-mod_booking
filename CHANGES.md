@@ -1,3 +1,15 @@
+## Version 7.4.1 (2022091900)
+**New features:**
+* New feature: Add user profile fields to e-mail params.
+
+**Improvements:**
+* Improvement: PRO availability conditions and info texts (and fixed correct order).
+
+**Bugfixes:**
+* Bugfix: Cleaning override of override concept
+* Bugfix: Deal with missing attachments.
+* Bugfix: If user profile fields are missing, we need to load them correctly.
+
 ## Version 7.4.0 (2022091500)
 **New features:**
 * New feature: New availability condition for custom profile fields.
