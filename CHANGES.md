@@ -1,3 +1,7 @@
+## Version 7.4.2 (2022091902)
+**Improvements:**
+* Improvement: Restored holiday names.
+
 ## Version 7.4.1 (2022091900)
 **New features:**
 * New feature: Add user profile fields to e-mail params.

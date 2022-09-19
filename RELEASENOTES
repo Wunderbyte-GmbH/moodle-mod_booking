@@ -1,3 +1,6 @@
+7.4.2 (2022091902)
+* Improvement: Restored holiday names.
+
 7.4.1 (2022091900)
 * New feature: Add user profile fields to e-mail params.
 * Improvement: PRO availability conditions and info texts (and fixed correct order).
