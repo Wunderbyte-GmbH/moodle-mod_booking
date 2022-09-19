@@ -1491,6 +1491,7 @@ $string['choosesemester'] = "Semester auswählen";
 $string['choosesemester_help'] = "Wählen Sie das Semester aus, für das der oder die Feiertag(e) erstellt werden sollen.";
 $string['holidays'] = "Ferien und Feiertage";
 $string['holiday'] = "Ferien / Feiertag(e)";
+$string['holidayname'] = "Name (optional)";
 $string['holidaystart'] = 'Feiertag / Beginn';
 $string['holidayend'] = 'Ende';
 $string['holidayendactive'] = 'Ende nicht am selben Tag';

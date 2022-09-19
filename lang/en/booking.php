@@ -1740,6 +1740,7 @@ $string['choosesemester'] = "Choose semester";
 $string['choosesemester_help'] = "Choose the semester for which the holiday(s) should be created.";
 $string['holidays'] = "Holidays";
 $string['holiday'] = "Holiday";
+$string['holidayname'] = "Holiday name (optional)";
 $string['holidaystart'] = 'Holiday (start)';
 $string['holidayend'] = 'End';
 $string['holidayendactive'] = 'End is not on the same day';

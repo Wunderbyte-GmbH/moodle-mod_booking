@@ -66,6 +66,11 @@ class dynamicholidaysform extends dynamic_form {
             foreach ($data->holidaystart as $idx => $holidaystart) {
                 $holiday = new stdClass;
                 $holiday->id = $data->holidayid[$idx];
+                if (!empty($data->holidayname[$idx])) {
+                    $holiday->name = trim($data->holidayname[$idx]);
+                } else {
+                    $holiday->name = '';
+                }
                 $holiday->startdate = $data->holidaystart[$idx];
                 if ($data->holidayendactive[$idx] == 1) {
                     $holiday->enddate = $data->holidayend[$idx];
@@ -99,6 +104,7 @@ class dynamicholidaysform extends dynamic_form {
                     $data->holidayendactive[] = 1;
                 }
                 $data->holidayend[] = $existingholiday->enddate;
+                $data->holidayname[] = trim($existingholiday->name);
             }
 
         } else {
@@ -184,6 +190,10 @@ class dynamicholidaysform extends dynamic_form {
 
         // Holiday end date.
         $repeatedholidays[] = $mform->createElement('date_selector', 'holidayend', get_string('holidayend', 'mod_booking'));
+
+        // Holiday name.
+        $repeatedholidays[] = $mform->createElement('text', 'holidayname', get_string('holidayname', 'booking'));
+        $mform->setType('holidayname', PARAM_TEXT);
 
         // Delete holiday button.
         $repeatedholidays[] = $mform->createElement('submit', 'deleteholiday', get_string('deleteholiday', 'mod_booking'));
