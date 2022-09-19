@@ -25,7 +25,6 @@ use context;
 use context_module;
 use core_form\dynamic_form;
 use moodle_url;
-use mod_booking\optiondates_handler;
 use stdClass;
 
 /**
@@ -43,10 +42,10 @@ class rulesform extends dynamic_form {
     public function definition() {
         $mform = $this->_form;
 
-        $mform->addElement('static', 'text', 'text');
+        $mform->addElement('static', 'text', 'text', 'text');
 
-        // Add submit button to create optiondate series. (Use $this, not $mform for add_action_buttons).
-        $this->add_action_buttons(false, get_string('add_optiondate_series', 'mod_booking'));
+        // Add submit button to create optiondate series. (Use $this, not $mform).
+        $this->add_action_buttons(false);
     }
 
     /**
@@ -70,27 +69,8 @@ class rulesform extends dynamic_form {
     public function process_dynamic_submission() {
 
         $data = $this->get_data();
-        if (empty($data->reoccurringdatestring) || empty($data->chooseperiod)) {
-            return false;
-        }
 
-        // If the string contains the keyword 'block' we don't do anything.
-        if (strpos(strtolower($data->reoccurringdatestring), 'block') !== false) {
-            return false;
-        }
-
-        // Only submit if we have a correct string.
-        if (!optiondates_handler::reoccurring_datestring_is_correct($data->reoccurringdatestring)) {
-            return false;
-        }
-
-        $optiondateshandler = new optiondates_handler();
-        $dates = $optiondateshandler->get_optiondate_series($data->chooseperiod, $data->reoccurringdatestring);
-
-        $dates['cmid'] = $this->_ajaxformdata['cmid'];
-        $dates['optionid'] = $this->_ajaxformdata['optionid'];
-
-        return $dates;
+        return $data;
     }
 
 
@@ -104,8 +84,9 @@ class rulesform extends dynamic_form {
      *     $this->set_data(get_entity($this->_ajaxformdata['cmid']));
      */
     public function set_data_for_dynamic_submission(): void {
-        $data = new stdClass();
-        $this->set_data($data);
+        $this->set_data([
+            'cmid' => $this->optional_param('cmid', '', PARAM_INT)
+        ]);
     }
 
     /**
@@ -129,7 +110,7 @@ class rulesform extends dynamic_form {
      *
      * This is used in the form elements sensitive to the page url, such as Atto autosave in 'editor'
      *
-     * If the form has arguments (such as 'id' of the element being edited), the URL should
+     * If the form has arguments (such as 'cmid' of the element being edited), the URL should
      * also have respective argument.
      *
      * @return moodle_url
@@ -139,7 +120,7 @@ class rulesform extends dynamic_form {
         if (!$cmid) {
             $cmid = $this->optional_param('cmid', '', PARAM_RAW);
         }
-        return new moodle_url('/mod/booking/editoptions.php', array('id' => $cmid));
+        return new moodle_url('/mod/booking/edit_rules.php', array('cmid' => $cmid));
     }
 
     /**
@@ -151,11 +132,6 @@ class rulesform extends dynamic_form {
     public function validation($data, $files) {
 
         $errors = array();
-
-        // Check if the string is valid.
-        if (!optiondates_handler::reoccurring_datestring_is_correct($data['reoccurringdatestring'])) {
-            $errors['reoccurringdatestring'] = get_string('reoccurringdatestringerror', 'mod_booking');
-        }
 
         return $errors;
     }

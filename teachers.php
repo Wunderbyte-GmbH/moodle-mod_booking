@@ -39,7 +39,7 @@ if (!$booking = new mod_booking\booking_option($id, $optionid, array(), 0, 0, fa
 
 $context = context_module::instance($cm->id);
 if (!has_capability('mod/booking:updatebooking', $context)) {
-    throw new moodle_exception('nopermissiontupdatebooking', 'booking');
+    throw new moodle_exception('nopermissiontoupdatebooking', 'booking');
 }
 
 $output = $PAGE->get_renderer('mod_booking');

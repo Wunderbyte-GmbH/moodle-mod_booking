@@ -18,7 +18,7 @@ use mod_booking\form\rulesform;
 use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
-require_once("locallib.php");
+require_once('locallib.php');
 
 $cmid = required_param('cmid', PARAM_INT);
 
@@ -41,21 +41,24 @@ if (!$booking = singleton_service::get_instance_of_booking_by_cmid($cmid)) {
     throw new moodle_exception("Course module is incorrect");
 }
 
-$context = context_module::instance($cm->id);
+$context = context_module::instance($cmid);
 if (!has_capability('mod/booking:updatebooking', $context)) {
-    throw new moodle_exception('nopermissiontupdatebooking', 'booking');
+    throw new moodle_exception('nopermissiontoupdatebooking', 'booking');
 }
 
 $output = $PAGE->get_renderer('mod_booking');
 
+$rulesform = new rulesform();
+$rulesform->set_data_for_dynamic_submission();
+
 echo $output->header();
 
-echo "<div data-region='rulesform'>form here</div>";
+echo html_writer::div($rulesform->render(), '', ['data-region' => 'rulesform']);
 
 $PAGE->requires->js_call_amd(
     'mod_booking/rulesform',
     'init',
-    ['[data-region=rulesform]', rulesform::class]
+    [$cmid, rulesform::class]
 );
 
 echo $output->footer();

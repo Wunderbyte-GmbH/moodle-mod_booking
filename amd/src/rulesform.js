@@ -32,29 +32,32 @@
  */
 import DynamicForm from 'core_form/dynamicform';
 
-export const init = (selector, formClass) => {
+export const init = (cmid, formClass) => {
 
     // eslint-disable-next-line no-console
-    console.log('intit in rules form called', selector, formClass);
+    console.log('init in rules form called', formClass);
 
-    const element = document.querySelector(selector);
+    const element = document.querySelector("[data-region='rulesform']");
+    const formargs = {cmid: cmid};
 
     const form = new DynamicForm(element, formClass);
 
+    form.load();
+
     // eslint-disable-next-line no-console
-    console.log('intit', element, form);
+    console.log('init', element, form);
 
     form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
         e.preventDefault();
 
         const response = e.detail;
-        form.load(null, response);
+        form.load(formargs, response);
     });
 
     // Cancel button does not make much sense in such forms but since it's there we'll just reload.
     form.addEventListener(form.events.FORM_CANCELLED, (e) => {
         e.preventDefault();
         form.notifyResetFormChanges()
-            .then(() => form.load(null));
+            .then(() => form.load(formargs));
     });
 };
