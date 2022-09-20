@@ -315,12 +315,6 @@ class bo_info {
     }
 
     /**
-     * Set default values to be loaded into mform (from JSON in DB).
-     * @param &$defaultvalues
-     * @return void
-     */
-
-    /**
      * Returns conditions depending on the conditions param.
      *
      * @param int $condparam conditions parameter

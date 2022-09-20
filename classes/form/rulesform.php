@@ -23,9 +23,10 @@ require_once("$CFG->libdir/formslib.php");
 
 use context;
 use context_module;
+use context_system;
 use core_form\dynamic_form;
+use mod_booking\booking_rules\rules_info;
 use moodle_url;
-use stdClass;
 
 /**
  * Dynamic optiondate form.
@@ -40,9 +41,26 @@ class rulesform extends dynamic_form {
      * @see moodleform::definition()
      */
     public function definition() {
+
         $mform = $this->_form;
 
-        $mform->addElement('static', 'text', 'text', 'text');
+        // Repeated elements.
+        $repeatedrules = [];
+
+        // Options to store help button texts etc.
+        $repeateloptions = [];
+
+        rules_info::add_rules_to_mform($mform, $repeatedrules, $repeateloptions);
+
+        $numberofrulestoshow = 0;
+        // TODO: retrieve existing rules from DB.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /*if ($existingrules = $DB->get_records('booking_rules')) {
+            $numberofrulestoshow = count($existingrules);
+        }*/
+        $this->repeat_elements($repeatedrules, $numberofrulestoshow,
+            $repeateloptions, 'rules_sendmail', 'addbookingrule', 1, get_string('addbookingrule', 'mod_booking'), true,
+            'deletebookingrule');
 
         // Add submit button to create optiondate series. (Use $this, not $mform).
         $this->add_action_buttons(false);
@@ -85,7 +103,6 @@ class rulesform extends dynamic_form {
      */
     public function set_data_for_dynamic_submission(): void {
         $this->set_data([
-            'cmid' => $this->optional_param('cmid', '', PARAM_INT)
         ]);
     }
 
@@ -98,11 +115,7 @@ class rulesform extends dynamic_form {
      * @return context
      */
     protected function get_context_for_dynamic_submission(): context {
-        $cmid = $this->_ajaxformdata['cmid'];
-        if (!$cmid) {
-            $cmid = $this->optional_param('cmid', '', PARAM_RAW);
-        }
-        return context_module::instance($cmid);
+        return context_system::instance();
     }
 
     /**
@@ -116,11 +129,7 @@ class rulesform extends dynamic_form {
      * @return moodle_url
      */
     protected function get_page_url_for_dynamic_submission(): moodle_url {
-        $cmid = $this->_ajaxformdata['cmid'];
-        if (!$cmid) {
-            $cmid = $this->optional_param('cmid', '', PARAM_RAW);
-        }
-        return new moodle_url('/mod/booking/edit_rules.php', array('cmid' => $cmid));
+        return new moodle_url('/mod/booking/edit_rules.php');
     }
 
     /**

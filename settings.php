@@ -60,6 +60,11 @@ $ADMIN->add('modbookingfolder',
                 get_string('customfieldconfigure', 'mod_booking'),
                 new moodle_url('/mod/booking/customfield.php')));
 
+$ADMIN->add('modbookingfolder',
+        new admin_externalpage('modbookingeditrules',
+                get_string('bookingrules', 'mod_booking'),
+                new moodle_url('/mod/booking/edit_rules.php')));
+
 $ADMIN->add('modbookingfolder', $settings);
 
 if ($ADMIN->fulltree) {

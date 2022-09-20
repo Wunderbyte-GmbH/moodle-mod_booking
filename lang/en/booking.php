@@ -1971,3 +1971,12 @@ $string['error:missingteacherid'] = 'Error: Report cannot be loaded because of m
 $string['filterstartdate'] = 'From';
 $string['filterenddate'] = 'Until';
 $string['filterbtn'] = 'Filter';
+
+// Booking rules.
+$string['bookingrules'] = 'Booking: Define global rules';
+$string['bookingrule'] = 'Rule';
+$string['addbookingrule'] = 'Add rule';
+$string['deletebookingrule'] = 'Delete rule';
+$string['ruleevent'] = 'Event';
+$string['rule_sendmail'] = 'Rule: Send an e-mail';
+$string['rule_dummy'] = 'Rule: Dummy';

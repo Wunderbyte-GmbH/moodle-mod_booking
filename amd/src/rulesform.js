@@ -32,13 +32,13 @@
  */
 import DynamicForm from 'core_form/dynamicform';
 
-export const init = (cmid, formClass) => {
+export const init = (formClass) => {
 
     // eslint-disable-next-line no-console
     console.log('init in rules form called', formClass);
 
     const element = document.querySelector("[data-region='rulesform']");
-    const formargs = {cmid: cmid};
+    const formargs = {};
 
     const form = new DynamicForm(element, formClass);
 

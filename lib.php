@@ -2420,3 +2420,21 @@ function is_json($string) {
     json_decode($string);
     return json_last_error() === JSON_ERROR_NONE;
 }
+
+/**
+ * Helper function to get a list of all booking events.
+ * @return array a list containt the full paths of all booking events as key
+ *               and the event names as values
+ */
+function get_list_of_booking_events() {
+    $eventinformation = [];
+    $events = core_component::get_component_classes_in_namespace('mod_booking', 'event');
+    foreach (array_keys($events) as $event) {
+        // We need to filter all classes that extend event base, or the base class itself.
+        if (is_a($event, \core\event\base::class, true)) {
+            $parts = explode('\\', $event);
+            $eventinformation["\\${event}"] = array_pop($parts);
+        }
+    }
+    return $eventinformation;
+}

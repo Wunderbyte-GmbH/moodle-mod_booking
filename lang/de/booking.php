@@ -1684,3 +1684,12 @@ $string['error:missingteacherid'] = 'Fehler: Report kann nicht geladen werden, d
 $string['filterstartdate'] = 'Von';
 $string['filterenddate'] = 'Bis';
 $string['filterbtn'] = 'Filtern';
+
+// Booking rules.
+$string['bookingrules'] = 'Buchung: Globale Regeln';
+$string['bookingrule'] = 'Regel';
+$string['addbookingrule'] = 'Regel hinzufügen';
+$string['deletebookingrule'] = 'Regel löschen';
+$string['ruleevent'] = 'Event';
+$string['rule_sendmail'] = 'Regel: E-Mail versenden';
+$string['rule_dummy'] = 'Regel: Dummy';
