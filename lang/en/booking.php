@@ -92,7 +92,9 @@ $string['goenrol'] = 'Go to registration';
 $string['gotop'] = 'Go to top';
 $string['infonobookingoption'] = 'In order to add a booking option please use the settings block or the settings-icon on top of the page';
 $string['infotext:additionalpluginsnecessary'] = '<small>If you want to use this feature, you might need to install and configure additional plugins.
- <a href="https://wunderbyte.at/kontakt" target="_blank">Contact Wunderbyte</a> if you need help with this.</small>';
+ <a href="https://wunderbyte.at/en/contact" target="_blank">Contact Wunderbyte</a> if you need help with this.</small>';
+ $string['infotext:prolicensenecessary'] = 'You need a Booking PRO license if you want to use this feature.
+ <a href="https://wunderbyte.at/en/contact" target="_blank">Contact Wunderbyte</a> if you want to buy a PRO license.';
 $string['limit'] = 'Limit';
 $string['modulename'] = 'Booking';
 $string['modulenameplural'] = 'Bookings';
@@ -1973,10 +1975,18 @@ $string['filterenddate'] = 'Until';
 $string['filterbtn'] = 'Filter';
 
 // Booking rules.
-$string['bookingrules'] = 'Booking: Define global rules';
+$string['bookingrules'] = 'Booking: Define global rules (PRO)';
 $string['bookingrule'] = 'Rule';
 $string['addbookingrule'] = 'Add rule';
 $string['deletebookingrule'] = 'Delete rule';
 $string['ruleevent'] = 'Event';
 $string['rule_sendmail'] = 'Send an e-mail';
+$string['rule_sendmail_desc'] = 'Choose an event that should trigger the "Send an e-mail" rule. Enter an e-mail template
+ (you can use placeholders like {bookingdetails}) and define to which users the e-mail should be sent.
+  Example: All users having the value "Vienna center" in a custom user profile field called "Study center".';
+$string['rule_sendmail_template'] = 'Mail template';
 $string['rule_dummy'] = 'Dummy rule';
+$string['rule_dummy_desc'] = 'Dummy rule - for test purposes only.';
+$string['rule_sendmail_customuserprofilefield'] = 'Custom user profile field';
+$string['rule_sendmail_customuserprofilefield_operator'] = 'Operator';
+$string['rule_sendmail_customuserprofilefield_value'] = 'Value';

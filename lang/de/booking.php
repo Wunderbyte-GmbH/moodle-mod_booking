@@ -78,6 +78,8 @@ $string['gotop'] = 'Nach oben';
 $string['infonobookingoption'] = 'Um eine Buchungsoption zu erstellen, nutzen Sie den Block Einstellungen oder das Einstellungs-Icon';
 $string['infotext:additionalpluginsnecessary'] = '<small>Um dieses Feature zu nutzen, müssen Sie möglicherweise weitere Plugins installieren und konfigurieren.
  <a href="https://wunderbyte.at/kontakt" target="_blank">Kontaktieren Sie Wunderbyte</a>, wenn Sie hierbei Hilfe benötigen.</small>';
+$string['infotext:prolicensenecessary'] = 'Sie benötigen Booking PRO, um dieses Feature nutzen zu können.
+ <a href="https://wunderbyte.at/kontakt" target="_blank">Kontaktieren Sie Wunderbyte</a>, wenn Sie eine Lizenz erwerben möchten.';
 $string['limit'] = 'Maximale Anzahl';
 $string['modulename'] = 'Buchung';
 $string['modulenameplural'] = 'Buchungen';
@@ -1686,10 +1688,18 @@ $string['filterenddate'] = 'Bis';
 $string['filterbtn'] = 'Filtern';
 
 // Booking rules.
-$string['bookingrules'] = 'Buchung: Globale Regeln';
+$string['bookingrules'] = 'Buchung: Globale Regeln (PRO)';
 $string['bookingrule'] = 'Regel';
 $string['addbookingrule'] = 'Regel hinzufügen';
 $string['deletebookingrule'] = 'Regel löschen';
 $string['ruleevent'] = 'Event';
 $string['rule_sendmail'] = 'E-Mail versenden';
+$string['rule_sendmail_desc'] = 'Wählen Sie ein Event aus, auf das reagiert werden soll. Legen Sie eine E-Mail-Vorlage an
+ (Sie können auch Platzhalter wie {bookingdetails} verwenden) und legen Sie fest, an welche Benutzer:innen die E-Mail versendet werden soll.
+  Beispiel: Alle Benutzer:innen, die im benutzerdefinierten Feld "Studienzentrumsleitung" den Wert "SZL Wien" stehen haben.';
+$string['rule_sendmail_template'] = 'E-Mail-Vorlage';
 $string['rule_dummy'] = 'Dummy-Regel';
+$string['rule_dummy_desc'] = 'Dummy-Regel - nur für Testzwecke.';
+$string['rule_sendmail_customuserprofilefield'] = 'Benutzerdefiniertes User-Profilfeld';
+$string['rule_sendmail_customuserprofilefield_operator'] = 'Operator';
+$string['rule_sendmail_customuserprofilefield_value'] = 'Wert';

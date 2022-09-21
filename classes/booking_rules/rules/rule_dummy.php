@@ -43,14 +43,15 @@ class rule_dummy implements booking_rule {
     public function add_rule_to_mform(MoodleQuickForm &$mform,
         array &$repeatedrules, array &$repeateloptions) {
 
-        // Get a list of all booking events.
-        $bookingevents = get_list_of_booking_events();
+        $groupitems = [];
 
-        // Event which should trigger the rule.
-        $repeatedrules[] = $mform->createElement('select', 'ruleevent:dummy', get_string('ruleevent', 'mod_booking'),
-            $bookingevents);
-        $mform->setType('ruleevent:dummy', PARAM_TEXT);
-        $repeateloptions['ruleevent:dummy']['hideif'] = array('bookingrule', 'neq', 'rule_dummy');
+        // Event description.
+        $groupitems[] = $mform->createElement('static', 'rule_dummy_desc', '', get_string('rule_dummy_desc', 'mod_booking'));
+
+        // Without a group hideif won't work with all elements.
+        $repeatedrules[] = $mform->createElement('group', 'rule_dummy_group', get_string('rule_dummy', 'mod_booking'),
+            $groupitems, null, false);
+        $repeateloptions['rule_dummy_group']['hideif'] = array('bookingrule', 'neq', 'rule_dummy');
     }
 
     /**

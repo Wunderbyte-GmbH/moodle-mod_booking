@@ -231,7 +231,6 @@ class userprofilefield_2_custom implements bo_condition {
         // Check if PRO version is activated.
         if (wb_payment::is_currently_valid_licensekey()) {
 
-            // Choose the user profile field which is used to store each user's price category.
             $customuserprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
             if (!empty($customuserprofilefields)) {
                 $customuserprofilefieldsarray = [];

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 use mod_booking\form\rulesform;
+use mod_booking\utils\wb_payment;
 
 require_once(__DIR__ . '/../../config.php');
 require_once('locallib.php');
@@ -42,17 +43,23 @@ $PAGE->activityheader->disable();
 
 $output = $PAGE->get_renderer('mod_booking');
 
-$rulesform = new rulesform();
-$rulesform->set_data_for_dynamic_submission();
-
 echo $output->header();
+echo $output->heading(get_string('bookingrules', 'mod_booking'));
 
-echo html_writer::div($rulesform->render(), '', ['data-region' => 'rulesform']);
+// Check if PRO version is active.
+if (wb_payment::is_currently_valid_licensekey()) {
+    $rulesform = new rulesform();
+    $rulesform->set_data_for_dynamic_submission();
 
-$PAGE->requires->js_call_amd(
-    'mod_booking/rulesform',
-    'init',
-    [rulesform::class]
-);
+    echo html_writer::div($rulesform->render(), '', ['data-region' => 'rulesform']);
+
+    $PAGE->requires->js_call_amd(
+        'mod_booking/rulesform',
+        'init',
+        [rulesform::class]
+    );
+} else {
+    echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');
+}
 
 echo $output->footer();

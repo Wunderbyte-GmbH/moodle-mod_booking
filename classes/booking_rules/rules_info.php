@@ -67,6 +67,8 @@ class rules_info {
         // Delete rule button.
         $repeatedrules[] = $mform->createElement('submit', 'deletebookingrule',
             get_string('deletebookingrule', 'mod_booking'));
+
+        $var1 = 1;
     }
 
     /**
