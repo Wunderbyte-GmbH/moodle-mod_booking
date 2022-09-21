@@ -32,7 +32,7 @@ $PAGE->set_url($url);
 
 $PAGE->set_pagelayout('admin');
 $PAGE->add_body_class('limitedwidth');
-$PAGE->set_pagetype('mod-booking-mod');
+$PAGE->set_pagetype('mod-booking-edit-rules');
 
 $PAGE->set_title(
     format_string($SITE->shortname) . ': ' . get_string('bookingrules', 'mod_booking')

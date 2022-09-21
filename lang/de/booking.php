@@ -1691,5 +1691,5 @@ $string['bookingrule'] = 'Regel';
 $string['addbookingrule'] = 'Regel hinzufügen';
 $string['deletebookingrule'] = 'Regel löschen';
 $string['ruleevent'] = 'Event';
-$string['rule_sendmail'] = 'Regel: E-Mail versenden';
-$string['rule_dummy'] = 'Regel: Dummy';
+$string['rule_sendmail'] = 'E-Mail versenden';
+$string['rule_dummy'] = 'Dummy-Regel';

@@ -1978,5 +1978,5 @@ $string['bookingrule'] = 'Rule';
 $string['addbookingrule'] = 'Add rule';
 $string['deletebookingrule'] = 'Delete rule';
 $string['ruleevent'] = 'Event';
-$string['rule_sendmail'] = 'Rule: Send an e-mail';
-$string['rule_dummy'] = 'Rule: Dummy';
+$string['rule_sendmail'] = 'Send an e-mail';
+$string['rule_dummy'] = 'Dummy rule';

@@ -43,19 +43,14 @@ class rule_sendmail implements booking_rule {
     public function add_rule_to_mform(MoodleQuickForm &$mform,
         array &$repeatedrules, array &$repeateloptions) {
 
-        $repeatedrules[] = $mform->createElement('hidden', 'rule_sendmail_id', 0);
-        $mform->setType('rule_sendmail_id', PARAM_INT);
-
         // Get a list of all booking events.
         $bookingevents = get_list_of_booking_events();
 
         // Event which should trigger the rule.
-        $repeatedrules[] = $mform->createElement('select', 'ruleevent', get_string('ruleevent', 'mod_booking'), $bookingevents);
-            $mform->setType('ruleevent', PARAM_TEXT);
-
-        // Delete rule button.
-        $repeatedrules[] = $mform->createElement('submit', 'deletebookingrule', get_string('deletebookingrule', 'mod_booking'));
-        $repeatedrules[] = $mform->createElement('html', '<hr/>');
+        $repeatedrules[] = $mform->createElement('select', 'ruleevent:sendmail',
+            get_string('ruleevent', 'mod_booking'), $bookingevents);
+        $mform->setType('ruleevent:sendmail', PARAM_TEXT);
+        $repeateloptions['ruleevent:sendmail']['hideif'] = array('bookingrule', 'neq', 'rule_sendmail');
 
     }
 

@@ -47,13 +47,10 @@ class rule_dummy implements booking_rule {
         $bookingevents = get_list_of_booking_events();
 
         // Event which should trigger the rule.
-        $repeatedrules[] = $mform->createElement('select', 'ruleevent', get_string('ruleevent', 'mod_booking'), $bookingevents);
-            $mform->setType('ruleevent', PARAM_TEXT);
-
-        // Delete rule button.
-        $repeatedrules[] = $mform->createElement('submit', 'deletebookingrule', get_string('deletebookingrule', 'mod_booking'));
-        $repeatedrules[] = $mform->createElement('html', '<hr/>');
-
+        $repeatedrules[] = $mform->createElement('select', 'ruleevent:dummy', get_string('ruleevent', 'mod_booking'),
+            $bookingevents);
+        $mform->setType('ruleevent:dummy', PARAM_TEXT);
+        $repeateloptions['ruleevent:dummy']['hideif'] = array('bookingrule', 'neq', 'rule_dummy');
     }
 
     /**

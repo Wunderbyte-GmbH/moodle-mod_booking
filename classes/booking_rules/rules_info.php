@@ -56,13 +56,17 @@ class rules_info {
             $rulesforselect[$shortclassname] = $rule->get_name_of_rule();
         }
 
-        foreach ($rules as $rule) {
-            $repeatedrules[] = $mform->createElement('select', 'bookingrule',
+        $repeatedrules[] = $mform->createElement('select', 'bookingrule',
                 get_string('bookingrule', 'mod_booking'), $rulesforselect);
 
+        foreach ($rules as $rule) {
             // For each rule, add the appropriate form fields.
             $rule->add_rule_to_mform($mform, $repeatedrules, $repeateloptions);
         }
+
+        // Delete rule button.
+        $repeatedrules[] = $mform->createElement('submit', 'deletebookingrule',
+            get_string('deletebookingrule', 'mod_booking'));
     }
 
     /**
