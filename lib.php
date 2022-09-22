@@ -2422,8 +2422,8 @@ function is_json($string) {
 }
 
 /**
- * Helper function to get a list of all booking events.
- * @return array a list containt the full paths of all booking events as key
+ * Helper function to get a list of all booking events to be shown in a select (dropdown).
+ * @return array a list containing the full paths of all booking events as key
  *               and the event names as values
  */
 function get_list_of_booking_events() {
@@ -2433,7 +2433,9 @@ function get_list_of_booking_events() {
         // We need to filter all classes that extend event base, or the base class itself.
         if (is_a($event, \core\event\base::class, true)) {
             $parts = explode('\\', $event);
-            $eventinformation["\\${event}"] = array_pop($parts);
+            $eventwithnamespace = "\\${event}";
+            $eventinformation[$eventwithnamespace] = $eventwithnamespace::get_name() .
+                " (" . array_pop($parts) . ")";
         }
     }
     return $eventinformation;

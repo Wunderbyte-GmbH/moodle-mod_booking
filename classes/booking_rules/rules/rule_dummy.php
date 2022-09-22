@@ -18,6 +18,7 @@ namespace mod_booking\booking_rules\rules;
 
 use mod_booking\booking_rules\booking_rule;
 use MoodleQuickForm;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -49,9 +50,19 @@ class rule_dummy implements booking_rule {
         $groupitems[] = $mform->createElement('static', 'rule_dummy_desc', '', get_string('rule_dummy_desc', 'mod_booking'));
 
         // Without a group hideif won't work with all elements.
-        $repeatedrules[] = $mform->createElement('group', 'rule_dummy_group', get_string('rule_dummy', 'mod_booking'),
+        $repeatedrules[] = $mform->createElement('group', 'rule_dummy_desc_group', get_string('rule_dummy', 'mod_booking'),
             $groupitems, null, false);
-        $repeateloptions['rule_dummy_group']['hideif'] = array('bookingrule', 'neq', 'rule_dummy');
+        $repeateloptions['rule_dummy_desc_group']['hideif'] = array('bookingrule', 'neq', 'rule_dummy');
+
+        // Get a list of all booking events.
+        $bookingevents = get_list_of_booking_events();
+
+        // Event which should trigger the rule.
+        $repeatedrules[] = $mform->createElement('select', 'rule_dummy_event',
+            get_string('ruleevent', 'mod_booking'), $bookingevents);
+        $repeateloptions['rule_dummy_event']['type'] = PARAM_TEXT;
+        $repeateloptions['rule_dummy_event']['hideif'] = array('bookingrule', 'neq', 'rule_dummy');
+
     }
 
     /**
@@ -60,5 +71,37 @@ class rule_dummy implements booking_rule {
      */
     public function get_name_of_rule() {
         return get_string('rule_dummy', 'mod_booking');
+    }
+
+    /**
+     * Save the JSON for all dummy rules defined in form.
+     * @param stdClass &$data form data reference
+     */
+    public static function save_rules(stdClass &$data) {
+        global $DB;
+        foreach ($data->bookingrule as $idx => $rulename) {
+            if ($rulename == 'rule_dummy') {
+                $ruleobj = new stdClass;
+                $ruleobj->rulename = $data->bookingrule[$idx];
+                $ruleobj->event = $data->rule_dummy_event[$idx];
+
+                $record = new stdClass;
+                $record->rulename = $data->bookingrule[$idx];
+                $record->rulejson = json_encode($ruleobj);
+                $DB->insert_record('booking_rules', $record);
+            }
+        }
+    }
+
+    /**
+     * Sets the rule defaults when loading the form.
+     * @param stdClass &$data reference to the default values
+     * @param stdClass $record a record from booking_rules
+     */
+    public function set_defaults(stdClass &$data, stdClass $record) {
+        $idx = $record->id - 1;
+        $data->bookingrule[$idx] = $record->rulename;
+        $ruleobj = json_decode($record->rulejson);
+        $data->rule_dummy_event[$idx] = $ruleobj->event;
     }
 }

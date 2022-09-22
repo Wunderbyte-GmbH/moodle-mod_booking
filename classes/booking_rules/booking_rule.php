@@ -28,6 +28,7 @@ namespace mod_booking\booking_rules;
 
 use mod_booking\booking_option_settings;
 use MoodleQuickForm;
+use stdClass;
 
 /**
  * Base class for a single booking rule.
@@ -55,5 +56,19 @@ interface booking_rule {
      * @return string the name of the rule
      */
     public function get_name_of_rule();
+
+    /**
+     * Gets the JSON for the rules to be stored in DB.
+     * @param stdClass &$data form data reference
+     * @return string the json for the rule
+     */
+    public static function save_rules(stdClass &$data);
+
+    /**
+     * Sets the rule defaults when loading the form.
+     * @param stdClass &$data reference to the default values
+     * @param stdClass $record a record from booking_rules
+     */
+    public function set_defaults(stdClass &$data, stdClass $record);
 
 }

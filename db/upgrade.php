@@ -2692,5 +2692,27 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022091901, 'booking');
     }
 
+    if ($oldversion < 2022092200) {
+
+        // Define table booking_rules to be created.
+        $table = new xmldb_table('booking_rules');
+
+        // Adding fields to table booking_rules.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('rulename', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('rulejson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table booking_rules.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for booking_rules.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022092200, 'booking');
+    }
+
     return true;
 }

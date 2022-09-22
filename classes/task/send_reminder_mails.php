@@ -15,8 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking\task;
 
+use context_system;
 use mod_booking\utils\wb_payment;
 use mod_booking\booking_option;
+use mod_booking\event\reminder1_sent;
+use mod_booking\event\reminder2_sent;
+use mod_booking\event\reminder_teacher_sent;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -60,6 +64,18 @@ class send_reminder_mails extends \core\task\scheduled_task {
                     $save->id = $record->optionid;
                     $save->sent = 1;
                     $DB->update_record("booking_options", $save);
+
+                    // Use an event to log that reminder1 has been sent.
+                    $event = reminder1_sent::create(array(
+                        'context' => context_system::instance(),
+                        'objectid' => $record->optionid,
+                        'other' => array(
+                            'msgparam' => MSGPARAM_REMINDER_PARTICIPANT,
+                            'record' => $record,
+                            'daystonotify' => $record->daystonotify
+                        )
+                    ));
+                    $event->trigger();
                 }
             }
 
@@ -70,6 +86,18 @@ class send_reminder_mails extends \core\task\scheduled_task {
                     $save->id = $record->optionid;
                     $save->sent2 = 1;
                     $DB->update_record("booking_options", $save);
+
+                    // Use an event to log that reminder2 has been sent.
+                    $event = reminder2_sent::create(array(
+                        'context' => context_system::instance(),
+                        'objectid' => $record->optionid,
+                        'other' => array(
+                            'msgparam' => MSGPARAM_REMINDER_PARTICIPANT,
+                            'record' => $record,
+                            'daystonotify2' => $record->daystonotify2
+                        )
+                    ));
+                    $event->trigger();
                 }
             }
         }
@@ -143,6 +171,18 @@ class send_reminder_mails extends \core\task\scheduled_task {
                         $save->id = $record->optionid;
                         $save->sentteachers = 1;
                         $DB->update_record("booking_options", $save);
+
+                        // Use an event to log that teacher reminder has been sent.
+                        $event = reminder_teacher_sent::create(array(
+                            'context' => context_system::instance(),
+                            'objectid' => $record->optionid,
+                            'other' => array(
+                                'msgparam' => MSGPARAM_REMINDER_TEACHER,
+                                'record' => $record,
+                                'daystonotifyteachers' => $record->daystonotifyteachers
+                            )
+                        ));
+                        $event->trigger();
                     }
                 }
             }

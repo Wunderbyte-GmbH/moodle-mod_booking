@@ -27,6 +27,7 @@ use context_system;
 use core_form\dynamic_form;
 use mod_booking\booking_rules\rules_info;
 use moodle_url;
+use stdClass;
 
 /**
  * Dynamic optiondate form.
@@ -41,6 +42,7 @@ class rulesform extends dynamic_form {
      * @see moodleform::definition()
      */
     public function definition() {
+        global $DB;
 
         $mform = $this->_form;
 
@@ -52,7 +54,12 @@ class rulesform extends dynamic_form {
 
         rules_info::add_rules_to_mform($mform, $repeatedrules, $repeateloptions);
 
-        $numberofrulestoshow = 0;
+        if ($rulerecords = $DB->get_records('booking_rules')) {
+            $numberofrulestoshow = count($rulerecords);
+        } else {
+            $numberofrulestoshow = 0;
+        }
+
         // TODO: retrieve existing rules from DB.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /*if ($existingrules = $DB->get_records('booking_rules')) {
@@ -88,6 +95,8 @@ class rulesform extends dynamic_form {
 
         $data = $this->get_data();
 
+        rules_info::save_booking_rules($data);
+
         return $data;
     }
 
@@ -102,8 +111,19 @@ class rulesform extends dynamic_form {
      *     $this->set_data(get_entity($this->_ajaxformdata['cmid']));
      */
     public function set_data_for_dynamic_submission(): void {
-        $this->set_data([
-        ]);
+        global $DB;
+
+        $data = new stdClass;
+
+        // Defaults for booking rules.
+        if ($rulesfromdb = $DB->get_records('booking_rules')) {
+            foreach ($rulesfromdb as $rulefromdb) {
+                $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $rulefromdb->rulename;
+                $rule = new $rulefullpath;
+                $rule->set_defaults($data, $rulefromdb);
+            }
+        }
+        $this->set_data($data);
     }
 
     /**
@@ -139,9 +159,21 @@ class rulesform extends dynamic_form {
      * @see moodleform::validation()
      */
     public function validation($data, $files) {
-
         $errors = array();
-
+        foreach ($data['bookingrule'] as $idx => $value) {
+            if (isset($data['rule_sendmail_cpf_field'][$idx]) &&
+                $data['rule_sendmail_cpf_field'][$idx] == '0') {
+                $errors["rule_sendmail_cpf_field[$idx]"] = get_string('error:nofieldchosen', 'mod_booking');
+            }
+            if (isset($data['rule_sendmail_cpf_value'][$idx]) &&
+                empty($data['rule_sendmail_cpf_value'][$idx])) {
+                $errors["rule_sendmail_cpf_value[$idx]"] = get_string('error:mustnotbeempty', 'mod_booking');
+            }
+            if (isset($data['rule_sendmail_cpf_template'][$idx]) &&
+                empty($data['rule_sendmail_cpf_template'][$idx])) {
+                $errors["rule_sendmail_cpf_template[$idx]"] = get_string('error:mustnotbeempty', 'mod_booking');
+            }
+        }
         return $errors;
     }
 

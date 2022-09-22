@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use mod_booking\booking_rules\rules_info;
 use mod_booking\form\rulesform;
 use mod_booking\utils\wb_payment;
 

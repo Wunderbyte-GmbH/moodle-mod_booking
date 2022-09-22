@@ -27,6 +27,7 @@ namespace mod_booking\booking_rules;
 
 use core_component;
 use MoodleQuickForm;
+use stdClass;
 
 /**
  * Class for additional information of booking rules.
@@ -56,8 +57,9 @@ class rules_info {
             $rulesforselect[$shortclassname] = $rule->get_name_of_rule();
         }
 
+        $repeatedrules[] = $mform->createElement('html', '<hr>');
         $repeatedrules[] = $mform->createElement('select', 'bookingrule',
-                get_string('bookingrule', 'mod_booking'), $rulesforselect);
+                get_string('bookingrule', 'mod_booking') . ' {no}', $rulesforselect);
 
         foreach ($rules as $rule) {
             // For each rule, add the appropriate form fields.
@@ -67,8 +69,6 @@ class rules_info {
         // Delete rule button.
         $repeatedrules[] = $mform->createElement('submit', 'deletebookingrule',
             get_string('deletebookingrule', 'mod_booking'));
-
-        $var1 = 1;
     }
 
     /**
@@ -97,5 +97,23 @@ class rules_info {
         }
 
         return $rules;
+    }
+
+    /**
+     * Save all booking rules.
+     *
+     * @param stdClass &$data reference to the form data
+     * @return void
+     */
+    public static function save_booking_rules(stdClass &$data) {
+        global $DB;
+        // Truncate the table.
+        $DB->delete_records('booking_rules');
+        // Then save all rules specified in the form.
+        $rules = self::get_rules();
+        foreach ($rules as $rule) {
+            $rule::save_rules($data);
+        }
+        return;
     }
 }

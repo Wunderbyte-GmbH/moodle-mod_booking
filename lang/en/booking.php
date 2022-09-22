@@ -211,6 +211,9 @@ $string['bookingoptiondate_updated'] = 'Booking option date updated';
 $string['bookingoptiondate_deleted'] = 'Booking option date deleted';
 $string['custom_field_changed'] = 'Custom field changed';
 $string['pricecategory_changed'] = 'Price category changed';
+$string['reminder1_sent'] = 'First reminder sent';
+$string['reminder2_sent'] = 'Second reminder sent';
+$string['reminder_teacher_sent'] = 'Teacher reminder sent';
 
 // View.php.
 $string['agreetobookingpolicy'] = 'I have read and agree to the following booking policies';
@@ -1980,13 +1983,15 @@ $string['bookingrule'] = 'Rule';
 $string['addbookingrule'] = 'Add rule';
 $string['deletebookingrule'] = 'Delete rule';
 $string['ruleevent'] = 'Event';
-$string['rule_sendmail'] = 'Send an e-mail';
-$string['rule_sendmail_desc'] = 'Choose an event that should trigger the "Send an e-mail" rule. Enter an e-mail template
+$string['rule_sendmail_cpf'] = 'Send an e-mail to user with custom profile field';
+$string['rule_sendmail_cpf_desc'] = 'Choose an event that should trigger the "Send an e-mail" rule. Enter an e-mail template
  (you can use placeholders like {bookingdetails}) and define to which users the e-mail should be sent.
   Example: All users having the value "Vienna center" in a custom user profile field called "Study center".';
-$string['rule_sendmail_template'] = 'Mail template';
+$string['rule_sendmail_cpf_template'] = 'Mail template';
 $string['rule_dummy'] = 'Dummy rule';
 $string['rule_dummy_desc'] = 'Dummy rule - for test purposes only.';
-$string['rule_sendmail_customuserprofilefield'] = 'Custom user profile field';
-$string['rule_sendmail_customuserprofilefield_operator'] = 'Operator';
-$string['rule_sendmail_customuserprofilefield_value'] = 'Value';
+$string['rule_sendmail_cpf_field'] = 'Custom user profile field';
+$string['rule_sendmail_cpf_operator'] = 'Operator';
+$string['rule_sendmail_cpf_value'] = 'Value';
+$string['error:nofieldchosen'] = 'You have to choose a field.';
+$string['error:mustnotbeempty'] = 'Must not be empty.';

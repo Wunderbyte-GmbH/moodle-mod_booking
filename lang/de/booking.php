@@ -19,6 +19,16 @@ $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzerin darf alle Einstellungen verwalten';
 
+// Index.php.
+$string['week'] = "Woche";
+$string['question'] = "Frage";
+$string['answer'] = "Antwort";
+$string['topic'] = "Thema";
+
+// Teacher_added.php.
+$string['eventteacher_added'] = 'Trainer:in hinzugefügt';
+$string['eventteacher_removed'] = 'Trainer:in entfernt';
+
 // Renderer.php.
 $string['showonlymyinstitutions'] = "Meine Institution";
 
@@ -64,10 +74,13 @@ $string['daystonotify'] = 'Wie viele Tage vor Kursbeginn soll an die Teilnehmend
 $string['daystonotify_help'] = "Funktioniert nur, wenn ein Beginn- und Enddatum für die Buchungsoption gesetzt sind. Wenn Sie 0 eingeben, wird die Benachrichtigung deaktiviert.";
 $string['daystonotify2'] = 'Zweite Teilnehmerbenachrichtigung vor Veranstaltungsbeginn';
 $string['daystonotifyteachers'] = 'Wie viele Tage vor Kursbeginn soll an die Trainer/innen eine Benachrichtigung gesendet werden? (PRO)';
-$string['eventbooking_cancelled'] = 'Buchung wurde storniert';
+$string['eventbooking_cancelled'] = 'Buchung storniert';
 $string['eventbookingoption_booked'] = 'Buchung durchgeführt';
-$string['eventbookingoption_completed'] = 'Buchung abgeschlossen.';
-$string['eventreport_viewed'] = 'Übersicht über Buchungen für eine Buchungsoption angesehen';
+$string['eventbookingoption_completed'] = 'Buchung abgeschlossen';
+$string['bookingoption_created'] = 'Buchung angelegt';
+$string['bookingoption_updated'] = 'Buchung upgedatet';
+$string['bookingoption_deleted'] = 'Buchung gelöscht';
+$string['eventreport_viewed'] = 'Report angesehen';
 $string['eventuserprofilefields_updated'] = 'Nutzerprofil aktualisiert';
 $string['existingsubscribers'] = 'Vorhandene Nutzer/innen';
 $string['expired'] = 'Diese Aktivität wurde leider am {$a} beendet und steht nicht mehr zur Verfügung';
@@ -194,11 +207,14 @@ $string['usedinbooking'] = 'Das Löschen dieser Kategorie/n ist nicht möglich, 
 $string['successfulldeleted'] = 'Kategorie wurde erfolgreich gelöscht!';
 
 // Events.
-$string['bookingoptiondate_created'] = 'Buchungsoptionsdatum erstellt';
-$string['bookingoptiondate_updated'] = 'Buchungsoptionsdatum geändert';
-$string['bookingoptiondate_deleted'] = 'Buchungsoptionsdatum gelöscht';
+$string['bookingoptiondate_created'] = 'Termin erstellt';
+$string['bookingoptiondate_updated'] = 'Termin geändert';
+$string['bookingoptiondate_deleted'] = 'Termin gelöscht';
 $string['custom_field_changed'] = 'Benutzerdefiniertes Feld geändert';
 $string['pricecategory_changed'] = 'Preiskategorie geändert';
+$string['reminder1_sent'] = 'Erste Benachrichtigung versendet';
+$string['reminder2_sent'] = 'Zweite Benachrichtigung versendet';
+$string['reminder_teacher_sent'] = 'Benachrichtigung an Trainer:in versendet';
 
 // View.php.
 $string['agreetobookingpolicy'] = 'Ich habe folgende Buchungsbedingungen gelesen und erkläre mich damit einverstanden';
@@ -1693,13 +1709,15 @@ $string['bookingrule'] = 'Regel';
 $string['addbookingrule'] = 'Regel hinzufügen';
 $string['deletebookingrule'] = 'Regel löschen';
 $string['ruleevent'] = 'Event';
-$string['rule_sendmail'] = 'E-Mail versenden';
-$string['rule_sendmail_desc'] = 'Wählen Sie ein Event aus, auf das reagiert werden soll. Legen Sie eine E-Mail-Vorlage an
+$string['rule_sendmail_cpf'] = 'E-Mail versenden an User:in mit benutzerdefiniertem Feld';
+$string['rule_sendmail_cpf_desc'] = 'Wählen Sie ein Event aus, auf das reagiert werden soll. Legen Sie eine E-Mail-Vorlage an
  (Sie können auch Platzhalter wie {bookingdetails} verwenden) und legen Sie fest, an welche Benutzer:innen die E-Mail versendet werden soll.
   Beispiel: Alle Benutzer:innen, die im benutzerdefinierten Feld "Studienzentrumsleitung" den Wert "SZL Wien" stehen haben.';
-$string['rule_sendmail_template'] = 'E-Mail-Vorlage';
+$string['rule_sendmail_cpf_template'] = 'E-Mail-Vorlage';
 $string['rule_dummy'] = 'Dummy-Regel';
 $string['rule_dummy_desc'] = 'Dummy-Regel - nur für Testzwecke.';
-$string['rule_sendmail_customuserprofilefield'] = 'Benutzerdefiniertes User-Profilfeld';
-$string['rule_sendmail_customuserprofilefield_operator'] = 'Operator';
-$string['rule_sendmail_customuserprofilefield_value'] = 'Wert';
+$string['rule_sendmail_cpf_field'] = 'Benutzerdefiniertes User-Profilfeld';
+$string['rule_sendmail_cpf_operator'] = 'Operator';
+$string['rule_sendmail_cpf_value'] = 'Wert';
+$string['error:nofieldchosen'] = 'Sie müssen ein Feld auswählen.';
+$string['error:mustnotbeempty'] = 'Darf nicht leer sein.';
