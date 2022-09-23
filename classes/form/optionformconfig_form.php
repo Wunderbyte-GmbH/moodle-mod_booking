@@ -68,12 +68,14 @@ class optionformconfig_form extends \moodleform {
                     if (empty($element->_attributes['name']) && empty($element->_name)) {
                         continue;
                     }
-                    if ($element->_attributes['name'] == "local_entities_entityname") {
-                        continue;
-                    }
                     if (empty($element->_attributes['name']) && !empty($element->_name)) {
                         $element->_attributes['name'] = $element->_name;
                     }
+
+                    if ($element->_attributes['name'] == "local_entities_entityname") {
+                        continue;
+                    }
+
                     if ($element->_attributes['name'] == 'text') {
                         continue;
                     }
