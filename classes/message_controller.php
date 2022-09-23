@@ -93,8 +93,11 @@ class message_controller {
     /** @var string $customsubject for custom messages */
     private $customsubject;
 
-        /** @var string $custommessage for custom messages */
+    /** @var string $custommessage for custom messages */
     private $custommessage;
+
+    /** @var int $scheduledtime unix timestamp of when to execute the adhoc task */
+    private $scheduledtime;
 
     /**
      * Constructor
@@ -111,7 +114,7 @@ class message_controller {
      */
     public function __construct(int $msgcontrparam, int $messageparam, int $cmid, int $bookingid = null,
         int $optionid, int $userid, int $optiondateid = null, $changes = null,
-        string $customsubject = '', string $custommessage = '') {
+        string $customsubject = '', string $custommessage = '', int $scheduledtime = null) {
 
         global $DB, $USER, $PAGE;
 

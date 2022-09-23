@@ -1708,16 +1708,33 @@ $string['bookingrules'] = 'Buchung: Globale Regeln (PRO)';
 $string['bookingrule'] = 'Regel';
 $string['addbookingrule'] = 'Regel hinzufügen';
 $string['deletebookingrule'] = 'Regel löschen';
-$string['ruleevent'] = 'Event';
+
+$string['rule_event'] = 'Event';
+$string['rule_mailtemplate'] = 'E-Mail-Vorlage';
+$string['rule_datefield'] = 'Datumsfeld';
+$string['rule_customprofilefield'] = 'Benutzerdefiniertes User-Profilfeld';
+$string['rule_operator'] = 'Operator';
+$string['rule_value'] = 'Wert';
+$string['rule_days'] = 'Anzahl Tage vorher';
+
+$string['rule_optionfield'] = 'Buchungsoptionsfeld, das verglichen werden soll';
+$string['rule_optionfield_coursestarttime'] = 'Beginn (coursestarttime)';
+$string['rule_optionfield_courseendtime'] = 'Ende (coursestarttime)';
+$string['rule_optionfield_bookingopeningtime'] = 'Beginn der erlaubten Buchungsperiode (bookingopeningtime)';
+$string['rule_optionfield_bookingclosingtime'] = 'Ende der erlaubten Buchungsperiode (bookingclosingtime)';
+$string['rule_optionfield_text'] = 'Name der Buchungsoption (text)';
+$string['rule_optionfield_location'] = 'Ort (location)';
+$string['rule_optionfield_address'] = 'Adresse (address)';
+
 $string['rule_sendmail_cpf'] = 'E-Mail versenden an User:in mit benutzerdefiniertem Feld';
 $string['rule_sendmail_cpf_desc'] = 'Wählen Sie ein Event aus, auf das reagiert werden soll. Legen Sie eine E-Mail-Vorlage an
  (Sie können auch Platzhalter wie {bookingdetails} verwenden) und legen Sie fest, an welche Benutzer:innen die E-Mail versendet werden soll.
   Beispiel: Alle Benutzer:innen, die im benutzerdefinierten Feld "Studienzentrumsleitung" den Wert "SZL Wien" stehen haben.';
-$string['rule_sendmail_cpf_template'] = 'E-Mail-Vorlage';
-$string['rule_dummy'] = 'Dummy-Regel';
-$string['rule_dummy_desc'] = 'Dummy-Regel - nur für Testzwecke.';
-$string['rule_sendmail_cpf_field'] = 'Benutzerdefiniertes User-Profilfeld';
-$string['rule_sendmail_cpf_operator'] = 'Operator';
-$string['rule_sendmail_cpf_value'] = 'Wert';
+
+$string['rule_sendmail_daysbefore'] = 'E-Mail n Tage vor bestimmtem Datum senden';
+$string['rule_sendmail_daysbefore_desc'] = 'Wählen Sie ein Datumsfeld aus den Buchungsoptionen und die Anzahl der Tage VOR diesem Datum aus,
+ an dem die E-Mail gesendet werden soll. Wählen Sie dann ein Profilfeld und ein Buchungsoptionsfeld aus, die miteinander verglichen werden sollen,
+ um festzustellen, an wen die E-Mail gesendet werden soll.';
+
 $string['error:nofieldchosen'] = 'Sie müssen ein Feld auswählen.';
 $string['error:mustnotbeempty'] = 'Darf nicht leer sein.';

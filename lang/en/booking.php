@@ -1982,16 +1982,32 @@ $string['bookingrules'] = 'Booking: Define global rules (PRO)';
 $string['bookingrule'] = 'Rule';
 $string['addbookingrule'] = 'Add rule';
 $string['deletebookingrule'] = 'Delete rule';
-$string['ruleevent'] = 'Event';
+
+$string['rule_event'] = 'Event';
+$string['rule_mailtemplate'] = 'Mail template';
+$string['rule_datefield'] = 'Date field';
+$string['rule_customprofilefield'] = 'Custom user profile field';
+$string['rule_operator'] = 'Operator';
+$string['rule_value'] = 'Value';
+$string['rule_days'] = 'Number of days before';
+
+$string['rule_optionfield'] = 'Option field to compare';
+$string['rule_optionfield_coursestarttime'] = 'Begin (coursestarttime)';
+$string['rule_optionfield_courseendtime'] = 'End (courseendtime)';
+$string['rule_optionfield_bookingopeningtime'] = 'Start of allowed booking period (bookingopeningtime)';
+$string['rule_optionfield_bookingclosingtime'] = 'End of allowed booking period (bookingclosingtime)';
+$string['rule_optionfield_text'] = 'Name of the booking option (text)';
+$string['rule_optionfield_location'] = 'Location (location)';
+$string['rule_optionfield_address'] = 'Address (address)';
+
 $string['rule_sendmail_cpf'] = 'Send an e-mail to user with custom profile field';
 $string['rule_sendmail_cpf_desc'] = 'Choose an event that should trigger the "Send an e-mail" rule. Enter an e-mail template
  (you can use placeholders like {bookingdetails}) and define to which users the e-mail should be sent.
   Example: All users having the value "Vienna center" in a custom user profile field called "Study center".';
-$string['rule_sendmail_cpf_template'] = 'Mail template';
-$string['rule_dummy'] = 'Dummy rule';
-$string['rule_dummy_desc'] = 'Dummy rule - for test purposes only.';
-$string['rule_sendmail_cpf_field'] = 'Custom user profile field';
-$string['rule_sendmail_cpf_operator'] = 'Operator';
-$string['rule_sendmail_cpf_value'] = 'Value';
+
+$string['rule_sendmail_daysbefore'] = 'Send e-mail n days before a certain date';
+$string['rule_sendmail_daysbefore_desc'] = 'Choose a date field of booking options and the number of days BEFORE that date
+ when an e-mail should be sent. Then choose a field of the option which should match (or be contained by) a custom user profile field of the user.';
+
 $string['error:nofieldchosen'] = 'You have to choose a field.';
 $string['error:mustnotbeempty'] = 'Must not be empty.';

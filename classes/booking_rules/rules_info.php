@@ -116,4 +116,22 @@ class rules_info {
         }
         return;
     }
+
+    /**
+     * Execute all booking rules.
+     */
+    public static function execute_booking_rules() {
+        global $DB;
+
+        if ($records = $DB->get_records('booking_rules')) {
+            foreach ($records as $record) {
+                $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $record->rulename;
+                $rule = new $rulefullpath;
+                // Important: Load the rule data from JSON into the rule instance.
+                $rule->set_ruledata($record);
+                // Now the rule can be executed.
+                $rule->execute();
+            }
+        }
+    }
 }

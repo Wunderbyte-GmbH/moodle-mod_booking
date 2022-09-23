@@ -97,6 +97,9 @@ class rulesform extends dynamic_form {
 
         rules_info::save_booking_rules($data);
 
+        // Now execute the rules.
+        rules_info::execute_booking_rules();
+
         return $data;
     }
 

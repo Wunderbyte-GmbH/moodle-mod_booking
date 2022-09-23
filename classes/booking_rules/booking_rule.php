@@ -71,4 +71,15 @@ interface booking_rule {
      */
     public function set_defaults(stdClass &$data, stdClass $record);
 
+    /**
+     * Load json data form DB into the object.
+     * @param stdClass $record a rule record from DB
+     */
+    public function set_ruledata(stdClass $record);
+
+    /**
+     * Execute the rule.
+     */
+    public function execute();
+
 }

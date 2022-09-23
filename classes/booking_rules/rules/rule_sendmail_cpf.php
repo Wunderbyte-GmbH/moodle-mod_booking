@@ -35,6 +35,38 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class rule_sendmail_cpf implements booking_rule {
 
+    /** @var string $rulename */
+    public $rulename = null;
+
+    /** @var string $event */
+    public $event = null;
+
+    /** @var string $field */
+    public $field = null;
+
+    /** @var string $operator */
+    public $operator = null;
+
+    /** @var string $value */
+    public $value = null;
+
+    /** @var string $template */
+    public $template = null;
+
+    /**
+     * Load json data form DB into the object.
+     * @param stdClass $record a rule record from DB
+     */
+    public function set_ruledata(stdClass $record) {
+        $this->rulename = $record->rulename;
+        $ruleobj = json_decode($record->rulejson);
+        $this->event = $ruleobj->event;
+        $this->field = $ruleobj->field;
+        $this->operator = $ruleobj->operator;
+        $this->value = $ruleobj->value;
+        $this->template = $ruleobj->template;
+    }
+
     /**
      * Only customizable functions need to return their necessary form elements.
      *
@@ -59,7 +91,7 @@ class rule_sendmail_cpf implements booking_rule {
 
         // Event which should trigger the rule.
         $repeatedrules[] = $mform->createElement('select', 'rule_sendmail_cpf_event',
-            get_string('ruleevent', 'mod_booking'), $bookingevents);
+            get_string('rule_event', 'mod_booking'), $bookingevents);
         $repeateloptions['rule_sendmail_cpf_event']['type'] = PARAM_TEXT;
         $repeateloptions['rule_sendmail_cpf_event']['hideif'] = array('bookingrule', 'neq', 'rule_sendmail_cpf');
 
@@ -75,7 +107,7 @@ class rule_sendmail_cpf implements booking_rule {
             }
 
             $repeatedrules[] = $mform->createElement('select', 'rule_sendmail_cpf_field',
-                get_string('rule_sendmail_cpf_field', 'mod_booking'), $customuserprofilefieldsarray);
+                get_string('rule_customprofilefield', 'mod_booking'), $customuserprofilefieldsarray);
             $repeateloptions['rule_sendmail_cpf_field']['hideif'] =
                 array('bookingrule', 'neq', 'rule_sendmail_cpf');
 
@@ -84,12 +116,12 @@ class rule_sendmail_cpf implements booking_rule {
                 '~' => get_string('contains', 'mod_booking')
             ];
             $repeatedrules[] = $mform->createElement('select', 'rule_sendmail_cpf_operator',
-                get_string('rule_sendmail_cpf_operator', 'mod_booking'), $operators);
+                get_string('rule_operator', 'mod_booking'), $operators);
             $repeateloptions['rule_sendmail_cpf_operator']['hideif'] =
                 array('bookingrule', 'neq', 'rule_sendmail_cpf');
 
             $repeatedrules[] = $mform->createElement('text', 'rule_sendmail_cpf_value',
-                get_string('rule_sendmail_cpf_value', 'mod_booking'));
+                get_string('rule_value', 'mod_booking'));
                 $repeateloptions['rule_sendmail_cpf_value']['type'] = PARAM_TEXT;
             $repeateloptions['rule_sendmail_cpf_value']['hideif'] =
                 array('bookingrule', 'neq', 'rule_sendmail_cpf');
@@ -97,7 +129,7 @@ class rule_sendmail_cpf implements booking_rule {
 
         // Mail template. We need to use text area as editor does not work correctly.
         $repeatedrules[] = $mform->createElement('textarea', 'rule_sendmail_cpf_template',
-            get_string('rule_sendmail_cpf_template', 'mod_booking'), 'wrap="virtual" rows="20" cols="25"');
+            get_string('rule_mailtemplate', 'mod_booking'), 'wrap="virtual" rows="20" cols="25"');
         $repeateloptions['rule_sendmail_cpf_template']['hideif'] = array('bookingrule', 'neq', 'rule_sendmail_cpf');
 
     }
@@ -149,5 +181,13 @@ class rule_sendmail_cpf implements booking_rule {
         $data->rule_sendmail_cpf_operator[$idx] = $ruleobj->operator;
         $data->rule_sendmail_cpf_value[$idx] = $ruleobj->value;
         $data->rule_sendmail_cpf_template[$idx] = $ruleobj->template;
+    }
+
+    /**
+     * Execute the rule.
+     */
+    public function execute() {
+        // TODO.
+        return;
     }
 }
