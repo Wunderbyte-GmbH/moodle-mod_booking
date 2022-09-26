@@ -325,8 +325,8 @@ class message_controller {
         // Add user profile fields to e-mail params.
         // If user profile fields are missing, we need to load them correctly.
         if (empty($this->user->profile)) {
-            $this->user->profile = [];
             profile_load_data($this->user);
+            $this->user->profile = [];
             foreach ($this->user as $userkey => $uservalue) {
                 if (substr($userkey, 0, 14) == "profile_field_") {
                     $profilefieldkey = str_replace('profile_field_', '', $userkey);

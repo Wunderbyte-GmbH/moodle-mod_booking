@@ -17,6 +17,8 @@
 namespace mod_booking\booking_rules\rules;
 
 use mod_booking\booking_rules\booking_rule;
+use mod_booking\singleton_service;
+use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
 
@@ -52,6 +54,9 @@ class rule_sendmail_daysbefore implements booking_rule {
     /** @var string $optionfield */
     public $optionfield = null;
 
+    /** @var string $subject */
+    public $subject = null;
+
     /** @var string $template */
     public $template = null;
 
@@ -67,6 +72,7 @@ class rule_sendmail_daysbefore implements booking_rule {
         $this->cpfield = $ruleobj->cpfield;
         $this->operator = $ruleobj->operator;
         $this->optionfield = $ruleobj->optionfield;
+        $this->subject = $ruleobj->subject;
         $this->template = $ruleobj->template;
     }
 
@@ -166,6 +172,11 @@ class rule_sendmail_daysbefore implements booking_rule {
                 array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
         }
 
+        // Mail subject.
+        $repeatedrules[] = $mform->createElement('text', 'rule_sendmail_daysbefore_subject', get_string('subject', 'core'));
+        $repeateloptions['rule_sendmail_daysbefore_subject']['type'] = PARAM_TEXT;
+        $repeateloptions['rule_sendmail_daysbefore_subject']['hideif'] = array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
+
         // Mail template. We need to use text area as editor does not work correctly.
         $repeatedrules[] = $mform->createElement('textarea', 'rule_sendmail_daysbefore_template',
             get_string('rule_mailtemplate', 'mod_booking'), 'wrap="virtual" rows="20" cols="25"');
@@ -196,6 +207,7 @@ class rule_sendmail_daysbefore implements booking_rule {
                 $ruleobj->cpfield = $data->rule_sendmail_daysbefore_cpfield[$idx];
                 $ruleobj->operator = $data->rule_sendmail_daysbefore_operator[$idx];
                 $ruleobj->optionfield = $data->rule_sendmail_daysbefore_optionfield[$idx];
+                $ruleobj->subject = $data->rule_sendmail_daysbefore_subject[$idx];
                 $ruleobj->template = $data->rule_sendmail_daysbefore_template[$idx];
 
                 $record = new stdClass;
@@ -221,6 +233,7 @@ class rule_sendmail_daysbefore implements booking_rule {
         $data->rule_sendmail_daysbefore_cpfield[$idx] = $ruleobj->cpfield;
         $data->rule_sendmail_daysbefore_operator[$idx] = $ruleobj->operator;
         $data->rule_sendmail_daysbefore_optionfield[$idx] = $ruleobj->optionfield;
+        $data->rule_sendmail_daysbefore_subject[$idx] = $ruleobj->subject;
         $data->rule_sendmail_daysbefore_template[$idx] = $ruleobj->template;
     }
 
@@ -230,6 +243,12 @@ class rule_sendmail_daysbefore implements booking_rule {
     public function execute() {
         global $DB;
 
+        $params = [
+            'cpfield' => $this->cpfield,
+            'numberofdays' => (int) $this->days,
+            'nowparam' => time()
+        ];
+
         $sqlcomparepart = "";
         switch ($this->operator) {
             case '~':
@@ -237,40 +256,51 @@ class rule_sendmail_daysbefore implements booking_rule {
                 break;
             case '=':
             default:
-                $sqlcomparepart = $DB->sql_compare_text("ud.data") . " = ". $DB->sql_compare_text("bo." . $this->optionfield . "");
+                $sqlcomparepart = $DB->sql_compare_text("ud.data") . " = bo." . $this->optionfield;
                 break;
         }
 
-        // We need the hack with uniqueid so we do not lose entries as the first column needs to be unique.
-        $sql = "SELECT CONCAT(bo.id, '-', ud.userid) as uniqueid, bo.id optionid, ud.userid
+        // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
+        $sql = "SELECT CONCAT(bo.id, '-', ud.userid) uniqueid,
+                        bo.id optionid,
+                        bo." . $this->datefield . " datefield,
+                        ud.userid
                 FROM {user_info_data} ud
-                -- Join with all options having the same value in the specified option field.
                 LEFT JOIN {booking_options} bo
                 ON $sqlcomparepart
-                -- Identify the users having the custom profile field.
                 WHERE ud.fieldid IN (
                     SELECT DISTINCT id
                     FROM {user_info_field} uif
                     WHERE uif.shortname = :cpfield
                 )
-                -- Only select future options, so the reminder won't be in the past.
-                AND bo." . $this->datefield . " >= (:now + (86400 * :numberofdays))
+                AND bo." . $this->datefield . " >= ( :nowparam + (86400 * :numberofdays ))
         ";
 
-        $params = [
-            'cpfield' => $this->cpfield,
-            'numberofdays' => $this->days,
-            'now' => time()
-        ];
-
         if ($recordsforadhoctasks = $DB->get_records_sql($sql, $params)) {
-            foreach ($recordsforadhoctasks as $recordforadhoctask) {
-                // TODO: Create the adhoc task.
-                $var1 = 'bla';
+            foreach ($recordsforadhoctasks as $record) {
+                // Create the adhoc task to handle the rule.
+                $task = new send_mail_by_rule_adhoc();
+
+                // Generate the data needed by the task.
+                $optionsettings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
+                $taskdata = [
+                    'userid' => $record->userid,
+                    'optionid' => $record->optionid,
+                    'cmid' => $optionsettings->cmid,
+                    'customsubject' => $this->subject,
+                    'custommessage' => $this->template
+                ];
+                $task->set_custom_data($taskdata);
+
+                // Set the time of when the task should run.
+                $nextruntime = (int) $record->datefield - ((int) $this->days * 86400);
+                $task->set_next_run_time($nextruntime);
+
+                // Now queue the task or reschedule it if it already exists (with matching data).
+                \core\task\manager::reschedule_or_queue_adhoc_task($task);
             }
         }
 
-        // TODO.
         return;
     }
 }

@@ -1825,6 +1825,7 @@ $string['task_send_completion_mails'] = 'Booking: Send completion mails';
 $string['task_send_confirmation_mails'] = 'Booking: Send confirmation mails';
 $string['task_send_notification_mails'] = 'Booking: Send notification mails';
 $string['task_send_reminder_mails'] = 'Booking: Send reminder mails';
+$string['task_send_mail_by_rule_adhoc'] = 'Booking: Send mail by rule (adhoc task)';
 $string['task_clean_booking_db'] = 'Booking: Clean database';
 $string['optionbookabletitle'] = '{$a->title} is available again';
 $string['optionbookablebody'] = '{$a->title} is now available again. <a href="{$a->url}">Click here</a> to directly go there.<br><br>

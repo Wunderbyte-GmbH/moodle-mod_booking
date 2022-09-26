@@ -93,6 +93,7 @@ class rule_sendmail_cpf implements booking_rule {
         $repeatedrules[] = $mform->createElement('select', 'rule_sendmail_cpf_event',
             get_string('rule_event', 'mod_booking'), $bookingevents);
         $repeateloptions['rule_sendmail_cpf_event']['type'] = PARAM_TEXT;
+        $repeateloptions['rule_sendmail_cpf_event']['disabledif'] = array('bookingrule', 'eq', 'rule_sendmail_cpf');
         $repeateloptions['rule_sendmail_cpf_event']['hideif'] = array('bookingrule', 'neq', 'rule_sendmail_cpf');
 
         // Custom user profile field to be checked.
@@ -108,6 +109,7 @@ class rule_sendmail_cpf implements booking_rule {
 
             $repeatedrules[] = $mform->createElement('select', 'rule_sendmail_cpf_field',
                 get_string('rule_customprofilefield', 'mod_booking'), $customuserprofilefieldsarray);
+            $repeateloptions['rule_sendmail_cpf_field']['disabledif'] = array('bookingrule', 'eq', 'rule_sendmail_cpf');
             $repeateloptions['rule_sendmail_cpf_field']['hideif'] =
                 array('bookingrule', 'neq', 'rule_sendmail_cpf');
 
@@ -117,12 +119,14 @@ class rule_sendmail_cpf implements booking_rule {
             ];
             $repeatedrules[] = $mform->createElement('select', 'rule_sendmail_cpf_operator',
                 get_string('rule_operator', 'mod_booking'), $operators);
+            $repeateloptions['rule_sendmail_cpf_operator']['disabledif'] = array('bookingrule', 'eq', 'rule_sendmail_cpf');
             $repeateloptions['rule_sendmail_cpf_operator']['hideif'] =
                 array('bookingrule', 'neq', 'rule_sendmail_cpf');
 
             $repeatedrules[] = $mform->createElement('text', 'rule_sendmail_cpf_value',
                 get_string('rule_value', 'mod_booking'));
                 $repeateloptions['rule_sendmail_cpf_value']['type'] = PARAM_TEXT;
+            $repeateloptions['rule_sendmail_cpf_value']['disabledif'] = array('bookingrule', 'eq', 'rule_sendmail_cpf');
             $repeateloptions['rule_sendmail_cpf_value']['hideif'] =
                 array('bookingrule', 'neq', 'rule_sendmail_cpf');
         }
@@ -130,6 +134,7 @@ class rule_sendmail_cpf implements booking_rule {
         // Mail template. We need to use text area as editor does not work correctly.
         $repeatedrules[] = $mform->createElement('textarea', 'rule_sendmail_cpf_template',
             get_string('rule_mailtemplate', 'mod_booking'), 'wrap="virtual" rows="20" cols="25"');
+        $repeateloptions['rule_sendmail_cpf_template']['disabledif'] = array('bookingrule', 'eq', 'rule_sendmail_cpf');
         $repeateloptions['rule_sendmail_cpf_template']['hideif'] = array('bookingrule', 'neq', 'rule_sendmail_cpf');
 
     }
