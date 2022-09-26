@@ -1465,7 +1465,7 @@ $string['defaultpriceformula'] = "Preisformel";
 $string['defaultpriceformuladesc'] = "Das JSON Objekt erlaubt die Konfiguation der automatischen Preisberechnung.";
 
 // Semesters.
-$string['booking:semesters'] = 'Booking: Semester';
+$string['booking:semesters'] = 'Buchung: Semester';
 $string['semester'] = 'Semester';
 $string['semesters'] = 'Semester';
 $string['semesterssaved'] = 'Semester wurden gespeichert';
