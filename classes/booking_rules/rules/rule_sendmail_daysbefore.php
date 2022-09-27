@@ -252,7 +252,10 @@ class rule_sendmail_daysbefore implements booking_rule {
         $sqlcomparepart = "";
         switch ($this->operator) {
             case '~':
-                $sqlcomparepart = "ud.data LIKE '%bo." . $this->optionfield . "%'";
+                $sqlcomparepart = $DB->sql_compare_text("ud.data") .
+                    " LIKE CONCAT('%', bo." . $this->optionfield . ", '%')
+                      AND bo." . $this->optionfield . " <> ''
+                      AND bo." . $this->optionfield . " IS NOT NULL";
                 break;
             case '=':
             default:
@@ -266,7 +269,7 @@ class rule_sendmail_daysbefore implements booking_rule {
                         bo." . $this->datefield . " datefield,
                         ud.userid
                 FROM {user_info_data} ud
-                LEFT JOIN {booking_options} bo
+                JOIN {booking_options} bo
                 ON $sqlcomparepart
                 WHERE ud.fieldid IN (
                     SELECT DISTINCT id

@@ -50,7 +50,7 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
 
         $taskdata = $this->get_custom_data();
 
-        echo 'send_mail_by_rule_adhoc task: sending mail for option ' . $taskdata->optionid . 'to user '
+        echo 'send_mail_by_rule_adhoc task: sending mail for option ' . $taskdata->optionid . ' to user '
             . $taskdata->userid . PHP_EOL;
 
         if ($taskdata != null) {
@@ -62,10 +62,10 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
             );
 
             if ($messagecontroller->send_or_queue()) {
-                echo 'send_mail_by_rule_adhoc task: mail successfully sent for option ' . $taskdata->optionid . 'to user '
+                echo 'send_mail_by_rule_adhoc task: mail successfully sent for option ' . $taskdata->optionid . ' to user '
                 . $taskdata->userid . PHP_EOL;
             } else {
-                echo 'send_mail_by_rule_adhoc task: mail could not be sent to for option ' . $taskdata->optionid . 'to user '
+                echo 'send_mail_by_rule_adhoc task: mail could not be sent to for option ' . $taskdata->optionid . ' to user '
                 . $taskdata->userid . PHP_EOL;
             }
 

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_booking;
+defined('MOODLE_INTERNAL') || die();
 
 use context_module;
 use stdClass;
@@ -28,6 +29,8 @@ use mod_booking\booking_settings;
 use mod_booking\booking_option_settings;
 use mod_booking\output\optiondates_only;
 use mod_booking\output\bookingoption_changes;
+
+require_once($CFG->dirroot.'/user/profile/lib.php');
 
 /**
  * Manage booking messages which will be sent by email.
@@ -325,8 +328,8 @@ class message_controller {
         // Add user profile fields to e-mail params.
         // If user profile fields are missing, we need to load them correctly.
         if (empty($this->user->profile)) {
-            profile_load_data($this->user);
             $this->user->profile = [];
+            profile_load_data($this->user);
             foreach ($this->user as $userkey => $uservalue) {
                 if (substr($userkey, 0, 14) == "profile_field_") {
                     $profilefieldkey = str_replace('profile_field_', '', $userkey);
