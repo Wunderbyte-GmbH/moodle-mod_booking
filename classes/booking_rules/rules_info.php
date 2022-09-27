@@ -134,4 +134,42 @@ class rules_info {
             }
         }
     }
+
+    /**
+     * After an option has been added or updated,
+     * we need to check if any rules need to be applied or changed.
+     * @param int $optionid
+     */
+    public static function check_rules_for_option(int $optionid) {
+        global $DB;
+        if ($records = $DB->get_records('booking_rules')) {
+            foreach ($records as $record) {
+                $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $record->rulename;
+                $rule = new $rulefullpath;
+                // Important: Load the rule data from JSON into the rule instance.
+                $rule->set_ruledata($record);
+                // Now the rule can be executed.
+                $rule->execute($optionid);
+            }
+        }
+    }
+
+    /**
+     * After a user has been added or updated,
+     * we need to check if any rules need to be applied or changed.
+     * @param int $userid
+     */
+    public static function check_rules_for_user(int $userid) {
+        global $DB;
+        if ($records = $DB->get_records('booking_rules')) {
+            foreach ($records as $record) {
+                $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $record->rulename;
+                $rule = new $rulefullpath;
+                // Important: Load the rule data into the rule instance.
+                $rule->set_ruledata($record);
+                // Now the rule can be executed.
+                $rule->execute(null, $userid);
+            }
+        }
+    }
 }

@@ -39,6 +39,9 @@ class rule_sendmail_daysbefore implements booking_rule {
     /** @var string $rulename */
     public $rulename = null;
 
+    /** @var string $rulejson */
+    public $rulejson = null;
+
     /** @var int $days */
     public $days = null;
 
@@ -61,12 +64,30 @@ class rule_sendmail_daysbefore implements booking_rule {
     public $template = null;
 
     /**
-     * Load json data form DB into the object.
+     * Load json data from DB into the object.
      * @param stdClass $record a rule record from DB
      */
     public function set_ruledata(stdClass $record) {
         $this->rulename = $record->rulename;
+        $this->rulejson = $record->rulejson;
         $ruleobj = json_decode($record->rulejson);
+        $this->days = (int) $ruleobj->days;
+        $this->datefield = $ruleobj->datefield;
+        $this->cpfield = $ruleobj->cpfield;
+        $this->operator = $ruleobj->operator;
+        $this->optionfield = $ruleobj->optionfield;
+        $this->subject = $ruleobj->subject;
+        $this->template = $ruleobj->template;
+    }
+
+    /**
+     * Load data directly from JSON.
+     * @param string $json a json string for a booking rule
+     */
+    public function set_ruledata_from_json(string $json) {
+        $this->rulejson = $json;
+        $ruleobj = json_decode($json);
+        $this->rulename = $ruleobj->rulename;
         $this->days = (int) $ruleobj->days;
         $this->datefield = $ruleobj->datefield;
         $this->cpfield = $ruleobj->cpfield;
@@ -239,15 +260,29 @@ class rule_sendmail_daysbefore implements booking_rule {
 
     /**
      * Execute the rule.
+     * @param int $optionid optional
+     * @param int $userid optional
      */
-    public function execute() {
+    public function execute(int $optionid = null, int $userid = null) {
         global $DB;
+
+        $andoptionid = "";
+        $anduserid = "";
 
         $params = [
             'cpfield' => $this->cpfield,
             'numberofdays' => (int) $this->days,
             'nowparam' => time()
         ];
+
+        if (!empty($optionid)) {
+            $andoptionid = "AND bo.id = :optionid";
+            $params['optionid'] = $optionid;
+        }
+        if (!empty($userid)) {
+            $anduserid = "AND ud.userid = :userid";
+            $params['userid'] = $userid;
+        }
 
         $sqlcomparepart = "";
         switch ($this->operator) {
@@ -277,6 +312,8 @@ class rule_sendmail_daysbefore implements booking_rule {
                     WHERE uif.shortname = :cpfield
                 )
                 AND bo." . $this->datefield . " >= ( :nowparam + (86400 * :numberofdays ))
+                $andoptionid
+                $anduserid
         ";
 
         if ($recordsforadhoctasks = $DB->get_records_sql($sql, $params)) {
@@ -287,6 +324,10 @@ class rule_sendmail_daysbefore implements booking_rule {
                 // Generate the data needed by the task.
                 $optionsettings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
                 $taskdata = [
+                    // We need the JSON, so we can check if the rule still applies...
+                    // ...on task execution.
+                    'rulename' => $this->rulename,
+                    'rulejson' => $this->rulejson,
                     'userid' => $record->userid,
                     'optionid' => $record->optionid,
                     'cmid' => $optionsettings->cmid,
@@ -303,7 +344,71 @@ class rule_sendmail_daysbefore implements booking_rule {
                 \core\task\manager::reschedule_or_queue_adhoc_task($task);
             }
         }
+    }
 
-        return;
+    /**
+     * This function is called on execution of adhoc tasks,
+     * so we can see if the rule still applies and the adhoc task
+     * shall really be executed.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @param int $nextruntime
+     * @return bool true if the rule still applies, false if not
+     */
+    public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime): bool {
+        global $DB;
+
+        $rulestillapplies = false;
+
+        $params = [
+            'optionid' => $optionid,
+            'userid' => $userid,
+            'cpfield' => $this->cpfield,
+            'numberofdays' => (int) $this->days
+        ];
+
+        $sqlcomparepart = "";
+        switch ($this->operator) {
+            case '~':
+                $sqlcomparepart = $DB->sql_compare_text("ud.data") .
+                    " LIKE CONCAT('%', bo." . $this->optionfield . ", '%')
+                      AND bo." . $this->optionfield . " <> ''
+                      AND bo." . $this->optionfield . " IS NOT NULL";
+                break;
+            case '=':
+            default:
+                $sqlcomparepart = $DB->sql_compare_text("ud.data") . " = bo." . $this->optionfield;
+                break;
+        }
+
+        // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
+        $sql = "SELECT CONCAT(bo.id, '-', ud.userid) uniqueid,
+                        bo.id optionid,
+                        bo." . $this->datefield . " datefield,
+                        ud.userid
+                FROM {user_info_data} ud
+                JOIN {booking_options} bo
+                ON $sqlcomparepart
+                WHERE ud.fieldid IN (
+                    SELECT DISTINCT id
+                    FROM {user_info_field} uif
+                    WHERE uif.shortname = :cpfield
+                )
+                AND bo.id = :optionid
+                AND ud.userid = :userid";
+
+        if ($records = $DB->get_records_sql($sql, $params)) {
+            // There should only be one record actually.
+            foreach ($records as $record) {
+                // Set the time of when the task should run.
+                $calculatedruntime = (int) $record->datefield - ((int) $this->days * 86400);
+                if ($calculatedruntime == $nextruntime) {
+                    // Only if both a record was found and the runtime is still the same.
+                    $rulestillapplies = true;
+                }
+            }
+        }
+        return $rulestillapplies;
     }
 }

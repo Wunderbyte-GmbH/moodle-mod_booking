@@ -68,6 +68,14 @@ class rule_sendmail_cpf implements booking_rule {
     }
 
     /**
+     * Load data directly from JSON.
+     * @param string $json a json string for a booking rule
+     */
+    public function set_ruledata_from_json(string $json) {
+        // TODO.
+    }
+
+    /**
      * Only customizable functions need to return their necessary form elements.
      *
      * @param MoodleQuickForm $mform
@@ -190,9 +198,25 @@ class rule_sendmail_cpf implements booking_rule {
 
     /**
      * Execute the rule.
+     * @param int $optionid optional
+     * @param int $userid optional
      */
-    public function execute() {
+    public function execute(int $optionid = null, int $userid = null) {
         // TODO.
         return;
+    }
+
+    /**
+     * This function is called on execution of adhoc tasks,
+     * so we can see if the rule still applies and the adhoc task
+     * shall really be executed.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @param int $nextruntime
+     * @return bool true if the rule still applies, false if not
+     */
+    public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime): bool {
+        return false; // TODO.
     }
 }

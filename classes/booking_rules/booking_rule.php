@@ -78,8 +78,27 @@ interface booking_rule {
     public function set_ruledata(stdClass $record);
 
     /**
-     * Execute the rule.
+     * Load data directly from JSON.
+     * @param string $json a json string for a booking rule
      */
-    public function execute();
+    public function set_ruledata_from_json(string $json);
 
+    /**
+     * Execute the rule.
+     * @param int $optionid optional
+     * @param int $userid optional
+     */
+    public function execute(int $optionid = null, int $userid = null);
+
+    /**
+     * This function is called on execution of adhoc tasks,
+     * so we can see if the rule still applies and the adhoc task
+     * shall really be executed.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @param int $nextruntime
+     * @return bool true if the rule still applies, false if not
+     */
+    public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime): bool;
 }

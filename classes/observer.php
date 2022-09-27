@@ -22,6 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use mod_booking\booking_option;
+use mod_booking\booking_rules\rules_info;
 use mod_booking\calendar;
 use mod_booking\singleton_service;
 
@@ -29,6 +30,32 @@ use mod_booking\singleton_service;
  * Event observer for mod_booking.
  */
 class mod_booking_observer {
+
+    /**
+     * Observer for the user_created event
+     *
+     * @param \core\event\user_created $event
+     */
+    public static function user_created(\core\event\user_created $event) {
+
+        $userid = $event->relateduserid;
+
+        // Check if any booking rules apply for this new user.
+        rules_info::check_rules_for_user($userid);
+    }
+
+    /**
+     * Observer for the user_updated event
+     *
+     * @param \core\event\user_updated $event
+     */
+    public static function user_updated(\core\event\user_updated $event) {
+
+        $userid = $event->relateduserid;
+
+        // Check if any booking rules apply for this new user.
+        rules_info::check_rules_for_user($userid);
+    }
 
     /**
      * Observer for the user_deleted event

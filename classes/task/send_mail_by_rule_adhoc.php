@@ -49,11 +49,23 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
     public function execute() {
 
         $taskdata = $this->get_custom_data();
+        $nextruntime = $this->get_next_run_time();
 
         echo 'send_mail_by_rule_adhoc task: sending mail for option ' . $taskdata->optionid . ' to user '
             . $taskdata->userid . PHP_EOL;
 
         if ($taskdata != null) {
+
+            $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $taskdata->rulename;
+            $rule = new $rulefullpath;
+            // Important: Load the rule data from JSON into the rule instance.
+            $rule->set_ruledata_from_json($taskdata->rulejson);
+
+            if (!$rule->check_if_rule_still_applies($taskdata->optionid, $taskdata->userid, $nextruntime)) {
+                echo 'send_mail_by_rule_adhoc task: Rule does not apply anymore. Mail was NOT SENT for option ' .
+                    $taskdata->optionid . ' and user ' . $taskdata->userid . PHP_EOL;
+                return;
+            }
 
             // Use message controller to send the message.
             $messagecontroller = new message_controller(

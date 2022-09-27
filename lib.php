@@ -28,6 +28,7 @@ require_once($CFG->dirroot .'/course/externallib.php');
 
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking_option;
+use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_utils;
 use mod_booking\optiondates_handler;
 use mod_booking\output\coursepage_available_options;
@@ -1081,6 +1082,8 @@ function booking_update_options($optionvalues, $context) {
         // $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
         // $cache->delete($option->id);
 
+        rules_info::check_rules_for_option($option->id);
+
         return $option->id;
     } else if (!empty($optionvalues->text)) { // New booking option record.
         // If option "Use as global template" has been set.
@@ -1101,9 +1104,10 @@ function booking_update_options($optionvalues, $context) {
 
         // Make sure it's no template by checking if bookingid is something else than 0.
         if ($option->bookingid != 0) {
-            // A booking option will always be inserted, even if it has the same name (text) as a template.
+            // A new booking option is added.
             $optionid = $DB->insert_record("booking_options", $option);
         } else {
+            // Add as template.
             // Fixed: For templates, make sure they won't get inserted twice.
             $dbrecord = $DB->get_record("booking_options",
                 ['text' => $option->text,
@@ -1178,6 +1182,11 @@ function booking_update_options($optionvalues, $context) {
         $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
                 'userid' => $USER->id));
         $event->trigger();
+
+        // Finally, we need to check if any existing booking rules are affected.
+        if ($option->bookingid != 0) {
+            rules_info::check_rules_for_option($optionid);
+        }
 
         // At the very last moment, when everything is done, we invalidate the table cache.
         cache_helper::purge_by_event('setbackoptionstable');
