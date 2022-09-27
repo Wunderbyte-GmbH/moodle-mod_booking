@@ -1,3 +1,7 @@
+## Version 7.4.3 (2022092700)
+**Bugfixes:**
+* Small bugfixes in forms etc.
+
 ## Version 7.4.2 (2022091902)
 **Improvements:**
 * Improvement: Restored holiday names.
@@ -19,7 +23,7 @@
 * New feature: New availability condition for custom profile fields.
 * New feature: New performance report for teachers (performed hours/units).
 * New feature: CSV Import now works with "identifier" and "titleprefix".
-* New feature: 
+* New feature:
 
 **Improvements:**
 * Improvement: New operators for user profile field availability condition.
