@@ -1809,7 +1809,10 @@ By default, every date will be filled in with the option\'s teacher. You can ove
 $string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Click here if you want to add or remove teachers to/from EACH date.</a></h5></p>';
 $string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Teaching report: Click here if you want to add or remove teachers to/from specific dates only (for reporting).</a></h5></p>';
 $string['teacher'] = 'Teacher';
-$string['noteacherset'] = 'No teacher set';
+$string['noteacherset'] = 'No teacher';
+$string['reason'] = 'Reason';
+$string['error:reasonfornoteacher'] = 'Enter a reason why no teachers were present at this date.';
+$string['error:reasontoolong'] = 'Reason is too long, enter a shorter text.';
 
 // Optionformconfig.php / optionformconfig_form.php.
 $string['optionformconfig'] = 'Booking: Configure booking option form';

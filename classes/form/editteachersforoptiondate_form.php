@@ -60,10 +60,18 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
      * Here we can prepare the data before submission.
      */
     public function set_data_for_dynamic_submission(): void {
+        global $DB;
+
         $data = new stdClass();
         $data->cmid = $this->_ajaxformdata['cmid'];
         $data->optionid = $this->_ajaxformdata['optionid'];
         $data->optiondateid = $this->_ajaxformdata['optiondateid'];
+
+        // Get reason from DB.
+        if ($reason = $DB->get_field('booking_optiondates', 'reason', ['id' => $data->optiondateid])) {
+            $data->reason = $reason;
+        }
+
         // Teachers will be retrieved from $data->teachersforoptiondate in process_dynamic_submission.
         $this->set_data($data);
     }
@@ -108,6 +116,15 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                 }
             }
         }
+
+        // Save reason.
+        if (!empty($data->reason)) {
+            if ($optiondaterecord = $DB->get_record('booking_optiondates', ['id' => $data->optiondateid])) {
+                $optiondaterecord->reason = $data->reason;
+                $DB->update_record('booking_optiondates', $optiondaterecord);
+            }
+        }
+
         return $data;
     }
 
@@ -155,6 +172,9 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
         $mform->addElement('autocomplete', 'teachersforoptiondate', get_string('teachers', 'mod_booking'),
             $allowedusers, $options);
         $mform->setDefault('teachersforoptiondate', $teachers);
+
+        $mform->addElement('text', 'reason', get_string('reason', 'mod_booking'));
+        $mform->setType('reason', PARAM_TEXT);
     }
 
     /**
@@ -164,6 +184,14 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
      */
     public function validation($data, $files) {
         $errors = [];
+
+        if (strlen($data['reason']) > 250) {
+            $errors['reason'] = get_string('error:reasontoolong', 'mod_booking');
+        }
+        if (empty($data['teachersforoptiondate']) && empty($data['reason'])) {
+            $errors['reason'] = get_string('error:reasonfornoteacher', 'mod_booking');
+        }
+
         return $errors;
     }
 

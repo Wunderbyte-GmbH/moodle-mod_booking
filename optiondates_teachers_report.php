@@ -102,6 +102,7 @@ if (!$optiondatesteacherstable->is_downloading()) {
     $optiondatesteacherstable->define_headers([
         get_string('optiondate', 'mod_booking'),
         get_string('teacher', 'mod_booking'),
+        get_string('reason', 'mod_booking'),
         get_string('edit')
     ]);
 
@@ -109,6 +110,7 @@ if (!$optiondatesteacherstable->is_downloading()) {
     $optiondatesteacherstable->define_columns([
         'optiondate',
         'teacher',
+        'reason',
         'edit'
     ]);
 
@@ -117,9 +119,9 @@ if (!$optiondatesteacherstable->is_downloading()) {
 
     // SQL query. The subselect will fix the "Did you remember to make the first column something...
     // ...unique in your call to get_records?" bug.
-    $fields = "s.optiondateid, s.optionid, s.coursestarttime, s.courseendtime, s.teachers";
+    $fields = "s.optiondateid, s.optionid, s.coursestarttime, s.courseendtime, s.reason, s.teachers";
     $from = "(
-        SELECT bod.id optiondateid, bod.optionid, bod.coursestarttime, bod.courseendtime, " .
+        SELECT bod.id optiondateid, bod.optionid, bod.coursestarttime, bod.courseendtime, bod.reason, " .
         $DB->sql_group_concat('u.id', ',', 'u.id') . " teachers
         FROM {booking_optiondates} bod
         LEFT JOIN {booking_optiondates_teachers} bodt
@@ -157,20 +159,22 @@ if (!$optiondatesteacherstable->is_downloading()) {
     $optiondatesteacherstable->define_headers([
         get_string('name'),
         get_string('optiondate', 'mod_booking'),
+        get_string('reason', 'mod_booking'),
         get_string('teacher', 'mod_booking')
     ]);
     // Columns.
     $optiondatesteacherstable->define_columns([
         'optionname',
         'optiondate',
+        'reason',
         'teacher'
     ]);
 
     // SQL query. The subselect will fix the "Did you remember to make the first column something...
     // ...unique in your call to get_records?" bug.
-    $fields = "s.optiondateid, s.text, s.optionid, s.coursestarttime, s.courseendtime, s.teachers";
+    $fields = "s.optiondateid, s.text, s.optionid, s.coursestarttime, s.courseendtime, s.reason, s.teachers";
     $from = "(
-        SELECT bod.id optiondateid, bo.text, bod.optionid, bod.coursestarttime, bod.courseendtime, " .
+        SELECT bod.id optiondateid, bo.text, bod.optionid, bod.coursestarttime, bod.courseendtime, bod.reason, " .
         $DB->sql_group_concat('u.id', ',', 'u.id') . " teachers
         FROM {booking_optiondates} bod
         LEFT JOIN {booking_optiondates_teachers} bodt

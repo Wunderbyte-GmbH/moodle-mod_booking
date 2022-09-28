@@ -2729,5 +2729,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022092901, 'booking');
     }
 
+if ($oldversion < 2022092802) {
+
+        // Define field reason to be added to booking_optiondates.
+        $table = new xmldb_table('booking_optiondates');
+        $field = new xmldb_field('reason', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'sent');
+
+        // Conditionally launch add field reason.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022092802, 'booking');
+    }
+
     return true;
 }

@@ -140,7 +140,8 @@ class optiondates_teachers_table extends table_sql {
             'data-cmid' => $_GET['id'],
             'data-optionid' => $values->optionid,
             'data-teachers' => $values->teachers,
-            'data-optiondateid' => $values->optiondateid]));
+            'data-optiondateid' => $values->optiondateid
+        ]));
 
         return $ret;
     }

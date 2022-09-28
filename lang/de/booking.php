@@ -1573,7 +1573,10 @@ Standardmäßig werden alle Termine mit dem/den eingestellten Trainer_innen der 
 $string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Um Trainer_innen zu ALLEN Terminen hinzuzufügen bzw. von ALLEN Terminen zu löschen, klicken Sie bitte hier.</a></h5></p>';
 $string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Training-Journal: Klicken Sie hier, um die Trainer_innen für spezifische Termine zu protokollieren.</a></h5></p>';
 $string['teacher'] = 'Trainer_in';
-$string['noteacherset'] = 'Kein/e Trainer/in ausgewählt';
+$string['noteacherset'] = 'Kein/e Trainer/in';
+$string['reason'] = 'Grund';
+$string['error:reasonfornoteacher'] = 'Geben Sie einen Grund an, warum an diesem Termin kein/e Trainer/in anwesend war.';
+$string['error:reasontoolong'] = 'Grund ist zu lange, geben Sie einen kürzeren Text ein.';
 
 // Optionformconfig.php / optionformconfig_form.php.
 $string['optionformconfig'] = 'Buchung: Formular für Buchungsoptionen anpassen';
