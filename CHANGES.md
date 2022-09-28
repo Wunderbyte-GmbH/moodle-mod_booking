@@ -1,6 +1,18 @@
+## Version 7.5.0 (2022092800)
+**New features:**
+* New feature: Global Roles (PRO) - Rules can now be added globally.
+  The rule 'Send e-mail n days before a certain date' now allows to define
+  to send e-mails n days before a certain date within an option (e.g. coursestarttime,
+  bookingopeningtime...) to all users who have a custom profile field matching (or
+  containing) the same value as a certain field of an option. The mail templates also
+  support placeholders (e.g. {bookingdetails}).
+
 ## Version 7.4.3 (2022092700)
+**Improvements:**
+* Improvement: Added notification when a semester is saved in form.
+
 **Bugfixes:**
-* Small bugfixes in forms etc.
+* Bugfix: Fix bug where error was shown in optionformconfig_form.
 
 ## Version 7.4.2 (2022091902)
 **Improvements:**
