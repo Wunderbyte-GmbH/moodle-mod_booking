@@ -25,7 +25,6 @@
 
 namespace mod_booking\booking_rules;
 
-use core_component;
 use MoodleQuickForm;
 use stdClass;
 
@@ -101,7 +100,6 @@ class rules_info {
 
     /**
      * Save all booking rules.
-     *
      * @param stdClass &$data reference to the form data
      * @return void
      */
@@ -122,7 +120,6 @@ class rules_info {
      */
     public static function execute_booking_rules() {
         global $DB;
-
         if ($records = $DB->get_records('booking_rules')) {
             foreach ($records as $record) {
                 $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $record->rulename;

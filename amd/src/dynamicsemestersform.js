@@ -47,7 +47,7 @@ export const init = (selector, formClass, existingsemesters) => {
          // eslint-disable-next-line no-console
          console.log(e.detail);
 
-         getString('allchangessave', 'mod_booking').then(message => {
+         getString('allchangessaved', 'mod_booking').then(message => {
 
             Notification.addNotification({
                 message: message,

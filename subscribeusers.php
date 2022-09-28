@@ -167,12 +167,12 @@ echo html_writer::tag('div',
 
 if ($subscribesuccess || $unsubscribesuccess) {
     if ($subscribesuccess) {
-        echo $OUTPUT->container(get_string('allchangessave', 'booking'), 'important', 'notice');
+        echo $OUTPUT->container(get_string('allchangessaved', 'booking'), 'important', 'notice');
     }
     if ($unsubscribesuccess &&
              (has_capability('mod/booking:deleteresponses', $context) ||
              (booking_check_if_teacher($bookingoption->option)))) {
-        echo $OUTPUT->container(get_string('allchangessave', 'booking'), 'important', 'notice');
+        echo $OUTPUT->container(get_string('allchangessaved', 'booking'), 'important', 'notice');
     }
 }
 
