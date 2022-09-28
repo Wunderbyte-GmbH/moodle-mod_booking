@@ -77,7 +77,7 @@ class rule_sendmail_daysbefore implements booking_rule {
         $this->operator = $ruleobj->operator;
         $this->optionfield = $ruleobj->optionfield;
         $this->subject = $ruleobj->subject;
-        $this->template = $ruleobj->template;
+        $this->template = nl2br($ruleobj->template); // Keep line breaks in HTML.
     }
 
     /**
@@ -94,7 +94,7 @@ class rule_sendmail_daysbefore implements booking_rule {
         $this->operator = $ruleobj->operator;
         $this->optionfield = $ruleobj->optionfield;
         $this->subject = $ruleobj->subject;
-        $this->template = $ruleobj->template;
+        $this->template = nl2br($ruleobj->template); // Keep line breaks in HTML.
     }
 
     /**
