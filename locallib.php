@@ -17,6 +17,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 use mod_booking\booking_option;
+use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_utils;
 use mod_booking\event\bookingoptiondate_created;
 use mod_booking\singleton_service;
@@ -357,6 +358,9 @@ function booking_updatestartenddate($optionid) {
         }
 
         $DB->update_record("booking_options", $optionobj);
+
+        // We need to check if any rules apply for the updated option.
+        rules_info::check_rules_for_option($optionid);
     }
 }
 
