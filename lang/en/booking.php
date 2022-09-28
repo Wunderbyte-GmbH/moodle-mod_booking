@@ -2012,3 +2012,6 @@ $string['rule_sendmail_daysbefore_desc'] = 'Choose a date field of booking optio
 
 $string['error:nofieldchosen'] = 'You have to choose a field.';
 $string['error:mustnotbeempty'] = 'Must not be empty.';
+
+// Access.php.
+$string['booking:bookforothers'] = "Book for others";

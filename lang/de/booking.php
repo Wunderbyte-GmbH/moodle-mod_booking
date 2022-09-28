@@ -1739,3 +1739,6 @@ $string['rule_sendmail_daysbefore_desc'] = 'Wählen Sie ein Datumsfeld aus den B
 
 $string['error:nofieldchosen'] = 'Sie müssen ein Feld auswählen.';
 $string['error:mustnotbeempty'] = 'Darf nicht leer sein.';
+
+// Access.php.
+$string['booking:bookforothers'] = "Für andere buchen";
