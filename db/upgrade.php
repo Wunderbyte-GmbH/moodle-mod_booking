@@ -2741,7 +2741,7 @@ if ($oldversion < 2022092802) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2022092802, 'booking');
+        upgrade_mod_savepoint(true, 2022092901, 'booking');
     }
 
     return true;

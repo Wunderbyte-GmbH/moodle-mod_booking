@@ -1815,6 +1815,18 @@ $string['error:reasonfornoteacher'] = 'Enter a reason why no teachers were prese
 $string['error:reasontoolong'] = 'Reason is too long, enter a shorter text.';
 $string['error:reasonforsubstituteteacher'] = 'Enter a reason for the substitute teacher(s).';
 
+// Teachers_instance_report.php.
+$string['error:invalidcmid'] = 'The report cannot be opened because no valid course module ID (cmid) was provided. It needs to be the cmid of a booking instance!';
+$string['teachingreportforinstance'] = 'Teaching overview report for ';
+$string['teachersinstancereport:subtitle'] = '<strong>Hint:</strong> You can change the duration of
+an educational unit in the plugin settings (e.g. 45 instead of 60 minutes).<br/>
+<a href="/admin/settings.php?section=modsettingbooking" target="_blank">
+&gt;&gt; Go to plugin settings...
+</a>';
+$string['allteachers'] = 'All teachers';
+$string['units'] = 'Units';
+$string['units_unknown'] = 'Number of units unknown';
+
 // Optionformconfig.php / optionformconfig_form.php.
 $string['optionformconfig'] = 'Booking: Configure booking option form';
 $string['optionformconfigsaved'] = 'Configuration for the booking option form saved.';

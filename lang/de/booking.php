@@ -1572,12 +1572,24 @@ $string['optiondatesteachersreport_desc'] = 'In diesem Report erhalten Sie eine 
 Standardmäßig werden alle Termine mit dem/den eingestellten Trainer_innen der Buchungsoption befüllt. Sie können einzelne Termine mit Vertretungen überschreiben.';
 $string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Um Trainer_innen zu ALLEN Terminen hinzuzufügen bzw. von ALLEN Terminen zu löschen, klicken Sie bitte hier.</a></h5></p>';
 $string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Training-Journal: Klicken Sie hier, um die Trainer_innen für spezifische Termine zu protokollieren.</a></h5></p>';
-$string['teacher'] = 'Trainer_in';
+$string['teacher'] = 'Trainer:in';
 $string['noteacherset'] = 'Kein/e Trainer/in';
 $string['reason'] = 'Grund';
 $string['error:reasonfornoteacher'] = 'Geben Sie einen Grund an, warum an diesem Termin kein/e Trainer/in anwesend war.';
 $string['error:reasontoolong'] = 'Grund ist zu lange, geben Sie einen kürzeren Text ein.';
 $string['error:reasonforsubstituteteacher'] = 'Geben Sie einen Grund für die Vertretung an.';
+
+// Teachers_instance_report.php.
+$string['error:invalidcmid'] = 'Der Bericht kann nicht geöffnet werden, weil keine gültige Kursmodul-ID (cmid) übergeben wurde. Die cmid muss auf eine Buchungsinstanz verweisen!';
+$string['teachingreportforinstance'] = 'Trainer:innen-Gesamtbericht für ';
+$string['teachersinstancereport:subtitle'] = '<strong>Hinweis:</strong> Sie können die Dauer einer Unterrichtseinheit
+in den Einstellungen anpassen. (Z.B. 45 statt 60 Minuten).<br/>
+<a href="/admin/settings.php?section=modsettingbooking" target="_blank">
+&gt;&gt; Zu den Einstellungen...
+</a>';
+$string['allteachers'] = 'Alle Trainer:innen';
+$string['units'] = 'UE';
+$string['units_unknown'] = 'Anzahl UE unbekannt';
 
 // Optionformconfig.php / optionformconfig_form.php.
 $string['optionformconfig'] = 'Buchung: Formular für Buchungsoptionen anpassen';

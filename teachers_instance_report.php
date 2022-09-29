@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Report to track individual performed units of a specific teacher.
+ * Overall report for all teachers within a booking instance.
  *
  * @package     mod_booking
  * @copyright   2022 Wunderbyte GmbH <info@wunderbyte.at>
@@ -23,28 +23,26 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\form\teacher_performed_units_report_form;
-use mod_booking\table\teacher_performed_units_table;
+use mod_booking\form\teachers_instance_report_form;
+use mod_booking\singleton_service;
+use mod_booking\table\teachers_instance_report_table;
 
 require_once(__DIR__ . '/../../config.php');
 
-$teacherid = required_param('teacherid', PARAM_INT);
+$cmid = required_param('cmid', PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
-
-$filterstartdate = 0;
-$filterenddate = 0;
 
 // No guest autologin.
 require_login(0, false);
 
 $urlparams = [
-    'teacherid' => $teacherid
+    'cmid' => $cmid
 ];
 
 $context = context_system::instance();
 $PAGE->set_context($context);
 
-$baseurl = new moodle_url('/mod/booking/teacher_performed_units_report.php', $urlparams);
+$baseurl = new moodle_url('/mod/booking/teachers_instance_report.php', $urlparams);
 $PAGE->set_url($baseurl);
 
 if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mod/booking:addeditownoption', $context)) == false) {
@@ -55,62 +53,74 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
     die();
 }
 
-if (!$teacherobj = $DB->get_record('user', ['id' => $teacherid])) {
+if (!$cmidobj = $DB->get_record_sql(
+   "SELECT cm.id FROM {course_modules} cm
+    JOIN {modules} m
+    ON m.id = cm.module
+    WHERE m.name = 'booking' AND cm.id = :cmid",
+    ['cmid' => $cmid]
+)) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('error'), 4);
-    echo get_string('error:missingteacherid', 'mod_booking');
+    echo get_string('error:invalidcmid', 'mod_booking');
     echo $OUTPUT->footer();
     die();
 }
 
+$bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+$instancename = $bookingsettings->name;
+$bookingid = $bookingsettings->id; // Do not confuse bookingid with cmid!
+
+// Replace special characters to prevent errors.
+$instancename = str_replace(' ', '_', $instancename); // Replaces all spaces with underscores.
+$instancename = preg_replace('/[^A-Za-z0-9\_]/', '', $instancename); // Removes special chars.
+$instancename = preg_replace('/\_+/', '_', $instancename); // Replace multiple underscores with exactly one.
+$instancename = format_string($instancename);
+
 // File name and sheet name.
-$fileandsheetname = "performance_report_" . $teacherobj->firstname . "_" . $teacherobj->lastname;
+$fileandsheetname = "teachers_instance_report_for_" . $instancename;
 
-$teacherperformedunitstable = new teacher_performed_units_table('teacher_performed_units_table');
+$teachersinstancereporttable = new teachers_instance_report_table('teachers_instance_report_table', $bookingid);
 
-$teacherperformedunitstable->is_downloading($download, $fileandsheetname, $fileandsheetname);
+$teachersinstancereporttable->is_downloading($download, $fileandsheetname, $fileandsheetname);
 
 $tablebaseurl = $baseurl;
 $tablebaseurl->remove_params('page');
-$teacherperformedunitstable->define_baseurl($tablebaseurl);
-$teacherperformedunitstable->sortable(false);
-$teacherperformedunitstable->collapsible(false);
-$teacherperformedunitstable->show_download_buttons_at(array(TABLE_P_TOP));
+$teachersinstancereporttable->define_baseurl($tablebaseurl);
+$teachersinstancereporttable->sortable(false);
+$teachersinstancereporttable->collapsible(false);
+$teachersinstancereporttable->show_download_buttons_at([TABLE_P_TOP]);
 
 // Get unit length from config (should be something like 45, 50 or 60 minutes).
 if (!$unitlength = get_config('booking', 'educationalunitinminutes')) {
-    $unitlength = '60';
+    $unitlength = '60'; // If it's not set, we use an hour as default.
 }
 
 // Initialize the Moodle form for filtering the table.
-$mform = new teacher_performed_units_report_form();
-$mform->set_data(['teacherid' => $teacherid]);
+$mform = new teachers_instance_report_form();
+$mform->set_data(['cmid' => $cmid]);
 
 // Form processing and displaying is done here.
 if ($fromform = $mform->get_data()) {
 
-    if (!empty($fromform->filterstartdate) && !empty($fromform->filterenddate)) {
-        $filterstartdate = $fromform->filterstartdate;
-        // Add 23:59:59 (in seconds) to the end time.
-        $filterenddate = $fromform->filterenddate + 86399;
-
-        // Little hack, so we don't use the dates with downloading.
-        set_user_preference('unitsreport_filterstartdate', $filterstartdate);
-        set_user_preference('unitsreport_filterenddate', $filterenddate);
+    if (empty($fromform->teacherid)) {
+        $teacherid = 0;
     } else {
-        debugging('error:missingfilters');
+        $teacherid = $fromform->teacherid;
+        // Needed, so we can also use the filter for downloading.
+        set_user_preference('teachersinstancereport_teacherid', $teacherid);
     }
 }
 
-if (!$teacherperformedunitstable->is_downloading()) {
+if (!$teachersinstancereporttable->is_downloading()) {
 
     // Table will be shown normally.
     echo $OUTPUT->header();
-    echo $OUTPUT->heading(get_string('teachingreportfortrainer', 'mod_booking') . ': '
-        . $teacherobj->firstname . " " . $teacherobj->lastname);
+    echo $OUTPUT->heading(get_string('teachingreportforinstance', 'mod_booking') .
+        $bookingsettings->name);
 
     echo '<div class="alert alert-info alert-dismissible fade show" role="alert">' .
-        get_string('teachingreportfortrainer:subtitle', 'mod_booking') .
+        get_string('teachersinstancereport:subtitle', 'mod_booking') .
         '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -120,72 +130,51 @@ if (!$teacherperformedunitstable->is_downloading()) {
     $mform->display();
 
     // Headers.
-    $teacherperformedunitstable->define_headers([
-        get_string('titleprefix', 'mod_booking'),
-        get_string('course'),
-        get_string('time'),
-        get_string('duration:minutes', 'mod_booking'),
-        get_string('duration:units', 'mod_booking', $unitlength)
+    $teachersinstancereporttable->define_headers([
+        get_string('teacher', 'mod_booking'),
+        get_string('email'),
+        get_string('courses')
     ]);
 
     // Columns.
-    $teacherperformedunitstable->define_columns([
-        'titleprefix',
-        'optionname',
-        'optiondate',
-        'duration_min',
-        'duration_units'
+    $teachersinstancereporttable->define_columns([
+        'userid',
+        'email',
+        'courses'
     ]);
 
     // Header column.
-    $teacherperformedunitstable->define_header_column('optionname');
+    $teachersinstancereporttable->define_header_column('userid');
 
-    // SQL query. The subselect will fix the "Did you remember to make the first column something...
-    // ...unique in your call to get_records?" bug.
-    $fields = "s.id, s.prefix, s.optionname, s.coursestarttime, s.courseendtime,
-               s.duration_min, s.duration_units";
+    // SQL query.
+    $fields = "DISTINCT u.id teacherid, u.firstname, u.lastname, u.email";
 
-    $from = "(
-            SELECT bodt.id,
-                bo.titleprefix prefix,
-                bo.text optionname,
-                bod.coursestarttime, bod.courseendtime,
-                ROUND((bod.courseendtime - bod.coursestarttime)/60) as duration_min,
-                ROUND(((bod.courseendtime - bod.coursestarttime)/60) / :unitlength, 2) as duration_units
-            FROM
-                {booking_optiondates_teachers} bodt
-                JOIN {booking_optiondates} bod
-                ON bod.id = bodt.optiondateid
-                JOIN {booking_options} bo
-                on bo.id = bod.optionid
-            WHERE
-                bodt.userid = :teacherid
-                AND bod.coursestarttime >= :filterstartdate
-                AND bod.courseendtime <= :filterenddate
-                ORDER BY bod.coursestarttime ASC
-            ) s";
+    $from = "{booking_teachers} bt
+            JOIN {user} u
+            ON u.id = bt.userid";
 
-    $where = "1=1";
+    $andteacher = '';
+    if (!empty($teacherid)) {
+        $andteacher = "AND userid = :teacherid";
+        $params['teacherid'] = $teacherid;
+    }
+    $where = "bt.bookingid = :bookingid $andteacher";
 
-    // Set the SQL filtering params now.
-    $params = [
-        'unitlength' => (int) $unitlength,
-        'teacherid' => $teacherid,
-        'filterstartdate' => $filterstartdate,
-        'filterenddate' => $filterenddate
-    ];
+    $params['bookingid'] = $bookingid;
 
     // Now build the table.
-    $teacherperformedunitstable->set_sql($fields, $from, $where, $params);
-    $teacherperformedunitstable->out(TABLE_SHOW_ALL_PAGE_SIZE, false);
+    $teachersinstancereporttable->set_sql($fields, $from, $where, $params);
+    $teachersinstancereporttable->out(TABLE_SHOW_ALL_PAGE_SIZE, false);
 
     echo $OUTPUT->footer();
 
-} else {
+}
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+/* else {
     // The table is being downloaded.
 
     // Headers.
-    $teacherperformedunitstable->define_headers([
+    $teachersinstancereporttable->define_headers([
         get_string('firstname'),
         get_string('lastname'),
         get_string('email'),
@@ -199,7 +188,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
     ]);
 
     // Columns.
-    $teacherperformedunitstable->define_columns([
+    $teachersinstancereporttable->define_columns([
         'firstname',
         'lastname',
         'email',
@@ -213,7 +202,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
     ]);
 
     // Header column.
-    $teacherperformedunitstable->define_header_column('optionname');
+    $teachersinstancereporttable->define_header_column('optionname');
 
     // SQL query. The subselect will fix the "Did you remember to make the first column something...
     // ...unique in your call to get_records?" bug.
@@ -249,10 +238,10 @@ if (!$teacherperformedunitstable->is_downloading()) {
     ];
 
     // Now build the table.
-    $teacherperformedunitstable->set_sql($fields, $from, $where, $params);
-    $teacherperformedunitstable->setup();
-    $teacherperformedunitstable->pagesize(50, 500);
-    $teacherperformedunitstable->query_db(500);
-    $teacherperformedunitstable->build_table();
-    $teacherperformedunitstable->finish_output();
-}
+    $teachersinstancereporttable->set_sql($fields, $from, $where, $params);
+    $teachersinstancereporttable->setup();
+    $teachersinstancereporttable->pagesize(50, 500);
+    $teachersinstancereporttable->query_db(500);
+    $teachersinstancereporttable->build_table();
+    $teachersinstancereporttable->finish_output();
+} */
