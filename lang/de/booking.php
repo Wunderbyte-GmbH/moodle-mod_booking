@@ -1577,6 +1577,7 @@ $string['noteacherset'] = 'Kein/e Trainer/in';
 $string['reason'] = 'Grund';
 $string['error:reasonfornoteacher'] = 'Geben Sie einen Grund an, warum an diesem Termin kein/e Trainer/in anwesend war.';
 $string['error:reasontoolong'] = 'Grund ist zu lange, geben Sie einen kürzeren Text ein.';
+$string['error:reasonforsubstituteteacher'] = 'Geben Sie einen Grund für die Vertretung an.';
 
 // Optionformconfig.php / optionformconfig_form.php.
 $string['optionformconfig'] = 'Buchung: Formular für Buchungsoptionen anpassen';

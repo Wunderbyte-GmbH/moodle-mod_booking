@@ -1813,6 +1813,7 @@ $string['noteacherset'] = 'No teacher';
 $string['reason'] = 'Reason';
 $string['error:reasonfornoteacher'] = 'Enter a reason why no teachers were present at this date.';
 $string['error:reasontoolong'] = 'Reason is too long, enter a shorter text.';
+$string['error:reasonforsubstituteteacher'] = 'Enter a reason for the substitute teacher(s).';
 
 // Optionformconfig.php / optionformconfig_form.php.
 $string['optionformconfig'] = 'Booking: Configure booking option form';

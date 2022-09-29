@@ -178,18 +178,31 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
     }
 
     /**
-     * Validation - currently not needed.
+     * Validation: We need a reason for optiondates with missing teacher or substitute teachers.
+     *
      * @param array $data
      * @param array $files
      */
     public function validation($data, $files) {
+        global $DB;
         $errors = [];
 
         if (strlen($data['reason']) > 250) {
             $errors['reason'] = get_string('error:reasontoolong', 'mod_booking');
         }
-        if (empty($data['teachersforoptiondate']) && empty($data['reason'])) {
-            $errors['reason'] = get_string('error:reasonfornoteacher', 'mod_booking');
+        if (empty($data['teachersforoptiondate'])) {
+            if (empty($data['reason'])) {
+                $errors['reason'] = get_string('error:reasonfornoteacher', 'mod_booking');
+            }
+        } else {
+            $teachersforoption = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid',
+                ['optionid' => $data['optionid']]);
+            $teachersforoptiondate = $data['teachersforoptiondate'];
+            sort($teachersforoption);
+            sort($teachersforoptiondate);
+            if (($teachersforoption != $teachersforoptiondate) && empty($data['reason'])) {
+                $errors['reason'] = get_string('error:reasonforsubstituteteacher', 'mod_booking');
+            }
         }
 
         return $errors;
