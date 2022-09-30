@@ -50,6 +50,16 @@ class teachers_instance_report_table extends table_sql {
             $this->unitlength = 60;
         }
 
+        // For German use "," as comma and " " as thousands separator.
+        if (current_language() == "de") {
+            $this->decimal_separator = ",";
+            $this->thousands_separator = " ";
+        } else {
+            // In all other cases, we use the default separators.
+            $this->decimal_separator = ".";
+            $this->thousands_separator = ",";
+        }
+
         // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
     }
 
@@ -69,14 +79,14 @@ class teachers_instance_report_table extends table_sql {
 
     /**
      * This function is called for each data row to allow processing of the
-     * courses value.
+     * units_courses value.
      *
      * @param object $values Contains object with all the values of record.
      * @return string $link Returns a string containing all teacher names.
      * @throws moodle_exception
      * @throws coding_exception
      */
-    public function col_courses($values) {
+    public function col_units_courses($values) {
         global $DB;
 
         $sql = "SELECT bo.id, bo.titleprefix, bo.text, bo.dayofweektime
@@ -98,7 +108,7 @@ class teachers_instance_report_table extends table_sql {
                 if (!empty($record->dayofweektime)) {
                     $dayinfo = optiondates_handler::prepare_day_info($record->dayofweektime);
                     $minutes = (strtotime('today ' . $dayinfo['endtime']) - strtotime('today ' . $dayinfo['starttime'])) / 60;
-                    $units = number_format($minutes / $this->unitlength, 2);
+                    $units = number_format($minutes / $this->unitlength, 2, $this->decimal_separator, $this->thousands_separator);
                     $unitstringpart = "$record->dayofweektime, $units " . get_string('units', 'mod_booking');
                 } else {
                     $unitstringpart = get_string('units_unknown', 'mod_booking');
@@ -114,10 +124,51 @@ class teachers_instance_report_table extends table_sql {
 
         $retstring = '<a data-toggle="collapse" href="#optionsforteacher-' . $values->teacherid .
             '" role="button" aria-expanded="false" aria-controls="coursesforteacher">
-            <i class="fa fa-graduation-cap"></i>' . get_string('courses') .
+            <i class="fa fa-graduation-cap"></i> ' . get_string('courses') .
             '</a><div class="collapse" id="optionsforteacher-' . $values->teacherid . '">' .
             $optionswithdurations . '</div>';
 
         return $retstring;
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * sum_units value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $link Returns a string containing all teacher names.
+     * @throws moodle_exception
+     * @throws coding_exception
+     */
+    public function col_sum_units($values) {
+        global $DB;
+
+        $sql = "SELECT bo.id, bo.dayofweektime
+            FROM {booking_teachers} bt
+            JOIN {booking_options} bo
+            ON bo.id = bt.optionid
+            WHERE bt.userid = :teacherid
+            AND bt.bookingid = :bookingid";
+
+        $params = [
+            'teacherid' => $values->teacherid,
+            'bookingid' => $this->bookingid
+        ];
+
+        $sumunits = 0;
+        if ($records = $DB->get_records_sql($sql, $params)) {
+            foreach ($records as $record) {
+
+                if (!empty($record->dayofweektime)) {
+                    $dayinfo = optiondates_handler::prepare_day_info($record->dayofweektime);
+                    $minutes = (strtotime('today ' . $dayinfo['endtime']) - strtotime('today ' . $dayinfo['starttime'])) / 60;
+                    $units = round($minutes / $this->unitlength, 2);
+                    $sumunits += $units;
+                }
+            }
+        }
+
+        return number_format($sumunits, 2, $this->decimal_separator, $this->thousands_separator) .
+            ' ' . get_string('units', 'mod_booking');
     }
 }

@@ -1825,6 +1825,8 @@ an educational unit in the plugin settings (e.g. 45 instead of 60 minutes).<br/>
 </a>';
 $string['allteachers'] = 'All teachers';
 $string['units'] = 'Units';
+$string['sum_units'] = 'Sum of units';
+$string['units_courses'] = 'Units / Courses';
 $string['units_unknown'] = 'Number of units unknown';
 
 // Optionformconfig.php / optionformconfig_form.php.

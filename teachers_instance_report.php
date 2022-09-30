@@ -133,14 +133,16 @@ if (!$teachersinstancereporttable->is_downloading()) {
     $teachersinstancereporttable->define_headers([
         get_string('teacher', 'mod_booking'),
         get_string('email'),
-        get_string('courses')
+        get_string('sum_units', 'mod_booking'),
+        get_string('units_courses', 'mod_booking')
     ]);
 
     // Columns.
     $teachersinstancereporttable->define_columns([
         'userid',
         'email',
-        'courses'
+        'sum_units',
+        'units_courses'
     ]);
 
     // Header column.

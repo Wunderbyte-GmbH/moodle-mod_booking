@@ -1589,6 +1589,8 @@ in den Einstellungen anpassen. (Z.B. 45 statt 60 Minuten).<br/>
 </a>';
 $string['allteachers'] = 'Alle Trainer:innen';
 $string['units'] = 'UE';
+$string['sum_units'] = 'Summe UE';
+$string['units_courses'] = 'UE / Kurse';
 $string['units_unknown'] = 'Anzahl UE unbekannt';
 
 // Optionformconfig.php / optionformconfig_form.php.
