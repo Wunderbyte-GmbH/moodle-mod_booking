@@ -23,6 +23,7 @@ require_once("$CFG->libdir/formslib.php");
 
 use cache_helper;
 use context_module;
+use lang_string;
 use mod_booking\semester;
 use moodle_exception;
 use MoodleQuickForm;
@@ -255,7 +256,21 @@ class optiondates_handler {
 
         $daystring = $strings[0];
 
-        $weekdays = self::get_localized_weekdays();
+        // Add support for German daystrings even if platform is set to English.
+        $onlygermandaystrings = [
+            'montag', // Note: 'mo' and 'mon' could be English too!
+            'di', 'die', 'dienstag',
+            'mi', 'mit', 'mittwoch',
+            'do', 'don', 'donnerstag',
+            'fre', 'freitag', // Note: 'fr' could be English too!
+            'sam', 'samstag', // Note: 'sa' could be English too!
+            'so', 'son', 'sonntag'];
+
+        if (current_language() != 'de' && in_array($daystring, $onlygermandaystrings)) {
+            $weekdays = self::get_localized_weekdays('de');
+        } else {
+            $weekdays = self::get_localized_weekdays();
+        }
 
         // Initialize the output day string.
         $day = '';
@@ -382,19 +397,28 @@ class optiondates_handler {
 
     /**
      * Create an array of localized weekdays.
-     *
+     * @param string $lang optional language identifier, e.g. "de", "en"0
      * @return array
      */
-    public static function get_localized_weekdays(): array {
+    public static function get_localized_weekdays(string $lang = null): array {
         $weekdays = [];
-        $weekdays['monday'] = get_string('monday', 'mod_booking');
-        $weekdays['tuesday'] = get_string('tuesday', 'mod_booking');
-        $weekdays['wednesday'] = get_string('wednesday', 'mod_booking');
-        $weekdays['thursday'] = get_string('thursday', 'mod_booking');
-        $weekdays['friday'] = get_string('friday', 'mod_booking');
-        $weekdays['saturday'] = get_string('saturday', 'mod_booking');
-        $weekdays['sunday'] = get_string('sunday', 'mod_booking');
-
+        if (empty($lang)) {
+            $weekdays['monday'] = get_string('monday', 'mod_booking');
+            $weekdays['tuesday'] = get_string('tuesday', 'mod_booking');
+            $weekdays['wednesday'] = get_string('wednesday', 'mod_booking');
+            $weekdays['thursday'] = get_string('thursday', 'mod_booking');
+            $weekdays['friday'] = get_string('friday', 'mod_booking');
+            $weekdays['saturday'] = get_string('saturday', 'mod_booking');
+            $weekdays['sunday'] = get_string('sunday', 'mod_booking');
+        } else {
+            $weekdays['monday'] = new lang_string('monday', 'mod_booking', null, $lang);
+            $weekdays['tuesday'] = new lang_string('tuesday', 'mod_booking', null, $lang);
+            $weekdays['wednesday'] = new lang_string('wednesday', 'mod_booking', null, $lang);
+            $weekdays['thursday'] = new lang_string('thursday', 'mod_booking', null, $lang);
+            $weekdays['friday'] = new lang_string('friday', 'mod_booking', null, $lang);
+            $weekdays['saturday'] = new lang_string('saturday', 'mod_booking', null, $lang);
+            $weekdays['sunday'] = new lang_string('sunday', 'mod_booking', null, $lang);
+        }
         return $weekdays;
     }
 
