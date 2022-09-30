@@ -1818,16 +1818,16 @@ $string['error:reasonforsubstituteteacher'] = 'Enter a reason for the substitute
 // Teachers_instance_report.php.
 $string['error:invalidcmid'] = 'The report cannot be opened because no valid course module ID (cmid) was provided. It needs to be the cmid of a booking instance!';
 $string['teachingreportforinstance'] = 'Teaching overview report for ';
-$string['teachersinstancereport:subtitle'] = '<strong>Hint:</strong> You can change the duration of
-an educational unit in the plugin settings (e.g. 45 instead of 60 minutes).<br/>
-<a href="/admin/settings.php?section=modsettingbooking" target="_blank">
-&gt;&gt; Go to plugin settings...
-</a>';
+$string['teachersinstancereport:subtitle'] = '<strong>Hint:</strong> The number of units of a course (booking option) is calculated by the duration of an educational unit
+ which you can <a href="/admin/settings.php?section=modsettingbooking" target="_blank">set in the booking settings</a> and the specified date series string (e.g. "Tue, 16:00-17:30").
+ For blocked events or booking options missing this string, the number of units cannot be calculated!';
 $string['allteachers'] = 'All teachers';
 $string['units'] = 'Units';
 $string['sum_units'] = 'Sum of units';
-$string['units_courses'] = 'Units / Courses';
+$string['units_courses'] = 'Courses / Units';
 $string['units_unknown'] = 'Number of units unknown';
+$string['missinghours'] = 'Missing hours';
+$string['substitutions'] = 'Substitution(s)';
 
 // Optionformconfig.php / optionformconfig_form.php.
 $string['optionformconfig'] = 'Booking: Configure booking option form';

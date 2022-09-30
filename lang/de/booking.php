@@ -1582,16 +1582,16 @@ $string['error:reasonforsubstituteteacher'] = 'Geben Sie einen Grund für die Ve
 // Teachers_instance_report.php.
 $string['error:invalidcmid'] = 'Der Bericht kann nicht geöffnet werden, weil keine gültige Kursmodul-ID (cmid) übergeben wurde. Die cmid muss auf eine Buchungsinstanz verweisen!';
 $string['teachingreportforinstance'] = 'Trainer:innen-Gesamtbericht für ';
-$string['teachersinstancereport:subtitle'] = '<strong>Hinweis:</strong> Sie können die Dauer einer Unterrichtseinheit
-in den Einstellungen anpassen. (Z.B. 45 statt 60 Minuten).<br/>
-<a href="/admin/settings.php?section=modsettingbooking" target="_blank">
-&gt;&gt; Zu den Einstellungen...
-</a>';
+$string['teachersinstancereport:subtitle'] = '<strong>Hinweis:</strong> Die Anzahl der UE berechnet sich anhand des gesetzten Terminserien-Textfeldes (z.B. "Mo, 16:00-17:30")
+ und der in den <a href="/admin/settings.php?section=modsettingbooking" target="_blank">Einstellungen festgelegten Dauer</a> einer UE. Für Blockveranstaltungen oder
+ Buchungsoptionen bei denen das Feld nicht gesetzt ist, können die UE nicht berechnet werden!';
 $string['allteachers'] = 'Alle Trainer:innen';
 $string['units'] = 'UE';
 $string['sum_units'] = 'Summe UE';
-$string['units_courses'] = 'UE / Kurse';
+$string['units_courses'] = 'Kurse / UE';
 $string['units_unknown'] = 'Anzahl UE unbekannt';
+$string['missinghours'] = 'Fehlstunden';
+$string['substitutions'] = 'Vertretung(en)';
 
 // Optionformconfig.php / optionformconfig_form.php.
 $string['optionformconfig'] = 'Buchung: Formular für Buchungsoptionen anpassen';

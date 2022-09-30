@@ -19,13 +19,12 @@ namespace mod_booking\table;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
+
 require_once(__DIR__ . '/../../lib.php');
 require_once($CFG->libdir.'/tablelib.php');
 
 use mod_booking\optiondates_handler;
 use table_sql;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Report table to show an overall report
@@ -109,16 +108,18 @@ class teachers_instance_report_table extends table_sql {
                     $dayinfo = optiondates_handler::prepare_day_info($record->dayofweektime);
                     $minutes = (strtotime('today ' . $dayinfo['endtime']) - strtotime('today ' . $dayinfo['starttime'])) / 60;
                     $units = number_format($minutes / $this->unitlength, 2, $this->decimal_separator, $this->thousands_separator);
-                    $unitstringpart = "$record->dayofweektime, $units " . get_string('units', 'mod_booking');
+                    $unitstringpart = get_string('units', 'mod_booking') . ": $units";
                 } else {
                     $unitstringpart = get_string('units_unknown', 'mod_booking');
                 }
 
+                $optionswithdurations .= '<b>';
                 if (!empty($record->titleprefix)) {
                     $optionswithdurations .= $record->titleprefix . " - ";
                 }
                 $optionswithdurations .= $record->text; // Option name.
-                $optionswithdurations .= " ($unitstringpart)<br/>";
+                $optionswithdurations .= '</b>';
+                $optionswithdurations .= " ($record->dayofweektime) | $unitstringpart<br/>";
             }
         }
 
@@ -170,5 +171,118 @@ class teachers_instance_report_table extends table_sql {
 
         return number_format($sumunits, 2, $this->decimal_separator, $this->thousands_separator) .
             ' ' . get_string('units', 'mod_booking');
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * missinghours value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $link Returns a string containing all teacher names.
+     * @throws moodle_exception
+     * @throws coding_exception
+     */
+    public function col_missinghours($values) {
+        global $DB;
+
+        $sql = "SELECT bod.id, bod.bookingid, bod.optionid,
+                    bo.titleprefix, bo.text,
+                    bod.coursestarttime, bod.courseendtime,
+                    bt.userid teacherid, bod.reason
+                FROM {booking_optiondates} bod
+                JOIN {booking_options} bo
+                ON bo.id = bod.optionid
+                JOIN {booking_teachers} bt
+                ON bod.optionid = bt.optionid
+                LEFT JOIN {booking_optiondates_teachers} bodt
+                ON bodt.optiondateid = bod.id
+                WHERE bod.bookingid = :bookingid
+                AND bt.userid = :teacherid
+                AND bodt.userid IS NULL";
+
+        $params = [
+            'teacherid' => $values->teacherid,
+            'bookingid' => $this->bookingid
+        ];
+
+        $missinghoursstring = '';
+        if ($records = $DB->get_records_sql($sql, $params)) {
+
+            foreach ($records as $record) {
+                if (!empty($record->titleprefix)) {
+                    $missinghoursstring .= $record->titleprefix . " - ";
+                }
+                $missinghoursstring .= $record->text .
+                    ' (<b>' . optiondates_handler::prettify_optiondates_start_end($record->coursestarttime, $record->courseendtime,
+                    current_language()) . '</b>) | ' . get_string('reason', 'mod_booking') . ': ' .
+                    $record->reason . '<br/>';
+            }
+        }
+
+        return '<a data-toggle="collapse" href="#missinghoursforteacher-' . $values->teacherid .
+            '" role="button" aria-expanded="false" aria-controls="missinghoursforteacher">
+            <i class="fa fa-user-times"></i> ' . get_string('missinghours', 'mod_booking') .
+            '</a><div class="collapse" id="missinghoursforteacher-' . $values->teacherid . '">' .
+            $missinghoursstring . '</div>';
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * substitutions value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $link Returns a string containing all teacher names.
+     * @throws moodle_exception
+     * @throws coding_exception
+     */
+    public function col_substitutions($values) {
+        global $DB;
+
+        $sql = "SELECT
+                    bod.id, bod.bookingid, bod.optionid,
+                    bo.titleprefix, bo.text,
+                    bod.coursestarttime, bod.courseendtime,
+                    bodt.userid teacherid, u.firstname, u.lastname, u.email,
+                    bod.reason
+                FROM {booking_optiondates} bod
+                JOIN {booking_options} bo
+                ON bo.id = bod.optionid
+                JOIN {booking_teachers} bt
+                ON bod.optionid = bt.optionid
+                LEFT JOIN {booking_optiondates_teachers} bodt
+                ON bodt.optiondateid = bod.id
+                LEFT JOIN {user} u
+                ON u.id = bodt.userid
+                WHERE bod.bookingid = :bookingid
+                AND bodt.userid IS NOT NULL
+                AND bodt.userid <> bt.userid
+                AND bt.userid = :teacherid";
+
+        $params = [
+            'teacherid' => $values->teacherid,
+            'bookingid' => $this->bookingid
+        ];
+
+        $substitutionsstring = '';
+        if ($records = $DB->get_records_sql($sql, $params)) {
+
+            foreach ($records as $record) {
+                if (!empty($record->titleprefix)) {
+                    $substitutionsstring .= $record->titleprefix . " - ";
+                }
+                $substitutionsstring .= $record->text .
+                    ' (' . optiondates_handler::prettify_optiondates_start_end($record->coursestarttime, $record->courseendtime,
+                    current_language()) . ')';
+                $substitutionsstring .= " | <b>$record->firstname $record->lastname</b> ($record->email)";
+                $substitutionsstring .= ' | ' . get_string('reason', 'mod_booking') . ': ' .
+                    $record->reason . '<br/>';
+            }
+        }
+
+        return '<a data-toggle="collapse" href="#substitutionsforteacher-' . $values->teacherid .
+            '" role="button" aria-expanded="false" aria-controls="substitutionsforteacher">
+            <i class="fa fa-handshake-o"></i> ' . get_string('substitutions', 'mod_booking') .
+            '</a><div class="collapse" id="substitutionsforteacher-' . $values->teacherid . '">' .
+            $substitutionsstring . '</div>';
     }
 }

@@ -134,7 +134,9 @@ if (!$teachersinstancereporttable->is_downloading()) {
         get_string('teacher', 'mod_booking'),
         get_string('email'),
         get_string('sum_units', 'mod_booking'),
-        get_string('units_courses', 'mod_booking')
+        get_string('units_courses', 'mod_booking'),
+        get_string('missinghours', 'mod_booking'),
+        get_string('substitutions', 'mod_booking')
     ]);
 
     // Columns.
@@ -142,7 +144,9 @@ if (!$teachersinstancereporttable->is_downloading()) {
         'userid',
         'email',
         'sum_units',
-        'units_courses'
+        'units_courses',
+        'missinghours',
+        'substitutions'
     ]);
 
     // Header column.
