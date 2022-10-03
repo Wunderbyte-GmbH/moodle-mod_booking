@@ -1,3 +1,9 @@
+7.5.2 (2022092901)
+* Bugfix: Fix issue #212 - upgrade script for field 'availability' had wrong version number.
+
+7.5.1 (2022092900)
+* Bugfix: Fix language strings.
+
 7.5.0 (2022092800)
 * New feature: Global Roles (PRO) - Rules can now be added globally.
   The rule 'Send e-mail n days before a certain date' now allows to define

@@ -1,3 +1,11 @@
+## Version 7.5.2 (2022092901)
+**Bugfixes:**
+* Bugfix: Fix issue #212 - upgrade script for field 'availability' had wrong version number.
+
+## Version 7.5.1 (2022092900)
+**Bugfixes:**
+* Bugfix: Fix language strings.
+
 ## Version 7.5.0 (2022092800)
 **New features:**
 * New feature: Global Roles (PRO) - Rules can now be added globally.
