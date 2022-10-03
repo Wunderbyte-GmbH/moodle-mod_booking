@@ -1398,22 +1398,25 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     }
 
     if (has_capability('mod/booking:updatebooking', $context)) {
-        $navref->add(get_string('importcsvbookingoption', 'booking'),
+        $navref->add(get_string('importcsvbookingoption', 'mod_booking'),
                 new moodle_url('/mod/booking/importoptions.php', array('id' => $cm->id)),
                 navigation_node::TYPE_CUSTOM, null, 'nav_importcsvbookingoption');
-        $navref->add(get_string('tagtemplates', 'booking'),
+        $navref->add(get_string('tagtemplates', 'mod_booking'),
                 new moodle_url('/mod/booking/tagtemplates.php', array('id' => $cm->id)),
                 navigation_node::TYPE_CUSTOM, null, 'nav_tagtemplates');
-        $navref->add(get_string('importexcelbutton', 'booking'),
+        $navref->add(get_string('importexcelbutton', 'mod_booking'),
                 new moodle_url('/mod/booking/importexcel.php', array('id' => $cm->id)),
                 navigation_node::TYPE_CUSTOM, null, 'nav_importexcelbutton');
         // TODO: Add capability for changesemester. Only admins should be allowed to do this!
-        $navref->add(get_string('changesemester', 'booking'),
+        $navref->add(get_string('changesemester', 'mod_booking'),
                 new moodle_url('/mod/booking/semesters.php', array('id' => $cm->id)),
                 navigation_node::TYPE_CUSTOM, null, 'nav_changesemester');
-        $navref->add(get_string('recalculateprices', 'booking'),
+        $navref->add(get_string('recalculateprices', 'mod_booking'),
                 new moodle_url('/mod/booking/recalculateprices.php', array('id' => $cm->id)),
                 navigation_node::TYPE_CUSTOM, null, 'nav_recalculateprices');
+        $navref->add(get_string('teachers_instance_report', 'mod_booking'),
+                new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cm->id]),
+                navigation_node::TYPE_CUSTOM, null, 'nav_teachers_instance_report');
     }
 
     if (!is_null($optionid) AND $optionid > 0) {

@@ -77,8 +77,14 @@ class teachers_instance_report_table extends table_sql {
         if (!$this->is_downloading()) {
             $namestring .= "<sup><span class='badge badge-info'>" .
                 substr($values->lastname, 0, 1) . "</span></sup> ";
+            $namestring .= "<a href='/mod/booking/teacher_performed_units_report.php?teacherid="
+                . $values->teacherid . "' target='_blank'>";
+            $namestring .= "$values->lastname $values->firstname";
+            $namestring .= "</a>";
+        } else {
+            $namestring = "$values->lastname $values->firstname";
         }
-        return $namestring . "$values->lastname $values->firstname";
+        return $namestring;
     }
 
     /**

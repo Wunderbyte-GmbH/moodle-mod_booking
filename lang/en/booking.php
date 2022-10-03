@@ -1816,6 +1816,7 @@ $string['error:reasontoolong'] = 'Reason is too long, enter a shorter text.';
 $string['error:reasonforsubstituteteacher'] = 'Enter a reason for the substitute teacher(s).';
 
 // Teachers_instance_report.php.
+$string['teachers_instance_report'] = 'Teachers report';
 $string['error:invalidcmid'] = 'The report cannot be opened because no valid course module ID (cmid) was provided. It needs to be the cmid of a booking instance!';
 $string['teachingreportforinstance'] = 'Teaching overview report for ';
 $string['teachersinstancereport:subtitle'] = '<strong>Hint:</strong> The number of units of a course (booking option) is calculated by the duration of an educational unit

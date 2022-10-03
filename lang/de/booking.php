@@ -1580,6 +1580,7 @@ $string['error:reasontoolong'] = 'Grund ist zu lange, geben Sie einen kürzeren 
 $string['error:reasonforsubstituteteacher'] = 'Geben Sie einen Grund für die Vertretung an.';
 
 // Teachers_instance_report.php.
+$string['teachers_instance_report'] = 'Trainer:innen-Gesamtbericht';
 $string['error:invalidcmid'] = 'Der Bericht kann nicht geöffnet werden, weil keine gültige Kursmodul-ID (cmid) übergeben wurde. Die cmid muss auf eine Buchungsinstanz verweisen!';
 $string['teachingreportforinstance'] = 'Trainer:innen-Gesamtbericht für ';
 $string['teachersinstancereport:subtitle'] = '<strong>Hinweis:</strong> Die Anzahl der UE berechnet sich anhand des gesetzten Terminserien-Textfeldes (z.B. "Mo, 16:00-17:30")
