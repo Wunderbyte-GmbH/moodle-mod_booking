@@ -2729,7 +2729,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022092901, 'booking');
     }
 
-if ($oldversion < 2022092802) {
+    if ($oldversion < 2022100300) {
 
         // Define field reason to be added to booking_optiondates.
         $table = new xmldb_table('booking_optiondates');
@@ -2741,7 +2741,7 @@ if ($oldversion < 2022092802) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2022092901, 'booking');
+        upgrade_mod_savepoint(true, 2022100300, 'booking');
     }
 
     return true;
