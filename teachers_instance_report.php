@@ -112,6 +112,38 @@ if ($fromform = $mform->get_data()) {
     }
 }
 
+// Headers.
+$teachersinstancereporttable->define_headers([
+    get_string('teacher', 'mod_booking'),
+    get_string('email'),
+    get_string('sum_units', 'mod_booking'),
+    get_string('units_courses', 'mod_booking'),
+    get_string('missinghours', 'mod_booking'),
+    get_string('substitutions', 'mod_booking')
+]);
+
+// Columns.
+$teachersinstancereporttable->define_columns([
+    'lastname',
+    'email',
+    'sum_units',
+    'units_courses',
+    'missinghours',
+    'substitutions'
+]);
+
+// Header column.
+$teachersinstancereporttable->define_header_column('lastname');
+
+// SQL query.
+$fields = "DISTINCT u.id teacherid, u.firstname, u.lastname, u.email";
+
+$from = "{booking_teachers} bt
+        JOIN {user} u
+        ON u.id = bt.userid";
+
+$params['bookingid'] = $bookingid;
+
 if (!$teachersinstancereporttable->is_downloading()) {
 
     // Table will be shown normally.
@@ -129,44 +161,12 @@ if (!$teachersinstancereporttable->is_downloading()) {
     // Now show the mform for filtering.
     $mform->display();
 
-    // Headers.
-    $teachersinstancereporttable->define_headers([
-        get_string('teacher', 'mod_booking'),
-        get_string('email'),
-        get_string('sum_units', 'mod_booking'),
-        get_string('units_courses', 'mod_booking'),
-        get_string('missinghours', 'mod_booking'),
-        get_string('substitutions', 'mod_booking')
-    ]);
-
-    // Columns.
-    $teachersinstancereporttable->define_columns([
-        'userid',
-        'email',
-        'sum_units',
-        'units_courses',
-        'missinghours',
-        'substitutions'
-    ]);
-
-    // Header column.
-    $teachersinstancereporttable->define_header_column('userid');
-
-    // SQL query.
-    $fields = "DISTINCT u.id teacherid, u.firstname, u.lastname, u.email";
-
-    $from = "{booking_teachers} bt
-            JOIN {user} u
-            ON u.id = bt.userid";
-
     $andteacher = '';
     if (!empty($teacherid)) {
-        $andteacher = "AND userid = :teacherid";
+        $andteacher = "AND u.id = :teacherid";
         $params['teacherid'] = $teacherid;
     }
-    $where = "bt.bookingid = :bookingid $andteacher";
-
-    $params['bookingid'] = $bookingid;
+    $where = "bt.bookingid = :bookingid $andteacher ORDER BY u.lastname";
 
     // Now build the table.
     $teachersinstancereporttable->set_sql($fields, $from, $where, $params);
@@ -174,80 +174,23 @@ if (!$teachersinstancereporttable->is_downloading()) {
 
     echo $OUTPUT->footer();
 
-}
-// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-/* else {
-    // The table is being downloaded.
-
-    // Headers.
-    $teachersinstancereporttable->define_headers([
-        get_string('firstname'),
-        get_string('lastname'),
-        get_string('email'),
-        get_string('bookinginstance', 'mod_booking'),
-        get_string('titleprefix', 'mod_booking'),
-        get_string('course'),
-        get_string('optiondatestart', 'mod_booking'),
-        get_string('optiondateend', 'mod_booking'),
-        get_string('duration:minutes', 'mod_booking'),
-        get_string('duration:units', 'mod_booking', $unitlength)
-    ]);
-
-    // Columns.
-    $teachersinstancereporttable->define_columns([
-        'firstname',
-        'lastname',
-        'email',
-        'instancename',
-        'titleprefix',
-        'optionname',
-        'coursestarttime',
-        'courseendtime',
-        'duration_min',
-        'duration_units'
-    ]);
-
-    // Header column.
-    $teachersinstancereporttable->define_header_column('optionname');
-
-    // SQL query. The subselect will fix the "Did you remember to make the first column something...
-    // ...unique in your call to get_records?" bug.
-    $fields = "bodt.id,
-        u.firstname, u.lastname, u.email,
-        b.name instancename,
-        bo.text optionname,
-        bod.coursestarttime, bod.courseendtime,
-        ROUND((bod.courseendtime - bod.coursestarttime)/60) as duration_min,
-        ROUND(((bod.courseendtime - bod.coursestarttime)/60) / :unitlength, 2) as duration_units";
-
-    $from = "{booking_optiondates_teachers} bodt
-            JOIN {booking_optiondates} bod
-            ON bod.id = bodt.optiondateid
-            JOIN {booking_options} bo
-            on bo.id = bod.optionid
-            JOIN {user} u
-            on u.id = bodt.userid
-            JOIN {booking} b
-            ON b.id = bo.bookingid";
-
-    $where = "bodt.userid = :teacherid
-            AND bod.coursestarttime >= :filterstartdate
-            AND bod.courseendtime <= :filterenddate
-            ORDER BY bod.coursestarttime ASC";
-
-    // Set the SQL filtering params now.
-    $params = [
-        'unitlength' => (int) $unitlength,
-        'teacherid' => $teacherid,
-        'filterstartdate' => (int) get_user_preferences('unitsreport_filterstartdate'),
-        'filterenddate' => (int) get_user_preferences('unitsreport_filterenddate')
-    ];
+} else {
+    // When downloading, we use the last set teacherid from preferences.
+    $andteacher = '';
+    $lastteacherid = get_user_preferences('teachersinstancereport_teacherid');
+    if (!empty($lastteacherid)) {
+        $andteacher = "AND u.id = :teacherid";
+        $params['teacherid'] = $lastteacherid;
+    }
+    $where = "bt.bookingid = :bookingid $andteacher ORDER BY u.lastname";
 
     // Now build the table.
     $teachersinstancereporttable->set_sql($fields, $from, $where, $params);
+
+    // The table is being downloaded.
     $teachersinstancereporttable->setup();
     $teachersinstancereporttable->pagesize(50, 500);
     $teachersinstancereporttable->query_db(500);
     $teachersinstancereporttable->build_table();
     $teachersinstancereporttable->finish_output();
-} */
+}

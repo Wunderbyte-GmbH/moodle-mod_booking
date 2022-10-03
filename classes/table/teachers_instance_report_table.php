@@ -64,16 +64,46 @@ class teachers_instance_report_table extends table_sql {
 
     /**
      * This function is called for each data row to allow processing of the
-     * userid value.
+     * lastname value.
      *
      * @param object $values Contains object with all the values of record.
      * @return string $link Returns a string containing all teacher names.
      * @throws moodle_exception
      * @throws coding_exception
      */
-    public function col_userid($values) {
+    public function col_lastname($values) {
 
-        return "$values->firstname $values->lastname";
+        $namestring = '';
+        if (!$this->is_downloading()) {
+            $namestring .= "<sup><span class='badge badge-info'>" .
+                substr($values->lastname, 0, 1) . "</span></sup> ";
+        }
+        return $namestring . "$values->lastname $values->firstname";
+    }
+
+    /**
+     * Helper function to improve performance,
+     * so that SQL for col_units_courses and for col_sum_units
+     * gets called only once.
+     *
+     * @param &$values reference to values object.
+     */
+    private function set_units_courses_records(&$values) {
+        global $DB;
+        if (empty($values->unitsrecords)) {
+            $sql = "SELECT bo.id, bo.titleprefix, bo.text, bo.dayofweektime
+            FROM {booking_teachers} bt
+            JOIN {booking_options} bo
+            ON bo.id = bt.optionid
+            WHERE bt.userid = :teacherid
+            AND bt.bookingid = :bookingid";
+
+            $params = [
+                'teacherid' => $values->teacherid,
+                'bookingid' => $this->bookingid
+            ];
+            $values->unitsrecords = $DB->get_records_sql($sql, $params);
+        }
     }
 
     /**
@@ -86,48 +116,55 @@ class teachers_instance_report_table extends table_sql {
      * @throws coding_exception
      */
     public function col_units_courses($values) {
-        global $DB;
-
-        $sql = "SELECT bo.id, bo.titleprefix, bo.text, bo.dayofweektime
-            FROM {booking_teachers} bt
-            JOIN {booking_options} bo
-            ON bo.id = bt.optionid
-            WHERE bt.userid = :teacherid
-            AND bt.bookingid = :bookingid";
-
-        $params = [
-            'teacherid' => $values->teacherid,
-            'bookingid' => $this->bookingid
-        ];
+        // This will execute the SQL and save the records in $values->unitsrecords.
+        $this->set_units_courses_records($values);
 
         $optionswithdurations = '';
-        if ($records = $DB->get_records_sql($sql, $params)) {
-            foreach ($records as $record) {
-
+        if (!empty($values->unitsrecords)) {
+            foreach ($values->unitsrecords as $record) {
+                // We do not format export data with HTML!
+                if (!$this->is_downloading()) {
+                    $optionswithdurations .= '<hr/>';
+                }
                 if (!empty($record->dayofweektime)) {
                     $dayinfo = optiondates_handler::prepare_day_info($record->dayofweektime);
                     $minutes = (strtotime('today ' . $dayinfo['endtime']) - strtotime('today ' . $dayinfo['starttime'])) / 60;
-                    $units = number_format($minutes / $this->unitlength, 2, $this->decimal_separator, $this->thousands_separator);
+                    $units = number_format($minutes / $this->unitlength, 1, $this->decimal_separator, $this->thousands_separator);
                     $unitstringpart = get_string('units', 'mod_booking') . ": $units";
                 } else {
                     $unitstringpart = get_string('units_unknown', 'mod_booking');
                 }
-
-                $optionswithdurations .= '<b>';
+                if (!$this->is_downloading()) {
+                    $optionswithdurations .= '<b>';
+                }
                 if (!empty($record->titleprefix)) {
                     $optionswithdurations .= $record->titleprefix . " - ";
                 }
                 $optionswithdurations .= $record->text; // Option name.
-                $optionswithdurations .= '</b>';
-                $optionswithdurations .= " ($record->dayofweektime) | $unitstringpart<br/>";
+                if (!$this->is_downloading()) {
+                    $optionswithdurations .= '</b>';
+                }
+                if (!empty($record->dayofweektime)) {
+                    $optionswithdurations .= " ($record->dayofweektime)";
+                }
+                $optionswithdurations .= " | $unitstringpart";
+                if (!$this->is_downloading()) {
+                    $optionswithdurations .= "<br/>";
+                } else {
+                    $optionswithdurations .= PHP_EOL;
+                }
             }
         }
 
-        $retstring = '<a data-toggle="collapse" href="#optionsforteacher-' . $values->teacherid .
-            '" role="button" aria-expanded="false" aria-controls="coursesforteacher">
-            <i class="fa fa-graduation-cap"></i> ' . get_string('courses') .
-            '</a><div class="collapse" id="optionsforteacher-' . $values->teacherid . '">' .
-            $optionswithdurations . '</div>';
+        if (!$this->is_downloading()) {
+            $retstring = '<a data-toggle="collapse" href="#optionsforteacher-' . $values->teacherid .
+                '" role="button" aria-expanded="false" aria-controls="coursesforteacher">
+                <i class="fa fa-graduation-cap"></i> ' . get_string('courses') .
+                '</a><div class="collapse" id="optionsforteacher-' . $values->teacherid . '">' .
+                $optionswithdurations . '</div>';
+        } else {
+            $retstring = trim($optionswithdurations);
+        }
 
         return $retstring;
     }
@@ -142,35 +179,32 @@ class teachers_instance_report_table extends table_sql {
      * @throws coding_exception
      */
     public function col_sum_units($values) {
-        global $DB;
 
-        $sql = "SELECT bo.id, bo.dayofweektime
-            FROM {booking_teachers} bt
-            JOIN {booking_options} bo
-            ON bo.id = bt.optionid
-            WHERE bt.userid = :teacherid
-            AND bt.bookingid = :bookingid";
-
-        $params = [
-            'teacherid' => $values->teacherid,
-            'bookingid' => $this->bookingid
-        ];
+        // This will execute the SQL and save the records in $values->unitsrecords.
+        $this->set_units_courses_records($values);
 
         $sumunits = 0;
-        if ($records = $DB->get_records_sql($sql, $params)) {
-            foreach ($records as $record) {
+        if (!empty($values->unitsrecords)) {
+            foreach ($values->unitsrecords as $record) {
 
                 if (!empty($record->dayofweektime)) {
                     $dayinfo = optiondates_handler::prepare_day_info($record->dayofweektime);
                     $minutes = (strtotime('today ' . $dayinfo['endtime']) - strtotime('today ' . $dayinfo['starttime'])) / 60;
-                    $units = round($minutes / $this->unitlength, 2);
+                    $units = round($minutes / $this->unitlength, 1);
                     $sumunits += $units;
                 }
             }
         }
 
-        return number_format($sumunits, 2, $this->decimal_separator, $this->thousands_separator) .
-            ' ' . get_string('units', 'mod_booking');
+        if (!$this->is_downloading()) {
+            $retstring = number_format($sumunits, 1, $this->decimal_separator, $this->thousands_separator) .
+                ' ' . get_string('units', 'mod_booking');
+        } else {
+            // For download, we do not show the units so it's easier to use with sheet applications like Excel.
+            $retstring = number_format($sumunits, 1, $this->decimal_separator, $this->thousands_separator);
+        }
+
+        return $retstring;
     }
 
     /**
@@ -209,21 +243,36 @@ class teachers_instance_report_table extends table_sql {
         if ($records = $DB->get_records_sql($sql, $params)) {
 
             foreach ($records as $record) {
+                if (!$this->is_downloading()) {
+                    $missinghoursstring .= '<hr/>';
+                }
                 if (!empty($record->titleprefix)) {
                     $missinghoursstring .= $record->titleprefix . " - ";
                 }
-                $missinghoursstring .= $record->text .
-                    ' (<b>' . optiondates_handler::prettify_optiondates_start_end($record->coursestarttime, $record->courseendtime,
-                    current_language()) . '</b>) | ' . get_string('reason', 'mod_booking') . ': ' .
-                    $record->reason . '<br/>';
+                if (!$this->is_downloading()) {
+                    $missinghoursstring .= $record->text .
+                        ' (<b>' . optiondates_handler::prettify_optiondates_start_end($record->coursestarttime,
+                        $record->courseendtime, current_language()) . '</b>) | ' . get_string('reason', 'mod_booking') . ': ' .
+                        $record->reason . '<br/>';
+                } else {
+                    $missinghoursstring .= $record->text .
+                        ' (' . optiondates_handler::prettify_optiondates_start_end($record->coursestarttime, $record->courseendtime,
+                        current_language()) . ') | ' . get_string('reason', 'mod_booking') . ': ' .
+                        $record->reason . PHP_EOL;
+                }
             }
         }
 
-        return '<a data-toggle="collapse" href="#missinghoursforteacher-' . $values->teacherid .
-            '" role="button" aria-expanded="false" aria-controls="missinghoursforteacher">
-            <i class="fa fa-user-times"></i> ' . get_string('missinghours', 'mod_booking') .
-            '</a><div class="collapse" id="missinghoursforteacher-' . $values->teacherid . '">' .
-            $missinghoursstring . '</div>';
+        if (!$this->is_downloading()) {
+            $retstring = '<a data-toggle="collapse" href="#missinghoursforteacher-' . $values->teacherid .
+                '" role="button" aria-expanded="false" aria-controls="missinghoursforteacher">
+                <i class="fa fa-user-times"></i> ' . get_string('missinghours', 'mod_booking') .
+                '</a><div class="collapse" id="missinghoursforteacher-' . $values->teacherid . '">' .
+                $missinghoursstring . '</div>';
+        } else {
+            $retstring = trim($missinghoursstring);
+        }
+        return $retstring;
     }
 
     /**
@@ -267,22 +316,39 @@ class teachers_instance_report_table extends table_sql {
         if ($records = $DB->get_records_sql($sql, $params)) {
 
             foreach ($records as $record) {
+                if (!$this->is_downloading()) {
+                    $substitutionsstring .= '<hr/>';
+                }
                 if (!empty($record->titleprefix)) {
                     $substitutionsstring .= $record->titleprefix . " - ";
                 }
-                $substitutionsstring .= $record->text .
-                    ' (' . optiondates_handler::prettify_optiondates_start_end($record->coursestarttime, $record->courseendtime,
-                    current_language()) . ')';
-                $substitutionsstring .= " | <b>$record->firstname $record->lastname</b> ($record->email)";
-                $substitutionsstring .= ' | ' . get_string('reason', 'mod_booking') . ': ' .
-                    $record->reason . '<br/>';
+                if (!$this->is_downloading()) {
+                    $substitutionsstring .= $record->text .
+                        ' (' . optiondates_handler::prettify_optiondates_start_end($record->coursestarttime, $record->courseendtime,
+                        current_language()) . ')';
+                    $substitutionsstring .= " | <b>$record->firstname $record->lastname</b> ($record->email)";
+                    $substitutionsstring .= ' | ' . get_string('reason', 'mod_booking') . ': ' .
+                        $record->reason . '<br/>';
+                } else {
+                    $substitutionsstring .= $record->text .
+                        ' (' . optiondates_handler::prettify_optiondates_start_end($record->coursestarttime, $record->courseendtime,
+                        current_language()) . ')';
+                    $substitutionsstring .= " | $record->firstname $record->lastname ($record->email)";
+                    $substitutionsstring .= ' | ' . get_string('reason', 'mod_booking') . ': ' .
+                        $record->reason . PHP_EOL;
+                }
             }
         }
 
-        return '<a data-toggle="collapse" href="#substitutionsforteacher-' . $values->teacherid .
-            '" role="button" aria-expanded="false" aria-controls="substitutionsforteacher">
-            <i class="fa fa-handshake-o"></i> ' . get_string('substitutions', 'mod_booking') .
-            '</a><div class="collapse" id="substitutionsforteacher-' . $values->teacherid . '">' .
-            $substitutionsstring . '</div>';
+        if (!$this->is_downloading()) {
+            $retstring = '<a data-toggle="collapse" href="#substitutionsforteacher-' . $values->teacherid .
+                '" role="button" aria-expanded="false" aria-controls="substitutionsforteacher">
+                <i class="fa fa-handshake-o"></i> ' . get_string('substitutions', 'mod_booking') .
+                '</a><div class="collapse" id="substitutionsforteacher-' . $values->teacherid . '">' .
+                $substitutionsstring . '</div>';
+        } else {
+            $retstring = trim($substitutionsstring);
+        }
+        return $retstring;
     }
 }

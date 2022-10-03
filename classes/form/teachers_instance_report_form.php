@@ -65,20 +65,23 @@ class teachers_instance_report_form extends moodleform {
                 $teachersarr[$t->id] = "$t->firstname $t->lastname ($t->email)";
             }
         }
-        $mform->addElement('select', 'teacherid', get_string('teacher', 'mod_booking'), $teachersarr);
+
+        $teacheridoptions = [
+            'tags' => false,
+            'multiple' => false
+        ];
+        $mform->addElement('autocomplete', 'teacherid', get_string('teacher', 'mod_booking'), $teachersarr, $teacheridoptions);
+        $mform->setType('teacherid', PARAM_INT);
 
         $this->add_action_buttons(false, get_string('filterbtn', 'booking'));
     }
 
     /**
-     * Custom validation should be added here.
+     * Custom validation not necessary for autocomplete.
      */
     public function validation($data, $files) {
 
         $errors = [];
-
-        // TODO.
-
         return $errors;
     }
 }
