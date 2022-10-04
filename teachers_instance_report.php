@@ -80,7 +80,7 @@ $instancename = format_string($instancename);
 // File name and sheet name.
 $fileandsheetname = "teachers_instance_report_for_" . $instancename;
 
-$teachersinstancereporttable = new teachers_instance_report_table('teachers_instance_report_table', $bookingid);
+$teachersinstancereporttable = new teachers_instance_report_table('teachers_instance_report_table', $bookingid, $cmid);
 
 $teachersinstancereporttable->is_downloading($download, $fileandsheetname, $fileandsheetname);
 
@@ -151,7 +151,7 @@ if (!$teachersinstancereporttable->is_downloading()) {
     echo $OUTPUT->heading(get_string('teachingreportforinstance', 'mod_booking') .
         $bookingsettings->name);
 
-    echo '<div class="alert alert-info alert-dismissible fade show" role="alert">' .
+    echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert">' .
         get_string('teachersinstancereport:subtitle', 'mod_booking') .
         '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>

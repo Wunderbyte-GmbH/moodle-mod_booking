@@ -125,7 +125,7 @@ $string['yourselection'] = 'Ihre Auswahl';
 // Subscribeusers.php.
 $string['cannotremovesubscriber'] = 'Um die Buchung zu stornieren, muss zuvor der Aktivitätsabschluss entfernt werden. Die Buchung wurde nicht storniert';
 $string['allchangessaved'] = 'Alle Änderungen wurden gespeichert.';
-$string['backtoresponses'] = '<< Zurück zu den Antworten';
+$string['backtoresponses'] = '&lt;&lt; Zurück zu den Antworten';
 $string['allusersbooked'] = 'Alle {$a} Nutzer:innen wurden erfolgreich für diese Buchungsoption gebucht.';
 $string['notallbooked'] = 'Folgende Nutzer:innen konnten aufgrund nicht mehr verfügbarer Plätze oder durch das Überschreiten des vorgegebenen Buchungslimits pro Nutzer:in nicht gebucht werden: {$a}';
 
@@ -1075,7 +1075,7 @@ $string['editotherbooking'] = 'Andere Buchungsmöglichkeiten';
 $string['generaterecnum'] = "Eintragsnummern erstellen";
 $string['generaterecnumareyousure'] = "Neue Nummern erstellen und die alten verwerfen!";
 $string['generaterecnumnotification'] = "Neue Nummern erfolgreich erstellt.";
-$string['gotobooking'] = '<< Zu den Buchungen';
+$string['gotobooking'] = '&lt;&lt; Zu den Buchungen';
 $string['lblbooktootherbooking'] = 'Bezeichnung für den Button "Zu anderer Buchungsoption hinzufügen"';
 $string['no'] = 'Nein';
 $string['nocourse'] = 'Kein Kurs für Buchungsoption ausgewählt';
@@ -1128,7 +1128,7 @@ $string['messagetext'] = 'Nachricht';
 
 // Teachers.php.
 $string['teachers'] = 'Trainer:innen';
-$string['gotomanageresponses'] = '<< Antworten bearbeiten';
+$string['gotomanageresponses'] = '&lt;&lt; Antworten bearbeiten';
 $string['warningonteacherspage'] = '<b>ACHTUNG:</b> Wenn Sie hier Trainer:innen hinzufügen werden diese im Training-Journal <b>zu JEDEM EINZELNEN Termin hinzugefügt</b>.
 Wenn Sie hier Trainer:innen löschen, werden diese im Training-Journal <b>von JEDEM EINZELNEN Termin entfernt</b>.';
 
@@ -1568,10 +1568,11 @@ $string['erroroptiondateend'] = 'Terminende muss nach dem Terminbeginn liegen.';
 $string['accessdenied'] = 'Zugriff verweigert';
 $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="alert">Sie sind nicht berechtigt, auf diese Seite zuzugreifen.</div>';
 $string['optiondatesteachersreport'] = 'Training-Journal / Vertretungen';
-$string['optiondatesteachersreport_desc'] = 'In diesem Report erhalten Sie eine Übersicht, welche_r Trainer_in an welchem Termin geleitet hat.<br>
+$string['optiondatesteachersreport_desc'] = 'In diesem Report erhalten Sie eine Übersicht, welche:r Trainer:in an welchem Termin geleitet hat.<br>
 Standardmäßig werden alle Termine mit dem/den eingestellten Trainer:innen der Buchungsoption befüllt. Sie können einzelne Termine mit Vertretungen überschreiben.';
 $string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Um Trainer:innen zu ALLEN Terminen hinzuzufügen bzw. von ALLEN Terminen zu löschen, klicken Sie bitte hier.</a></h5></p>';
 $string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Training-Journal: Klicken Sie hier, um die Trainer:innen für spezifische Termine zu protokollieren.</a></h5></p>';
+$string['backtoteachersinstancereport'] = '<p><h5><a href="{$a}" target="_self">&lt;&lt; Zurück zum Trainer:innen-Gesamtbericht</a></h5></p>';
 $string['teacher'] = 'Trainer:in';
 $string['noteacherset'] = 'Kein/e Trainer/in';
 $string['reason'] = 'Grund';

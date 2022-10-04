@@ -125,7 +125,7 @@ $string['yourselection'] = 'Your selection';
 // Subscribeusers.php.
 $string['cannotremovesubscriber'] = 'You have to remove the activity completion prior to cancel the booking. Booking was not cancelled!';
 $string['allchangessaved'] = 'All changes have been saved.';
-$string['backtoresponses'] = '<< Back to responses';
+$string['backtoresponses'] = '&lt;&lt; Back to responses';
 $string['allusersbooked'] = 'All {$a} selected users have successfully been assigned to this booking option.';
 $string['notallbooked'] = 'The following users could not be booked due to reaching the max number of bookings per user or lack of available places for the booking option: {$a}';
 $string['enrolledinoptions'] = "alredy booked in booking options: ";
@@ -1194,7 +1194,7 @@ $string['editteachers'] = 'Edit';
 $string['generaterecnum'] = "Generate numbers";
 $string['generaterecnumareyousure'] = "This will generate new numbers and permanently delete the old one!";
 $string['generaterecnumnotification'] = "New numbers have been generated.";
-$string['gotobooking'] = '<< Bookings';
+$string['gotobooking'] = '&lt;&lt; Bookings';
 $string['lblbooktootherbooking'] = 'Name of button: Book users to other booking';
 $string['no'] = 'No';
 $string['nocourse'] = 'No course selected for this booking option';
@@ -1211,7 +1211,7 @@ $string['searchsurname'] = 'Last name';
 $string['yes'] = 'Yes';
 $string['no'] = 'No';
 $string['copypollurl'] = 'Copy poll URL';
-$string['gotobooking'] = '<< Bookings';
+$string['gotobooking'] = '&lt;&lt; Bookings';
 $string['nousers'] = 'No users!';
 $string['booktootherbooking'] = 'Book users to other booking';
 $string['lblbooktootherbooking'] = 'Name of button: Book users to other booking option';
@@ -1281,7 +1281,7 @@ $string['messagetext'] = 'Message';
 
 // Teachers.php.
 $string['teachers'] = 'Teachers';
-$string['gotomanageresponses'] = '<< Manage responses';
+$string['gotomanageresponses'] = '&lt;&lt; Manage responses';
 $string['warningonteacherspage'] = '<b>BE CAREFUL: </b>When adding teachers here, they will also be <b>added to EACH date</b> in the teaching report.
 When deleting teachers here, they will be <b>removed from EACH date</b> in the teaching report!';
 
@@ -1808,6 +1808,7 @@ $string['optiondatesteachersreport_desc'] = 'This report gives an overview of wh
 By default, every date will be filled in with the option\'s teacher. You can overwrite specific dates with replacement teachers.';
 $string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Click here if you want to add or remove teachers to/from EACH date.</a></h5></p>';
 $string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Teaching report: Click here if you want to add or remove teachers to/from specific dates only (for reporting).</a></h5></p>';
+$string['backtoteachersinstancereport'] = '<p><h5><a href="{$a}" target="_self">&lt;&lt; Back to teachers report</a></h5></p>';
 $string['teacher'] = 'Teacher';
 $string['noteacherset'] = 'No teacher';
 $string['reason'] = 'Reason';

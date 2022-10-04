@@ -24,6 +24,7 @@ require_once(__DIR__ . '/../../lib.php');
 require_once($CFG->libdir.'/tablelib.php');
 
 use mod_booking\optiondates_handler;
+use moodle_url;
 use table_sql;
 
 /**
@@ -35,14 +36,16 @@ class teachers_instance_report_table extends table_sql {
     /**
      * Constructor
      * @param string $uniqueid all tables have to have a unique id, this is used
-     * @param int $bookingid id of a booking instance (not cmid!)
+     * @param int $bookingid id of a booking instance (do not confuse with cmid!)
+     * @param int $cmid course module id of a booking instance
      */
-    public function __construct(string $uniqueid, int $bookingid = 0) {
+    public function __construct(string $uniqueid, int $bookingid = 0, int $cmid = 0) {
         parent::__construct($uniqueid);
 
         global $PAGE;
         $this->baseurl = $PAGE->url;
         $this->bookingid = $bookingid;
+        $this->cmid = $cmid;
 
         // Get unit length from config (should be something like 45, 50 or 60 minutes).
         if (!$this->unitlength = (int) get_config('booking', 'educationalunitinminutes')) {
@@ -97,7 +100,7 @@ class teachers_instance_report_table extends table_sql {
     private function set_units_courses_records(&$values) {
         global $DB;
         if (empty($values->unitsrecords)) {
-            $sql = "SELECT bo.id, bo.titleprefix, bo.text, bo.dayofweektime
+            $sql = "SELECT bo.id optionid, bo.titleprefix, bo.text, bo.dayofweektime
             FROM {booking_teachers} bt
             JOIN {booking_options} bo
             ON bo.id = bt.optionid
@@ -141,14 +144,16 @@ class teachers_instance_report_table extends table_sql {
                     $unitstringpart = get_string('units_unknown', 'mod_booking');
                 }
                 if (!$this->is_downloading()) {
-                    $optionswithdurations .= '<b>';
+                    $optionurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
+                        ['id' => $this->cmid, 'optionid' => $record->optionid]);
+                    $optionswithdurations .= "<b><a href='$optionurl' target='_blank'>";
                 }
                 if (!empty($record->titleprefix)) {
                     $optionswithdurations .= $record->titleprefix . " - ";
                 }
                 $optionswithdurations .= $record->text; // Option name.
                 if (!$this->is_downloading()) {
-                    $optionswithdurations .= '</b>';
+                    $optionswithdurations .= '</a></b>';
                 }
                 if (!empty($record->dayofweektime)) {
                     $optionswithdurations .= " ($record->dayofweektime)";
@@ -238,7 +243,8 @@ class teachers_instance_report_table extends table_sql {
                 ON bodt.optiondateid = bod.id
                 WHERE bod.bookingid = :bookingid
                 AND bt.userid = :teacherid
-                AND bodt.userid IS NULL";
+                AND bod.reason IS NOT NULL
+                AND (bodt.userid IS NULL OR bodt.userid <> bt.userid)";
 
         $params = [
             'teacherid' => $values->teacherid,
@@ -310,6 +316,11 @@ class teachers_instance_report_table extends table_sql {
                 ON u.id = bodt.userid
                 WHERE bod.bookingid = :bookingid
                 AND bodt.userid IS NOT NULL
+                AND bodt.userid NOT IN (
+                    SELECT userid
+                    FROM {booking_teachers}
+                    WHERE optionid = bt.optionid
+                )
                 AND bodt.userid <> bt.userid
                 AND bt.userid = :teacherid";
 

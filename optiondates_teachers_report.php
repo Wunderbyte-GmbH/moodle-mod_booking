@@ -81,6 +81,7 @@ if (!$optiondatesteacherstable->is_downloading()) {
     echo $OUTPUT->heading(get_string('optiondatesteachersreport', 'mod_booking'));
 
     $editteachersurl = new moodle_url('/mod/booking/teachers.php', $urlparams);
+    $instancereportsurl = new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cmid]);
 
     // Dismissible alert containing the description of the report.
     echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert">' .
@@ -91,6 +92,7 @@ if (!$optiondatesteacherstable->is_downloading()) {
     </div>';
 
     echo get_string('linkfromreporttoeditteachers', 'mod_booking', $editteachersurl->out());
+    echo get_string('backtoteachersinstancereport', 'mod_booking', $instancereportsurl->out());
 
     // Show header with booking option name (and prefix if present).
     if (!empty($settings->titleprefix)) {

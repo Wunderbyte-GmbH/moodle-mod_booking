@@ -109,7 +109,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
     echo $OUTPUT->heading(get_string('teachingreportfortrainer', 'mod_booking') . ': '
         . $teacherobj->firstname . " " . $teacherobj->lastname);
 
-    echo '<div class="alert alert-info alert-dismissible fade show" role="alert">' .
+    echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert">' .
         get_string('teachingreportfortrainer:subtitle', 'mod_booking') .
         '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
