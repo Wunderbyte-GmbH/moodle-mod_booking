@@ -107,33 +107,10 @@ if ($fromform = $mform->get_data()) {
         $teacherid = 0;
     } else {
         $teacherid = $fromform->teacherid;
-        // Needed, so we can also use the filter for downloading.
-        set_user_preference('teachersinstancereport_teacherid', $teacherid);
     }
+    // Needed, so we can also use the filter for downloading.
+    set_user_preference('teachersinstancereport_teacherid', $teacherid);
 }
-
-// Headers.
-$teachersinstancereporttable->define_headers([
-    get_string('teacher', 'mod_booking'),
-    get_string('email'),
-    get_string('sum_units', 'mod_booking'),
-    get_string('units_courses', 'mod_booking'),
-    get_string('missinghours', 'mod_booking'),
-    get_string('substitutions', 'mod_booking')
-]);
-
-// Columns.
-$teachersinstancereporttable->define_columns([
-    'lastname',
-    'email',
-    'sum_units',
-    'units_courses',
-    'missinghours',
-    'substitutions'
-]);
-
-// Header column.
-$teachersinstancereporttable->define_header_column('lastname');
 
 // SQL query.
 $fields = "DISTINCT u.id teacherid, u.firstname, u.lastname, u.email";
@@ -145,6 +122,29 @@ $from = "{booking_teachers} bt
 $params['bookingid'] = $bookingid;
 
 if (!$teachersinstancereporttable->is_downloading()) {
+
+    // Headers.
+    $teachersinstancereporttable->define_headers([
+        get_string('teacher', 'mod_booking'),
+        get_string('email'),
+        get_string('sum_units', 'mod_booking'),
+        get_string('units_courses', 'mod_booking'),
+        get_string('missinghours', 'mod_booking'),
+        get_string('substitutions', 'mod_booking')
+    ]);
+
+    // Columns.
+    $teachersinstancereporttable->define_columns([
+        'lastname',
+        'email',
+        'sum_units',
+        'units_courses',
+        'missinghours',
+        'substitutions'
+    ]);
+
+    // Header column.
+    $teachersinstancereporttable->define_header_column('lastname');
 
     // Table will be shown normally.
     echo $OUTPUT->header();
@@ -175,6 +175,29 @@ if (!$teachersinstancereporttable->is_downloading()) {
     echo $OUTPUT->footer();
 
 } else {
+
+    // Headers.
+    $teachersinstancereporttable->define_headers([
+        get_string('lastname'),
+        get_string('firstname'),
+        get_string('email'),
+        get_string('sum_units', 'mod_booking'),
+        get_string('units_courses', 'mod_booking'),
+        get_string('missinghours', 'mod_booking'),
+        get_string('substitutions', 'mod_booking')
+    ]);
+
+    // Columns.
+    $teachersinstancereporttable->define_columns([
+        'lastname',
+        'firstname',
+        'email',
+        'sum_units',
+        'units_courses',
+        'missinghours',
+        'substitutions'
+    ]);
+
     // When downloading, we use the last set teacherid from preferences.
     $andteacher = '';
     $lastteacherid = get_user_preferences('teachersinstancereport_teacherid');

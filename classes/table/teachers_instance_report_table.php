@@ -82,12 +82,26 @@ class teachers_instance_report_table extends table_sql {
                 substr($values->lastname, 0, 1) . "</span></sup> ";
             $namestring .= "<a href='/mod/booking/teacher_performed_units_report.php?teacherid="
                 . $values->teacherid . "' target='_blank'>";
-            $namestring .= "$values->lastname $values->firstname";
+            $namestring .= "$values->firstname $values->lastname";
             $namestring .= "</a>";
         } else {
-            $namestring = "$values->lastname $values->firstname";
+            $namestring = $values->lastname;
         }
         return $namestring;
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * firstname value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $link Returns a string containing all teacher names.
+     * @throws moodle_exception
+     * @throws coding_exception
+     */
+    public function col_firstname($values) {
+
+        return $values->firstname;
     }
 
     /**
