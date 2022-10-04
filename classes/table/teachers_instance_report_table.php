@@ -257,13 +257,16 @@ class teachers_instance_report_table extends table_sql {
             foreach ($records as $record) {
                 if (!$this->is_downloading()) {
                     $missinghoursstring .= '<hr/>';
+                    $optionurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
+                        ['id' => $this->cmid, 'optionid' => $record->optionid]);
+                    $missinghoursstring .= "<a href='$optionurl' target='_blank'>";
                 }
                 if (!empty($record->titleprefix)) {
                     $missinghoursstring .= $record->titleprefix . " - ";
                 }
                 if (!$this->is_downloading()) {
                     $missinghoursstring .= $record->text .
-                        ' (<b>' . optiondates_handler::prettify_optiondates_start_end($record->coursestarttime,
+                        '</a> (<b>' . optiondates_handler::prettify_optiondates_start_end($record->coursestarttime,
                         $record->courseendtime, current_language()) . '</b>) | ' . get_string('reason', 'mod_booking') . ': ' .
                         $record->reason . '<br/>';
                 } else {
@@ -335,14 +338,17 @@ class teachers_instance_report_table extends table_sql {
             foreach ($records as $record) {
                 if (!$this->is_downloading()) {
                     $substitutionsstring .= '<hr/>';
+                    $optionurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
+                        ['id' => $this->cmid, 'optionid' => $record->optionid]);
+                    $substitutionsstring .= "<a href='$optionurl' target='_blank'>";
                 }
                 if (!empty($record->titleprefix)) {
                     $substitutionsstring .= $record->titleprefix . " - ";
                 }
                 if (!$this->is_downloading()) {
                     $substitutionsstring .= $record->text .
-                        ' (' . optiondates_handler::prettify_optiondates_start_end($record->coursestarttime, $record->courseendtime,
-                        current_language()) . ')';
+                        '</a> (' . optiondates_handler::prettify_optiondates_start_end($record->coursestarttime,
+                            $record->courseendtime, current_language()) . ')';
                     $substitutionsstring .= " | <b>$record->firstname $record->lastname</b> ($record->email)";
                     $substitutionsstring .= ' | ' . get_string('reason', 'mod_booking') . ': ' .
                         $record->reason . '<br/>';
