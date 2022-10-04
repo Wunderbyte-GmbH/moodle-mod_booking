@@ -54,19 +54,15 @@ class rulesform extends dynamic_form {
 
         rules_info::add_rules_to_mform($mform, $repeatedrules, $repeateloptions);
 
+        // Get number of existing rules from DB.
         if ($rulerecords = $DB->get_records('booking_rules')) {
             $numberofrulestoshow = count($rulerecords);
         } else {
             $numberofrulestoshow = 0;
         }
 
-        // TODO: retrieve existing rules from DB.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /*if ($existingrules = $DB->get_records('booking_rules')) {
-            $numberofrulestoshow = count($existingrules);
-        }*/
-        $this->repeat_elements($repeatedrules, $numberofrulestoshow,
-            $repeateloptions, 'rules_sendmail', 'addbookingrule', 1, get_string('addbookingrule', 'mod_booking'), true,
+        $this->repeat_elements($repeatedrules, $numberofrulestoshow, $repeateloptions,
+            'rulesno', 'addbookingrule', 1, get_string('addbookingrule', 'mod_booking'), true,
             'deletebookingrule');
 
         // Add submit button to create optiondate series. (Use $this, not $mform).

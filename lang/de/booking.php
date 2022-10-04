@@ -1747,7 +1747,7 @@ $string['rule_optionfield_text'] = 'Name der Buchungsoption (text)';
 $string['rule_optionfield_location'] = 'Ort (location)';
 $string['rule_optionfield_address'] = 'Adresse (address)';
 
-$string['rule_sendmail_cpf'] = 'E-Mail versenden an User:in mit benutzerdefiniertem Feld';
+$string['rule_sendmail_cpf'] = '[Vorschau] E-Mail versenden an User:in mit benutzerdefiniertem Feld';
 $string['rule_sendmail_cpf_desc'] = 'Wählen Sie ein Event aus, auf das reagiert werden soll. Legen Sie eine E-Mail-Vorlage an
  (Sie können auch Platzhalter wie {bookingdetails} verwenden) und legen Sie fest, an welche Nutzer:innen die E-Mail versendet werden soll.
   Beispiel: Alle Nutzer:innen, die im benutzerdefinierten Feld "Studienzentrumsleitung" den Wert "SZL Wien" stehen haben.';

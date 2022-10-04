@@ -2021,7 +2021,7 @@ $string['rule_optionfield_text'] = 'Name of the booking option (text)';
 $string['rule_optionfield_location'] = 'Location (location)';
 $string['rule_optionfield_address'] = 'Address (address)';
 
-$string['rule_sendmail_cpf'] = 'Send an e-mail to user with custom profile field';
+$string['rule_sendmail_cpf'] = '[Preview] Send an e-mail to user with custom profile field';
 $string['rule_sendmail_cpf_desc'] = 'Choose an event that should trigger the "Send an e-mail" rule. Enter an e-mail template
  (you can use placeholders like {bookingdetails}) and define to which users the e-mail should be sent.
   Example: All users having the value "Vienna center" in a custom user profile field called "Study center".';
