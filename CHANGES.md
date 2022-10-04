@@ -1,3 +1,8 @@
+## Version 7.5.3 (2022100400)
+**New features:**
+* New feature: New teachers report for booking instances,
+  including courses (booking options), missing hours and substitutions.
+
 ## Version 7.5.2 (2022092901)
 **Bugfixes:**
 * Bugfix: Fix issue #212 - upgrade script for field 'availability' had wrong version number.
