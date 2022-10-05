@@ -21,13 +21,8 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
-use context;
-use context_module;
-use context_system;
-use core_form\dynamic_form;
 use mod_booking\booking_rules\rules_info;
-use moodle_url;
-use stdClass;
+use moodleform;
 
 /**
  * Dynamic optiondate form.
@@ -35,7 +30,7 @@ use stdClass;
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class rulesform extends dynamic_form {
+class rulesform extends moodleform {
 
     /**
      * {@inheritdoc}
@@ -70,88 +65,6 @@ class rulesform extends dynamic_form {
     }
 
     /**
-     * Check access for dynamic submission.
-     *
-     * @return void
-     */
-    protected function check_access_for_dynamic_submission(): void {
-        require_capability('mod/booking:addeditownoption', $this->get_context_for_dynamic_submission());
-    }
-
-    /**
-     * Process the form submission, used if form was submitted via AJAX
-     *
-     * This method can return scalar values or arrays that can be json-encoded, they will be passed to the caller JS.
-     *
-     * Submission data can be accessed as: $this->get_data()
-     *
-     * @return mixed
-     */
-    public function process_dynamic_submission() {
-
-        $data = $this->get_data();
-
-        rules_info::save_booking_rules($data);
-
-        // Now execute the rules.
-        rules_info::execute_booking_rules();
-
-        return $data;
-    }
-
-
-    /**
-     * Load in existing data as form defaults
-     *
-     * Can be overridden to retrieve existing values from db by entity id and also
-     * to preprocess editor and filemanager elements
-     *
-     * Example:
-     *     $this->set_data(get_entity($this->_ajaxformdata['cmid']));
-     */
-    public function set_data_for_dynamic_submission(): void {
-        global $DB;
-
-        $data = new stdClass;
-
-        // Defaults for booking rules.
-        if ($rulesfromdb = $DB->get_records('booking_rules')) {
-            foreach ($rulesfromdb as $rulefromdb) {
-                $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $rulefromdb->rulename;
-                $rule = new $rulefullpath;
-                $rule->set_defaults($data, $rulefromdb);
-            }
-        }
-        $this->set_data($data);
-    }
-
-    /**
-     * Returns form context
-     *
-     * If context depends on the form data, it is available in $this->_ajaxformdata or
-     * by calling $this->optional_param()
-     *
-     * @return context
-     */
-    protected function get_context_for_dynamic_submission(): context {
-        return context_system::instance();
-    }
-
-    /**
-     * Returns url to set in $PAGE->set_url() when form is being rendered or submitted via AJAX
-     *
-     * This is used in the form elements sensitive to the page url, such as Atto autosave in 'editor'
-     *
-     * If the form has arguments (such as 'cmid' of the element being edited), the URL should
-     * also have respective argument.
-     *
-     * @return moodle_url
-     */
-    protected function get_page_url_for_dynamic_submission(): moodle_url {
-        return new moodle_url('/mod/booking/edit_rules.php');
-    }
-
-    /**
      * Validate dates.
      *
      * {@inheritdoc}
@@ -160,25 +73,37 @@ class rulesform extends dynamic_form {
     public function validation($data, $files) {
         $errors = array();
         foreach ($data['bookingrule'] as $idx => $value) {
-            if (isset($data['rule_sendmail_cpf_field'][$idx]) &&
-                $data['rule_sendmail_cpf_field'][$idx] == '0') {
-                $errors["rule_sendmail_cpf_field[$idx]"] = get_string('error:nofieldchosen', 'mod_booking');
+            if (isset($data['rule_sendmail_daysbefore_days'][$idx]) &&
+                $data['rule_sendmail_daysbefore_days'][$idx] == '0') {
+                $errors["rule_sendmail_daysbefore_days[$idx]"] = get_string('error:nofieldchosen', 'mod_booking');
             }
-            if (isset($data['rule_sendmail_cpf_value'][$idx]) &&
-                empty($data['rule_sendmail_cpf_value'][$idx])) {
-                $errors["rule_sendmail_cpf_value[$idx]"] = get_string('error:mustnotbeempty', 'mod_booking');
+            if (isset($data['rule_sendmail_daysbefore_datefield'][$idx]) &&
+                $data['rule_sendmail_daysbefore_datefield'][$idx] == '0') {
+                $errors["rule_sendmail_daysbefore_datefield[$idx]"] = get_string('error:nofieldchosen', 'mod_booking');
             }
-            if (isset($data['rule_sendmail_cpf_template'][$idx]) &&
-                empty($data['rule_sendmail_cpf_template'][$idx])) {
-                $errors["rule_sendmail_cpf_template[$idx]"] = get_string('error:mustnotbeempty', 'mod_booking');
+            if (isset($data['rule_sendmail_daysbefore_cpfield'][$idx]) &&
+                $data['rule_sendmail_daysbefore_cpfield'][$idx] == '0') {
+                $errors["rule_sendmail_daysbefore_cpfield[$idx]"] = get_string('error:nofieldchosen', 'mod_booking');
+            }
+            if (isset($data['rule_sendmail_daysbefore_optionfield'][$idx]) &&
+                $data['rule_sendmail_daysbefore_optionfield'][$idx] == '0') {
+                $errors["rule_sendmail_daysbefore_optionfield[$idx]"] = get_string('error:nofieldchosen', 'mod_booking');
+            }
+            if (isset($data['rule_sendmail_daysbefore_subject'][$idx]) &&
+                empty($data['rule_sendmail_daysbefore_subject'][$idx])) {
+                $errors["rule_sendmail_daysbefore_subject[$idx]"] = get_string('error:mustnotbeempty', 'mod_booking');
+            }
+            if (isset($data['rule_sendmail_daysbefore_template'][$idx]['text']) &&
+                empty($data['rule_sendmail_daysbefore_template'][$idx]['text'])) {
+                $errors["rule_sendmail_daysbefore_template_group[$idx]"] = get_string('error:mustnotbeempty', 'mod_booking');
             }
         }
         return $errors;
     }
 
     /**
-     * {@inheritDoc}
-     * @see moodleform::get_data()
+     * Get data.
+     * @return object $data
      */
     public function get_data() {
         $data = parent::get_data();

@@ -77,7 +77,7 @@ class rule_sendmail_daysbefore implements booking_rule {
         $this->operator = $ruleobj->operator;
         $this->optionfield = $ruleobj->optionfield;
         $this->subject = $ruleobj->subject;
-        $this->template = nl2br($ruleobj->template); // Keep line breaks in HTML.
+        $this->template = $ruleobj->template;
     }
 
     /**
@@ -94,7 +94,7 @@ class rule_sendmail_daysbefore implements booking_rule {
         $this->operator = $ruleobj->operator;
         $this->optionfield = $ruleobj->optionfield;
         $this->subject = $ruleobj->subject;
-        $this->template = nl2br($ruleobj->template); // Keep line breaks in HTML.
+        $this->template = $ruleobj->template;
     }
 
     /**
@@ -109,7 +109,7 @@ class rule_sendmail_daysbefore implements booking_rule {
         global $DB;
 
         $numberofdaysbefore = [
-            0 => '0',
+            0 => get_string('choose...', 'mod_booking'),
             1 => '1',
             2 => '2',
             3 => '3',
@@ -128,6 +128,7 @@ class rule_sendmail_daysbefore implements booking_rule {
 
         // Get a list of allowed option fields (only date fields allowed).
         $datefields = [
+            '0' => get_string('choose...', 'mod_booking'),
             'coursestarttime' => get_string('rule_optionfield_coursestarttime', 'mod_booking'),
             'courseendtime' => get_string('rule_optionfield_courseendtime', 'mod_booking'),
             'bookingopeningtime' => get_string('rule_optionfield_bookingopeningtime', 'mod_booking'),
@@ -137,6 +138,7 @@ class rule_sendmail_daysbefore implements booking_rule {
         // Get a list of allowed option fields to compare with custom user profile field.
         // Currently we only use fields containing VARCHAR in DB.
         $allowedoptionfields = [
+            '0' => get_string('choose...', 'mod_booking'),
             'text' => get_string('rule_optionfield_text', 'mod_booking'),
             'location' => get_string('rule_optionfield_location', 'mod_booking'),
             'address' => get_string('rule_optionfield_address', 'mod_booking')
@@ -166,7 +168,7 @@ class rule_sendmail_daysbefore implements booking_rule {
         $customuserprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
         if (!empty($customuserprofilefields)) {
             $customuserprofilefieldsarray = [];
-            $customuserprofilefieldsarray[0] = get_string('userinfofieldoff', 'mod_booking');
+            $customuserprofilefieldsarray[0] = get_string('choose...', 'mod_booking');
 
             // Create an array of key => value pairs for the dropdown.
             foreach ($customuserprofilefields as $customuserprofilefield) {
@@ -198,10 +200,14 @@ class rule_sendmail_daysbefore implements booking_rule {
         $repeateloptions['rule_sendmail_daysbefore_subject']['type'] = PARAM_TEXT;
         $repeateloptions['rule_sendmail_daysbefore_subject']['hideif'] = array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
 
-        // Mail template. We need to use text area as editor does not work correctly.
-        $repeatedrules[] = $mform->createElement('textarea', 'rule_sendmail_daysbefore_template',
-            get_string('rule_mailtemplate', 'mod_booking'), 'wrap="virtual" rows="20" cols="25"');
-        $repeateloptions['rule_sendmail_daysbefore_template']['hideif'] = array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
+        // Mail template.
+        // Workaround: We need a group to get hideif to work.
+        $editorgroup = [];
+        $editorgroup[] = $mform->createElement('editor', 'rule_sendmail_daysbefore_template',
+            '', ['rows' => 20], ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]);
+        $repeatedrules[] = $mform->createElement('group', 'rule_sendmail_daysbefore_template_group',
+            get_string('rule_mailtemplate', 'mod_booking'), $editorgroup, null, false);
+        $repeateloptions['rule_sendmail_daysbefore_template_group']['hideif'] = ['bookingrule', 'neq', 'rule_sendmail_daysbefore'];
 
     }
 
@@ -229,7 +235,7 @@ class rule_sendmail_daysbefore implements booking_rule {
                 $ruleobj->operator = $data->rule_sendmail_daysbefore_operator[$idx];
                 $ruleobj->optionfield = $data->rule_sendmail_daysbefore_optionfield[$idx];
                 $ruleobj->subject = $data->rule_sendmail_daysbefore_subject[$idx];
-                $ruleobj->template = $data->rule_sendmail_daysbefore_template[$idx];
+                $ruleobj->template = $data->rule_sendmail_daysbefore_template[$idx]['text'];
 
                 $record = new stdClass;
                 $record->rulename = $data->bookingrule[$idx];
@@ -255,7 +261,8 @@ class rule_sendmail_daysbefore implements booking_rule {
         $data->rule_sendmail_daysbefore_operator[$idx] = $ruleobj->operator;
         $data->rule_sendmail_daysbefore_optionfield[$idx] = $ruleobj->optionfield;
         $data->rule_sendmail_daysbefore_subject[$idx] = $ruleobj->subject;
-        $data->rule_sendmail_daysbefore_template[$idx] = $ruleobj->template;
+        $data->rule_sendmail_daysbefore_template[$idx]['text'] = $ruleobj->template;
+        $data->rule_sendmail_daysbefore_template[$idx]['format'] = FORMAT_HTML;
     }
 
     /**
