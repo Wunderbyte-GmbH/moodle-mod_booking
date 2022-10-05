@@ -1,3 +1,6 @@
+7.5.4 (2022100500)
+* Improvement: Booking rules => use classic moodleform so we can use editor.
+
 7.5.3 (2022100400)
 * New feature: New teachers report for booking instances,
   including courses (booking options), missing hours and substitutions.

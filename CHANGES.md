@@ -1,3 +1,7 @@
+## Version 7.5.4 (2022100500)
+**Improvements:**
+* Improvement: Booking rules => use classic moodleform so we can use editor.
+
 ## Version 7.5.3 (2022100400)
 **New features:**
 * New feature: New teachers report for booking instances,
