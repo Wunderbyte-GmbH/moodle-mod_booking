@@ -300,6 +300,10 @@ class option_form extends \moodleform {
         $mform->setType('maxoverbooking', PARAM_INT);
         $mform->disabledIf('maxoverbooking', 'limitanswers', 'notchecked');
 
+        $mform->addElement('text', 'minanswers', get_string('minanswers', 'mod_booking'));
+        $mform->setType('minanswers', PARAM_INT);
+        $mform->setDefault('minanswers', 0);
+
         $coursearray = array();
         $coursearray[0] = get_string('donotselectcourse', 'mod_booking');
         $totalcount = 1;

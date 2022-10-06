@@ -79,7 +79,8 @@ class shortcodes {
 
         $table = new bookingoptions_table($tablename, $booking);
 
-        list($fields, $from, $where, $params, $filter) = $booking->get_all_options_sql(null, null, $category, null, $booking->context);
+        list($fields, $from, $where, $params, $filter) = $booking->get_all_options_sql(null, null, $category, null,
+            $booking->context);
 
         $table->set_filter_sql($fields, $from, $where, $params, $filter);
 
@@ -108,17 +109,19 @@ class shortcodes {
 
         // Override naming for columns. one could use getstring for localisation here.
         $table->add_classes_to_subcolumns('cardbody',
-            ['keystring' => get_string('tableheader_text', 'booking')], ['text']);
+            ['keystring' => get_string('tableheader_text', 'mod_booking')], ['text']);
         $table->add_classes_to_subcolumns('cardbody',
-            ['keystring' => get_string('tableheader_teacher', 'booking')], ['teacher']);
+            ['keystring' => get_string('tableheader_teacher', 'mod_booking')], ['teacher']);
         $table->add_classes_to_subcolumns('cardbody',
-            ['keystring' => get_string('tableheader_maxanswers', 'booking')], ['maxanswers']);
+            ['keystring' => get_string('tableheader_maxanswers', 'mod_booking')], ['maxanswers']);
         $table->add_classes_to_subcolumns('cardbody',
-            ['keystring' => get_string('tableheader_maxoverbooking', 'booking')], ['maxoverbooking']);
+            ['keystring' => get_string('tableheader_maxoverbooking', 'mod_booking')], ['maxoverbooking']);
         $table->add_classes_to_subcolumns('cardbody',
-            ['keystring' => get_string('tableheader_coursestarttime', 'booking')], ['coursestarttime']);
+            ['keystring' => get_string('tableheader_minanswers', 'mod_booking')], ['minanswers']);
         $table->add_classes_to_subcolumns('cardbody',
-            ['keystring' => get_string('tableheader_courseendtime', 'booking')], ['courseendtime']);
+            ['keystring' => get_string('tableheader_coursestarttime', 'mod_booking')], ['coursestarttime']);
+        $table->add_classes_to_subcolumns('cardbody',
+            ['keystring' => get_string('tableheader_courseendtime', 'mod_booking')], ['courseendtime']);
 
         $table->add_classes_to_subcolumns('cardbody', ['columnclass' => 'col-sm']);
 

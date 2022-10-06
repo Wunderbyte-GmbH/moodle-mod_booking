@@ -563,6 +563,7 @@ class csv_import {
         $bookingoption->courseid = 0;
         $bookingoption->limitanswers = 0;
         $bookingoption->maxoverbooking = 0;
+        $bookingoption->minanswers = 0;
         $bookingoption->description = '';
         $bookingoption->institution = '';
         $bookingoption->invisible = 0;

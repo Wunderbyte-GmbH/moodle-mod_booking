@@ -60,6 +60,7 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                             }
                             $("#id_maxanswers").val(obj.maxanswers);
                             $("#id_maxoverbooking").val(obj.maxoverbooking);
+                            $("#id_minanswers").val(obj.minanswers);
 
                             if ($('#id_restrictanswerperiodopening').is(':checked') !=
                                 (obj.bookingopeningtime == 0 ? false : true)) {

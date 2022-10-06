@@ -2744,5 +2744,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022100300, 'booking');
     }
 
+    if ($oldversion < 2022100600) {
+
+        // Define field minanswers to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('minanswers', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'maxoverbooking');
+
+        // Conditionally launch add field minanswers.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022100600, 'booking');
+    }
+
     return true;
 }

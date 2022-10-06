@@ -320,6 +320,7 @@ $string['caladdassiteevent'] = 'Zum Kalender hinzufügen (für alle Nutzer:innen
 $string['limitanswers'] = 'Teilnehmeranzahl beschränken';
 $string['maxparticipantsnumber'] = 'Maximale Teilnehmeranzahl';
 $string['maxoverbooking'] = 'Maximale Anzahl der Wartelistenplätze';
+$string['minanswers'] = 'Mindestteilnehmerzahl';
 $string['defaultbookingoption'] = 'Standardeinstellungen für Buchungsoptionen';
 $string['activatemails'] = 'E-Mails aktivieren (Bestätigungen, Erinnerungen etc.)';
 $string['sendcopytobookingmanger'] = 'Eine Kopie der Bestätigungsmail an den Buchungsverwalter senden';
@@ -1425,6 +1426,7 @@ $string['tableheader_text'] = 'Kursbezeichnung';
 $string['tableheader_teacher'] = 'Trainer*in(nen)';
 $string['tableheader_maxanswers'] = 'Verfügbare Plätze';
 $string['tableheader_maxoverbooking'] = 'Wartelistenplätze';
+$string['tableheader_minanswers'] = 'Mindestteilnehmerzahl';
 $string['tableheader_coursestarttime'] = 'Kursbeginn';
 $string['tableheader_courseendtime'] = 'Kursende';
 

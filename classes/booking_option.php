@@ -1786,6 +1786,7 @@ class booking_option {
             'address' => $this->option->address,
             'maxanswers' => $this->option->maxanswers,
             'maxoverbooking' => $this->option->maxoverbooking,
+            'minanswers' => $this->option->minanswers,
             'bookingopeningtime' => ($this->option->bookingopeningtime == 0 ? get_string('nodateset', 'mod_booking') : userdate(
                 $this->option->bookingopeningtime, get_string('strftimedatetime', 'langconfig'))),
             'bookingclosingtime' => ($this->option->bookingclosingtime == 0 ? get_string('nodateset', 'mod_booking') : userdate(

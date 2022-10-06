@@ -811,6 +811,12 @@ function booking_update_options($optionvalues, $context) {
         $option->limitanswers = 1;
     }
 
+    if (isset($optionvalues->minanswers)) {
+        $option->minanswers = $optionvalues->minanswers;
+    } else {
+        $option->minanswers = 0;
+    }
+
     if (isset($optionvalues->restrictanswerperiodopening) && !empty($optionvalues->bookingopeningtime)) {
         $option->bookingopeningtime = $optionvalues->bookingopeningtime;
     } else {

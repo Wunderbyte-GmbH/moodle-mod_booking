@@ -273,6 +273,10 @@ class booking_answers {
             $returnarray['fullybooked'] = false;
         }
 
+        if ($this->bookingoptionsettings->minanswers != 0) {
+            $returnarray['minanswers'] = $this->bookingoptionsettings->minanswers;
+        }
+
         if ($this->bookingoptionsettings->maxoverbooking != 0) {
             $returnarray['maxoverbooking'] = $this->bookingoptionsettings->maxoverbooking;
 
@@ -331,6 +335,7 @@ class booking_answers {
             $this->text = $dbrecord->text;
             $this->maxanswers = $dbrecord->maxanswers;
             $this->maxoverbooking = $dbrecord->maxoverbooking;
+            $this->minanswers = $dbrecord->minanswers;
             $this->bookingopeningtime = $dbrecord->bookingopeningtime;
             $this->bookingclosingtime = $dbrecord->bookingclosingtime;
             $this->courseid = $dbrecord->courseid;

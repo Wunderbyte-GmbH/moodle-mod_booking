@@ -306,6 +306,11 @@ class webservice_import {
             }
         }
 
+        // Make sure minanswers is not null.
+        if (!isset($data->minanswers)) {
+            $data->minanswers = 0;
+        }
+
         // Set booking closing time.
         if (!empty($data->bookingclosingtime)) {
             $data->restrictanswerperiodclosing = 1;

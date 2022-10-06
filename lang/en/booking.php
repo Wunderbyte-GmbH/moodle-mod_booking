@@ -330,6 +330,7 @@ $string['caladdassiteevent'] = 'Add to calendar (visible to all users)';
 $string['limitanswers'] = 'Limit the number of participants';
 $string['maxparticipantsnumber'] = 'Max. number of participants';
 $string['maxoverbooking'] = 'Max. number of places on waiting list';
+$string['minanswers'] = 'Minimum number of participants';
 $string['defaultbookingoption'] = 'Default booking options';
 $string['activatemails'] = 'Activate e-mails (confirmations, notifications and more)';
 $string['sendcopytobookingmanger'] = 'Send confirmation e-mail to booking manager';
@@ -1661,6 +1662,7 @@ $string['tableheader_text'] = 'Course name';
 $string['tableheader_teacher'] = 'Teacher(s)';
 $string['tableheader_maxanswers'] = 'Available places';
 $string['tableheader_maxoverbooking'] = 'Waiting list places';
+$string['tableheader_minanswers'] = 'Minimum number of participants';
 $string['tableheader_coursestarttime'] = 'Course start';
 $string['tableheader_courseendtime'] = 'Course end';
 

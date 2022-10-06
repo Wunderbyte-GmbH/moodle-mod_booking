@@ -59,7 +59,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         $options = new backup_nested_element('options');
         $option = new backup_nested_element('option', array('id'),
-                array('text', 'maxanswers', 'maxoverbooking', 'bookingopeningtime', 'bookingclosingtime', 'courseid',
+                array('text', 'maxanswers', 'maxoverbooking', 'minanswers', 'bookingopeningtime', 'bookingclosingtime', 'courseid',
                     'coursestarttime', 'courseendtime', 'enrolmentstatus', 'description', 'descriptionformat',
                     'limitanswers', 'timemodified', 'addtocalendar', 'calendarid', 'pollurl',
                     'groupid', 'sent', 'sent2', 'sentteachers', 'location', 'institution', 'address',

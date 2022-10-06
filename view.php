@@ -558,6 +558,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                          bo.limitanswers,
                          bo.maxanswers,
                          bo.maxoverbooking,
+                         bo.minanswers,
                          bo.invisible,
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
