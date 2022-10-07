@@ -98,12 +98,15 @@
     {{/maxoverbooking}}
 {{/notbooked}}
 </a>
+{{#minanswers}}
+    <div class="minanswers"><small>{{#str}} minanswers, mod_booking {{/str}}: {{.}}</small></div>
+{{/minanswers}}
 {{#showmanageresponses}}
 <div>
-<a href="/mod/booking/report.php?id={{cmid}}&optionid={{optionid}}" style="text-decoration: none;" class="btn btn-light p-0">
-    <i class="fa fa-ticket" aria-hidden="true"></i>
-    {{#numberofresponses}}{{.}}{{/numberofresponses}}
-    {{#str}} manageresponses, mod_booking {{/str}}
-</a>
+    <a href="/mod/booking/report.php?id={{cmid}}&optionid={{optionid}}" style="text-decoration: none;" class="btn btn-light p-0">
+        <i class="fa fa-ticket" aria-hidden="true"></i>
+        {{#numberofresponses}}{{.}}{{/numberofresponses}}
+        {{#str}} manageresponses, mod_booking {{/str}}
+    </a>
 </div>
 {{/showmanageresponses}}
