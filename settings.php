@@ -100,8 +100,8 @@ if ($ADMIN->fulltree) {
             $licensekeydesc, ''));
 
     $settings->add(
-        new admin_setting_heading('teachingreportfortrainer',
-            get_string('teachingreportfortrainer', 'mod_booking'), ''));
+        new admin_setting_heading('educationalunitinminutes',
+            get_string('educationalunitinminutes', 'mod_booking'), ''));
 
     $allowedlengthsofunit = [
         '60' => '60 min', // Default value.
@@ -154,6 +154,11 @@ if ($ADMIN->fulltree) {
             get_string('globalcurrency', 'booking'),
             get_string('globalcurrencydesc', 'booking'),
             'EUR', $currencies));
+
+    $settings->add(
+        new admin_setting_configcheckbox('booking/applyunitfactor',
+                get_string('applyunitfactor', 'mod_booking'),
+                get_string('applyunitfactor_desc', 'mod_booking'), 1));
 
     $settings->add(
         new admin_setting_configcheckbox('booking/roundpricesafterformula',

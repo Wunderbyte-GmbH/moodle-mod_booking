@@ -1861,6 +1861,11 @@ $string['recalculateall'] = 'Calculate all prices';
 $string['alertrecalculate'] = '<b>Caution!</b> All prices will be recalculated and all old prices will be overwritten.';
 $string['nopriceformulaset'] = 'No formula set on setting page. <a href="{$a->url}" target="_blank">Set it here.</a>';
 $string['successfulcalculation'] = 'Price calculation successful!';
+$string['applyunitfactor'] = 'Apply unit factor';
+$string['applyunitfactor_desc'] = 'If this setting is active, the educational unit length (e.g. 45 min) set above will be used
+ to calculate the number of educational units. This number will be used as factor for the price formula.
+ Example: A booking option has a date series like "Mon, 15:00 - 16:30". So it lasts 2 educational units (45 min each).
+ So a unit factor of 2 will be applied to the price formula.';
 $string['roundpricesafterformula'] = 'Round prices (price formula)';
 $string['roundpricesafterformula_desc'] = 'If active, prices will be rounded to full numbers (no decimals) after the <strong>price formula</strong> has been applied.';
 

@@ -1339,7 +1339,7 @@ $string['pricecategoryfieldoff'] = 'Nicht anzeigen';
 $string['pricecategoryfield'] = 'Nutzerprofilfeld für die Preiskategorie';
 $string['pricecategoryfielddesc'] = 'Wählen Sie ein Nutzerprofilfeld aus, in dem für jede/n Nutzer/in der Identifikator der Preiskategorie gesichert wird.';
 
-$string['teachingreportfortrainer'] = 'Leistungs-Report für Trainer*in';
+$string['teachingreportfortrainer'] = 'Leistungs-Report für Trainer:in';
 $string['educationalunitinminutes'] = 'Länge einer Unterrichtseinheit (Minuten)';
 $string['educationalunitinminutes_desc'] = 'Hier können Sie die Länge einer Unterrichtseinheit in Minuten angeben. Diese wird zur Berechnung der geleisteten UEs herangezogen.';
 
@@ -1625,6 +1625,10 @@ $string['recalculateall'] = 'Alle Preise der Instanz mit Formel neu berechnen';
 $string['alertrecalculate'] = '<b>Vorsicht!</b> Alle Preise der Instanz werden mit der eingetragenen Formel neu berechnet und alle alten Preise werden überschrieben.';
 $string['successfulcalculation'] = 'Preise erfolgreich neu berechnet!';
 $string['nopriceformulaset'] = 'Sie müssen zuerst eine Formel in den Buchungseinstellungen eintragen. <a href="{$a->url}" target="_blank">Formel hier bearbeiten.</a>';
+$string['applyunitfactor'] = 'Einheitenfaktor anwenden';
+$string['applyunitfactor_desc'] = 'Wenn diese Einstellung aktiviert ist, wird die Länge der oben gesetzten Unterrichtseinheiten (z.B. 45 min) zur Berechnung der Anzahl der Einheiten
+ herangezogen und als Faktor für die Preisformel verwendet. Beispiel: Eine Buchungsoption hat die Terminserie "Mo, 15:00 - 16:30". Sie dauert also 2 UE von
+ jeweils 45 min. Auf die Preisformel wird also der Einheitenfaktor von 2 angewendet.';
 $string['roundpricesafterformula'] = 'Preise runden (Preisformel)';
 $string['roundpricesafterformula_desc'] = 'Preise auf ganze Zahlen runden (mathematisch), nachdem die <strong>Preisformel</strong> angewandt wurde.';
 

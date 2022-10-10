@@ -208,11 +208,6 @@ class price {
                         self::apply_time_factor($value, $dayinfo, $price);
                     }
                     break;
-                case 'unit':
-                    if (!empty($dayinfo)) {
-                        self::apply_unit_factor($value, $dayinfo, $price);
-                    }
-                    break;
                 case 'customfield':
                     self::apply_customfield_factor_from_form($value, $fromform, $price);
                     break;
@@ -220,6 +215,11 @@ class price {
                     self::apply_entity_factor_from_form($fromform, $price);
                     break;
             }
+        }
+
+        /* Unit factor is not part of price formula but depends on the config setting educationalunitinminutes. */
+        if (!empty($dayinfo) && get_config('booking', 'applyunitfactor')) {
+            self::apply_unit_factor($dayinfo, $price);
         }
 
         // If setting to round prices is turned on, then round to integer.
@@ -287,11 +287,6 @@ class price {
                         self::apply_time_factor($value, $dayinfo, $price);
                     }
                     break;
-                case 'unit':
-                    if (!empty($dayinfo)) {
-                        self::apply_unit_factor($value, $dayinfo, $price);
-                    }
-                    break;
                 case 'customfield':
                     self::apply_customfield_factor_with_bookingoptionsettings($value, $bookingoptionsettings, $price);
                     break;
@@ -299,6 +294,11 @@ class price {
                     self::apply_entity_factor_with_bookingoptionsettings($bookingoptionsettings, $price);
                     break;
             }
+        }
+
+        /* Unit factor is not part of price formula but depends on the config setting educationalunitinminutes. */
+        if (!empty($dayinfo) && get_config('booking', 'applyunitfactor')) {
+            self::apply_unit_factor($dayinfo, $price);
         }
 
         // If setting to round prices is turned on, then round to integer.
@@ -327,15 +327,22 @@ class price {
     }
 
     /**
-     * Interprets the unit length of the dayinfo part of the jsonobject
-     * and applies the multiplier to the price, if necessary.
+     * Applies the unit length factor from settings to the price formula.
+     * Example: A booking option lasting 90 minutes will have a factor of 2,
+     * if the educationalunitinminutes (config setting) ist set to 45 min.
      *
      * @param stdClass $unitobject
      * @param array $dayinfo
      * @param float $price
      * @return void
      */
-    private static function apply_unit_factor(stdClass $unitobject, array $dayinfo, float &$price) {
+    private static function apply_unit_factor(array $dayinfo, float &$price) {
+
+        // Get unit length from config (should be something like 45, 50 or 60 minutes).
+        if (!$unitlength = (int) get_config('booking', 'educationalunitinminutes')) {
+            $unitlength = 60; // If it's not set, we use an hour as default.
+        }
+
         sscanf($dayinfo['starttime'], "%d:%d", $hours, $minutes);
         $startminutes = $hours * 60 + $minutes;
         sscanf($dayinfo['endtime'], "%d:%d", $hours, $minutes);
@@ -343,8 +350,8 @@ class price {
 
         $durationminutes = $endminutes - $startminutes;
 
-        if ($durationminutes > 0 && !empty($unitobject->length) && $unitobject->length != "0") {
-            $multiplier = round($durationminutes / $unitobject->length, 1);
+        if ($durationminutes > 0 && !empty($unitlength)) {
+            $multiplier = round($durationminutes / $unitlength, 1);
             $price = $price * $multiplier;
         }
     }
