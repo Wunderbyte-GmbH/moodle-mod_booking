@@ -128,8 +128,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                             $description,
                             $settings->imageurl,
                             $canceluntil,
-                            $bookingoption->coursestarttime ?? null,
-                            $bookingoption->coursendtime ?? null);
+                            $settings->coursestarttime ?? null,
+                            $settings->coursendtime ?? null);
     }
 
     /**
