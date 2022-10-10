@@ -29,6 +29,7 @@ use mod_booking\booking;
 use mod_booking\booking_answers;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\optiondates_handler;
 use mod_booking\output\col_action;
 use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_price;
@@ -241,21 +242,31 @@ class bookingoptions_table extends wunderbyte_table {
 
     /**
      * This function is called for each data row to allow processing of the
-     * dayofweek value.
+     * dayofweektime value.
      *
      * @param object $values Contains object with all the values of record.
-     * @return string $dayofweek Returns course start time as a readable string.
+     * @return string $dayofweektime String for date series, e.g. "Mon, 16:00 - 17:00"
      * @throws coding_exception
      */
-    public function col_dayofweek($values) {
+    public function col_dayofweektime($values) {
 
+        $ret = '';
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
 
+        $units = null;
         if (!empty($settings->dayofweektime)) {
-            return $settings->dayofweektime;
-        } else {
-            return '';
+            $units = optiondates_handler::calculate_and_render_educational_units($settings->dayofweektime);
         }
+
+        if (!empty($settings->dayofweektime)) {
+            $ret = $settings->dayofweektime;
+
+            if (!$this->is_downloading() && !empty($units)) {
+                $ret .= " ($units)";
+            }
+        }
+
+        return $ret;
     }
 
     /**

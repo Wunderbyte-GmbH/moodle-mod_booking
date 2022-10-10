@@ -28,6 +28,7 @@ use context_module;
 use core_table\external\dynamic\get;
 use mod_booking\booking;
 use mod_booking\booking_option;
+use mod_booking\optiondates_handler;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use renderer_base;
@@ -194,7 +195,13 @@ class bookingoption_description implements renderable, templatable {
         $m = $minutes - ($d * 1440) - ($h * 60);
         $this->duration = "{$d} " . get_string("days") . "  {$h} " . get_string("hours") . "  {$m} " . get_string("minutes");
 
+        // Datestring for date series and calculation of educational unit length.
         $this->dayofweektime = $settings->dayofweektime;
+
+        // Set the number of educational units (calculated with dayofweektime string).
+        if (!empty($settings->dayofweektime)) {
+            $this->unitstring = optiondates_handler::calculate_and_render_educational_units($settings->dayofweektime);
+        }
 
         // We got the array of all the booking information.
         $this->bookinginformation = $bookinganswers->return_all_booking_information($user->id);
@@ -344,6 +351,10 @@ class bookingoption_description implements renderable, templatable {
             } else if (!empty($this->bookinginformation['notbooked']['fullybooked'])) {
                 $returnarray['bookingsstring'] = get_string('fullybooked', 'mod_booking');
             }
+        }
+
+        if (!empty($this->unitstring)) {
+            $returnarray['unitstring'] = $this->unitstring;
         }
 
         // We return all the customfields of the option.

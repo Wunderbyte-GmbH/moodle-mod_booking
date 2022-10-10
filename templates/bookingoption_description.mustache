@@ -35,7 +35,12 @@
 <div class="booking-option-info-invisible">{{#str}} invisibleoption, mod_booking {{/str}}</div>
 {{/invisible}}
 {{#imageurl}}<img src="{{{.}}}" class="img-fluid"/>{{/imageurl}}
-{{#dayofweektime}}<div class="bo_dayofweektime">{{#str}}dayofweektime, mod_booking{{/str}}: {{.}}</div>{{/dayofweektime}}
+{{#dayofweektime}}
+    <div class="bo_dayofweektime">
+        {{#str}}dayofweektime, mod_booking{{/str}}: {{.}}
+        {{#unitstring}}<span class="bo_unitstring"> ({{.}})</span>{{/unitstring}}
+    </div>
+{{/dayofweektime}}
 {{#location}}<div class="bo_location">{{#str}}location, mod_booking{{/str}}: {{.}}</div>{{/location}}
 {{#institution}}<div class="bo_institution">{{#str}}institution, mod_booking{{/str}}: {{.}}</div>{{/institution}}
 {{#address}}<div class="bo_address">{{#str}}address, mod_booking{{/str}}: {{.}}</div>{{/address}}

@@ -730,4 +730,44 @@ class optiondates_handler {
 
         return $returnitem;
     }
+
+    /**
+     * Helper function to calculate and render educational units.
+     *
+     * @param string $dayofweektime e.g. "Mon, 16:00 - 17:30"
+     * @return string the rendered educational units (localized)
+     */
+    public static function calculate_and_render_educational_units(string $dayofweektime): string {
+
+        // Get unit length from config (should be something like 45, 50 or 60 minutes).
+        if (!$unitlength = (int) get_config('booking', 'educationalunitinminutes')) {
+            $unitlength = 60; // If it's not set, we use an hour as default.
+        }
+
+        // For German use "," as comma and " " as thousands separator.
+        if (current_language() == "de") {
+            $decimalseparator = ",";
+            $thousandsseparator = " ";
+        } else {
+            // Default separators.
+            $decimalseparator = ".";
+            $thousandsseparator = ",";
+        }
+
+        $dayinfo = self::prepare_day_info($dayofweektime);
+
+        if (empty($dayinfo['endtime']) || empty($dayinfo['starttime'])) {
+            return '';
+        }
+
+        $minutes = (strtotime('today ' . $dayinfo['endtime']) - strtotime('today ' . $dayinfo['starttime'])) / 60;
+        $units = number_format($minutes / $unitlength, 1, $decimalseparator, $thousandsseparator);
+        $unitstring = get_string('units', 'mod_booking') . ": $units";
+
+        if (!empty($unitstring)) {
+            return $unitstring;
+        } else {
+            return '';
+        }
+    }
 }
