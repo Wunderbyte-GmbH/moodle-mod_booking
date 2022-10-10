@@ -127,7 +127,9 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                             'mod_booking',
                             $description,
                             $settings->imageurl,
-                            $canceluntil);
+                            $canceluntil,
+                            $bookingoption->coursestarttime ?? null,
+                            $bookingoption->coursendtime ?? null);
     }
 
     /**
