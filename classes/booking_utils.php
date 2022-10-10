@@ -339,7 +339,7 @@ class booking_utils {
                     $numberofresponses = $values->waiting + $values->booked;
                 }
                 $manage = "<br><a href=\"report.php?id={$booking->cm->id}&optionid={$values->id}\">" .
-                        get_string("viewallresponses", "booking", $numberofresponses) . "</a>";
+                        get_string('viewallresponses', 'mod_booking', $numberofresponses) . "</a>";
             }
             if ($booking->settings->ratings > 0) {
                 $manage .= '<div><select class="starrating" id="rate' . $values->id .
@@ -357,24 +357,32 @@ class booking_utils {
         if ($values->courseendtime > 0 &&  $values->courseendtime < time()) {
             $limit = get_string('eventalreadyover', 'booking');
         } else if (!$coursepage) {
-            $limit = "<div class='col-ap-unlimited'>" . get_string("unlimited", 'booking') . "</div>";
+            $limit = "<div class='col-ap-unlimited'>" . get_string('unlimited', 'mod_booking') . "</div>";
         } else {
             $limit = '';
         }
 
+        // Show minimum participant number if it's set.
+        if (!empty($values->minanswers)) {
+            $minanswers = "<div class='col-ap-minanswers'><small>" . get_string('minanswers', 'mod_booking') . ": " .
+                $values->minanswers . "</small></div>";
+        } else {
+            $minanswers = '';
+        }
+
         if (!$values->limitanswers) {
-            return $button . $booked . $delete . $limit . $manage;
+            return $button . $booked . $delete . $limit . $minanswers . $manage;
         } else {
             $places = new places($values->maxanswers, $values->availableplaces, $values->maxoverbooking,
                     $values->maxoverbooking - $values->waiting);
 
             // If the event lies in the past do not show availability of waiting list info texts at all.
             if ($values->courseendtime > 0 &&  $values->courseendtime < time()) {
-                $availableplaces = get_string("eventalreadyover", "booking");
+                $availableplaces = get_string('eventalreadyover', 'mod_booking');
                 $waitingplaces = "";
             } else if (($values->limitanswers && ($availability == "full")) || ($availability == "closed") || !$underlimit ||
                 $values->disablebookingusers) {
-                $availableplaces = get_string("nobookingpossible", "booking");
+                $availableplaces = get_string('nobookingpossible', 'mod_booking');
                 $waitingplaces = "";
             } else {
                 // Check if a PRO license is active and the checkbox for booking places info texts in plugin config is activated.
@@ -388,21 +396,21 @@ class booking_utils {
                     if ($places->available == 0) {
                         // No places left.
                         $availableplaces = "<div class='col-ap-availableplaces'>" .
-                            get_string("bookingplacesfullmessage", "booking") . "</div>";
+                            get_string('bookingplacesfullmessage', 'mod_booking') . "</div>";
                     } else if ($actualpercentage <= $bookingplaceslowpercentage) {
                         // Only a few places left.
                         $availableplaces = "<div class='col-ap-availableplaces'>" .
-                            get_string("bookingplaceslowmessage", "booking") . "</div>";
+                            get_string('bookingplaceslowmessage', 'mod_booking') . "</div>";
                     } else {
                         // Still enough places left.
                         $availableplaces = "<div class='col-ap-availableplaces'>" .
-                            get_string("bookingplacesenoughmessage", "booking") . "</div>";
+                            get_string('bookingplacesenoughmessage', 'mod_booking') . "</div>";
                     }
                 } else {
                     if ($places->maxanswers != 0) {
                         // If booking places info texts are not active, show the actual numbers instead.
                         $availableplaces = "<div class='col-ap-availableplaces'>" .
-                            get_string("availableplaces", "booking", $places) . "</div>";
+                            get_string('availableplaces', 'mod_booking', $places) . "</div>";
                     } else {
                         // If maxanswers are set to 0, don't show anything.
                         $availableplaces = "";
@@ -420,21 +428,21 @@ class booking_utils {
                     if ($places->overbookingavailable == 0) {
                         // No places left.
                         $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" .
-                            get_string("waitinglistfullmessage", "booking") . "</div>";
+                            get_string('waitinglistfullmessage', 'mod_booking') . "</div>";
                     } else if ($actualpercentage <= $waitinglistlowpercentage) {
                         // Only a few places left.
                         $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" .
-                            get_string("waitinglistlowmessage", "booking") . "</div>";
+                            get_string('waitinglistlowmessage', 'mod_booking') . "</div>";
                     } else {
                         // Still enough places left.
                         $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" .
-                            get_string("waitinglistenoughmessage", "booking") . "</div>";
+                            get_string('waitinglistenoughmessage', 'mod_booking') . "</div>";
                     }
                 } else {
                     if ($places->maxoverbooking != 0) {
                         // If waiting list info texts are not active, show the actual numbers instead.
                         $waitingplaces = "<div class='col-ap-waitingplacesavailable'>" .
-                            get_string("waitingplacesavailable", "booking", $places) . "</div>";
+                            get_string('waitingplacesavailable', 'mod_booking', $places) . "</div>";
                     } else {
                         // If there is no waiting list, don't show anything.
                         $waitingplaces = "";
@@ -442,7 +450,7 @@ class booking_utils {
                 }
             }
 
-            return $button . $booked . $delete . $availableplaces . $waitingplaces . $manage;
+            return $button . $booked . $delete . $availableplaces . $minanswers . $waitingplaces . $manage;
         }
     }
 
