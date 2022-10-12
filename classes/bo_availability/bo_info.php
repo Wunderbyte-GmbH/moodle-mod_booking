@@ -295,7 +295,7 @@ class bo_info {
 
         $optionid = $fromform->optionid;
 
-        if (!empty($optionid)) {
+        if (!empty($optionid) && $optionid > 0) {
             $conditions = self::get_conditions(CONDPARAM_JSON_ONLY);
             $arrayforjson = [];
 

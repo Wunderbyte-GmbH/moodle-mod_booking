@@ -299,7 +299,7 @@ class userprofilefield_2_custom implements bo_condition {
                 }
 
                 // Check for json conditions that might have been saved before.
-                if (!empty($optionid)) {
+                if (!empty($optionid) && $optionid > 0) {
                     $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                     if (!empty($settings->availability)) {
 
