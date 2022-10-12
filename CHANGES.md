@@ -1,3 +1,14 @@
+## Version 7.5.5 (2022101200)
+**New features:**
+* New feature: Min. number of participants can now be set (currently only shown, no logic).
+
+**Improvements:**
+* Improvement: Add support for new shopping cartitem functionality (serviceperiodstart & end).
+* Improvement: Header for "actions" in booking option cards settings menu.
+* Improvement: New price formula setting to apply unit factor (is now set via config setting,
+  not needed in price formula anymore).
+* Improvement: Show educational units in tables and cards too.
+
 ## Version 7.5.4 (2022100500)
 **Improvements:**
 * Improvement: Booking rules => use classic moodleform so we can use editor.
