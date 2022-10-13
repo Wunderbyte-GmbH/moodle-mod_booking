@@ -650,7 +650,11 @@ class booking_option_settings {
         }
 
         if (isset($data->id) && isset($data->name)) {
-            $this->entity = ['id' => $data->id, 'name' => $data->name];
+            $this->entity = [
+                'id' => $data->id,
+                'name' => $data->name,
+                'shortname' => $data->shortname
+            ];
         }
     }
 
