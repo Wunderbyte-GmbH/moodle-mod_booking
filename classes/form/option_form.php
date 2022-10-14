@@ -26,7 +26,6 @@ use mod_booking\price;
 use mod_booking\singleton_service;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\bo_info;
-use moodleform;
 
 class option_form extends \moodleform {
 
@@ -416,7 +415,7 @@ class option_form extends \moodleform {
 
         // Add entities.
         if (class_exists('local_entities\entitiesrelation_handler')) {
-            $erhandler = new entitiesrelation_handler('bookingoption');
+            $erhandler = new entitiesrelation_handler('mod_booking', 'option');
             $erhandler->instance_form_definition($mform, $optionid, $this->formmode);
         }
 
@@ -750,7 +749,7 @@ class option_form extends \moodleform {
             $defaultvalues->id = $defaultvalues->optionid;
             $handler->instance_form_before_set_data($defaultvalues);
             if (class_exists('local_entities\entitiesrelation_handler')) {
-                $erhandler = new entitiesrelation_handler('bookingoption');
+                $erhandler = new entitiesrelation_handler('mod_booking', 'option');
                 $erhandler->instance_form_before_set_data($this->_form, $defaultvalues, $defaultvalues->optionid);
             }
             $defaultvalues->id = $id;

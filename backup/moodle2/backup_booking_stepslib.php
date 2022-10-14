@@ -22,8 +22,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_entities\entitiesrelation_handler;
-
 /**
  * Define the complete booking structure for backup, with file and id annotations
  */
