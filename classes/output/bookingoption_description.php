@@ -26,11 +26,13 @@ namespace mod_booking\output;
 
 use context_module;
 use core_table\external\dynamic\get;
+use html_writer;
 use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\optiondates_handler;
 use mod_booking\price;
 use mod_booking\singleton_service;
+use moodle_url;
 use renderer_base;
 use renderable;
 use templatable;
@@ -180,7 +182,17 @@ class bookingoption_description implements renderable, templatable {
 
         $this->userid = $user->id;
 
-        $this->location = $settings->location;
+        // If there is an entity, we show it instead of the location field.
+        if (!empty($settings->entity)) {
+            $entityurl = new moodle_url('/local/entities/view.php', ['id' => $settings->entity['id']]);
+            $entityfullname = $settings->entity['name'];
+            if (!empty($settings->entity['shortname'])) {
+                $entityfullname .= " (" . $settings->entity['shortname'] . ")";
+            }
+            $this->location = html_writer::tag('a', $entityfullname, ['href' => $entityurl->out(false)]);
+        } else {
+            $this->location = $settings->location;
+        }
         $this->address = $settings->address;
         $this->institution = $settings->institution;
 
