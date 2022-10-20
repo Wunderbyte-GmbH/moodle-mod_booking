@@ -21,6 +21,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
+use local_entities\entitiesrelation_handler;
 use moodleform;
 
 const MAX_CUSTOM_FIELDS = 3;
@@ -51,8 +52,12 @@ class optiondatesadd_form extends moodleform {
         $mform->addElement('hidden', 'eventid');
         $mform->setType('eventid', PARAM_INT);
 
+        $mform->addElement('header', 'dateandtimeheader', get_string('dateandtime', 'mod_booking'));
+
         $mform->addElement('date_time_selector', 'coursestarttime', get_string('from'));
         $mform->setType('coursestarttime', PARAM_INT);
+
+        $optiondateid = (int) $this->_customdata['optiondateid'];
 
         for ($i = 0; $i <= 23; $i++) {
             $hours[$i] = sprintf("%02d", $i);
@@ -70,18 +75,32 @@ class optiondatesadd_form extends moodleform {
         $mform->setType('endminute', PARAM_INT);
         $mform->addGroup($courseendtime, 'endtime', get_string('to'), ' ', false);
 
-        $mform->addElement('text', 'daystonotify', get_string('daystonotifysession', 'booking'));
+        // Add entities.
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $mform->closeHeaderBefore('entitiesrelation');
+            $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+            $erhandler->instance_form_definition($mform, $optiondateid, 'expert');
+            $mform->setExpanded('entitiesrelation', false);
+        }
+        $mform->closeHeaderBefore('daystonotifyheader');
+        $mform->addElement('header', 'daystonotifyheader', get_string('sessionnotifications', 'mod_booking'));
+        $mform->addElement('text', 'daystonotify', get_string('daystonotifysession', 'mod_booking'));
         $mform->setType('daystonotify', PARAM_INT);
         $mform->setDefault('daystonotify', 0);
-        $mform->addHelpButton('daystonotify', 'daystonotifysession', 'booking');
+        $mform->addHelpButton('daystonotify', 'daystonotifysession', 'mod_booking');
+
+        $mform->closeHeaderBefore('customfieldheader');
+        // Add checkbox to add first customfield.
+        $mform->addElement('header', 'customfieldheader', get_string('addcustomfield', 'mod_booking'));
+        $mform->setExpanded('customfieldheader', false);
 
         // Only allow creation of custom fields, when creating a new optiondate.
-        if (empty($this->_customdata['optiondateid'])) {
+        if (empty($optiondateid)) {
             $this->addcustomfields($mform);
-            $mform->addElement('submit', 'submitbutton', get_string('save'));
+            $submitbuttonstring = 'save';
         } else {
             // At first loop through already existing custom field records.
-            $customfields = $DB->get_records("booking_customfields", array('optiondateid' => $this->_customdata['optiondateid']));
+            $customfields = $DB->get_records("booking_customfields", array('optiondateid' => $optiondateid));
             $j = 1;
             foreach ($customfields as $customfield) {
                 $mform->addElement('hidden', 'customfieldid' . $j, $customfield->id);
@@ -97,11 +116,11 @@ class optiondatesadd_form extends moodleform {
                     $cfnames[$customfield->cfgname] = $customfield->cfgname;
                 }
                 $options = array(
-                        'noselectionstring' => get_string('nocfnameselected', 'booking'),
+                        'noselectionstring' => get_string('nocfnameselected', 'mod_booking'),
                         'tags' => true
                 );
                 $element = $mform->createElement('autocomplete', 'customfieldname' . $j,
-                    get_string('customfieldname', 'booking'), $cfnames, $options);
+                    get_string('customfieldname', 'mod_booking'), $cfnames, $options);
                 $mform->addElement($element);
                 if (!empty($CFG->formatstringstriptags)) {
                     $mform->setType('customfieldname' . $j, PARAM_TEXT);
@@ -112,12 +131,12 @@ class optiondatesadd_form extends moodleform {
                 $mform->addHelpButton('customfieldname' . $j, 'customfieldname', 'booking');
 
                 $mform->addElement('textarea', 'customfieldvalue' . $j,
-                    get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
+                    get_string('customfieldvalue', 'mod_booking'), 'wrap="virtual" rows="1" cols="65"');
                 $mform->setType('customfieldvalue' . $j, PARAM_RAW);
                 $mform->setDefault('customfieldvalue' . $j, $customfield->value);
                 $mform->addHelpButton('customfieldvalue' . $j, 'customfieldvalue', 'booking');
 
-                $mform->addElement('checkbox', 'deletecustomfield' . $j, get_string('deletecustomfield', 'booking'));
+                $mform->addElement('checkbox', 'deletecustomfield' . $j, get_string('deletecustomfield', 'mod_booking'));
                 $mform->setDefault('deletecustomfield' . $j, 0);
                 $mform->addHelpButton('deletecustomfield' . $j, 'deletecustomfield', 'booking');
 
@@ -129,8 +148,10 @@ class optiondatesadd_form extends moodleform {
                 $start = count($customfields) + 1;
                 $this->addcustomfields($mform, $start);
             }
-            $mform->addElement('submit', 'submitbutton', get_string('savechanges'));
+            $submitbuttonstring = 'savechanges';
         }
+        $mform->closeHeaderBefore('submitbutton');
+        $mform->addElement('submit', 'submitbutton', get_string($submitbuttonstring));
     }
 
     /**
@@ -141,7 +162,7 @@ class optiondatesadd_form extends moodleform {
         global $CFG;
 
         // Add checkbox to add first customfield.
-        $mform->addElement('checkbox', 'addcustomfield' . $counter, get_string('addcustomfield', 'booking'));
+        $mform->addElement('checkbox', 'addcustomfield' . $counter, get_string('addcustomfield', 'mod_booking'));
 
         while ($counter <= MAX_CUSTOM_FIELDS) {
             // New elements have a default customfieldid of 0.
@@ -156,11 +177,11 @@ class optiondatesadd_form extends moodleform {
                 'BigBlueButtonMeeting' => 'BigBlueButtonMeeting'
             ];
             $options = array(
-                    'noselectionstring' => get_string('nocfnameselected', 'booking'),
+                    'noselectionstring' => get_string('nocfnameselected', 'mod_booking'),
                     'tags' => true
             );
             $mform->addElement('autocomplete', 'customfieldname' . $counter,
-                get_string('customfieldname', 'booking'), $cfnames, $options);
+                get_string('customfieldname', 'mod_booking'), $cfnames, $options);
             if (!empty($CFG->formatstringstriptags)) {
                 $mform->setType('customfieldname' . $counter, PARAM_TEXT);
             } else {
@@ -171,7 +192,7 @@ class optiondatesadd_form extends moodleform {
             $mform->hideIf('customfieldname' . $counter, 'addcustomfield' . $counter, 'notchecked');
 
             $mform->addElement('textarea', 'customfieldvalue' . $counter,
-                get_string('customfieldvalue', 'booking'), 'wrap="virtual" rows="1" cols="65"');
+                get_string('customfieldvalue', 'mod_booking'), 'wrap="virtual" rows="1" cols="65"');
             $mform->setType('customfieldvalue' . $counter, PARAM_RAW);
             $mform->setDefault('customfieldvalue' . $counter, '');
             $mform->addHelpButton('customfieldvalue' . $counter, 'customfieldvalue', 'booking');
@@ -183,7 +204,7 @@ class optiondatesadd_form extends moodleform {
 
             // Show checkbox to add a custom field.
             if ($counter < MAX_CUSTOM_FIELDS) {
-                $mform->addElement('checkbox', 'addcustomfield' . ($counter + 1), get_string('addcustomfield', 'booking'));
+                $mform->addElement('checkbox', 'addcustomfield' . ($counter + 1), get_string('addcustomfield', 'mod_booking'));
                 $mform->hideIf('addcustomfield' . ($counter + 1), 'addcustomfield' . $counter, 'notchecked');
             }
             ++$counter;
@@ -217,11 +238,11 @@ class optiondatesadd_form extends moodleform {
             $customfieldvaluex = $data['customfieldvalue' . $i];
             // The field name is not allowed to be empty if there is a value.
             if (empty($customfieldnamex) && !empty($customfieldvaluex)) {
-                $errors['customfieldname' . $i] = get_string('erroremptycustomfieldname', 'booking');
+                $errors['customfieldname' . $i] = get_string('erroremptycustomfieldname', 'mod_booking');
             }
             // The field value is not allowed to be empty if there is a name.
             if (empty($customfieldvaluex) && !empty($customfieldnamex)) {
-                $errors['customfieldvalue' . $i] = get_string('erroremptycustomfieldvalue', 'booking');
+                $errors['customfieldvalue' . $i] = get_string('erroremptycustomfieldvalue', 'mod_booking');
             }
         }
         return $errors;

@@ -1348,6 +1348,9 @@ $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
 $string['editingoptiondate'] = 'You are currently editing this session';
 
 // Optiondatesadd_form.php.
+$string['dateandtime'] = 'Date and time';
+$string['sessionnotifications'] = 'E-mail notifications for each session';
+$string['customfields'] = 'Custom fields';
 $string['addcustomfield'] = 'Add custom field';
 $string['customfieldname'] = 'Field name';
 $string['customfieldname_help'] = 'You can enter any field name you want. The special fieldnames

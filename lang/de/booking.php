@@ -1205,6 +1205,9 @@ $string['leftandrightdate'] = '{$a->leftdate} bis {$a->righttdate}';
 $string['editingoptiondate'] = 'Sie bearbeiten gerade diesen Termin';
 
 // Optiondatesadd_form.php.
+$string['dateandtime'] = 'Datum und Uhrzeit';
+$string['sessionnotifications'] = 'E-Mail-Benachrichtigungen für Einzeltermine';
+$string['customfields'] = 'Benutzerdefinierte Felder';
 $string['addcustomfield'] = 'Benutzerdefiniertes Feld hinzufügen';
 $string['customfieldname'] = 'Feldname';
 $string['customfieldname_help'] = 'Sie können einen beliebigen Feldnamen angeben. <br>
