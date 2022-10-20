@@ -151,9 +151,13 @@ class teachers_instance_report_table extends table_sql {
                 }
                 if (!empty($record->dayofweektime)) {
                     $dayinfo = optiondates_handler::prepare_day_info($record->dayofweektime);
-                    $minutes = (strtotime('today ' . $dayinfo['endtime']) - strtotime('today ' . $dayinfo['starttime'])) / 60;
-                    $units = number_format($minutes / $this->unitlength, 1, $this->decimal_separator, $this->thousands_separator);
-                    $unitstringpart = get_string('units', 'mod_booking') . ": $units";
+                    if (!empty($dayinfo['starttime']) && !empty($dayinfo['endtime'])) {
+                        $minutes = (strtotime('today ' . $dayinfo['endtime']) - strtotime('today ' . $dayinfo['starttime'])) / 60;
+                        $units = number_format($minutes / $this->unitlength, 1, $this->decimal_separator, $this->thousands_separator);
+                        $unitstringpart = get_string('units', 'mod_booking') . ": $units";
+                    } else {
+                        $unitstringpart = get_string('units_unknown', 'mod_booking');
+                    }
                 } else {
                     $unitstringpart = get_string('units_unknown', 'mod_booking');
                 }
@@ -214,6 +218,9 @@ class teachers_instance_report_table extends table_sql {
 
                 if (!empty($record->dayofweektime)) {
                     $dayinfo = optiondates_handler::prepare_day_info($record->dayofweektime);
+                    if (empty($dayinfo['starttime']) || empty($dayinfo['endtime'])) {
+                        continue;
+                    }
                     $minutes = (strtotime('today ' . $dayinfo['endtime']) - strtotime('today ' . $dayinfo['starttime'])) / 60;
                     $units = round($minutes / $this->unitlength, 1);
                     $sumunits += $units;
