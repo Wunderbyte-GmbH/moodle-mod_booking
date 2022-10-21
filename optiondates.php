@@ -21,10 +21,12 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_entities\entitiesrelation_handler;
 use mod_booking\booking_option;
 use mod_booking\calendar;
 use mod_booking\form\optiondatesadd_form;
 use mod_booking\optiondates_handler;
+use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
@@ -79,6 +81,12 @@ if ($delete != '') {
                       'oldvalue' => $optiondate->courseendtime];
     }
 
+    // If there is an associated entity, delete it too.
+    if (class_exists('local_entities\entitiesrelation_handler')) {
+        $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+        $erhandler->delete_relation($delete);
+    }
+
     // Now we can delete the session.
     $DB->delete_records('booking_optiondates', array('optionid' => $optionid, 'id' => $delete));
 
@@ -111,8 +119,12 @@ if ($delete != '') {
 }
 
 if ($duplicate != '') {
+
+    // For more readable code.
+    $oldoptiondateid = $duplicate;
+
     $record = $DB->get_record("booking_optiondates",
-            array('optionid' => $optionid, 'id' => $duplicate),
+            array('optionid' => $optionid, 'id' => $oldoptiondateid),
             'bookingid, optionid, eventid, coursestarttime, courseendtime');
 
     // Create a new calendar entry for the duplicated event.
@@ -126,16 +138,30 @@ if ($duplicate != '') {
 
     $edit = $DB->insert_record('booking_optiondates', $record);
 
+    // For more readable code.
+    $newoptiondateid = $edit;
+
     // Add teachers of the booking option to newly created optiondate.
-    optiondates_handler::subscribe_existing_teachers_to_new_optiondate($edit);
+    optiondates_handler::subscribe_existing_teachers_to_new_optiondate($newoptiondateid);
 
     booking_updatestartenddate($optionid);
-    optiondate_duplicatecustomfields($duplicate, $edit);
+
+    // Also duplicate custom fields of the optiondate.
+    optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid);
+
+    // If there was an associated entity, also copy it.
+    if (class_exists('local_entities\entitiesrelation_handler')) {
+        $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+        $entityid = $erhandler->get_entityid_by_instanceid($oldoptiondateid);
+        if ($entityid) {
+            $erhandler->save_entity_relation($newoptiondateid, $entityid);
+        }
+    }
 
     // Also create new user events (user calendar entries) for all booked users.
     $users = $bookingoption->get_all_users_booked();
     foreach ($users as $user) {
-        new calendar($cm->id, $optionid, $user->id, calendar::TYPEOPTIONDATE, $edit, 1);
+        new calendar($cm->id, $optionid, $user->id, calendar::TYPEOPTIONDATE, $newoptiondateid, 1);
     }
 }
 
@@ -156,18 +182,26 @@ if ($mform->is_cancelled()) {
     $optiondate->courseendtime = strtotime($date . " {$data->endhour}:{$data->endminute}");
     $optiondate->daystonotify = $data->daystonotify;
 
+    $optiondateid = $data->optiondateid;
+
     // There is an optiondate id, so we have to update & check for changes.
-    if ($optiondate->id != '') {
+    if ($optiondateid != '') {
 
         // Retrieve the old record and pass it on.
-        $oldoptiondate = $DB->get_record('booking_optiondates', array('id' => $optiondate->id));
+        $oldoptiondate = $DB->get_record('booking_optiondates', array('id' => $optiondateid));
 
         $optiondatechanges = $bu->booking_optiondate_get_changes($oldoptiondate, $optiondate);
         if (!empty($optiondatechanges)) {
             $DB->update_record('booking_optiondates', $optiondate);
         }
 
-        $oldcustomfields = $DB->get_records('booking_customfields', array('optiondateid' => $optiondate->id));
+        // Update entity relation data for optiondate.
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+            $erhandler->instance_form_save($data, $optiondateid);
+        }
+
+        $oldcustomfields = $DB->get_records('booking_customfields', array('optiondateid' => $optiondateid));
         if ($customfieldchanges = $bu->booking_customfields_get_changes($oldcustomfields, $data)) {
             foreach ($customfieldchanges['updates'] as $record) {
                 $DB->update_record('booking_customfields', $record);
@@ -187,7 +221,7 @@ if ($mform->is_cancelled()) {
             $bu->react_on_changes($cm->id, $context, $optionid, $changes);
         }
     } else {
-        // It's a new session.
+        // It's a new optiondate (a.k.a. session).
         $changes = [];
         if ($optiondateid = $DB->insert_record('booking_optiondates', $optiondate)) {
 
@@ -227,6 +261,12 @@ if ($mform->is_cancelled()) {
                                   'newvalue' => $customfield->value];
                 }
             }
+
+            // Update entity relation data for the new optiondate.
+            if (class_exists('local_entities\entitiesrelation_handler')) {
+                $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+                $erhandler->instance_form_save($data, $optiondateid);
+            }
         }
     }
 
@@ -245,13 +285,17 @@ if ($mform->is_cancelled()) {
     redirect($url, get_string('optiondatessuccessfullysaved', 'booking'), 5);
 
 } else {
+
     $PAGE->navbar->add(get_string('optiondatesmanager', 'mod_booking'));
     $PAGE->set_title(format_string(get_string('optiondatesmanager', 'mod_booking')));
     $PAGE->set_heading(get_string('optiondatesmanager', 'mod_booking'));
     $PAGE->set_pagelayout('standard');
 
+    $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+    $title = get_string('optiondatesmanager', 'mod_booking') . ' (' . $optionsettings->get_title_with_prefix() . ')';
+
     echo $OUTPUT->header();
-    echo $OUTPUT->heading(get_string('optiondatesmanager', 'mod_booking'), 3, 'helptitle', 'uniqueid');
+    echo $OUTPUT->heading($title, 3, 'helptitle', 'uniqueid');
 
     $table = new html_table();
     $table->head = array(get_string('optiondatestime', 'mod_booking'), '');

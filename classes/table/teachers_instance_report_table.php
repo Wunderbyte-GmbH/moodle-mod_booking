@@ -153,7 +153,8 @@ class teachers_instance_report_table extends table_sql {
                     $dayinfo = optiondates_handler::prepare_day_info($record->dayofweektime);
                     if (!empty($dayinfo['starttime']) && !empty($dayinfo['endtime'])) {
                         $minutes = (strtotime('today ' . $dayinfo['endtime']) - strtotime('today ' . $dayinfo['starttime'])) / 60;
-                        $units = number_format($minutes / $this->unitlength, 1, $this->decimal_separator, $this->thousands_separator);
+                        $units = number_format($minutes / $this->unitlength, 1, $this->decimal_separator,
+                            $this->thousands_separator);
                         $unitstringpart = get_string('units', 'mod_booking') . ": $units";
                     } else {
                         $unitstringpart = get_string('units_unknown', 'mod_booking');

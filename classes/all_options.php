@@ -133,8 +133,8 @@ class all_options extends table_sql {
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url('/mod/booking/report.php',
                         array('id' => $this->cm->id, 'optionid' => $values->id, 'action' => 'deletebookingoption',
                             'sesskey' => sesskey())),
-                        $OUTPUT->pix_icon('t/delete', get_string('deletebookingoption', 'mod_booking')) .
-                        get_string('deletebookingoption', 'mod_booking')) . '</div>';
+                        $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
+                        get_string('deletethisbookingoption', 'mod_booking')) . '</div>';
 
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url('/mod/booking/editoptions.php',
                         array('id' => $this->cm->id, 'optionid' => -1, 'copyoptionid' => $values->id)), $OUTPUT->pix_icon('t/copy',

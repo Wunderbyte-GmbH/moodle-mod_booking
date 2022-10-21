@@ -23,6 +23,7 @@ require_once("$CFG->libdir/formslib.php");
 
 use local_entities\entitiesrelation_handler;
 use moodleform;
+use stdClass;
 
 const MAX_CUSTOM_FIELDS = 3;
 
@@ -255,5 +256,19 @@ class optiondatesadd_form extends moodleform {
     public function get_data() {
         $data = parent::get_data();
         return $data;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see moodleform::set_data()
+     */
+    public function set_data($defaultvalues) {
+
+        if (class_exists('local_entities\entitiesrelation_handler') && !empty($defaultvalues->optiondateid)) {
+            $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+            $erhandler->instance_form_before_set_data($this->_form, $defaultvalues, $defaultvalues->optiondateid);
+        }
+
+        parent::set_data($defaultvalues);
     }
 }

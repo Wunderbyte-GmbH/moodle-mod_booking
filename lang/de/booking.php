@@ -116,9 +116,9 @@ $string['spacesleft'] = 'Plätze verfügbar';
 $string['subscribersto'] = 'Trainer:innen für \'{$a}\'';
 $string['taken'] = 'gebucht';
 $string['teachers'] = 'Trainer:innen: ';
-$string['timerestrict'] = 'Buchungsmöglichkeit auf diesen Zeitraum beschränken: Diese Option ist veraltet und sollte nicht mehr verwendet werden. Stattdessen verwenden Sie bitte die Optionen unter "Voraussetzungen", um die Buchungen für einen bestimmten Zeitraum zu beschränken.';
-$string['restrictanswerperiodopening'] = 'Buchungsmöglichkeit erst ab einem bestimmten Zeitpunkt ermöglichen';
-$string['restrictanswerperiodclosing'] = 'Buchungsmöglichkeit nur bis zu einem bestimmten Zeitpunkt ermöglichen';
+$string['timerestrict'] = 'Buchungsoption auf diesen Zeitraum beschränken: Diese Option ist veraltet und sollte nicht mehr verwendet werden. Stattdessen verwenden Sie bitte die Optionen unter "Voraussetzungen", um die Buchungen für einen bestimmten Zeitraum zu beschränken.';
+$string['restrictanswerperiodopening'] = 'Buchungsoption erst ab einem bestimmten Zeitpunkt ermöglichen';
+$string['restrictanswerperiodclosing'] = 'Buchungsoption nur bis zu einem bestimmten Zeitpunkt ermöglichen';
 
 $string['to'] = 'bis';
 $string['viewallresponses'] = '{$a} Antworten verwalten';
@@ -220,7 +220,7 @@ $string['reminder_teacher_sent'] = 'Benachrichtigung an Trainer:in versendet';
 
 // View.php.
 $string['agreetobookingpolicy'] = 'Ich habe folgende Buchungsbedingungen gelesen und erkläre mich damit einverstanden';
-$string['allbookingoptions'] = 'Nutzer:innen für alle Buchungsmöglichkeiten herunterladen';
+$string['allbookingoptions'] = 'Nutzer:innen für alle Buchungsoptionen herunterladen';
 $string['attachedfiles'] = 'Dateianhänge';
 $string['availability'] = 'Noch verfügbar ';
 $string['available'] = 'Plätze verfügbar';
@@ -241,7 +241,7 @@ $string['confirmdeletebookingoption'] = 'Möchten Sie diese Buchung wirklich lö
 $string['coursedate'] = 'Kurstermin';
 $string['createdbywunderbyte'] = 'Dieses Buchungsmodul wurde von der Wunderbyte GmbH entwickelt';
 $string['deletebooking'] = 'Wollen Sie wirklich folgende Buchung stornieren? <br /><br /> <b>{$a} </b>';
-$string['deletebookingoption'] = 'Diese Buchungsoption löschen';
+$string['deletethisbookingoption'] = 'Diese Buchungsoption löschen';
 $string['deleteuserfrombooking'] = 'Buchung für Nutzer:innen wirklich stornieren?';
 $string['download'] = 'Download';
 $string['downloadusersforthisoptionods'] = 'Nutzer:innen im .ods-Format herunterladen';
@@ -253,7 +253,7 @@ $string['mailconfirmationsent'] = 'Sie erhalten in Kürze ein Bestätigungsmail 
 $string['managebooking'] = 'Verwalten';
 $string['maxperuserwarning'] = 'Sie haben zur Zeit ein Limit von {$a->count}/{$a->limit} Buchungen';
 $string['mustfilloutuserinfobeforebooking'] = 'Bevor Sie buchen, füllen Sie bitte noch Ihre persönlichen Buchungsdaten aus';
-$string['nobookingselected'] = 'Keine Buchungsmöglichkeit ausgewählt';
+$string['nobookingselected'] = 'Keine Buchungsoption ausgewählt';
 $string['norighttobook'] = 'Sie haben zur Zeit keine Berechtigung Buchungen vorzunehmen. Loggen Sie sich ein, schreiben Sie sich in diesen Kurs ein oder kontaktieren Sie den/die Administrator/in.';
 $string['notbooked'] = 'Noch nicht gebucht';
 $string['onwaitinglist'] = 'Sie sind auf der Warteliste';
@@ -266,7 +266,7 @@ $string['pollurl'] = 'Link zur Umfrage';
 $string['pollurlteachers'] = 'Trainer:innen Umfragelink';
 $string['select'] = 'Auswahl';
 $string['showactive'] = 'Nur buchbare Buchungsoptionen anzeigen';
-$string['showallbookings'] = 'Alle Buchungsmöglichkeiten anzeigen';
+$string['showallbookings'] = 'Alle Buchungsoptionen anzeigen';
 $string['starttimenotset'] = 'Kursbeginn nicht festgelegt';
 $string['subscribetocourse'] = 'Nutzer:innen in den Kurs einschreiben';
 $string['subscribeuser'] = 'Wollen Sie diese User wirklich in diesen Kurs einschreiben';
@@ -1074,7 +1074,7 @@ $string['bookedusers'] = 'Gebuchte Nutzer:innen';
 $string['bookingfulldidntregister'] = 'Es wurden nicht alle Nutzer:innen übertragen, da die Option bereits ausgebucht ist!';
 $string['booktootherbooking'] = 'Nutzer:innen umbuchen / zu anderer Buchungsoption hinzufügen';
 $string['downloadallresponses'] = 'Alle Antworten herunterladen';
-$string['editotherbooking'] = 'Andere Buchungsmöglichkeiten';
+$string['editotherbooking'] = 'Andere Buchungsoptionen';
 $string['generaterecnum'] = "Eintragsnummern erstellen";
 $string['generaterecnumareyousure'] = "Neue Nummern erstellen und die alten verwerfen!";
 $string['generaterecnumnotification'] = "Neue Nummern erfolgreich erstellt.";
@@ -1185,16 +1185,16 @@ $string['csvfile_help'] = 'CSV Datei darf nur eine Spalte mit dem Namen der Inst
 // Otherbooking.php.
 $string['otherbookingoptions'] = 'Nutzer:innen dieser Buchungsoption zulassen';
 $string['otherbookingnumber'] = 'Nutzer:innen-Anzahl';
-$string['otherbookingaddrule'] = 'Neue Buchungsmöglichkeit hinzufügen';
+$string['otherbookingaddrule'] = 'Neue Buchungsoption hinzufügen';
 $string['editrule'] = "Bearbeiten";
 $string['deleterule'] = 'Löschen';
-$string['deletedrule'] = 'Buchungsmöglichkeit erfolgreich gelöscht';
+$string['deletedrule'] = 'Buchungsoption erfolgreich gelöscht';
 
 // Otherbookingaddrule_form.php.
 $string['selectoptioninotherbooking'] = "Auswahl";
 $string['otherbookinglimit'] = "Limit";
 $string['otherbookinglimit_help'] = "Anzahl der Nutzer:innen die von dieser Buchungsoption akzeptiert werden. 0 bedeutet unlimitiert.";
-$string['otherbookingsuccessfullysaved'] = 'Buchungsmöglichkeit gespeichert!';
+$string['otherbookingsuccessfullysaved'] = 'Buchungsoption gespeichert!';
 
 // Optiondates.php.
 $string['optiondatestime'] = 'Termine';
@@ -1353,7 +1353,7 @@ $string['duplicationrestoreprices'] = 'Preise inkludieren';
 $string['duplicationrestoreentities'] = 'Entities inkludieren';
 
 $string['notificationlist'] = 'Benachrichtigungsliste';
-$string['notificationlistdesc'] = 'Wenn es bei einer Buchungsoption keine Buchungsmöglichkeit mehr gibt, können sich TeilnehmerInnnen registrieren lassen, um eine Benachrichtung zu erhalten.';
+$string['notificationlistdesc'] = 'Wenn es bei einer Buchungsoption keine Buchungsoption mehr gibt, können sich TeilnehmerInnnen registrieren lassen, um eine Benachrichtung zu erhalten.';
 $string['usenotificationlist'] = 'Verwende Benachrichtigungsliste';
 
 $string['bookingoptiondefaults'] = 'Standard-Einstellungen für Buchungsoptionen';
@@ -1619,8 +1619,8 @@ $string['task_send_reminder_mails'] = 'Booking: Erinnerungs-Mails versenden';
 $string['task_send_mail_by_rule_adhoc'] = 'Booking: Mail via Regel versenden (Adhoc-Task)';
 $string['task_clean_booking_db'] = 'Booking: Datenbank aufräumen';
 $string['optionbookabletitle'] = '{$a->title} wieder buchbar';
-$string['optionbookablebody'] = 'Sie können {$a->title} ab sofort wieder buchen. Klicken Sie <a href="{$a->url}">hier</a>, um direkt zur Buchungsmöglichkeit zu gelangen.<br><br>
-(Sie erhalten diese Nachricht, da Sie bei der Buchungsmöglichkeit auf den Benachrichtigungs-Button geklickt haben.)';
+$string['optionbookablebody'] = 'Sie können {$a->title} ab sofort wieder buchen. Klicken Sie <a href="{$a->url}">hier</a>, um direkt zur Buchungsoption zu gelangen.<br><br>
+(Sie erhalten diese Nachricht, da Sie bei der Buchungsoption auf den Benachrichtigungs-Button geklickt haben.)';
 
 // Calculate prices.
 $string['recalculateprices'] = 'Preise mit Formel neu berechnen';

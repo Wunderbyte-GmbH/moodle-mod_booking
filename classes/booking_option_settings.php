@@ -863,4 +863,18 @@ class booking_option_settings {
 
         return [$select, $from, $where, $params];
     }
+
+    /**
+     * Helper function to get the full title of a booking option,
+     * including the titleprefix, e.g. "101 - Beginner's course".
+     * @return string the full title including prefix
+     */
+    public function get_title_with_prefix(): string {
+        $title = '';
+        if (!empty($this->titleprefix)) {
+            $title .= $this->titleprefix . ' - ';
+        }
+        $title .= $this->text;
+        return $title;
+    }
 }

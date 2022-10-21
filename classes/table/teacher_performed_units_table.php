@@ -42,6 +42,17 @@ class teacher_performed_units_table extends table_sql {
 
         global $PAGE;
         $this->baseurl = $PAGE->url;
+
+        // For German use "," as comma and " " as thousands separator.
+        if (current_language() == "de") {
+            $this->decimal_separator = ",";
+            $this->thousands_separator = " ";
+        } else {
+            // In all other cases, we use the default separators.
+            $this->decimal_separator = ".";
+            $this->thousands_separator = ",";
+        }
+
         // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
     }
 
@@ -113,5 +124,17 @@ class teacher_performed_units_table extends table_sql {
         } else {
             return '';
         }
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * col_duration_units value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $titleprefix Returns titleprefix as a readable string.
+     * @throws coding_exception
+     */
+    public function col_duration_units($values) {
+        return number_format($values->duration_units, 1, $this->decimal_separator, $this->thousands_separator);
     }
 }

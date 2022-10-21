@@ -95,6 +95,15 @@ if ($optionid == -1 && $copyoptionid != 0) {
     $optionid = booking_update_options($defaultvalues, $context);
     $defaultvalues->optionid = $optionid;
 
+    // If there was an associated entity, also copy it.
+    if (class_exists('local_entities\entitiesrelation_handler')) {
+        $erhandler = new entitiesrelation_handler('mod_booking', 'option');
+        $entityid = $erhandler->get_entityid_by_instanceid($copyoptionid);
+        if ($entityid) {
+            $erhandler->save_entity_relation($optionid, $entityid);
+        }
+    }
+
     // If there are associated teachers, let's duplicate them too.
     $teacherstocopy = $DB->get_records('booking_teachers', ['bookingid' => $bookingid, 'optionid' => $oldoptionid]);
 

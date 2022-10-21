@@ -24,6 +24,7 @@ use core_analytics\user;
 use dml_exception;
 use Exception;
 use invalid_parameter_exception;
+use local_entities\entitiesrelation_handler;
 use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
@@ -1438,8 +1439,7 @@ class booking_option {
             }
         }
 
-        // Delete all associated user events for option.
-
+        // Delete all associated user events for option:
         // Get all the userevents.
         $sql = "SELECT e.* FROM {booking_userevents} ue
               JOIN {event} e
@@ -1462,11 +1462,25 @@ class booking_option {
                 array('itemid' => $this->optionid, 'commentarea' => 'booking_option',
                     'contextid' => $this->booking->get_context()->id));
 
-        // Delete calendar events of sessions (option dates).
+        // Delete entity relation for the booking option.
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $erhandler = new entitiesrelation_handler('mod_booking', 'option');
+            $erhandler->delete_relation($this->optionid);
+        }
+
+        // Get existing optiondates (a.k.a. sessions).
         if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $this->optionid])) {
             foreach ($optiondates as $record) {
+                // Delete calendar events of sessions (option dates).
                 if (!$DB->delete_records('event', ['id' => $record->eventid])) {
                     $result = false;
+                }
+
+                // Delete entity relations for each optiondate.
+                if (class_exists('local_entities\entitiesrelation_handler')) {
+                    $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+                    $optiondateid = $record->id;
+                    $erhandler->delete_relation($optiondateid);
                 }
             }
         }
