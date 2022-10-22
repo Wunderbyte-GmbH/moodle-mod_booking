@@ -18,6 +18,7 @@ namespace mod_booking;
 use block_xp\local\sql\limit;
 use course_modinfo;
 use html_writer;
+use local_entities\local\entities\entitydate;
 use moodle_exception;
 use stdClass;
 use moodle_url;
@@ -828,5 +829,94 @@ class booking {
         $encodedlink = $encodedmoodleurl->out(false);
 
         return $encodedlink;
+    }
+
+    /**
+     * This function is called by the entities callback service_provider class.
+     * It's used to return all the booking dates of the given IDs in a special format.
+     *
+     * @param array $ids
+     * @param string $area
+     * @return array
+     */
+    public static function return_array_of_dates(array $ids, string $area): array {
+
+        global $DB;
+
+        // First, decide which area we deal with.
+        // The sql is the same for both.
+        $sql = self::return_sql_for_options_dates($ids);
+        list($insql, $params) = $DB->get_in_or_equal($ids, SQL_PARAMS_NAMED);
+
+        // The only difference in the sql is the where clause.
+        switch ($area) {
+            case 'option':
+                $sql .= " WHERE bo.id $insql";
+            break;
+            case 'opitondate':
+                $sql .= " WHERE s1.id $insql";
+            break;
+            default:
+                // If we get a call for an unknown area, we want to throw an error.
+                throw new moodle_exception('local_entities_areaunknown', 'mod_booking');
+        }
+
+        // Now we make an sql call to return all the relevant dates.
+        $records = $DB->get_records_sql($sql, $params);
+
+        $returnarray = [];
+
+        // Bring the result in the correct form.
+        foreach ($records as $record) {
+
+            // Depending on wetther we have an option date or an option, we construct our entitydate.
+            if ($record->optiondateid) {
+                    $area = 'optiondate';
+                $returnarray[] = new entitydate($record->id,
+                    'mod_booking',
+                    $area,
+                    $record->name,
+                    $record->starttime,
+                    $record->endtime,
+                    1);
+            } else {
+                $area = 'option';
+                $returnarray[] = new entitydate($record->optionid,
+                    'mod_booking',
+                    $area,
+                    $record->name,
+                    $record->starttime,
+                    $record->endtime,
+                    1);
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * SQL to return all the booked and reserved dates.
+     * The Where clause has to be added, to either go on s1.id (for optiondates) or bo.id (for options)
+     *
+     * @param array $ids
+     * @return string
+     */
+    private static function return_sql_for_options_dates(array $ids):string {
+
+        global $DB;
+
+        $sql = "SELECT bo.id optionid,
+            s1.id optiondateid,
+            s1.coursestarttime,
+            s1.courseendtime,
+            bo.coursestarttime bo_coursestarttime,
+            bo.courseendtime bo_courseendtime
+            FROM m_booking_options bo
+            LEFT JOIN (
+            SELECT bod.id, bod.optionid, bod.coursestarttime, bod.courseendtime
+            FROM m_booking_optiondates bod) as s1
+            ON s1.optionid=bo.id";
+
+        return $sql;
     }
 }
