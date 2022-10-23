@@ -882,6 +882,15 @@ class booking {
             // Now, as we only want to use the start & enddate of an option when there are no optiondates...
             // ... we need to follow all the options we have used septerately.
 
+            $booking = singleton_service::get_instance_of_booking_by_optionid($record->optionid);
+
+            // But the link is always the same.
+            $link = new moodle_url('/mod/booking/view.php', [
+                'optionid' => $record->optionid,
+                'id' => $booking->cmid,
+                'action' => 'showonlyone',
+                'whichview' => 'showonlyone']);
+
             if ($record->optiondateid) {
                     $area = 'optiondate';
 
@@ -891,7 +900,8 @@ class booking {
                     $record->text,
                     $record->coursestarttime,
                     $record->courseendtime,
-                    1);
+                    1,
+                    $link);
 
                 if (isset($returnarray[$record->optiondateid])
                     && $returnarray[$record->optiondateid]->return_area() === 'optiondate') {
@@ -908,7 +918,8 @@ class booking {
                     $record->text,
                     $record->bo_coursestarttime,
                     $record->bo_courseendtime,
-                    1);
+                    1,
+                    $link);
             }
         }
 

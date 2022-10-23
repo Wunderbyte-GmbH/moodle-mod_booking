@@ -28,6 +28,7 @@ use local_entities\entitiesrelation_handler;
 use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\optiondates_handler;
+use moodle_url;
 
 class option_form extends \moodleform {
 
@@ -654,13 +655,19 @@ class option_form extends \moodleform {
             optiondates_handler::add_values_from_post_to_form($fromform);
 
             // For the form validation, we need to pass the values to book in a special form.
-
-            // Now we get all the new arrays we want to save.
-            $array1 = self::return_timestamps($fromform->newoptiondates);
-            $array2 = self::return_timestamps($fromform->stillexistingdates);
-            $datestobook = array_merge($array1, $array2);
+            // We only need those timestamps which are new.
+            // But it might be advisable to also check the key stillexistingdates in the future.
+            $datestobook = self::return_timestamps($fromform->newoptiondates);
+            $fromform->datestobook = [];
 
             foreach ($datestobook as $date) {
+
+                $link = new moodle_url('/mod/booking/view.php', [
+                    'optionid' => $fromform->optionid,
+                    'id' => $fromform->id,
+                    'action' => 'showonlyone',
+                    'whichview' => 'showonlyone']);
+
                 $fromform->datestobook[] = new entitydate(
                     $fromform->optionid ?? 0,
                     'mod_booking',
@@ -668,7 +675,8 @@ class option_form extends \moodleform {
                     $fromform->text,
                     $date['starttime'],
                     $date['endtime'],
-                    1);
+                    1,
+                    $link);
             }
 
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
