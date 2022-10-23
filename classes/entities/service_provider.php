@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_booking\entities;
+
+use local_entities\local\callback\service_provider as CallbackService_provider;
 use mod_booking\booking;
 
 /**
@@ -23,20 +26,19 @@ use mod_booking\booking;
  * @copyright  2022 Georg Maißer <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class service_provider implements \local_entities\local\callback\service_provider {
+class service_provider implements CallbackService_provider {
 
     /**
      * Callback function that returns the costs and the accountid
      * for the course, just for testing.
      *
-     * @param array $ids
-     * @param string $area
+     * @param array $areas
      * @return array
      */
-    public static function return_array_of_dates(array $ids, string $area): array {
+    public static function return_array_of_dates(array $areas): array {
 
         // We just call the right class to return the array of dates.
-        $itemsarray = booking::return_array_of_dates($ids, $area);
+        $itemsarray = booking::return_array_of_dates($areas);
 
         return $itemsarray;
     }
