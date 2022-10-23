@@ -25,7 +25,9 @@ use mod_booking\customfield\booking_handler;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use local_entities\entitiesrelation_handler;
+use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\optiondates_handler;
 
 class option_form extends \moodleform {
 
@@ -644,6 +646,35 @@ class option_form extends \moodleform {
             }
         }
 
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+
+            // If we have the handler, we need first to add the new optiondates to the form.
+            // This constant change between object and array is stupid, but comes from the mform handler.
+            $fromform = (object)$data;
+            optiondates_handler::add_values_from_post_to_form($fromform);
+
+            // For the form validation, we need to pass the values to book in a special form.
+
+            // Now we get all the new arrays we want to save.
+            $array1 = self::return_timestamps($fromform->newoptiondates);
+            $array2 = self::return_timestamps($fromform->stillexistingdates);
+            $datestobook = array_merge($array1, $array2);
+
+            foreach ($datestobook as $date) {
+                $fromform->datestobook[] = new entitydate(
+                    $fromform->optionid ?? 0,
+                    'mod_booking',
+                    'optiondate',
+                    $fromform->text,
+                    $date['starttime'],
+                    $date['endtime'],
+                    1);
+            }
+
+            $erhandler = new entitiesrelation_handler('mod_booking', 'option');
+            $erhandler->instance_form_validation((array)$fromform, $errors);
+        }
+
         return $errors;
     }
 
@@ -830,6 +861,25 @@ class option_form extends \moodleform {
         }
 
         return $categorynames;
+    }
+
+    /**
+     * Helper function to explode strings to array of starttime & endtime.
+     *
+     * @param [type] $array
+     * @return array
+     */
+    private static function return_timestamps($array):array {
+
+        $returnarray = [];
+        foreach ($array as $date) {
+            list($startime, $endtime) = explode('-', $date);
+            $returnarray[] = [
+                'starttime' => $startime,
+                'endtime' => $endtime
+            ];
+        }
+        return $returnarray;
     }
 
 }

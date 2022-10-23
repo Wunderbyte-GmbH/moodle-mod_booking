@@ -835,30 +835,38 @@ class booking {
      * This function is called by the entities callback service_provider class.
      * It's used to return all the booking dates of the given IDs in a special format.
      *
-     * @param array $ids
-     * @param string $area
+     * @param array $areas
      * @return array
      */
-    public static function return_array_of_dates(array $ids, string $area): array {
+    public static function return_array_of_dates(array $areas): array {
 
         global $DB;
 
-        // First, decide which area we deal with.
-        // The sql is the same for both.
-        $sql = self::return_sql_for_options_dates($ids);
-        list($insql, $params) = $DB->get_in_or_equal($ids, SQL_PARAMS_NAMED);
+        // Get the SQL to retrieve all the right IDs.
+        $sql = self::return_sql_for_options_dates($areas);
+        $params = [];
 
-        // The only difference in the sql is the where clause.
-        switch ($area) {
-            case 'option':
-                $sql .= " WHERE bo.id $insql";
-            break;
-            case 'opitondate':
-                $sql .= " WHERE s1.id $insql";
-            break;
-            default:
-                // If we get a call for an unknown area, we want to throw an error.
-                throw new moodle_exception('local_entities_areaunknown', 'mod_booking');
+        if (!empty($areas['option'])) {
+            list($inoptionsql, $optionparams) = $DB->get_in_or_equal($areas['option'], SQL_PARAMS_NAMED);
+
+            $sql .= " WHERE (bo.id $inoptionsql)";
+            $params = array_merge($params, $optionparams);
+        }
+
+        if (!empty($areas['optiondate'])) {
+
+            // Do we need where or or?
+            $sql .= isset($inoptionsql) ? " OR " : " WHERE ";
+
+            list($inoptiondatesql, $optiondateparams) = $DB->get_in_or_equal($areas['optiondate'], SQL_PARAMS_NAMED);
+
+            $sql .= " s1.id $inoptiondatesql";
+            $params = array_merge($params, $optiondateparams);
+        }
+
+        // If neither of the one is true, we can just skip the whole request.
+        if (!isset($inoptiondatesql) && !isset($inoptionsql)) {
+            return [];
         }
 
         // Now we make an sql call to return all the relevant dates.
@@ -870,51 +878,70 @@ class booking {
         foreach ($records as $record) {
 
             // Depending on wetther we have an option date or an option, we construct our entitydate.
+
+            // Now, as we only want to use the start & enddate of an option when there are no optiondates...
+            // ... we need to follow all the options we have used septerately.
+
             if ($record->optiondateid) {
                     $area = 'optiondate';
-                $returnarray[] = new entitydate($record->id,
+
+                $newentittydate = new entitydate($record->optiondateid,
                     'mod_booking',
                     $area,
-                    $record->name,
-                    $record->starttime,
-                    $record->endtime,
+                    $record->text,
+                    $record->coursestarttime,
+                    $record->courseendtime,
                     1);
-            } else {
+
+                if (isset($returnarray[$record->optiondateid])
+                    && $returnarray[$record->optiondateid]->return_area() === 'optiondate') {
+                    $returnarray[] = $newentittydate;
+                } else {
+                    $returnarray[$record->optiondateid] = $newentittydate;
+                }
+            } else if (!isset($returnarray[$record->optionid])) {
+                // We only add the optin at all, if it's not yet occupied by an option date.
                 $area = 'option';
-                $returnarray[] = new entitydate($record->optionid,
+                $returnarray[$record->optionid] = new entitydate($record->optionid,
                     'mod_booking',
                     $area,
-                    $record->name,
-                    $record->starttime,
-                    $record->endtime,
+                    $record->text,
+                    $record->bo_coursestarttime,
+                    $record->bo_courseendtime,
                     1);
             }
         }
 
-        return [];
+        return $returnarray;
     }
 
     /**
      * SQL to return all the booked and reserved dates.
      * The Where clause has to be added, to either go on s1.id (for optiondates) or bo.id (for options)
      *
-     * @param array $ids
      * @return string
      */
-    private static function return_sql_for_options_dates(array $ids):string {
+    private static function return_sql_for_options_dates():string {
 
         global $DB;
 
-        $sql = "SELECT bo.id optionid,
+        // As we might come back with multiple optionids or no optiondateid...
+        // ... we need to create a unique id at the start.
+        $idfields = $DB->sql_concat('bo.id', "'-'", "COALESCE(s1.id, 0)");
+
+        $sql = "SELECT
+            $idfields as id,
+            bo.id optionid,
             s1.id optiondateid,
+            bo.text,
             s1.coursestarttime,
             s1.courseendtime,
             bo.coursestarttime bo_coursestarttime,
             bo.courseendtime bo_courseendtime
-            FROM m_booking_options bo
+            FROM {booking_options} bo
             LEFT JOIN (
             SELECT bod.id, bod.optionid, bod.coursestarttime, bod.courseendtime
-            FROM m_booking_optiondates bod) as s1
+            FROM {booking_optiondates} bod) as s1
             ON s1.optionid=bo.id";
 
         return $sql;
