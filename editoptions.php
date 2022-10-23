@@ -24,6 +24,7 @@ use mod_booking\customfield\booking_handler;
 use mod_booking\price;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\optiondates_handler;
 
 global $DB, $OUTPUT, $PAGE, $USER;
 
@@ -160,39 +161,7 @@ if ($mform->is_cancelled()) {
             $fromform->limitanswers = 0;
         }
 
-        // Get all new dynamically loaded dates from $_POST and save them.
-        $newoptiondates = [];
-        // Also get the remaining existing dates.
-        $stillexistingdates = [];
-
-        foreach ($_POST as $key => $value) {
-            // New option dates (created with date series function).
-            if (substr($key, 0, 18) === 'coursetime-newdate') {
-                $newoptiondates[] = $value;
-            }
-
-            // Also add custom dates to the new option dates.
-            if (substr($key, 0, 21) === 'coursetime-customdate') {
-                $newoptiondates[] = $value;
-            }
-
-            // Dates loaded from DB which have not been removed.
-            if (substr($key, 0, 17) === 'coursetime-dateid') {
-                $currentdateid = (int) explode('-', $key)[2];
-                $stillexistingdates[$currentdateid] = $value;
-            }
-        }
-        // Store the arrays in $fromform so we can use them later in booking_update_options.
-        $fromform->newoptiondates = $newoptiondates;
-        $fromform->stillexistingdates = $stillexistingdates;
-
-        // Also, get semesterid and dayofweektime string from the dynamic form and load it into $fromform.
-        if (isset($_POST['semesterid'])) {
-            $fromform->semesterid = $_POST['semesterid'];
-        }
-        if (isset($_POST['dayofweektime'])) {
-            $fromform->dayofweektime = $_POST['dayofweektime'];
-        }
+        optiondates_handler::add_values_from_post_to_form($fromform);
 
         // Save the additional JSON conditions (the ones which have been added to the mform).
         bo_info::save_json_conditions_from_form($fromform);
