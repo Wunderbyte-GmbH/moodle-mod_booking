@@ -39,6 +39,8 @@ $urlparams = [
     'cmid' => $cmid
 ];
 
+$params = []; // SQL params.
+
 $context = context_system::instance();
 $PAGE->set_context($context);
 
@@ -112,15 +114,6 @@ if ($fromform = $mform->get_data()) {
     set_user_preference('teachersinstancereport_teacherid', $teacherid);
 }
 
-// SQL query.
-$fields = "DISTINCT u.id teacherid, u.firstname, u.lastname, u.email";
-
-$from = "{booking_teachers} bt
-        JOIN {user} u
-        ON u.id = bt.userid";
-
-$params['bookingid'] = $bookingid;
-
 if (!$teachersinstancereporttable->is_downloading()) {
 
     // Headers.
@@ -161,12 +154,28 @@ if (!$teachersinstancereporttable->is_downloading()) {
     // Now show the mform for filtering.
     $mform->display();
 
+    // SQL query.
+    $fields = "s.teacherid, s.firstname, s.lastname, s.email";
+
     $andteacher = '';
     if (!empty($teacherid)) {
         $andteacher = "AND u.id = :teacherid";
         $params['teacherid'] = $teacherid;
     }
-    $where = "bt.bookingid = :bookingid $andteacher ORDER BY u.lastname";
+
+    $from = "(
+        SELECT DISTINCT u.id teacherid, u.firstname, u.lastname, u.email
+        FROM {booking_teachers} bt
+        JOIN {user} u
+        ON u.id = bt.userid
+        WHERE bt.bookingid = :bookingid
+        $andteacher
+        ORDER BY u.lastname
+    ) s";
+
+    $where = "1=1";
+
+    $params['bookingid'] = $bookingid;
 
     // Now build the table.
     $teachersinstancereporttable->set_sql($fields, $from, $where, $params);
@@ -198,6 +207,9 @@ if (!$teachersinstancereporttable->is_downloading()) {
         'substitutions'
     ]);
 
+    // SQL query.
+    $fields = "s.teacherid, s.firstname, s.lastname, s.email";
+
     // When downloading, we use the last set teacherid from preferences.
     $andteacher = '';
     $lastteacherid = get_user_preferences('teachersinstancereport_teacherid');
@@ -205,7 +217,20 @@ if (!$teachersinstancereporttable->is_downloading()) {
         $andteacher = "AND u.id = :teacherid";
         $params['teacherid'] = $lastteacherid;
     }
-    $where = "bt.bookingid = :bookingid $andteacher ORDER BY u.lastname";
+
+    $from = "(
+        SELECT DISTINCT u.id teacherid, u.firstname, u.lastname, u.email
+        FROM {booking_teachers} bt
+        JOIN {user} u
+        ON u.id = bt.userid
+        WHERE bt.bookingid = :bookingid
+        $andteacher
+        ORDER BY u.lastname
+    ) s";
+
+    $where = "1=1";
+
+    $params['bookingid'] = $bookingid;
 
     // Now build the table.
     $teachersinstancereporttable->set_sql($fields, $from, $where, $params);
