@@ -29,6 +29,7 @@ use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\optiondates_handler;
 use moodle_url;
+use stdClass;
 
 class option_form extends \moodleform {
 
@@ -652,34 +653,9 @@ class option_form extends \moodleform {
             // If we have the handler, we need first to add the new optiondates to the form.
             // This constant change between object and array is stupid, but comes from the mform handler.
             $fromform = (object)$data;
-            optiondates_handler::add_values_from_post_to_form($fromform);
-
-            // For the form validation, we need to pass the values to book in a special form.
-            // We only need those timestamps which are new.
-            // But it might be advisable to also check the key stillexistingdates in the future.
-            $datestobook = self::return_timestamps($fromform->newoptiondates);
-            $fromform->datestobook = [];
-
-            foreach ($datestobook as $date) {
-
-                $link = new moodle_url('/mod/booking/view.php', [
-                    'optionid' => $fromform->optionid,
-                    'id' => $fromform->id,
-                    'action' => 'showonlyone',
-                    'whichview' => 'showonlyone']);
-
-                $fromform->datestobook[] = new entitydate(
-                    $fromform->optionid ?? 0,
-                    'mod_booking',
-                    'optiondate',
-                    $fromform->text,
-                    $date['starttime'],
-                    $date['endtime'],
-                    1,
-                    $link);
-            }
 
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
+            self::order_all_dates_to_book_in_form($fromform);
             $erhandler->instance_form_validation((array)$fromform, $errors);
         }
 
@@ -888,6 +864,57 @@ class option_form extends \moodleform {
             ];
         }
         return $returnarray;
+    }
+
+    /**
+     * This function creates the entitydate instances in an array under the datestobook key.
+     * The entitiesrelation handlers we use to validate and save expects a certain structure.
+     *
+     * @param stdClass $fromform
+     * @return void
+     */
+    private static function order_all_dates_to_book_in_form(stdClass &$fromform) {
+        optiondates_handler::add_values_from_post_to_form($fromform);
+
+        // For the form validation, we need to pass the values to book in a special form.
+        // We only need those timestamps which are new.
+        // But it might be advisable to also check the key stillexistingdates in the future.
+        $datestobook = self::return_timestamps($fromform->newoptiondates);
+        $fromform->datestobook = [];
+
+        $link = new moodle_url('/mod/booking/view.php', [
+            'optionid' => $fromform->optionid,
+            'id' => $fromform->id,
+            'action' => 'showonlyone',
+            'whichview' => 'showonlyone']);
+
+        foreach ($datestobook as $date) {
+
+            $fromform->datestobook[] = new entitydate(
+                $fromform->optionid ?? 0,
+                'mod_booking',
+                'optiondate',
+                $fromform->text,
+                $date['starttime'],
+                $date['endtime'],
+                1,
+                $link);
+        }
+
+        // If there are no date to book (no optiondates)...
+        // ... we need to take into account the single dates.
+        if (count($fromform->datestobook) < 1) {
+
+            $fromform->datestobook[] = new entitydate(
+                $fromform->optionid ?? 0,
+                'mod_booking',
+                'optiondate',
+                $fromform->text,
+                $fromform->coursestarttime,
+                $fromform->courseendtime,
+                1,
+                $link);
+        }
     }
 
 }
