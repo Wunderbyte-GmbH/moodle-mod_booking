@@ -1084,6 +1084,9 @@ function booking_update_options($optionvalues, $context) {
             $optiondateshandler->save_from_form($optionvalues);
         }
 
+        // Save relation for each newly created optiondate if checkbox is active.
+        save_entity_relations_for_optiondates_of_option($optionvalues, $option->id);
+
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
         // $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
         // $cache->delete($option->id);
@@ -1185,6 +1188,10 @@ function booking_update_options($optionvalues, $context) {
         // Deal with multiple option dates (multisessions).
         deal_with_multisessions($optionvalues, $booking, $optionid, $context);
 
+        // Save relation for each newly created optiondate if checkbox is active.
+        save_entity_relations_for_optiondates_of_option($optionvalues, $optionid);
+
+        // Trigger an event that booking option has been updated.
         $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
                 'userid' => $USER->id));
         $event->trigger();
@@ -1208,6 +1215,29 @@ function booking_update_options($optionvalues, $context) {
         // $cache->delete($optionid);
 
         return $optionid;
+    }
+}
+
+/**
+ * Helper function to save entity relations for all associated optiondates.
+ * @param stdClass &$optionvalues option values from form
+ * @param int $optionid
+ * */
+function save_entity_relations_for_optiondates_of_option(&$optionvalues, $optionid) {
+    global $DB;
+    if (class_exists('local_entities\entitiesrelation_handler')
+            && $optionvalues->er_saverelationsforoptiondates == 1) {
+
+        $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+        $optiondateids = $DB->get_fieldset_sql(
+            "SELECT id FROM {booking_optiondates} WHERE optionid = :optionid",
+            ['optionid' => $optionid]
+        );
+        foreach ($optiondateids as $optiondateid) {
+            if (!empty($optionvalues->local_entities_entityid)) {
+                $erhandler->save_entity_relation($optiondateid, $optionvalues->local_entities_entityid);
+            }
+        }
     }
 }
 
