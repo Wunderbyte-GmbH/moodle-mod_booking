@@ -174,6 +174,14 @@ class optiondates_handler {
 
                 // Add teachers of the booking option to newly created optiondate.
                 self::subscribe_existing_teachers_to_new_optiondate($optiondateid);
+
+                // If a new optiondate is inserted, we add the entity of the parent option as default.
+                if (class_exists('local_entities\entitiesrelation_handler')) {
+                    $erhandleroption = new entitiesrelation_handler('mod_booking', 'option');
+                    $entityid = $erhandleroption->get_entityid_by_instanceid($this->optionid);
+                    $erhandleroptiondate = new entitiesrelation_handler('mod_booking', 'optiondate');
+                    $erhandleroptiondate->save_entity_relation($optiondateid, $entityid);
+                }
             }
 
             // After updating, we invalidate caches.
