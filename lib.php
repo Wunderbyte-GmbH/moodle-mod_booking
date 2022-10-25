@@ -1236,6 +1236,9 @@ function save_entity_relations_for_optiondates_of_option(&$optionvalues, $option
         foreach ($optiondateids as $optiondateid) {
             if (!empty($optionvalues->local_entities_entityid)) {
                 $erhandler->save_entity_relation($optiondateid, $optionvalues->local_entities_entityid);
+            } else {
+                // If entity was deleted from the option, we delete it form optiondates too.
+                $erhandler->delete_relation($optiondateid);
             }
         }
     }
