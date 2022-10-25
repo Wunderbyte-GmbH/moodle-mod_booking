@@ -864,7 +864,7 @@ class booking {
             $params = array_merge($params, $optiondateparams);
         }
 
-        // If neither of the one is true, we can just skip the whole request.
+        // If neither one is true, we can just skip the whole request.
         if (!isset($inoptiondatesql) && !isset($inoptionsql)) {
             return [];
         }
@@ -877,12 +877,13 @@ class booking {
         // Bring the result in the correct form.
         foreach ($records as $record) {
 
-            // Depending on wetther we have an option date or an option, we construct our entitydate.
+            // Depending on whether we have an option date or an option, we construct our entitydate.
 
             // Now, as we only want to use the start & enddate of an option when there are no optiondates...
-            // ... we need to follow all the options we have used septerately.
+            // ... we need to follow all the options we have used seperately.
 
             $booking = singleton_service::get_instance_of_booking_by_optionid($record->optionid);
+            $optionsettings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
 
             // But the link is always the same.
             $link = new moodle_url('/mod/booking/view.php', [
@@ -897,7 +898,7 @@ class booking {
                 $newentittydate = new entitydate($record->optiondateid,
                     'mod_booking',
                     $area,
-                    $record->text,
+                    $optionsettings->get_title_with_prefix(),
                     $record->coursestarttime,
                     $record->courseendtime,
                     1,
@@ -910,12 +911,12 @@ class booking {
                     $returnarray[$record->optiondateid] = $newentittydate;
                 }
             } else if (!isset($returnarray[$record->optionid])) {
-                // We only add the optin at all, if it's not yet occupied by an option date.
+                // We only add the option at all, if it's not yet occupied by an option date.
                 $area = 'option';
                 $returnarray[$record->optionid] = new entitydate($record->optionid,
                     'mod_booking',
                     $area,
-                    $record->text,
+                    $optionsettings->get_title_with_prefix(),
                     $record->bo_coursestarttime,
                     $record->bo_courseendtime,
                     1,
