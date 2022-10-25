@@ -421,6 +421,11 @@ class option_form extends \moodleform {
         if (class_exists('local_entities\entitiesrelation_handler')) {
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
             $erhandler->instance_form_definition($mform, $optionid, $this->formmode);
+
+            // This checkbox is specific to mod_booking which is why it...
+            // ...cannot be put directly into instance_form_definition of entitiesrelation_handler.
+            $mform->addElement('advcheckbox', 'er_saverelationsforoptiondates',
+                get_string('er_saverelationsforoptiondates', 'local_entities'));
         }
 
         // Add custom fields.

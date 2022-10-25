@@ -81,17 +81,17 @@ if ($delete != '') {
                       'oldvalue' => $optiondate->courseendtime];
     }
 
-    // If there is an associated entity, delete it too.
-    if (class_exists('local_entities\entitiesrelation_handler')) {
-        $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
-        $erhandler->delete_relation($delete);
-    }
-
     // Now we can delete the session.
     $DB->delete_records('booking_optiondates', array('optionid' => $optionid, 'id' => $delete));
 
     // We also need to delete the associated records in booking_optiondates_teachers.
     optiondates_handler::remove_teachers_from_deleted_optiondate($delete);
+
+    // If there is an associated entity, delete it too.
+    if (class_exists('local_entities\entitiesrelation_handler')) {
+        $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+        $erhandler->delete_relation($delete);
+    }
 
     // If there are no sessions left, we switch from multisession to simple option.
     if (!$DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
@@ -102,7 +102,7 @@ if ($delete != '') {
     booking_updatestartenddate($optionid);
 
     // Delete associated custom fields.
-    optiondate_deletecustomfields($delete);
+    optiondates_handler::optiondate_deletecustomfields($delete);
 
      // After Deleting, we invalidate caches.
      cache_helper::purge_by_event('setbackoptionstable');
@@ -165,7 +165,7 @@ if ($duplicate != '') {
     }
 }
 
-$mform = new optiondatesadd_form($url, array('optiondateid' => $edit));
+$mform = new optiondatesadd_form($url, ['optiondateid' => $edit, 'optionid' => $optionid]);
 
 if ($mform->is_cancelled()) {
     // Handle form cancel operation, if cancel button is present on form.

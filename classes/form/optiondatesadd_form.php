@@ -47,6 +47,9 @@ class optiondatesadd_form extends moodleform {
         $mform->addElement('hidden', 'optiondateid');
         $mform->setType('optiondateid', PARAM_INT);
 
+        $mform->addElement('hidden', 'optionid');
+        $mform->setType('optionid', PARAM_INT);
+
         $mform->addElement('hidden', 'bookingid');
         $mform->setType('bookingid', PARAM_INT);
 
@@ -59,6 +62,7 @@ class optiondatesadd_form extends moodleform {
         $mform->setType('coursestarttime', PARAM_INT);
 
         $optiondateid = (int) $this->_customdata['optiondateid'];
+        $optionid = (int) $this->_customdata['optionid'];
 
         for ($i = 0; $i <= 23; $i++) {
             $hours[$i] = sprintf("%02d", $i);
@@ -82,6 +86,14 @@ class optiondatesadd_form extends moodleform {
             $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
             $erhandler->instance_form_definition($mform, $optiondateid, 'expert');
             $mform->setExpanded('entitiesrelation', false);
+
+            // If the parent option already had an entity set...
+            // ... then we want to use this entity as default.
+            $erhandleroption = new entitiesrelation_handler('mod_booking', 'option');
+            $entityid = $erhandleroption->get_entityid_by_instanceid($optionid);
+            if (!empty($entityid)) {
+                $mform->setDefault('local_entities_entityid', $entityid);
+            }
         }
         $mform->closeHeaderBefore('daystonotifyheader');
         $mform->addElement('header', 'daystonotifyheader', get_string('sessionnotifications', 'mod_booking'));

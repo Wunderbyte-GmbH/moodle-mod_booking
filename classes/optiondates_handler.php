@@ -24,6 +24,7 @@ require_once("$CFG->libdir/formslib.php");
 use cache_helper;
 use context_module;
 use lang_string;
+use local_entities\entitiesrelation_handler;
 use mod_booking\semester;
 use moodle_exception;
 use MoodleQuickForm;
@@ -137,10 +138,23 @@ class optiondates_handler {
                     }
 
                 } else {
+                    $olddateid = (int) $olddate->id;
+
                     // An existing optiondate has been removed by the dynamic form, so delete it from DB.
-                    $DB->delete_records('booking_optiondates', ['id' => (int) $olddate->id]);
+                    $DB->delete_records('booking_optiondates', ['id' => $olddateid]);
+
                     // We also need to delete the associated records in booking_optiondates_teachers.
-                    self::remove_teachers_from_deleted_optiondate((int)$olddate->id);
+                    self::remove_teachers_from_deleted_optiondate($olddateid);
+
+                    // We also need to delete associated custom fields.
+                    self::optiondate_deletecustomfields($olddateid);
+
+                    // We also need to delete any associated entities.
+                    // If there is an associated entity, delete it too.
+                    if (class_exists('local_entities\entitiesrelation_handler')) {
+                        $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+                        $erhandler->delete_relation($olddateid);
+                    }
                 }
             }
 
@@ -526,6 +540,16 @@ class optiondates_handler {
         // Also purge caches for options table and booking_option_settings.
         cache_helper::purge_by_event('setbackoptionstable');
         cache_helper::purge_by_event('setbackoptionsettings');
+    }
+
+    /**
+     * Helper function to delete custom fields belonging to an option date.
+     * @param int $optiondateid id of the option date for which all custom fields will be deleted.
+     */
+    public static function optiondate_deletecustomfields($optiondateid) {
+        global $DB;
+        // Delete all custom fields which belong to this optiondate.
+        $DB->delete_records("booking_customfields", array('optiondateid' => $optiondateid));
     }
 
     /**

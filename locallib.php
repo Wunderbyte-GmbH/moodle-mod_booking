@@ -416,17 +416,6 @@ function get_rendered_eventdescription(int $optionid, int $cmid,
     }
 
     return $output->render_bookingoption_description($data);
-
-}
-
-/**
- * Helper function to delete custom fields belonging to an option date.
- * @param int $optiondateid id of the option date for which all custom fields will be deleted.
- */
-function optiondate_deletecustomfields($optiondateid) {
-    global $DB;
-    // Delete all custom fields which belong to this optiondate.
-    $DB->delete_records("booking_customfields", array('optiondateid' => $optiondateid));
 }
 
 /**
