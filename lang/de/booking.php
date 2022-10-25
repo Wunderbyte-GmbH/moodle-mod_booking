@@ -1203,6 +1203,7 @@ $string['optiondatessuccessfullysaved'] = "Termin wurde bearbeitet";
 $string['optiondatessuccessfullydelete'] = "Termin wurde gelöscht";
 $string['leftandrightdate'] = '{$a->leftdate} bis {$a->righttdate}';
 $string['editingoptiondate'] = 'Sie bearbeiten gerade diesen Termin';
+$string['newoptiondate'] = 'Neuen Termin anlegen...';
 
 // Optiondatesadd_form.php.
 $string['dateandtime'] = 'Datum und Uhrzeit';

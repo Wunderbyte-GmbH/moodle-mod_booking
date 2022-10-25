@@ -1346,6 +1346,7 @@ $string['optiondatessuccessfullysaved'] = "Session time was saved.";
 $string['optiondatessuccessfullydelete'] = "Session time was deleted.";
 $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
 $string['editingoptiondate'] = 'You are currently editing this session';
+$string['newoptiondate'] = 'Create a new session...';
 
 // Optiondatesadd_form.php.
 $string['dateandtime'] = 'Date and time';

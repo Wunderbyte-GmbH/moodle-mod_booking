@@ -339,6 +339,7 @@ if ($mform->is_cancelled()) {
     $cancel = new moodle_url('/mod/booking/view.php', array('id' => $cm->id));
     $defaultvalues = new stdClass();
     if ($edit != '') {
+        // An existing optiondate is being edited.
         $defaultvalues = $DB->get_record('booking_optiondates', array('id' => $edit), '*',
                 MUST_EXIST);
         // The id in the form will be course module id, not the optiondate id.
@@ -347,6 +348,9 @@ if ($mform->is_cancelled()) {
         $defaultvalues->endhour = date('H', $defaultvalues->courseendtime);
         $defaultvalues->endminute = date('i', $defaultvalues->courseendtime);
         $defaultvalues->id = $cm->id;
+    } else {
+        // A new optiondate can be created.
+        echo html_writer::tag('h3', get_string('newoptiondate', 'mod_booking'));
     }
     $mform->set_data($defaultvalues);
     $mform->display();
