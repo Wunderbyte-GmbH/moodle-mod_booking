@@ -29,6 +29,7 @@ use context_module;
 use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
+use moodle_url;
 use renderer_base;
 use renderable;
 use templatable;
@@ -82,6 +83,7 @@ class col_availableplaces implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output) {
+        global $CFG;
 
         if ($this->buyforuser) {
             $userid = $this->buyforuser->id;
@@ -95,6 +97,8 @@ class col_availableplaces implements renderable, templatable {
         // Add additional information.
         $bookinginformation['cmid'] = $this->cmid;
         $bookinginformation['optionid'] = $this->optionid;
+        $manageresponsesurl = new moodle_url('/mod/booking/report.php', ['id' => $this->cmid, 'optionid' => $this->optionid]);
+        $bookinginformation['manageresponsesurl'] = $manageresponsesurl->out(false);
 
         if (!empty($bookinginformation['iambooked'])) {
             $bookinginformation['numberofresponses'] = $bookinginformation['iambooked']['booked'];

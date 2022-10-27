@@ -26,6 +26,7 @@
 namespace mod_booking\output;
 
 use mod_booking\booking_option_settings;
+use moodle_url;
 use renderer_base;
 use renderable;
 use templatable;
@@ -52,6 +53,10 @@ class col_teacher implements renderable, templatable {
     public function __construct(int $optionid, booking_option_settings $settings) {
 
         foreach ($settings->teachers as $teacher) {
+            // Set URL for each teacher.
+            $teacherurl = new moodle_url('/local/musi/teacher.php', ['teacherid' => $teacher->userid]);
+            $teacher->teacherurl = $teacherurl->out(false);
+
             $this->teachers[] = (array)$teacher;
         }
     }

@@ -479,11 +479,10 @@ class booking_option_settings {
     private function generate_editoption_url(int $optionid) {
 
         if (!empty($this->cmid) && !empty($optionid)) {
-            $editoptionmoodleurl = new moodle_url('/mod/booking/editoptions.php',
-                ['id' => $this->cmid, 'optionid' => $optionid]);
 
-            // Use html_entity_decode to convert "&amp;" to a simple "&" character.
-            $this->editoptionurl = html_entity_decode($editoptionmoodleurl->out());
+            /* Note: We can't use new moodle_url here, as it is already used in the
+            add_return_url function of the booking_option_settings class. */
+            $this->editoptionurl = "/mod/booking/editoptions.php?id=" . $this->cmid . "&optionid=" . $optionid;
         }
     }
 
