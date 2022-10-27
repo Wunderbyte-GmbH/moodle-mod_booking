@@ -1,3 +1,15 @@
+7.6.0 (2022102700)
+* New feature: Entities can now be set for sessions of booking options (a.k.a. optiondates) too.
+* New feature: Entities can conflict with each other if on the same date.
+* Improvement: Entity shortnames (abbreviations like WBO for Wunderbyte Office) are now supported.
+* Improvement: If an entity is set, we show it (name + shortname) instead of the value stored in "location".
+* Improvement: Better handling of entities associated with booking options.
+* Improvement: Better interface for optiondate manager.
+* Bugfix: Duplication with conditions caused an error (optionid: -1).
+* Bugfix: Fix undefined index for blocked events (start and endtime cannot be retrieved from string).
+* Bugfix: Fix undefined index for blocked events (start and endtime cannot be retrieved from string).
+* Bugfix: Postgres fix for teachers instance report.
+
 7.5.5 (2022101200)
 * New feature: Min. number of participants can now be set (currently only shown, no logic).
 * Improvement: Add support for new shopping cartitem functionality (serviceperiodstart & end).
