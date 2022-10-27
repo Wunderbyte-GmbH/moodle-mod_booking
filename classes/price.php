@@ -429,6 +429,11 @@ class price {
         // First get all customfields from settings object.
         $customfields = [];
         foreach ($bookingoptionsettings->customfields as $fieldname => $fieldvalues) {
+
+            // We only use the formular on customfields which are iterable.
+            if (!is_array($fieldvalues)) {
+                continue;
+            }
             foreach ($fieldvalues as $fval) {
                 if (!empty($fval)) {
                     $customfields[$fieldname][] = strtolower($fval);
