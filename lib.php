@@ -171,7 +171,7 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
     }
 
     // Send the file back to the browser - in this case with a cache lifetime of 1 day and no filtering.
-    send_stored_file($file, 0, 0, true, $options);
+    send_stored_file($file, null, 0, true, $options);
 }
 
 function booking_user_outline($course, $user, $mod, $booking) {
