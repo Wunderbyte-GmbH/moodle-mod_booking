@@ -1,3 +1,7 @@
+7.6.1 (2022103100)
+* Improvement: Use caching for serving images.
+* Bugfix: Fix formular calculation with non iterable custom fields.
+
 7.6.0 (2022102700)
 * New feature: Entities can now be set for sessions of booking options (a.k.a. optiondates) too.
 * New feature: Entities can conflict with each other if on the same date.
