@@ -128,21 +128,21 @@ class provider implements
     public static function get_contexts_for_userid(int $userid) : contextlist {
 
         // Add if the user booked an event.
-        $sql = "(SELECT DISTINCT c.id
+        $sql = "SELECT c.id
             FROM {context} c
             INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
             INNER JOIN {modules} m ON m.id = cm.module AND m.name = :modname
             INNER JOIN {booking} boo ON boo.id = cm.instance
             INNER JOIN {booking_answers} ans ON ans.bookingid = boo.id
-            WHERE ans.userid = :userid)
+            WHERE ans.userid = :userid
             UNION
-            (SELECT DISTINCT c.id
+            SELECT c.id
             FROM {context} c
             INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel2
             INNER JOIN {modules} m ON m.id = cm.module AND m.name = :modname2
             INNER JOIN {booking} boo ON boo.id = cm.instance
             INNER JOIN {booking_teachers} tea ON tea.bookingid = boo.id
-            WHERE tea.userid = :userid2)";
+            WHERE tea.userid = :userid2";
 
         $params = [
             'modname'       => 'booking',
