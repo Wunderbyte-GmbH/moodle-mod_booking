@@ -840,6 +840,8 @@ class booking {
      */
     public static function return_array_of_dates(array $areas): array {
 
+        // TODO: Now that the SQL has been changed, we need to fix this function!
+
         global $DB;
 
         // Get the SQL to retrieve all the right IDs.
@@ -937,24 +939,30 @@ class booking {
 
         global $DB;
 
-        // As we might come back with multiple optionids or no optiondateid...
-        // ... we need to create a unique id at the start.
-        $idfields = $DB->sql_concat('bo.id', "'-'", "COALESCE(s1.id, 0)");
-
-        $sql = "SELECT
-            $idfields as id,
-            bo.id optionid,
-            s1.id optiondateid,
-            bo.text,
-            s1.coursestarttime,
-            s1.courseendtime,
-            bo.coursestarttime bo_coursestarttime,
-            bo.courseendtime bo_courseendtime
-            FROM {booking_options} bo
-            LEFT JOIN (
-            SELECT bod.id, bod.optionid, bod.coursestarttime, bod.courseendtime
-            FROM {booking_optiondates} bod) as s1
-            ON s1.optionid=bo.id";
+        $sql = "SELECT " .
+                    $DB->sql_concat("'optiondate-'", "bod.id") . " uniqueid, " .
+                    "bod.id instanceid,
+                    'optiondate' area,
+                    bo.id optionid,
+                    bo.text,
+                    bod.coursestarttime,
+                    bod.courseendtime
+                FROM {booking_optiondates} bod
+                JOIN (
+                    SELECT id, text
+                    FROM {booking_options}
+                ) bo
+                ON bod.optionid = bo.id
+            UNION
+                SELECT " .
+                $DB->sql_concat("'option-'", "id") . " uniqueid, " .
+                "id instanceid,
+                'option' area,
+                id optionid,
+                text,
+                coursestarttime,
+                courseendtime
+                FROM {booking_options}";
 
         return $sql;
     }

@@ -29,8 +29,7 @@ use mod_booking\booking;
 class service_provider implements CallbackService_provider {
 
     /**
-     * Callback function that returns the costs and the accountid
-     * for the course, just for testing.
+     * Callback function that returns an array of dates.
      *
      * @param array $areas
      * @return array
