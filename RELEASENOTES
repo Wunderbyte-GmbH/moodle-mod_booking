@@ -1,6 +1,9 @@
+7.6.2 (2022110200)
+* Bugfix: Fixed issue #213 - privacy provider get_contexts_for_userid() - MariaDB, SQL doesn't work.
+
 7.6.1 (2022103100)
 * Improvement: Use caching for serving images.
-* Bugfix: Fix formular calculation with non iterable custom fields.
+* Bugfix: Fix formula calculation with non iterable custom fields.
 
 7.6.0 (2022102700)
 * New feature: Entities can now be set for sessions of booking options (a.k.a. optiondates) too.
