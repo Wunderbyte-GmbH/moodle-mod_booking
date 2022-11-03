@@ -426,6 +426,13 @@ class option_form extends \moodleform {
             // ...cannot be put directly into instance_form_definition of entitiesrelation_handler.
             $mform->addElement('advcheckbox', 'er_saverelationsforoptiondates',
                 get_string('er_saverelationsforoptiondates', 'local_entities'));
+            if ($optionid == 0) {
+                // If it's a new option, we set the default to checked.
+                $mform->setDefault('er_saverelationsforoptiondates', 1);
+            } else {
+                // If we edit an existing option, we do not check by default.
+                $mform->setDefault('er_saverelationsforoptiondates', 0);
+            }
         }
 
         // Add custom fields.
