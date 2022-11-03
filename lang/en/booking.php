@@ -92,9 +92,7 @@ $string['full'] = 'Full';
 $string['goenrol'] = 'Go to registration';
 $string['gotop'] = 'Go to top';
 $string['infonobookingoption'] = 'In order to add a booking option please use the settings block or the settings-icon on top of the page';
-$string['infotext:additionalpluginsnecessary'] = '<small>If you want to use this feature, you might need to install and configure additional plugins.
- <a href="https://wunderbyte.at/en/contact" target="_blank">Contact Wunderbyte</a> if you need help with this.</small>';
- $string['infotext:prolicensenecessary'] = 'You need a Booking PRO license if you want to use this feature.
+$string['infotext:prolicensenecessary'] = 'You need a Booking PRO license if you want to use this feature.
  <a href="https://wunderbyte.at/en/contact" target="_blank">Contact Wunderbyte</a> if you want to buy a PRO license.';
 $string['limit'] = 'Limit';
 $string['modulename'] = 'Booking';

@@ -322,9 +322,6 @@ class userprofilefield_2_custom implements bo_condition {
                 $mform->hideIf('bo_cond_customuserprofilefield_overridecondition',
                     'bo_cond_customuserprofilefield_overrideconditioncheckbox', 'notchecked');
             }
-
-            $mform->addElement('static', 'infotextadditionalpluginsnecessary',
-                    '', get_string('infotext:additionalpluginsnecessary', 'mod_booking'));
         } else {
             // No PRO license is active.
             $mform->addElement('static', 'restrictwithcustomuserprofilefield',

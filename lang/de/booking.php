@@ -90,8 +90,6 @@ $string['full'] = 'Ausgebucht';
 $string['goenrol'] = 'Gehe zu "Buchung vornehmen"';
 $string['gotop'] = 'Nach oben';
 $string['infonobookingoption'] = 'Um eine Buchungsoption zu erstellen, nutzen Sie den Block Einstellungen oder das Einstellungs-Icon';
-$string['infotext:additionalpluginsnecessary'] = '<small>Um dieses Feature zu nutzen, müssen Sie möglicherweise weitere Plugins installieren und konfigurieren.
- <a href="https://wunderbyte.at/kontakt" target="_blank">Kontaktieren Sie Wunderbyte</a>, wenn Sie hierbei Hilfe benötigen.</small>';
 $string['infotext:prolicensenecessary'] = 'Sie benötigen Booking PRO, um dieses Feature nutzen zu können.
  <a href="https://wunderbyte.at/kontakt" target="_blank">Kontaktieren Sie Wunderbyte</a>, wenn Sie eine Lizenz erwerben möchten.';
 $string['limit'] = 'Maximale Anzahl';

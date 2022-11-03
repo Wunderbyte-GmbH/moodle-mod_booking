@@ -248,9 +248,6 @@ class previouslybooked implements bo_condition {
             $mform->hideIf('bo_cond_previouslybooked_overridecondition',
                 'bo_cond_previouslybooked_overrideconditioncheckbox',
                 'notchecked');
-
-            $mform->addElement('static', 'infotextadditionalpluginsnecessary',
-                '', get_string('infotext:additionalpluginsnecessary', 'mod_booking'));
         } else {
             // No PRO license is active.
             $mform->addElement('static', 'restrictwithpreviouslybooked',
