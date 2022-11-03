@@ -850,19 +850,22 @@ class booking {
 
         if (!empty($areas['option'])) {
             list($inoptionsql, $optionparams) = $DB->get_in_or_equal($areas['option'], SQL_PARAMS_NAMED);
-
-            $sql .= " WHERE (bo.id $inoptionsql)";
+            // We only select options with an odcount of NULL meaning there are no optiondates.
+            // If there are optiondates, we are only interested in them and ignore the option itself.
+            $sql .= " WHERE (s1.area = 'option' AND s2.odcount IS NULL
+                    AND s1.coursestarttime <> 0 AND s1.courseendtime <> 0
+                    AND s1.instanceid $inoptionsql)";
             $params = array_merge($params, $optionparams);
         }
 
         if (!empty($areas['optiondate'])) {
 
-            // Do we need where or or?
-            $sql .= isset($inoptionsql) ? " OR " : " WHERE ";
+            // Do we need WHERE or OR?
+            $sql .= empty($inoptionsql) ? " WHERE " : " OR ";
 
             list($inoptiondatesql, $optiondateparams) = $DB->get_in_or_equal($areas['optiondate'], SQL_PARAMS_NAMED);
 
-            $sql .= " s1.id $inoptiondatesql";
+            $sql .= "(s1.area = 'optiondate' AND s1.instanceid $inoptiondatesql)";
             $params = array_merge($params, $optiondateparams);
         }
 
@@ -871,7 +874,7 @@ class booking {
             return [];
         }
 
-        // Now we make an sql call to return all the relevant dates.
+        // Now we make an SQL call to return all the relevant dates.
         $records = $DB->get_records_sql($sql, $params);
 
         $returnarray = [];
@@ -879,51 +882,26 @@ class booking {
         // Bring the result in the correct form.
         foreach ($records as $record) {
 
-            // Depending on whether we have an option date or an option, we construct our entitydate.
-
-            // Now, as we only want to use the start & enddate of an option when there are no optiondates...
-            // ... we need to follow all the options we have used seperately.
-
-            $booking = singleton_service::get_instance_of_booking_by_optionid($record->optionid);
             $optionsettings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
 
-            // But the link is always the same.
+            // Link is always the same.
             $link = new moodle_url('/mod/booking/view.php', [
                 'optionid' => $record->optionid,
-                'id' => $booking->cmid,
+                'id' => $optionsettings->cmid,
                 'action' => 'showonlyone',
                 'whichview' => 'showonlyone']);
 
-            if ($record->optiondateid) {
-                    $area = 'optiondate';
+            $newentittydate = new entitydate(
+                $record->instanceid,
+                'mod_booking',
+                $record->area,
+                $optionsettings->get_title_with_prefix(),
+                $record->coursestarttime,
+                $record->courseendtime,
+                1,
+                $link);
 
-                $newentittydate = new entitydate($record->optiondateid,
-                    'mod_booking',
-                    $area,
-                    $optionsettings->get_title_with_prefix(),
-                    $record->coursestarttime,
-                    $record->courseendtime,
-                    1,
-                    $link);
-
-                if (isset($returnarray[$record->optiondateid])
-                    && $returnarray[$record->optiondateid]->return_area() === 'optiondate') {
-                    $returnarray[] = $newentittydate;
-                } else {
-                    $returnarray[$record->optiondateid] = $newentittydate;
-                }
-            } else if (!isset($returnarray[$record->optionid])) {
-                // We only add the option at all, if it's not yet occupied by an option date.
-                $area = 'option';
-                $returnarray[$record->optionid] = new entitydate($record->optionid,
-                    'mod_booking',
-                    $area,
-                    $optionsettings->get_title_with_prefix(),
-                    $record->bo_coursestarttime,
-                    $record->bo_courseendtime,
-                    1,
-                    $link);
-            }
+            $returnarray[] = $newentittydate;
         }
 
         return $returnarray;
@@ -939,30 +917,39 @@ class booking {
 
         global $DB;
 
-        $sql = "SELECT " .
-                    $DB->sql_concat("'optiondate-'", "bod.id") . " uniqueid, " .
-                    "bod.id instanceid,
-                    'optiondate' area,
-                    bo.id optionid,
-                    bo.text,
-                    bod.coursestarttime,
-                    bod.courseendtime
-                FROM {booking_optiondates} bod
-                JOIN (
-                    SELECT id, text
+        $sql = "SELECT s1.*, s2.odcount FROM
+                (
+                    SELECT " .
+                        $DB->sql_concat("'optiondate-'", "bod.id") . " uniqueid, " .
+                        "bod.id instanceid,
+                        'optiondate' area,
+                        bo.id optionid,
+                        bo.text,
+                        bod.coursestarttime,
+                        bod.courseendtime
+                    FROM {booking_optiondates} bod
+                    JOIN (
+                        SELECT id, text
+                        FROM {booking_options}
+                    ) bo
+                    ON bod.optionid = bo.id
+                UNION
+                    SELECT " .
+                    $DB->sql_concat("'option-'", "id") . " uniqueid, " .
+                    "id instanceid,
+                    'option' area,
+                    id optionid,
+                    text,
+                    coursestarttime,
+                    courseendtime
                     FROM {booking_options}
-                ) bo
-                ON bod.optionid = bo.id
-            UNION
-                SELECT " .
-                $DB->sql_concat("'option-'", "id") . " uniqueid, " .
-                "id instanceid,
-                'option' area,
-                id optionid,
-                text,
-                coursestarttime,
-                courseendtime
-                FROM {booking_options}";
+            ) s1
+            LEFT JOIN (
+                SELECT optionid, count(id) odcount
+                FROM {booking_optiondates}
+                GROUP BY optionid
+            ) s2
+            ON s1.optionid = s2.optionid";
 
         return $sql;
     }
