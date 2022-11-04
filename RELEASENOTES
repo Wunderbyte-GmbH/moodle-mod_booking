@@ -1,3 +1,9 @@
+7.6.3 (2022110400)
+* Improvement: Improved conflict handling for entities at same date.
+* Improvement: Better styling for customdates button.
+* Improvement: For new options automatically check the checkbox to save entities for all optiondates.
+* Bugfix: Fix entity conflicts for different areas (option / optiondate).
+
 7.6.2 (2022110200)
 * Bugfix: Fixed issue #213 - privacy provider get_contexts_for_userid() - MariaDB, SQL doesn't work.
 
