@@ -43,8 +43,7 @@ class conditions_info {
      * @param MoodleQuickForm $mform
      * @return void
      */
-    public static function add_conditions_to_mform(MoodleQuickForm &$mform,
-        array &$repeatedconditions, array &$repeateloptions) {
+    public static function add_conditions_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
 
         $conditions = self::get_conditions();
 
@@ -56,18 +55,35 @@ class conditions_info {
             $conditionsforselect[$shortclassname] = $condition->get_name_of_condition();
         }
 
-        $repeatedconditions[] = $mform->createElement('html', '<hr>');
-        $repeatedconditions[] = $mform->createElement('select', 'bookingcondition',
-                get_string('bookingcondition', 'mod_booking') . ' {no}', $conditionsforselect);
+        $mform->registerNoSubmitButton('btn_bookingruleconditiontype');
+        $buttonargs = array('style' => 'visibility:hidden;');
+        $categoryselect = [
+            $mform->createElement('select', 'bookingruleconditiontype',
+            get_string('bookingrulecondition', 'mod_booking'), $conditionsforselect),
+            $mform->createElement('submit', 'btn_bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'), $buttonargs)
+        ];
+        $mform->addGroup($categoryselect, 'bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'), [' '], false);
+        $mform->setType('btn_bookingruleconditiontype', PARAM_NOTAGS);
+
+        $tempdata = $mform->exportValues();
 
         foreach ($conditions as $condition) {
-            // For each condition, add the appropriate form fields.
-            $condition->add_condition_to_mform($mform, $repeatedconditions, $repeateloptions);
+
+            if ($tempdata && isset($tempdata['bookingruleconditiontypeid'])) {
+
+                $conditionname = $condition->get_name_of_condition();
+                if ($tempdata['bookingruleconditiontypeid']
+                    && $conditionname == get_string($tempdata['bookingruleconditiontypeid'], 'mod_booking')) {
+                    // For each rule, add the appropriate form fields.
+                    $condition->add_condition_to_mform($mform, $repeateloptions);
+                }
+            } else {
+                // We only render the first rule.
+                $condition->add_condition_to_mform($mform, $repeateloptions);
+                break;
+            }
         }
 
-        // Delete condition button.
-        $repeatedconditions[] = $mform->createElement('submit', 'deletebookingcondition',
-            get_string('deletebookingcondition', 'mod_booking'));
     }
 
     /**

@@ -43,74 +43,89 @@ class actions_info {
      * @param MoodleQuickForm $mform
      * @return void
      */
-    public static function add_actions_to_mform(MoodleQuickForm &$mform,
-        array &$repeatedrules, array &$repeateloptions) {
+    public static function add_actions_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
 
-        $rules = self::get_actions();
+        $actions = self::get_actions();
 
-        $rulesforselect = [];
-        foreach ($rules as $rule) {
-            $fullclassname = get_class($rule); // With namespace.
+        $actionsforselect = [];
+        foreach ($actions as $action) {
+            $fullclassname = get_class($action); // With namespace.
             $classnameparts = explode('\\', $fullclassname);
             $shortclassname = end($classnameparts); // Without namespace.
-            $rulesforselect[$shortclassname] = $rule->get_name_of_rule();
+            $actionsforselect[$shortclassname] = $action->get_name_of_action();
         }
 
-        $repeatedrules[] = $mform->createElement('html', '<hr>');
-        $repeatedrules[] = $mform->createElement('select', 'bookingrule',
-                get_string('bookingrule', 'mod_booking') . ' {no}', $rulesforselect);
+        $mform->registerNoSubmitButton('btn_bookingruleactiontype');
+        $buttonargs = array('style' => 'visibility:hidden;');
+        $categoryselect = [
+            $mform->createElement('select', 'bookingruleactiontype',
+            get_string('bookingruleaction', 'mod_booking'), $actionsforselect),
+            $mform->createElement('submit', 'btn_bookingruleactiontype', get_string('bookingruleaction', 'mod_booking'), $buttonargs)
+        ];
+        $mform->addGroup($categoryselect, 'bookingruleactiontype', get_string('bookingruleaction', 'mod_booking'), [' '], false);
+        $mform->setType('btn_bookingruleactiontype', PARAM_NOTAGS);
 
-        foreach ($rules as $rule) {
-            // For each rule, add the appropriate form fields.
-            $rule->add_rule_to_mform($mform, $repeatedrules, $repeateloptions);
+        $tempdata = $mform->exportValues();
+
+        foreach ($actions as $action) {
+
+            if ($tempdata && isset($tempdata['bookingruleactiontypeid'])) {
+
+                $actionname = $action->get_name_of_action();
+                if ($tempdata['bookingruleactiontypeid']
+                    && $actionname == get_string($tempdata['bookingruleactiontypeid'], 'mod_booking')) {
+                    // For each rule, add the appropriate form fields.
+                    $action->add_action_to_mform($mform, $repeateloptions);
+                }
+            } else {
+                // We only render the first rule.
+                $action->add_action_to_mform($mform, $repeateloptions);
+                break;
+            }
         }
-
-        // Delete rule button.
-        $repeatedrules[] = $mform->createElement('submit', 'deletebookingrule',
-            get_string('deletebookingrule', 'mod_booking'));
     }
 
     /**
-     * Get all booking rules.
-     * @return array an array of booking rules (instances of class booking_rule).
+     * Get all booking rules actions.
+     * @return array an array of booking rule actions (instances of class booking_rule_action).
      */
-    public static function get_rules() {
+    public static function get_actions() {
         global $CFG;
 
         // First, we get all the available rules from our directory.
-        $path = $CFG->dirroot . '/mod/booking/classes/booking_rules/rules/*.php';
+        $path = $CFG->dirroot . '/mod/booking/classes/booking_rules/actions/*.php';
         $filelist = glob($path);
 
-        $rules = [];
+        $actions = [];
 
         // We just want filenames, as they are also the classnames.
         foreach ($filelist as $filepath) {
             $path = pathinfo($filepath);
-            $filename = 'mod_booking\booking_rules\rules\\' . $path['filename'];
+            $filename = 'mod_booking\booking_rules\actions\\' . $path['filename'];
 
             // We instantiate all the classes, because we need some information.
             if (class_exists($filename)) {
                 $instance = new $filename();
-                $rules[] = $instance;
+                $actions[] = $instance;
             }
         }
 
-        return $rules;
+        return $actions;
     }
 
     /**
-     * Save all booking rules.
+     * Save all booking rule acitons.
      * @param stdClass &$data reference to the form data
      * @return void
      */
-    public static function save_booking_rules(stdClass &$data) {
+    public static function save_booking_actions(stdClass &$data) {
         global $DB;
         // Truncate the table.
         $DB->delete_records('booking_rules');
         // Then save all rules specified in the form.
-        $rules = self::get_rules();
-        foreach ($rules as $rule) {
-            $rule::save_rules($data);
+        $actions = self::get_actions();
+        foreach ($actions as $action) {
+            $action::save_actions($data);
         }
         return;
     }
@@ -137,11 +152,11 @@ class actions_info {
      * we need to check if any rules need to be applied or changed.
      * @param int $optionid
      */
-    public static function check_rules_for_option(int $optionid) {
+    public static function check_actions_for_option(int $optionid) {
         global $DB;
         if ($records = $DB->get_records('booking_rules')) {
             foreach ($records as $record) {
-                $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $record->rulename;
+                $rulefullpath = "\\mod_booking\\booking_rules\\actions\\" . $record->rulename;
                 $rule = new $rulefullpath;
                 // Important: Load the rule data from JSON into the rule instance.
                 $rule->set_ruledata($record);
@@ -156,7 +171,7 @@ class actions_info {
      * we need to check if any rules need to be applied or changed.
      * @param int $userid
      */
-    public static function check_rules_for_user(int $userid) {
+    public static function check_actions_for_user(int $userid) {
         global $DB;
         if ($records = $DB->get_records('booking_rules')) {
             foreach ($records as $record) {

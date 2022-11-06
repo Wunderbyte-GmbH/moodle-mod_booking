@@ -19,18 +19,23 @@ namespace mod_booking\form;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once("$CFG->libdir/formslib.php");
 
+use context;
+use context_system;
+use core_form\dynamic_form;
 use mod_booking\booking_rules\rules_info;
+use moodle_url;
 use moodleform;
+use MoodleQuickForm;
 
 /**
- * Dynamic optiondate form.
+ * Dynamic rules form.
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer
+ * @package mod_booking
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class rulesform extends moodleform {
+class rulesform extends dynamic_form {
 
     /**
      * {@inheritdoc}
@@ -41,27 +46,49 @@ class rulesform extends moodleform {
 
         $mform = $this->_form;
 
-        // Repeated elements.
-        $repeatedrules = [];
+        $customdata = $this->_customdata;
+        $ajaxformdata = $this->_ajaxformdata;
 
-        // Options to store help button texts etc.
-        $repeateloptions = [];
-
-        rules_info::add_rules_to_mform($mform, $repeatedrules, $repeateloptions);
-
-        // Get number of existing rules from DB.
-        if ($rulerecords = $DB->get_records('booking_rules')) {
-            $numberofrulestoshow = count($rulerecords);
-        } else {
-            $numberofrulestoshow = 0;
+        // If we open an existing rule, we need to save the id right away.
+        if (!empty($ajaxformdata['id'])) {
+            $mform->addElement('hidden', 'id', $ajaxformdata['id']);
         }
 
-        $this->repeat_elements($repeatedrules, $numberofrulestoshow, $repeateloptions,
-            'rulesno', 'addbookingrule', 1, get_string('addbookingrule', 'mod_booking'), true,
-            'deletebookingrule');
+        // When a specific rule is chosen, we can load the right handlers already here.
+        // Also, a change in rule, condition or action type will result in the call of different...
+        // ... handlers in the definition.
+        // Therefore, we need to load all these informations here.
+        // Subhandlers won't have the values via _ajaxformdata, so we need to add hidden elements to mform.
 
+        $this->preload_defintion_values($mform);
+
+        $repeateloptions = [];
+
+        rules_info::add_rules_to_mform($mform, $repeateloptions);
+
+        // As this form is called normally from a modal, we don't need the action buttons.
         // Add submit button to create optiondate series. (Use $this, not $mform).
-        $this->add_action_buttons(false);
+        // $this->add_action_buttons();
+    }
+
+    /**
+     * Process data for dynamic submission
+     * @return object $data
+     */
+    public function process_dynamic_submission() {
+        $data = parent::get_data();
+        return $data;
+    }
+
+    /**
+     * Set data for dynamic submission.
+     * @return void
+     */
+    public function set_data_for_dynamic_submission(): void {
+
+        $customdata = $this->_customdata;
+        $ajaxformdata = $this->_ajaxformdata;
+
     }
 
     /**
@@ -71,42 +98,58 @@ class rulesform extends moodleform {
      * @see moodleform::validation()
      */
     public function validation($data, $files) {
-        $errors = array();
-        foreach ($data['bookingrule'] as $idx => $value) {
-            if (isset($data['rule_sendmail_daysbefore_days'][$idx]) &&
-                $data['rule_sendmail_daysbefore_days'][$idx] == '0') {
-                $errors["rule_sendmail_daysbefore_days[$idx]"] = get_string('error:nofieldchosen', 'mod_booking');
-            }
-            if (isset($data['rule_sendmail_daysbefore_datefield'][$idx]) &&
-                $data['rule_sendmail_daysbefore_datefield'][$idx] == '0') {
-                $errors["rule_sendmail_daysbefore_datefield[$idx]"] = get_string('error:nofieldchosen', 'mod_booking');
-            }
-            if (isset($data['rule_sendmail_daysbefore_cpfield'][$idx]) &&
-                $data['rule_sendmail_daysbefore_cpfield'][$idx] == '0') {
-                $errors["rule_sendmail_daysbefore_cpfield[$idx]"] = get_string('error:nofieldchosen', 'mod_booking');
-            }
-            if (isset($data['rule_sendmail_daysbefore_optionfield'][$idx]) &&
-                $data['rule_sendmail_daysbefore_optionfield'][$idx] == '0') {
-                $errors["rule_sendmail_daysbefore_optionfield[$idx]"] = get_string('error:nofieldchosen', 'mod_booking');
-            }
-            if (isset($data['rule_sendmail_daysbefore_subject'][$idx]) &&
-                empty($data['rule_sendmail_daysbefore_subject'][$idx])) {
-                $errors["rule_sendmail_daysbefore_subject[$idx]"] = get_string('error:mustnotbeempty', 'mod_booking');
-            }
-            if (isset($data['rule_sendmail_daysbefore_template'][$idx]['text']) &&
-                empty($data['rule_sendmail_daysbefore_template'][$idx]['text'])) {
-                $errors["rule_sendmail_daysbefore_template_group[$idx]"] = get_string('error:mustnotbeempty', 'mod_booking');
-            }
-        }
+        $errors = [];
+
         return $errors;
     }
 
+
     /**
-     * Get data.
-     * @return object $data
+     * Get page URL for dynamic submission.
+     * @return moodle_url
      */
-    public function get_data() {
-        $data = parent::get_data();
-        return $data;
+    protected function get_page_url_for_dynamic_submission(): moodle_url {
+        return new moodle_url('/mod/booking/edit_rules.php');
+    }
+
+    /**
+     * Get context for dynamic submission.
+     * @return context
+     */
+    protected function get_context_for_dynamic_submission(): context {
+        return context_system::instance();
+    }
+
+    /**
+     * Check access for dynamic submission.
+     * @return void
+     */
+    protected function check_access_for_dynamic_submission(): void {
+        require_capability('moodle/site:config', context_system::instance());
+    }
+
+    /**
+     * This function adds hidden settings to mform, depending on submitted or preloaded data.
+     *
+     * @param MoodleQuickForm $mform
+     * @return void
+     */
+    private function preload_defintion_values(MoodleQuickForm &$mform) {
+
+        $data = $this->_ajaxformdata;
+        // If we have just submitted via nosubmit button, we need to set the right id.
+        if (!empty($data["bookingruletype"])) {
+            $mform->addElement('hidden', 'bookingruletypeid', $data["bookingruletype"]);
+        }
+
+        if (!empty($data["bookingruleconditiontype"])) {
+            $mform->addElement('hidden', 'bookingruleconditiontypeid', $data["bookingruleconditiontype"]);
+        }
+
+        if (!empty($data["bookingruleactiontype"])) {
+            $mform->addElement('hidden', 'bookingruleactiontypeid', $data["bookingruleactiontype"]);
+        }
+
+        // TODO: Preload values from saved booking rule.
     }
 }

@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_booking\booking_rules\rules;
+namespace mod_booking\booking_rules\actions;
 
 use mod_booking\booking_rules\booking_rule;
+use mod_booking\booking_rules\booking_rule_action;
 use mod_booking\singleton_service;
 use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
@@ -27,14 +28,14 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Rule to send a mail notification a specified number of days before a chosen date.
+ * action how to identify concerned users by matching booking option field and user profile field.
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Bernhard Fischer
+ * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class rule_sendmail_daysbefore implements booking_rule {
+class send_mail2 implements booking_rule_action {
 
     /** @var string $rulename */
     public $rulename = null;
@@ -65,9 +66,9 @@ class rule_sendmail_daysbefore implements booking_rule {
 
     /**
      * Load json data from DB into the object.
-     * @param stdClass $record a rule record from DB
+     * @param stdClass $record a rule action record from DB
      */
-    public function set_ruledata(stdClass $record) {
+    public function set_actiondata(stdClass $record) {
         $this->rulename = $record->rulename;
         $this->rulejson = $record->rulejson;
         $ruleobj = json_decode($record->rulejson);
@@ -84,7 +85,7 @@ class rule_sendmail_daysbefore implements booking_rule {
      * Load data directly from JSON.
      * @param string $json a json string for a booking rule
      */
-    public function set_ruledata_from_json(string $json) {
+    public function set_actiondata_from_json(string $json) {
         $this->rulejson = $json;
         $ruleobj = json_decode($json);
         $this->rulename = $ruleobj->rulename;
@@ -104,110 +105,13 @@ class rule_sendmail_daysbefore implements booking_rule {
      * @param int $optionid
      * @return void
      */
-    public function add_rule_to_mform(MoodleQuickForm &$mform,
-        array &$repeatedrules, array &$repeateloptions) {
+    public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
         global $DB;
 
-        $numberofdaysbefore = [
-            0 => get_string('choose...', 'mod_booking'),
-            1 => '1',
-            2 => '2',
-            3 => '3',
-            4 => '4',
-            5 => '5',
-            6 => '6',
-            7 => '7',
-            8 => '8',
-            9 => '9',
-            10 => '10',
-            15 => '15',
-            20 => '20',
-            25 => '25',
-            30 => '30'
-        ];
-
-        // Get a list of allowed option fields (only date fields allowed).
-        $datefields = [
-            '0' => get_string('choose...', 'mod_booking'),
-            'coursestarttime' => get_string('rule_optionfield_coursestarttime', 'mod_booking'),
-            'courseendtime' => get_string('rule_optionfield_courseendtime', 'mod_booking'),
-            'bookingopeningtime' => get_string('rule_optionfield_bookingopeningtime', 'mod_booking'),
-            'bookingclosingtime' => get_string('rule_optionfield_bookingclosingtime', 'mod_booking')
-        ];
-
-        // Get a list of allowed option fields to compare with custom user profile field.
-        // Currently we only use fields containing VARCHAR in DB.
-        $allowedoptionfields = [
-            '0' => get_string('choose...', 'mod_booking'),
-            'text' => get_string('rule_optionfield_text', 'mod_booking'),
-            'location' => get_string('rule_optionfield_location', 'mod_booking'),
-            'address' => get_string('rule_optionfield_address', 'mod_booking')
-        ];
-
-        // Workaround: We need a group to get hideif to work.
-        $groupitems = [];
-        $groupitems[] = $mform->createElement('static', 'rule_sendmail_daysbefore_desc', '',
-            get_string('rule_sendmail_daysbefore_desc', 'mod_booking'));
-        $repeatedrules[] = $mform->createElement('group', 'rule_sendmail_daysbefore_desc_group', '',
-            $groupitems, null, false);
-        $repeateloptions['rule_sendmail_daysbefore_desc_group']['hideif'] = array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
-
-        // Number of days before.
-        $repeatedrules[] = $mform->createElement('select', 'rule_sendmail_daysbefore_days',
-            get_string('rule_days', 'mod_booking'), $numberofdaysbefore);
-        $repeateloptions['rule_sendmail_daysbefore_days']['type'] = PARAM_TEXT;
-        $repeateloptions['rule_sendmail_daysbefore_days']['hideif'] = array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
-
-        // Date field needed in combination with the number of days before.
-        $repeatedrules[] = $mform->createElement('select', 'rule_sendmail_daysbefore_datefield',
-            get_string('rule_datefield', 'mod_booking'), $datefields);
-        $repeateloptions['rule_sendmail_daysbefore_datefield']['type'] = PARAM_TEXT;
-        $repeateloptions['rule_sendmail_daysbefore_datefield']['hideif'] = array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
-
-        // Custom user profile field to be checked.
-        $customuserprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
-        if (!empty($customuserprofilefields)) {
-            $customuserprofilefieldsarray = [];
-            $customuserprofilefieldsarray[0] = get_string('choose...', 'mod_booking');
-
-            // Create an array of key => value pairs for the dropdown.
-            foreach ($customuserprofilefields as $customuserprofilefield) {
-                $customuserprofilefieldsarray[$customuserprofilefield->shortname] = $customuserprofilefield->name;
-            }
-
-            $repeatedrules[] = $mform->createElement('select', 'rule_sendmail_daysbefore_cpfield',
-                get_string('rule_customprofilefield', 'mod_booking'), $customuserprofilefieldsarray);
-            $repeateloptions['rule_sendmail_daysbefore_cpfield']['hideif'] =
-                array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
-
-            $operators = [
-                '=' => get_string('equals', 'mod_booking'),
-                '~' => get_string('contains', 'mod_booking')
-            ];
-            $repeatedrules[] = $mform->createElement('select', 'rule_sendmail_daysbefore_operator',
-                get_string('rule_operator', 'mod_booking'), $operators);
-            $repeateloptions['rule_sendmail_daysbefore_operator']['hideif'] =
-                array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
-
-            $repeatedrules[] = $mform->createElement('select', 'rule_sendmail_daysbefore_optionfield',
-                get_string('rule_optionfield', 'mod_booking'), $allowedoptionfields);
-            $repeateloptions['rule_sendmail_daysbefore_optionfield']['hideif'] =
-                array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
-        }
-
         // Mail subject.
-        $repeatedrules[] = $mform->createElement('text', 'rule_sendmail_daysbefore_subject', get_string('subject', 'core'));
+        $mform->addElement('text', 'action_sendmail', get_string('subject', 'core'));
         $repeateloptions['rule_sendmail_daysbefore_subject']['type'] = PARAM_TEXT;
         $repeateloptions['rule_sendmail_daysbefore_subject']['hideif'] = array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
-
-        // Mail template.
-        // Workaround: We need a group to get hideif to work.
-        $editorgroup = [];
-        $editorgroup[] = $mform->createElement('editor', 'rule_sendmail_daysbefore_template',
-            '', ['rows' => 20], ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]);
-        $repeatedrules[] = $mform->createElement('group', 'rule_sendmail_daysbefore_template_group',
-            get_string('rule_mailtemplate', 'mod_booking'), $editorgroup, null, false);
-        $repeateloptions['rule_sendmail_daysbefore_template_group']['hideif'] = ['bookingrule', 'neq', 'rule_sendmail_daysbefore'];
 
     }
 
@@ -215,15 +119,15 @@ class rule_sendmail_daysbefore implements booking_rule {
      * Get the name of the rule.
      * @return string the name of the rule
      */
-    public function get_name_of_rule() {
-        return get_string('rule_sendmail_daysbefore', 'mod_booking');
+    public function get_name_of_action() {
+        return get_string('send_mail2', 'mod_booking');
     }
 
     /**
      * Save the JSON for all sendmail_daysbefore rules defined in form.
      * @param stdClass &$data form data reference
      */
-    public static function save_rules(stdClass &$data) {
+    public static function save_actions(stdClass &$data) {
         global $DB;
         foreach ($data->bookingrule as $idx => $rulename) {
             if ($rulename == 'rule_sendmail_daysbefore') {
@@ -363,7 +267,7 @@ class rule_sendmail_daysbefore implements booking_rule {
      * @param int $nextruntime
      * @return bool true if the rule still applies, false if not
      */
-    public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime): bool {
+    public function check_if_action_still_applies(int $optionid, int $userid, int $nextruntime): bool {
         global $DB;
 
         $rulestillapplies = false;

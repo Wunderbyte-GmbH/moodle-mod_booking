@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\form\rulesform;
 use mod_booking\utils\wb_payment;
@@ -43,50 +44,28 @@ $PAGE->set_title(
 );
 
 $PAGE->activityheader->disable();
+$output = $PAGE->get_renderer('booking');
+
+echo $output->header();
+echo $output->heading(get_string('bookingrules', 'mod_booking'));
 
 // Check if PRO version is active.
 if (wb_payment::is_currently_valid_licensekey()) {
 
-    $rulesform = new rulesform();
 
-    $output = $PAGE->get_renderer('mod_booking');
+    $borules = new booking_rules();
+    echo $borules->return_rendered_list_of_saved_rules();
 
-    if ($data = $rulesform->get_data()) {
-
-        rules_info::save_booking_rules($data);
-
-        // Now execute the rules.
-        rules_info::execute_booking_rules();
-
-        redirect($url, get_string('allchangessaved', 'mod_booking'), 3);
-    } else {
-
-        echo $output->header();
-        echo $output->heading(get_string('bookingrules', 'mod_booking'));
-
-        $defaultvalues = new stdClass();
-
-        // Defaults for booking rules.
-        if ($rulesfromdb = $DB->get_records('booking_rules')) {
-            foreach ($rulesfromdb as $rulefromdb) {
-                $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $rulefromdb->rulename;
-                $rule = new $rulefullpath;
-                $rule->set_defaults($defaultvalues, $rulefromdb);
-            }
-        }
-
-        // Processed if form is submitted but data not validated & form should be redisplayed OR first display of form.
-        $rulesform->set_data($defaultvalues);
-        $rulesform->display();
-        echo $output->footer();
-    }
 } else {
-    echo $output->header();
-    echo $output->heading(get_string('bookingrules', 'mod_booking'));
 
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');
-
-    echo $output->footer();
 }
 
+$PAGE->requires->js_call_amd(
+    'mod_booking/dynamicrulesform',
+    'init',
+    ['ul.booking-rules-container']
+);
+
+echo $output->footer();
 

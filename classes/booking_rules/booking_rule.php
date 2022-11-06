@@ -45,11 +45,10 @@ interface booking_rule {
     /**
      * Adds the form elements for this rule to the provided mform.
      * @param MoodleQuickForm $mform the mform where the rule should be added
-     * @param array $repeatedrules repeated rules
      * @param array $repateloptions options for repeated elements
      * @return void
      */
-    public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeatedrules, array &$repeateloptions);
+    public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions);
 
     /**
      * Gets the human-readable name of a rule (localized).

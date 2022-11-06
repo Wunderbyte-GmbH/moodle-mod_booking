@@ -630,4 +630,14 @@ class renderer extends plugin_renderer_base {
         $o .= $this->render_from_template('mod_booking/button_notifyme', $data);
         return $o;
     }
+
+    /**
+     * Render ruleslist
+     * @param $data array
+     * @return string
+     */
+    public function render_ruleslist($data) {
+        $data = $data->export_for_template($this);
+        return $this->render_from_template('mod_booking/ruleslist', $data);
+    }
 }

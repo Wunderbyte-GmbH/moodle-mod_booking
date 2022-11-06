@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Base class for a single booking option availability condition.
+ * Base class for a single booking option availability action.
  *
- * All bo condition types must extend this class.
+ * All bo action types must extend this class.
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH
@@ -31,41 +31,41 @@ use MoodleQuickForm;
 use stdClass;
 
 /**
- * Base class for a single booking rule condition.
+ * Base class for a single booking rule action.
  *
- * All booking rule conditions must extend this interface.
+ * All booking rule actions must extend this interface.
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-interface booking_rule_condition {
+interface booking_rule_action {
 
     /**
-     * Adds the form elements for this rule condition to the provided mform.
-     * @param MoodleQuickForm $mform the mform where the rule condition should be added
-     * @param array $repeatedcondition repeated rule conditions
+     * Adds the form elements for this rule action to the provided mform.
+     * @param MoodleQuickForm $mform the mform where the rule action should be added
+     * @param array $repeatedaction repeated rule actions
      * @param array $repateloptions options for repeated elements
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform, array &$repeateloptions);
+    public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions);
 
     /**
-     * Gets the human-readable name of a rule condition (localized).
-     * @return string the name of the rule condition
+     * Gets the human-readable name of a rule action (localized).
+     * @return string the name of the rule action
      */
-    public function get_name_of_condition();
+    public function get_name_of_action();
 
     /**
-     * Gets the JSON for the rule conditions to be stored in DB.
+     * Gets the JSON for the rule actions to be stored in DB.
      * @param stdClass &$data form data reference
-     * @return string the json for the rule condition
+     * @return string the json for the rule action
      */
-    public static function save_conditions(stdClass &$data);
+    public static function save_actions(stdClass &$data);
 
     /**
-     * Sets the rule condition defaults when loading the form.
+     * Sets the rule action defaults when loading the form.
      * @param stdClass &$data reference to the default values
      * @param stdClass $record a record from booking_rules
      */
@@ -73,18 +73,18 @@ interface booking_rule_condition {
 
     /**
      * Load json data form DB into the object.
-     * @param stdClass $record a rule condition record from DB
+     * @param stdClass $record a rule action record from DB
      */
-    public function set_conditiondata(stdClass $record);
+    public function set_actiondata(stdClass $record);
 
     /**
      * Load data directly from JSON.
-     * @param string $json a json string for a booking rule condition
+     * @param string $json a json string for a booking rule action
      */
-    public function set_conditiondata_from_json(string $json);
+    public function set_actiondata_from_json(string $json);
 
     /**
-     * Execute the rule condition.
+     * Execute the rule action.
      * @param int $optionid optional
      * @param int $userid optional
      */
@@ -92,13 +92,13 @@ interface booking_rule_condition {
 
     /**
      * This function is called on execution of adhoc tasks,
-     * so we can see if the rule condition still applies and the adhoc task
+     * so we can see if the rule action still applies and the adhoc task
      * shall really be executed.
      *
      * @param int $optionid
      * @param int $userid
      * @param int $nextruntime
-     * @return bool true if the rule condition still applies, false if not
+     * @return bool true if the rule action still applies, false if not
      */
-    public function check_if_condition_still_applies(int $optionid, int $userid, int $nextruntime): bool;
+    public function check_if_action_still_applies(int $optionid, int $userid, int $nextruntime): bool;
 }

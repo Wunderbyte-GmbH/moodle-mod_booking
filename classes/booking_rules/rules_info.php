@@ -25,6 +25,7 @@
 
 namespace mod_booking\booking_rules;
 
+use Exception;
 use MoodleQuickForm;
 use stdClass;
 
@@ -43,9 +44,9 @@ class rules_info {
      * @param MoodleQuickForm $mform
      * @return void
      */
-    public static function add_rules_to_mform(MoodleQuickForm &$mform,
-        array &$repeatedrules, array &$repeateloptions) {
+    public static function add_rules_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
 
+        // First, get all the type of rules there are.
         $rules = self::get_rules();
 
         $rulesforselect = [];
@@ -56,18 +57,42 @@ class rules_info {
             $rulesforselect[$shortclassname] = $rule->get_name_of_rule();
         }
 
-        $repeatedrules[] = $mform->createElement('html', '<hr>');
-        $repeatedrules[] = $mform->createElement('select', 'bookingrule',
-                get_string('bookingrule', 'mod_booking') . ' {no}', $rulesforselect);
+        $mform->addElement('html', '<hr>');
+
+        $mform->registerNoSubmitButton('btn_bookingruletype');
+        $buttonargs = array('style' => 'visibility:hidden;');
+        $categoryselect = [
+            $mform->createElement('select', 'bookingruletype',
+            get_string('bookingrule', 'mod_booking'), $rulesforselect),
+            $mform->createElement('submit', 'btn_bookingruletype', get_string('bookingrule', 'mod_booking'), $buttonargs)
+        ];
+        $mform->addGroup($categoryselect, 'bookingruletype', get_string('bookingrule', 'mod_booking'), [' '], false);
+        $mform->setType('btn_bookingruletype', PARAM_NOTAGS);
+
+        $tempdata = $mform->exportValues();
 
         foreach ($rules as $rule) {
-            // For each rule, add the appropriate form fields.
-            $rule->add_rule_to_mform($mform, $repeatedrules, $repeateloptions);
+
+            if ($tempdata && isset($tempdata['bookingruletypeid'])) {
+
+                $rulename = $rule->get_name_of_rule();
+                if ($tempdata['bookingruletypeid']
+                    && $rulename == get_string($tempdata['bookingruletypeid'], 'mod_booking')) {
+                    // For each rule, add the appropriate form fields.
+                    $rule->add_rule_to_mform($mform, $repeateloptions);
+                }
+            } else {
+                // We only render the first rule.
+                $rule->add_rule_to_mform($mform, $repeateloptions);
+                break;
+            }
         }
 
-        // Delete rule button.
-        $repeatedrules[] = $mform->createElement('submit', 'deletebookingrule',
-            get_string('deletebookingrule', 'mod_booking'));
+        // At this point, we also load the conditions.
+        conditions_info::add_conditions_to_mform($mform, $repeateloptions);
+
+        // Finally, we load the actions.
+        actions_info::add_actions_to_mform($mform, $repeateloptions);
     }
 
     /**
