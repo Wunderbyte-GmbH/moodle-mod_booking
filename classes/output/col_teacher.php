@@ -56,7 +56,6 @@ class col_teacher implements renderable, templatable {
             // Set URL for each teacher.
             $teacherurl = new moodle_url('/local/musi/teacher.php', ['teacherid' => $teacher->userid]);
             $teacher->teacherurl = $teacherurl->out(false);
-
             $this->teachers[] = (array)$teacher;
         }
     }
