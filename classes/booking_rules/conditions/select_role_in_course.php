@@ -110,43 +110,17 @@ class select_role_in_course implements booking_rule_condition {
 
         // Get a list of allowed option fields to compare with custom user profile field.
         // Currently we only use fields containing VARCHAR in DB.
-        $allowedoptionfields = [
+        $courseroles = [
             '0' => get_string('choose...', 'mod_booking'),
             'text' => get_string('rule_optionfield_text', 'mod_booking'),
             'location' => get_string('rule_optionfield_location', 'mod_booking'),
             'address' => get_string('rule_optionfield_address', 'mod_booking')
         ];
 
-        // Custom user profile field to be checked.
-        $customuserprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
-        if (!empty($customuserprofilefields)) {
-            $customuserprofilefieldsarray = [];
-            $customuserprofilefieldsarray[0] = get_string('choose...', 'mod_booking');
-
-            // Create an array of key => value pairs for the dropdown.
-            foreach ($customuserprofilefields as $customuserprofilefield) {
-                $customuserprofilefieldsarray[$customuserprofilefield->shortname] = $customuserprofilefield->name;
-            }
-
-            $mform->addElement('select', 'rule_sendmail_daysbefore_cpfield',
-                get_string('rule_customprofilefield', 'mod_booking'), $customuserprofilefieldsarray);
-            $repeateloptions['rule_sendmail_daysbefore_cpfield']['hideif'] =
-                array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
-
-            $operators = [
-                '=' => get_string('equals', 'mod_booking'),
-                '~' => get_string('contains', 'mod_booking')
-            ];
-            $mform->addElement('select', 'rule_sendmail_daysbefore_operator',
-                get_string('rule_operator', 'mod_booking'), $operators);
-            $repeateloptions['rule_sendmail_daysbefore_operator']['hideif'] =
-                array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
-
-            $mform->addElement('select', 'rule_sendmail_daysbefore_optionfield',
-                get_string('rule_optionfield', 'mod_booking'), $allowedoptionfields);
-            $repeateloptions['rule_sendmail_daysbefore_optionfield']['hideif'] =
-                array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
-        }
+        $mform->addElement('select', 'condition_select_role_in_course_courseroles',
+                get_string('condition_select_role_in_course_courseroles', 'mod_booking'), $courseroles);
+            $repeateloptions['condition_select_role_in_course_courseroles']['hideif'] =
+                array('bookingrulecondition', 'neq', 'select_role_in_course');
 
     }
 
@@ -154,7 +128,7 @@ class select_role_in_course implements booking_rule_condition {
      * Get the name of the rule.
      * @return string the name of the rule
      */
-    public function get_name_of_condition() {
+    public function get_name_of_condition($localized = true) {
         return get_string('select_role_in_course', 'mod_booking');
     }
 
@@ -162,27 +136,22 @@ class select_role_in_course implements booking_rule_condition {
      * Save the JSON for all sendmail_daysbefore rules defined in form.
      * @param stdClass &$data form data reference
      */
-    public static function save_conditions(stdClass &$data) {
+    public function save_condition(stdClass &$data) {
         global $DB;
-        foreach ($data->bookingrule as $idx => $rulename) {
-            if ($rulename == 'rule_sendmail_daysbefore') {
-                $ruleobj = new stdClass;
-                $ruleobj->rulename = $data->bookingrule[$idx];
-                $ruleobj->days = $data->rule_sendmail_daysbefore_days[$idx];
-                $ruleobj->datefield = $data->rule_sendmail_daysbefore_datefield[$idx];
-                $ruleobj->cpfield = $data->rule_sendmail_daysbefore_cpfield[$idx];
-                $ruleobj->operator = $data->rule_sendmail_daysbefore_operator[$idx];
-                $ruleobj->optionfield = $data->rule_sendmail_daysbefore_optionfield[$idx];
-                $ruleobj->subject = $data->rule_sendmail_daysbefore_subject[$idx];
-                $ruleobj->template = $data->rule_sendmail_daysbefore_template[$idx]['text'];
 
-                $record = new stdClass;
-                $record->rulename = $data->bookingrule[$idx];
-                $record->rulejson = json_encode($ruleobj);
-
-                $DB->insert_record('booking_rules', $record);
-            }
+        if (!isset($data->rulejson)) {
+            $jsonobject = new stdClass();
+        } else {
+            $jsonobject = json_decode($data->rulejson);
         }
+
+        $jsonobject->name = $data->name ?? $this->rulename;
+        $jsonobject->rulename = $this->rulename;
+        $jsonobject->ruledata = new stdClass();
+        $jsonobject->ruledata->days = $data->days ?? 0;
+        $jsonobject->ruledata->datefield = $data->datefield ?? '';
+
+        $data->rulejson = json_encode($jsonobject);
     }
 
     /**

@@ -116,10 +116,11 @@ class send_mail2 implements booking_rule_action {
     }
 
     /**
-     * Get the name of the rule.
+     * Get the name of the rule action.
+     * @param boolean $localized
      * @return string the name of the rule
      */
-    public function get_name_of_action() {
+    public function get_name_of_action($localized = true) {
         return get_string('send_mail2', 'mod_booking');
     }
 
@@ -127,27 +128,22 @@ class send_mail2 implements booking_rule_action {
      * Save the JSON for all sendmail_daysbefore rules defined in form.
      * @param stdClass &$data form data reference
      */
-    public static function save_actions(stdClass &$data) {
+    public function save_action(stdClass &$data) {
         global $DB;
-        foreach ($data->bookingrule as $idx => $rulename) {
-            if ($rulename == 'rule_sendmail_daysbefore') {
-                $ruleobj = new stdClass;
-                $ruleobj->rulename = $data->bookingrule[$idx];
-                $ruleobj->days = $data->rule_sendmail_daysbefore_days[$idx];
-                $ruleobj->datefield = $data->rule_sendmail_daysbefore_datefield[$idx];
-                $ruleobj->cpfield = $data->rule_sendmail_daysbefore_cpfield[$idx];
-                $ruleobj->operator = $data->rule_sendmail_daysbefore_operator[$idx];
-                $ruleobj->optionfield = $data->rule_sendmail_daysbefore_optionfield[$idx];
-                $ruleobj->subject = $data->rule_sendmail_daysbefore_subject[$idx];
-                $ruleobj->template = $data->rule_sendmail_daysbefore_template[$idx]['text'];
 
-                $record = new stdClass;
-                $record->rulename = $data->bookingrule[$idx];
-                $record->rulejson = json_encode($ruleobj);
-
-                $DB->insert_record('booking_rules', $record);
-            }
+        if (!isset($data->rulejson)) {
+            $jsonobject = new stdClass();
+        } else {
+            $jsonobject = json_decode($data->rulejson);
         }
+
+        $jsonobject->name = $data->name ?? $this->rulename;
+        $jsonobject->rulename = $this->rulename;
+        $jsonobject->ruledata = new stdClass();
+        $jsonobject->ruledata->days = $data->days ?? 0;
+        $jsonobject->ruledata->datefield = $data->datefield ?? '';
+
+        $data->rulejson = json_encode($jsonobject);
     }
 
     /**

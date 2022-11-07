@@ -151,17 +151,18 @@ class rule_react_on_event implements booking_rule {
 
     /**
      * Get the name of the rule.
-     * @return string the name of the rule
+     * @param boolean $localized
+     * @return void
      */
-    public function get_name_of_rule() {
-        return get_string('rule_react_on_event', 'mod_booking');
+    public function get_name_of_rule($localized = true) {
+        return $localized ? get_string('rule_react_on_event', 'mod_booking') : 'rule_react_on_event';
     }
 
     /**
      * Save the JSON for all sendmail_daysbefore rules defined in form.
      * @param stdClass &$data form data reference
      */
-    public static function save_rules(stdClass &$data) {
+    public function save_rule(stdClass &$data) {
         global $DB;
         foreach ($data->bookingrule as $idx => $rulename) {
             if ($rulename == 'rule_daysbefore') {

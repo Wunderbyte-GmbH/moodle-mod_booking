@@ -2037,16 +2037,20 @@ $string['rule_sendmail_cpf_desc'] = 'Choose an event that should trigger the "Se
  (you can use placeholders like {bookingdetails}) and define to which users the e-mail should be sent.
   Example: All users having the value "Vienna center" in a custom user profile field called "Study center".';
 
-$string['rule_daysbefore'] = 'Send e-mail n days before a certain date';
-$string['rule_daysbefore_desc'] = 'Choose a date field of booking options and the number of days BEFORE that date
- when an e-mail should be sent. Then choose a field of the option which should match (or be contained by) a custom user profile field of the user.';
+$string['rule_daysbefore'] = 'Trigger n days before a certain date';
+$string['rule_daysbefore_desc'] = 'Choose a date field of booking options and the number of days BEFORE that date.';
 $string['rule_react_on_event'] = "React on event";
 
 $string['error:nofieldchosen'] = 'You have to choose a field.';
 $string['error:mustnotbeempty'] = 'Must not be empty.';
 
 // Booking rules conditions.
-$sring['match_bookingoption_and_userprofile_field'] = "Select users by matching field in booking option and user profile field";
+$string['rule_name'] = "Custom name for the rule";
+$string['bookingrulecondition'] = "Condition of the rule";
+$string['bookingruleaction'] = "Action of the rule";
+$string['match_userprofilefield'] = "Select users by matching field in booking option and user profile field.";
+$string['select_role_in_course'] = "Select users their role in the course of the chosen booking option.";
+$string['send_mail'] = "Send mail";
 
 $string['bookingcondition'] = "Condition";
 

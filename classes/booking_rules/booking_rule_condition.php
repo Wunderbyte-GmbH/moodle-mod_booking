@@ -53,16 +53,17 @@ interface booking_rule_condition {
 
     /**
      * Gets the human-readable name of a rule condition (localized).
+     * @param boolean $localized
      * @return string the name of the rule condition
      */
-    public function get_name_of_condition();
+    public function get_name_of_condition($localized = true);
 
     /**
-     * Gets the JSON for the rule conditions to be stored in DB.
+     * Gets the JSON for the rule condition to be stored in DB.
      * @param stdClass &$data form data reference
      * @return string the json for the rule condition
      */
-    public static function save_conditions(stdClass &$data);
+    public function save_condition(stdClass &$data);
 
     /**
      * Sets the rule condition defaults when loading the form.
@@ -85,10 +86,10 @@ interface booking_rule_condition {
 
     /**
      * Execute the rule condition.
-     * @param int $optionid optional
-     * @param int $userid optional
+     * @param array $records optional
+     * @return array
      */
-    public function execute(int $optionid = null, int $userid = null);
+    public function execute(array $records = null);
 
     /**
      * This function is called on execution of adhoc tasks,

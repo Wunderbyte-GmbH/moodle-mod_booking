@@ -52,16 +52,17 @@ interface booking_rule {
 
     /**
      * Gets the human-readable name of a rule (localized).
+     * @param boolean $localized
      * @return string the name of the rule
      */
-    public function get_name_of_rule();
+    public function get_name_of_rule($localized = true);
 
     /**
      * Gets the JSON for the rules to be stored in DB.
      * @param stdClass &$data form data reference
      * @return string the json for the rule
      */
-    public static function save_rules(stdClass &$data);
+    public function save_rule(stdClass &$data);
 
     /**
      * Sets the rule defaults when loading the form.

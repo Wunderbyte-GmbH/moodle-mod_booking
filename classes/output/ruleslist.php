@@ -47,6 +47,13 @@ class ruleslist implements renderable, templatable {
      */
     public function __construct(array $rules) {
 
+        // First, create the new rule button.
+        $this->rules[] = [
+            'rulename' => get_string('addbookingrule', 'mod_booking'),
+            'id' => 0,
+            'bookingid' => 0
+        ];
+
         foreach ($rules as $rule) {
             $this->rules[] = (array)$rule;
         }

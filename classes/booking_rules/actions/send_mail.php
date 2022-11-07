@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class send_mail implements booking_rule_action {
 
     /** @var string $rulename */
-    public $rulename = null;
+    public $actionname = 'send_mail';
 
     /** @var string $rulejson */
     public $rulejson = null;
@@ -69,16 +69,7 @@ class send_mail implements booking_rule_action {
      * @param stdClass $record a rule action record from DB
      */
     public function set_actiondata(stdClass $record) {
-        $this->rulename = $record->rulename;
-        $this->rulejson = $record->rulejson;
-        $ruleobj = json_decode($record->rulejson);
-        $this->days = (int) $ruleobj->days;
-        $this->datefield = $ruleobj->datefield;
-        $this->cpfield = $ruleobj->cpfield;
-        $this->operator = $ruleobj->operator;
-        $this->optionfield = $ruleobj->optionfield;
-        $this->subject = $ruleobj->subject;
-        $this->template = $ruleobj->template;
+        $this->set_actiondata_from_json($record->rulejson);
     }
 
     /**
@@ -88,12 +79,6 @@ class send_mail implements booking_rule_action {
     public function set_actiondata_from_json(string $json) {
         $this->rulejson = $json;
         $ruleobj = json_decode($json);
-        $this->rulename = $ruleobj->rulename;
-        $this->days = (int) $ruleobj->days;
-        $this->datefield = $ruleobj->datefield;
-        $this->cpfield = $ruleobj->cpfield;
-        $this->operator = $ruleobj->operator;
-        $this->optionfield = $ruleobj->optionfield;
         $this->subject = $ruleobj->subject;
         $this->template = $ruleobj->template;
     }
@@ -109,25 +94,22 @@ class send_mail implements booking_rule_action {
         global $DB;
 
         // Mail subject.
-        $mform->addElement('text', 'rule_sendmail_daysbefore_subject', get_string('subject', 'core'));
-        $repeateloptions['rule_sendmail_daysbefore_subject']['type'] = PARAM_TEXT;
-        $repeateloptions['rule_sendmail_daysbefore_subject']['hideif'] = array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
+        $mform->addElement('text', 'action_send_mail_subject', get_string('subject', 'core'));
+        $repeateloptions['action_send_mail_subject']['type'] = PARAM_TEXT;
 
         // Mail template.
         // Workaround: We need a group to get hideif to work.
-        $editorgroup = [];
-        $mform->addElement('editor', 'rule_sendmail_daysbefore_template',
+        $mform->addElement('editor', 'action_send_mail_template',
             '', ['rows' => 20], ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]);
-        $mform->addElement('group', 'rule_sendmail_daysbefore_template_group',
-            get_string('rule_mailtemplate', 'mod_booking'), $editorgroup, null, false);
-        $repeateloptions['rule_sendmail_daysbefore_template_group']['hideif'] = ['bookingrule', 'neq', 'rule_sendmail_daysbefore'];
+
     }
 
     /**
-     * Get the name of the rule.
-     * @return string the name of the rule
+     * Get the name of the rule action
+     * @param boolean $localized
+     * @return string the name of the rule action
      */
-    public function get_name_of_action() {
+    public function get_name_of_action($localized = true) {
         return get_string('send_mail', 'mod_booking');
     }
 
@@ -135,27 +117,23 @@ class send_mail implements booking_rule_action {
      * Save the JSON for all sendmail_daysbefore rules defined in form.
      * @param stdClass &$data form data reference
      */
-    public static function save_actions(stdClass &$data) {
+    public function save_action(stdClass &$data) {
         global $DB;
-        foreach ($data->bookingrule as $idx => $rulename) {
-            if ($rulename == 'rule_sendmail_daysbefore') {
-                $ruleobj = new stdClass;
-                $ruleobj->rulename = $data->bookingrule[$idx];
-                $ruleobj->days = $data->rule_sendmail_daysbefore_days[$idx];
-                $ruleobj->datefield = $data->rule_sendmail_daysbefore_datefield[$idx];
-                $ruleobj->cpfield = $data->rule_sendmail_daysbefore_cpfield[$idx];
-                $ruleobj->operator = $data->rule_sendmail_daysbefore_operator[$idx];
-                $ruleobj->optionfield = $data->rule_sendmail_daysbefore_optionfield[$idx];
-                $ruleobj->subject = $data->rule_sendmail_daysbefore_subject[$idx];
-                $ruleobj->template = $data->rule_sendmail_daysbefore_template[$idx]['text'];
 
-                $record = new stdClass;
-                $record->rulename = $data->bookingrule[$idx];
-                $record->rulejson = json_encode($ruleobj);
-
-                $DB->insert_record('booking_rules', $record);
-            }
+        if (!isset($data->rulejson)) {
+            $jsonobject = new stdClass();
+        } else {
+            $jsonobject = json_decode($data->rulejson);
         }
+
+        $jsonobject->name = $data->name ?? $this->actionname;
+        $jsonobject->actionname = $this->actionname;
+        $jsonobject->actiondata = new stdClass();
+        $jsonobject->actiondata->subject = $data->action_send_mail_subject;
+        $jsonobject->actiondata->template = $data->action_send_mail_template['text'];
+        $jsonobject->actiondata->templateformat = $data->action_send_mail_template['format'];
+
+        $data->rulejson = json_encode($jsonobject);
     }
 
     /**
@@ -164,17 +142,14 @@ class send_mail implements booking_rule_action {
      * @param stdClass $record a record from booking_rules
      */
     public function set_defaults(stdClass &$data, stdClass $record) {
-        $idx = $record->id - 1;
-        $data->bookingrule[$idx] = $record->rulename;
-        $ruleobj = json_decode($record->rulejson);
-        $data->rule_sendmail_daysbefore_days[$idx] = $ruleobj->days;
-        $data->rule_sendmail_daysbefore_datefield[$idx] = $ruleobj->datefield;
-        $data->rule_sendmail_daysbefore_cpfield[$idx] = $ruleobj->cpfield;
-        $data->rule_sendmail_daysbefore_operator[$idx] = $ruleobj->operator;
-        $data->rule_sendmail_daysbefore_optionfield[$idx] = $ruleobj->optionfield;
-        $data->rule_sendmail_daysbefore_subject[$idx] = $ruleobj->subject;
-        $data->rule_sendmail_daysbefore_template[$idx]['text'] = $ruleobj->template;
-        $data->rule_sendmail_daysbefore_template[$idx]['format'] = FORMAT_HTML;
+
+        $jsonobject = json_decode($record->rulejson);
+        $actiondata = $jsonobject->actiondata;
+
+        $data->action_send_mail_subject = $actiondata->subject;
+        $data->action_send_mail_template = [];
+        $data->action_send_mail_template['text'] = $actiondata->template;
+        $data->action_send_mail_template['format'] = $actiondata->templateformat;
     }
 
     /**

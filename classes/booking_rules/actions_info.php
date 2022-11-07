@@ -41,9 +41,13 @@ class actions_info {
      * Add form fields to mform.
      *
      * @param MoodleQuickForm $mform
+     * @param array $repeateloptions
+     * @param array|null $ajaxformdata
      * @return void
      */
-    public static function add_actions_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
+    public static function add_actions_to_mform(MoodleQuickForm &$mform,
+        array &$repeateloptions,
+        array &$ajaxformdata = null) {
 
         $actions = self::get_actions();
 
@@ -65,15 +69,13 @@ class actions_info {
         $mform->addGroup($categoryselect, 'bookingruleactiontype', get_string('bookingruleaction', 'mod_booking'), [' '], false);
         $mform->setType('btn_bookingruleactiontype', PARAM_NOTAGS);
 
-        $tempdata = $mform->exportValues();
-
         foreach ($actions as $action) {
 
-            if ($tempdata && isset($tempdata['bookingruleactiontypeid'])) {
+            if ($ajaxformdata && isset($ajaxformdata['bookingruleactiontype'])) {
 
                 $actionname = $action->get_name_of_action();
-                if ($tempdata['bookingruleactiontypeid']
-                    && $actionname == get_string($tempdata['bookingruleactiontypeid'], 'mod_booking')) {
+                if ($ajaxformdata['bookingruleactiontype']
+                    && $actionname == get_string($ajaxformdata['bookingruleactiontype'], 'mod_booking')) {
                     // For each rule, add the appropriate form fields.
                     $action->add_action_to_mform($mform, $repeateloptions);
                 }
@@ -111,6 +113,24 @@ class actions_info {
         }
 
         return $actions;
+    }
+
+    /**
+     * Get booking rule action by name.
+     * @param string $actionname
+     * @return mixed
+     */
+    public static function get_action(string $actionname) {
+        global $CFG;
+
+        $filename = 'mod_booking\booking_rules\actions\\' . $actionname;
+
+        // We instantiate all the classes, because we need some information.
+        if (class_exists($filename)) {
+            return new $filename();
+        }
+
+        return null;
     }
 
     /**

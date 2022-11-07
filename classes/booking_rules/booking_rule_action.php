@@ -53,16 +53,17 @@ interface booking_rule_action {
 
     /**
      * Gets the human-readable name of a rule action (localized).
+     * @param boolean $localized
      * @return string the name of the rule action
      */
-    public function get_name_of_action();
+    public function get_name_of_action($localized = true);
 
     /**
-     * Gets the JSON for the rule actions to be stored in DB.
+     * Gets the JSON for the rule action to be stored in DB.
      * @param stdClass &$data form data reference
      * @return string the json for the rule action
      */
-    public static function save_actions(stdClass &$data);
+    public function save_action(stdClass &$data);
 
     /**
      * Sets the rule action defaults when loading the form.

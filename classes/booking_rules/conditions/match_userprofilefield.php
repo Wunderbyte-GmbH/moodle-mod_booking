@@ -35,19 +35,10 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class match_bookingoption_and_userprofile_field implements booking_rule_condition {
+class match_userprofilefield implements booking_rule_condition {
 
     /** @var string $rulename */
-    public $rulename = null;
-
-    /** @var string $rulejson */
-    public $rulejson = null;
-
-    /** @var int $days */
-    public $days = null;
-
-    /** @var string $datefield */
-    public $datefield = null;
+    public $conditionname = 'match_userprofilefield';
 
     /** @var string $cpfield */
     public $cpfield = null;
@@ -58,27 +49,13 @@ class match_bookingoption_and_userprofile_field implements booking_rule_conditio
     /** @var string $optionfield */
     public $optionfield = null;
 
-    /** @var string $subject */
-    public $subject = null;
-
-    /** @var string $template */
-    public $template = null;
 
     /**
      * Load json data from DB into the object.
      * @param stdClass $record a rule condition record from DB
      */
     public function set_conditiondata(stdClass $record) {
-        $this->rulename = $record->rulename;
-        $this->rulejson = $record->rulejson;
-        $ruleobj = json_decode($record->rulejson);
-        $this->days = (int) $ruleobj->days;
-        $this->datefield = $ruleobj->datefield;
-        $this->cpfield = $ruleobj->cpfield;
-        $this->operator = $ruleobj->operator;
-        $this->optionfield = $ruleobj->optionfield;
-        $this->subject = $ruleobj->subject;
-        $this->template = $ruleobj->template;
+        $this->set_conditiondata_from_json($record->rulejson);
     }
 
     /**
@@ -88,14 +65,10 @@ class match_bookingoption_and_userprofile_field implements booking_rule_conditio
     public function set_conditiondata_from_json(string $json) {
         $this->rulejson = $json;
         $ruleobj = json_decode($json);
-        $this->rulename = $ruleobj->rulename;
-        $this->days = (int) $ruleobj->days;
-        $this->datefield = $ruleobj->datefield;
-        $this->cpfield = $ruleobj->cpfield;
-        $this->operator = $ruleobj->operator;
-        $this->optionfield = $ruleobj->optionfield;
-        $this->subject = $ruleobj->subject;
-        $this->template = $ruleobj->template;
+        $conditiondata = $ruleobj->conditiondata;
+        $this->cpfield = $conditiondata->cpfield;
+        $this->operator = $conditiondata->operator;
+        $this->optionfield = $conditiondata->optionfield;
     }
 
     /**
@@ -128,24 +101,19 @@ class match_bookingoption_and_userprofile_field implements booking_rule_conditio
                 $customuserprofilefieldsarray[$customuserprofilefield->shortname] = $customuserprofilefield->name;
             }
 
-            $mform->addElement('select', 'rule_sendmail_daysbefore_cpfield',
+            $mform->addElement('select', 'condition_match_userprofilefield_cpfield',
                 get_string('rule_customprofilefield', 'mod_booking'), $customuserprofilefieldsarray);
-            $repeateloptions['rule_sendmail_daysbefore_cpfield']['hideif'] =
-                array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
 
             $operators = [
                 '=' => get_string('equals', 'mod_booking'),
                 '~' => get_string('contains', 'mod_booking')
             ];
-            $mform->addElement('select', 'rule_sendmail_daysbefore_operator',
+            $mform->addElement('select', 'condition_match_userprofilefield_operator',
                 get_string('rule_operator', 'mod_booking'), $operators);
-            $repeateloptions['rule_sendmail_daysbefore_operator']['hideif'] =
-                array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
 
-            $mform->addElement('select', 'rule_sendmail_daysbefore_optionfield',
+            $mform->addElement('select', 'condition_match_userprofilefield_optionfield',
                 get_string('rule_optionfield', 'mod_booking'), $allowedoptionfields);
-            $repeateloptions['rule_sendmail_daysbefore_optionfield']['hideif'] =
-                array('bookingrule', 'neq', 'rule_sendmail_daysbefore');
+
         }
 
     }
@@ -154,35 +122,30 @@ class match_bookingoption_and_userprofile_field implements booking_rule_conditio
      * Get the name of the rule.
      * @return string the name of the rule
      */
-    public function get_name_of_condition() {
-        return get_string('match_bookingoption_and_userprofile_field', 'mod_booking');
+    public function get_name_of_condition($localized = true) {
+        return $localized ? get_string($this->conditionname, 'mod_booking') : $this->conditionname;
     }
 
     /**
      * Save the JSON for all sendmail_daysbefore rules defined in form.
      * @param stdClass &$data form data reference
      */
-    public static function save_conditions(stdClass &$data) {
+    public function save_condition(stdClass &$data) {
         global $DB;
-        foreach ($data->bookingrule as $idx => $rulename) {
-            if ($rulename == 'rule_sendmail_daysbefore') {
-                $ruleobj = new stdClass;
-                $ruleobj->rulename = $data->bookingrule[$idx];
-                $ruleobj->days = $data->rule_sendmail_daysbefore_days[$idx];
-                $ruleobj->datefield = $data->rule_sendmail_daysbefore_datefield[$idx];
-                $ruleobj->cpfield = $data->rule_sendmail_daysbefore_cpfield[$idx];
-                $ruleobj->operator = $data->rule_sendmail_daysbefore_operator[$idx];
-                $ruleobj->optionfield = $data->rule_sendmail_daysbefore_optionfield[$idx];
-                $ruleobj->subject = $data->rule_sendmail_daysbefore_subject[$idx];
-                $ruleobj->template = $data->rule_sendmail_daysbefore_template[$idx]['text'];
 
-                $record = new stdClass;
-                $record->rulename = $data->bookingrule[$idx];
-                $record->rulejson = json_encode($ruleobj);
-
-                $DB->insert_record('booking_rules', $record);
-            }
+        if (!isset($data->rulejson)) {
+            $jsonobject = new stdClass();
+        } else {
+            $jsonobject = json_decode($data->rulejson);
         }
+
+        $jsonobject->conditionname = $this->conditionname;
+        $jsonobject->conditiondata = new stdClass();
+        $jsonobject->conditiondata->optionfield = $data->condition_match_userprofilefield_optionfield ?? '';
+        $jsonobject->conditiondata->operator = $data->condition_match_userprofilefield_operator ?? '';
+        $jsonobject->conditiondata->cpfield = $data->condition_match_userprofilefield_cpfield ?? '';
+
+        $data->rulejson = json_encode($jsonobject);
     }
 
     /**
@@ -191,29 +154,29 @@ class match_bookingoption_and_userprofile_field implements booking_rule_conditio
      * @param stdClass $record a record from booking_rules
      */
     public function set_defaults(stdClass &$data, stdClass $record) {
-        $idx = $record->id - 1;
-        $data->bookingrule[$idx] = $record->rulename;
-        $ruleobj = json_decode($record->rulejson);
-        $data->rule_sendmail_daysbefore_days[$idx] = $ruleobj->days;
-        $data->rule_sendmail_daysbefore_datefield[$idx] = $ruleobj->datefield;
-        $data->rule_sendmail_daysbefore_cpfield[$idx] = $ruleobj->cpfield;
-        $data->rule_sendmail_daysbefore_operator[$idx] = $ruleobj->operator;
-        $data->rule_sendmail_daysbefore_optionfield[$idx] = $ruleobj->optionfield;
-        $data->rule_sendmail_daysbefore_subject[$idx] = $ruleobj->subject;
-        $data->rule_sendmail_daysbefore_template[$idx]['text'] = $ruleobj->template;
-        $data->rule_sendmail_daysbefore_template[$idx]['format'] = FORMAT_HTML;
+
+        $jsonobject = json_decode($record->rulejson);
+        $conditiondata = $jsonobject->conditiondata;
+
+        $data->condition_match_userprofilefield_optionfield = $conditiondata->optionfield;
+        $data->condition_match_userprofilefield_operator = $conditiondata->operator;
+        $data->condition_match_userprofilefield_cpfield = $conditiondata->cpfield;
+
     }
 
     /**
-     * Execute the rule.
-     * @param int $optionid optional
-     * @param int $userid optional
+     * Execute the condition.
+     * We receive an array of stdclasses with the keys optinid & cmid.
+     * @param array $records
+     * @return array
      */
-    public function execute(int $optionid = null, int $userid = null) {
+    public function execute(array $records = null) {
         global $DB;
 
-        $andoptionid = "";
-        $anduserid = "";
+        // Get an array of optionids.
+        $keys = array_keys($records);
+
+        $optionids = implode(",", $keys);
 
         $params = [
             'cpfield' => $this->cpfield,
@@ -290,6 +253,7 @@ class match_bookingoption_and_userprofile_field implements booking_rule_conditio
                 \core\task\manager::reschedule_or_queue_adhoc_task($task);
             }
         }
+        return [];
     }
 
     /**

@@ -41,9 +41,13 @@ class conditions_info {
      * Add form fields to mform.
      *
      * @param MoodleQuickForm $mform
+     * @param array $repeateloptions
+     * @param array $ajaxformdata
      * @return void
      */
-    public static function add_conditions_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
+    public static function add_conditions_to_mform(MoodleQuickForm &$mform,
+        array &$repeateloptions,
+        array &$ajaxformdata = null) {
 
         $conditions = self::get_conditions();
 
@@ -65,15 +69,13 @@ class conditions_info {
         $mform->addGroup($categoryselect, 'bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'), [' '], false);
         $mform->setType('btn_bookingruleconditiontype', PARAM_NOTAGS);
 
-        $tempdata = $mform->exportValues();
-
         foreach ($conditions as $condition) {
 
-            if ($tempdata && isset($tempdata['bookingruleconditiontypeid'])) {
+            if ($ajaxformdata && isset($ajaxformdata['bookingruleconditiontype'])) {
 
                 $conditionname = $condition->get_name_of_condition();
-                if ($tempdata['bookingruleconditiontypeid']
-                    && $conditionname == get_string($tempdata['bookingruleconditiontypeid'], 'mod_booking')) {
+                if ($ajaxformdata['bookingruleconditiontype']
+                    && $conditionname == get_string($ajaxformdata['bookingruleconditiontype'], 'mod_booking')) {
                     // For each rule, add the appropriate form fields.
                     $condition->add_condition_to_mform($mform, $repeateloptions);
                 }
@@ -112,6 +114,24 @@ class conditions_info {
         }
 
         return $conditions;
+    }
+
+    /**
+     * Get booking rule condition by name.
+     * @param string $conditionname
+     * @return mixed
+     */
+    public static function get_condition(string $conditionname) {
+        global $CFG;
+
+        $filename = 'mod_booking\booking_rules\conditions\\' . $conditionname;
+
+        // We instantiate all the classes, because we need some information.
+        if (class_exists($filename)) {
+            return new $filename();
+        }
+
+        return null;
     }
 
     /**

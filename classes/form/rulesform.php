@@ -64,7 +64,7 @@ class rulesform extends dynamic_form {
 
         $repeateloptions = [];
 
-        rules_info::add_rules_to_mform($mform, $repeateloptions);
+        rules_info::add_rules_to_mform($mform, $repeateloptions, $ajaxformdata);
 
         // As this form is called normally from a modal, we don't need the action buttons.
         // Add submit button to create optiondate series. (Use $this, not $mform).
@@ -77,6 +77,9 @@ class rulesform extends dynamic_form {
      */
     public function process_dynamic_submission() {
         $data = parent::get_data();
+
+        rules_info::save_booking_rule($data);
+
         return $data;
     }
 
@@ -86,8 +89,14 @@ class rulesform extends dynamic_form {
      */
     public function set_data_for_dynamic_submission(): void {
 
-        $customdata = $this->_customdata;
-        $ajaxformdata = $this->_ajaxformdata;
+        if (!empty($this->_ajaxformdata['id'])) {
+            $data = (object)$this->_ajaxformdata;
+            $data = rules_info::set_data_for_form($data);
+        } else {
+            $data = (Object)$this->_ajaxformdata;
+        }
+
+        $this->set_data($data);
 
     }
 
@@ -137,18 +146,6 @@ class rulesform extends dynamic_form {
     private function preload_defintion_values(MoodleQuickForm &$mform) {
 
         $data = $this->_ajaxformdata;
-        // If we have just submitted via nosubmit button, we need to set the right id.
-        if (!empty($data["bookingruletype"])) {
-            $mform->addElement('hidden', 'bookingruletypeid', $data["bookingruletype"]);
-        }
-
-        if (!empty($data["bookingruleconditiontype"])) {
-            $mform->addElement('hidden', 'bookingruleconditiontypeid', $data["bookingruleconditiontype"]);
-        }
-
-        if (!empty($data["bookingruleactiontype"])) {
-            $mform->addElement('hidden', 'bookingruleactiontypeid', $data["bookingruleactiontype"]);
-        }
 
         // TODO: Preload values from saved booking rule.
     }

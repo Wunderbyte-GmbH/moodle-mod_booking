@@ -42,9 +42,13 @@ class rules_info {
      * Add form fields to mform.
      *
      * @param MoodleQuickForm $mform
+     * @param array $repeateloptions
+     * @param array $ajaxformdata
      * @return void
      */
-    public static function add_rules_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
+    public static function add_rules_to_mform(MoodleQuickForm &$mform,
+        array &$repeateloptions,
+        array &$ajaxformdata = null) {
 
         // First, get all the type of rules there are.
         $rules = self::get_rules();
@@ -59,6 +63,11 @@ class rules_info {
 
         $mform->addElement('html', '<hr>');
 
+        // The custom name of the role has to be at this place, but every rule will implement save and set of rule_name.
+        $mform->addElement('text', 'rule_name',
+            get_string('rule_name', 'mod_booking'), ['size' => '50']);
+        $repeateloptions['rule_name']['type'] = PARAM_TEXT;
+
         $mform->registerNoSubmitButton('btn_bookingruletype');
         $buttonargs = array('style' => 'visibility:hidden;');
         $categoryselect = [
@@ -69,30 +78,19 @@ class rules_info {
         $mform->addGroup($categoryselect, 'bookingruletype', get_string('bookingrule', 'mod_booking'), [' '], false);
         $mform->setType('btn_bookingruletype', PARAM_NOTAGS);
 
-        $tempdata = $mform->exportValues();
-
-        foreach ($rules as $rule) {
-
-            if ($tempdata && isset($tempdata['bookingruletypeid'])) {
-
-                $rulename = $rule->get_name_of_rule();
-                if ($tempdata['bookingruletypeid']
-                    && $rulename == get_string($tempdata['bookingruletypeid'], 'mod_booking')) {
-                    // For each rule, add the appropriate form fields.
-                    $rule->add_rule_to_mform($mform, $repeateloptions);
-                }
-            } else {
-                // We only render the first rule.
-                $rule->add_rule_to_mform($mform, $repeateloptions);
-                break;
-            }
+        if (isset($ajaxformdata['bookingruletype'])) {
+            $rule = self::get_rule($ajaxformdata['bookingruletype']);
+        } else {
+            list($rule) = $rules;
         }
 
+        $rule->add_rule_to_mform($mform, $repeateloptions);
+
         // At this point, we also load the conditions.
-        conditions_info::add_conditions_to_mform($mform, $repeateloptions);
+        conditions_info::add_conditions_to_mform($mform, $repeateloptions, $ajaxformdata);
 
         // Finally, we load the actions.
-        actions_info::add_actions_to_mform($mform, $repeateloptions);
+        actions_info::add_actions_to_mform($mform, $repeateloptions, $ajaxformdata);
     }
 
     /**
@@ -124,19 +122,78 @@ class rules_info {
     }
 
     /**
+     * Get booking rule by name.
+     * @param string $rulename
+     * @return mixed
+     */
+    public static function get_rule(string $rulename) {
+        global $CFG;
+
+        $filename = 'mod_booking\booking_rules\rules\\' . $rulename;
+
+        // We instantiate all the classes, because we need some information.
+        if (class_exists($filename)) {
+            return new $filename();
+        }
+
+        return null;
+    }
+
+    /**
+     * Prepare data to set data to form.
+     *
+     * @param object $data
+     * @return object
+     */
+    public static function set_data_for_form(object &$data) {
+
+        global $DB;
+
+        if (empty($data->id)) {
+            // Nothing to set, we return empty object.
+            return new stdClass();
+        }
+
+        // If we have an ID, we retrieve the right rule from DB.
+        $record = $DB->get_record('booking_rules', ['id' => $data->id]);
+
+        $rule = self::get_rule($record->rulename);
+
+        $rulejsonobject = json_decode($record->rulejson);
+
+        $condition = conditions_info::get_condition($rulejsonobject->conditionname);
+        $action = actions_info::get_action($rulejsonobject->actionname);
+
+        // These function just add their bits to the object.
+        $condition->set_defaults($data, $record);
+        $action->set_defaults($data, $record);
+        $rule->set_defaults($data, $record);
+
+        return (object)$data;
+
+    }
+
+    /**
      * Save all booking rules.
      * @param stdClass &$data reference to the form data
      * @return void
      */
-    public static function save_booking_rules(stdClass &$data) {
+    public static function save_booking_rule(stdClass &$data) {
         global $DB;
-        // Truncate the table.
-        $DB->delete_records('booking_rules');
-        // Then save all rules specified in the form.
-        $rules = self::get_rules();
-        foreach ($rules as $rule) {
-            $rule::save_rules($data);
-        }
+
+        // We receive the form with the data depending on the used handlers.
+        // As we know which handler to call, we only instantiate one rule.
+        $rule = self::get_rule($data->bookingruletype);
+        $condition = conditions_info::get_condition($data->bookingruleconditiontype);
+        $action = actions_info::get_action($data->bookingruleactiontype);
+
+        // These function don't really save to DB, they just add the values to the rulejson key.
+        $condition->save_condition($data);
+        $action->save_action($data);
+
+        // Rule has to be saved last, because it actually writes to DB.
+        $rule->save_rule($data);
+
         return;
     }
 

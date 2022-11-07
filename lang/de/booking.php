@@ -1762,17 +1762,20 @@ $string['rule_sendmail_cpf_desc'] = 'Wählen Sie ein Event aus, auf das reagiert
  (Sie können auch Platzhalter wie {bookingdetails} verwenden) und legen Sie fest, an welche Nutzer:innen die E-Mail versendet werden soll.
   Beispiel: Alle Nutzer:innen, die im benutzerdefinierten Feld "Studienzentrumsleitung" den Wert "SZL Wien" stehen haben.';
 
-$string['rule_daysbefore'] = 'E-Mail n Tage vor bestimmtem Datum senden';
-$string['rule_daysbefore_desc'] = 'Wählen Sie ein Datumsfeld aus den Buchungsoptionen und die Anzahl der Tage VOR diesem Datum aus,
- an dem die E-Mail gesendet werden soll. Wählen Sie dann ein Profilfeld und ein Buchungsoptionsfeld aus, die miteinander verglichen werden sollen,
- um festzustellen, an wen die E-Mail gesendet werden soll.';
+$string['rule_daysbefore'] = 'Reagiere n Tage vor einem bestimmtem Datum';
+$string['rule_daysbefore_desc'] = 'Wählen Sie die Anzahl der Tage VOR einem gewissen Datum einer Buchungsoption aus.';
  $string['rule_react_on_event'] = "Reagiere auf Ereignis";
 
 $string['error:nofieldchosen'] = 'Sie müssen ein Feld auswählen.';
 $string['error:mustnotbeempty'] = 'Darf nicht leer sein.';
 
 // Booking rules conditions.
-$sring['match_bookingoption_and_userprofile_field'] = "Wähle NutzerInnen nach gleichem Wert in Buchungsoption und Profil.";
+$string['rule_name'] = "Eigener Name der Regel";
+$string['bookingrulecondition'] = "Kondition der Regel";
+$string['bookingruleaction'] = "Aktion der Regel";
+$string['match_userprofilefield'] = "Wähle NutzerInnen nach gleichem Wert in Buchungsoption und Profil.";
+$string['select_role_in_course'] = "Wähle NutzerInnen nach ihrer Rolle im Kurs der Buchungsoption.";
+$string['send_mail'] = "Sende e-Mail";
 
 $string['bookingcondition'] = "Bedingung";
 
