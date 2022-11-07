@@ -174,11 +174,11 @@ class select_role_in_course implements booking_rule_condition {
     }
 
     /**
-     * Execute the rule.
-     * @param int $optionid optional
-     * @param int $userid optional
+     * Execute the condition.
+     * @param array $records optional
+     * @return array
      */
-    public function execute(int $optionid = null, int $userid = null) {
+    public function execute(array $records = null) {
         global $DB;
 
         $andoptionid = "";
@@ -259,6 +259,8 @@ class select_role_in_course implements booking_rule_condition {
                 \core\task\manager::reschedule_or_queue_adhoc_task($task);
             }
         }
+
+        return [];
     }
 
     /**
