@@ -1082,10 +1082,13 @@ function booking_update_options($optionvalues, $context) {
         cache_helper::invalidate_by_event('setbackoptionsettings', [$option->id]);
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$option->id]);
 
+        $optiondateshandler = new optiondates_handler($optionvalues->optionid, $optionvalues->bookingid);
         if (!empty($optionvalues->newoptiondates) || !empty($optionvalues->stillexistingdates)) {
             // Save the optiondates.
-            $optiondateshandler = new optiondates_handler($optionvalues->optionid, $optionvalues->bookingid);
             $optiondateshandler->save_from_form($optionvalues);
+        } else {
+            // Delete optiondates.
+            $optiondateshandler->delete_option_dates($optionvalues);
         }
 
         // Save relation for each newly created optiondate if checkbox is active.

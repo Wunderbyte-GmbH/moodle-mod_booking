@@ -108,6 +108,43 @@ class optiondates_handler {
     }
 
     /**
+     * If no dates are set in form delete olddates if they exist
+     *
+     * @param stdClass $fromform
+     * @return void
+     */
+    public function delete_option_dates(stdClass $fromform): void {
+        global $DB;
+
+        if ($this->optionid && $this->bookingid) {
+
+            // Get the currently saved optiondateids from DB.
+            $olddates = $DB->get_records('booking_optiondates', ['optionid' => $this->optionid]);
+
+            // Now, let's remove every date from bookink_optiondates
+            foreach ($olddates as $olddate) {
+                $olddateid = (int) $olddate->id;
+
+                // An existing optiondate has been removed by the dynamic form, so delete it from DB.
+                $DB->delete_records('booking_optiondates', ['id' => $olddateid]);
+
+                // We also need to delete the associated records in booking_optiondates_teachers.
+                self::remove_teachers_from_deleted_optiondate($olddateid);
+
+                // We also need to delete associated custom fields.
+                self::optiondate_deletecustomfields($olddateid);
+
+                // We also need to delete any associated entities.
+                // If there is an associated entity, delete it too.
+                if (class_exists('local_entities\entitiesrelation_handler')) {
+                    $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
+                    $erhandler->delete_relation($olddateid);
+                }
+            }
+        }
+    }
+
+    /**
      * Transform each optiondate and save.
      *
      * @param stdClass $fromform form data
