@@ -190,6 +190,13 @@ class match_userprofilefield implements booking_rule_condition {
                 break;
         }
 
+        // We pass the restriction to the userid in the params.
+        // If its not 0, we add the restirction.
+        $anduserid = '';
+        if (!empty($params['userid'])) {
+            $anduserid = "AND ud.userid = :userid";
+        }
+
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
 
         $sql->select = " CONCAT(bo.id, '-', ud.userid) uniqueid, " . $sql->select;
@@ -205,7 +212,8 @@ class match_userprofilefield implements booking_rule_condition {
                     SELECT DISTINCT id
                     FROM {user_info_field} uif
                     WHERE uif.shortname = :cpfield
-                ) ";
+                )
+                $anduserid ";
 
         $params['cpfield'] = $this->cpfield;
     }

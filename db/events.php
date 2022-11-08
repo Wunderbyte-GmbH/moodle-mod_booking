@@ -82,5 +82,9 @@ $observers = array(
     array(
         'eventname' => '\mod_booking\event\pricecategory_changed',
         'callback' => 'mod_booking_observer::pricecategory_changed'
-    )
+    ),
+    array(
+        'eventname' => '\mod_booking\event\*',
+        'callback' => 'mod_booking_observer::execute_rule'
+    ),
 );

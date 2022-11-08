@@ -321,4 +321,32 @@ class mod_booking_observer {
             $DB->update_record('booking_prices', $price);
         }
     }
+
+    /**
+     * This is triggered on any event. Depending on the rule, the execution is triggered.
+     *
+     * @param mixed $event
+     * @return void
+     */
+    public function execute_rule($event) {
+
+        global $DB;
+
+        // TODO: Get name of event and only trigger when the rule is set to listen on this specific event.
+
+        $userid = $event->relateduserid ?? 0;
+        $optionid = $event->objectid ?? 0;
+
+        // We retrieve all the event based booking rules.
+        $rules = $DB->get_records('booking_rules', ['rulename' => 'rule_act_on_event']);
+
+        // Now we check all the existing rules.
+        foreach ($rules as $rule) {
+
+            $rule = rules_info::get_rule($rule->rulename);
+            $rule->set_ruledata($rule);
+
+            $rule->excecute($optionid, $userid);
+        }
+    }
 }

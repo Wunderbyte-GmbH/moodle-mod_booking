@@ -16,7 +16,9 @@
 
 namespace mod_booking\booking_rules\rules;
 
+use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
+use mod_booking\booking_rules\conditions_info;
 use mod_booking\singleton_service;
 use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
@@ -31,53 +33,30 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Bernhard Fischer
+ * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rule_react_on_event implements booking_rule {
 
     /** @var string $rulename */
-    public $rulename = null;
+    protected $rulename = 'rule_react_on_event';
+
+    /** @var string $name */
+    public $name = null;
 
     /** @var string $rulejson */
     public $rulejson = null;
 
-    /** @var int $days */
-    public $days = null;
-
-    /** @var string $datefield */
-    public $datefield = null;
-
-    /** @var string $cpfield */
-    public $cpfield = null;
-
-    /** @var string $operator */
-    public $operator = null;
-
-    /** @var string $optionfield */
-    public $optionfield = null;
-
-    /** @var string $subject */
-    public $subject = null;
-
-    /** @var string $template */
-    public $template = null;
+    /** @var int $ruleid */
+    public $boevent = null;
 
     /**
      * Load json data from DB into the object.
      * @param stdClass $record a rule record from DB
      */
     public function set_ruledata(stdClass $record) {
-        $this->rulename = $record->rulename;
-        $this->rulejson = $record->rulejson;
-        $ruleobj = json_decode($record->rulejson);
-        $this->days = (int) $ruleobj->days;
-        $this->datefield = $ruleobj->datefield;
-        $this->cpfield = $ruleobj->cpfield;
-        $this->operator = $ruleobj->operator;
-        $this->optionfield = $ruleobj->optionfield;
-        $this->subject = $ruleobj->subject;
-        $this->template = $ruleobj->template;
+        $this->ruleid = $record->id ?? 0;
+        $this->set_ruledata_from_json($record->rulejson);
     }
 
     /**
@@ -87,14 +66,8 @@ class rule_react_on_event implements booking_rule {
     public function set_ruledata_from_json(string $json) {
         $this->rulejson = $json;
         $ruleobj = json_decode($json);
-        $this->rulename = $ruleobj->rulename;
-        $this->days = (int) $ruleobj->days;
-        $this->datefield = $ruleobj->datefield;
-        $this->cpfield = $ruleobj->cpfield;
-        $this->operator = $ruleobj->operator;
-        $this->optionfield = $ruleobj->optionfield;
-        $this->subject = $ruleobj->subject;
-        $this->template = $ruleobj->template;
+        $this->name = $ruleobj->name;
+        $this->boevent = $ruleobj->ruledata->boevent;
     }
 
     /**
@@ -107,46 +80,15 @@ class rule_react_on_event implements booking_rule {
     public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
         global $DB;
 
-        $numberofdaysbefore = [
-            0 => get_string('choose...', 'mod_booking'),
-            1 => '1',
-            2 => '2',
-            3 => '3',
-            4 => '4',
-            5 => '5',
-            6 => '6',
-            7 => '7',
-            8 => '8',
-            9 => '9',
-            10 => '10',
-            15 => '15',
-            20 => '20',
-            25 => '25',
-            30 => '30'
-        ];
-
-        // Get a list of allowed option fields (only date fields allowed).
-        $datefields = [
-            '0' => get_string('choose...', 'mod_booking'),
-            'coursestarttime' => get_string('rule_optionfield_coursestarttime', 'mod_booking'),
-            'courseendtime' => get_string('rule_optionfield_courseendtime', 'mod_booking'),
-            'bookingopeningtime' => get_string('rule_optionfield_bookingopeningtime', 'mod_booking'),
-            'bookingclosingtime' => get_string('rule_optionfield_bookingclosingtime', 'mod_booking')
-        ];
+        // Get a list of all booking events.
+        $bookingevents = get_list_of_booking_events();
 
         // Workaround: We need a group to get hideif to work.
-        $groupitems = [];
-        $groupitems[] = $mform->createElement('static', 'rule_react_on_event_desc', '',
+        $mform->addElement('static', 'rule_react_on_event_desc', '',
             get_string('rule_react_on_event_desc', 'mod_booking'));
 
-        $mform->addElement('group', 'rule_react_on_event_desc_group', '',
-            $groupitems, null, false);
-        $repeateloptions['rule_react_on_event_desc_group']['hideif'] = array('bookingruletype', 'neq', 'rule_react_on_event');
-
-        $mform->addElement('select', 'rule_react_on_event_eventlist',
-            get_string('rule_react_on_event_eventlist', 'mod_booking'), [1 => 1]);
-        $repeateloptions['rule_react_on_event_eventlist']['type'] = PARAM_TEXT;
-        $repeateloptions['rule_react_on_event_eventlist']['hideif'] = array('bookingruletype', 'neq', 'rule_react_on_event');
+        $mform->addElement('select', 'rule_react_on_event_event',
+            get_string('rule_event', 'mod_booking'), $bookingevents);
     }
 
     /**
@@ -155,33 +97,41 @@ class rule_react_on_event implements booking_rule {
      * @return void
      */
     public function get_name_of_rule($localized = true) {
-        return $localized ? get_string('rule_react_on_event', 'mod_booking') : 'rule_react_on_event';
+        return $localized ? get_string($this->rulename, 'mod_booking') : $this->rulename;
     }
 
     /**
-     * Save the JSON for all sendmail_daysbefore rules defined in form.
+     * Save the JSON for daysbefore rule defined in form.
+     * The role has to determine the handler for condtion and action and get the right json object.
      * @param stdClass &$data form data reference
      */
     public function save_rule(stdClass &$data) {
         global $DB;
-        foreach ($data->bookingrule as $idx => $rulename) {
-            if ($rulename == 'rule_daysbefore') {
-                $ruleobj = new stdClass;
-                $ruleobj->rulename = $data->bookingrule[$idx];
-                $ruleobj->days = $data->rule_daysbefore_days[$idx];
-                $ruleobj->datefield = $data->rule_daysbefore_datefield[$idx];
-                $ruleobj->cpfield = $data->rule_daysbefore_cpfield[$idx];
-                $ruleobj->operator = $data->rule_daysbefore_operator[$idx];
-                $ruleobj->optionfield = $data->rule_daysbefore_optionfield[$idx];
-                $ruleobj->subject = $data->rule_daysbefore_subject[$idx];
-                $ruleobj->template = $data->rule_daysbefore_template[$idx]['text'];
 
-                $record = new stdClass;
-                $record->rulename = $data->bookingrule[$idx];
-                $record->rulejson = json_encode($ruleobj);
+        $record = new stdClass();
 
-                $DB->insert_record('booking_rules', $record);
-            }
+        if (!isset($data->rulejson)) {
+            $jsonobject = new stdClass();
+        } else {
+            $jsonobject = json_decode($data->rulejson);
+        }
+
+        $jsonobject->name = $data->rule_name;
+        $jsonobject->rulename = $this->rulename;
+        $jsonobject->ruledata = new stdClass();
+        $jsonobject->ruledata->boevent = $data->rule_react_on_event_event ?? '';
+
+        $record->rulejson = json_encode($jsonobject);
+        $record->rulename = $this->rulename;
+        $record->bookingid = $data->bookingid ?? 0;
+
+        // If we can update, we add the id here.
+        if ($data->id) {
+            $record->id = $data->id;
+            $DB->update_record('booking_rules', $record);
+        } else {
+            $ruleid = $DB->insert_record('booking_rules', $record);
+            $this->ruleid = $ruleid;
         }
     }
 
@@ -191,17 +141,13 @@ class rule_react_on_event implements booking_rule {
      * @param stdClass $record a record from booking_rules
      */
     public function set_defaults(stdClass &$data, stdClass $record) {
-        $idx = $record->id - 1;
-        $data->bookingrule[$idx] = $record->rulename;
-        $ruleobj = json_decode($record->rulejson);
-        $data->rule_daysbefore_days[$idx] = $ruleobj->days;
-        $data->rule_daysbefore_datefield[$idx] = $ruleobj->datefield;
-        $data->rule_daysbefore_cpfield[$idx] = $ruleobj->cpfield;
-        $data->rule_daysbefore_operator[$idx] = $ruleobj->operator;
-        $data->rule_daysbefore_optionfield[$idx] = $ruleobj->optionfield;
-        $data->rule_daysbefore_subject[$idx] = $ruleobj->subject;
-        $data->rule_daysbefore_template[$idx]['text'] = $ruleobj->template;
-        $data->rule_daysbefore_template[$idx]['format'] = FORMAT_HTML;
+
+        $jsonobject = json_decode($record->rulejson);
+        $ruledata = $jsonobject->ruledata;
+
+        $data->rule_name = $jsonobject->name;
+        $data->rule_react_on_event_event = $ruledata->boevent;
+
     }
 
     /**
@@ -212,83 +158,30 @@ class rule_react_on_event implements booking_rule {
     public function execute(int $optionid = 0, int $userid = 0) {
         global $DB;
 
-        $andoptionid = "";
-        $anduserid = "";
-
-        $params = [
-            'cpfield' => $this->cpfield,
-            'numberofdays' => (int) $this->days,
-            'nowparam' => time()
-        ];
-
-        if (!empty($optionid)) {
-            $andoptionid = "AND bo.id = :optionid";
-            $params['optionid'] = $optionid;
-        }
-        if (!empty($userid)) {
-            $anduserid = "AND ud.userid = :userid";
-            $params['userid'] = $userid;
+        // This rule executes only on event.
+        // And every event will have an optionid, because it's linked to a specific optin.
+        if ($optionid === 0) {
+            return;
         }
 
-        $sqlcomparepart = "";
-        switch ($this->operator) {
-            case '~':
-                $sqlcomparepart = $DB->sql_compare_text("ud.data") .
-                    " LIKE CONCAT('%', bo." . $this->optionfield . ", '%')
-                      AND bo." . $this->optionfield . " <> ''
-                      AND bo." . $this->optionfield . " IS NOT NULL";
-                break;
-            case '=':
-            default:
-                $sqlcomparepart = $DB->sql_compare_text("ud.data") . " = bo." . $this->optionfield;
-                break;
-        }
+        $jsonobject = json_decode($this->rulejson);
 
-        // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-        $sql = "SELECT CONCAT(bo.id, '-', ud.userid) uniqueid,
-                        bo.id optionid,
-                        bo." . $this->datefield . " datefield,
-                        ud.userid
-                FROM {user_info_data} ud
-                JOIN {booking_options} bo
-                ON $sqlcomparepart
-                WHERE ud.fieldid IN (
-                    SELECT DISTINCT id
-                    FROM {user_info_field} uif
-                    WHERE uif.shortname = :cpfield
-                )
-                AND bo." . $this->datefield . " >= ( :nowparam + (86400 * :numberofdays ))
-                $andoptionid
-                $anduserid
-        ";
+        // We reuse this code when we check for validity, therefore we use a separate function.
+        $records = $this->get_records_for_execution($optionid, $userid);
 
-        if ($recordsforadhoctasks = $DB->get_records_sql($sql, $params)) {
-            foreach ($recordsforadhoctasks as $record) {
-                // Create the adhoc task to handle the rule.
-                $task = new send_mail_by_rule_adhoc();
+        // Now we finally execution the action, where we pass on every record.
+        $action = actions_info::get_action($jsonobject->actionname);
+        $action->set_actiondata_from_json($this->rulejson);
+        // For the execution, we need a rule id, otherwise we can't test for consistency.
+        $action->ruleid = $this->ruleid;
 
-                // Generate the data needed by the task.
-                $optionsettings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
-                $taskdata = [
-                    // We need the JSON, so we can check if the rule still applies...
-                    // ...on task execution.
-                    'rulename' => $this->rulename,
-                    'rulejson' => $this->rulejson,
-                    'userid' => $record->userid,
-                    'optionid' => $record->optionid,
-                    'cmid' => $optionsettings->cmid,
-                    'customsubject' => $this->subject,
-                    'custommessage' => $this->template
-                ];
-                $task->set_custom_data($taskdata);
+        foreach ($records as $record) {
 
-                // Set the time of when the task should run.
-                $nextruntime = (int) $record->datefield - ((int) $this->days * 86400);
-                $task->set_next_run_time($nextruntime);
-
-                // Now queue the task or reschedule it if it already exists (with matching data).
-                \core\task\manager::reschedule_or_queue_adhoc_task($task);
-            }
+            // Set the time of when the task should run.
+            $nextruntime = time();
+            $record->rulename = $this->rulename;
+            $record->nextruntime = $nextruntime;
+            $action->execute($record);
         }
     }
 
@@ -305,75 +198,58 @@ class rule_react_on_event implements booking_rule {
     public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime): bool {
         global $DB;
 
-        $rulestillapplies = false;
+        // For this rule, we don't need to check because everything is sent directly after event was triggered.
+
+        return true;
+    }
+
+    /**
+     * This helperfunction builds the sql with the help of the condition and returns the records.
+     * Testmodus means that we don't limit by now timestamp.
+     *
+     * @param integer $optionid
+     * @param integer $userid
+     * @param bool $testmodus
+     * @return array
+     */
+    public function get_records_for_execution(int $optionid, int $userid = 0) {
+        global $DB;
+
+        // Execution of a rule is a complexe action.
+        // Going from rule to condition to action...
+        // ... we need to go into actions with an array of records...
+        // ... which has the keys cmid, optionid & userid.
+
+        $jsonobject = json_decode($this->rulejson);
+        $ruledata = $jsonobject->ruledata;
 
         $params = [
             'optionid' => $optionid,
-            'userid' => $userid,
-            'cpfield' => $this->cpfield,
-            'numberofdays' => (int) $this->days
+            'userid' => $userid
         ];
 
-        $sqlcomparepart = "";
-        switch ($this->operator) {
-            case '~':
-                $sqlcomparepart = $DB->sql_compare_text("ud.data") .
-                    " LIKE CONCAT('%', bo." . $this->optionfield . ", '%')
-                      AND bo." . $this->optionfield . " <> ''
-                      AND bo." . $this->optionfield . " IS NOT NULL";
-                break;
-            case '=':
-            default:
-                $sqlcomparepart = $DB->sql_compare_text("ud.data") . " = bo." . $this->optionfield;
-                break;
-        }
+        $sql = new stdClass();
 
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-        $sql = "SELECT CONCAT(bo.id, '-', ud.userid) uniqueid,
-                        bo.id optionid,
-                        bo." . $this->datefield . " datefield,
-                        ud.userid
-                FROM {user_info_data} ud
-                JOIN {booking_options} bo
-                ON $sqlcomparepart
-                WHERE ud.fieldid IN (
-                    SELECT DISTINCT id
-                    FROM {user_info_field} uif
-                    WHERE uif.shortname = :cpfield
-                )
-                AND bo.id = :optionid
-                AND ud.userid = :userid";
+        $sql->select = "bo.id optionid";
+        $sql->from = "{booking_options} bo";
 
-        $select1 = "bo.id optionid,
-        bo." . $this->datefield . " datefield";
+        // In testmode we don't check the timestamp.
+        $sql->where = " bo.id = :optionid";
 
-        $select2pre = "CONCAT(bo.id, '-', ud.userid) uniqueid";
-        $select2post = ", ud.userid";
+        // Now that we know the ids of the booking options concerend, we will determine the users concerned.
+        // The condition execution will add their own code to the sql.
 
-        $from1 = "FROM {booking_options} bo";
+        $condition = conditions_info::get_condition($jsonobject->conditionname);
 
-        $from2 = " JOIN {user_info_data} ud
-        ON $sqlcomparepart";
+        $condition->set_conditiondata_from_json($this->rulejson);
 
-        $where = "WHERE ud.fieldid IN (
-            SELECT DISTINCT id
-            FROM {user_info_field} uif
-            WHERE uif.shortname = :cpfield
-        )
-        AND bo.id = :optionid
-        AND ud.userid = :userid";
+        $condition->execute($sql, $params);
 
-        if ($records = $DB->get_records_sql($sql, $params)) {
-            // There should only be one record actually.
-            foreach ($records as $record) {
-                // Set the time of when the task should run.
-                $calculatedruntime = (int) $record->datefield - ((int) $this->days * 86400);
-                if ($calculatedruntime == $nextruntime) {
-                    // Only if both a record was found and the runtime is still the same.
-                    $rulestillapplies = true;
-                }
-            }
-        }
-        return $rulestillapplies;
+        $sqlstring = "SELECT $sql->select FROM $sql->from WHERE $sql->where";
+
+        $records = $DB->get_records_sql($sqlstring, $params);
+
+        return $records;
     }
 }

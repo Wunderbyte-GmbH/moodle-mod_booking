@@ -139,8 +139,14 @@ class select_student_in_bo implements booking_rule_condition {
     public function execute(stdClass &$sql, array &$params) {
         global $DB;
 
-        // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
+        // We pass the restriction to the userid in the params.
+        // If its not 0, we add the restirction.
+        $anduserid = '';
+        if (!empty($params['userid'])) {
+            $anduserid = "AND ud.userid = :userid";
+        }
 
+        // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
         $sql->select = " CONCAT(bo.id, '-', ba.userid) uniqueid, " . $sql->select;
         $sql->select .= ", ba.userid userid,
         cm.id cmid ";
@@ -150,7 +156,8 @@ class select_student_in_bo implements booking_rule_condition {
         JOIN {modules} m ON m.id=cm.module ";
 
         $sql->where .= " AND m.name='booking'
-            AND ba.status=:borole";
+            AND ba.status=:borole
+            $anduserid ";
 
         $params['borole'] = $this->borole;
     }

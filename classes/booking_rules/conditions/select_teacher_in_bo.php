@@ -67,7 +67,7 @@ class select_teacher_in_bo implements booking_rule_condition {
         global $DB;
 
         $mform->addElement('static', 'condition_select_teacher_in_bo',
-                get_string('condition_select_teacher_in_bo_text', 'mod_booking'));
+                get_string('condition_select_teacher_in_bo_desc', 'mod_booking'));
 
     }
 
@@ -117,8 +117,14 @@ class select_teacher_in_bo implements booking_rule_condition {
     public function execute(stdClass &$sql, array &$params) {
         global $DB;
 
-        // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
+        // We pass the restriction to the userid in the params.
+        // If its not 0, we add the restirction.
+        $anduserid = '';
+        if (!empty($params['userid'])) {
+            $anduserid = "AND ud.userid = :userid";
+        }
 
+        // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
         $sql->select = " CONCAT(bo.id, '-', bt.userid) uniqueid, " . $sql->select;
         $sql->select .= ", bt.userid userid,
         cm.id cmid ";
@@ -127,7 +133,8 @@ class select_teacher_in_bo implements booking_rule_condition {
         JOIN {course_modules} cm ON cm.instance=bo.bookingid
         JOIN {modules} m ON m.id=cm.module ";
 
-        $sql->where .= " AND m.name='booking'";
+        $sql->where .= " AND m.name='booking'
+        $anduserid ";
 
     }
 }
