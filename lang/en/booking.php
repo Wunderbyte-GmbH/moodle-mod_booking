@@ -2049,7 +2049,8 @@ $string['rule_name'] = "Custom name for the rule";
 $string['bookingrulecondition'] = "Condition of the rule";
 $string['bookingruleaction'] = "Action of the rule";
 $string['match_userprofilefield'] = "Select users by matching field in booking option and user profile field.";
-$string['select_role_in_course'] = "Select users their role in the course of the chosen booking option.";
+$string['select_student_in_bo'] = "Select booked users";
+$string['select_teacher_in_bo'] = "Select teachers of a booking option";
 $string['send_mail'] = "Send mail";
 
 $string['bookingcondition'] = "Condition";

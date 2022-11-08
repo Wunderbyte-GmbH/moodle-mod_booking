@@ -52,15 +52,9 @@ class rulesform extends dynamic_form {
         // If we open an existing rule, we need to save the id right away.
         if (!empty($ajaxformdata['id'])) {
             $mform->addElement('hidden', 'id', $ajaxformdata['id']);
+
+            $this->prepare_ajaxformdata($ajaxformdata);
         }
-
-        // When a specific rule is chosen, we can load the right handlers already here.
-        // Also, a change in rule, condition or action type will result in the call of different...
-        // ... handlers in the definition.
-        // Therefore, we need to load all these informations here.
-        // Subhandlers won't have the values via _ajaxformdata, so we need to add hidden elements to mform.
-
-        $this->preload_defintion_values($mform);
 
         $repeateloptions = [];
 
@@ -138,15 +132,23 @@ class rulesform extends dynamic_form {
     }
 
     /**
-     * This function adds hidden settings to mform, depending on submitted or preloaded data.
+     * Prepare the ajax form data with all the information...
+     * ... we need no have to load the form with the right handlers.
      *
-     * @param MoodleQuickForm $mform
+     * @param array $ajaxformdata
      * @return void
      */
-    private function preload_defintion_values(MoodleQuickForm &$mform) {
+    private function prepare_ajaxformdata(array &$ajaxformdata) {
 
-        $data = $this->_ajaxformdata;
+        global $DB;
 
-        // TODO: Preload values from saved booking rule.
+        // If we have an ID, we retrieve the right rule from DB.
+        $record = $DB->get_record('booking_rules', ['id' => $ajaxformdata['id']]);
+
+        $jsonboject = json_decode($record->rulejson);
+
+        $ajaxformdata['bookingruleconditiontype'] = $jsonboject->conditionname;
+        $ajaxformdata['bookingruleactiontype'] = $jsonboject->actionname;
+
     }
 }

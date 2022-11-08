@@ -157,8 +157,7 @@ class actions_info {
         global $DB;
         if ($records = $DB->get_records('booking_rules')) {
             foreach ($records as $record) {
-                $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $record->rulename;
-                $rule = new $rulefullpath;
+                $rule = rules_info::get_rule($record->rulename);
                 // Important: Load the rule data from JSON into the rule instance.
                 $rule->set_ruledata($record);
                 // Now the rule can be executed.
@@ -176,8 +175,9 @@ class actions_info {
         global $DB;
         if ($records = $DB->get_records('booking_rules')) {
             foreach ($records as $record) {
-                $rulefullpath = "\\mod_booking\\booking_rules\\actions\\" . $record->rulename;
-                $rule = new $rulefullpath;
+                if (!$rule = rules_info::get_rule($record->conditionname)) {
+                    continue;
+                }
                 // Important: Load the rule data from JSON into the rule instance.
                 $rule->set_ruledata($record);
                 // Now the rule can be executed.
@@ -195,8 +195,9 @@ class actions_info {
         global $DB;
         if ($records = $DB->get_records('booking_rules')) {
             foreach ($records as $record) {
-                $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $record->rulename;
-                $rule = new $rulefullpath;
+                if (!$rule = self::get_action($record->actionname)) {
+                    continue;
+                }
                 // Important: Load the rule data into the rule instance.
                 $rule->set_ruledata($record);
                 // Now the rule can be executed.

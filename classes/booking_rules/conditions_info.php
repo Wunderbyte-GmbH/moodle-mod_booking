@@ -141,8 +141,11 @@ class conditions_info {
         global $DB;
         if ($records = $DB->get_records('booking_conditions')) {
             foreach ($records as $record) {
-                $conditionfullpath = "\\mod_booking\\booking_rules\\conditions\\" . $record->conditionname;
-                $condition = new $conditionfullpath;
+
+                if (!$condition = self::get_condition($record->conditionname)) {
+                    continue;
+                }
+
                 // Important: Load the condition data from JSON into the condition instance.
                 $condition->set_conditiondata($record);
                 // Now the condition can be executed.
@@ -160,8 +163,9 @@ class conditions_info {
         global $DB;
         if ($records = $DB->get_records('booking_conditions')) {
             foreach ($records as $record) {
-                $conditionfullpath = "\\mod_booking\\booking_rules\\condition\\" . $record->conditionname;
-                $condition = new $conditionfullpath;
+                if (!$condition = self::get_condition($record->conditionname)) {
+                    continue;
+                }
                 // Important: Load the condition data from JSON into the condition instance.
                 $condition->set_conditiondata($record);
                 // Now the condition can be executed.
@@ -179,8 +183,9 @@ class conditions_info {
         global $DB;
         if ($records = $DB->get_records('booking_rules')) {
             foreach ($records as $record) {
-                $conditionfullpath = "\\mod_booking\\booking_rules\\conditions\\" . $record->conditioname;
-                $condition = new $conditionfullpath;
+                if (!$condition = self::get_condition($record->conditionname)) {
+                    continue;
+                }
                 // Important: Load the condition data into the condition instance.
                 $condition->set_conditiondata($record);
                 // Now the condition can be executed.

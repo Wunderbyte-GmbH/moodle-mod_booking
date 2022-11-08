@@ -1774,7 +1774,8 @@ $string['rule_name'] = "Eigener Name der Regel";
 $string['bookingrulecondition'] = "Kondition der Regel";
 $string['bookingruleaction'] = "Aktion der Regel";
 $string['match_userprofilefield'] = "Wähle NutzerInnen nach gleichem Wert in Buchungsoption und Profil.";
-$string['select_role_in_course'] = "Wähle NutzerInnen nach ihrer Rolle im Kurs der Buchungsoption.";
+$string['select_student_in_bo'] = "Wähle gebuchte NutzerInnen";
+$string['select_teacher_in_bo'] = "Wähle TeacherInnen einer Buchungsoption";
 $string['send_mail'] = "Sende e-Mail";
 
 $string['bookingcondition'] = "Bedingung";

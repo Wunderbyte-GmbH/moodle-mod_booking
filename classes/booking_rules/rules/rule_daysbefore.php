@@ -47,6 +47,9 @@ class rule_daysbefore implements booking_rule {
     /** @var string $rulejson */
     public $rulejson = null;
 
+    /** @var int $ruleid */
+    public $ruleid = null;
+
     /** @var int $days */
     public $days = null;
 
@@ -55,6 +58,7 @@ class rule_daysbefore implements booking_rule {
      * @param stdClass $record a rule record from DB
      */
     public function set_ruledata(stdClass $record) {
+        $this->ruleid = $record->id ?? 0;
         $this->set_ruledata_from_json($record->rulejson);
     }
 
@@ -163,7 +167,8 @@ class rule_daysbefore implements booking_rule {
             $record->id = $data->id;
             $DB->update_record('booking_rules', $record);
         } else {
-            $DB->insert_record('booking_rules', $record);
+            $ruleid = $DB->insert_record('booking_rules', $record);
+            $this->ruleid = $ruleid;
         }
     }
 
@@ -188,56 +193,26 @@ class rule_daysbefore implements booking_rule {
      * @param int $optionid optional
      * @param int $userid optional
      */
-    public function execute(int $optionid = null, int $userid = null) {
+    public function execute(int $optionid = 0, int $userid = 0) {
         global $DB;
 
-        // Execution of a rule is a complexe action.
-        // Going from rule to condition to action...
-        // ... we need to go into actions with an array of records...
-        // ... which has the keys cmid, optionid & userid.
-
         $jsonobject = json_decode($this->rulejson);
-        $ruledata = $jsonobject->ruledata;
 
-        $andoptionid = "";
-        $anduserid = "";
+        // We reuse this code when we check for validity, therefore we use a separate function.
+        $records = $this->get_records_for_execution($optionid, $userid);
 
-        $params = [
-            'cpfield' => $ruledata->cpfield,
-            'numberofdays' => (int) $ruledata->days,
-            'nowparam' => time()
-        ];
-
-        if (!empty($optionid)) {
-            $andoptionid = " AND bo.id = :optionid ";
-            $params['optionid'] = $optionid;
-        }
-
-        // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-        $sql = "bo.id optionid,
-                bo." . $ruledata->datefield . " datefield,
-                FROM {booking_options} bo
-                JOIN {course_modules} cm ON cm.instance=bo.bookingid
-                JOIN {modules} m ON m.id=cm.module
-                WHERE m.name='mod_booking'
-                AND bo." . $ruledata->datefield . " >= ( :nowparam + (86400 * :numberofdays ))
-                $andoptionid
-        ";
-
-        $bookingoptions = $DB->get_records_sql($sql, $params);
-
-        // Now that we know the ids of the booking options concerend, we will determine the users concerned.
-        // We will get back an array of stdClasses with the keys userid, optionid, cmid etc.
-
-        $condition = conditions_info::get_condition($jsonobject->conditionname);
-
-        $condition->set_conditiondata_from_json($this->rulejson);
-        $records = $condition->execute($bookingoptions);
-
+        // Now we finally execution the action, where we pass on every record.
         $action = actions_info::get_action($jsonobject->actionname);
         $action->set_actiondata_from_json($this->rulejson);
+        // For the execution, we need a rule id, otherwise we can't test for consistency.
+        $action->ruleid = $this->ruleid;
 
         foreach ($records as $record) {
+
+            // Set the time of when the task should run.
+            $nextruntime = (int) $record->datefield - ((int) $this->days * 86400);
+            $record->rulename = $this->rulename;
+            $record->nextruntime = $nextruntime;
             $action->execute($record);
         }
     }
@@ -257,54 +232,85 @@ class rule_daysbefore implements booking_rule {
 
         $rulestillapplies = false;
 
-        $params = [
-            'optionid' => $optionid,
-            'userid' => $userid,
-            'cpfield' => $this->cpfield,
-            'numberofdays' => (int) $this->days
-        ];
+        // We retrieve the same sql we also use in the execute function.
+        $records = $this->get_records_for_execution($optionid, $userid, true);
 
-        $sqlcomparepart = "";
-        switch ($this->operator) {
-            case '~':
-                $sqlcomparepart = $DB->sql_compare_text("ud.data") .
-                    " LIKE CONCAT('%', bo." . $this->optionfield . ", '%')
-                      AND bo." . $this->optionfield . " <> ''
-                      AND bo." . $this->optionfield . " IS NOT NULL";
+        foreach ($records as $record) {
+            $oldnextruntime = (int) $record->datefield - ((int) $this->days * 86400);
+
+            if ($oldnextruntime != $nextruntime) {
+                $rulestillapplies = false;
                 break;
-            case '=':
-            default:
-                $sqlcomparepart = $DB->sql_compare_text("ud.data") . " = bo." . $this->optionfield;
-                break;
-        }
-
-        // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-        $sql = "SELECT CONCAT(bo.id, '-', ud.userid) uniqueid,
-                        bo.id optionid,
-                        bo." . $this->datefield . " datefield,
-                        ud.userid
-                FROM {user_info_data} ud
-                JOIN {booking_options} bo
-                ON $sqlcomparepart
-                WHERE ud.fieldid IN (
-                    SELECT DISTINCT id
-                    FROM {user_info_field} uif
-                    WHERE uif.shortname = :cpfield
-                )
-                AND bo.id = :optionid
-                AND ud.userid = :userid";
-
-        if ($records = $DB->get_records_sql($sql, $params)) {
-            // There should only be one record actually.
-            foreach ($records as $record) {
-                // Set the time of when the task should run.
-                $calculatedruntime = (int) $record->datefield - ((int) $this->days * 86400);
-                if ($calculatedruntime == $nextruntime) {
-                    // Only if both a record was found and the runtime is still the same.
-                    $rulestillapplies = true;
-                }
             }
         }
+
         return $rulestillapplies;
+    }
+
+    /**
+     * This helperfunction builds the sql with the help of the condition and returns the records.
+     * Testmodus means that we don't limit by now timestamp.
+     *
+     * @param integer $optionid
+     * @param integer $userid
+     * @param bool $testmodus
+     * @return array
+     */
+    public function get_records_for_execution(int $optionid = 0, int $userid = 0, bool $testmodus = false) {
+        global $DB;
+
+        // Execution of a rule is a complexe action.
+        // Going from rule to condition to action...
+        // ... we need to go into actions with an array of records...
+        // ... which has the keys cmid, optionid & userid.
+
+        $jsonobject = json_decode($this->rulejson);
+        $ruledata = $jsonobject->ruledata;
+
+        $andoptionid = "";
+        $anduserid = "";
+
+        $params = [
+            'numberofdays' => (int) $ruledata->days,
+            'nowparam' => time()
+        ];
+
+        if (!empty($optionid)) {
+            $andoptionid = " AND bo.id = :optionid ";
+            $params['optionid'] = $optionid;
+        }
+
+        if (!empty($userid)) {
+            $anduserid = "AND ud.userid = :userid";
+            $params['userid'] = $userid;
+        }
+
+        $sql = new stdClass();
+
+        // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
+        $sql->select = "bo.id optionid,
+                bo." . $ruledata->datefield . " datefield";
+        $sql->from = "{booking_options} bo";
+
+        // In testmode we don't check the timestamp.
+        $sql->where = " bo." . $ruledata->datefield;
+        $sql->where .= !$testmodus ? " >= ( :nowparam + (86400 * :numberofdays ))" : " IS NOT NULL ";
+
+        $sql->where .= " $andoptionid $anduserid ";
+
+        // Now that we know the ids of the booking options concerend, we will determine the users concerned.
+        // The condition execution will add their own code to the sql.
+
+        $condition = conditions_info::get_condition($jsonobject->conditionname);
+
+        $condition->set_conditiondata_from_json($this->rulejson);
+
+        $condition->execute($sql, $params);
+
+        $sqlstring = "SELECT $sql->select FROM $sql->from WHERE $sql->where";
+
+        $records = $DB->get_records_sql($sqlstring, $params);
+
+        return $records;
     }
 }

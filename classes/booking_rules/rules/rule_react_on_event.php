@@ -209,7 +209,7 @@ class rule_react_on_event implements booking_rule {
      * @param int $optionid optional
      * @param int $userid optional
      */
-    public function execute(int $optionid = null, int $userid = null) {
+    public function execute(int $optionid = 0, int $userid = 0) {
         global $DB;
 
         $andoptionid = "";
@@ -343,6 +343,25 @@ class rule_react_on_event implements booking_rule {
                 )
                 AND bo.id = :optionid
                 AND ud.userid = :userid";
+
+        $select1 = "bo.id optionid,
+        bo." . $this->datefield . " datefield";
+
+        $select2pre = "CONCAT(bo.id, '-', ud.userid) uniqueid";
+        $select2post = ", ud.userid";
+
+        $from1 = "FROM {booking_options} bo";
+
+        $from2 = " JOIN {user_info_data} ud
+        ON $sqlcomparepart";
+
+        $where = "WHERE ud.fieldid IN (
+            SELECT DISTINCT id
+            FROM {user_info_field} uif
+            WHERE uif.shortname = :cpfield
+        )
+        AND bo.id = :optionid
+        AND ud.userid = :userid";
 
         if ($records = $DB->get_records_sql($sql, $params)) {
             // There should only be one record actually.

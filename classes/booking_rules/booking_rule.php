@@ -88,7 +88,7 @@ interface booking_rule {
      * @param int $optionid optional
      * @param int $userid optional
      */
-    public function execute(int $optionid = null, int $userid = null);
+    public function execute(int $optionid = 0, int $userid = 0);
 
     /**
      * This function is called on execution of adhoc tasks,

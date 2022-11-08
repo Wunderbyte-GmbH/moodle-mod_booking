@@ -179,7 +179,6 @@ class rules_info {
      * @return void
      */
     public static function save_booking_rule(stdClass &$data) {
-        global $DB;
 
         // We receive the form with the data depending on the used handlers.
         // As we know which handler to call, we only instantiate one rule.
@@ -194,6 +193,8 @@ class rules_info {
         // Rule has to be saved last, because it actually writes to DB.
         $rule->save_rule($data);
 
+        self::execute_booking_rules();
+
         return;
     }
 
@@ -204,8 +205,9 @@ class rules_info {
         global $DB;
         if ($records = $DB->get_records('booking_rules')) {
             foreach ($records as $record) {
-                $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $record->rulename;
-                $rule = new $rulefullpath;
+                if (!$rule = self::get_rule($record->rulename)) {
+                    continue;
+                }
                 // Important: Load the rule data from JSON into the rule instance.
                 $rule->set_ruledata($record);
                 // Now the rule can be executed.
@@ -223,8 +225,9 @@ class rules_info {
         global $DB;
         if ($records = $DB->get_records('booking_rules')) {
             foreach ($records as $record) {
-                $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $record->rulename;
-                $rule = new $rulefullpath;
+                if (!$rule = self::get_rule($record->rulename)) {
+                    continue;
+                }
                 // Important: Load the rule data from JSON into the rule instance.
                 $rule->set_ruledata($record);
                 // Now the rule can be executed.
@@ -242,8 +245,9 @@ class rules_info {
         global $DB;
         if ($records = $DB->get_records('booking_rules')) {
             foreach ($records as $record) {
-                $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $record->rulename;
-                $rule = new $rulefullpath;
+                if (!$rule = self::get_rule($record->rulename)) {
+                    continue;
+                }
                 // Important: Load the rule data into the rule instance.
                 $rule->set_ruledata($record);
                 // Now the rule can be executed.

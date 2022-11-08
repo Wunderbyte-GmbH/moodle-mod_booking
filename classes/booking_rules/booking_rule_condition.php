@@ -86,20 +86,10 @@ interface booking_rule_condition {
 
     /**
      * Execute the rule condition.
-     * @param array $records optional
+     * @param stdClass $sql
+     * @param array $params
      * @return array
      */
-    public function execute(array $records = null);
+    public function execute(stdClass &$sql, array &$params);
 
-    /**
-     * This function is called on execution of adhoc tasks,
-     * so we can see if the rule condition still applies and the adhoc task
-     * shall really be executed.
-     *
-     * @param int $optionid
-     * @param int $userid
-     * @param int $nextruntime
-     * @return bool true if the rule condition still applies, false if not
-     */
-    public function check_if_condition_still_applies(int $optionid, int $userid, int $nextruntime): bool;
 }

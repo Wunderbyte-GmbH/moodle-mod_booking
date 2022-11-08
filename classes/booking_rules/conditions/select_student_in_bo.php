@@ -35,20 +35,13 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class match_userprofilefield implements booking_rule_condition {
+class select_student_in_bo implements booking_rule_condition {
 
     /** @var string $rulename */
-    public $conditionname = 'match_userprofilefield';
+    public $conditionname = 'select_student_in_bo';
 
-    /** @var string $cpfield */
-    public $cpfield = null;
-
-    /** @var string $operator */
-    public $operator = null;
-
-    /** @var string $optionfield */
-    public $optionfield = null;
-
+    /** @var string $role */
+    public $borole = null;
 
     /**
      * Load json data from DB into the object.
@@ -66,9 +59,7 @@ class match_userprofilefield implements booking_rule_condition {
         $this->rulejson = $json;
         $ruleobj = json_decode($json);
         $conditiondata = $ruleobj->conditiondata;
-        $this->cpfield = $conditiondata->cpfield;
-        $this->operator = $conditiondata->operator;
-        $this->optionfield = $conditiondata->optionfield;
+        $this->borole = $conditiondata->borole;
     }
 
     /**
@@ -81,40 +72,16 @@ class match_userprofilefield implements booking_rule_condition {
     public function add_condition_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
         global $DB;
 
-        // Get a list of allowed option fields to compare with custom user profile field.
-        // Currently we only use fields containing VARCHAR in DB.
-        $allowedoptionfields = [
-            '0' => get_string('choose...', 'mod_booking'),
-            'text' => get_string('rule_optionfield_text', 'mod_booking'),
-            'location' => get_string('rule_optionfield_location', 'mod_booking'),
-            'address' => get_string('rule_optionfield_address', 'mod_booking')
+        $courseroles = [
+            -1 => get_string('choose...', 'mod_booking'),
+            STATUSPARAM_BOOKED => get_string('studentbooked', 'mod_booking'),
+            STATUSPARAM_WAITINGLIST => get_string('studentwaitinglist', 'mod_booking'),
+            STATUSPARAM_NOTIFYMELIST => get_string('studentnotificationlist', 'mod_booking'),
+            STATUSPARAM_DELETED => get_string('studentdeleted', 'mod_booking'),
         ];
 
-        // Custom user profile field to be checked.
-        $customuserprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
-        if (!empty($customuserprofilefields)) {
-            $customuserprofilefieldsarray = [];
-            $customuserprofilefieldsarray[0] = get_string('choose...', 'mod_booking');
-
-            // Create an array of key => value pairs for the dropdown.
-            foreach ($customuserprofilefields as $customuserprofilefield) {
-                $customuserprofilefieldsarray[$customuserprofilefield->shortname] = $customuserprofilefield->name;
-            }
-
-            $mform->addElement('select', 'condition_match_userprofilefield_cpfield',
-                get_string('rule_customprofilefield', 'mod_booking'), $customuserprofilefieldsarray);
-
-            $operators = [
-                '=' => get_string('equals', 'mod_booking'),
-                '~' => get_string('contains', 'mod_booking')
-            ];
-            $mform->addElement('select', 'condition_match_userprofilefield_operator',
-                get_string('rule_operator', 'mod_booking'), $operators);
-
-            $mform->addElement('select', 'condition_match_userprofilefield_optionfield',
-                get_string('rule_optionfield', 'mod_booking'), $allowedoptionfields);
-
-        }
+        $mform->addElement('select', 'condition_select_student_in_bo_borole',
+                get_string('condition_select_student_in_bo_roles', 'mod_booking'), $courseroles);
 
     }
 
@@ -141,9 +108,7 @@ class match_userprofilefield implements booking_rule_condition {
 
         $jsonobject->conditionname = $this->conditionname;
         $jsonobject->conditiondata = new stdClass();
-        $jsonobject->conditiondata->optionfield = $data->condition_match_userprofilefield_optionfield ?? '';
-        $jsonobject->conditiondata->operator = $data->condition_match_userprofilefield_operator ?? '';
-        $jsonobject->conditiondata->cpfield = $data->condition_match_userprofilefield_cpfield ?? '';
+        $jsonobject->conditiondata->borole = $data->condition_select_student_in_bo_borole ?? '';
 
         $data->rulejson = json_encode($jsonobject);
     }
@@ -160,9 +125,7 @@ class match_userprofilefield implements booking_rule_condition {
         $jsonobject = json_decode($record->rulejson);
         $conditiondata = $jsonobject->conditiondata;
 
-        $data->condition_match_userprofilefield_optionfield = $conditiondata->optionfield;
-        $data->condition_match_userprofilefield_operator = $conditiondata->operator;
-        $data->condition_match_userprofilefield_cpfield = $conditiondata->cpfield;
+        $data->condition_select_student_in_bo_borole = $conditiondata->borole;
 
     }
 
@@ -176,37 +139,19 @@ class match_userprofilefield implements booking_rule_condition {
     public function execute(stdClass &$sql, array &$params) {
         global $DB;
 
-        $sqlcomparepart = "";
-        switch ($this->operator) {
-            case '~':
-                $sqlcomparepart = $DB->sql_compare_text("ud.data") .
-                    " LIKE CONCAT('%', bo." . $this->optionfield . ", '%')
-                      AND bo." . $this->optionfield . " <> ''
-                      AND bo." . $this->optionfield . " IS NOT NULL";
-                break;
-            case '=':
-            default:
-                $sqlcomparepart = $DB->sql_compare_text("ud.data") . " = bo." . $this->optionfield;
-                break;
-        }
-
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
 
-        $sql->select = " CONCAT(bo.id, '-', ud.userid) uniqueid, " . $sql->select;
-        $sql->select .= ", ud.userid userid,
+        $sql->select = " CONCAT(bo.id, '-', ba.userid) uniqueid, " . $sql->select;
+        $sql->select .= ", ba.userid userid,
         cm.id cmid ";
 
-        $sql->from .= " JOIN {user_info_data} ud ON $sqlcomparepart
+        $sql->from .= " JOIN {booking_answers} ba ON bo.id=ba.optionid
         JOIN {course_modules} cm ON cm.instance=bo.bookingid
         JOIN {modules} m ON m.id=cm.module ";
 
         $sql->where .= " AND m.name='booking'
-            AND ud.fieldid IN (
-                    SELECT DISTINCT id
-                    FROM {user_info_field} uif
-                    WHERE uif.shortname = :cpfield
-                ) ";
+            AND ba.status=:borole";
 
-        $params['cpfield'] = $this->cpfield;
+        $params['borole'] = $this->borole;
     }
 }

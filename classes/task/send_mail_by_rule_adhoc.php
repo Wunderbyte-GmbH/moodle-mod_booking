@@ -19,6 +19,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
+use mod_booking\booking_rules\rules_info;
 use mod_booking\message_controller;
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -48,6 +49,8 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
      */
     public function execute() {
 
+        global $DB;
+
         $taskdata = $this->get_custom_data();
         $nextruntime = $this->get_next_run_time();
 
@@ -56,11 +59,24 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
 
         if ($taskdata != null) {
 
-            $rulefullpath = "\\mod_booking\\booking_rules\\rules\\" . $taskdata->rulename;
-            $rule = new $rulefullpath;
-            // Important: Load the rule data from JSON into the rule instance.
-            $rule->set_ruledata_from_json($taskdata->rulejson);
+            // First check is if the saved json is still the same as the one we had when we saved the task.
+            // This is important, as rules might change over time.
 
+            $ruleinstance = $DB->get_record('booking_rules', ['id' => $taskdata->ruleid]);
+
+            if ($ruleinstance->rulejson != $taskdata->rulejson) {
+                echo 'send_mail_by_rule_adhoc task: Rule has changed since task was scheduled. Mail was NOT SENT for option ' .
+                    $taskdata->optionid . ' and user ' . $taskdata->userid . PHP_EOL;
+                return;
+            }
+
+            $rule = rules_info::get_rule($taskdata->rulename);
+            // Important: Load the rule data in the instance. As we have compared the json before, we can use the record.
+            // Thereby, we will also have the ruleid.
+            $rule->set_ruledata($ruleinstance);
+
+            // Bevore we have checked if the rule has changed.
+            // But now we run the call again to see if something else has changed (field in bo, in user profile etc.).
             if (!$rule->check_if_rule_still_applies($taskdata->optionid, $taskdata->userid, $nextruntime)) {
                 echo 'send_mail_by_rule_adhoc task: Rule does not apply anymore. Mail was NOT SENT for option ' .
                     $taskdata->optionid . ' and user ' . $taskdata->userid . PHP_EOL;

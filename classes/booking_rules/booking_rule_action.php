@@ -86,20 +86,8 @@ interface booking_rule_action {
 
     /**
      * Execute the rule action.
-     * @param int $optionid optional
-     * @param int $userid optional
+     * @param stdClass $record
      */
-    public function execute(int $optionid = null, int $userid = null);
+    public function execute(stdClass $record);
 
-    /**
-     * This function is called on execution of adhoc tasks,
-     * so we can see if the rule action still applies and the adhoc task
-     * shall really be executed.
-     *
-     * @param int $optionid
-     * @param int $userid
-     * @param int $nextruntime
-     * @return bool true if the rule action still applies, false if not
-     */
-    public function check_if_action_still_applies(int $optionid, int $userid, int $nextruntime): bool;
 }
