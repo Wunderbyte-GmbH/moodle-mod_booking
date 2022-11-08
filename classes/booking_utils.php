@@ -329,6 +329,10 @@ class booking_utils {
             $button = '<div class="col-ap-norighttobook">' . get_string('norighttobook', 'booking') . "</div><br/>";
         }
 
+        // Check Booking Option Status.
+        if ($values->bostatus == BO_STATUS_CANCELD_AND_VISIBLE) {
+            $button = '<div class="col-ap-cancelled alert alert-warning">' . get_string('eventbooking_cancelled', 'booking') . "</div><br/>";
+        }
         // We only run this if we are not on coursepage.
         if (!$coursepage) {
             if (has_capability('mod/booking:readresponses', $context) || $values->isteacher) {

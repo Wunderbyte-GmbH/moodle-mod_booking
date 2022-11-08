@@ -92,6 +92,10 @@ define('BO_COND_MAX_NUMBER_OF_BOOKINGS', 60);
 define('BO_COND_BOOKING_TIME', 50);
 define('BO_COND_PRICEISSET', 10); // Price has to be the lowest blocking condition.
 
+// Define booking options status.
+define('BO_STATUS_NORMAL', 0);
+define('BO_STATUS_CANCELD_AND_VISIBLE', 1);
+
 // Define conditions parameters.
 define('CONDPARAM_ALL', 0);
 define('CONDPARAM_HARDCODED_ONLY', 1);

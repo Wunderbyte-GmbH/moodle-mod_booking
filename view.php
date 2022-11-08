@@ -560,6 +560,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
                          bo.maxoverbooking,
                          bo.minanswers,
                          bo.invisible,
+                         bo.status as bostatus,
                   (SELECT COUNT(*)
                    FROM {booking_answers} ba
                    WHERE ba.optionid = bo.id
