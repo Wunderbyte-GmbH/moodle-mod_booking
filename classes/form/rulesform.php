@@ -147,6 +147,7 @@ class rulesform extends dynamic_form {
 
         $jsonboject = json_decode($record->rulejson);
 
+        $ajaxformdata['bookingruletype'] = $jsonboject->rulename;
         $ajaxformdata['bookingruleconditiontype'] = $jsonboject->conditionname;
         $ajaxformdata['bookingruleactiontype'] = $jsonboject->actionname;
 

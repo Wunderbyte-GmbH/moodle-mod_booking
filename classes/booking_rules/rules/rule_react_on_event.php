@@ -142,6 +142,8 @@ class rule_react_on_event implements booking_rule {
      */
     public function set_defaults(stdClass &$data, stdClass $record) {
 
+        $data->bookingruletype = $this->rulename;
+
         $jsonobject = json_decode($record->rulejson);
         $ruledata = $jsonobject->ruledata;
 

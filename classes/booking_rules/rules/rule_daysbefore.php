@@ -179,6 +179,8 @@ class rule_daysbefore implements booking_rule {
      */
     public function set_defaults(stdClass &$data, stdClass $record) {
 
+        $data->bookingruletype = $this->rulename;
+
         $jsonobject = json_decode($record->rulejson);
         $ruledata = $jsonobject->ruledata;
 
