@@ -66,7 +66,7 @@ class select_teacher_in_bo implements booking_rule_condition {
     public function add_condition_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
         global $DB;
 
-        $mform->addElement('static', 'condition_select_teacher_in_bo',
+        $mform->addElement('static', 'condition_select_teacher_in_bo', '',
                 get_string('condition_select_teacher_in_bo_desc', 'mod_booking'));
 
     }

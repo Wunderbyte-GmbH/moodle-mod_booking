@@ -1765,7 +1765,8 @@ $string['rule_sendmail_cpf_desc'] = 'Wählen Sie ein Event aus, auf das reagiert
 
 $string['rule_daysbefore'] = 'Reagiere n Tage vor einem bestimmtem Datum';
 $string['rule_daysbefore_desc'] = 'Wählen Sie die Anzahl der Tage VOR einem gewissen Datum einer Buchungsoption aus.';
- $string['rule_react_on_event'] = "Reagiere auf Ereignis";
+ $string['rule_react_on_event'] = 'Reagiere auf Ereignis';
+ $string['rule_react_on_event_desc'] = 'Wählen Sie ein Ereignis aus, durch das die Regel ausgelöst werden soll.';
 
 $string['error:nofieldchosen'] = 'Sie müssen ein Feld auswählen.';
 $string['error:mustnotbeempty'] = 'Darf nicht leer sein.';
@@ -1774,12 +1775,20 @@ $string['error:mustnotbeempty'] = 'Darf nicht leer sein.';
 $string['rule_name'] = "Eigener Name der Regel";
 $string['bookingrulecondition'] = "Kondition der Regel";
 $string['bookingruleaction'] = "Aktion der Regel";
-$string['match_userprofilefield'] = "Wähle NutzerInnen nach gleichem Wert in Buchungsoption und Profil.";
-$string['select_student_in_bo'] = "Wähle gebuchte NutzerInnen";
-$string['select_teacher_in_bo'] = "Wähle TeacherInnen einer Buchungsoption";
-$string['send_mail'] = "Sende e-Mail";
+$string['match_userprofilefield'] = "Wähle Nutzer:innen nach gleichem Wert in Buchungsoption und Profil.";
+$string['select_student_in_bo'] = "Wähle Nutzer:innen einer Buchungsoption";
+$string['select_teacher_in_bo'] = "Wähle Trainer:innen einer Buchungsoption";
+$string['send_mail'] = "Sende E-Mail";
 
 $string['bookingcondition'] = "Bedingung";
+
+$string['condition_select_teacher_in_bo_desc'] = 'Trainer:innen der von der Regel betroffenen Buchungsoption wählen.';
+$string['condition_select_student_in_bo_desc'] = 'Nutzer:innen der von der Regel betroffenen Buchungsoption wählen.';
+$string['condition_select_student_in_bo_roles'] = 'Rolle wählen';
+$string['studentbooked'] = 'Nutzer:innen, die gebucht haben';
+$string['studentwaitinglist'] = 'Nutzer:innen auf der Warteliste';
+$string['studentnotificationlist'] = 'Nutzer:innen auf der Benachrichtigungsliste';
+$string['studentdeleted'] = 'Nutzer:innen, die bereits entfernt wurden';
 
 // Booking rules actions.
 $string['bookingaction'] = "Aktion";

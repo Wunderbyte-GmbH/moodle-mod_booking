@@ -61,8 +61,6 @@ class rules_info {
             $rulesforselect[$shortclassname] = $rule->get_name_of_rule();
         }
 
-        $mform->addElement('html', '<hr>');
-
         // The custom name of the role has to be at this place, but every rule will implement save and set of rule_name.
         $mform->addElement('text', 'rule_name',
             get_string('rule_name', 'mod_booking'), ['size' => '50']);
@@ -86,8 +84,12 @@ class rules_info {
 
         $rule->add_rule_to_mform($mform, $repeateloptions);
 
+        $mform->addElement('html', '<hr>');
+
         // At this point, we also load the conditions.
         conditions_info::add_conditions_to_mform($mform, $repeateloptions, $ajaxformdata);
+
+        $mform->addElement('html', '<hr>');
 
         // Finally, we load the actions.
         actions_info::add_actions_to_mform($mform, $repeateloptions, $ajaxformdata);

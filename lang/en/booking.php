@@ -2041,6 +2041,7 @@ $string['rule_sendmail_cpf_desc'] = 'Choose an event that should trigger the "Se
 $string['rule_daysbefore'] = 'Trigger n days before a certain date';
 $string['rule_daysbefore_desc'] = 'Choose a date field of booking options and the number of days BEFORE that date.';
 $string['rule_react_on_event'] = "React on event";
+$string['rule_react_on_event_desc'] = "Choose an event that should trigger the rule.";
 
 $string['error:nofieldchosen'] = 'You have to choose a field.';
 $string['error:mustnotbeempty'] = 'Must not be empty.';
@@ -2050,11 +2051,19 @@ $string['rule_name'] = "Custom name for the rule";
 $string['bookingrulecondition'] = "Condition of the rule";
 $string['bookingruleaction'] = "Action of the rule";
 $string['match_userprofilefield'] = "Select users by matching field in booking option and user profile field.";
-$string['select_student_in_bo'] = "Select booked users";
+$string['select_student_in_bo'] = "Select users of a booking option";
 $string['select_teacher_in_bo'] = "Select teachers of a booking option";
-$string['send_mail'] = "Send mail";
+$string['send_mail'] = 'Send email';
 
-$string['bookingcondition'] = "Condition";
+$string['bookingcondition'] = 'Condition';
+
+$string['condition_select_teacher_in_bo_desc'] = 'Select the teachers of the booking option (affected by the rule).';
+$string['condition_select_student_in_bo_desc'] = 'Select all students of the booking option (affected by the rule) having a certain role.';
+$string['condition_select_student_in_bo_roles'] = 'Choose role';
+$string['studentbooked'] = 'Users who booked';
+$string['studentwaitinglist'] = 'Users on the waiting list';
+$string['studentnotificationlist'] = 'Users on the notification list';
+$string['studentdeleted'] = 'Users who were already deleted';
 
 // Booking rules actions.
 $string['bookingaction'] = "Action";

@@ -78,17 +78,24 @@ class rule_react_on_event implements booking_rule {
      * @return void
      */
     public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
-        global $DB;
 
         // Get a list of all booking events.
-        $bookingevents = get_list_of_booking_events();
+        $allevents = get_list_of_booking_events();
+        $allowedevents = [];
+
+        // Currently, we only allow events affecting booking options.
+        foreach ($allevents as $key => $value) {
+            if (strpos($key, 'bookingoption_')) {
+                $allowedevents[$key] = $value;
+            }
+        }
 
         // Workaround: We need a group to get hideif to work.
         $mform->addElement('static', 'rule_react_on_event_desc', '',
             get_string('rule_react_on_event_desc', 'mod_booking'));
 
         $mform->addElement('select', 'rule_react_on_event_event',
-            get_string('rule_event', 'mod_booking'), $bookingevents);
+            get_string('rule_event', 'mod_booking'), $allowedevents);
     }
 
     /**

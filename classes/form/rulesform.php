@@ -42,7 +42,6 @@ class rulesform extends dynamic_form {
      * @see moodleform::definition()
      */
     public function definition() {
-        global $DB;
 
         $mform = $this->_form;
 
@@ -147,9 +146,14 @@ class rulesform extends dynamic_form {
 
         $jsonboject = json_decode($record->rulejson);
 
-        $ajaxformdata['bookingruletype'] = $jsonboject->rulename;
-        $ajaxformdata['bookingruleconditiontype'] = $jsonboject->conditionname;
-        $ajaxformdata['bookingruleactiontype'] = $jsonboject->actionname;
-
+        if (empty($ajaxformdata['bookingruletype'])) {
+            $ajaxformdata['bookingruletype'] = $jsonboject->rulename;
+        }
+        if (empty($ajaxformdata['bookingruleconditiontype'])) {
+            $ajaxformdata['bookingruleconditiontype'] = $jsonboject->conditionname;
+        }
+        if (empty($ajaxformdata['bookingruleactiontype'])) {
+            $ajaxformdata['bookingruleactiontype'] = $jsonboject->actionname;
+        }
     }
 }

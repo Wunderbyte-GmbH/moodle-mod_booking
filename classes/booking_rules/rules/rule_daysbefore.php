@@ -111,7 +111,6 @@ class rule_daysbefore implements booking_rule {
             'bookingclosingtime' => get_string('rule_optionfield_bookingclosingtime', 'mod_booking')
         ];
 
-        // Workaround: We need a group to get hideif to work.
         $mform->addElement('static', 'rule_daysbefore_desc', '',
             get_string('rule_daysbefore_desc', 'mod_booking'));
 

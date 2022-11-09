@@ -70,7 +70,9 @@ class select_student_in_bo implements booking_rule_condition {
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
-        global $DB;
+
+        $mform->addElement('static', 'condition_select_student_in_bo', '',
+                get_string('condition_select_student_in_bo_desc', 'mod_booking'));
 
         $courseroles = [
             -1 => get_string('choose...', 'mod_booking'),
