@@ -2475,4 +2475,25 @@ class booking_option {
             'error' => $error
         ];
     }
+
+    /**
+     * Function to cancel a booking option.
+     * This does not delete, but only makes in unbookable and specially marked.
+     *
+     * @param integer $optionid
+     * @param string $cancelreason
+     * @return void
+     */
+    public static function cancelbookingoption(int $optionid, string $cancelreason) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        // Add reason to internal notes.
+
+        // Change status to canceled.
+
+        // Delete all booked users.
+
+
+    }
 }

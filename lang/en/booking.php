@@ -2068,6 +2068,13 @@ $string['studentdeleted'] = 'Users who were already deleted';
 // Booking rules actions.
 $string['bookingaction'] = "Action";
 
+// Cancel booking option.
+$string['canceloption'] = "Cancel boooking option";
+$string['canceloption_desc'] = "Canceling a boooking option means that it is no longer bookabel, but it is still shown in list.";
+$string['confirmcanceloption'] = "Confirm cancelation of booking option";
+$string['cancelthisbookingoption'] = "Cancel this booking option";
+$string['cancelreason'] = "Reason for cancelation of this booking option";
+$string['nocancelreason'] = "You need to give a reason for canceling this booking option";
 
 // Access.php.
 $string['booking:bookforothers'] = "Book for others";

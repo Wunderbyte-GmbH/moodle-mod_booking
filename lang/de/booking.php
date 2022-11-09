@@ -1793,5 +1793,13 @@ $string['studentdeleted'] = 'Nutzer:innen, die bereits entfernt wurden';
 // Booking rules actions.
 $string['bookingaction'] = "Aktion";
 
+// Cancel booking option.
+$string['canceloption'] = "Storniere Buchungsoption";
+$string['canceloption_desc'] = "Stornieren einer Buchungsoption bedeutet, dass die Option nicht mehr buchbar ist, aber weiterhin als storniert in der Liste angezeigt wird.";
+$string['confirmcanceloption'] = "Bestätige die Stornierung der Buchungsoption";
+$string['cancelthisbookingoption'] = "Storniere diese Buchungsoption";
+$string['cancelreason'] = "Grund für die Stornierung dieser Buchungsoption";
+$string['nocancelreason'] = "Sie müssen eine Grund für die Stornierung angeben";
+
 // Access.php.
 $string['booking:bookforothers'] = "Für andere buchen";
