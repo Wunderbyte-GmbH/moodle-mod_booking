@@ -231,8 +231,7 @@ input[name^='addsemester'] {
     padding-top: 1rem;
 }
 
-input[name^='deleteholiday'],
-input[name^='deletebookingrule'] {
+input[name^='deleteholiday'] {
     color: #ca3120;
     background-color: #fff;
     border-color: #ca3120;
@@ -243,8 +242,7 @@ input[name^='deletebookingrule'] {
     border-radius: 0.2rem;
 }
 
-input[name^='deleteholiday']:hover,
-input[name^='deletebookingrule']:hover {
+input[name^='deleteholiday']:hover {
     color: #fff;
     background-color: #ca3120;
     border-color: #ca3120;
@@ -255,15 +253,13 @@ input[name^='deletebookingrule']:hover {
     border-radius: 0.2rem;
 }
 
-input[name^='addholiday']:hover,
-input[name^='addbookingrule']:hover {
+input[name^='addholiday']:hover {
     color: #357a32;
     background-color: #fff;
     border-color: #357a32;
 }
 
-input[name^='addholiday'],
-input[name^='addbookingrule'] {
+input[name^='addholiday'] {
     color: #fff;
     background-color: #357a32;
     border-color: #357a32;

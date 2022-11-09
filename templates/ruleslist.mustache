@@ -24,10 +24,15 @@
     * data-region
 }}
 
-<ul class="list-group booking-rules-container">
-{{#rules}}
-    <li class="list-group-item" data-id="{{id}}" data-name="{{rulename" data-bookingid="{{bookingid}}">
-        {{id}} {{rulename}} {{bookingid}}<i class="fa fa-pencil" aria-hidden="true"></i>
-    </li>
-{{/rules}}
-<ul>
+<div class="booking-rules-container">
+    <div class="btn btn-success" data-id="0" data-name="{{#str}} addbookingrule, mod_booking {{/str}}" data-bookingid="0">
+        <i class="fa fa-plus-square" aria-hidden="true"></i> {{#str}} addbookingrule, mod_booking {{/str}}
+    </div>
+    <ul class="list-group">
+        {{#rules}}
+        <li class="list-group-item" data-id="{{id}}" data-name="{{rulename}}" data-bookingid="{{bookingid}}">
+            {{id}} {{rulename}} {{bookingid}} <i class="fa fa-pencil" aria-hidden="true"></i>
+        </li>
+        {{/rules}}
+    <ul>
+</div>

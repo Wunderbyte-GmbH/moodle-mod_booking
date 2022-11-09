@@ -51,20 +51,17 @@ echo $output->heading(get_string('bookingrules', 'mod_booking'));
 
 // Check if PRO version is active.
 if (wb_payment::is_currently_valid_licensekey()) {
-
-
     $borules = new booking_rules();
     echo $borules->return_rendered_list_of_saved_rules();
 
 } else {
-
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');
 }
 
 $PAGE->requires->js_call_amd(
     'mod_booking/dynamicrulesform',
     'init',
-    ['ul.booking-rules-container']
+    ['.booking-rules-container']
 );
 
 echo $output->footer();
