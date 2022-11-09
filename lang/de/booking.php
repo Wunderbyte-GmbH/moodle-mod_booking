@@ -76,6 +76,7 @@ $string['daystonotify_help'] = "Funktioniert nur, wenn ein Beginn- und Enddatum 
 $string['daystonotify2'] = 'Zweite Teilnehmerbenachrichtigung vor Veranstaltungsbeginn';
 $string['daystonotifyteachers'] = 'Wie viele Tage vor Kursbeginn soll an die Trainer:innen eine Benachrichtigung gesendet werden? (PRO)';
 $string['eventbooking_cancelled'] = 'Buchung storniert';
+$string['eventbookingoption_cancelled'] = "Buchungsoption storniert";
 $string['eventbookingoption_booked'] = 'Buchung durchgeführt';
 $string['eventbookingoption_completed'] = 'Buchung abgeschlossen';
 $string['bookingoption_created'] = 'Buchung angelegt';

@@ -205,6 +205,9 @@ class booking_option_settings {
     /** @var string $availability in json format */
     public $availability = null;
 
+    /** @var int $status like 1 for cancelled */
+    public $status = null;
+
     /**
      * Constructor for the booking option settings class.
      * The constructor can take the dbrecord stdclass which is the initial DB request for this option.
@@ -313,6 +316,7 @@ class booking_option_settings {
             $this->annotation = $dbrecord->annotation;
             $this->dayofweek = $dbrecord->dayofweek;
             $this->availability = $dbrecord->availability;
+            $this->status = $dbrecord->status;
 
             // Price formula: absolute value.
             if (isset($dbrecord->priceformulaadd)) {
