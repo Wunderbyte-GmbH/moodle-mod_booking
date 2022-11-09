@@ -42,8 +42,6 @@ class deleteruleform extends dynamic_form {
     public function definition() {
 
         $mform = $this->_form;
-
-        $customdata = $this->_customdata;
         $ajaxformdata = $this->_ajaxformdata;
 
         // If we open an existing rule, we need to save the id right away.
@@ -51,7 +49,11 @@ class deleteruleform extends dynamic_form {
             $mform->addElement('hidden', 'id', $ajaxformdata['id']);
         }
 
-        $mform->addElement('html', '<div>TODO: do you want to delete...</div>');
+        $mform->addElement('html', '<div><p>'
+            . get_string('deletebookingrule_confirmtext', 'mod_booking')
+            . '</p><p class="text-danger font-weight-bold">'
+            . $ajaxformdata['name']
+            . '</p></div>');
     }
 
     /**

@@ -2014,6 +2014,7 @@ $string['bookingrules'] = 'Booking: Define global rules (PRO)';
 $string['bookingrule'] = 'Rule';
 $string['addbookingrule'] = 'Add rule';
 $string['deletebookingrule'] = 'Delete rule';
+$string['deletebookingrule_confirmtext'] = 'Do you really want to delete the following rule?';
 
 $string['rule_event'] = 'Event';
 $string['rule_mailtemplate'] = 'Mail template';

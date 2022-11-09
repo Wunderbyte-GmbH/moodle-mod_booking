@@ -70,6 +70,7 @@ function editRulesModal(element) {
     }
 
     if (action == "delete") {
+        // A rule is deleted.
         const deleteForm = new ModalForm({
 
             // Name of the class where form is defined (must extend \core_form\dynamic_form):
@@ -84,12 +85,17 @@ function editRulesModal(element) {
             returnFocus: element
         });
 
+        // After submitting we want to reload the window to update the rule list.
+        deleteForm.addEventListener(deleteForm.events.FORM_SUBMITTED, () => {
+            window.location.reload();
+        });
+
         // Show the form.
         deleteForm.show();
 
     } else if (action == "edit-or-new") {
+        // A rule is added (ruleid == 0) or edited (ruleid > 0).
         const modalForm = new ModalForm({
-
             // Name of the class where form is defined (must extend \core_form\dynamic_form):
             formClass: "mod_booking\\form\\rulesform",
             // Add as many arguments as you need, they will be passed to the form:
@@ -107,7 +113,8 @@ function editRulesModal(element) {
             // eslint-disable-next-line no-console
             console.log('confirmCancelAndSetCreditModal response: ', response);
 
-            // Do something.
+            // After adding or editing, we want to reload the window to update the rule list.
+            window.location.reload();
         });
 
         // We need to add an event listener for the change of the rule, action, and condition select.

@@ -1739,6 +1739,7 @@ $string['bookingrules'] = 'Buchung: Globale Regeln (PRO)';
 $string['bookingrule'] = 'Regel';
 $string['addbookingrule'] = 'Regel hinzufügen';
 $string['deletebookingrule'] = 'Regel löschen';
+$string['deletebookingrule_confirmtext'] = 'Wollen Sie die folgende Regel wirklich löschen?';
 
 $string['rule_event'] = 'Event';
 $string['rule_mailtemplate'] = 'E-Mail-Vorlage';
