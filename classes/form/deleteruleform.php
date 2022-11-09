@@ -25,24 +25,21 @@ use context_system;
 use core_form\dynamic_form;
 use mod_booking\booking_rules\rules_info;
 use moodle_url;
-use moodleform;
-use MoodleQuickForm;
 
 /**
- * Dynamic rules form.
+ * Dynamic form to delete a rule.
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
+ * @author Bernhard Fischer
  * @package mod_booking
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class rulesform extends dynamic_form {
+class deleteruleform extends dynamic_form {
 
     /**
      * {@inheritdoc}
      * @see moodleform::definition()
      */
     public function definition() {
-        global $DB;
 
         $mform = $this->_form;
 
@@ -52,17 +49,9 @@ class rulesform extends dynamic_form {
         // If we open an existing rule, we need to save the id right away.
         if (!empty($ajaxformdata['id'])) {
             $mform->addElement('hidden', 'id', $ajaxformdata['id']);
-
-            $this->prepare_ajaxformdata($ajaxformdata);
         }
 
-        $repeateloptions = [];
-
-        rules_info::add_rules_to_mform($mform, $repeateloptions, $ajaxformdata);
-
-        // As this form is called normally from a modal, we don't need the action buttons.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $this->add_action_buttons(); // Use $this, not $mform. */
+        $mform->addElement('html', '<div>TODO: do you want to delete...</div>');
     }
 
     /**
@@ -72,7 +61,8 @@ class rulesform extends dynamic_form {
     public function process_dynamic_submission() {
         $data = parent::get_data();
 
-        rules_info::save_booking_rule($data);
+        // Delete the rule by its ID.
+        rules_info::delete_rule((int)$data->id);
 
         return $data;
     }
@@ -83,13 +73,7 @@ class rulesform extends dynamic_form {
      */
     public function set_data_for_dynamic_submission(): void {
 
-        if (!empty($this->_ajaxformdata['id'])) {
-            $data = (object)$this->_ajaxformdata;
-            $data = rules_info::set_data_for_form($data);
-        } else {
-            $data = (Object)$this->_ajaxformdata;
-        }
-
+        $data = (object) $this->_ajaxformdata;
         $this->set_data($data);
 
     }
@@ -102,7 +86,7 @@ class rulesform extends dynamic_form {
      */
     public function validation($data, $files) {
         $errors = [];
-
+        // Not needed.
         return $errors;
     }
 
@@ -129,27 +113,5 @@ class rulesform extends dynamic_form {
      */
     protected function check_access_for_dynamic_submission(): void {
         require_capability('moodle/site:config', context_system::instance());
-    }
-
-    /**
-     * Prepare the ajax form data with all the information...
-     * ... we need no have to load the form with the right handlers.
-     *
-     * @param array $ajaxformdata
-     * @return void
-     */
-    private function prepare_ajaxformdata(array &$ajaxformdata) {
-
-        global $DB;
-
-        // If we have an ID, we retrieve the right rule from DB.
-        $record = $DB->get_record('booking_rules', ['id' => $ajaxformdata['id']]);
-
-        $jsonboject = json_decode($record->rulejson);
-
-        $ajaxformdata['bookingruletype'] = $jsonboject->rulename;
-        $ajaxformdata['bookingruleconditiontype'] = $jsonboject->conditionname;
-        $ajaxformdata['bookingruleactiontype'] = $jsonboject->actionname;
-
     }
 }

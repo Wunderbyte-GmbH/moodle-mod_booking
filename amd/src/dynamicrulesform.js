@@ -70,60 +70,79 @@ function editRulesModal(element) {
     }
 
     if (action == "delete") {
-        // eslint-disable-next-line no-alert
-        confirm('are you sure you want to delete: ' + name);
+        const deleteForm = new ModalForm({
+
+            // Name of the class where form is defined (must extend \core_form\dynamic_form):
+            formClass: "mod_booking\\form\\deleteruleform",
+            // Add as many arguments as you need, they will be passed to the form:
+            args: {id: ruleid, name: name},
+            // Pass any configuration settings to the modal dialogue, for example, the title:
+            modalConfig: {
+                title: getString('deletebookingrule', 'mod_booking')
+            },
+            // DOM element that should get the focus after the modal dialogue is closed:
+            returnFocus: element
+        });
+
+        // Show the form.
+        deleteForm.show();
+
+    } else if (action == "edit-or-new") {
+        const modalForm = new ModalForm({
+
+            // Name of the class where form is defined (must extend \core_form\dynamic_form):
+            formClass: "mod_booking\\form\\rulesform",
+            // Add as many arguments as you need, they will be passed to the form:
+            args: {id: ruleid},
+            // Pass any configuration settings to the modal dialogue, for example, the title:
+            modalConfig: {title: getString('editrule', 'mod_booking')},
+            // DOM element that should get the focus after the modal dialogue is closed:
+            returnFocus: element
+        });
+
+        // Listen to events if you want to execute something on form submit.
+        // Event detail will contain everything the process() function returned:
+        modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, (e) => {
+            const response = e.detail;
+            // eslint-disable-next-line no-console
+            console.log('confirmCancelAndSetCreditModal response: ', response);
+
+            // Do something.
+        });
+
+        // We need to add an event listener for the change of the rule, action, and condition select.
+        modalForm.addEventListener('change', (e) => {
+            if (!e.target.name) {
+                return;
+            }
+
+            // eslint-disable-next-line no-console
+            console.log(e.target.name);
+
+            if (e.target.name == 'bookingruletype') {
+                window.skipClientValidation = true;
+                let button = document.querySelector('[name="btn_bookingruletype"]');
+                modalForm.processNoSubmitButton(button);
+            }
+
+            if (e.target.name == 'bookingruleconditiontype') {
+                window.skipClientValidation = true;
+                let button = document.querySelector('[name="btn_bookingruleconditiontype"]');
+                modalForm.processNoSubmitButton(button);
+            }
+
+            if (e.target.name == 'bookingruleactiontype') {
+                window.skipClientValidation = true;
+                let button = document.querySelector('[name="btn_bookingruleactiontype"]');
+                modalForm.processNoSubmitButton(button);
+            }
+        });
+
+        // Show the form.
+        modalForm.show();
+    } else {
+        // eslint-disable-next-line no-console
+        console.log('Error in dynamicrulesform.js: action should be "delete" or "edit-or-new".');
+        return;
     }
-
-    const modalForm = new ModalForm({
-
-        // Name of the class where form is defined (must extend \core_form\dynamic_form):
-        formClass: "mod_booking\\form\\rulesform",
-        // Add as many arguments as you need, they will be passed to the form:
-        args: {id: ruleid},
-        // Pass any configuration settings to the modal dialogue, for example, the title:
-        modalConfig: {title: getString('editrule', 'mod_booking')},
-        // DOM element that should get the focus after the modal dialogue is closed:
-        returnFocus: element
-    });
-
-    // Listen to events if you want to execute something on form submit.
-    // Event detail will contain everything the process() function returned:
-    modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, (e) => {
-        const response = e.detail;
-        // eslint-disable-next-line no-console
-        console.log('confirmCancelAndSetCreditModal response: ', response);
-
-        // Do something.
-    });
-
-    // We need to add an event listener for the change of the rule, action, and condition select.
-    modalForm.addEventListener('change', (e) => {
-        if (!e.target.name) {
-            return;
-        }
-
-        // eslint-disable-next-line no-console
-        console.log(e.target.name);
-
-        if (e.target.name == 'bookingruletype') {
-            window.skipClientValidation = true;
-            let button = document.querySelector('[name="btn_bookingruletype"]');
-            modalForm.processNoSubmitButton(button);
-        }
-
-        if (e.target.name == 'bookingruleconditiontype') {
-            window.skipClientValidation = true;
-            let button = document.querySelector('[name="btn_bookingruleconditiontype"]');
-            modalForm.processNoSubmitButton(button);
-        }
-
-        if (e.target.name == 'bookingruleactiontype') {
-            window.skipClientValidation = true;
-            let button = document.querySelector('[name="btn_bookingruleactiontype"]');
-            modalForm.processNoSubmitButton(button);
-        }
-    });
-
-    // Show the form.
-    modalForm.show();
 }

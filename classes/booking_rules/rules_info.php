@@ -260,4 +260,13 @@ class rules_info {
             }
         }
     }
+
+    /**
+     * Delete a booking rule by its ID.
+     * @param int $ruleid the ID of the rule
+     */
+    public static function delete_rule(int $ruleid) {
+        global $DB;
+        $DB->delete_records('booking_rules', ['id' => (int)$ruleid]);
+    }
 }
