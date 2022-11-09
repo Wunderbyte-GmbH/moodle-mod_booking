@@ -158,7 +158,7 @@ class select_student_in_bo implements booking_rule_condition {
         JOIN {modules} m ON m.id=cm.module ";
 
         $sql->where .= " AND m.name='booking'
-            AND ba.status=:borole
+            AND ba.waitinglist=:borole
             $anduserid ";
 
         $params['borole'] = $this->borole;
