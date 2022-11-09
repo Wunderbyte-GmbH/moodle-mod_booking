@@ -360,7 +360,7 @@ function booking_updatestartenddate($optionid) {
         $DB->update_record("booking_options", $optionobj);
 
         // We need to check if any rules apply for the updated option.
-        rules_info::check_rules_for_option($optionid);
+        rules_info::execute_rules_for_option($optionid);
     }
 }
 

@@ -41,7 +41,7 @@ class mod_booking_observer {
         $userid = $event->relateduserid;
 
         // Check if any booking rules apply for this new user.
-        rules_info::check_rules_for_user($userid);
+        rules_info::execute_rules_for_user($userid);
     }
 
     /**
@@ -54,7 +54,7 @@ class mod_booking_observer {
         $userid = $event->relateduserid;
 
         // Check if any booking rules apply for this new user.
-        rules_info::check_rules_for_user($userid);
+        rules_info::execute_rules_for_user($userid);
     }
 
     /**
@@ -328,25 +328,36 @@ class mod_booking_observer {
      * @param mixed $event
      * @return void
      */
-    public function execute_rule($event) {
+    public static function execute_rule($event) {
 
         global $DB;
 
+        // We only want to ever get the booking events.
+        $data = $event->get_data();
+        if ($data['component'] !== 'mod_booking') {
+            return;
+        }
+
         // TODO: Get name of event and only trigger when the rule is set to listen on this specific event.
 
-        $userid = $event->relateduserid ?? 0;
+        $userid = $event->userid ?? 0;
         $optionid = $event->objectid ?? 0;
 
         // We retrieve all the event based booking rules.
-        $rules = $DB->get_records('booking_rules', ['rulename' => 'rule_act_on_event']);
+        $records = $DB->get_records('booking_rules', ['rulename' => 'rule_react_on_event']);
 
         // Now we check all the existing rules.
-        foreach ($rules as $rule) {
+        foreach ($records as $record) {
 
-            $rule = rules_info::get_rule($rule->rulename);
-            $rule->set_ruledata($rule);
+            $rule = rules_info::get_rule($record->rulename);
+            $rule->set_ruledata($record);
 
-            $rule->excecute($optionid, $userid);
+            // We only execute if the rule in question listens on the right event.
+            if (!empty($rule->boevent)) {
+                if ($data['eventname'] == $rule->boevent) {
+                    $rule->execute($optionid, $userid);
+                }
+            }
         }
     }
 }

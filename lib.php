@@ -1098,7 +1098,7 @@ function booking_update_options($optionvalues, $context) {
         // $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
         // $cache->delete($option->id);
 
-        rules_info::check_rules_for_option($option->id);
+        rules_info::execute_rules_for_option($option->id);
 
         return $option->id;
     } else if (!empty($optionvalues->text)) { // New booking option record.
@@ -1205,7 +1205,7 @@ function booking_update_options($optionvalues, $context) {
 
         // Finally, we need to check if any existing booking rules are affected.
         if ($option->bookingid != 0) {
-            rules_info::check_rules_for_option($optionid);
+            rules_info::execute_rules_for_option($optionid);
         }
 
         // At the very last moment, when everything is done, we invalidate the table cache.

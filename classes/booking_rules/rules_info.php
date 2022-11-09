@@ -221,9 +221,12 @@ class rules_info {
      * we need to check if any rules need to be applied or changed.
      * @param int $optionid
      */
-    public static function check_rules_for_option(int $optionid) {
+    public static function execute_rules_for_option(int $optionid) {
         global $DB;
-        if ($records = $DB->get_records('booking_rules')) {
+
+        // Only fetch rules which need to be reapplied. At the moment, it's just one.
+        // Eventbased rules don't have to be reapplied.
+        if ($records = $DB->get_records('booking_rules', ['rulename' => 'rule_daysbefore'])) {
             foreach ($records as $record) {
                 if (!$rule = self::get_rule($record->rulename)) {
                     continue;
@@ -241,9 +244,11 @@ class rules_info {
      * we need to check if any rules need to be applied or changed.
      * @param int $userid
      */
-    public static function check_rules_for_user(int $userid) {
+    public static function execute_rules_for_user(int $userid) {
         global $DB;
-        if ($records = $DB->get_records('booking_rules')) {
+        // Only fetch rules which need to be reapplied. At the moment, it's just one.
+        // Eventbased rules don't have to be reapplied.
+        if ($records = $DB->get_records('booking_rules', ['rulename' => 'rule_daysbefore'])) {
             foreach ($records as $record) {
                 if (!$rule = self::get_rule($record->rulename)) {
                     continue;
