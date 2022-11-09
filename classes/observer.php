@@ -340,7 +340,7 @@ class mod_booking_observer {
 
         // TODO: Get name of event and only trigger when the rule is set to listen on this specific event.
 
-        $userid = $event->userid ?? 0;
+        // $userid = $event->userid ?? 0;
         $optionid = $event->objectid ?? 0;
 
         // We retrieve all the event based booking rules.
@@ -355,7 +355,7 @@ class mod_booking_observer {
             // We only execute if the rule in question listens on the right event.
             if (!empty($rule->boevent)) {
                 if ($data['eventname'] == $rule->boevent) {
-                    $rule->execute($optionid, $userid);
+                    $rule->execute($optionid, 0);
                 }
             }
         }
