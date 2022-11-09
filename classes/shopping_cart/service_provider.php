@@ -165,7 +165,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @param integer $userid
      * @return boolean
      */
-    public static function successful_checkout(int $optionid, string $paymentid, int $userid):bool {
+    public static function successful_checkout(int $optionid, int $paymentid, int $userid):bool {
         global $USER;
 
         $bookingoption = booking_option::create_option_from_optionid($optionid);
