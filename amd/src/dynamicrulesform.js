@@ -32,9 +32,6 @@
  */
 
 import {get_string as getString} from 'core/str';
-
-// import Notification from 'core/notification';
-
 import ModalForm from 'core_form/modalform';
 
 export const init = (selector) => {
@@ -65,6 +62,17 @@ function editRulesModal(element) {
     }
 
     const ruleid = element.dataset.id;
+    const name = element.dataset.name;
+    const action = element.dataset.action;
+
+    if (!ruleid) {
+        return;
+    }
+
+    if (action == "delete") {
+        // eslint-disable-next-line no-alert
+        confirm('are you sure you want to delete: ' + name);
+    }
 
     const modalForm = new ModalForm({
 
@@ -77,6 +85,7 @@ function editRulesModal(element) {
         // DOM element that should get the focus after the modal dialogue is closed:
         returnFocus: element
     });
+
     // Listen to events if you want to execute something on form submit.
     // Event detail will contain everything the process() function returned:
     modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, (e) => {
@@ -88,9 +97,6 @@ function editRulesModal(element) {
     });
 
     // We need to add an event listener for the change of the rule, action, and condition select.
-
-
-
     modalForm.addEventListener('change', (e) => {
         if (!e.target.name) {
             return;
@@ -120,5 +126,4 @@ function editRulesModal(element) {
 
     // Show the form.
     modalForm.show();
-
 }

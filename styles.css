@@ -306,3 +306,8 @@ if there only was one booking option. */
     background-color: ghostwhite;
     border-radius: 12px;
 }
+
+/* Booking rules. */
+#page-mod-booking-edit-rules .booking-rules-cards {
+    padding-top: 15px;
+}

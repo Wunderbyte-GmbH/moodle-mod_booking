@@ -37,8 +37,8 @@ use templatable;
  */
 class ruleslist implements renderable, templatable {
 
-    /** @var array $rule */
-    public $rule = [];
+    /** @var array $rules */
+    public $rules = [];
 
     /**
      * Constructor takes the rules to render and saves them as array.
@@ -47,10 +47,17 @@ class ruleslist implements renderable, templatable {
      */
     public function __construct(array $rules) {
 
-        // First, create the new rule button.
-        $this->rules = [];
-
         foreach ($rules as $rule) {
+
+            $ruleobj = json_decode($rule->rulejson);
+            $rule->name = $ruleobj->name;
+            $rule->actionname = $ruleobj->actionname;
+            $rule->conditionname = $ruleobj->conditionname;
+            // Localize the names.
+            $rule->localizedrulename = get_string($rule->rulename, 'mod_booking');
+            $rule->localizedactionname = get_string($ruleobj->actionname, 'mod_booking');
+            $rule->localizedconditionname = get_string($ruleobj->conditionname, 'mod_booking');
+
             $this->rules[] = (array)$rule;
         }
     }
