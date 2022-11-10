@@ -65,7 +65,7 @@ function confirmCancelModal(optionid, status) {
             'status': status},
         // Pass any configuration settings to the modal dialogue, for example, the title:
         modalConfig: {
-            title: getString('confirmcanceloption', 'mod_booking'),
+            title: getString('confirmcanceloptiontitle', 'mod_booking'),
             saveButtonText: "mein text",
         },
         // DOM element that should get the focus after the modal dialogue is closed:

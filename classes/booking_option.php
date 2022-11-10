@@ -2500,9 +2500,10 @@ class booking_option {
         if (!$undo) {
             $record->status = 1;
             list($date) = explode(' - ', optiondates_handler::prettify_optiondates_start_end($now, 0, current_language()));
-
-            $record->annotation .= " <br> " . $date
-                . " <br>  " . $cancelreason;
+            $userstring = "$USER->firstname $USER->lastname";
+            $record->annotation .= " <br> " . $date;
+            $record->annotation .= " <br> " . get_string('usergavereason', 'mod_booking', $userstring);
+            $record->annotation .= " <br>  " . $cancelreason . "<br>";
         } else {
             $record->status = 0;
         }
