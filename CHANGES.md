@@ -1,3 +1,24 @@
+## Version 7.7.0 (2022111001)
+**New features:**
+* New feature: New booking rules allowing to differentiate between rules, conditions and actions.
+  This is really cool and will enable booking to do great things in the near future!
+* New feature: New event-based rules allosing to react to any booking option event.
+* New feature: Cancelling of booking options without deleting them, the reason will be stored into
+  internal annotations. Cancelling of booking options can be undone too.
+* New feature: New rule condition allowing to enter the text to be compared (contain/equal)
+  with a custom user profile field.
+
+**Improvements:**
+* Improvement: Collapsible overview of placeholders like {bookingdetails} for "Send mail" action of booking rules.
+* Improvement: More beautiful menu of booking options in view.php.
+* Improvement: New event bookingoption_cancelled is triggered when a booking option gets cancelled.
+
+**Bugfixes:**
+* Bugfix: When all optiondates were removed in optionform, they were not deleted at all.
+* Bugfix: Fix type error in payment service provider.
+* Bugfix: Restored Moodle 3.11 compatibility for booking rules.
+* Bugfix: Minor code quality fixes.
+
 ## Version 7.6.3 (2022110400)
 **Improvements:**
 * Improvement: Improved conflict handling for entities at same date.
