@@ -165,10 +165,9 @@ class rule_react_on_event implements booking_rule {
      * @param int $userid optional
      */
     public function execute(int $optionid = 0, int $userid = 0) {
-        global $DB;
 
         // This rule executes only on event.
-        // And every event will have an optionid, because it's linked to a specific optin.
+        // And every event will have an optionid, because it's linked to a specific option.
         if ($optionid === 0) {
             return;
         }
@@ -205,10 +204,8 @@ class rule_react_on_event implements booking_rule {
      * @return bool true if the rule still applies, false if not
      */
     public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime): bool {
-        global $DB;
 
         // For this rule, we don't need to check because everything is sent directly after event was triggered.
-
         return true;
     }
 
@@ -239,11 +236,12 @@ class rule_react_on_event implements booking_rule {
 
         $sql = new stdClass();
 
-        // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-        $sql->select = "bo.id optionid";
-        $sql->from = "{booking_options} bo";
-
-        // In testmode we don't check the timestamp.
+        $sql->select = "bo.id optionid, cm.id cmid";
+        $sql->from = "{booking_options} bo
+                    JOIN {course_modules} cm
+                    ON cm.instance = bo.bookingid
+                    JOIN {modules} m
+                    ON m.name = 'booking' AND m.id = cm.module";
         $sql->where = " bo.id = :optionid";
 
         // Now that we know the ids of the booking options concerend, we will determine the users concerned.

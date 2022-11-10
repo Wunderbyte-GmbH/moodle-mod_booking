@@ -168,7 +168,7 @@ class match_userprofilefield implements booking_rule_condition {
 
     /**
      * Execute the condition.
-     * We receive an array of stdclasses with the keys optinid & cmid.
+     * We receive an array of stdclasses with the keys optionid & cmid.
      * @param stdClass $sql
      * @param array $params
      * @return array
@@ -198,7 +198,6 @@ class match_userprofilefield implements booking_rule_condition {
         }
 
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-
         $sql->select = " CONCAT(bo.id, '-', ud.userid) uniqueid, " . $sql->select;
         $sql->select .= ", ud.userid userid,
         cm.id cmid ";
