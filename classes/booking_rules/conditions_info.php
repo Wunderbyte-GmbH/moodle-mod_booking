@@ -67,22 +67,12 @@ class conditions_info {
         $mform->addGroup($categoryselect, 'bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'), [' '], false);
         $mform->setType('btn_bookingruleconditiontype', PARAM_NOTAGS);
 
-        foreach ($conditions as $condition) {
-
-            if ($ajaxformdata && isset($ajaxformdata['bookingruleconditiontype'])) {
-
-                $conditionname = $condition->get_name_of_condition();
-                if ($ajaxformdata['bookingruleconditiontype']
-                    && $conditionname == get_string($ajaxformdata['bookingruleconditiontype'], 'mod_booking')) {
-                    // For each rule, add the appropriate form fields.
-                    $condition->add_condition_to_mform($mform);
-                }
-            } else {
-                // We only render the first rule.
-                $condition->add_condition_to_mform($mform);
-                break;
-            }
+        if (isset($ajaxformdata['bookingruleconditiontype'])) {
+            $condition = self::get_condition($ajaxformdata['bookingruleconditiontype']);
+        } else {
+            list($condition) = $conditions;
         }
+        $condition->add_condition_to_mform($mform);
 
     }
 
