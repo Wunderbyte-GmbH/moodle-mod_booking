@@ -83,7 +83,7 @@ class send_mail implements booking_rule_action {
         global $DB;
 
         // Mail subject.
-        $mform->addElement('text', 'action_send_mail_subject', get_string('subject', 'core'));
+        $mform->addElement('text', 'action_send_mail_subject', get_string('messagesubject', 'mod_booking'));
         $repeateloptions['action_send_mail_subject']['type'] = PARAM_TEXT;
 
         // Mail template.

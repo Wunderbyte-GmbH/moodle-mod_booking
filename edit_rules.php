@@ -43,7 +43,10 @@ $PAGE->set_title(
     format_string($SITE->shortname) . ': ' . get_string('bookingrules', 'mod_booking')
 );
 
-$PAGE->activityheader->disable();
+if ($CFG->version >= 2022041900) {
+    $PAGE->activityheader->disable();
+}
+
 $output = $PAGE->get_renderer('booking');
 
 echo $output->header();
