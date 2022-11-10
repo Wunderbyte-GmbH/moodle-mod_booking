@@ -2482,42 +2482,48 @@ class booking_option {
      *
      * @param integer $optionid
      * @param string $cancelreason
+     * @param bool $undo
      * @return void
      */
-    public static function cancelbookingoption(int $optionid, string $cancelreason) {
+    public static function cancelbookingoption(int $optionid, string $cancelreason = '', bool $undo = false) {
 
         global $DB, $USER;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
-        $context = context_module::instance($settings->cmid);
 
         $now = time();
 
         $record = $DB->get_record('booking_options', ['id' => $optionid]);
 
         // Add reason to internal notes.
-        $record->status = 1;
 
-        list($date) = explode(' - ', optiondates_handler::prettify_optiondates_start_end($now, 0, current_language()));
+        if (!$undo) {
+            $record->status = 1;
+            list($date) = explode(' - ', optiondates_handler::prettify_optiondates_start_end($now, 0, current_language()));
 
-        $record->annotation .= " \n " . $date
-            . " \n " . $cancelreason;
+            $record->annotation .= " <br> " . $date
+                . " <br>  " . $cancelreason;
+        } else {
+            $record->status = 0;
+        }
 
         // Update booking settings.
 
         $DB->update_record('booking_options', $record);
 
-        $event = \mod_booking\event\bookingoption_cancelled::create(array('context' => $context, 'objectid' => $optionid,
+        if (!$undo) {
+            $context = context_module::instance($settings->cmid);
+            $event = \mod_booking\event\bookingoption_cancelled::create(array('context' => $context, 'objectid' => $optionid,
                     'userid' => $USER->id));
-        $event->trigger();
+            $event->trigger();
 
-        // Now we delete all the bookign answers.
-        $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+            // Now we delete all the bookign answers.
+            $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
-        foreach ($bookinganswer->users as $user) {
-            $bookingoption->user_delete_response($user->id);
+            foreach ($bookinganswer->users as $user) {
+                $bookingoption->user_delete_response($user->id);
+            }
         }
 
     }

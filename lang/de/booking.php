@@ -1804,6 +1804,7 @@ $string['confirmcanceloption'] = "Bestätige die Stornierung der Buchungsoption"
 $string['cancelthisbookingoption'] = "Storniere diese Buchungsoption";
 $string['undocancelthisbookingoption'] = "Storniere diese Buchungsoption rückgängig machen";
 $string['cancelreason'] = "Grund für die Stornierung dieser Buchungsoption";
+$string['undocancelreason'] = "Möchten Sie wirklich die Stornierung dieser Buchungsoption rückgängig machen?";
 $string['nocancelreason'] = "Sie müssen eine Grund für die Stornierung angeben";
 
 // Access.php.

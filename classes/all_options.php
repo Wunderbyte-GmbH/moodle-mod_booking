@@ -141,7 +141,7 @@ class all_options extends table_sql {
                         $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
                         get_string('undocancelthisbookingoption', 'mod_booking'), ['onclick' =>
                             "require(['mod_booking/confirm_cancel'], function(init) {
-                            init.init('" . $values->id . "');
+                            init.init('" . $values->id . "', '" . $values->bostatus . "');
                             });"
                             ]) . "</div>";
                 } else {
@@ -149,7 +149,7 @@ class all_options extends table_sql {
                         $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
                         get_string('cancelthisbookingoption', 'mod_booking'), ['onclick' =>
                             "require(['mod_booking/confirm_cancel'], function(init) {
-                            init.init('" . $values->id . "');
+                            init.init('" . $values->id . "', '" . $values->bostatus . "');
                             });"
                             ]) . "</div>";
                 }

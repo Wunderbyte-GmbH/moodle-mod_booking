@@ -38,27 +38,31 @@
 
 /**
  * @param {int} optionid
+ * @param {int} status
  */
-export const init = (optionid) => {
+export const init = (optionid, status) => {
 
-    confirmCancelModal(optionid);
+    confirmCancelModal(optionid, status);
 };
 
 /**
  *
  * @param {int} optionid
+ * @param {int} status
  */
-function confirmCancelModal(optionid) {
+function confirmCancelModal(optionid, status) {
 
     // eslint-disable-next-line no-console
-    console.log('confirmCancelModal', optionid);
+    console.log('confirmCancelModal', 'optionid: ' + optionid, 'status: ' + status);
 
     const modalForm = new ModalForm({
 
         // Name of the class where form is defined (must extend \core_form\dynamic_form):
         formClass: "mod_booking\\form\\modal_confirmcancel",
         // Add as many arguments as you need, they will be passed to the form:
-        args: {'optionid': optionid},
+        args: {
+            'optionid': optionid,
+            'status': status},
         // Pass any configuration settings to the modal dialogue, for example, the title:
         modalConfig: {
             title: getString('confirmcanceloption', 'mod_booking'),
@@ -73,6 +77,8 @@ function confirmCancelModal(optionid) {
         const response = e.detail;
         // eslint-disable-next-line no-console
         console.log('confirmCancelModal response: ', response);
+
+        location.reload();
 
     });
 

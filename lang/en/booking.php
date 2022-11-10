@@ -2079,6 +2079,7 @@ $string['confirmcanceloption'] = "Confirm cancelation of booking option";
 $string['cancelthisbookingoption'] = "Cancel this booking option";
 $string['undocancelthisbookingoption'] = "Undo cancel this booking option";
 $string['cancelreason'] = "Reason for cancelation of this booking option";
+$string['undocancelreason'] = "Do you really want to undo the cancellation of this booking option?";
 $string['nocancelreason'] = "You need to give a reason for canceling this booking option";
 
 // Access.php.

@@ -59,6 +59,9 @@ class modal_confirmcancel extends dynamic_form {
      */
     public function set_data_for_dynamic_submission(): void {
 
+        $data = (object)$this->_ajaxformdata;
+        $this->set_data($data);
+
     }
 
     /**
@@ -69,8 +72,10 @@ class modal_confirmcancel extends dynamic_form {
         global $PAGE;
 
         $data = $this->get_data();
+        $undo = $data->status == 1 ? true : false;
+        $reason = $data->cancelreason ?? '';
 
-        booking_option::cancelbookingoption($data->optionid, $data->cancelreason);
+        booking_option::cancelbookingoption($data->optionid, $reason, $undo);
 
         return $data;
     }
@@ -86,9 +91,16 @@ class modal_confirmcancel extends dynamic_form {
         $ajaxformdata = $this->_ajaxformdata;
 
         $mform->addElement('hidden', 'optionid', $ajaxformdata['optionid']);
+        $mform->addElement('hidden', 'status', $ajaxformdata['status']);
 
-        $mform->addElement('text', 'cancelreason',
-            get_string("cancelreason", "mod_booking"), ['size' => '40']);
+        if ($ajaxformdata['status'] != 1) {
+            $mform->addElement('text', 'cancelreason',
+                get_string("cancelreason", "mod_booking"), ['size' => '40']);
+        } else {
+            $mform->addElement('static', 'undocancelreason', '',
+                get_string("undocancelreason", "mod_booking"));
+        }
+
 
     }
 
@@ -101,8 +113,10 @@ class modal_confirmcancel extends dynamic_form {
     public function validation($data, $files): array {
         $errors = [];
 
-        if (empty($data['cancelreason'])) {
-            $errors['cancelreason'] = get_string('nocancelreason', 'mod_booking');
+        if ($data['status'] != 1) {
+            if (empty($data['cancelreason'])) {
+                $errors['cancelreason'] = get_string('nocancelreason', 'mod_booking');
+            }
         }
 
         return $errors;
