@@ -49,7 +49,7 @@ interface booking_rule_condition {
      * @param array $repateloptions options for repeated elements
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform, array &$repeateloptions);
+    public function add_condition_to_mform(MoodleQuickForm &$mform);
 
     /**
      * Gets the human-readable name of a rule condition (localized).

@@ -87,7 +87,7 @@ class rules_info {
         $mform->addElement('html', '<hr>');
 
         // At this point, we also load the conditions.
-        conditions_info::add_conditions_to_mform($mform, $repeateloptions, $ajaxformdata);
+        conditions_info::add_conditions_to_mform($mform, $ajaxformdata);
 
         $mform->addElement('html', '<hr>');
 

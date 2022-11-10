@@ -16,10 +16,7 @@
 
 namespace mod_booking\booking_rules\conditions;
 
-use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\booking_rule_condition;
-use mod_booking\singleton_service;
-use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
 
@@ -28,7 +25,8 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Condition how to identify concerned users by matching booking option field and user profile field.
+ * Condition to identify users by entering a value
+ * which should match a custom user profile field.
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
@@ -37,7 +35,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class enter_userprofilefield implements booking_rule_condition {
 
-    /** @var string $rulename */
+    /** @var string $conditionname */
     public $conditionname = 'enter_userprofilefield';
 
     /** @var string $cpfield */
@@ -46,9 +44,8 @@ class enter_userprofilefield implements booking_rule_condition {
     /** @var string $operator */
     public $operator = null;
 
-    /** @var string $optionfield */
+    /** @var string $textfield */
     public $textfield = null;
-
 
     /**
      * Load json data from DB into the object.
@@ -68,17 +65,16 @@ class enter_userprofilefield implements booking_rule_condition {
         $conditiondata = $ruleobj->conditiondata;
         $this->cpfield = $conditiondata->cpfield;
         $this->operator = $conditiondata->operator;
-        $this->optionfield = $conditiondata->optionfield;
+        $this->textfield = $conditiondata->textfield;
     }
 
     /**
-     * Only customizable functions need to return their necessary form elements.
+     * Add condition to mform.
      *
      * @param MoodleQuickForm $mform
-     * @param int $optionid
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform) {
         global $DB;
 
         // Custom user profile field to be checked.
@@ -104,9 +100,7 @@ class enter_userprofilefield implements booking_rule_condition {
 
             $mform->addElement('text', 'condition_enter_userprofilefield_textfield',
                 get_string('condition_textfield', 'mod_booking'));
-
         }
-
     }
 
     /**
@@ -118,11 +112,10 @@ class enter_userprofilefield implements booking_rule_condition {
     }
 
     /**
-     * Save the JSON for all sendmail_daysbefore rules defined in form.
+     * Saves the JSON for the condition into the $data object.
      * @param stdClass &$data form data reference
      */
     public function save_condition(stdClass &$data) {
-        global $DB;
 
         if (!isset($data->rulejson)) {
             $jsonobject = new stdClass();
@@ -134,7 +127,7 @@ class enter_userprofilefield implements booking_rule_condition {
         $jsonobject->conditiondata = new stdClass();
         $jsonobject->conditiondata->cpfield = $data->condition_enter_userprofilefield_cpfield ?? '';
         $jsonobject->conditiondata->operator = $data->condition_enter_userprofilefield_operator ?? '';
-        $jsonobject->conditiondata->textfield = $data->condition_match_userprofilefield_textfield ?? '';
+        $jsonobject->conditiondata->textfield = $data->condition_enter_userprofilefield_textfield ?? '';
 
         $data->rulejson = json_encode($jsonobject);
     }
@@ -151,15 +144,14 @@ class enter_userprofilefield implements booking_rule_condition {
         $jsonobject = json_decode($record->rulejson);
         $conditiondata = $jsonobject->conditiondata;
 
-        $data->condition_match_userprofilefield_textfield = $conditiondata->textfield;
+        $data->condition_enter_userprofilefield_cpfield = $conditiondata->cpfield;
         $data->condition_enter_userprofilefield_operator = $conditiondata->operator;
-        $data->condition_matchcondition_enter_userprofilefield_cpfield_userprofilefield_cpfield = $conditiondata->cpfield;
-
+        $data->condition_enter_userprofilefield_textfield = $conditiondata->textfield;
     }
 
     /**
      * Execute the condition.
-     * We receive an array of stdclasses with the keys optinid & cmid.
+     *
      * @param stdClass $sql
      * @param array $params
      * @return array

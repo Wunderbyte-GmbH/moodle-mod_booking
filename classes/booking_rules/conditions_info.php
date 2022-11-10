@@ -26,7 +26,6 @@
 namespace mod_booking\booking_rules;
 
 use MoodleQuickForm;
-use stdClass;
 
 /**
  * Class for additional information of booking conditions.
@@ -46,7 +45,6 @@ class conditions_info {
      * @return void
      */
     public static function add_conditions_to_mform(MoodleQuickForm &$mform,
-        array &$repeateloptions,
         array &$ajaxformdata = null) {
 
         $conditions = self::get_conditions();
@@ -77,11 +75,11 @@ class conditions_info {
                 if ($ajaxformdata['bookingruleconditiontype']
                     && $conditionname == get_string($ajaxformdata['bookingruleconditiontype'], 'mod_booking')) {
                     // For each rule, add the appropriate form fields.
-                    $condition->add_condition_to_mform($mform, $repeateloptions);
+                    $condition->add_condition_to_mform($mform);
                 }
             } else {
                 // We only render the first rule.
-                $condition->add_condition_to_mform($mform, $repeateloptions);
+                $condition->add_condition_to_mform($mform);
                 break;
             }
         }
