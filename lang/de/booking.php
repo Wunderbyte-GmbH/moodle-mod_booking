@@ -1850,6 +1850,7 @@ $string['bookingruleaction'] = "Aktion der Regel";
 $string['enter_userprofilefield'] = "Wähle Nutzer:innen nach eingegebenem Wert für Profilfeld.";
 $string['condition_textfield'] = 'Wert';
 $string['match_userprofilefield'] = "Wähle Nutzer:innen nach gleichem Wert in Buchungsoption und Profil.";
+$string['select_users'] = "Wähle NutzerInnen ohne direkte Verbindung zur Buchungsoption";
 $string['select_student_in_bo'] = "Wähle Nutzer:innen einer Buchungsoption";
 $string['select_teacher_in_bo'] = "Wähle Trainer:innen einer Buchungsoption";
 $string['send_mail'] = "Sende E-Mail";
@@ -1859,6 +1860,9 @@ $string['bookingcondition'] = "Bedingung";
 $string['condition_select_teacher_in_bo_desc'] = 'Trainer:innen der von der Regel betroffenen Buchungsoption wählen.';
 $string['condition_select_student_in_bo_desc'] = 'Nutzer:innen der von der Regel betroffenen Buchungsoption wählen.';
 $string['condition_select_student_in_bo_roles'] = 'Rolle wählen';
+
+$string['condition_select_users_userids'] = "Wähle die gewünschten NutzerInnen";
+
 $string['studentbooked'] = 'Nutzer:innen, die gebucht haben';
 $string['studentwaitinglist'] = 'Nutzer:innen auf der Warteliste';
 $string['studentnotificationlist'] = 'Nutzer:innen auf der Benachrichtigungsliste';

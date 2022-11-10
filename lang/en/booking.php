@@ -2097,6 +2097,7 @@ $string['bookingruleaction'] = "Action of the rule";
 $string['enter_userprofilefield'] = "Select users by entering a value for custom user profile field.";
 $string['condition_textfield'] = 'Value';
 $string['match_userprofilefield'] = "Select users by matching field in booking option and user profile field.";
+$string['select_users'] = "Directly select users without connection to the booking option";
 $string['select_student_in_bo'] = "Select users of a booking option";
 $string['select_teacher_in_bo'] = "Select teachers of a booking option";
 $string['send_mail'] = 'Send email';
@@ -2106,6 +2107,9 @@ $string['bookingcondition'] = 'Condition';
 $string['condition_select_teacher_in_bo_desc'] = 'Select the teachers of the booking option (affected by the rule).';
 $string['condition_select_student_in_bo_desc'] = 'Select all students of the booking option (affected by the rule) having a certain role.';
 $string['condition_select_student_in_bo_roles'] = 'Choose role';
+
+$string['condition_select_users_userids'] = "Select the users you want to target";
+
 $string['studentbooked'] = 'Users who booked';
 $string['studentwaitinglist'] = 'Users on the waiting list';
 $string['studentnotificationlist'] = 'Users on the notification list';
