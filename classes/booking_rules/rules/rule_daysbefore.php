@@ -229,7 +229,6 @@ class rule_daysbefore implements booking_rule {
      * @return bool true if the rule still applies, false if not
      */
     public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime): bool {
-        global $DB;
 
         $rulestillapplies = false;
 
@@ -250,17 +249,17 @@ class rule_daysbefore implements booking_rule {
 
     /**
      * This helperfunction builds the sql with the help of the condition and returns the records.
-     * Testmodus means that we don't limit by now timestamp.
+     * Testmode means that we don't limit by now timestamp.
      *
      * @param integer $optionid
      * @param integer $userid
-     * @param bool $testmodus
+     * @param bool $testmode
      * @return array
      */
-    public function get_records_for_execution(int $optionid = 0, int $userid = 0, bool $testmodus = false) {
+    public function get_records_for_execution(int $optionid = 0, int $userid = 0, bool $testmode = false) {
         global $DB;
 
-        // Execution of a rule is a complexe action.
+        // Execution of a rule is a complex action.
         // Going from rule to condition to action...
         // ... we need to go into actions with an array of records...
         // ... which has the keys cmid, optionid & userid.
@@ -288,8 +287,8 @@ class rule_daysbefore implements booking_rule {
 
         $sql = new stdClass();
 
-        // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
         $sql->select = "bo.id optionid, cm.id cmid, bo." . $ruledata->datefield . " datefield";
+
         $sql->from = "{booking_options} bo
                     JOIN {course_modules} cm
                     ON cm.instance = bo.bookingid
@@ -298,8 +297,7 @@ class rule_daysbefore implements booking_rule {
 
         // In testmode we don't check the timestamp.
         $sql->where = " bo." . $ruledata->datefield;
-        $sql->where .= !$testmodus ? " >= ( :nowparam + (86400 * :numberofdays ))" : " IS NOT NULL ";
-
+        $sql->where .= !$testmode ? " >= ( :nowparam + (86400 * :numberofdays ))" : " IS NOT NULL ";
         $sql->where .= " $andoptionid $anduserid ";
 
         // Now that we know the ids of the booking options concerend, we will determine the users concerned.
