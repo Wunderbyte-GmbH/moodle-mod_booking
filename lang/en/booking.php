@@ -77,13 +77,16 @@ $string['daystonotify'] = 'Number of days in advance of the event-start to notif
 $string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
 $string['daystonotify2'] = 'Second notification before start of event to notify participants.';
 $string['daystonotifyteachers'] = 'Number of days in advance of the event-start to notify teachers (PRO)';
-$string['eventbooking_cancelled'] = 'Booking cancelled';
-$string['eventbookingoption_cancelled'] = "Booking option cancelled";
-$string['eventbookingoption_booked'] = 'Booking option booked';
-$string['eventbookingoption_completed'] = 'Booking option completed';
+$string['booking_cancelled'] = 'Booking cancelled';
+
+// Booking option events.
+$string['bookingoption_cancelled'] = "Booking option cancelled";
+$string['bookingoption_booked'] = 'Booking option booked';
+$string['bookingoption_completed'] = 'Booking option completed';
 $string['bookingoption_created'] = 'Booking option created';
 $string['bookingoption_updated'] = 'Booking option updated';
 $string['bookingoption_deleted'] = 'Booking option deleted';
+
 $string['eventreport_viewed'] = 'Report viewed';
 $string['eventuserprofilefields_updated'] = 'Userprofile updated';
 $string['existingsubscribers'] = 'Existing subscribers';

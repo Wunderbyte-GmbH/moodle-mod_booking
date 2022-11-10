@@ -42,7 +42,7 @@ class bookingoption_completed extends \core\event\base {
     }
 
     public static function get_name() {
-        return get_string('eventbookingoption_completed', 'booking');
+        return get_string('bookingoption_completed', 'booking');
     }
 
     public function get_description() {

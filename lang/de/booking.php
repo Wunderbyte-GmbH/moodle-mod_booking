@@ -75,13 +75,16 @@ $string['daystonotify'] = 'Wie viele Tage vor Kursbeginn soll an die Teilnehmend
 $string['daystonotify_help'] = "Funktioniert nur, wenn ein Beginn- und Enddatum für die Buchungsoption gesetzt sind. Wenn Sie 0 eingeben, wird die Benachrichtigung deaktiviert.";
 $string['daystonotify2'] = 'Zweite Teilnehmerbenachrichtigung vor Veranstaltungsbeginn';
 $string['daystonotifyteachers'] = 'Wie viele Tage vor Kursbeginn soll an die Trainer:innen eine Benachrichtigung gesendet werden? (PRO)';
-$string['eventbooking_cancelled'] = 'Buchung storniert';
-$string['eventbookingoption_cancelled'] = "Buchungsoption storniert";
-$string['eventbookingoption_booked'] = 'Buchung durchgeführt';
-$string['eventbookingoption_completed'] = 'Buchung abgeschlossen';
-$string['bookingoption_created'] = 'Buchung angelegt';
-$string['bookingoption_updated'] = 'Buchung upgedatet';
-$string['bookingoption_deleted'] = 'Buchung gelöscht';
+$string['booking_cancelled'] = 'Buchung storniert';
+
+// Booking option events.
+$string['bookingoption_cancelled'] = "Buchungsoption storniert";
+$string['bookingoption_booked'] = 'Buchungsoption durchgeführt';
+$string['bookingoption_completed'] = 'Buchungsoption abgeschlossen';
+$string['bookingoption_created'] = 'Buchungsoption angelegt';
+$string['bookingoption_updated'] = 'Buchungsoption upgedatet';
+$string['bookingoption_deleted'] = 'Buchungsoption gelöscht';
+
 $string['eventreport_viewed'] = 'Report angesehen';
 $string['eventuserprofilefields_updated'] = 'Nutzerprofil aktualisiert';
 $string['existingsubscribers'] = 'Vorhandene Nutzer:innen';

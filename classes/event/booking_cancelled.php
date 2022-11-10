@@ -41,7 +41,7 @@ class booking_cancelled extends \core\event\base {
     }
 
     public static function get_name() {
-        return get_string('eventbooking_cancelled', 'booking');
+        return get_string('booking_cancelled', 'booking');
     }
 
     public function get_description() {
