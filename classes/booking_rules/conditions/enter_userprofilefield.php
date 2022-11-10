@@ -163,13 +163,13 @@ class enter_userprofilefield implements booking_rule_condition {
         switch ($this->operator) {
             case '~':
                 $sqlcomparepart = $DB->sql_compare_text("ud.data") .
-                    " LIKE CONCAT('%', ':conditiontextfield', '%')
-                      AND ':conditiontextfield1' <> ''
-                      AND ':conditiontextfield2' IS NOT NULL";
+                    " LIKE CONCAT('%', :conditiontextfield, '%')
+                      AND :conditiontextfield1 <> ''
+                      AND :conditiontextfield2 IS NOT NULL";
                 break;
             case '=':
             default:
-                $sqlcomparepart = $DB->sql_compare_text("ud.data") . " = ':conditiontextfield'";
+                $sqlcomparepart = $DB->sql_compare_text("ud.data") . " = :conditiontextfield";
                 break;
         }
 
@@ -187,15 +187,11 @@ class enter_userprofilefield implements booking_rule_condition {
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
 
         $sql->select = " CONCAT(bo.id, '-', ud.userid) uniqueid, " . $sql->select;
-        $sql->select .= ", ud.userid userid,
-        cm.id cmid ";
+        $sql->select .= ", ud.userid userid";
 
-        $sql->from .= " JOIN {user_info_data} ud ON $sqlcomparepart
-        JOIN {course_modules} cm ON cm.instance=bo.bookingid
-        JOIN {modules} m ON m.id=cm.module ";
+        $sql->from .= " JOIN {user_info_data} ud ON $sqlcomparepart";
 
-        $sql->where .= " AND m.name='booking'
-            AND ud.fieldid IN (
+        $sql->where .= " AND ud.fieldid IN (
                     SELECT DISTINCT id
                     FROM {user_info_field} uif
                     WHERE uif.shortname = :cpfield
