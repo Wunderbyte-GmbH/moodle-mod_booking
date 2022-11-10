@@ -289,9 +289,12 @@ class rule_daysbefore implements booking_rule {
         $sql = new stdClass();
 
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-        $sql->select = "bo.id optionid,
-                bo." . $ruledata->datefield . " datefield";
-        $sql->from = "{booking_options} bo";
+        $sql->select = "bo.id optionid, cm.id cmid, bo." . $ruledata->datefield . " datefield";
+        $sql->from = "{booking_options} bo
+                    JOIN {course_modules} cm
+                    ON cm.instance = bo.bookingid
+                    JOIN {modules} m
+                    ON m.name = 'booking' AND m.id = cm.module";
 
         // In testmode we don't check the timestamp.
         $sql->where = " bo." . $ruledata->datefield;
