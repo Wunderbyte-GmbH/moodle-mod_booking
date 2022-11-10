@@ -1799,6 +1799,7 @@ $string['canceloption'] = "Storniere Buchungsoption";
 $string['canceloption_desc'] = "Stornieren einer Buchungsoption bedeutet, dass die Option nicht mehr buchbar ist, aber weiterhin als storniert in der Liste angezeigt wird.";
 $string['confirmcanceloption'] = "Bestätige die Stornierung der Buchungsoption";
 $string['cancelthisbookingoption'] = "Storniere diese Buchungsoption";
+$string['undocancelthisbookingoption'] = "Storniere diese Buchungsoption rückgängig machen";
 $string['cancelreason'] = "Grund für die Stornierung dieser Buchungsoption";
 $string['nocancelreason'] = "Sie müssen eine Grund für die Stornierung angeben";
 

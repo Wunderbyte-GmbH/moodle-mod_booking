@@ -136,13 +136,24 @@ class all_options extends table_sql {
                         $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
                         get_string('deletethisbookingoption', 'mod_booking')) . '</div>';
 
-                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link('#',
+                if ($values->bostatus == 1) {
+                    $ddoptions[] = '<div class="dropdown-item">' . html_writer::link('#',
+                        $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
+                        get_string('undocancelthisbookingoption', 'mod_booking'), ['onclick' =>
+                            "require(['mod_booking/confirm_cancel'], function(init) {
+                            init.init('" . $values->id . "');
+                            });"
+                            ]) . "</div>";
+                } else {
+                    $ddoptions[] = '<div class="dropdown-item">' . html_writer::link('#',
                         $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
                         get_string('cancelthisbookingoption', 'mod_booking'), ['onclick' =>
                             "require(['mod_booking/confirm_cancel'], function(init) {
                             init.init('" . $values->id . "');
                             });"
                             ]) . "</div>";
+                }
+
 
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url('/mod/booking/editoptions.php',
                         array('id' => $this->cm->id, 'optionid' => -1, 'copyoptionid' => $values->id)), $OUTPUT->pix_icon('t/copy',

@@ -2499,8 +2499,10 @@ class booking_option {
         // Add reason to internal notes.
         $record->status = 1;
 
-        $record->annotation .= " \n " . optiondates_handler::prettify_optiondates_start_end($now, 0, current_language()
-            . " \n " . $cancelreason);
+        list($date) = explode(' - ', optiondates_handler::prettify_optiondates_start_end($now, 0, current_language()));
+
+        $record->annotation .= " \n " . $date
+            . " \n " . $cancelreason;
 
         // Update booking settings.
 
