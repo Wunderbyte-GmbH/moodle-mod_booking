@@ -292,7 +292,7 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
             break;
 
         case 'showactive':
-            $conditions[] = "(bo.courseendtime > :time OR bo.courseendtime = 0)";
+            $conditions[] = "((bo.courseendtime > :time OR bo.courseendtime = 0) AND bo.status = 0)";
             $conditionsparams['time'] = time();
             break;
 
