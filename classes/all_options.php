@@ -86,14 +86,14 @@ class all_options extends table_sql {
             $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
                     new moodle_url('/mod/booking/editoptions.php',
                         array('id' => $this->cm->id, 'optionid' => $values->id)),
-                    $OUTPUT->pix_icon('t/edit', get_string('updatebooking', 'mod_booking')) .
+                    $OUTPUT->pix_icon('t/editstring', get_string('updatebooking', 'mod_booking')) .
                     get_string('updatebooking', 'mod_booking')) . '</div>';
 
             // Multiple dates session.
             $ddoptions[] = '<div class="dropdown-item">' .
                 html_writer::link(new moodle_url('/mod/booking/optiondates.php',
                     array('id' => $this->cm->id, 'optionid' => $values->id)),
-                    $OUTPUT->pix_icon('t/edit',
+                    $OUTPUT->pix_icon('i/scheduled',
                         get_string('optiondatesmanager', 'booking')) .
                     get_string('optiondatesmanager', 'booking')) . '</div>';
 
@@ -103,7 +103,7 @@ class all_options extends table_sql {
                     array('id' => $this->cm->id, 'optionid' => $values->id));
                 $ddoptions[] = '<div class="dropdown-item">' .
                     html_writer::link($onlyoneurl,
-                        $OUTPUT->pix_icon('t/edit',
+                        $OUTPUT->pix_icon('i/user',
                             get_string('editteacherslink', 'mod_booking')) .
                         get_string('editteacherslink', 'mod_booking')) . '</div>';
             }
@@ -114,7 +114,7 @@ class all_options extends table_sql {
                     array('id' => $this->cm->id, 'optionid' => $values->id));
                 $ddoptions[] = '<div class="dropdown-item">' .
                     html_writer::link($onlyoneurl,
-                        $OUTPUT->pix_icon('t/edit',
+                        $OUTPUT->pix_icon('i/users',
                             get_string('bookotherusers', 'mod_booking')) .
                         get_string('bookotherusers', 'mod_booking')) . '</div>';
             }
@@ -125,7 +125,7 @@ class all_options extends table_sql {
             $onlyoneurl->set_anchor('goenrol');
             $ddoptions[] = '<div class="dropdown-item">' .
                 html_writer::link($onlyoneurl,
-                    $OUTPUT->pix_icon('t/edit',
+                    $OUTPUT->pix_icon('i/publish',
                         get_string('onlythisbookingurl', 'mod_booking')) .
                     get_string('onlythisbookingurl', 'mod_booking')) . '</div>';
 
@@ -138,7 +138,7 @@ class all_options extends table_sql {
 
                 if ($values->bostatus == 1) {
                     $ddoptions[] = '<div class="dropdown-item">' . html_writer::link('#',
-                        $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
+                        $OUTPUT->pix_icon('i/reload', '') .
                         get_string('undocancelthisbookingoption', 'mod_booking'), ['onclick' =>
                             "require(['mod_booking/confirm_cancel'], function(init) {
                             init.init('" . $values->id . "', '" . $values->bostatus . "');
@@ -146,14 +146,13 @@ class all_options extends table_sql {
                             ]) . "</div>";
                 } else {
                     $ddoptions[] = '<div class="dropdown-item">' . html_writer::link('#',
-                        $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
+                        $OUTPUT->pix_icon('t/block', '') .
                         get_string('cancelthisbookingoption', 'mod_booking'), ['onclick' =>
                             "require(['mod_booking/confirm_cancel'], function(init) {
                             init.init('" . $values->id . "', '" . $values->bostatus . "');
                             });"
                             ]) . "</div>";
                 }
-
 
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url('/mod/booking/editoptions.php',
                         array('id' => $this->cm->id, 'optionid' => -1, 'copyoptionid' => $values->id)), $OUTPUT->pix_icon('t/copy',
