@@ -80,16 +80,15 @@ class send_mail implements booking_rule_action {
      * @return void
      */
     public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
-        global $DB;
 
         // Mail subject.
         $mform->addElement('text', 'action_send_mail_subject', get_string('messagesubject', 'mod_booking'));
-        $repeateloptions['action_send_mail_subject']['type'] = PARAM_TEXT;
+        $mform->setType('action_send_mail_subject', PARAM_TEXT);
 
         // Mail template.
-        // Workaround: We need a group to get hideif to work.
         $mform->addElement('editor', 'action_send_mail_template',
             '', ['rows' => 20], ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]);
+        $mform->addHelpButton('action_send_mail_template', 'placeholders', 'mod_booking');
 
     }
 
