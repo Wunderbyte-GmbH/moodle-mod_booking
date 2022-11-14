@@ -1,3 +1,7 @@
+7.7.1 (2022111400)
+* New feature: Bew booking rule condition to select specific users via autocomplete.
+* Improvement: More efficient implementation of rule conditions.
+
 7.7.0 (2022111001)
 * New feature: New booking rules allowing to differentiate between rules, conditions and actions.
   This is really cool and will enable booking to do great things in the near future!
