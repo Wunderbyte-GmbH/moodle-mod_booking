@@ -41,20 +41,6 @@ class bookingoptions_simple_table extends wunderbyte_table {
     private $teachers = [];
 
     /**
-     * Constructor
-     * @param int $uniqueid all tables have to have a unique id, this is used
-     *      as a key when storing table properties like sort order in the session.
-     */
-    public function __construct($uniqueid) {
-        parent::__construct($uniqueid);
-
-        global $PAGE;
-        $this->baseurl = $PAGE->url;
-
-        // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
-    }
-
-    /**
      * This function is called for each data row to allow processing of the
      * text value.
      *
@@ -96,25 +82,6 @@ class bookingoptions_simple_table extends wunderbyte_table {
         $output = $PAGE->get_renderer('mod_booking');
         // We can go with the data from bookingoption_description directly to modal.
         return $output->render_col_coursestarttime($data);
-    }
-
-    /**
-     * This function is called for each data row to allow processing of the
-     * courseendtime value.
-     *
-     * @param object $values Contains object with all the values of record.
-     * @return string $courseendtime Returns course end time as a readable string.
-     * @throws coding_exception
-     */
-    public function col_courseendtime($values) {
-        // Prepare date string.
-        if ($values->courseendtime != 0) {
-            $courseendtime = userdate($values->courseendtime, get_string('strftimedatetime'));
-        } else {
-            $courseendtime = '';
-        }
-
-        return $courseendtime;
     }
 
     /**
