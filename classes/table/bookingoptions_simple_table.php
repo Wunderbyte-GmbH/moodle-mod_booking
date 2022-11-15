@@ -43,20 +43,6 @@ class bookingoptions_simple_table extends wunderbyte_table {
     private $teachers = [];
 
     /**
-     * Constructor
-     * @param int $uniqueid all tables have to have a unique id, this is used
-     *      as a key when storing table properties like sort order in the session.
-     */
-    public function __construct($uniqueid) {
-        parent::__construct($uniqueid);
-
-        global $PAGE;
-        $this->baseurl = $PAGE->url;
-
-        // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
-    }
-
-    /**
      * This function is called for each data row to allow processing of the
      * text value.
      *
