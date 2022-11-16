@@ -2075,7 +2075,7 @@ function booking_delete_instance($id) {
 
     // Delete option header images.
     // Delete image files belonging to the option.
-    $imgfilesql = "SELECT contextid, filepath, filename, userid, source, author, license
+    $imgfilesql = "SELECT id, contextid, filepath, filename, userid, source, author, license
     FROM {files}
     WHERE component = 'mod_booking'
     AND filearea = 'bookingimages'
