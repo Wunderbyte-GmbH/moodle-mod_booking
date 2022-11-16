@@ -19,6 +19,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
+use Exception;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\message_controller;
 
@@ -83,11 +84,17 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                 return;
             }
 
-            // Use message controller to send the message.
-            $messagecontroller = new message_controller(
+            // We might receive an error here, because we refer to cmids which no longer exist.
+            // That's not a problem, we just abort sending the task.
+            try {
+                // Use message controller to send the message.
+                $messagecontroller = new message_controller(
                 MSGCONTRPARAM_SEND_NOW, MSGPARAM_CUSTOM_MESSAGE, $taskdata->cmid, null, $taskdata->optionid,
                     $taskdata->userid, null, null, $taskdata->customsubject, $taskdata->custommessage
-            );
+                );
+            } catch (Exception $e) {
+                return;
+            }
 
             if ($messagecontroller->send_or_queue()) {
                 echo 'send_mail_by_rule_adhoc task: mail successfully sent for option ' . $taskdata->optionid . ' to user '
