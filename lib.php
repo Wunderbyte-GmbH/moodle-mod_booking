@@ -86,6 +86,7 @@ define('BO_COND_JSON_PREVIOUSLYBOOKED', 13);
 
 define('BO_COND_ISLOGGEDIN', 110);
 define('BO_COND_ALREADYBOOKED', 100);
+define('BO_COND_ISCANCELLED', 91);
 define('BO_COND_ISBOOKABLE', 90);
 define('BO_COND_ONWAITINGLIST', 80);
 define('BO_COND_FULLYBOOKED', 70);
@@ -1078,11 +1079,6 @@ function booking_update_options($optionvalues, $context) {
         // Update start and end date of the option depending on the sessions.
         booking_updatestartenddate($option->id);
 
-        // At the very last moment, when everything is done, we invalidate the table cache.
-        cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::invalidate_by_event('setbackoptionsettings', [$option->id]);
-        cache_helper::invalidate_by_event('setbackoptionsanswers', [$option->id]);
-
         $optiondateshandler = new optiondates_handler($optionvalues->optionid, $optionvalues->bookingid);
         if (!empty($optionvalues->newoptiondates) || !empty($optionvalues->stillexistingdates)) {
             // Save the optiondates.
@@ -1209,11 +1205,6 @@ function booking_update_options($optionvalues, $context) {
             rules_info::execute_rules_for_option($optionid);
         }
 
-        // At the very last moment, when everything is done, we invalidate the table cache.
-        cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
-        cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
-
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         // We also need to invalidate the cache for the booking answer.
         // phpcs:ignore moodle.Commenting.InlineComment.InvalidEndChar,moodle.Commenting.InlineComment.NotCapital
@@ -1234,7 +1225,7 @@ function booking_update_options($optionvalues, $context) {
 function save_entity_relations_for_optiondates_of_option(&$optionvalues, $optionid) {
     global $DB;
     if (class_exists('local_entities\entitiesrelation_handler')
-            && $optionvalues->er_saverelationsforoptiondates == 1) {
+            && !empty($optionvalues->er_saverelationsforoptiondates)) {
 
         $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
         $optiondateids = $DB->get_fieldset_sql(

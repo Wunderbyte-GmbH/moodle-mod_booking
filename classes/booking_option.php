@@ -2517,6 +2517,12 @@ class booking_option {
 
         $DB->update_record('booking_options', $record);
 
+        $context = context_module::instance($settings->cmid);
+
+        $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
+            'userid' => $USER->id));
+        $event->trigger();
+
         if (!$undo) {
             $context = context_module::instance($settings->cmid);
             $event = \mod_booking\event\bookingoption_cancelled::create(array('context' => $context, 'objectid' => $optionid,

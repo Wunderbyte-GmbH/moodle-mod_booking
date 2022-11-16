@@ -1741,6 +1741,11 @@ $string['bo_cond_fullybooked_full_available'] = 'Buchen möglich';
 $string['bo_cond_fullybooked_not_available'] = 'Ausgebucht';
 $string['bo_cond_fullybooked_full_not_available'] = 'Ausgebucht. Buchen nicht mehr möglich.';
 
+$string['bo_cond_iscancelled_available'] = 'Buchen';
+$string['bo_cond_iscancelled_full_available'] = 'Buchen möglich';
+$string['bo_cond_iscancelled_not_available'] = 'Buchungsoption storniert';
+$string['bo_cond_iscancelled_full_not_available'] = 'Buchungsoption storniert. Buchen ist nicht möglich.';
+
 $string['bo_cond_max_number_of_bookings_available'] = 'Buchen';
 $string['bo_cond_max_number_of_bookings_full_available'] = 'Booking is possible';
 $string['bo_cond_max_number_of_bookings_not_available'] = 'Max. Buchungsanzahl erreicht';

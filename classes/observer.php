@@ -197,6 +197,11 @@ class mod_booking_observer {
         foreach ($allteachers as $key => $value) {
             new calendar($event->contextinstanceid, $event->objectid, $value, calendar::TYPETEACHERUPDATE);
         }
+
+        // At the very last moment, when everything is done, we invalidate the table cache.
+        cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
+        cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
     }
 
     /**
