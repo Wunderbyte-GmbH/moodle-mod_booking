@@ -126,7 +126,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                             $price['currency'],
                             'mod_booking',
                             $description,
-                            $settings->imageurl,
+                            $settings->imageurl ?? '',
                             $canceluntil,
                             $settings->coursestarttime ?? null,
                             $settings->courseendtime ?? null);
