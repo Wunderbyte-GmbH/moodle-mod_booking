@@ -33,6 +33,7 @@ use mod_booking\booking_utils;
 use mod_booking\optiondates_handler;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
+use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 
 // Currently up to 9 different price categories can be set.
@@ -2069,7 +2070,7 @@ function booking_delete_instance($id) {
 
     $alloptionids = \mod_booking\booking::get_all_optionids($id);
     foreach ($alloptionids as $optionid) {
-        $bookingoption = new booking_option($cm->id, $optionid);
+        $bookingoption = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
         $bookingoption->delete_booking_option();
     }
 
