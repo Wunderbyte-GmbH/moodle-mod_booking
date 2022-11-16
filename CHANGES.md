@@ -1,3 +1,7 @@
+## Version 7.7.2 (2022111600)
+**New features:**
+* New feature: Cancel booking options
+
 ## Version 7.7.1 (2022111400)
 **New features:**
 * New feature: Bew booking rule condition to select specific users via autocomplete.
