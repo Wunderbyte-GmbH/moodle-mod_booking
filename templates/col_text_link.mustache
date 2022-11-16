@@ -23,35 +23,32 @@
     Data attributes required for JS:
     * data-region
 }}
-
-<div class="d-flex justify-content-between align-items-end">
-  <a href="{{url}}" target="_blank"><h3>{{#titleprefix}}{{.}} - {{/titleprefix}}{{title}}</h3></a>
-  {{#editoptionurl}}
-  <div id="coltextlink-dropdown" class="dropdown">
-    <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      <i class="fa fa-gear" aria-hidden="true"></i>
-    </button>
-    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <h6 class="dropdown-header">{{#str}} actions {{/str}}</h6>
-        <a class="dropdown-item editoption" href="{{editoptionurl}}" target="_self">
-          <i class="fa fa-edit" aria-hidden="true"></i> {{#str}} updatebooking, mod_booking {{/str}}
-        </a>
-        <a class="dropdown-item editteachers" href="{{editteachersurl}}" target="_self">
-          <i class="fa fa-users" aria-hidden="true"></i> {{#str}} editteacherslink, mod_booking {{/str}}
-        </a>
-        {{^undocancel}}
-        <a class="dropdown-item cancelallusers hidden" href="#" data-id="{{id}}" data-componentname="{{componentname}}">
-          <i class="fa fa-ban" aria-hidden="true"></i> {{#str}} cancelallusers, mod_booking {{/str}}
-        </a>
-        {{/undocancel}}
-        {{#undocancel}}{{{undocancellink}}}{{/undocancel}}
-        {{#optiondatesteachersurl}}
-        <h6 class="dropdown-header">{{#str}} reports {{/str}}</h6>
-        <a class="dropdown-item" href="{{optiondatesteachersurl}}" target="_self">
-          <i class="fa fa-table" aria-hidden="true"></i> {{#str}} optiondatesteachersreport, mod_booking {{/str}}
-        </a>
-        {{/optiondatesteachersurl}}
-    </div>
+  
+{{#editoptionurl}}
+<div id="coltextlink-dropdown" class="dropdown">
+  <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <i class="fa fa-gear" aria-hidden="true"></i>
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+      <h6 class="dropdown-header">{{#str}} actions {{/str}}</h6>
+      <a class="dropdown-item editoption" href="{{editoptionurl}}" target="_self">
+        <i class="fa fa-edit" aria-hidden="true"></i> {{#str}} updatebooking, mod_booking {{/str}}
+      </a>
+      <a class="dropdown-item editteachers" href="{{editteachersurl}}" target="_self">
+        <i class="fa fa-users" aria-hidden="true"></i> {{#str}} editteacherslink, mod_booking {{/str}}
+      </a>
+      {{^undocancel}}
+      <a class="dropdown-item cancelallusers hidden" href="#" data-id="{{id}}" data-componentname="{{componentname}}">
+        <i class="fa fa-ban" aria-hidden="true"></i> {{#str}} cancelallusers, mod_booking {{/str}}
+      </a>
+      {{/undocancel}}
+      {{#undocancel}}{{{undocancellink}}}{{/undocancel}}
+      {{#optiondatesteachersurl}}
+      <h6 class="dropdown-header">{{#str}} reports {{/str}}</h6>
+      <a class="dropdown-item" href="{{optiondatesteachersurl}}" target="_self">
+        <i class="fa fa-table" aria-hidden="true"></i> {{#str}} optiondatesteachersreport, mod_booking {{/str}}
+      </a>
+      {{/optiondatesteachersurl}}
   </div>
-  {{/editoptionurl}}
 </div>
+{{/editoptionurl}}
