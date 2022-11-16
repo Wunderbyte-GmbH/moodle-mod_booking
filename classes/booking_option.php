@@ -1482,6 +1482,11 @@ class booking_option {
                     $optiondateid = $record->id;
                     $erhandler->delete_relation($optiondateid);
                 }
+
+                // We also delete the corresponding records in the optiondates_teachers table.
+                if (!$DB->delete_records('booking_optiondates_teachers', ['optiondateid' => $record->id])) {
+                    $result = false;
+                }
             }
         }
 
