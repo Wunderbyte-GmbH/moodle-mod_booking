@@ -411,16 +411,6 @@ class bookingoption_description implements renderable, templatable {
                 'bookinginformation' => $this->bookinginformation
         );
 
-        /*if (isset($this->bookinginformation)) {
-            if (isset($this->bookinginformation['iambooked'])) {
-                $returnarray['bookingsstring'] = get_string('booked', 'mod_booking');
-            } else if (isset($this->bookinginformation['onwaitinglist'])) {
-                $returnarray['bookingsstring'] = get_string('waitinglist', 'mod_booking');
-            } else if (!empty($this->bookinginformation['notbooked']['fullybooked'])) {
-                $returnarray['bookingsstring'] = get_string('fullybooked', 'mod_booking');
-            }
-        }*/
-
         if (!empty($this->unitstring)) {
             $returnarray['unitstring'] = $this->unitstring;
         }
