@@ -27,6 +27,7 @@ namespace mod_booking\output;
 use context_module;
 use core_table\external\dynamic\get;
 use html_writer;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\optiondates_handler;
@@ -35,6 +36,7 @@ use mod_booking\singleton_service;
 use moodle_url;
 use renderer_base;
 use renderable;
+use stdClass;
 use templatable;
 
 /**
@@ -121,6 +123,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var array $bookinginformation */
     public $bookinginformation = [];
 
+    /** @var stdClass $buyforuser */
+    public $buyforuser = null;
+
     /**
      * Constructor.
      * @param $booking
@@ -137,7 +142,7 @@ class bookingoption_description implements renderable, templatable {
             bool $forbookeduser = null,
             object $user = null) {
 
-        global $CFG, $DB, $PAGE, $USER;
+        global $CFG, $PAGE, $USER;
 
         $this->cmid = $booking->cm->id;
 
@@ -280,7 +285,6 @@ class bookingoption_description implements renderable, templatable {
         ));
 
         switch ($descriptionparam) {
-
             case DESCRIPTION_WEBSITE:
                 // Only show "already booked" or "on waiting list" text in modal.
                 if ($booking->settings->showdescriptionmode == 0) {
@@ -319,8 +323,60 @@ class bookingoption_description implements renderable, templatable {
                         $moodleurl->out(false) .
                     '</a>';
                 break;
+
+            case DESCRIPTION_OPTIONVIEW:
+                // Get the availability information for this booking option.
+                // boinfo contains availability information, description, visibility information etc.
+                $boinfo = new bo_info($settings);
+
+                // We set buyforuser here for better performance.
+                $this->buyforuser = price::return_user_to_buy_for();
+
+                if (list($conditionid, $isavailable, $description) = $boinfo->get_description(true,
+                    $settings, $this->buyforuser->id)) {
+
+                    // Show descriptions of bo_info in a yellow alert box.
+                    $description = html_writer::div($description, 'alert alert-warning');
+
+                    // Values object needed for col_price.
+                    $values = new stdClass;
+                    $values->id = $settings->id;
+                    $values->text = $settings->text;
+                    $values->description = $settings->description;
+
+                    // Price blocks normal availability, if it's the only one, we show the cart.
+                    if (!$isavailable) {
+                        $output = $PAGE->get_renderer('mod_booking');
+                        switch ($conditionid) {
+                            case BO_COND_ALREADYBOOKED:
+                                $this->conditionmessage = $description;
+                                break;
+                            case BO_COND_ISCANCELLED:
+                                $this->conditionmessage = $description;
+                                break;
+                            case BO_COND_FULLYBOOKED:
+                                $usenotificationlist = get_config('booking', 'usenotificationlist');
+                                $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+                                $bookinginformation = $bookinganswer->return_all_booking_information($this->buyforuser->id);
+
+                                if ($usenotificationlist) {
+                                    $data = new button_notifyme($this->buyforuser->id, $values->id,
+                                        $bookinginformation['notbooked']['onnotifylist']);
+                                    $this->conditionmessage = $description . $output->render_notifyme_button($data);
+                                } else {
+                                    $this->conditionmessage = $description;
+                                }
+                                break;
+                        }
+                    }
+
+                    // TODO: If no price is set at all, we need to add possibility to book right away without shopping cart!
+                }
+                break;
         }
     }
+
+    // TODO: Wenn kein Preis gesetzt ist, dann "klassischer" Book now button (Auch in shortcodes einbauen?).
 
     /**
      * @param renderer_base $output
@@ -355,7 +411,7 @@ class bookingoption_description implements renderable, templatable {
                 'bookinginformation' => $this->bookinginformation
         );
 
-        if (isset($this->bookinginformation)) {
+        /*if (isset($this->bookinginformation)) {
             if (isset($this->bookinginformation['iambooked'])) {
                 $returnarray['bookingsstring'] = get_string('booked', 'mod_booking');
             } else if (isset($this->bookinginformation['onwaitinglist'])) {
@@ -363,10 +419,14 @@ class bookingoption_description implements renderable, templatable {
             } else if (!empty($this->bookinginformation['notbooked']['fullybooked'])) {
                 $returnarray['bookingsstring'] = get_string('fullybooked', 'mod_booking');
             }
-        }
+        }*/
 
         if (!empty($this->unitstring)) {
             $returnarray['unitstring'] = $this->unitstring;
+        }
+
+        if (!empty($this->conditionmessage)) {
+            $returnarray['conditionmessage'] = $this->conditionmessage;
         }
 
         // We return all the customfields of the option.
