@@ -891,7 +891,8 @@ class option_form extends \moodleform {
         // For the form validation, we need to pass the values to book in a special form.
         // We only need those timestamps which are new.
         // But it might be advisable to also check the key stillexistingdates in the future.
-        $datestobook = self::return_timestamps($fromform->newoptiondates);
+        $datestobook = self::return_timestamps(array_merge($fromform->newoptiondates, $fromform->stillexistingdates));
+
         $fromform->datestobook = [];
 
         $link = new moodle_url('/mod/booking/view.php', [
