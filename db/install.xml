@@ -169,6 +169,9 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="parentid" UNIQUE="false" FIELDS="parentid"/>
+        <INDEX NAME="id-bookingid" UNIQUE="false" FIELDS="id,bookingid"/>
+        <INDEX NAME="id-invisible" UNIQUE="false" FIELDS="id,invisible"/>
+        <INDEX NAME="invisible" UNIQUE="false" FIELDS="invisible"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="booking_answers" COMMENT="bookings performed by users">
@@ -193,6 +196,12 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="optionid" UNIQUE="false" FIELDS="optionid"/>
+        <INDEX NAME="optionid-userid" UNIQUE="false" FIELDS="optionid,userid"/>
+        <INDEX NAME="optionid-userid-bookingid" UNIQUE="false" FIELDS="optionid,userid,bookingid"/>
+        <INDEX NAME="bookingid-userid-waitinglist" UNIQUE="false" FIELDS="userid,bookingid,waitinglist"/>
+        <INDEX NAME="bookingid-userid-waitinglist-optionid" UNIQUE="false" FIELDS="userid,bookingid,waitinglist,optionid"/>
+        <INDEX NAME="timemodified" UNIQUE="false" FIELDS="timemodified"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="booking_category" COMMENT="Categories">
@@ -222,6 +231,7 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="userid-optionid" UNIQUE="false" FIELDS="userid,optionid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="booking_tags" COMMENT="Tags used for bookings">
@@ -248,6 +258,9 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="booking_other" COMMENT="Default comment for the table, please edit me">
       <FIELDS>
@@ -281,6 +294,9 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="optionid" UNIQUE="false" FIELDS="optionid"/>
+        <INDEX NAME="id-optionid" UNIQUE="false" FIELDS="id,optionid"/>
+        <INDEX NAME="coursestarttime" UNIQUE="false" FIELDS="coursestarttime"/>
+        <INDEX NAME="courseendtime" UNIQUE="false" FIELDS="courseendtime"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="booking_optiondates_teachers" COMMENT="Track teachers for each session.">
@@ -294,6 +310,11 @@
         <KEY NAME="fk_optiondateid" TYPE="foreign" FIELDS="optiondateid" REFTABLE="booking_optiondates" REFFIELDS="id"/>
         <KEY NAME="fk_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="optiondateid" UNIQUE="false" FIELDS="optionid"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="optiondateid-userid" UNIQUE="false" FIELDS="optiondateid,userid"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="booking_customfields" COMMENT="Default comment for the table, please edit me">
       <FIELDS>
