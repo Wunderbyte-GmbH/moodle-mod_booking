@@ -14,25 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
- * The booking_cancelled event.
+ * The bookinganswer_cancelled event.
  *
  * @package mod_booking
- * @copyright 2014 David Bogner, http://www.edulabs.org
+ * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author David Bogner, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_booking\event;
 
 /**
- * The booking_cancelled event class.
+ * The bookinganswer_cancelled event.
  *
- * @property-read array $other { Extra information about event. Acesss an instance of the booking module }
- * @since Moodle 2.7
- * @copyright 2014 David Bogner
+ * @package mod_booking
+ * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author David Bogner, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_cancelled extends \core\event\base {
+class bookinganswer_cancelled extends \core\event\base {
 
     protected function init() {
         $this->data['crud'] = 'u';
@@ -41,7 +41,7 @@ class booking_cancelled extends \core\event\base {
     }
 
     public static function get_name() {
-        return get_string('booking_cancelled', 'booking');
+        return get_string('bookinganswer_cancelled', 'booking');
     }
 
     public function get_description() {

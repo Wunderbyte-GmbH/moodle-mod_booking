@@ -29,6 +29,7 @@ use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
 use mod_booking\customfield\booking_handler;
+use mod_booking\event\bookinganswer_cancelled;
 use mod_booking\message_controller;
 use mod_booking\task\send_completion_mails;
 use moodle_exception;
@@ -731,7 +732,7 @@ class booking_option {
         }
 
         // Log deletion of user.
-        $event = event\booking_cancelled::create(
+        $event = bookinganswer_cancelled::create(
                 array('objectid' => $this->optionid,
                     'context' => \context_module::instance($this->booking->cm->id),
                     'relateduserid' => $user->id, 'other' => array('userid' => $user->id)));
@@ -2528,14 +2529,7 @@ class booking_option {
             $event = \mod_booking\event\bookingoption_cancelled::create(array('context' => $context, 'objectid' => $optionid,
                     'userid' => $USER->id));
             $event->trigger();
-
-            // Now we delete all the bookign answers.
-            $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
-            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-
-            foreach ($bookinganswer->users as $user) {
-                $bookingoption->user_delete_response($user->id);
-            }
+            // Deletion of booking answers and user events needs to happen in event observer.
         }
 
     }

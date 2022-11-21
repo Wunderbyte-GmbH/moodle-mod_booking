@@ -115,20 +115,40 @@ class mod_booking_observer {
 
 
     /**
-     * @param \mod_booking\event\booking_cancelled $event
+     * @param \mod_booking\event\bookinganswer_cancelled $event
      * @throws dml_exception
      */
-    public static function booking_cancelled(\mod_booking\event\booking_cancelled $event) {
+    public static function bookinganswer_cancelled(\mod_booking\event\bookinganswer_cancelled $event) {
 
         global $DB;
 
         $userid = $event->relateduserid;
         $optionid = $event->objectid;
 
+        // If a user is removed from a booking option, we also have to delete his/her user events.
         $records = $DB->get_records('booking_userevents', array('userid' => $userid, 'optionid' => $optionid));
         foreach ($records as $record) {
             $DB->delete_records('event', array('id' => $record->eventid));
             $DB->delete_records('booking_userevents', array('id' => $record->id));
+        }
+    }
+
+    /**
+     * @param \mod_booking\event\bookingoption_cancelled $event
+     * @throws dml_exception
+     */
+    public static function bookingoption_cancelled(\mod_booking\event\bookingoption_cancelled $event) {
+
+        $optionid = $event->objectid;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+
+        foreach ($bookinganswer->users as $user) {
+            $bookingoption->user_delete_response($user->id);
+
+            // Also delete user events.
+            calendar::delete_booking_userevents_for_option($optionid, $user->id);
         }
     }
 

@@ -97,7 +97,7 @@ define('BO_COND_PRICEISSET', 10); // Price has to be the lowest blocking conditi
 
 // Define booking options status.
 define('BO_STATUS_NORMAL', 0);
-define('BO_STATUS_CANCELD_AND_VISIBLE', 1);
+define('BO_STATUS_CANCELLED_AND_VISIBLE', 1);
 
 // Define conditions parameters.
 define('CONDPARAM_ALL', 0);
