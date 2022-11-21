@@ -1919,7 +1919,7 @@ $string['roundpricesafterformula_desc'] = 'If active, prices will be rounded to 
 $string['cancelallusers'] = 'Cancel booking for all users';
 
 // Col_availableplaces.mustache.
-$string['manageresponses'] = 'booking(s)';
+$string['manageresponses'] = 'Manage responses';
 
 // Bo conditions.
 $string['availabilityconditions'] = 'Availability conditions';

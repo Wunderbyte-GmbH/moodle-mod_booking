@@ -1710,7 +1710,7 @@ $string['roundpricesafterformula_desc'] = 'Preise auf ganze Zahlen runden (mathe
 $string['cancelallusers'] = 'Storniere Buchung für alle Nutzer:innen';
 
 // Col_availableplaces.mustache.
-$string['manageresponses'] = 'Buchung(en)';
+$string['manageresponses'] = 'Antworten verwalten';
 
 // Bo conditions. TODO: Übersetzen.
 $string['availabilityconditions'] = 'Verfügbarkeit einschränken';

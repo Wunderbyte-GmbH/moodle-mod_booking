@@ -177,6 +177,8 @@ class bookingoptions_table extends wunderbyte_table {
                 $data->editoptionurl = $bookingsoptionsettings->editoptionurl;
                 // Get the URL to edit the teachers for the option.
                 $data->editteachersurl = $bookingsoptionsettings->editteachersurl;
+                // Get the URL to manage answers (responses) of the option.
+                $data->manageresponsesurl = $bookingsoptionsettings->manageresponsesurl;
                 // Get the URL for the optiondates-teachers-report.
                 $data->optiondatesteachersurl = $bookingsoptionsettings->optiondatesteachersurl;
             }
