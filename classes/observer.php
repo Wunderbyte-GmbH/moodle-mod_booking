@@ -159,7 +159,7 @@ class mod_booking_observer {
      * @throws dml_exception
      */
     public static function bookingoption_updated(\mod_booking\event\bookingoption_updated $event) {
-        global $DB, $PAGE, $USER;
+        global $DB;
 
         $optionid = $event->objectid;
         $cmid = $event->contextinstanceid;

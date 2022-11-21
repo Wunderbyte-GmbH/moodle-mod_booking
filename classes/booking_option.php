@@ -1557,6 +1557,11 @@ class booking_option {
                     'userid' => $USER->id));
         $event->trigger();
 
+        // At the very last moment, when everything is done, we invalidate the table cache.
+        cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::invalidate_by_event('setbackoptionsettings', [$this->optionid]);
+        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
+
         return $result;
     }
 
