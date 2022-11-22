@@ -698,6 +698,10 @@ class booking_option_settings {
      */
     public function return_settings_as_stdclass(): stdClass {
 
+        if (empty($this->id)) {
+            return null;
+        }
+
         $cache = \cache::make('mod_booking', 'bookingoptionsettings');
         $cachedoption = $cache->get($this->id);
 

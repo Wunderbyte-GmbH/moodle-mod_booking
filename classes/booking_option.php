@@ -149,6 +149,12 @@ class booking_option {
         $this->settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $this->booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
+        if (empty($this->settings->id)) {
+            debugging('ERROR: Option settings could not be created. Most probably, the option was deleted from DB.',
+                DEBUG_DEVELOPER);
+            return;
+        }
+
         $this->bookingid = $this->booking->id;
 
         // In the future, we will get rid of the stdClass - right now, it's still used very often.

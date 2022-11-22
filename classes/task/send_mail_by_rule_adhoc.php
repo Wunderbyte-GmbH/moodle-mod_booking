@@ -100,7 +100,7 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                 echo 'send_mail_by_rule_adhoc task: mail successfully sent for option ' . $taskdata->optionid . ' to user '
                 . $taskdata->userid . PHP_EOL;
             } else {
-                echo 'send_mail_by_rule_adhoc task: mail could not be sent to for option ' . $taskdata->optionid . ' to user '
+                echo 'send_mail_by_rule_adhoc task: mail could not be sent for option ' . $taskdata->optionid . ' to user '
                 . $taskdata->userid . PHP_EOL;
             }
 

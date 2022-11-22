@@ -25,7 +25,6 @@
 namespace mod_booking\output;
 
 use context_module;
-use core_table\external\dynamic\get;
 use html_writer;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
@@ -349,8 +348,6 @@ class bookingoption_description implements renderable, templatable {
                         $output = $PAGE->get_renderer('mod_booking');
                         switch ($conditionid) {
                             case BO_COND_ALREADYBOOKED:
-                                $this->conditionmessage = $description;
-                                break;
                             case BO_COND_ISCANCELLED:
                                 $this->conditionmessage = $description;
                                 break;
@@ -369,7 +366,7 @@ class bookingoption_description implements renderable, templatable {
                                 break;
                         }
                     }
-
+                    // TODO: case BO_COND_ONWAITINGLIST - not yet supported.
                     // TODO: If no price is set at all, we need to add possibility to book right away without shopping cart!
                 }
                 break;
