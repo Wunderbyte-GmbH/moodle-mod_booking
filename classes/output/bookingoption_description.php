@@ -334,9 +334,6 @@ class bookingoption_description implements renderable, templatable {
                 if (list($conditionid, $isavailable, $description) = $boinfo->get_description(true,
                     $settings, $this->buyforuser->id)) {
 
-                    // Show descriptions of bo_info in a yellow alert box.
-                    $description = html_writer::div($description, 'alert alert-warning');
-
                     // Values object needed for col_price.
                     $values = new stdClass;
                     $values->id = $settings->id;
@@ -348,9 +345,12 @@ class bookingoption_description implements renderable, templatable {
                         $output = $PAGE->get_renderer('mod_booking');
                         switch ($conditionid) {
                             case BO_COND_ALREADYBOOKED:
-                            case BO_COND_ISCANCELLED:
-                                $this->conditionmessage = $description;
+                                $this->conditionmessage = html_writer::div($description, 'alert alert-success');
                                 break;
+                            case BO_COND_ISCANCELLED:
+                                $this->conditionmessage = html_writer::div($description, 'alert alert-danger');
+                                break;
+                            // TODO: BO_COND_ONWAITINGLIST.
                             case BO_COND_FULLYBOOKED:
                                 $usenotificationlist = get_config('booking', 'usenotificationlist');
                                 $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
@@ -359,9 +359,10 @@ class bookingoption_description implements renderable, templatable {
                                 if ($usenotificationlist) {
                                     $data = new button_notifyme($this->buyforuser->id, $values->id,
                                         $bookinginformation['notbooked']['onnotifylist']);
-                                    $this->conditionmessage = $description . $output->render_notifyme_button($data);
+                                    $this->conditionmessage = html_writer::div($description, 'alert alert-warning') .
+                                        $output->render_notifyme_button($data);
                                 } else {
-                                    $this->conditionmessage = $description;
+                                    $this->conditionmessage = html_writer::div($description, 'alert alert-warning');
                                 }
                                 break;
                         }
