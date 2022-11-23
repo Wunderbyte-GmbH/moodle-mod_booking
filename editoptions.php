@@ -161,6 +161,25 @@ if ($mform->is_cancelled()) {
         $redirecturl = new moodle_url('/mod/booking/view.php', array('id' => $cmid));
         redirect($redirecturl, '', 0);
     }
+} else if ($mform->no_submit_button_pressed()) {
+
+    $PAGE->set_title(format_string($booking->settings->name));
+    $PAGE->set_heading($course->fullname);
+
+    echo $OUTPUT->header();
+
+    // If you have a no-submit button on your form, then you can handle that action here.
+    $data = $mform->get_submitted_data();
+
+    // Depending on the button we have pressed, we need to reinstantiate the form...
+    // ... because the definition was already executed at this point.
+    // Then we call Set data again, which should do the trick to have the previous state.
+
+
+
+
+    $mform->display();
+
 } else if ($fromform = $mform->get_data()) {
     // Validated data.
     if (confirm_sesskey() &&
