@@ -187,6 +187,9 @@ class booking_option_settings {
     /** @var string $editteachersurl */
     public $editteachersurl = null;
 
+    /** @var string $manageresponsesurl */
+    public $manageresponsesurl = null;
+
     /** @var array $entity for displaying enity information [id, name]*/
     public $entity = [];
 
@@ -370,6 +373,14 @@ class booking_option_settings {
                 $this->editteachersurl = $dbrecord->editteachersurl;
             }
 
+            // If the key "manageresponsesurl" is not yet set, we need to generate it.
+            if (!isset($dbrecord->manageresponsesurl)) {
+                $this->generate_manageresponses_url($optionid);
+                $dbrecord->manageresponsesurl = $this->manageresponsesurl;
+            } else {
+                $this->manageresponsesurl = $dbrecord->manageresponsesurl;
+            }
+
             // If the key "optiondatesteachersurl" is not yet set, we need to generate it.
             if (!isset($dbrecord->optiondatesteachersurl)) {
                 $this->generate_optiondatesteachers_url($optionid);
@@ -503,6 +514,23 @@ class booking_option_settings {
 
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
             $this->editteachersurl = html_entity_decode($editteachersmoodleurl->out());
+        }
+    }
+
+    /**
+     * Function to generate the URL to manage responses (answers) for an option.
+     *
+     * @param int $optionid
+     */
+    private function generate_manageresponses_url(int $optionid) {
+
+        if (!empty($this->cmid) && !empty($optionid)) {
+
+            $manageresponsesmoodleurl = new moodle_url('/mod/booking/report.php',
+                ['id' => $this->cmid, 'optionid' => $optionid]);
+
+            // Use html_entity_decode to convert "&amp;" to a simple "&" character.
+            $this->manageresponsesurl = html_entity_decode($manageresponsesmoodleurl->out());
         }
     }
 
@@ -669,6 +697,10 @@ class booking_option_settings {
      * @return stdClass
      */
     public function return_settings_as_stdclass(): stdClass {
+
+        if (empty($this->id)) {
+            return null;
+        }
 
         $cache = \cache::make('mod_booking', 'bookingoptionsettings');
         $cachedoption = $cache->get($this->id);

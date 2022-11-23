@@ -330,7 +330,7 @@ class booking_utils {
         }
 
         // Check Booking Option Status.
-        if (isset($values->bostatus) && $values->bostatus == BO_STATUS_CANCELD_AND_VISIBLE) {
+        if (isset($values->bostatus) && $values->bostatus == BO_STATUS_CANCELLED_AND_VISIBLE) {
             $button = '<div class="col-ap-cancelled alert alert-warning">' . get_string('booking_cancelled', 'booking') . "</div><br/>";
         }
         // We only run this if we are not on coursepage.

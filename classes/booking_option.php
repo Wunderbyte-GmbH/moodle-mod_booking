@@ -29,6 +29,7 @@ use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
 use mod_booking\customfield\booking_handler;
+use mod_booking\event\bookinganswer_cancelled;
 use mod_booking\message_controller;
 use mod_booking\task\send_completion_mails;
 use moodle_exception;
@@ -147,6 +148,12 @@ class booking_option {
 
         $this->settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $this->booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+        if (empty($this->settings->id)) {
+            debugging('ERROR: Option settings could not be created. Most probably, the option was deleted from DB.',
+                DEBUG_DEVELOPER);
+            return;
+        }
 
         $this->bookingid = $this->booking->id;
 
@@ -731,7 +738,7 @@ class booking_option {
         }
 
         // Log deletion of user.
-        $event = event\booking_cancelled::create(
+        $event = bookinganswer_cancelled::create(
                 array('objectid' => $this->optionid,
                     'context' => \context_module::instance($this->booking->cm->id),
                     'relateduserid' => $user->id, 'other' => array('userid' => $user->id)));
@@ -1555,6 +1562,11 @@ class booking_option {
                 array('context' => $this->booking->get_context(), 'objectid' => $this->optionid,
                     'userid' => $USER->id));
         $event->trigger();
+
+        // At the very last moment, when everything is done, we invalidate the table cache.
+        cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::invalidate_by_event('setbackoptionsettings', [$this->optionid]);
+        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
 
         return $result;
     }
@@ -2528,14 +2540,7 @@ class booking_option {
             $event = \mod_booking\event\bookingoption_cancelled::create(array('context' => $context, 'objectid' => $optionid,
                     'userid' => $USER->id));
             $event->trigger();
-
-            // Now we delete all the bookign answers.
-            $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
-            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-
-            foreach ($bookinganswer->users as $user) {
-                $bookingoption->user_delete_response($user->id);
-            }
+            // Deletion of booking answers and user events needs to happen in event observer.
         }
 
     }

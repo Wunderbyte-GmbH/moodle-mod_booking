@@ -139,6 +139,12 @@ class message_controller {
         $this->bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
         $this->optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
+        if (empty($this->optionsettings->id)) {
+            debugging('ERROR: Option settings could not be created. Most probably, the option was deleted from DB.',
+                DEBUG_DEVELOPER);
+            return;
+        }
+
         // Get the booking manager.
         $this->bookingmanager = $this->bookingsettings->bookingmanageruser;
 

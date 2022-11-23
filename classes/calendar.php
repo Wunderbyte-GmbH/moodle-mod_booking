@@ -378,4 +378,33 @@ class calendar {
             return $tmpevent->id;
         }
     }
+
+    /**
+     * Delete user events. This function is needed if an option gets deleted or cancelled.
+     * @param int $optionid
+     * @param int $userid
+     */
+    public static function delete_booking_userevents_for_option(int $optionid, int $userid) {
+        global $DB;
+
+        $optioniduserid =
+            "ue.optionid = :optionid
+            AND ue.userid = :userid";
+
+        $sqlusereventids =
+            "SELECT eventid
+            FROM {booking_userevents}
+            WHERE $optioniduserid";
+
+        $params = [
+            'optionid' => $optionid,
+            'userid' => $userid
+        ];
+
+        // At first delete events themselves.
+        $DB->delete_records_select("event", "id IN ( $sqlusereventids )", $params);
+
+        // Now we can delete the booking user event entries.
+        $DB->delete_records_select("booking_userevents", $optioniduserid, $params);
+    }
 }

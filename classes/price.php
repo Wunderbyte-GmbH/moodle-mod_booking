@@ -601,7 +601,7 @@ class price {
      * If there is no userid provided, we look in shopping cart cache, there might be a userid stored.
      * If not, we use USER.
      * @param integer $userid
-     * @return user
+     * @return stdClass
      */
     public static function return_user_to_buy_for(int $userid = 0) {
 

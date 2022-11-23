@@ -75,7 +75,7 @@ $string['daystonotify'] = 'Wie viele Tage vor Kursbeginn soll an die Teilnehmend
 $string['daystonotify_help'] = "Funktioniert nur, wenn ein Beginn- und Enddatum für die Buchungsoption gesetzt sind. Wenn Sie 0 eingeben, wird die Benachrichtigung deaktiviert.";
 $string['daystonotify2'] = 'Zweite Teilnehmerbenachrichtigung vor Veranstaltungsbeginn';
 $string['daystonotifyteachers'] = 'Wie viele Tage vor Kursbeginn soll an die Trainer:innen eine Benachrichtigung gesendet werden? (PRO)';
-$string['booking_cancelled'] = 'Buchung storniert';
+$string['bookinganswer_cancelled'] = 'Buchungsoption von/für Nutzer:in storniert';
 
 // Booking option events.
 $string['bookingoption_cancelled'] = "Buchungsoption storniert";
@@ -1710,7 +1710,7 @@ $string['roundpricesafterformula_desc'] = 'Preise auf ganze Zahlen runden (mathe
 $string['cancelallusers'] = 'Storniere Buchung für alle Nutzer:innen';
 
 // Col_availableplaces.mustache.
-$string['manageresponses'] = 'Buchung(en)';
+$string['manageresponses'] = 'Antworten verwalten';
 
 // Bo conditions. TODO: Übersetzen.
 $string['availabilityconditions'] = 'Verfügbarkeit einschränken';
@@ -1736,7 +1736,7 @@ $string['bo_cond_booking_time_full_not_available'] = 'Nicht innerhalb der normal
 $string['bo_cond_alreadybooked_available'] = 'Noch nicht gebucht';
 $string['bo_cond_alreadybooked_full_available'] = 'Nutzer:in hat noch nicht gebucht';
 $string['bo_cond_alreadybooked_not_available'] = 'Gebucht';
-$string['bo_cond_alreadybooked_full_not_available'] = 'Nutzer:in hat diese Option bereits gebucht';
+$string['bo_cond_alreadybooked_full_not_available'] = 'Option bereits gebucht';
 
 $string['bo_cond_fullybooked_available'] = 'Buchen';
 $string['bo_cond_fullybooked_full_available'] = 'Buchen möglich';

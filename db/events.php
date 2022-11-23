@@ -52,6 +52,10 @@ $observers = array(
         'callback' => 'mod_booking_observer::bookingoption_updated'
     ),
     array(
+        'eventname' => '\mod_booking\event\bookingoption_cancelled',
+        'callback' => 'mod_booking_observer::bookingoption_cancelled'
+    ),
+    array(
         'eventname' => '\mod_booking\event\bookingoptiondate_created',
         'callback' => 'mod_booking_observer::bookingoptiondate_created'
     ),
@@ -72,8 +76,8 @@ $observers = array(
         'callback' => 'mod_booking_observer::custom_field_changed'
     ),
     array(
-        'eventname' => '\mod_booking\event\booking_cancelled',
-        'callback' => 'mod_booking_observer::booking_cancelled'
+        'eventname' => '\mod_booking\event\bookinganswer_cancelled',
+        'callback' => 'mod_booking_observer::bookinganswer_cancelled'
     ),
     array(
         'eventname' => '\mod_booking\event\bookingoption_completed',

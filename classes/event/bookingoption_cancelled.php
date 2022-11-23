@@ -46,7 +46,7 @@ class bookingoption_cancelled extends \core\event\base {
     }
 
     public function get_description() {
-        return "The user with id {$this->userid} cancelled the booking option with id  {$this->objectid}.";
+        return "The user with id {$this->userid} cancelled the booking option with id {$this->objectid}.";
     }
 
     public function get_url() {

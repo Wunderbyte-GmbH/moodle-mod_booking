@@ -77,7 +77,7 @@ $string['daystonotify'] = 'Number of days in advance of the event-start to notif
 $string['daystonotify_help'] = "Will work only if start and end date of option are set! 0 for disabling this functionality.";
 $string['daystonotify2'] = 'Second notification before start of event to notify participants.';
 $string['daystonotifyteachers'] = 'Number of days in advance of the event-start to notify teachers (PRO)';
-$string['booking_cancelled'] = 'Booking cancelled';
+$string['bookinganswer_cancelled'] = 'Booking option cancelled for/by user';
 
 // Booking option events.
 $string['bookingoption_cancelled'] = "Booking option cancelled";
@@ -1919,7 +1919,7 @@ $string['roundpricesafterformula_desc'] = 'If active, prices will be rounded to 
 $string['cancelallusers'] = 'Cancel booking for all users';
 
 // Col_availableplaces.mustache.
-$string['manageresponses'] = 'booking(s)';
+$string['manageresponses'] = 'Manage responses';
 
 // Bo conditions.
 $string['availabilityconditions'] = 'Availability conditions';
@@ -1945,7 +1945,7 @@ $string['bo_cond_booking_time_full_not_available'] = 'Not within normal booking 
 $string['bo_cond_alreadybooked_available'] = 'Not yet booked';
 $string['bo_cond_alreadybooked_full_available'] = 'The user has not yet booked';
 $string['bo_cond_alreadybooked_not_available'] = 'Booked';
-$string['bo_cond_alreadybooked_full_not_available'] = 'The user has already booked this option';
+$string['bo_cond_alreadybooked_full_not_available'] = 'Booking option already booked';
 
 $string['bo_cond_fullybooked_available'] = 'Book it';
 $string['bo_cond_fullybooked_full_available'] = 'Booking is possible';

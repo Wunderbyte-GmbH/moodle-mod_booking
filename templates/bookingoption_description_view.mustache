@@ -75,7 +75,7 @@
             <div class="card price-card">
                 <img class="w-100" src="{{imageurl}}">
 
-                {{^bookingsstring}}
+                {{^conditionmessage}}
                 <h3 class="bookingstring text-center"> {{price}} {{currency}}</h3>
 
                 <button class="btn wb_shopping_cart btn-primary"
@@ -85,8 +85,8 @@
                         data-component="mod_booking">
                 <span>{{#str}} addtocart, local_shopping_cart {{/str}}</span>
                 </button>
-                {{/bookingsstring}}
-                {{#bookingsstring}}<h3 class="price text-center">{{bookingsstring}}</h3>{{/bookingsstring}}
+                {{/conditionmessage}}
+                {{#conditionmessage}}<h3 class="price text-center">{{{.}}}</h3>{{/conditionmessage}}
               <div class="card-body">
                 <ul class="infolist">
                     {{#dayofweektime}}

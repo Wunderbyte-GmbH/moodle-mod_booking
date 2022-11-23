@@ -48,6 +48,7 @@ define('DESCRIPTION_CALENDAR', 2); // Shows link button with text "go to booking
 define('DESCRIPTION_ICAL', 3); // Shows link with text "go to bookingoption" and meeting links via link.php for iCal.
 define('DESCRIPTION_MAIL', 4); // Shows link with text "go to bookingoption" and meeting links via link.php...
                             // ...for mail placeholder {bookingdetails}.
+define('DESCRIPTION_OPTIONVIEW', 5); // Description for booking option preview page.
 
 // Define message parameters.
 define('MSGPARAM_CONFIRMATION', 1);
@@ -96,7 +97,7 @@ define('BO_COND_PRICEISSET', 10); // Price has to be the lowest blocking conditi
 
 // Define booking options status.
 define('BO_STATUS_NORMAL', 0);
-define('BO_STATUS_CANCELD_AND_VISIBLE', 1);
+define('BO_STATUS_CANCELLED_AND_VISIBLE', 1);
 
 // Define conditions parameters.
 define('CONDPARAM_ALL', 0);
