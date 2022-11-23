@@ -1,5 +1,13 @@
-## Version 7.7.2 (2022111600)
-**New features:**
+7.7.3 (2022112300)
+* Improvement: Correctly use availability conditions in optionview.php
+* Improvement: Add indexes to tables where necessary
+* Improvement: Delete user events when booking option is cancelled and more.
+* Improvement: Show manage responses in menu.
+* Bugfix: Invalidate caches when a booking option is deleted.
+* Bugfix: Adhoc tasks failed when booking options were deleted.
+* Bugfix: Adhoc tasks failed when booking options were deleted.
+
+7.7.2 (2022111600)
 * New feature: Cancel booking options
 
 7.7.1 (2022111400)
