@@ -38,6 +38,7 @@ class reminder2_sent extends \core\event\base {
     protected function init() {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
+        $this->data['objecttable'] = 'booking_options';
     }
 
     public static function get_name() {

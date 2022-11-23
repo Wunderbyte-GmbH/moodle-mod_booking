@@ -230,7 +230,7 @@ class rule_daysbefore implements booking_rule {
      */
     public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime): bool {
 
-        $rulestillapplies = false;
+        $rulestillapplies = true;
 
         // We retrieve the same sql we also use in the execute function.
         $records = $this->get_records_for_execution($optionid, $userid, true);

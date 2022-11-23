@@ -80,5 +80,14 @@ $capabilities = array(
     'mod/booking:cantoggleformmode' => array('captype' => 'write', 'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array('editingteacher' => CAP_ALLOW, 'manager' => CAP_ALLOW)),
     'mod/booking:bookforothers' => array('captype' => 'write', 'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array('editingteacher' => CAP_ALLOW, 'manager' => CAP_ALLOW))
+        'archetypes' => array('editingteacher' => CAP_ALLOW, 'manager' => CAP_ALLOW)),
+
+    'mod/booking:cansendmessages' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ]
+    ]
 );
