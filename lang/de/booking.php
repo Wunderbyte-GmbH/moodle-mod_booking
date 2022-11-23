@@ -1190,6 +1190,7 @@ $string['signature'] = 'Unterschrift';
 $string['userssucesfullygetnewpresencestatus'] = 'Anwesenheitsstatus für ausgewählte Nutzer:innen erfolgreich aktualisiert';
 
 // Send message.
+$string['booking:cansendmessages'] = 'Kann Nachrichten schicken.';
 $string['activitycompletionsuccess'] = 'Alle Nutzer:innen wurden für den Aktivitätsabschluss ausgewählt';
 $string['booking:communicate'] = 'Can communicate';
 $string['confirmoptioncompletion'] = 'Abschluss bestätigen';

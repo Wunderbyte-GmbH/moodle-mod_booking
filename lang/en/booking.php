@@ -1315,6 +1315,7 @@ $string['copytotemplatesucesfull'] = 'Booking option was sucesfully copied to te
 
 
 // Send message.
+$string['booking:cansendmessages'] = 'Can send messages';
 $string['activitycompletionsuccess'] = 'All selected users have been marked for activity completion';
 $string['booking:communicate'] = 'Can communicate';
 $string['confirmoptioncompletion'] = '(Un)confirm completion status';
