@@ -1,7 +1,7 @@
 @mod @mod_booking @booking_add_option
-Feature: In a booking create
+Feature: In a booking instance create booking options
   As a teacher
-  I need to add booking and event to a booking.
+  I need to add booking options and events to a booking instance
 
     Background:
         Given the following "users" exist:
@@ -24,25 +24,30 @@ Feature: In a booking create
             | booking     | C1     | My booking | My booking description | teacher1 | Webinar |
 
     @javascript
-    Scenario: Create booking
+    Scenario: Create booking instance
         Given I log in as "teacher1"
         And I am on "Course 1" course homepage with editing mode on
-        And I add a "Booking" to section "1" and I fill the form with:
+        And I add a "Booking" to section "0"
+        And I set the following fields to these values:
             | Booking name | Test booking |
             | Event type | Webinar |
+            | Booking text | This is the description for the test booking instance. |
+            | Organizer name | Teacher 1 |
+            | Sort by | Booking option name |
             | Default view for booking options | All bookings |
+        And I press "Save and return to course"
+        Then I should see "Test booking"
         And I log out
 
-    Scenario: Create Booking option and see it on activity page.
-        Given I log in as "teacher1"
-        When I am on "Course 1" course homepage
-        And I follow "Test booking"
-        And I follow "Actions menu"
-        And I follow "Add a new booking option"
+    @javascript
+    Scenario: Create booking option and see it on activity page
+        Given I am on the "Course 1" course page logged in as teacher1
+        And I follow "My booking"
+        And I follow "New booking option"
         And I set the following fields to these values:
-           | Booking option name | Test booking - Webinar |
-        Then I click on "Start and end time of course are known" "checkbox"
-        Then I set the field "Add to calendar" to "Add to calendar (visible only to course participants)"
+           | Booking option name | Test option - Webinar |
+        And I set the field "startendtimeknown" to "checked"
+        And I set the field "addtocalendar" to "1"
         And I set the following fields to these values:
             | coursestarttime[day] | 31 |
             | coursestarttime[month] | December |
@@ -55,24 +60,13 @@ Feature: In a booking create
             | courseendtime[year] | 2022 |
             | courseendtime[hour] | 09 |
             | courseendtime[minute] | 00 |
-        Then I set the field "Add as template" to "Use as global template"
         And I press "Save and go back"
-        Then I should see "My booking"
-    
-    @javascript
-    Scenario: Add instances
-        Given I log in as "teacher1"
-        When I am on "Course 1" course homepage
-        Then I follow "My booking"
-        And I follow "Actions menu"
-        And I follow "Add booking instance to template"
-        And I set the following fields to these values:
-            | Name | New instance |
-        And I press "Save changes"
-  
-    @javascript
-    Scenario: 
-        Given I log in as "student1"
-        When I am on "Course 1" course homepage
+        And I should see "Book now"
+        And I log out
+        And I am on the "Course 1" course page logged in as student1
         And I follow "My booking"
-    
+        And I press "Book now"
+        Then I should see "Your booking was successfully saved"
+        And I press "Continue"
+        And I should see "Booked"
+        And I should not see "Book now"

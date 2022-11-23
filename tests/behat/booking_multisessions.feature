@@ -1,7 +1,7 @@
 @mod @mod_booking @booking_multisessions
-Feature: In a booking create
+Feature: In a booking create multi session options
   As a teacher
-  I need to add booking and event to a booking.
+  I need to add booking options with multiple dates
 
     Background:
         Given the following "users" exist:
@@ -53,14 +53,9 @@ Feature: In a booking create
     @javascript
     Scenario: Send reminder mail to participant
         Given I log in as "teacher1"
-        And I open the link "http://webserver/_/mail"
-        And I wait "10" seconds
-        And I follow "Delete all messages"
-        And I press "Delete all messages"
-        And I open the link "http://webserver"
         When I am on "Course 1" course homepage
         And I follow "My booking"
-        And I follow "Settings"
+        And I press "dropdown d-inline show"
         And I follow "Edit teachers"
         And I press "Turn editing on"
         And I click on "Teacher 1 (teacher1@example.com)" "text"

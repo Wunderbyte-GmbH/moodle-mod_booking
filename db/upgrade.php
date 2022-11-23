@@ -2788,6 +2788,162 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2022110800, 'booking');
     }
+    if ($oldversion < 2022112201) {
+
+        // Define index userid (not unique) to be added to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        $index = new xmldb_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+
+        // Conditionally launch add index userid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        // Define index optionid-userid (not unique) to be added to booking_answers.
+        $index = new xmldb_index('optionid-userid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'userid']);
+        // Conditionally launch add index optionid-userid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        // Define index optionid-userid-bookingid (not unique) to be added to booking_answers.
+        $index = new xmldb_index('optionid-userid-bookingid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'userid', 'bookingid']);
+
+        // Conditionally launch add index optionid-userid-bookingid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        // Define index userid-bookingid-waitinglist (not unique) to be added to booking_answers.
+        $index = new xmldb_index('userid-bookingid-waitinglist', XMLDB_INDEX_NOTUNIQUE, ['userid', 'bookingid', 'waitinglist']);
+
+        // Conditionally launch add index userid-bookingid-waitinglist.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        // Define index userid-bookingid-waitinglist-optionid (not unique) to be added to booking_answers.
+        $index = new xmldb_index('userid-bookingid-waitinglist-optionid', XMLDB_INDEX_NOTUNIQUE, ['userid', 'bookingid', 'waitinglist', 'optionid']);
+
+        // Conditionally launch add index userid-bookingid-waitinglist-optionid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        // Define index timemodified (not unique) to be added to booking_answers.
+        $index = new xmldb_index('timemodified', XMLDB_INDEX_NOTUNIQUE, ['timemodified']);
+
+        // Conditionally launch add index timemodified.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        // Define key course (foreign) to be added to booking_category.
+        $table = new xmldb_table('booking_category');
+        $key = new xmldb_key('course', XMLDB_KEY_FOREIGN, ['course'], 'course', ['id']);
+
+        // Launch add key course.
+        $dbman->add_key($table, $key);
+        // Define index userid-optionid (unique) to be added to booking_teachers.
+        $table = new xmldb_table('booking_teachers');
+        $index = new xmldb_index('userid-optionid', XMLDB_INDEX_NOTUNIQUE, ['userid', 'optionid']);
+
+        // Conditionally launch add index userid-optionid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define index course (not unique) to be added to booking_institutions.
+        $table = new xmldb_table('booking_institutions');
+        $index = new xmldb_index('course', XMLDB_INDEX_NOTUNIQUE, ['course']);
+
+        // Conditionally launch add index course.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define index id-optionid (not unique) to be added to booking_optiondates.
+        $table = new xmldb_table('booking_optiondates');
+        $index = new xmldb_index('id-optionid', XMLDB_INDEX_NOTUNIQUE, ['id', 'optionid']);
+
+        // Conditionally launch add index id-optionid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define index coursestarttime (not unique) to be added to booking_optiondates.
+        $table = new xmldb_table('booking_optiondates');
+        $index = new xmldb_index('coursestarttime', XMLDB_INDEX_NOTUNIQUE, ['coursestarttime']);
+
+        // Conditionally launch add index coursestarttime.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        // Define index courseendtime (not unique) to be added to booking_optiondates.
+        $table = new xmldb_table('booking_optiondates');
+        $index = new xmldb_index('courseendtime', XMLDB_INDEX_NOTUNIQUE, ['courseendtime']);
+
+        // Conditionally launch add index courseendtime.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define index optiondateid (not unique) to be added to booking_optiondates_teachers.
+        $table = new xmldb_table('booking_optiondates_teachers');
+        $index = new xmldb_index('optiondateid', XMLDB_INDEX_NOTUNIQUE, ['optiondateid']);
+
+        // Conditionally launch add index optiondateid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define index userid (not unique) to be added to booking_optiondates_teachers.
+        $table = new xmldb_table('booking_optiondates_teachers');
+        $index = new xmldb_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+
+        // Conditionally launch add index userid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define index optiondateid-userid (not unique) to be added to booking_optiondates_teachers.
+        $table = new xmldb_table('booking_optiondates_teachers');
+        $index = new xmldb_index('optiondateid-userid', XMLDB_INDEX_NOTUNIQUE, ['optiondateid', 'userid']);
+
+        // Conditionally launch add index optiondateid-userid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        // Define key bookingid (foreign) to be added to booking_rules.
+        $table = new xmldb_table('booking_rules');
+        $key = new xmldb_key('bookingid', XMLDB_KEY_FOREIGN, ['bookingid'], 'booking', ['id']);
+
+        // Launch add key bookingid.
+        $dbman->add_key($table, $key);
+
+        // Define index id-bookingid (not unique) to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $index = new xmldb_index('id-bookingid', XMLDB_INDEX_NOTUNIQUE, ['id', 'bookingid']);
+
+        // Conditionally launch add index id-bookingid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define index id-invisible (not unique) to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $index = new xmldb_index('id-invisible', XMLDB_INDEX_NOTUNIQUE, ['id', 'invisible']);
+
+        // Conditionally launch add index id-invisible.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        // Define index invisible (not unique) to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $index = new xmldb_index('invisible', XMLDB_INDEX_NOTUNIQUE, ['invisible']);
+
+        // Conditionally launch add index invisible.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022112201, 'booking');
+    }
 
     return true;
 }
