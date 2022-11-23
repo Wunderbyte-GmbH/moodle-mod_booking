@@ -222,22 +222,29 @@ class booking_option_settings {
      */
     public function __construct(int $optionid, stdClass $dbrecord = null) {
 
+        // Even if we have a record, we still get the cache...
+        // Because in the cache, we have also information from other tables.
         $cache = \cache::make('mod_booking', 'bookingoptionsettings');
-        $cachedoption = $cache->get($optionid);
+        if (!$cachedoption = $cache->get($optionid)) {
+            $savecache = true;
+        } else {
+            $savecache = false;
+        }
 
+        // If there is no cache present...
+        // We try to fall back on the dbrecord.
         if (!$cachedoption) {
             if (!$dbrecord) {
                 $cachedoption = null;
             } else {
                 $cachedoption = $dbrecord;
             }
-
         }
 
         // If we have no object to pass to set values, the function will retrieve the values from db.
         if ($data = $this->set_values($optionid, $cachedoption)) {
             // Only if we didn't pass anything to cachedoption, we set the cache now.
-            if (!$cachedoption) {
+            if ($savecache) {
                 $cache->set($optionid, $data);
             }
         }

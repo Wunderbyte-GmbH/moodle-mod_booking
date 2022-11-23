@@ -23,6 +23,7 @@ use mod_booking\booking_answers;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\booking_settings;
+use stdClass;
 
 /**
  * Singleton Service to improve performance.
@@ -204,15 +205,16 @@ class singleton_service {
      * Service to create and return singleton instance of booking_option_settings.
      *
      * @param int $optionid
+     * @param stdClass $dbrecord
      * @return booking_option_settings
      */
-    public static function get_instance_of_booking_option_settings($optionid) {
+    public static function get_instance_of_booking_option_settings($optionid, stdClass $dbrecord = null) {
         $instance = self::get_instance();
 
         if (isset($instance->bookingoptionsettings[$optionid])) {
             return $instance->bookingoptionsettings[$optionid];
         } else {
-            $settings = new booking_option_settings($optionid);
+            $settings = new booking_option_settings($optionid, $dbrecord);
             $instance->bookingoptionsettings[$optionid] = $settings;
             return $settings;
         }
