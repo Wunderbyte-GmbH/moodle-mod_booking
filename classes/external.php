@@ -624,7 +624,7 @@ class external extends external_api {
                     'status' => new external_value(PARAM_INT, 'Status 1 for user is now on list, 0 for not on list.',
                         VALUE_REQUIRED),
                     'optionid' => new external_value(PARAM_INT, 'option id', VALUE_REQUIRED),
-                    'error' => new external_value(PARAM_RAW, 'error', VALUE_OPTIONAL, ''),
+                    'error' => new external_value(PARAM_RAW, 'error', VALUE_REQUIRED),
                 ]
         );
     }
