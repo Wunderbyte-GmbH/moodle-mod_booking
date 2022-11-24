@@ -258,7 +258,7 @@ class rules_info {
                 // Important: Load the rule data into the rule instance.
                 $rule->set_ruledata($record);
                 // Now the rule can be executed.
-                $rule->execute(null, $userid);
+                $rule->execute(0, $userid);
             }
         }
     }
