@@ -28,7 +28,7 @@ $messageproviders = array(
     // Ordinary single booking messages.
     'bookingconfirmation' => array(),
 
-    'Send Messages' => array(
+    'sendmessages' => array(
         'capability' => 'mod/booking:cansendmessages'
     ),
 );

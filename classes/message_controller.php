@@ -465,6 +465,7 @@ class message_controller {
         $messagedata->messagetext = format_text_email($this->messagebody, FORMAT_HTML);
         $messagedata->messagehtml = text_to_html($this->messagebody, false, false, true);
         $messagedata->messageparam = $this->messageparam;
+        $messagedata->name = 'bookingconfirmation';
 
         // The "send mail to booker" setting is only available for adhoc mails.
         if (!empty($this->bookingsettings->sendmailtobooker)) {
