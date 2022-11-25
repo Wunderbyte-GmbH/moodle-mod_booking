@@ -163,11 +163,6 @@ if ($mform->is_cancelled()) {
     }
 } else if ($mform->no_submit_button_pressed()) {
 
-    $PAGE->set_title(format_string($booking->settings->name));
-    $PAGE->set_heading($course->fullname);
-
-    echo $OUTPUT->header();
-
     // If you have a no-submit button on your form, then you can handle that action here.
     $data = $mform->get_submitted_data();
 
@@ -175,8 +170,36 @@ if ($mform->is_cancelled()) {
     // ... because the definition was already executed at this point.
     // Then we call Set data again, which should do the trick to have the previous state.
 
+    // If the Subbutton "add" is clicked, we need to make sure this data is present in the formdata.
+    if (!empty($data->btn_bookingsubbookingadd)) {
 
+        $formdata = [
+            'bookingid' => $bookingid,
+            'optionid' => $optionid,
+            'cmid' => $cmid,
+            'context' => $context,
+            'btn_bookingsubbookingadd' => $data->btn_bookingsubbookingadd
+        ];
 
+        $mform = new option_form(null, $formdata);
+        $mform->set_data($data);
+    } else if (!empty($data->btn_bookingsubbookingsaddsubmit)) {
+
+        // Here we actually save the new subbooking.
+
+        // We need to first get the submitted type.
+        $type = $data->btn_bookingsubbookingtype;
+
+        // Now we add the new subbooking to DB.
+
+        // And go back to the form.
+
+    }
+
+    $PAGE->set_title(format_string($booking->settings->name));
+    $PAGE->set_heading($course->fullname);
+
+    echo $OUTPUT->header();
 
     $mform->display();
 

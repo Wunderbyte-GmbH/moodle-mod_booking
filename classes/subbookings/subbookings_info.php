@@ -39,60 +39,44 @@ use stdClass;
 class subbookings_info {
 
     /**
-     * Add form fields to mform.
+     * Add a list of subbookings and a modal to edit subbookings to an mform.
      *
      * @param MoodleQuickForm $mform
      * @param array $formdata
      * @return void
      */
     public static function add_subbookings_to_mform(MoodleQuickForm &$mform,
-        array &$formdata = null) {
+        array &$formdata = []) {
 
-        // First, get all the type of subbookings there are.
-        $subbookings = self::get_subbookings();
+        global $PAGE;
 
-        $mform->registerNoSubmitButton('btn_bookingsubbookingadd');
-        // $buttonargs = array('style' => 'visibility:hidden;');
-        $categoryselect = [
-            $mform->createElement('submit', 'btn_bookingsubbookingadd', get_string('bookingsubbookingadd', 'mod_booking')) // $buttonargs)
-        ];
-        $mform->addGroup($categoryselect, 'bookingsubbookingadd', get_string('bookingsubbookingadd', 'mod_booking'), [' '], false);
-        $mform->setType('btn_bookingsubbookingadd', PARAM_NOTAGS);
-
-        $subbookingsforselect = [];
-        foreach ($subbookings as $subbooking) {
-            $fullclassname = get_class($subbooking); // With namespace.
-            $classnameparts = explode('\\', $fullclassname);
-            $shortclassname = end($classnameparts); // Without namespace.
-            $subbookingsforselect[$shortclassname] = $subbooking->get_name_of_subbooking();
-        }
-
+        // Add header to Element.
         $mform->addElement('header', 'bookingsubbookingsheader', get_string('bookingsubbookingsheader', 'mod_booking'));
 
-        $mform->registerNoSubmitButton('btn_bookingsubbookingtype1');
-        // $buttonargs = array('style' => 'visibility:hidden;');
-        $categoryselect = [
-            $mform->createElement('select', 'bookingsubbookingtype',
-            get_string('bookingsubbooking', 'mod_booking'), $subbookingsforselect),
-            $mform->createElement('submit', 'btn_bookingsubbookingtype1', get_string('bookingsubbooking', 'mod_booking')) // $buttonargs)
-        ];
-        $mform->addGroup($categoryselect, 'bookingsubbookingtype', get_string('bookingsubbooking', 'mod_booking'), [' '], false);
-        $mform->setType('btn_bookingsubbookingtype1', PARAM_NOTAGS);
+        if (!empty($formdata['optionid'])) {
+            // Add a list of existing subbookings, including an edit and a delete button.
+            self::add_list_of_existing_subbookings_for_this_option($mform, $formdata);
 
-        if (isset($ajaxformdata['bookingsubbookingtype'])) {
-            $subbooking = self::get_subbooking($ajaxformdata['bookingsubbookingtype']);
+            // If we haven't clicked on the add button just yet...
+            // ... we add a new button.
+            $mform->addElement('html',
+                '<a class="btn btn-primary bookingsubbooking"
+                    data-action="add"
+                    data-optionid="' . $formdata['optionid'] . '">'
+                . get_string('bookingsubbookingadd', 'mod_booking') . '</a>');
+
+            $PAGE->requires->js_call_amd('mod_booking/dynamicsubbookingsform', 'init', ['a.bookingsubbooking']);
+
         } else {
-            list($subbooking) = $subbookings;
+            $mform->addElement('static', 'onlyaddsubbookingsonsavedoption', get_string('onlyaddsubbookingsonsavedoption', 'mod_booking'));
         }
-
-        $subbooking->add_subbooking_to_mform($mform);
     }
 
     /**
      * Get all booking subbookings.
      * @return array an array of booking subbookings (instances of class booking_subbooking).
      */
-    public static function get_subbookings() {
+    public static function get_subbooking_types() {
         global $CFG;
 
         // First, we get all the available subbookings from our directory.
@@ -124,7 +108,7 @@ class subbookings_info {
     public static function get_subbooking(string $subbookingname) {
         global $CFG;
 
-        $filename = 'mod_booking\booking_subbookings\subbookings\\' . $subbookingname;
+        $filename = 'mod_booking\subbookings\subbookings\\' . $subbookingname;
 
         // We instantiate all the classes, because we need some information.
         if (class_exists($filename)) {
@@ -168,16 +152,16 @@ class subbookings_info {
      * @param stdClass &$data reference to the form data
      * @return void
      */
-    public static function save_booking_subbooking(stdClass &$data) {
+    public static function save_subbooking(stdClass &$data) {
 
         // We receive the form with the data depending on the used handlers.
         // As we know which handler to call, we only instantiate one subbooking.
-        $subbooking = self::get_subbooking($data->bookingsubbookingtype);
+        $subbooking = self::get_subbooking($data->subbooking_type);
 
         // subbooking has to be saved last, because it actually writes to DB.
         $subbooking->save_subbooking($data);
 
-        self::execute_booking_subbookings();
+        // self::execute_booking_subbookings();
 
         return;
     }
@@ -252,5 +236,78 @@ class subbookings_info {
     public static function delete_subbooking(int $subbookingid) {
         global $DB;
         $DB->delete_records('booking_subbookings', ['id' => (int)$subbookingid]);
+    }
+
+    /**
+     * This function adds a list of existing subbokings for this function.
+     * Every line includes and edit and a delete no-submit-button.
+     *
+     * @param MoodleQuickForm $mform
+     * @param array $formdata
+     * @return void
+     */
+    private static function add_list_of_existing_subbookings_for_this_option(MoodleQuickForm &$mform, array &$formdata = []) {
+
+        global $DB;
+
+        $optionid = $formdata['optionid'];
+
+        $subbookings = $DB->get_records('booking_subbooking_options', ['optionid' => $optionid]);
+
+        $counter = 0;
+        foreach ($subbookings as $sb) {
+
+            $categoryselect = [
+                $mform->createElement('static', $sb->type . $counter . '_name', 'listelement1', $sb->name),
+                $mform->createElement('html',
+                    '<a data-id="' . $sb->id .
+                    '<a data-action="edit" class=btn btn-success">edit</a>'),
+                $mform->createElement('html',
+                    '<a data-id="' . $sb->id .
+                    '<a data-action="delete" class=btn btn-danger">delete</a>'),
+            ];
+            $mform->addGroup($categoryselect, $sb->type, get_string('bookingsubbookingadd', 'mod_booking'), [' '], false);
+            $mform->setType($sb->name, PARAM_NOTAGS);
+        }
+    }
+
+    /**
+     * Retrieve all available subbookings and add a select form element to choose between.
+     * This form also adds the corresponding form elements of the chosen type.
+     *
+     * @param MoodleQuickForm $mform
+     * @param array $formdata
+     * @return void
+     */
+    public static function add_subbooking(MoodleQuickForm &$mform, array &$formdata) {
+        // First, get all the type of subbookings there are.
+        $subbookingtypes = self::get_subbooking_types();
+
+        $subbookingsforselect = [];
+        foreach ($subbookingtypes as $subbooking) {
+            $fullclassname = get_class($subbooking); // With namespace.
+            $classnameparts = explode('\\', $fullclassname);
+            $shortclassname = end($classnameparts); // Without namespace.
+            $subbookingsforselect[$shortclassname] = $subbooking->get_name_of_subbooking();
+        }
+
+        $mform->registerNoSubmitButton('btn_subbookingtype');
+        // $buttonargs = array('style' => 'visibility:hidden;');
+        $categoryselect = [
+            $mform->createElement('select', 'subbooking_type',
+            get_string('bookingsubbooking', 'mod_booking'), $subbookingsforselect),
+            $mform->createElement('submit', 'btn_subbookingtype', get_string('bookingsubbooking', 'mod_booking')) // $buttonargs)
+        ];
+        $mform->addGroup($categoryselect, 'subbooking_type', get_string('bookingsubbooking', 'mod_booking'), [' '], false);
+        $mform->setType('btn_subbookingtype', PARAM_NOTAGS);
+
+        if (isset($ajaxformdata['subbooking_type'])) {
+            $subbooking = self::get_subbooking($ajaxformdata['subbooking_type']);
+        } else {
+            list($subbooking) = $subbookingtypes;
+        }
+
+        // Finally, after having chosen the right type of subbooking, we add the corresponding elements.
+        $subbooking->add_subbooking_to_mform($mform);
     }
 }

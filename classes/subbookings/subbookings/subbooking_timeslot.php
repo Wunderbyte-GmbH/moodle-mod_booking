@@ -34,19 +34,22 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class subbooking_timeslot implements booking_subbooking {
 
-    /** @var string $subbookingname */
-    protected $subbookingname = 'subbooking_timeslot';
+    /** @var int $id Id of the configured subbooking */
+    public $id = null;
 
-    /** @var string $name */
+    /** @var int $optionid Id of the booking option which parents this subbooking*/
+    public $optionid = null;
+
+    /** @var string $type type of subbooking as the name of this class */
+    protected $type = 'subbooking_timeslot';
+
+    /** @var string $name given name to this configured subbooking*/
     public $name = null;
 
-    /** @var string $subbookingjson */
-    public $subbookingjson = null;
+    /** @var string $json json which holds all the data of a subbooking*/
+    public $json = null;
 
-    /** @var int $subbookingid */
-    public $subbookingid = null;
-
-    /** @var int $days */
+    /** @var int $days This is a supplementary field which is not directly in the db but wrapped in the json */
     public $days = null;
 
     /**
@@ -54,8 +57,9 @@ class subbooking_timeslot implements booking_subbooking {
      * @param stdClass $record a subbooking record from DB
      */
     public function set_subbookingdata(stdClass $record) {
-        $this->subbookingid = $record->id ?? 0;
-        $this->set_subbookingdata_from_json($record->subbookingjson);
+        $this->id = $record->id ?? 0;
+        $this->optionid = $record->optionid ?? 0;
+        $this->set_subbookingdata_from_json($record->json);
     }
 
     /**
@@ -63,11 +67,10 @@ class subbooking_timeslot implements booking_subbooking {
      * @param string $json a json string for a booking subbooking
      */
     public function set_subbookingdata_from_json(string $json) {
-        $this->subbookingjson = $json;
-        $subbookingobj = json_decode($json);
-        $this->name = $subbookingobj->name;
-        $this->days = (int) $subbookingobj->subbookingdata->days;
-        $this->datefield = $subbookingobj->subbookingdata->datefield;
+        $this->json = $json;
+        $jsondata = json_decode($json);
+        $this->name = $jsondata->name;
+        $this->days = (int) $jsondata->data->days;
     }
 
     /**
@@ -82,7 +85,7 @@ class subbooking_timeslot implements booking_subbooking {
         $mform->addElement('static', 'subbooking_timeslot_desc', '',
             get_string('subbooking_timeslot_desc', 'mod_booking'));
 
-        // Number of days before.
+        // Duration of one particular slot.
         $mform->addElement('text', 'subbooking_timeslot_duration',
             get_string('subbooking_duration', 'mod_booking'));
         $mform->setType('subbooking_timeslot_duration', PARAM_INT);
@@ -95,7 +98,7 @@ class subbooking_timeslot implements booking_subbooking {
      * @return void
      */
     public function get_name_of_subbooking($localized = true) {
-        return $localized ? get_string($this->subbookingname, 'mod_booking') : $this->subbookingname;
+        return $localized ? get_string($this->type, 'mod_booking') : $this->type;
     }
 
     /**
@@ -104,33 +107,37 @@ class subbooking_timeslot implements booking_subbooking {
      * @param stdClass &$data form data reference
      */
     public function save_subbooking(stdClass &$data) {
-        global $DB;
+        global $DB, $USER;
 
         $record = new stdClass();
+        $now = time();
 
-        if (!isset($data->subbookingjson)) {
+        if (!isset($data->json)) {
             $jsonobject = new stdClass();
         } else {
-            $jsonobject = json_decode($data->subbookingjson);
+            $jsonobject = json_decode($data->json);
         }
 
         $jsonobject->name = $data->subbooking_name;
-        $jsonobject->subbookingname = $this->subbookingname;
-        $jsonobject->subbookingdata = new stdClass();
-        $jsonobject->subbookingdata->days = $data->subbooking_timeslot_days ?? 0;
-        $jsonobject->subbookingdata->datefield = $data->subbooking_timeslot_datefield ?? '';
+        $jsonobject->type = $this->type;
+        $jsonobject->data = new stdClass();
+        $jsonobject->data->days = $data->subbooking_timeslot_duration ?? 0;
 
-        $record->subbookingjson = json_encode($jsonobject);
-        $record->subbookingname = $this->subbookingname;
-        $record->bookingid = $data->bookingid ?? 0;
+        $record->name = $data->subbooking_name;
+        $record->type = $this->type;
+        $record->optionid = $data->optionid;
+        $record->json = json_encode($jsonobject);
+        $record->timemodified = $now;
+        $record->usermodified = $USER->id;
 
         // If we can update, we add the id here.
         if ($data->id) {
             $record->id = $data->id;
-            $DB->update_record('booking_subbookings', $record);
+            $DB->update_record('booking_subbooking_options', $record);
         } else {
-            $subbookingid = $DB->insert_record('booking_subbookings', $record);
-            $this->subbookingid = $subbookingid;
+            $record->timecreated = $now;
+            $id = $DB->insert_record('booking_subbooking_options', $record);
+            $this->id = $id;
         }
     }
 
@@ -141,14 +148,13 @@ class subbooking_timeslot implements booking_subbooking {
      */
     public function set_defaults(stdClass &$data, stdClass $record) {
 
-        $data->bookingsubbookingtype = $this->subbookingname;
+        $data->subbooking_type = $this->type;
 
-        $jsonobject = json_decode($record->subbookingjson);
+        $jsonobject = json_decode($record->json);
         $subbookingdata = $jsonobject->subbookingdata;
 
         $data->subbooking_name = $jsonobject->name;
         $data->subbooking_timeslot_days = $subbookingdata->days;
-        $data->subbooking_timeslot_datefield = $subbookingdata->datefield;
 
     }
 
@@ -160,7 +166,7 @@ class subbooking_timeslot implements booking_subbooking {
     public function execute(int $optionid = 0, int $userid = 0) {
         global $DB;
 
-        $jsonobject = json_decode($this->subbookingjson);
+        $jsonobject = json_decode($this->json);
 
         // We reuse this code when we check for validity, therefore we use a separate function.
         $records = $this->get_records_for_execution($optionid, $userid);
@@ -220,7 +226,7 @@ class subbooking_timeslot implements booking_subbooking {
         // ... we need to go into actions with an array of records...
         // ... which has the keys cmid, optionid & userid.
 
-        $jsonobject = json_decode($this->subbookingjson);
+        $jsonobject = json_decode($this->json);
         $subbookingdata = $jsonobject->subbookingdata;
 
         $andoptionid = "";
