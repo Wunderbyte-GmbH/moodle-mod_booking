@@ -1940,3 +1940,16 @@ $string['error:newcoursecategorycfieldmissing'] = 'Sie müssen zuerst ein <a hre
  auch in den <a href="{$a->settingsurl}" target="_blank">Plugin-Einstellungen des Buchungsmoduls</a> ausgewählt haben.';
 $string['error:coursecategoryvaluemissing'] = 'Sie müssen hier einen Wert auswählen, da dieser als Kurskategorie für den
  automatisch erstellten Moodle-Kurs benötigt wird.';
+// Subbookings.
+$string['bookingsubbookingsheader'] = "Zusatzbuchungen";
+$string['bookingsubbooking'] = "Zusatzbuchungen";
+$string['subbooking_name'] = "Name der Zusatzbuchung";
+$string['bookingsubbookingadd'] = 'Füge eine Zusatzbuchung hinzu';
+$string['bookingsubbookingedit'] = 'Bearbeite';
+$string['editsubbooking'] = 'Bearbeite Zusatzbuchung';
+
+$string['onlyaddsubbookingsonsavedoption'] = "Sie müssen diese neue Buchungsoption speichern, bevor sich Unterbuchungen hinzufügen können.";
+
+$string['subbooking_timeslot'] = "Zeitfenster Buchung";
+$string['subbooking_timeslot_desc'] = "Mit dieser Funktion kann die Dauer von buchbaren Zeitfenstern für jedes Datum der Buchungsoption festgelegt werden.";
+$string['subbooking_duration'] = "Dauer in Minuten";
