@@ -49,14 +49,9 @@ class subbookingslist implements renderable, templatable {
 
         foreach ($subbookings as $subbooking) {
 
-            $subbookingobj = json_decode($subbooking->subbookingjson);
-            $subbooking->name = $subbookingobj->name;
-            $subbooking->actionname = $subbookingobj->actionname;
-            $subbooking->conditionname = $subbookingobj->conditionname;
+            $subbooking->name = $subbooking->name;
             // Localize the names.
-            $subbooking->localizedsubbookingname = get_string($subbooking->subbookingname, 'mod_booking');
-            $subbooking->localizedactionname = get_string($subbookingobj->actionname, 'mod_booking');
-            $subbooking->localizedconditionname = get_string($subbookingobj->conditionname, 'mod_booking');
+            $subbooking->localizedsubbookingname = get_string($subbooking->type, 'mod_booking');
 
             $this->subbookings[] = (array)$subbooking;
         }

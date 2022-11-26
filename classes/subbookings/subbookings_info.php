@@ -26,6 +26,7 @@
 namespace mod_booking\subbookings;
 
 use Exception;
+use mod_booking\output\subbookingslist;
 use MoodleQuickForm;
 use stdClass;
 
@@ -56,16 +57,6 @@ class subbookings_info {
         if (!empty($formdata['optionid'])) {
             // Add a list of existing subbookings, including an edit and a delete button.
             self::add_list_of_existing_subbookings_for_this_option($mform, $formdata);
-
-            // If we haven't clicked on the add button just yet...
-            // ... we add a new button.
-            $mform->addElement('html',
-                '<a class="btn btn-primary bookingsubbooking"
-                    data-action="add"
-                    data-optionid="' . $formdata['optionid'] . '">'
-                . get_string('bookingsubbookingadd', 'mod_booking') . '</a>');
-
-            $PAGE->requires->js_call_amd('mod_booking/dynamicsubbookingsform', 'init', ['a.bookingsubbooking']);
 
         } else {
             $mform->addElement('static', 'onlyaddsubbookingsonsavedoption', get_string('onlyaddsubbookingsonsavedoption', 'mod_booking'));
@@ -134,11 +125,11 @@ class subbookings_info {
         }
 
         // If we have an ID, we retrieve the right subbooking from DB.
-        $record = $DB->get_record('booking_subbookings', ['id' => $data->id]);
+        $record = $DB->get_record('booking_subbooking_options', ['id' => $data->id]);
 
-        $subbooking = self::get_subbooking($record->subbookingname);
+        $subbooking = self::get_subbooking($record->type);
 
-        $subbookingjsonobject = json_decode($record->subbookingjson);
+        $jsonobject = json_decode($record->json);
 
         // These function just add their bits to the object.
         $subbooking->set_defaults($data, $record);
@@ -248,27 +239,17 @@ class subbookings_info {
      */
     private static function add_list_of_existing_subbookings_for_this_option(MoodleQuickForm &$mform, array &$formdata = []) {
 
-        global $DB;
+        global $DB, $PAGE;
 
         $optionid = $formdata['optionid'];
 
         $subbookings = $DB->get_records('booking_subbooking_options', ['optionid' => $optionid]);
 
-        $counter = 0;
-        foreach ($subbookings as $sb) {
-
-            $categoryselect = [
-                $mform->createElement('static', $sb->type . $counter . '_name', 'listelement1', $sb->name),
-                $mform->createElement('html',
-                    '<a data-id="' . $sb->id .
-                    '<a data-action="edit" class=btn btn-success">edit</a>'),
-                $mform->createElement('html',
-                    '<a data-id="' . $sb->id .
-                    '<a data-action="delete" class=btn btn-danger">delete</a>'),
-            ];
-            $mform->addGroup($categoryselect, $sb->type, get_string('bookingsubbookingadd', 'mod_booking'), [' '], false);
-            $mform->setType($sb->name, PARAM_NOTAGS);
-        }
+        $data = new subbookingslist($subbookings);
+        $data->optionid = $formdata['optionid'];
+        $output = $PAGE->get_renderer('mod_booking');
+        $html = $output->render_subbookingslist($data);
+        $mform->addElement('html', $html);
     }
 
     /**

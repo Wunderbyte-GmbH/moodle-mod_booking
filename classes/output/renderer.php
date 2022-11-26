@@ -672,4 +672,14 @@ class renderer extends plugin_renderer_base {
         $o .= $this->render_from_template('mod_booking/booked_users', $data);
         return $o;
     }
+
+    /**
+     * Render subbookings list
+     * @param $data array
+     * @return string
+     */
+    public function render_subbookingslist($data) {
+        $data = $data->export_for_template($this);
+        return $this->render_from_template('mod_booking/subbookingslist', $data);
+    }
 }

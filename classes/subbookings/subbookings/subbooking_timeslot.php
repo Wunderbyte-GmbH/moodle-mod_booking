@@ -25,7 +25,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * subbooking do something a specified number of days before a chosen date.
+ * subbooking timeslot with a set duration
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
@@ -49,8 +49,8 @@ class subbooking_timeslot implements booking_subbooking {
     /** @var string $json json which holds all the data of a subbooking*/
     public $json = null;
 
-    /** @var int $days This is a supplementary field which is not directly in the db but wrapped in the json */
-    public $days = null;
+    /** @var int $duration This is a supplementary field which is not directly in the db but wrapped in the json */
+    public $duration = null;
 
     /**
      * Load json data from DB into the object.
@@ -70,7 +70,7 @@ class subbooking_timeslot implements booking_subbooking {
         $this->json = $json;
         $jsondata = json_decode($json);
         $this->name = $jsondata->name;
-        $this->days = (int) $jsondata->data->days;
+        $this->duration = (int) $jsondata->data->duration;
     }
 
     /**
@@ -121,7 +121,7 @@ class subbooking_timeslot implements booking_subbooking {
         $jsonobject->name = $data->subbooking_name;
         $jsonobject->type = $this->type;
         $jsonobject->data = new stdClass();
-        $jsonobject->data->days = $data->subbooking_timeslot_duration ?? 0;
+        $jsonobject->data->duration = $data->subbooking_timeslot_duration ?? 0;
 
         $record->name = $data->subbooking_name;
         $record->type = $this->type;
@@ -151,11 +151,10 @@ class subbooking_timeslot implements booking_subbooking {
         $data->subbooking_type = $this->type;
 
         $jsonobject = json_decode($record->json);
-        $subbookingdata = $jsonobject->subbookingdata;
+        $data = $jsonobject->data;
 
-        $data->subbooking_name = $jsonobject->name;
-        $data->subbooking_timeslot_days = $subbookingdata->days;
-
+        $data->subbooking_name = $record->name;
+        $data->subbooking_timeslot_duration = $data->duration;
     }
 
     /**
@@ -174,7 +173,7 @@ class subbooking_timeslot implements booking_subbooking {
         foreach ($records as $record) {
 
             // Set the time of when the task should run.
-            $nextruntime = (int) $record->datefield - ((int) $this->days * 86400);
+            $nextruntime = (int) $record->datefield - ((int) $this->duration * 86400);
             $record->subbookingname = $this->subbookingname;
             $record->nextruntime = $nextruntime;
         }
@@ -198,7 +197,7 @@ class subbooking_timeslot implements booking_subbooking {
         $records = $this->get_records_for_execution($optionid, $userid, true);
 
         foreach ($records as $record) {
-            $oldnextruntime = (int) $record->datefield - ((int) $this->days * 86400);
+            $oldnextruntime = (int) $record->datefield - ((int) $this->duration * 86400);
 
             if ($oldnextruntime != $nextruntime) {
                 $subbookingstillapplies = false;
@@ -233,7 +232,7 @@ class subbooking_timeslot implements booking_subbooking {
         $anduserid = "";
 
         $params = [
-            'numberofdays' => (int) $subbookingdata->days,
+            'duration' => (int) $subbookingdata->duration,
             'nowparam' => time()
         ];
 
