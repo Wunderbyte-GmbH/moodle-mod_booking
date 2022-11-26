@@ -48,16 +48,15 @@ class subbookingsform extends dynamic_form {
         $customdata = $this->_customdata;
         $ajaxformdata = $this->_ajaxformdata;
 
-        // We always need to get the optionid.
-
-        $mform->addElement('hidden', 'optionid', $ajaxformdata['optionid']);
-
         // If we open an existing rule, we need to save the id right away.
         if (!empty($ajaxformdata['id'])) {
             $mform->addElement('hidden', 'id', $ajaxformdata['id']);
 
             $this->prepare_ajaxformdata($ajaxformdata);
         }
+
+        // We always need to get the optionid, but it might be only availalbe after loading from Db.
+        $mform->addElement('hidden', 'optionid', $ajaxformdata['optionid']);
 
         $mform->addElement('text', 'subbooking_name', get_string('booking_subbookings_name', 'mod_booking'));
         $mform->setType('subbooking_name', PARAM_TEXT);
@@ -85,7 +84,7 @@ class subbookingsform extends dynamic_form {
 
         if (!empty($this->_ajaxformdata['id'])) {
             $data = (object)$this->_ajaxformdata;
-            // $data = subbookings_info::set_data_for_form($data);
+            $data = subbookings_info::set_data_for_form($data);
         } else {
             $data = (Object)$this->_ajaxformdata;
         }
@@ -149,10 +148,10 @@ class subbookingsform extends dynamic_form {
             return;
         }
 
-        $jsonobject = json_decode($record->json);
+        $ajaxformdata['optionid'] = $record->optionid;
 
         if (empty($ajaxformdata['subbooking_type'])) {
-            $ajaxformdata['subbooking_type'] = $jsonobject->type;
+            $ajaxformdata['subbooking_type'] = $record->type;
         }
     }
 }

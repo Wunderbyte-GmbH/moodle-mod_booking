@@ -39,15 +39,19 @@ export const init = (selector) => {
     // eslint-disable-next-line no-console
     console.log('dynamicsubbookingsform ', selector);
 
-    const element = document.querySelector(selector);
+    // For this selector, we have the buttons add, edit & delete
 
-    element.addEventListener('click', e => {
+    const elements = document.querySelectorAll(selector);
 
-        // eslint-disable-next-line no-console
-        console.log(e.target);
+    elements.forEach(element => {
 
-        editSubbookingsModal(e.target);
+        element.addEventListener('click', e => {
 
+            // eslint-disable-next-line no-console
+            console.log(e.target);
+            editSubbookingsModal(e.target);
+
+        });
     });
 };
 
@@ -93,7 +97,7 @@ function editSubbookingsModal(element) {
         // Show the form.
         deleteForm.show();
 
-    } else if (action == "add") {
+    } else if (action == "add" || action == 'edit') {
         // A rule is added (ruleid == 0) or edited (ruleid > 0).
         const modalForm = new ModalForm({
             // Name of the class where form is defined (must extend \core_form\dynamic_form):
