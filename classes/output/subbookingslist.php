@@ -37,6 +37,12 @@ use templatable;
  */
 class subbookingslist implements renderable, templatable {
 
+    /** @var int $cmid */
+    public $cmid = [];
+
+    /** @var int $optionid */
+    public $optionid = [];
+
     /** @var array $subbookings */
     public $subbookings = [];
 
@@ -45,7 +51,10 @@ class subbookingslist implements renderable, templatable {
      *
      * @param array $subbookings
      */
-    public function __construct(array $subbookings) {
+    public function __construct(int $cmid, int $optionid, array $subbookings) {
+
+        $this->optionid = $optionid;
+        $this->cmid = $cmid;
 
         foreach ($subbookings as $subbooking) {
 
@@ -59,7 +68,9 @@ class subbookingslist implements renderable, templatable {
 
     public function export_for_template(renderer_base $output) {
         return array(
-                'subbookings' => $this->subbookings
+                'cmid' => $this->cmid,
+                'optionid' => $this->optionid,
+                'subbookings' => $this->subbookings,
         );
     }
 }

@@ -226,7 +226,7 @@ class subbookings_info {
      */
     public static function delete_subbooking(int $subbookingid) {
         global $DB;
-        $DB->delete_records('booking_subbookings', ['id' => (int)$subbookingid]);
+        $DB->delete_records('booking_subbooking_options', ['id' => (int)$subbookingid]);
     }
 
     /**
@@ -242,11 +242,11 @@ class subbookings_info {
         global $DB, $PAGE;
 
         $optionid = $formdata['optionid'];
+        $cmid = $formdata['cmid'];
 
         $subbookings = $DB->get_records('booking_subbooking_options', ['optionid' => $optionid]);
 
-        $data = new subbookingslist($subbookings);
-        $data->optionid = $formdata['optionid'];
+        $data = new subbookingslist($cmid, $optionid, $subbookings);
         $output = $PAGE->get_renderer('mod_booking');
         $html = $output->render_subbookingslist($data);
         $mform->addElement('html', $html);

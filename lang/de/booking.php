@@ -1947,6 +1947,7 @@ $string['subbooking_name'] = "Name der Zusatzbuchung";
 $string['bookingsubbookingadd'] = 'Füge eine Zusatzbuchung hinzu';
 $string['bookingsubbookingedit'] = 'Bearbeite';
 $string['editsubbooking'] = 'Bearbeite Zusatzbuchung';
+$string['bookingsubbookingdelete'] = 'Lösche Zusatzbuchung';
 
 $string['onlyaddsubbookingsonsavedoption'] = "Sie müssen diese neue Buchungsoption speichern, bevor sich Unterbuchungen hinzufügen können.";
 
