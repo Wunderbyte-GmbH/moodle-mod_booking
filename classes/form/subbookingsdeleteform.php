@@ -27,13 +27,13 @@ use mod_booking\subbookings\subbookings_info;
 use moodle_url;
 
 /**
- * Dynamic subbookings form.
+ * Dynamic form to delete a subbooking
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer
  * @package mod_booking
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class subbookingsform extends dynamic_form {
+class subbookingsdeleteform extends dynamic_form {
 
     /**
      * {@inheritdoc}
@@ -42,24 +42,20 @@ class subbookingsform extends dynamic_form {
     public function definition() {
 
         $mform = $this->_form;
-
         $ajaxformdata = $this->_ajaxformdata;
 
         // If we open an existing rule, we need to save the id right away.
         if (!empty($ajaxformdata['id'])) {
             $mform->addElement('hidden', 'id', $ajaxformdata['id']);
-
-            $this->prepare_ajaxformdata($ajaxformdata);
         }
 
-        // We always need to get the optionid, but it might be only availalbe after loading from Db.
-        $mform->addElement('hidden', 'optionid', $ajaxformdata['optionid']);
         $mform->addElement('hidden', 'cmid', $ajaxformdata['cmid']);
 
-        $mform->addElement('text', 'subbooking_name', get_string('booking_subbookings_name', 'mod_booking'));
-        $mform->setType('subbooking_name', PARAM_TEXT);
-
-        subbookings_info::add_subbooking($mform, $ajaxformdata);
+        $mform->addElement('html', '<div><p>'
+            . get_string('deletebookingrule_confirmtext', 'mod_booking')
+            . '</p><p class="text-danger font-weight-bold">'
+            . $ajaxformdata['name']
+            . '</p></div>');
     }
 
     /**
@@ -69,7 +65,8 @@ class subbookingsform extends dynamic_form {
     public function process_dynamic_submission() {
         $data = parent::get_data();
 
-        subbookings_info::save_subbooking($data);
+        // Delete the rule by its ID.
+        subbookings_info::delete_subbooking((int)$data->id);
 
         return $data;
     }
@@ -80,13 +77,7 @@ class subbookingsform extends dynamic_form {
      */
     public function set_data_for_dynamic_submission(): void {
 
-        if (!empty($this->_ajaxformdata['id'])) {
-            $data = (object)$this->_ajaxformdata;
-            $data = subbookings_info::set_data_for_form($data);
-        } else {
-            $data = (Object)$this->_ajaxformdata;
-        }
-
+        $data = (object) $this->_ajaxformdata;
         $this->set_data($data);
 
     }
@@ -99,9 +90,7 @@ class subbookingsform extends dynamic_form {
      */
     public function validation($data, $files) {
         $errors = [];
-
-        // subbookings_info::val
-
+        // Not needed.
         return $errors;
     }
 
@@ -128,31 +117,7 @@ class subbookingsform extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-
         $cmid = $this->_ajaxformdata['cmid'];
         require_capability('mod/booking:updatebooking', context_module::instance($cmid));
-    }
-
-    /**
-     * Prepare the ajax form data with all the information...
-     * ... we need no have to load the form with the right handlers.
-     *
-     * @param array $ajaxformdata
-     * @return void
-     */
-    private function prepare_ajaxformdata(array &$ajaxformdata) {
-
-        global $DB;
-
-        // If we have an ID, we retrieve the right rule from DB.
-        if (!$record = $DB->get_record('booking_subbooking_options', ['id' => $ajaxformdata['id']])) {
-            return;
-        }
-
-        $ajaxformdata['optionid'] = $record->optionid;
-
-        if (empty($ajaxformdata['subbooking_type'])) {
-            $ajaxformdata['subbooking_type'] = $record->type;
-        }
     }
 }

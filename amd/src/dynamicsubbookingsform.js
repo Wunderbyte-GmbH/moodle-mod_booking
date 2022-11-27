@@ -69,7 +69,8 @@ function editSubbookingsModal(element) {
     }
 
     const id = element.dataset.id ?? 0;
-    const optionid = element.dataset.optionid;
+    const cmid = element.dataset.cmid ?? 0;
+    const optionid = element.dataset.optionid ?? 0;
     const name = element.dataset.name ?? '';
     const action = element.dataset.action;
 
@@ -78,12 +79,12 @@ function editSubbookingsModal(element) {
         const deleteForm = new ModalForm({
 
             // Name of the class where form is defined (must extend \core_form\dynamic_form):
-            formClass: "mod_booking\\form\\deleteruleform",
+            formClass: "mod_booking\\form\\subbookingsdeleteform",
             // Add as many arguments as you need, they will be passed to the form:
-            args: {optionid: optionid, id: id, name: name},
+            args: {cmid: cmid, optionid: optionid, id: id, name: name},
             // Pass any configuration settings to the modal dialogue, for example, the title:
             modalConfig: {
-                title: getString('deletebookingrule', 'mod_booking')
+                title: getString('bookingsubbookingdelete', 'mod_booking')
             },
             // DOM element that should get the focus after the modal dialogue is closed:
             returnFocus: element
@@ -98,12 +99,15 @@ function editSubbookingsModal(element) {
         deleteForm.show();
 
     } else if (action == "add" || action == 'edit') {
+
+        // eslint-disable-next-line no-console
+        console.log('optionid ', optionid);
         // A rule is added (ruleid == 0) or edited (ruleid > 0).
         const modalForm = new ModalForm({
             // Name of the class where form is defined (must extend \core_form\dynamic_form):
             formClass: "mod_booking\\form\\subbookingsform",
             // Add as many arguments as you need, they will be passed to the form:
-            args: {optionid: optionid, id: id, name: name},
+            args: {cmid: cmid, optionid: optionid, id: id, name: name},
             // Pass any configuration settings to the modal dialogue, for example, the title:
             modalConfig: {title: getString('editsubbooking', 'mod_booking')},
             // DOM element that should get the focus after the modal dialogue is closed:
