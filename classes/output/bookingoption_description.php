@@ -122,8 +122,8 @@ class bookingoption_description implements renderable, templatable {
     /** @var array $bookinginformation */
     public $bookinginformation = [];
 
-    /** @var stdClass $buyforuser */
-    public $buyforuser = null;
+    /** @var stdClass $usertobuyfor */
+    public $usertobuyfor = null;
 
     /**
      * Constructor.
@@ -328,11 +328,11 @@ class bookingoption_description implements renderable, templatable {
                 // boinfo contains availability information, description, visibility information etc.
                 $boinfo = new bo_info($settings);
 
-                // We set buyforuser here for better performance.
-                $this->buyforuser = price::return_user_to_buy_for();
+                // We set usertobuyfor here for better performance.
+                $this->usertobuyfor = price::return_user_to_buy_for();
 
                 if (list($conditionid, $isavailable, $description) = $boinfo->get_description(true,
-                    $settings, $this->buyforuser->id)) {
+                    $settings, $this->usertobuyfor->id)) {
 
                     // Values object needed for col_price.
                     $values = new stdClass;
@@ -342,32 +342,26 @@ class bookingoption_description implements renderable, templatable {
 
                     // Price blocks normal availability, if it's the only one, we show the cart.
                     if (!$isavailable) {
-                        $output = $PAGE->get_renderer('mod_booking');
                         switch ($conditionid) {
                             case BO_COND_ALREADYBOOKED:
-                                $this->conditionmessage = html_writer::div($description, 'alert alert-success');
+                                $this->conditionmessage = bo_info::render_conditionmessage($description, 'success');
                                 break;
                             case BO_COND_ISCANCELLED:
-                                $this->conditionmessage = html_writer::div($description, 'alert alert-danger');
+                                $this->conditionmessage = bo_info::render_conditionmessage($description, 'danger');
                                 break;
-                            // TODO: BO_COND_ONWAITINGLIST.
+                            case BO_COND_ONWAITINGLIST:
+                                $this->conditionmessage = bo_info::render_conditionmessage($description, 'warning');
+                                break;
                             case BO_COND_FULLYBOOKED:
-                                $usenotificationlist = get_config('booking', 'usenotificationlist');
-                                $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-                                $bookinginformation = $bookinganswer->return_all_booking_information($this->buyforuser->id);
-
-                                if ($usenotificationlist) {
-                                    $data = new button_notifyme($this->buyforuser->id, $values->id,
-                                        $bookinginformation['notbooked']['onnotifylist']);
-                                    $this->conditionmessage = html_writer::div($description, 'alert alert-warning') .
-                                        $output->render_notifyme_button($data);
+                                if (get_config('booking', 'usenotificationlist')) {
+                                    $this->conditionmessage = bo_info::render_conditionmessage($description, 'warning',
+                                        $values->id, false, null, true, $this->usertobuyfor);
                                 } else {
-                                    $this->conditionmessage = html_writer::div($description, 'alert alert-warning');
+                                    $this->conditionmessage = bo_info::render_conditionmessage($description, 'warning');
                                 }
                                 break;
                         }
                     }
-                    // TODO: case BO_COND_ONWAITINGLIST - not yet supported.
                     // TODO: If no price is set at all, we need to add possibility to book right away without shopping cart!
                 }
                 break;

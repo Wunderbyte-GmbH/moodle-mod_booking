@@ -1761,7 +1761,7 @@ $string['bo_cond_onnotifylist_full_not_available'] = 'Nutzer:in hat die max. Buc
 
 $string['bo_cond_onwaitinglist_available'] = 'Buchen';
 $string['bo_cond_onwaitinglist_full_available'] = 'Buchen möglich';
-$string['bo_cond_onwaitinglist_not_available'] = 'Auf der Warteliste';
+$string['bo_cond_onwaitinglist_not_available'] = 'Ausgebucht - Sie sind auf der Warteliste';
 $string['bo_cond_onwaitinglist_full_not_available'] = 'Nutzer:in ist auf der Warteliste';
 
 $string['bo_cond_priceisset_available'] = 'Buchen';

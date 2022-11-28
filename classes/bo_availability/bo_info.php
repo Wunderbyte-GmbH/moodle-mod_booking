@@ -24,7 +24,11 @@
 
 namespace mod_booking\bo_availability;
 
+use context_module;
+use html_writer;
 use mod_booking\booking_option_settings;
+use mod_booking\output\button_notifyme;
+use mod_booking\output\col_price;
 use mod_booking\singleton_service;
 use moodle_exception;
 use MoodleQuickForm;
@@ -367,5 +371,54 @@ class bo_info {
         }
 
         return $conditions;
+    }
+
+    /**
+     * Helper function to render condition descriptions and prices
+     * for booking options.
+     *
+     * @param string $description the description string
+     * @param string $style any bootstrap style like 'success', 'danger' or 'warning'
+     * @param int $optionid option id
+     * @param bool $showprice true if price should be shown
+     * @param stdClass $optionvalues object containing option data to render col_price
+     * @param bool $shownotificationlist true for symbol to subscribe to notification list
+     * @param stdClass $usertobuyfor user to buy for
+     */
+    public static function render_conditionmessage(string $description, string $style = 'warning',
+        int $optionid = 0, bool $showprice = false, stdClass $optionvalues = null,
+        bool $shownotificationlist = false, stdClass $usertobuyfor = null) {
+
+        global $PAGE;
+
+        $renderedstring = '';
+        $output = $PAGE->get_renderer('mod_booking');
+        if (!empty($optionid)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $context = context_module::instance($settings->cmid);
+        }
+
+        // Show description.
+        if (!empty($description)) {
+            $renderedstring = html_writer::div($description, "alert alert-$style text-center");
+        }
+
+        // Show price and add to cart button.
+        if ($showprice && !empty($optionvalues) && $optionid && !empty($usertobuyfor)) {
+            $data = new col_price($optionvalues, $settings, $usertobuyfor, $context);
+            $renderedstring .= $output->render_col_price($data);
+        }
+
+        // If notification list ist turned on, we show the "notify-me" button.
+        if ($shownotificationlist && $optionid && $usertobuyfor->id) {
+            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+            $bookinginformation = $bookinganswer->return_all_booking_information($usertobuyfor->id);
+            $data = new button_notifyme($usertobuyfor->id, $optionid,
+                $bookinginformation['notbooked']['onnotifylist']);
+
+            $renderedstring .= $output->render_notifyme_button($data);
+        }
+
+        return $renderedstring;
     }
 }

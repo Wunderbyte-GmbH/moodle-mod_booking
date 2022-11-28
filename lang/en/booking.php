@@ -1970,7 +1970,7 @@ $string['bo_cond_onnotifylist_full_not_available'] = 'User has reached the max n
 
 $string['bo_cond_onwaitinglist_available'] = 'Book it';
 $string['bo_cond_onwaitinglist_full_available'] = 'Booking is possible';
-$string['bo_cond_onwaitinglist_not_available'] = 'On waitinglist';
+$string['bo_cond_onwaitinglist_not_available'] = 'Fully booked - You are on the waiting list';
 $string['bo_cond_onwaitinglist_full_not_available'] = 'User is on waitinglist';
 
 $string['bo_cond_priceisset_available'] = 'Book it';
