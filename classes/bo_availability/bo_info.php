@@ -29,6 +29,7 @@ use html_writer;
 use mod_booking\booking_option_settings;
 use mod_booking\output\button_notifyme;
 use mod_booking\output\col_price;
+use mod_booking\output\simple_modal;
 use mod_booking\singleton_service;
 use moodle_exception;
 use MoodleQuickForm;
@@ -398,10 +399,17 @@ class bo_info {
      * @param stdClass $optionvalues object containing option data to render col_price
      * @param bool $shownotificationlist true for symbol to subscribe to notification list
      * @param stdClass $usertobuyfor user to buy for
+     * @param bool $modalfordescription
      */
-    public static function render_conditionmessage(string $description, string $style = 'warning',
-        int $optionid = 0, bool $showprice = false, stdClass $optionvalues = null,
-        bool $shownotificationlist = false, stdClass $usertobuyfor = null) {
+    public static function render_conditionmessage(
+            string $description,
+            string $style = 'warning',
+            int $optionid = 0,
+            bool $showprice = false,
+            stdClass $optionvalues = null,
+            bool $shownotificationlist = false,
+            stdClass $usertobuyfor = null,
+            bool $modalfordescription = false) {
 
         global $PAGE;
 
@@ -413,6 +421,7 @@ class bo_info {
         }
 
         // Show description.
+        // If necessary in a modal.
         if (!empty($description)) {
             $renderedstring = html_writer::div($description, "alert alert-$style text-center pt-0 pb-0");
         }

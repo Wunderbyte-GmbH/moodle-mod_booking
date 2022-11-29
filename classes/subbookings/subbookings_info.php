@@ -25,8 +25,10 @@
 
 namespace mod_booking\subbookings;
 
+use context_module;
 use Exception;
 use mod_booking\output\subbookingslist;
+use mod_booking\subbookings;
 use MoodleQuickForm;
 use stdClass;
 
@@ -92,14 +94,14 @@ class subbookings_info {
     }
 
     /**
-     * Get booking subbooking by name.
-     * @param string $subbookingname
+     * Get booking subbooking by type.
+     * @param string $subbookingtype
      * @return mixed
      */
-    public static function get_subbooking(string $subbookingname) {
+    public static function get_subbooking(string $subbookingtype) {
         global $CFG;
 
-        $filename = 'mod_booking\subbookings\subbookings\\' . $subbookingname;
+        $filename = 'mod_booking\subbookings\subbookings\\' . $subbookingtype;
 
         // We instantiate all the classes, because we need some information.
         if (class_exists($filename)) {
@@ -145,6 +147,8 @@ class subbookings_info {
      */
     public static function save_subbooking(stdClass &$data) {
 
+        global $USER;
+
         // We receive the form with the data depending on the used handlers.
         // As we know which handler to call, we only instantiate one subbooking.
         $subbooking = self::get_subbooking($data->subbooking_type);
@@ -152,7 +156,13 @@ class subbookings_info {
         // subbooking has to be saved last, because it actually writes to DB.
         $subbooking->save_subbooking($data);
 
-        // self::execute_booking_subbookings();
+        // Every time we save the subbooking, we have to invalidate caches.
+        // Trigger an event that booking option has been updated.
+
+        $context = context_module::instance($data->cmid);
+        $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $data->optionid,
+                'userid' => $USER->id));
+        $event->trigger();
 
         return;
     }
@@ -230,5 +240,50 @@ class subbookings_info {
 
         // Finally, after having chosen the right type of subbooking, we add the corresponding elements.
         $subbooking->add_subbooking_to_mform($mform, $formdata);
+    }
+
+    /**
+     * This function checks if a subbooking blocks the main booking option.
+     * A subbooking can use the option as container only and therby block its booking.
+     * When this is the case, the subbooking can return a description (which could be a modal eg.)...
+     * ... to render instead of booking-button.
+     * If there is more than one blocking subbooking, this is recognized as well.
+     *
+     * @param object $settings
+     * @return bool
+     */
+    public static function is_blocked(object $settings) {
+
+        $isblocked = false;
+        foreach ($settings->subbookings as $subbooking) {
+            if ($subbooking->block == 1) {
+                $isblocked = true;
+            }
+        }
+
+        return $isblocked;
+    }
+
+    /**
+     * Load all the available subbookings for a specific ID and return them as array.
+     * We return the instantiated classes to be able to call functions on them.
+     *
+     * @param integer $optionid
+     * @return array
+     */
+    public static function load_subbookings(int $optionid) {
+
+        global $DB;
+
+        $records = $DB->get_records('booking_subbooking_options', ['optionid' => $optionid]);
+        $returnarray = [];
+
+        foreach ($records as $record) {
+            $subbooking = self::get_subbooking($record->type);
+            $subbooking->set_subbookingdata($record);
+            $returnarray[] = $subbooking;
+        }
+
+        return $returnarray;
     }
 }

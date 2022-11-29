@@ -20,6 +20,7 @@ use context_module;
 use context_system;
 use local_entities\entitiesrelation_handler;
 use mod_booking\customfield\booking_handler;
+use mod_booking\subbookings\subbookings_info;
 use moodle_exception;
 use stdClass;
 use moodle_url;
@@ -201,6 +202,9 @@ class booking_option_settings {
 
     /** @var array $entity for displaying enity information [id, name]*/
     public $entity = [];
+
+    /** @var array $load_subbookings for storing subbookings  */
+    public $subbookings = [];
 
     /** @var float $priceformulaadd */
     public $priceformulaadd = null;
@@ -455,6 +459,14 @@ class booking_option_settings {
                 $dbrecord->entity = $this->entity;
             } else {
                 $this->entity = $dbrecord->entity;
+            }
+
+            // If the key "subbookings" is not yet set, we need to load them via handler first.
+            if (!isset($dbrecord->subbookings)) {
+                $this->load_subbookings($optionid);
+                $dbrecord->subbookings = $this->subbookings;
+            } else {
+                $this->subbookings = $dbrecord->subbookings;
             }
 
             return $dbrecord;
@@ -745,6 +757,10 @@ class booking_option_settings {
                 'shortname' => $data->shortname
             ];
         }
+    }
+
+    private function load_subbookings(int $optionid) {
+        $this->subbookings = subbookings_info::load_subbookings($optionid);
     }
 
     /**

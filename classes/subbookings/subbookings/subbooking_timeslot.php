@@ -47,6 +47,9 @@ class subbooking_timeslot implements booking_subbooking {
     /** @var string $name given name to this configured subbooking*/
     public $name = '';
 
+    /** @var int $block subbookings can block the booking option of their parent option */
+    public $block = 1;
+
     /** @var string $json json which holds all the data of a subbooking*/
     public $json = '';
 
@@ -60,6 +63,7 @@ class subbooking_timeslot implements booking_subbooking {
     public function set_subbookingdata(stdClass $record) {
         $this->id = $record->id ?? 0;
         $this->optionid = $record->optionid ?? 0;
+        $this->block = $record->block;
         $this->set_subbookingdata_from_json($record->json);
     }
 
@@ -133,6 +137,7 @@ class subbooking_timeslot implements booking_subbooking {
         $record->name = $data->subbooking_name;
         $record->type = $this->type;
         $record->optionid = $data->optionid;
+        $record->block = $this->block;
         $record->json = json_encode($jsonobject);
         $record->timemodified = $now;
         $record->usermodified = $USER->id;

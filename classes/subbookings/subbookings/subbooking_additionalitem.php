@@ -48,6 +48,9 @@ class subbooking_additionalitem implements booking_subbooking {
     /** @var string $name given name to this configured subbooking*/
     public $name = '';
 
+    /** @var int $block subbookings can block the booking option of their parent option */
+    public $block = 0;
+
     /** @var string $json json which holds all the data of a subbooking */
     public $json = '';
 
@@ -57,12 +60,16 @@ class subbooking_additionalitem implements booking_subbooking {
     /** @var string $description Extensive description of the additonal item. */
     public $description = '';
 
+    /** @var string $descriptionformat  */
+    public $descriptionformat = '';
+
     /**
      * Load json data from DB into the object.
      * @param stdClass $record a subbooking record from DB
      */
     public function set_subbookingdata(stdClass $record) {
         $this->id = $record->id ?? 0;
+        $this->block = $record->block;
         $this->optionid = $record->optionid ?? 0;
         $this->set_subbookingdata_from_json($record->json);
     }
@@ -75,7 +82,8 @@ class subbooking_additionalitem implements booking_subbooking {
         $this->json = $json;
         $jsondata = json_decode($json);
         $this->name = $jsondata->name;
-        $this->duration = (int) $jsondata->data->duration;
+        $this->description = $jsondata->description ?? '';
+        $this->descriptionformat = $jsondata->descriptionformat ?? '';
     }
 
     /**
@@ -104,7 +112,7 @@ class subbooking_additionalitem implements booking_subbooking {
         $mform->addElement(
             'editor',
             'subbooking_additionalitem_description_editor',
-            get_string('subbooking_description', 'mod_booking'),
+            get_string('subbooking_additionalitem_description', 'mod_booking'),
             null,
             $textfieldoptions);
         $mform->setType('subbooking_additionalitem_description', PARAM_RAW);
