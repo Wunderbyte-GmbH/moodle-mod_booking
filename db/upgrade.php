@@ -2945,5 +2945,104 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022112201, 'booking');
     }
 
+    if ($oldversion < 2022112400) {
+
+        // Define table booking_subbooking_options to be created.
+        $table = new xmldb_table('booking_subbooking_options');
+
+        // Adding fields to table booking_subbooking_options.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('type', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('json', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+
+        // Adding keys to table booking_subbooking_options.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for booking_subbooking_options.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022112400, 'booking');
+    }
+
+	if ($oldversion < 2022112800) {
+
+        // Define table booking_subbooking_answers to be created.
+        $table = new xmldb_table('booking_subbooking_answers');
+
+        // Adding fields to table booking_subbooking_answers.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('sboptionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('json', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('timestart', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('timeend', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('status', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table booking_subbooking_answers.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('usermodified', XMLDB_KEY_FOREIGN, ['usermodified'], 'user', ['id']);
+
+        // Conditionally launch create table for booking_subbooking_answers.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022112800, 'booking');
+    }
+
+    if ($oldversion < 2022112801) {
+
+        // Define field block to be added to booking_subbooking_options.
+        $table = new xmldb_table('booking_subbooking_options');
+        $field = new xmldb_field('block', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'json');
+
+        // Conditionally launch add field block.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022112801, 'booking');
+    }
+
+	if ($oldversion < 2022112900) {
+
+        // Rename field optionid on table booking_prices to itemid.
+        $table = new xmldb_table('booking_prices');
+
+        $field = new xmldb_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'id');
+        // Launch rename field optionid.
+        $dbman->rename_field($table, $field, 'itemid');
+
+        $field = new xmldb_field('area', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'itemid');
+        // Conditionally launch add field area.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022112900, 'booking');
+    }
+
+    if ($oldversion < 2022112901) {
+        // We need to migrate optionids to itemids and set the area to 'option'.
+        migrate_optionids_for_prices();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022112901, 'booking');
+    }
+
     return true;
 }

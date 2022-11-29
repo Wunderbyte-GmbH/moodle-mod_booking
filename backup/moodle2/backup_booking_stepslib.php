@@ -171,7 +171,9 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         // Only backup (or duplicate) prices, if config setting is set.
         if (get_config('booking', 'duplicationrestoreprices')) {
-            $price->set_source_table('booking_prices', array('optionid' => backup::VAR_PARENTID));
+            // We currently only backup prices for options here.
+            // In the future, we might also want to support backup of prices for subbookings...
+            $price->set_source_table('booking_prices', array('itemid' => backup::VAR_PARENTID, 'area' => 'option'));
         }
 
         // Only backup (or duplicate) entities, if config setting is set AND if entities are available.

@@ -88,7 +88,7 @@ class priceisset implements bo_condition {
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
         $user = singleton_service::get_instance_of_user($userid);
 
-        $priceitems = price::get_prices_from_cache_or_db($settings->id);
+        $priceitems = price::get_prices_from_cache_or_db('option', $settings->id);
 
         // If the user is not yet booked we return true.
         if (count($priceitems) == 0) {

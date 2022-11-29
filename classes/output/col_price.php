@@ -71,7 +71,7 @@ class col_price implements renderable, templatable {
         if ($context && !isloggedin()) {
 
             $this->context = $context;
-            $this->priceitems = price::get_prices_from_cache_or_db($values->id);
+            $this->priceitems = price::get_prices_from_cache_or_db('option', $values->id);
             // When we render for guest, we don't need the rest.
             return;
         }
@@ -94,7 +94,7 @@ class col_price implements renderable, templatable {
                 case STATUSPARAM_NOTBOOKED:
                 case STATUSPARAM_DELETED:
                 case STATUSPARAM_NOTIFYMELIST:
-                    if ($this->priceitem = price::get_price($values->id, $buyforuser)) {
+                    if ($this->priceitem = price::get_price('option', $values->id, $buyforuser)) {
 
                         $cartitem = new cartitem($values->id,
                                          $values->text,

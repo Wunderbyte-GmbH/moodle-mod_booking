@@ -28,7 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Function to upgrade old ids which where part of the field "text"
  * within booking options and move them into the new DB field 'identifier'.
- *
  * @return void
  */
 function migrate_booking_option_identifiers() {
@@ -49,5 +48,19 @@ function migrate_booking_option_identifiers() {
             }
         }
     }
-    return;
+}
+
+/**
+ * We renamed the column optionid to itemid,
+ * so we need to set the area to "option" for each migrated row.
+ * @return void
+ */
+function migrate_optionids_for_prices() {
+    global $DB;
+    if ($recordstomigrate = $DB->get_records('booking_prices')) {
+        foreach ($recordstomigrate as $record) {
+            $record->area = 'option';
+            $DB->update_record('booking_prices', $record);
+        }
+    }
 }

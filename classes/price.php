@@ -18,7 +18,6 @@ namespace mod_booking;
 
 use cache_helper;
 use context_system;
-use core_user;
 use MoodleQuickForm;
 use stdClass;
 use lang_string;
@@ -38,18 +37,23 @@ class price {
     /** @var array An array of all price categories. */
     public $pricecategories;
 
-    /** @var int $optionid */
-    private $optionid;
+    /** @var string $area e.g. 'option' */
+    public $area;
+
+    /** @var int $itemid if area is 'option' then itemid will be the optionid */
+    public $itemid;
 
     /**
      * Constructor.
-     * @param int $optionid
+     * @param string $area
+     * @param int $itemid
      */
-    public function __construct(int $optionid = 0) {
+    public function __construct(string $area, int $itemid = 0) {
         global $DB;
 
         $this->pricecategories = $DB->get_records('booking_pricecategories', ['disabled' => 0]);
-        $this->optionid = $optionid;
+        $this->area = $area;
+        $this->itemid = $itemid;
     }
 
     /**
@@ -100,13 +104,13 @@ class price {
             $pricearrayidentifier = 'pricegroup_' . $pricecategory->identifier .
                 '[' . 'bookingprice_' . $pricecategory->identifier . ']';
 
-            if (!empty($this->optionid) && $existingprice = $DB->get_field('booking_prices', 'price',
-                ['optionid' => $this->optionid, 'pricecategoryidentifier' => $pricecategory->identifier])) {
+            if (!empty($this->itemid) && $existingprice = $DB->get_field('booking_prices', 'price',
+                ['area' => $this->area, 'itemid' => $this->itemid, 'pricecategoryidentifier' => $pricecategory->identifier])) {
                 // If there already are saved prices, we use them.
                 $mform->setDefault($pricearrayidentifier, $existingprice);
 
                 // If there is at least one price in DB, we don't use the defaults anymore.
-                // This is to prevent unvolonteraly overriding empty price fields with default prices.
+                // This is to prevent unvoluntarily overriding empty price fields with default prices.
                 $defaultexists = true;
             } else if (!$defaultexists) {
                 // Else we use the price category default values.
@@ -492,14 +496,14 @@ class price {
                 // Add absolute value and multiply with manual factor.
                 $price *= $fromform->priceformulamultiply;
                 $price += $fromform->priceformulaadd;
-                self::add_price($fromform->optionid, $pricecategory->identifier, $price, $currency);
+                self::add_price('option', $fromform->optionid, $pricecategory->identifier, $price, $currency);
 
             } else {
                 if (isset($fromform->{'pricegroup_' . $pricecategory->identifier})) {
                     // Price formula is not active, just save the values from form.
                     $pricegroup = $fromform->{'pricegroup_' . $pricecategory->identifier};
                     $price = $pricegroup['bookingprice_' . $pricecategory->identifier];
-                    self::add_price($fromform->optionid, $pricecategory->identifier, $price, $currency);
+                    self::add_price('option', $fromform->optionid, $pricecategory->identifier, $price, $currency);
                 }
             }
         }
@@ -510,13 +514,16 @@ class price {
      * Add or update price to DB.
      * This also deletes an entry, if the price === "".
      *
-     * @param int $optionid
+     * @param string $area
+     * @param int $itemid
      * @param string $categoryidentifier
      * @param string $price
      * @param string $currency
      * @return void
      */
-    public static function add_price($optionid, $categoryidentifier, $price, $currency = null) {
+    public static function add_price(string $area, int $itemid, string $categoryidentifier,
+        string $price, string $currency = null) {
+
         global $DB;
 
         if ($currency === null) {
@@ -524,8 +531,8 @@ class price {
         }
 
         // If we retrieve a price record for this entry, we update if necessary.
-        if ($data = $DB->get_record('booking_prices', ['optionid' => $optionid,
-        'pricecategoryidentifier' => $categoryidentifier])) {
+        if ($data = $DB->get_record('booking_prices', ['area' => $area, 'itemid' => $itemid,
+            'pricecategoryidentifier' => $categoryidentifier])) {
             // Check if it's necessary to update.
             if ($data->price != $price
             || $data->pricecategoryidentifier != $categoryidentifier
@@ -543,7 +550,8 @@ class price {
             }
         } else if ($price !== "") { // If there is a price but no price entry, we insert a new one.
             $data = new stdClass();
-            $data->optionid = $optionid;
+            $data->area = $area;
+            $data->itemid = $itemid;
             $data->pricecategoryidentifier = $categoryidentifier;
             $data->price = $price;
             $data->currency = $currency;
@@ -560,10 +568,12 @@ class price {
      * Price class caches once determined prices and returns them quickly.
      * If no category identifier has been set, it will return the default price.
      *
-     * @param int $optionid
+     * @param string $area
+     * @param int $itemid
+     *
      * @return array
      */
-    public static function get_price(int $optionid, $user = null): array {
+    public static function get_price(string $area, int $itemid, $user = null): array {
 
         global $USER;
 
@@ -573,7 +583,7 @@ class price {
 
         $categoryidentifier = self::get_pricecategory_for_user($user);
 
-        $prices = self::get_prices_from_cache_or_db($optionid);
+        $prices = self::get_prices_from_cache_or_db($area, $itemid);
 
         if (empty($prices)) {
             return [];
@@ -627,10 +637,10 @@ class price {
      * Function to determine price category for user and return shortname of category.
      * This function is optimized for speed and can be called often (as in a large table).
      *
-     * @param user $user
+     * @param stdClass $user
      * @return string
      */
-    private static function get_pricecategory_for_user($user) {
+    private static function get_pricecategory_for_user(stdClass $user) {
 
         global $CFG;
 
@@ -658,25 +668,27 @@ class price {
     /**
      * Return the cache or DB records of all prices for the option.
      *
-     * @param int $optionid
+     * @param string $area
+     * @param int $itemid
      * @return array
      */
-    public static function get_prices_from_cache_or_db(int $optionid):array {
+    public static function get_prices_from_cache_or_db(string $area, int $itemid):array {
         global $DB;
 
         $cache = \cache::make('mod_booking', 'cachedprices');
-        $cachedprices = $cache->get($optionid);
+        // We need to combine area with itemid for uniqueness!
+        $cachedprices = $cache->get($area . $itemid);
 
         // If we don't have the cache, we need to retrieve the value from db.
         if (!$cachedprices) {
 
-            if (!$prices = $DB->get_records('booking_prices', ['optionid' => $optionid])) {
-                $cache->set($optionid, true);
+            if (!$prices = $DB->get_records('booking_prices', ['area' => $area, 'itemid' => $itemid])) {
+                $cache->set($area . $itemid, true);
                 return [];
             }
 
             $data = json_encode($prices);
-            $cache->set($optionid, $data);
+            $cache->set($area . $itemid, $data);
         } else if ($cachedprices === true) {
             return [];
         } else {

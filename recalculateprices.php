@@ -58,7 +58,7 @@ $data->continue = $url->out(false);
 $data->alertmsg = get_string('alertrecalculate', 'mod_booking');
 
 if ($submit) {
-    $price = new price();
+    $price = new price('option');
     $currency = get_config('booking', 'globalcurrency');
     $formulastring = get_config('booking', 'defaultpriceformula');
     if (empty($price->pricecategories)) {
@@ -81,7 +81,8 @@ if ($submit) {
             }
 
             foreach ($price->pricecategories as $pricecategory) {
-                $price->add_price(
+                price::add_price(
+                    'option',
                     $optionid,
                     $pricecategory->identifier,
                     price::calculate_price_with_bookingoptionsettings($settings, $formulastring, $pricecategory->identifier),

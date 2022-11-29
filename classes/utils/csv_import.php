@@ -250,7 +250,7 @@ class csv_import {
                     $price = new price($optionid);
                     foreach ($price->pricecategories as $category) {
                         if (isset($csvrecord[$category->identifier])) {
-                            $price->add_price($optionid, $category->identifier, $csvrecord[$category->identifier]);
+                            price::add_price('option', $optionid, $category->identifier, $csvrecord[$category->identifier]);
                         }
                     }
                 }
