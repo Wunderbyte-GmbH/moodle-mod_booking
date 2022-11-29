@@ -134,7 +134,7 @@ function editSubbookingsModal(element) {
             // eslint-disable-next-line no-console
             console.log(e.target.name);
 
-            if (e.target.name == 'subbookingtype') {
+            if (e.target.name == 'subbooking_type') {
                 window.skipClientValidation = true;
                 let button = document.querySelector('[name="btn_subbookingtype"]');
                 modalForm.processNoSubmitButton(button);

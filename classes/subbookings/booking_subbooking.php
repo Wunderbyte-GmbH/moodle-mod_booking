@@ -45,9 +45,10 @@ interface booking_subbooking {
     /**
      * Adds the form elements for this subbooking to the provided mform.
      * @param MoodleQuickForm $mform the mform where the subbooking should be added
+     * @param formdata
      * @return void
      */
-    public function add_subbooking_to_mform(MoodleQuickForm &$mform);
+    public function add_subbooking_to_mform(MoodleQuickForm &$mform, array &$formdata);
 
     /**
      * Gets the human-readable name of a subbooking (localized).
@@ -81,23 +82,4 @@ interface booking_subbooking {
      * @param string $json a json string for a booking subbooking
      */
     public function set_subbookingdata_from_json(string $json);
-
-    /**
-     * Execute the subbooking.
-     * @param int $optionid optional
-     * @param int $userid optional
-     */
-    public function execute(int $optionid = 0, int $userid = 0);
-
-    /**
-     * This function is called on execution of adhoc tasks,
-     * so we can see if the subbooking still applies and the adhoc task
-     * shall really be executed.
-     *
-     * @param int $optionid
-     * @param int $userid
-     * @param int $nextruntime
-     * @return bool true if the subbooking still applies, false if not
-     */
-    public function check_if_subbooking_still_applies(int $optionid, int $userid, int $nextruntime): bool;
 }

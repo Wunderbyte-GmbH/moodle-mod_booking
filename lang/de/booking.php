@@ -1949,8 +1949,13 @@ $string['bookingsubbookingedit'] = 'Bearbeite';
 $string['editsubbooking'] = 'Bearbeite Zusatzbuchung';
 $string['bookingsubbookingdelete'] = 'Lösche Zusatzbuchung';
 
-$string['onlyaddsubbookingsonsavedoption'] = "Sie müssen diese neue Buchungsoption speichern, bevor sich Unterbuchungen hinzufügen können.";
+$string['onlyaddsubbookingsonsavedoption'] = "Sie müssen diese neue Buchungsoption speichern, bevor sie Unterbuchungen hinzufügen können.";
+$string['onlyaddentitiesonsavedsubbooking'] = "Sie müssen diese neue zusätzliche Buchungsoption speichern, bevor sie Entities hinzufügen können.";
 
 $string['subbooking_timeslot'] = "Zeitfenster Buchung";
 $string['subbooking_timeslot_desc'] = "Mit dieser Funktion kann die Dauer von buchbaren Zeitfenstern für jedes Datum der Buchungsoption festgelegt werden.";
 $string['subbooking_duration'] = "Dauer in Minuten";
+
+$string['subbooking_additionalitem'] = "Buche zusätzlichen Artikel";
+$string['subbooking_additionalitem_desc'] = "Diese zusätzliche Buchung erlaubt einen weiten Artiekl zu buchen, etwa einen besseren Platz oder zusätzliches Material.";
+$string['subbooking_additionalitem_description'] = "Beschreiben Sie hier den zusätzlich buchbaren Artikel:";
