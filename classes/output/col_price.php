@@ -104,7 +104,7 @@ class col_price implements renderable, templatable {
                                          $values->description
                                     );
 
-                        $this->cartitem = $cartitem->getitem();
+                        $this->cartitem = $cartitem->as_array();
                     }
                     break;
             }
