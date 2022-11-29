@@ -75,7 +75,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         $user = price::return_user_to_buy_for($userid);
 
         // In booking, we always buy a booking option. Therefore, we have to first find out its price.
-        if (!$price = price::get_price($optionid, $user)) {
+        if (!$price = price::get_price('option', $optionid, $user)) {
             throw new moodle_exception('invalidpricecategoryforuser', 'mod_booking', '', '', "Price was empty.
                 This was most probably due to invalid price cateogry configuration for the given user $user->id");
         }
