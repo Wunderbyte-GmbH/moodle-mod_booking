@@ -2193,7 +2193,12 @@ $string['editsubbooking'] = 'Edit subbooking';
 $string['bookingsubbookingdelete'] = 'Delete subbooking';
 
 $string['onlyaddsubbookingsonsavedoption'] = "You need to save this booking option before you can add subbookings.";
+$string['onlyaddentitiesonsavedsubbooking'] = "You need to save this subbooking before you can add an entity.";
 
 $string['subbooking_timeslot'] = "Timeslot booking";
 $string['subbooking_timeslot_desc'] = "This opens timeslots for every booking date with a set duration.";
 $string['subbooking_duration'] = "Duration in minutes";
+
+$string['subbooking_additionalitem'] = "Additional item booking";
+$string['subbooking_additionalitem_desc'] = "This permits you to add optinally bookable items to this booking option, eg. you can book a better special seat etc. or breakfast to your hotel room.";
+$string['subbooking_additionalitem_description'] = "Describe the additionally bookable item:";

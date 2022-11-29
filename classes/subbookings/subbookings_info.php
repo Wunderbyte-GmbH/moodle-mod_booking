@@ -129,7 +129,7 @@ class subbookings_info {
 
         $subbooking = self::get_subbooking($record->type);
 
-        $jsonobject = json_decode($record->json);
+        $data->optionid = $record->optionid;
 
         // These function just add their bits to the object.
         $subbooking->set_defaults($data, $record);
@@ -155,69 +155,6 @@ class subbookings_info {
         // self::execute_booking_subbookings();
 
         return;
-    }
-
-    /**
-     * Execute all booking subbookings.
-     */
-    public static function execute_booking_subbookings() {
-        global $DB;
-        if ($records = $DB->get_records('booking_subbookings')) {
-            foreach ($records as $record) {
-                if (!$subbooking = self::get_subbooking($record->subbookingname)) {
-                    continue;
-                }
-                // Important: Load the subbooking data from JSON into the subbooking instance.
-                $subbooking->set_subbookingdata($record);
-                // Now the subbooking can be executed.
-                $subbooking->execute();
-            }
-        }
-    }
-
-    /**
-     * After an option has been added or updated,
-     * we need to check if any subbookings need to be applied or changed.
-     * @param int $optionid
-     */
-    public static function execute_subbookings_for_option(int $optionid) {
-        global $DB;
-
-        // Only fetch subbookings which need to be reapplied. At the moment, it's just one.
-        // Eventbased subbookings don't have to be reapplied.
-        if ($records = $DB->get_records('booking_subbookings', ['subbookingname' => 'subbooking_daysbefore'])) {
-            foreach ($records as $record) {
-                if (!$subbooking = self::get_subbooking($record->subbookingname)) {
-                    continue;
-                }
-                // Important: Load the subbooking data from JSON into the subbooking instance.
-                $subbooking->set_subbookingdata($record);
-                // Now the subbooking can be executed.
-                $subbooking->execute($optionid);
-            }
-        }
-    }
-
-    /**
-     * After a user has been added or updated,
-     * we need to check if any subbookings need to be applied or changed.
-     * @param int $userid
-     */
-    public static function execute_subbookings_for_user(int $userid) {
-        global $DB;
-        // Only fetch subbookings which need to be reapplied. At the moment, it's just one.
-        // Eventbased subbookings don't have to be reapplied.
-        if ($records = $DB->get_records('booking_subbookings', ['subbookingname' => 'subbooking_daysbefore'])) {
-            foreach ($records as $record) {
-                if (!$subbooking = self::get_subbooking($record->subbookingname)) {
-                    continue;
-                }
-                // Important: Load the subbooking data into the subbooking instance.
-                $subbooking->set_subbookingdata($record);
-                // Now the subbooking can be executed.
-                $subbooking->execute(null, $userid);
-            }
-        }
     }
 
     /**
@@ -273,22 +210,25 @@ class subbookings_info {
         }
 
         $mform->registerNoSubmitButton('btn_subbookingtype');
-        // $buttonargs = array('style' => 'visibility:hidden;');
+        $buttonargs = array('style' => 'visibility:hidden;');
         $categoryselect = [
             $mform->createElement('select', 'subbooking_type',
             get_string('bookingsubbooking', 'mod_booking'), $subbookingsforselect),
-            $mform->createElement('submit', 'btn_subbookingtype', get_string('bookingsubbooking', 'mod_booking')) // $buttonargs)
+            $mform->createElement('submit',
+                'btn_subbookingtype',
+                get_string('bookingsubbooking', 'mod_booking'),
+                $buttonargs) // $buttonargs)
         ];
         $mform->addGroup($categoryselect, 'subbooking_type', get_string('bookingsubbooking', 'mod_booking'), [' '], false);
         $mform->setType('btn_subbookingtype', PARAM_NOTAGS);
 
-        if (isset($ajaxformdata['subbooking_type'])) {
-            $subbooking = self::get_subbooking($ajaxformdata['subbooking_type']);
+        if (isset($formdata['subbooking_type'])) {
+            $subbooking = self::get_subbooking($formdata['subbooking_type']);
         } else {
             list($subbooking) = $subbookingtypes;
         }
 
         // Finally, after having chosen the right type of subbooking, we add the corresponding elements.
-        $subbooking->add_subbooking_to_mform($mform);
+        $subbooking->add_subbooking_to_mform($mform, $formdata);
     }
 }

@@ -16,7 +16,8 @@
 
 namespace mod_booking\subbookings\subbookings;
 
-use local_entities\entitiesrelation_handler;
+use context_module;
+use mod_booking\singleton_service;
 use mod_booking\subbookings\booking_subbooking;
 use MoodleQuickForm;
 use stdClass;
@@ -26,14 +27,14 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * subbooking timeslot with a set duration
+ * subbooking additionalitem with counter
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class subbooking_timeslot implements booking_subbooking {
+class subbooking_additionalitem implements booking_subbooking {
 
     /** @var int $id Id of the configured subbooking */
     public $id = 0;
@@ -42,16 +43,19 @@ class subbooking_timeslot implements booking_subbooking {
     public $optionid = 0;
 
     /** @var string $type type of subbooking as the name of this class */
-    protected $type = 'subbooking_timeslot';
+    protected $type = 'subbooking_additionalitem';
 
     /** @var string $name given name to this configured subbooking*/
     public $name = '';
 
-    /** @var string $json json which holds all the data of a subbooking*/
+    /** @var string $json json which holds all the data of a subbooking */
     public $json = '';
 
-    /** @var int $duration This is a supplementary field which is not directly in the db but wrapped in the json */
-    public $duration = 0;
+    /** @var int $available Nr. of times this item is available. 0 for unlimited. */
+    public $available = 1;
+
+    /** @var string $description Extensive description of the additonal item. */
+    public $description = '';
 
     /**
      * Load json data from DB into the object.
@@ -81,21 +85,29 @@ class subbooking_timeslot implements booking_subbooking {
      * @param array $formdata
      * @return void
      */
-    public function add_subbooking_to_mform(MoodleQuickForm &$mform, &$formdata) {
+    public function add_subbooking_to_mform(MoodleQuickForm &$mform, array &$formdata) {
 
-        $mform->addElement('static', 'subbooking_timeslot_desc', '',
-            get_string('subbooking_timeslot_desc', 'mod_booking'));
+        $mform->addElement('static', 'subbooking_additionalitem_desc', '',
+            get_string('subbooking_additionalitem_desc', 'mod_booking'));
 
-        // Duration of one particular slot.
-        $mform->addElement('text', 'subbooking_timeslot_duration',
-            get_string('subbooking_duration', 'mod_booking'));
-        $mform->setType('subbooking_timeslot_duration', PARAM_INT);
+        // Add a description with the potential inclusion of files.
 
-        if (class_exists('local_entities\entitiesrelation_handler')) {
-            $sboid = $formdata['id'] ?? 0;
-            $erhandler = new entitiesrelation_handler('mod_booking', 'subbooking');
-            $erhandler->instance_form_definition($mform, $sboid);
-        }
+        $cmid = $formdata['cmid'];
+        $context = context_module::instance($cmid);
+
+        $textfieldoptions = array(
+            'trusttext' => true,
+            'subdirs' => true,
+            'maxfiles' => 1,
+            'context' => $context);
+
+        $mform->addElement(
+            'editor',
+            'subbooking_additionalitem_description_editor',
+            get_string('subbooking_description', 'mod_booking'),
+            null,
+            $textfieldoptions);
+        $mform->setType('subbooking_additionalitem_description', PARAM_RAW);
 
     }
 
@@ -128,8 +140,10 @@ class subbooking_timeslot implements booking_subbooking {
         $jsonobject->name = $data->subbooking_name;
         $jsonobject->type = $this->type;
         $jsonobject->data = new stdClass();
-        $jsonobject->data->duration = $data->subbooking_timeslot_duration ?? 0;
-
+        $jsonobject->data->description =
+            $data->subbooking_additionalitem_description ?? '';
+        $jsonobject->data->descriptionformat =
+            $data->subbooking_additionalitem_descriptionformat ?? '';
         $record->name = $data->subbooking_name;
         $record->type = $this->type;
         $record->optionid = $data->optionid;
@@ -139,7 +153,6 @@ class subbooking_timeslot implements booking_subbooking {
 
         // If we can update, we add the id here.
         if ($data->id) {
-            $this->id = $data->id;
             $record->id = $data->id;
             $DB->update_record('booking_subbooking_options', $record);
         } else {
@@ -148,12 +161,35 @@ class subbooking_timeslot implements booking_subbooking {
             $this->id = $id;
         }
 
-        // This is to save entity relation data.
-        // The id key has to be set to option id.
-        if (class_exists('local_entities\entitiesrelation_handler')) {
-            $erhandler = new entitiesrelation_handler('mod_booking', 'subbooking');
-            $erhandler->instance_form_save($data, $this->id);
+        $context = context_module::instance($data->cmid);
+        $textfieldoptions = array(
+            'trusttext' => true,
+            'subdirs' => true,
+            'maxfiles' => 1,
+            'context' => $context);
+
+        $data = file_postupdate_standard_editor(
+            $data,
+            'subbooking_additionalitem_description',
+            $textfieldoptions,
+            $context,
+            'mod_booking',
+            'subbookings',
+            $this->id);
+
+        if (!isset($data->id)) {
+            $record->id = $this->id;
+
+            // We need to update again to show the correct information.
+            $jsonobject->data->description =
+                $data->subbooking_additionalitem_description ?? '';
+            $jsonobject->data->descriptionformat =
+                $data->subbooking_additionalitem_descriptionformat ?? '';
+            $record->json = json_encode($jsonobject);
+
+            $DB->update_record('booking_subbooking_options', $record);
         }
+
     }
 
     /**
@@ -166,9 +202,27 @@ class subbooking_timeslot implements booking_subbooking {
         $data->subbooking_type = $this->type;
 
         $jsonobject = json_decode($record->json);
-        $data = $jsonobject->data;
+        $jsondata = $jsonobject->data;
 
         $data->subbooking_name = $record->name;
-        $data->subbooking_timeslot_duration = $data->duration;
+
+        $data->subbooking_additionalitem_description = $jsondata->description;
+        $data->subbooking_additionalitem_descriptionformat = $jsondata->descriptionformat;
+
+        $context = context_module::instance($data->cmid);
+        $textfieldoptions = array(
+            'trusttext' => true,
+            'subdirs' => true,
+            'maxfiles' => 1,
+            'context' => $context);
+
+        $data = file_prepare_standard_editor(
+            $data,
+            'subbooking_additionalitem_description',
+            $textfieldoptions,
+            $context,
+            'mod_booking',
+            'subbookings',
+            $record->id);
     }
 }
