@@ -56,7 +56,7 @@ class subbookingsform extends dynamic_form {
         $mform->addElement('hidden', 'optionid', $ajaxformdata['optionid']);
         $mform->addElement('hidden', 'cmid', $ajaxformdata['cmid']);
 
-        $mform->addElement('text', 'subbooking_name', get_string('booking_subbookings_name', 'mod_booking'));
+        $mform->addElement('text', 'subbooking_name', get_string('subbooking_name', 'mod_booking'));
         $mform->setType('subbooking_name', PARAM_TEXT);
 
         subbookings_info::add_subbooking($mform, $ajaxformdata);

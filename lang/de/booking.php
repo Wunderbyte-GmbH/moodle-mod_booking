@@ -1768,6 +1768,7 @@ $string['bo_cond_isbookable'] = 'isbookable: Buchen ist erlaubt';
 $string['bo_cond_isloggedin'] = 'isloggedin: User ist eingeloggt';
 $string['bo_cond_fullybookedoverride'] = 'fullybookedoverride: Kann überbucht werden.';
 $string['bo_cond_iscancelled'] = 'iscancelled: Buchungsoption storniert';
+$string['bo_cond_subbooking_blocks'] = '';
 
 $string['bo_cond_booking_time_available'] = 'Innerhalb der normalen Buchungszeiten';
 $string['bo_cond_booking_time_full_available'] = 'Innerhalb der normalen Buchungszeiten. Von {$a} bis {$b}';
@@ -1808,6 +1809,17 @@ $string['bo_cond_priceisset_available'] = 'Buchen';
 $string['bo_cond_priceisset_full_available'] = 'Buchen möglich';
 $string['bo_cond_priceisset_not_available'] = 'Muss bezahlt werden';
 $string['bo_cond_priceisset_full_not_available'] = 'Preis gesetzt, Bezahlung nötig';
+
+$string['bo_cond_subbookingblocks_available'] = 'Buchen';
+$string['bo_cond_subbookingblocks_full_available'] = 'Buchen möglich';
+$string['bo_cond_subbookingblocks_not_available'] = 'Buchen nicht möglich';
+$string['bo_cond_subbookingblocks_full_not_available'] = 'Eine Zusatzbuchung blockiert diese Buchung.';
+
+// This does not really block, it just handels available subbookings.
+$string['bo_cond_subbooking_available'] = 'Buchen';
+$string['bo_cond_subbooking_full_available'] = 'Buchen möglich';
+$string['bo_cond_subbooking_not_available'] = 'Buchen';
+$string['bo_cond_subbooking_full_not_available'] = 'Buchen möglich';
 
 $string['userinfofieldoff'] = 'Kein User-Profilfeld ausgewählt';
 $string['restrictwithuserprofilefield'] = 'Ein ausgewähltes Userprofilfeld soll einen bestimmten Wert haben';
