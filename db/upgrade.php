@@ -2972,7 +2972,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022112400, 'booking');
     }
 
-	if ($oldversion < 2022112800) {
+    if ($oldversion < 2022112800) {
 
         // Define table booking_subbooking_answers to be created.
         $table = new xmldb_table('booking_subbooking_answers');
@@ -3017,7 +3017,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022112801, 'booking');
     }
 
-	if ($oldversion < 2022112900) {
+    if ($oldversion < 2022112900) {
 
         // Rename field optionid on table booking_prices to itemid.
         $table = new xmldb_table('booking_prices');
