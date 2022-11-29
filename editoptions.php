@@ -253,7 +253,7 @@ if ($mform->is_cancelled()) {
         $fromform->optionid = $nbooking ?? $optionid;
 
         // Save the prices.
-        $price = new price($fromform->optionid);
+        $price = new price('option', $fromform->optionid);
         $price->save_from_form($fromform);
 
         // This is to save entity relation data.

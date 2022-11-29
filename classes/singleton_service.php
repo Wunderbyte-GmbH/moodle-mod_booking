@@ -267,7 +267,7 @@ class singleton_service {
         if (isset($instance->prices[$optionid])) {
             return $instance->prices[$optionid];
         } else {
-            $price = new price($optionid);
+            $price = new price('option', $optionid);
             $instance->prices[$optionid] = $price;
             return $price;
         }

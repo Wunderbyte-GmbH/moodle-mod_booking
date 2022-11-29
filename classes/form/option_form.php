@@ -414,7 +414,7 @@ class option_form extends \moodleform {
         }
 
         // Add price.
-        $price = new price($this->_customdata['optionid']);
+        $price = new price('option', $this->_customdata['optionid']);
         $price->add_price_to_mform($mform);
 
         // Add entities.

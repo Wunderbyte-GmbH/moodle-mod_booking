@@ -247,7 +247,7 @@ class csv_import {
 
                 // Now only run throught prices if there is a 'default' column.
                 if (isset($csvrecord['default'])) {
-                    $price = new price($optionid);
+                    $price = new price('option', $optionid);
                     foreach ($price->pricecategories as $category) {
                         if (isset($csvrecord[$category->identifier])) {
                             price::add_price('option', $optionid, $category->identifier, $csvrecord[$category->identifier]);
