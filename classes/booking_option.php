@@ -933,7 +933,7 @@ class booking_option {
      *        The number of bookings for the user has to be decreased by one, because, the user will
      *        be unsubscribed
      *        from the old booking option afterwards (which is not yet taken into account).
-     * @param boolean true if we just added this booking option to the shopping cart.
+     * @param boolean $addedtocart true if we just added this booking option to the shopping cart.
      * @return boolean true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response($user, $frombookingid = 0, $substractfromlimit = 0, $addedtocart = false) {
@@ -957,6 +957,7 @@ class booking_option {
             $waitinglist = STATUSPARAM_RESERVED;
         }
 
+        // Only if paxperuser is set, the part after the OR is executed.
         $underlimit = ($this->booking->settings->maxperuser == 0);
         $underlimit = $underlimit ||
                 (($this->booking->get_user_booking_count($user) - $substractfromlimit) < $this->booking->settings->maxperuser);
@@ -964,24 +965,13 @@ class booking_option {
             mtrace("Couldn't subscribe user $user->username because of maxperuser setting <br>");
             return false;
         }
-        // We have to get all the records of the user, there might be more than one.
-        $currentanswers = $DB->get_records('booking_answers',
-                array('userid' => $user->id, 'optionid' => $this->optionid));
 
-        // This variable is used to detect errors.
-        $numberofanswers = count($currentanswers);
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings, $user->id);
 
-        // These variables will be used for update an entry.
-        $currentanswerid = null;
-        $timecreated = null;
-
-        // Ignore all deleted entries
-        // And use some shortcuts, if possible.
-        foreach ($currentanswers as $currentanswer) {
+        if ($currentanswer = $bookinganswers->users[$user->id]) {
             switch($currentanswer->waitinglist) {
                 case STATUSPARAM_DELETED:
-                    --$numberofanswers;
-                    $currentanswerid = $currentanswer->id;
+                    $currentanswerid = $currentanswer->boid;
                     break;
                 case STATUSPARAM_BOOKED:
                     // If we are already booked, we don't do anything.
@@ -992,29 +982,26 @@ class booking_option {
                         return true;
                     }
                     // Else, we might move from reserved to booked, we just continue.
-                    $currentanswerid = $currentanswer->id;
+                    $currentanswerid = $currentanswer->boid;
                     break;
                 case STATUSPARAM_WAITINGLIST:
                     if ($waitinglist == STATUSPARAM_WAITINGLIST) {
                         return true;
                     }
                     // Else, we might move from waitinglist to booked, we just continue.
-                    $currentanswerid = $currentanswer->id;
+                    $currentanswerid = $currentanswer->boid;
                     $timecreated = $currentanswer->timecreated;
                     break;
                 case STATUSPARAM_NOTIFYMELIST:
                     // If we have a notification...
                     // ... we override it here, because all alternatives are higher.
-                    $currentanswerid = $currentanswer->id;
+                    $currentanswerid = $currentanswer->boid;
                     // We don't pass the creation date on, as it is not interesting in this case.
                     break;
             }
-        }
-
-        // We should have only one answer after deleted in DB.
-        if ($numberofanswers > 1) {
-            throw new moodle_exception('tomanybookinganswers', 'mod_booking', '', null,
-                "$user->id has too many answers in $this->optionid");
+        } else {
+            $currentanswerid = null;
+            $timecreated = null;
         }
 
         self::write_user_answer_to_db($this->booking->id,

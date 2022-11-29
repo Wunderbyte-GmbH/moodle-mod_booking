@@ -86,9 +86,9 @@ class booking_answers {
         $this->bookingoptionsettings = $bookingoptionsettings;
 
         $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
-        $answers = $cache->get($optionid);
+        $data = $cache->get($optionid);
 
-        if (!$answers) {
+        if (!$data) {
 
             $params = array('optionid' => $optionid);
 
@@ -115,73 +115,80 @@ class booking_answers {
                 $answers = 'empty';
             }
 
-            $cache->set($optionid, $answers);
-        }
-
-        // If the answer has the empty placeholder, we replace it by an array.
-        if ($answers === 'empty') {
-            $answers = [];
-        }
-
-        $this->answers = $answers;
-
-        // TODO: we have to cache the whole booking_answer class, not only the results from DB.
-        // The calculation doesn't change and has'nt to be done every time.
-
-        // Set back all the lists.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $this->users =
-        $this->usersonlist =
-        $this->usersonwaitinglist =
-        $this->usersreserved =
-        $this->usersdeleted = []; */
-
-        // These are the values we are interested in.
-        $imbooked = 0;
-        $onwaitinglist = 0;
-        $completed = 0;
-
-        foreach ($answers as $answer) {
-            if ($answer->userid == $userid) {
-                // The following two options are mutually exclusive.
-                if ($answer->waitinglist == 0) {
-                    ++$imbooked;
-                } else if ($answer->waitinglist == 1) {
-                    ++$onwaitinglist;
-                }
-                // Completion is independed from the other states.
-                if (isset($answer->completed) && $answer->completed == 1) {
-                    ++$completed;
-                }
+            // If the answer has the empty placeholder, we replace it by an array.
+            if ($answers === 'empty') {
+                $answers = [];
             }
 
-            // A user might have one or more 'deleted' entries, but else, there should be only one.
-            if ($answer->waitinglist != STATUSPARAM_DELETED) {
-                $this->users[$answer->userid] = $answer;
-            }
+            $this->answers = $answers;
 
-            switch ($answer->waitinglist) {
-                case STATUSPARAM_BOOKED:
-                    $this->usersonlist[$answer->userid] = $answer;
-                    break;
-                case STATUSPARAM_WAITINGLIST:
-                    $this->usersonwaitinglist[$answer->userid] = $answer;
-                    break;
-                case STATUSPARAM_RESERVED:
-                    if (count($this->usersonlist) < $this->bookingoptionsettings->maxanswers) {
-                        $this->usersonlist[$answer->userid] = $answer;
-                    } else {
-                        $this->usersonwaitinglist[$answer->userid] = $answer;
+            // These are the values we are interested in.
+            $imbooked = 0;
+            $onwaitinglist = 0;
+            $completed = 0;
+
+            foreach ($answers as $answer) {
+                if ($answer->userid == $userid) {
+                    // The following two options are mutually exclusive.
+                    if ($answer->waitinglist == 0) {
+                        ++$imbooked;
+                    } else if ($answer->waitinglist == 1) {
+                        ++$onwaitinglist;
                     }
-                    $this->usersreserved[$answer->userid] = $answer;
-                    break;
-                case STATUSPARAM_DELETED:
-                    $this->usersdeleted[$answer->userid] = $answer;
-                    break;
-                case STATUSPARAM_NOTIFYMELIST:
-                    $this->userstonotify[$answer->userid] = $answer;
-                    break;
+                    // Completion is independed from the other states.
+                    if (isset($answer->completed) && $answer->completed == 1) {
+                        ++$completed;
+                    }
+                }
+
+                // A user might have one or more 'deleted' entries, but else, there should be only one.
+                if ($answer->waitinglist != STATUSPARAM_DELETED) {
+                    $this->users[$answer->userid] = $answer;
+                }
+
+                switch ($answer->waitinglist) {
+                    case STATUSPARAM_BOOKED:
+                        $this->usersonlist[$answer->userid] = $answer;
+                        break;
+                    case STATUSPARAM_WAITINGLIST:
+                        $this->usersonwaitinglist[$answer->userid] = $answer;
+                        break;
+                    case STATUSPARAM_RESERVED:
+                        if (count($this->usersonlist) < $this->bookingoptionsettings->maxanswers) {
+                            $this->usersonlist[$answer->userid] = $answer;
+                        } else {
+                            $this->usersonwaitinglist[$answer->userid] = $answer;
+                        }
+                        $this->usersreserved[$answer->userid] = $answer;
+                        break;
+                    case STATUSPARAM_DELETED:
+                        $this->usersdeleted[$answer->userid] = $answer;
+                        break;
+                    case STATUSPARAM_NOTIFYMELIST:
+                        $this->userstonotify[$answer->userid] = $answer;
+                        break;
+                }
             }
+
+            $data = (object)[
+                'answers' => $this->answers,
+                'users' => $this->users,
+                'usersonlist' => $this->usersonlist,
+                'usersonwaitinglist' => $this->usersonwaitinglist,
+                'usersreserved' => $this->usersreserved,
+                'usersdeleted' => $this->usersdeleted,
+                'userstonotify' => $this->userstonotify,
+            ];
+
+            $cache->set($optionid, $data);
+        } else {
+            $this->answers = $data->answers;
+            $this->users = $data->users;
+            $this->usersonlist = $data->usersonlist;
+            $this->usersonwaitinglist = $data->usersonwaitinglist;
+            $this->usersreserved = $data->usersreserved;
+            $this->usersdeleted = $data->usersdeleted;
+            $this->userstonotify = $data->userstonotify;
         }
     }
 
@@ -313,104 +320,6 @@ class booking_answers {
     }
 
     /**
-     * Load values of booking_option from db, should rarely be necessary.
-     *
-     * @param integer $optionid
-     * @return stdClass|null
-     */
-    private function set_values(int $optionid, object $dbrecord = null) {
-        global $DB;
-
-        // If we don't get the cached object, we have to fetch it here.
-        if ($dbrecord === null) {
-            $dbrecord = $DB->get_record("booking_options", array("id" => $optionid));
-
-        }
-
-        if ($dbrecord) {
-
-            // Fields in DB.
-            $this->id = $optionid;
-            $this->bookingid = $dbrecord->bookingid;
-            $this->text = $dbrecord->text;
-            $this->maxanswers = $dbrecord->maxanswers;
-            $this->maxoverbooking = $dbrecord->maxoverbooking;
-            $this->minanswers = $dbrecord->minanswers;
-            $this->bookingopeningtime = $dbrecord->bookingopeningtime;
-            $this->bookingclosingtime = $dbrecord->bookingclosingtime;
-            $this->courseid = $dbrecord->courseid;
-            $this->coursestarttime = $dbrecord->coursestarttime;
-            $this->courseendtime = $dbrecord->courseendtime;
-            $this->enrolmentstatus = $dbrecord->enrolmentstatus;
-            $this->description = $dbrecord->description;
-            $this->descriptionformat = $dbrecord->descriptionformat;
-            $this->limitanswers = $dbrecord->limitanswers;
-            $this->timemodified = $dbrecord->timemodified;
-            $this->addtocalendar = $dbrecord->addtocalendar;
-            $this->calendarid = $dbrecord->calendarid;
-            $this->pollurl = $dbrecord->pollurl;
-            $this->groupid = $dbrecord->groupid;
-            $this->sent = $dbrecord->sent;
-            $this->location = $dbrecord->location;
-            $this->institution = $dbrecord->institution;
-            $this->address = $dbrecord->address;
-            $this->pollurlteachers = $dbrecord->pollurlteachers;
-            $this->howmanyusers = $dbrecord->howmanyusers;
-            $this->pollsend = $dbrecord->pollsend;
-            $this->removeafterminutes = $dbrecord->removeafterminutes;
-            $this->notificationtext = $dbrecord->notificationtext;
-            $this->notificationtextformat = $dbrecord->notificationtextformat;
-            $this->disablebookingusers = $dbrecord->disablebookingusers;
-            $this->sent2 = $dbrecord->sent2;
-            $this->sentteachers = $dbrecord->sentteachers;
-            $this->beforebookedtext = $dbrecord->beforebookedtext;
-            $this->beforecompletedtext = $dbrecord->beforecompletedtext;
-            $this->aftercompletedtext = $dbrecord->aftercompletedtext;
-            $this->shorturl = $dbrecord->shorturl;
-            $this->duration = $dbrecord->duration;
-            $this->parentid = $dbrecord->parentid;
-
-            // If the key "sessions" is not yet set, we need to load from DB.
-            if (!isset($dbrecord->sessions)) {
-                $this->load_sessions_from_db($optionid);
-                $dbrecord->sessions = $this->sessions;
-            } else {
-                $this->sessions = $dbrecord->sessions;
-            }
-
-            return $dbrecord;
-        } else {
-            debugging('Could not create option settings class for optionid: ' . $optionid);
-            return null;
-        }
-    }
-
-    // Function to load Multisessions from DB.
-    private function load_sessions_from_db($optionid) {
-        global $DB;
-        // Multi-sessions.
-        if (!$this->sessions = $DB->get_records_sql(
-            "SELECT id optiondateid, coursestarttime, courseendtime
-            FROM {booking_optiondates}
-            WHERE optionid = ?
-            ORDER BY coursestarttime ASC", array($optionid))) {
-
-            // If there are no multisessions, but we still have the option's ...
-            // ... coursestarttime and courseendtime, then store them as if they were a session.
-            if (!empty($this->coursestarttime) && !empty($this->courseendtime)) {
-                $singlesession = new stdClass;
-                $singlesession->id = 0;
-                $singlesession->coursestarttime = $this->coursestarttime;
-                $singlesession->courseendtime = $this->courseendtime;
-                $this->sessions[] = $singlesession;
-            } else {
-                // Else we have no sessions.
-                $this->sessions = [];
-            }
-        }
-    }
-
-    /**
      * Static function to construct booking_answers from only optionid.
      *
      * @param int $optionid
@@ -420,7 +329,6 @@ class booking_answers {
         $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
         return singleton_service::get_instance_of_booking_answers($bookingoptionsettings);
     }
-
 
     /**
      * Returns the number of active bookings for a given user for the whole instance.
