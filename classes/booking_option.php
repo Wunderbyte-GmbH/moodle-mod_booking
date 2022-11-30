@@ -968,7 +968,7 @@ class booking_option {
 
         $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings, $user->id);
 
-        if ($currentanswer = $bookinganswers->users[$user->id]) {
+        if (isset($bookinganswers->users[$user->id]) && ($currentanswer = $bookinganswers->users[$user->id])) {
             switch($currentanswer->waitinglist) {
                 case STATUSPARAM_DELETED:
                     $currentanswerid = $currentanswer->boid;
