@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
 
+use Exception;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -400,11 +401,14 @@ class calendar {
             'optionid' => $optionid,
             'userid' => $userid
         ];
+        try {
+             // At first delete events themselves.
+            $DB->delete_records_select("event", "id IN ( $sqlusereventids )", $params);
 
-        // At first delete events themselves.
-        $DB->delete_records_select("event", "id IN ( $sqlusereventids )", $params);
-
-        // Now we can delete the booking user event entries.
-        $DB->delete_records_select("booking_userevents", $optioniduserid, $params);
+            // Now we can delete the booking user event entries.
+            $DB->delete_records_select("booking_userevents", $optioniduserid, $params);
+        } catch (Exception $e) {
+            debugging('there seems to be a problem with deleting the user events.', DEBUG_NORMAL);
+        }
     }
 }
