@@ -108,7 +108,7 @@ class booking_answers {
             // AND u.deleted = 0
             // ORDER BY ba.timecreated ASC";
 
-            $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated
+            $sql = "SELECT ba.id as baid, ba.userid as id, ba.userid, ba.waitinglist, ba.timecreated
             FROM {booking_answers} ba
             WHERE ba.optionid = :optionid
             ORDER BY ba.timecreated ASC";
