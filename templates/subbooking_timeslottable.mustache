@@ -1,0 +1,129 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/subbooking_timeslottable
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-action
+    * data-component
+    * data-area
+    * data-itemid
+
+    Example context (json):
+    {
+    "days": [
+        {
+            "day":"29.11"
+        },
+        {
+            "day":"30.11",
+            "current": true
+
+        },
+        {
+            "day":"01.12"
+        }
+    ],
+    "date":30.11,
+    "slots":[
+        {
+                "slot":"08:00-09:00"
+        },
+        {
+                "slot":"09:00-10:00"
+        },
+        {
+                "slot":"10:00-11:00"
+        }
+    ],
+    "locations":[
+            {
+                "name":"Halle1",
+                "timeslots":[
+                    {
+                    "free":true,
+                    "slot":"11:00 - 12:00",
+                    "price":30,
+                    "currency":"€",
+                    "area": "subbooking-optionid",
+                    "component": "mod_booking",
+                    "itemid": "1"
+                    },
+                    {
+                    "free":false,
+                    "slot":"12:00 - 13:00",
+                    "price":30,
+                    "currency":"€",
+                    "area": "subbooking-optionid",
+                    "component": "mod_booking",
+                    "itemid": "2"
+                    },
+                    {
+                    "free":false,
+                    "slot":"13:00 - 14:00",
+                    "price":30,
+                    "currency":"€",
+                    "area": "subbooking-optionid",
+                    "component": "mod_booking",
+                    "itemid": "3"
+                    }
+                ]
+            },
+        ]
+    }
+}}
+
+<h1>Sportstätteninfos?</h1>
+<h2>{{date}}</h2>
+<label for="data">Choose a date:</label>
+<select name="data" id="data" data-initial-value="{{date}}" data-action="mod-booking-timeslotbooking-change-date">
+    {{#days}}
+    <option value="{{day}}" {{#current}}selected{{/current}}>{{day}}</option>
+    {{/days}}
+</select>
+<table class="mod-booking-timeslotbooking table">
+    <thead class="thead-dark">
+    <th>
+    Location
+    </th>
+    {{#slots}}
+    <th>
+        {{slot}}
+    </th>
+    {{/slots}}
+</thead>
+    {{#locations}}
+    <tr>
+
+        <td class="text-left name">{{name}}</td>
+        {{#timeslots}}
+        <td data-bookable='{{free}}' data-component="{{component}}" data-area="{{area}}" data-itemid="{{itemid}}">
+            {{price}} {{currency}}
+        </td>
+        {{/timeslots}}
+    </tr>
+    {{/locations}}
+</table>
+
+{{#js}}
+    require(['mod_booking/subbooking_timetable'], function(subboking) {
+        subboking.init();
+    });
+{{/js}}

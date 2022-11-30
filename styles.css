@@ -311,3 +311,29 @@ if there only was one booking option. */
 #page-mod-booking-edit-rules .booking-rules-cards {
     padding-top: 15px;
 }
+
+/* Subbooking Timeslot */
+.mod-booking-timeslotbooking [data-bookable="1"] {
+    background: var(--info);
+    color: #fff;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid #fff;
+    padding: 1px;
+}
+.mod-booking-timeslotbooking [data-selected] {
+    background: var(--success);
+    color: #fff;
+    cursor: pointer;
+}
+.mod-booking-timeslotbooking .table td, .mod-booking-timeslotbooking .table tr {
+    text-align: center;
+    vertical-align: middle;
+}
+.mod-booking-timeslotbooking th {
+    border: 1px solid #fff;
+    vertical-align: middle;
+}
+.mod-booking-timeslotbooking .name {
+    font-weight: 700;
+}
