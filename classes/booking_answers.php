@@ -16,7 +16,6 @@
 
 namespace mod_booking;
 
-use stdClass;
 use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
@@ -186,7 +185,12 @@ class booking_answers {
      * @param int $userid
      * @return int const STATUSPARAM_* for booking status.
      */
-    public function user_status(int $userid) {
+    public function user_status(int $userid = 0) {
+        global $USER;
+
+        if ($userid == 0) {
+            $userid = $USER->id;
+        }
 
         if (isset($this->users[$userid])) {
             return $this->users[$userid]->waitinglist; // The waitinglist key holds all the different status.
