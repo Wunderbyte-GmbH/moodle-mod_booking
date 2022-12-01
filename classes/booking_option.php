@@ -1061,6 +1061,9 @@ class booking_option {
 
         // After writing, cache has to be invalidated.
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
+        // When we set back the booking_answer...
+        // ... we have to make sure it's also delted in the singleton service.
+        singleton_service::destroy_booking_answers($optionid);
     }
 
 
@@ -1554,6 +1557,9 @@ class booking_option {
         cache_helper::purge_by_event('setbackoptionstable');
         cache_helper::invalidate_by_event('setbackoptionsettings', [$this->optionid]);
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
+        // When we set back the booking_answer...
+        // ... we have to make sure it's also delted in the singleton service.
+        singleton_service::destroy_booking_answers($this->optionid);
 
         return $result;
     }
@@ -1577,6 +1583,9 @@ class booking_option {
 
         // After updating, we have to invalidate cache.
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
+        // When we set back the booking_answer...
+        // ... we have to make sure it's also delted in the singleton service.
+        singleton_service::destroy_booking_answers($this->optionid);
     }
 
     /**
@@ -1757,6 +1766,9 @@ class booking_option {
 
         // After updating, we have to invalidate cache.
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
+        // When we set back the booking_answer...
+        // ... we have to make sure it's also delted in the singleton service.
+        singleton_service::destroy_booking_answers($this->optionid);
     }
 
     /**

@@ -222,6 +222,9 @@ class mod_booking_observer {
         cache_helper::purge_by_event('setbackoptionstable');
         cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
+        // When we set back the booking_answer...
+        // ... we have to make sure it's also delted in the singleton service.
+        singleton_service::destroy_booking_answers($optionid);
     }
 
     /**

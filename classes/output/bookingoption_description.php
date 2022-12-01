@@ -290,7 +290,7 @@ class bookingoption_description implements renderable, templatable {
                     if ($forbookeduser) {
                         // If it is for booked user, we show a short info text that the option is already booked.
                         $this->booknowbutton = get_string('infoalreadybooked', 'booking');
-                    } else if ($bookinganswers->user_status() == 1) {
+                    } else if ($bookinganswers->user_status($user->id) == 1) {
                         // If onwaitinglist is 1, we show a short info text that the user is on the waiting list.
                         // Currently this is only working for the current USER.
                         $this->booknowbutton = get_string('infowaitinglist', 'booking');

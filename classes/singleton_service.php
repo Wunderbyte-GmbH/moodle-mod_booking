@@ -56,19 +56,36 @@ class singleton_service {
     /**
      * Service to create and return singleton instance of booking answers.
      * @param booking_option_settings $settings
-     * @param integer $userid
      * @return booking_answers
      */
-    public static function get_instance_of_booking_answers($settings, int $userid = 0) {
+    public static function get_instance_of_booking_answers($settings) {
 
         $instance = self::get_instance();
 
-        if (isset($instance->bookinganswers[$settings->id][$userid])) {
-            return $instance->bookinganswers[$settings->id][$userid];
+        if (isset($instance->bookinganswers[$settings->id])) {
+            return $instance->bookinganswers[$settings->id];
         } else {
-            $bookinganswers = new booking_answers($settings, $userid);
-            $instance->bookinganswers[$settings->id][$userid] = $bookinganswers;
+            $bookinganswers = new booking_answers($settings);
+            $instance->bookinganswers[$settings->id] = $bookinganswers;
             return $bookinganswers;
+        }
+    }
+
+    /**
+     * When invalidating the cache, we need to also destroy the booking_answer_object.
+     * As we batch handle a lot of users, they always need a "clean" booking answers object.
+     *
+     * @param integer $optionid
+     * @return void
+     */
+    public static function destroy_booking_answers($optionid) {
+        $instance = self::get_instance();
+
+        if (isset($instance->bookinganswers[$optionid])) {
+            unset($instance->bookinganswers[$optionid]);
+            return true;
+        } else {
+            return false;
         }
     }
 

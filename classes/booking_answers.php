@@ -63,6 +63,8 @@ class booking_answers {
 
     /**
      * Constructor for the booking answers class.
+     * The booking answers class is instantiated for all users alike.
+     * But it returns information for the individual users.
      *
      * STATUSPARAM_BOOKED (0) ... user has booked the option
      * STATUSPARAM_WAITINGLIST (1) ... user is on the waiting list
@@ -73,13 +75,9 @@ class booking_answers {
      * @param int $optionid Booking option id.
      * @throws dml_exception
      */
-    public function __construct(booking_option_settings $bookingoptionsettings, int $userid = 0) {
+    public function __construct(booking_option_settings $bookingoptionsettings) {
 
-        global $DB, $USER, $CFG;
-
-        if ($userid == 0) {
-            $userid = $USER->id;
-        }
+        global $DB, $CFG;
 
         $optionid = $bookingoptionsettings->id;
         $this->optionid = $optionid;
@@ -127,24 +125,7 @@ class booking_answers {
 
             $this->answers = $answers;
 
-            // These are the values we are interested in.
-            $imbooked = 0;
-            $onwaitinglist = 0;
-            $completed = 0;
-
             foreach ($answers as $answer) {
-                if ($answer->userid == $userid) {
-                    // The following two options are mutually exclusive.
-                    if ($answer->waitinglist == 0) {
-                        ++$imbooked;
-                    } else if ($answer->waitinglist == 1) {
-                        ++$onwaitinglist;
-                    }
-                    // Completion is independed from the other states.
-                    if (isset($answer->completed) && $answer->completed == 1) {
-                        ++$completed;
-                    }
-                }
 
                 // A user might have one or more 'deleted' entries, but else, there should be only one.
                 if ($answer->waitinglist != STATUSPARAM_DELETED) {
@@ -204,13 +185,7 @@ class booking_answers {
      * @param int $userid
      * @return int const STATUSPARAM_* for booking status.
      */
-    public function user_status($userid = null) {
-
-        global $USER;
-
-        if (is_null($userid)) {
-            $userid = $USER->id;
-        }
+    public function user_status(int $userid) {
 
         if (isset($this->users[$userid])) {
             return $this->users[$userid]->waitinglist; // The waitinglist key holds all the different status.
@@ -225,11 +200,7 @@ class booking_answers {
      * @param int $userid
      * @return int status 0 = activity not completed, 1 = activity completed
      */
-    public function is_activity_completed($userid = null) {
-        global $DB, $USER;
-        if (is_null($userid)) {
-            $userid = $USER->id;
-        }
+    public function is_activity_completed(int $userid) {
 
         if (isset($this->users[$userid])
             && isset($this->users[$userid]->completed)
@@ -251,16 +222,10 @@ class booking_answers {
      * - booked
      * - onwaitinglist
      *
-     * @param integer|null $userid
+     * @param integer $userid
      * @return array
      */
-    public function return_all_booking_information(int $userid = null) {
-
-        global $USER;
-
-        if ($userid == null) {
-            $userid = $USER->id;
-        }
+    public function return_all_booking_information(int $userid) {
 
         $returnarray = [];
 
