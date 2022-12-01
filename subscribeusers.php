@@ -27,6 +27,7 @@ use core\output\notification;
 use mod_booking\booking_utils;
 use mod_booking\booking_option;
 use mod_booking\form\subscribe_cohort_or_group_form;
+use mod_booking\singleton_service;
 
 global $CFG, $DB, $COURSE, $PAGE, $OUTPUT;
 
@@ -47,7 +48,9 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
 
-$bookingoption = new \mod_booking\booking_option($id, $optionid);
+$bookingoption = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
+$optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
 $url = new moodle_url('/mod/booking/subscribeusers.php', array('id' => $id, 'optionid' => $optionid, 'agree' => $agree));
 $errorurl = new moodle_url('/mod/booking/view.php', array('id' => $id));
 
@@ -156,7 +159,8 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
     }
 }
 echo $OUTPUT->header();
-echo $OUTPUT->heading(format_string($bookingoption->option->text), 3, 'helptitle', 'uniqueid');
+
+echo $OUTPUT->heading(format_string($optionsettings->get_title_with_prefix()), 3, 'helptitle', 'uniqueid');
 
 echo html_writer::tag('div',
         html_writer::link(
