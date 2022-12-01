@@ -323,12 +323,33 @@ class message_controller {
             $params->sessiondescription = get_rendered_eventdescription($this->optionid, $this->cmid, DESCRIPTION_CALENDAR);
 
         } else {
-
             // Render optiontimes using a template.
             $output = $PAGE->get_renderer('mod_booking');
             $data = new optiondates_only($this->optionsettings);
             $params->optiontimes = $output->render_optiondates_only($data);
+        }
 
+        // Add placeholders for additional user fields.
+        if (isset($this->user->username)) {
+            $params->username = $this->user->username;
+        }
+        if (isset($this->user->firstname)) {
+            $params->firstname = $this->user->firstname;
+        }
+        if (isset($this->user->lastname)) {
+            $params->lastname = $this->user->lastname;
+        }
+        if (isset($this->user->department)) {
+            $params->department = $this->user->department;
+        }
+        if (isset($this->user->address)) {
+            $params->address = $this->user->address;
+        }
+        if (isset($this->user->city)) {
+            $params->city = $this->user->city;
+        }
+        if (isset($this->user->country)) {
+            $params->country = $this->user->country;
         }
 
         // Add user profile fields to e-mail params.
