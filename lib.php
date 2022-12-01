@@ -2597,6 +2597,29 @@ function booking_generate_email_params(stdClass $booking, stdClass $option, stdC
     ));
     $params->gotobookingoption = html_writer::link($gotobookingoptionlink, $gotobookingoptionlink->out());
 
+    // Add placeholders for additional user fields.
+    if (isset($user->username)) {
+        $params->username = $user->username;
+    }
+    if (isset($user->firstname)) {
+        $params->firstname = $user->firstname;
+    }
+    if (isset($user->lastname)) {
+        $params->lastname = $user->lastname;
+    }
+    if (isset($user->department)) {
+        $params->department = $user->department;
+    }
+    if (isset($user->address)) {
+        $params->address = $user->address;
+    }
+    if (isset($user->city)) {
+        $params->city = $user->city;
+    }
+    if (isset($user->country)) {
+        $params->country = $user->country;
+    }
+
     // Add user profile fields to e-mail params.
     // If user profile fields are missing, we need to load them correctly.
     if (empty($user->profile)) {
