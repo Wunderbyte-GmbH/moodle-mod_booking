@@ -99,12 +99,13 @@ class booking_answers {
                 $userfields = \user_picture::fields('u');
             }
 
-            // $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated, $userfields, u.institution
-            // FROM {booking_answers} ba
-            // JOIN {user} u ON u.id = ba.userid
-            // WHERE ba.optionid = :optionid
-            // AND u.deleted = 0
-            // ORDER BY ba.timecreated ASC";
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated, $userfields, u.institution
+            FROM {booking_answers} ba
+            JOIN {user} u ON u.id = ba.userid
+            WHERE ba.optionid = :optionid
+            AND u.deleted = 0
+            ORDER BY ba.timecreated ASC"; */
 
             $sql = "SELECT ba.id as baid, ba.userid as id, ba.userid, ba.waitinglist, ba.timecreated
             FROM {booking_answers} ba

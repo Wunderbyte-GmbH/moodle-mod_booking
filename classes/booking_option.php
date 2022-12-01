@@ -957,7 +957,7 @@ class booking_option {
             $waitinglist = STATUSPARAM_RESERVED;
         }
 
-        // Only if paxperuser is set, the part after the OR is executed.
+        // Only if maxperuser is set, the part after the OR is executed.
         $underlimit = ($this->booking->settings->maxperuser == 0);
         $underlimit = $underlimit ||
                 (($this->booking->get_user_booking_count($user) - $substractfromlimit) < $this->booking->settings->maxperuser);
