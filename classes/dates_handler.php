@@ -388,7 +388,7 @@ class dates_handler {
                 $date->endtimestamp = $session->courseendtime;
 
                 // If dates are on the same day, then show date only once.
-                $date->string = self::prettify_optiondates_start_end($date->starttimestamp,
+                $date->string = self::prettify_datetime($date->starttimestamp,
                     $date->endtimestamp, current_language());
 
                 $datearray[] = $date;
