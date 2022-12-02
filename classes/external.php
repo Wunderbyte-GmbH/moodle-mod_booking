@@ -29,6 +29,7 @@ use external_function_parameters;
 use external_value;
 use external_single_structure;
 use external_warnings;
+use mod_booking\output\bookingoption_description;
 use mod_booking\utils\webservice_import;
 use stdClass;
 
@@ -585,8 +586,7 @@ class external extends external_api {
         // Check if user is booked.
         $forbookeduser = $bookinganswer->user_status($userid) == 1 ? true : false;
 
-        $data = new \mod_booking\output\bookingoption_description($booking, $optionid,
-                null, DESCRIPTION_WEBSITE, true, $forbookeduser, $user);
+        $data = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, $forbookeduser, $user);
 
         // Fix invisible attribute, by converting to boolean.
         if (isset($data->invisible) && $data->invisible == 1) {

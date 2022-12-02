@@ -29,6 +29,7 @@ use mod_booking\booking_settings;
 use mod_booking\booking_option_settings;
 use mod_booking\output\optiondates_only;
 use mod_booking\output\bookingoption_changes;
+use mod_booking\output\bookingoption_description;
 
 require_once($CFG->dirroot.'/user/profile/lib.php');
 
@@ -99,8 +100,8 @@ class message_controller {
     /** @var string $custommessage for custom messages */
     private $custommessage;
 
-    /** @var int $scheduledtime unix timestamp of when to execute the adhoc task */
-    private $scheduledtime;
+    /** @var renderer_base $output*/
+    private $output;
 
     /**
      * Constructor
@@ -117,7 +118,7 @@ class message_controller {
      */
     public function __construct(int $msgcontrparam, int $messageparam, int $cmid, int $bookingid = null,
         int $optionid, int $userid, int $optiondateid = null, $changes = null,
-        string $customsubject = '', string $custommessage = '', int $scheduledtime = null) {
+        string $customsubject = '', string $custommessage = '') {
 
         global $DB, $USER, $PAGE;
 
@@ -138,6 +139,7 @@ class message_controller {
         // Settings.
         $this->bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
         $this->optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $this->output = $PAGE->get_renderer('mod_booking');
 
         if (empty($this->optionsettings->id)) {
             debugging('ERROR: Option settings could not be created. Most probably, the option was deleted from DB.',
@@ -279,8 +281,7 @@ class message_controller {
         // If there are changes, let's render them.
         if (!empty($this->changes)) {
             $data = new bookingoption_changes($this->changes, $this->cmid);
-            $output = $PAGE->get_renderer('mod_booking');
-            $params->changes = $output->render_bookingoption_changes($data);
+            $params->changes = $this->output->render_bookingoption_changes($data);
         }
 
         switch ($this->msgcontrparam) {
@@ -315,18 +316,16 @@ class message_controller {
             }
 
             // Render optiontimes using a template.
-            $output = $PAGE->get_renderer('mod_booking');
             $data = new optiondates_only($this->optionsettings);
-            $params->optiontimes = $output->render_optiondates_only($data);
+            $params->dates = $this->output->render_optiondates_only($data);
 
             // Rendered session description.
             $params->sessiondescription = get_rendered_eventdescription($this->optionid, $this->cmid, DESCRIPTION_CALENDAR);
 
         } else {
             // Render optiontimes using a template.
-            $output = $PAGE->get_renderer('mod_booking');
             $data = new optiondates_only($this->optionsettings);
-            $params->optiontimes = $output->render_optiondates_only($data);
+            $params->dates = $this->output->render_optiondates_only($data);
         }
 
         // Add placeholders for additional user fields.
@@ -350,6 +349,22 @@ class message_controller {
         }
         if (isset($this->user->country)) {
             $params->country = $this->user->country;
+        }
+
+        // Get bookingoption_description instance for rendering certain data.
+        $params->teachers = $this->optionsettings->render_list_of_teachers();
+
+        // Params for individual teachers.
+        $i = 1;
+        foreach ($this->optionsettings->teachers as $teacher) {
+            $params->{"teacher" . $i} = $teacher->firstname . ' ' . $teacher->lastname;
+            $i++;
+        }
+        // If there's only one teacher, we can use either {teacher} or {teacher1}.
+        if (!empty($params->teacher1)) {
+            $params->teacher = $params->teacher1;
+        } else {
+            $params->teacher = '';
         }
 
         // Add user profile fields to e-mail params.

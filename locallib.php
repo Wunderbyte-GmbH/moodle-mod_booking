@@ -20,6 +20,7 @@ use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_utils;
 use mod_booking\event\bookingoptiondate_created;
+use mod_booking\output\bookingoption_description;
 use mod_booking\singleton_service;
 
 global $CFG;
@@ -401,7 +402,7 @@ function get_rendered_eventdescription(int $optionid, int $cmid,
 
     $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
-    $data = new \mod_booking\output\bookingoption_description($booking, $optionid, null, $descriptionparam, true, $forbookeduser);
+    $data = new bookingoption_description($optionid, null, $descriptionparam, true, $forbookeduser);
     $output = $PAGE->get_renderer('mod_booking');
 
     if ($descriptionparam == DESCRIPTION_ICAL) {

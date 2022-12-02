@@ -22,6 +22,7 @@
  */
 
 use mod_booking\booking_option;
+use mod_booking\output\bookingoption_description;
 use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
@@ -69,8 +70,7 @@ if ($settings = singleton_service::get_instance_of_booking_option_settings($opti
     // This needs to be fixed.
 
     $output = $PAGE->get_renderer('mod_booking');
-    $data = new \mod_booking\output\bookingoption_description($booking, $settings->id,
-                null, DESCRIPTION_OPTIONVIEW, true, null, $user);
+    $data = new bookingoption_description($settings->id, null, DESCRIPTION_OPTIONVIEW, true, null, $user);
 
     if (isset($data->invisible) && $data->invisible == 1) {
         // If the user does have the capability to see invisible options...

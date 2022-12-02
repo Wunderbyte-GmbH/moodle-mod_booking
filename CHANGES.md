@@ -728,7 +728,7 @@
 * CSV importer now imports optiondates (multisession) & customfields for multisessions
 * Show cancel button below booked button.
 * Modal is showing the info if a user is already booked or on the waiting list for an option.
-* When there are no multisessions defined, the {times} parameter for notification e-mails will use the
+* When there are no multisessions defined, the {dates} parameter for notification e-mails will use the
   single date defined within the booking option.
 * Added new fields to backup.
 * Show button redirecting to the booking option at upper right of the calendar modal.

@@ -127,13 +127,12 @@ class bookingoption_description implements renderable, templatable {
 
     /**
      * Constructor.
-     * @param $booking
      * @param int $optionid
      * @param null $bookingevent
      * @param int $descriptionparam
      * @param bool $withcustomfields
      */
-    public function __construct($booking,
+    public function __construct(
             int $optionid,
             $bookingevent = null,
             int $descriptionparam = DESCRIPTION_WEBSITE, // Default.
@@ -143,16 +142,16 @@ class bookingoption_description implements renderable, templatable {
 
         global $CFG, $PAGE, $USER;
 
-        $this->cmid = $booking->cm->id;
-
         // Performance: Last param is set to true so users won't be retrieved from DB.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
         // $bookingoption = new booking_option($booking->cm->id, $optionid, [], 0, 0, true);
 
         // Booking answers class uses caching.
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = $settings->cmid;
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
         $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
-        $bookingoption = singleton_service::get_instance_of_booking_option($this->cmid, $optionid);
+        $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
 
         if ($user === null) {
             $user = $USER;
@@ -226,7 +225,7 @@ class bookingoption_description implements renderable, templatable {
         // When we call this via webservice, we don't have a context, this throws an error.
         // It's no use passing the context object either.
         if (!isset($PAGE->context)) {
-            $PAGE->set_context(context_module::instance($this->cmid));
+            $PAGE->set_context(context_module::instance($cmid));
         }
         $this->description = format_text($settings->description, FORMAT_HTML);
 
@@ -277,7 +276,7 @@ class bookingoption_description implements renderable, templatable {
 
         $baseurl = $CFG->wwwroot;
         $moodleurl = new \moodle_url($baseurl . '/mod/booking/view.php', array(
-            'id' => $booking->cm->id,
+            'id' => $cmid,
             'optionid' => $settings->id,
             'action' => 'showonlyone',
             'whichview' => 'showonlyone'
@@ -286,7 +285,7 @@ class bookingoption_description implements renderable, templatable {
         switch ($descriptionparam) {
             case DESCRIPTION_WEBSITE:
                 // Only show "already booked" or "on waiting list" text in modal.
-                if ($booking->settings->showdescriptionmode == 0) {
+                if ($bookingsettings->showdescriptionmode == 0) {
                     if ($forbookeduser) {
                         // If it is for booked user, we show a short info text that the option is already booked.
                         $this->booknowbutton = get_string('infoalreadybooked', 'booking');
@@ -427,7 +426,7 @@ class bookingoption_description implements renderable, templatable {
             $returnarray['showdateslabel'] = 1;
         }
         if (count($this->teachers) > 0) {
-            $returnarray['showteachersslabel'] = 1;
+            $returnarray['showteacherslabel'] = 1;
         }
 
         return $returnarray;

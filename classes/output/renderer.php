@@ -409,6 +409,26 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /** Function to print list of teachers for mail placeholder {teachers}.
+     * @param array $data
+     * @return string
+     */
+    public function render_bookingoption_description_teachers(array $data) {
+        $o = $this->render_from_template('mod_booking/bookingoption_description_teachers', $data);
+        return $o;
+    }
+
+    /** Function to print list of option dates for mail placeholder {dates}.
+     * @param bookingoption_description $data
+     * @return string
+     */
+    public function render_bookingoption_description_dates(mod_booking\output\bookingoption_description $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/bookingoption_description_dates', $data);
+        return $o;
+    }
+
     /** Function to print booking option single view on optionview.php
      * @param bookingoption_description $data
      * @return string

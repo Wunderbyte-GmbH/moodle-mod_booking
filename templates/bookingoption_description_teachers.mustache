@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/bookingoption_description_mail
+    @template mod_booking/bookingoption_description_teachers
 
     Classes required for JS:
     * none
@@ -23,14 +23,13 @@
     Data attributes required for JS:
     * data-region
 }}
-
-<h4>{{#titleprefix}}{{.}} - {{/titleprefix}}{{title}}</h4>
-{{#location}}{{#str}} location, mod_booking {{/str}}: {{{.}}}<br>{{/location}}
-{{#institution}}{{#str}} institution, mod_booking {{/str}}: {{.}}<br>{{/institution}}
-{{#address}}{{#str}} address, mod_booking {{/str}}:  {{.}}<br>{{/address}}
-{{#statusdescription}}<p>{{{.}}}</p>{{/statusdescription}}
-{{#description}}<p>{{{.}}}</p>{{/description}}
-{{> mod_booking/bookingoption_description_teachers }}
-{{> mod_booking/bookingoption_description_optiondates }}
-<br>
-{{#booknowbutton}}{{{.}}}{{/booknowbutton}}
+<div {{^teachers}} style="display:none"{{/teachers}}>
+    <b>{{#str}} teachers, mod_booking {{/str}}:</b>
+    <ul>
+        {{#teachers}}
+            <li>
+                {{.}}
+            </li>
+        {{/teachers}}
+    </ul>
+</div>

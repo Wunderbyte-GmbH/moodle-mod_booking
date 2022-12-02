@@ -289,8 +289,7 @@ class all_options extends table_sql {
 
         $forbookeduser = $values->iambooked == 1 ? true : false;
 
-        $data = new bookingoption_description($this->booking, $values->id,
-            null, DESCRIPTION_WEBSITE, true, $forbookeduser);
+        $data = new bookingoption_description($values->id, null, DESCRIPTION_WEBSITE, true, $forbookeduser);
 
         $data->invisible = false;
         if (!empty($values->invisible) && $values->invisible == 1) {
