@@ -101,6 +101,9 @@ class subbooking_blocks implements bo_condition {
      * (when displaying all information about the activity) and 'student' cases
      * (when displaying only conditions they don't meet).
      *
+     * This condition is used to block from booking, but also to offer an interface...
+     * ... for users to book something else, the subbookings.
+     *
      * @param bool $full Set true if this is the 'full information' view
      * @param booking_option_settings $settings Item we're checking
      * @param int $userid User ID to check availability for
@@ -118,8 +121,14 @@ class subbooking_blocks implements bo_condition {
             $description = $full ? get_string('bo_cond_isbookable_full_available', 'mod_booking') :
                 get_string('bo_cond_isbookable_available', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_isbookable_full_not_available', 'mod_booking') :
-                get_string('bo_cond_isbookable_not_available', 'mod_booking');
+
+            // If we have one or more subbookings, we render the interface here.
+            foreach ($settings->subbookings as $subbooking) {
+
+                // These are already instantiated subbookings, we can call the function right away.
+                $description .= $subbooking->render_interface($settings);
+            }
+
         }
 
         return [$isavailable, $description];
