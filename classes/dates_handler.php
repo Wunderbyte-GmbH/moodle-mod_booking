@@ -735,11 +735,11 @@ class dates_handler {
 
                 // }
                 if ($returnsession) {
-                    $returnitem[] = $returnsession;
+                    $returnarray[] = $returnsession;
                 }
             }
         } else {
-            $returnitem[] = [
+            $returnarray[] = [
                     'datestring' => self::prettify_optiondates_start_end(
                             $settings->coursestarttime,
                             $settings->courseendtime,
@@ -747,7 +747,7 @@ class dates_handler {
             ];
         }
 
-        return $returnitem;
+        return $returnarray;
     }
 
     /**
