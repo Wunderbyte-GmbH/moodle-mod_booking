@@ -940,7 +940,7 @@ class booking_option {
         global $DB;
 
         if (empty($this->option)) {
-            echo "<br>Didn't find option to subscribe user $user->username <br>";
+            echo "<br>Didn't find option to subscribe user $user->id <br>";
             return false;
         }
 
@@ -948,10 +948,10 @@ class booking_option {
         // False means, that it can't be booked.
         // 0 means, that we can book right away
         // 1 means, that there is only a place on the waiting list.
-        $waitinglist = $this->check_if_limit();
+        $waitinglist = $this->check_if_limit($user->id);
 
         if ($waitinglist === false) {
-            echo "Couldn't subscribe user $user->username because of full waitinglist <br>";
+            echo "Couldn't subscribe user $user->id because of full waitinglist <br>";
             return false;
         } else if ($addedtocart) {
             $waitinglist = STATUSPARAM_RESERVED;
@@ -962,7 +962,7 @@ class booking_option {
         $underlimit = $underlimit ||
                 (($this->booking->get_user_booking_count($user) - $substractfromlimit) < $this->booking->settings->maxperuser);
         if (!$underlimit) {
-            mtrace("Couldn't subscribe user $user->username because of maxperuser setting <br>");
+            mtrace("Couldn't subscribe user $user->id because of maxperuser setting <br>");
             return false;
         }
 
@@ -1606,13 +1606,14 @@ class booking_option {
     /**
      * Check if user can enrol
      *
+     * @param integer $userid
      * @return mixed false if enrolement is not possible, 0 for can book, 1 for waitinglist and 2 for notification list.
      */
-    private function check_if_limit(int $userid = 0) {
+    private function check_if_limit(int $userid) {
         global $DB;
 
         $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
-        $bookinganswer = singleton_service::get_instance_of_booking_answers($bookingoptionsettings, $userid);
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($bookingoptionsettings);
 
         // We get the booking information of a specific user.
         $bookingstatus = $bookinganswer->return_all_booking_information($userid);
@@ -2191,55 +2192,38 @@ class booking_option {
         // Else, we check if there are sessions.
         // If not, we just use normal coursestart & endtime.
         if ($bookingevent) {
-            $sessions = [$bookingevent];
-        } else if ($this->settings->sessions) {
-            $sessions = $this->settings->sessions;
+            $data = dates_handler::prettify_datetime($bookingevent->coursestarttime, $bookingevent->courseendtime);
+            $data->id = $bookingevent->id;
+            $sessions = [$data];
         } else {
-
-            $session = new stdClass();
-            $session->id = 1;
-            $session->coursestarttime = $this->settings->coursestarttime;
-            $session->courseendtime = $this->settings->courseendtime;
-            $sessions = [$session];
+            $sessions = dates_handler::return_dates_with_strings($this->settings);
         }
-        $returnitem = [];
 
-        if (count($sessions) > 0) {
-            foreach ($sessions as $session) {
+        $returnarray = [];
 
-                $returnsession = [];
+        foreach ($sessions as $date) {
 
+            $returnsession = [
+                'datestring' => $date->datestring,
+            ];
+
+            // 0 in a date id means it comes form normal course start & endtime.
+            // Therefore, there can't be these customfields.
+            if ($withcustomfields && $date->id !== 0) {
                 // TODO: Can we cache this?
                 // Filter the matching customfields.
                 $fields = $DB->get_records('booking_customfields', array(
-                        'optionid' => $this->optionid,
-                        'optiondateid' => $session->id
-                ));
-
-                // We show this only if timevalues are not 0.
-                if ($session->coursestarttime != 0 && $session->courseendtime != 0) {
-                    $returnsession['datestring'] = dates_handler::prettify_optiondates_start_end($session->coursestarttime,
-                        $session->courseendtime, current_language());
-                    // Customfields can only be displayed in combination with timevalues.
-                    if ($withcustomfields) {
-                        $returnsession['customfields'] = $this->return_array_of_customfields($fields, $session->id,
-                            $descriptionparam, $forbookeduser);
-                    }
-                }
-                if ($returnsession) {
-                    $returnitem[] = $returnsession;
-                }
+                    'optionid' => $this->optionid,
+                    'optiondateid' => $date->id));
+                $returnsession['customfields'] = $this->return_array_of_customfields($fields, $date->id,
+                    $descriptionparam, $forbookeduser);
             }
-        } else {
-            $returnitem[] = [
-                    'datestring' => dates_handler::prettify_optiondates_start_end(
-                            $this->settings->coursestarttime,
-                            $this->settings->courseendtime,
-                            current_language())
-            ];
+
+            $returnarray[] = $returnsession;
+
         }
 
-        return $returnitem;
+        return $returnarray;
     }
 
     /**
@@ -2398,10 +2382,12 @@ class booking_option {
      */
     public function show_conference_link(int $sessionid = null): bool {
 
+        global $USER;
+
         // First check if user is really booked.
         $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
 
-        if ($bookinganswers->user_status() != STATUSPARAM_BOOKED) {
+        if ($bookinganswers->user_status($USER->id) != STATUSPARAM_BOOKED) {
                 return false;
         }
 

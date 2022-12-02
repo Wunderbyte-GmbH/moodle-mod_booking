@@ -271,7 +271,7 @@ class dates_handler {
             $date->dateid = 'newdate-' . $j;
             $j++;
 
-            $date->string = self::prettify_datetime($date->starttimestamp, $date->endtimestamp, current_language());
+            $date->string = self::prettify_optiondates_start_end($date->starttimestamp, $date->endtimestamp, current_language());
             $datearray['dates'][] = $date;
         }
         return $datearray;
@@ -380,7 +380,7 @@ class dates_handler {
                 $date->endtimestamp = $record->courseendtime;
 
                 // If dates are on the same day, then show date only once.
-                $date->string = self::prettify_datetime($date->starttimestamp,
+                $date->string = self::prettify_optiondates_start_end($date->starttimestamp,
                     $date->endtimestamp, current_language());
 
                 $datearray[] = $date;
@@ -404,52 +404,11 @@ class dates_handler {
     public static function prettify_optiondates_start_end(int $starttimestamp, int $endtimestamp,
         string $lang = 'en', bool $showweekdays = true): string {
 
-        $prettifiedstring = '';
+        $date = self::prettify_datetime($starttimestamp, $endtimestamp, $lang, $showweekdays);
 
-        // Only show weekdays, if they haven't been turned off.
-        if ($showweekdays) {
-            $weekdayformat = 'D, ';
-        } else {
-            $weekdayformat = '';
-        }
+        $prettifiedstring = $date->datestring;
 
-        switch($lang) {
-            case 'de':
-                $stringstartdate = date($weekdayformat . 'd.m.Y', $starttimestamp);
-                $stringenddate = date($weekdayformat . 'd.m.Y', $endtimestamp);
-                break;
-            case 'en':
-            default:
-                $stringstartdate = date($weekdayformat . 'Y-m-d', $starttimestamp);
-                $stringenddate = date($weekdayformat . 'Y-m-d', $endtimestamp);
-                break;
-        }
-
-        $stringstarttime = date('H:i', $starttimestamp);
-        $stringendtime = date('H:i', $endtimestamp);
-
-        if ($stringstartdate === $stringenddate) {
-            // If they are one the same day, show date only once.
-            $prettifiedstring = $stringstartdate . ' | ' . $stringstarttime . '-' . $stringendtime;
-        } else {
-            // Else show both dates.
-            $prettifiedstring = $stringstartdate . ' | ' . $stringstarttime . ' - ' . $stringenddate . ' | ' . $stringendtime;
-        }
-
-        // Little hack that is necessary because date does not support appropriate internationalization.
-        if ($showweekdays) {
-            if ($lang == 'de') {
-                // Note: If we want to support further languages, this should be moved to a separate function...
-                // ...and be implemented with switch.
-                $weekdaysenglishpatterns = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                $weekdaysreplacements = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-                for ($i = 0; $i < 7; $i++) {
-                    $prettifiedstring = str_replace($weekdaysenglishpatterns[$i], $weekdaysreplacements[$i], $prettifiedstring);
-                }
-            }
-        }
-
-        return $prettifiedstring;
+         return $prettifiedstring;
     }
 
     /**
@@ -781,7 +740,7 @@ class dates_handler {
             }
         } else {
             $returnitem[] = [
-                    'datestring' => self::prettify_datetime(
+                    'datestring' => self::prettify_optiondates_start_end(
                             $settings->coursestarttime,
                             $settings->courseendtime,
                             current_language())
@@ -896,18 +855,22 @@ class dates_handler {
 
             foreach ($settings->sessions as $session) {
 
-                $sessions[] = self::prettify_datetime($session->coursestarttime,
+                $data = self::prettify_datetime($session->coursestarttime,
                     $session->courseendtime,
                     $lang,
                     $showweekdays);
+                $data->id = $session->id;
+                $sessions[] = $data;
             }
         } else if (isset($settings->coursestarttime) && isset($settings->courseendtime)) {
             // If we don't have extra sessions, we take the normal coursestart & endtime.
 
-            $sessions[] = self::prettify_datetime($settings->coursestarttime,
+            $data = self::prettify_datetime($settings->coursestarttime,
                     $settings->courseendtime,
                     $lang,
                     $showweekdays);
+            $data->id = 0;
+            $sessions[] = $data;
         }
 
         return $sessions;
@@ -921,7 +884,7 @@ class dates_handler {
      * @param integer $endtime
      * @param string $lang
      * @param bool $showweekdays
-     * @return void
+     * @return stdClass
      */
     public static function prettify_datetime(int $starttime, int $endtime = 0, $lang = '', $showweekdays = false) {
 

@@ -27,7 +27,7 @@ namespace mod_booking\output;
 use mod_booking\booking;
 use mod_booking\booking_utils;
 use mod_booking\booking_option;
-use mod_booking\optiondates_handler;
+use mod_booking\dates_handler;
 use renderer_base;
 use renderable;
 use templatable;
@@ -196,7 +196,7 @@ class coursepage_available_options implements renderable, templatable {
             // First we look if there are sessions for this option id.
             foreach ($sessions as $session) {
                 if ($session->optionid == $record->id) {
-                    $datestring = optiondates_handler::prettify_optiondates_start_end($session->coursestarttime,
+                    $datestring = dates_handler::prettify_optiondates_start_end($session->coursestarttime,
                         $session->courseendtime, current_language());
                     $dates[] = ['datestring' => $datestring];
                 }
@@ -204,7 +204,7 @@ class coursepage_available_options implements renderable, templatable {
 
             // If there were no sessions to be found, we take the normal option string.
             if (count($dates) == 0) {
-                $datestring = optiondates_handler::prettify_optiondates_start_end($record->coursestarttime, $record->courseendtime,
+                $datestring = dates_handler::prettify_optiondates_start_end($record->coursestarttime, $record->courseendtime,
                     current_language());
                 $dates[] = ['datestring' => $datestring];
             }

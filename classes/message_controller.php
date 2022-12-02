@@ -316,7 +316,7 @@ class message_controller {
 
             // Render optiontimes using a template.
             $output = $PAGE->get_renderer('mod_booking');
-            $data = new optiondates_only($sessions);
+            $data = new optiondates_only($this->optionsettings);
             $params->optiontimes = $output->render_optiondates_only($data);
 
             // Rendered session description.
@@ -326,7 +326,7 @@ class message_controller {
 
             // Render optiontimes using a template.
             $output = $PAGE->get_renderer('mod_booking');
-            $data = new optiondates_only($this->optionsettings->sessions);
+            $data = new optiondates_only($this->optionsettings);
             $params->optiontimes = $output->render_optiondates_only($data);
 
         }
