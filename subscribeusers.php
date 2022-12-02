@@ -114,7 +114,8 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
                     if (!empty($notsubscribedusers)) {
                         foreach ($notsubscribedusers as $user) {
                             $result = $DB->get_records_sql(
-                                    'SELECT bo.text FROM {booking_answers} ba
+                                    'SELECT ba.id answerid, bo.text
+                                     FROM {booking_answers} ba
                                      LEFT JOIN {booking_options} bo ON bo.id = ba.optionid
                                      WHERE ba.userid = ?
                                      AND ba.bookingid = ?', array($user->id, $bookingoption->booking->id));
