@@ -1,3 +1,32 @@
+## Version 7.7.4 (2022120200)
+**New features:**
+* New feature: New placeholders from user profile:
+  username, firstname, lastname, department, address, city, country.
+
+**Improvements:**
+* Improvement: Fixed and renamed placeholders: {times} are now {dates},
+  introduced {teachers} for list of teachers, and fixed {teacher} and {teacherN}
+* Improvement: Introduced price areas to support subbookings in the future.
+* Improvement: several changes to optiondates handler.
+* Improvement: Add missing capability strings.
+* Improvement: Improve performance by more extensive use of caching.
+* Improvement: Better function for condition messages.
+* Improvement: Performance improvements in answers and option (user_submit_response)
+* Improvement: Reduce sql for performance. Booking_answers class has now no further
+  information about the users, apart from the id.
+* Improvement: Add resilience to booking_answers class
+* Improvement: Show titleprefix on "book other users" page.
+
+**Bugfixes:**
+* Bugfix: Fix a lot of little bug with booking rules.
+* Bugifx: Fixed a param in toggle_notify_user webservice.
+* Bugfix: Use correct message providers.
+* Bugfix: fixed call of rule->execute()
+* Bugfix: catch potential error on user deletion.
+* Bugfix: Add userid to check_if_limit function to fix caching problem with booking answers.
+* Bugfix: Small fix with user status function.
+* Bugfix: first column not unique.
+
 ## Version 7.7.3 (2022112300)
 **Improvements:**
 * Improvement: Correctly use availability conditions in optionview.php
