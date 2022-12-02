@@ -132,6 +132,7 @@ class subbookings_info {
         $subbooking = self::get_subbooking($record->type);
 
         $data->optionid = $record->optionid;
+        $data->subbooking_type = $record->type;
 
         // These function just add their bits to the object.
         $subbooking->set_defaults($data, $record);

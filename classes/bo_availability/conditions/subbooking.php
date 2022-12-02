@@ -101,6 +101,11 @@ class subbooking implements bo_condition {
      * (when displaying all information about the activity) and 'student' cases
      * (when displaying only conditions they don't meet).
      *
+     * Contrary to a normal availability condition, this subbooking condition is used...
+     * ... not to avoid booking, but to insert a step before.
+     * We want to give users the opportunity to choose additional items with their booking.
+     * The descripiton therefore returns an addional booking interface.
+     *
      * @param bool $full Set true if this is the 'full information' view
      * @param booking_option_settings $settings Item we're checking
      * @param int $userid User ID to check availability for
@@ -112,14 +117,21 @@ class subbooking implements bo_condition {
 
         $description = '';
 
+        // First we check if there are any subbookings present.
         $isavailable = $this->is_available($settings, $userid, $not);
 
         if ($isavailable) {
             $description = $full ? get_string('bo_cond_subbooking_full_available', 'mod_booking') :
                 get_string('bo_cond_subbooking_available', 'mod_booking');
         } else {
-            $description = $full ? get_string('bo_cond_subbooking_full_not_available', 'mod_booking') :
-                get_string('bo_cond_subbooking_not_available', 'mod_booking');
+
+            // If we have one or more subbookings, we render the interface here.
+
+            foreach ($settings->subbookings as $subbooking) {
+
+                // These are already instantiated subbookings, we can call the function right away.
+                $description .= $subbooking->render_interface($settings);
+            }
         }
 
         return [$isavailable, $description];

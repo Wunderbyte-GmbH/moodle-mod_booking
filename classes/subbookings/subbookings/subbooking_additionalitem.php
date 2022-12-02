@@ -17,7 +17,7 @@
 namespace mod_booking\subbookings\subbookings;
 
 use context_module;
-use mod_booking\singleton_service;
+use mod_booking\booking_option_settings;
 use mod_booking\subbookings\booking_subbooking;
 use MoodleQuickForm;
 use stdClass;
@@ -43,7 +43,7 @@ class subbooking_additionalitem implements booking_subbooking {
     public $optionid = 0;
 
     /** @var string $type type of subbooking as the name of this class */
-    protected $type = 'subbooking_additionalitem';
+    public $type = 'subbooking_additionalitem';
 
     /** @var string $name given name to this configured subbooking*/
     public $name = '';
@@ -232,5 +232,19 @@ class subbooking_additionalitem implements booking_subbooking {
             'mod_booking',
             'subbookings',
             $record->id);
+    }
+
+    /**
+     * Render interface for this subbooking type.
+     *
+     * @param booking_option_settings $settings
+     * @return string
+     */
+    public function render_interface(booking_option_settings $settings) {
+
+        // The interface of the timeslot booking should merge when there are multiple slot bookings.
+        // Therefore, we need to first find out how many of these are present.
+
+        return $this->type;
     }
 }

@@ -17,6 +17,9 @@
 namespace mod_booking\subbookings\subbookings;
 
 use local_entities\entitiesrelation_handler;
+use mod_booking\booking_option_settings;
+use mod_booking\output\optiondates_only;
+use mod_booking\output\subbooking_timeslot_output;
 use mod_booking\subbookings\booking_subbooking;
 use MoodleQuickForm;
 use stdClass;
@@ -42,7 +45,7 @@ class subbooking_timeslot implements booking_subbooking {
     public $optionid = 0;
 
     /** @var string $type type of subbooking as the name of this class */
-    protected $type = 'subbooking_timeslot';
+    public $type = 'subbooking_timeslot';
 
     /** @var string $name given name to this configured subbooking*/
     public $name = '';
@@ -171,9 +174,46 @@ class subbooking_timeslot implements booking_subbooking {
         $data->subbooking_type = $this->type;
 
         $jsonobject = json_decode($record->json);
-        $data = $jsonobject->data;
+        $jsondata = $jsonobject->data;
 
         $data->subbooking_name = $record->name;
-        $data->subbooking_timeslot_duration = $data->duration;
+        $data->subbooking_timeslot_duration = $jsondata->duration;
+
+        // This is to save entity relation data.
+        // The id key has to be set to option id.
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $erhandler = new entitiesrelation_handler('mod_booking', 'subbooking');
+            $erhandler->values_for_set_data($data, $record->id);
+        }
+    }
+
+    /**
+     * Render interface for this subbooking type.
+     *
+     * @param booking_option_settings $settings
+     * @return string
+     */
+    public function render_interface(booking_option_settings $settings) {
+
+        global $PAGE;
+
+        // The interface of the timeslot booking should merge when there are multiple slot bookings.
+        // Therefore, we need to first find out how many of these are present.
+        $arrayofmine = array_filter($settings->subbookings, function($x) {
+            return $x->type == $this->type;
+        });
+
+        // We only want to actually render anything when we are in the last item.
+        $lastitem = end($arrayofmine);
+        if ($lastitem !== $this) {
+            return '';
+        }
+
+        // Now that we render the last item, we need to render all of them, plus the container.
+        // We need to create the json for rendering.
+
+        $data = new subbooking_timeslot_output($settings);
+        $output = $PAGE->get_renderer('mod_booking');
+        return $output->render_sb_timeslot($data);
     }
 }

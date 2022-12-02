@@ -82,4 +82,11 @@ interface booking_subbooking {
      * @param string $json a json string for a booking subbooking
      */
     public function set_subbookingdata_from_json(string $json);
+
+    /**
+     * Render interface for this subbooking type.
+     * @param booking_option_settings $settings
+     * @return string
+     */
+    public function render_interface(booking_option_settings $settings);
 }
