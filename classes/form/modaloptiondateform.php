@@ -17,7 +17,7 @@
 namespace mod_booking\form;
 
 use html_writer;
-use mod_booking\optiondates_handler;
+use mod_booking\dates_handler;
 use stdClass;
 
 /**
@@ -133,7 +133,7 @@ class modaloptiondateform extends \core_form\dynamic_form {
                 $optiondate->endtimestamp = $data->optiondateend[$idx];
 
                 // If dates are on the same day, then show date only once.
-                $optiondate->string = optiondates_handler::prettify_optiondates_start_end($optiondate->starttimestamp,
+                $optiondate->string = dates_handler::prettify_optiondates_start_end($optiondate->starttimestamp,
                     $optiondate->endtimestamp, current_language());
 
                 $optiondatesarray[] = $optiondate;

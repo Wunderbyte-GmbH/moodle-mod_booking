@@ -22,7 +22,7 @@ global $CFG;
 require_once(__DIR__ . '/../../lib.php');
 require_once($CFG->libdir.'/tablelib.php');
 
-use mod_booking\optiondates_handler;
+use mod_booking\dates_handler;
 use table_sql;
 
 defined('MOODLE_INTERNAL') || die();
@@ -66,7 +66,7 @@ class teacher_performed_units_table extends table_sql {
      */
     public function col_optiondate(object $values): string {
 
-        return optiondates_handler::prettify_optiondates_start_end($values->coursestarttime,
+        return dates_handler::prettify_optiondates_start_end($values->coursestarttime,
             $values->courseendtime, current_language());
 
     }

@@ -29,7 +29,7 @@ use html_writer;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_option;
-use mod_booking\optiondates_handler;
+use mod_booking\dates_handler;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -216,7 +216,7 @@ class bookingoption_description implements renderable, templatable {
 
         // Set the number of educational units (calculated with dayofweektime string).
         if (!empty($settings->dayofweektime)) {
-            $this->unitstring = optiondates_handler::calculate_and_render_educational_units($settings->dayofweektime);
+            $this->unitstring = dates_handler::calculate_and_render_educational_units($settings->dayofweektime);
         }
 
         // We got the array of all the booking information.

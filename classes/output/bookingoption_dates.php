@@ -25,7 +25,7 @@
 
 namespace mod_booking\output;
 
-use mod_booking\optiondates_handler;
+use mod_booking\dates_handler;
 use renderer_base;
 use renderable;
 use templatable;
@@ -47,7 +47,7 @@ class bookingoption_dates implements renderable, templatable {
      */
     public function __construct(int $optionid) {
 
-        $this->dates = optiondates_handler::get_existing_optiondates($optionid);
+        $this->dates = dates_handler::get_existing_optiondates($optionid);
     }
 
     /**

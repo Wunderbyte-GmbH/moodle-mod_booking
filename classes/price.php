@@ -179,7 +179,7 @@ class price {
 
         if (!empty($fromform->dayofweektime)) {
             // We need the dayofweektime split up.
-            $dayinfo = optiondates_handler::prepare_day_info($fromform->dayofweektime);
+            $dayinfo = dates_handler::prepare_day_info($fromform->dayofweektime);
         }
 
         // We start with the baseprice.
@@ -258,7 +258,7 @@ class price {
 
         if (!empty($bookingoptionsettings->dayofweektime)) {
             // We need the dayofweektime split up.
-            $dayinfo = optiondates_handler::prepare_day_info($bookingoptionsettings->dayofweektime);
+            $dayinfo = dates_handler::prepare_day_info($bookingoptionsettings->dayofweektime);
         }
 
         // We start with the baseprice.

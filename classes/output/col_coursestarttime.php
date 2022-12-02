@@ -29,7 +29,7 @@ use moodle_exception;
 use renderer_base;
 use renderable;
 use templatable;
-use mod_booking\optiondates_handler;
+use mod_booking\dates_handler;
 use mod_booking\singleton_service;
 
 /**
@@ -61,7 +61,7 @@ class col_coursestarttime implements renderable, templatable {
         }
 
         $this->optionid = $optionid;
-        $this->datestrings = optiondates_handler::return_array_of_sessions_simple($optionid);
+        $this->datestrings = dates_handler::return_array_of_sessions_simple($optionid);
 
         // Show a collapse button for the dates.
         if (!empty($this->datestrings) && $collapsed == true) {

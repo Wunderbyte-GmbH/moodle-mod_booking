@@ -24,7 +24,7 @@ use mod_booking\customfield\booking_handler;
 use mod_booking\price;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\bo_info;
-use mod_booking\optiondates_handler;
+use mod_booking\dates_handler;
 
 global $DB, $OUTPUT, $PAGE, $USER;
 
@@ -161,7 +161,7 @@ if ($mform->is_cancelled()) {
             $fromform->limitanswers = 0;
         }
 
-        optiondates_handler::add_values_from_post_to_form($fromform);
+        dates_handler::add_values_from_post_to_form($fromform);
 
         // Save the additional JSON conditions (the ones which have been added to the mform).
         bo_info::save_json_conditions_from_form($fromform);

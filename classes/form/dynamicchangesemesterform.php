@@ -25,7 +25,7 @@ use context;
 use context_system;
 use core_form\dynamic_form;
 use html_writer;
-use mod_booking\optiondates_handler;
+use mod_booking\dates_handler;
 use mod_booking\semester;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -101,7 +101,7 @@ class dynamicchangesemesterform extends dynamic_form {
 
         $data = $this->get_data();
 
-        optiondates_handler::change_semester($data->cmid, $data->choosesemester);
+        dates_handler::change_semester($data->cmid, $data->choosesemester);
 
         return $data;
     }

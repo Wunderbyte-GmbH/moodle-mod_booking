@@ -25,7 +25,7 @@ use context;
 use context_module;
 use core_form\dynamic_form;
 use moodle_url;
-use mod_booking\optiondates_handler;
+use mod_booking\dates_handler;
 use stdClass;
 
 /**
@@ -63,7 +63,7 @@ class dynamicoptiondateform extends dynamic_form {
             $loadexistingdates = true;
         }
 
-        $optiondateshandler = new optiondates_handler($optionid, $bookingid);
+        $optiondateshandler = new dates_handler($optionid, $bookingid);
         $optiondateshandler->add_optiondates_for_semesters_to_mform($mform, $loadexistingdates);
 
         // Add submit button to create optiondate series. (Use $this, not $mform for add_action_buttons).
@@ -101,11 +101,11 @@ class dynamicoptiondateform extends dynamic_form {
         }
 
         // Only submit if we have a correct string.
-        if (!optiondates_handler::reoccurring_datestring_is_correct($data->reoccurringdatestring)) {
+        if (!dates_handler::reoccurring_datestring_is_correct($data->reoccurringdatestring)) {
             return false;
         }
 
-        $optiondateshandler = new optiondates_handler();
+        $optiondateshandler = new dates_handler();
         $dates = $optiondateshandler->get_optiondate_series($data->chooseperiod, $data->reoccurringdatestring);
 
         $dates['cmid'] = $this->_ajaxformdata['cmid'];
@@ -174,7 +174,7 @@ class dynamicoptiondateform extends dynamic_form {
         $errors = array();
 
         // Check if the string is valid.
-        if (!optiondates_handler::reoccurring_datestring_is_correct($data['reoccurringdatestring'])) {
+        if (!dates_handler::reoccurring_datestring_is_correct($data['reoccurringdatestring'])) {
             $errors['reoccurringdatestring'] = get_string('reoccurringdatestringerror', 'mod_booking');
         }
 

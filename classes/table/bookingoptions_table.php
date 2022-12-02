@@ -29,7 +29,7 @@ use mod_booking\booking;
 use mod_booking\booking_answers;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
-use mod_booking\optiondates_handler;
+use mod_booking\dates_handler;
 use mod_booking\output\col_action;
 use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_price;
@@ -257,7 +257,7 @@ class bookingoptions_table extends wunderbyte_table {
 
         $units = null;
         if (!empty($settings->dayofweektime)) {
-            $units = optiondates_handler::calculate_and_render_educational_units($settings->dayofweektime);
+            $units = dates_handler::calculate_and_render_educational_units($settings->dayofweektime);
         }
 
         if (!empty($settings->dayofweektime)) {

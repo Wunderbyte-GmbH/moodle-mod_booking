@@ -886,7 +886,7 @@ class option_form extends \moodleform {
      * @return void
      */
     private static function order_all_dates_to_book_in_form(stdClass &$fromform) {
-        optiondates_handler::add_values_from_post_to_form($fromform);
+        dates_handler::add_values_from_post_to_form($fromform);
 
         // For the form validation, we need to pass the values to book in a special form.
         // We only need those timestamps which are new.

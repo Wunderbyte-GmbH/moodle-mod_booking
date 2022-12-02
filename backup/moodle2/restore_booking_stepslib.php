@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\optiondates_handler;
+use mod_booking\dates_handler;
 
 /**
  * Structure step to restore one booking activity
@@ -291,7 +291,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $DB->insert_record('booking_teachers', $data);
 
         // When inserting a new teacher, we also need to insert the teacher for each optiondate.
-        optiondates_handler::subscribe_teacher_to_all_optiondates($data->optionid, $data->userid);
+        dates_handler::subscribe_teacher_to_all_optiondates($data->optionid, $data->userid);
 
         // No need to save this mapping as far as nothing depends on it.
     }

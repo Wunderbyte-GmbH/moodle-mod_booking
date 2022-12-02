@@ -30,16 +30,14 @@ use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
-use function PHPUnit\Framework\isEmpty;
-
 /**
- * Control and manage option dates.
+ * Control and manage booking dates.
  *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Thomas Winkler, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class optiondates_handler {
+class dates_handler {
 
     /** @var int $optionid */
     public $optionid = 0;
@@ -273,7 +271,7 @@ class optiondates_handler {
             $date->dateid = 'newdate-' . $j;
             $j++;
 
-            $date->string = self::prettify_optiondates_start_end($date->starttimestamp, $date->endtimestamp, current_language());
+            $date->string = self::prettify_datetime($date->starttimestamp, $date->endtimestamp, current_language());
             $datearray['dates'][] = $date;
         }
         return $datearray;
@@ -371,18 +369,18 @@ class optiondates_handler {
     public static function get_existing_optiondates(int $optionid): array {
         global $DB;
 
-        $records = $DB->get_records('booking_optiondates', ['optionid' => $optionid]);
+        $records = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        if (count($records) > 0) {
+        if (count($records->settings) > 0) {
 
-            foreach ($records as $record) {
+            foreach ($records->settings as $record) {
                 $date = new stdClass();
                 $date->dateid = 'dateid-' . $record->id;
                 $date->starttimestamp = $record->coursestarttime;
                 $date->endtimestamp = $record->courseendtime;
 
                 // If dates are on the same day, then show date only once.
-                $date->string = self::prettify_optiondates_start_end($date->starttimestamp,
+                $date->string = self::prettify_datetime($date->starttimestamp,
                     $date->endtimestamp, current_language());
 
                 $datearray[] = $date;
@@ -534,7 +532,7 @@ class optiondates_handler {
      */
     public static function change_semester($cmid, $semesterid) {
 
-        global $DB, $PAGE;
+        global $DB;
         // First we delete all optiondates on this instance.
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -749,28 +747,22 @@ class optiondates_handler {
      * It will return only one item containing course start and endtime if no optiondates exist.
      *
      * @param int $optionid
-     * @return array an array of optiondates objects
+     * @return array array of optiondates objects
      * @throws \dml_exception
      */
     public static function return_array_of_sessions_simple(int $optionid) {
 
         global $DB;
 
-        if (!$option = $DB->get_record('booking_options', ['id' => $optionid], 'id, coursestarttime, courseendtime')) {
-            return [];
-        }
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        // Get all currently existing optiondates of the option.
-        if (!$sessions = $DB->get_records('booking_optiondates', ['optionid' => $optionid], '',
-            'id, coursestarttime, courseendtime')) {
-            $session = new stdClass();
-            $session->id = 1;
-            $session->coursestarttime = $option->coursestarttime;
-            $session->courseendtime = $option->courseendtime;
-            $sessions = [$session];
-        }
+        $sessions = self::return_dates_with_strings($settings);
 
-        $returnitem = [];
+        $returnarray = [];
+
+        foreach ($sessions as $session) {
+            $returnarray[] = ['datestring' => $session->datestring];
+        }
 
         if (count($sessions) > 0) {
             foreach ($sessions as $session) {
@@ -778,21 +770,20 @@ class optiondates_handler {
                 $returnsession = [];
 
                 // We show this only if timevalues are not 0.
-                if ($session->coursestarttime != 0 && $session->courseendtime != 0) {
+                // if ($session->coursestarttime != 0 && $session->courseendtime != 0) {
                     /* Important: Last param needs to be false, as the weekdays conversion can cause
                     problems ("Allowed memory size exhausted...")if too many options are loaded. */
-                    $returnsession['datestring'] = self::prettify_optiondates_start_end($session->coursestarttime,
-                        $session->courseendtime, current_language());
-                }
+
+                // }
                 if ($returnsession) {
                     $returnitem[] = $returnsession;
                 }
             }
         } else {
             $returnitem[] = [
-                    'datestring' => self::prettify_optiondates_start_end(
-                            $option->coursestarttime,
-                            $option->courseendtime,
+                    'datestring' => self::prettify_datetime(
+                            $settings->coursestarttime,
+                            $settings->courseendtime,
                             current_language())
             ];
         }
@@ -881,4 +872,113 @@ class optiondates_handler {
             $fromform->dayofweektime = $_POST['dayofweektime'];
         }
     }
+
+    /**
+     * This function returns an array of stdClasses for an option.
+     * The objects hold the keys startdate, enddate (as timestamps).
+     * Plust startdatestring, enddatestring as readable and localized strings.
+     * If there are no optiondates (sessions) we return start & enddate of the option.
+     *
+     * @param booking_option_settings $settings
+     * @param string $lang
+     * @param boolean $showweekdays
+     * @return array
+     */
+    public static function return_dates_with_strings(booking_option_settings $settings, string $lang = '', bool $showweekdays = false) {
+
+        $sessions = [];
+
+        if (!empty($settings->sessions)) {
+            // If there only is one session, it could be that it's the course start and end time.
+            // So check, if it's expanding over more than one day and format accordingly.
+
+            $formattedsession = new stdClass;
+
+            foreach ($settings->sessions as $session) {
+
+                $sessions[] = self::prettify_datetime($session->coursestarttime,
+                    $session->courseendtime,
+                    $lang,
+                    $showweekdays);
+            }
+        } else if (isset($settings->coursestarttime) && isset($settings->courseendtime)) {
+            // If we don't have extra sessions, we take the normal coursestart & endtime.
+
+            $sessions[] = self::prettify_datetime($settings->coursestarttime,
+                    $settings->courseendtime,
+                    $lang,
+                    $showweekdays);
+        }
+
+        return $sessions;
+
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param integer $starttime
+     * @param integer $endtime
+     * @param string $lang
+     * @param bool $showweekdays
+     * @return void
+     */
+    public static function prettify_datetime(int $starttime, int $endtime = 0, $lang = '', $showweekdays = false) {
+
+        if (empty($lang)) {
+            $lang = current_language();
+        }
+
+        $date = new stdClass();
+
+        // Time only.
+        $strftimetime = new lang_string('strftimetime', 'langconfig', null, $lang); // 10:30.
+
+        // Dates only.
+        $strftimedate = new lang_string('strftimedate', 'langconfig', null, $lang); // 3. February 2023.
+        $strftimedaydate = new lang_string('strftimedaydate', 'langconfig', null, $lang); // Friday, 3. February 2023".
+
+        // Times & Dates.
+        $strftimedatetime = new lang_string('strftimedatetime', 'langconfig', null, $lang); // 3. February 2023, 11:45.
+        $strftimedaydatetime = new lang_string('strftimedaydatetime', 'langconfig', null, $lang); // Friday, 3. February 2023, 11:45.
+
+        $date->starttimestamp = $starttime; // Unix timestamps.
+        $date->starttime = userdate($starttime, $strftimetime); // 10:30.
+
+        if (!empty($endtime)) {
+            $date->endtimestamp = $endtime; // Unix timestamps.
+            $date->endtime = userdate($endtime, $strftimetime); // 10:30.
+        }
+
+        if ($showweekdays) {
+            $date->startdate = userdate($endtime, $strftimedaydate); // Friday, 3. February 2023.
+            $date->startdatetime = userdate($starttime, $strftimedaydatetime); // Friday, 3. February 2023, 11:45.
+            $date->datestring = $date->startdatetime;
+
+            if (!empty($endtime)) {
+                $date->enddatetime = userdate($starttime, $strftimedaydatetime); // Friday, 3. February 2023, 12:45.
+                $date->enddate = userdate($endtime, $strftimedaydate); // Friday, 3. February 2023.
+                $date->datestring .= " - ";
+                $date->datestring .= $date->startdate != $date->enddate ?
+                    $date->enddatetime : // Friday, 3. February 2023, 11:45 - Saturday, 4. February 2023, 12:45.
+                    $date->endtime; // Friday, 3. February 2023, 11:45 - 12:45.
+            }
+
+        } else {
+            $date->startdate = userdate($endtime, $strftimedate); // 3. February 2023.
+            $date->datestring = userdate($starttime, $strftimedatetime); // 3. February 2023, 11:45.
+            $date->startdatetime = userdate($starttime, $strftimedatetime); // 3. February 2023, 11:45.
+
+            if (!empty($endtime)) {
+                $date->enddate = userdate($endtime, $strftimedate); // 3. February 2023.
+                $date->datestring .= " - ";
+                $date->datestring .= $date->startdate != $date->enddate ?
+                    $date->enddatetime : // 3. February 2023, 11:45 - 4. February 2023, 12:45.
+                    $date->endtime; // 3. February 2023, 11:45 - 12:45.
+            }
+        }
+
+        return $date;
+    }
+
 }

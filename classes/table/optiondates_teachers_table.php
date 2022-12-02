@@ -25,7 +25,7 @@ require_once($CFG->libdir.'/tablelib.php');
 use dml_exception;
 use html_writer;
 use mod_booking\booking_option;
-use mod_booking\optiondates_handler;
+use mod_booking\dates_handler;
 use moodle_url;
 use table_sql;
 
@@ -71,7 +71,7 @@ class optiondates_teachers_table extends table_sql {
      */
     public function col_optiondate(object $values): string {
 
-        return optiondates_handler::prettify_optiondates_start_end($values->coursestarttime,
+        return dates_handler::prettify_optiondates_start_end($values->coursestarttime,
             $values->courseendtime, current_language());
 
     }

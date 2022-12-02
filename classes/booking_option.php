@@ -1501,7 +1501,7 @@ class booking_option {
             $result = false;
         } else {
             // Also delete associated entries in booking_optiondates_teachers.
-            optiondates_handler::delete_booking_optiondates_teachers_by_optionid($this->optionid);
+            dates_handler::delete_booking_optiondates_teachers_by_optionid($this->optionid);
         }
 
         // Delete image files belonging to the option.
@@ -2218,7 +2218,7 @@ class booking_option {
 
                 // We show this only if timevalues are not 0.
                 if ($session->coursestarttime != 0 && $session->courseendtime != 0) {
-                    $returnsession['datestring'] = optiondates_handler::prettify_optiondates_start_end($session->coursestarttime,
+                    $returnsession['datestring'] = dates_handler::prettify_optiondates_start_end($session->coursestarttime,
                         $session->courseendtime, current_language());
                     // Customfields can only be displayed in combination with timevalues.
                     if ($withcustomfields) {
@@ -2232,7 +2232,7 @@ class booking_option {
             }
         } else {
             $returnitem[] = [
-                    'datestring' => optiondates_handler::prettify_optiondates_start_end(
+                    'datestring' => dates_handler::prettify_optiondates_start_end(
                             $this->settings->coursestarttime,
                             $this->settings->courseendtime,
                             current_language())
@@ -2515,7 +2515,7 @@ class booking_option {
 
         if (!$undo) {
             $record->status = 1;
-            list($date) = explode(' - ', optiondates_handler::prettify_optiondates_start_end($now, 0, current_language()));
+            list($date) = explode(' - ', dates_handler::prettify_optiondates_start_end($now, 0, current_language()));
             $userstring = "$USER->firstname $USER->lastname";
             $record->annotation .= " <br> " . $date;
             $record->annotation .= " <br> " . get_string('usergavereason', 'mod_booking', $userstring);

@@ -551,7 +551,7 @@ class booking {
                     $DB->insert_record('booking_teachers', $newteacher, false, false);
 
                     // When inserting a new teacher, we also need to insert the teacher for each optiondate.
-                    optiondates_handler::subscribe_teacher_to_all_optiondates($newteacher->optionid, $newteacher->userid);
+                    dates_handler::subscribe_teacher_to_all_optiondates($newteacher->optionid, $newteacher->userid);
 
                     $params = array(
                         'id' => $this->cm->id,

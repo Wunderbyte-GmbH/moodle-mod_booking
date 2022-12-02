@@ -30,7 +30,7 @@ use local_entities\entitiesrelation_handler;
 use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_utils;
-use mod_booking\optiondates_handler;
+use mod_booking\dates_handler;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\singleton_service;
@@ -682,13 +682,13 @@ function booking_update_options($optionvalues, $context) {
     }
 
     if (!empty($optionvalues->dayofweektime)) {
-        // Possible improvement: We could add the optiondates_handler::reoccurring_datestring_is_correct check here...
+        // Possible improvement: We could add the dates_handler::reoccurring_datestring_is_correct check here...
         // ...and only store if the string is correct, if this is needed.
         $option->dayofweektime = $optionvalues->dayofweektime;
 
         // This is only for sql filtering, but we need the weekday in an extra column.
 
-        $dayinfo = optiondates_handler::prepare_day_info($optionvalues->dayofweektime);
+        $dayinfo = dates_handler::prepare_day_info($optionvalues->dayofweektime);
         if (!empty($dayinfo['day'])) {
             $option->dayofweek = $dayinfo['day'];
         }
@@ -1080,7 +1080,7 @@ function booking_update_options($optionvalues, $context) {
         // Update start and end date of the option depending on the sessions.
         booking_updatestartenddate($option->id);
 
-        $optiondateshandler = new optiondates_handler($optionvalues->optionid, $optionvalues->bookingid);
+        $optiondateshandler = new dates_handler($optionvalues->optionid, $optionvalues->bookingid);
         if (!empty($optionvalues->newoptiondates) || !empty($optionvalues->stillexistingdates)) {
             // Save the optiondates.
             $optiondateshandler->save_from_form($optionvalues);
@@ -1186,7 +1186,7 @@ function booking_update_options($optionvalues, $context) {
         // Fixed: Also create optiondates for new options!
         if (!empty($optionvalues->newoptiondates) || !empty($optionvalues->stillexistingdates) && !empty($optionid)) {
             // Save the optiondates.
-            $optiondateshandler = new optiondates_handler($optionid, $optionvalues->bookingid);
+            $optiondateshandler = new dates_handler($optionid, $optionvalues->bookingid);
             $optiondateshandler->save_from_form($optionvalues);
         }
 
@@ -1272,7 +1272,7 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
             $optiondateid = $DB->insert_record('booking_optiondates', $optiondate);
 
             // Add teachers of the booking option to newly created optiondate.
-            optiondates_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
+            dates_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
 
             for ($j = 1; $j < 4; ++$j) {
                 $cfname = 'ms' . $i . 'cf' . $j . 'name';
@@ -2118,7 +2118,7 @@ function booking_delete_instance($id) {
     } else {
         // If optiondates are deleted we also have to delete the associated entries in booking_optiondates_teachers.
         // TODO: this should be moved into delete_booking_option.
-        optiondates_handler::delete_booking_optiondates_teachers_by_bookingid($booking->id);
+        dates_handler::delete_booking_optiondates_teachers_by_bookingid($booking->id);
     }
 
     // Delete any entity relations for the booking instance.
@@ -2304,7 +2304,7 @@ function subscribe_teacher_to_booking_option($userid, $optionid, $cm, $groupid =
     $inserted = $DB->insert_record("booking_teachers", $sub);
 
     // When inserting a new teacher, we also need to insert the teacher for each optiondate.
-    optiondates_handler::subscribe_teacher_to_all_optiondates($optionid, $userid);
+    dates_handler::subscribe_teacher_to_all_optiondates($optionid, $userid);
 
     if (!empty($groupid)) {
         groups_add_member($groupid, $userid);
@@ -2339,7 +2339,7 @@ function unsubscribe_teacher_from_booking_option($userid, $optionid, $cm) {
     $event->trigger();
 
     // Also delete the teacher from every optiondate.
-    optiondates_handler::remove_teacher_from_all_optiondates($optionid, $userid);
+    dates_handler::remove_teacher_from_all_optiondates($optionid, $userid);
 
     return ($DB->delete_records('booking_teachers',
             array('userid' => $userid, 'optionid' => $optionid)));
