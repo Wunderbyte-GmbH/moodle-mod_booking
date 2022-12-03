@@ -1314,9 +1314,9 @@ function booking_get_user_status($userid, $optionid, $bookingid, $cmid) {
     global $DB;
     $option = $DB->get_record('booking_options', array('id' => $optionid));
     $current = $DB->get_record('booking_answers',
-        array('bookingid' => $bookingid, 'userid' => $userid, 'optionid' => $optionid));
+        array('userid' => $userid, 'optionid' => $optionid));
     $allresponses = $DB->get_records_select('booking_answers',
-        "bookingid = $bookingid AND optionid = $optionid", array(), 'timemodified', 'userid');
+        "optionid = $optionid", array(), 'timemodified', 'userid');
 
     $context = context_module::instance($cmid);
     $sortedresponses = array();
@@ -2252,8 +2252,7 @@ function booking_check_statuschange($optionid, $booking, $cancelleduserid, $cmid
     if ($option->maxanswers == 0) {
         return false; // No limit on bookings => no waiting list to manage.
     }
-    $allresponses = $DB->get_records('booking_answers',
-            array('bookingid' => $booking->id, 'optionid' => $optionid), 'timemodified', 'userid');
+    $allresponses = $DB->get_records('booking_answers', array('optionid' => $optionid), 'timemodified', 'userid');
     $context = context_module::instance($cmid);
     $firstuseronwaitinglist = $option->maxanswers + 1;
     $i = 1;

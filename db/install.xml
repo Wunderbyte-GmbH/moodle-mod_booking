@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/booking/db" VERSION="20200806" COMMENT="XMLDB file for Moodle mod/booking"
+<XMLDB PATH="mod/booking/db" VERSION="20221128" COMMENT="XMLDB file for Moodle mod/booking"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -169,8 +169,6 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="parentid" UNIQUE="false" FIELDS="parentid"/>
-        <INDEX NAME="id-bookingid" UNIQUE="false" FIELDS="id,bookingid"/>
-        <INDEX NAME="id-invisible" UNIQUE="false" FIELDS="id,invisible"/>
         <INDEX NAME="invisible" UNIQUE="false" FIELDS="invisible"/>
       </INDEXES>
     </TABLE>
@@ -196,11 +194,8 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
-        <INDEX NAME="optionid-userid" UNIQUE="false" FIELDS="optionid,userid"/>
-        <INDEX NAME="optionid-userid-bookingid" UNIQUE="false" FIELDS="optionid,userid,bookingid"/>
-        <INDEX NAME="userid-bookingid-waitinglist" UNIQUE="false" FIELDS="userid,bookingid,waitinglist"/>
-        <INDEX NAME="userid-bookingid-waitinglist-optionid" UNIQUE="false" FIELDS="userid,bookingid,waitinglist,optionid"/>
-        <INDEX NAME="timemodified" UNIQUE="false" FIELDS="timemodified"/>
+        <INDEX NAME="optionid-userid" UNIQUE="false" FIELDS="optionid, userid"/>
+        <INDEX NAME="userid-bookingid-waitinglist" UNIQUE="false" FIELDS="userid, bookingid, waitinglist"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="booking_category" COMMENT="Categories">
@@ -231,7 +226,7 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
-        <INDEX NAME="userid-optionid" UNIQUE="false" FIELDS="userid,optionid"/>
+        <INDEX NAME="userid-optionid" UNIQUE="false" FIELDS="userid, optionid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="booking_tags" COMMENT="Tags used for bookings">
@@ -294,7 +289,6 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="optionid" UNIQUE="false" FIELDS="optionid"/>
-        <INDEX NAME="id-optionid" UNIQUE="false" FIELDS="id,optionid"/>
         <INDEX NAME="coursestarttime" UNIQUE="false" FIELDS="coursestarttime"/>
         <INDEX NAME="courseendtime" UNIQUE="false" FIELDS="courseendtime"/>
       </INDEXES>
@@ -312,7 +306,7 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
-        <INDEX NAME="optiondateid-userid" UNIQUE="false" FIELDS="optiondateid,userid"/>
+        <INDEX NAME="optiondateid-userid" UNIQUE="false" FIELDS="optiondateid, userid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="booking_customfields" COMMENT="Default comment for the table, please edit me">
@@ -408,7 +402,7 @@
     <TABLE NAME="booking_pricecategories" COMMENT="Different price categories for different types of users (e.g. students, academics, employees, externals...)">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="ordernum" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="A number defining the sort order of the categories."/>
+        <FIELD NAME="ordernum" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="A number defining the sort order of the categories."/>
         <FIELD NAME="identifier" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The identifier of the price category, e.g. 'student'."/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The full name of the price category, e.g. 'Student price'."/>
         <FIELD NAME="defaultvalue" TYPE="number" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="A default value for every price in this category."/>
@@ -461,6 +455,40 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="bookingid" TYPE="foreign" FIELDS="bookingid" REFTABLE="booking" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="booking_subbooking_options" COMMENT="Stores the configured subbookings for individual booking options.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the bookingoption to which this subbooking is connected."/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Individual name of the subboking"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Type of the subbooking. Has to correspond to the class name in the subbookings folder."/>
+        <FIELD NAME="json" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The json which stores settings corresponding to the configuration of the individual subbooking."/>
+        <FIELD NAME="block" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="1 blocks the booking of the corresponding booking option. This makes sense for timeslot bookings eg."/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the user who modified this subbooking"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Time created."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="booking_subbooking_answers" COMMENT="Stores the anwers (the bookings) of a user for a particular subbooking.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="sboptionid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="id of the booked subbooking"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Userid of the booked user."/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="json" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="supplementary data if necessary"/>
+        <FIELD NAME="timestart" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp for start time of this booking"/>
+        <FIELD NAME="timeend" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp for end time of this booking"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="The bookings status, as in booked, waiting list, in the shopping cart, on a notify list or deleted"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>

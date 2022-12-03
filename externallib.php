@@ -202,7 +202,7 @@ class mod_booking_external extends external_api {
 
                         if ($printusers) {
                             $users = $DB->get_records('booking_answers',
-                                array('bookingid' => $record->bookingid, 'optionid' => $record->id));
+                                array('optionid' => $record->id));
                             foreach ($users as $user) {
                                 $tmpuser = array();
                                 $ruser = $DB->get_record('user', array('id' => $user->userid));

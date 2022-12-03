@@ -3044,5 +3044,186 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022112901, 'booking');
     }
 
+    if ($oldversion < 2022120302) {
+
+        // Define index userid (not unique) to be added to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        // Define index optionid-userid-bookingid (not unique) to be added to booking_answers.
+        $index = new xmldb_index('optionid-userid-bookingid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'userid', 'bookingid']);
+        // Conditionally launch drop index optionid-userid-bookingid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Define index userid-bookingid-waitinglist-optionid (not unique) to be added to booking_answers.
+        $index = new xmldb_index('userid-bookingid-waitinglist-optionid', XMLDB_INDEX_NOTUNIQUE, ['userid', 'bookingid', 'waitinglist', 'optionid']);
+
+        // Conditionally launch drop index userid-bookingid-waitinglist-optionid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Define index timemodified (not unique) to be dropped from booking_answers.
+        $index = new xmldb_index('timemodified', XMLDB_INDEX_NOTUNIQUE, ['timemodified']);
+        // Conditionally launch add index timemodified.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Define index id-optionid (not unique) to be dropped from booking_optiondates.
+        $table = new xmldb_table('booking_optiondates');
+        $index = new xmldb_index('id-optionid', XMLDB_INDEX_NOTUNIQUE, ['id', 'optionid']);
+
+        // Conditionally launch add index id-optionid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Define index id-bookingid (not unique) to be dropped from booking_options.
+        $table = new xmldb_table('booking_options');
+        $index = new xmldb_index('id-bookingid', XMLDB_INDEX_NOTUNIQUE, ['id', 'bookingid']);
+
+        // Conditionally launch add index id-bookingid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Define index id-invisible (not unique) to be dropped from booking_options.
+        $table = new xmldb_table('booking_options');
+        $index = new xmldb_index('id-invisible', XMLDB_INDEX_NOTUNIQUE, ['id', 'invisible']);
+
+        // Conditionally launch drop index id-invisible.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Changing nullability of field sendmailtobooker on table booking to null.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('sendmailtobooker', XMLDB_TYPE_INTEGER, '2', null, null, null, '0', 'maxperuser');
+
+        // Launch change of nullability for field sendmailtobooker.
+        $dbman->change_field_notnull($table, $field);
+
+        // Define index templateid (not unique) to be dropped form booking.
+        $table = new xmldb_table('booking');
+        $index = new xmldb_index('templateid', XMLDB_INDEX_NOTUNIQUE, ['templateid']);
+
+        // Conditionally launch drop index templateid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('templateid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'allowupdatedays');
+
+        // Launch change of type for field templateid.
+        $dbman->change_field_type($table, $field);
+
+        // Define index templateid (not unique) to be added to booking.
+        $table = new xmldb_table('booking');
+        $index = new xmldb_index('templateid', XMLDB_INDEX_NOTUNIQUE, ['templateid']);
+
+        // Conditionally launch add index templateid.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Changing the default of field defaultoptionsort on table booking to text.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('defaultoptionsort', XMLDB_TYPE_CHAR, '255', null, null, null, 'text', 'bookingimagescustomfield');
+
+        // Launch change of default for field defaultoptionsort.
+        $dbman->change_field_default($table, $field);
+
+        // Changing the default of field showviews on table booking to mybooking,myoptions,showall,showactive,myinstitution.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('showviews', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, 'mybooking,myoptions,showall,showactive,myinstitution', 'defaultoptionsort');
+
+        // Launch change of default for field showviews.
+        $dbman->change_field_default($table, $field);
+
+        // Define field textformat to be added to booking_tags.
+        $table = new xmldb_table('booking_tags');
+        $field = new xmldb_field('textformat', XMLDB_TYPE_INTEGER, '2', null, null, null, '0', 'text');
+
+        // Conditionally launch add field textformat.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define key bookingid (foreign) to be dropped form booking_customfields.
+        $table = new xmldb_table('booking_customfields');
+        $key = new xmldb_key('bookingid', XMLDB_KEY_FOREIGN, ['bookingid'], 'booking', ['id']);
+
+        // Launch drop key bookingid.
+        $dbman->drop_key($table, $key);
+
+        // Changing the default of field bookingid on table booking_customfields to 0.
+        $table = new xmldb_table('booking_customfields');
+        $field = new xmldb_field('bookingid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'id');
+
+        // Launch change of default for field bookingid.
+        $dbman->change_field_default($table, $field);
+
+        // Define key bookingid (foreign) to be added to booking_customfields.
+        $table = new xmldb_table('booking_customfields');
+        $key = new xmldb_key('bookingid', XMLDB_KEY_FOREIGN, ['bookingid'], 'booking', ['id']);
+
+        // Launch add key bookingid.
+        $dbman->add_key($table, $key);
+
+        // Define key optionid (foreign) to be dropped form booking_customfields.
+        $table = new xmldb_table('booking_customfields');
+        $key = new xmldb_key('optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options', ['id']);
+
+        // Launch drop key optionid.
+        $dbman->drop_key($table, $key);
+
+        // Changing the default of field optionid on table booking_customfields to 0.
+        $table = new xmldb_table('booking_customfields');
+        $field = new xmldb_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'bookingid');
+
+        // Launch change of default for field optionid.
+        $dbman->change_field_default($table, $field);
+
+        // Define key optionid (foreign) to be added to booking_customfields.
+        $table = new xmldb_table('booking_customfields');
+        $key = new xmldb_key('optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options', ['id']);
+
+        // Launch add key optionid.
+        $dbman->add_key($table, $key);
+
+        // Changing nullability of field userid on table booking_icalsequence to not null.
+        $table = new xmldb_table('booking_icalsequence');
+        $field = new xmldb_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'id');
+
+        // Launch change of nullability for field userid.
+        $dbman->change_field_notnull($table, $field);
+
+        // Changing nullability of field optionid on table booking_icalsequence to not null.
+        $table = new xmldb_table('booking_icalsequence');
+        $field = new xmldb_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'userid');
+
+        // Launch change of nullability for field optionid.
+        $dbman->change_field_notnull($table, $field);
+
+        // Changing nullability of field sequencevalue on table booking_icalsequence to not null.
+        $table = new xmldb_table('booking_icalsequence');
+        $field = new xmldb_field('sequencevalue', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'optionid');
+
+        // Launch change of nullability for field sequencevalue.
+        $dbman->change_field_notnull($table, $field);
+
+        // Changing type of field price on table booking_prices to number.
+        $table = new xmldb_table('booking_prices');
+        $field = new xmldb_field('price', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, '0', 'pricecategoryidentifier');
+
+        // Launch change of type for field price.
+        $dbman->change_field_type($table, $field);
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022120302, 'booking');
+    }
+
     return true;
 }

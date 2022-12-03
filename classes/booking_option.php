@@ -576,12 +576,11 @@ class booking_option {
                  FROM {booking_answers} ba, {user} u
                 WHERE ba.userid = u.id
                   AND u.deleted = 0
-                  AND ba.bookingid = :bookingid
                   AND ba.optionid = :optionid
                   AND ba.waitinglist = 0
              ORDER BY ba.timemodified ASC";
 
-        $params = array("bookingid" => $this->booking->id, "optionid" => $this->optionid);
+        $params = array("optionid" => $this->optionid);
 
         // Note: mod/booking:choose may have been revoked after the user has booked: not count them as booked.
         $allanswers = $DB->get_records_sql($sql, $params);
@@ -599,7 +598,6 @@ class booking_option {
             FROM {booking_answers} ba, {user} u, {groups_members} gm
             WHERE ba.userid = u.id AND
             u.deleted = 0 AND
-            ba.bookingid = :bookingid AND
             ba.optionid = :optionid AND
             u.id = gm.userid AND gm.groupid $insql
             GROUP BY u.id
@@ -2112,7 +2110,7 @@ class booking_option {
         global $DB;
 
         $bookinganswers = $DB->get_records_select('booking_answers',
-            "bookingid = $this->bookingid AND optionid = $this->optionid and waitinglist < 2", array(), 'timemodified', 'userid');
+            "optionid = $this->optionid and waitinglist < 2", array(), 'timemodified', 'userid');
 
         $sortedanswers = array();
         if (!empty($bookinganswers)) {
