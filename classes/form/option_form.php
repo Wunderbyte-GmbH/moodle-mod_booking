@@ -27,7 +27,7 @@ use mod_booking\singleton_service;
 use local_entities\entitiesrelation_handler;
 use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
-use mod_booking\optiondates_handler;
+use mod_booking\dates_handler;
 use moodle_url;
 use stdClass;
 
