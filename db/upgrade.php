@@ -3225,5 +3225,48 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022120302, 'booking');
     }
 
+    if ($oldversion < 2022120400) {
+        $table = new xmldb_table('booking_userevents');
+        $key = new xmldb_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+        // Launch add key.
+        $dbman->add_key($table, $key);
+
+        $table = new xmldb_table('booking_userevents');
+        $key = new xmldb_key('optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options', ['id']);
+        // Launch add key.
+        $dbman->add_key($table, $key);
+
+        $table = new xmldb_table('booking_userevents');
+        $index = new xmldb_index('optionid-optiondateid', XMLDB_INDEX_NOTUNIQUE, ['optionid, optiondateid']);
+        // Conditionally launch add index.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        $table = new xmldb_table('booking_userevents');
+        $index = new xmldb_index('userid-optionid', XMLDB_INDEX_NOTUNIQUE, ['userid, optionid']);
+        // Conditionally launch add index.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        $table = new xmldb_table('booking_userevents');
+        $index = new xmldb_index('userid-optionid-optiondateid', XMLDB_INDEX_NOTUNIQUE, ['userid, optionid, optiondateid']);
+        // Conditionally launch add index.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        $table = new xmldb_table('booking_customfields');
+        $index = new xmldb_index('optionid-optiondateid', XMLDB_INDEX_NOTUNIQUE, ['optionid, optiondateid']);
+        // Conditionally launch add index.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022120400, 'booking');
+    }
+
     return true;
 }

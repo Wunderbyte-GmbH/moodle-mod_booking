@@ -324,6 +324,9 @@
         <KEY NAME="optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id"/>
         <KEY NAME="optiondateid" TYPE="foreign" FIELDS="optiondateid" REFTABLE="booking_optiondates" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="optionid-optiondateid" UNIQUE="false" FIELDS="optionid, optiondateid"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="booking_ratings" COMMENT="Default comment for the table, please edit me">
       <FIELDS>
@@ -384,7 +387,14 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="optionid-optiondateid" UNIQUE="false" FIELDS="optionid, optiondateid"/>
+        <INDEX NAME="userid-optionid" UNIQUE="false" FIELDS="userid, optionid"/>
+        <INDEX NAME="userid-optionid-optiondateid" UNIQUE="false" FIELDS="userid, optionid, optiondateid"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="booking_prices" COMMENT="Set the price of a booking option">
       <FIELDS>
