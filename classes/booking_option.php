@@ -1075,9 +1075,19 @@ class booking_option {
 
         global $DB;
 
+        $ba = singleton_service::get_instance_of_booking_answers($this->settings);
+
         // We have to get all the records of the user, there might be more than one.
-        if (!$currentanswers = $DB->get_records('booking_answers',
-                array('userid' => $user->id, 'optionid' => $this->optionid, 'waitinglist' => STATUSPARAM_RESERVED))) {
+        $currentanswers = null;
+        foreach ($ba->answers as $answer) {
+            if ($answer->optionid == $this->settings->id
+                    && $answer->userid == $user->id
+                    && $answer->waitinglist == STATUSPARAM_RESERVED) {
+                $currentanswers[] = $answer;
+            }
+        }
+
+        if (!$currentanswers) {
             return false;
         }
 
@@ -1091,12 +1101,12 @@ class booking_option {
                 $currentanswer->timemodified = time();
                 $currentanswer->waitinglist = STATUSPARAM_BOOKED;
 
-                self::write_user_answer_to_db($currentanswer->bookingid,
-                                               $currentanswer->frombookingid,
+                self::write_user_answer_to_db($this->settings->bookingid,
+                                               $currentanswer->frombookingid ?? 0,
                                                $currentanswer->userid,
                                                $currentanswer->optionid,
                                                $currentanswer->waitinglist,
-                                               $currentanswer->id,
+                                               $currentanswer->baid,
                                                $currentanswer->timecreated);
 
                 $counter++;
@@ -1140,8 +1150,9 @@ class booking_option {
                     'relateduserid' => $user->id, 'other' => array('userid' => $user->id)));
         $event->trigger();
 
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
         // Check if the option is a multidates session.
-        if (!$optiondates = $DB->get_records('booking_optiondates', ['optionid' => $this->optionid])) {
+        if (!$optiondates = $settings->sessions) {
             $optiondates = false;
         }
 

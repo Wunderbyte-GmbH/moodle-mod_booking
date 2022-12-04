@@ -56,7 +56,9 @@ class calendar {
         $this->type = $type;
         $this->optiondateid = $optiondateid;
 
+        // It's ok because we use singelton service in the constructor.
         $bookingoption = new \mod_booking\booking_option($this->cmid, $this->optionid);
+
         $newcalendarid = 0;
 
         switch ($this->type) {
@@ -110,6 +112,7 @@ class calendar {
             case $this::TYPEOPTIONDATE:
                 if ($justbooked) {
                     // A user has just booked an option with sessions. The events will be created as USER events.
+
                     if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $this->optiondateid])) {
                         $newcalendarid = $this->booking_optiondate_add_to_cal($bookingoption->booking->settings,
                             $bookingoption->option, $optiondate, $userid, $bookingoption->option->calendarid);
@@ -212,7 +215,7 @@ class calendar {
         }
 
         // Do not add booking option to calendar, if there are multiple sessions.
-        if (!empty($DB->get_records('booking_optiondates', ['optionid' => $option->id]))) {
+        if (count($option->settings) > 1) {
             return 0;
         }
 
