@@ -2184,7 +2184,6 @@ class booking_option {
                                             $withcustomfields = false,
                                             $forbookeduser = false) {
 
-        global $DB;
 
         // If we didn't set a $bookingevent (record from booking_optiondates) we retrieve all of them for this option.
         // Else, we check if there are sessions.
@@ -2210,11 +2209,11 @@ class booking_option {
             if ($withcustomfields && $date->id !== 0) {
                 // TODO: Can we cache this?
                 // Filter the matching customfields.
-                $fields = $DB->get_records('booking_customfields', array(
-                    'optionid' => $this->optionid,
-                    'optiondateid' => $date->id));
-                $returnsession['customfields'] = $this->return_array_of_customfields($fields, $date->id,
-                    $descriptionparam, $forbookeduser);
+                $returnsession['customfields'] = self::return_array_of_customfields(
+                    $this->settings->sessioncustomfields,
+                    $date->id,
+                    $descriptionparam,
+                    $forbookeduser);
             }
 
             $returnarray[] = $returnsession;
@@ -2233,12 +2232,15 @@ class booking_option {
      * @param bool $forbookeduser
      * @return array
      */
-    public function return_array_of_customfields($fields, $sessionid = 0,
+    public static function return_array_of_customfields($fields, $sessionid = 0,
             $descriptionparam = 0, $forbookeduser = false) {
 
         $returnarray = [];
         foreach ($fields as $field) {
-            if ($value = $this->render_customfield_data($field, $sessionid,
+            if ($field->optiondateid != $sessionid) {
+                continue;
+            }
+            if ($value = self::render_customfield_data($field, $sessionid,
                 $descriptionparam, $forbookeduser)) {
                 $returnarray[] = $value;
             }
@@ -2254,7 +2256,7 @@ class booking_option {
      * @param int $descriptionparam
      * @param bool $forbookeduser
      */
-    private function render_customfield_data (
+    public static function render_customfield_data (
             $field,
             $sessionid = 0,
             $descriptionparam = 0,

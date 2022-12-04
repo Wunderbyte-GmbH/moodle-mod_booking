@@ -175,6 +175,9 @@ class booking_option_settings {
     /** @var array $sessions */
     public $sessions = [];
 
+    /** @var array $sessioncustomfields */
+    public $sessioncustomfields = [];
+
     /** @var array $teachers */
     public $teachers = [];
 
@@ -416,6 +419,14 @@ class booking_option_settings {
                 $this->sessions = $dbrecord->sessions;
             }
 
+            // If the key "sessioncustomfields" is not yet set, we need to load from DB.
+            if (!isset($dbrecord->sessioncustomfields)) {
+                $this->load_sessioncustomfields_from_db($optionid);
+                $dbrecord->sessioncustomfields = $this->sessioncustomfields;
+            } else {
+                $this->sessioncustomfields = $dbrecord->sessioncustomfields;
+            }
+
             // If the key "teachers" is not yet set, we need to load from DB.
             if (!isset($dbrecord->teachers)) {
                 $this->load_teachers_from_db();
@@ -473,6 +484,19 @@ class booking_option_settings {
                 // Else we have no sessions.
                 $this->sessions = [];
             }
+        }
+    }
+
+    /**
+     * Function to load multi-sessions customfields from DB.
+     *
+     * @param int $optionid
+     */
+    private function load_sessioncustomfields_from_db(int $optionid) {
+        global $DB;
+        // Multi-sessions.
+        if (!$this->sessioncustomfields = $DB->get_records('booking_customfields', ['optionid' => $optionid])) {
+            $this->sessioncustomfields = [];
         }
     }
 
