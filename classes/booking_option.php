@@ -2184,7 +2184,6 @@ class booking_option {
                                             $withcustomfields = false,
                                             $forbookeduser = false) {
 
-
         // If we didn't set a $bookingevent (record from booking_optiondates) we retrieve all of them for this option.
         // Else, we check if there are sessions.
         // If not, we just use normal coursestart & endtime.
@@ -2240,7 +2239,9 @@ class booking_option {
             if ($field->optiondateid != $sessionid) {
                 continue;
             }
-            if ($value = self::render_customfield_data($field, $sessionid,
+            $settings = singleton_service::get_instance_of_booking_option_settings($field->optionid);
+            $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $field->optionid);
+            if ($value = $bookingoption->render_customfield_data($field, $sessionid,
                 $descriptionparam, $forbookeduser)) {
                 $returnarray[] = $value;
             }
@@ -2256,7 +2257,7 @@ class booking_option {
      * @param int $descriptionparam
      * @param bool $forbookeduser
      */
-    public static function render_customfield_data (
+    public function render_customfield_data (
             $field,
             $sessionid = 0,
             $descriptionparam = 0,
@@ -2267,6 +2268,7 @@ class booking_option {
             case 'BigBlueButtonMeeting':
             case 'TeamsMeeting':
                 // If the session is not yet about to begin, we show placeholder.
+
                 return $this->render_meeting_fields($sessionid, $field, $descriptionparam, $forbookeduser);
             default:
                 return [
