@@ -2533,9 +2533,8 @@ class booking_option {
 
         $context = context_module::instance($settings->cmid);
 
-        $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
-            'userid' => $USER->id));
-        $event->trigger();
+        /* Fixed: We do not trigger bookingoption_updated here, because we do no want to trigger
+        both change notifications and cancelling notifications at once. */
 
         if (!$undo) {
             $context = context_module::instance($settings->cmid);
