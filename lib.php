@@ -97,6 +97,7 @@ define('BO_COND_BOOKING_TIME', 50);
 define('BO_COND_SUBBOOKINGBLOCKS', 40);
 define('BO_COND_SUBBOOKING', 39);
 define('BO_COND_PRICEISSET', 10); // Price has to be the lowest blocking condition.
+define('BO_COND_BOOKITBUTTON', 1); // This is only used to show the book it button.
 
 // Define booking options status.
 define('BO_STATUS_NORMAL', 0);
