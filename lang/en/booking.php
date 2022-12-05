@@ -1837,7 +1837,7 @@ $string['cachedef_cachedsemesters'] = 'Semesters (cache)';
 // Shortcodes.
 $string['search'] = 'Search...';
 
-// Optiondates_handler.php.
+// Dates_handler.php.
 $string['chooseperiod'] = 'Select time period';
 $string['chooseperiod_help'] = 'Select a time period within to create the date series.';
 $string['dates'] = 'Dates';
