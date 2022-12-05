@@ -914,12 +914,12 @@ class dates_handler {
         }
 
         if ($showweekdays) {
-            $date->startdate = userdate($endtime, $strftimedaydate); // Friday, 3. February 2023.
+            $date->startdate = userdate($starttime, $strftimedaydate); // Friday, 3. February 2023.
             $date->startdatetime = userdate($starttime, $strftimedaydatetime); // Friday, 3. February 2023, 11:45.
             $date->datestring = $date->startdatetime;
 
             if (!empty($endtime)) {
-                $date->enddatetime = userdate($starttime, $strftimedaydatetime); // Friday, 3. February 2023, 12:45.
+                $date->enddatetime = userdate($endtime, $strftimedaydatetime); // Friday, 3. February 2023, 12:45.
                 $date->enddate = userdate($endtime, $strftimedaydate); // Friday, 3. February 2023.
                 $date->datestring .= " - ";
                 $date->datestring .= $date->startdate != $date->enddate ?
