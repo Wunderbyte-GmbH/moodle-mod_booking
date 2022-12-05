@@ -37,6 +37,8 @@ $string['addusertogroup'] = 'Add user to group: ';
 $string['addmorebookings'] = 'Add more bookings';
 $string['allowupdate'] = 'Allow booking to be updated';
 $string['answered'] = 'Answered';
+$string['dontaddpersonalevents'] = 'Dont add personal calendar events';
+$string['dontaddpersonaleventsdesc'] = 'For each booked option and for all of its sessions, personal events are created in the moodle calendar. Suppressing them improves performance for heavy load sites.';
 $string['attachical'] = 'Attach single iCal event per booking';
 $string['attachicaldesc'] = 'Email notifications will include an attached iCal event, if this is enabled. The iCal will include only one start time and one end time either defined
 in the booking option settings or start time of the first session to end time of the last session';

@@ -1156,14 +1156,18 @@ class booking_option {
             $optiondates = false;
         }
 
-        // If the option has optiondates, then add the optiondate events to the user's calendar.
-        if ($optiondates) {
-            foreach ($optiondates as $optiondate) {
-                new \mod_booking\calendar($this->booking->cm->id, $this->optionid, $user->id, 6, $optiondate->id, 1);
+        $dontusepersonalevents = get_config('booking', 'dontaddpersonalevents');
+
+        if ($dontusepersonalevents != 1) {
+            // If the option has optiondates, then add the optiondate events to the user's calendar.
+            if ($optiondates) {
+                foreach ($optiondates as $optiondate) {
+                    new \mod_booking\calendar($this->booking->cm->id, $this->optionid, $user->id, 6, $optiondate->id, 1);
+                }
+            } else {
+                // Else add the booking option event to the user's calendar.
+                new \mod_booking\calendar($this->booking->cm->id, $this->optionid, $user->id, 1, 0, 1);
             }
-        } else {
-            // Else add the booking option event to the user's calendar.
-            new \mod_booking\calendar($this->booking->cm->id, $this->optionid, $user->id, 1, 0, 1);
         }
 
         if ($this->booking->settings->sendmail) {

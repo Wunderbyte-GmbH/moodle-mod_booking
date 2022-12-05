@@ -221,6 +221,10 @@ if ($ADMIN->fulltree) {
                 get_string('icalcfg', 'mod_booking'),
                 get_string('icalcfgdesc', 'mod_booking')));
     $settings->add(
+        new admin_setting_configcheckbox('booking/dontaddpersonalevents',
+                get_string('dontaddpersonalevents', 'mod_booking'),
+                get_string('dontaddpersonaleventsdesc', 'mod_booking'), 0));
+                $settings->add(
             new admin_setting_configcheckbox('booking/attachical',
                     get_string('attachical', 'mod_booking'),
                     get_string('attachicaldesc', 'mod_booking'), 0));

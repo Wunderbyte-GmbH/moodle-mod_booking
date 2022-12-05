@@ -36,6 +36,8 @@ $string['showonlymyinstitutions'] = "Meine Institution";
 $string['addmorebookings'] = 'Buchungen hinzufügen';
 $string['allowupdate'] = 'Buchungen dürfen gelöscht/aktualisiert werden';
 $string['answered'] = 'Beantwortet';
+$string['dontaddpersonalevents'] = 'Keine Einträge im persönlichen Kalender erstellen.';
+$string['dontaddpersonaleventsdesc'] = 'Für jede Buchung und alle Termine werden eigene Einträge im persönlichen Kalender der TeilnehmerInnen erstellt. Für eine bessere Performance auf sehr intensiv genutzten Seiten kann diese Funktion deaktiviert werden.';
 $string['attachical'] = 'Einen iCal Kalendereintrag für die gesamte Dauer einer Buchung als Dateianhang in der E-Mail Benachrichtigung einfügen';
 $string['attachicaldesc'] = 'E-Mail Benachrichtigungen im iCal Kalenderformat hinzufügen, wenn diese Option aktiviert wird. Es wir entweder der in den Buchungsoptionen festgelegte
 Termin eingefügt oder ein Event mit dem Anfangsdatum des ersten Termins einer Terminserie und dem Enddatum des letzten Termins der Terminserie.';
