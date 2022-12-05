@@ -92,7 +92,7 @@ class bo_info {
      */
     public function is_available(int $optionid = null, int $userid = 0):array {
 
-        global $USER, $CFG;
+        global $USER;
 
         // We only get full description when we book for another user.
         // It's a clear sign of higher rights.
@@ -135,7 +135,8 @@ class bo_info {
                 list($isavailable, $description) = $condition->get_description($settings, $userid, $full);
                 $resultsarray[$condition->id] = ['id' => $condition->id,
                     'isavailable' => $isavailable,
-                    'description' => $description];
+                    'description' => $description,
+                    'classname' => $classname];
             } else {
                 // Else we need to instantiate the condition first.
 
@@ -157,7 +158,8 @@ class bo_info {
                 list($isavailable, $description) = $instance->get_description($settings, $userid, $full);
                 $resultsarray[$condition->id] = ['id' => $condition->id,
                     'isavailable' => $isavailable,
-                    'description' => $description];
+                    'description' => $description,
+                    'classname' => $classname];
             }
 
             // Now we might need to override the result of a previous condition which has been resolved as false before.
