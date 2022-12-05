@@ -413,6 +413,8 @@ class message_controller {
             // Get the mail template specified in plugin config.
             $text = get_config('booking', 'global' . $this->messagefieldname);
 
+        } else if ($this->bookingsettings->{$this->messagefieldname} === "0") {
+            $text = "0";
         } else if (empty($this->bookingsettings->{$this->messagefieldname})) {
 
             // Use default message if none is specified.
@@ -532,6 +534,11 @@ class message_controller {
      * @return bool true if successful
      */
     public function send_or_queue(): bool {
+
+        // If user entered "0" as template, then mails are turned off for this type of messages.
+        if ($this->messagebody === "0") {
+            $this->msgcontrparam = MSGCONTRPARAM_DO_NOT_SEND;
+        }
 
         // Only send if we have message data and if the user hasn't been deleted.
         // Also, do not send, if the param MSGCONTRPARAM_DO_NOT_SEND has been set.
