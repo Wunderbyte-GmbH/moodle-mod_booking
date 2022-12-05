@@ -49,9 +49,9 @@ $string['booking'] = 'Buchung';
 $string['bookinginstance'] = 'Buchungsinstanz';
 $string['booking:addinstance'] = 'Neue Buchungsinstanz anlegen';
 $string['booking:choose'] = 'Buchen';
-$string['booking:deleteresponses'] = 'Anworten löschen';
-$string['booking:downloadresponses'] = 'Antworten herunterladen';
-$string['booking:readresponses'] = 'Antworten lesen';
+$string['booking:deleteresponses'] = 'Buchungen löschen';
+$string['booking:downloadresponses'] = 'Buchungen herunterladen';
+$string['booking:readresponses'] = 'Buchungen ansehen';
 $string['booking:rate'] = 'Rate chosen booking options';
 $string['booking:sendpollurl'] = 'Umfragelink senden';
 $string['booking:sendpollurltoteachers'] = 'Umfragelink and Trainer:innen senden';
@@ -91,7 +91,7 @@ $string['eventreport_viewed'] = 'Report angesehen';
 $string['eventuserprofilefields_updated'] = 'Nutzerprofil aktualisiert';
 $string['existingsubscribers'] = 'Vorhandene Nutzer:innen';
 $string['expired'] = 'Diese Aktivität wurde leider am {$a} beendet und steht nicht mehr zur Verfügung';
-$string['fillinatleastoneoption'] = 'Geben Sie mindestens 2 mögliche Antworten an.';
+$string['fillinatleastoneoption'] = 'Geben Sie mindestens 2 mögliche Buchungen an.';
 $string['full'] = 'Ausgebucht';
 $string['goenrol'] = 'Gehe zu "Buchung vornehmen"';
 $string['gotop'] = 'Nach oben';
@@ -112,9 +112,9 @@ $string['pluginadministration'] = 'Booking administration';
 $string['pluginname'] = 'Booking';
 $string['potentialsubscribers'] = 'Mögliche Nutzer:innen';
 $string['proversiononly'] = 'Nur in der PRO-Version verfügbar.';
-$string['removeresponses'] = 'Alle Antworten löschen';
-$string['responses'] = 'Antworten';
-$string['responsesto'] = 'Antworten zu {$a} ';
+$string['removeresponses'] = 'Alle Buchungen löschen';
+$string['responses'] = 'Buchungen';
+$string['responsesto'] = 'Buchungen zu {$a} ';
 $string['spaceleft'] = 'Platz verfügbar';
 $string['spacesleft'] = 'Plätze verfügbar';
 $string['subscribersto'] = 'Trainer:innen für \'{$a}\'';
@@ -125,13 +125,13 @@ $string['restrictanswerperiodopening'] = 'Buchungsoption erst ab einem bestimmte
 $string['restrictanswerperiodclosing'] = 'Buchungsoption nur bis zu einem bestimmten Zeitpunkt ermöglichen';
 
 $string['to'] = 'bis';
-$string['viewallresponses'] = '{$a} Antworten verwalten';
+$string['viewallresponses'] = '{$a} Buchungen verwalten';
 $string['yourselection'] = 'Ihre Auswahl';
 
 // Subscribeusers.php.
 $string['cannotremovesubscriber'] = 'Um die Buchung zu stornieren, muss zuvor der Aktivitätsabschluss entfernt werden. Die Buchung wurde nicht storniert';
 $string['allchangessaved'] = 'Alle Änderungen wurden gespeichert.';
-$string['backtoresponses'] = '&lt;&lt; Zurück zu den Antworten';
+$string['backtoresponses'] = '&lt;&lt; Zurück zu den Buchungen';
 $string['allusersbooked'] = 'Alle {$a} Nutzer:innen wurden erfolgreich für diese Buchungsoption gebucht.';
 $string['notallbooked'] = 'Folgende Nutzer:innen konnten aufgrund nicht mehr verfügbarer Plätze oder durch das Überschreiten des vorgegebenen Buchungslimits pro Nutzer:in nicht gebucht werden: {$a}';
 
@@ -164,8 +164,7 @@ $string['btncacname'] = 'Bezeichnung des Buttons "Aktivitätsabschluss bestätig
 $string['btncancelname'] = 'Bezeichnung des Buttons "Buchung stornieren"';
 $string['description'] = 'Beschreibung';
 $string['disablebookingusers'] = 'Buchung von Teilnehmer:innen deaktivieren - "Jetzt buchen" Button unsichtbar schalten.';
-$string['howmanyusers'] = 'Maximale Anzahl an Buchungen, die ein:e der Buchungsoption zugewiesene:r Trainer:in vornehmen kann';
-$string['howmanyusers_help'] = '';
+$string['bookotheruserslimit'] = 'Max. Anzahl an Buchungen, die ein:e der Buchungsoption zugewiesene:r Trainer:in vornehmen kann';
 $string['institution'] = 'Institution';
 $string['institution_help'] = 'Sie können den Namen der Institution manuell eingeben oder aus einer Liste von
                             früheren Institutionen auswählen. Sie können nur eine Institution angeben. Sobald
@@ -889,7 +888,7 @@ $string['helptext:placeholders'] = '<p>
 
 $string['fields'] = 'In bestimmten Bereichen anzuzeigende Informationen';
 $string['reportfields'] = 'Buchungsdatenload als csv, xls, usw.';
-$string['responsesfields'] = 'Auf der Antworten verwalten-Seite';
+$string['responsesfields'] = 'Auf der Buchungen verwalten-Seite';
 $string['optionsfields'] = 'Auf der Seite der Buchungsoptionsübersicht';
 $string['signinsheetfields'] = 'Auf der Unterschriftenliste (PDF-Download)';
 $string['signinonesession'] = 'Termin(e) im Header anzeigen';
@@ -1161,7 +1160,7 @@ $string['associatedcourse'] = 'Dazu gehörender Kurs';
 $string['bookedusers'] = 'Gebuchte Nutzer:innen';
 $string['bookingfulldidntregister'] = 'Es wurden nicht alle Nutzer:innen übertragen, da die Option bereits ausgebucht ist!';
 $string['booktootherbooking'] = 'Nutzer:innen umbuchen / zu anderer Buchungsoption hinzufügen';
-$string['downloadallresponses'] = 'Alle Antworten herunterladen';
+$string['downloadallresponses'] = 'Alle Buchungen herunterladen';
 $string['editotherbooking'] = 'Andere Buchungsoptionen';
 $string['generaterecnum'] = "Eintragsnummern erstellen";
 $string['generaterecnumareyousure'] = "Neue Nummern erstellen und die alten verwerfen!";
@@ -1220,7 +1219,7 @@ $string['messagetext'] = 'Nachricht';
 
 // Teachers.php.
 $string['teachers'] = 'Trainer:innen';
-$string['gotomanageresponses'] = '&lt;&lt; Antworten bearbeiten';
+$string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 $string['warningonteacherspage'] = '<b>ACHTUNG:</b> Wenn Sie hier Trainer:innen hinzufügen werden diese im Training-Journal <b>zu JEDEM EINZELNEN Termin hinzugefügt</b>.
 Wenn Sie hier Trainer:innen löschen, werden diese im Training-Journal <b>von JEDEM EINZELNEN Termin entfernt</b>.';
 
@@ -1504,7 +1503,7 @@ $string['bstinstitution'] = 'Institution';
 $string['bstparticipants'] = 'Teilnehmer:innen';
 $string['bstteacher'] = 'Trainer/in(nen)';
 $string['bstwaitinglist'] = 'Auf Warteliste';
-$string['bstmanageresponses'] = 'Antworten verwalten';
+$string['bstmanageresponses'] = 'Buchungen verwalten';
 $string['bstcourse'] = 'Kurs';
 $string['bstlink'] = 'Anzeigen';
 
@@ -1617,7 +1616,7 @@ $string['deleteholiday'] = 'Eintrag löschen';
 
 // Caches.
 $string['cachedef_bookingoptions'] = 'Buchungsoptionen (Cache)';
-$string['cachedef_bookingoptionsanswers'] = 'Buchungen (Antworten) von Buchungsoptionen (Cache)';
+$string['cachedef_bookingoptionsanswers'] = 'Buchungen von Buchungsoptionen (Cache)';
 $string['cachedef_bookingoptionstable'] = 'Tabelle mit gesamten SQL-Abfragen (Cache)';
 $string['cachedef_cachedpricecategories'] = 'Preiskategorien in Booking (Cache)';
 $string['cachedef_cachedprices'] = 'Standardpreise in Booking (Cache)';
@@ -1729,7 +1728,7 @@ $string['roundpricesafterformula_desc'] = 'Preise auf ganze Zahlen runden (mathe
 $string['cancelallusers'] = 'Storniere Buchung für alle Nutzer:innen';
 
 // Col_availableplaces.mustache.
-$string['manageresponses'] = 'Antworten verwalten';
+$string['manageresponses'] = 'Buchungen verwalten';
 
 // Bo conditions. TODO: Übersetzen.
 $string['availabilityconditions'] = 'Verfügbarkeit einschränken';

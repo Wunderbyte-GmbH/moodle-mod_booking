@@ -165,8 +165,7 @@ $string['btncancelname'] = 'Name of button: Cancel booking';
 $string['courseurl'] = 'Course URL';
 $string['description'] = 'Description';
 $string['disablebookingusers'] = 'Disable booking of users - hide Book now button.';
-$string['howmanyusers'] = 'Max. number of users a teacher assigned to the option can book';
-$string['howmanyusers_help'] = '';
+$string['bookotheruserslimit'] = 'Max. number of users a teacher assigned to the option can book';
 $string['institution'] = 'Institution';
 $string['institution_help'] = 'You can either enter the institution name manually or choose from a list of previous institutions.
                                     You can choose one institution only. Once you save, the institution will be added to the list.';

@@ -263,13 +263,13 @@ class booking_option {
                 if (!$nolimits) {
                     $howmanynum = $this->option->howmanyusers;
                 } else {
-                    $hownany = $DB->get_record_sql(
+                    $howmany = $DB->get_record_sql(
                             "SELECT userslimit FROM {booking_other} WHERE optionid = ? AND otheroptionid = ?",
                             array($optionid, $this->optionid));
 
                     $howmanynum = 0;
-                    if ($hownany) {
-                        $howmanynum = $hownany->userslimit;
+                    if ($howmany) {
+                        $howmanynum = $howmany->userslimit;
                     }
                 }
             }

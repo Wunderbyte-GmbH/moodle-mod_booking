@@ -608,7 +608,7 @@ class csv_import {
                     $importinfo .= ' (' . get_string('bookingoptionname', 'mod_booking') . ')';
                     break;
                 case 'howmanyusers':
-                    $importinfo .= ' (' . get_string('howmanyusers', 'mod_booking') . ')';
+                    $importinfo .= ' (' . get_string('bookotheruserslimit', 'mod_booking') . ')';
                     break;
                 case 'enrolmentstatus':
                     $importinfo .= ' (' . get_string('enrolmentstatus', 'mod_booking') . ')';
