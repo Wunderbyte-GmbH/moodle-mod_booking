@@ -105,12 +105,12 @@ class mod_booking_observer {
     }
 
     /**
-     * When a new booking option is created, we insert a new calendar entry.
-     *
+     * Function to execute when a booking option has been created.
      * @param \mod_booking\event\bookingoption_created $event
+     * @throws dml_exception
      */
     public static function bookingoption_created(\mod_booking\event\bookingoption_created $event) {
-        new calendar($event->contextinstanceid, $event->objectid, 0, calendar::TYPEOPTION);
+        // We do not create a calendar event here, because this is handled by bookingoption_updated event.
     }
 
 
