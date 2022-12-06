@@ -684,13 +684,13 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
-     * Render simple modal
+     * Render subbookings pre page modal.
      * @param $data array
      * @return string
      */
-    public function render_simple_modal($data) {
+    public function render_prepagemodal($data) {
         $data = $data->export_for_template($this);
-        return $this->render_from_template('mod_booking/simple_modal', $data);
+        return $this->render_from_template('mod_booking/prepagemodal', $data);
     }
 
     /**
@@ -701,5 +701,17 @@ class renderer extends plugin_renderer_base {
     public function render_sb_timeslot($data) {
         $data = $data->export_for_template($this);
         return $this->render_from_template('mod_booking/subbooking_timeslottable', $data);
+    }
+
+    /**
+     * Render output for bookit.
+     * @param $data array
+     * @return string
+     */
+    public function render_bookit($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/bookit', $data);
+        return $o;
     }
 }

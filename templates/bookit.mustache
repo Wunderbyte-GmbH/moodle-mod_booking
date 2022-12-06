@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/simple_modal
+    @template mod_booking/bookit
 
     Classes required for JS:
     * none
@@ -23,27 +23,29 @@
     Data attributes required for JS:
     * data-region
 
-    Example context (json):
+     Example context (json):
     {
-        "modalcounter": 3,
-        "modaltitle" : "My Modal",
-        "description": "<b>My Text</b>",
+        "itemname" : "myitem",
+        "price" : "10",
+        "currency" : "EUR",
+        "componentname" : "local_shoppingcart",
+        "description" : "description",
+        "imageurl" : "https://mypic.jpg",
+        "pricecategoryidentifier" : "categoryid"
+        "pricecategoryname" : "student"
     }
 }}
-<a href="#" data-toggle="modal" data-target="#simpleModal{{modalcounter}}">
-    <h5><i class="fa fa-info-circle"></i> {{modaltitle}}</h5>
-</a>
-<div class="modal fade" id="simpleModal{{modalcounter}}" tabindex="-1" role="dialog"
-    aria-labelledby="simpleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <p>
-                    <div>
-                        {{{description}}}
-                    </div>
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
+{{#price}}
+<span class="pricecurrency font-weight-bold">
+    {{price}} {{currency}}
+</span>
+<div>{{> local_shopping_cart/addtocartdb }}</div>
+{{#priceitems}}
+    <p><i>{{pricecategoryname}}</i></p>
+{{/priceitems}}
+{{/price}}
+{{^price}}
+    {{#priceitems}}
+        <div class="pricecurrency"> {{price}} {{currency}} <i>{{pricecategoryname}}</i></div>
+    {{/priceitems}}
+{{/price}}

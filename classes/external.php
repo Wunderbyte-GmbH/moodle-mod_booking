@@ -29,6 +29,7 @@ use external_function_parameters;
 use external_value;
 use external_single_structure;
 use external_warnings;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\output\bookingoption_description;
 use mod_booking\utils\webservice_import;
 use stdClass;
@@ -638,6 +639,56 @@ class external extends external_api {
         return new external_function_parameters(
                 array('userid' => new external_value(PARAM_INT, 'user id', VALUE_REQUIRED, 0),
                       'optionid' => new external_value(PARAM_TEXT, 'option id', VALUE_REQUIRED, 0)
+                )
+        );
+    }
+
+    /**
+     * Functionality of load_pre_booking_page
+     * @param int $optionid
+     * @param int $pagenumber
+     * @return external_function_parameters
+     */
+    public static function load_pre_booking_page(int $optionid, int $pagenumber) {
+
+        global $USER;
+
+        $params = self::validate_parameters(
+                self::load_pre_booking_page_parameters(),
+                array('optionid' => $optionid,
+                'pagenumber' => $pagenumber));
+
+        $result = bo_info::load_pre_booking_page($params['optionid'], $params['pagenumber'], $USER->id);
+
+        return $result;
+    }
+
+    /**
+     * Function for load_pre_booking_page returns
+     *
+     * @return external_function_parameters
+     */
+    public static function load_pre_booking_page_returns() {
+        return new external_function_parameters(
+                [
+                    'json' => new external_value(PARAM_RAW, 'The data object in jsonformat to render the content.',
+                        VALUE_REQUIRED),
+                    'template' => new external_value(PARAM_RAW, 'The name of the template which is needed to render the content.', VALUE_REQUIRED),
+                    'buttontype' => new external_value(PARAM_INT, '0 for no button, 1 for continue, 2 for last button.', VALUE_REQUIRED),
+                ]
+        );
+    }
+
+    /**
+     * Function for load_pre_booking_page paramters
+     *
+     * @return external_function_parameters
+     */
+    public static function load_pre_booking_page_parameters() {
+        return new external_function_parameters(
+                array(
+                      'optionid' => new external_value(PARAM_INT, 'option id', VALUE_REQUIRED),
+                      'pagenumber' => new external_value(PARAM_INT, 'number of page we want to load', VALUE_REQUIRED),
                 )
         );
     }

@@ -106,4 +106,22 @@ interface bo_condition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid);
 
+    /**
+     * Render the supplementary page before the booking process.
+     * This
+     *
+     * @param int $optionid
+     * @return string
+     */
+    public function render_page(int $optionid);
+
+    /**
+     * Some conditions (like price & bookit) provide a button.
+     * Renders the button, attaches js to the Page footer and returns the html.
+     *
+     * @param integer $optionid
+     * @param object|null $user
+     * @return string
+     */
+    public static function render_button(int $optionid, object $user = null);
 }

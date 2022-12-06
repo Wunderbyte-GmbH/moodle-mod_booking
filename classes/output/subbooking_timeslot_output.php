@@ -121,43 +121,6 @@ class subbooking_timeslot_output implements renderable, templatable {
             }
         }
 
-        // $data = [
-        //     'days' => [
-        //         "day" => "29.11",
-        //         "current" => true,
-        //     ],
-        //     'date' => "29.11",
-        //     'slots' => [
-        //         "slot" => "11:00-12:00"
-        //     ],
-        //     "locations" => [
-        //         [
-        //             "name" => "Halle1",
-        //             "timeslots" => [
-        //                 "free" => true,
-        //                 "slot" => "11:00 - 12:00",
-        //                 "price" => 30,
-        //                 "currency" => "€",
-        //                 "area" => "subbooking-optionid",
-        //                 "component" => "mod_booking",
-        //                 "itemid" => "1",
-        //             ]
-        //         ],
-        //         [
-        //             "name" => "Halle2",
-        //             "timeslots" => [
-        //                 "free" => true,
-        //                 "slot" => "11:00 - 12:00",
-        //                 "price" => 30,
-        //                 "currency" => "€",
-        //                 "area" => "subbooking-optionid",
-        //                 "component" => "mod_booking",
-        //                 "itemid" => "2",
-        //             ],
-        //         ],
-        //     ],
-        // ];
-
         $this->data = $data;
     }
 

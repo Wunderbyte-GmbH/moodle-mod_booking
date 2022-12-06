@@ -28,7 +28,6 @@ namespace mod_booking\subbookings;
 use context_module;
 use Exception;
 use mod_booking\output\subbookingslist;
-use mod_booking\subbookings;
 use MoodleQuickForm;
 use stdClass;
 
@@ -73,7 +72,7 @@ class subbookings_info {
         global $CFG;
 
         // First, we get all the available subbookings from our directory.
-        $path = $CFG->dirroot . '/mod/booking/classes/subbookings/subbookings/*.php';
+        $path = $CFG->dirroot . '/mod/booking/classes/subbookings/sb_types/*.php';
         $filelist = glob($path);
 
         $subbookings = [];
@@ -81,7 +80,7 @@ class subbookings_info {
         // We just want filenames, as they are also the classnames.
         foreach ($filelist as $filepath) {
             $path = pathinfo($filepath);
-            $filename = 'mod_booking\subbookings\subbookings\\' . $path['filename'];
+            $filename = 'mod_booking\subbookings\sb_types\\' . $path['filename'];
 
             // We instantiate all the classes, because we need some information.
             if (class_exists($filename)) {
@@ -101,7 +100,7 @@ class subbookings_info {
     public static function get_subbooking(string $subbookingtype) {
         global $CFG;
 
-        $filename = 'mod_booking\subbookings\subbookings\\' . $subbookingtype;
+        $filename = 'mod_booking\subbookings\sb_types\\' . $subbookingtype;
 
         // We instantiate all the classes, because we need some information.
         if (class_exists($filename)) {

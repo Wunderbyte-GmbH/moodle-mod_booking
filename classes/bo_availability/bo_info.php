@@ -29,11 +29,17 @@ use html_writer;
 use mod_booking\booking_option_settings;
 use mod_booking\output\button_notifyme;
 use mod_booking\output\col_price;
+use mod_booking\output\prepagemodal;
 use mod_booking\output\simple_modal;
 use mod_booking\singleton_service;
 use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
+
+// The blocking condition can return a value to define which button to use.
+define('BO_BUTTON_INDIFFERENT', 0);
+define('BO_BUTTON_MYBUTTON', 1);
+define('BO_BUTTON_NOBUTTON', 2);
 
 /**
  * class for conditional availability information of a booking option
@@ -92,6 +98,34 @@ class bo_info {
      */
     public function is_available(int $optionid = null, int $userid = 0):array {
 
+        if (!$optionid) {
+            $optionid = $this->optionid;
+        }
+
+        $results = $this->get_condition_results($optionid, $userid);
+
+        if (count($results) === 0) {
+            $id = 0;
+            $isavailable = true;
+            $description = '';
+        } else {
+            $id = 0;
+            $isavailable = false;
+            foreach ($results as $result) {
+                // If no Id has been defined or if id is higher, we take the descpription to return.
+                if ($id === 0 || $result['id'] > $id) {
+                    $description = $result['description'];
+                    $id = $result['id'];
+                    $buttonhtml = $result['buttonhtml'];
+                }
+            }
+        }
+
+        return [$id, $isavailable, $description, $buttonhtml];
+
+    }
+
+    public static function get_condition_results(int $optionid = null, int $userid = 0):array {
         global $USER;
 
         // We only get full description when we book for another user.
@@ -136,7 +170,10 @@ class bo_info {
                 $resultsarray[$condition->id] = ['id' => $condition->id,
                     'isavailable' => $isavailable,
                     'description' => $description,
-                    'classname' => $classname];
+                    'classname' => $classname,
+                    'button' => $button, // This indicates if this condition provides a button.
+                    'insertpage' => $insertpage // Bool, only in combination with is available false.
+                ];
             } else {
                 // Else we need to instantiate the condition first.
 
@@ -391,6 +428,58 @@ class bo_info {
     }
 
     /**
+     * Function to render instance of bo_condition.
+     *
+     * @param string $conditionname
+     * @return null|object
+     */
+    private static function get_condition($conditionname) {
+        $filename = 'mod_booking\bo_availability\conditions\\' . $conditionname . '.php';
+
+        if (class_exists($filename)) {
+            return new $filename();
+        }
+
+        return null;
+    }
+
+    /**
+     * This function renders the prebooking page for the right condition.
+     *
+     * @param int $optionid
+     * @param int $pagenumber
+     * @param int $userid
+     * @return array
+     */
+    public static function load_pre_booking_page(int $optionid, int $pagenumber, int $userid) {
+
+        $results = self::get_condition_results($optionid, $userid);
+
+        $counter = 0;
+        $condition = '';
+        foreach ($results as $result) {
+            if ($result['insertpage']) {
+                if ($counter == $pagenumber) {
+                    $condition = $result['classname'];
+                    break;
+                }
+                $counter++;
+            }
+        }
+
+        // We throw an exception if we didn't get a valid pagenumber.
+        if (empty($condition)) {
+            throw new moodle_exception('wrongpagenumberforprebookingpage', 'mod_booking');
+        }
+
+        // We get the condition for the right page.
+        $condition = new $condition();
+
+        // The condition renders the page we actually need.
+        return $condition->render_page($optionid);
+    }
+
+    /**
      * Helper function to render condition descriptions and prices
      * for booking options.
      *
@@ -425,7 +514,12 @@ class bo_info {
         // Show description.
         // If necessary in a modal.
         if (!empty($description)) {
-            $renderedstring = html_writer::div($description, "alert alert-$style text-center pt-0 pb-0");
+            if ($modalfordescription) {
+                $data = new prepagemodal($optionid, 'test', $description);
+                $renderedstring = $output->render_prepagemodal($data);
+            } else {
+                $renderedstring = html_writer::div($description, "alert alert-$style text-center");
+            }
         }
 
         // Show price and add to cart button.

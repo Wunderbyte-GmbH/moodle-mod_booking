@@ -125,16 +125,18 @@ class subbooking implements bo_condition {
                 get_string('bo_cond_subbooking_available', 'mod_booking');
         } else {
 
+            $description = '';
+
             // If we have one or more subbookings, we render the interface here.
 
-            foreach ($settings->subbookings as $subbooking) {
+            // foreach ($settings->subbookings as $subbooking) {
 
                 // These are already instantiated subbookings, we can call the function right away.
-                $description .= $subbooking->render_interface($settings);
-            }
+                // $description .= $subbooking->render_interface($settings);
+            // }
         }
 
-        return [$isavailable, $description];
+        return [$isavailable, $description, true, BO_BUTTON_INDIFFERENT];
     }
 
     /**
@@ -146,5 +148,53 @@ class subbooking implements bo_condition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         // Do nothing.
+    }
+
+    /**
+     * The page refers to an additional page which a booking option can inject before the booking process.
+     * Not all bo_conditions need to take advantage of this. But eg a condition which requires...
+     * ... the acceptance of a booking policy would render the policy with this function.
+     *
+     * @param integer $optionid
+     * @return string
+     */
+    public function render_page(int $optionid) {
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        // First, we need to have a list of the blocking subbookings.
+
+        $templates = [];
+        $dataarray = [];
+        foreach ($settings->subbookings as $subbooking) {
+            if (!$subbooking->block) {
+                list($data, $template) = $subbooking->return_interface($settings);
+                if (!empty($data)) {
+                    $dataarray[] = $data;
+                    $templates[] = $template;
+                }
+            }
+        }
+
+        $jsonstring = json_encode($dataarray);
+
+        $returnarray = [
+            'json' => $jsonstring,
+            'template' => implode(',', $templates),
+            'buttontype' => 0,
+        ];
+
+        return $returnarray;
+    }
+
+    /**
+     * Some conditions (like price & bookit) provide a button.
+     * Renders the button, attaches js to the Page footer and returns the html.
+     *
+     * @param integer $optionid
+     * @param object|null $user
+     * @return string
+     */
+    public static function render_button(int $optionid, object $user = null) {
+        return "";
     }
 }

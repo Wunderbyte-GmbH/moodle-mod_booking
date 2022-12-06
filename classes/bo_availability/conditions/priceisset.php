@@ -26,9 +26,12 @@
 
  namespace mod_booking\bo_availability\conditions;
 
+use context_module;
+use local_shopping_cart\local\entities\cartitem;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\booking_answers;
 use mod_booking\booking_option_settings;
+use mod_booking\output\bookit;
 use mod_booking\output\col_price;
 use mod_booking\price;
 use mod_booking\singleton_service;
@@ -136,7 +139,7 @@ class priceisset implements bo_condition {
                 get_string('bo_cond_priceisset_not_available', 'mod_booking');
         }
 
-        return [$isavailable, $description];
+        return [$isavailable, $description, false, BO_BUTTON_MYBUTTON];
     }
 
     /**
@@ -148,5 +151,39 @@ class priceisset implements bo_condition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         // Do nothing.
+    }
+
+    /**
+     * The page refers to an additional page which a booking option can inject before the booking process.
+     * Not all bo_conditions need to take advantage of this. But eg a condition which requires...
+     * ... the acceptance of a booking policy would render the policy with this function.
+     *
+     * @param integer $optionid
+     * @return string
+     */
+    public function render_page(int $optionid) {
+        return "";
+    }
+
+    /**
+     * Some conditions (like price & bookit) provide a button.
+     * Renders the button, attaches js to the Page footer and returns the html.
+     *
+     * @param integer $optionid
+     * @param object $user
+     * @return string
+     */
+    public static function render_button(int $optionid, object $user = null) {
+        global $PAGE;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        $context = context_module::instance($settings->cmid);
+        $PAGE->set_context($context);
+
+        $output = $PAGE->get_renderer('mod_booking');
+        $data = new bookit($settings, null, $context, $user);
+
+        return $output->render_bookit($data);
     }
 }
