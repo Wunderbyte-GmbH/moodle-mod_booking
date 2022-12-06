@@ -367,7 +367,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'endtime' => '{endtime}', 'startdate' => '{startdate}', 'enddate' => '{enddate}',
             'courselink' => '{courselink}', 'bookinglink' => '{bookinglink}',
             'location' => '{location}', 'institution' => '{institution}', 'address' => '{address}',
-            'eventtype' => '{evventtype}', 'email' => '{email}', 'bookingdetails' => '{bookingdetails}',
+            'eventtype' => '{eventtype}', 'email' => '{email}', 'bookingdetails' => '{bookingdetails}',
             'gotobookingoption' => '{gotobookingoption}', 'changes' => '{changes}',
             'usercalendarurl' => '{usercalendarurl}', 'coursecalendarurl' => '{coursecalendarurl}',
             'numberparticipants' => '{numberparticipants}', 'numberwaitinglist' => '{numberwaitinglist}');
