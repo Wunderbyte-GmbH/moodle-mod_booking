@@ -720,14 +720,8 @@ class dates_handler {
             $returnarray[] = ['datestring' => $session->datestring];
         }
 
-        if (count($sessions) > 0) {
-            foreach ($sessions as $session) {
-                $returnsession = [];
-                if ($returnsession) {
-                    $returnarray[] = $returnsession;
-                }
-            }
-        } else {
+        // If we don't have any sessions, we render the date of the option itself.
+        if (empty($sessions)) {
             $returnarray[] = [
                     'datestring' => self::prettify_optiondates_start_end(
                             $settings->coursestarttime,
