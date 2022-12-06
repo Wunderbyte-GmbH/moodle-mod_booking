@@ -208,14 +208,16 @@ class calendar {
      * @throws dml_exception
      */
     private function booking_option_add_to_cal($booking, $option, $userid = 0, $calendareventid, $addtocalendar = 1) {
-        global $DB, $CFG;
+        global $DB;
 
         if ($option->courseendtime == 0 || $option->coursestarttime == 0) {
             return 0;
         }
 
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
         // Do not add booking option to calendar, if there are multiple sessions.
-        if (count($option->settings) > 1) {
+        if (count($optionsettings->sessions) > 1) {
             return 0;
         }
 
