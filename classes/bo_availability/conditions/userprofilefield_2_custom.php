@@ -215,7 +215,7 @@ class userprofilefield_2_custom implements bo_condition {
                 get_string('bo_cond_customuserprofilefield_not_available', 'mod_booking');
         }
 
-        return [$isavailable, $description];
+        return [$isavailable, $description, false, BO_BUTTON_INDIFFERENT];
     }
 
     /**
@@ -331,6 +331,18 @@ class userprofilefield_2_custom implements bo_condition {
     }
 
     /**
+     * The page refers to an additional page which a booking option can inject before the booking process.
+     * Not all bo_conditions need to take advantage of this. But eg a condition which requires...
+     * ... the acceptance of a booking policy would render the policy with this function.
+     *
+     * @param integer $optionid
+     * @return string
+     */
+    public function render_page(int $optionid) {
+        return "";
+    }
+
+    /**
      * Returns a condition object which is needed to create the condition JSON.
      *
      * @param stdClass $fromform
@@ -379,5 +391,17 @@ class userprofilefield_2_custom implements bo_condition {
             $defaultvalues->bo_cond_customuserprofilefield_overridecondition = $acdefault->overrides;
             $defaultvalues->bo_cond_customuserprofilefield_overrideoperator = $acdefault->overrideoperator;
         }
+    }
+
+    /**
+     * Some conditions (like price & bookit) provide a button.
+     * Renders the button, attaches js to the Page footer and returns the html.
+     *
+     * @param integer $optionid
+     * @param object|null $user
+     * @return string
+     */
+    public static function render_button(int $optionid, object $user = null) {
+        return "";
     }
 }

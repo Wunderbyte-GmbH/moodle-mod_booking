@@ -84,7 +84,14 @@ $functions = array(
         'description' => 'Puts user on and off the notification list',
         'type' => 'read',
         'ajax' => true
-    )
+    ),
+    'mod_booking_load_pre_booking_page' => array(
+        'classname' => 'mod_booking\external',
+        'methodname' => 'load_pre_booking_page',
+        'description' => 'Loads the injected pre booking page from the right bo_condition',
+        'type' => 'read',
+        'ajax' => true
+    ),
 );
 
 $services = array(

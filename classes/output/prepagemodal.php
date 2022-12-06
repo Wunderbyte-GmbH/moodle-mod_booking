@@ -30,36 +30,39 @@ use renderable;
 use templatable;
 
 /**
- * This class prepares data for displaying a simple modal in different contexts.
+ * This class prepares data for displaying the pre page modal.
  *
  * @package     mod_booking
  * @copyright   2022 Wunderbyte GmbH {@link http://www.wunderbyte.at}
  * @author      Georg Maißer
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class simple_modal implements renderable, templatable {
+class prepagemodal implements renderable, templatable {
 
-    /** @var int $modalcounter Modal counter for more than one modals on a page. */
-    public $modalcounter = 0;
+    /** @var int $optionid as modal counter for more than one modals on a page. */
+    public $optionid = 0;
 
-    /** @var string $modaltitle string for button text */
-    public $modaltitle = "";
+    /** @var int $totalnumberofpages int to pass on to js */
+    public $totalnumberofpages = 0;
 
-    /** @var string $description html string for body */
-    public $description = "";
+    /** @var string $buttonhtml html string for button */
+    public $buttonhtml = "";
 
     /**
      * Constructor
      *
-     * @param int $modalcounter
-     * @param string $modaltitle
-     * @param string $description
+     * @param int $optionid
+     * @param int $totalnumberofpages
+     * @param string $buttonhtml
      */
-    public function __construct(int $modalcounter, string $modaltitle, string $description) {
+    public function __construct(
+            int $optionid,
+            int $totalnumberofpages,
+            string $buttonhtml) {
 
-        $this->modalcounter = $modalcounter;
-        $this->modaltitle = $modaltitle;
-        $this->description = $description;
+        $this->optionid = $optionid;
+        $this->totalnumberofpages = $totalnumberofpages;
+        $this->buttonhtml = $buttonhtml;
     }
 
     /**
@@ -70,9 +73,9 @@ class simple_modal implements renderable, templatable {
     public function export_for_template(renderer_base $output) {
 
         return [
-            'modalcounter' => $this->modalcounter,
-            'modaltitle' => $this->modaltitle,
-            'description' => $this->description,
+            'optionid' => $this->optionid,
+            'totalnumberofpages' => $this->totalnumberofpages,
+            'buttonhtml' => $this->buttonhtml,
         ];
     }
 }
