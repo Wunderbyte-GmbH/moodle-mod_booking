@@ -119,7 +119,7 @@ class dates_handler {
             // Get the currently saved optiondateids from DB.
             $olddates = $DB->get_records('booking_optiondates', ['optionid' => $this->optionid]);
 
-            // Now, let's remove every date from bookink_optiondates
+            // Now, let's remove every date from bookink_optiondates.
             foreach ($olddates as $olddate) {
                 $olddateid = (int) $olddate->id;
 
@@ -826,7 +826,8 @@ class dates_handler {
      * @param boolean $showweekdays
      * @return array
      */
-    public static function return_dates_with_strings(booking_option_settings $settings, string $lang = '', bool $showweekdays = false) {
+    public static function return_dates_with_strings(booking_option_settings $settings,
+        string $lang = '', bool $showweekdays = false) {
 
         $sessions = [];
 
@@ -886,7 +887,8 @@ class dates_handler {
 
         // Times & Dates.
         $strftimedatetime = new lang_string('strftimedatetime', 'langconfig', null, $lang); // 3. February 2023, 11:45.
-        $strftimedaydatetime = new lang_string('strftimedaydatetime', 'langconfig', null, $lang); // Friday, 3. February 2023, 11:45.
+        $strftimedaydatetime = new lang_string('strftimedaydatetime', 'langconfig', null, $lang);
+        // Friday, 3. February 2023, 11:45.
 
         $date->starttimestamp = $starttime; // Unix timestamps.
         $date->starttime = userdate($starttime, $strftimetime); // 10:30.

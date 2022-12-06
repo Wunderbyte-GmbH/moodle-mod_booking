@@ -1092,9 +1092,9 @@ function booking_update_options($optionvalues, $context) {
         // Save relation for each newly created optiondate if checkbox is active.
         save_entity_relations_for_optiondates_of_option($optionvalues, $option->id);
 
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
-        // $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
-        // $cache->delete($option->id);
+        // We need to reset cache for options table and option settings after updating an option.
+        cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::invalidate_by_event('setbackoptionsettings', [$option->id]);
 
         rules_info::execute_rules_for_option($option->id);
 
@@ -1206,13 +1206,9 @@ function booking_update_options($optionvalues, $context) {
             rules_info::execute_rules_for_option($optionid);
         }
 
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        // We also need to invalidate the cache for the booking answer.
-        // phpcs:ignore moodle.Commenting.InlineComment.InvalidEndChar,moodle.Commenting.InlineComment.NotCapital
-        // cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found,moodle.Commenting.InlineComment.NotCapital
-        // $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
-        // $cache->delete($optionid);
+        // We need to reset cache for options table and option settings after updating an option.
+        cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
 
         return $optionid;
     }
