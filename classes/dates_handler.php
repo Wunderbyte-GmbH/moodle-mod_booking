@@ -928,12 +928,14 @@ class dates_handler {
             }
 
         } else {
-            $date->startdate = userdate($endtime, $strftimedate); // 3. February 2023.
-            $date->datestring = userdate($starttime, $strftimedatetime); // 3. February 2023, 11:45.
+            // Without weekays.
+            $date->startdate = userdate($starttime, $strftimedate); // 3. February 2023.
             $date->startdatetime = userdate($starttime, $strftimedatetime); // 3. February 2023, 11:45.
+            $date->datestring = $date->startdatetime;
 
             if (!empty($endtime)) {
                 $date->enddate = userdate($endtime, $strftimedate); // 3. February 2023.
+                $date->enddatetime = userdate($endtime, $strftimedatetime); // Friday, 3. February 2023, 12:45.
                 $date->datestring .= " - ";
                 $date->datestring .= $date->startdate != $date->enddate ?
                     $date->enddatetime : // 3. February 2023, 11:45 - 4. February 2023, 12:45.
