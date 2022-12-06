@@ -28,6 +28,7 @@ use local_entities\entitiesrelation_handler;
 use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
+use mod_booking\calendar;
 use mod_booking\customfield\booking_handler;
 use mod_booking\event\bookinganswer_cancelled;
 use mod_booking\message_controller;
@@ -1162,11 +1163,11 @@ class booking_option {
             // If the option has optiondates, then add the optiondate events to the user's calendar.
             if ($optiondates) {
                 foreach ($optiondates as $optiondate) {
-                    new \mod_booking\calendar($this->booking->cm->id, $this->optionid, $user->id, 6, $optiondate->id, 1);
+                    new calendar($this->booking->cm->id, $this->optionid, $user->id, 6, $optiondate->id, 1);
                 }
             } else {
                 // Else add the booking option event to the user's calendar.
-                new \mod_booking\calendar($this->booking->cm->id, $this->optionid, $user->id, 1, 0, 1);
+                new calendar($this->booking->cm->id, $this->optionid, $user->id, 1, 0, 1);
             }
         }
 

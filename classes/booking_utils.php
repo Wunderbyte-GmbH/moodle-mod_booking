@@ -18,6 +18,7 @@ namespace mod_booking;
 
 use html_writer;
 use mod_booking\utils\wb_payment;
+use mod_booking\event\bookingoption_updated;
 use moodle_url;
 use stdClass;
 
@@ -506,7 +507,7 @@ class booking_utils {
         // We trigger the event only if we have real changes OR if we set the calendar entry to 1.
         if (count($changes) > 0 || $addtocalendar == 1) {
             // Also, we need to trigger the bookingoption_updated event, in order to update calendar entries.
-            $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
+            $event = bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
                     'userid' => $USER->id));
             $event->trigger();
         }

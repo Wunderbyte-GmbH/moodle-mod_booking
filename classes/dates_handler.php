@@ -711,10 +711,7 @@ class dates_handler {
      */
     public static function return_array_of_sessions_simple(int $optionid) {
 
-        global $DB;
-
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
         $sessions = self::return_dates_with_strings($settings);
 
         $returnarray = [];
@@ -725,15 +722,7 @@ class dates_handler {
 
         if (count($sessions) > 0) {
             foreach ($sessions as $session) {
-
                 $returnsession = [];
-
-                // We show this only if timevalues are not 0.
-                // if ($session->coursestarttime != 0 && $session->courseendtime != 0) {
-                    /* Important: Last param needs to be false, as the weekdays conversion can cause
-                    problems ("Allowed memory size exhausted...")if too many options are loaded. */
-
-                // }
                 if ($returnsession) {
                     $returnarray[] = $returnsession;
                 }

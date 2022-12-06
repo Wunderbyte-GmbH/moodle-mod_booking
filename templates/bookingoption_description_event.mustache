@@ -38,11 +38,11 @@
 {{#statusdescription}}<div class="bo_statusdescription"><p>{{{.}}}</p></div>{{/statusdescription}}
 {{#showteacherslabel}}<br>{{#str}}teachers, mod_booking{{/str}}:<br>{{/showteacherslabel}}
         {{#teachers}}
-- {{.}} <br>
+* {{.}} <br>
         {{/teachers}}
 {{#showdateslabel}}<br>{{#str}}optiondatestime, mod_booking{{/str}}:<br>{{/showdateslabel}}
 {{#dates}}
-- {{{datestring}}} <br>
+* {{{datestring}}} <br>
 {{#customfields}}
      {{name}}{{{value}}} <br>
 {{/customfields}}
