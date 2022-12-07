@@ -23,7 +23,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-global $CFG, $ADMIN, $DB;
+global $CFG, $DB, $ADMIN, $DB;
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
@@ -98,6 +98,30 @@ if ($ADMIN->fulltree) {
         new admin_setting_configtext('booking/licensekey',
             get_string('licensekey', 'mod_booking'),
             $licensekeydesc, ''));
+
+    $settings->add(
+        new admin_setting_heading('newcoursecategorycfieldheading',
+            get_string('automaticcoursecreation', 'mod_booking'),
+            ''));
+
+    /* Booking option custom field to be used as course category
+       for automatically created courses. */
+    $sql = "SELECT cff.shortname FROM {customfield_category} cfc
+    LEFT JOIN {customfield_field} cff ON cfc.id = cff.categoryid
+    WHERE cfc.component = 'mod_booking'";
+
+    $records = $DB->get_records_sql($sql);
+    foreach ($records as $record) {
+        $options[$record->shortname] = $record->shortname;
+    }
+
+    if (isset($options)) {
+        $settings->add(
+            new admin_setting_configselect('booking/newcoursecategorycfield',
+                    get_string('newcoursecategorycfield', 'mod_booking'),
+                    get_string('newcoursecategorycfielddesc', 'mod_booking'),
+                    1, $options));
+    }
 
     $settings->add(
         new admin_setting_heading('educationalunitinminutes',
@@ -186,26 +210,6 @@ if ($ADMIN->fulltree) {
     $settings->add(
         new admin_setting_configcheckbox('booking/duplicationrestoreentities',
                 get_string('duplicationrestoreentities', 'mod_booking'), '', 1));
-
-
-    $sql = "SELECT cff.shortname FROM {customfield_category} cfc LEFT JOIN
-    {customfield_field} cff on cfc.id = cff.categoryid
-    where cfc.component = 'mod_booking'";
-    global $DB;
-
-    $records = $DB->get_records_sql($sql);
-
-    foreach ($records as $record) {
-        $options[$record->shortname] = $record->shortname;
-    }
-
-    if (isset($options)) {
-        $settings->add(
-            new admin_setting_configselect('booking/newcoursecategorycfield',
-                    get_string('newcoursecategorycfield', 'mod_booking'),
-                    get_string('newcoursecategorycfielddesc', 'mod_booking'),
-                    1, $options));
-    }
 
     $settings->add(
         new admin_setting_heading('notificationlist',

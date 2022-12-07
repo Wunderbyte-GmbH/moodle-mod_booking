@@ -1578,8 +1578,10 @@ $string['bookingoptiondefaultsdesc'] = 'Here you can set default settings for th
 $string['addtocalendardesc'] = 'Course calendar events are visible to ALL users within a course. If you do not want them to be created at all,
 you can turn this setting off and lock it by default. Don\'t worry: user calendar events for booked options will still be created anyways.';
 
-$string['newcoursecategorycfield'] = 'newcoursecategorycfield';
-$string['newcoursecategorycfielddesc'] = 'newcoursecategorycfielddesc';
+$string['automaticcoursecreation'] = 'Automatic creation of Moodle courses';
+$string['newcoursecategorycfield'] = 'Booking option custom field to be used as course category';
+$string['newcoursecategorycfielddesc'] = 'Choose a booking option custom field which will be used as course category for automatically created
+ courses using the dropdown entry "New course" in the form for creating new booking options.';
 
 // Mobile.
 $string['next'] = 'Next';
