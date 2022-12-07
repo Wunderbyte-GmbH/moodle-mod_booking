@@ -166,8 +166,10 @@ class bo_info {
 
             // First, we have the hardcoded conditions already as instances.
             if ($classname !== 'stdClass') {
-                list($isavailable, $description) = $condition->get_description($settings, $userid, $full);
-                $resultsarray[$condition->id] = ['id' => $condition->id,
+                list($isavailable, $description, $insertpage, $button)
+                    = $condition->get_description($full, $settings, $userid);
+                $resultsarray[$condition->id] = [
+                    'id' => $condition->id,
                     'isavailable' => $isavailable,
                     'description' => $description,
                     'classname' => $classname,
