@@ -1769,6 +1769,7 @@ $string['bo_cond_isloggedin'] = 'isloggedin: User ist eingeloggt';
 $string['bo_cond_fullybookedoverride'] = 'fullybookedoverride: Kann überbucht werden.';
 $string['bo_cond_iscancelled'] = 'iscancelled: Buchungsoption storniert';
 $string['bo_cond_subbooking_blocks'] = '';
+$string['bo_cond_bookitbutton'] = 'bookitbutton: Zeige den normalen Buchen-Button.';
 
 $string['bo_cond_booking_time_available'] = 'Innerhalb der normalen Buchungszeiten';
 $string['bo_cond_booking_time_full_available'] = 'Innerhalb der normalen Buchungszeiten. Von {$a} bis {$b}';

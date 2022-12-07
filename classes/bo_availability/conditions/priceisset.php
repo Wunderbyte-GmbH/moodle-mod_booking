@@ -173,7 +173,7 @@ class priceisset implements bo_condition {
      * @param object $user
      * @return string
      */
-    public static function render_button(int $optionid, object $user = null) {
+    public static function render_button(int $optionid, object $user = null, $nojs = false) {
         global $PAGE;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -182,7 +182,7 @@ class priceisset implements bo_condition {
         $PAGE->set_context($context);
 
         $output = $PAGE->get_renderer('mod_booking');
-        $data = new bookit($settings, null, $context, $user);
+        $data = new bookit($settings, $user, $context, $nojs);
 
         return $output->render_bookit($data);
     }
