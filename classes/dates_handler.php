@@ -721,7 +721,8 @@ class dates_handler {
         }
 
         // If we don't have any sessions, we render the date of the option itself.
-        if (empty($sessions)) {
+        if (empty($sessions) && !empty($settings->coursestarttime) && !empty($settings->courseendtime)
+            && $settings->coursestarttime != "0" && $settings->courseendtime != "0") {
             $returnarray[] = [
                     'datestring' => self::prettify_optiondates_start_end(
                             $settings->coursestarttime,
@@ -846,7 +847,8 @@ class dates_handler {
                 $data->id = $session->id;
                 $sessions[] = $data;
             }
-        } else if (isset($settings->coursestarttime) && isset($settings->courseendtime)) {
+        } else if (isset($settings->coursestarttime) && isset($settings->courseendtime)
+            && $settings->coursestarttime != "0" && $settings->courseendtime != "0") {
             // If we don't have extra sessions, we take the normal coursestart & endtime.
 
             $data = self::prettify_datetime($settings->coursestarttime,
