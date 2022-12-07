@@ -28,6 +28,7 @@ namespace mod_booking\output;
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking_option_settings;
 use mod_booking\dates_handler;
+use mod_booking\price;
 use renderer_base;
 use renderable;
 use stdClass;
@@ -92,6 +93,8 @@ class subbooking_timeslot_output implements renderable, templatable {
                         $session->courseendtime,
                         $subbooking->duration);
 
+                    $price = price::get_price('subbooking', $subbooking->id);
+
                     foreach ($slots as $slot) {
 
                         if (!isset($data['slots'])) {
@@ -100,15 +103,20 @@ class subbooking_timeslot_output implements renderable, templatable {
                             ];
                         }
 
-                        $location['timeslots'][] = [
+                        $timeslot = [
                             "free" => true,
                             "slot" => $slot->datestring,
-                            "price" => 30,
-                            "currency" => "€",
-                            "area" => "subbooking-optionid",
+                            "area" => "subbooking-" . $session->id,
                             "component" => "mod_booking",
                             "itemid" => $slotcounter,
                         ];
+
+                        if (!empty($price)) {
+                            $timeslot["price"] = $price['price'] ?? 0;
+                            $timeslot["currency"] = $price['currency'] ?? 'EUR';
+                        }
+
+                        $location['timeslots'][] = $timeslot;
                         $slotcounter++;
                     }
 

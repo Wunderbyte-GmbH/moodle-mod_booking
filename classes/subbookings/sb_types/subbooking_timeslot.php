@@ -20,6 +20,7 @@ use context_module;
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking_option_settings;
 use mod_booking\output\subbooking_timeslot_output;
+use mod_booking\price;
 use mod_booking\subbookings\booking_subbooking;
 use MoodleQuickForm;
 use stdClass;
@@ -98,8 +99,14 @@ class subbooking_timeslot implements booking_subbooking {
             get_string('subbooking_duration', 'mod_booking'));
         $mform->setType('subbooking_timeslot_duration', PARAM_INT);
 
+        // For price & entities wie need the id of this subbooking.
+        $sboid = $formdata['id'] ?? 0;
+
+        // Add price.
+        $price = new price('subbooking', $sboid);
+        $price->add_price_to_mform($mform);
+
         if (class_exists('local_entities\entitiesrelation_handler')) {
-            $sboid = $formdata['id'] ?? 0;
             $erhandler = new entitiesrelation_handler('mod_booking', 'subbooking');
             $erhandler->instance_form_definition($mform, $sboid);
         }
@@ -155,6 +162,10 @@ class subbooking_timeslot implements booking_subbooking {
             $id = $DB->insert_record('booking_subbooking_options', $record);
             $this->id = $id;
         }
+
+        // Add price.
+        $price = new price('subbooking', $this->id);
+        $price->save_from_form($data);
 
         // This is to save entity relation data.
         // The id key has to be set to option id.

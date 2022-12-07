@@ -265,6 +265,28 @@ class subbookings_info {
     }
 
     /**
+     * This function checks if there are any not blocking subbookings in the main booking option.
+     * While the not blocking subblocking doesn't prevent the blocking of the main option...
+     * ... it still needs to announce the presence of options...
+     * ... which may want to introduce a page in the booking process.
+     * Blockings subbookings are handled by a different bo_condition.
+     *
+     * @param object $settings
+     * @return bool
+     */
+    public static function not_blocked(object $settings) {
+
+        $notblocked = false;
+        foreach ($settings->subbookings as $subbooking) {
+            if ($subbooking->block != 1) {
+                $notblocked = true;
+            }
+        }
+
+        return $notblocked;
+    }
+
+    /**
      * Load all the available subbookings for a specific ID and return them as array.
      * We return the instantiated classes to be able to call functions on them.
      *

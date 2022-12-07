@@ -496,14 +496,14 @@ class price {
                 // Add absolute value and multiply with manual factor.
                 $price *= $fromform->priceformulamultiply;
                 $price += $fromform->priceformulaadd;
-                self::add_price('option', $fromform->optionid, $pricecategory->identifier, $price, $currency);
+                self::add_price($this->area, $this->itemid, $pricecategory->identifier, $price, $currency);
 
             } else {
                 if (isset($fromform->{'pricegroup_' . $pricecategory->identifier})) {
                     // Price formula is not active, just save the values from form.
                     $pricegroup = $fromform->{'pricegroup_' . $pricecategory->identifier};
                     $price = $pricegroup['bookingprice_' . $pricecategory->identifier];
-                    self::add_price('option', $fromform->optionid, $pricecategory->identifier, $price, $currency);
+                    self::add_price($this->area, $this->itemid, $pricecategory->identifier, $price, $currency);
                 }
             }
         }

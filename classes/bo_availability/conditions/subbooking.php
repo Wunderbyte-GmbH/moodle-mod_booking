@@ -79,7 +79,7 @@ class subbooking implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        if (count($settings->subbookings) < 1) {
+        if (!subbookings_info::not_blocked($settings)) {
             $isavailable = true;
         }
 

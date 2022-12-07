@@ -18,8 +18,6 @@ namespace mod_booking;
 
 use mod_booking\bo_availability\bo_info;
 use mod_booking\output\prepagemodal;
-use mod_booking\output\simple_modal;
-use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
