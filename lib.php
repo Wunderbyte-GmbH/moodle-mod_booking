@@ -901,10 +901,10 @@ function booking_update_options($optionvalues, $context) {
         };
     }
 
-    // Create a new course and put it either in a new coursecategory or in an already existing.
+    /* Create a new course and put it either in a new course category
+       or in an already existing one. */
     if ($option->courseid == -1) {
-        $categoryid = 0;
-        // TODO shortnamefalback?
+        $categoryid = 1; // By default, we use the first category.
         if (!empty(get_config('booking', 'newcoursecategorycfield'))) {
             // FEATURE add more settingfields add customfield_ to settingsvalue from customfields allwo only Textfields or Selects.
             $cfforcategory = 'customfield_' . get_config('booking', 'newcoursecategorycfield');
@@ -930,15 +930,26 @@ function booking_update_options($optionvalues, $context) {
         }
 
         // Create course.
+        $fullnamewithprefix = '';
+        if (!empty($option->titleprefix)) {
+            $fullnamewithprefix .= $option->titleprefix . ' - ';
+        }
+        $fullnamewithprefix .= $option->text;
+
+        // Courses need to have unique shortnames.
         $i = 1;
-        $shortname = $option->text;
+        $shortname = $fullnamewithprefix;
         while ($DB->get_record('course', array('shortname' => $shortname))) {
-            $shortname = $option->text . '_' . $i;
+            $shortname = $fullnamewithprefix . '_' . $i;
             $i++;
         };
-        $newcourse['fullname'] = $option->text;
+        $newcourse['fullname'] = $fullnamewithprefix;
         $newcourse['shortname'] = $shortname;
         $newcourse['categoryid'] = $categoryid;
+        if (!empty($option->coursestarttime) && !empty($option->courseendtime)) {
+            $newcourse['startdate'] = $option->coursestarttime;
+            $newcourse['enddate'] = $option->courseendtime;
+        }
 
         $courses = array($newcourse);
         $createdcourses = core_course_external::create_courses($courses);
