@@ -1976,6 +1976,7 @@ $string['bo_cond_fullybookedoverride'] = 'fullybookedoverride: Can be overbooked
 $string['bo_cond_iscancelled'] = 'iscancelled: Booking option cancelled';
 $string['bo_cond_subbooking_blocks'] = 'subbookingblocks: Subbooking blocks this Booking option';
 $string['bo_cond_subbooking'] = 'subbooking: Subbooking adds additonal options to this Booking option';
+$string['bo_cond_bookitbutton'] = 'bookitbutton: Show the normal booking button.';
 
 $string['bo_cond_booking_time_available'] = 'Within normal booking times';
 $string['bo_cond_booking_time_full_available'] = 'Within normal booking times. From {$a} until {$b}';

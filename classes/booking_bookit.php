@@ -66,31 +66,28 @@ class booking_bookit {
             }
             // The button can come from another blocking condition.
             if ($result['button'] == BO_BUTTON_MYBUTTON) {
-                $condition = $result['classname'];
+                $buttoncondition = $result['classname'];
             }
         }
 
-        // We render the button only from the highest relevant blocking condition.
-
-        // $buttonhtml = '<div class="btn btn-primary">book it</div>';
-
-        // We can only call the renderer here.
-        // Else, we would risk to render more than one
-        $buttonhtml = $condition::render_button($settings->id);
-
-        // Render button/modal.
-
-        $output = $PAGE->get_renderer('mod_booking');
-        $data = new prepagemodal(
-            $settings->id, // We pass on the optionid.
-            count($sites), // The total number of pre booking pages.
-            $settings->id . $buttonhtml,  // This is the button we need to render twice.;
-        );
-        $modalhtml = $output->render_prepagemodal($data);
-
+        // Big decession: can we render the button right away, or do we need to introduce a modal?
         if (count($sites) > 0) {
+
+            // We render the button only from the highest relevant blocking condition.
+            $output = $PAGE->get_renderer('mod_booking');
+            $data = new prepagemodal(
+                $settings->id, // We pass on the optionid.
+                count($sites), // The total number of pre booking pages.
+                $buttoncondition,  // This is the button we need to render twice.;
+            );
+
+            $modalhtml = $output->render_prepagemodal($data);
             return $modalhtml;
         } else {
+
+            // We can only call the renderer here.
+            // Else, we would risk to render more than one
+            $buttonhtml = $buttoncondition::render_button($settings->id, null, false);
             return $buttonhtml;
         }
     }

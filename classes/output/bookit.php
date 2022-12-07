@@ -46,12 +46,16 @@ use templatable;
 class bookit implements renderable, templatable {
 
     /** @var array $cartitem array of cartitem */
-    public $cartitem = [];
+    public array $cartitem = [];
 
     /** @var array $priceitem array of priceitem */
-    public $priceitems = [];
+    public array $priceitems = [];
 
+    /** @var context $context */
     private $context = null;
+
+    /** @var bool $nojs flag for not adding js to button */
+    private $nojs = false;
 
     /**
      * Only when the user is not booked, we store a price during construction.
@@ -61,10 +65,13 @@ class bookit implements renderable, templatable {
      * @param booking_option_settings $settings
      * @param object $buyforuser
      * @param context|null $context
+     * @param bool $nojs
      */
-    public function __construct(booking_option_settings $settings, $buyforuser = null, context $context = null) {
+    public function __construct(booking_option_settings $settings, $buyforuser = null, $context = null, $nojs = false) {
 
         global $USER;
+
+        $this->nojs = $nojs;
 
         // First, we see if we deal with a guest. Guests get all prices.
         if ($context && !isloggedin()) {
@@ -136,7 +143,7 @@ class bookit implements renderable, templatable {
         } else if (!$this->cartitem) {
             return [];
         }
-        return [
+        $returnarray = [
             'itemid' => $this->cartitem['itemid'],
             'itemname' => $this->cartitem['itemname'],
             'price' => number_format($this->cartitem['price'], 2),
@@ -144,7 +151,13 @@ class bookit implements renderable, templatable {
             'componentname' => $this->cartitem['componentname'],
             'description' => $this->cartitem['description'],
             'imageurl' => $this->cartitem['imageurl'],
-            'priceitems' => $this->priceitem
+            'priceitems' => $this->priceitem,
         ];
+
+        if ($this->nojs) {
+            $returnarray['nojs'] = 1;
+        }
+
+        return $returnarray;
     }
 }
