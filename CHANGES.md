@@ -1,3 +1,30 @@
+## Version 7.7.5 (2022120900)
+**New features:**
+* New feature: Add setting to turn off creation of user calendar events, if wanted.
+* New feature: Better German language strings ("Buchungen" instead of "Antworten").
+* New feature: Turn messages off by entering 0.
+
+**Improvements:**
+* Improvement: Optimized and improved DB performance (added keys, indexes etc.)
+* Improvement: Use caching for booking option description.
+* Improvement: Better settings for automatic course creation category custom field.
+
+**Bugfixes:**
+* Bugfix: Fix problem with static functions
+* Bugfix: Do not trigger bookingoption_updated when a booking option is cancelled.
+* Bugfix: Fixed some errors in prettify_datetime.
+* Bugfix: Typo in {eventtype} of fieldmapping.
+* Bugfix: Correctly retrieve sessions via singleton_service of booking_option_settings.
+* Bugfix: Dates spanning over more than one day did not show second date.
+* Bugfix: Calendar events were created twice on creation of booking options.
+* Bugfix: We need to purge option settings cache after updating.
+* Bugfix: Fix a bug were options without dates showed Jan 1st, 1970.
+* Bugfix: Fixed some bugs with automatic course creation.
+* Bugfix: Fixed some behat test (issue #217).
+* Bugfix: Fixed error string in CSV import.
+* Bugfix: Fix missing userid in send notification mails task (function return_all_booking_information) - issue #218
+* Bugfix: Optionid was missing when creating new sessions in optiondates.php (multi-session manager).
+
 ## Version 7.7.4 (2022120200)
 **New features:**
 * New feature: New placeholders from user profile:
