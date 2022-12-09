@@ -129,6 +129,9 @@ export const loadPreBookingPage = (
         },
         done: function(res) {
 
+            // eslint-disable-next-line no-console
+            console.log(res.json, "template " + res.template);
+
             const jsonobject = JSON.parse(res.json);
 
             // We support more than one template, they will be seperated by comma.
@@ -139,6 +142,13 @@ export const loadPreBookingPage = (
             templates.forEach(template => {
 
                 const data = dataarray.shift();
+
+                if (!data) {
+                    return true;
+                }
+
+                // eslint-disable-next-line no-console
+                console.log(data.data, "template " + template);
 
                 Templates.renderForPromise(template, data.data).then(({html, js}) => {
 
@@ -151,6 +161,7 @@ export const loadPreBookingPage = (
                         type: "danger"
                     });
                 });
+                return true;
             });
 
             showRightButton(optionid);
