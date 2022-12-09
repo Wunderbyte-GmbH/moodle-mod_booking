@@ -47,8 +47,9 @@ class optiondatesadd_form extends moodleform {
         $mform->addElement('hidden', 'optiondateid');
         $mform->setType('optiondateid', PARAM_INT);
 
-        $mform->addElement('hidden', 'optionid');
-        $mform->setType('optionid', PARAM_INT);
+        /* Notice: Do not add hidden elements for 'id' and 'optionid' as - for some reason -
+        it will cause the ids to be 0 in optiondates.php which will break the functionality
+        to create new sessions. */
 
         $mform->addElement('hidden', 'bookingid');
         $mform->setType('bookingid', PARAM_INT);

@@ -185,7 +185,7 @@ if ($mform->is_cancelled()) {
     $optiondateid = $data->optiondateid;
 
     // There is an optiondate id, so we have to update & check for changes.
-    if ($optiondateid != '') {
+    if (!empty($optiondateid)) {
 
         // Retrieve the old record and pass it on.
         $oldoptiondate = $DB->get_record('booking_optiondates', array('id' => $optiondateid));
