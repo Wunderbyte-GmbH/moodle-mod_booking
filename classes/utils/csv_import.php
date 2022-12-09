@@ -295,7 +295,7 @@ class csv_import {
                             $this->add_csverror(get_string('noteacherfound', 'booking', $i), $i);
                         }
                     } else {
-                        $this->add_csverror(get_string('teacher user not found', 'booking', $i), $i);
+                        $this->add_csverror(get_string('noteacherfound', 'booking', $i), $i);
                     }
                 }
 
