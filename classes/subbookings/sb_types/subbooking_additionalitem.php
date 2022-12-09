@@ -18,6 +18,7 @@ namespace mod_booking\subbookings\sb_types;
 
 use context_module;
 use mod_booking\booking_option_settings;
+use mod_booking\output\subbooking_additionalitem_output;
 use mod_booking\subbookings\booking_subbooking;
 use MoodleQuickForm;
 use stdClass;
@@ -245,6 +246,23 @@ class subbooking_additionalitem implements booking_subbooking {
         // The interface of the timeslot booking should merge when there are multiple slot bookings.
         // Therefore, we need to first find out how many of these are present.
 
-        return $this->type;
+        // The interface of the timeslot booking should merge when there are multiple slot bookings.
+        // Therefore, we need to first find out how many of these are present.
+        $arrayofmine = array_filter($settings->subbookings, function($x) {
+            return $x->type == $this->type;
+        });
+
+        // We only want to actually render anything when we are in the last item.
+        $lastitem = end($arrayofmine);
+        if ($lastitem !== $this) {
+            return [];
+        }
+
+        // Now that we render the last item, we need to render all of them, plus the container.
+        // We need to create the json for rendering.
+
+        $data = new subbooking_additionalitem_output($settings);
+
+        return [$data, 'mod_booking/subbooking_additionalitem'];
     }
 }
