@@ -31,7 +31,8 @@ Feature: In a booking create
         When I am on "Course 1" course homepage
         Then I follow "My booking"
         And I follow "My booking"
-        And I follow "Settings"
+        ## And I follow "Settings"
+        And I click on "Settings" "icon"
         And I follow "Book other users"
         And I click on "Student 1 (student1@example.com)" "text"
         And I click on "Student 2 (student2@example.com)" "text"
@@ -39,8 +40,9 @@ Feature: In a booking create
         And I follow "<< Back to responses"
         And I click on "selectall" "checkbox"
         And I click on "Delete responses" "button"
-        Then I open the link "webserver/admin/cron.php"
-        And I wait "1" seconds
+        Then I trigger cron
+        ## Then I open the link "webserver/admin/cron.php?password=opensesame"
+        And I wait "10" seconds
 
     @javascript @email
     Scenario: Send email for user

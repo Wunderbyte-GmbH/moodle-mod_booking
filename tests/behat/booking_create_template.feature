@@ -29,28 +29,28 @@ Feature: In a booking create
         When I am on "Course 1" course homepage
         Then I should see "My booking"
         And I follow "My booking"
-        And I follow "Actions menu"
-        And I follow "Add a new booking option"
+        ## And I follow "Actions menu"
+        And I follow "New booking option"
         And I set the following fields to these values:
            | Booking option name | New option - Webinar |
         Then I click on "Start and end time of course are known" "checkbox"
-        Then I set the field "Add to calendar" to "Add to calendar (visible only to course participants)"
+        Then I set the field "Add to course calendar" to "Add to calendar (visible only to course participants)"
         And I set the following fields to these values:
             | coursestarttime[day] | 31 |
             | coursestarttime[month] | December |
-            | coursestarttime[year] | 2021 |
+            | coursestarttime[year] | 2022 |
             | coursestarttime[hour] | 09 |
             | coursestarttime[minute] | 00|
         And I set the following fields to these values:
             | courseendtime[day] | 31 |
             | courseendtime[month] | December |
-            | courseendtime[year] | 2022 |
+            | courseendtime[year] | 2023 |
             | courseendtime[hour] | 09 |
             | courseendtime[minute] | 00 |
         Then I set the field "Add as template" to "Use as global template"
         And I press "Save and go back"
-        And I follow "Actions menu"
-        And I follow "Add a new booking option"
+        ## And I follow "Actions menu"
+        And I follow "New booking option"
         And I set the following fields to these values:
             | Populate from template | New option - Webinar |
             | Booking option name | Option created from template |

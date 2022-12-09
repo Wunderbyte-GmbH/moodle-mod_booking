@@ -30,9 +30,9 @@ Feature: In a booking create
         Given I log in as "teacher1"
         When I am on "Course 1" course homepage
         Then I follow "My booking"
-        And I should see "New option"
-        And I follow "Actions menu"
-        And I follow "Edit settings"
+        And I should see "New booking option"
+        ## And I follow "Actions menu"
+        And I follow "Settings"
         And I set the following fields to these values:
             | pollurl | https://example.com |
         Then I set the field "Send confirmation e-mail" to "Yes"
