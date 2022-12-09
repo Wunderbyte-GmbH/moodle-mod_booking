@@ -30,6 +30,7 @@ var SELECTORS = {
     MODALID: '#sbPrePageModal',
     INMODALDIV: ' div.pageContent',
     CONTINUEBUTTON: 'a.continue-button',
+    BACKBUTTON: 'a.back-button',
 };
 
 /**
@@ -43,6 +44,11 @@ export const init = (optionid, totalnumberofpages) => {
     totalbookitpages[optionid] = totalnumberofpages;
 
     respondToVisibility(optionid, totalnumberofpages, loadPreBookingPage);
+
+    // We can add the click listener to the continue button right away.
+
+    initializeButton(optionid, true); // Back button.
+    initializeButton(optionid, false); // Continue button.
 };
 
 /**
@@ -152,6 +158,9 @@ export const loadPreBookingPage = (
 
                 Templates.renderForPromise(template, data.data).then(({html, js}) => {
 
+                    // eslint-disable-next-line no-console
+                    console.log(selector);
+
                     Templates.appendNodeContents(selector, html, js);
 
                     return true;
@@ -191,5 +200,51 @@ function showRightButton(optionid) {
         const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.CONTINUEBUTTON);
         element.classList.add('hidden');
     }
+    if (currentbookitpage[optionid] > 0) {
+        const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.BACKBUTTON);
+        element.classList.remove('hidden');
+    } else {
+        const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.BACKBUTTON);
+        element.classList.add('hidden');
+    }
 
+}
+
+/**
+ * Add the click listener to a button.
+ * @param {integer} optionid
+ * @param {bool} back // If it is the back button, it's true, else its continue.
+ */
+function initializeButton(optionid, back) {
+    let selector = "";
+
+    if (back) {
+        selector = SELECTORS.MODALID + optionid + ' ' + SELECTORS.BACKBUTTON;
+    } else {
+        selector = SELECTORS.MODALID + optionid + ' ' + SELECTORS.CONTINUEBUTTON;
+    }
+
+    const element = document.querySelector(selector);
+
+    // eslint-disable-next-line no-console
+    console.log(element, selector);
+
+    if (!element.dataset.initialized) {
+        element.dataset.initialized = true;
+
+        element.addEventListener('click', () => {
+
+            if (element.classList.contains('hidden')) {
+                return;
+            }
+
+            if (back) {
+                currentbookitpage[optionid]--;
+            } else {
+                currentbookitpage[optionid]++;
+            }
+
+            loadPreBookingPage(optionid, totalbookitpages[optionid]);
+        });
+    }
 }

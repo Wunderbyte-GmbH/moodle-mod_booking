@@ -42,11 +42,16 @@
                     <div class="pageContent"></div>
                 </p>
                 <p>
-                    <a class="btn btn-primary continue-button hidden">
-                        {{#str}} continue {{/str}}
-                    </a>
-                    <div class="in-modal-button hidden">
-                        {{{buttonhtml}}}
+                    <div class="d-flex w-100 justify-content-between">
+                        <a class="btn btn-primary back-button hidden">
+                            {{#str}} back {{/str}}
+                        </a>
+                        <a class="btn btn-primary continue-button hidden">
+                            {{#str}} continue {{/str}}
+                        </a>
+                        <div class="in-modal-button">
+                            {{{inmodalbuttonhtml}}}
+                        </div>
                     </div>
                 </p>
             </div>

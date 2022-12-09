@@ -457,6 +457,9 @@ class bo_info {
 
         $results = self::get_condition_results($optionid, $userid);
 
+        // Results have to be sorted the right way. At the moment, it depends on the id of the blocking condition.
+        usort($results, fn($a, $b) => ($a['id'] < $b['id'] ? 1 : -1 ));
+
         $counter = 0;
         $condition = '';
         foreach ($results as $result) {

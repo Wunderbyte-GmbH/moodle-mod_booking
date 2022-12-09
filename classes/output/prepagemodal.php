@@ -67,6 +67,7 @@ class prepagemodal implements renderable, templatable {
         $this->totalnumberofpages = $totalnumberofpages;
         $this->buttoncondition = $buttoncondition;
         $this->buttonhtml = $buttoncondition::render_button($optionid, null, true);
+        $this->inmodalbuttonhtml = $buttoncondition::render_button($optionid, null, false);
 
     }
 
@@ -81,6 +82,7 @@ class prepagemodal implements renderable, templatable {
             'optionid' => $this->optionid,
             'totalnumberofpages' => $this->totalnumberofpages,
             'buttonhtml' => $this->buttonhtml,
+            'inmodalbuttonhtml' => $this->inmodalbuttonhtml,
         ];
     }
 }
