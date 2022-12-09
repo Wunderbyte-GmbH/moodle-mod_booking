@@ -19,6 +19,7 @@ namespace mod_booking\subbookings\sb_types;
 use context_module;
 use mod_booking\booking_option_settings;
 use mod_booking\output\subbooking_additionalitem_output;
+use mod_booking\price;
 use mod_booking\subbookings\booking_subbooking;
 use MoodleQuickForm;
 use stdClass;
@@ -83,8 +84,8 @@ class subbooking_additionalitem implements booking_subbooking {
         $this->json = $json;
         $jsondata = json_decode($json);
         $this->name = $jsondata->name;
-        $this->description = $jsondata->description ?? '';
-        $this->descriptionformat = $jsondata->descriptionformat ?? '';
+        $this->description = $jsondata->data->description ?? '';
+        $this->descriptionformat = $jsondata->data->descriptionformat ?? '';
     }
 
     /**
@@ -118,6 +119,13 @@ class subbooking_additionalitem implements booking_subbooking {
             $textfieldoptions);
         $mform->setType('subbooking_additionalitem_description', PARAM_RAW);
 
+        // For price & entities wie need the id of this subbooking.
+        $sboid = $formdata['id'] ?? 0;
+
+        // Add price.
+        $price = new price('subbooking', $sboid);
+        $price->add_price_to_mform($mform);
+
     }
 
     /**
@@ -149,10 +157,8 @@ class subbooking_additionalitem implements booking_subbooking {
         $jsonobject->name = $data->subbooking_name;
         $jsonobject->type = $this->type;
         $jsonobject->data = new stdClass();
-        $jsonobject->data->description =
-            $data->subbooking_additionalitem_description ?? '';
-        $jsonobject->data->descriptionformat =
-            $data->subbooking_additionalitem_descriptionformat ?? '';
+        $jsonobject->data->description = ''; // Updated later.
+        $jsonobject->data->descriptionformat = 0; // Updated later.
         $record->name = $data->subbooking_name;
         $record->type = $this->type;
         $record->optionid = $data->optionid;
@@ -162,6 +168,7 @@ class subbooking_additionalitem implements booking_subbooking {
 
         // If we can update, we add the id here.
         if ($data->id) {
+            $this->id = $data->id;
             $record->id = $data->id;
             $DB->update_record('booking_subbooking_options', $record);
         } else {
@@ -186,18 +193,20 @@ class subbooking_additionalitem implements booking_subbooking {
             'subbookings',
             $this->id);
 
-        if (!isset($data->id)) {
-            $record->id = $this->id;
+        $record->id = $this->id;
 
-            // We need to update again to show the correct information.
-            $jsonobject->data->description =
-                $data->subbooking_additionalitem_description ?? '';
-            $jsonobject->data->descriptionformat =
-                $data->subbooking_additionalitem_descriptionformat ?? '';
-            $record->json = json_encode($jsonobject);
+        // We need to update again to show the correct information.
+        $jsonobject->data->description =
+            $data->subbooking_additionalitem_description ?? '';
+        $jsonobject->data->descriptionformat =
+            $data->subbooking_additionalitem_descriptionformat ?? '';
+        $record->json = json_encode($jsonobject);
 
-            $DB->update_record('booking_subbooking_options', $record);
-        }
+        $DB->update_record('booking_subbooking_options', $record);
+
+        // Add price.
+        $price = new price('subbooking', $this->id);
+        $price->save_from_form($data);
 
     }
 

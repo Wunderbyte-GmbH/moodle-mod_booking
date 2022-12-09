@@ -65,6 +65,10 @@ class subbooking_additionalitem_output implements renderable, templatable {
             $price = price::get_price('subbooking', $subbooking->id);
 
             $data['items'][] = [
+                'itemid' => $subbooking->id,
+                'userid' => 0,
+                'componentname' => 'mod_booking',
+                'area' => 'subbooking',
                 'price' => $price['price'],
                 'currency' => $price['currency'],
                 'name' => $subbooking->name,
