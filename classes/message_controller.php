@@ -242,7 +242,7 @@ class message_controller {
             rawurlencode($this->user->username) . '&choe=UTF-8" title="Link to Google.com" />';
         $params->participant = fullname($this->user);
         $params->email = $this->user->email;
-        $params->title = format_string($this->optionsettings->text);
+        $params->title = format_string($this->optionsettings->get_title_with_prefix());
         $params->duration = $this->bookingsettings->duration;
         $params->starttime = $this->optionsettings->coursestarttime ?
             userdate($this->optionsettings->coursestarttime, $timeformat) : '';

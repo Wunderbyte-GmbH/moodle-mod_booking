@@ -50,13 +50,13 @@ class send_notification_mails extends \core\task\scheduled_task {
 
         foreach ($results as $result) {
 
-            echo 'send_notification_mails task: sending completion mail to user with id: ' . $result->userid . PHP_EOL;
+            echo 'send_notification_mails task: sending mail to user with id: ' . $result->userid . PHP_EOL;
 
             $booking = singleton_service::get_instance_of_booking_by_bookingid($result->bookingid);
             $settings = singleton_service::get_instance_of_booking_option_settings($result->optionid);
 
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-            $bookingstatus = $bookinganswer->return_all_booking_information();
+            $bookingstatus = $bookinganswer->return_all_booking_information($result->userid);
 
             $bookingstatus = reset($bookingstatus);
 
@@ -64,10 +64,10 @@ class send_notification_mails extends \core\task\scheduled_task {
                 continue;
             }
 
-            $options = new stdClass();
-            $options->title = $settings->text;
+            $option = new stdClass();
+            $option->title = $settings->get_title_with_prefix();
             $url = new moodle_url('/mod/booking/optionview.php', ['cmid' => $booking->cmid, 'optionid' => $result->optionid]);
-            $options->url = $url->out(false);
+            $option->url = $url->out(false);
 
             // Use message controller to send the completion message.
             $messagecontroller = new message_controller(
@@ -79,8 +79,8 @@ class send_notification_mails extends \core\task\scheduled_task {
                     $result->userid,
                     null,
                     null,
-                    get_string('optionbookabletitle', 'mod_booking', $options),
-                    get_string('optionbookablebody', 'mod_booking', $options),
+                    get_string('optionbookabletitle', 'mod_booking', $option),
+                    get_string('optionbookablebody', 'mod_booking', $option),
             );
 
             if ($messagecontroller->send_or_queue()) {
