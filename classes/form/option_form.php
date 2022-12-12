@@ -339,6 +339,8 @@ class option_form extends \moodleform {
         $mform->addElement('advcheckbox', 'enrolmentstatus', get_string('enrolmentstatus', 'mod_booking'),
             '', array('group' => 1), array(2, 0));
         $mform->setType('enrolmentstatus', PARAM_INT);
+        $mform->setDefault('enrolmentstatus', 2);
+        $mform->addHelpButton('enrolmentstatus', 'enrolmentstatus', 'mod_booking');
         $mform->disabledIf('enrolmentstatus', 'startendtimeknown', 'notchecked');
 
         $mform->addElement('date_time_selector', 'courseendtime',

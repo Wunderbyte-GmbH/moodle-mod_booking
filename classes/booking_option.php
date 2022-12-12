@@ -1231,8 +1231,11 @@ class booking_option {
      * Added option, to manualy enrol user, with a click of button.
      *
      * @param int $userid
+     * @param bool $manual
+     * @param int $roleid
+     * @param bool $isteacher true for teacher enrolments
      */
-    public function enrol_user($userid, $manual = false, $roleid = 0) {
+    public function enrol_user(int $userid, bool $manual = false, int $roleid = 0, bool $isteacher = false) {
         global $DB;
         if (!$manual) {
             if (!$this->booking->settings->autoenrol) {
@@ -1259,7 +1262,7 @@ class booking_option {
         $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
 
         $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-        if ($bookinganswers->user_status($userid) == STATUSPARAM_BOOKED) {
+        if ($bookinganswers->user_status($userid) == STATUSPARAM_BOOKED || $isteacher) {
 
             // If a semester is set for the booking option...
             // ...then we only want to enrol from semester startdate to semester enddate.

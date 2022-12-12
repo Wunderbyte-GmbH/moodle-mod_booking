@@ -946,10 +946,6 @@ function booking_update_options($optionvalues, $context) {
         $newcourse['fullname'] = $fullnamewithprefix;
         $newcourse['shortname'] = $shortname;
         $newcourse['categoryid'] = $categoryid;
-        if (!empty($option->coursestarttime) && !empty($option->courseendtime)) {
-            $newcourse['startdate'] = $option->coursestarttime;
-            $newcourse['enddate'] = $option->courseendtime;
-        }
 
         $courses = array($newcourse);
         $createdcourses = core_course_external::create_courses($courses);
@@ -2316,7 +2312,7 @@ function subscribe_teacher_to_booking_option($userid, $optionid, $cm, $groupid =
         groups_add_member($groupid, $userid);
     }
 
-    $option->enrol_user($userid, false, $option->booking->settings->teacherroleid);
+    $option->enrol_user($userid, true, $option->booking->settings->teacherroleid, true);
     if ($inserted) {
         $event = \mod_booking\event\teacher_added::create(
                 array('relateduserid' => $userid, 'objectid' => $optionid,

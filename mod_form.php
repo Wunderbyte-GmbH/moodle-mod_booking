@@ -564,6 +564,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->disabledIf('allowupdatedays', 'allowupdate', 'eq', 0);
 
         $mform->addElement('selectyesno', 'autoenrol', get_string('autoenrol', 'booking'));
+        $mform->setDefault('autoenrol', 1);
         $mform->addHelpButton('autoenrol', 'autoenrol', 'booking');
 
         $mform->addElement('selectyesno', 'addtogroup', get_string('addtogroup', 'booking'));
