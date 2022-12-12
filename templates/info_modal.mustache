@@ -24,7 +24,7 @@
     * data-region
 }}
 <a href="#" data-toggle="modal" data-target="#descriptionModal{{modalcounter}}">
-    <h5><i class="fa fa-info-circle"></i> {{#titleprefix}}{{.}} - {{/titleprefix}}{{modaltitle}}</h5>
+    <h5>{{^invisible}}<i class="fa fa-info-circle text-success"></i>{{/invisible}} {{#invisible}}<i class="fa fa-eye-slash text-danger"></i>{{/invisible}} {{#titleprefix}}{{.}} - {{/titleprefix}}{{modaltitle}}</h5>
 </a>
 <div class="modal fade" id="descriptionModal{{modalcounter}}" tabindex="-1" role="dialog"
     aria-labelledby="descriptionModalLabel" aria-hidden="true">
@@ -45,9 +45,11 @@
     </div>
 </div>
 
-{{#invisible}}
-<div class="booking-option-info-invisible">{{#str}} invisibleoption, mod_booking {{/str}}</div>
-{{/invisible}}
+{{#teachers}}
+    <div>
+        <i class="fa fa-user"></i>  {{.}}
+    </div>
+{{/teachers}}
 
 {{#js}}
     require(['mod_booking/modal_init'], function(init) {

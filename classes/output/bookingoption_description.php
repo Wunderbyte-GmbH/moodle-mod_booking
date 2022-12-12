@@ -98,6 +98,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var array $teachers by names */
     public $teachers = [];
 
+    /** @var array $prices by names */
+    public $prices = [];
+
     /** @var float $price */
     public $price = null;
 
@@ -256,6 +259,8 @@ class bookingoption_description implements renderable, templatable {
         // Add price.
         // TODO: Currently this will only use the logged in $USER, this won't work for the cashier use case!
         $priceitem = price::get_price('option', $optionid, $user);
+        $this->prices = price::get_prices_from_cache_or_db($optionid);
+
         if (!empty($priceitem)) {
             if (isset($priceitem['price'])) {
                 $this->price = $priceitem['price'];
@@ -394,6 +399,7 @@ class bookingoption_description implements renderable, templatable {
                 'booknowbutton' => $this->booknowbutton,
                 'teachers' => $this->teachers,
                 'price' => $this->price,
+                'prices' => $this->prices,
                 'priceformulaadd' => $this->priceformulaadd,
                 'priceformulamultiply' => $this->priceformulamultiply,
                 'currency' => $this->currency,

@@ -60,8 +60,11 @@ class col_coursestarttime implements renderable, templatable {
             $cmid = $booking->cm->id;
         }
 
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $this->optionid = $optionid;
         $this->datestrings = dates_handler::return_array_of_sessions_simple($optionid);
+        $this->dayofweektime = $settings->dayofweektime;
+
 
         // Show a collapse button for the dates.
         if (!empty($this->datestrings) && $collapsed == true) {
@@ -76,7 +79,8 @@ class col_coursestarttime implements renderable, templatable {
 
         $returnarr = [
             'optionid' => $this->optionid,
-            'datestrings' => $this->datestrings
+            'datestrings' => $this->datestrings,
+            'dayofweektime' => $this->dayofweektime
         ];
 
         if (!empty($this->showcollapsebtn)) {
