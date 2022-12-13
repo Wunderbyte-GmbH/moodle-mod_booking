@@ -1,3 +1,7 @@
+7.7.6 (2022121300)
+* Bugfix: Fix bug where canceluntil date was wrongly calculated from $now instead of $coursestarttime.
+* Bugfix: Fix auto enrolment of teachers, improve defaults and automatic course creation.
+
 7.7.5 (2022120900)
 * New feature: Add setting to turn off creation of user calendar events, if wanted.
 * New feature: Better German language strings ("Buchungen" instead of "Antworten").

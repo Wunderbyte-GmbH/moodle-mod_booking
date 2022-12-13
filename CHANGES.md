@@ -1,3 +1,8 @@
+## Version 7.7.6 (2022121300)
+**Bugfixes:**
+* Bugfix: Fix bug where canceluntil date was wrongly calculated from $now instead of $coursestarttime.
+* Bugfix: Fix auto enrolment of teachers, improve defaults and automatic course creation.
+
 ## Version 7.7.5 (2022120900)
 **New features:**
 * New feature: Add setting to turn off creation of user calendar events, if wanted.
