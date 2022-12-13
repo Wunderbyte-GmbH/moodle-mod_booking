@@ -308,6 +308,9 @@ class all_options extends table_sql {
             $ret = $output->render_bookingoption_description($data);
         }
 
+        // Progress bar showing the consumed quota visually.
+        $ret .= booking_option::get_progressbar_html($values->id);
+
         // Comment booking options.
         $commentoptions = new stdClass();
         $commentoptions->area = 'booking_option';

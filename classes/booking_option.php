@@ -2574,6 +2574,78 @@ class booking_option {
             $event->trigger();
             // Deletion of booking answers and user events needs to happen in event observer.
         }
+    }
 
+    /**
+     * Helper function to get the quota of consumed sessions
+     * or of consumed time (for events with no sessions or with one session only).
+     * For events with neither sessions nor coursestarttime nor endtime,
+     * the consumed quota will always be 0.
+     *
+     * @param int $optionid
+     * @return float $consumedquota 0.0 = nothing consumed, 0.5 half consumed, 1.0 completely consumed
+     *
+     */
+    public static function get_consumed_quota(int $optionid) {
+
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $now = time();
+        $consumedquota = 0.0;
+
+        if (empty($optionsettings->sessions)) {
+            return $consumedquota;
+        }
+
+        if (count($optionsettings->sessions) == 1) {
+            // Single-session.
+            $session = array_pop($optionsettings->sessions);
+
+            // If there's only one session and it's already over, then we count it as consumed.
+            if ($session->courseendtime < $now) {
+                $consumedquota = 1.0;
+            } else {
+                // Overall duration of the single session.
+                $sessionduration = $session->courseendtime - $session->coursestarttime;
+                // Consumed duration of the single session.
+                $consumedduration = $now - $session->coursestarttime;
+                // Now calculate consumed quota.
+                $consumedquota = (float) round($consumedduration / $sessionduration, 2);
+            }
+        } else {
+            // Multi-session.
+            $sessioncount = count($optionsettings->sessions);
+            // Count consumed sessions.
+            $consumedsessioncount = 0;
+            foreach ($optionsettings->sessions as $session) {
+                if ($session->courseendtime < $now) {
+                    $consumedsessioncount++;
+                }
+            }
+            // Now calculate consumed quota.
+            $consumedquota = (float) round($consumedsessioncount / $sessioncount, 2);
+        }
+
+        return $consumedquota;
+    }
+
+    /**
+     * Helper function to get HTML for a progressbar showing the consumed quota.
+     * @param int $optionid option id
+     * @param string $bootstrapstyle the color for the progress bar, e.g. "primary", "success", "info", "danger"...
+     * @return string $html the HTML containing the progress bar
+     */
+    public static function get_progressbar_html(int $optionid, string $bootrapstyle = "primary") {
+
+        $html = '';
+        $consumedpercentage = self::get_consumed_quota($optionid) * 100;
+        if ($consumedpercentage > 0 && $consumedpercentage <= 100) {
+            $html .=
+            "<div class='progress'>
+                <div class='progress-bar progress-bar-striped bg-$bootrapstyle' role='progressbar'
+                style='width: $consumedpercentage%' aria-valuenow='$consumedpercentage'
+                aria-valuemin='0' aria-valuemax='100'>$consumedpercentage%</div>
+            </div>";
+        }
+        return $html;
     }
 }
