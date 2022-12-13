@@ -124,6 +124,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                             $price['price'],
                             $price['currency'],
                             'mod_booking',
+                            'option',
                             $description,
                             $settings->imageurl ?? '',
                             $canceluntil,
@@ -206,5 +207,22 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         $bookingoption->user_delete_response($user->id);
 
         return true;
+    }
+
+    /**
+     * Callback function to give back a float value how much of the initially bought item is already consumed.
+     * 1 stands for everything, 0.5 for 50%.
+     * This is used in cancellation, to know how much of the initial price is returned.
+     *
+     * @param string $area
+     * @param int $itemid An identifier that is known to the plugin
+     * @param int $userid
+     *
+     * @return float
+     */
+    public static function quota_consumed(string $area, int $itemid, int $userid = 0): float {
+
+        $consumedquota = rand(0, 100) / 100;
+        return $consumedquota;
     }
 }
