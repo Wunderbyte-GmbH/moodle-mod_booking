@@ -392,7 +392,7 @@ class booking_utils {
                 $waitingplaces = "";
             } else {
                 // Check if a PRO license is active and the checkbox for booking places info texts in plugin config is activated.
-                if (wb_payment::is_currently_valid_licensekey()
+                if (wb_payment::pro_version_is_activated()
                     && get_config('booking', 'bookingplacesinfotexts')
                     && $places->maxanswers != 0) {
 
@@ -424,7 +424,7 @@ class booking_utils {
                 }
 
                 // Check if a PRO license is active and the checkbox for waiting list info texts in plugin config is activated.
-                if (wb_payment::is_currently_valid_licensekey()
+                if (wb_payment::pro_version_is_activated()
                     && get_config('booking', 'waitinglistinfotexts')
                     && $places->maxoverbooking != 0) {
 

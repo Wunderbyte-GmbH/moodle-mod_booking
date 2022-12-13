@@ -1115,7 +1115,7 @@ function booking_update_options($optionvalues, $context) {
             $numberofoptiontemplates = count($optiontemplatesdata);
 
             // 2) if the user has not activated a valid PRO license, then only allow one booking option.
-            if ($numberofoptiontemplates > 0 && !wb_payment::is_currently_valid_licensekey()) {
+            if ($numberofoptiontemplates > 0 && !wb_payment::pro_version_is_activated()) {
                 $dbrecord = $DB->get_record("booking_options", ['text' => $option->text]);
                 if (empty($dbrecord)) {
                     return 'BOOKING_OPTION_NOT_CREATED';

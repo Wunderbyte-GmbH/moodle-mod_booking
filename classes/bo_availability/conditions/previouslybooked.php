@@ -168,7 +168,7 @@ class previouslybooked implements bo_condition {
         global $DB;
 
         // Check if PRO version is activated.
-        if (wb_payment::is_currently_valid_licensekey()) {
+        if (wb_payment::pro_version_is_activated()) {
 
             $bookingoptionarray = [];
             if ($bookingoptionrecords = $DB->get_records_sql(

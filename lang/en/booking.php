@@ -1580,7 +1580,7 @@ $string['bookingoptiondefaultsdesc'] = 'Here you can set default settings for th
 $string['addtocalendardesc'] = 'Course calendar events are visible to ALL users within a course. If you do not want them to be created at all,
 you can turn this setting off and lock it by default. Don\'t worry: user calendar events for booked options will still be created anyways.';
 
-$string['automaticcoursecreation'] = 'Automatic creation of Moodle courses';
+$string['automaticcoursecreation'] = 'Automatic creation of Moodle courses (PRO)';
 $string['newcoursecategorycfield'] = 'Booking option custom field to be used as course category';
 $string['newcoursecategorycfielddesc'] = 'Choose a booking option custom field which will be used as course category for automatically created
  courses using the dropdown entry "New course" in the form for creating new booking options.';
@@ -2161,3 +2161,10 @@ $string['nocancelreason'] = "You need to give a reason for canceling this bookin
 
 // Access.php.
 $string['booking:bookforothers'] = "Book for others";
+
+// Booking_handler.php.
+$string['error:newcoursecategorycfieldmissing'] = 'You need to create a <a href="{$a->bookingcustomfieldsurl}" target="_blank">booking
+ custom field</a> for new course categories first. After you have created one, make sure it is selected in the
+ <a href="{$a->settingsurl}" target="_blank">Booking plugin settings</a>.';
+$string['error:coursecategoryvaluemissing'] = 'You need to choose a value here as it is needed as course category
+ for the automatically created Moodle course.';

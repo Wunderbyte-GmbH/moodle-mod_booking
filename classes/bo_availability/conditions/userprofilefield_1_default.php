@@ -229,7 +229,7 @@ class userprofilefield_1_default implements bo_condition {
         global $DB;
 
         // Check if PRO version is activated.
-        if (wb_payment::is_currently_valid_licensekey()) {
+        if (wb_payment::pro_version_is_activated()) {
 
             // Choose the user profile field which is used to store each user's price category.
             $userprofilefields = $DB->get_columns('user', true);

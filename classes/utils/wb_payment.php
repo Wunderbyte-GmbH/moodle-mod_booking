@@ -69,7 +69,7 @@ pwIDAQAB
      * @return bool true if the license key is valid at current date
      * @throws \dml_exception
      */
-    public static function is_currently_valid_licensekey() {
+    public static function pro_version_is_activated() {
         // Get license key which has been set in settings.php.
         $pluginconfig = get_config('booking');
         if (!empty($pluginconfig->licensekey)) {

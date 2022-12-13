@@ -47,11 +47,11 @@ $table->define_baseurl($pageurl);
 
 $PAGE->set_url($pageurl);
 $PAGE->set_title(
-        format_string($SITE->shortname) . ': ' . get_string('bookinginstancetemplatessettings', 'booking'));
-$PAGE->navbar->add(get_string('bookinginstancetemplatessettings', 'booking'), $pageurl);
+        format_string($SITE->shortname) . ': ' . get_string('bookinginstancetemplatessettings', 'mod_booking'));
+$PAGE->navbar->add(get_string('bookinginstancetemplatessettings', 'mod_booking'), $pageurl);
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('bookinginstancetemplatessettings', 'booking'));
+echo $OUTPUT->heading(get_string('bookinginstancetemplatessettings', 'mod_booking'));
 
 $table->out(25, true);
 

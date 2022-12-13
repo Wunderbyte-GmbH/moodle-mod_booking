@@ -99,28 +99,36 @@ if ($ADMIN->fulltree) {
             get_string('licensekey', 'mod_booking'),
             $licensekeydesc, ''));
 
-    $settings->add(
-        new admin_setting_heading('newcoursecategorycfieldheading',
-            get_string('automaticcoursecreation', 'mod_booking'),
-            ''));
-
-    /* Booking option custom field to be used as course category
-       for automatically created courses. */
-    $sql = "SELECT cff.shortname FROM {customfield_category} cfc
-    LEFT JOIN {customfield_field} cff ON cfc.id = cff.categoryid
-    WHERE cfc.component = 'mod_booking'";
-
-    $records = $DB->get_records_sql($sql);
-    foreach ($records as $record) {
-        $options[$record->shortname] = $record->shortname;
-    }
-
-    if (isset($options)) {
+    // PRO feature.
+    if (wb_payment::pro_version_is_activated()) {
         $settings->add(
-            new admin_setting_configselect('booking/newcoursecategorycfield',
-                    get_string('newcoursecategorycfield', 'mod_booking'),
-                    get_string('newcoursecategorycfielddesc', 'mod_booking'),
-                    1, $options));
+            new admin_setting_heading('newcoursecategorycfieldheading',
+                get_string('automaticcoursecreation', 'mod_booking'),
+                ''));
+
+        /* Booking option custom field to be used as course category
+        for automatically created courses. */
+        $sql = "SELECT cff.shortname FROM {customfield_category} cfc
+        LEFT JOIN {customfield_field} cff ON cfc.id = cff.categoryid
+        WHERE cfc.component = 'mod_booking'";
+
+        $records = $DB->get_records_sql($sql);
+        foreach ($records as $record) {
+            $options[$record->shortname] = $record->shortname;
+        }
+
+        if (isset($options)) {
+            $settings->add(
+                new admin_setting_configselect('booking/newcoursecategorycfield',
+                        get_string('newcoursecategorycfield', 'mod_booking'),
+                        get_string('newcoursecategorycfielddesc', 'mod_booking'),
+                        1, $options));
+        }
+    } else {
+        $settings->add(
+            new admin_setting_heading('newcoursecategorycfieldheading',
+                get_string('automaticcoursecreation', 'mod_booking'),
+                get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
     $settings->add(
@@ -346,7 +354,7 @@ if ($ADMIN->fulltree) {
             get_string('availabilityinfotexts_desc', 'mod_booking')));
 
     // PRO feature.
-    if (wb_payment::is_currently_valid_licensekey()) {
+    if (wb_payment::pro_version_is_activated()) {
 
         $settings->add(
             new admin_setting_configcheckbox('booking/bookingplacesinfotexts',
@@ -407,7 +415,7 @@ if ($ADMIN->fulltree) {
             get_string('globalmailtemplates_desc', 'mod_booking')));
 
     // PRO feature.
-    if (wb_payment::is_currently_valid_licensekey()) {
+    if (wb_payment::pro_version_is_activated()) {
         $settings->add(new admin_setting_confightmleditor('booking/globalbookedtext',
             get_string('globalbookedtext', 'booking'), '', ''));
 

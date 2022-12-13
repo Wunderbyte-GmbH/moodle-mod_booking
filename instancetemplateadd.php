@@ -62,7 +62,7 @@ if ($mform->is_cancelled()) {
 } else if ($data = $mform->get_data()) {
     // Only allow generation of templates if it is either the first one
     // ... OR the user has set a valid PRO licensekey in the config settings.
-    if (wb_payment::is_currently_valid_licensekey() || $numberoftemplates == 0) {
+    if (wb_payment::pro_version_is_activated() || $numberoftemplates == 0) {
         $instance = $DB->get_record("course_modules", array('id' => $id), 'instance');
         $booking = $DB->get_record("booking", array('id' => $instance->instance));
 
