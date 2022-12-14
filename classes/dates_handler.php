@@ -369,15 +369,15 @@ class dates_handler {
     public static function get_existing_optiondates(int $optionid): array {
         global $DB;
 
-        $records = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        if (count($records->settings) > 0) {
+        if (count($settings->sessions) > 0) {
 
-            foreach ($records->settings as $record) {
+            foreach ($settings->sessions as $session) {
                 $date = new stdClass();
-                $date->dateid = 'dateid-' . $record->id;
-                $date->starttimestamp = $record->coursestarttime;
-                $date->endtimestamp = $record->courseendtime;
+                $date->dateid = 'dateid-' . $session->id;
+                $date->starttimestamp = $session->coursestarttime;
+                $date->endtimestamp = $session->courseendtime;
 
                 // If dates are on the same day, then show date only once.
                 $date->string = self::prettify_optiondates_start_end($date->starttimestamp,
