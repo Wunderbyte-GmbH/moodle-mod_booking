@@ -24,6 +24,7 @@
 import DynamicForm from 'core_form/dynamicform';
 import ModalForm from 'core_form/modalform';
 import Templates from 'core/templates';
+import {exception as displayException} from 'core/notification';
 
 const optiondateForm = new DynamicForm(document.querySelector('#optiondates-form'), 'mod_booking\\form\\dynamicoptiondateform');
 
