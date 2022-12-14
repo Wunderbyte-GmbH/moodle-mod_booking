@@ -549,7 +549,7 @@ class booking_option_settings {
 
         if (!empty($this->cmid) && !empty($optionid)) {
 
-            /* Note: We can't use new moodle_url here, as it is already used in the
+            /* IMPORTANT NOTICE: We CANNOT use new moodle_url here, as it is already used in the
             add_return_url function of the booking_option_settings class. */
             $this->editoptionurl = "/mod/booking/editoptions.php?id=" . $this->cmid . "&optionid=" . $optionid;
         }
