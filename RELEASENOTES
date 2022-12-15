@@ -1,3 +1,7 @@
+7.7.7 (2022121500)
+* Feature: get back consumed quota of booking option to local_shopping_cart service provider
+* Feature: Support areas for local_shopping_cart service provider
+
 7.7.6 (2022121300)
 * Bugfix: Fix bug where canceluntil date was wrongly calculated from $now instead of $coursestarttime.
 * Bugfix: Fix auto enrolment of teachers, improve defaults and automatic course creation.

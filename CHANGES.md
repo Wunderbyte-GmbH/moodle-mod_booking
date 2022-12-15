@@ -1,3 +1,9 @@
+
+## Version 7.7.7 (2022121500)
+**Bugfixes:**
+* Feature: get back consumed quota of booking option to local_shopping_cart service provider
+* Feature: Support areas for local_shopping_cart service provider
+
 ## Version 7.7.6 (2022121300)
 **Bugfixes:**
 * Bugfix: Fix bug where canceluntil date was wrongly calculated from $now instead of $coursestarttime.
