@@ -786,6 +786,11 @@ class booking_option {
             $completion->update_state($this->booking->cm, COMPLETION_INCOMPLETE, $userid);
         }
 
+        // After deleting an answer, cache has to be invalidated.
+        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
+        // We have to make sure it's also deleted in the singleton service.
+        singleton_service::destroy_booking_answers($this->optionid);
+
         return true;
     }
 
@@ -1028,6 +1033,11 @@ class booking_option {
                                        $currentanswerid,
                                        $timecreated);
 
+        // After adding an answer, cache has to be invalidated.
+        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
+        // We have to make sure it's also deleted in the singleton service.
+        singleton_service::destroy_booking_answers($this->optionid);
+
         return $this->after_successful_booking_routine($user, $waitinglist);
     }
 
@@ -1078,7 +1088,7 @@ class booking_option {
         // After writing, cache has to be invalidated.
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
         // When we set back the booking_answer...
-        // ... we have to make sure it's also delted in the singleton service.
+        // ... we have to make sure it's also deleted in the singleton service.
         singleton_service::destroy_booking_answers($optionid);
     }
 
@@ -2186,7 +2196,8 @@ class booking_option {
      */
     public function get_user_status_string($userid) {
 
-        $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
 
         $statusparam = $bookinganswers->user_status($userid);
 

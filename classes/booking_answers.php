@@ -192,8 +192,10 @@ class booking_answers {
             $userid = $USER->id;
         }
 
-        if (isset($this->users[$userid])) {
-            return $this->users[$userid]->waitinglist; // The waitinglist key holds all the different status.
+        if (isset($this->usersonlist[$userid])) {
+            return STATUSPARAM_BOOKED;
+        } else if (isset($this->usersonwaitinglist[$userid])) {
+            return STATUSPARAM_WAITINGLIST;
         } else {
             return STATUSPARAM_NOTBOOKED;
         }
