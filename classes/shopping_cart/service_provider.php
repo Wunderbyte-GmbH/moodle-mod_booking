@@ -49,9 +49,9 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @param string $area
      * @param int $optionid
      * @param int $userid
-     * @return \shopping_cart\cartitem
+     * @return array
      */
-    public static function load_cartitem(string $area, int $optionid, int $userid = 0): cartitem {
+    public static function load_cartitem(string $area, int $optionid, int $userid = 0): array {
         global $DB, $USER, $PAGE;
 
         $bookingoption = booking_option::create_option_from_optionid($optionid);
@@ -80,7 +80,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
         // Now we reserve the place for the user.
         if (!$bookingoption->user_submit_response($user, 0, 0, true)) {
-            return null;
+            return [];
         }
 
         // We need to register this action as a booking answer, where we only reserve, not actually book.
@@ -119,17 +119,19 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $canceluntil = null;
         }
 
-        return new cartitem($optionid,
-                            $optiontitle,
-                            $price['price'],
-                            $price['currency'],
-                            'mod_booking',
-                            'option',
-                            $description,
-                            $settings->imageurl ?? '',
-                            $canceluntil,
-                            $settings->coursestarttime ?? null,
-                            $settings->courseendtime ?? null);
+        $cartitem = new cartitem($optionid,
+            $optiontitle,
+            $price['price'],
+            $price['currency'],
+            'mod_booking',
+            'option',
+            $description,
+            $settings->imageurl ?? '',
+            $canceluntil,
+            $settings->coursestarttime ?? null,
+            $settings->courseendtime ?? null);
+
+        return ['cartitem' => $cartitem];
     }
 
     /**
