@@ -2631,19 +2631,25 @@ class booking_option {
     /**
      * Helper function to get HTML for a progressbar showing the consumed quota.
      * @param int $optionid option id
-     * @param string $bootstrapstyle the color for the progress bar, e.g. "primary", "success", "info", "danger"...
+     * @param string $barcolor the bootstrap color for the progress bar, e.g. "primary", "success", "info", "danger"...
+     * @param string $percentagecolor the bootstrap color for the percentage label, e.g. "primary", "success", "info", "danger"...
      * @return string $html the HTML containing the progress bar
      */
-    public static function get_progressbar_html(int $optionid, string $bootrapstyle = "primary") {
+    public static function get_progressbar_html(int $optionid, string $barcolor = "primary",
+        string $percentagecolor = "white") {
 
         $html = '';
+        $alreadypassed = get_string('alreadypassed', 'mod_booking');
         $consumedpercentage = self::get_consumed_quota($optionid) * 100;
         if ($consumedpercentage > 0 && $consumedpercentage <= 100) {
             $html .=
-            "<div class='progress'>
-                <div class='progress-bar progress-bar-striped bg-$bootrapstyle' role='progressbar'
+            "<div class='progressbar-label'>$alreadypassed:</div>
+            <div class='progress'>
+                <div class='progress-bar progress-bar-striped bg-$barcolor' role='progressbar'
                 style='width: $consumedpercentage%' aria-valuenow='$consumedpercentage'
-                aria-valuemin='0' aria-valuemax='100'>$consumedpercentage%</div>
+                aria-valuemin='0' aria-valuemax='100'>
+                    <span class='text-$percentagecolor'>$consumedpercentage%</span>
+                </div>
             </div>";
         }
         return $html;

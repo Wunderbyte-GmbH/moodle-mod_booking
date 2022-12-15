@@ -18,6 +18,7 @@
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
+$string['alreadypassed'] = 'Already passed';
 
 // Index.php.
 $string['week'] = "Week";

@@ -309,7 +309,7 @@ class all_options extends table_sql {
         }
 
         // Progress bar showing the consumed quota visually.
-        $ret .= booking_option::get_progressbar_html($values->id);
+        $ret .= booking_option::get_progressbar_html($values->id, 'primary', 'white');
 
         // Comment booking options.
         $commentoptions = new stdClass();

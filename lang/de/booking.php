@@ -18,6 +18,7 @@
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';
+$string['alreadypassed'] = 'Bereits vergangen';
 
 // Index.php.
 $string['week'] = "Woche";
