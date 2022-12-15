@@ -222,7 +222,14 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      */
     public static function quota_consumed(string $area, int $itemid, int $userid = 0): float {
 
-        $consumedquota = rand(0, 100) / 100;
+        // This function only tests for how much time has already passed.
+        // Therefore, we don't need to pass on the userid.
+        if ($area == 'option') {
+            $consumedquota = booking_option::get_consumed_quota($itemid);
+        } else {
+            $consumedquota = 0;
+        }
+
         return $consumedquota;
     }
 }
