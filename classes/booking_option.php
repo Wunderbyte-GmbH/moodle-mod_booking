@@ -972,7 +972,7 @@ class booking_option {
         $waitinglist = $this->check_if_limit($user->id);
 
         if ($waitinglist === false) {
-            echo "Couldn't subscribe user $user->id because of full waitinglist <br>";
+            // echo "Couldn't subscribe user $user->id because of full waitinglist <br>";
             return false;
         } else if ($addedtocart) {
             $waitinglist = STATUSPARAM_RESERVED;
@@ -983,7 +983,7 @@ class booking_option {
         $underlimit = $underlimit ||
                 (($this->booking->get_user_booking_count($user) - $substractfromlimit) < $this->booking->settings->maxperuser);
         if (!$underlimit) {
-            mtrace("Couldn't subscribe user $user->id because of maxperuser setting <br>");
+            // mtrace("Couldn't subscribe user $user->id because of maxperuser setting <br>");
             return false;
         }
 
