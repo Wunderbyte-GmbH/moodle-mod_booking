@@ -145,7 +145,11 @@ class mod_booking_observer {
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
         foreach ($bookinganswer->users as $user) {
-            $bookingoption->user_delete_response($user->id);
+            /* Third param $bookingoptioncancel = true is important,
+            so we do not trigger bookinganswer_cancelled
+            and send no extra cancellation mails to each user.
+            Instead we want to use our new bookingoption_cancelled rule here. */
+            $bookingoption->user_delete_response($user->id, false, true);
 
             // Also delete user events.
             calendar::delete_booking_userevents_for_option($optionid, $user->id);

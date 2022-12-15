@@ -689,9 +689,13 @@ class booking_option {
      *
      * @param $userid
      * @param bool $cancelreservation
+     * @param bool $bookingoptioncancel indicates if the function was called
+     *     after the whole booking option was cancelled, false by default
      * @return true if booking was deleted successfully, otherwise false
      */
-    public function user_delete_response($userid, $cancelreservation = false) {
+    public function user_delete_response($userid, $cancelreservation = false,
+        $bookingoptioncancel = false) {
+
         global $USER, $DB;
 
         $results = $DB->get_records('booking_answers',
@@ -736,27 +740,40 @@ class booking_option {
             $user = $DB->get_record('user', array('id' => $userid));
         }
 
-        // Log deletion of user.
-        $event = bookinganswer_cancelled::create(
-                array('objectid' => $this->optionid,
-                    'context' => \context_module::instance($this->booking->cm->id),
-                    'relateduserid' => $user->id, 'other' => array('userid' => $user->id)));
-        $event->trigger();
+        /* NOTE FOR THE FUTURE: Currently we have no rule condition to select affected users of an event.
+        In the future, we need to figure out a way, so we can react to this event
+        (when a user gets cancelled or cancels by himself) and send mails by rules.
+        BUT: We do not want to send mails twice if a booking option gets cancelled. */
+
+        // Log cancellation of user.
+        $event = bookinganswer_cancelled::create([
+            'objectid' => $this->optionid,
+            'context' => \context_module::instance($this->booking->cm->id),
+            'userid' => $USER->id, // The user who did cancel.
+            'relateduserid' => $userid // Affected user - the user who was cancelled.
+        ]);
+        $event->trigger(); // This will trigger the observer function and delete calendar events.
         $this->unenrol_user($user->id);
 
-        if ($userid == $USER->id) {
-            // I cancelled the booking.
-            $msgparam = MSGPARAM_CANCELLED_BY_PARTICIPANT;
-        } else {
-            // Booking manager cancelled the booking.
-            $msgparam = MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM;
+        // We only send messages for booking answers for individual cancellations!
+        // If a whole booking option was cancelled, we can use the new global booking rules...
+        // ...and react to the event bookingoption_cancelled instead.
+        if (!$bookingoptioncancel) {
+
+            if ($userid == $USER->id) {
+                // Participant cancelled the booking herself.
+                $msgparam = MSGPARAM_CANCELLED_BY_PARTICIPANT;
+            } else {
+                // An admin user cancelled the booking.
+                $msgparam = MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM;
+            }
+            // Let's send the cancel e-mails by using adhoc tasks.
+            $messagecontroller = new message_controller(
+                MSGCONTRPARAM_QUEUE_ADHOC, $msgparam,
+                $this->cmid, $this->bookingid, $this->optionid, $userid
+            );
+            $messagecontroller->send_or_queue();
         }
-        // Let's send the cancel e-mails by using adhoc tasks.
-        $messagecontroller = new message_controller(
-            MSGCONTRPARAM_QUEUE_ADHOC, $msgparam,
-            $this->cmid, $this->bookingid, $this->optionid, $userid
-        );
-        $messagecontroller->send_or_queue();
 
         // Remove activity completion.
         $course = $DB->get_record('course', array('id' => $this->booking->settings->course));
@@ -965,7 +982,7 @@ class booking_option {
             return false;
         }
 
-        $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings, $user->id);
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings);
 
         if (isset($bookinganswers->users[$user->id]) && ($currentanswer = $bookinganswers->users[$user->id])) {
             switch($currentanswer->waitinglist) {
