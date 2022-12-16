@@ -101,22 +101,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $optiontitle = $bookingoption->option->titleprefix . ' - ' . $optiontitle;
         }
 
-        // The date from which to calculate cancel-date is coursestarttime.
-        $coursestarttime = $settings->coursestarttime;
-
-        $allowupdatedays = $booking->settings->allowupdatedays;
-        if (!empty($allowupdatedays) && !empty($coursestarttime)) {
-            // Different string depending on plus or minus.
-            if ($allowupdatedays >= 0) {
-                $datestring = " - $allowupdatedays days";
-            } else {
-                $allowupdatedays = abs($allowupdatedays);
-                $datestring = " + $allowupdatedays days";
-            }
-            $canceluntil = strtotime($datestring, $coursestarttime);
-        } else {
-            $canceluntil = null;
-        }
+        $canceluntil = booking_option::return_cancel_until_date($optionid);
 
         $cartitem = new cartitem($optionid,
             $optiontitle,

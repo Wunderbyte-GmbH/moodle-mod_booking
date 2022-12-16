@@ -2709,4 +2709,37 @@ class booking_option {
         // ... we have to make sure it's also deleted in the singleton service.
         singleton_service::destroy_booking_answers($optionid);
     }
+
+    /**
+     * Return the cancel until date for an option.
+     * This is calculated by the corresponding setting in booking instance...
+     * ... and the coursestarttime.
+     *
+     * @param integer $optionid
+     * @return int
+     */
+    public static function return_cancel_until_date($optionid) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $booking = singleton_service::get_instance_of_booking_by_cmid($settings->cmid);
+        $canceluntil = 0;
+
+        $coursestarttime = $settings->coursestarttime;
+
+        $allowupdatedays = $booking->settings->allowupdatedays;
+        if (!empty($allowupdatedays) && !empty($coursestarttime)) {
+            // Different string depending on plus or minus.
+            if ($allowupdatedays >= 0) {
+                $datestring = " - $allowupdatedays days";
+            } else {
+                $allowupdatedays = abs($allowupdatedays);
+                $datestring = " + $allowupdatedays days";
+            }
+            $canceluntil = strtotime($datestring, $coursestarttime);
+        } else {
+            $canceluntil = 0;
+        }
+
+        return $canceluntil;
+    }
 }
