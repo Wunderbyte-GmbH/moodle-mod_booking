@@ -2603,7 +2603,7 @@ class booking_option {
             // If there's only one session and it's already over, then we count it as consumed.
             if ($session->courseendtime < $now) {
                 $consumedquota = 1.0;
-            } else if ($session->coursestartime < $now) {
+            } else if ($session->coursestarttime > $now) {
                 // If it has not yet started, the quota is 0.
                 $consumedquota = 0;
             } else {
