@@ -27,6 +27,7 @@ namespace mod_booking\output;
 
 use context;
 use local_shopping_cart\local\entities\cartitem;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\price;
 use mod_booking\singleton_service;
@@ -107,7 +108,12 @@ class bookit implements renderable, templatable {
                                          $this->priceitem['price'],
                                          $this->priceitem['currency'],
                                          'mod_booking',
-                                         $settings->description
+                                         'option',
+                                         $settings->description,
+                                         $settings->imageurl ?? '',
+                                         booking_option::return_cancel_until_date($settings->id),
+                                         $settings->coursestarttime,
+                                         $settings->courseendtime
                                     );
 
                         $this->cartitem = $cartitem->as_array();
@@ -149,6 +155,7 @@ class bookit implements renderable, templatable {
             'price' => number_format($this->cartitem['price'], 2),
             'currency' => $this->cartitem['currency'],
             'componentname' => $this->cartitem['componentname'],
+            'area' => $this->cartitem['area'],
             'description' => $this->cartitem['description'],
             'imageurl' => $this->cartitem['imageurl'],
             'priceitems' => $this->priceitem,
