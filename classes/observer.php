@@ -364,16 +364,13 @@ class mod_booking_observer {
 
         global $DB;
 
-        // We only want to ever get the booking events.
+        // We want booking events only.
         $data = $event->get_data();
         if ($data['component'] !== 'mod_booking') {
             return;
         }
 
         // TODO: Get name of event and only trigger when the rule is set to listen on this specific event.
-
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $userid = $event->userid ?? 0; */
 
         $optionid = $event->objectid ?? 0;
 
@@ -384,9 +381,21 @@ class mod_booking_observer {
         foreach ($records as $record) {
 
             $rule = rules_info::get_rule($record->rulename);
+
+            // THIS is the place where we need to add event data to the rulejson!
+            $ruleobj = json_decode($record->rulejson);
+            if (!empty($event->userid)) {
+                $ruleobj->conditiondata->userid = $event->userid;
+            }
+            if (!empty($event->relateduserid)) {
+                $ruleobj->conditiondata->relateduserid = $event->relateduserid;
+            }
+            // We save rulejson again with added event data.
+            $record->rulejson = json_encode($ruleobj);
+            // Save it into the rule.
             $rule->set_ruledata($record);
 
-            // We only execute if the rule in question listens on the right event.
+            // We only execute if the rule in question listens to the right event.
             if (!empty($rule->boevent)) {
                 if ($data['eventname'] == $rule->boevent) {
                     $rule->execute($optionid, 0);

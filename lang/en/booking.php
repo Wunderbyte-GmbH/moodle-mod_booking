@@ -2137,20 +2137,21 @@ $string['match_userprofilefield'] = "Select users by matching field in booking o
 $string['select_users'] = "Directly select users without connection to the booking option";
 $string['select_student_in_bo'] = "Select users of a booking option";
 $string['select_teacher_in_bo'] = "Select teachers of a booking option";
+$string['select_user_from_event'] = "Select user from event";
 $string['send_mail'] = 'Send email';
-
 $string['bookingcondition'] = 'Condition';
-
 $string['condition_select_teacher_in_bo_desc'] = 'Select the teachers of the booking option (affected by the rule).';
 $string['condition_select_student_in_bo_desc'] = 'Select all students of the booking option (affected by the rule) having a certain role.';
 $string['condition_select_student_in_bo_roles'] = 'Choose role';
-
 $string['condition_select_users_userids'] = "Select the users you want to target";
-
+$string['condition_select_user_from_event_desc'] = 'Choose a user who is somehow connected to the event';
 $string['studentbooked'] = 'Users who booked';
 $string['studentwaitinglist'] = 'Users on the waiting list';
 $string['studentnotificationlist'] = 'Users on the notification list';
 $string['studentdeleted'] = 'Users who were already deleted';
+$string['useraffectedbyevent'] = 'User affected by the event';
+$string['userwhotriggeredevent'] = 'User who triggered the event';
+$string['condition_select_user_from_event_type'] = 'Choose role';
 
 // Booking rules actions.
 $string['bookingaction'] = "Action";

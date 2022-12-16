@@ -129,7 +129,6 @@ class rules_info {
      * @return mixed
      */
     public static function get_rule(string $rulename) {
-        global $CFG;
 
         $filename = 'mod_booking\booking_rules\rules\\' . $rulename;
 

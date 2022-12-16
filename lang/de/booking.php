@@ -1893,20 +1893,21 @@ $string['match_userprofilefield'] = "Wähle Nutzer:innen nach gleichem Wert in B
 $string['select_users'] = "Wähle NutzerInnen ohne direkte Verbindung zur Buchungsoption";
 $string['select_student_in_bo'] = "Wähle Nutzer:innen einer Buchungsoption";
 $string['select_teacher_in_bo'] = "Wähle Trainer:innen einer Buchungsoption";
+$string['select_user_from_event'] = "Wähle Nutzer:in vom Ereignis";
 $string['send_mail'] = "Sende E-Mail";
-
 $string['bookingcondition'] = "Bedingung";
-
 $string['condition_select_teacher_in_bo_desc'] = 'Trainer:innen der von der Regel betroffenen Buchungsoption wählen.';
 $string['condition_select_student_in_bo_desc'] = 'Nutzer:innen der von der Regel betroffenen Buchungsoption wählen.';
 $string['condition_select_student_in_bo_roles'] = 'Rolle wählen';
-
 $string['condition_select_users_userids'] = "Wähle die gewünschten NutzerInnen";
-
+$string['condition_select_user_from_event_desc'] = 'Nutzer:in, die mit dem Ereignis in Verbindung steht wählen';
 $string['studentbooked'] = 'Nutzer:innen, die gebucht haben';
 $string['studentwaitinglist'] = 'Nutzer:innen auf der Warteliste';
 $string['studentnotificationlist'] = 'Nutzer:innen auf der Benachrichtigungsliste';
 $string['studentdeleted'] = 'Nutzer:innen, die bereits entfernt wurden';
+$string['useraffectedbyevent'] = 'Vom Ereignis betroffene:r Nutzer:in';
+$string['userwhotriggeredevent'] = 'Nutzer:in, die das Ereignis ausgelöst hat';
+$string['condition_select_user_from_event_type'] = 'Rolle wählen';
 
 // Booking rules actions.
 $string['bookingaction'] = "Aktion";

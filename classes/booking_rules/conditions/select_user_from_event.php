@@ -14,9 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Condition to identify the user who triggered an event
+ * or the user who was affected by an event.
+ *
+ * @package mod_booking
+ * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Bernhard Fischer
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 namespace mod_booking\booking_rules\conditions;
 
 use mod_booking\booking_rules\booking_rule_condition;
+use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
@@ -25,21 +35,23 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Condition to identify users by entering a value
- * which should match a custom user profile field.
+ * Condition to identify the user who triggered an event (userid of event).
  *
  * @package mod_booking
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
+ * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class select_users implements booking_rule_condition {
+class select_user_from_event implements booking_rule_condition {
 
     /** @var string $conditionname */
-    public $conditionname = 'select_users';
+    public $conditionname = 'select_user_from_event';
 
-    /** @var array $userids */
-    public $userids = [];
+    /** @var int $userid the user who triggered an event */
+    public $userid = 0;
+
+    /** @var int $relateduserid the user affected by an event */
+    public $relateduserid = 0;
 
     /**
      * Load json data from DB into the object.
@@ -57,7 +69,16 @@ class select_users implements booking_rule_condition {
         $this->rulejson = $json;
         $ruleobj = json_decode($json);
         $conditiondata = $ruleobj->conditiondata;
-        $this->userids = $conditiondata->userids;
+
+        // The user who triggered the event.
+        if (!empty($conditiondata->userid)) {
+            $this->userid = $conditiondata->userid;
+        }
+
+        // The user affected by the event.
+        if (!empty($conditiondata->relateduserid)) {
+            $this->relateduserid = $conditiondata->relateduserid;
+        }
     }
 
     /**
@@ -67,28 +88,24 @@ class select_users implements booking_rule_condition {
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform) {
-        global $DB;
 
-        $users = get_users();
+        $mform->addElement('static', 'condition_select_user_from_event', '',
+                get_string('condition_select_user_from_event_desc', 'mod_booking'));
 
-        foreach ($users as $user) {
-            $listofusers[$user->id] = "$user->firstname $user->lastname ($user->email)";
+        $userfromeventoptions = [
+            "-1" => get_string('choose...', 'mod_booking'),
+            "relateduserid" => get_string('useraffectedbyevent', 'mod_booking'),
+            "userid" => get_string('userwhotriggeredevent', 'mod_booking')
+        ];
 
-        }
-
-        $options = array(
-            'multiple' => true,
-            'noselectionstring' => get_string('allareas', 'search'),
-        );
-
-        $mform->addElement('autocomplete', 'condition_select_users_userids',
-            get_string('condition_select_users_userids', 'mod_booking'), $listofusers, $options);
+        $mform->addElement('select', 'condition_select_user_from_event_type',
+                get_string('condition_select_user_from_event_type', 'mod_booking'), $userfromeventoptions);
 
     }
 
     /**
-     * Get the name of the rule.
-     * @return string the name of the rule
+     * Get the name of the condition.
+     * @return string the name of the condition
      */
     public function get_name_of_condition($localized = true) {
         return $localized ? get_string($this->conditionname, 'mod_booking') : $this->conditionname;
@@ -108,7 +125,7 @@ class select_users implements booking_rule_condition {
 
         $jsonobject->conditionname = $this->conditionname;
         $jsonobject->conditiondata = new stdClass();
-        $jsonobject->conditiondata->userids = $data->condition_select_users_userids ?? '';
+        $jsonobject->conditiondata->userfromeventtype = $data->condition_select_user_from_event_type ?? '';
 
         $data->rulejson = json_encode($jsonobject);
     }
@@ -125,7 +142,7 @@ class select_users implements booking_rule_condition {
         $jsonobject = json_decode($record->rulejson);
         $conditiondata = $jsonobject->conditiondata;
 
-        $data->condition_select_users_userids = $conditiondata->userids;
+        $data->condition_select_user_from_event_type = $conditiondata->userfromeventtype;
     }
 
     /**
@@ -136,21 +153,29 @@ class select_users implements booking_rule_condition {
      * @return array
      */
     public function execute(stdClass &$sql, array &$params) {
-        global $DB;
 
-        list($inorequal, $inorequalparams) = $DB->get_in_or_equal($this->userids, SQL_PARAMS_NAMED);
+        $rulejson = $params["json"];
+        $ruleobj = json_decode($rulejson);
+        $conditiondata = $ruleobj->conditiondata;
+
+        switch ($conditiondata->userfromeventtype) {
+            case "userid":
+                // The user who triggered the event.
+                $chosenuserid = $conditiondata->userid;
+                break;
+            case "relateduserid":
+                $chosenuserid = $conditiondata->relateduserid;
+                // The user affected by the event.
+                break;
+            default:
+                throw new moodle_exception('error: missing userid type for userfromevent condition');
+        }
 
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-
         $sql->select = " CONCAT(bo.id, '-', u.id) uniqueid, " . $sql->select;
         $sql->select .= ", u.id userid";
+        $sql->from .= " JOIN {user} u ON u.id = :chosenuserid "; // We want to join only the chosen user.
 
-        $sql->from .= " JOIN {user} u ON 1 = 1 "; // We want to join all users here.
-
-        $sql->where .= " AND u.id $inorequal";
-
-        foreach ($inorequalparams as $key => $value) {
-            $params[$key] = $value;
-        }
+        $params['chosenuserid'] = $chosenuserid;
     }
 }
