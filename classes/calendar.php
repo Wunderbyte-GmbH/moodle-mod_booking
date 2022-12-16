@@ -56,8 +56,19 @@ class calendar {
         $this->type = $type;
         $this->optiondateid = $optiondateid;
 
-        // It's ok because we use singelton service in the constructor.
+        // It's ok because we use singleton service in the constructor.
         $bookingoption = new \mod_booking\booking_option($this->cmid, $this->optionid);
+
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+
+        // Fix: If we only have one session and its ID is 0, then it is a "fake" session.
+        // So we use the standard routine for adding an option without sessions to the calendar.
+        if (count($optionsettings->sessions) == 1) {
+            $onlysession = array_pop($optionsettings->sessions);
+            if ($onlysession->id == 0) {
+                $this->type = $this::TYPEOPTION;
+            }
+        }
 
         $newcalendarid = 0;
 
@@ -111,7 +122,7 @@ class calendar {
                 break;
             case $this::TYPEOPTIONDATE:
                 if ($justbooked) {
-                    // A user has just booked an option with sessions. The events will be created as USER events.
+                    // A user has just booked. The events will be created as USER events.
 
                     if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $this->optiondateid])) {
                         $newcalendarid = $this->booking_optiondate_add_to_cal($bookingoption->booking->settings,
