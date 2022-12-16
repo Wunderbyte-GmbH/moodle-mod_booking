@@ -1,0 +1,110 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/booked_users
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-region
+
+     Example context (json):
+    {
+        "bookedusers" : [
+            'firstname' : 'Anna',
+            'lastname' : 'X',
+            'email' : 'a.x@example.com',
+            'status': 'x',
+            'link' : 'http://localhost:8010/user/profile.php?id=118',
+        ],
+        "waitinglist" : [
+            'firstname' : 'Anna',
+            'lastname' : 'X',
+            'email' : 'a.x@example.com',
+            'status': 'x',
+            'link' : 'http://localhost:8010/user/profile.php?id=118',
+        ],
+        "reservedusers" : [
+            'firstname' : 'Anna',
+            'lastname' : 'X',
+            'email' : 'a.x@example.com',
+            'status': 'x',
+            'link' : 'http://localhost:8010/user/profile.php?id=118',
+        ],
+        "userstonotify" : [
+            'firstname' : 'Anna',
+            'lastname' : 'X',
+            'email' : 'a.x@example.com',
+            'status': 'x',
+            'link' : 'http://localhost:8010/user/profile.php?id=118',
+        ],
+        "deletedusers" : [
+            'firstname' : 'Anna',
+            'lastname' : 'X',
+            'email' : 'a.x@example.com',
+            'status': 'x',
+            'link' : 'http://localhost:8010/user/profile.php?id=118',
+        ],
+    }
+}}
+
+{{#bookedusers.0}}
+<h5>{{#str}} bookedusers, mod_booking {{/str}}</h5>
+    <ul class="list-group">
+    {{#bookedusers}}
+        {{> mod_booking/booked_user}}
+    {{/bookedusers}}
+    </ul>
+{{/bookedusers.0}}
+
+{{#waitinglist.0}}
+<h5>{{#str}} waitinglist, mod_booking {{/str}}</h5>
+    <ul class="list-group">
+    {{#waitinglist}}
+        {{> mod_booking/booked_user}}
+    {{/waitinglist}}
+    </ul>
+{{/waitinglist.0}}
+
+{{#reservedusers.0}}
+<h5>{{#str}} reservedusers, mod_booking {{/str}}</h5>
+    <ul class="list-group">
+    {{#reservedusers}}
+        {{> mod_booking/booked_user}}
+    {{/reservedusers}}
+    </ul>
+{{/reservedusers.0}}
+
+{{#userstonotify.0}}
+<h5>{{#str}} userstonotify, mod_booking {{/str}}</h5>
+    <ul class="list-group">
+    {{#userstonotify}}
+        {{> mod_booking/booked_user}}
+    {{/userstonotify}}
+    </ul>
+{{/userstonotify.0}}
+
+{{#deletedusers.0}}
+<h5>{{#str}} deletedusers, mod_booking {{/str}}</h5>
+    <ul class="list-group">
+    {{#deletedusers}}
+        {{> mod_booking/booked_user}}
+    {{/deletedusers}}
+    </ul>
+{{/deletedusers.0}}
+

@@ -660,4 +660,16 @@ class renderer extends plugin_renderer_base {
         $data = $data->export_for_template($this);
         return $this->render_from_template('mod_booking/ruleslist', $data);
     }
+
+    /**
+     * Render output for booked users.
+     * @param $data array
+     * @return string
+     */
+    public function render_booked_users($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/booked_users', $data);
+        return $o;
+    }
 }
