@@ -1576,6 +1576,11 @@ $string['notificationlist'] = 'Notification list';
 $string['notificationlistdesc'] = 'When no place is available anymore, users can still register to be notified when there is an opening';
 $string['usenotificationlist'] = 'Use notification list';
 
+$string['progressbars'] = 'Progress bars of time passed (PRO)';
+$string['progressbars_desc'] = 'Get a visual representation of the time which has already passed for a booking option.';
+$string['showprogressbars'] = 'Show progress bars of time passed';
+$string['progressbarscollapsible'] = 'Make progress bars collapsible';
+
 $string['bookingoptiondefaults'] = 'Default settings for booking options';
 $string['bookingoptiondefaultsdesc'] = 'Here you can set default settings for the creation of booking options and lock them if needed.';
 $string['addtocalendardesc'] = 'Course calendar events are visible to ALL users within a course. If you do not want them to be created at all,

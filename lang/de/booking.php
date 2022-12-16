@@ -1445,8 +1445,15 @@ $string['duplicationrestoreprices'] = 'Preise inkludieren';
 $string['duplicationrestoreentities'] = 'Entities inkludieren';
 
 $string['notificationlist'] = 'Benachrichtigungsliste';
-$string['notificationlistdesc'] = 'Wenn es bei einer Buchungsoption keine Buchungsoption mehr gibt, können sich TeilnehmerInnnen registrieren lassen, um eine Benachrichtung zu erhalten.';
+$string['notificationlistdesc'] = 'Wenn es bei einer Buchungsoption keine verfügbaren Plätze mehr gibt,
+ können sich Teilnehmer:innnen registrieren lassen, um eine Benachrichtung zu erhalten, sobald wieder
+ Plätze verfügbar sind.';
 $string['usenotificationlist'] = 'Verwende Benachrichtigungsliste';
+
+$string['progressbars'] = 'Fortschrittsbalken für bereits vergangene Zeit (PRO)';
+$string['progressbars_desc'] = 'Mit diesem Feature erhalten Sie eine visuelle Darstellung der bereits vergangenen Zeit von Buchungsoptionen.';
+$string['showprogressbars'] = 'Fortschrittsbalken für bereits vergangene Zeit anzeigen';
+$string['progressbarscollapsible'] = 'Fortschrittsbalken können ausgeklappt werden';
 
 $string['bookingoptiondefaults'] = 'Standard-Einstellungen für Buchungsoptionen';
 $string['bookingoptiondefaultsdesc'] = 'Hier können Sie Standardwerte für die Erstellung von Buchungsoptionen setzen und diese gegebenenfalls sperren.';

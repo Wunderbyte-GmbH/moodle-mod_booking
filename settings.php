@@ -131,6 +131,27 @@ if ($ADMIN->fulltree) {
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
+    // PRO feature: Progress bars.
+    if (wb_payment::pro_version_is_activated()) {
+        $settings->add(
+            new admin_setting_heading('progressbars',
+                get_string('progressbars', 'mod_booking'),
+                get_string('progressbars_desc', 'mod_booking')));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/showprogressbars',
+                    get_string('showprogressbars', 'mod_booking'), '', 0));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/progressbarscollapsible',
+                    get_string('progressbarscollapsible', 'mod_booking'), '', 1));
+    } else {
+        $settings->add(
+            new admin_setting_heading('progressbars',
+                get_string('progressbars', 'mod_booking'),
+                get_string('infotext:prolicensenecessary', 'mod_booking')));
+    }
+
     $settings->add(
         new admin_setting_heading('educationalunitinminutes',
             get_string('educationalunitinminutes', 'mod_booking'), ''));
