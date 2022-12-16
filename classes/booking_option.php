@@ -2633,28 +2633,51 @@ class booking_option {
 
     /**
      * Helper function to get HTML for a progressbar showing the consumed quota.
+     *
      * @param int $optionid option id
      * @param string $barcolor the bootstrap color for the progress bar, e.g. "primary", "success", "info", "danger"...
      * @param string $percentagecolor the bootstrap color for the percentage label, e.g. "primary", "success", "info", "danger"...
+     * @param bool $collapsible if true the progress bar can be collapsed, default is true
+     *
      * @return string $html the HTML containing the progress bar
      */
     public static function get_progressbar_html(int $optionid, string $barcolor = "primary",
-        string $percentagecolor = "white") {
+        string $percentagecolor = "white", $collapsible = true) {
 
         $html = '';
         $alreadypassed = get_string('alreadypassed', 'mod_booking');
         $consumedpercentage = self::get_consumed_quota($optionid) * 100;
         if ($consumedpercentage > 0 && $consumedpercentage <= 100) {
-            $html .=
-            "<div class='progressbar-label'>$alreadypassed:</div>
-            <div class='progress'>
-                <div class='progress-bar progress-bar-striped bg-$barcolor' role='progressbar'
-                style='width: $consumedpercentage%' aria-valuenow='$consumedpercentage'
-                aria-valuemin='0' aria-valuemax='100'>
-                    <span class='text-$percentagecolor'>$consumedpercentage%</span>
-                </div>
-            </div>";
+
+            $progressbar =
+                "<div class='progress'>
+                    <div class='progress-bar progress-bar-striped bg-$barcolor' role='progressbar'
+                    style='width: $consumedpercentage%' aria-valuenow='$consumedpercentage'
+                    aria-valuemin='0' aria-valuemax='100'>
+                        <span class='text-$percentagecolor'>$consumedpercentage%</span>
+                    </div>
+                </div>";
+
+            if ($collapsible) {
+                // Show collapsible progressbar.
+                $html .=
+                    "<p><a data-toggle='collapse' href='#progressbarContainer$optionid' role='button'
+                        aria-expanded='false' aria-controls='progressbarContainer$optionid'>
+                        <i class='fa fa-hourglass' aria-hidden='true'></i> $alreadypassed: $consumedpercentage%
+                    </a></p>
+                    <div class='collapse' id='progressbarContainer$optionid'>
+                        $progressbar
+                    </div>";
+            } else {
+                // Show progressbar with a label.
+                $html .=
+                    "<div class='progressbar-label mb-1'>
+                        <i class='fa fa-hourglass' aria-hidden='true'></i> $alreadypassed:
+                    </div>
+                    $progressbar";
+            }
         }
+
         return $html;
     }
 }
