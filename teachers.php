@@ -13,6 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+use mod_booking\booking_option;
 use mod_booking\existing_subscriber_selector;
 use mod_booking\potential_subscriber_selector;
 
@@ -112,8 +114,8 @@ if ($edit === 0) {
     $existingselector->invalidate_selected_users();
     $subscriberselector->set_existing_subscribers($existingselector->find_users(''));
 
-    cache_helper::purge_by_event('setbackoptionstable');
-    cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
+    // At the very last moment, we invalidate caches.
+    booking_option::purge_cache_for_option($optionid);
 }
 
 if ($edit === 1) {

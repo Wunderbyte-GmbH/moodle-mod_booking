@@ -1099,9 +1099,8 @@ function booking_update_options($optionvalues, $context) {
         // Save relation for each newly created optiondate if checkbox is active.
         save_entity_relations_for_optiondates_of_option($optionvalues, $option->id);
 
-        // We need to reset cache for options table and option settings after updating an option.
-        cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::invalidate_by_event('setbackoptionsettings', [$option->id]);
+        // We need to purge cache after updating an option.
+        booking_option::purge_cache_for_option($option->id);
 
         rules_info::execute_rules_for_option($option->id);
 
@@ -1213,9 +1212,8 @@ function booking_update_options($optionvalues, $context) {
             rules_info::execute_rules_for_option($optionid);
         }
 
-        // We need to reset cache for options table and option settings after updating an option.
-        cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
+        // At the very last moment, we invalidate caches.
+        booking_option::purge_cache_for_option($optionid);
 
         return $optionid;
     }
