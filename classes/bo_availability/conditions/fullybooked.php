@@ -132,7 +132,7 @@ class fullybooked implements bo_condition {
                 get_string('bo_cond_fullybooked_not_available', 'mod_booking');
         }
 
-        return [$isavailable, $description, false, BO_BUTTON_INDIFFERENT];
+        return [$isavailable, $description, false, BO_BUTTON_NOBUTTON];
     }
 
     /**

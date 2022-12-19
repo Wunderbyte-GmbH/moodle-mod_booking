@@ -131,9 +131,9 @@ class subbooking_additionalitem implements booking_subbooking {
     /**
      * Get the name of the subbooking.
      * @param boolean $localized
-     * @return void
+     * @return string
      */
-    public function get_name_of_subbooking($localized = true) {
+    public function get_name_of_subbooking($localized = true):string {
         return $localized ? get_string($this->type, 'mod_booking') : $this->type;
     }
 
@@ -248,9 +248,9 @@ class subbooking_additionalitem implements booking_subbooking {
      * Return interface for this subbooking type as an array of data & template.
      *
      * @param booking_option_settings $settings
-     * @return string
+     * @return array
      */
-    public function return_interface(booking_option_settings $settings) {
+    public function return_interface(booking_option_settings $settings):array {
 
         // The interface of the timeslot booking should merge when there are multiple slot bookings.
         // Therefore, we need to first find out how many of these are present.
@@ -273,5 +273,20 @@ class subbooking_additionalitem implements booking_subbooking {
         $data = new subbooking_additionalitem_output($settings);
 
         return [$data, 'mod_booking/subbooking_additionalitem'];
+    }
+
+    /**
+     * Function to return all relevant information of this subbooking as array.
+     * This function can be used to differentiate for different items a single ...
+     * ... subbooking option can provide. One example would be a timeslot subbooking...
+     * ... where itemids would be slotids.
+     * But normally the itemid here is the same as the subboooking it.
+     *
+     * @param integer $itemid
+     * @return array
+     */
+    public function return_subbooking_information(int $itemid = 0, $user = 0):array {
+
+        return [];
     }
 }

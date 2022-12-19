@@ -31,6 +31,7 @@ use mod_booking\booking_option;
 use mod_booking\output\bookingoption_description;
 use mod_booking\price;
 use mod_booking\singleton_service;
+use mod_booking\subbookings\subbookings_info;
 use moodle_exception;
 
 /**
@@ -46,76 +47,22 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * for the course that $userid of the buying user.
      *
      * @param string $area
-     * @param int $optionid
+     * @param int $itemid
      * @param int $userid
      * @return array
      */
-    public static function load_cartitem(string $area, int $optionid, int $userid = 0): array {
-        global $DB, $USER, $PAGE;
+    public static function load_cartitem(string $area, int $itemid, int $userid = 0): array {
 
-        $bookingoption = booking_option::create_option_from_optionid($optionid);
-
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
-        // Make sure that we only buy from instance the user has access to.
-        // This is just fraud prevention and can not happen ordinarily.
-        $cm = get_coursemodule_from_instance('booking', $bookingoption->bookingid);
-
-        // TODO: Find out if the executing user has the right to access this instance.
-        // This can lead to problems, rights should be checked further up.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $context = context_module::instance($cm->id);
-        if (!has_capability('mod/booking:choose', $context)) {
-            return null;
-        } */
-
-        $user = price::return_user_to_buy_for($userid);
-
-        // In booking, we always buy a booking option. Therefore, we have to first find out its price.
-        if (!$price = price::get_price('option', $optionid, $user)) {
-            throw new moodle_exception('invalidpricecategoryforuser', 'mod_booking', '', '', "Price was empty.
-                This was most probably due to invalid price cateogry configuration for the given user $user->id");
+        if ($area === 'option') {
+            return self::return_cart_for_option($area, $itemid, $userid);
+        } else if (str_starts_with($area, 'subbooking')) {
+            // As a subbooking can have different slots, we use the area to provide the subbooking id.
+            // The syntax is "subbooking-1" for the subbooking id 1.
+            return self::return_cart_for_subbooking($area, $itemid, $userid);
+        } else {
+            return ['error' => 'novalidarea'];
         }
 
-        // Now we reserve the place for the user.
-        if (!$bookingoption->user_submit_response($user, 0, 0, true)) {
-            return [];
-        }
-
-        // We need to register this action as a booking answer, where we only reserve, not actually book.
-
-        $user = singleton_service::get_instance_of_user($userid);
-        $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);
-
-        if (!isset($PAGE->context)) {
-            $PAGE->set_context(context_module::instance($booking->cmid));
-        }
-
-        $output = $PAGE->get_renderer('mod_booking');
-        $data = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, false, null, $user);
-
-        $description = $output->render_bookingoption_description_cartitem($data);
-
-        $optiontitle = $bookingoption->option->text;
-        if (!empty($bookingoption->option->titleprefix)) {
-            $optiontitle = $bookingoption->option->titleprefix . ' - ' . $optiontitle;
-        }
-
-        $canceluntil = booking_option::return_cancel_until_date($optionid);
-
-        $cartitem = new cartitem($optionid,
-            $optiontitle,
-            $price['price'],
-            $price['currency'],
-            'mod_booking',
-            'option',
-            $description,
-            $settings->imageurl ?? '',
-            $canceluntil,
-            $settings->coursestarttime ?? null,
-            $settings->courseendtime ?? null);
-
-        return ['cartitem' => $cartitem];
     }
 
     /**
@@ -126,10 +73,10 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @param integer $userid
      * @return boolean
      */
-    public static function unload_cartitem( string $area, int $optionid, int $userid = 0): bool {
+    public static function unload_cartitem( string $area, int $itemid, int $userid = 0): bool {
         global $USER;
 
-        $bookingoption = booking_option::create_option_from_optionid($optionid);
+        $bookingoption = booking_option::create_option_from_optionid($itemid);
         $userid = $userid == 0 ? $USER->id : $userid;
         if (!$bookingoption) {
             // This might occure, when the instance was deleted. As we don't want to continue to try, we return true.
@@ -149,15 +96,15 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
     /**
      * Callback function that handles inscripiton after fee was paid.
      * @param string $area
-     * @param integer $optionid
+     * @param integer $itemid
      * @param integer $paymentid
      * @param integer $userid
      * @return boolean
      */
-    public static function successful_checkout(string $area, int $optionid, int $paymentid, int $userid):bool {
+    public static function successful_checkout(string $area, int $itemid, int $paymentid, int $userid):bool {
         global $USER;
 
-        $bookingoption = booking_option::create_option_from_optionid($optionid);
+        $bookingoption = booking_option::create_option_from_optionid($itemid);
 
         if ($userid == 0) {
             $user = $USER;
@@ -178,11 +125,11 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @param integer $userid
      * @return boolean
      */
-    public static function cancel_purchase(string $area, int $optionid, int $userid = 0): bool {
+    public static function cancel_purchase(string $area, int $itemid, int $userid = 0): bool {
 
         global $USER;
 
-        $bookingoption = booking_option::create_option_from_optionid($optionid);
+        $bookingoption = booking_option::create_option_from_optionid($itemid);
 
         if ($userid == 0) {
             $user = $USER;
@@ -217,5 +164,99 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         }
 
         return $consumedquota;
+    }
+
+    /**
+     * Helper function to create cartitem for optionid.
+     *
+     * @param string $area
+     * @param integer $itemid
+     * @param integer $userid
+     * @return array
+     */
+    private static function return_cart_for_option(string $area, int $itemid, int $userid = 0):array {
+
+        global $PAGE;
+
+        $bookingoption = booking_option::create_option_from_optionid($itemid);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+
+        // Make sure that we only buy from instance the user has access to.
+        // This is just fraud prevention and can not happen ordinarily.
+        $cm = get_coursemodule_from_instance('booking', $bookingoption->bookingid);
+
+        // TODO: Find out if the executing user has the right to access this instance.
+        // This can lead to problems, rights should be checked further up.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $context = context_module::instance($cm->id);
+        if (!has_capability('mod/booking:choose', $context)) {
+            return null;
+        } */
+
+        $user = price::return_user_to_buy_for($userid);
+
+        // In booking, we always buy a booking option. Therefore, we have to first find out its price.
+        if (!$price = price::get_price('option', $itemid, $user)) {
+            throw new moodle_exception('invalidpricecategoryforuser', 'mod_booking', '', '', "Price was empty.
+                This was most probably due to invalid price cateogry configuration for the given user $user->id");
+        }
+
+        // Now we reserve the place for the user.
+        if (!$bookingoption->user_submit_response($user, 0, 0, true)) {
+            return [];
+        }
+
+        // We need to register this action as a booking answer, where we only reserve, not actually book.
+
+        $user = singleton_service::get_instance_of_user($userid);
+        $booking = singleton_service::get_instance_of_booking_by_optionid($itemid);
+
+        if (!isset($PAGE->context)) {
+            $PAGE->set_context(context_module::instance($booking->cmid));
+        }
+
+        $output = $PAGE->get_renderer('mod_booking');
+        $data = new bookingoption_description($itemid, null, DESCRIPTION_WEBSITE, false, null, $user);
+
+        $description = $output->render_bookingoption_description_cartitem($data);
+
+        $optiontitle = $bookingoption->option->text;
+        if (!empty($bookingoption->option->titleprefix)) {
+            $optiontitle = $bookingoption->option->titleprefix . ' - ' . $optiontitle;
+        }
+
+        $canceluntil = booking_option::return_cancel_until_date($itemid);
+
+        $cartitem = new cartitem($itemid,
+            $optiontitle,
+            $price['price'],
+            $price['currency'],
+            'mod_booking',
+            'option',
+            $description,
+            $settings->imageurl ?? '',
+            $canceluntil,
+            $settings->coursestarttime ?? null,
+            $settings->courseendtime ?? null);
+
+        return ['cartitem' => $cartitem];
+    }
+
+    /**
+     * Helper function to create cartitem for subbooking.
+     *
+     * @param string $area
+     * @param integer $itemid
+     * @param integer $userid
+     * @return array
+     */
+    private static function return_cart_for_subbooking(string $area, int $itemid, int $userid = 0):array {
+
+        $subbooking = subbookings_info::get_subbooking_by_area_and_id($area, $itemid);
+
+        $cartinformation = $subbooking->return_subbooking_information($itemid);
+
+        return [];
     }
 }

@@ -22,21 +22,37 @@
  * to web service core_update_inplace_editable, which invokes the specified callback.
  * Any exception thrown by the web service (or callback) is displayed as an error popup.
  *
- * @module     mod_booking/subboking_timetable
- * @copyright  2022 Wunderbyte GmbH
+ * @module     mod_booking/subbooking_timeslot
+ * @copyright  2022 <georg.maisser@wunderbyte.at> Wunderbyte GmbH
  * copyleft/gpl.html GNU GPL v3 or later
  */
 
 const SELECTOR = {
-    book: '[data-bookable="1"]'
+    TABLE: 'table.mod-booking-timeslotbooking',
+    BOOKABLEITEM: 'td[data-bookable="true"]',
 };
 
 /**
  * Gets called from mustache template.
  */
 export const init = () => {
-    document.querySelectorAll(SELECTOR.book).forEach(function(bookable) {
+    const selector = SELECTOR.TABLE + ' ' + SELECTOR.BOOKABLEITEM;
+    const items = document.querySelectorAll(selector);
+
+    // eslint-disable-next-line no-console
+    console.log(selector, items);
+
+    items.forEach(function(bookable) {
         bookable.addEventListener('click', () => {
+
+            // On click we put the item in the shoppping cart
+            if (!bookable.classList.contains('data-selected')) {
+
+            } else {
+
+            }
+
+
             bookable.toggleAttribute('data-selected');
         });
     });

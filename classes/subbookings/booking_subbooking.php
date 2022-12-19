@@ -55,12 +55,11 @@ interface booking_subbooking {
      * @param boolean $localized
      * @return string the name of the subbooking
      */
-    public function get_name_of_subbooking($localized = true);
+    public function get_name_of_subbooking($localized = true):string;
 
     /**
      * Gets the JSON for the subbookings to be stored in DB.
      * @param stdClass &$data form data reference
-     * @return string the json for the subbooking
      */
     public function save_subbooking(stdClass &$data);
 
@@ -86,7 +85,19 @@ interface booking_subbooking {
     /**
      * Return interface for this subbooking type as an array of data & template.
      * @param booking_option_settings $settings
-     * @return string
+     * @return array
      */
-    public function return_interface(booking_option_settings $settings);
+    public function return_interface(booking_option_settings $settings):array;
+
+    /**
+     * Function to return all relevant information of this subbooking as array.
+     * This function can be used to differentiate for different items a single ...
+     * ... subbooking option can provide. One example would be a timeslot subbooking...
+     * ... where itemids would be slotids.
+     * But normally the itemid here is the same as the subboooking it.
+     *
+     * @param integer $itemid
+     * @return array
+     */
+    public function return_subbooking_information(int $itemid = 0):array;
 }

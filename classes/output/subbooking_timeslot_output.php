@@ -79,6 +79,9 @@ class subbooking_timeslot_output implements renderable, templatable {
                     $location = ['name' => ''];
                 }
 
+                // We save the subbookingid here.
+                $location['sboid'] = $subbooking->id;
+
                 // We need to get start & endtime for every date of this option.
 
                 foreach ($settings->sessions as $session) {
@@ -106,8 +109,8 @@ class subbooking_timeslot_output implements renderable, templatable {
                         $timeslot = [
                             "free" => true,
                             "slot" => $slot->datestring,
-                            "area" => "subbooking-" . $session->id,
-                            "component" => "mod_booking",
+                            "area" => "subbooking-" . $subbooking->id,
+                            "componentname" => "mod_booking",
                             "itemid" => $slotcounter,
                         ];
 

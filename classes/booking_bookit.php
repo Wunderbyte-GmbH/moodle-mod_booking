@@ -55,6 +55,7 @@ class booking_bookit {
         // Decide, wether to show the direct booking button or a modal.
 
         $sites = [];
+        $showinmodalbutton = true;
         foreach ($results as $result) {
             if ($result['insertpage']) {
                 $sites[] = [
@@ -65,6 +66,12 @@ class booking_bookit {
             // The button can come from another blocking condition.
             if ($result['button'] == BO_BUTTON_MYBUTTON) {
                 $buttoncondition = $result['classname'];
+            }
+
+            // The no button marker can override all the other conditions.
+            // It is only relevant for the modal, not the rest.
+            if ($result['button'] == BO_BUTTON_NOBUTTON) {
+                $showinmodalbutton = false;
             }
         }
 
@@ -77,6 +84,7 @@ class booking_bookit {
                 $settings->id, // We pass on the optionid.
                 count($sites), // The total number of pre booking pages.
                 $buttoncondition,  // This is the button we need to render twice.;
+                $showinmodalbutton, // This marker just suppresses the in modal button.
             );
 
             $modalhtml = $output->render_prepagemodal($data);

@@ -51,24 +51,29 @@ class prepagemodal implements renderable, templatable {
     /** @var string $outsidebuttonhtml  */
     public $buttonhtml = "";
 
+    /** @var string $inmodalbuttonhtml  */
+    public $inmodalbuttonhtml = "";
+
     /**
      * Constructor
      *
      * @param int $optionid
      * @param int $totalnumberofpages
-     * @param string $buttonhtml
+     * @param string $buttoncondition
      */
     public function __construct(
             int $optionid,
             int $totalnumberofpages,
-            string $buttoncondition) {
+            string $buttoncondition,
+            bool $showinmodalbutton = true) {
 
         $this->optionid = $optionid;
         $this->totalnumberofpages = $totalnumberofpages;
         $this->buttoncondition = $buttoncondition;
         $this->buttonhtml = $buttoncondition::render_button($optionid, null, true);
-        $this->inmodalbuttonhtml = $buttoncondition::render_button($optionid, null, false);
-
+        if ($showinmodalbutton) {
+            $this->inmodalbuttonhtml = $buttoncondition::render_button($optionid, null, false);
+        }
     }
 
     /**

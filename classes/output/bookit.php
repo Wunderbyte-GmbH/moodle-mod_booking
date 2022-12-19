@@ -96,7 +96,9 @@ class bookit implements renderable, templatable {
             // When reserved, the item is at the moment in the cart, this shows the inactive cart.
             // When deleted, we can book again.
 
-            switch ($bookinganswers->user_status($buyforuser->id)) {
+            $userstatus = $bookinganswers->user_status($buyforuser->id);
+
+            switch ($userstatus) {
                 case STATUSPARAM_RESERVED:
                 case STATUSPARAM_NOTBOOKED:
                 case STATUSPARAM_DELETED:
