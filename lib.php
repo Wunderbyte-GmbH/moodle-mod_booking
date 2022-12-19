@@ -1661,7 +1661,7 @@ function booking_generatenewnumbers($bookingdatabooking, $cmid, $optionid, $alls
  * @param int $optionid
  */
 function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) {
-    global $DB, $CFG;
+    global $DB, $CFG, $USER;
 
     $course = $DB->get_record('course', array('id' => $booking->course));
     require_once($CFG->libdir . '/completionlib.php');
@@ -1670,8 +1670,11 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
     $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
 
     foreach ($selectedusers as $selecteduser) {
-        $userdata = $DB->get_record('booking_answers',
-                array('optionid' => $optionid, 'userid' => $selecteduser));
+        $userdata = $DB->get_record_sql(
+            "SELECT * FROM {booking_answers}
+            WHERE optionid = :optionid AND userid = :selecteduser
+            AND waitinglist <> 5", // Waitinglist 5 means deleted.
+            ['optionid' => $optionid, 'selecteduser' => $selecteduser ]);
 
         if ($userdata->completed == '1') {
             $userdata->completed = '0';
@@ -1690,8 +1693,9 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
 
             // Trigger the completion event, in order to send the notification mail.
             $event = \mod_booking\event\bookingoption_completed::create(array('context' => context_module::instance($cmid),
-                'objectid' => $optionid, 'relateduserid' => $selecteduser, 'other' => ['cmid' => $cmid]));
+                'objectid' => $optionid, 'userid' => $USER->id, 'relateduserid' => $selecteduser, 'other' => ['cmid' => $cmid]));
             $event->trigger();
+            // Important: userid is the user who triggered, relateduserid is the affected user who completed.
 
             $DB->update_record('booking_answers', $userdata);
             $countcomplete = $DB->count_records('booking_answers',

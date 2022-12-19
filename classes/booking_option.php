@@ -2125,6 +2125,14 @@ class booking_option {
      */
     public function sendmessage_completed(int $userid) {
 
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($this->cmid);
+
+        // We DO NOT send if global mail templates are activated for the instance.
+        // We use the new global booking rules instead.
+        if (isset($bookingsettings->mailtemplatessource) && $bookingsettings->mailtemplatessource == 1) {
+            return;
+        }
+
         $taskdata = array(
             'userid' => $userid,
             'optionid' => $this->optionid,

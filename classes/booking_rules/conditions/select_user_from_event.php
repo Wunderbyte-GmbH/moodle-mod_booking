@@ -68,16 +68,16 @@ class select_user_from_event implements booking_rule_condition {
     public function set_conditiondata_from_json(string $json) {
         $this->rulejson = $json;
         $ruleobj = json_decode($json);
-        $conditiondata = $ruleobj->conditiondata;
+        $datafromevent = $ruleobj->datafromevent;
 
         // The user who triggered the event.
-        if (!empty($conditiondata->userid)) {
-            $this->userid = $conditiondata->userid;
+        if (!empty($datafromevent->userid)) {
+            $this->userid = $datafromevent->userid;
         }
 
         // The user affected by the event.
-        if (!empty($conditiondata->relateduserid)) {
-            $this->relateduserid = $conditiondata->relateduserid;
+        if (!empty($datafromevent->relateduserid)) {
+            $this->relateduserid = $datafromevent->relateduserid;
         }
     }
 
@@ -157,14 +157,15 @@ class select_user_from_event implements booking_rule_condition {
         $rulejson = $params["json"];
         $ruleobj = json_decode($rulejson);
         $conditiondata = $ruleobj->conditiondata;
+        $datafromevent = $ruleobj->datafromevent;
 
         switch ($conditiondata->userfromeventtype) {
             case "userid":
                 // The user who triggered the event.
-                $chosenuserid = $conditiondata->userid;
+                $chosenuserid = $datafromevent->userid;
                 break;
             case "relateduserid":
-                $chosenuserid = $conditiondata->relateduserid;
+                $chosenuserid = $datafromevent->relateduserid;
                 // The user affected by the event.
                 break;
             default:
