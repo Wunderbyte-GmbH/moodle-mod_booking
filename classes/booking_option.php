@@ -972,7 +972,8 @@ class booking_option {
         $waitinglist = $this->check_if_limit($user->id);
 
         if ($waitinglist === false) {
-            // echo "Couldn't subscribe user $user->id because of full waitinglist <br>";
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* echo "Couldn't subscribe user $user->id because of full waitinglist <br>";*/
             return false;
         } else if ($addedtocart) {
             $waitinglist = STATUSPARAM_RESERVED;
@@ -983,7 +984,8 @@ class booking_option {
         $underlimit = $underlimit ||
                 (($this->booking->get_user_booking_count($user) - $substractfromlimit) < $this->booking->settings->maxperuser);
         if (!$underlimit) {
-            // mtrace("Couldn't subscribe user $user->id because of maxperuser setting <br>");
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* mtrace("Couldn't subscribe user $user->id because of maxperuser setting <br>"); */
             return false;
         }
 
@@ -1597,13 +1599,8 @@ class booking_option {
                     'userid' => $USER->id));
         $event->trigger();
 
-        // At the very last moment, when everything is done, we invalidate the table cache.
-        cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::invalidate_by_event('setbackoptionsettings', [$this->optionid]);
-        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
-        // When we set back the booking_answer...
-        // ... we have to make sure it's also delted in the singleton service.
-        singleton_service::destroy_booking_answers($this->optionid);
+        // At the very last moment, we purge caches for the option.
+        self::purge_cache_for_option($this->optionid);
 
         return $result;
     }
@@ -2574,6 +2571,9 @@ class booking_option {
             $event->trigger();
             // Deletion of booking answers and user events needs to happen in event observer.
         }
+
+        // At the end, we have to invalidate caches!
+        self::purge_cache_for_option($optionid);
     }
 
     /**
@@ -2679,5 +2679,19 @@ class booking_option {
         }
 
         return $html;
+    }
+
+    /**
+     * Helper function to purge cache for a booking option.
+     * @param int $optionid
+     */
+    public static function purge_cache_for_option(int $optionid) {
+
+        cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
+        cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
+        // When we set back the booking_answers...
+        // ... we have to make sure it's also deleted in the singleton service.
+        singleton_service::destroy_booking_answers($optionid);
     }
 }

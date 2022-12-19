@@ -372,7 +372,9 @@ class mod_booking_observer {
 
         // TODO: Get name of event and only trigger when the rule is set to listen on this specific event.
 
-        // $userid = $event->userid ?? 0;
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $userid = $event->userid ?? 0; */
+
         $optionid = $event->objectid ?? 0;
 
         // We retrieve all the event based booking rules.

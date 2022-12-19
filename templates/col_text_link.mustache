@@ -40,12 +40,8 @@
       <a class="dropdown-item manageresponses" href="{{manageresponsesurl}}" target="_self">
         <i class="fa fa-ticket" aria-hidden="true"></i> {{#str}} manageresponses, mod_booking {{/str}}
       </a>
-      {{^undocancel}}
-      <a class="dropdown-item cancelallusers hidden" href="#" data-id="{{id}}" data-componentname="{{componentname}}">
-        <i class="fa fa-ban" aria-hidden="true"></i> {{#str}} cancelallusers, mod_booking {{/str}}
-      </a>
-      {{/undocancel}}
-      {{#undocancel}}{{{undocancellink}}}{{/undocancel}}
+      {{#showcancel}}{{{cancellink}}}{{/showcancel}}
+      {{#showundocancel}}{{{undocancellink}}}{{/showundocancel}}
       {{#optiondatesteachersurl}}
       <h6 class="dropdown-header">{{#str}} reports {{/str}}</h6>
       <a class="dropdown-item" href="{{optiondatesteachersurl}}" target="_self">
