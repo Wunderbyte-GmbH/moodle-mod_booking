@@ -68,7 +68,7 @@ class booked_users implements renderable, templatable {
             bool $showwaiting = false,
             bool $showreserved = false,
             bool $showtonotifiy = false,
-            bool $showdeleted = false,) {
+            bool $showdeleted = false) {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
@@ -147,8 +147,6 @@ class booked_users implements renderable, templatable {
                 ];
             }
         }
-
-
     }
 
     /**
