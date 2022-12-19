@@ -573,11 +573,11 @@ class price {
      *
      * @return array
      */
-    public static function get_price(string $area, int $itemid, $user = null): array {
+    public static function get_price(string $area, int $itemid, $user = 0): array {
 
         global $USER;
 
-        if (!$user) {
+        if (empty($user)) {
             $user = $USER;
         }
 

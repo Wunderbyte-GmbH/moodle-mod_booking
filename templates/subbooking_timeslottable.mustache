@@ -113,8 +113,8 @@
     <tr>
         <td class="text-left name">{{name}}</td>
         {{#timeslots}}
-        <td data-bookable='{{free}}' data-component="{{component}}" data-area="{{area}}" data-itemid="{{itemid}}">
-            {{price}} {{currency}}
+        <td>
+            {{> local_shopping_cart/addtocartdb_priceonly}}
         </td>
         {{/timeslots}}
     </tr>
@@ -122,7 +122,7 @@
 </table>
 
 {{#js}}
-    require(['mod_booking/subbooking_timetable'], function(subboking) {
+    require(['mod_booking/subbooking_timeslot'], function(subboking) {
         subboking.init();
     });
 {{/js}}

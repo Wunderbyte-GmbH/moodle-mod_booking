@@ -192,10 +192,14 @@ class booking_answers {
             $userid = $USER->id;
         }
 
-        if (isset($this->usersonlist[$userid])) {
-            return STATUSPARAM_BOOKED;
+        if (isset($this->usersreserved[$userid])) {
+            return STATUSPARAM_RESERVED;
+        } else if (isset($this->userstonotify[$userid])) {
+            return STATUSPARAM_NOTIFYMELIST;
         } else if (isset($this->usersonwaitinglist[$userid])) {
             return STATUSPARAM_WAITINGLIST;
+        } else if (isset($this->usersonlist[$userid])) {
+            return STATUSPARAM_BOOKED;
         } else {
             return STATUSPARAM_NOTBOOKED;
         }

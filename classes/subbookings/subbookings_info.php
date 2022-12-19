@@ -308,4 +308,31 @@ class subbookings_info {
 
         return $returnarray;
     }
+
+    /**
+     * Returns a given subbooking option instance.
+     * The ID might actually come from the area.
+     *
+     * @param string $area
+     * @param integer $itemid
+     * @return object
+     */
+    public static function get_subbooking_by_area_and_id(string $area, int $itemid) {
+        global $DB;
+
+        // First, we need to isolate the id of the subbooking. We might find it in the area.
+        list($area, $sbid) = explode('-', $area);
+
+        // If we found an id, we use it as itemid and design the  slotid.
+        if ($sbid) {
+            $record = $DB->get_record('booking_subbooking_options', ['id' => $sbid]);
+        } else {
+            $record = $DB->get_record('booking_subbooking_options', ['id' => $itemid]);
+        }
+
+        $subbooking = self::get_subbooking($record->type);
+        $subbooking->set_subbookingdata($record);
+
+        return $subbooking;
+    }
 }

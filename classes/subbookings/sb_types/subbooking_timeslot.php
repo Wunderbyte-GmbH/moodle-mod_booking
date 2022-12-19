@@ -19,8 +19,10 @@ namespace mod_booking\subbookings\sb_types;
 use context_module;
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking_option_settings;
+use mod_booking\dates_handler;
 use mod_booking\output\subbooking_timeslot_output;
 use mod_booking\price;
+use mod_booking\singleton_service;
 use mod_booking\subbookings\booking_subbooking;
 use MoodleQuickForm;
 use stdClass;
@@ -116,9 +118,9 @@ class subbooking_timeslot implements booking_subbooking {
     /**
      * Get the name of the subbooking.
      * @param boolean $localized
-     * @return void
+     * @return string
      */
-    public function get_name_of_subbooking($localized = true) {
+    public function get_name_of_subbooking($localized = true):string {
         return $localized ? get_string($this->type, 'mod_booking') : $this->type;
     }
 
@@ -204,7 +206,7 @@ class subbooking_timeslot implements booking_subbooking {
      * @param booking_option_settings $settings
      * @return array
      */
-    public function return_interface(booking_option_settings $settings) {
+    public function return_interface(booking_option_settings $settings):array {
 
         // The interface of the timeslot booking should merge when there are multiple slot bookings.
         // Therefore, we need to first find out how many of these are present.
@@ -223,5 +225,51 @@ class subbooking_timeslot implements booking_subbooking {
 
         $data = new subbooking_timeslot_output($settings);
         return [$data, 'mod_booking/subbooking_timeslottable'];
+    }
+
+    /**
+     * Function to return all relevant information of this subbooking as array.
+     * This function can be used to differentiate for different items a single ...
+     * ... subbooking option can provide. One example would be a timeslot subbooking...
+     * ... where itemids would be slotids.
+     * But normally the itemid here is the same as the subboooking it.
+     *
+     * @param integer $itemid
+     * @return array
+     */
+    public function return_subbooking_information(int $itemid = 0, $user = 0):array {
+
+        global $USER;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        // We use exactly the same function here as for output.
+        // This is a little bit expensive, as we actually only use a fraction of the data calculated.
+        // If this turns out to be a problem, we will use caching.
+        $data = new subbooking_timeslot_output($settings);
+
+        $returnarray = [
+            'itemid' => $itemid,
+            'price' => $priceitem['price'],
+            'currency' => $priceitem['currency'],
+            'component' => 'mod_booking',
+            'area' => 'subbooking-' . $this->id,
+            'description' => $this->description ?? '',
+            'imageurl' => $this->imageurl ?? '',
+            'canceluntil' => $this->imageurl ?? '',
+        ];
+
+        // $cartitem = new cartitem($itemid,
+        // $optiontitle,
+        // $price['price'],
+        // $price['currency'],
+        // 'mod_booking',
+        // 'option',
+        // $description,
+        // $settings->imageurl ?? '',
+        // $canceluntil,
+        // $settings->coursestarttime ?? null,
+        // $settings->courseendtime ?? null);
+
+        return $returnarray;
     }
 }

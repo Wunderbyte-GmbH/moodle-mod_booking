@@ -71,12 +71,12 @@ function respondToVisibility(optionid, totalnumberofpages, callback) {
     }
 
     // eslint-disable-next-line no-console
-    console.log(selector, element);
+    // console.log(selector, element);
 
     var observer = new MutationObserver(function() {
         if (!isHidden(element)) {
             // this.disconnect();
-            callback(optionid, totalnumberofpages);
+            callback(optionid);
         }
     });
 
@@ -110,13 +110,12 @@ function isHidden(el) {
 /**
  * Loads the (next) pre booking page.
  * @param {integer} optionid
- * @param {integer} totalnumberofpages
  */
 export const loadPreBookingPage = (
-    optionid, totalnumberofpages) => {
+    optionid) => {
 
     // eslint-disable-next-line no-console
-    console.log('loadPreBookingPage ' + optionid, totalnumberofpages);
+    // console.log('loadPreBookingPage ' + optionid, totalnumberofpages);
 
     // We need to clear the content of the div.
     const selector = SELECTORS.MODALID + optionid + SELECTORS.INMODALDIV;
@@ -136,7 +135,7 @@ export const loadPreBookingPage = (
         done: function(res) {
 
             // eslint-disable-next-line no-console
-            console.log(res.json, "template " + res.template);
+            // (res.json, "template " + res.template);
 
             const jsonobject = JSON.parse(res.json);
 
@@ -154,12 +153,12 @@ export const loadPreBookingPage = (
                 }
 
                 // eslint-disable-next-line no-console
-                console.log(data.data, "template " + template);
+                // console.log(data.data, "template " + template);
 
                 Templates.renderForPromise(template, data.data).then(({html, js}) => {
 
                     // eslint-disable-next-line no-console
-                    console.log(selector);
+                    // console.log(selector);
 
                     Templates.appendNodeContents(selector, html, js);
 
@@ -191,7 +190,7 @@ export const loadPreBookingPage = (
 function showRightButton(optionid) {
 
     // eslint-disable-next-line no-console
-    console.log(optionid, currentbookitpage[optionid], totalbookitpages[optionid]);
+    // console.log(optionid, currentbookitpage[optionid], totalbookitpages[optionid]);
 
     if (currentbookitpage[optionid] + 1 < totalbookitpages[optionid]) {
         const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.CONTINUEBUTTON);
@@ -227,7 +226,7 @@ function initializeButton(optionid, back) {
     const element = document.querySelector(selector);
 
     // eslint-disable-next-line no-console
-    console.log(element, selector);
+    // console.log(element, selector);
 
     if (!element.dataset.initialized) {
         element.dataset.initialized = true;
@@ -244,7 +243,7 @@ function initializeButton(optionid, back) {
                 currentbookitpage[optionid]++;
             }
 
-            loadPreBookingPage(optionid, totalbookitpages[optionid]);
+            loadPreBookingPage(optionid);
         });
     }
 }

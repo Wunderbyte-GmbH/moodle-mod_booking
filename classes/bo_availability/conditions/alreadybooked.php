@@ -131,7 +131,7 @@ class alreadybooked implements bo_condition {
                 get_string('bo_cond_alreadybooked_not_available', 'mod_booking');
         }
 
-        return [$isavailable, $description, false, BO_BUTTON_INDIFFERENT];
+        return [$isavailable, $description, false, BO_BUTTON_MYBUTTON];
     }
 
     /**
@@ -166,6 +166,6 @@ class alreadybooked implements bo_condition {
      * @return string
      */
     public static function render_button(int $optionid, object $user = null) {
-        return "";
+        return "<div class='alert alert-success' role='alert'>" . get_string('booked', 'mod_booking') . "</div>";
     }
 }
