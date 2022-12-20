@@ -43,6 +43,13 @@ use stdClass;
 interface booking_rule_condition {
 
     /**
+     * Function to tell if a condition can be combined with a certain booking rule type.
+     * @param string $bookingruletype e.g. "rule_daysbefore" or "rule_react_on_event"
+     * @return bool true if it can be combined
+     */
+    public function can_be_combined_with_bookingruletype(string $bookingruletype): bool;
+
+    /**
      * Adds the form elements for this rule condition to the provided mform.
      * @param MoodleQuickForm $mform the mform where the rule condition should be added
      * @param array $repeatedcondition repeated rule conditions

@@ -51,6 +51,10 @@ class conditions_info {
 
         $conditionsforselect = [];
         foreach ($conditions as $condition) {
+            if (!empty($ajaxformdata['bookingruletype'])
+                && !$condition->can_be_combined_with_bookingruletype($ajaxformdata['bookingruletype'])) {
+                continue;
+            }
             $fullclassname = get_class($condition); // With namespace.
             $classnameparts = explode('\\', $fullclassname);
             $shortclassname = end($classnameparts); // Without namespace.
@@ -62,9 +66,11 @@ class conditions_info {
         $categoryselect = [
             $mform->createElement('select', 'bookingruleconditiontype',
             get_string('bookingrulecondition', 'mod_booking'), $conditionsforselect),
-            $mform->createElement('submit', 'btn_bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'), $buttonargs)
+            $mform->createElement('submit', 'btn_bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'),
+                $buttonargs)
         ];
-        $mform->addGroup($categoryselect, 'bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'), [' '], false);
+        $mform->addGroup($categoryselect, 'bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'),
+            [' '], false);
         $mform->setType('btn_bookingruleconditiontype', PARAM_NOTAGS);
 
         if (isset($ajaxformdata['bookingruleconditiontype'])) {

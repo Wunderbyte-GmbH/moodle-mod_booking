@@ -54,6 +54,20 @@ class select_user_from_event implements booking_rule_condition {
     public $relateduserid = 0;
 
     /**
+     * Function to tell if a condition can be combined with a certain booking rule type.
+     * @param string $bookingruletype e.g. "rule_daysbefore" or "rule_react_on_event"
+     * @return bool true if it can be combined
+     */
+    public function can_be_combined_with_bookingruletype(string $bookingruletype): bool {
+        // This rule cannot be combined with the "days before" rule as it has no event.
+        if ($bookingruletype == 'rule_daysbefore') {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Load json data from DB into the object.
      * @param stdClass $record a rule condition record from DB
      */

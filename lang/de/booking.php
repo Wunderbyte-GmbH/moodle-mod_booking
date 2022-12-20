@@ -20,6 +20,10 @@ $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';
 $string['alreadypassed'] = 'Bereits vergangen';
 
+// General errors.
+$string['error:choosevalue'] = 'Sie müssen hier einen Wert auswählen.';
+$string['error:entervalue'] = 'Sie müssen hier einen Wert eingeben.';
+
 // Index.php.
 $string['week'] = "Woche";
 $string['question'] = "Frage";

@@ -102,6 +102,75 @@ class rulesform extends dynamic_form {
     public function validation($data, $files) {
         $errors = [];
 
+        if (empty($data['rule_name'])) {
+            $errors['rule_name'] = get_string('error:entervalue', 'mod_booking');
+        }
+
+        switch ($data['bookingruletype']) {
+            case '0':
+                $errors['bookingruletype'] = get_string('error:choosevalue', 'mod_booking');
+                break;
+            case 'rule_daysbefore':
+                if ($data['rule_daysbefore_days'] == '0') {
+                    $errors['rule_daysbefore_days'] = get_string('error:choosevalue', 'mod_booking');
+                }
+                if ($data['rule_daysbefore_datefield'] == '0') {
+                    $errors['rule_daysbefore_datefield'] = get_string('error:choosevalue', 'mod_booking');
+                }
+                break;
+            case 'rule_react_on_event':
+                // Nothing to check here.
+                break;
+        }
+
+        switch ($data['bookingruleconditiontype']) {
+            case 'enter_userprofilefield':
+                if ($data['condition_enter_userprofilefield_cpfield'] == '0') {
+                    $errors['condition_enter_userprofilefield_cpfield'] = get_string('error:choosevalue', 'mod_booking');
+                }
+                if (empty($data['condition_enter_userprofilefield_textfield'])) {
+                    $errors['condition_enter_userprofilefield_textfield'] = get_string('error:entervalue', 'mod_booking');
+                }
+                break;
+            case 'match_userprofilefield':
+                if ($data['condition_match_userprofilefield_cpfield'] == '0') {
+                    $errors['condition_match_userprofilefield_cpfield'] = get_string('error:choosevalue', 'mod_booking');
+                }
+                if ($data['condition_match_userprofilefield_optionfield'] == '0') {
+                    $errors['condition_match_userprofilefield_optionfield'] = get_string('error:choosevalue', 'mod_booking');
+                }
+                break;
+            case 'select_student_in_bo':
+                if ($data['condition_select_student_in_bo_borole'] == '-1') {
+                    $errors['condition_select_student_in_bo_borole'] = get_string('error:choosevalue', 'mod_booking');
+                }
+                break;
+            case 'select_teacher_in_bo':
+                // Nothing to check here.
+                break;
+            case 'select_user_from_event':
+                if ($data['condition_select_user_from_event_type'] == '-1') {
+                    $errors['condition_select_user_from_event_type'] = get_string('error:choosevalue', 'mod_booking');
+                }
+                break;
+            case 'select_users':
+                if (empty($data['condition_select_users_userids'])) {
+                    $errors['condition_select_users_userids'] = get_string('error:choosevalue', 'mod_booking');
+                }
+                break;
+        }
+
+        switch ($data['bookingruleactiontype']) {
+            case 'send_mail':
+                if (empty($data['action_send_mail_subject'])) {
+                    $errors['action_send_mail_subject'] = get_string('error:entervalue', 'mod_booking');
+                }
+                if (empty(strip_tags($data['action_send_mail_template']))) {
+                    $errors['action_send_mail_template'] = get_string('error:entervalue', 'mod_booking');
+                }
+                break;
+        }
+
         return $errors;
     }
 

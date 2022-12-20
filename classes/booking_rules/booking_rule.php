@@ -26,7 +26,6 @@
 
 namespace mod_booking\booking_rules;
 
-use mod_booking\booking_option_settings;
 use MoodleQuickForm;
 use stdClass;
 
@@ -52,15 +51,14 @@ interface booking_rule {
 
     /**
      * Gets the human-readable name of a rule (localized).
-     * @param boolean $localized
+     * @param bool $localized
      * @return string the name of the rule
      */
-    public function get_name_of_rule($localized = true);
+    public function get_name_of_rule(bool $localized = true): string;
 
     /**
      * Gets the JSON for the rules to be stored in DB.
      * @param stdClass &$data form data reference
-     * @return string the json for the rule
      */
     public function save_rule(stdClass &$data);
 

@@ -20,6 +20,10 @@ $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
 $string['alreadypassed'] = 'Already passed';
 
+// General errors.
+$string['error:choosevalue'] = 'You have to choose a value here.';
+$string['error:entervalue'] = 'You have to enter a value here.';
+
 // Index.php.
 $string['week'] = "Week";
 $string['question'] = "Question";

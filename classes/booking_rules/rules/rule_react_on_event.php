@@ -100,10 +100,10 @@ class rule_react_on_event implements booking_rule {
 
     /**
      * Get the name of the rule.
-     * @param boolean $localized
-     * @return void
+     * @param bool $localized
+     * @return string
      */
-    public function get_name_of_rule($localized = true) {
+    public function get_name_of_rule(bool $localized = true): string {
         return $localized ? get_string($this->rulename, 'mod_booking') : $this->rulename;
     }
 

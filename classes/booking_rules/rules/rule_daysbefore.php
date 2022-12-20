@@ -47,7 +47,7 @@ class rule_daysbefore implements booking_rule {
     /** @var string $rulejson */
     public $rulejson = null;
 
-    /** @var int $ruleid */
+    /** @var int $ruleid from database! */
     public $ruleid = null;
 
     /** @var int $days */
@@ -129,9 +129,9 @@ class rule_daysbefore implements booking_rule {
     /**
      * Get the name of the rule.
      * @param boolean $localized
-     * @return void
+     * @return string the name of the rule
      */
-    public function get_name_of_rule($localized = true) {
+    public function get_name_of_rule(bool $localized = true): string {
         return $localized ? get_string($this->rulename, 'mod_booking') : $this->rulename;
     }
 
