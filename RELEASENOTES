@@ -1,6 +1,16 @@
+7.7.8 (2022122000)
+* New feature: New progress bars feature (PRO) including configuration in plugin settings.
+* New feature: New booking rule condition to select user directly from event (affected user / triggering user).
+* Bugfix: Consumed quota - if option has not yet started, the quota is 0.
+* Bugfix: Fix adding of calendar events for options without sessions (but with a "fake" session).
+* Bugfix: Fix and improve cancel / undo cancel of booking options
+* Improvement: Show booked, reserved, etc. users of a booking option via template.
+* Improvement: Show  reserved & waitinglist users of a booking option via template on the "book other users" page.
+* Improvement: Rule combination check and rule validation.
+
 7.7.7 (2022121500)
-* Feature: get back consumed quota of booking option to local_shopping_cart service provider
-* Feature: Support areas for local_shopping_cart service provider
+* New feature: get back consumed quota of booking option to local_shopping_cart service provider
+* New feature: Support areas for local_shopping_cart service provider
 
 7.7.6 (2022121300)
 * Bugfix: Fix bug where canceluntil date was wrongly calculated from $now instead of $coursestarttime.
