@@ -28,6 +28,8 @@ use local_entities\entitiesrelation_handler;
 use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\dates_handler;
+use mod_booking\event\teacher_added;
+use mod_booking\teachers_handler;
 use moodle_url;
 use stdClass;
 
@@ -415,6 +417,10 @@ class option_form extends \moodleform {
                 $dayofweektime . '"></input>');
         }
 
+        // Add teachers.
+        $teacherhandler = new teachers_handler($optionid);
+        $teacherhandler->add_to_mform($mform);
+
         // Add price.
         $price = new price('option', $this->_customdata['optionid']);
         $price->add_price_to_mform($mform);
@@ -748,6 +754,10 @@ class option_form extends \moodleform {
         }
 
         if (isset($defaultvalues->optionid) && $defaultvalues->optionid > 0) {
+            // Defaults for teachers.
+            $teacherhandler = new teachers_handler($defaultvalues->optionid);
+            $teacherhandler->instance_form_before_set_data($this->_form);
+
             // Defaults for customfields.
             $cfdefaults = $DB->get_records('booking_customfields', array('optionid' => $defaultvalues->optionid));
             if (!empty($cfdefaults)) {

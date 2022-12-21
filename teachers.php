@@ -96,7 +96,7 @@ if ($edit === 0) {
     if ($subscribe) {
         $users = $subscriberselector->get_selected_users();
         foreach ($users as $user) {
-            if (!subscribe_teacher_to_booking_option($user->id, $optionid, $cm, $addtogroup)) {
+            if (!subscribe_teacher_to_booking_option($user->id, $optionid, $cm->id, $addtogroup)) {
                 throw new moodle_exception('cannotaddsubscriber', 'booking', '', null,
                     'Cannot add subscriber with id: ' . $user->id);
             }
@@ -104,7 +104,7 @@ if ($edit === 0) {
     } else if ($unsubscribe) {
         $users = $existingselector->get_selected_users();
         foreach ($users as $user) {
-            if (!unsubscribe_teacher_from_booking_option($user->id, $optionid, $cm)) {
+            if (!unsubscribe_teacher_from_booking_option($user->id, $optionid, $cm->id)) {
                 throw new moodle_exception('cannotremovesubscriber', 'booking', '', null,
                     'Cannot remove subscriber with id: ' . $user->id);
             }

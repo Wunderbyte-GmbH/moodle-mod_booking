@@ -1359,6 +1359,12 @@ $string['gotomanageresponses'] = '&lt;&lt; Manage responses';
 $string['warningonteacherspage'] = '<b>BE CAREFUL: </b>When adding teachers here, they will also be <b>added to EACH date</b> in the teaching report.
 When deleting teachers here, they will be <b>removed from EACH date</b> in the teaching report!';
 
+// Teachers_handler.php.
+$string['teachersforoption'] = 'Teachers';
+$string['teachersforoption_help'] = '<b>BE CAREFUL: </b>When adding teachers here, they will also be <b>added to EACH date</b> in the teaching report.
+When deleting teachers here, they will be <b>removed from EACH date</b> in the teaching report!';
+$string['info:teachersforoptiondates'] = 'Go to the <a href="{$a}" target="_self">teaching journal</a>, to manage teachers for specific dates.';
+
 // Lib.php.
 $string['pollstrftimedate'] = '%Y-%m-%d';
 $string['mybookings'] = 'My bookings';
@@ -1892,9 +1898,8 @@ $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="ale
 $string['optiondatesteachersreport'] = 'Teaching Report / Replacement teachers';
 $string['optiondatesteachersreport_desc'] = 'This report gives an overview of which teacher was present at which specific date.<br>
 By default, every date will be filled in with the option\'s teacher. You can overwrite specific dates with replacement teachers.';
-$string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Click here if you want to add or remove teachers to/from EACH date.</a></h5></p>';
 $string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Teaching report: Click here if you want to add or remove teachers to/from specific dates only (for reporting).</a></h5></p>';
-$string['backtoteachersinstancereport'] = '<p><h5><a href="{$a}" target="_self">&lt;&lt; Back to teachers report</a></h5></p>';
+$string['linktoteachersinstancereport'] = '<p><a href="{$a}" target="_self">&gt;&gt; Go to teachers report for booking instance</a></p>';
 $string['teacher'] = 'Teacher';
 $string['noteacherset'] = 'No teacher';
 $string['reason'] = 'Reason';

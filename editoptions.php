@@ -111,7 +111,7 @@ if ($optionid == -1 && $copyoptionid != 0) {
     // For each copied teacher change the old optionid to the new one and unset the old id.
     foreach ($teacherstocopy as $teachertocopy) {
         // Subscribe the copied teacher to the new booking option.
-        subscribe_teacher_to_booking_option($teachertocopy->userid, $optionid, $cm);
+        subscribe_teacher_to_booking_option($teachertocopy->userid, $optionid, $cm->id);
     }
 
     // Also duplicate associated Moodle custom fields (e.g. "sports").
@@ -200,7 +200,7 @@ if ($mform->is_cancelled()) {
 
         if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 &&
                 !has_capability('mod/booking:updatebooking', $context)) {
-            subscribe_teacher_to_booking_option($USER->id, $nbooking, $cm);
+            subscribe_teacher_to_booking_option($USER->id, $nbooking, $cm->id);
         }
 
         // Recurring - Do we still need this? Currently we do not use this anymore.
@@ -244,7 +244,7 @@ if ($mform->is_cancelled()) {
 
                 if (has_capability('mod/booking:addeditownoption', $context) && $optionid == -1 &&
                         !has_capability('mod/booking:updatebooking', $context)) {
-                    subscribe_teacher_to_booking_option($USER->id, $nbooking, $cm);
+                    subscribe_teacher_to_booking_option($USER->id, $nbooking, $cm->id);
                 }
             }
         }

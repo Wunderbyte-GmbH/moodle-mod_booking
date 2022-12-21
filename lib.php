@@ -34,6 +34,7 @@ use mod_booking\dates_handler;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\singleton_service;
+use mod_booking\teachers_handler;
 use mod_booking\utils\wb_payment;
 
 // Currently up to 9 different price categories can be set.
@@ -1096,16 +1097,23 @@ function booking_update_options($optionvalues, $context) {
             $optiondateshandler->delete_option_dates($optionvalues);
         }
 
+        // Save teachers using handler.
+        $teachershandler = new teachers_handler($option->id);
+        $teachershandler->save_from_form($optionvalues->teachersforoption);
+
         // Save relation for each newly created optiondate if checkbox is active.
         save_entity_relations_for_optiondates_of_option($optionvalues, $option->id);
 
         // We need to purge cache after updating an option.
         booking_option::purge_cache_for_option($option->id);
 
+        // Now check, if there are rules to execute.
         rules_info::execute_rules_for_option($option->id);
 
         return $option->id;
-    } else if (!empty($optionvalues->text)) { // New booking option record.
+    } else if (!empty($optionvalues->text)) {
+        // New booking option record.
+
         // If option "Use as global template" has been set.
         if (isset($optionvalues->addastemplate) && $optionvalues->addastemplate == 1) {
 
@@ -1196,6 +1204,10 @@ function booking_update_options($optionvalues, $context) {
             $optiondateshandler->save_from_form($optionvalues);
         }
 
+        // Save teachers using handler.
+        $teachershandler = new teachers_handler($optionid);
+        $teachershandler->save_from_form($optionvalues->teachersforoption);
+
         // Deal with multiple option dates (multisessions).
         deal_with_multisessions($optionvalues, $booking, $optionid, $context);
 
@@ -1273,7 +1285,7 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
             $optiondateid = $DB->insert_record('booking_optiondates', $optiondate);
 
             // Add teachers of the booking option to newly created optiondate.
-            dates_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
+            teachers_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
 
             for ($j = 1; $j < 4; ++$j) {
                 $cfname = 'ms' . $i . 'cf' . $j . 'name';
@@ -2123,7 +2135,7 @@ function booking_delete_instance($id) {
     } else {
         // If optiondates are deleted we also have to delete the associated entries in booking_optiondates_teachers.
         // TODO: this should be moved into delete_booking_option.
-        dates_handler::delete_booking_optiondates_teachers_by_bookingid($booking->id);
+        teachers_handler::delete_booking_optiondates_teachers_by_bookingid($booking->id);
     }
 
     // Delete any entity relations for the booking instance.
@@ -2286,39 +2298,44 @@ function booking_get_extra_capabilities() {
 /**
  * Adds user as teacher (booking manager) to a booking option
  *
- * @global object
  * @param int $userid
  * @param int $optionid
- * @param $cm
+ * @param int $cmid
+ * @param mixed $groupid the group object or group id
+ * @return bool true if teacher was subscribed
  */
-function subscribe_teacher_to_booking_option($userid, $optionid, $cm, $groupid = '') {
-    global $DB;
+function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cmid, mixed $groupid = null) {
+    global $DB, $USER;
 
     if ($DB->record_exists("booking_teachers", array("userid" => $userid, "optionid" => $optionid))) {
         return true;
     }
 
-    $option = new booking_option($cm->id, $optionid);
+    // Get settings of the booking instance.
+    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
-    $sub = new stdClass();
-    $sub->userid = $userid;
-    $sub->optionid = $optionid;
-    $sub->bookingid = $option->booking->settings->id;
+    $option = new booking_option($cmid, $optionid);
 
-    $inserted = $DB->insert_record("booking_teachers", $sub);
+    $newteacherrecord = new stdClass();
+    $newteacherrecord->userid = $userid;
+    $newteacherrecord->optionid = $optionid;
+    $newteacherrecord->bookingid = $bookingsettings->id;
+
+    $inserted = $DB->insert_record("booking_teachers", $newteacherrecord);
 
     // When inserting a new teacher, we also need to insert the teacher for each optiondate.
-    dates_handler::subscribe_teacher_to_all_optiondates($optionid, $userid);
+    teachers_handler::subscribe_teacher_to_all_optiondates($optionid, $userid);
 
     if (!empty($groupid)) {
         groups_add_member($groupid, $userid);
     }
 
-    $option->enrol_user($userid, true, $option->booking->settings->teacherroleid, true);
+    // We enrol teacher with the type defined in settings.
+    $option->enrol_user($userid, true, $bookingsettings->teacherroleid, true);
     if ($inserted) {
         $event = \mod_booking\event\teacher_added::create(
-                array('relateduserid' => $userid, 'objectid' => $optionid,
-                    'context' => context_module::instance($cm->id)));
+                array('userid' => $USER->id, 'relateduserid' => $userid, 'objectid' => $optionid,
+                    'context' => context_module::instance($cmid)));
         $event->trigger();
     }
 
@@ -2326,24 +2343,24 @@ function subscribe_teacher_to_booking_option($userid, $optionid, $cm, $groupid =
 }
 
 /**
- * Removes teacher from the subscriber list
+ * Removes teacher from the subscriber list.
  *
- * @global object
  * @param int $userid
  * @param int $optionid
- * @param $cm
+ * @param int $cmid
+ * @return bool true if successful
  */
-function unsubscribe_teacher_from_booking_option($userid, $optionid, $cm) {
-    global $DB;
+function unsubscribe_teacher_from_booking_option(int $userid, int $optionid, int $cmid) {
+    global $DB, $USER;
 
     $event = \mod_booking\event\teacher_removed::create(
-            array('relateduserid' => $userid, 'objectid' => $optionid,
-                'context' => context_module::instance($cm->id)
+            array('userid' => $USER->id, 'relateduserid' => $userid, 'objectid' => $optionid,
+                'context' => context_module::instance($cmid)
             ));
     $event->trigger();
 
     // Also delete the teacher from every optiondate.
-    dates_handler::remove_teacher_from_all_optiondates($optionid, $userid);
+    teachers_handler::remove_teacher_from_all_optiondates($optionid, $userid);
 
     return ($DB->delete_records('booking_teachers',
             array('userid' => $userid, 'optionid' => $optionid)));

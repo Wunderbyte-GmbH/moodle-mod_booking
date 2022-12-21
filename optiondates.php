@@ -27,6 +27,7 @@ use mod_booking\calendar;
 use mod_booking\form\optiondatesadd_form;
 use mod_booking\dates_handler;
 use mod_booking\singleton_service;
+use mod_booking\teachers_handler;
 
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
@@ -85,7 +86,7 @@ if ($delete != '') {
     $DB->delete_records('booking_optiondates', array('optionid' => $optionid, 'id' => $delete));
 
     // We also need to delete the associated records in booking_optiondates_teachers.
-    dates_handler::remove_teachers_from_deleted_optiondate($delete);
+    teachers_handler::remove_teachers_from_deleted_optiondate($delete);
 
     // If there is an associated entity, delete it too.
     if (class_exists('local_entities\entitiesrelation_handler')) {
@@ -141,7 +142,7 @@ if ($duplicate != '') {
     $newoptiondateid = $edit;
 
     // Add teachers of the booking option to newly created optiondate.
-    dates_handler::subscribe_existing_teachers_to_new_optiondate($newoptiondateid);
+    teachers_handler::subscribe_existing_teachers_to_new_optiondate($newoptiondateid);
 
     booking_updatestartenddate($optionid);
 
@@ -225,7 +226,7 @@ if ($mform->is_cancelled()) {
         if ($optiondateid = $DB->insert_record('booking_optiondates', $optiondate)) {
 
             // Add teachers of the booking option to newly created optiondate.
-            dates_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
+            teachers_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
 
             // Add info that a session has been added (do this only at coursestarttime, we don't need it twice).
             $changes[] = [  'info' => get_string('changeinfosessionadded', 'booking'),

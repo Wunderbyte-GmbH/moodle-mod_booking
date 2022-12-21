@@ -91,8 +91,7 @@ if (!$optiondatesteacherstable->is_downloading()) {
         </button>
     </div>';
 
-    echo get_string('linkfromreporttoeditteachers', 'mod_booking', $editteachersurl->out());
-    echo get_string('backtoteachersinstancereport', 'mod_booking', $instancereportsurl->out());
+    echo get_string('linktoteachersinstancereport', 'mod_booking', $instancereportsurl->out());
 
     // Show header with booking option name (and prefix if present).
     if (!empty($settings->titleprefix)) {

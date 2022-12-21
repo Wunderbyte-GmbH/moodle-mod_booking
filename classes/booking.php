@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_booking;
 
-use block_xp\local\sql\limit;
 use course_modinfo;
 use html_writer;
 use local_entities\local\entities\entitydate;
+use mod_booking\teachers_handler;
 use moodle_exception;
 use stdClass;
 use moodle_url;
@@ -551,7 +551,7 @@ class booking {
                     $DB->insert_record('booking_teachers', $newteacher, false, false);
 
                     // When inserting a new teacher, we also need to insert the teacher for each optiondate.
-                    dates_handler::subscribe_teacher_to_all_optiondates($newteacher->optionid, $newteacher->userid);
+                    teachers_handler::subscribe_teacher_to_all_optiondates($newteacher->optionid, $newteacher->userid);
 
                     $params = array(
                         'id' => $this->cm->id,

@@ -19,8 +19,6 @@ use cache_helper;
 use coding_exception;
 use completion_info;
 use context_module;
-use context_system;
-use core_analytics\user;
 use dml_exception;
 use Exception;
 use invalid_parameter_exception;
@@ -29,6 +27,7 @@ use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
 use mod_booking\calendar;
+use mod_booking\teachers_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\event\bookinganswer_cancelled;
 use mod_booking\message_controller;
@@ -1467,7 +1466,7 @@ class booking_option {
         }
 
         foreach ($this->get_teachers() as $teacher) {
-            unsubscribe_teacher_from_booking_option($teacher->userid, $this->optionid, $this->booking->cm);
+            unsubscribe_teacher_from_booking_option($teacher->userid, $this->optionid, $this->booking->cm->id);
         }
 
         // Delete calendar entry, if any.
@@ -1550,7 +1549,7 @@ class booking_option {
             $result = false;
         } else {
             // Also delete associated entries in booking_optiondates_teachers.
-            dates_handler::delete_booking_optiondates_teachers_by_optionid($this->optionid);
+            teachers_handler::delete_booking_optiondates_teachers_by_optionid($this->optionid);
         }
 
         // Delete image files belonging to the option.

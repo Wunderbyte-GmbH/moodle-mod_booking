@@ -16,6 +16,7 @@
 
 /**
  * Handler for managing teachers of booking options or booking optiondates.
+ *
  * @package    mod_booking
  * @copyright  2022 Wunderbyte GmbH <info@wunderbyte.at>
  * @author     Bernhard Fischer
@@ -30,11 +31,13 @@ global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
 use moodle_exception;
+use moodle_url;
 use MoodleQuickForm;
 use stdClass;
 
 /**
  * Handler for managing teachers of booking options or booking optiondates.
+ *
  * @package    mod_booking
  * @copyright  2022 Wunderbyte GmbH <info@wunderbyte.at>
  * @author     Bernhard Fischer
@@ -45,17 +48,12 @@ class teachers_handler {
     /** @var int $optionid */
     public $optionid = 0;
 
-    /** @var int $bookingid */
-    public $bookingid = 0;
-
     /**
      * Constructor.
      * @param int $optionid
-     * @param int $bookingid
      */
-    public function __construct(int $optionid = 0, int $bookingid = 0) {
+    public function __construct(int $optionid = 0) {
         $this->optionid = $optionid;
-        $this->bookingid = $bookingid;
     }
 
     /**
@@ -65,108 +63,111 @@ class teachers_handler {
      * @return void
      */
     public function add_to_mform(MoodleQuickForm &$mform) {
-        global $PAGE;
+        global $DB;
 
-        $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
-
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $mform->addElement('autocomplete', 'chooseperiod', get_string('chooseperiod', 'mod_booking'),
-            $semestersarray, ['tags' => false]);
-        // If a semesterid for the booking option was already set, use it.
-        if (!empty($bookingoptionsettings->semesterid)) {
-            $mform->setDefault('chooseperiod', $bookingoptionsettings->semesterid);
-        } else if (!empty($bookingsettings->semesterid)) {
-            // If not, use the semesterid from the booking instance.
-            $mform->setDefault('chooseperiod', $bookingsettings->semesterid);
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with headers.
+        // In expert mode, we always show everything.
+        $showteachersheader = true;
+        $formmode = get_user_preferences('optionform_mode');
+        if ($formmode !== 'expert') {
+            $cfgteachersheader = $DB->get_field('booking_optionformconfig', 'active',
+                ['elementname' => 'bookingoptionteachers']);
+            if ($cfgteachersheader === "0") {
+                $showteachersheader = false;
+            }
         }
-        $mform->addHelpButton('chooseperiod', 'chooseperiod', 'mod_booking'); */
+        if ($showteachersheader) {
+            $mform->addElement('header', 'bookingoptionteachers',
+                get_string('teachers', 'mod_booking'));
+        }
+
+        $options = [
+            'tags' => false,
+            'multiple' => true
+        ];
+        /* Important note: Currently, all users can be added as teachers for a booking option.
+        In the future, there might be a user profile field defining users which are allowed
+        to be added as teachers. */
+        $userrecords = $DB->get_records_sql(
+            "SELECT id, firstname, lastname, email FROM {user}"
+        );
+        $allowedusers = [];
+        foreach ($userrecords as $userrecord) {
+            $allowedusers[$userrecord->id] = "$userrecord->firstname $userrecord->lastname ($userrecord->email)";
+        }
+
+        $mform->addElement('autocomplete', 'teachersforoption', get_string('teachers', 'mod_booking'),
+            $allowedusers, $options);
+        $mform->addHelpButton('teachersforoption', 'teachersforoption', 'mod_booking');
+
+        // We only show link to teaching journal if it's an already existing booking option.
+        if (!empty($this->optionid) && $this->optionid > 0) {
+            $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+            $optiondatesteachersreporturl = new moodle_url('/mod/booking/optiondates_teachers_report.php', [
+                'id' => $optionsettings->cmid,
+                'optionid' => $this->optionid
+            ]);
+            $mform->addElement('static', 'info:teachersforoptiondates', '',
+                    get_string('info:teachersforoptiondates', 'mod_booking', $optiondatesteachersreporturl->out()));
+        }
     }
 
     /**
-     * Transform each optiondate and save.
+     * Load existing teachers into mform.
      *
-     * @param stdClass $fromform form data
-     * @param array $optiondates array of optiondates as strings (e.g. "11646647200-1646650800")
+     * @param MoodleQuickForm &$mform reference to mform
      */
-    public function save_from_form(stdClass $fromform) {
-        global $DB;
+    public function instance_form_before_set_data(MoodleQuickForm &$mform) {
 
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if ($this->optionid && $this->bookingid) {
+        if (!empty($this->optionid) && $this->optionid > 0) {
+            $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+            $teachers = $optionsettings->teachers;
+            $teacherids = [];
+            foreach ($teachers as $teacher) {
+                $teacherids[] = $teacher->userid;
+            }
+            $mform->setDefaults(['teachersforoption' => $teacherids]);
+        }
+    }
 
-            // Get the currently saved optiondateids from DB.
-            $olddates = $DB->get_records('booking_optiondates', ['optionid' => $this->optionid]);
+    /**
+     * Subscribe new teachers and / or unsubscribe removed teachers from booking option.
+     *
+     * @param array $teacherids an array of teacher ids (from form)
+     */
+    public function save_from_form(array $teacherids) {
 
-            // Now, let's check, if they have not been removed by the dynamic form.
-            foreach ($olddates as $olddate) {
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
 
-                if (isset($fromform->stillexistingdates[(int) $olddate->id])) {
+        $oldteacherids = [];
+        foreach ($optionsettings->teachers as $oldteacher) {
+            $oldteacherids[] = $oldteacher->userid;
+        }
 
-                    $stillexistingdatestring = $fromform->stillexistingdates[(int) $olddate->id];
-                    list($starttime, $endtime) = explode('-', $stillexistingdatestring);
-
-                    // Check if start time or end time has changed.
-                    if ($olddate->coursestarttime != $starttime || $olddate->courseendtime != $endtime) {
-                        // If so, we update the record accordingly.
-                        $olddate->coursestarttime = (int)$starttime;
-                        $olddate->courseendtime = (int)$endtime;
-                        $DB->update_record('booking_optiondates', $olddate);
-                    }
-
-                } else {
-                    $olddateid = (int) $olddate->id;
-
-                    // An existing optiondate has been removed by the dynamic form, so delete it from DB.
-                    $DB->delete_records('booking_optiondates', ['id' => $olddateid]);
-
-                    // We also need to delete the associated records in booking_optiondates_teachers.
-                    self::remove_teachers_from_deleted_optiondate($olddateid);
-
-                    // We also need to delete associated custom fields.
-                    self::optiondate_deletecustomfields($olddateid);
-
-                    // We also need to delete any associated entities.
-                    // If there is an associated entity, delete it too.
-                    if (class_exists('local_entities\entitiesrelation_handler')) {
-                        $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate');
-                        $erhandler->delete_relation($olddateid);
-                    }
+        foreach ($teacherids as $newteacherid) {
+            if (in_array($newteacherid, $oldteacherids)) {
+                // Teacher is already subscribed to booking option.
+                continue;
+            } else {
+                // It's a new teacher.
+                if (!subscribe_teacher_to_booking_option($newteacherid, $this->optionid, $optionsettings->cmid)) {
+                    // TODO: Add teacher to group not yet implemented! (Third parameter of the function).
+                    throw new moodle_exception('cannotaddsubscriber', 'booking', '', null,
+                        'Cannot add subscriber with id: ' . $newteacherid);
                 }
             }
+        }
 
-            // It's important that this happens AFTER deleting the removed dates.
-            foreach ($fromform->newoptiondates as $optiondatestring) {
-                list($starttime, $endtime) = explode('-', $optiondatestring);
-
-                $optiondate = new stdClass();
-                $optiondate->bookingid = $this->bookingid;
-                $optiondate->optionid = $this->optionid;
-                $optiondate->eventid = 0; // TODO: We will implement this in a later release.
-                $optiondate->coursestarttime = (int) $starttime;
-                $optiondate->courseendtime = (int) $endtime;
-                $optiondate->daystonotify = 0; // TODO: We will implement this in a later release..
-
-                $optiondateid = $DB->insert_record('booking_optiondates', $optiondate);
-
-                // Add teachers of the booking option to newly created optiondate.
-                self::subscribe_existing_teachers_to_new_optiondate($optiondateid);
-
-                // If a new optiondate is inserted, we add the entity of the parent option as default.
-                if (class_exists('local_entities\entitiesrelation_handler')) {
-                    $erhandleroption = new entitiesrelation_handler('mod_booking', 'option');
-                    $entityid = $erhandleroption->get_entityid_by_instanceid($this->optionid);
-                    $erhandleroptiondate = new entitiesrelation_handler('mod_booking', 'optiondate');
-                    $erhandleroptiondate->save_entity_relation($optiondateid, $entityid);
+        foreach ($oldteacherids as $oldteacherid) {
+            if (!in_array($oldteacherid, $teacherids)) {
+                // The teacher has been removed.
+                if (!unsubscribe_teacher_from_booking_option($oldteacherid, $this->optionid, $optionsettings->cmid)) {
+                    throw new moodle_exception('cannotremovesubscriber', 'booking', '', null,
+                        'Cannot remove subscriber with id: ' . $oldteacherid);
                 }
             }
-
-            // After updating, we invalidate caches.
-            cache_helper::purge_by_event('setbackoptionstable');
-            cache_helper::invalidate_by_event('setbackoptionsettings', [$this->optionid]);
-
-            booking_updatestartenddate($this->optionid);
-        } */
+        }
     }
 
     // TODO: diese Functions aus dates_handler rausnehmen und von hier aus verwenden!

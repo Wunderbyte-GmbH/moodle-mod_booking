@@ -374,7 +374,7 @@ class webservice_import {
         $userid = reset($userids);
 
         // Try to subscribe teacher to booking option and throw an error if not successful.
-        if (!subscribe_teacher_to_booking_option($userid, $optionid, $this->cm)) {
+        if (!subscribe_teacher_to_booking_option($userid, $optionid, $this->cm->id)) {
             throw new \moodle_exception('teachernotsubscribed', 'mod_booking', null, null,
                 'The teacher with e-mail ' . $data->teacheremail .
                 ' could not be subscribed to the option with optionid ' . $optionid);
