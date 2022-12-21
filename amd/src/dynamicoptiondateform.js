@@ -77,9 +77,10 @@ export const initdynamicoptiondateform = (cmid, bookingid, optionid, modalTitle,
 
             Templates.renderForPromise('mod_booking/bookingoption_dates', response)
             // It returns a promise that needs to be resolved.
-            .then(({html}) => {
-                document.querySelector('.optiondates-list').innerHTML = '';
-                Templates.appendNodeContents('.optiondates-list', html);
+            .then(({html, js}) => {
+
+                Templates.replaceNodeContents('.optiondates-list', html, js);
+
                 return;
             })
             // Deal with this exception (Using core/notify exception function is recommended).
