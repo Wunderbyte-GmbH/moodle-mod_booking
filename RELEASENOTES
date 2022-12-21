@@ -1,3 +1,7 @@
+7.7.9 (2022122100)
+* Improvement: Further improvements to event-based rules (only tested combinations are supported).
+* Bugfix: If the whole option was cancelled, we do not want to send status change mails.
+
 7.7.8 (2022122000)
 * New feature: New progress bars feature (PRO) including configuration in plugin settings.
 * New feature: New booking rule condition to select user directly from event (affected user / triggering user).

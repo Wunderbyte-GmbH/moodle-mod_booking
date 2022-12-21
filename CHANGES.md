@@ -1,3 +1,10 @@
+## Version 7.7.9 (2022122100)
+**Improvements:**
+* Improvement: Further improvements to event-based rules (only tested combinations are supported).
+
+**Bugfixes:**
+* Bugfix: If the whole option was cancelled, we do not want to send status change mails.
+
 ## Version 7.7.8 (2022122000)
 **New features:**
 * New feature: New progress bars feature (PRO) including configuration in plugin settings.
