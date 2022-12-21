@@ -724,7 +724,10 @@ class booking_option {
         }
 
         // Sync the waiting list and send status change mails.
-        $this->sync_waiting_list();
+        // If the whole option was cancelled, there is no need to sync anymore.
+        if (!$bookingoptioncancel) {
+            $this->sync_waiting_list();
+        }
 
         // Before returning, we have to set back the answer cache.
         $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
