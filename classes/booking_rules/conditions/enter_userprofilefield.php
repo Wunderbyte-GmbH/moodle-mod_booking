@@ -84,7 +84,7 @@ class enter_userprofilefield implements booking_rule_condition {
      * @param MoodleQuickForm $mform
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
         global $DB;
 
         // Custom user profile field to be checked.

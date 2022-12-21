@@ -73,7 +73,7 @@ class select_teacher_in_bo implements booking_rule_condition {
      * @param int $optionid
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
         $mform->addElement('static', 'condition_select_teacher_in_bo', '',
                 get_string('condition_select_teacher_in_bo_desc', 'mod_booking'));
 

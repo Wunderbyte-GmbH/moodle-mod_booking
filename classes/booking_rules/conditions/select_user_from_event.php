@@ -47,6 +47,9 @@ class select_user_from_event implements booking_rule_condition {
     /** @var string $conditionname */
     public $conditionname = 'select_user_from_event';
 
+    /** @var string $conditiontype */
+    public $userfromeventtype = '0';
+
     /** @var int $userid the user who triggered an event */
     public $userid = 0;
 
@@ -82,6 +85,11 @@ class select_user_from_event implements booking_rule_condition {
     public function set_conditiondata_from_json(string $json) {
         $this->rulejson = $json;
         $ruleobj = json_decode($json);
+
+        if (!empty($ruleobj->conditiondata->userfromeventtype)) {
+            $this->userfromeventtype = $ruleobj->conditiondata->userfromeventtype;
+        }
+
         $datafromevent = $ruleobj->datafromevent;
 
         // The user who triggered the event.
@@ -101,16 +109,27 @@ class select_user_from_event implements booking_rule_condition {
      * @param MoodleQuickForm $mform
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
+
+        // The event selected in the form.
+        $eventnameonly = str_replace("\\mod_booking\\event\\", "", $ajaxformdata["rule_react_on_event_event"]);
+
+        // This is a list of events supporting relateduserid (affected user of the event).
+        $eventssupportingrelateduserid = [
+            'bookingoption_completed'
+            // More events yet to come...
+        ];
 
         $mform->addElement('static', 'condition_select_user_from_event', '',
                 get_string('condition_select_user_from_event_desc', 'mod_booking'));
 
-        $userfromeventoptions = [
-            "-1" => get_string('choose...', 'mod_booking'),
-            "relateduserid" => get_string('useraffectedbyevent', 'mod_booking'),
-            "userid" => get_string('userwhotriggeredevent', 'mod_booking')
-        ];
+        // We need to check if the event supports relateduserid (affected user of the event).
+        $userfromeventoptions["0"] = get_string('choose...', 'mod_booking');
+        if (empty($eventnameonly) || in_array($eventnameonly, $eventssupportingrelateduserid)) {
+            $userfromeventoptions["relateduserid"] = get_string('useraffectedbyevent', 'mod_booking');
+        }
+        // Userid (user who triggered) must be supported by every event. If not, the event was not created correctly.
+        $userfromeventoptions["userid"] = get_string('userwhotriggeredevent', 'mod_booking');
 
         $mform->addElement('select', 'condition_select_user_from_event_type',
                 get_string('condition_select_user_from_event_type', 'mod_booking'), $userfromeventoptions);
@@ -139,7 +158,7 @@ class select_user_from_event implements booking_rule_condition {
 
         $jsonobject->conditionname = $this->conditionname;
         $jsonobject->conditiondata = new stdClass();
-        $jsonobject->conditiondata->userfromeventtype = $data->condition_select_user_from_event_type ?? '';
+        $jsonobject->conditiondata->userfromeventtype = $data->condition_select_user_from_event_type ?? '0';
 
         $data->rulejson = json_encode($jsonobject);
     }
@@ -154,9 +173,7 @@ class select_user_from_event implements booking_rule_condition {
         $data->bookingruleconditiontype = $this->conditionname;
 
         $jsonobject = json_decode($record->rulejson);
-        $conditiondata = $jsonobject->conditiondata;
-
-        $data->condition_select_user_from_event_type = $conditiondata->userfromeventtype;
+        $data->condition_select_user_from_event_type = $jsonobject->conditiondata->userfromeventtype;
     }
 
     /**
@@ -168,18 +185,13 @@ class select_user_from_event implements booking_rule_condition {
      */
     public function execute(stdClass &$sql, array &$params) {
 
-        $rulejson = $params["json"];
-        $ruleobj = json_decode($rulejson);
-        $conditiondata = $ruleobj->conditiondata;
-        $datafromevent = $ruleobj->datafromevent;
-
-        switch ($conditiondata->userfromeventtype) {
+        switch ($this->userfromeventtype) {
             case "userid":
                 // The user who triggered the event.
-                $chosenuserid = $datafromevent->userid;
+                $chosenuserid = $this->userid;
                 break;
             case "relateduserid":
-                $chosenuserid = $datafromevent->relateduserid;
+                $chosenuserid = $this->relateduserid;
                 // The user affected by the event.
                 break;
             default:

@@ -76,7 +76,7 @@ class select_users implements booking_rule_condition {
      * @param MoodleQuickForm $mform
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
         global $DB;
 
         $users = get_users();

@@ -87,7 +87,7 @@ class match_userprofilefield implements booking_rule_condition {
      * @param int $optionid
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
         global $DB;
 
         // Get a list of allowed option fields to compare with custom user profile field.

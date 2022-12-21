@@ -119,7 +119,9 @@ class rulesform extends dynamic_form {
                 }
                 break;
             case 'rule_react_on_event':
-                // Nothing to check here.
+                if ($data['rule_react_on_event_event'] == '0') {
+                    $errors['rule_react_on_event_event'] = get_string('error:choosevalue', 'mod_booking');
+                }
                 break;
         }
 
@@ -149,7 +151,7 @@ class rulesform extends dynamic_form {
                 // Nothing to check here.
                 break;
             case 'select_user_from_event':
-                if ($data['condition_select_user_from_event_type'] == '-1') {
+                if ($data['condition_select_user_from_event_type'] == '0') {
                     $errors['condition_select_user_from_event_type'] = get_string('error:choosevalue', 'mod_booking');
                 }
                 break;
@@ -165,7 +167,7 @@ class rulesform extends dynamic_form {
                 if (empty($data['action_send_mail_subject'])) {
                     $errors['action_send_mail_subject'] = get_string('error:entervalue', 'mod_booking');
                 }
-                if (empty(strip_tags($data['action_send_mail_template']))) {
+                if (empty(strip_tags($data["action_send_mail_template"]["text"]))) {
                     $errors['action_send_mail_template'] = get_string('error:entervalue', 'mod_booking');
                 }
                 break;

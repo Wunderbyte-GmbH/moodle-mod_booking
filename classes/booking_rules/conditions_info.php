@@ -78,7 +78,7 @@ class conditions_info {
         } else {
             list($condition) = $conditions;
         }
-        $condition->add_condition_to_mform($mform);
+        $condition->add_condition_to_mform($mform, $ajaxformdata);
 
     }
 

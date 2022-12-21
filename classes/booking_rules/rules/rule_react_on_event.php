@@ -79,13 +79,20 @@ class rule_react_on_event implements booking_rule {
      */
     public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
 
+        // Only these events are currently supported and tested.
+        $allowedeventkeys = [
+            'bookingoption_cancelled',
+            'bookingoption_completed'
+        ];
+
         // Get a list of all booking events.
         $allevents = get_list_of_booking_events();
-        $allowedevents = [];
+        $allowedevents["0"] = get_string('choose...', 'mod_booking');
 
         // Currently, we only allow events affecting booking options.
         foreach ($allevents as $key => $value) {
-            if (strpos($key, 'bookingoption_')) {
+            $eventnameonly = str_replace("\\mod_booking\\event\\", "", $key);
+            if (in_array($eventnameonly, $allowedeventkeys)) {
                 $allowedevents[$key] = $value;
             }
         }

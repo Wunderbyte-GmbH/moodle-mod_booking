@@ -52,11 +52,10 @@ interface booking_rule_condition {
     /**
      * Adds the form elements for this rule condition to the provided mform.
      * @param MoodleQuickForm $mform the mform where the rule condition should be added
-     * @param array $repeatedcondition repeated rule conditions
-     * @param array $repateloptions options for repeated elements
+     * @param array $ajaxformdata
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform);
+    public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null);
 
     /**
      * Gets the human-readable name of a rule condition (localized).
