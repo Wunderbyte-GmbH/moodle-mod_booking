@@ -64,6 +64,7 @@ if ($mform->is_cancelled()) {
             $pricecategoryidentifierx = 'pricecategoryidentifier' . $i;
             $pricecategorynamex = 'pricecategoryname' . $i;
             $defaultvaluex = 'defaultvalue' . $i;
+            $pricecatsortorderx = 'pricecatsortorder' . $i;
             $disablepricecategoryx = 'disablepricecategory' . $i;
 
             // Only add price categories if a name was entered.
@@ -73,6 +74,7 @@ if ($mform->is_cancelled()) {
                 $pricecategory->identifier = $data->{$pricecategoryidentifierx};
                 $pricecategory->name = $data->{$pricecategorynamex};
                 $pricecategory->defaultvalue = $data->{$defaultvaluex};
+                $pricecategory->pricecatsortorder = $data->{$pricecatsortorderx};
                 $pricecategory->disabled = $data->{$disablepricecategoryx};
 
                 $DB->insert_record('booking_pricecategories', $pricecategory);
@@ -161,6 +163,7 @@ function pricecategories_get_changes($oldpricecategories, $data) {
                 $pricecategory->identifier = $data->{'pricecategoryidentifier' . $counter};
                 $pricecategory->name = $data->{'pricecategoryname' . $counter};
                 $pricecategory->defaultvalue = $data->{'defaultvalue' . $counter};
+                $pricecategory->pricecatsortorder = $data->{'pricecatsortorder' . $counter};
                 $pricecategory->disabled = $data->{'disablepricecategory' . $counter};
 
                 $updates[] = $pricecategory;
@@ -173,6 +176,7 @@ function pricecategories_get_changes($oldpricecategories, $data) {
                     $pricecategory->identifier = $data->{'pricecategoryidentifier' . $counter};
                     $pricecategory->name = $data->{'pricecategoryname' . $counter};
                     $pricecategory->defaultvalue = $data->{'defaultvalue' . $counter};
+                    $pricecategory->pricecatsortorder = $data->{'pricecatsortorder' . $counter};
                     $pricecategory->disabled = $data->{'disablepricecategory' . $counter};
 
                     $inserts[] = $pricecategory;

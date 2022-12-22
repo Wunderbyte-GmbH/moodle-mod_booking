@@ -75,6 +75,11 @@ class pricecategories_form extends moodleform {
         $mform->setDefault('defaultvalue1', $defaultprice->defaultvalue);
         $mform->addHelpButton('defaultvalue1', 'defaultvalue', 'booking');
 
+        $mform->addElement('text', 'pricecatsortorder1', get_string('pricecatsortorder', 'mod_booking'));
+        $mform->setType('pricecatsortorder1', PARAM_INT);
+        $mform->setDefault('pricecatsortorder1', $defaultprice->pricecatsortorder);
+        $mform->addHelpButton('pricecatsortorder1', 'pricecatsortorder', 'mod_booking');
+
         $mform->addElement('header', 'additionalpricecategories', get_string('additionalpricecategories', 'booking'));
 
         // Now, loop through already existing price categories.
@@ -103,6 +108,12 @@ class pricecategories_form extends moodleform {
             $mform->setDefault('defaultvalue' . $j, $pricecategory->defaultvalue);
             $mform->addHelpButton('defaultvalue' . $j, 'defaultvalue', 'booking');
             $mform->disabledIf('defaultvalue' . $j, 'disablepricecategory' . $j, 'checked');
+
+            $mform->addElement('text', 'pricecatsortorder' . $j, get_string('pricecatsortorder', 'mod_booking'));
+            $mform->setType('pricecatsortorder' . $j, PARAM_INT);
+            $mform->setDefault('pricecatsortorder' . $j, $pricecategory->pricecatsortorder);
+            $mform->addHelpButton('pricecatsortorder' . $j, 'pricecatsortorder', 'mod_booking');
+            $mform->disabledIf('pricecatsortorder' . $j, 'disablepricecategory' . $j, 'checked');
 
             $mform->addElement('advcheckbox', 'disablepricecategory' . $j,
                 get_string('disablepricecategory', 'booking') . ' ' . $j, null, null, [0, 1]);
@@ -161,6 +172,13 @@ class pricecategories_form extends moodleform {
             $mform->hideIf('defaultvalue' . $counter, 'addpricecategory' . $counter, 'notchecked');
             $mform->disabledIf('defaultvalue' . $counter, 'disablepricecategory' . $counter, 'checked');
 
+            $mform->addElement('text', 'pricecatsortorder' . $counter, get_string('pricecatsortorder', 'mod_booking'));
+            $mform->setType('pricecatsortorder' . $counter, PARAM_INT);
+            $mform->setDefault('pricecatsortorder' . $counter, "0");
+            $mform->addHelpButton('pricecatsortorder' . $counter, 'pricecatsortorder', 'mod_booking');
+            $mform->hideIf('pricecatsortorder' . $counter, 'addpricecategory' . $counter, 'notchecked');
+            $mform->disabledIf('pricecatsortorder' . $counter, 'disablepricecategory' . $counter, 'checked');
+
             $mform->addElement('advcheckbox', 'disablepricecategory' . $counter,
                 get_string('disablepricecategory', 'booking') . ' ' . $counter, null, null, [0, 1]);
             $mform->setDefault('disablepricecategory' . $counter, 0);
@@ -195,6 +213,7 @@ class pricecategories_form extends moodleform {
                 $pricecategoryidentifierx = $data['pricecategoryidentifier' . $i];
                 $pricecategorynamex = $data['pricecategoryname' . $i];
                 $defaultvaluex = $data['defaultvalue' . $i];
+                $pricecatsortorderx = $data['pricecatsortorder' . $i];
 
                 // The price category identifier is not allowed to be empty.
                 if (empty($pricecategoryidentifierx)) {
@@ -212,6 +231,10 @@ class pricecategories_form extends moodleform {
                     if ($numberofdecimals > 2) {
                         $errors['defaultvalue' . $i] = get_string('errortoomanydecimals', 'booking');
                     }
+                }
+
+                if (empty($pricecatsortorderx)) {
+                    $errors['pricecatsortorder' . $i] = get_string('error:entervalue', 'mod_booking');
                 }
 
                 // The identifier of a price category needs to be unique.

@@ -3268,5 +3268,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022120400, 'booking');
     }
 
+    if ($oldversion < 2022122200) {
+
+        // Define field pricecatsortorder to be added to booking_pricecategories.
+        $table = new xmldb_table('booking_pricecategories');
+        $field = new xmldb_field('pricecatsortorder', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'defaultvalue');
+
+        // Conditionally launch add field pricecatsortorder.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022122200, 'booking');
+    }
+
     return true;
 }
