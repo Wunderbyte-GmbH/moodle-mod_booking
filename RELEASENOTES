@@ -1,3 +1,11 @@
+7.8.0 (2022122300)
+* New feature: Add teachers directly in option_form.
+* New feature: New possibility to set sorting order for price categories.
+* Improvement: Get rid of old way to edit teachers.
+* Improvement: When an option gets duplicated, teachers will get duplicated too.
+* Improvement: When an option gets duplicated and we choose a new course, teachers now get enrolled into the new course.
+* Bugfix: Fix bug where optiondate series were not created (js param missing).
+
 7.7.9 (2022122100)
 * Improvement: Further improvements to event-based rules (only tested combinations are supported).
 * Bugfix: If the whole option was cancelled, we do not want to send status change mails.

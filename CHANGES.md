@@ -1,3 +1,16 @@
+## Version 7.8.0 (2022122300)
+**New features:**
+* New feature: Add teachers directly in option_form.
+* New feature: New possibility to set sorting order for price categories.
+
+**Improvements:**
+* Improvement: Get rid of old way to edit teachers.
+* Improvement: When an option gets duplicated, teachers will get duplicated too.
+* Improvement: When an option gets duplicated and we choose a new course, teachers now get enrolled into the new course.
+
+**Bugfixes:**
+* Bugfix: Fix bug where optiondate series were not created (js param missing).
+
 ## Version 7.7.9 (2022122100)
 **Improvements:**
 * Improvement: Further improvements to event-based rules (only tested combinations are supported).
@@ -10,15 +23,15 @@
 * New feature: New progress bars feature (PRO) including configuration in plugin settings.
 * New feature: New booking rule condition to select user directly from event (affected user / triggering user).
 
-**Bugfixes:**
-* Bugfix: Consumed quota - if option has not yet started, the quota is 0.
-* Bugfix: Fix adding of calendar events for options without sessions (but with a "fake" session).
-* Bugfix: Fix and improve cancel / undo cancel of booking options
-
 **Improvements:**
 * Improvement: Show booked, reserved, etc. users of a booking option via template.
 * Improvement: Show  reserved & waitinglist users of a booking option via template on the "book other users" page.
 * Improvement: Rule combination check and rule validation.
+
+**Bugfixes:**
+* Bugfix: Consumed quota - if option has not yet started, the quota is 0.
+* Bugfix: Fix adding of calendar events for options without sessions (but with a "fake" session).
+* Bugfix: Fix and improve cancel / undo cancel of booking options
 
 ## Version 7.7.7 (2022121500)
 **New features:**
