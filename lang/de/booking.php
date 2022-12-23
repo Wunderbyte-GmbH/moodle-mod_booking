@@ -19,6 +19,8 @@ $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:cantoggleformmode'] = 'Nutzer:in darf alle Einstellungen verwalten';
 $string['alreadypassed'] = 'Bereits vergangen';
+$string['teachers'] = 'Trainer:innen';
+$string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 
 // General errors.
 $string['error:choosevalue'] = 'Sie müssen hier einen Wert auswählen.';
@@ -1161,7 +1163,6 @@ $string['reportremindersubject'] = 'Erinnerung: Ihr gebuchter Kurs';
 $string['reportremindermessage'] = '{$a->bookingdetails}';
 
 // Report.php and bookingmanagusers.class.php.
-$string['addteachers'] = 'Trainer:innen hinzufügen';
 $string['allmailssend'] = 'Alle Benachrichtigungen wurden erfolgreich versandt!';
 $string['associatedcourse'] = 'Dazu gehörender Kurs';
 $string['bookedusers'] = 'Gebuchte Nutzer:innen';
@@ -1225,12 +1226,6 @@ $string['enablecompletiongroup'] = 'Aktivitätsabschluss';
 $string['messagesend'] = 'Die Nachricht wurde erfolgreich versandt.';
 $string['messagesubject'] = 'Betreff';
 $string['messagetext'] = 'Nachricht';
-
-// Teachers.php.
-$string['teachers'] = 'Trainer:innen';
-$string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
-$string['warningonteacherspage'] = '<b>ACHTUNG:</b> Wenn Sie hier Trainer:innen hinzufügen werden diese im Training-Journal <b>zu JEDEM EINZELNEN Termin hinzugefügt</b>.
-Wenn Sie hier Trainer:innen löschen, werden diese im Training-Journal <b>von JEDEM EINZELNEN Termin entfernt</b>.';
 
 // Teachers_handler.php.
 $string['teachersforoption'] = 'Trainer:innen';
@@ -1694,7 +1689,6 @@ $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="ale
 $string['optiondatesteachersreport'] = 'Training-Journal / Vertretungen';
 $string['optiondatesteachersreport_desc'] = 'In diesem Report erhalten Sie eine Übersicht, welche:r Trainer:in an welchem Termin geleitet hat.<br>
 Standardmäßig werden alle Termine mit dem/den eingestellten Trainer:innen der Buchungsoption befüllt. Sie können einzelne Termine mit Vertretungen überschreiben.';
-$string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Training-Journal: Klicken Sie hier, um die Trainer:innen für spezifische Termine zu protokollieren.</a></h5></p>';
 $string['linktoteachersinstancereport'] = '<p><a href="{$a}" target="_self">&gt;&gt; Zum Trainer:innen-Gesamtbericht für die Buchungsinstanz</a></p>';
 $string['teacher'] = 'Trainer:in';
 $string['noteacherset'] = 'Kein/e Trainer/in';

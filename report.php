@@ -639,13 +639,6 @@ if (!$tableallbookings->is_downloading()) {
              has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
         $linkst = array();
 
-        if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-            $linkst[] = html_writer::link(
-                    new moodle_url('/mod/booking/teachers.php',
-                            array('id' => $id, 'optionid' => $optionid)),
-                    get_string('editteachers', 'booking'), array());
-        }
-
         $haspollurl = (!empty($bookingoption->booking->settings->pollurlteachers) ||
             !empty($bookingoption->option->pollurlteachers));
 

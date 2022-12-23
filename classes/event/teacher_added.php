@@ -24,6 +24,9 @@
 
 namespace mod_booking\event;
 
+use mod_booking\singleton_service;
+use moodle_url;
+
 /**
  * The mod_booking report viewed event class.
  *
@@ -64,6 +67,16 @@ class teacher_added extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/booking/teachers.php', array('id' => $this->contextinstanceid, 'optionid' => $this->objectid));
+        global $CFG;
+
+        $optionid = $this->objectid;
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        return new moodle_url($CFG->wwwroot . '/mod/booking/view.php', [
+            'id' => $optionsettings->cmid,
+            'optionid' => $optionid,
+            'action' => 'showonlyone',
+            'whichview' => 'showonlyone'
+        ]);
     }
 }

@@ -187,9 +187,6 @@ class booking_option_settings {
     /** @var string $editoptionurl */
     public $editoptionurl = null;
 
-    /** @var string $editteachersurl */
-    public $editteachersurl = null;
-
     /** @var string $manageresponsesurl */
     public $manageresponsesurl = null;
 
@@ -375,14 +372,6 @@ class booking_option_settings {
                 $this->editoptionurl = $dbrecord->editoptionurl;
             }
 
-            // If the key "editteachersurl" is not yet set, we need to generate it.
-            if (!isset($dbrecord->editteachersurl)) {
-                $this->generate_editteachers_url($optionid);
-                $dbrecord->editteachersurl = $this->editteachersurl;
-            } else {
-                $this->editteachersurl = $dbrecord->editteachersurl;
-            }
-
             // If the key "manageresponsesurl" is not yet set, we need to generate it.
             if (!isset($dbrecord->manageresponsesurl)) {
                 $this->generate_manageresponses_url($optionid);
@@ -552,22 +541,6 @@ class booking_option_settings {
             /* IMPORTANT NOTICE: We CANNOT use new moodle_url here, as it is already used in the
             add_return_url function of the booking_option_settings class. */
             $this->editoptionurl = "/mod/booking/editoptions.php?id=" . $this->cmid . "&optionid=" . $optionid;
-        }
-    }
-
-    /**
-     * Function to generate the URL to edit teachers for an option.
-     *
-     * @param int $optionid
-     */
-    private function generate_editteachers_url(int $optionid) {
-
-        if (!empty($this->cmid) && !empty($optionid)) {
-            $editteachersmoodleurl = new moodle_url('/mod/booking/teachers.php',
-                ['id' => $this->cmid, 'optionid' => $optionid]);
-
-            // Use html_entity_decode to convert "&amp;" to a simple "&" character.
-            $this->editteachersurl = html_entity_decode($editteachersmoodleurl->out());
         }
     }
 

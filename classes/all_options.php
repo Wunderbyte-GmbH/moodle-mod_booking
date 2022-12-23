@@ -97,16 +97,6 @@ class all_options extends table_sql {
                         get_string('optiondatesmanager', 'booking')) .
                     get_string('optiondatesmanager', 'booking')) . '</div>';
 
-            // Book teachers.
-            if (has_capability('mod/booking:updatebooking', $this->context)) {
-                $onlyoneurl = new moodle_url('/mod/booking/teachers.php',
-                    array('id' => $this->cm->id, 'optionid' => $values->id));
-                $ddoptions[] = '<div class="dropdown-item">' .
-                    html_writer::link($onlyoneurl,
-                        $OUTPUT->pix_icon('i/user',
-                            get_string('editteacherslink', 'mod_booking')) .
-                        get_string('editteacherslink', 'mod_booking')) . '</div>';
-            }
             // Book other users.
             if (has_capability('mod/booking:subscribeusers', $this->context) ||
                 booking_check_if_teacher($values)) {

@@ -19,6 +19,8 @@ $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
 $string['alreadypassed'] = 'Already passed';
+$string['gotomanageresponses'] = '&lt;&lt; Manage responses';
+$string['teachers'] = 'Teachers';
 
 // General errors.
 $string['error:choosevalue'] = 'You have to choose a value here.';
@@ -313,7 +315,6 @@ $string['tagdeleted'] = 'Tag template was deleted!';
 // Mod_booking\all_options.
 $string['showdescription'] = 'Show description';
 $string['hidedescription'] = 'Hide description';
-$string['editteacherslink'] = 'Edit teachers';
 $string['cancelallusers'] = 'Cancel all booked users';
 
 // Mod_form.
@@ -1250,7 +1251,6 @@ $string['reportremindersubject'] = 'Reminder: Your booked course';
 $string['reportremindermessage'] = '{$a->bookingdetails}';
 
 // Report.php.
-$string['addteachers'] = 'Add teachers';
 $string['allmailssend'] = 'All e-mails to the users have been sent!';
 $string['associatedcourse'] = 'Associated course';
 $string['bookedusers'] = 'Booked users';
@@ -1352,12 +1352,6 @@ $string['enablecompletiongroup'] = 'Require entries';
 $string['messagesend'] = 'Your message has been sent.';
 $string['messagesubject'] = 'Subject';
 $string['messagetext'] = 'Message';
-
-// Teachers.php.
-$string['teachers'] = 'Teachers';
-$string['gotomanageresponses'] = '&lt;&lt; Manage responses';
-$string['warningonteacherspage'] = '<b>BE CAREFUL: </b>When adding teachers here, they will also be <b>added to EACH date</b> in the teaching report.
-When deleting teachers here, they will be <b>removed from EACH date</b> in the teaching report!';
 
 // Teachers_handler.php.
 $string['teachersforoption'] = 'Teachers';
@@ -1901,7 +1895,6 @@ $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="ale
 $string['optiondatesteachersreport'] = 'Teaching Report / Replacement teachers';
 $string['optiondatesteachersreport_desc'] = 'This report gives an overview of which teacher was present at which specific date.<br>
 By default, every date will be filled in with the option\'s teacher. You can overwrite specific dates with replacement teachers.';
-$string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Teaching report: Click here if you want to add or remove teachers to/from specific dates only (for reporting).</a></h5></p>';
 $string['linktoteachersinstancereport'] = '<p><a href="{$a}" target="_self">&gt;&gt; Go to teachers report for booking instance</a></p>';
 $string['teacher'] = 'Teacher';
 $string['noteacherset'] = 'No teacher';

@@ -23,7 +23,6 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\booking_option;
 use mod_booking\singleton_service;
 use mod_booking\table\optiondates_teachers_table;
 
@@ -80,7 +79,6 @@ if (!$optiondatesteacherstable->is_downloading()) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('optiondatesteachersreport', 'mod_booking'));
 
-    $editteachersurl = new moodle_url('/mod/booking/teachers.php', $urlparams);
     $instancereportsurl = new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cmid]);
 
     // Dismissible alert containing the description of the report.

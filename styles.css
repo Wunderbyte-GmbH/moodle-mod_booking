@@ -47,7 +47,7 @@ tr.mod-booking-invisible {
     display: none;
 }
 
-/** Styles for teachers.php */
+/** Styles for subscriber tables on subscribeusers.php (book other users) */
 .subscriberdiv,
 .subscribertable {
     width: 100%;
