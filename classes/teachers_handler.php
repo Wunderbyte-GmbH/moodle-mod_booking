@@ -30,6 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
+use context_course;
 use moodle_exception;
 use moodle_url;
 use MoodleQuickForm;
@@ -134,9 +135,13 @@ class teachers_handler {
     /**
      * Subscribe new teachers and / or unsubscribe removed teachers from booking option.
      *
-     * @param array $teacherids an array of teacher ids (from form)
+     * @param stdClass &$formdata formdata
+     * @param bool $doenrol true if we want to enrol teachers into course
      */
-    public function save_from_form(array $teacherids) {
+    public function save_from_form(stdClass &$formdata, bool $doenrol = true) {
+
+        // Array of teacher ids.
+        $teacherids = $formdata->teachersforoption;
 
         $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
 
@@ -146,13 +151,31 @@ class teachers_handler {
         }
 
         foreach ($teacherids as $newteacherid) {
+            $dosubscribe = true;
             if (in_array($newteacherid, $oldteacherids)) {
                 // Teacher is already subscribed to booking option.
-                continue;
-            } else {
-                // It's a new teacher.
-                if (!subscribe_teacher_to_booking_option($newteacherid, $this->optionid, $optionsettings->cmid)) {
-                    // TODO: Add teacher to group not yet implemented! (Third parameter of the function).
+                // But we still need to check if the teacher is enrolled in the associated course.
+                if (isset($formdata->courseid) && $formdata->courseid == -1) {
+                    $dosubscribe = true;
+                } else {
+                    if (empty($formdata->courseid)) {
+                        // Teacher is already subscribed to booking option and there is no course.
+                        $dosubscribe = false;
+                    } else {
+                        // There is a course, so check if the teacher is already enrolled.
+                        $coursecontext = context_course::instance($formdata->courseid);
+                        if (is_enrolled($coursecontext, $newteacherid, '', true)) {
+                            // Teacher is already subscribed AND enrolled to the course.
+                            // We do not need to call the subscribe function.
+                            $dosubscribe = false;
+                        }
+                    }
+                }
+            }
+            if ($dosubscribe) {
+                // It's a new teacher or the teacher was not enrolled into the course.
+                if (!subscribe_teacher_to_booking_option($newteacherid, $this->optionid, $optionsettings->cmid, null, $doenrol)) {
+                    // Add teacher to group not yet implemented! (Third parameter of the function).
                     throw new moodle_exception('cannotaddsubscriber', 'booking', '', null,
                         'Cannot add subscriber with id: ' . $newteacherid);
                 }

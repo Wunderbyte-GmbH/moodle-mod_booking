@@ -316,7 +316,7 @@ class booking_handler extends \core_customfield\handler {
         $errors = parent::instance_form_validation($data, $files);
 
         // First, we check, if user chose to automatically create a new moodle course.
-        if ($data['courseid'] == -1) {
+        if (isset($data['courseid']) && $data['courseid'] == -1) {
             if (wb_payment::pro_version_is_activated()) {
                 // URLs needed for error message.
                 $bookingcustomfieldsurl = new moodle_url('/mod/booking/customfield.php');

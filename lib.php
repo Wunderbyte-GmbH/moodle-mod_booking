@@ -951,6 +951,7 @@ function booking_update_options($optionvalues, $context) {
         $courses = array($newcourse);
         $createdcourses = core_course_external::create_courses($courses);
         $option->courseid = $createdcourses[0]['id'];
+        $optionvalues->courseid = $option->courseid;
     }
 
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
@@ -1099,7 +1100,7 @@ function booking_update_options($optionvalues, $context) {
 
         // Save teachers using handler.
         $teachershandler = new teachers_handler($option->id);
-        $teachershandler->save_from_form($optionvalues->teachersforoption);
+        $teachershandler->save_from_form($optionvalues);
 
         // Save relation for each newly created optiondate if checkbox is active.
         save_entity_relations_for_optiondates_of_option($optionvalues, $option->id);
@@ -1204,8 +1205,11 @@ function booking_update_options($optionvalues, $context) {
             $optiondateshandler->save_from_form($optionvalues);
         }
 
+        $doenrol = true;
         // If it's a duplicate, we also duplicate the teachers!
         if (!empty($optionvalues->copyoptionid) && $optionvalues->copyoptionid > 0) {
+            $doenrol = false; // For a duplicate, we do not want to enrol the teachers right away...
+            // ...as we most possibly will change the Moodle course in the duplicate.
             $copyoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionvalues->copyoptionid);
             $optionvalues->teachersforoption = $copyoptionsettings->teacherids;
         }
@@ -1214,7 +1218,7 @@ function booking_update_options($optionvalues, $context) {
         if (!empty($optionvalues->teachersforoption)) {
             // Save teachers using handler.
             $teachershandler = new teachers_handler($optionid);
-            $teachershandler->save_from_form($optionvalues->teachersforoption);
+            $teachershandler->save_from_form($optionvalues, $doenrol);
         }
 
         // Deal with multiple option dates (multisessions).
@@ -2311,19 +2315,30 @@ function booking_get_extra_capabilities() {
  * @param int $optionid
  * @param int $cmid
  * @param mixed $groupid the group object or group id
+ * @param bool $doenrol true if we want to enrol the teacher into the relevant course
  * @return bool true if teacher was subscribed
  */
-function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cmid, mixed $groupid = null) {
+function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cmid, mixed $groupid = null,
+    bool $doenrol = true) {
+
     global $DB, $USER;
+
+    $option = new booking_option($cmid, $optionid);
+    // Get settings of the booking instance (do not confuse with option settings).
+    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+
+    // Event if teacher already exists in DB, we still might want to enrol it into a new course.
+    if ($doenrol) {
+        // We enrol teacher with the type defined in settings.
+        $option->enrol_user($userid, true, $bookingsettings->teacherroleid, true);
+
+        /* NOTE: In the future, we might need a teacher_enrolled event here (or inside enrol_user)
+        which indicates that a teacher has been enrolled into a Moodle course. */
+    }
 
     if ($DB->record_exists("booking_teachers", array("userid" => $userid, "optionid" => $optionid))) {
         return true;
     }
-
-    // Get settings of the booking instance.
-    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-
-    $option = new booking_option($cmid, $optionid);
 
     $newteacherrecord = new stdClass();
     $newteacherrecord->userid = $userid;
@@ -2339,8 +2354,6 @@ function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cm
         groups_add_member($groupid, $userid);
     }
 
-    // We enrol teacher with the type defined in settings.
-    $option->enrol_user($userid, true, $bookingsettings->teacherroleid, true);
     if ($inserted) {
         $event = \mod_booking\event\teacher_added::create(
                 array('userid' => $USER->id, 'relateduserid' => $userid, 'objectid' => $optionid,
