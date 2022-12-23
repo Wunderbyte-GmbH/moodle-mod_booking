@@ -305,7 +305,6 @@ $string['edittag'] = 'Bearbeiten';
 // Mod_booking\all_options.
 $string['showdescription'] = 'Beschreibung anzeigen';
 $string['hidedescription'] = 'Beschreibung verstecken';
-$string['editteacherslink'] = 'Trainer:innen bearbeiten';
 $string['cancelallusers'] = 'Alle gebuchten Userinnen stornieren';
 
 // Mod_form.

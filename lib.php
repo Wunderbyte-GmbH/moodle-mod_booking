@@ -1204,9 +1204,18 @@ function booking_update_options($optionvalues, $context) {
             $optiondateshandler->save_from_form($optionvalues);
         }
 
-        // Save teachers using handler.
-        $teachershandler = new teachers_handler($optionid);
-        $teachershandler->save_from_form($optionvalues->teachersforoption);
+        // If it's a duplicate, we also duplicate the teachers!
+        if (!empty($optionvalues->copyoptionid) && $optionvalues->copyoptionid > 0) {
+            $copyoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionvalues->copyoptionid);
+            $optionvalues->teachersforoption = $copyoptionsettings->teacherids;
+        }
+
+        // We only save teachers if there are any.
+        if (!empty($optionvalues->teachersforoption)) {
+            // Save teachers using handler.
+            $teachershandler = new teachers_handler($optionid);
+            $teachershandler->save_from_form($optionvalues->teachersforoption);
+        }
 
         // Deal with multiple option dates (multisessions).
         deal_with_multisessions($optionvalues, $booking, $optionid, $context);

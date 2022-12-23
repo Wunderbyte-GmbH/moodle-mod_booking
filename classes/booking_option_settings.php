@@ -181,6 +181,9 @@ class booking_option_settings {
     /** @var array $teachers */
     public $teachers = [];
 
+    /** @var array $teacherids */
+    public $teacherids = [];
+
     /** @var array $customfields */
     public $customfields = [];
 
@@ -424,6 +427,14 @@ class booking_option_settings {
                 $this->teachers = $dbrecord->teachers;
             }
 
+            // If the key "teacherids" is not yet set, we need to load from DB.
+            if (!isset($dbrecord->teacherids)) {
+                $this->load_teacherids_from_db();
+                $dbrecord->teacherids = $this->teacherids;
+            } else {
+                $this->teacherids = $dbrecord->teacherids;
+            }
+
             // If the key "customfields" is not yet set, we need to load them via handler first.
             if (!isset($dbrecord->customfields)) {
                 $this->load_customfields($optionid);
@@ -502,6 +513,20 @@ class booking_option_settings {
                    WHERE t.optionid = :optionid', array('optionid' => $this->id));
 
         $this->teachers = $teachers;
+    }
+
+    /**
+     * Function to load teacherids from DB.
+     */
+    private function load_teacherids_from_db() {
+        global $DB;
+
+        $teacherids = $DB->get_fieldset_select(
+            'booking_teachers', 'userid', "optionid = :optionid",
+            ['optionid' => $this->id]
+        );
+
+        $this->teacherids = $teacherids;
     }
 
     /**
