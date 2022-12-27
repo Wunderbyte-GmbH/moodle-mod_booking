@@ -265,11 +265,13 @@ class calendar {
 
         if ($userid == 0 && $calendareventid > 0 && $DB->record_exists("event", array('id' => $event->id))) {
             $calendarevent = \calendar_event::load($event->id);
-            $calendarevent->update($event);
+            // Important: Second param needs to be false in order to fix "nopermissiontoupdatecalendar" bug.
+            $calendarevent->update($event, false);
             return $event->id;
         } else {
             unset($event->id);
-            $tmpevent = \calendar_event::create($event);
+            // Important: Second param needs to be false in order to fix "nopermissiontoupdatecalendar" bug.
+            $tmpevent = \calendar_event::create($event, false);
             return $tmpevent->id;
         }
     }
@@ -355,12 +357,14 @@ class calendar {
         // Update if the record already exists.
         if ($userid == 0 && $calendareventid > 0 && $DB->record_exists("event", array('id' => $optiondate->eventid))) {
             $calendarevent = \calendar_event::load($optiondate->eventid);
-            $calendarevent->update($event);
+            // Important: Second param needs to be false in order to fix "nopermissiontoupdatecalendar" bug.
+            $calendarevent->update($event, false);
             return $optiondate->eventid;
         } else {
             // Create the calendar event.
             unset($event->id);
-            $tmpevent = \calendar_event::create($event);
+            // Important: Second param needs to be false in order to fix "nopermissiontoupdatecalendar" bug.
+            $tmpevent = \calendar_event::create($event, false);
 
             // Set the eventid in table booking_optiondates so the event can be identified later.
             $optiondate->eventid = $tmpevent->id;
