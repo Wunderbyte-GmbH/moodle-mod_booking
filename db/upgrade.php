@@ -2819,7 +2819,8 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_index($table, $index);
         }
         // Define index userid-bookingid-waitinglist-optionid (not unique) to be added to booking_answers.
-        $index = new xmldb_index('userid-bookingid-waitinglist-optionid', XMLDB_INDEX_NOTUNIQUE, ['userid', 'bookingid', 'waitinglist', 'optionid']);
+        $index = new xmldb_index('userid-bookingid-waitinglist-optionid',
+            XMLDB_INDEX_NOTUNIQUE, ['userid', 'bookingid', 'waitinglist', 'optionid']);
 
         // Conditionally launch add index userid-bookingid-waitinglist-optionid.
         if (!$dbman->index_exists($table, $index)) {
@@ -3022,9 +3023,14 @@ function xmldb_booking_upgrade($oldversion) {
         // Rename field optionid on table booking_prices to itemid.
         $table = new xmldb_table('booking_prices');
 
-        $field = new xmldb_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'id');
-        // Launch rename field optionid.
-        $dbman->rename_field($table, $field, 'itemid');
+        $optionid = new xmldb_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'id');
+
+        // This field is only needed to check if it has already been renamed.
+        $itemid = new xmldb_field('itemid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'id');
+
+        if (!$dbman->field_exists($table, $itemid)) {
+            $dbman->rename_field($table, $optionid, 'itemid');
+        }
 
         $field = new xmldb_field('area', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'itemid');
         // Conditionally launch add field area.
@@ -3056,7 +3062,8 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Define index userid-bookingid-waitinglist-optionid (not unique) to be added to booking_answers.
-        $index = new xmldb_index('userid-bookingid-waitinglist-optionid', XMLDB_INDEX_NOTUNIQUE, ['userid', 'bookingid', 'waitinglist', 'optionid']);
+        $index = new xmldb_index('userid-bookingid-waitinglist-optionid', XMLDB_INDEX_NOTUNIQUE,
+            ['userid', 'bookingid', 'waitinglist', 'optionid']);
 
         // Conditionally launch drop index userid-bookingid-waitinglist-optionid.
         if ($dbman->index_exists($table, $index)) {
@@ -3137,7 +3144,8 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Changing the default of field showviews on table booking to mybooking,myoptions,showall,showactive,myinstitution.
         $table = new xmldb_table('booking');
-        $field = new xmldb_field('showviews', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, 'mybooking,myoptions,showall,showactive,myinstitution', 'defaultoptionsort');
+        $field = new xmldb_field('showviews', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null,
+            'mybooking,myoptions,showall,showactive,myinstitution', 'defaultoptionsort');
 
         // Launch change of default for field showviews.
         $dbman->change_field_default($table, $field);
