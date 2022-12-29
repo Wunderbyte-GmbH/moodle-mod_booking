@@ -188,6 +188,13 @@ if ($subscribesuccess || $unsubscribesuccess) {
     }
 }
 
+if (booking_check_if_teacher($bookingoption->option) && !has_capability(
+        'mod/booking:readallinstitutionusers', $context)) {
+    echo html_writer::tag('div',
+        get_string('onlyusersfrominstitution', 'mod_booking', $bookingoption->option->institution),
+    ['class' => 'alert alert-info']);
+}
+
 echo $bookingoutput->subscriber_selection_form($existingselector, $subscriberselector, $course->id);
 
 echo '<br>';
