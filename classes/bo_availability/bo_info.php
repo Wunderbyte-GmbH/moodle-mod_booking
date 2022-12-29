@@ -132,10 +132,6 @@ class bo_info {
         // It's a clear sign of higher rights.
         $full = $USER->id == $userid ? false : true;
 
-        if (!$optionid) {
-            $optionid = $this->optionid;
-        }
-
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         $conditions = self::get_conditions(CONDPARAM_HARDCODED_ONLY);
@@ -167,7 +163,7 @@ class bo_info {
             // First, we have the hardcoded conditions already as instances.
             if ($classname !== 'stdClass') {
                 list($isavailable, $description, $insertpage, $button)
-                    = $condition->get_description($full, $settings, $userid);
+                    = $condition->get_description($settings, $userid, $full);
                 $resultsarray[$condition->id] = [
                     'id' => $condition->id,
                     'isavailable' => $isavailable,
@@ -254,23 +250,7 @@ class bo_info {
             return false;
         });
 
-        if (count($results) === 0) {
-            $id = 0;
-            $isavailable = true;
-            $description = '';
-        } else {
-            $id = 0;
-            $isavailable = false;
-            foreach ($results as $result) {
-                // If no Id has been defined or if id is higher, we take the descpription to return.
-                if ($id === 0 || $result['id'] > $id) {
-                    $description = $result['description'];
-                    $id = $result['id'];
-                }
-            }
-        }
-
-        return [$id, $isavailable, $description];
+        return $results;
 
     }
 
