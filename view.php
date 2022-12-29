@@ -426,8 +426,8 @@ if (!$current and $bookingopen and has_capability('mod/booking:choose', $context
         echo $OUTPUT->box($booking->show_maxperuser($USER), 'mdl-align');
 
         $output = $PAGE->get_renderer('mod_booking');
-        $output->print_booking_tabs($urlparams, $whichview, $mybookings->mybookings,
-                $myoptions->myoptions, $booking);
+        $output->print_booking_tabs($booking, $urlparams, $whichview, $mybookings->mybookings,
+                $myoptions->myoptions);
 
         $search = '<div class="d-flex flex-row"><a class="btn btn-primary" href="#" id="showHideSearch">'
             . '<i class="fa fa-search" aria-hidden="true"></i>&nbsp;' . get_string('search') . "</a></div>";

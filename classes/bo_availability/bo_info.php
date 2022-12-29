@@ -131,7 +131,7 @@ class bo_info {
 
             // First, we have the hardcoded conditions already as instances.
             if ($classname !== 'stdClass') {
-                list($isavailable, $description) = $condition->get_description($full, $settings, $userid);
+                list($isavailable, $description) = $condition->get_description($settings, $userid, $full);
                 $resultsarray[$condition->id] = ['id' => $condition->id,
                     'isavailable' => $isavailable,
                     'description' => $description];
@@ -153,7 +153,7 @@ class bo_info {
                     continue;
                 }
                 // Then pass the availability-parameters.
-                list($isavailable, $description) = $instance->get_description($full, $settings, $userid);
+                list($isavailable, $description) = $instance->get_description($settings, $userid, $full);
                 $resultsarray[$condition->id] = ['id' => $condition->id,
                     'isavailable' => $isavailable,
                     'description' => $description];
@@ -264,7 +264,7 @@ class bo_info {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description($full = false, booking_option_settings $settings, $userid = null):array {
+    public function get_description(booking_option_settings $settings, $userid = null, $full = false):array {
 
         return $this->is_available($settings->id, $userid, false);
     }
