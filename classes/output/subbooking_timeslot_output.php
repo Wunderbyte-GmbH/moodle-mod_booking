@@ -26,9 +26,11 @@
 namespace mod_booking\output;
 
 use local_entities\entitiesrelation_handler;
+use mod_booking\bo_availability\conditions\subbooking;
 use mod_booking\booking_option_settings;
 use mod_booking\dates_handler;
 use mod_booking\price;
+use mod_booking\subbookings\sb_types\subbooking_timeslot;
 use renderer_base;
 use renderable;
 use stdClass;
@@ -52,15 +54,15 @@ class subbooking_timeslot_output implements renderable, templatable {
      * Constructur for render timeslot class.
      *
      * @param booking_option_settings $settings
+     * @param bool $includebookinginformation
+     * @param integer $userid
      */
-    public function __construct(booking_option_settings $settings) {
+    public function __construct(
+        booking_option_settings $settings,
+        bool $includebookinginformation,
+        int $userid = 0) {
 
-        $data = [];
-
-        $days = [];
-        $slots = [];
-        $locations = [];
-        $slotcounter = 1;
+        $sbdata = [];
 
         // There might be more than one relevant subbooking to handle.
         foreach ($settings->subbookings as $subbooking) {
@@ -69,70 +71,25 @@ class subbooking_timeslot_output implements renderable, templatable {
             if ($subbooking->type === 'subbooking_timeslot') {
 
                 // Get the name from the entities handler.
+                $object = json_decode($subbooking->json);
+                $data = json_decode($object->data->slots, true);
 
-                // This is to save entity relation data.
-                if (class_exists('local_entities\entitiesrelation_handler')) {
-                    $erhandler = new entitiesrelation_handler('mod_booking', 'subbooking');
-                    $entitiy = $erhandler->get_instance_data($subbooking->id);
-                    $location = ['name' => $entitiy->name];
-                } else {
-                    $location = ['name' => ''];
+                // We need to add the booking information to the timeslots.
+                if ($includebookinginformation) {
+                    $data['locations']['timeslots'] =
+                        $subbooking->add_booking_information_to_slots($data['locations']['timeslots']);
                 }
 
-                // We save the subbookingid here.
-                $location['sboid'] = $subbooking->id;
-
-                // We need to get start & endtime for every date of this option.
-
-                foreach ($settings->sessions as $session) {
-
-                    $date = dates_handler::prettify_datetime($session->coursestarttime, $session->courseendtime);
-
-                    $data['days'][] = [
-                        "day" => $date->startdate,
-                    ];
-
-                    $slots = dates_handler::create_slots($session->coursestarttime,
-                        $session->courseendtime,
-                        $subbooking->duration);
-
-                    $price = price::get_price('subbooking', $subbooking->id);
-
-                    foreach ($slots as $slot) {
-
-                        if (!isset($data['slots'])) {
-                            $tempslots[] = [
-                                "slot" => $slot->datestring,
-                            ];
-                        }
-
-                        $timeslot = [
-                            "free" => true,
-                            "slot" => $slot->datestring,
-                            "area" => "subbooking-" . $subbooking->id,
-                            "componentname" => "mod_booking",
-                            "itemid" => $slotcounter,
-                        ];
-
-                        if (!empty($price)) {
-                            $timeslot["price"] = $price['price'] ?? 0;
-                            $timeslot["currency"] = $price['currency'] ?? 'EUR';
-                        }
-
-                        $location['timeslots'][] = $timeslot;
-                        $slotcounter++;
-                    }
-
-                    // We only do this once.
-                    if (!isset($data['slots'])) {
-                        $data['slots'] = $tempslots;
-                    }
-                }
-                $data['locations'][] = $location;
+                $sbdata['locations'][] = [
+                    'name' => $data['locations']['name'],
+                    'timeslots' => $data['locations']['timeslots'],
+                ];
+                $sbdata['slots'] = $data['slots'];
+                $sbdata['days'] = $data['days'];
             }
         }
 
-        $this->data = $data;
+        $this->data = $sbdata;
     }
 
     /**

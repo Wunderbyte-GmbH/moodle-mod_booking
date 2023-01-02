@@ -100,4 +100,13 @@ interface booking_subbooking {
      * @return array
      */
     public function return_subbooking_information(int $itemid = 0):array;
+
+    /**
+     * When a subbooking is booked, we might need some supplementary values saved.
+     * Evey subbooking type can decide what to store in the answer json.
+     *
+     * @param integer $itemid
+     * @return string
+     */
+    public function return_answer_json(int $itemid):string;
 }

@@ -24,6 +24,7 @@ use lang_string;
 use local_shopping_cart\shopping_cart;
 use mod_booking\booking_option_settings;
 use local_entities\entitiesrelation_handler;
+use User;
 
 /**
  * Price class.
@@ -570,10 +571,11 @@ class price {
      *
      * @param string $area
      * @param int $itemid
+     * @param object $user
      *
      * @return array
      */
-    public static function get_price(string $area, int $itemid, $user = 0): array {
+    public static function get_price(string $area, int $itemid, object $user = null): array {
 
         global $USER;
 

@@ -964,10 +964,22 @@ class booking_option {
      *        be unsubscribed
      *        from the old booking option afterwards (which is not yet taken into account).
      * @param boolean $addedtocart true if we just added this booking option to the shopping cart.
+     * @param integer $verified 0 for unverified, 1 for pending and 2 for verified.
      * @return boolean true if booking was possible, false if meanwhile the booking got full
      */
-    public function user_submit_response($user, $frombookingid = 0, $substractfromlimit = 0, $addedtocart = false) {
+    public function user_submit_response(
+            $user,
+            $frombookingid = 0,
+            $substractfromlimit = 0,
+            $addedtocart = false,
+            $verified = UNVERIFIED) {
         global $DB;
+
+        // First check, we only accept verified submissions.
+        // This function always needs to be called with the verified param.
+        if (!$verified) {
+            return false;
+        }
 
         if (empty($this->option)) {
             echo "<br>Didn't find option to subscribe user $user->id <br>";

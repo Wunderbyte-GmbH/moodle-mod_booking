@@ -31,6 +31,35 @@ var SELECTORS = {
     INMODALDIV: ' div.pageContent',
     CONTINUEBUTTON: 'a.continue-button',
     BACKBUTTON: 'a.back-button',
+    BOOKITBUTTON: 'div.booking-button-area',
+};
+
+export const initbookitbutton = (optionid) => {
+
+    const button = document.querySelector(SELECTORS.BOOKITBUTTON + '[data-itemid=\'' + optionid + '\']');
+
+    // eslint-disable-next-line no-console
+    console.log(button, SELECTORS.BOOKITBUTTON + '[data-itemid=\'' + optionid + '\']');
+
+    if (button) {
+
+        if (button.dataset.initialized) {
+            return;
+        }
+
+        button.dataset.initialized = 'true';
+
+        const area = button.dataset.area;
+        const userid = button.dataset.userid;
+
+        button.addEventListener('click', bookitbutton => {
+            // eslint-disable-next-line no-console
+            console.log('clicked ', bookitbutton.target);
+
+            bookit(optionid, area, userid);
+        });
+    }
+
 };
 
 /**
@@ -38,7 +67,7 @@ var SELECTORS = {
  * @param {integer} optionid
  * @param {integer} totalnumberofpages
  */
-export const init = (optionid, totalnumberofpages) => {
+export const initprepagemodal = (optionid, totalnumberofpages) => {
 
     currentbookitpage[optionid] = 0;
     totalbookitpages[optionid] = totalnumberofpages;
@@ -228,7 +257,7 @@ function initializeButton(optionid, back) {
     // eslint-disable-next-line no-console
     // console.log(element, selector);
 
-    if (!element.dataset.initialized) {
+    if (element && !element.dataset.initialized) {
         element.dataset.initialized = true;
 
         element.addEventListener('click', () => {
@@ -246,4 +275,35 @@ function initializeButton(optionid, back) {
             loadPreBookingPage(optionid);
         });
     }
+}
+
+/**
+ *
+ * @param {int} itemid
+ * @param {string} area
+ * @param {int} userid
+ */
+function bookit(itemid, area, userid) {
+
+    Ajax.call([{
+        methodname: "mod_booking_bookit",
+        args: {
+            'itemid': itemid,
+            'area': area,
+            'userid': userid,
+        },
+        done: function(res) {
+
+            const jsonobject = JSON.parse(res.json);
+
+            // eslint-disable-next-line no-console
+            console.log(jsonobject);
+
+            return true;
+        },
+        fail: function(err) {
+            // eslint-disable-next-line no-console
+            console.log(err);
+        }
+    }]);
 }

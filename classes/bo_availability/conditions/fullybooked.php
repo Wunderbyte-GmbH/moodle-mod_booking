@@ -124,15 +124,9 @@ class fullybooked implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        if ($isavailable) {
-            $description = $full ? get_string('bo_cond_fullybooked_full_available', 'mod_booking') :
-                get_string('bo_cond_fullybooked_available', 'mod_booking');
-        } else {
-            $description = $full ? get_string('bo_cond_fullybooked_full_not_available', 'mod_booking') :
-                get_string('bo_cond_fullybooked_not_available', 'mod_booking');
-        }
+        $description = self::get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, false, BO_BUTTON_NOBUTTON];
+        return [$isavailable, $description, false, BO_BUTTON_MYALERT];
     }
 
     /**
@@ -161,12 +155,54 @@ class fullybooked implements bo_condition {
     /**
      * Some conditions (like price & bookit) provide a button.
      * Renders the button, attaches js to the Page footer and returns the html.
+     * Return should look somehow like this.
+     * ['mod_booking/bookit_button', $data];
      *
-     * @param integer $optionid
-     * @param object|null $user
-     * @return string
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param boolean $full
+     * @param boolean $not
+     * @return array
      */
-    public static function render_button(int $optionid, object $user = null) {
-        return "";
+    public function render_button(booking_option_settings $settings, $userid = 0, $full = false, $not = false):array {
+
+        global $USER;
+
+        if ($userid === null) {
+            $userid = $USER->id;
+        }
+        $label = $this->get_description_string(false, false);
+
+        return [
+            'mod_booking/bookit_button',
+            [
+                'itemid' => $settings->id,
+                'area' => 'option',
+                'userid' => $userid ?? 0,
+                'main' => [
+                    'label' => $label,
+                    'class' => 'alert alert-info',
+                    'role' => 'alert',
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Helper function to return localized description strings.
+     *
+     * @param bool $isavailable
+     * @param bool $full
+     * @return void
+     */
+    private function get_description_string($isavailable, $full) {
+        if ($isavailable) {
+            $description = $full ? get_string('bo_cond_fullybooked_full_available', 'mod_booking') :
+                get_string('bo_cond_fullybooked_available', 'mod_booking');
+        } else {
+            $description = $full ? get_string('bo_cond_fullybooked_full_not_available', 'mod_booking') :
+                get_string('bo_cond_fullybooked_not_available', 'mod_booking');
+        }
+        return $description;
     }
 }

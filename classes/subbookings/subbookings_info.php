@@ -335,4 +335,169 @@ class subbookings_info {
 
         return $subbooking;
     }
+
+    /**
+     * Function to save answer to a subbooking.
+     * We can provide a status which will then decide what actually happens.
+     *
+     * @param string $area
+     * @param integer $itemid
+     * @param integer $userid
+     * @param integer $status
+     * @return boolean
+     */
+    public static function save_response(string $area, int $itemid, int $status, $userid = 0):bool {
+
+        global $USER;
+
+        // Make sure we have the right user.
+        if ($userid == 0) {
+            $userid = $USER->id;
+        }
+
+        $subbooking = self::get_subbooking_by_area_and_id($area, $itemid);
+
+        // Do we need to update and if so, which records?
+
+        switch ($status) {
+            case STATUSPARAM_BOOKED: // We actually book.
+                // Check if there was a reserved or waiting list entry before.
+                self::update_or_insert_answer(
+                    $subbooking,
+                    $itemid,
+                    $userid,
+                    STATUSPARAM_BOOKED,
+                    [STATUSPARAM_RESERVED,
+                    STATUSPARAM_WAITINGLIST]);
+                break;
+            case STATUSPARAM_WAITINGLIST: // We move to the waiting list.
+                // Check if there was a reserved entry before.
+                self::update_or_insert_answer(
+                    $subbooking,
+                    $itemid,
+                    $userid,
+                    STATUSPARAM_WAITINGLIST,
+                    [STATUSPARAM_RESERVED]);
+                break;
+            case STATUSPARAM_RESERVED: // We only want to use shortterm reservation.
+                // Check if there was a reserved or waiting list entry before.
+                self::update_or_insert_answer(
+                    $subbooking,
+                    $itemid,
+                    $userid,
+                    STATUSPARAM_RESERVED,
+                    [STATUSPARAM_WAITINGLIST]);
+                break;
+            case STATUSPARAM_NOTBOOKED: // We only want to delete the shortterm reservation.
+                // Check if there was a reserved or waiting list entry before.
+                self::update_or_insert_answer(
+                    $subbooking,
+                    $itemid,
+                    $userid,
+                    STATUSPARAM_NOTBOOKED,
+                    [STATUSPARAM_RESERVED]);
+                break;
+            case STATUSPARAM_DELETED: // We delete the existing subscription.
+                // Check if there was a booked entry before.
+                self::update_or_insert_answer(
+                    $subbooking,
+                    $itemid,
+                    $userid,
+                    STATUSPARAM_DELETED,
+                    [STATUSPARAM_BOOKED]);
+                break;
+        };
+        return true;
+    }
+
+    /**
+     * This function looks for old answers of a special type and if there are any, it deletes them.
+     * Also, it creates a new answer record if necessary.
+     *
+     * @param object $subbooking
+     * @param integer $itemid
+     * @param integer $userid
+     * @param integer $newstatus
+     * @param array $oldstatus
+     * @return bool
+     */
+    private static function update_or_insert_answer(object $subbooking, int $itemid, int $userid, int $newstatus, array $oldstatus) {
+
+        global $DB, $USER;
+
+        $now = time();
+
+        if ($records = self::return_subbooking_answers($subbooking->id, $itemid, $userid, $oldstatus)) {
+            while (count($records) > 0) {
+                $record = array_pop($records);
+                // We already popped one record, so count has to be 0.
+                if (count($records) == 0 && $newstatus !== STATUSPARAM_NOTBOOKED) {
+                    $record->timemodified = $now;
+                    $record->status = $newstatus;
+                    $DB->update_record('booking_subbooking_answers', $record);
+                } else {
+                    // This is just for cleaning, should never happen.
+                    $DB->delete_records('booking_subbooking_answers', ['id' => $record->id]);
+                }
+            }
+        } else if ($newstatus !== STATUSPARAM_DELETED || $newstatus !== STATUSPARAM_NOTBOOKED) {
+
+            $data = $subbooking->return_subbooking_information($itemid, $userid);
+            $record = (object)[
+                'itemid' => $itemid,
+                'sboptionid' => $subbooking->id,
+                'userid' => $userid,
+                'usermodified' => $USER->id,
+                'status' => $newstatus,
+                'json' => $subbooking->return_answer_json($itemid),
+                'timestart' => $data['coursestarttime'],
+                'timeend' => $data['courseendtime'],
+                'timecreated' => $now,
+                'timemodified' => $now,
+            ];
+
+            $DB->insert_record('booking_subbooking_answers', $record);
+        }
+    }
+
+    /**
+     * Returns all answer records for a certain PARAMSTATUS if defined.
+     *
+     * @param integer $sboid
+     * @param integer $itemid
+     * @param integer $userid
+     * @param array $status
+     * @return array
+     */
+    private static function return_subbooking_answers(int $sboid, int $itemid, int $userid, array $status = []) {
+
+        global $DB;
+
+        // We always fetch all the entries
+        $sql = "SELECT *
+                FROM {booking_subbooking_answers}
+                WHERE itemid=:itemid
+                AND sboptionid=:sboptionid
+                AND userid=:userid";
+
+        $params = [
+            'itemid' => $itemid,
+            'sboptionid' => $sboid,
+            'userid' => $userid,
+        ];
+
+        if (!empty($status)) {
+
+            list ($inorequal, $ieparams) = $DB->get_in_or_equal($status, SQL_PARAMS_NAMED);
+            $sql .= " AND status $inorequal";
+
+            foreach ($ieparams as $key => $value) {
+                $params[$key] = $value;
+            }
+        }
+
+        $records = $DB->get_records_sql($sql, $params);
+
+        return $records;
+    }
 }

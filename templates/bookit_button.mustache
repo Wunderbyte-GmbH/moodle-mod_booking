@@ -1,0 +1,75 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/bookit
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-region
+
+     Example context (json):
+    {
+        'itemid' => 'btn btn-primary',
+        'area' => 'btn btn-primary',
+        'userid' => 'btn btn-primary',
+        'main' => [
+            'label' => 'mylabel',
+            'class' => 'myclass',
+            'role' => 'myrole',
+        ],
+        'top' => [
+            'label' => 'mylabel',
+            'class' => 'myclass',
+            'role' => 'myrole',
+        ],
+        'sub' => [
+            'label' => 'mylabel',
+            'class' => 'myclass',
+            'role' => 'myrole',
+        ],
+    }
+}}
+<div class="booking-button-area"
+    data-itemid="{{itemid}}"
+    data-area="{{area}}"
+    data-userid="{{userid}}">
+    {{#top}}
+        <div class="booking-button-toparea {{class}}" role="{{role}}">
+            {{label}}
+        </div>
+    {{/top}}
+    {{#main}}
+        <div class="booking-button-mainarea {{class}}" role="{{role}}">
+            {{label}}
+        </div>
+    {{/main}}
+    {{#sub}}
+        <div class="booking-button-subarea {{class}}" role="{{role}}">
+            {{label}}
+        </div>
+    {{/sub}}
+</div>
+
+{{^nojs}}
+    {{#js}}
+        require(['mod_booking/bookit'], function(init) {
+        init.initbookitbutton({{itemid}}, 0);
+        });
+    {{/js}}
+{{/nojs}}

@@ -109,6 +109,11 @@ define('CONDPARAM_HARDCODED_ONLY', 1);
 define('CONDPARAM_JSON_ONLY', 2);
 define('CONDPARAM_MFORM_ONLY', 3);
 
+// Define status for booking & subbooking options.
+define('UNVERIFIED', 0);
+define('PENDING', 1);
+define('VERIFIED', 1);
+
 /**
  * @param stdClass $cm
  * @return cached_cm_info

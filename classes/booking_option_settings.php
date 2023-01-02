@@ -24,6 +24,7 @@ use mod_booking\subbookings\subbookings_info;
 use moodle_exception;
 use stdClass;
 use moodle_url;
+use User;
 
 /**
  * Settings class for booking option instances.
@@ -223,6 +224,13 @@ class booking_option_settings {
 
     /** @var int $status like 1 for cancelled */
     public $status = null;
+
+    /** @var string $imageurl url */
+    public $imageurl = '';
+
+    /** @var string $imaoptiondatesteachersurlgeurl url */
+    public $optiondatesteachersurl = '';
+
 
     /**
      * Constructor for the booking option settings class.
@@ -985,5 +993,41 @@ class booking_option_settings {
         }
         $title .= $this->text;
         return $title;
+    }
+
+    /**
+     * Especially to create a shopping cart and such...
+     * ... we want one central function where we always get all the necessary keys.
+     *
+     * @param object $user
+     * @return array
+     */
+    public function return_booking_option_information(object $user = null):array {
+
+        global $USER;
+
+        if (empty($user)) {
+            $user = $USER;
+        }
+
+        $price = price::get_price('option', $this->id, $user);
+        $canceluntil = booking_option::return_cancel_until_date($this->id);
+
+        $returnarray = [
+            'itemid' => $this->id,
+            'title' => $this->text,
+            'price' => $price['price'],
+            'currency' => $price['currency'],
+            'userid' => $user->id,
+            'component' => 'mod_booking',
+            'area' => 'option',
+            'description' => $this->description,
+            'imageurl' => $this->imageurl ?? '',
+            'canceluntil' => $canceluntil ?? 0,
+            'coursestarttime' => $this->coursestarttime ?? 0,
+            'courseendtime' => $this->courseendtime ?? 0,
+        ];
+
+        return $returnarray;
     }
 }
