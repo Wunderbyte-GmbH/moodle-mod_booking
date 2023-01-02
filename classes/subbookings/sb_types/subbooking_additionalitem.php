@@ -289,4 +289,16 @@ class subbooking_additionalitem implements booking_subbooking {
 
         return [];
     }
+
+    /**
+     * When a subbooking is booked, we might need some supplementary values saved.
+     * Evey subbooking type can decide what to store in the answer json.
+     *
+     * @param integer $itemid
+     * @return string
+     */
+    public function return_answer_json(int $itemid):string {
+
+        return '';
+    }
 }

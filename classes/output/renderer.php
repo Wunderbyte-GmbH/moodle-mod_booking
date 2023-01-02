@@ -708,10 +708,23 @@ class renderer extends plugin_renderer_base {
      * @param $data array
      * @return string
      */
-    public function render_bookit($data) {
+    public function render_bookit_price($data) {
         $o = '';
         $data = $data->export_for_template($this);
-        $o .= $this->render_from_template('mod_booking/bookit', $data);
+        $o .= $this->render_from_template('mod_booking/bookit_price', $data);
+        return $o;
+    }
+
+    /**
+     * Render output for bookit button.
+     * @param $data array
+     * @param $template string
+     * @return string
+     */
+    public function render_bookit_button($data, string $template) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template($template, $data);
         return $o;
     }
 }

@@ -326,7 +326,8 @@ if there only was one booking option. */
     color: #fff;
     cursor: pointer;
 }
-.mod-booking-timeslotbooking .table td, .mod-booking-timeslotbooking .table tr {
+.mod-booking-timeslotbooking .table td,
+.mod-booking-timeslotbooking .table tr {
     text-align: center;
     vertical-align: middle;
 }
@@ -336,4 +337,23 @@ if there only was one booking option. */
 }
 .mod-booking-timeslotbooking .name {
     font-weight: 700;
+}
+
+.wb_shopping_cart {
+    width: 100%;
+    height: 100%;
+}
+
+.wb_shopping_cart.disabled {
+    background: var(--success);
+    color: white;
+}
+
+.wb_shopping_cart.disabled {
+    background: var(--success);
+    color: white;
+}
+
+.wb_shopping_cart[data-bookable="false"] {
+    background: var(--warning);
 }

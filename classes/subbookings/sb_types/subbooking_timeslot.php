@@ -18,6 +18,7 @@ namespace mod_booking\subbookings\sb_types;
 
 use context_module;
 use local_entities\entitiesrelation_handler;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\dates_handler;
 use mod_booking\output\subbooking_timeslot_output;
@@ -141,29 +142,36 @@ class subbooking_timeslot implements booking_subbooking {
             $jsonobject = json_decode($data->json);
         }
 
+        $record->name = $data->subbooking_name;
+        $record->type = $this->type;
+        $record->optionid = $data->optionid;
+        $record->block = $this->block;
+        $record->timemodified = $now;
+        $record->usermodified = $USER->id;
+
+        // If we have no record yet, we need to save it now.
+        if (empty($data->id)) {
+            $record->timecreated = $now;
+            $id = $DB->insert_record('booking_subbooking_options', $record);
+            $data->id = $id;
+        }
+        $this->id = $data->id;
+
         $jsonobject->name = $data->subbooking_name;
         $jsonobject->type = $this->type;
         $jsonobject->data = new stdClass();
         $jsonobject->data->duration = $data->subbooking_timeslot_duration ?? 0;
 
-        $record->name = $data->subbooking_name;
-        $record->type = $this->type;
-        $record->optionid = $data->optionid;
-        $record->block = $this->block;
-        $record->json = json_encode($jsonobject);
-        $record->timemodified = $now;
-        $record->usermodified = $USER->id;
+        // We need to set the data here because of the slot calculation below.
+        $this->optionid = $data->optionid;
+        $this->duration = $data->subbooking_timeslot_duration ?? 0;
 
-        // If we can update, we add the id here.
-        if ($data->id) {
-            $this->id = $data->id;
-            $record->id = $data->id;
-            $DB->update_record('booking_subbooking_options', $record);
-        } else {
-            $record->timecreated = $now;
-            $id = $DB->insert_record('booking_subbooking_options', $record);
-            $this->id = $id;
-        }
+        $slots = $this->return_slots();
+        $jsonobject->data->slots = json_encode($slots);
+        $record->json = json_encode($jsonobject);
+
+        $record->id = $data->id;
+        $DB->update_record('booking_subbooking_options', $record);
 
         // Add price.
         $price = new price('subbooking', $this->id);
@@ -223,7 +231,7 @@ class subbooking_timeslot implements booking_subbooking {
         // Now that we render the last item, we need to render all of them, plus the container.
         // We need to create the json for rendering.
 
-        $data = new subbooking_timeslot_output($settings);
+        $data = new subbooking_timeslot_output($settings, true);
         return [$data, 'mod_booking/subbooking_timeslottable'];
     }
 
@@ -237,38 +245,201 @@ class subbooking_timeslot implements booking_subbooking {
      * @param integer $itemid
      * @return array
      */
-    public function return_subbooking_information(int $itemid = 0, $user = 0):array {
+    public function return_subbooking_information(int $itemid = 0):array {
 
-        global $USER;
+        // In the case of this subbooking type, the itemid refers to the slots.
+        // In other types, the itemid is actually $this->id.
+        // But here, we need to return the information of the slot.
+        $object = json_decode($this->json);
+        $data = json_decode($object->data->slots, true);
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
-        // We use exactly the same function here as for output.
-        // This is a little bit expensive, as we actually only use a fraction of the data calculated.
-        // If this turns out to be a problem, we will use caching.
-        $data = new subbooking_timeslot_output($settings);
+        // Identify the right timeslot by itemid.
+        foreach ($data['locations']['timeslots'] as $timeslot) {
+            if ($timeslot['itemid'] == $itemid) {
+                break;
+            }
+        }
 
         $returnarray = [
             'itemid' => $itemid,
-            'price' => $priceitem['price'],
-            'currency' => $priceitem['currency'],
+            'title' => $this->name,
+            'price' => $timeslot['price'],
+            'currency' => $timeslot['currency'],
             'component' => 'mod_booking',
-            'area' => 'subbooking-' . $this->id,
-            'description' => $this->description ?? '',
+            'area' => 'subbooking-' . $this->id, // $this-id is in this case not the itemid, but packed in the area.
+            'description' => $timeslot['slot'] ?? '',
             'imageurl' => $this->imageurl ?? '',
-            'canceluntil' => $this->imageurl ?? '',
+            'canceluntil' => strtotime('- 1 hour', $timeslot['slotstarttime']), // Hardcoded for now, one hour before.
+            'coursestarttime' => $timeslot['slotstarttime'],
+            'courseendtime' => $timeslot['slotendtime'],
         ];
 
-        // $cartitem = new cartitem($itemid,
-        // $optiontitle,
-        // $price['price'],
-        // $price['currency'],
-        // 'mod_booking',
-        // 'option',
-        // $description,
-        // $settings->imageurl ?? '',
-        // $canceluntil,
-        // $settings->coursestarttime ?? null,
-        // $settings->courseendtime ?? null);
+        return $returnarray;
+    }
+
+    /**
+     * When a subbooking is booked, we might need some supplementary values saved.
+     * Evey subbooking type can decide what to store in the answer json.
+     *
+     * @param integer $itemid
+     * @return string
+     */
+    public function return_answer_json(int $itemid):string {
+
+        return '';
+    }
+
+    /**
+     * Returns all the answers as array for a given subbooking.
+     * It is possible to specify an itemid. In most subbooking types...
+     * ... this would just be the same as $this->id.
+     * @param integer $itemid
+     * @return array
+     */
+    public function return_answers($itemid = 0):array {
+        global $DB;
+
+        $params['sboptionid'] = $this->id;
+
+        $sql = "SELECT *
+                FROM {booking_subbooking_answers}
+                WHERE sboptionid=:sboptionid";
+
+        // When the itemid is 0, we might return a number of records.
+        if ($itemid != 0) {
+            $params['itemid'] = $itemid;
+            $sql .= " AND itemid=:itemid";
+        }
+
+        if (!$records = $DB->get_records_sql($sql, $params)) {
+            return [];
+        }
+
+        return $records;
+    }
+
+    /**
+     * Helper Function to create slots and returns them as array.
+     *
+     * @return array
+     */
+    private function return_slots():array {
+
+        // Make sure we avoid a loop.
+        if (empty($this->duration)) {
+            return ['error' => 'durationisnull'];
+        }
+
+        $slotcounter = 1;
+        // This is to save entity relation data.
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            $erhandler = new entitiesrelation_handler('mod_booking', 'subbooking');
+            $entitiy = $erhandler->get_instance_data($this->id);
+            $location = ['name' => $entitiy->name];
+        } else {
+            $location = ['name' => ''];
+        }
+
+        // We save the subbookingid here.
+        $location['sboid'] = $this->id;
+
+        // We need to get start & endtime for every date of this option.
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+
+        foreach ($settings->sessions as $session) {
+
+            $date = dates_handler::prettify_datetime($session->coursestarttime, $session->courseendtime);
+
+            $data['days'][] = [
+                "day" => $date->startdate,
+            ];
+
+            $slots = dates_handler::create_slots($session->coursestarttime,
+                $session->courseendtime,
+                $this->duration);
+
+            $price = price::get_price('subbooking', $this->id);
+
+            foreach ($slots as $slot) {
+
+                if (!isset($data['slots'])) {
+                    $tempslots[] = [
+                        "slot" => $slot->datestring,
+                    ];
+                }
+
+                $timeslot = [
+                    "free" => true,
+                    "slot" => $slot->datestring,
+                    "slotstarttime" => $slot->starttimestamp,
+                    "slotendtime" => $slot->endtimestamp,
+                    "area" => "subbooking-" . $this->id,
+                    "componentname" => "mod_booking",
+                    "itemid" => $slotcounter,
+                ];
+
+                if (!empty($price)) {
+                    $timeslot["price"] = $price['price'] ?? 0;
+                    $timeslot["currency"] = $price['currency'] ?? 'EUR';
+                }
+                $location['timeslots'][] = $timeslot;
+                $slotcounter++;
+            }
+
+            // We only do this once.
+            if (!isset($data['slots'])) {
+                $data['slots'] = $tempslots;
+            }
+            $data['locations'] = $location;
+        }
+
+        return $data;
+    }
+
+    /**
+     * This helper function returns first the array with slots, but it also...
+     * Marks the booked arrays and those which are booked by the current user.
+     *
+     * @param array $slots
+     * @param integer $userid
+     * @return array
+     */
+    public function add_booking_information_to_slots(array $slots, int $userid = 0) {
+
+        global $USER;
+
+        if ($userid == 0) {
+            $userid = $USER->id;
+        }
+
+        $returnarray = [];
+
+        // Get array of all bookings for this subbooking option.
+        $answers = $this->return_answers();
+
+        foreach ($slots as $slot) {
+
+            foreach ($answers as $answer) {
+                // Does the answer concern the right slot?
+                if ($answer->itemid != $slot['itemid']) {
+                    continue;
+                }
+                // If the answer relevant for our status.
+                switch ($answer->status) {
+                    case STATUSPARAM_BOOKED:
+                    case STATUSPARAM_RESERVED:
+                        $slot['free'] = false;
+                        if ($answer->userid == $userid) {
+                            $slot['tag'] = get_string('booked', 'mod_booking');
+                            unset($slot['price']);
+                            unset($slot['currency']);
+                        }
+                    break;
+                }
+            }
+            $returnarray[] = $slot;
+        }
 
         return $returnarray;
     }

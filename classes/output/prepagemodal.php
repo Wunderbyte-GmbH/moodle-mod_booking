@@ -25,6 +25,7 @@
 
 namespace mod_booking\output;
 
+use mod_booking\singleton_service;
 use renderer_base;
 use renderable;
 use templatable;
@@ -62,17 +63,29 @@ class prepagemodal implements renderable, templatable {
      * @param string $buttoncondition
      */
     public function __construct(
-            int $optionid,
+            $settings,
             int $totalnumberofpages,
             string $buttoncondition,
             bool $showinmodalbutton = true) {
 
-        $this->optionid = $optionid;
+        global $PAGE;
+
+        $this->optionid = $settings->id;
         $this->totalnumberofpages = $totalnumberofpages;
         $this->buttoncondition = $buttoncondition;
-        $this->buttonhtml = $buttoncondition::render_button($optionid, null, true);
+        $condition = new $buttoncondition();
+        list($template, $data) = $condition->render_button($settings, 0, true);
+        $data['nojs'] = true;
+        $data = new bookit_button($data);
+        $output = $PAGE->get_renderer('mod_booking');
+
+        $this->buttonhtml = $output->render_bookit_button($data, $template);
         if ($showinmodalbutton) {
-            $this->inmodalbuttonhtml = $buttoncondition::render_button($optionid, null, false);
+            $condition = new $buttoncondition();
+            list($template, $data) = $condition->render_button($settings, 0, true);
+            $data = new bookit_button($data);
+
+            $this->inmodalbuttonhtml = $output->render_bookit_button($data, $template);
         }
     }
 

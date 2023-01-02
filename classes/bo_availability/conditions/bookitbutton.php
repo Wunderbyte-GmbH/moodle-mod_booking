@@ -28,6 +28,7 @@
 
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\booking_option_settings;
+use mod_booking\output\bookit_button;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
@@ -108,13 +109,7 @@ class bookitbutton implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        if ($isavailable) {
-            $description = $full ? get_string('bo_cond_priceisset_full_available', 'mod_booking') :
-                get_string('bo_cond_priceisset_available', 'mod_booking');
-        } else {
-            $description = $full ? get_string('bo_cond_priceisset_full_not_available', 'mod_booking') :
-                get_string('bo_cond_priceisset_not_available', 'mod_booking');
-        }
+        $description = $this->get_description_string($isavailable, $full);
 
         // $buttonhtml = "<a class='btn btn-primary mt-0 mb-0 pl-1 pr-1 pt-0 pb-0'>" . get_string('booking:choose', 'mod_booking'). "</a>";
 
@@ -147,12 +142,52 @@ class bookitbutton implements bo_condition {
     /**
      * Some conditions (like price & bookit) provide a button.
      * Renders the button, attaches js to the Page footer and returns the html.
+     * Return should look somehow like this.
+     * ['mod_booking/bookit_button', $data];
      *
-     * @param integer $optionid
-     * @param object|null $user
-     * @return string
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param boolean $full
+     * @param boolean $not
+     * @return array
      */
-    public static function render_button(int $optionid, object $user = null) {
-        return '<div class="btn btn-primary">book it</div>';
+    public function render_button(booking_option_settings $settings, $userid = 0, $full = false, $not = false):array {
+
+        global $USER;
+
+        if ($userid === null) {
+            $userid = $USER->id;
+        }
+        $label = $this->get_description_string(false, false);
+
+        return [
+            'mod_booking/bookit_button',
+            [
+                'itemid' => $settings->id,
+                'area' => 'option',
+                'userid' => $userid ?? 0,
+                'main' => [
+                    'label' => $label,
+                    'class' => 'btn btn-primary',
+                    'role' => 'button',
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Helper function to return localized description strings.
+     *
+     * @param bool $isavailable
+     * @param bool $full
+     * @return void
+     */
+    private function get_description_string($isavailable, $full) {
+
+        // In this case, we dont differentiate between availability, because when it blocks...
+        // ... it just means that it can be booked. Blocking has a different functionality here.
+        $description = get_string('booknow', 'mod_booking');
+
+        return $description;
     }
 }

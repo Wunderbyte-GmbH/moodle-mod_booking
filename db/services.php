@@ -92,6 +92,14 @@ $functions = array(
         'type' => 'read',
         'ajax' => true
     ),
+    'mod_booking_bookit' => array(
+        'classname' => 'mod_booking\external\bookit',
+        'classpath' => '',
+        'description' => 'Book option or suboption via ajax',
+        'type' => 'write',
+        'capabilities' => '',
+        'ajax' => 1
+),
 );
 
 $services = array(

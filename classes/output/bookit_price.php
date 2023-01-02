@@ -26,6 +26,7 @@
 namespace mod_booking\output;
 
 use context;
+use context_module;
 use local_shopping_cart\local\entities\cartitem;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
@@ -33,7 +34,6 @@ use mod_booking\price;
 use mod_booking\singleton_service;
 use renderer_base;
 use renderable;
-use stdClass;
 use templatable;
 
 /**
@@ -44,7 +44,7 @@ use templatable;
  * @author      Georg Maißer
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bookit implements renderable, templatable {
+class bookit_price implements renderable, templatable {
 
     /** @var array $cartitem array of cartitem */
     public array $cartitem = [];
@@ -63,16 +63,25 @@ class bookit implements renderable, templatable {
      */
     /**
      * Undocumented function
-     * @param booking_option_settings $settings
-     * @param object $buyforuser
-     * @param context|null $context
-     * @param bool $nojs
+     * @param array $data
      */
-    public function __construct(booking_option_settings $settings, $buyforuser = null, $context = null, $nojs = false) {
+    public function __construct(array $data) {
 
         global $USER;
 
-        $this->nojs = $nojs;
+        $this->nojs = (!isset($data['nojs']) || !$data['nojs']) ? true : false;
+
+        if ($data['area'] == 'option') {
+            $settings = singleton_service::get_instance_of_booking_option_settings($data['itemid']);
+
+            $context = context_module::instance($settings->cmid);
+        }
+
+        // Make sure we have a valid user.
+        $userid = $data['userid'] ?? $USER->id;
+        if (!$buyforuser = singleton_service::get_instance_of_user($userid)) {
+            $buyforuser = $USER;
+        }
 
         // First, we see if we deal with a guest. Guests get all prices.
         if ($context && !isloggedin()) {
@@ -81,10 +90,6 @@ class bookit implements renderable, templatable {
             $this->priceitems = price::get_prices_from_cache_or_db('option', $settings->id);
             // When we render for guest, we don't need the rest.
             return;
-        }
-
-        if (empty($buyforuser)) {
-            $buyforuser = $USER;
         }
 
         // Because of the caching logic, we have to create the booking_answers object here again.

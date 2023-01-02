@@ -16,8 +16,15 @@
 
 namespace mod_booking;
 
+use context_module;
+use context_system;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\output\bookingoption_description;
+use mod_booking\output\bookit;
+use mod_booking\output\bookit_button;
 use mod_booking\output\prepagemodal;
+use mod_booking\subbookings\subbookings_info;
+use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -41,12 +48,13 @@ class booking_bookit {
 
     /**
      * Renders the book it button for a given user and returns the rendered html as string.
+     * This also includes a top and a bottom section which can be rendered seperately.
      *
      * @param int $userid
      * @param booking_option_settings $settings
      * @return string
      */
-    public static function render_bookit_button(int $userid = 0, booking_option_settings $settings) {
+    public static function render_bookit_button(booking_option_settings $settings, int $userid = 0) {
 
         global $PAGE;
 
@@ -56,6 +64,7 @@ class booking_bookit {
 
         $sites = [];
         $showinmodalbutton = true;
+        $justmyalert = false;
         foreach ($results as $result) {
             if ($result['insertpage']) {
                 $sites[] = [
@@ -63,15 +72,32 @@ class booking_bookit {
                     'classname' => $result['classname']
                 ];
             }
-            // The button can come from another blocking condition.
-            if ($result['button'] == BO_BUTTON_MYBUTTON) {
-                $buttoncondition = $result['classname'];
-            }
 
-            // The no button marker can override all the other conditions.
-            // It is only relevant for the modal, not the rest.
-            if ($result['button'] == BO_BUTTON_NOBUTTON) {
-                $showinmodalbutton = false;
+            switch ($result['button'] ) {
+                case BO_BUTTON_MYBUTTON:
+                    $buttoncondition = $result['classname'];
+                    break;
+                case BO_BUTTON_MYALERT;
+                    // Here we could use a more sophisticated way of rights management.
+                    // Right now, the logic is just linked to one right.
+                    $context = context_module::instance(($settings->cmid));
+                    if (has_capability('mod/booking:bookforothers', $context)) {
+                        // We still render the alert, but just in supplement to the other butotn.
+                        $extrabuttoncondition = $result['classname'];
+                    } else {
+                        $buttoncondition = $result['classname'];
+                    }
+                    break;
+                case BO_BUTTON_NOBUTTON:
+                    // The no button marker can override all the other conditions.
+                    // It is only relevant for the modal, not the rest.
+                    $showinmodalbutton = false;
+                    break;
+                case BO_BUTTON_JUSTMYALERT:
+                    // The JUST MY ALERT prevents other buttons to be displayed.
+                    $justmyalert = true;
+                    $buttoncondition = $result['classname'];
+                    break;
             }
         }
 
@@ -81,7 +107,7 @@ class booking_bookit {
             // We render the button only from the highest relevant blocking condition.
             $output = $PAGE->get_renderer('mod_booking');
             $data = new prepagemodal(
-                $settings->id, // We pass on the optionid.
+                $settings, // We pass on the optionid.
                 count($sites), // The total number of pre booking pages.
                 $buttoncondition,  // This is the button we need to render twice.;
                 $showinmodalbutton, // This marker just suppresses the in modal button.
@@ -92,10 +118,195 @@ class booking_bookit {
         } else {
 
             // We can only call the renderer here.
-            // Else, we would risk to render more than one
-            $buttonhtml = $buttoncondition::render_button($settings->id, null, false);
-            return $buttonhtml;
+            // Else, we would risk to render more than one.
+            $html = '';
+            $output = $PAGE->get_renderer('mod_booking');
+
+            // The extra button condition is used to show Alert & Button, if this is allowed for a user.
+            if (!$justmyalert && !empty($extrabuttoncondition)) {
+                $condition = new $extrabuttoncondition();
+                list($template, $data) = $condition->render_button($settings, 0, false);
+                if (empty($template) || empty($data)) {
+                    return 'no button shown yet';
+                }
+                $data = new bookit_button($data);
+                $html = $output->render_bookit_button($data, $template);
+            }
+            $condition = new $buttoncondition();
+            list($template, $data) = $condition->render_button($settings, 0, false);
+            if (empty($template) || empty($data)) {
+                return 'no button shown yet';
+            }
+
+            $data = new bookit_button($data);
+            $html .= $output->render_bookit_button($data, $template);
+            return $html;
         }
     }
 
+    /**
+     * Handles booking via the webservice. Checks access and right area to execute functions.
+     *
+     * @param string $area
+     * @param integer $itemid
+     * @param integer $userid
+     * @return array
+     */
+    public static function bookit(string $area, int $itemid, int $userid = 0) {
+
+        global $USER;
+
+        // Make sure the user has the right to book in principle.
+        $context = context_system::instance();
+        if (!empty($userid)
+            && $userid != $USER->id
+            && !has_capability('mod/booking:bookforothers', $context)) {
+            throw new moodle_exception('norighttoaccess', 'mod_booking');
+        }
+
+        if ($area === 'option') {
+
+            $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+            $boinfo = new bo_info($settings);
+            if (!$boinfo->is_available($itemid, $userid)) {
+                return [
+                    'status' => 0,
+                    'message' => 'notallowedtobook',
+                ];
+            }
+            return self::answer_booking_option($area, $itemid, STATUSPARAM_BOOKED, $userid);
+        } else if (str_starts_with($area, 'subbooking')) {
+            // As a subbooking can have different slots, we use the area to provide the subbooking id.
+            // The syntax is "subbooking-1" for the subbooking id 1.
+            return self::answer_subbooking_option($area, $itemid, STATUSPARAM_BOOKED, $userid);
+        } else {
+            return [
+                'status' => 0,
+                'message' => 'novalidarea',
+            ];
+        }
+    }
+
+    /**
+     * Helper function to create cartitem for optionid.
+     *
+     * @param string $area
+     * @param integer $itemid
+     * @param integer $status
+     * @param integer $userid
+     * @return array
+     */
+    public static function answer_booking_option(string $area, int $itemid, int $status, int $userid = 0):array {
+
+        global $PAGE, $USER;
+
+        $bookingoption = booking_option::create_option_from_optionid($itemid);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+
+        // Make sure that we only buy from instance the user has access to.
+        // This is just fraud prevention and can not happen ordinarily.
+        // $cm = get_coursemodule_from_instance('booking', $bookingoption->bookingid);
+
+        // TODO: Find out if the executing user has the right to access this instance.
+        // This can lead to problems, rights should be checked further up.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $context = context_module::instance($cm->id);
+        if (!has_capability('mod/booking:choose', $context)) {
+            return null;
+        } */
+
+        $user = price::return_user_to_buy_for($userid);
+
+        if (!$user) {
+            $user = $USER;
+        }
+
+        if (empty($userid)) {
+            $userid = $user->id;
+        }
+
+        $price = price::get_price('option', $itemid, $user);
+
+        // Now we reserve the place for the user.
+        switch ($status) {
+            case STATUSPARAM_BOOKED:
+                if (!$bookingoption->user_submit_response($user, 0, 0, false, true)) {
+                    return [];
+                }
+                break;
+            case STATUSPARAM_RESERVED:
+                if (!$bookingoption->user_submit_response($user, 0, 0, true, true)) {
+                    return [];
+                }
+                break;
+            case STATUSPARAM_NOTBOOKED:
+                if (!$bookingoption->user_delete_response($user->id, true)) {
+                    return [];
+                }
+                break;
+            case STATUSPARAM_DELETED:
+                if (!$bookingoption->user_delete_response($user->id)) {
+                    return [];
+                }
+                break;
+        }
+
+        // We need to register this action as a booking answer, where we only reserve, not actually book.
+
+        $user = singleton_service::get_instance_of_user($userid);
+        $booking = singleton_service::get_instance_of_booking_by_optionid($itemid);
+
+        if (!isset($PAGE->context)) {
+            $PAGE->set_context(context_module::instance($booking->cmid));
+        }
+
+        $output = $PAGE->get_renderer('mod_booking');
+        $data = new bookingoption_description($itemid, null, DESCRIPTION_WEBSITE, false, null, $user);
+
+        $description = $output->render_bookingoption_description_cartitem($data);
+
+        $optiontitle = $bookingoption->option->text;
+        if (!empty($bookingoption->option->titleprefix)) {
+            $optiontitle = $bookingoption->option->titleprefix . ' - ' . $optiontitle;
+        }
+
+        $canceluntil = booking_option::return_cancel_until_date($itemid);
+
+        $item = [
+            'itemid' => $itemid,
+            'title' => $optiontitle,
+            'price' => $price['price'] ?? 0,
+            'currency' => $price['currency'] ?? '',
+            'description' => $description,
+            'imageurl' => $settings->imageurl ?? '',
+            'canceluntil' => $canceluntil,
+            'coursestarttime' => $settings->coursestarttime ?? null,
+            'courseendtime' => $settings->courseendtime ?? null,
+        ];
+
+        return $item;
+    }
+
+    /**
+     * Helper function to create cartitem for subbooking.
+     *
+     * @param string $area
+     * @param integer $itemid
+     * @param integer $status
+     * @param integer $userid
+     * @return array
+     */
+    public static function answer_subbooking_option(string $area, int $itemid, int $status, int $userid = 0):array {
+
+        $subbooking = subbookings_info::get_subbooking_by_area_and_id($area, $itemid);
+
+        // We reserve this subbooking option for a few minutes, during checkout.
+        subbookings_info::save_response($area, $itemid, $status, $userid);
+
+        $cartinformation = $subbooking->return_subbooking_information($itemid);
+        $cartinformation['itemid'] = $itemid;
+
+        return $cartinformation;
+    }
 }

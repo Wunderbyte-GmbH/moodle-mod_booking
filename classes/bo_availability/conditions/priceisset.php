@@ -27,11 +27,10 @@
  namespace mod_booking\bo_availability\conditions;
 
 use context_module;
-use local_shopping_cart\local\entities\cartitem;
 use mod_booking\bo_availability\bo_condition;
-use mod_booking\booking_answers;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
-use mod_booking\output\bookit;
+use mod_booking\output\bookit_price;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
@@ -130,13 +129,7 @@ class priceisset implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        if ($isavailable) {
-            $description = $full ? get_string('bo_cond_priceisset_full_available', 'mod_booking') :
-                get_string('bo_cond_priceisset_available', 'mod_booking');
-        } else {
-            $description = $full ? get_string('bo_cond_priceisset_full_not_available', 'mod_booking') :
-                get_string('bo_cond_priceisset_not_available', 'mod_booking');
-        }
+        $description = $this->get_description_string($isavailable, $full);
 
         return [$isavailable, $description, false, BO_BUTTON_MYBUTTON];
     }
@@ -167,22 +160,45 @@ class priceisset implements bo_condition {
     /**
      * Some conditions (like price & bookit) provide a button.
      * Renders the button, attaches js to the Page footer and returns the html.
+     * Return should look somehow like this.
+     * ['mod_booking/bookit_button', $data];
      *
-     * @param integer $optionid
-     * @param object $user
-     * @return string
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param boolean $full
+     * @param boolean $not
+     * @return array
      */
-    public static function render_button(int $optionid, object $user = null, $nojs = false) {
-        global $PAGE;
+    public function render_button(booking_option_settings $settings, $userid = 0, $full = false, $not = false):array {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        global $USER;
 
-        $context = context_module::instance($settings->cmid);
-        $PAGE->set_context($context);
+        $userid = !empty($userid) ? $userid : $USER->id;
 
-        $output = $PAGE->get_renderer('mod_booking');
-        $data = new bookit($settings, $user, $context, $nojs);
+        $settings = singleton_service::get_instance_of_booking_option_settings($settings->id);
 
-        return $output->render_bookit($data);
+        $user = singleton_service::get_instance_of_user($userid);
+
+        $data = $settings->return_booking_option_information($user);
+
+        return ['mod_booking/bookit_price', $data];
+    }
+
+    /**
+     * Helper function to return localized description strings.
+     *
+     * @param bool $isavailable
+     * @param bool $full
+     * @return void
+     */
+    private function get_description_string($isavailable, $full) {
+        if ($isavailable) {
+            $description = $full ? get_string('bo_cond_priceisset_full_available', 'mod_booking') :
+                get_string('bo_cond_priceisset_available', 'mod_booking');
+        } else {
+            $description = $full ? get_string('bo_cond_priceisset_full_not_available', 'mod_booking') :
+                get_string('bo_cond_priceisset_not_available', 'mod_booking');
+        }
+        return $description;
     }
 }

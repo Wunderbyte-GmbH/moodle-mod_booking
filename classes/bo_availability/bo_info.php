@@ -38,9 +38,10 @@ use stdClass;
 
 // The blocking condition can return a value to define which button to use.
 define('BO_BUTTON_INDIFFERENT', 0);
-define('BO_BUTTON_MYBUTTON', 1);
-define('BO_BUTTON_NOBUTTON', 2);
-
+define('BO_BUTTON_MYBUTTON', 1); // Used for price or book it.
+define('BO_BUTTON_NOBUTTON', 2); // Forces no button (Eg special subbookings).
+define('BO_BUTTON_MYALERT', 3); // Alert is a weaker form of MYBUTTON. With special rights, Button is still shown.
+define('BO_BUTTON_JUSTMYALERT', 4); // A strong Alert which also prevents buttons to be displayed.
 /**
  * class for conditional availability information of a booking option
  *
@@ -116,12 +117,11 @@ class bo_info {
                 if ($id === 0 || $result['id'] > $id) {
                     $description = $result['description'];
                     $id = $result['id'];
-                    $buttonhtml = $result['buttonhtml'];
                 }
             }
         }
 
-        return [$id, $isavailable, $description, $buttonhtml];
+        return [$id, $isavailable, $description];
 
     }
 
@@ -249,6 +249,8 @@ class bo_info {
             }
             return false;
         });
+
+        ksort(($results));
 
         return $results;
 
