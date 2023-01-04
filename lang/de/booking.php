@@ -1441,6 +1441,8 @@ $string['pricecategoryfieldoff'] = 'Nicht anzeigen';
 $string['pricecategoryfield'] = 'Nutzerprofilfeld für die Preiskategorie';
 $string['pricecategoryfielddesc'] = 'Wählen Sie ein Nutzerprofilfeld aus, in dem für jede/n Nutzer/in der Identifikator der Preiskategorie gesichert wird.';
 
+$string['useprice'] = 'Nur mit Preis buchbar';
+
 $string['teachingreportfortrainer'] = 'Leistungs-Report für Trainer:in';
 $string['educationalunitinminutes'] = 'Länge einer Unterrichtseinheit (Minuten)';
 $string['educationalunitinminutes_desc'] = 'Hier können Sie die Länge einer Unterrichtseinheit in Minuten angeben. Diese wird zur Berechnung der geleisteten UEs herangezogen.';

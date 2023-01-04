@@ -1569,6 +1569,8 @@ $string['pricecategoryfieldoff'] = 'Do not show';
 $string['pricecategoryfield'] = 'User profile field for price category';
 $string['pricecategoryfielddesc'] = 'Choose the user profile field, which stores the price category identifier for each user.';
 
+$string['useprice'] = 'Only book with price';
+
 $string['teachingreportfortrainer'] = 'Report of performed teaching units for trainer';
 $string['educationalunitinminutes'] = 'Length of an educational unit (minutes)';
 $string['educationalunitinminutes_desc'] = 'Enter the length of an educational unit in minutes. It will be used to calculate the performed teaching units.';
