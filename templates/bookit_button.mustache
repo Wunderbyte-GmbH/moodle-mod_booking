@@ -48,7 +48,10 @@
 <div class="booking-button-area"
     data-itemid="{{itemid}}"
     data-area="{{area}}"
-    data-userid="{{userid}}">
+    data-userid="{{userid}}"
+    {{#nojs}}
+            data-nojs="1"
+        {{/nojs}}>
     {{#top}}
         <div class="booking-button-toparea {{class}}" role="{{role}}">
             {{label}}
@@ -69,7 +72,7 @@
 {{^nojs}}
     {{#js}}
         require(['mod_booking/bookit'], function(init) {
-        init.initbookitbutton({{itemid}}, 0);
+        init.initbookitbutton({{itemid}}, '{{area}}');
         });
     {{/js}}
 {{/nojs}}

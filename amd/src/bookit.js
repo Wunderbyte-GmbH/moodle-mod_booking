@@ -34,32 +34,44 @@ var SELECTORS = {
     BOOKITBUTTON: 'div.booking-button-area',
 };
 
-export const initbookitbutton = (optionid) => {
+export const initbookitbutton = (itemid, area) => {
 
-    const button = document.querySelector(SELECTORS.BOOKITBUTTON + '[data-itemid=\'' + optionid + '\']');
+    const buttons = document.querySelectorAll(SELECTORS.BOOKITBUTTON +
+        '[data-itemid="' + itemid + '"]' +
+        '[data-area="' + area + '"]');
 
+    const selector = SELECTORS.BOOKITBUTTON +
+    '[data-itemid="' + itemid + '"]' +
+    '[data-area="' + area + '"]';
     // eslint-disable-next-line no-console
-    console.log(button, SELECTORS.BOOKITBUTTON + '[data-itemid=\'' + optionid + '\']');
+    console.log(selector, buttons);
 
-    if (button) {
+    if (!buttons) {
+        return;
+    }
 
-        if (button.dataset.initialized) {
+    // We support more than one booking button on the same page.
+    buttons.forEach(button => {
+
+        if (button.dataset.nojs) {
             return;
         }
 
-        button.dataset.initialized = 'true';
+        // eslint-disable-next-line no-console
+        console.log('add click listener ', button);
+        if (!button.dataset.initialized) {
+            button.dataset.initialized = 'true';
 
-        const area = button.dataset.area;
-        const userid = button.dataset.userid;
+            const userid = button.dataset.userid;
 
-        button.addEventListener('click', bookitbutton => {
-            // eslint-disable-next-line no-console
-            console.log('clicked ', bookitbutton.target);
+            button.addEventListener('click', bookitbutton => {
+                // eslint-disable-next-line no-console
+                console.log('clicked ', bookitbutton.target);
 
-            bookit(optionid, area, userid);
-        });
-    }
-
+                bookit(itemid, area, userid);
+            });
+        }
+    });
 };
 
 /**
@@ -68,6 +80,9 @@ export const initbookitbutton = (optionid) => {
  * @param {integer} totalnumberofpages
  */
 export const initprepagemodal = (optionid, totalnumberofpages) => {
+
+    // eslint-disable-next-line no-console
+    console.log('initprepagemodal', optionid);
 
     currentbookitpage[optionid] = 0;
     totalbookitpages[optionid] = totalnumberofpages;
@@ -104,7 +119,7 @@ function respondToVisibility(optionid, totalnumberofpages, callback) {
 
     var observer = new MutationObserver(function() {
         if (!isHidden(element)) {
-            // this.disconnect();
+            // Todo: Make sure it's not triggered on close.
             callback(optionid);
         }
     });
@@ -239,7 +254,7 @@ function showRightButton(optionid) {
 }
 
 /**
- * Add the click listener to a button.
+ * Add the click listener to a prepage modal button.
  * @param {integer} optionid
  * @param {bool} back // If it is the back button, it's true, else its continue.
  */
@@ -257,8 +272,8 @@ function initializeButton(optionid, back) {
     // eslint-disable-next-line no-console
     // console.log(element, selector);
 
-    if (element && !element.dataset.initialized) {
-        element.dataset.initialized = true;
+    if (element && !element.dataset.prepageinit) {
+        element.dataset.prepageinit = true;
 
         element.addEventListener('click', () => {
 
@@ -294,16 +309,49 @@ function bookit(itemid, area, userid) {
         },
         done: function(res) {
 
-            const jsonobject = JSON.parse(res.json);
-
             // eslint-disable-next-line no-console
-            console.log(jsonobject);
+            console.log(res);
 
-            return true;
-        },
-        fail: function(err) {
-            // eslint-disable-next-line no-console
-            console.log(err);
+            const jsonarray = JSON.parse(res.json);
+
+            // We might have more than one template to render.
+            const templates = res.template.split(',');
+
+            // There might be more than one button area.
+            const buttons = document.querySelectorAll(SELECTORS.BOOKITBUTTON +
+                '[data-itemid=\'' + itemid + '\']' +
+                '[data-area=\'' + area + '\']');
+
+            // We run through every button. and render the data.
+            buttons.forEach(button => {
+                while (button.firstChild) {
+                    const child = button.firstChild;
+                    child.remove();
+                }
+
+                templates.forEach(template => {
+                    const data = jsonarray.shift();
+
+                    const datatorender = data.data ?? data;
+
+                    // eslint-disable-next-line no-console
+                    console.log(datatorender);
+
+                    Templates.renderForPromise(template, datatorender).then(({html, js}) => {
+
+                        Templates.appendNodeContents(button, html, js);
+
+                        return true;
+                        }).catch(ex => {
+                            Notification.addNotification({
+                                message: 'failed rendering ' + ex,
+                                type: "danger"
+                            });
+                        });
+
+                    return true;
+                });
+            });
         }
     }]);
 }

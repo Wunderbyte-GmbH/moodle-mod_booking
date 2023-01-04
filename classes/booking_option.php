@@ -126,6 +126,12 @@ class booking_option {
     /** @var int booked users */
     public $booked = 0;
 
+    /** @var int secondspassed */
+    public $secondspassed = 0;
+
+    /** @var int secondstostart */
+    public $secondstostart = 0;
+
     /** @var booking_option_settings $settings */
     public $settings = null;
 
