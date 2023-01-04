@@ -34,6 +34,7 @@ use external_single_structure;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\singleton_service;
+use mod_booking\subbookings\subbookings_info;
 use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
@@ -91,12 +92,23 @@ class bookit extends external_api {
 
         if ($area == 'option') {
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+        } else if (str_starts_with($area, 'subbooking')) {
+            $subbooking = subbookings_info::get_subbooking_by_area_and_id($area, $itemid);
+            $settings = singleton_service::get_instance_of_booking_option_settings($subbooking->optionid);
+        } else {
+            return [
+                'status' => 0,
+                'message' => 'bookingnotsuccessfull',
+            ];
         }
+
+        list ($templates, $data) = booking_bookit::render_bookit_template_data($settings, $userid);
 
         return [
             'status' => 1,
             'message' => 'bookingsuccessful',
-            'buttonhtml' => booking_bookit::render_bookit_button($settings, $userid) ?? '',
+            'template' => implode(',', $templates),
+            'json' => json_encode($data),
         ];;
     }
 
@@ -109,7 +121,8 @@ class bookit extends external_api {
         return new external_single_structure(array(
             'status' => new external_value(PARAM_INT, '1 for success', VALUE_DEFAULT, 0),
             'message' => new external_value(PARAM_RAW, 'Message if any', VALUE_DEFAULT, ''),
-            'buttonhtml' => new external_value(PARAM_RAW, 'Buttonhtml', VALUE_DEFAULT, ''),
+            'template' => new external_value(PARAM_TEXT, 'Button template', VALUE_DEFAULT, ''),
+            'json' => new external_value(PARAM_RAW, 'Data as json', VALUE_DEFAULT, ''),
             )
         );
     }

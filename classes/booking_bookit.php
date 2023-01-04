@@ -25,6 +25,7 @@ use mod_booking\output\bookit_button;
 use mod_booking\output\prepagemodal;
 use mod_booking\subbookings\subbookings_info;
 use moodle_exception;
+use template;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -50,13 +51,40 @@ class booking_bookit {
      * Renders the book it button for a given user and returns the rendered html as string.
      * This also includes a top and a bottom section which can be rendered seperately.
      *
-     * @param int $userid
      * @param booking_option_settings $settings
+     * @param integer $userid
      * @return string
      */
     public static function render_bookit_button(booking_option_settings $settings, int $userid = 0) {
 
         global $PAGE;
+
+        $output = $PAGE->get_renderer('mod_booking');
+        list($templates, $datas) = self::render_bookit_template_data($settings, $userid);
+
+        $html = '';
+
+        foreach ($templates as $template) {
+            $data = array_shift($datas);
+
+            if ($template == 'mod_booking/prepagemodal') {
+                $html .= $output->render_prepagemodal($data);
+            } else {
+                $html .= $output->render_bookit_button($data, $template);
+            }
+        }
+
+        return $html;
+    }
+
+    /**
+     * This is used to get template name & data as an array to render bookit-button (component).
+     *
+     * @param booking_option_settings $settings
+     * @param integer $userid
+     * @return array
+     */
+    public static function render_bookit_template_data(booking_option_settings $settings, int $userid = 0) {
 
         // Get blocking conditions, including sites etc.
         $results = bo_info::get_condition_results($settings->id, $userid);
@@ -105,42 +133,36 @@ class booking_bookit {
         if (count($sites) > 0) {
 
             // We render the button only from the highest relevant blocking condition.
-            $output = $PAGE->get_renderer('mod_booking');
-            $data = new prepagemodal(
+
+            $datas[] = new prepagemodal(
                 $settings, // We pass on the optionid.
                 count($sites), // The total number of pre booking pages.
                 $buttoncondition,  // This is the button we need to render twice.;
                 $showinmodalbutton, // This marker just suppresses the in modal button.
             );
 
-            $modalhtml = $output->render_prepagemodal($data);
-            return $modalhtml;
-        } else {
+            $templates[] = 'mod_booking/prepagemodal';
 
-            // We can only call the renderer here.
-            // Else, we would risk to render more than one.
-            $html = '';
-            $output = $PAGE->get_renderer('mod_booking');
+            return [$templates, $datas];
+        } else {
 
             // The extra button condition is used to show Alert & Button, if this is allowed for a user.
             if (!$justmyalert && !empty($extrabuttoncondition)) {
                 $condition = new $extrabuttoncondition();
                 list($template, $data) = $condition->render_button($settings, 0, false);
-                if (empty($template) || empty($data)) {
-                    return 'no button shown yet';
-                }
-                $data = new bookit_button($data);
-                $html = $output->render_bookit_button($data, $template);
+
+                // This supports multiple templates as well.
+                $datas[] = new bookit_button($data);
+
+                $templates[] = $template;
             }
             $condition = new $buttoncondition();
             list($template, $data) = $condition->render_button($settings, 0, false);
-            if (empty($template) || empty($data)) {
-                return 'no button shown yet';
-            }
 
-            $data = new bookit_button($data);
-            $html .= $output->render_bookit_button($data, $template);
-            return $html;
+            $datas[] = new bookit_button($data);
+            $templates[] = $template;
+
+            return [$templates, $datas];
         }
     }
 
@@ -263,7 +285,6 @@ class booking_bookit {
 
         $output = $PAGE->get_renderer('mod_booking');
         $data = new bookingoption_description($itemid, null, DESCRIPTION_WEBSITE, false, null, $user);
-
         $description = $output->render_bookingoption_description_cartitem($data);
 
         $optiontitle = $bookingoption->option->text;

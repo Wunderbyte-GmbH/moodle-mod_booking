@@ -72,7 +72,10 @@ class subbooking_timeslot_output implements renderable, templatable {
 
                 // Get the name from the entities handler.
                 $object = json_decode($subbooking->json);
-                $data = json_decode($object->data->slots, true);
+                if (!$data = json_decode($object->data->slots, true)) {
+                    $this->data = [];
+                    return;
+                }
 
                 // We need to add the booking information to the timeslots.
                 if ($includebookinginformation) {

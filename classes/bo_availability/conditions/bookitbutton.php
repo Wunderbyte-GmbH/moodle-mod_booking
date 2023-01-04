@@ -111,8 +111,6 @@ class bookitbutton implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        // $buttonhtml = "<a class='btn btn-primary mt-0 mb-0 pl-1 pr-1 pt-0 pb-0'>" . get_string('booking:choose', 'mod_booking'). "</a>";
-
         return [$isavailable, $description, false, BO_BUTTON_MYBUTTON];
     }
 
