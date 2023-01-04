@@ -156,7 +156,7 @@ class bookitbutton implements bo_condition {
         if ($userid === null) {
             $userid = $USER->id;
         }
-        $label = $this->get_description_string(false, false);
+        $label = $this->get_description_string(false, $full);
 
         return [
             'mod_booking/bookit_button',

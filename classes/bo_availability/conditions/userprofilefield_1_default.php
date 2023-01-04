@@ -426,7 +426,20 @@ class userprofilefield_1_default implements bo_condition {
         if ($userid === null) {
             $userid = $USER->id;
         }
-        $label = $this->get_description_string(false, false);
+
+        if (!$this->customsettings) {
+            // This description can only works with the right custom settings.
+            $availabilityarray = json_decode($settings->availability);
+
+            foreach ($availabilityarray as $availability) {
+                if (str_contains($availability->class, 'userprofilefield_1_default')) {
+
+                    $this->customsettings = (object)$availability;
+                }
+            }
+        }
+
+        $label = $this->get_description_string(false, $full);
 
         return [
             'mod_booking/bookit_button',

@@ -342,17 +342,9 @@ class previouslybooked implements bo_condition {
             foreach ($availabilityarray as $availability) {
                 if (str_contains($availability->class, 'previouslybooked')) {
 
-                    $this->customsettings = (object)[
-                        'optionid' => $availability->optionid
-                    ];
+                    $this->customsettings = (object)$availability;
                 }
             }
-        }
-        $context = context_module::instance($settings->cmid);
-        if (has_capability('mod/booking:bookforothers', $context)) {
-            $full = true;
-        } else {
-            $full = false;
         }
 
         $label = $this->get_description_string(false, $full);
