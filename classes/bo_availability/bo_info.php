@@ -190,11 +190,14 @@ class bo_info {
                     continue;
                 }
                 // Then pass the availability-parameters.
-                list($isavailable, $description) = $instance->get_description($settings, $userid, $full);
+                list($isavailable, $description, $insertpage, $button) = $instance->get_description($settings, $userid, $full);
                 $resultsarray[$condition->id] = ['id' => $condition->id,
                     'isavailable' => $isavailable,
                     'description' => $description,
-                    'classname' => $classname];
+                    'classname' => $classname,
+                    'button' => $button, // This indicates if this condition provides a button.
+                    'insertpage' => $insertpage, // Bool, only in combination with is available false.
+                ];
             }
 
             // Now we might need to override the result of a previous condition which has been resolved as false before.

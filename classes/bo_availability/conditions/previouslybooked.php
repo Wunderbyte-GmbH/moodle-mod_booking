@@ -26,6 +26,7 @@
 
  namespace mod_booking\bo_availability\conditions;
 
+use context_module;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
@@ -58,7 +59,7 @@ class previouslybooked implements bo_condition {
      * @param integer $id
      * @return void
      */
-    public function __construct(int $id = null) {
+    public function __construct(int $id = null, booking_option_settings $settings = null) {
 
         if ($id) {
             $this->id = $id;
@@ -94,7 +95,7 @@ class previouslybooked implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        if (!isset($this->customsettings->optionid)) {
+        if (empty($this->customsettings->optionid)) {
             $isavailable = true;
         } else {
             $optionid = $this->customsettings->optionid;
@@ -140,7 +141,7 @@ class previouslybooked implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, false, BO_BUTTON_INDIFFERENT];
+        return [$isavailable, $description, false, BO_BUTTON_MYALERT];
     }
 
     /**
@@ -334,7 +335,27 @@ class previouslybooked implements bo_condition {
         if ($userid === null) {
             $userid = $USER->id;
         }
-        $label = $this->get_description_string(false, false);
+        if (!$this->customsettings) {
+             // This description can only works with the right custom settings.
+            $availabilityarray = json_decode($settings->availability);
+
+            foreach ($availabilityarray as $availability) {
+                if (str_contains($availability->class, 'previouslybooked')) {
+
+                    $this->customsettings = (object)[
+                        'optionid' => $availability->optionid
+                    ];
+                }
+            }
+        }
+        $context = context_module::instance($settings->cmid);
+        if (has_capability('mod/booking:bookforothers', $context)) {
+            $full = true;
+        } else {
+            $full = false;
+        }
+
+        $label = $this->get_description_string(false, $full);
 
         return [
             'mod_booking/bookit_button',
@@ -364,6 +385,9 @@ class previouslybooked implements bo_condition {
             $description = $full ? get_string('bo_cond_previouslybooked_full_available', 'mod_booking') :
                 get_string('bo_cond_previouslybooked_available', 'mod_booking');
         } else {
+            if (!isset($this->customsettings->optionid)) {
+                return 'something is wrong here';
+            }
             $settings = singleton_service::get_instance_of_booking_option_settings($this->customsettings->optionid);
             $url = new moodle_url('/mod/booking/optionview.php', [
                 'optionid' => $this->customsettings->optionid,
