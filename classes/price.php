@@ -89,7 +89,11 @@ class price {
             $mform->addElement('static', 'nopricecategoriesyet', get_string('nopricecategoriesyet', 'booking'));
         }
 
+        $mform->addElement('advcheckbox', 'useprice', get_string('useprice', 'mod_booking'),
+            null, null, [0, 1]);
+
         $defaultexists = false;
+        $useprice = false;
         foreach ($this->pricecategories as $pricecategory) {
             $formgroup = array();
 
@@ -100,7 +104,7 @@ class price {
             $formgroup[] = $currencyelement;
 
             $mform->addGroup($formgroup, 'pricegroup_' . $pricecategory->identifier, $pricecategory->name);
-
+            $mform->disabledIf('pricegroup_' . $pricecategory->identifier, 'useprice', 'neq', 1);
             // Determine the correct array identifier.
             $pricearrayidentifier = 'pricegroup_' . $pricecategory->identifier .
                 '[' . 'bookingprice_' . $pricecategory->identifier . ']';
@@ -113,10 +117,17 @@ class price {
                 // If there is at least one price in DB, we don't use the defaults anymore.
                 // This is to prevent unvoluntarily overriding empty price fields with default prices.
                 $defaultexists = true;
+                $useprice = true;
             } else if (!$defaultexists) {
                 // Else we use the price category default values.
                 $mform->setDefault($pricearrayidentifier, $pricecategory->defaultvalue);
             }
+        }
+
+        if ($useprice) {
+            $mform->setDefault('useprice', 1);
+        } else {
+            $mform->setDefault('useprice', 0);
         }
 
         // Only when there is an actual price formula, we do apply it.
@@ -497,16 +508,21 @@ class price {
                 // Add absolute value and multiply with manual factor.
                 $price *= $fromform->priceformulamultiply;
                 $price += $fromform->priceformulaadd;
-                self::add_price($this->area, $this->itemid, $pricecategory->identifier, $price, $currency);
 
             } else {
                 if (isset($fromform->{'pricegroup_' . $pricecategory->identifier})) {
                     // Price formula is not active, just save the values from form.
                     $pricegroup = $fromform->{'pricegroup_' . $pricecategory->identifier};
                     $price = $pricegroup['bookingprice_' . $pricecategory->identifier];
-                    self::add_price($this->area, $this->itemid, $pricecategory->identifier, $price, $currency);
                 }
             }
+
+            // If we don't want to use prices, we just set price to 0.
+            if (empty($fromform->useprice)) {
+                $price = '';
+            }
+
+            self::add_price($this->area, $this->itemid, $pricecategory->identifier, $price, $currency);
         }
     }
 
