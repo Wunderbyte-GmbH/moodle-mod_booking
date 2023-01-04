@@ -20,12 +20,10 @@ use context_module;
 use context_system;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\output\bookingoption_description;
-use mod_booking\output\bookit;
 use mod_booking\output\bookit_button;
 use mod_booking\output\prepagemodal;
 use mod_booking\subbookings\subbookings_info;
 use moodle_exception;
-use template;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -146,10 +144,18 @@ class booking_bookit {
             return [$templates, $datas];
         } else {
 
+            $context = context_module::instance($settings->cmid);
+            if (has_capability('mod/booking:bookforothers', $context)) {
+                $full = true;
+            } else {
+                $full = false;
+            }
+
             // The extra button condition is used to show Alert & Button, if this is allowed for a user.
             if (!$justmyalert && !empty($extrabuttoncondition)) {
                 $condition = new $extrabuttoncondition();
-                list($template, $data) = $condition->render_button($settings, 0, false);
+
+                list($template, $data) = $condition->render_button($settings, 0, $full);
 
                 // This supports multiple templates as well.
                 $datas[] = new bookit_button($data);
@@ -157,7 +163,7 @@ class booking_bookit {
                 $templates[] = $template;
             }
             $condition = new $buttoncondition();
-            list($template, $data) = $condition->render_button($settings, 0, false);
+            list($template, $data) = $condition->render_button($settings, 0, $full);
 
             $datas[] = new bookit_button($data);
             $templates[] = $template;

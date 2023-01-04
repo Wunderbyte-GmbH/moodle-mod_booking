@@ -25,7 +25,7 @@
 
 namespace mod_booking\output;
 
-use mod_booking\singleton_service;
+use context_module;
 use renderer_base;
 use renderable;
 use templatable;
@@ -70,11 +70,18 @@ class prepagemodal implements renderable, templatable {
 
         global $PAGE;
 
+        $context = context_module::instance($settings->cmid);
+        if (has_capability('mod/booking:bookforothers', $context)) {
+            $full = true;
+        } else {
+            $full = false;
+        }
+
         $this->optionid = $settings->id;
         $this->totalnumberofpages = $totalnumberofpages;
         $this->buttoncondition = $buttoncondition;
         $condition = new $buttoncondition();
-        list($template, $data) = $condition->render_button($settings, 0, true);
+        list($template, $data) = $condition->render_button($settings, 0, $full);
         $data['nojs'] = true;
         $data = new bookit_button($data);
         $output = $PAGE->get_renderer('mod_booking');
@@ -82,7 +89,7 @@ class prepagemodal implements renderable, templatable {
         $this->buttonhtml = $output->render_bookit_button($data, $template);
         if ($showinmodalbutton) {
             $condition = new $buttoncondition();
-            list($template, $data) = $condition->render_button($settings, 0, true);
+            list($template, $data) = $condition->render_button($settings, 0, $full);
             $data = new bookit_button($data);
 
             $this->inmodalbuttonhtml = $output->render_bookit_button($data, $template);
