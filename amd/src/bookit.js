@@ -32,6 +32,7 @@ var SELECTORS = {
     CONTINUEBUTTON: 'a.continue-button',
     BACKBUTTON: 'a.back-button',
     BOOKITBUTTON: 'div.booking-button-area',
+    INMODALBUTTON: 'div.in-modal-button',
 };
 
 export const initbookitbutton = (itemid, area) => {
@@ -178,15 +179,13 @@ export const loadPreBookingPage = (
         },
         done: function(res) {
 
-            // eslint-disable-next-line no-console
-            // (res.json, "template " + res.template);
-
             const jsonobject = JSON.parse(res.json);
 
             // We support more than one template, they will be seperated by comma.
             // We have a data key in the json
             const templates = res.template.split(',');
             let dataarray = jsonobject;
+            const buttontype = res.buttontype;
 
             templates.forEach(template => {
 
@@ -195,9 +194,6 @@ export const loadPreBookingPage = (
                 if (!data) {
                     return true;
                 }
-
-                // eslint-disable-next-line no-console
-                // console.log(data.data, "template " + template);
 
                 Templates.renderForPromise(template, data.data).then(({html, js}) => {
 
@@ -213,10 +209,11 @@ export const loadPreBookingPage = (
                         type: "danger"
                     });
                 });
+
                 return true;
             });
 
-            showRightButton(optionid);
+            showRightButton(optionid, buttontype);
 
             return true;
         },
@@ -230,27 +227,121 @@ export const loadPreBookingPage = (
 /**
  * Reveal the hidden continue button.
  * @param {interger} optionid
+ * @param {interger} buttontype
  */
-function showRightButton(optionid) {
+function showRightButton(optionid, buttontype) {
 
     // eslint-disable-next-line no-console
-    // console.log(optionid, currentbookitpage[optionid], totalbookitpages[optionid]);
+    console.log(SELECTORS.MODALID + optionid + ' ' + SELECTORS.INMODALBUTTON);
 
+    // If we are not yet on the last booking page.
     if (currentbookitpage[optionid] + 1 < totalbookitpages[optionid]) {
         const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.CONTINUEBUTTON);
         element.classList.remove('hidden');
+
+        const inModalButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.INMODALBUTTON);
+        inModalButton.classList.add('hidden');
+
+        if (buttontype == 1) {
+            element.classList.add('disabled');
+        }
+
     } else {
+        // We are on the last booking page.
         const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.CONTINUEBUTTON);
         element.classList.add('hidden');
+
+        if (buttontype == 1) {
+            const inModalButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.INMODALBUTTON);
+            inModalButton.classList.add('hidden');
+        } else {
+            const inModalButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.INMODALBUTTON);
+            inModalButton.classList.remove('hidden');
+        }
     }
     if (currentbookitpage[optionid] > 0) {
         const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.BACKBUTTON);
         element.classList.remove('hidden');
+
+        if (buttontype == 1) {
+            element.classList.add('disabled');
+        }
+
     } else {
         const element = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.BACKBUTTON);
         element.classList.add('hidden');
     }
 
+}
+
+/**
+ *
+ * @param {integer} optionid
+ * @param {boolean} show
+ */
+export function toggleContinueButton(optionid, show = null) {
+
+    const continueButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.CONTINUEBUTTON);
+
+    const bookingButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.BOOKITBUTTON);
+
+    // eslint-disable-next-line no-console
+    console.log(bookingButton, optionid, show);
+
+    if (continueButton) {
+        disableButton(continueButton, show);
+    }
+    if (bookingButton) {
+        disableButton(bookingButton, show);
+    }
+
+    showBookItButton(optionid, show);
+}
+
+/**
+ *
+ * @param {integer} optionid
+ * @param {boolean} show
+ */
+function showBookItButton(optionid, show) {
+
+    // Hide Bookit button.
+    const inModalButton = document.querySelector(SELECTORS.MODALID + optionid + ' ' + SELECTORS.INMODALBUTTON);
+    if (currentbookitpage[optionid] + 1 == totalbookitpages[optionid]) {
+        // Being on the last page.
+        if (show) {
+            inModalButton.classList.remove('hidden');
+        } else {
+            inModalButton.classList.add('hidden');
+        }
+    }
+}
+
+/**
+ *
+ * @param {HTMLElement} element
+ * @param {boolean} show
+ */
+function disableButton(element, show) {
+
+    // eslint-disable-next-line no-console
+    console.log(element, show);
+
+    // If show is not defined yet, we define it automatically.
+    if (show === null) {
+        if (element.classList.contains('disabled')) {
+            show = true;
+        } else {
+            show = false;
+        }
+    }
+
+    // Now we add or remove the disabled class.
+    if (show) {
+        element.classList.remove('disabled');
+    } else {
+        element.classList.add('disabled');
+    }
 }
 
 /**

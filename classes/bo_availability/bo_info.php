@@ -126,7 +126,9 @@ class bo_info {
     }
 
     public static function get_condition_results(int $optionid = null, int $userid = 0):array {
-        global $USER;
+        global $USER, $CFG;
+
+        require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         // We only get full description when we book for another user.
         // It's a clear sign of higher rights.
