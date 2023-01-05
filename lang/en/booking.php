@@ -2218,3 +2218,5 @@ $string['subbooking_duration'] = "Duration in minutes";
 $string['subbooking_additionalitem'] = "Additional item booking";
 $string['subbooking_additionalitem_desc'] = "This permits you to add optinally bookable items to this booking option, eg. you can book a better special seat etc. or breakfast to your hotel room.";
 $string['subbooking_additionalitem_description'] = "Describe the additionally bookable item:";
+
+$string['accept'] = "Accept";

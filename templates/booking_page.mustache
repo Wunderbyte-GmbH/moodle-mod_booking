@@ -22,8 +22,10 @@
 
     Example context (json):
     {
+        "optionid": "3",
         "headline": 'My headline',
         "text": 'My longer text',
+        "checkobx" = "true",
     }
 }}
 
@@ -34,4 +36,20 @@
     <p>
         {{{text}}}
     </p>
+    {{#checkbox}}
+        <p>
+            <div class="form-check">
+                <input class="booking-page-accept-checkbox form-check-input" type="checkbox" value="" id="flexCheckChecked">
+                <label class="form-check-label" for="flexCheckChecked">
+                    {{#str}} accept, mod_booking {{/str}}
+                </label>
+            </div>
+        </p>
+    {{/checkbox}}
 </div>
+
+{{#js}}
+    require(['mod_booking/bookingPage'], function(init) {
+    init.init({{optionid}});
+    });
+{{/js}}

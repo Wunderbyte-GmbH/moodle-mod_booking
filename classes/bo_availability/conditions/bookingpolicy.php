@@ -157,8 +157,10 @@ class bookingpolicy implements bo_condition {
         $text .= html_writer::tag('p', get_string('agreetobookingpolicy', 'mod_booking'));
         $dataarray[] = [
             'data' => [
+                'optionid' => $optionid,
                 'headline' => get_string('confirmbookingoffollowing', 'mod_booking'),
                 'text' => $text,
+                'checkbox' => "true",
             ]
         ];
 
@@ -167,7 +169,7 @@ class bookingpolicy implements bo_condition {
         $returnarray = [
             'json' => $jsonstring,
             'template' => 'mod_booking/booking_page',
-            'buttontype' => 0,
+            'buttontype' => 1, // This means that the continue button is disabled.
         ];
 
         return $returnarray;

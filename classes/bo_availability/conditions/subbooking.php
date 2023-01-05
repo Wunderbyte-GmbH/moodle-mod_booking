@@ -145,7 +145,6 @@ class subbooking implements bo_condition {
      * @return string
      */
     public function render_page(int $optionid) {
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
