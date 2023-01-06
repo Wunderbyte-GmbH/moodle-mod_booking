@@ -33,6 +33,7 @@ var SELECTORS = {
     BACKBUTTON: 'a.back-button',
     BOOKITBUTTON: 'div.booking-button-area',
     INMODALBUTTON: 'div.in-modal-button',
+    STATICBACKDROP: 'div.modal-backdrop',
 };
 
 export const initbookitbutton = (itemid, area) => {
@@ -65,9 +66,12 @@ export const initbookitbutton = (itemid, area) => {
 
             const userid = button.dataset.userid;
 
-            button.addEventListener('click', bookitbutton => {
+            button.addEventListener('click', e => {
+
+                e.stopPropagation();
+
                 // eslint-disable-next-line no-console
-                console.log('clicked ', bookitbutton.target);
+                console.log('clicked ', e.target);
 
                 bookit(itemid, area, userid);
             });
@@ -366,7 +370,9 @@ function initializeButton(optionid, back) {
     if (element && !element.dataset.prepageinit) {
         element.dataset.prepageinit = true;
 
-        element.addEventListener('click', () => {
+        element.addEventListener('click', (e) => {
+
+            e.stopPropagation();
 
             if (element.classList.contains('hidden')) {
                 return;
@@ -415,20 +421,35 @@ function bookit(itemid, area, userid) {
 
             // We run through every button. and render the data.
             buttons.forEach(button => {
+
                 while (button.firstChild) {
                     const child = button.firstChild;
                     child.remove();
                 }
 
+                // For every button, we need a new jsonarray.
+                const arraytoreduce = [...jsonarray];
+
+                // eslint-disable-next-line no-console
+                console.log(templates, arraytoreduce);
+
                 templates.forEach(template => {
-                    const data = jsonarray.shift();
+                    const data = arraytoreduce.shift();
 
-                    const datatorender = data.data ?? data;
+                    // We need to check if this will render the prepagemodal again.
+                    // We never render the prepage modal in the in modal button.
+                    if (!(template === 'mod_booking/prepagemodal'
+                            && button.parentElement.classList.contains('in-modal-button'))) {
 
-                    // eslint-disable-next-line no-console
-                    console.log(datatorender);
+                        // eslint-disable-next-line no-console
+                        console.log(template, data, button);
 
-                    Templates.renderForPromise(template, datatorender).then(({html, js}) => {
+                        const datatorender = data.data ?? data;
+
+                        // eslint-disable-next-line no-console
+                        console.log(datatorender);
+
+                        Templates.renderForPromise(template, datatorender).then(({html, js}) => {
 
                         Templates.appendNodeContents(button, html, js);
 
@@ -439,9 +460,20 @@ function bookit(itemid, area, userid) {
                                 type: "danger"
                             });
                         });
-
-                    return true;
+                    }
                 });
+
+                // eslint-disable-next-line no-console
+                console.log('no destroy modal');
+
+                const backdrop = document.querySelector(SELECTORS.STATICBACKDROP);
+                const modal = document.querySelector(SELECTORS.MODALID + itemid);
+                if (modal) {
+                    modal.classList.remove('show');
+                }
+                if (backdrop) {
+                    backdrop.remove();
+                }
             });
         }
     }]);

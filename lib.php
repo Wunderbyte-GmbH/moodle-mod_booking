@@ -94,6 +94,7 @@ define('BO_COND_ONWAITINGLIST', 80);
 define('BO_COND_FULLYBOOKED', 70);
 define('BO_COND_MAX_NUMBER_OF_BOOKINGS', 60);
 define('BO_COND_BOOKING_TIME', 50);
+define('BO_COND_BOOKINGPOLICY', 45);
 define('BO_COND_SUBBOOKINGBLOCKS', 40);
 define('BO_COND_SUBBOOKING', 39);
 define('BO_COND_PRICEISSET', 10); // Price has to be the lowest blocking condition.

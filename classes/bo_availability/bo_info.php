@@ -507,7 +507,7 @@ class bo_info {
         // If necessary in a modal.
         if (!empty($description)) {
             if ($modalfordescription) {
-                $data = new prepagemodal($optionid, 'test', $description);
+                $data = new prepagemodal($settings, 'test', $description);
                 $renderedstring = $output->render_prepagemodal($data);
             } else {
                 $renderedstring = html_writer::div($description, "alert alert-$style text-center");

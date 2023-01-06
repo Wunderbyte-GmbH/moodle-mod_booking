@@ -51,7 +51,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class bookingpolicy implements bo_condition {
 
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = BO_COND_ALREADYBOOKED;
+    public $id = BO_COND_BOOKINGPOLICY;
 
     /**
      * Needed to see if class can take JSON.
