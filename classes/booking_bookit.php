@@ -90,6 +90,7 @@ class booking_bookit {
 
         $sites = [];
         $showinmodalbutton = true;
+        $extrabuttoncondition = '';
         $justmyalert = false;
         foreach ($results as $result) {
             if ($result['insertpage']) {
@@ -127,6 +128,25 @@ class booking_bookit {
             }
         }
 
+        $context = context_module::instance($settings->cmid);
+        if (has_capability('mod/booking:bookforothers', $context)) {
+            $full = true;
+        } else {
+            $full = false;
+        }
+
+        // The extra button condition is used to show Alert & Button, if this is allowed for a user.
+        if (!$justmyalert && !empty($extrabuttoncondition)) {
+            $condition = new $extrabuttoncondition();
+
+            list($template, $data) = $condition->render_button($settings, 0, $full);
+
+            // This supports multiple templates as well.
+            $datas[] = new bookit_button($data);
+
+            $templates[] = $template;
+        }
+
         // Big decession: can we render the button right away, or do we need to introduce a modal?
         if (count($sites) > 0) {
 
@@ -144,24 +164,6 @@ class booking_bookit {
             return [$templates, $datas];
         } else {
 
-            $context = context_module::instance($settings->cmid);
-            if (has_capability('mod/booking:bookforothers', $context)) {
-                $full = true;
-            } else {
-                $full = false;
-            }
-
-            // The extra button condition is used to show Alert & Button, if this is allowed for a user.
-            if (!$justmyalert && !empty($extrabuttoncondition)) {
-                $condition = new $extrabuttoncondition();
-
-                list($template, $data) = $condition->render_button($settings, 0, $full);
-
-                // This supports multiple templates as well.
-                $datas[] = new bookit_button($data);
-
-                $templates[] = $template;
-            }
             $condition = new $buttoncondition();
             list($template, $data) = $condition->render_button($settings, 0, $full);
 

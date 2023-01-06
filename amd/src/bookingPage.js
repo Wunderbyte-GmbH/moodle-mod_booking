@@ -39,6 +39,8 @@ export const init = (optionid) => {
 
     elements.forEach(element => {
         element.addEventListener('change', e => {
+
+            e.stopPropagation();
             // eslint-disable-next-line no-console
             console.log(e.target.checked);
 
