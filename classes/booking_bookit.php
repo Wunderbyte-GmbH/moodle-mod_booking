@@ -148,7 +148,7 @@ class booking_bookit {
         }
 
         // Big decession: can we render the button right away, or do we need to introduce a modal?
-        if (count($sites) > 0) {
+        if (!$justmyalert && count($sites) > 0) {
 
             // We render the button only from the highest relevant blocking condition.
 
@@ -277,6 +277,11 @@ class booking_bookit {
                 break;
             case STATUSPARAM_DELETED:
                 if (!$bookingoption->user_delete_response($user->id)) {
+                    return [];
+                }
+                break;
+            case STATUSPARAM_NOTIFYMELIST:
+                if (!$bookingoption::toggle_notify_user($user->id, $itemid)) {
                     return [];
                 }
                 break;

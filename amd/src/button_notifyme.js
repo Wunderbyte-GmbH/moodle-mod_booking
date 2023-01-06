@@ -36,10 +36,10 @@ export const init = () => {
                 return;
             }
             const userid = button.dataset.userid;
-            const optionid = button.dataset.optionid;
+            const itemid = button.dataset.itemid;
 
             button.addEventListener('click', () => {
-                toggleNotifiy(button, userid, optionid);
+                toggleNotifiy(button, userid, itemid);
             });
             button.dataset.initialized = true;
         });
