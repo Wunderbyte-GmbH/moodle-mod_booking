@@ -41,17 +41,36 @@ class button_notifyme implements renderable, templatable {
 
     private $userid = 0;
 
-    private $optionid = 0;
+    private $itemid = 0;
 
     private $onlist = false;
 
     /**
      * Dummy constructor
      */
-    public function __construct(int $userid, int $optionid, bool $onlist = false) {
+    public function __construct(int $userid, int $itemid, bool $onlist = false) {
         $this->userid = $userid;
-        $this->optionid = $optionid;
+        $this->itemid = $itemid;
         $this->onlist = $onlist;
+    }
+
+    /**
+     * Return data as array.
+     *
+     * @return void
+     */
+    public function return_as_array() {
+        $returnarray = array(
+            'userid' => $this->userid,
+            'itemid' => $this->itemid,
+            'area' => 'option',
+        );
+
+        if ($this->onlist) {
+            $returnarray['onlist'] = true;
+        }
+
+        return $returnarray;
     }
 
     /**
@@ -61,15 +80,6 @@ class button_notifyme implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
-        $returnarray = array(
-            'userid' => $this->userid,
-            'optionid' => $this->optionid,
-        );
-
-        if ($this->onlist) {
-            $returnarray['onlist'] = true;
-        }
-
-        return $returnarray;
+        return $this->return_as_array();
     }
 }

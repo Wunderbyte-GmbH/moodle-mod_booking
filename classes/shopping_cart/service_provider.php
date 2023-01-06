@@ -59,7 +59,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
         if ($area === 'option') {
 
-            $item = booking_bookit::answer_booking_option($area, $itemid, $userid);
+            $item = booking_bookit::answer_booking_option($area, $itemid, STATUSPARAM_RESERVED, $userid);
 
             $cartitem = new cartitem($item['itemid'],
                 $item['title'],

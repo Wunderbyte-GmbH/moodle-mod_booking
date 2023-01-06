@@ -2518,6 +2518,7 @@ class booking_option {
         } else {
             // If the user does this for herself or she has the right to do it for others, we toggle the state.
 
+            // booking_bookit::answer_booking_option('option', $optionid, STATUSPARAM_NOTIFYMELIST, $userid);
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
