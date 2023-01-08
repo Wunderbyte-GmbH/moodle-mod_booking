@@ -33,25 +33,29 @@ Feature: In a booking create multi session options
         And I should see "New option"
         And I click on "Book now" "button"
         And I click on "Continue" "button"
-        ## And I follow "Settings"
         And I click on "Settings" "icon"
         And I follow "Duplicate this booking option"
         And I press "Save and go back"
-        ## And I follow "Settings"
-        And I click on "Settings" "icon"
-        ## And I follow "Multiple dates session"
-        And I follow "Manage option dates"
+        ## And I click on "Settings" "icon"
+        And I click on "#mod_booking_all_options_r1_c3 .dropdown .icon" "css_element"
+        ## And I follow "Manage option dates"
+        And I click on ".dropdown-menu.show .fa-calendar-check-o" "css_element"
         And I set the following fields to these values:
             | Day | 30 |
             | Month | January |
-            | Year | 2023 |
+            | Year | ## + 1 year ## %Y ## |
             | Hour | 12 |
             | Minute | 00 |
             | endhour | 20 |
             | endminute | 00 |
         And I press "Save"
         And I press "Back"
-        And I should see "Monday, 30 January 2023, 12:00 PM - 8:00 PM"
+        And I should see "New option - Webinar - Copy"
+        And I click on "#mod_booking_all_options_r1_c1 .fa-calendar" "css_element"
+        And I wait "1" seconds
+        Then I should see "## +1 year ##%Y##" in the "#mod_booking_all_options_r1_c1" "css_element"
+        And I should see "30 January" in the "#mod_booking_all_options_r1_c1" "css_element"
+        And I should see "12:00 PM - 8:00 PM" in the "#mod_booking_all_options_r1_c1" "css_element"
 
     @javascript
     Scenario: Send reminder mail to participant
@@ -122,9 +126,14 @@ Feature: In a booking create multi session options
         And I click on "Send reminder e-mail" "button"
         And I should see "Notification e-mail has been sent!"
 
+    @javascript
     Scenario: Run cron
-        Then I open the link "webserver/admin/cron.php"
-        And I wait "1" seconds
+        Given I log in as "admin1"
+        And I wait "2" seconds
+        Then I trigger cron
+        And I wait "2" seconds
+        And I run all adhoc tasks
+        And I wait "2" seconds
 
     @javascript @email
     Scenario: Send email for user
