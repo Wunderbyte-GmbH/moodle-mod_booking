@@ -48,17 +48,18 @@ Feature: In a booking instance create booking options
            | Booking option name | Test option - Webinar |
         And I set the field "startendtimeknown" to "checked"
         And I set the field "addtocalendar" to "1"
+        And I wait "2" seconds
         And I set the following fields to these values:
-            | coursestarttime[day] | 31 |
-            | coursestarttime[month] | December |
-            | coursestarttime[year] | 2021 |
-            | coursestarttime[hour] | 09 |
-            | coursestarttime[minute] | 00|
+            | coursestarttime[day] | 1 |
+            | coursestarttime[month] | January |
+            | coursestarttime[year] | ##yesterday##%Y## |
+            | coursestarttime[hour] | 00 |
+            | coursestarttime[minute] | 00 |
         And I set the following fields to these values:
-            | courseendtime[day] | 31 |
-            | courseendtime[month] | December |
-            | courseendtime[year] | 2022 |
-            | courseendtime[hour] | 09 |
+            | courseendtime[day] | 1 |
+            | courseendtime[month] | January |
+            | courseendtime[year] | ## + 1 year ## %Y ## |
+            | courseendtime[hour] | 00 |
             | courseendtime[minute] | 00 |
         And I press "Save and go back"
         And I should see "Book now"
