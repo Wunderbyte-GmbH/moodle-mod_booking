@@ -36,15 +36,15 @@ Feature: In a booking create
         Then I click on "Start and end time of course are known" "checkbox"
         Then I set the field "Add to course calendar" to "Add to calendar (visible only to course participants)"
         And I set the following fields to these values:
-            | coursestarttime[day] | 31 |
-            | coursestarttime[month] | December |
-            | coursestarttime[year] | 2022 |
+            | coursestarttime[day] | ##tomorrow##%d## |
+            | coursestarttime[month] | ##tomorrow##%B## |
+            | coursestarttime[year] | ##tomorrow##%Y## |
             | coursestarttime[hour] | 09 |
             | coursestarttime[minute] | 00|
         And I set the following fields to these values:
-            | courseendtime[day] | 31 |
-            | courseendtime[month] | December |
-            | courseendtime[year] | 2023 |
+            | courseendtime[day] | ##tomorrow##%d## |
+            | courseendtime[month] | ##tomorrow##%B## |
+            | courseendtime[year] | ## + 1 year ## %Y ## |
             | courseendtime[hour] | 09 |
             | courseendtime[minute] | 00 |
         Then I set the field "Add as template" to "Use as global template"
