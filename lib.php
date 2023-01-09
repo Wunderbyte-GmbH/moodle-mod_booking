@@ -1228,12 +1228,18 @@ function booking_update_options($optionvalues, $context) {
 
         // Save relation for each newly created optiondate if checkbox is active.
         save_entity_relations_for_optiondates_of_option($optionvalues, $optionid);
-
-        // Trigger an event that booking option has been updated.
-        $event = \mod_booking\event\bookingoption_updated::create(array('context' => $context, 'objectid' => $optionid,
-                'userid' => $USER->id));
-        $event->trigger();
-
+        
+        // Trigger an event that booking option has been updated - only if it is NOT a template.
+        if (!isset($optionvalues->addastemplate) || $optionvalues->addastemplate == 0) {
+            $event = \mod_booking\event\bookingoption_updated::create(
+                array(
+                    'context' => $context,
+                    'objectid' => $optionid,
+                    'userid' => $USER->id
+                )
+            );
+            $event->trigger();
+        }
         // Finally, we need to check if any existing booking rules are affected.
         if ($option->bookingid != 0) {
             rules_info::execute_rules_for_option($optionid);
