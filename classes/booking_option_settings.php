@@ -193,6 +193,12 @@ class booking_option_settings {
     /** @var string $manageresponsesurl */
     public $manageresponsesurl = null;
 
+    /** @var string $optiondatesteachersurl */
+    public $optiondatesteachersurl = null;
+
+    /** @var string $imageurl */
+    public $imageurl = null;
+
     /** @var array $entity for displaying enity information [id, name]*/
     public $entity = [];
 

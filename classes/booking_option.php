@@ -129,6 +129,12 @@ class booking_option {
     /** @var booking_option_settings $settings */
     public $settings = null;
 
+    /** @var int|null */
+    public $secondstostart = null;
+
+    /** @var int|null */
+    public $secondspassed = null;
+
     /**
      * Creates basic booking option
      *
@@ -789,9 +795,7 @@ class booking_option {
         }
 
         // After deleting an answer, cache has to be invalidated.
-        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
-        // We have to make sure it's also deleted in the singleton service.
-        singleton_service::destroy_booking_answers($this->optionid);
+        self::purge_cache_for_option($this->optionid);
 
         return true;
     }
@@ -1037,11 +1041,6 @@ class booking_option {
                                        $currentanswerid,
                                        $timecreated);
 
-        // After adding an answer, cache has to be invalidated.
-        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
-        // We have to make sure it's also deleted in the singleton service.
-        singleton_service::destroy_booking_answers($this->optionid);
-
         return $this->after_successful_booking_routine($user, $waitinglist);
     }
 
@@ -1089,11 +1088,8 @@ class booking_option {
             }
         }
 
-        // After writing, cache has to be invalidated.
-        cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
-        // When we set back the booking_answer...
-        // ... we have to make sure it's also deleted in the singleton service.
-        singleton_service::destroy_booking_answers($optionid);
+        // After writing an answer, cache has to be invalidated.
+        self::purge_cache_for_option($optionid);
     }
 
 
@@ -1624,11 +1620,8 @@ class booking_option {
             $DB->update_record('booking_answers', $userdata);
         }
 
-        // After updating, we have to invalidate cache.
-        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
-        // When we set back the booking_answer...
-        // ... we have to make sure it's also delted in the singleton service.
-        singleton_service::destroy_booking_answers($this->optionid);
+        // After updating, cache has to be invalidated.
+        self::purge_cache_for_option($this->optionid);
     }
 
     /**
@@ -1808,10 +1801,7 @@ class booking_option {
         }
 
         // After updating, we have to invalidate cache.
-        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
-        // When we set back the booking_answer...
-        // ... we have to make sure it's also delted in the singleton service.
-        singleton_service::destroy_booking_answers($this->optionid);
+        self::purge_cache_for_option($this->optionid);
     }
 
     /**

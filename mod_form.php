@@ -570,7 +570,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('selectyesno', 'addtogroup', get_string('addtogroup', 'booking'));
         $mform->addHelpButton('addtogroup', 'addtogroup', 'booking');
 
-        $opts = array(0 => get_string('unlimited', 'mod_booking'));
+        $opts = array(0 => get_string('unlimitedplaces', 'mod_booking'));
         $extraopts = array_combine(range(1, 100), range(1, 100));
         $opts = $opts + $extraopts;
         $mform->addElement('select', 'maxperuser', get_string('maxperuser', 'mod_booking'), $opts);

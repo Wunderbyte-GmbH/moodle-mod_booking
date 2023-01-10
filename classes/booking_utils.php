@@ -32,16 +32,6 @@ use stdClass;
 class booking_utils {
 
     /**
-     * @var int|null
-     */
-    public $secondstostart = null;
-
-    /**
-     * @var int|null
-     */
-    public $secondspassed = null;
-
-    /**
      * @var stdClass
      */
     public $booking = null;
@@ -363,7 +353,7 @@ class booking_utils {
         if ($values->courseendtime > 0 &&  $values->courseendtime < time()) {
             $limit = get_string('eventalreadyover', 'booking');
         } else if (!$coursepage) {
-            $limit = "<div class='col-ap-unlimited'>" . get_string('unlimited', 'mod_booking') . "</div>";
+            $limit = "<div class='col-ap-unlimited'>" . get_string('unlimitedplaces', 'mod_booking') . "</div>";
         } else {
             $limit = '';
         }
