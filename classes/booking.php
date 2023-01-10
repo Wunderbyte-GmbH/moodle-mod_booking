@@ -747,14 +747,14 @@ class booking {
     /**
      * Function to return all bookings for teacher.
      *
-     * @param integer $limitfrom
-     * @param integer $limitnum
-     * @param [type] $teacherid
+     * @param int $teacherid
+     * @param int $bookingid booking instance id - not cmid!
      * @return void
      */
-    public function get_all_options_of_teacher_sql($teacherid) {
+    public static function get_all_options_of_teacher_sql(int $teacherid, int $bookingid) {
 
-        return self::get_options_filter_sql(0, 0, '', '*', null, [], ['teacherobjects' => '%"id":' . $teacherid . ',%']);
+        return self::get_options_filter_sql(0, 0, '', '*', null, [], ['bookingid' => $bookingid,
+            'teacherobjects' => '%"id":' . $teacherid . ',%']);
     }
 
     /**
