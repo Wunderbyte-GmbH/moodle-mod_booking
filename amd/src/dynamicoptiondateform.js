@@ -185,8 +185,8 @@ export const initmodaloptiondateform = (modalTitle, formClass) => {
 
                 Templates.renderForPromise('mod_booking/bookingoption_dates_custom_list_items', response)
                 // It returns a promise that needs to be resolved.
-                .then(({html}) => {
-                    Templates.appendNodeContents('ul.reoccurringdates', html);
+                .then(({html, js}) => {
+                    Templates.appendNodeContents('ul.reoccurringdates', html, js);
                     return;
                 })
                 // Deal with this exception (Using core/notify exception function is recommended).
@@ -195,8 +195,8 @@ export const initmodaloptiondateform = (modalTitle, formClass) => {
 
                 Templates.renderForPromise('mod_booking/bookingoption_dates_custom_hidden_inputs', response)
                 // It returns a promise that needs to be resolved.
-                .then(({html}) => {
-                    Templates.appendNodeContents('div.optiondates-list', html);
+                .then(({html, js}) => {
+                    Templates.appendNodeContents('div.optiondates-list', html, js);
                     return;
                 })
                 // Deal with this exception (Using core/notify exception function is recommended).
