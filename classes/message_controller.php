@@ -413,18 +413,17 @@ class message_controller {
             // Get the mail template specified in plugin config.
             $text = get_config('booking', 'global' . $this->messagefieldname);
 
-        } else if ($this->bookingsettings->{$this->messagefieldname} === "0") {
+        } else if (isset($this->bookingsettings->{$this->messagefieldname})
+            && $this->bookingsettings->{$this->messagefieldname} === "0") {
+            /* NOTE: By entering 0 into a mail template, we can turn the specific mail reminder off.
+            This is why we need the === check for the exact string of "0". */
             $text = "0";
-        } else if (empty($this->bookingsettings->{$this->messagefieldname})) {
-
-            // Use default message if none is specified.
-            $text = get_string($this->messagefieldname . 'message', 'booking', $this->params);
-
-        } else {
-
+        } else if (!empty($this->bookingsettings->{$this->messagefieldname})) {
             // If there is an instance-specific template, then use it.
             $text = $this->bookingsettings->{$this->messagefieldname};
-
+        } else {
+            // Use default message if none is specified.
+            $text = get_string($this->messagefieldname . 'message', 'booking', $this->params);
         }
 
         // Replace the placeholders.
