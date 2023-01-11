@@ -36,12 +36,14 @@
     }
 }}
 {{#price}}
-<span class="pricecurrency font-weight-bold">
-    {{price}} {{currency}}
-</span>
+    <table class="pricecurrency font-weight-bold w-100">
+        <tr>
+            <td class="text-center">{{price}} {{currency}}
+            </td>
+        </tr>
+    </table>
 <div>{{> local_shopping_cart/addtocartdb }}</div>
 {{#priceitems}}
-    <p><i>{{pricecategoryname}}</i></p>
 {{/priceitems}}
 {{/price}}
 {{^price}}
