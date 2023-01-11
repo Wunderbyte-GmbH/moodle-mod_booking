@@ -2041,8 +2041,8 @@ $string['bo_cond_isbookable_full_not_available'] = 'Booking is forbidden for thi
 
 $string['bo_cond_iscancelled_available'] = 'Book it';
 $string['bo_cond_iscancelled_full_available'] = 'Booking is possible';
-$string['bo_cond_iscancelled_not_available'] = 'This booking option is cancelled.';
-$string['bo_cond_iscancelled_full_not_available'] = 'This booking option is cancelled.';
+$string['bo_cond_iscancelled_not_available'] = 'Cancelled';
+$string['bo_cond_iscancelled_full_not_available'] = 'Cancelled - booking not possible';
 
 $string['bo_cond_isloggedin_available'] = 'Book it';
 $string['bo_cond_isloggedin_full_available'] = 'Booking is possible';
