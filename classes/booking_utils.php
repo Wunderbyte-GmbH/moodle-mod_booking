@@ -241,7 +241,7 @@ class booking_utils {
                 $url = new moodle_url($baseurl . '/mod/booking/view.php', $buttonoptions);
                 $delete = '<div class="col-ap-cancelbooking">' . $OUTPUT->single_button($url,
                         (empty($values->btncancelname) ? get_string('cancelbooking', 'booking') : $values->btncancelname),
-                        $buttonmethod) . '</div>';
+                        $buttonmethod, ['class' => 'mt-2 mb-2']) . '</div>';
 
                 if ($values->coursestarttime > 0 && $values->allowupdatedays > 0) {
                     if (time() > strtotime("-{$values->allowupdatedays} day", $values->coursestarttime)) {
