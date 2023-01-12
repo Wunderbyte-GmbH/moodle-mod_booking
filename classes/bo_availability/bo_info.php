@@ -400,7 +400,7 @@ class bo_info {
 
         // Show description.
         if (!empty($description)) {
-            $renderedstring = html_writer::div($description, "alert alert-$style text-center");
+            $renderedstring = html_writer::div($description, "alert alert-$style text-center pt-0 pb-0");
         }
 
         // Show price and add to cart button.
