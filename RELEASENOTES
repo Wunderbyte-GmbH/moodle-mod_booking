@@ -1,3 +1,14 @@
+7.8.1 (2023011200)
+* Improvement: Add warning when you can only add users from one institution.
+* Improvement: Deleted old teachers.php (not needed anymore).
+* Improvement: Design improvements and improved code quality.
+* Improvement: Some layout improvements for buttons, alerts and prices.
+* Bugfix: Remove wrong capability check for user events in order to fix "nopermissiontoupdatecalendar" bug.
+* Bugfix: Fixed an error in upgrade.php.
+* Bugfix: Fix php 8 deprecation warnings (optional before required param).
+* Bugfix: Fixed a bug in dynamicoptiondateform where JS was not passed.
+* Bugfix: Fixed broken report reminders (custom reminder from report.php).
+
 7.8.0 (2022122300)
 * New feature: Add teachers directly in option_form.
 * New feature: New possibility to set sorting order for price categories.
