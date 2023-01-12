@@ -1041,6 +1041,9 @@ class booking_option {
                                        $currentanswerid,
                                        $timecreated);
 
+        // Important: Purge caches after submitting a new user.
+        self::purge_cache_for_option($this->optionid);
+
         return $this->after_successful_booking_routine($user, $waitinglist);
     }
 
