@@ -368,10 +368,13 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         global $DB;
 
         $data = (object) $data;
-        $data->itemid = $this->get_mappingid('booking_option', $data->optionid);
-        $data->area = 'option';
-        $DB->insert_record('booking_prices', $data);
-        // No need to save this mapping as far as nothing depends on it.
+
+        if ($data->area == 'option') {
+            $data->itemid = $this->get_mappingid('booking_option', $data->itemid);
+            $DB->insert_record('booking_prices', $data);
+            // No need to save this mapping as far as nothing depends on it.
+        }
+        // NOTE: In the future we might want to support additional price areas!
     }
 
     protected function after_execute() {
