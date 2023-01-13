@@ -62,14 +62,14 @@ Feature: In a booking create multi session options
         Given I log in as "teacher1"
         When I am on "Course 1" course homepage
         And I follow "My booking"
-        ## And I press "dropdown d-inline show"
         And I click on "Settings" "icon"
-        And I follow "Edit teachers"
-        And I press "Turn editing on"
-        And I click on "Teacher 1 (teacher1@example.com)" "text"
-        And I click on "Add" "button"
+        And I follow "Edit this booking option"
+        And I wait "1" seconds
+        And I press "Teachers"
+        And I wait "1" seconds
+        And I set the field "Teachers" to "Teacher 1 (teacher1@example.com)"
+        And I press "Save and go back"
         And I follow "My booking"
-        ## And I follow "Settings"
         And I click on "Settings" "icon"
         And I follow "Book other users"
         And I click on "Student 1 (student1@example.com)" "text"
@@ -115,7 +115,6 @@ Feature: In a booking create multi session options
         When I am on "Course 1" course homepage
         Then I follow "My booking"
         And I follow "My booking"
-        ## And I follow "Settings"
         And I click on "Settings" "icon"
         And I follow "Book other users"
         And I click on "Student 1 (student1@example.com)" "text"
@@ -129,11 +128,10 @@ Feature: In a booking create multi session options
     @javascript
     Scenario: Run cron
         Given I log in as "admin1"
-        And I wait "2" seconds
         Then I trigger cron
-        And I wait "2" seconds
+        And I wait "10" seconds
         And I run all adhoc tasks
-        And I wait "2" seconds
+        And I wait "10" seconds
 
     @javascript @email
     Scenario: Send email for user
