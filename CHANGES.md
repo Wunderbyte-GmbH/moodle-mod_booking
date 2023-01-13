@@ -1,3 +1,11 @@
+## Version 7.8.2 (2023011300)
+**Improvements:**
+* Improvement: Prepare process_booking_price function in restore_booking_stepslib for new price areas.
+
+**Bugfixes:**
+* Bugfix: Purge caches after a user is added to a booking option.
+* Bugfix: Fix duplication of booking instances by removing 'area' from set_source_table function.
+
 ## Version 7.8.1 (2023011200)
 **Improvements:**
 * Improvement: Add warning when you can only add users from one institution.
