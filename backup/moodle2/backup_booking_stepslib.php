@@ -103,7 +103,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         $prices = new backup_nested_element('prices');
         $price = new backup_nested_element('price', array('id'),
-                array('optionid', 'pricecategoryidentifier', 'price', 'currency'));
+                array('itemid', 'area', 'pricecategoryidentifier', 'price', 'currency'));
 
         $entitiesrelations = new backup_nested_element('entitiesrelations');
         $entitiesrelation = new backup_nested_element('entitiesrelation', array('id'),
@@ -171,9 +171,11 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         // Only backup (or duplicate) prices, if config setting is set.
         if (get_config('booking', 'duplicationrestoreprices')) {
-            // We currently only backup prices for options here.
-            // In the future, we might also want to support backup of prices for subbookings...
-            $price->set_source_table('booking_prices', array('itemid' => backup::VAR_PARENTID, 'area' => 'option'));
+
+            /* IMPORTANT: Once we support subbookings, we might have different areas than 'option'
+            and this means 'itemid' might be something else than an optionid.
+            So we have to find out, if we still can set the params like this. */
+            $price->set_source_table('booking_prices', array('itemid' => backup::VAR_PARENTID));
         }
 
         // Only backup (or duplicate) entities, if config setting is set AND if entities are available.
