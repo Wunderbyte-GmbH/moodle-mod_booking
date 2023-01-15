@@ -35,7 +35,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 require_course_login($course, false);
 $pageurl = new moodle_url('/mod/booking/bookinginstancetemplatessettings.php',  array('id' => $id, 'templateid' => $templateid));
 
-if (($action === 'delete') AND ($templateid > 0)) {
+if (($action === 'delete') && ($templateid > 0)) {
     $DB->delete_records('booking_instancetemplate', array('id' => $templateid));
     redirect($pageurl, get_string('templatedeleted', 'booking'), 5);
 }

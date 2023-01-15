@@ -62,9 +62,11 @@ class conditions_info {
         $categoryselect = [
             $mform->createElement('select', 'bookingruleconditiontype',
             get_string('bookingrulecondition', 'mod_booking'), $conditionsforselect),
-            $mform->createElement('submit', 'btn_bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'), $buttonargs)
+            $mform->createElement('submit', 'btn_bookingruleconditiontype', get_string('bookingrulecondition',
+                'mod_booking'), $buttonargs)
         ];
-        $mform->addGroup($categoryselect, 'bookingruleconditiontype', get_string('bookingrulecondition', 'mod_booking'), [' '], false);
+        $mform->addGroup($categoryselect, 'bookingruleconditiontype', get_string('bookingrulecondition',
+            'mod_booking'), [' '], false);
         $mform->setType('btn_bookingruleconditiontype', PARAM_NOTAGS);
 
         if (isset($ajaxformdata['bookingruleconditiontype'])) {

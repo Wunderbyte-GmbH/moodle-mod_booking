@@ -140,7 +140,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
         global $DB;
 
         $onlygroupmembers = false;
-        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS and
+        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS &&
                 !has_capability('moodle/site:accessallgroups',
                         \context_course::instance($this->course->id))) {
             $onlygroupmembers = true;

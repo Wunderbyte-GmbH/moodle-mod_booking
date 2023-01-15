@@ -492,7 +492,7 @@ class csv_import {
         // Set to false if error occured in csv-line.
         if (isset($csvrecord['coursestarttime'])) {
             if (!is_null($this->formdata->dateparseformat)) {
-                if (!date_create_from_format($this->formdata->dateparseformat, $csvrecord['coursestarttime']) AND
+                if (!date_create_from_format($this->formdata->dateparseformat, $csvrecord['coursestarttime']) &&
                     !strtotime($csvrecord['coursestarttime'])) {
                     $this->add_csverror('Startdate had a problem with the date format.', $linenumber);
                     return false;
@@ -501,7 +501,7 @@ class csv_import {
         }
         if (isset($csvrecord['courseendtime'])) {
             if (!is_null($this->formdata->dateparseformat)) {
-                if (!date_create_from_format($this->formdata->dateparseformat, $csvrecord['courseendtime']) AND
+                if (!date_create_from_format($this->formdata->dateparseformat, $csvrecord['courseendtime']) &&
                     !strtotime($csvrecord['courseendtime'])) {
                     $this->add_csverror('Enddate hadd a problem with the date format.', $linenumber);
                     return false;
@@ -510,7 +510,7 @@ class csv_import {
         }
         if (isset($csvrecord['bookingclosingtime'])) {
             if (!is_null($this->formdata->dateparseformat)) {
-                if (!date_create_from_format($this->formdata->dateparseformat, $csvrecord['bookingclosingtime']) AND
+                if (!date_create_from_format($this->formdata->dateparseformat, $csvrecord['bookingclosingtime']) &&
                     !strtotime($csvrecord['bookingclosingtime'])) {
                     $this->add_csverror('Booking closing time hadd a problem with the date format.', $linenumber);
                     return false;
@@ -519,7 +519,7 @@ class csv_import {
         }
         if (isset($csvrecord['bookingopeningtime'])) {
             if (!is_null($this->formdata->dateparseformat)) {
-                if (!date_create_from_format($this->formdata->dateparseformat, $csvrecord['bookingopeningtime']) AND
+                if (!date_create_from_format($this->formdata->dateparseformat, $csvrecord['bookingopeningtime']) &&
                     !strtotime($csvrecord['bookingopeningtime'])) {
                     $this->add_csverror('Booking opening time hadd a problem with the date format.', $linenumber);
                     return false;
@@ -581,7 +581,7 @@ class csv_import {
     protected function validate_fieldnames() {
         $error = '';
         // Validate fieldnames. If a field is not found error is returned.
-        if (in_array('useremail', $this->fieldnames) AND in_array('user_username', $this->fieldnames)) {
+        if (in_array('useremail', $this->fieldnames) && in_array('user_username', $this->fieldnames)) {
             $error .= "CSV was not imported. Reason: You must not set useremail AND user_username. Choose only one of them.";
         }
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found

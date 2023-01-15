@@ -545,7 +545,7 @@ function booking_update_instance($booking) {
         $booking->assessed = 0;
     }
 
-    if (empty($booking->ratingtime) or empty($booking->assessed)) {
+    if (empty($booking->ratingtime) || empty($booking->assessed)) {
         $booking->assesstimestart = 0;
         $booking->assesstimefinish = 0;
     }
@@ -1465,7 +1465,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 navigation_node::TYPE_CUSTOM, null, 'nav_teachers_instance_report');
     }
 
-    if (!is_null($optionid) AND $optionid > 0) {
+    if (!is_null($optionid) && $optionid > 0) {
         $option = $DB->get_record('booking_options', array('id' => $optionid));
         $booking = $DB->get_record('booking', array('id' => $option->bookingid));
         $keys = $navref->get_children_key_list();
@@ -1757,7 +1757,7 @@ function booking_update_grades($booking, $userid = 0, $nullifnone = true) {
         booking_grade_item_update($booking);
     } else if ($grades = booking_get_user_grades($booking, $userid)) {
         booking_grade_item_update($booking, $grades);
-    } else if ($userid and $nullifnone) {
+    } else if ($userid && $nullifnone) {
         $grade = new stdClass();
         $grade->userid = $userid;
         $grade->rawgrade = null;
@@ -1786,7 +1786,7 @@ function booking_grade_item_update($booking, $grades = null) {
 
     $params = array('itemname' => $booking->name, 'idnumber' => $booking->cmidnumber);
 
-    if (!$booking->assessed or $booking->scale == 0) {
+    if (!$booking->assessed || $booking->scale == 0) {
         $params['gradetype'] = GRADE_TYPE_NONE;
     } else if ($booking->scale > 0) {
         $params['gradetype'] = GRADE_TYPE_VALUE;
@@ -1848,7 +1848,7 @@ function booking_scale_used($bookingid, $scaleid) {
  */
 function booking_scale_used_anywhere($scaleid) {
     global $DB;
-    if ($scaleid and $DB->record_exists('booking', array('scale' => -$scaleid))) {
+    if ($scaleid && $DB->record_exists('booking', array('scale' => -$scaleid))) {
         return true;
     } else {
         return false;

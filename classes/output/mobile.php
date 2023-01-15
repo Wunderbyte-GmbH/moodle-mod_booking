@@ -309,7 +309,7 @@ class mobile {
 
         // I'm booked or not.
         if ($values->iambooked) {
-            if ($booking->settings->allowupdate and $status != 'closed' and $values->completed != 1) {
+            if ($booking->settings->allowupdate && $status != 'closed' && $values->completed != 1) {
                 // TO-DO: Naredi gumb za izpis iz opcije.
                 $deletemessage = format_string($values->option->text);
 

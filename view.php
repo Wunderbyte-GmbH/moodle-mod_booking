@@ -145,7 +145,7 @@ $strbooking = get_string('modulename', 'booking');
 $strbookings = get_string('modulenameplural', 'booking');
 
 // Check if data has been submitted to be processed.
-if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
+if ($action == 'delbooking' && confirm_sesskey() && $confirm == 1 and
          has_capability('mod/booking:choose', $context) and
          ($booking->settings->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
     $bookingdata = new \mod_booking\booking_option($cm->id, $optionid);
@@ -170,7 +170,7 @@ if ($action == 'delbooking' and confirm_sesskey() && $confirm == 1 and
         echo $OUTPUT->footer();
         die();
     }
-} else if ($action == 'delbooking' and confirm_sesskey() and
+} else if ($action == 'delbooking' && confirm_sesskey() and
          has_capability('mod/booking:choose', $context) and
          ($booking->settings->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
     echo $OUTPUT->header();
@@ -251,10 +251,10 @@ $event->trigger();
 // Display the booking and possibly results.
 
 $mybookings = $DB->get_record_sql(
-        "SELECT COUNT(*) AS mybookings FROM {booking_answers} WHERE userid = :userid AND bookingid = :bookingid",
+        "SELECT COUNT(*) AS mybookings FROM {booking_answers} WHERE userid = :userid && bookingid = :bookingid",
         array('userid' => $USER->id, 'bookingid' => $booking->id));
 $myoptions = $DB->get_record_sql(
-        "SELECT COUNT(*) AS myoptions FROM {booking_teachers} WHERE userid = :userid AND bookingid = :bookingid",
+        "SELECT COUNT(*) AS myoptions FROM {booking_teachers} WHERE userid = :userid && bookingid = :bookingid",
         array('userid' => $USER->id, 'bookingid' => $booking->id));
 
 // Initialise for later if user has already made a selection, show the selected answer.
@@ -262,7 +262,7 @@ $current = false;
 $bookingopen = true;
 $timenow = time();
 
-if (!$current and $bookingopen and has_capability('mod/booking:choose', $context)) {
+if (!$current && $bookingopen && has_capability('mod/booking:choose', $context)) {
 
     switch ($whichview) {
         case 'mybooking':

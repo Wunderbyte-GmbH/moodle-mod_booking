@@ -35,7 +35,13 @@ class lib_test extends advanced_testcase {
 
     }
 
-    // Test adding teacher to event and group.
+    /**
+     * Test adding teacher to event and group.
+     *
+     * @covers subscribe_teacher_to_booking_option
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     public function test_subscribe_teacher_to_booking_option() {
 
         global $DB;

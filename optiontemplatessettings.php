@@ -35,7 +35,7 @@ list($course, $cm) = get_course_and_cm_from_cmid($id);
 require_course_login($course, false);
 $pageurl = new moodle_url('/mod/booking/optiontemplatessettings.php',  array('id' => $id, 'optionid' => $optionid));
 
-if (($action === 'delete') AND ($optionid > 0)) {
+if (($action === 'delete') && ($optionid > 0)) {
     $DB->delete_records('booking_options', array('id' => $optionid));
     redirect($pageurl, get_string('templatedeleted', 'booking'), 5);
 }

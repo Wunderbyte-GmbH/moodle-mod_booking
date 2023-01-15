@@ -748,7 +748,7 @@ class message_controller {
 
         global $CFG, $PAGE, $SITE;
 
-        if (empty($user) or empty($user->id)) {
+        if (empty($user) || empty($user->id)) {
             debugging('Can not send email to null user', DEBUG_DEVELOPER);
             return false;
         }
@@ -783,7 +783,7 @@ class message_controller {
         }
 
         // Skip mail to suspended users.
-        if ((isset($user->auth) && $user->auth == 'nologin') or
+        if ((isset($user->auth) && $user->auth == 'nologin') ||
             (!empty($user->suspended))) {
             return true;
         }
