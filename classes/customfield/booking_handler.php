@@ -17,9 +17,9 @@
 /**
  * Course handler for custom fields
  *
- * @package   core_course
- * @copyright 2018 David Matamoros <davidmc@moodle.com>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_booking\customfield;

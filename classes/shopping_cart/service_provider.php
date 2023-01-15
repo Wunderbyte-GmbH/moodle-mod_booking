@@ -17,8 +17,7 @@
 /**
  * Shopping_cart subsystem callback implementation for mod_booking.
  *
- * @package    mod_booking
- * @category   booking
+ * @package mod_booking
  * @copyright  2022 Georg Maißer <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

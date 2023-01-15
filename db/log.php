@@ -16,8 +16,7 @@
 /**
  * Definition of log events
  *
- * @package mod
- * @subpackage booking
+ * @package mod_booking
  * @copyright 2010 David Bogner (http://edulabs.org)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

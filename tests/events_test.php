@@ -18,7 +18,6 @@
  * Tests for booking events.
  *
  * @package mod_booking
- * @category test
  * @copyright 2017 Andraž Prinčič <atletek@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -32,9 +31,9 @@ use stdClass;
 /**
  * Tests for forum events.
  *
- * @package mod_forum
+ * @package mod_booking
  * @category test
- * @copyright 2014 Dan Poltawski <dan@moodle.com>
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class events_test extends advanced_testcase {
@@ -122,6 +121,9 @@ class events_test extends advanced_testcase {
 
     /**
      * Test teacher_removed event.
+     *
+     * @covers \mod_booking\event\teacher_removed
+     * @throws \coding_exception
      */
     public function test_teacher_removed() {
 

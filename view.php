@@ -145,9 +145,9 @@ $strbooking = get_string('modulename', 'booking');
 $strbookings = get_string('modulenameplural', 'booking');
 
 // Check if data has been submitted to be processed.
-if ($action == 'delbooking' && confirm_sesskey() && $confirm == 1 and
-         has_capability('mod/booking:choose', $context) and
-         ($booking->settings->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
+if ($action == 'delbooking' && confirm_sesskey() && $confirm == 1 &&
+         has_capability('mod/booking:choose', $context) &&
+         ($booking->settings->allowupdate || has_capability('mod/booking:deleteresponses', $context))) {
     $bookingdata = new \mod_booking\booking_option($cm->id, $optionid);
     $bookingdata->apply_tags();
 
@@ -170,9 +170,9 @@ if ($action == 'delbooking' && confirm_sesskey() && $confirm == 1 and
         echo $OUTPUT->footer();
         die();
     }
-} else if ($action == 'delbooking' && confirm_sesskey() and
-         has_capability('mod/booking:choose', $context) and
-         ($booking->settings->allowupdate or has_capability('mod/booking:deleteresponses', $context))) {
+} else if ($action == 'delbooking' && confirm_sesskey() &&
+         has_capability('mod/booking:choose', $context) &&
+         ($booking->settings->allowupdate || has_capability('mod/booking:deleteresponses', $context))) {
     echo $OUTPUT->header();
 
     $bookingdata = new \mod_booking\booking_option($cm->id, $optionid);

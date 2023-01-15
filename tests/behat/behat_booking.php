@@ -17,8 +17,7 @@
 /**
  * Defines message providers (types of messages being sent)
  *
- * @package mod
- * @package booking
+ * @package mod_booking
  * @copyright 2021 Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Restore task that provides all the settings and steps to perform one complete restore of the booking instance.
  *
- * @package moodlecore
- * @subpackage backup-moodle2
+ * @package mod_booking
  * @copyright 2010 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -73,10 +73,10 @@ class restore_booking_activity_task extends restore_activity_task {
     }
 
     /**
-     * Define the restore log rules that will be applied by the {@link restore_logs_processor} when
+     * Define the restore log rules that will be applied by the {@see restore_logs_processor} when
      * restoring booking logs.
      * It must return one array
-     * of {@link restore_log_rule} objects
+     * of {@see restore_log_rule} objects
      */
     public static function define_restore_log_rules() {
         $rules = array();
@@ -96,10 +96,10 @@ class restore_booking_activity_task extends restore_activity_task {
     }
 
     /**
-     * Define the restore log rules that will be applied by the {@link restore_logs_processor} when
+     * Define the restore log rules that will be applied by the {@see restore_logs_processor} when
      * restoring course logs.
      * It must return one array of
-     * {@link restore_log_rule} objects
+     * {@see restore_log_rule} objects
      * Note this rules are applied when restoring course logs by the restore final task, but are
      * defined here at activity level. All them are rules
      * not linked to any module instance (cmid = 0)

@@ -13,12 +13,16 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * This page allows a user to subscribe/unsubscribe other users from a booking option
+ *
  * TODO: upgrade logging, add logging for added/deleted users
  *
+ * @package mod_booking
  * @author David Bogner davidbogner@gmail.com
- * @package mod/booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');

@@ -16,7 +16,7 @@
 /**
  * Import options or just add new users from CSV
  *
- * @package Booking
+ * @package mod_booking
  * @copyright 2014 Andraž Prinčič www.princic.net
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

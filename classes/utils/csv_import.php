@@ -13,6 +13,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * CSV import
+ *
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\utils;
 
 use csv_import_reader;
@@ -33,8 +42,6 @@ require_once($CFG->libdir . "/csvlib.class.php");
 /**
  * Class csv_import
  * Import controller for CSV imports
- *
- * @package mod_booking\classes\utils
  */
 class csv_import {
 

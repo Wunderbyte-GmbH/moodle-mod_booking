@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Control and manage booking dates.
+ *
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking;
 
 defined('MOODLE_INTERNAL') || die();

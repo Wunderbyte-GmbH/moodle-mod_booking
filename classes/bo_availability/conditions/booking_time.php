@@ -36,6 +36,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Class for a single bo availability condition.
+ *
  * This returns true or false based on the standard booking times
  * OR a custom time passed on via the availability json
  *

@@ -40,6 +40,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * If a price is set for the option, normal booking is not available.
+ *
  * Booking only via payment.
  *
  * All bo condition types must extend this class.
