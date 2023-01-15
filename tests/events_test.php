@@ -91,6 +91,9 @@ class events_test extends advanced_testcase {
 
     /**
      * Test teacher_added event.
+     *
+     * @covers \mod_booking\event\teacher_added
+     * @throws \coding_exception
      */
     public function test_teacher_added() {
 

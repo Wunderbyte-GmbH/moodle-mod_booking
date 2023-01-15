@@ -277,7 +277,7 @@ class renderer extends plugin_renderer_base {
 
             if (!$rating->settings->scale->isnumeric) {
                 // If a global scale, try to find current course ID from the context.
-                if (empty($rating->settings->scale->courseid) and
+                if (empty($rating->settings->scale->courseid) &&
                          $coursecontext = $rating->context->get_course_context(false)) {
                     $courseid = $coursecontext->instanceid;
                 } else {

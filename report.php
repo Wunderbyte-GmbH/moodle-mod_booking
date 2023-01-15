@@ -313,7 +313,7 @@ if (!$tableallbookings->is_downloading()) {
             }
 
             // Check when separated groups are activated, all users are same group of current user.
-            if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS and
+            if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS &&
                     !has_capability('moodle/site:accessallgroups',
                             \context_course::instance($course->id))) {
                 list($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql(
@@ -571,7 +571,7 @@ if (!$tableallbookings->is_downloading()) {
     $strbooking = get_string("modulename", "booking");
     $strbookings = get_string("modulenameplural", "booking");
     $strresponses = get_string("responses", "booking");
-    if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS and
+    if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS &&
             !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
         list($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql(
                 $course->id);
@@ -870,7 +870,7 @@ if (!$tableallbookings->is_downloading()) {
             strtolower($profilefield->shortname);
         }
     }
-    if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS and
+    if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS &&
             !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))) {
         list($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql(
                 $course->id);

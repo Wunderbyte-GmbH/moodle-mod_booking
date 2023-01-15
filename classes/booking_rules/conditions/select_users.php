@@ -145,7 +145,7 @@ class select_users implements booking_rule_condition {
         $sql->select = " CONCAT(bo.id, '-', u.id) uniqueid, " . $sql->select;
         $sql->select .= ", u.id userid";
 
-        $sql->from .= " JOIN {user} u ON 1 = 1 "; // We want to join alle Nutzerinnen here
+        $sql->from .= " JOIN {user} u ON 1 = 1 "; // We want to join all users here.
 
         $sql->where .= " AND u.id $inorequal";
 

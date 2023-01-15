@@ -354,7 +354,7 @@ class booking_option {
             $options .= " AND LOWER(u.lastname) LIKE LOWER(:searchsurname)";
             $params['searchsurname'] = '%' . $this->filters['searchsurname'] . '%';
         }
-        if (groups_get_activity_groupmode($this->booking->cm) == SEPARATEGROUPS and
+        if (groups_get_activity_groupmode($this->booking->cm) == SEPARATEGROUPS &&
                  !has_capability('moodle/site:accessallgroups',
                         \context_course::instance($this->booking->course->id))) {
             list($groupsql, $groupparams) = booking::booking_get_groupmembers_sql(
@@ -588,7 +588,7 @@ class booking_option {
         $this->bookedusers = array_intersect_key($allanswers, $this->booking->canbookusers);
         // TODO offer users with according caps to delete excluded users from booking option.
         $this->numberofanswers = count($this->bookedusers);
-        if (groups_get_activity_groupmode($this->booking->cm) == SEPARATEGROUPS and
+        if (groups_get_activity_groupmode($this->booking->cm) == SEPARATEGROUPS &&
                  !has_capability('moodle/site:accessallgroups',
                         \context_course::instance($this->booking->course->id))) {
             $mygroups = groups_get_all_groups($this->booking->course->id, $USER->id);
@@ -916,8 +916,8 @@ class booking_option {
      * @throws \moodle_exception
      */
     public function enrol_user_coursestart($userid) {
-        if ($this->option->enrolmentstatus == 2 OR
-            ($this->option->enrolmentstatus < 2 AND $this->option->coursestarttime < time())) {
+        if ($this->option->enrolmentstatus == 2 ||
+            ($this->option->enrolmentstatus < 2 && $this->option->coursestarttime < time())) {
             $this->enrol_user($userid);
         }
     }

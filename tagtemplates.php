@@ -45,7 +45,7 @@ if (!$context = context_module::instance($cm->id)) {
 
 require_capability('mod/booking:updatebooking', $context);
 
-if (($action === 'delete') AND ($tagid > 0)) {
+if (($action === 'delete') && ($tagid > 0)) {
     $DB->delete_records('booking_tags', array('id' => $tagid));
     redirect($url, get_string('tagdeleted', 'booking'), 5);
 }

@@ -97,7 +97,7 @@ if (!$agree && (!empty($bookingoption->booking->settings->bookingpolicy))) {
             $subscribedusers = array();
             $notsubscribedusers = array();
 
-            if (has_capability('mod/booking:subscribeusers', $context) or (booking_check_if_teacher(
+            if (has_capability('mod/booking:subscribeusers', $context) || (booking_check_if_teacher(
                     $bookingoption->option))) {
                 foreach ($users as $user) {
                     if (!$bookingoption->user_submit_response($user)) {

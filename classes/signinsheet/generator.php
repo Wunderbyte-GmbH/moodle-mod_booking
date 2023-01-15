@@ -265,7 +265,7 @@ class generator {
         $groupparams = array();
         $addsqlwhere = '';
 
-        if (groups_get_activity_groupmode($this->bookingdata->booking->cm) == SEPARATEGROUPS and
+        if (groups_get_activity_groupmode($this->bookingdata->booking->cm) == SEPARATEGROUPS &&
                  !has_capability('moodle/site:accessallgroups',
                         \context_course::instance($this->bookingdata->booking->course->id))) {
             list($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql(
