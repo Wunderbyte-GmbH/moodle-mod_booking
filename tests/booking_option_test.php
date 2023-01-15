@@ -42,6 +42,13 @@ class booking_option_test extends advanced_testcase {
     public function tearDown():void {
     }
 
+    /**
+     * Test delete responses.
+     *
+     * @covers delete_responses_activitycompletion
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     public function test_delete_responses_activitycompletion() {
         global $DB, $CFG;
 

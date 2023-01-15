@@ -217,16 +217,16 @@ class booking_utils {
             $availability = "full";
         }
 
-        if (time() < $values->bookingopeningtime and $values->bookingopeningtime != 0) {
+        if (time() < $values->bookingopeningtime && $values->bookingopeningtime != 0) {
             $availability = "closed";
         }
-        if (time() > $values->bookingclosingtime and $values->bookingclosingtime != 0) {
+        if (time() > $values->bookingclosingtime && $values->bookingclosingtime != 0) {
             $availability = "closed";
         }
 
         // I'm booked or not.
         if ($values->iambooked) {
-            if ($values->allowupdate and $availability != 'closed' and $values->completed != 1) {
+            if ($values->allowupdate && $availability != 'closed' && $values->completed != 1) {
 
                 if (!$coursepage) {
                     $buttonoptions = array('id' => $booking->cm->id, 'action' => 'delbooking',
@@ -329,7 +329,7 @@ class booking_utils {
         if (!$coursepage) {
             if (has_capability('mod/booking:readresponses', $context) || $values->isteacher) {
                 if (groups_get_activity_groupmode($booking->cm) == SEPARATEGROUPS
-                        AND !has_capability('moodle/site:accessallgroups', \context_course::instance($this->booking->course->id))) {
+                        && !has_capability('moodle/site:accessallgroups', \context_course::instance($this->booking->course->id))) {
                     $numberofresponses = $values->allbookedsamegroup;
                 } else {
                     $numberofresponses = $values->waiting + $values->booked;

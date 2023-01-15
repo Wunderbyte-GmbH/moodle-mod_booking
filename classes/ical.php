@@ -102,7 +102,7 @@ class ical {
         } else if (\get_config('booking', 'icalfieldlocation') == 4) {
             $this->location = $this->option->address;
         }
-        if (($coursedates or $sessiontimes)) {
+        if (($coursedates || $sessiontimes)) {
             $this->datesareset = true;
             $this->user = $DB->get_record('user', array('id' => $user->id));
             // Date that this representation of the calendar information was created -

@@ -64,7 +64,8 @@ class actions_info {
         $categoryselect = [
             $mform->createElement('select', 'bookingruleactiontype',
             get_string('bookingruleaction', 'mod_booking'), $actionsforselect),
-            $mform->createElement('submit', 'btn_bookingruleactiontype', get_string('bookingruleaction', 'mod_booking'), $buttonargs)
+            $mform->createElement('submit', 'btn_bookingruleactiontype', get_string('bookingruleaction',
+                'mod_booking'), $buttonargs)
         ];
         $mform->addGroup($categoryselect, 'bookingruleactiontype', get_string('bookingruleaction', 'mod_booking'), [' '], false);
         $mform->setType('btn_bookingruleactiontype', PARAM_NOTAGS);
