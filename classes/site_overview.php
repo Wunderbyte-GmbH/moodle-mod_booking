@@ -16,8 +16,7 @@
 
 /**
  *
- * @package mod
- * @subpackage booking
+ * @package mod_booking
  * @copyright 2015 onwards David Bogner {@link http://www.edulabs.org}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

@@ -910,7 +910,7 @@ class booking_utils {
                 continue;
             }
 
-            if (has_capability('mod/booking:subscribeusers', $context) or
+            if (has_capability('mod/booking:subscribeusers', $context) ||
                 (booking_check_if_teacher($bookingoption->option))) {
                 foreach ($cohortmembers as $user) {
 
@@ -943,7 +943,7 @@ class booking_utils {
             $groupmembers = $DB->get_records_sql($sql, ['groupid' => $groupid]);
             $groupmembersarray = array_merge($groupmembersarray, $groupmembers);
 
-            if (has_capability('mod/booking:subscribeusers', $context) or
+            if (has_capability('mod/booking:subscribeusers', $context) ||
                 (booking_check_if_teacher($bookingoption->option))) {
 
                 foreach ($groupmembers as $user) {

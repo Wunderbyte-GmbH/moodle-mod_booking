@@ -17,7 +17,7 @@
 /**
  * Privacy provider implementation for mod_booking.
  *
- * @package booking
+ * @package mod_booking
  * @copyright 2018 Michael Pollak <moodle@michaelpollak.org>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

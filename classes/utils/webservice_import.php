@@ -34,8 +34,6 @@ global $CFG;
 /**
  * Class webservice_import
  * Import controller for webservice imports
- *
- * @package mod_booking\classes\utils
  */
 class webservice_import {
 

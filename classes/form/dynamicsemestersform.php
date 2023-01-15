@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Moodle form for dynamic semesters.
+ *
+ * @package   mod_booking
+ * @copyright 2021 Wunderbyte GmbH {@link http://www.wunderbyte.at}
+ * @author    Bernhard Fischer
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\form;
 
 defined('MOODLE_INTERNAL') || die();

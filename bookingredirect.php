@@ -15,11 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Booking redirect
+ *
  * This is a very simple script which allows us to pass a base64 encoded URL
  * as param and redirect to the decoded URL.
  * This was needed because it wasn't possible to stop the Moodle calendar exporter
  * from escaping "&" to "&amp;" HTML entitities which made it impossible
  * to open links within outlook events.
+ *
+ * @package mod_booking
+ * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . '/../../config.php');
 

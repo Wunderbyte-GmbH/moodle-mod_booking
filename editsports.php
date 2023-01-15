@@ -16,7 +16,7 @@
 /**
  * Add dates to option.
  *
- * @package local_musi
+ * @package mod_booking
  * @copyright 2022 Georg Maißer <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

@@ -45,7 +45,7 @@ class booking_option_test extends advanced_testcase {
     /**
      * Test delete responses.
      *
-     * @covers delete_responses_activitycompletion
+     * @covers ::delete_responses_activitycompletion
      * @throws \coding_exception
      * @throws \dml_exception
      */

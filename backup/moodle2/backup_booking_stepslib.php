@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Define all the backup steps that will be used by the backup_booking_activity_task
  *
- * @package moodlecore
- * @subpackage backup-moodle2
+ * @package mod_booking
  * @copyright 2012 onwards David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,6 +27,13 @@
  */
 class backup_booking_activity_structure_step extends backup_activity_structure_step {
 
+    /**
+     * Defines the booking instance structure.
+     *
+     * @return backup_nested_element
+     * @throws base_element_struct_exception
+     * @throws base_step_exception
+     */
     protected function define_structure() {
 
         // To know if we are including userinfo.
