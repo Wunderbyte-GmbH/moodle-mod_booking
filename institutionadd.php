@@ -13,6 +13,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Add institution web service
+ *
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
 require_once("institutionform.class.php");

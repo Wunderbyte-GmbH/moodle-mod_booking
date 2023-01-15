@@ -26,7 +26,7 @@ require_once("$CFG->libdir/formslib.php");
 /**
  * Class importoptions_form
  *
- * @package mod_booking\form
+ * @package mod_booking
  */
 class importoptions_form extends moodleform {
 

@@ -22,7 +22,7 @@ use mod_booking\booking;
 /**
  * entity subsystem callback implementation for local_entity.
  *
- * @package    local_entity
+ * @package mod_booking
  * @copyright  2022 Georg Maißer <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

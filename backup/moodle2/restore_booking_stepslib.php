@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Defines all the restore steps that will be used by the restore_booking_activity_task
  *
- * @package moodlecore
- * @subpackage backup-moodle2
- * @copyright 2010 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
+ * @package mod_booking
+ * @copyright 2012 onwards David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,6 +29,14 @@ use mod_booking\dates_handler;
  */
 class restore_booking_activity_structure_step extends restore_activity_structure_step {
 
+    /**
+     * Function that will return the structure to be processed by this restore_step.
+     * Must return one array of @restore_path_element elements
+     *
+     * @return mixed
+     * @throws base_step_exception
+     * @throws dml_exception
+     */
     protected function define_structure() {
         $paths = array();
         $userinfo = $this->get_setting_value('userinfo');
@@ -73,6 +81,15 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         return $this->prepare_activity_structure($paths);
     }
 
+    /**
+     * Processes the instance.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws base_step_exception
+     * @throws dml_exception
+     * @throws file_exception
+     * @throws stored_file_creation_exception
+     */
     protected function process_booking($data) {
         global $DB;
 
@@ -145,6 +162,16 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         }
     }
 
+    /**
+     * This is executed every time we have one /MOODLE_BACKUP/COURSE/MODULES/MOD/CHOICE/OPTIONS/OPTION
+     * data available
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     * @throws file_exception
+     * @throws restore_step_exception
+     * @throws stored_file_creation_exception
+     */
     protected function process_booking_option($data) {
         global $DB;
 
@@ -249,6 +276,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $this->set_mapping('booking_option', $oldid, $newitemid);
     }
 
+    /**
+     * Processes booking answer data.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     */
     protected function process_booking_answer($data) {
         global $DB;
 
@@ -262,6 +295,13 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         // No need to save this mapping as far as nothing depend on it.
     }
 
+    /**
+     * Processes booking option date data.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
     protected function process_booking_optiondate($data) {
         global $DB;
 
@@ -278,6 +318,13 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $this->set_mapping('booking_optiondate', $oldid, $newitemid);
     }
 
+    /**
+     * Processes booking teacher data.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
     protected function process_booking_teacher($data) {
         global $DB;
 
@@ -296,6 +343,13 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         // No need to save this mapping as far as nothing depends on it.
     }
 
+    /**
+     * Processes booking category data.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws base_step_exception
+     * @throws dml_exception
+     */
     protected function process_booking_category($data) {
         global $DB;
 
@@ -305,6 +359,13 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         // No need to save this mapping as far as nothing depend on it.
     }
 
+    /**
+     * Processes booking tag data.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws base_step_exception
+     * @throws dml_exception
+     */
     protected function process_booking_tag($data) {
         global $DB;
 
@@ -319,6 +380,13 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         // No need to save this mapping as far as nothing depend on it.
     }
 
+    /**
+     * Processes booking institution data.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws base_step_exception
+     * @throws dml_exception
+     */
     protected function process_booking_institution($data) {
         global $DB;
 
@@ -328,6 +396,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         // No need to save this mapping as far as nothing depend on it.
     }
 
+    /**
+     * Processes booking other data.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     */
     protected function process_booking_other($data) {
         global $DB;
 
@@ -337,6 +411,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         // No need to save this mapping as far as nothing depends on it.
     }
 
+    /**
+     * Processes booking entity data.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     */
     protected function process_booking_entity($data) {
         global $DB;
 
@@ -350,6 +430,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         }
     }
 
+    /**
+     * Processes booking custom field data.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     */
     protected function process_booking_customfield($data) {
         global $DB;
 
@@ -364,6 +450,12 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         // No need to save this mapping as far as nothing depends on it.
     }
 
+    /**
+     * Processes booking price data.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     */
     protected function process_booking_price($data) {
         global $DB;
 
@@ -374,6 +466,9 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         // No need to save this mapping as far as nothing depends on it.
     }
 
+    /**
+     * Post-execution processing.
+     */
     protected function after_execute() {
         // Add booking related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_booking', 'intro', null);

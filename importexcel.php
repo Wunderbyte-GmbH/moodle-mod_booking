@@ -16,7 +16,7 @@
 /**
  * Import excel data - change activity completion to user
  *
- * @package Booking
+ * @package mod_booking
  * @copyright 2015 Andraž Prinčič www.princic.net
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

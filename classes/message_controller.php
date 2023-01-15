@@ -727,8 +727,8 @@ class message_controller {
      *
      * Send an email to a specified user
      *
-     * @param stdClass $user A {@link $USER} object
-     * @param stdClass $from A {@link $USER} object
+     * @param stdClass $user A {@see $USER} object
+     * @param stdClass $from A {@see $USER} object
      * @param string $subject plain text subject line of the email
      * @param string $messagetext plain text version of the message
      * @param string $messagehtml complete html version of the message (optional)

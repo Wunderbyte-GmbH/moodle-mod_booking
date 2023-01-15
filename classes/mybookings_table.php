@@ -13,6 +13,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * My bookings table
+ *
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking;
 
 use moodle_url;
@@ -22,6 +31,9 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir.'/tablelib.php');
 
+/**
+ * mybookings_table class
+ */
 class mybookings_table extends table_sql {
 
     /**
@@ -45,6 +57,12 @@ class mybookings_table extends table_sql {
         $this->no_sorting('status');
     }
 
+    /**
+     * Column course start time
+     *
+     * @param $values
+     * @return string
+     */
     protected function col_coursestarttime($values) {
         if ($values->coursestarttime == 0) {
             return '';
@@ -53,6 +71,13 @@ class mybookings_table extends table_sql {
         return userdate($values->coursestarttime);
     }
 
+    /**
+     * Column text
+     *
+     * @param $values
+     * @return string
+     * @throws \moodle_exception
+     */
     protected function col_text($values) {
         $optionurl = new moodle_url("/mod/booking/view.php?id={$values->cmid}" .
             "&optionid={$values->optionid}&action=showonlyone&whichview=showonlyone#goenrol");
@@ -60,6 +85,12 @@ class mybookings_table extends table_sql {
         return "<a href='{$optionurl}'>{$values->text}</a>";
     }
 
+    /**
+     * Column name
+     *
+     * @param $values
+     * @return string
+     */
     protected function col_name($values) {
         $bookingurl = new moodle_url("/mod/booking/view.php?id={$values->cmid}");
         $courseurl = new moodle_url("/course/view.php?id={$values->courseid}");
@@ -67,6 +98,13 @@ class mybookings_table extends table_sql {
         return "<a href='{$bookingurl}'>{$values->name}</a> (<a href='{$courseurl}'>{$values->fullname}</a>)";
     }
 
+    /**
+     * Column status
+     *
+     * @param $values
+     * @return string
+     * @throws \coding_exception
+     */
     protected function col_status($values) {
         return booking_getoptionstatus($values->coursestarttime, $values->courseendtime);
     }

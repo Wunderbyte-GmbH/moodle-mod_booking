@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
+ * Defines backup_booking_activity_task class
  *
- * @package moodlecore
- * @subpackage backup-moodle2
- * @copyright 2010 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
+ * @package mod_booking
+ * @copyright 2012 onwards David Bogner
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -49,6 +49,9 @@ class backup_booking_activity_task extends backup_activity_task {
 
     /**
      * Code the transformations to perform in the activity in order to get transportable (encoded) links.
+     *
+     * @param string $content The content
+     * @return array|string|string[]|null
      */
     public static function encode_content_links($content) {
         global $CFG;

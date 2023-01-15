@@ -16,9 +16,10 @@
 
 
 /**
- * @package moodlecore
- * @subpackage backup-moodle2
- * @copyright 2010 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
+ * Backup settings for mod_booking.
+ *
+ * @package mod_booking
+ * @copyright 2012 onwards David Bogner
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(__DIR__ . '/../../../../config.php');

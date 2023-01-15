@@ -13,6 +13,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Custom report templates form
+ *
+ * @package mod_booking
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\form;
 
 use moodleform;
@@ -24,7 +33,7 @@ require_once("$CFG->libdir/formslib.php");
 /**
  * Class importoptions_form
  *
- * @package mod_booking\form
+ * @package mod_booking
  */
 class customreporttemplatesadd_form extends moodleform {
 

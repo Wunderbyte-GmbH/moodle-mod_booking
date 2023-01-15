@@ -16,7 +16,7 @@
 /**
  * View confirmation message
  *
- * @package Booking
+ * @package mod_booking
  * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
  * @author 2016 Andraž Prinčič www.princic.net
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
