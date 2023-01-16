@@ -131,7 +131,7 @@ class bo_info {
 
             // First, we have the hardcoded conditions already as instances.
             if ($classname !== 'stdClass') {
-                list($isavailable, $description) = $condition->get_description($full, $settings, $userid);
+                list($isavailable, $description) = $condition->get_description($settings, $userid, $full);
                 $resultsarray[$condition->id] = ['id' => $condition->id,
                     'isavailable' => $isavailable,
                     'description' => $description];
@@ -153,7 +153,7 @@ class bo_info {
                     continue;
                 }
                 // Then pass the availability-parameters.
-                list($isavailable, $description) = $instance->get_description($full, $settings, $userid);
+                list($isavailable, $description) = $instance->get_description($settings, $userid, $full);
                 $resultsarray[$condition->id] = ['id' => $condition->id,
                     'isavailable' => $isavailable,
                     'description' => $description];
@@ -264,7 +264,7 @@ class bo_info {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description($full = false, booking_option_settings $settings, $userid = null):array {
+    public function get_description(booking_option_settings $settings, $userid = null, $full = false):array {
 
         return $this->is_available($settings->id, $userid, false);
     }
@@ -277,9 +277,23 @@ class bo_info {
      * @return void
      */
     public static function add_conditions_to_mform(MoodleQuickForm &$mform, int $optionid) {
-
-        $mform->addElement('header', 'availabilityconditions',
+        global $DB;
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because hideIf does not work with headers.
+        // In expert mode, we always show everything.
+        $showconditionsheader = true;
+        $formmode = get_user_preferences('optionform_mode');
+        if ($formmode !== 'expert') {
+            $cfgconditionsheader = $DB->get_field('booking_optionformconfig', 'active',
+                ['elementname' => 'availabilityconditions']);
+            if ($cfgconditionsheader === "0") {
+                $showconditionsheader = false;
+            }
+        }
+        if ($showconditionsheader) {
+            $mform->addElement('header', 'availabilityconditions',
                 get_string('availabilityconditions', 'mod_booking'));
+        }
 
         $conditions = self::get_conditions(CONDPARAM_MFORM_ONLY);
 
@@ -400,7 +414,7 @@ class bo_info {
 
         // Show description.
         if (!empty($description)) {
-            $renderedstring = html_writer::div($description, "alert alert-$style text-center");
+            $renderedstring = html_writer::div($description, "alert alert-$style text-center pt-0 pb-0");
         }
 
         // Show price and add to cart button.

@@ -132,6 +132,12 @@ function editRulesModal(element) {
                 modalForm.processNoSubmitButton(button);
             }
 
+            if (e.target.name == 'rule_react_on_event_event') {
+                window.skipClientValidation = true;
+                let button = document.querySelector('[name="btn_bookingruletype"]');
+                modalForm.processNoSubmitButton(button);
+            }
+
             if (e.target.name == 'bookingruleconditiontype') {
                 window.skipClientValidation = true;
                 let button = document.querySelector('[name="btn_bookingruleconditiontype"]');

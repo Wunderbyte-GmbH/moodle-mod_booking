@@ -413,18 +413,17 @@ class message_controller {
             // Get the mail template specified in plugin config.
             $text = get_config('booking', 'global' . $this->messagefieldname);
 
-        } else if ($this->bookingsettings->{$this->messagefieldname} === "0") {
+        } else if (isset($this->bookingsettings->{$this->messagefieldname})
+            && $this->bookingsettings->{$this->messagefieldname} === "0") {
+            /* NOTE: By entering 0 into a mail template, we can turn the specific mail reminder off.
+            This is why we need the === check for the exact string of "0". */
             $text = "0";
-        } else if (empty($this->bookingsettings->{$this->messagefieldname})) {
-
-            // Use default message if none is specified.
-            $text = get_string($this->messagefieldname . 'message', 'booking', $this->params);
-
-        } else {
-
+        } else if (!empty($this->bookingsettings->{$this->messagefieldname})) {
             // If there is an instance-specific template, then use it.
             $text = $this->bookingsettings->{$this->messagefieldname};
-
+        } else {
+            // Use default message if none is specified.
+            $text = get_string($this->messagefieldname . 'message', 'booking', $this->params);
         }
 
         // Replace the placeholders.
@@ -997,39 +996,43 @@ class message_controller {
             $mail->isHTML(false);
             $mail->Body = "\n$messagetext\n";
         }
-        if (!is_array((array) $attachment) && ($attachment && $attachname)) {
-            $attachment[$attachname] = $attachment;
-        }
-        if (is_array((array) $attachment)) {
-            $attachment = (array) $attachment;
-            foreach ($attachment as $attachname => $attachlocation) {
-                if (preg_match("~\\.\\.~", $attachlocation)) {
-                    // Security check for ".." in dir path.
-                    $supportuser = core_user::get_support_user();
-                    $temprecipients[] = array($supportuser->email, fullname($supportuser, true));
-                    $mail->addStringAttachment(
-                            'Error in attachment.  User attempted to attach a filename with an unsafe name.',
-                            'error.txt', '8bit', 'text/plain');
-                } else {
-                    require_once($CFG->libdir . '/filelib.php');
-                    $mimetype = mimeinfo('type', $attachname);
 
-                    $attachmentpath = $attachlocation;
+        // Fix: Prevent from adding empty attachments.
+        if (!empty($attachment)) {
+            if (!is_array((array) $attachment) && ($attachment && $attachname)) {
+                $attachment[$attachname] = $attachment;
+            }
+            if (is_array((array) $attachment)) {
+                $attachment = (array) $attachment;
+                foreach ($attachment as $attachname => $attachlocation) {
+                    if (preg_match("~\\.\\.~", $attachlocation)) {
+                        // Security check for ".." in dir path.
+                        $supportuser = core_user::get_support_user();
+                        $temprecipients[] = array($supportuser->email, fullname($supportuser, true));
+                        $mail->addStringAttachment(
+                                'Error in attachment.  User attempted to attach a filename with an unsafe name.',
+                                'error.txt', '8bit', 'text/plain');
+                    } else {
+                        require_once($CFG->libdir . '/filelib.php');
+                        $mimetype = mimeinfo('type', $attachname);
 
-                    // Before doing the comparison, make sure that the paths are correct (Windows uses
-                    // slashes in the other direction).
-                    $attachpath = str_replace('\\', '/', $attachmentpath);
-                    // Make sure both variables are normalised before comparing.
-                    $temppath = str_replace('\\', '/', realpath($CFG->tempdir));
+                        $attachmentpath = $attachlocation;
 
-                    // If the attachment is a full path to a file in the tempdir, use it as is,
-                    // otherwise assume it is a relative path from the dataroot (for backwards
-                    // compatibility reasons).
-                    if (strpos($attachpath, $temppath) !== 0) {
-                        $attachmentpath = $CFG->dataroot . '/' . $attachmentpath;
+                        // Before doing the comparison, make sure that the paths are correct (Windows uses
+                        // slashes in the other direction).
+                        $attachpath = str_replace('\\', '/', $attachmentpath);
+                        // Make sure both variables are normalised before comparing.
+                        $temppath = str_replace('\\', '/', realpath($CFG->tempdir));
+
+                        // If the attachment is a full path to a file in the tempdir, use it as is,
+                        // otherwise assume it is a relative path from the dataroot (for backwards
+                        // compatibility reasons).
+                        if (strpos($attachpath, $temppath) !== 0) {
+                            $attachmentpath = $CFG->dataroot . '/' . $attachmentpath;
+                        }
+
+                        $mail->addAttachment($attachmentpath, $attachname, 'base64', $mimetype);
                     }
-
-                    $mail->addAttachment($attachmentpath, $attachname, 'base64', $mimetype);
                 }
             }
         }

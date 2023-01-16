@@ -27,6 +27,7 @@ use core\output\notification;
 use mod_booking\booking_utils;
 use mod_booking\booking_option;
 use mod_booking\form\subscribe_cohort_or_group_form;
+use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
 
 global $CFG, $DB, $COURSE, $PAGE, $OUTPUT;
@@ -163,6 +164,12 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading(format_string($optionsettings->get_title_with_prefix()), 3, 'helptitle', 'uniqueid');
 
+// We call the template render to display how many users are currently reserved.
+$data = new booked_users($optionid, false, true, true);
+$renderer = $PAGE->get_renderer('mod_booking');
+echo $renderer->render_booked_users($data);
+
+
 echo html_writer::tag('div',
         html_writer::link(
                 new moodle_url('/mod/booking/report.php',
@@ -179,6 +186,13 @@ if ($subscribesuccess || $unsubscribesuccess) {
              (booking_check_if_teacher($bookingoption->option)))) {
         echo $OUTPUT->container(get_string('allchangessaved', 'booking'), 'important', 'notice');
     }
+}
+
+if (booking_check_if_teacher($bookingoption->option) && !has_capability(
+        'mod/booking:readallinstitutionusers', $context)) {
+    echo html_writer::tag('div',
+        get_string('onlyusersfrominstitution', 'mod_booking', $bookingoption->option->institution),
+    ['class' => 'alert alert-info']);
 }
 
 echo $bookingoutput->subscriber_selection_form($existingselector, $subscriberselector, $course->id);

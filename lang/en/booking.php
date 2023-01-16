@@ -18,6 +18,13 @@
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['booking:manageoptiontemplates'] = "Manage option templates";
 $string['booking:cantoggleformmode'] = 'User can edit all settings';
+$string['alreadypassed'] = 'Already passed';
+$string['gotomanageresponses'] = '&lt;&lt; Manage responses';
+$string['teachers'] = 'Teachers';
+
+// General errors.
+$string['error:choosevalue'] = 'You have to choose a value here.';
+$string['error:entervalue'] = 'You have to enter a value here.';
 
 // Index.php.
 $string['week'] = "Week";
@@ -135,6 +142,7 @@ $string['backtoresponses'] = '&lt;&lt; Back to responses';
 $string['allusersbooked'] = 'All {$a} selected users have successfully been assigned to this booking option.';
 $string['notallbooked'] = 'The following users could not be booked due to reaching the max number of bookings per user or lack of available places for the booking option: {$a}';
 $string['enrolledinoptions'] = "alredy booked in booking options: ";
+$string['onlyusersfrominstitution'] = 'You can only add users from this institution: {$a}';
 
 $string['resultofcohortorgroupbooking'] = '<p>This is the result of your cohort booking:</p>
 <ul>
@@ -283,7 +291,7 @@ $string['starttimenotset'] = 'Start date not set';
 $string['subscribetocourse'] = 'Enrol users in the course';
 $string['subscribeuser'] = 'Do you really want to enrol the users in the following course';
 $string['tagtemplates'] = 'Tag templates';
-$string['unlimited'] = 'Number of available places is not limited';
+$string['unlimitedplaces'] = 'Unlimited';
 $string['updatebooking'] = 'Edit this booking option';
 $string['userdownload'] = 'Download users';
 $string['waitinglist'] = 'Waiting list';
@@ -308,7 +316,6 @@ $string['tagdeleted'] = 'Tag template was deleted!';
 // Mod_booking\all_options.
 $string['showdescription'] = 'Show description';
 $string['hidedescription'] = 'Hide description';
-$string['editteacherslink'] = 'Edit teachers';
 $string['cancelallusers'] = 'Cancel all booked users';
 
 // Mod_form.
@@ -1068,7 +1075,9 @@ $string['groupexists'] = 'The group already exists in the target course, please 
 $string['groupdeleted'] = 'This booking instance creates groups automatically in the target course. But the group has been manually deleted in the target course. Activate the following checkbox in order to recreate the group';
 $string['recreategroup'] = 'Recreate group in the target course and enrol users in group';
 $string['copy'] = ' - Copy';
-$string['enrolmentstatus'] = 'Do not enrol users immediately but only at course start time';
+$string['enrolmentstatus'] = 'Enrol users at course start time (Default: Not checked &rarr; enrol them immediately.)';
+$string['enrolmentstatus_help'] = 'Notice: In order for automatic enrolment to work, you need to change the booking instance setting
+ "Automatically enrol users" to "Yes".';
 $string['duplicatename'] = 'This booking option name already exists. Please choose another one.';
 $string['newtemplatesaved'] = 'New template for booking option was saved.';
 $string['manageoptiontemplates'] = 'Manage booking option templates';
@@ -1243,10 +1252,11 @@ $string['reportremindersubject'] = 'Reminder: Your booked course';
 $string['reportremindermessage'] = '{$a->bookingdetails}';
 
 // Report.php.
-$string['addteachers'] = 'Add teachers';
 $string['allmailssend'] = 'All e-mails to the users have been sent!';
 $string['associatedcourse'] = 'Associated course';
 $string['bookedusers'] = 'Booked users';
+$string['deletedusers'] = 'Deleted users';
+$string['reservedusers'] = 'Users with shortterm reservations';
 $string['bookingfulldidntregister'] = 'Option is full, so I didn\'t transfer all users!';
 $string['booktootherbooking'] = 'Book users to other booking option';
 $string['downloadallresponses'] = 'Download all responses for all booking options';
@@ -1344,11 +1354,11 @@ $string['messagesend'] = 'Your message has been sent.';
 $string['messagesubject'] = 'Subject';
 $string['messagetext'] = 'Message';
 
-// Teachers.php.
-$string['teachers'] = 'Teachers';
-$string['gotomanageresponses'] = '&lt;&lt; Manage responses';
-$string['warningonteacherspage'] = '<b>BE CAREFUL: </b>When adding teachers here, they will also be <b>added to EACH date</b> in the teaching report.
+// Teachers_handler.php.
+$string['teachersforoption'] = 'Teachers';
+$string['teachersforoption_help'] = '<b>BE CAREFUL: </b>When adding teachers here, they will also be <b>added to EACH date</b> in the teaching report.
 When deleting teachers here, they will be <b>removed from EACH date</b> in the teaching report!';
+$string['info:teachersforoptiondates'] = 'Go to the <a href="{$a}" target="_self">teaching journal</a>, to manage teachers for specific dates.';
 
 // Lib.php.
 $string['pollstrftimedate'] = '%Y-%m-%d';
@@ -1573,12 +1583,17 @@ $string['notificationlist'] = 'Notification list';
 $string['notificationlistdesc'] = 'When no place is available anymore, users can still register to be notified when there is an opening';
 $string['usenotificationlist'] = 'Use notification list';
 
+$string['progressbars'] = 'Progress bars of time passed (PRO)';
+$string['progressbars_desc'] = 'Get a visual representation of the time which has already passed for a booking option.';
+$string['showprogressbars'] = 'Show progress bars of time passed';
+$string['progressbarscollapsible'] = 'Make progress bars collapsible';
+
 $string['bookingoptiondefaults'] = 'Default settings for booking options';
 $string['bookingoptiondefaultsdesc'] = 'Here you can set default settings for the creation of booking options and lock them if needed.';
 $string['addtocalendardesc'] = 'Course calendar events are visible to ALL users within a course. If you do not want them to be created at all,
 you can turn this setting off and lock it by default. Don\'t worry: user calendar events for booked options will still be created anyways.';
 
-$string['automaticcoursecreation'] = 'Automatic creation of Moodle courses';
+$string['automaticcoursecreation'] = 'Automatic creation of Moodle courses (PRO)';
 $string['newcoursecategorycfield'] = 'Booking option custom field to be used as course category';
 $string['newcoursecategorycfielddesc'] = 'Choose a booking option custom field which will be used as course category for automatically created
  courses using the dropdown entry "New course" in the form for creating new booking options.';
@@ -1773,6 +1788,8 @@ $string['pricecategoryname'] = 'Price category name';
 $string['pricecategoryname_help'] = 'Enter the full name of the price category to be shown in booking options, e.g. "Student price".';
 $string['defaultvalue'] = 'Default price value';
 $string['defaultvalue_help'] = 'Enter a default value for every price in this category. Of course, this value can be overwritten later.';
+$string['pricecatsortorder'] = 'Sort order (number)';
+$string['pricecatsortorder_help'] = 'Enter a full number. "1" means that the price category will be shown at first place, "2" at second place etc.';
 $string['disablepricecategory'] = 'Disable price category';
 $string['disablepricecategory_help'] = 'When you disable a price category, you will not be able to use it anymore.';
 $string['addpricecategory'] = 'Add price category';
@@ -1787,6 +1804,7 @@ $string['pricecategoriessubtitle'] = '<p>Here you can define different price cat
     <b>Be careful:</b> Once you have added a category, you cannot delete it.
     Only disable or rename it.</p>';
 
+// Price formula.
 $string['defaultpriceformula'] = "Price formula";
 $string['defaultpriceformuladesc'] = "The JSON object permits the configuration of the automatic price calculation with a booking option.";
 
@@ -1878,9 +1896,7 @@ $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="ale
 $string['optiondatesteachersreport'] = 'Teaching Report / Replacement teachers';
 $string['optiondatesteachersreport_desc'] = 'This report gives an overview of which teacher was present at which specific date.<br>
 By default, every date will be filled in with the option\'s teacher. You can overwrite specific dates with replacement teachers.';
-$string['linkfromreporttoeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Click here if you want to add or remove teachers to/from EACH date.</a></h5></p>';
-$string['linktoreportfromeditteachers'] = '<p><h5><a href="{$a}" target="_self">&gt;&gt; Teaching report: Click here if you want to add or remove teachers to/from specific dates only (for reporting).</a></h5></p>';
-$string['backtoteachersinstancereport'] = '<p><h5><a href="{$a}" target="_self">&lt;&lt; Back to teachers report</a></h5></p>';
+$string['linktoteachersinstancereport'] = '<p><a href="{$a}" target="_self">&gt;&gt; Go to teachers report for booking instance</a></p>';
 $string['teacher'] = 'Teacher';
 $string['noteacherset'] = 'No teacher';
 $string['reason'] = 'Reason';
@@ -2025,8 +2041,8 @@ $string['bo_cond_isbookable_full_not_available'] = 'Booking is forbidden for thi
 
 $string['bo_cond_iscancelled_available'] = 'Book it';
 $string['bo_cond_iscancelled_full_available'] = 'Booking is possible';
-$string['bo_cond_iscancelled_not_available'] = 'This booking option is cancelled.';
-$string['bo_cond_iscancelled_full_not_available'] = 'This booking option is cancelled.';
+$string['bo_cond_iscancelled_not_available'] = 'Cancelled';
+$string['bo_cond_iscancelled_full_not_available'] = 'Cancelled - booking not possible';
 
 $string['bo_cond_isloggedin_available'] = 'Book it';
 $string['bo_cond_isloggedin_full_available'] = 'Booking is possible';
@@ -2127,20 +2143,21 @@ $string['match_userprofilefield'] = "Select users by matching field in booking o
 $string['select_users'] = "Directly select users without connection to the booking option";
 $string['select_student_in_bo'] = "Select users of a booking option";
 $string['select_teacher_in_bo'] = "Select teachers of a booking option";
+$string['select_user_from_event'] = "Select user from event";
 $string['send_mail'] = 'Send email';
-
 $string['bookingcondition'] = 'Condition';
-
 $string['condition_select_teacher_in_bo_desc'] = 'Select the teachers of the booking option (affected by the rule).';
 $string['condition_select_student_in_bo_desc'] = 'Select all students of the booking option (affected by the rule) having a certain role.';
 $string['condition_select_student_in_bo_roles'] = 'Choose role';
-
 $string['condition_select_users_userids'] = "Select the users you want to target";
-
+$string['condition_select_user_from_event_desc'] = 'Choose a user who is somehow connected to the event';
 $string['studentbooked'] = 'Users who booked';
 $string['studentwaitinglist'] = 'Users on the waiting list';
 $string['studentnotificationlist'] = 'Users on the notification list';
 $string['studentdeleted'] = 'Users who were already deleted';
+$string['useraffectedbyevent'] = 'User affected by the event';
+$string['userwhotriggeredevent'] = 'User who triggered the event';
+$string['condition_select_user_from_event_type'] = 'Choose role';
 
 // Booking rules actions.
 $string['bookingaction'] = "Action";
@@ -2159,3 +2176,10 @@ $string['nocancelreason'] = "You need to give a reason for canceling this bookin
 
 // Access.php.
 $string['booking:bookforothers'] = "Book for others";
+
+// Booking_handler.php.
+$string['error:newcoursecategorycfieldmissing'] = 'You need to create a <a href="{$a->bookingcustomfieldsurl}" target="_blank">booking
+ custom field</a> for new course categories first. After you have created one, make sure it is selected in the
+ <a href="{$a->settingsurl}" target="_blank">Booking plugin settings</a>.';
+$string['error:coursecategoryvaluemissing'] = 'You need to choose a value here as it is needed as course category
+ for the automatically created Moodle course.';

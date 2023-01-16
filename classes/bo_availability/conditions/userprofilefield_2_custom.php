@@ -199,7 +199,7 @@ class userprofilefield_2_custom implements bo_condition {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description($full = false, booking_option_settings $settings, $userid = null, $not = false):array {
+    public function get_description(booking_option_settings $settings, $userid = null, $full = false, $not = false):array {
 
         $description = '';
 
@@ -229,7 +229,7 @@ class userprofilefield_2_custom implements bo_condition {
         global $DB;
 
         // Check if PRO version is activated.
-        if (wb_payment::is_currently_valid_licensekey()) {
+        if (wb_payment::pro_version_is_activated()) {
 
             $customuserprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
             if (!empty($customuserprofilefields)) {

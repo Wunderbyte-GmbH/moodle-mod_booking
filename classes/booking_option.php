@@ -19,8 +19,6 @@ use cache_helper;
 use coding_exception;
 use completion_info;
 use context_module;
-use context_system;
-use core_analytics\user;
 use dml_exception;
 use Exception;
 use invalid_parameter_exception;
@@ -29,6 +27,7 @@ use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
 use mod_booking\calendar;
+use mod_booking\teachers_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\event\bookinganswer_cancelled;
 use mod_booking\message_controller;
@@ -129,6 +128,12 @@ class booking_option {
 
     /** @var booking_option_settings $settings */
     public $settings = null;
+
+    /** @var int|null */
+    public $secondstostart = null;
+
+    /** @var int|null */
+    public $secondspassed = null;
 
     /**
      * Creates basic booking option
@@ -689,9 +694,13 @@ class booking_option {
      *
      * @param $userid
      * @param bool $cancelreservation
+     * @param bool $bookingoptioncancel indicates if the function was called
+     *     after the whole booking option was cancelled, false by default
      * @return true if booking was deleted successfully, otherwise false
      */
-    public function user_delete_response($userid, $cancelreservation = false) {
+    public function user_delete_response($userid, $cancelreservation = false,
+        $bookingoptioncancel = false) {
+
         global $USER, $DB;
 
         $results = $DB->get_records('booking_answers',
@@ -720,7 +729,10 @@ class booking_option {
         }
 
         // Sync the waiting list and send status change mails.
-        $this->sync_waiting_list();
+        // If the whole option was cancelled, there is no need to sync anymore.
+        if (!$bookingoptioncancel) {
+            $this->sync_waiting_list();
+        }
 
         // Before returning, we have to set back the answer cache.
         $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
@@ -736,27 +748,40 @@ class booking_option {
             $user = $DB->get_record('user', array('id' => $userid));
         }
 
-        // Log deletion of user.
-        $event = bookinganswer_cancelled::create(
-                array('objectid' => $this->optionid,
-                    'context' => \context_module::instance($this->booking->cm->id),
-                    'relateduserid' => $user->id, 'other' => array('userid' => $user->id)));
-        $event->trigger();
+        /* NOTE FOR THE FUTURE: Currently we have no rule condition to select affected users of an event.
+        In the future, we need to figure out a way, so we can react to this event
+        (when a user gets cancelled or cancels by himself) and send mails by rules.
+        BUT: We do not want to send mails twice if a booking option gets cancelled. */
+
+        // Log cancellation of user.
+        $event = bookinganswer_cancelled::create([
+            'objectid' => $this->optionid,
+            'context' => \context_module::instance($this->booking->cm->id),
+            'userid' => $USER->id, // The user who did cancel.
+            'relateduserid' => $userid // Affected user - the user who was cancelled.
+        ]);
+        $event->trigger(); // This will trigger the observer function and delete calendar events.
         $this->unenrol_user($user->id);
 
-        if ($userid == $USER->id) {
-            // I cancelled the booking.
-            $msgparam = MSGPARAM_CANCELLED_BY_PARTICIPANT;
-        } else {
-            // Booking manager cancelled the booking.
-            $msgparam = MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM;
+        // We only send messages for booking answers for individual cancellations!
+        // If a whole booking option was cancelled, we can use the new global booking rules...
+        // ...and react to the event bookingoption_cancelled instead.
+        if (!$bookingoptioncancel) {
+
+            if ($userid == $USER->id) {
+                // Participant cancelled the booking herself.
+                $msgparam = MSGPARAM_CANCELLED_BY_PARTICIPANT;
+            } else {
+                // An admin user cancelled the booking.
+                $msgparam = MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM;
+            }
+            // Let's send the cancel e-mails by using adhoc tasks.
+            $messagecontroller = new message_controller(
+                MSGCONTRPARAM_QUEUE_ADHOC, $msgparam,
+                $this->cmid, $this->bookingid, $this->optionid, $userid
+            );
+            $messagecontroller->send_or_queue();
         }
-        // Let's send the cancel e-mails by using adhoc tasks.
-        $messagecontroller = new message_controller(
-            MSGCONTRPARAM_QUEUE_ADHOC, $msgparam,
-            $this->cmid, $this->bookingid, $this->optionid, $userid
-        );
-        $messagecontroller->send_or_queue();
 
         // Remove activity completion.
         $course = $DB->get_record('course', array('id' => $this->booking->settings->course));
@@ -768,6 +793,9 @@ class booking_option {
         if ($completion->is_enabled($this->booking->cm) && $this->booking->settings->enablecompletion < $countcompleted) {
             $completion->update_state($this->booking->cm, COMPLETION_INCOMPLETE, $userid);
         }
+
+        // After deleting an answer, cache has to be invalidated.
+        self::purge_cache_for_option($this->optionid);
 
         return true;
     }
@@ -950,7 +978,8 @@ class booking_option {
         $waitinglist = $this->check_if_limit($user->id);
 
         if ($waitinglist === false) {
-            echo "Couldn't subscribe user $user->id because of full waitinglist <br>";
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* echo "Couldn't subscribe user $user->id because of full waitinglist <br>";*/
             return false;
         } else if ($addedtocart) {
             $waitinglist = STATUSPARAM_RESERVED;
@@ -961,11 +990,12 @@ class booking_option {
         $underlimit = $underlimit ||
                 (($this->booking->get_user_booking_count($user) - $substractfromlimit) < $this->booking->settings->maxperuser);
         if (!$underlimit) {
-            mtrace("Couldn't subscribe user $user->id because of maxperuser setting <br>");
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* mtrace("Couldn't subscribe user $user->id because of maxperuser setting <br>"); */
             return false;
         }
 
-        $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings, $user->id);
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings);
 
         if (isset($bookinganswers->users[$user->id]) && ($currentanswer = $bookinganswers->users[$user->id])) {
             switch($currentanswer->waitinglist) {
@@ -1010,6 +1040,9 @@ class booking_option {
                                        $waitinglist,
                                        $currentanswerid,
                                        $timecreated);
+
+        // Important: Purge caches after submitting a new user.
+        self::purge_cache_for_option($this->optionid);
 
         return $this->after_successful_booking_routine($user, $waitinglist);
     }
@@ -1058,11 +1091,8 @@ class booking_option {
             }
         }
 
-        // After writing, cache has to be invalidated.
-        cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
-        // When we set back the booking_answer...
-        // ... we have to make sure it's also delted in the singleton service.
-        singleton_service::destroy_booking_answers($optionid);
+        // After writing an answer, cache has to be invalidated.
+        self::purge_cache_for_option($optionid);
     }
 
 
@@ -1231,8 +1261,11 @@ class booking_option {
      * Added option, to manualy enrol user, with a click of button.
      *
      * @param int $userid
+     * @param bool $manual
+     * @param int $roleid
+     * @param bool $isteacher true for teacher enrolments
      */
-    public function enrol_user($userid, $manual = false, $roleid = 0) {
+    public function enrol_user(int $userid, bool $manual = false, int $roleid = 0, bool $isteacher = false) {
         global $DB;
         if (!$manual) {
             if (!$this->booking->settings->autoenrol) {
@@ -1259,7 +1292,7 @@ class booking_option {
         $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
 
         $instance = reset($instances); // Use the first manual enrolment plugin in the course.
-        if ($bookinganswers->user_status($userid) == STATUSPARAM_BOOKED) {
+        if ($bookinganswers->user_status($userid) == STATUSPARAM_BOOKED || $isteacher) {
 
             // If a semester is set for the booking option...
             // ...then we only want to enrol from semester startdate to semester enddate.
@@ -1432,7 +1465,7 @@ class booking_option {
         }
 
         foreach ($this->get_teachers() as $teacher) {
-            unsubscribe_teacher_from_booking_option($teacher->userid, $this->optionid, $this->booking->cm);
+            unsubscribe_teacher_from_booking_option($teacher->userid, $this->optionid, $this->booking->cm->id);
         }
 
         // Delete calendar entry, if any.
@@ -1515,7 +1548,7 @@ class booking_option {
             $result = false;
         } else {
             // Also delete associated entries in booking_optiondates_teachers.
-            dates_handler::delete_booking_optiondates_teachers_by_optionid($this->optionid);
+            teachers_handler::delete_booking_optiondates_teachers_by_optionid($this->optionid);
         }
 
         // Delete image files belonging to the option.
@@ -1567,13 +1600,8 @@ class booking_option {
                     'userid' => $USER->id));
         $event->trigger();
 
-        // At the very last moment, when everything is done, we invalidate the table cache.
-        cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::invalidate_by_event('setbackoptionsettings', [$this->optionid]);
-        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
-        // When we set back the booking_answer...
-        // ... we have to make sure it's also delted in the singleton service.
-        singleton_service::destroy_booking_answers($this->optionid);
+        // At the very last moment, we purge caches for the option.
+        self::purge_cache_for_option($this->optionid);
 
         return $result;
     }
@@ -1595,11 +1623,8 @@ class booking_option {
             $DB->update_record('booking_answers', $userdata);
         }
 
-        // After updating, we have to invalidate cache.
-        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
-        // When we set back the booking_answer...
-        // ... we have to make sure it's also delted in the singleton service.
-        singleton_service::destroy_booking_answers($this->optionid);
+        // After updating, cache has to be invalidated.
+        self::purge_cache_for_option($this->optionid);
     }
 
     /**
@@ -1779,10 +1804,7 @@ class booking_option {
         }
 
         // After updating, we have to invalidate cache.
-        cache_helper::invalidate_by_event('setbackoptionsanswers', [$this->optionid]);
-        // When we set back the booking_answer...
-        // ... we have to make sure it's also delted in the singleton service.
-        singleton_service::destroy_booking_answers($this->optionid);
+        self::purge_cache_for_option($this->optionid);
     }
 
     /**
@@ -2098,6 +2120,14 @@ class booking_option {
      */
     public function sendmessage_completed(int $userid) {
 
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($this->cmid);
+
+        // We DO NOT send if global mail templates are activated for the instance.
+        // We use the new global booking rules instead.
+        if (isset($bookingsettings->mailtemplatessource) && $bookingsettings->mailtemplatessource == 1) {
+            return;
+        }
+
         $taskdata = array(
             'userid' => $userid,
             'optionid' => $this->optionid,
@@ -2166,7 +2196,8 @@ class booking_option {
      */
     public function get_user_status_string($userid) {
 
-        $bookinganswers = booking_answers::get_instance_from_optionid($this->optionid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
 
         $statusparam = $bookinganswers->user_status($userid);
 
@@ -2544,5 +2575,126 @@ class booking_option {
             // Deletion of booking answers and user events needs to happen in event observer.
         }
 
+        // At the end, we have to invalidate caches!
+        self::purge_cache_for_option($optionid);
+    }
+
+    /**
+     * Helper function to get the quota of consumed sessions
+     * or of consumed time (for events with no sessions or with one session only).
+     * For events with neither sessions nor coursestarttime nor endtime,
+     * the consumed quota will always be 0.
+     *
+     * @param int $optionid
+     * @return float $consumedquota 0.0 = nothing consumed, 0.5 half consumed, 1.0 completely consumed
+     *
+     */
+    public static function get_consumed_quota(int $optionid) {
+
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $now = time();
+        $consumedquota = 0.0;
+
+        if (empty($optionsettings->sessions)) {
+            return $consumedquota;
+        }
+
+        if (count($optionsettings->sessions) == 1) {
+            // Single-session.
+            $session = array_pop($optionsettings->sessions);
+
+            // If there's only one session and it's already over, then we count it as consumed.
+            if ($session->courseendtime < $now) {
+                $consumedquota = 1.0;
+            } else if ($session->coursestarttime > $now) {
+                // If it has not yet started, the quota is 0.
+                $consumedquota = 0;
+            } else {
+                // Overall duration of the single session.
+                $sessionduration = $session->courseendtime - $session->coursestarttime;
+                // Consumed duration of the single session.
+                $consumedduration = $now - $session->coursestarttime;
+                // Now calculate consumed quota.
+                $consumedquota = (float) round($consumedduration / $sessionduration, 2);
+            }
+        } else {
+            // Multi-session.
+            $sessioncount = count($optionsettings->sessions);
+            // Count consumed sessions.
+            $consumedsessioncount = 0;
+            foreach ($optionsettings->sessions as $session) {
+                if ($session->courseendtime < $now) {
+                    $consumedsessioncount++;
+                }
+            }
+            // Now calculate consumed quota.
+            $consumedquota = (float) round($consumedsessioncount / $sessioncount, 2);
+        }
+
+        return $consumedquota;
+    }
+
+    /**
+     * Helper function to get HTML for a progressbar showing the consumed quota.
+     *
+     * @param int $optionid option id
+     * @param string $barcolor the bootstrap color for the progress bar, e.g. "primary", "success", "info", "danger"...
+     * @param string $percentagecolor the bootstrap color for the percentage label, e.g. "primary", "success", "info", "danger"...
+     * @param bool $collapsible if true the progress bar can be collapsed, default is true
+     *
+     * @return string $html the HTML containing the progress bar
+     */
+    public static function get_progressbar_html(int $optionid, string $barcolor = "primary",
+        string $percentagecolor = "white", $collapsible = true) {
+
+        $html = '';
+        $alreadypassed = get_string('alreadypassed', 'mod_booking');
+        $consumedpercentage = self::get_consumed_quota($optionid) * 100;
+        if ($consumedpercentage > 0 && $consumedpercentage <= 100) {
+
+            $progressbar =
+                "<div class='progress'>
+                    <div class='progress-bar progress-bar-striped bg-$barcolor' role='progressbar'
+                    style='width: $consumedpercentage%' aria-valuenow='$consumedpercentage'
+                    aria-valuemin='0' aria-valuemax='100'>
+                        <span class='text-$percentagecolor'>$consumedpercentage%</span>
+                    </div>
+                </div>";
+
+            if ($collapsible) {
+                // Show collapsible progressbar.
+                $html .=
+                    "<p><a data-toggle='collapse' href='#progressbarContainer$optionid' role='button'
+                        aria-expanded='false' aria-controls='progressbarContainer$optionid'>
+                        <i class='fa fa-hourglass' aria-hidden='true'></i> $alreadypassed: $consumedpercentage%
+                    </a></p>
+                    <div class='collapse' id='progressbarContainer$optionid'>
+                        $progressbar
+                    </div>";
+            } else {
+                // Show progressbar with a label.
+                $html .=
+                    "<div class='progressbar-label mb-1'>
+                        <i class='fa fa-hourglass' aria-hidden='true'></i> $alreadypassed:
+                    </div>
+                    $progressbar";
+            }
+        }
+
+        return $html;
+    }
+
+    /**
+     * Helper function to purge cache for a booking option.
+     * @param int $optionid
+     */
+    public static function purge_cache_for_option(int $optionid) {
+
+        cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
+        cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
+        // When we set back the booking_answers...
+        // ... we have to make sure it's also deleted in the singleton service.
+        singleton_service::destroy_booking_answers($optionid);
     }
 }

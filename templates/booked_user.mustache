@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/col_price
+    @template mod_booking/booked_users
 
     Classes required for JS:
     * none
@@ -25,29 +25,21 @@
 
      Example context (json):
     {
-        "itemname" : "myitem",
-        "price" : "10",
-        "currency" : "EUR",
-        "componentname" : "local_shoppingcart",
-        "description" : "description",
-        "imageurl" : "https://mypic.jpg",
-        "pricecategoryidentifier" : "categoryid"
-        "pricecategoryname" : "student"
+        'firstname' : 'Anna',
+        'lastname' : 'X',
+        'email' : 'a.x@example.com',
+        'status': 'x',
+        'link' : 'http://localhost:8010/user/profile.php?id=118',
     }
 }}
-{{#price}}
-    <table class="pricecurrency font-weight-bold w-100">
-        <tr>
-            <td class="text-center">{{price}} {{currency}}
-            </td>
-        </tr>
-    </table>
-<div>{{> local_shopping_cart/addtocartdb }}</div>
-{{#priceitems}}
-{{/priceitems}}
-{{/price}}
-{{^price}}
-    {{#priceitems}}
-        <div class="pricecurrency"> {{price}} {{currency}} <i>{{pricecategoryname}}</i></div>
-    {{/priceitems}}
-{{/price}}
+
+ <li class="list-group-item list-group-item-action">
+    <div>
+        <a href="{{link}}">
+            <h5 class="mb-1">
+                {{firstname}} {{lastname}}
+            </h5>
+        </a>
+    </div>
+    <p class="mb-1">{{email}}</p>
+</li>

@@ -25,16 +25,13 @@
 namespace mod_booking\shopping_cart;
 
 use context_module;
-use context_system;
 use Exception;
 use local_shopping_cart\local\entities\cartitem;
 use mod_booking\booking_option;
-use mod_booking\booking_option_settings;
 use mod_booking\output\bookingoption_description;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_exception;
-use stdClass;
 
 /**
  * Shopping_cart subsystem callback implementation for mod_booking.
@@ -48,11 +45,12 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * Callback function that returns the costs and the accountid
      * for the course that $userid of the buying user.
      *
+     * @param string $area
      * @param int $optionid
      * @param int $userid
-     * @return \shopping_cart\cartitem
+     * @return array
      */
-    public static function load_cartitem(int $optionid, int $userid = 0): cartitem {
+    public static function load_cartitem(string $area, int $optionid, int $userid = 0): array {
         global $DB, $USER, $PAGE;
 
         $bookingoption = booking_option::create_option_from_optionid($optionid);
@@ -81,7 +79,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
         // Now we reserve the place for the user.
         if (!$bookingoption->user_submit_response($user, 0, 0, true)) {
-            return null;
+            return [];
         }
 
         // We need to register this action as a booking answer, where we only reserve, not actually book.
@@ -103,10 +101,11 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $optiontitle = $bookingoption->option->titleprefix . ' - ' . $optiontitle;
         }
 
-        $now = time();
+        // The date from which to calculate cancel-date is coursestarttime.
+        $coursestarttime = $settings->coursestarttime;
 
         $allowupdatedays = $booking->settings->allowupdatedays;
-        if (!empty($allowupdatedays)) {
+        if (!empty($allowupdatedays) && !empty($coursestarttime)) {
             // Different string depending on plus or minus.
             if ($allowupdatedays >= 0) {
                 $datestring = " - $allowupdatedays days";
@@ -114,30 +113,35 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $allowupdatedays = abs($allowupdatedays);
                 $datestring = " + $allowupdatedays days";
             }
-            $canceluntil = strtotime($datestring, $now);
+            $canceluntil = strtotime($datestring, $coursestarttime);
         } else {
             $canceluntil = null;
         }
 
-        return new cartitem($optionid,
-                            $optiontitle,
-                            $price['price'],
-                            $price['currency'],
-                            'mod_booking',
-                            $description,
-                            $settings->imageurl ?? '',
-                            $canceluntil,
-                            $settings->coursestarttime ?? null,
-                            $settings->courseendtime ?? null);
+        $cartitem = new cartitem($optionid,
+            $optiontitle,
+            $price['price'],
+            $price['currency'],
+            'mod_booking',
+            'option',
+            $description,
+            $settings->imageurl ?? '',
+            $canceluntil,
+            $settings->coursestarttime ?? null,
+            $settings->courseendtime ?? null);
+
+        return ['cartitem' => $cartitem];
     }
 
     /**
      * This function unloads item from card. Plugin has to make sure it's available again.
      *
+     * @param string $area
      * @param integer $itemid
+     * @param integer $userid
      * @return boolean
      */
-    public static function unload_cartitem(int $optionid, int $userid = 0): bool {
+    public static function unload_cartitem( string $area, int $optionid, int $userid = 0): bool {
         global $USER;
 
         $bookingoption = booking_option::create_option_from_optionid($optionid);
@@ -159,12 +163,13 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
     /**
      * Callback function that handles inscripiton after fee was paid.
+     * @param string $area
      * @param integer $optionid
      * @param integer $paymentid
      * @param integer $userid
      * @return boolean
      */
-    public static function successful_checkout(int $optionid, int $paymentid, int $userid):bool {
+    public static function successful_checkout(string $area, int $optionid, int $paymentid, int $userid):bool {
         global $USER;
 
         $bookingoption = booking_option::create_option_from_optionid($optionid);
@@ -183,12 +188,12 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
     /**
      * This cancels an already booked course.
-     *
+     * @param string $area
      * @param integer $itemid
      * @param integer $userid
      * @return boolean
      */
-    public static function cancel_purchase(int $optionid, int $userid = 0): bool {
+    public static function cancel_purchase(string $area, int $optionid, int $userid = 0): bool {
 
         global $USER;
 
@@ -203,5 +208,29 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         $bookingoption->user_delete_response($user->id);
 
         return true;
+    }
+
+    /**
+     * Callback function to give back a float value how much of the initially bought item is already consumed.
+     * 1 stands for everything, 0.5 for 50%.
+     * This is used in cancellation, to know how much of the initial price is returned.
+     *
+     * @param string $area
+     * @param int $itemid An identifier that is known to the plugin
+     * @param int $userid
+     *
+     * @return float
+     */
+    public static function quota_consumed(string $area, int $itemid, int $userid = 0): float {
+
+        // This function only tests for how much time has already passed.
+        // Therefore, we don't need to pass on the userid.
+        if ($area == 'option') {
+            $consumedquota = booking_option::get_consumed_quota($itemid);
+        } else {
+            $consumedquota = 0;
+        }
+
+        return $consumedquota;
     }
 }

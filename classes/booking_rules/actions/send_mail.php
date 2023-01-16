@@ -82,7 +82,8 @@ class send_mail implements booking_rule_action {
     public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
 
         // Mail subject.
-        $mform->addElement('text', 'action_send_mail_subject', get_string('messagesubject', 'mod_booking'));
+        $mform->addElement('text', 'action_send_mail_subject', get_string('messagesubject', 'mod_booking'),
+            ['size' => '66']);
         $mform->setType('action_send_mail_subject', PARAM_TEXT);
 
         // Mail template.

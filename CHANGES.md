@@ -1,3 +1,78 @@
+## Version 7.8.3 (2023011600)
+**Improvements:**
+* Improvement: Shorter string for unlimited places.
+* Improvement: Old institution functionality removed, as it is not needed anymore.
+
+**Bugfixes:**
+* Bugfix: Some elements were not hidden in simple mode.
+
+## Version 7.8.2 (2023011300)
+**Improvements:**
+* Improvement: Prepare process_booking_price function in restore_booking_stepslib for new price areas.
+
+**Bugfixes:**
+* Bugfix: Purge caches after a user is added to a booking option.
+* Bugfix: Fix duplication of booking instances by removing 'area' from set_source_table function.
+
+## Version 7.8.1 (2023011200)
+**Improvements:**
+* Improvement: Add warning when you can only add users from one institution.
+* Improvement: Deleted old teachers.php (not needed anymore).
+* Improvement: Design improvements and improved code quality.
+* Improvement: Some layout improvements for buttons, alerts and prices.
+
+**Bugfixes:**
+* Bugfix: Remove wrong capability check for user events in order to fix "nopermissiontoupdatecalendar" bug.
+* Bugfix: Fixed an error in upgrade.php.
+* Bugfix: Fix php 8 deprecation warnings (optional before required param).
+* Bugfix: Fixed a bug in dynamicoptiondateform where JS was not passed.
+* Bugfix: Fixed broken report reminders (custom reminder from report.php).
+
+## Version 7.8.0 (2022122300)
+**New features:**
+* New feature: Add teachers directly in option_form.
+* New feature: New possibility to set sorting order for price categories.
+
+**Improvements:**
+* Improvement: Get rid of old way to edit teachers.
+* Improvement: When an option gets duplicated, teachers will get duplicated too.
+* Improvement: When an option gets duplicated and we choose a new course, teachers now get enrolled into the new course.
+
+**Bugfixes:**
+* Bugfix: Fix bug where optiondate series were not created (js param missing).
+
+## Version 7.7.9 (2022122100)
+**Improvements:**
+* Improvement: Further improvements to event-based rules (only tested combinations are supported).
+
+**Bugfixes:**
+* Bugfix: If the whole option was cancelled, we do not want to send status change mails.
+
+## Version 7.7.8 (2022122000)
+**New features:**
+* New feature: New progress bars feature (PRO) including configuration in plugin settings.
+* New feature: New booking rule condition to select user directly from event (affected user / triggering user).
+
+**Improvements:**
+* Improvement: Show booked, reserved, etc. users of a booking option via template.
+* Improvement: Show  reserved & waitinglist users of a booking option via template on the "book other users" page.
+* Improvement: Rule combination check and rule validation.
+
+**Bugfixes:**
+* Bugfix: Consumed quota - if option has not yet started, the quota is 0.
+* Bugfix: Fix adding of calendar events for options without sessions (but with a "fake" session).
+* Bugfix: Fix and improve cancel / undo cancel of booking options
+
+## Version 7.7.7 (2022121500)
+**New features:**
+* New feature: get back consumed quota of booking option to local_shopping_cart service provider
+* New feature: Support areas for local_shopping_cart service provider
+
+## Version 7.7.6 (2022121300)
+**Bugfixes:**
+* Bugfix: Fix bug where canceluntil date was wrongly calculated from $now instead of $coursestarttime.
+* Bugfix: Fix auto enrolment of teachers, improve defaults and automatic course creation.
+
 ## Version 7.7.5 (2022120900)
 **New features:**
 * New feature: Add setting to turn off creation of user calendar events, if wanted.

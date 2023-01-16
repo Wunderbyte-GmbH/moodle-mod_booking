@@ -157,7 +157,6 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
             'tags' => false,
             'multiple' => true
         ];
-
         /* Important note: Currently, all users can be added as teachers for optiondates.
         In the future, there might be a user profile field defining users which are allowed
         to be added as substitute teachers. */

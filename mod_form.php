@@ -302,7 +302,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('daystonotify2', 'daystonotify', 'booking');
 
         // PRO feature: Teacher notifications.
-        if (wb_payment::is_currently_valid_licensekey()) {
+        if (wb_payment::pro_version_is_activated()) {
             $mform->addElement('text', 'daystonotifyteachers', get_string('daystonotifyteachers', 'booking'));
             $mform->setDefault('daystonotifyteachers', 0);
             $mform->addHelpButton('daystonotifyteachers', 'daystonotify', 'booking');
@@ -352,7 +352,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addRule('bookingmanager', null, 'required', null, 'client');
 
         // PRO feature: Let the user choose between instance specific or global mail templates.
-        if (wb_payment::is_currently_valid_licensekey()) {
+        if (wb_payment::pro_version_is_activated()) {
             $mailtemplatessource = array();
             $mailtemplatessource[0] = get_string('mailtemplatesinstance', 'booking');
             $mailtemplatessource[1] = get_string('mailtemplatesglobal', 'booking');
@@ -415,7 +415,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'format' => FORMAT_HTML);
         $default['text'] = str_replace("\n", '<br/>', $default['text']);
         // Check if PRO version is active.
-        if (wb_payment::is_currently_valid_licensekey()) {
+        if (wb_payment::pro_version_is_activated()) {
             $mform->addElement('editor', 'notifyemailteachers', get_string('notifyemailteachers', 'booking'),
                 null, $editoroptions);
             $mform->setDefault('notifyemailteachers', $default);
@@ -572,12 +572,13 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->disabledIf('allowupdatedays', 'allowupdate', 'eq', 0);
 
         $mform->addElement('selectyesno', 'autoenrol', get_string('autoenrol', 'booking'));
+        $mform->setDefault('autoenrol', 1);
         $mform->addHelpButton('autoenrol', 'autoenrol', 'booking');
 
         $mform->addElement('selectyesno', 'addtogroup', get_string('addtogroup', 'booking'));
         $mform->addHelpButton('addtogroup', 'addtogroup', 'booking');
 
-        $opts = array(0 => get_string('unlimited', 'mod_booking'));
+        $opts = array(0 => get_string('unlimitedplaces', 'mod_booking'));
         $extraopts = array_combine(range(1, 100), range(1, 100));
         $opts = $opts + $extraopts;
         $mform->addElement('select', 'maxperuser', get_string('maxperuser', 'mod_booking'), $opts);

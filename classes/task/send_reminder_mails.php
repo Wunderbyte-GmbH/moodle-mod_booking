@@ -106,7 +106,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
         $this->send_session_notifications();
 
         // Check if PRO version is activated.
-        if (wb_payment::is_currently_valid_licensekey()) {
+        if (wb_payment::pro_version_is_activated()) {
             // Teacher notifications (PRO feature).
             $this->send_teacher_notifications();
         }

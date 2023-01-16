@@ -131,7 +131,7 @@ class booking_time implements bo_condition {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description($full = false, booking_option_settings $settings, $userid = null, $not = false):array {
+    public function get_description(booking_option_settings $settings, $userid = null, $full = false, $not = false):array {
 
         $description = '';
 
@@ -156,6 +156,7 @@ class booking_time implements bo_condition {
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
+        global $DB;
 
         $mform->addElement('checkbox', 'restrictanswerperiodopening',
                 get_string('restrictanswerperiodopening', 'mod_booking'));
@@ -171,6 +172,22 @@ class booking_time implements bo_condition {
         $mform->setType('bookingclosingtime', PARAM_INT);
         $mform->hideIf('bookingclosingtime', 'restrictanswerperiodclosing', 'notchecked');
 
-        $mform->addElement('html', '<hr class="w-50"/>');
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because html elements do not show up in the option form config.
+        // In expert mode, we always show everything.
+        $showhorizontalline = true;
+        $formmode = get_user_preferences('optionform_mode');
+        if ($formmode !== 'expert') {
+            $cfgrestrictanswerperiodopening = $DB->get_field('booking_optionformconfig', 'active',
+                ['elementname' => 'restrictanswerperiodopening']);
+            $cfgrestrictanswerperiodclosing = $DB->get_field('booking_optionformconfig', 'active',
+                ['elementname' => 'restrictanswerperiodclosing']);
+            if (($cfgrestrictanswerperiodopening === "0") && ($cfgrestrictanswerperiodclosing === "0")) {
+                $showhorizontalline = false;
+            }
+        }
+        if ($showhorizontalline) {
+            $mform->addElement('html', '<hr class="w-50"/>');
+        }
     }
 }

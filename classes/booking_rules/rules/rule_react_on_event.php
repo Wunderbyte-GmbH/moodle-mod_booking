@@ -79,13 +79,20 @@ class rule_react_on_event implements booking_rule {
      */
     public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
 
+        // Only these events are currently supported and tested.
+        $allowedeventkeys = [
+            'bookingoption_cancelled',
+            'bookingoption_completed'
+        ];
+
         // Get a list of all booking events.
         $allevents = get_list_of_booking_events();
-        $allowedevents = [];
+        $allowedevents["0"] = get_string('choose...', 'mod_booking');
 
         // Currently, we only allow events affecting booking options.
         foreach ($allevents as $key => $value) {
-            if (strpos($key, 'bookingoption_')) {
+            $eventnameonly = str_replace("\\mod_booking\\event\\", "", $key);
+            if (in_array($eventnameonly, $allowedeventkeys)) {
                 $allowedevents[$key] = $value;
             }
         }
@@ -100,10 +107,10 @@ class rule_react_on_event implements booking_rule {
 
     /**
      * Get the name of the rule.
-     * @param boolean $localized
-     * @return void
+     * @param bool $localized
+     * @return string
      */
-    public function get_name_of_rule($localized = true) {
+    public function get_name_of_rule(bool $localized = true): string {
         return $localized ? get_string($this->rulename, 'mod_booking') : $this->rulename;
     }
 
@@ -227,11 +234,11 @@ class rule_react_on_event implements booking_rule {
         // ... which has the keys cmid, optionid & userid.
 
         $jsonobject = json_decode($this->rulejson);
-        $ruledata = $jsonobject->ruledata;
 
         $params = [
             'optionid' => $optionid,
-            'userid' => $userid
+            'userid' => $userid,
+            'json' => $this->rulejson
         ];
 
         $sql = new stdClass();

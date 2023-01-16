@@ -330,8 +330,8 @@ class bookingoption_description implements renderable, templatable {
                 // We set usertobuyfor here for better performance.
                 $this->usertobuyfor = price::return_user_to_buy_for();
 
-                if (list($conditionid, $isavailable, $description) = $boinfo->get_description(true,
-                    $settings, $this->usertobuyfor->id)) {
+                if (list($conditionid, $isavailable, $description) = $boinfo->get_description(
+                    $settings, $this->usertobuyfor->id, true)) {
 
                     // Values object needed for col_price.
                     $values = new stdClass;

@@ -100,17 +100,13 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $tag = new backup_nested_element('tag', array('id'),
                 array('tag', 'text', 'textformat'));
 
-        $institutions = new backup_nested_element('institutions');
-        $institution = new backup_nested_element('institution', array('id'),
-                array('name'));
-
         $others = new backup_nested_element('others');
         $other = new backup_nested_element('other', array('id'),
                 array('optionid', 'otheroptionid', 'userslimit'));
 
         $prices = new backup_nested_element('prices');
         $price = new backup_nested_element('price', array('id'),
-                array('optionid', 'pricecategoryidentifier', 'price', 'currency'));
+                array('itemid', 'area', 'pricecategoryidentifier', 'price', 'currency'));
 
         $entitiesrelations = new backup_nested_element('entitiesrelations');
         $entitiesrelation = new backup_nested_element('entitiesrelation', array('id'),
@@ -142,9 +138,6 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $booking->add_child($tags);
         $tags->add_child($tag);
 
-        $booking->add_child($institutions);
-        $institutions->add_child($institution);
-
         $option->add_child($others);
         $others->add_child($other);
 
@@ -164,7 +157,6 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         $category->set_source_table('booking_category', array('course' => '../../course'));
         $tag->set_source_table('booking_tags', array('courseid' => '../../course'));
-        $institution->set_source_table('booking_institutions', array('course' => '../../course'));
         $other->set_source_table('booking_other', array('optionid' => backup::VAR_PARENTID));
         $optiondate->set_source_table('booking_optiondates', array('bookingid' => backup::VAR_PARENTID));
         $customfield->set_source_table('booking_customfields', array('bookingid' => backup::VAR_PARENTID));
@@ -178,9 +170,11 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         // Only backup (or duplicate) prices, if config setting is set.
         if (get_config('booking', 'duplicationrestoreprices')) {
-            // We currently only backup prices for options here.
-            // In the future, we might also want to support backup of prices for subbookings...
-            $price->set_source_table('booking_prices', array('itemid' => backup::VAR_PARENTID, 'area' => 'option'));
+
+            /* IMPORTANT: Once we support subbookings, we might have different areas than 'option'
+            and this means 'itemid' might be something else than an optionid.
+            So we have to find out, if we still can set the params like this. */
+            $price->set_source_table('booking_prices', array('itemid' => backup::VAR_PARENTID));
         }
 
         // Only backup (or duplicate) entities, if config setting is set AND if entities are available.

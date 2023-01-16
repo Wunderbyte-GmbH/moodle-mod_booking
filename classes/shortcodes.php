@@ -82,7 +82,7 @@ class shortcodes {
         list($fields, $from, $where, $params, $filter) = $booking->get_all_options_sql(null, null, $category, null,
             $booking->context);
 
-        $table->set_filter_sql($fields, $from, $where, $params, $filter);
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $table->use_pages = false;
 

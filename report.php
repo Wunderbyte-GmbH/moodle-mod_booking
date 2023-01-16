@@ -22,6 +22,9 @@
  * @author      David Bogner
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use mod_booking\output\booked_users;
+
 require_once(__DIR__ . '/../../config.php');
 require_once("locallib.php");
 require_once("{$CFG->libdir}/tablelib.php");
@@ -636,13 +639,6 @@ if (!$tableallbookings->is_downloading()) {
              has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
         $linkst = array();
 
-        if (has_capability('mod/booking:updatebooking', context_module::instance($cm->id))) {
-            $linkst[] = html_writer::link(
-                    new moodle_url('/mod/booking/teachers.php',
-                            array('id' => $id, 'optionid' => $optionid)),
-                    get_string('editteachers', 'booking'), array());
-        }
-
         $haspollurl = (!empty($bookingoption->booking->settings->pollurlteachers) ||
             !empty($bookingoption->option->pollurlteachers));
 
@@ -686,6 +682,11 @@ if (!$tableallbookings->is_downloading()) {
                 new moodle_url($bookingoption->option->courseurl, array()), $bookingoption->option->urltitle,
                 array()) . html_writer::end_span();
     }
+
+    // We call the template render to display how many users are currently reserved.
+    $data = new booked_users($optionid, false, false, true);
+    $renderer = $PAGE->get_renderer('mod_booking');
+    echo $renderer->render_booked_users($data);
 
     $hidden = "";
 

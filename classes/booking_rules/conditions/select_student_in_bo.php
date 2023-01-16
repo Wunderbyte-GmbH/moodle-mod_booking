@@ -44,6 +44,16 @@ class select_student_in_bo implements booking_rule_condition {
     public $borole = null;
 
     /**
+     * Function to tell if a condition can be combined with a certain booking rule type.
+     * @param string $bookingruletype e.g. "rule_daysbefore" or "rule_react_on_event"
+     * @return bool true if it can be combined
+     */
+    public function can_be_combined_with_bookingruletype(string $bookingruletype): bool {
+        // This condition can currently be combined with any rule.
+        return true;
+    }
+
+    /**
      * Load json data from DB into the object.
      * @param stdClass $record a rule condition record from DB
      */
@@ -69,7 +79,7 @@ class select_student_in_bo implements booking_rule_condition {
      * @param int $optionid
      * @return void
      */
-    public function add_condition_to_mform(MoodleQuickForm &$mform) {
+    public function add_condition_to_mform(MoodleQuickForm &$mform, array &$ajaxformdata = null) {
 
         $mform->addElement('static', 'condition_select_student_in_bo', '',
                 get_string('condition_select_student_in_bo_desc', 'mod_booking'));

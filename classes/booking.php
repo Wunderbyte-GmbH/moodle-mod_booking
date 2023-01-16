@@ -24,10 +24,10 @@
 
 namespace mod_booking;
 
-use block_xp\local\sql\limit;
 use course_modinfo;
 use html_writer;
 use local_entities\local\entities\entitydate;
+use mod_booking\teachers_handler;
 use moodle_exception;
 use stdClass;
 use moodle_url;
@@ -560,7 +560,7 @@ class booking {
                     $DB->insert_record('booking_teachers', $newteacher, false, false);
 
                     // When inserting a new teacher, we also need to insert the teacher for each optiondate.
-                    dates_handler::subscribe_teacher_to_all_optiondates($newteacher->optionid, $newteacher->userid);
+                    teachers_handler::subscribe_teacher_to_all_optiondates($newteacher->optionid, $newteacher->userid);
 
                     $params = array(
                         'id' => $this->cm->id,
@@ -756,14 +756,14 @@ class booking {
     /**
      * Function to return all bookings for teacher.
      *
-     * @param integer $limitfrom
-     * @param integer $limitnum
-     * @param [type] $teacherid
+     * @param int $teacherid
+     * @param int $bookingid booking instance id - not cmid!
      * @return void
      */
-    public function get_all_options_of_teacher_sql($teacherid) {
+    public static function get_all_options_of_teacher_sql(int $teacherid, int $bookingid) {
 
-        return self::get_options_filter_sql(0, 0, '', '*', null, [], ['teacherobjects' => '%"id":' . $teacherid . ',%']);
+        return self::get_options_filter_sql(0, 0, '', '*', null, [], ['bookingid' => $bookingid,
+            'teacherobjects' => '%"id":' . $teacherid . ',%']);
     }
 
     /**

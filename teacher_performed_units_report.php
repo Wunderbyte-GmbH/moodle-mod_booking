@@ -150,8 +150,9 @@ if (!$teacherperformedunitstable->is_downloading()) {
                 bo.titleprefix prefix,
                 bo.text optionname,
                 bod.coursestarttime, bod.courseendtime,
-                ROUND((bod.courseendtime - bod.coursestarttime)/60) as duration_min,
-                ROUND(((bod.courseendtime - bod.coursestarttime)/60) / :unitlength, 2) as duration_units
+                ROUND((cast((bod.courseendtime - bod.coursestarttime) as decimal))/60) as duration_min,
+                ROUND(((cast((bod.courseendtime - bod.coursestarttime) as decimal))/60) /
+                    cast(:unitlength as decimal), 2) as duration_units
             FROM
                 {booking_optiondates_teachers} bodt
                 JOIN {booking_optiondates} bod
@@ -169,7 +170,7 @@ if (!$teacherperformedunitstable->is_downloading()) {
 
     // Set the SQL filtering params now.
     $params = [
-        'unitlength' => (int) $unitlength,
+        'unitlength' => $unitlength,
         'teacherid' => $teacherid,
         'filterstartdate' => $filterstartdate,
         'filterenddate' => $filterenddate
@@ -222,8 +223,9 @@ if (!$teacherperformedunitstable->is_downloading()) {
         b.name instancename,
         bo.text optionname,
         bod.coursestarttime, bod.courseendtime,
-        ROUND((bod.courseendtime - bod.coursestarttime)/60) as duration_min,
-        ROUND(((bod.courseendtime - bod.coursestarttime)/60) / :unitlength, 2) as duration_units";
+        ROUND((cast((bod.courseendtime - bod.coursestarttime) as decimal))/60) as duration_min,
+        ROUND(((cast((bod.courseendtime - bod.coursestarttime) as decimal))/60) /
+            cast(:unitlength as decimal), 2) as duration_units";
 
     $from = "{booking_optiondates_teachers} bodt
             JOIN {booking_optiondates} bod

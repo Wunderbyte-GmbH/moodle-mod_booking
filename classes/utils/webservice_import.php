@@ -65,7 +65,7 @@ class webservice_import {
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         // PRO feature: A license key is needed to use the Import controller web service.
-        if (!wb_payment::is_currently_valid_licensekey()) {
+        if (!wb_payment::pro_version_is_activated()) {
             throw new \moodle_exception('missinglicensekey', 'mod_booking', null, null,
                 'You need an activated PRO version in order to use the import controller web service.');
         }
@@ -372,7 +372,7 @@ class webservice_import {
         $userid = reset($userids);
 
         // Try to subscribe teacher to booking option and throw an error if not successful.
-        if (!subscribe_teacher_to_booking_option($userid, $optionid, $this->cm)) {
+        if (!subscribe_teacher_to_booking_option($userid, $optionid, $this->cm->id)) {
             throw new \moodle_exception('teachernotsubscribed', 'mod_booking', null, null,
                 'The teacher with e-mail ' . $data->teacheremail .
                 ' could not be subscribed to the option with optionid ' . $optionid);

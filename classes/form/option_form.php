@@ -37,6 +37,8 @@ use local_entities\entitiesrelation_handler;
 use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\dates_handler;
+use mod_booking\event\teacher_added;
+use mod_booking\teachers_handler;
 use moodle_url;
 use stdClass;
 
@@ -120,7 +122,7 @@ class option_form extends \moodleform {
         $alloptiontemplates = $DB->get_records('booking_options', array('bookingid' => 0), '', $fields = 'id, text', 0, 0);
 
         // If there is no license key and there is more than one template, we only use the first one.
-        if (count($alloptiontemplates) > 1 && !wb_payment::is_currently_valid_licensekey()) {
+        if (count($alloptiontemplates) > 1 && !wb_payment::pro_version_is_activated()) {
             $alloptiontemplates = [reset($alloptiontemplates)];
             $mform->addElement('static', 'nolicense', get_string('licensekeycfg', 'mod_booking'),
                 get_string('licensekeycfgdesc', 'mod_booking'));
@@ -273,20 +275,6 @@ class option_form extends \moodleform {
             get_string('addnewinstitution', 'mod_booking'), $institutionstrings, $options);
         $mform->addHelpButton('institution', 'institution', 'mod_booking');
 
-        $url = $CFG->wwwroot . '/mod/booking/institutions.php';
-        if (isset($COURSE->id)) {
-            $url .= '?courseid=' . $COURSE->id;
-        }
-
-        // Only show, if it is not turned off in the option form config.
-        // In expert mode we do not hide anything.
-        if ($this->formmode == 'expert' ||
-            !isset($optionformconfig['institution']) || $optionformconfig['institution'] == 1) {
-            $mform->addElement('html',
-                '<a target="_blank" href="' . $url . '">' . get_string('editinstitutions', 'mod_booking') .
-                         '</a>');
-        }
-
         $mform->addElement('text', 'address', get_string('address', 'mod_booking'),
                 array('size' => '64'));
         if (!empty($CFG->formatstringstriptags)) {
@@ -348,6 +336,8 @@ class option_form extends \moodleform {
         $mform->addElement('advcheckbox', 'enrolmentstatus', get_string('enrolmentstatus', 'mod_booking'),
             '', array('group' => 1), array(2, 0));
         $mform->setType('enrolmentstatus', PARAM_INT);
+        $mform->setDefault('enrolmentstatus', 2);
+        $mform->addHelpButton('enrolmentstatus', 'enrolmentstatus', 'mod_booking');
         $mform->disabledIf('enrolmentstatus', 'startendtimeknown', 'notchecked');
 
         $mform->addElement('date_time_selector', 'courseendtime',
@@ -421,6 +411,10 @@ class option_form extends \moodleform {
                 '<input type="text" data-fieldtype="text" class="d-none felement" id="dayofweektime" name="dayofweektime" value="' .
                 $dayofweektime . '"></input>');
         }
+
+        // Add teachers.
+        $teacherhandler = new teachers_handler($optionid);
+        $teacherhandler->add_to_mform($mform);
 
         // Add price.
         $price = new price('option', $this->_customdata['optionid']);
@@ -573,7 +567,7 @@ class option_form extends \moodleform {
 
             $numberoftemplates = $DB->count_records('booking_options', array('bookingid' => 0));
 
-            if ($numberoftemplates < 1 || wb_payment::is_currently_valid_licensekey()) {
+            if ($numberoftemplates < 1 || wb_payment::pro_version_is_activated()) {
                 $addastemplate = array(
                         0 => get_string('notemplate', 'mod_booking'),
                         1 => get_string('asglobaltemplate', 'mod_booking')
@@ -670,7 +664,6 @@ class option_form extends \moodleform {
         }
 
         if (class_exists('local_entities\entitiesrelation_handler')) {
-
             // If we have the handler, we need first to add the new optiondates to the form.
             // This constant change between object and array is stupid, but comes from the mform handler.
             $fromform = (object)$data;
@@ -679,6 +672,9 @@ class option_form extends \moodleform {
             self::order_all_dates_to_book_in_form($fromform);
             $erhandler->instance_form_validation((array)$fromform, $errors);
         }
+
+        $cfhandler = booking_handler::create();
+        $errors = array_merge($errors, $cfhandler->instance_form_validation($data, $files));
 
         return $errors;
     }
@@ -753,6 +749,10 @@ class option_form extends \moodleform {
         }
 
         if (isset($defaultvalues->optionid) && $defaultvalues->optionid > 0) {
+            // Defaults for teachers.
+            $teacherhandler = new teachers_handler($defaultvalues->optionid);
+            $teacherhandler->instance_form_before_set_data($this->_form);
+
             // Defaults for customfields.
             $cfdefaults = $DB->get_records('booking_customfields', array('optionid' => $defaultvalues->optionid));
             if (!empty($cfdefaults)) {
@@ -842,8 +842,6 @@ class option_form extends \moodleform {
             }
         }
 
-        $handler = booking_handler::create();
-        $handler->instance_form_validation((array)$data, []);
         return $data;
     }
 

@@ -27,13 +27,13 @@ namespace mod_booking\utils;
 use csv_import_reader;
 use mod_booking\booking;
 use stdClass;
-use mod_booking\booking_option;
 use html_writer;
 use local_entities\entitiesrelation_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\dates_handler;
 use mod_booking\price;
 use mod_booking\singleton_service;
+use mod_booking\teachers_handler;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -297,7 +297,7 @@ class csv_import {
                             $DB->insert_record('booking_teachers', $newteacher, true);
 
                             // When inserting a new teacher, we also need to insert the teacher for each optiondate.
-                            dates_handler::subscribe_teacher_to_all_optiondates($optionid, $teacher->id);
+                            teachers_handler::subscribe_teacher_to_all_optiondates($optionid, $teacher->id);
                         } else {
                             $this->add_csverror(get_string('noteacherfound', 'booking', $i), $i);
                         }
@@ -440,14 +440,6 @@ class csv_import {
                 case 'institution':
                     // Create institution if it does not exist.
                     $bookingoption->institution = $this->fix_encoding($value);
-                    $instexists = $DB->record_exists('booking_institutions', array('course' => $this->booking->course->id,
-                        "name" => $bookingoption->institution));
-                    if (!$instexists) {
-                        $institution = new stdClass();
-                        $institution->name = $bookingoption->institution;
-                        $institution->course = $this->booking->course->id;
-                        $DB->insert_record("booking_institutions", $institution);
-                    }
                     break;
                 case 'dayofweektime':
                     // Deal with option dates.

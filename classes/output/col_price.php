@@ -116,12 +116,13 @@ class col_price implements renderable, templatable {
      * @param renderer_base $output
      * @return array
      */
-    public function export_for_template(renderer_base $output) {
+    public function export_for_template(renderer_base $output): array {
 
         $returnarray = [];
 
         if ($this->context && is_guest($this->context)) {
 
+            $sortedpriceitems = [];
             foreach ($this->priceitems as $priceitem) {
 
                 $pricecategory = price::get_active_pricecategory_from_cache_or_db($priceitem->pricecategoryidentifier);
@@ -129,8 +130,17 @@ class col_price implements renderable, templatable {
                 $priceitemarray = (array)$priceitem;
                 $priceitemarray['pricecategoryname'] = $pricecategory->name;
 
-                $returnarray['priceitems'][] = $priceitemarray;
+                // Actually not yet sorted.
+                $sortedpriceitems[$pricecategory->pricecatsortorder] = $priceitemarray;
             }
+
+            // Now we sort the array according to the sort order defined in price categories.
+            ksort($sortedpriceitems);
+            // The mustache template cannot handle keys, so we remove them now.
+            $sortedpriceitems = array_values($sortedpriceitems);
+
+            // And add them to the returned array.
+            $returnarray['priceitems'] = $sortedpriceitems;
 
             return $returnarray;
 
@@ -143,6 +153,7 @@ class col_price implements renderable, templatable {
             'price' => number_format($this->cartitem['price'], 2),
             'currency' => $this->cartitem['currency'],
             'componentname' => $this->cartitem['componentname'],
+            'area' => 'option',
             'description' => $this->cartitem['description'],
             'imageurl' => $this->cartitem['imageurl'],
             'priceitems' => $this->priceitem

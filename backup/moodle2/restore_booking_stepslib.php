@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\dates_handler;
+use mod_booking\teachers_handler;
 
 /**
  * Structure step to restore one booking activity
@@ -338,7 +338,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $DB->insert_record('booking_teachers', $data);
 
         // When inserting a new teacher, we also need to insert the teacher for each optiondate.
-        dates_handler::subscribe_teacher_to_all_optiondates($data->optionid, $data->userid);
+        teachers_handler::subscribe_teacher_to_all_optiondates($data->optionid, $data->userid);
 
         // No need to save this mapping as far as nothing depends on it.
     }
@@ -377,22 +377,6 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         if ($nofrecords == 0) {
             $DB->insert_record('booking_tags', $data);
         }
-        // No need to save this mapping as far as nothing depend on it.
-    }
-
-    /**
-     * Processes booking institution data.
-     *
-     * @param array $data The instance data from the backup file.
-     * @throws base_step_exception
-     * @throws dml_exception
-     */
-    protected function process_booking_institution($data) {
-        global $DB;
-
-        $data = (object) $data;
-        $data->course = $this->get_courseid();
-        $DB->insert_record('booking_institutions', $data);
         // No need to save this mapping as far as nothing depend on it.
     }
 
@@ -460,10 +444,13 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         global $DB;
 
         $data = (object) $data;
-        $data->itemid = $this->get_mappingid('booking_option', $data->optionid);
-        $data->area = 'option';
-        $DB->insert_record('booking_prices', $data);
-        // No need to save this mapping as far as nothing depends on it.
+
+        if ($data->area == 'option') {
+            $data->itemid = $this->get_mappingid('booking_option', $data->itemid);
+            $DB->insert_record('booking_prices', $data);
+            // No need to save this mapping as far as nothing depends on it.
+        }
+        // NOTE: In the future we might want to support additional price areas!
     }
 
     /**

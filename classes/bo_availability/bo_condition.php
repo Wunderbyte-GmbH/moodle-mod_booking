@@ -94,7 +94,7 @@ interface bo_condition {
      * @return string Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description($full, booking_option_settings $settings, $userid, $not);
+    public function get_description(booking_option_settings $settings, $userid, $full, $not);
 
 
     /**

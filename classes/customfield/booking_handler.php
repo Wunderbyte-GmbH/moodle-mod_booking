@@ -26,9 +26,12 @@ namespace mod_booking\customfield;
 
 use core_customfield\api;
 use core_customfield\field_controller;
+use mod_booking\utils\wb_payment;
+use moodle_url;
+use stdClass;
 
 /**
- * Course handler for custom fields
+ * Handler for booking custom fields.
  *
  * @package   mod_booking
  * @copyright 2021 Wunderbyte
@@ -299,5 +302,46 @@ class booking_handler extends \core_customfield\handler {
      */
     public function restore_instance_data_from_backup(\restore_task $task, array $data) {
 
+    }
+
+    /**
+     * Validates the given data for custom fields, used in moodleform validation() function
+     *
+     * @param array $data moodleform data
+     * @param array $files will always be empty in this handler
+     * @return array $errors an array of errors we'll need to merge with the other errors array
+     */
+    public function instance_form_validation(array $data, array $files = []) {
+
+        $errors = parent::instance_form_validation($data, $files);
+
+        // First, we check, if user chose to automatically create a new moodle course.
+        if (isset($data['courseid']) && $data['courseid'] == -1) {
+            if (wb_payment::pro_version_is_activated()) {
+                // URLs needed for error message.
+                $bookingcustomfieldsurl = new moodle_url('/mod/booking/customfield.php');
+                $settingsurl = new moodle_url('/admin/settings.php', ['section' => 'modsettingbooking']);
+                $a = new stdClass;
+                $a->bookingcustomfieldsurl = $bookingcustomfieldsurl->out(false);
+                $a->settingsurl = $settingsurl->out(false);
+
+                if (empty(get_config('booking', 'newcoursecategorycfield'))) {
+                    $errors['courseid'] = get_string('error:newcoursecategorycfieldmissing', 'mod_booking', $a);
+                } else {
+                    // A custom field for the category for automatically created new Moodle courses has been set.
+                    $newcoursecategorycfield = get_config('booking', 'newcoursecategorycfield');
+
+                    // So now we need to check, if a value for that custom field was set to in option form.
+                    if (empty($data["customfield_$newcoursecategorycfield"])) {
+                        $errors["customfield_$newcoursecategorycfield"] =
+                            get_string('error:coursecategoryvaluemissing', 'mod_booking');
+                    }
+                }
+            } else {
+                $errors['courseid'] = get_string('infotext:prolicensenecessary', 'mod_booking');
+            }
+        }
+
+        return $errors;
     }
 }

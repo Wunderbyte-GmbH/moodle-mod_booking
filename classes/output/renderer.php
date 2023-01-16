@@ -41,7 +41,7 @@ use templatable;
 class renderer extends plugin_renderer_base {
 
     // Prints tabs for options.
-    public function print_booking_tabs($urlparams, $current = 'showactive', $mybookings = 0, $myoptions = 0, booking $booking) {
+    public function print_booking_tabs(booking $booking, $urlparams, $current = 'showactive', $mybookings = 0, $myoptions = 0) {
         global $USER;
         // Output tabs.
         $row = array();
@@ -659,5 +659,17 @@ class renderer extends plugin_renderer_base {
     public function render_ruleslist($data) {
         $data = $data->export_for_template($this);
         return $this->render_from_template('mod_booking/ruleslist', $data);
+    }
+
+    /**
+     * Render output for booked users.
+     * @param $data array
+     * @return string
+     */
+    public function render_booked_users($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/booked_users', $data);
+        return $o;
     }
 }

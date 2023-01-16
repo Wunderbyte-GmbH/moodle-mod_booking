@@ -173,12 +173,13 @@ class bookingoptions_table extends wunderbyte_table {
         if (!empty($values->id)) {
             $bookingsoptionsettings = singleton_service::get_instance_of_booking_option_settings($values->id);
             if (!empty($bookingsoptionsettings)) {
+
                 // Get the URL to edit the option.
                 $data->editoptionurl = $bookingsoptionsettings->editoptionurl;
-                // Get the URL to edit the teachers for the option.
-                $data->editteachersurl = $bookingsoptionsettings->editteachersurl;
+
                 // Get the URL to manage answers (responses) of the option.
                 $data->manageresponsesurl = $bookingsoptionsettings->manageresponsesurl;
+
                 // Get the URL for the optiondates-teachers-report.
                 $data->optiondatesteachersurl = $bookingsoptionsettings->optiondatesteachersurl;
             }

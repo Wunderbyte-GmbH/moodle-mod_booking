@@ -34,6 +34,7 @@ use mod_booking\dates_handler;
 use mod_booking\output\coursepage_available_options;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\singleton_service;
+use mod_booking\teachers_handler;
 use mod_booking\utils\wb_payment;
 
 // Currently up to 9 different price categories can be set.
@@ -946,14 +947,11 @@ function booking_update_options($optionvalues, $context) {
         $newcourse['fullname'] = $fullnamewithprefix;
         $newcourse['shortname'] = $shortname;
         $newcourse['categoryid'] = $categoryid;
-        if (!empty($option->coursestarttime) && !empty($option->courseendtime)) {
-            $newcourse['startdate'] = $option->coursestarttime;
-            $newcourse['enddate'] = $option->courseendtime;
-        }
 
         $courses = array($newcourse);
         $createdcourses = core_course_external::create_courses($courses);
         $option->courseid = $createdcourses[0]['id'];
+        $optionvalues->courseid = $option->courseid;
     }
 
     if (isset($optionvalues->optionid) && !empty($optionvalues->optionid) &&
@@ -1100,17 +1098,23 @@ function booking_update_options($optionvalues, $context) {
             $optiondateshandler->delete_option_dates($optionvalues);
         }
 
+        // Save teachers using handler.
+        $teachershandler = new teachers_handler($option->id);
+        $teachershandler->save_from_form($optionvalues);
+
         // Save relation for each newly created optiondate if checkbox is active.
         save_entity_relations_for_optiondates_of_option($optionvalues, $option->id);
 
-        // We need to reset cache for options table and option settings after updating an option.
-        cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::invalidate_by_event('setbackoptionsettings', [$option->id]);
+        // We need to purge cache after updating an option.
+        booking_option::purge_cache_for_option($option->id);
 
+        // Now check, if there are rules to execute.
         rules_info::execute_rules_for_option($option->id);
 
         return $option->id;
-    } else if (!empty($optionvalues->text)) { // New booking option record.
+    } else if (!empty($optionvalues->text)) {
+        // New booking option record.
+
         // If option "Use as global template" has been set.
         if (isset($optionvalues->addastemplate) && $optionvalues->addastemplate == 1) {
 
@@ -1119,7 +1123,7 @@ function booking_update_options($optionvalues, $context) {
             $numberofoptiontemplates = count($optiontemplatesdata);
 
             // 2) if the user has not activated a valid PRO license, then only allow one booking option.
-            if ($numberofoptiontemplates > 0 && !wb_payment::is_currently_valid_licensekey()) {
+            if ($numberofoptiontemplates > 0 && !wb_payment::pro_version_is_activated()) {
                 $dbrecord = $DB->get_record("booking_options", ['text' => $option->text]);
                 if (empty($dbrecord)) {
                     return 'BOOKING_OPTION_NOT_CREATED';
@@ -1201,6 +1205,22 @@ function booking_update_options($optionvalues, $context) {
             $optiondateshandler->save_from_form($optionvalues);
         }
 
+        $doenrol = true;
+        // If it's a duplicate, we also duplicate the teachers!
+        if (!empty($optionvalues->copyoptionid) && $optionvalues->copyoptionid > 0) {
+            $doenrol = false; // For a duplicate, we do not want to enrol the teachers right away...
+            // ...as we most possibly will change the Moodle course in the duplicate.
+            $copyoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionvalues->copyoptionid);
+            $optionvalues->teachersforoption = $copyoptionsettings->teacherids;
+        }
+
+        // We only save teachers if there are any.
+        if (!empty($optionvalues->teachersforoption)) {
+            // Save teachers using handler.
+            $teachershandler = new teachers_handler($optionid);
+            $teachershandler->save_from_form($optionvalues, $doenrol);
+        }
+
         // Deal with multiple option dates (multisessions).
         deal_with_multisessions($optionvalues, $booking, $optionid, $context);
 
@@ -1217,9 +1237,8 @@ function booking_update_options($optionvalues, $context) {
             rules_info::execute_rules_for_option($optionid);
         }
 
-        // We need to reset cache for options table and option settings after updating an option.
-        cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
+        // At the very last moment, we invalidate caches.
+        booking_option::purge_cache_for_option($optionid);
 
         return $optionid;
     }
@@ -1279,7 +1298,7 @@ function deal_with_multisessions(&$optionvalues, $booking, $optionid, $context) 
             $optiondateid = $DB->insert_record('booking_optiondates', $optiondate);
 
             // Add teachers of the booking option to newly created optiondate.
-            dates_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
+            teachers_handler::subscribe_existing_teachers_to_new_optiondate($optiondateid);
 
             for ($j = 1; $j < 4; ++$j) {
                 $cfname = 'ms' . $i . 'cf' . $j . 'name';
@@ -1665,7 +1684,7 @@ function booking_generatenewnumbers($bookingdatabooking, $cmid, $optionid, $alls
  * @param int $optionid
  */
 function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) {
-    global $DB, $CFG;
+    global $DB, $CFG, $USER;
 
     $course = $DB->get_record('course', array('id' => $booking->course));
     require_once($CFG->libdir . '/completionlib.php');
@@ -1674,8 +1693,11 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
     $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
 
     foreach ($selectedusers as $selecteduser) {
-        $userdata = $DB->get_record('booking_answers',
-                array('optionid' => $optionid, 'userid' => $selecteduser));
+        $userdata = $DB->get_record_sql(
+            "SELECT * FROM {booking_answers}
+            WHERE optionid = :optionid AND userid = :selecteduser
+            AND waitinglist <> 5", // Waitinglist 5 means deleted.
+            ['optionid' => $optionid, 'selecteduser' => $selecteduser ]);
 
         if ($userdata->completed == '1') {
             $userdata->completed = '0';
@@ -1694,8 +1716,9 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
 
             // Trigger the completion event, in order to send the notification mail.
             $event = \mod_booking\event\bookingoption_completed::create(array('context' => context_module::instance($cmid),
-                'objectid' => $optionid, 'relateduserid' => $selecteduser, 'other' => ['cmid' => $cmid]));
+                'objectid' => $optionid, 'userid' => $USER->id, 'relateduserid' => $selecteduser, 'other' => ['cmid' => $cmid]));
             $event->trigger();
+            // Important: userid is the user who triggered, relateduserid is the affected user who completed.
 
             $DB->update_record('booking_answers', $userdata);
             $countcomplete = $DB->count_records('booking_answers',
@@ -2125,7 +2148,7 @@ function booking_delete_instance($id) {
     } else {
         // If optiondates are deleted we also have to delete the associated entries in booking_optiondates_teachers.
         // TODO: this should be moved into delete_booking_option.
-        dates_handler::delete_booking_optiondates_teachers_by_bookingid($booking->id);
+        teachers_handler::delete_booking_optiondates_teachers_by_bookingid($booking->id);
     }
 
     // Delete any entity relations for the booking instance.
@@ -2288,39 +2311,53 @@ function booking_get_extra_capabilities() {
 /**
  * Adds user as teacher (booking manager) to a booking option
  *
- * @global object
  * @param int $userid
  * @param int $optionid
- * @param $cm
+ * @param int $cmid
+ * @param mixed $groupid the group object or group id
+ * @param bool $doenrol true if we want to enrol the teacher into the relevant course
+ * @return bool true if teacher was subscribed
  */
-function subscribe_teacher_to_booking_option($userid, $optionid, $cm, $groupid = '') {
-    global $DB;
+function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cmid, mixed $groupid = null,
+    bool $doenrol = true) {
+
+    global $DB, $USER;
+
+    $option = new booking_option($cmid, $optionid);
+    // Get settings of the booking instance (do not confuse with option settings).
+    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+
+    // Event if teacher already exists in DB, we still might want to enrol it into a new course.
+    if ($doenrol) {
+        // We enrol teacher with the type defined in settings.
+        $option->enrol_user($userid, true, $bookingsettings->teacherroleid, true);
+
+        /* NOTE: In the future, we might need a teacher_enrolled event here (or inside enrol_user)
+        which indicates that a teacher has been enrolled into a Moodle course. */
+    }
 
     if ($DB->record_exists("booking_teachers", array("userid" => $userid, "optionid" => $optionid))) {
         return true;
     }
 
-    $option = new booking_option($cm->id, $optionid);
+    $newteacherrecord = new stdClass();
+    $newteacherrecord->userid = $userid;
+    $newteacherrecord->optionid = $optionid;
+    $newteacherrecord->bookingid = $bookingsettings->id;
 
-    $sub = new stdClass();
-    $sub->userid = $userid;
-    $sub->optionid = $optionid;
-    $sub->bookingid = $option->booking->settings->id;
-
-    $inserted = $DB->insert_record("booking_teachers", $sub);
+    $inserted = $DB->insert_record("booking_teachers", $newteacherrecord);
 
     // When inserting a new teacher, we also need to insert the teacher for each optiondate.
-    dates_handler::subscribe_teacher_to_all_optiondates($optionid, $userid);
+    teachers_handler::subscribe_teacher_to_all_optiondates($optionid, $userid);
 
     if (!empty($groupid)) {
         groups_add_member($groupid, $userid);
     }
 
-    $option->enrol_user($userid, false, $option->booking->settings->teacherroleid);
     if ($inserted) {
         $event = \mod_booking\event\teacher_added::create(
-                array('relateduserid' => $userid, 'objectid' => $optionid,
-                    'context' => context_module::instance($cm->id)));
+                array('userid' => $USER->id, 'relateduserid' => $userid, 'objectid' => $optionid,
+                    'context' => context_module::instance($cmid)));
         $event->trigger();
     }
 
@@ -2328,24 +2365,24 @@ function subscribe_teacher_to_booking_option($userid, $optionid, $cm, $groupid =
 }
 
 /**
- * Removes teacher from the subscriber list
+ * Removes teacher from the subscriber list.
  *
- * @global object
  * @param int $userid
  * @param int $optionid
- * @param $cm
+ * @param int $cmid
+ * @return bool true if successful
  */
-function unsubscribe_teacher_from_booking_option($userid, $optionid, $cm) {
-    global $DB;
+function unsubscribe_teacher_from_booking_option(int $userid, int $optionid, int $cmid) {
+    global $DB, $USER;
 
     $event = \mod_booking\event\teacher_removed::create(
-            array('relateduserid' => $userid, 'objectid' => $optionid,
-                'context' => context_module::instance($cm->id)
+            array('userid' => $USER->id, 'relateduserid' => $userid, 'objectid' => $optionid,
+                'context' => context_module::instance($cmid)
             ));
     $event->trigger();
 
     // Also delete the teacher from every optiondate.
-    dates_handler::remove_teacher_from_all_optiondates($optionid, $userid);
+    teachers_handler::remove_teacher_from_all_optiondates($optionid, $userid);
 
     return ($DB->delete_records('booking_teachers',
             array('userid' => $userid, 'optionid' => $optionid)));

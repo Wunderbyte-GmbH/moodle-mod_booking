@@ -54,6 +54,7 @@ class rules_info {
         $rules = self::get_rules();
 
         $rulesforselect = [];
+        $rulesforselect['0'] = get_string('choose...', 'mod_booking');
         foreach ($rules as $rule) {
             $fullclassname = get_class($rule); // With namespace.
             $classnameparts = explode('\\', $fullclassname);
@@ -80,6 +81,11 @@ class rules_info {
             $rule = self::get_rule($ajaxformdata['bookingruletype']);
         } else {
             list($rule) = $rules;
+        }
+
+        // We skip if no rule was selected.
+        if (empty($rule)) {
+            return;
         }
 
         $rule->add_rule_to_mform($mform, $repeateloptions);
@@ -129,7 +135,6 @@ class rules_info {
      * @return mixed
      */
     public static function get_rule(string $rulename) {
-        global $CFG;
 
         $filename = 'mod_booking\booking_rules\rules\\' . $rulename;
 

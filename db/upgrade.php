@@ -2819,8 +2819,8 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_index($table, $index);
         }
         // Define index userid-bookingid-waitinglist-optionid (not unique) to be added to booking_answers.
-        $index = new xmldb_index('userid-bookingid-waitinglist-optionid', XMLDB_INDEX_NOTUNIQUE,
-            ['userid', 'bookingid', 'waitinglist', 'optionid']);
+        $index = new xmldb_index('userid-bookingid-waitinglist-optionid',
+            XMLDB_INDEX_NOTUNIQUE, ['userid', 'bookingid', 'waitinglist', 'optionid']);
 
         // Conditionally launch add index userid-bookingid-waitinglist-optionid.
         if (!$dbman->index_exists($table, $index)) {
@@ -3023,9 +3023,14 @@ function xmldb_booking_upgrade($oldversion) {
         // Rename field optionid on table booking_prices to itemid.
         $table = new xmldb_table('booking_prices');
 
-        $field = new xmldb_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'id');
-        // Launch rename field optionid.
-        $dbman->rename_field($table, $field, 'itemid');
+        $optionid = new xmldb_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'id');
+
+        // This field is only needed to check if it has already been renamed.
+        $itemid = new xmldb_field('itemid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'id');
+
+        if (!$dbman->field_exists($table, $itemid)) {
+            $dbman->rename_field($table, $optionid, 'itemid');
+        }
 
         $field = new xmldb_field('area', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'itemid');
         // Conditionally launch add field area.
@@ -3269,6 +3274,35 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2022120400, 'booking');
+    }
+
+    if ($oldversion < 2022122200) {
+
+        // Define field pricecatsortorder to be added to booking_pricecategories.
+        $table = new xmldb_table('booking_pricecategories');
+        $field = new xmldb_field('pricecatsortorder', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'defaultvalue');
+
+        // Conditionally launch add field pricecatsortorder.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2022122200, 'booking');
+    }
+
+    if ($oldversion < 2023011600) {
+
+        // Define table booking_institutions to be dropped.
+        $table = new xmldb_table('booking_institutions');
+
+        // Conditionally launch drop table for booking_institutions.
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2023011600, 'booking');
     }
 
     return true;

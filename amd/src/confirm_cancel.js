@@ -62,6 +62,7 @@ function confirmCancelModal(optionid, status) {
         // Add as many arguments as you need, they will be passed to the form:
         args: {
             'optionid': optionid,
+            'area': 'option',
             'status': status},
         // Pass any configuration settings to the modal dialogue, for example, the title:
         modalConfig: {

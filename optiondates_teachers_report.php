@@ -23,7 +23,6 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\booking_option;
 use mod_booking\singleton_service;
 use mod_booking\table\optiondates_teachers_table;
 
@@ -80,7 +79,6 @@ if (!$optiondatesteacherstable->is_downloading()) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('optiondatesteachersreport', 'mod_booking'));
 
-    $editteachersurl = new moodle_url('/mod/booking/teachers.php', $urlparams);
     $instancereportsurl = new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cmid]);
 
     // Dismissible alert containing the description of the report.
@@ -91,8 +89,7 @@ if (!$optiondatesteacherstable->is_downloading()) {
         </button>
     </div>';
 
-    echo get_string('linkfromreporttoeditteachers', 'mod_booking', $editteachersurl->out());
-    echo get_string('backtoteachersinstancereport', 'mod_booking', $instancereportsurl->out());
+    echo get_string('linktoteachersinstancereport', 'mod_booking', $instancereportsurl->out());
 
     // Show header with booking option name (and prefix if present).
     if (!empty($settings->titleprefix)) {

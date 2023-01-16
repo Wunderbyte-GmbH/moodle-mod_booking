@@ -61,7 +61,7 @@ echo $output->header();
 echo $output->heading(get_string('bookingrules', 'mod_booking'));
 
 // Check if PRO version is active.
-if (wb_payment::is_currently_valid_licensekey()) {
+if (wb_payment::pro_version_is_activated()) {
     $borules = new booking_rules();
     echo $borules->return_rendered_list_of_saved_rules();
 

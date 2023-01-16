@@ -145,7 +145,11 @@ class mod_booking_observer {
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
         foreach ($bookinganswer->users as $user) {
-            $bookingoption->user_delete_response($user->id);
+            /* Third param $bookingoptioncancel = true is important,
+            so we do not trigger bookinganswer_cancelled
+            and send no extra cancellation mails to each user.
+            Instead we want to use our new bookingoption_cancelled rule here. */
+            $bookingoption->user_delete_response($user->id, false, true);
 
             // Also delete user events.
             calendar::delete_booking_userevents_for_option($optionid, $user->id);
@@ -219,12 +223,7 @@ class mod_booking_observer {
         }
 
         // At the very last moment, when everything is done, we invalidate the table cache.
-        cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
-        cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
-        // When we set back the booking_answer...
-        // ... we have to make sure it's also delted in the singleton service.
-        singleton_service::destroy_booking_answers($optionid);
+        booking_option::purge_cache_for_option($optionid);
     }
 
     /**
@@ -360,7 +359,7 @@ class mod_booking_observer {
 
         global $DB;
 
-        // We only want to ever get the booking events.
+        // We want booking events only.
         $data = $event->get_data();
         if ($data['component'] !== 'mod_booking') {
             return;
@@ -377,9 +376,28 @@ class mod_booking_observer {
         foreach ($records as $record) {
 
             $rule = rules_info::get_rule($record->rulename);
+
+            // THIS is the place where we need to add event data to the rulejson!
+            $ruleobj = json_decode($record->rulejson);
+
+            if (!empty($event->userid)) {
+                if (empty($ruleobj->datafromevent)) {
+                    $ruleobj->datafromevent = new stdClass;
+                }
+                $ruleobj->datafromevent->userid = $event->userid;
+            }
+            if (!empty($event->relateduserid)) {
+                if (empty($ruleobj->datafromevent)) {
+                    $ruleobj->datafromevent = new stdClass;
+                }
+                $ruleobj->datafromevent->relateduserid = $event->relateduserid;
+            }
+            // We save rulejson again with added event data.
+            $record->rulejson = json_encode($ruleobj);
+            // Save it into the rule.
             $rule->set_ruledata($record);
 
-            // We only execute if the rule in question listens on the right event.
+            // We only execute if the rule in question listens to the right event.
             if (!empty($rule->boevent)) {
                 if ($data['eventname'] == $rule->boevent) {
                     $rule->execute($optionid, 0);

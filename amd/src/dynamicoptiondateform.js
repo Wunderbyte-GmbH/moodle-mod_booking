@@ -24,6 +24,7 @@
 import DynamicForm from 'core_form/dynamicform';
 import ModalForm from 'core_form/modalform';
 import Templates from 'core/templates';
+import {exception as displayException} from 'core/notification';
 
 const optiondateForm = new DynamicForm(document.querySelector('#optiondates-form'), 'mod_booking\\form\\dynamicoptiondateform');
 
@@ -76,9 +77,10 @@ export const initdynamicoptiondateform = (cmid, bookingid, optionid, modalTitle,
 
             Templates.renderForPromise('mod_booking/bookingoption_dates', response)
             // It returns a promise that needs to be resolved.
-            .then(({html}) => {
-                document.querySelector('.optiondates-list').innerHTML = '';
-                Templates.appendNodeContents('.optiondates-list', html);
+            .then(({html, js}) => {
+
+                Templates.replaceNodeContents('.optiondates-list', html, js);
+
                 return;
             })
             // Deal with this exception (Using core/notify exception function is recommended).
@@ -183,8 +185,8 @@ export const initmodaloptiondateform = (modalTitle, formClass) => {
 
                 Templates.renderForPromise('mod_booking/bookingoption_dates_custom_list_items', response)
                 // It returns a promise that needs to be resolved.
-                .then(({html}) => {
-                    Templates.appendNodeContents('ul.reoccurringdates', html);
+                .then(({html, js}) => {
+                    Templates.appendNodeContents('ul.reoccurringdates', html, js);
                     return;
                 })
                 // Deal with this exception (Using core/notify exception function is recommended).
@@ -193,8 +195,8 @@ export const initmodaloptiondateform = (modalTitle, formClass) => {
 
                 Templates.renderForPromise('mod_booking/bookingoption_dates_custom_hidden_inputs', response)
                 // It returns a promise that needs to be resolved.
-                .then(({html}) => {
-                    Templates.appendNodeContents('div.optiondates-list', html);
+                .then(({html, js}) => {
+                    Templates.appendNodeContents('div.optiondates-list', html, js);
                     return;
                 })
                 // Deal with this exception (Using core/notify exception function is recommended).

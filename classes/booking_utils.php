@@ -32,16 +32,6 @@ use stdClass;
 class booking_utils {
 
     /**
-     * @var int|null
-     */
-    public $secondstostart = null;
-
-    /**
-     * @var int|null
-     */
-    public $secondspassed = null;
-
-    /**
      * @var stdClass
      */
     public $booking = null;
@@ -251,7 +241,7 @@ class booking_utils {
                 $url = new moodle_url($baseurl . '/mod/booking/view.php', $buttonoptions);
                 $delete = '<div class="col-ap-cancelbooking">' . $OUTPUT->single_button($url,
                         (empty($values->btncancelname) ? get_string('cancelbooking', 'booking') : $values->btncancelname),
-                        $buttonmethod) . '</div>';
+                        $buttonmethod, ['class' => 'mt-2 mb-2']) . '</div>';
 
                 if ($values->coursestarttime > 0 && $values->allowupdatedays > 0) {
                     if (time() > strtotime("-{$values->allowupdatedays} day", $values->coursestarttime)) {
@@ -363,7 +353,7 @@ class booking_utils {
         if ($values->courseendtime > 0 &&  $values->courseendtime < time()) {
             $limit = get_string('eventalreadyover', 'booking');
         } else if (!$coursepage) {
-            $limit = "<div class='col-ap-unlimited'>" . get_string('unlimited', 'mod_booking') . "</div>";
+            $limit = "<div class='col-ap-unlimited'>" . get_string('unlimitedplaces', 'mod_booking') . "</div>";
         } else {
             $limit = '';
         }
@@ -392,7 +382,7 @@ class booking_utils {
                 $waitingplaces = "";
             } else {
                 // Check if a PRO license is active and the checkbox for booking places info texts in plugin config is activated.
-                if (wb_payment::is_currently_valid_licensekey()
+                if (wb_payment::pro_version_is_activated()
                     && get_config('booking', 'bookingplacesinfotexts')
                     && $places->maxanswers != 0) {
 
@@ -424,7 +414,7 @@ class booking_utils {
                 }
 
                 // Check if a PRO license is active and the checkbox for waiting list info texts in plugin config is activated.
-                if (wb_payment::is_currently_valid_licensekey()
+                if (wb_payment::pro_version_is_activated()
                     && get_config('booking', 'waitinglistinfotexts')
                     && $places->maxoverbooking != 0) {
 

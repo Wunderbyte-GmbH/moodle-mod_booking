@@ -199,7 +199,7 @@ class userprofilefield_1_default implements bo_condition {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description($full = false, booking_option_settings $settings, $userid = null, $not = false):array {
+    public function get_description(booking_option_settings $settings, $userid = null, $full = false, $not = false):array {
 
         $description = '';
 
@@ -229,7 +229,7 @@ class userprofilefield_1_default implements bo_condition {
         global $DB;
 
         // Check if PRO version is activated.
-        if (wb_payment::is_currently_valid_licensekey()) {
+        if (wb_payment::pro_version_is_activated()) {
 
             // Choose the user profile field which is used to store each user's price category.
             $userprofilefields = $DB->get_columns('user', true);
@@ -334,7 +334,22 @@ class userprofilefield_1_default implements bo_condition {
                 get_string('restrictwithuserprofilefield', 'mod_booking'),
                 get_string('proversiononly', 'mod_booking'));
         }
-        $mform->addElement('html', '<hr class="w-50"/>');
+
+        // Workaround: Only show, if it is not turned off in the option form config.
+        // We currently need this, because html elements do not show up in the option form config.
+        // In expert mode, we always show everything.
+        $showhorizontalline = true;
+        $formmode = get_user_preferences('optionform_mode');
+        if ($formmode !== 'expert') {
+            $cfgrestrictwithuserprofilefield = $DB->get_field('booking_optionformconfig', 'active',
+                ['elementname' => 'restrictwithuserprofilefield']);
+            if ($cfgrestrictwithuserprofilefield === "0") {
+                $showhorizontalline = false;
+            }
+        }
+        if ($showhorizontalline) {
+            $mform->addElement('html', '<hr class="w-50"/>');
+        }
     }
 
     /**
