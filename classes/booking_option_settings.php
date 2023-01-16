@@ -198,9 +198,6 @@ class booking_option_settings {
     /** @var string $optiondatesteachersurl */
     public $optiondatesteachersurl = null;
 
-    /** @var string $imageurl */
-    public $imageurl = null;
-
     /** @var array $entity for displaying enity information [id, name]*/
     public $entity = [];
 
@@ -227,9 +224,6 @@ class booking_option_settings {
 
     /** @var string $imageurl url */
     public $imageurl = '';
-
-    /** @var string $imaoptiondatesteachersurlgeurl url */
-    public $optiondatesteachersurl = '';
 
 
     /**
