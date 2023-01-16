@@ -319,15 +319,6 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         // No need to save this mapping as far as nothing depend on it.
     }
 
-    protected function process_booking_institution($data) {
-        global $DB;
-
-        $data = (object) $data;
-        $data->course = $this->get_courseid();
-        $DB->insert_record('booking_institutions', $data);
-        // No need to save this mapping as far as nothing depend on it.
-    }
-
     protected function process_booking_other($data) {
         global $DB;
 

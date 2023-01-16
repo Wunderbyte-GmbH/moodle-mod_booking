@@ -266,20 +266,6 @@ class option_form extends \moodleform {
             get_string('addnewinstitution', 'mod_booking'), $institutionstrings, $options);
         $mform->addHelpButton('institution', 'institution', 'mod_booking');
 
-        $url = $CFG->wwwroot . '/mod/booking/institutions.php';
-        if (isset($COURSE->id)) {
-            $url .= '?courseid=' . $COURSE->id;
-        }
-
-        // Only show, if it is not turned off in the option form config.
-        // In expert mode we do not hide anything.
-        if ($this->formmode == 'expert' ||
-            !isset($optionformconfig['institution']) || $optionformconfig['institution'] == 1) {
-            $mform->addElement('html',
-                '<a target="_blank" href="' . $url . '">' . get_string('editinstitutions', 'mod_booking') .
-                         '</a>');
-        }
-
         $mform->addElement('text', 'address', get_string('address', 'mod_booking'),
                 array('size' => '64'));
         if (!empty($CFG->formatstringstriptags)) {

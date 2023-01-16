@@ -433,14 +433,6 @@ class csv_import {
                 case 'institution':
                     // Create institution if it does not exist.
                     $bookingoption->institution = $this->fix_encoding($value);
-                    $instexists = $DB->record_exists('booking_institutions', array('course' => $this->booking->course->id,
-                        "name" => $bookingoption->institution));
-                    if (!$instexists) {
-                        $institution = new stdClass();
-                        $institution->name = $bookingoption->institution;
-                        $institution->course = $this->booking->course->id;
-                        $DB->insert_record("booking_institutions", $institution);
-                    }
                     break;
                 case 'dayofweektime':
                     // Deal with option dates.

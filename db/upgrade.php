@@ -3291,5 +3291,19 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022122200, 'booking');
     }
 
+    if ($oldversion < 2023011600) {
+
+        // Define table booking_institutions to be dropped.
+        $table = new xmldb_table('booking_institutions');
+
+        // Conditionally launch drop table for booking_institutions.
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2023011600, 'booking');
+    }
+
     return true;
 }

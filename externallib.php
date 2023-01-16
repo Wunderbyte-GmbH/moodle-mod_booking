@@ -173,18 +173,6 @@ class mod_booking_external extends external_api {
 
                     foreach ($bookingdata->get_all_options(0, 0, '', '*') as $record) {
 
-                        $institutionid = new stdClass();
-                        $institutionid->id = 0;
-
-                        if (!empty($record->institution)) {
-                            $institutionid = $DB->get_record_sql('SELECT id FROM {booking_institutions} WHERE course = :course ' .
-                                'AND name LIKE :name LIMIT 1', array('course' => $courseid, 'name' => $record->institution));
-                            if (!$institutionid) {
-                                $institutionid = new stdClass();
-                                $institutionid->id = 0;
-                            }
-                        }
-
                         $option = array();
                         $option['id'] = $record->id;
                         $option['text'] = $record->text;
@@ -195,7 +183,6 @@ class mod_booking_external extends external_api {
                         $option['description'] = $record->description;
                         $option['location'] = $record->location;
                         $option['institution'] = $record->institution;
-                        $option['institutionid'] = $institutionid->id;
                         $option['address'] = $record->address;
                         $option['users'] = array();
                         $option['teachers'] = array();
@@ -291,7 +278,6 @@ class mod_booking_external extends external_api {
                             'description' => new external_value(PARAM_RAW, 'Description'),
                             'location' => new external_value(PARAM_TEXT, 'Location'),
                             'institution' => new external_value(PARAM_TEXT, 'Institution'),
-                            'institutionid' => new external_value(PARAM_INT, 'Institution ID'),
                             'address' => new external_value(PARAM_TEXT, 'Address'),
                             'users' => new external_multiple_structure(new external_single_structure(
                                 array(
