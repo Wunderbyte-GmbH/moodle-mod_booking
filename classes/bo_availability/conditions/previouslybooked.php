@@ -340,7 +340,7 @@ class previouslybooked implements bo_condition {
             $availabilityarray = json_decode($settings->availability);
 
             foreach ($availabilityarray as $availability) {
-                if (str_contains($availability->class, 'previouslybooked')) {
+                if (strpos($availability->class, 'previouslybooked') > 0) {
 
                     $this->customsettings = (object)$availability;
                 }

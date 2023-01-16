@@ -432,7 +432,7 @@ class userprofilefield_1_default implements bo_condition {
             $availabilityarray = json_decode($settings->availability);
 
             foreach ($availabilityarray as $availability) {
-                if (str_contains($availability->class, 'userprofilefield_1_default')) {
+                if (strpos($availability->class, 'userprofilefield_1_default') > 0) {
 
                     $this->customsettings = (object)$availability;
                 }
