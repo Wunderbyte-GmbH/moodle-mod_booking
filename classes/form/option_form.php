@@ -143,14 +143,6 @@ class option_form extends moodleform {
         $mform->addElement('autocomplete', 'institution', get_string('addnewinstitution', 'booking'), $institutionstrings, $options);
         $mform->addHelpButton('institution', 'institution', 'mod_booking');
 
-        $url = $CFG->wwwroot . '/mod/booking/institutions.php';
-        if (isset($COURSE->id)) {
-            $url .= '?courseid=' . $COURSE->id;
-        }
-        $mform->addElement('html',
-                '<a target="_blank" href="' . $url . '">' . get_string('editinstitutions', 'booking') .
-                         '</a>');
-
         $mform->addElement('text', 'address', get_string('address', 'booking'),
                 array('size' => '64'));
         if (!empty($CFG->formatstringstriptags)) {
