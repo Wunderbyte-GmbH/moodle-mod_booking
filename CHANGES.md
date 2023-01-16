@@ -1,3 +1,11 @@
+## Version 7.8.3 (2023011600)
+**Improvements:**
+* Improvement: Shorter string for unlimited places.
+* Improvement: Old institution functionality removed, as it is not needed anymore.
+
+**Bugfixes:**
+* Bugfix: Some elements were not hidden in simple mode.
+
 ## Version 7.8.2 (2023011300)
 **Improvements:**
 * Improvement: Prepare process_booking_price function in restore_booking_stepslib for new price areas.
