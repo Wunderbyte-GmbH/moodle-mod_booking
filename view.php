@@ -251,10 +251,10 @@ $event->trigger();
 // Display the booking and possibly results.
 
 $mybookings = $DB->get_record_sql(
-        "SELECT COUNT(*) AS mybookings FROM {booking_answers} WHERE userid = :userid && bookingid = :bookingid",
+        "SELECT COUNT(*) AS mybookings FROM {booking_answers} WHERE userid = :userid AND bookingid = :bookingid",
         array('userid' => $USER->id, 'bookingid' => $booking->id));
 $myoptions = $DB->get_record_sql(
-        "SELECT COUNT(*) AS myoptions FROM {booking_teachers} WHERE userid = :userid && bookingid = :bookingid",
+        "SELECT COUNT(*) AS myoptions FROM {booking_teachers} WHERE userid = :userid AND bookingid = :bookingid",
         array('userid' => $USER->id, 'bookingid' => $booking->id));
 
 // Initialise for later if user has already made a selection, show the selected answer.
