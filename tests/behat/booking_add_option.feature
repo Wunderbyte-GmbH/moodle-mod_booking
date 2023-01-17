@@ -39,35 +39,35 @@ Feature: In a booking instance create booking options
     Then I should see "Test booking"
     And I log out
 
-    @javascript
-    Scenario: Create booking option and see it on activity page
-        Given I am on the "Course 1" course page logged in as teacher1
-        And I follow "My booking"
-        And I follow "New booking option"
-        And I set the following fields to these values:
-           | Booking option name | Test option - Webinar |
-        And I set the field "startendtimeknown" to "checked"
-        And I set the field "addtocalendar" to "1"
-        And I wait "2" seconds
-        And I set the following fields to these values:
-            | coursestarttime[day] | 1 |
-            | coursestarttime[month] | January |
-            | coursestarttime[year] | ##yesterday##%Y## |
-            | coursestarttime[hour] | 00 |
-            | coursestarttime[minute] | 00 |
-        And I set the following fields to these values:
-            | courseendtime[day] | 1 |
-            | courseendtime[month] | January |
-            | courseendtime[year] | ## + 1 year ## %Y ## |
-            | courseendtime[hour] | 00 |
-            | courseendtime[minute] | 00 |
-        And I press "Save and go back"
-        And I should see "Book now"
-        And I log out
-        And I am on the "Course 1" course page logged in as student1
-        And I follow "My booking"
-        And I press "Book now"
-        Then I should see "Your booking was successfully saved"
-        And I press "Continue"
-        And I should see "Booked"
-        And I should not see "Book now"
+  @javascript
+  Scenario: Create booking option and see it on activity page
+    Given I am on the "Course 1" course page logged in as teacher1
+    And I follow "My booking"
+    And I follow "New booking option"
+    And I set the following fields to these values:
+      | Booking option name | Test option - Webinar |
+    And I set the field "startendtimeknown" to "checked"
+    And I set the field "addtocalendar" to "1"
+    And I wait "2" seconds
+    And I set the following fields to these values:
+      | coursestarttime[day]    | 1                 |
+      | coursestarttime[month]  | January           |
+      | coursestarttime[year]   | ##yesterday##%Y## |
+      | coursestarttime[hour]   | 00                |
+      | coursestarttime[minute] | 00                |
+    And I set the following fields to these values:
+      | courseendtime[day]    | 1                    |
+      | courseendtime[month]  | January              |
+      | courseendtime[year]   | ## + 1 year ## %Y ## |
+      | courseendtime[hour]   | 00                   |
+      | courseendtime[minute] | 00                   |
+    And I press "Save and go back"
+    And I should see "Book now"
+    And I log out
+    And I am on the "Course 1" course page logged in as student1
+    And I follow "My booking"
+    And I press "Book now"
+    Then I should see "Your booking was successfully saved"
+    And I press "Continue"
+    And I should see "Booked"
+    And I should not see "Book now"

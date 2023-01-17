@@ -41,8 +41,7 @@ Feature: In a booking delete
     And I click on "selectall" "checkbox"
     And I click on "Delete responses" "button"
     Then I trigger cron
-    ## Then I open the link "webserver/admin/cron.php?password=opensesame"
-    And I wait "10" seconds
+    And I wait "2" seconds
 
   @javascript @email
   Scenario: Send email for user

@@ -1228,7 +1228,7 @@ function booking_update_options($optionvalues, $context) {
 
         // Save relation for each newly created optiondate if checkbox is active.
         save_entity_relations_for_optiondates_of_option($optionvalues, $optionid);
-        
+
         // Trigger an event that booking option has been updated - only if it is NOT a template.
         if (!isset($optionvalues->addastemplate) || $optionvalues->addastemplate == 0) {
             $event = \mod_booking\event\bookingoption_updated::create(
@@ -2333,7 +2333,7 @@ function booking_get_extra_capabilities() {
  * @param bool $doenrol true if we want to enrol the teacher into the relevant course
  * @return bool true if teacher was subscribed
  */
-function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cmid, mixed $groupid = null,
+function subscribe_teacher_to_booking_option(int $userid, int $optionid, int $cmid, $groupid = null,
     bool $doenrol = true) {
 
     global $DB, $USER;
