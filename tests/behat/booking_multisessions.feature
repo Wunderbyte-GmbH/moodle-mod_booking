@@ -37,62 +37,62 @@ Feature: In a booking create multi session options
     And I click on "Settings" "icon"
     And I follow "Duplicate this booking option"
     And I press "Save and go back"
-        And I click on "Settings" "icon"
-        And I follow "Duplicate this booking option"
-        And I press "Save and go back"
-        ## And I click on "Settings" "icon"
-        And I click on "#mod_booking_all_options_r1_c3 .dropdown .icon" "css_element"
-        ## And I follow "Manage option dates"
-        And I click on ".dropdown-menu.show .fa-calendar-check-o" "css_element"
-        And I set the following fields to these values:
-            | Day | 30 |
-            | Month | January |
-            | Year | ## + 1 year ## %Y ## |
-            | Hour | 12 |
-            | Minute | 00 |
-            | endhour | 20 |
-            | endminute | 00 |
-        And I press "Save"
-        And I press "Back"
-        And I should see "New option - Webinar - Copy"
-        And I click on "#mod_booking_all_options_r1_c1 .fa-calendar" "css_element"
-        And I wait "1" seconds
-        Then I should see "## +1 year ##%Y##" in the "#mod_booking_all_options_r1_c1" "css_element"
-        And I should see "30 January" in the "#mod_booking_all_options_r1_c1" "css_element"
-        And I should see "12:00 PM - 8:00 PM" in the "#mod_booking_all_options_r1_c1" "css_element"
+    And I click on "Settings" "icon"
+    And I follow "Duplicate this booking option"
+    And I press "Save and go back"
+    ## And I click on "Settings" "icon"
+    And I click on "#mod_booking_all_options_r1_c3 .dropdown .icon" "css_element"
+    ## And I follow "Manage option dates"
+    And I click on ".dropdown-menu.show .fa-calendar-check-o" "css_element"
+    And I set the following fields to these values:
+      | Day       | 30                   |
+      | Month     | January              |
+      | Year      | ## + 1 year ## %Y ## |
+      | Hour      | 12                   |
+      | Minute    | 00                   |
+      | endhour   | 20                   |
+      | endminute | 00                   |
+    And I press "Save"
+    And I press "Back"
+    And I should see "New option - Webinar - Copy"
+    And I click on "#mod_booking_all_options_r1_c1 .fa-calendar" "css_element"
+    And I wait "1" seconds
+    Then I should see "## +1 year ##%Y##" in the "#mod_booking_all_options_r1_c1" "css_element"
+    And I should see "30 January" in the "#mod_booking_all_options_r1_c1" "css_element"
+    And I should see "12:00 PM - 8:00 PM" in the "#mod_booking_all_options_r1_c1" "css_element"
 
-    @javascript
-    Scenario: Send reminder mail to participant
-        Given I log in as "teacher1"
-        When I am on "Course 1" course homepage
-        And I follow "My booking"
-        And I click on "Settings" "icon"
-        And I follow "Edit this booking option"
-        And I wait "1" seconds
-        And I press "Teachers"
-        And I wait "1" seconds
-        And I set the field "Teachers" to "Teacher 1 (teacher1@example.com)"
-        And I press "Save and go back"
-        And I follow "My booking"
-        And I click on "Settings" "icon"
-        And I follow "Book other users"
-        And I click on "Student 1 (student1@example.com)" "text"
-        And I click on "Student 2 (student2@example.com)" "text"
-        And I click on "Add" "button"
-        And I follow "<< Back to responses"
-        And I click on "selectall" "checkbox"
-        And I click on "Send reminder e-mail" "button"
-        And I click on "selectall" "checkbox"
-        And I click on "Send custom message" "button"
-        And I set the following fields to these values:
-            |  Subject | Behat test |
-            |  Message | Dear, Firstly, I would like to thank you for booking my Course |
-        And I press "Save changes"
-        And I should see "Your message has been sent."
-        And I run all adhoc tasks
-        And I open the link "webserver/_/mail"
-        Then I should see "Teacher 1 (via Acceptance test site)"
-        And I should see "Behat test"
+  @javascript
+  Scenario: Send reminder mail to participant
+    Given I log in as "teacher1"
+    When I am on "Course 1" course homepage
+    And I follow "My booking"
+    And I click on "Settings" "icon"
+    And I follow "Edit this booking option"
+    And I wait "1" seconds
+    And I press "Teachers"
+    And I wait "1" seconds
+    And I set the field "Teachers" to "Teacher 1 (teacher1@example.com)"
+    And I press "Save and go back"
+    And I follow "My booking"
+    And I click on "Settings" "icon"
+    And I follow "Book other users"
+    And I click on "Student 1 (student1@example.com)" "text"
+    And I click on "Student 2 (student2@example.com)" "text"
+    And I click on "Add" "button"
+    And I follow "<< Back to responses"
+    And I click on "selectall" "checkbox"
+    And I click on "Send reminder e-mail" "button"
+    And I click on "selectall" "checkbox"
+    And I click on "Send custom message" "button"
+    And I set the following fields to these values:
+      | Subject | Behat test                                                     |
+      | Message | Dear, Firstly, I would like to thank you for booking my Course |
+    And I press "Save changes"
+    And I should see "Your message has been sent."
+    And I run all adhoc tasks
+    And I open the link "webserver/_/mail"
+    Then I should see "Teacher 1 (via Acceptance test site)"
+    And I should see "Behat test"
 
   @javascript
   Scenario: Student books an option
@@ -113,28 +113,28 @@ Feature: In a booking create multi session options
     Then I should see "Teacher 1 (via Acceptance test site)"
     And I should see "Booking confirmation for New option - Webinar"
 
-    @javascript
-    Scenario: Teacher sends mails to students
-        Given I log in as "teacher1"
-        When I am on "Course 1" course homepage
-        Then I follow "My booking"
-        And I follow "My booking"
-        And I click on "Settings" "icon"
-        And I follow "Book other users"
-        And I click on "Student 1 (student1@example.com)" "text"
-        And I click on "Student 2 (student2@example.com)" "text"
-        And I click on "Add" "button"
-        And I follow "<< Back to responses"
-        And I click on "selectall" "checkbox"
-        And I click on "Send reminder e-mail" "button"
-        And I should see "Notification e-mail has been sent!"
+  @javascript
+  Scenario: Teacher sends mails to students
+    Given I log in as "teacher1"
+    When I am on "Course 1" course homepage
+    Then I follow "My booking"
+    And I follow "My booking"
+    And I click on "Settings" "icon"
+    And I follow "Book other users"
+    And I click on "Student 1 (student1@example.com)" "text"
+    And I click on "Student 2 (student2@example.com)" "text"
+    And I click on "Add" "button"
+    And I follow "<< Back to responses"
+    And I click on "selectall" "checkbox"
+    And I click on "Send reminder e-mail" "button"
+    And I should see "Notification e-mail has been sent!"
 
-    @javascript
-    Scenario: Run cron
-        Given I log in as "admin1"
-        Then I trigger cron
-        And I wait "10" seconds
-        And I run all adhoc tasks
+  @javascript
+  Scenario: Run cron
+    Given I log in as "admin1"
+    Then I trigger cron
+    And I wait "10" seconds
+    And I run all adhoc tasks
 
   @javascript @email
   Scenario: Send email for user
