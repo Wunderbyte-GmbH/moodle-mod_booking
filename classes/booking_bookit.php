@@ -94,9 +94,14 @@ class booking_bookit {
         $justmyalert = false;
         foreach ($results as $result) {
 
-            // $prepages can pre pre- or postbent.
-
-            self::sort_prepages($prepages, $result);
+            // Only count the pre or postbent pages.
+            if ($result['insertpage'] === BO_PREPAGE_PREBOOK
+                || $result['insertpage'] === BO_PREPAGE_POSTBOOK) {
+                $prepages[] = [
+                    'id' => $result['id'],
+                    'classname' => $result['classname']
+                ];
+            }
 
             switch ($result['button'] ) {
                 case BO_BUTTON_MYBUTTON:
