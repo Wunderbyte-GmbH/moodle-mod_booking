@@ -135,7 +135,7 @@ class notifymelist implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, false, BO_BUTTON_JUSTMYALERT];
+        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_JUSTMYALERT];
     }
 
     /**

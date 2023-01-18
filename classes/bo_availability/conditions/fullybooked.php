@@ -126,7 +126,7 @@ class fullybooked implements bo_condition {
 
         $description = self::get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, false, BO_BUTTON_MYALERT];
+        return [$isavailable, $description, BO_PREPAGE_NONE, BO_BUTTON_MYALERT];
     }
 
     /**

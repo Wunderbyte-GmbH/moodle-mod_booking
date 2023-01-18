@@ -74,7 +74,7 @@ class load_pre_booking_page extends external_api {
                 array('optionid' => $optionid,
                 'pagenumber' => $pagenumber));
 
-        $result = bo_info::load_pre_booking_page($params['optionid'], $params['pagenumber'], $USER->id);
+        $result = bo_info::load_pre_booking_page($params['optionid'], $params['pagenumber'], (int)$USER->id);
 
         return $result;
     }
