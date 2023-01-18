@@ -122,7 +122,7 @@ class subbooking implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full);
 
-        return [$isavailable, $description, true, BO_BUTTON_INDIFFERENT];
+        return [$isavailable, $description, BO_PREPAGE_POSTBOOK, BO_BUTTON_INDIFFERENT];
     }
 
     /**
