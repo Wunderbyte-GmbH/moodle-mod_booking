@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This class contains a list of webservice functions related to the Shopping Cart Module by Wunderbyte.
+ * This class contains a webservice function related to the Booking Module by Wunderbyte.
  *
  * @package    mod_booking
  * @copyright  2022 Georg Maißer <info@wunderbyte.at>
@@ -26,23 +26,20 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
-use context_system;
 use external_api;
 use external_function_parameters;
 use external_value;
 use external_single_structure;
-use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\singleton_service;
 use mod_booking\subbookings\subbookings_info;
-use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/externallib.php');
 
 /**
- * External Service for shopping cart.
+ * External Service for for booking class to book a booking or subbooking option.
  *
  * @package   mod_booking
  * @copyright 2022 Wunderbyte GmbH {@link http://www.wunderbyte.at}
@@ -58,9 +55,9 @@ class bookit extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters(array(
-            'area'  => new external_value(PARAM_RAW, 'area', VALUE_REQUIRED),
-            'itemid'  => new external_value(PARAM_INT, 'itemid', VALUE_REQUIRED),
-            'userid'  => new external_value(PARAM_INT, 'userid', VALUE_DEFAULT, 0),
+            'area'  => new external_value(PARAM_RAW, 'area', (bool) VALUE_REQUIRED),
+            'itemid'  => new external_value(PARAM_INT, 'itemid', (bool) VALUE_REQUIRED),
+            'userid'  => new external_value(PARAM_INT, 'userid', (bool) VALUE_DEFAULT, 0),
             )
         );
     }
@@ -109,7 +106,7 @@ class bookit extends external_api {
             'message' => 'bookingsuccessful',
             'template' => implode(',', $templates),
             'json' => json_encode($data),
-        ];;
+        ];
     }
 
     /**
@@ -119,10 +116,10 @@ class bookit extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure(array(
-            'status' => new external_value(PARAM_INT, '1 for success', VALUE_DEFAULT, 0),
-            'message' => new external_value(PARAM_RAW, 'Message if any', VALUE_DEFAULT, ''),
-            'template' => new external_value(PARAM_TEXT, 'Button template', VALUE_DEFAULT, ''),
-            'json' => new external_value(PARAM_RAW, 'Data as json', VALUE_DEFAULT, ''),
+            'status' => new external_value(PARAM_INT, '1 for success', (bool) VALUE_DEFAULT, 0),
+            'message' => new external_value(PARAM_RAW, 'Message if any', (bool) VALUE_DEFAULT, ''),
+            'template' => new external_value(PARAM_TEXT, 'Button template', (bool) VALUE_DEFAULT, ''),
+            'json' => new external_value(PARAM_RAW, 'Data as json', (bool) VALUE_DEFAULT, ''),
             )
         );
     }

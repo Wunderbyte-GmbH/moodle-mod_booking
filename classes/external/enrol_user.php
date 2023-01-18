@@ -39,44 +39,62 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
 
 /**
- * External Service for toggle notify user.
+ * External Service for enrol user.
  *
  * @package   mod_booking
  * @copyright 2022 Wunderbyte GmbH {@link http://www.wunderbyte.at}
  * @author    Georg Maißer
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class toggle_notify_user extends external_api {
+class enrol_user extends external_api {
 
     /**
-     * Describes the parameters for toggle_notify_user.
+     * Describes the parameters for enrol user.
      *
      * @return external_function_parameters
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'userid' => new external_value(PARAM_INT, 'user id', (bool) VALUE_REQUIRED, 0),
-            'optionid' => new external_value(PARAM_INT, 'option id', (bool) VALUE_REQUIRED, 0),
+            'id' => new external_value(PARAM_INT, 'CM ID', (bool) VALUE_REQUIRED, 0),
+            'answer' => new external_value(PARAM_INT, 'Answer id', (bool) VALUE_REQUIRED, 0),
+            'courseid' => new external_value(PARAM_INT, 'Course id', (bool) VALUE_REQUIRED, 0),
             ]
         );
     }
 
     /**
-     * Webservice for toggle_notify_user.
+     * Webservice for enrol user.
      *
-     * @param int $userid
-     * @param int $optionid
+     * @param int $id
+     * @param int $answer
+     * @param int $courseid
      *
      * @return array
      */
-    public static function execute(int $userid, int $optionid): array {
+    public static function execute(int $id, int $answer, int $courseid): array {
+        global $USER;
 
         $params = self::validate_parameters(self::execute_parameters(),
-                ['userid' => $userid, 'optionid' => $optionid]);
+                ['id' => $id, 'answer' => $answer, 'courseid' => $courseid]);
 
-        $result = booking_option::toggle_notify_user($params['userid'], $params['optionid']);
+        $bookingdata = new booking_option($id, $answer, [], 0, 0, false);
+        $bookingdata->apply_tags();
+        if ($bookingdata->user_submit_response($USER)) {
+            $contents = get_string('bookingsaved', 'booking');
+            if ($bookingdata->booking->settings->sendmail) {
+                $contents .= "<br />" . get_string('mailconfirmationsent', 'booking') . ".";
+            }
+        } else if (is_numeric($answer)) {
+            $contents = get_string('bookingmeanwhilefull', 'booking') . " " . $bookingdata->option->text;
+        }
 
-        return $result;
+        return [
+            'status' => true,
+            'id' => $id,
+            'message' => htmlentities($contents),
+            'answer' => $answer,            
+            'courseid' => $courseid
+        ];
     }
 
     /**
@@ -86,10 +104,12 @@ class toggle_notify_user extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'status' => new external_value(PARAM_INT, 
-                    'Status 1 for user is now on list, 0 for not on list.'),
-            'optionid' => new external_value(PARAM_INT, 'option id'),
-            'error' => new external_value(PARAM_RAW, 'error'),
+            'status' => new external_value(PARAM_BOOL, 'status: true if success'),
+            'warnings' => new external_warnings(),
+            'message' => new external_value(PARAM_TEXT, 'the updated note'),
+            'id' => new external_value(PARAM_INT),
+            'answer' => new external_value(PARAM_INT),
+            'courseid' => new external_value(PARAM_INT),
             ]
         );
     }

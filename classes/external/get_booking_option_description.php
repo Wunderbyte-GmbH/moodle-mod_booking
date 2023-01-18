@@ -32,51 +32,77 @@ use external_single_structure;
 use external_value;
 use external_warnings;
 use mod_booking\booking_option;
-use stdClass;
+use mod_booking\output\bookingoption_description;
+use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/externallib.php');
 
 /**
- * External Service for toggle notify user.
+ * External Service for get booking option description.
  *
  * @package   mod_booking
  * @copyright 2022 Wunderbyte GmbH {@link http://www.wunderbyte.at}
  * @author    Georg Maißer
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class toggle_notify_user extends external_api {
+class get_booking_option_description extends external_api {
 
     /**
-     * Describes the parameters for toggle_notify_user.
+     * Describes the parameters for get_booking_option_description.
      *
      * @return external_function_parameters
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'userid' => new external_value(PARAM_INT, 'user id', (bool) VALUE_REQUIRED, 0),
-            'optionid' => new external_value(PARAM_INT, 'option id', (bool) VALUE_REQUIRED, 0),
+            'optionid' => new external_value(PARAM_INT, 'Option id', (bool) VALUE_REQUIRED, 0),
+            'userid' => new external_value(PARAM_INT, 'userid', (bool) VALUE_REQUIRED, 0)
             ]
         );
     }
 
     /**
-     * Webservice for toggle_notify_user.
+     * Webservice for get_booking_option_description.
      *
-     * @param int $userid
      * @param int $optionid
+     * @param int $userid
      *
      * @return array
      */
-    public static function execute(int $userid, int $optionid): array {
+    public static function execute(int $optionid, int $userid): array {
 
         $params = self::validate_parameters(self::execute_parameters(),
-                ['userid' => $userid, 'optionid' => $optionid]);
+                ['optionid' => $optionid, 'userid' => $userid]);
 
-        $result = booking_option::toggle_notify_user($params['userid'], $params['optionid']);
+        $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);
 
-        return $result;
+        if ($userid > 0) {
+            $user = singleton_service::get_instance_of_user($userid);
+        } else {
+            $user = null;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+
+        // Check if user is booked.
+        $forbookeduser = $bookinganswer->user_status($userid) == STATUSPARAM_BOOKED ? true : false;
+
+        $data = new bookingoption_description($optionid, null, DESCRIPTION_WEBSITE, true, $forbookeduser, $user);
+
+        // Fix invisible attribute, by converting to boolean.
+        if (isset($data->invisible) && $data->invisible == 1) {
+            $data->invisible = true;
+        } else {
+            $data->invisible = false;
+        }
+
+        return [
+            'content' => json_encode($data),
+            'template' => 'mod_booking/bookingoption_description'
+        ];
     }
 
     /**
@@ -86,10 +112,8 @@ class toggle_notify_user extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'status' => new external_value(PARAM_INT, 
-                    'Status 1 for user is now on list, 0 for not on list.'),
-            'optionid' => new external_value(PARAM_INT, 'option id'),
-            'error' => new external_value(PARAM_RAW, 'error'),
+            'content' => new external_value(PARAM_RAW, 'json object as string'),
+            'template' => new external_value(PARAM_TEXT, 'the template to render the content'),
             ]
         );
     }
