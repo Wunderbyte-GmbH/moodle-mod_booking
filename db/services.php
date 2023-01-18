@@ -79,18 +79,20 @@ $functions = array(
         'ajax' => true
     ),
     'mod_booking_toggle_notify_user' => array(
-        'classname' => 'mod_booking\external',
-        'methodname' => 'toggle_notify_user',
+        'classname' => 'mod_booking\external\toggle_notify_user',
+        'classpath' => '',
         'description' => 'Puts user on and off the notification list',
-        'type' => 'read',
-        'ajax' => true
+        'type' => 'write',
+        'capabilities' => '',
+        'ajax' => 1
     ),
     'mod_booking_load_pre_booking_page' => array(
-        'classname' => 'mod_booking\external',
-        'methodname' => 'load_pre_booking_page',
+        'classname' => 'mod_booking\external\load_pre_booking_page',
+        'classpath' => '',
         'description' => 'Loads the injected pre booking page from the right bo_condition',
         'type' => 'read',
-        'ajax' => true
+        'capabilities' => '',
+        'ajax' => 1
     ),
     'mod_booking_bookit' => array(
         'classname' => 'mod_booking\external\bookit',
@@ -99,7 +101,7 @@ $functions = array(
         'type' => 'write',
         'capabilities' => '',
         'ajax' => 1
-),
+    ),
 );
 
 $services = array(
