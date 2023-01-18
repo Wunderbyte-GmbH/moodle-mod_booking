@@ -131,6 +131,23 @@ if ($ADMIN->fulltree) {
                 get_string('infotext:prolicensenecessary', 'mod_booking')));
     }
 
+    // PRO feature: Subbookings.
+    if (wb_payment::pro_version_is_activated()) {
+        $settings->add(
+            new admin_setting_heading('subbookings',
+                get_string('subbookings', 'mod_booking'),
+                get_string('subbookings_desc', 'mod_booking')));
+
+        $settings->add(
+            new admin_setting_configcheckbox('booking/showsubbookings',
+                    get_string('showsubbookings', 'mod_booking'), '', 0));
+    } else {
+        $settings->add(
+            new admin_setting_heading('subbookings',
+                get_string('subbookings', 'mod_booking'),
+                get_string('infotext:prolicensenecessary', 'mod_booking')));
+    }
+    
     // PRO feature: Progress bars.
     if (wb_payment::pro_version_is_activated()) {
         $settings->add(

@@ -1267,7 +1267,7 @@ $string['instancesuccessfullysaved'] = 'Diese Buchung wurde erfolgreich als Vorl
 $string['instance_not_saved_no_valid_license'] = 'Buchung konnte nicht als Vorlage gespeichert werden.
                                                   Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen
                                                   zu können.';
-$string['bookinginstancetemplatessettings'] = 'Buchungsinstanz-Vorlagen';
+$string['bookinginstancetemplatessettings'] = 'Buchung: Vorlagen für Buchungsinstanzen';
 $string['bookinginstancetemplatename'] = 'Name der Buchungsinstanz-Vorlage';
 $string['managebookinginstancetemplates'] = 'Buchungsinstanz-Vorlagen verwalten';
 $string['populatefromtemplate'] = 'Mit Vorlage ausfüllen';
@@ -1460,6 +1460,10 @@ $string['notificationlistdesc'] = 'Wenn es bei einer Buchungsoption keine verfü
  können sich Teilnehmer:innnen registrieren lassen, um eine Benachrichtung zu erhalten, sobald wieder
  Plätze verfügbar sind.';
 $string['usenotificationlist'] = 'Verwende Benachrichtigungsliste';
+
+$string['subbookings'] = 'Zusatzbuchungen (PRO)';
+$string['subbookings_desc'] = 'Schalten Sie Zusatzbuchungen wie z.B. zusätzlich buchbare Items oder Slot-Buchungen für bestimmte Zeiten (z.B. für Tennisplätze) frei.';
+$string['showsubbookings'] = 'Zusatzbuchungen aktivieren';
 
 $string['progressbars'] = 'Fortschrittsbalken für bereits vergangene Zeit (PRO)';
 $string['progressbars_desc'] = 'Mit diesem Feature erhalten Sie eine visuelle Darstellung der bereits vergangenen Zeit von Buchungsoptionen.';

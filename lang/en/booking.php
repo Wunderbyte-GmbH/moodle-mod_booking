@@ -1585,6 +1585,10 @@ $string['notificationlist'] = 'Notification list';
 $string['notificationlistdesc'] = 'When no place is available anymore, users can still register to be notified when there is an opening';
 $string['usenotificationlist'] = 'Use notification list';
 
+$string['subbookings'] = 'Subbookings (PRO)';
+$string['subbookings_desc'] = 'Activate subbookings in order to enable the booking of additional items or time slots (e.g. for tennis courts).';
+$string['showsubbookings'] = 'Activate subbookings';
+
 $string['progressbars'] = 'Progress bars of time passed (PRO)';
 $string['progressbars_desc'] = 'Get a visual representation of the time which has already passed for a booking option.';
 $string['showprogressbars'] = 'Show progress bars of time passed';
@@ -1671,7 +1675,7 @@ $string['instancetemplate'] = 'Instance template';
 $string['instancesuccessfullysaved'] = 'This booking instance was sucesfully saved as template.';
 $string['instance_not_saved_no_valid_license'] = 'Booking instance could not be saved as template.
                                                   Upgrade to PRO version to save an unlimited number of templates.';
-$string['bookinginstancetemplatessettings'] = 'Booking instance templates';
+$string['bookinginstancetemplatessettings'] = 'Booking: Instance templates';
 $string['bookinginstancetemplatename'] = 'Booking instance template name';
 $string['managebookinginstancetemplates'] = 'Manage booking instance templates';
 $string['populatefromtemplate'] = 'Populate from template';
@@ -2203,8 +2207,8 @@ $string['error:newcoursecategorycfieldmissing'] = 'You need to create a <a href=
 $string['error:coursecategoryvaluemissing'] = 'You need to choose a value here as it is needed as course category
  for the automatically created Moodle course.';
 // Subbookings.
-$string['bookingsubbookingsheader'] = "Sub bookings";
-$string['bookingsubbooking'] = "Sub booking";
+$string['bookingsubbookingsheader'] = "Subbookings";
+$string['bookingsubbooking'] = "Subbooking";
 $string['subbooking_name'] = "Name of the subbooking";
 $string['bookingsubbookingadd'] = 'Add a subbooking';
 $string['bookingsubbookingedit'] = 'Edit';

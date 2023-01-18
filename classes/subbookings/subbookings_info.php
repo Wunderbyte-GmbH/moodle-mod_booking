@@ -52,15 +52,17 @@ class subbookings_info {
 
         global $PAGE;
 
-        // Add header to Element.
-        $mform->addElement('header', 'bookingsubbookingsheader', get_string('bookingsubbookingsheader', 'mod_booking'));
+        if (get_config('booking', 'showsubbookings')) {
+            // Add header to Element.
+            $mform->addElement('header', 'bookingsubbookingsheader', get_string('bookingsubbookingsheader', 'mod_booking'));
 
-        if (!empty($formdata['optionid'])) {
-            // Add a list of existing subbookings, including an edit and a delete button.
-            self::add_list_of_existing_subbookings_for_this_option($mform, $formdata);
+            if (!empty($formdata['optionid'])) {
+                // Add a list of existing subbookings, including an edit and a delete button.
+                self::add_list_of_existing_subbookings_for_this_option($mform, $formdata);
 
-        } else {
-            $mform->addElement('static', 'onlyaddsubbookingsonsavedoption', get_string('onlyaddsubbookingsonsavedoption', 'mod_booking'));
+            } else {
+                $mform->addElement('static', 'onlyaddsubbookingsonsavedoption', get_string('onlyaddsubbookingsonsavedoption', 'mod_booking'));
+            }
         }
     }
 
