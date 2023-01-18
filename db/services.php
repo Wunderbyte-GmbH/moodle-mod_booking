@@ -26,81 +26,90 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = array(
-    'mod_booking_update_bookingnotes' => array('classname' => 'mod_booking\external',
-        'methodname' => 'update_bookingnotes', 'description' => 'Update the booking notes via AJAX',
-        'type' => 'write', 'ajax' => true, 'capabilities' => 'mod/booking:readresponses',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')),
-    'mod_booking_enrol_user' => array('classname' => 'mod_booking\external',
-        'methodname' => 'enrol_user', 'description' => 'Enrol user via AJAX', 'type' => 'write',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')),
-    'mod_booking_unenrol_user' => array('classname' => 'mod_booking\external',
-        'methodname' => 'unenrol_user', 'description' => 'Unenrol user via AJAX', 'type' => 'write',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')),
-    'mod_booking_bookings' => array(
-        'classname'   => 'mod_booking_external',
-        'methodname'  => 'bookings',
-        'classpath'   => 'mod/booking/externallib.php',
-        'description' => 'Return bookings for course id.',
-        'type'        => 'read',
+    'mod_booking_enrol_user' => array(
+        'classname' => 'mod_booking\external\enrol_user',
+        'description' => 'Enrol user via AJAX',
+        'type' => 'write',
+        'ajax' => true,
+        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+    ),
+    'mod_booking_unenrol_user' => array(
+        'classname' => 'mod_booking\external\unenrol_user',
+        'description' => 'Unenrol user via AJAX',
+        'type' => 'write',
+        'ajax' => true,
+        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+    ),
+    'mod_booking_update_bookingnotes' => array(
+        'classname' => 'mod_booking\external\update_bookingnotes',
+        'description' => 'Update the booking notes via AJAX',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'mod/booking:readresponses',
+        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile')
+    ),
+    'mod_booking_addbookingoption' => array( // Function will be added manually to service, only for admin use.
+        'classname' => 'mod_booking\external\addbookingoption',
+        'description' => 'Add Booking option',
+        'type' => 'write',
+        'capabilities' => '',
+        'ajax' => false
     ),
     'mod_booking_categories' => array(
-        'classname'   => 'mod_booking_external',
-        'methodname'  => 'categories',
-        'classpath'   => 'mod/booking/externallib.php',
+        'classname'   => 'mod_booking\external\categories',
         'description' => 'Return categories for course id.',
         'type'        => 'read',
+        'ajax' => true,
+        'capabilities' => '',
+    ),
+    'mod_booking_bookings' => array(
+        'classname'   => 'mod_booking\external\bookings',
+        'description' => 'Return bookings for course id.',
+        'type'        => 'read',
+        'ajax' => true,
+        'capabilities' => '',
     ),
     'mod_booking_instancetemplate' => array(
-        'classname' => 'mod_booking\external',
-        'methodname' => 'instancetemplate',
+        'classname' => 'mod_booking\external\instancetemplate',
         'description' => 'Read booking instance template.',
         'type' => 'read',
+        'capabilities' => '',
         'ajax' => true
     ),
     'mod_booking_optiontemplate' => array(
-        'classname' => 'mod_booking\external',
-        'methodname' => 'optiontemplate',
-        'description' => 'Read option template.',
+        'classname' => 'mod_booking\external\optiontemplate',
+        'description' => 'Read option templatee.',
         'type' => 'read',
+        'capabilities' => '',
         'ajax' => true
     ),
-    'mod_booking_addbookingoption' => array( // Function will be added manually to service, only for admin use.
-        'classname' => 'mod_booking\external',
-        'methodname' => 'addbookingoption',
-        'description' => 'Add Booking option',
-        'type' => 'write',
-        'ajax' => false
-    ),
     'mod_booking_get_booking_option_description' => array(
-        'classname' => 'mod_booking\external',
-        'methodname' => 'get_booking_option_description',
+        'classname' => 'mod_booking\external\get_booking_option_description',
         'description' => 'Get booking option decription for a special option and user',
         'type' => 'read',
+        'capabilities' => '',
         'ajax' => true
     ),
     'mod_booking_toggle_notify_user' => array(
         'classname' => 'mod_booking\external\toggle_notify_user',
-        'classpath' => '',
         'description' => 'Puts user on and off the notification list',
-        'type' => 'write',
+        'type' => 'read',
         'capabilities' => '',
-        'ajax' => 1
+        'ajax' => true
     ),
     'mod_booking_load_pre_booking_page' => array(
         'classname' => 'mod_booking\external\load_pre_booking_page',
-        'classpath' => '',
         'description' => 'Loads the injected pre booking page from the right bo_condition',
         'type' => 'read',
         'capabilities' => '',
-        'ajax' => 1
+        'ajax' => true
     ),
     'mod_booking_bookit' => array(
         'classname' => 'mod_booking\external\bookit',
-        'classpath' => '',
         'description' => 'Book option or suboption via ajax',
         'type' => 'write',
         'capabilities' => '',
-        'ajax' => 1
+        'ajax' => true
     ),
 );
 

@@ -30,54 +30,52 @@ use external_api;
 use external_function_parameters;
 use external_value;
 use external_single_structure;
-use mod_booking\bo_availability\bo_info;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/externallib.php');
 
 /**
- * External Service for load pre_booking page.
+ * External Service for getting instance template.
  *
  * @package   mod_booking
- * @copyright 2023 Wunderbyte GmbH {@link http://www.wunderbyte.at}
+ * @copyright 2022 Wunderbyte GmbH {@link http://www.wunderbyte.at}
  * @author    Georg Maißer
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class load_pre_booking_page extends external_api {
+class optiontemplate extends external_api {
 
     /**
-     * Describes the parameters for load_pre_booking_page.
+     * Describes the parameters for optiontemplate.
      *
      * @return external_function_parameters
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'optionid' => new external_value(PARAM_INT, 'option id', (bool) VALUE_REQUIRED),
-            'pagenumber' => new external_value(PARAM_INT, 'number of page we want to load', (bool) VALUE_REQUIRED),
+            'id' => new external_value(PARAM_INT, 'ID of option template.', (bool) VALUE_REQUIRED, 0),
             ]
         );
     }
 
     /**
-     * Webservice for load_pre_booking_page.
+     * Webservice for getting instance of option template.
      *
-     * @param int $optionid
-     * @param int $pagenumber
+     * @param int $id
      *
      * @return array
      */
-    public static function execute(int $optionid, int $pagenumber): array {
-        global $USER;
+    public static function execute(int $id): array {
+        global $DB;
 
-        $params = self::validate_parameters(
-                self::execute_parameters(),
-                array('optionid' => $optionid,
-                'pagenumber' => $pagenumber));
+        $params = self::validate_parameters(self::execute_parameters(), ['id' => $id]);
 
-        $result = bo_info::load_pre_booking_page($params['optionid'], $params['pagenumber'], (int)$USER->id);
+        $template = $DB->get_record("booking_options", ['id' => $id], '*', IGNORE_MISSING);
 
-        return $result;
+        return [
+            'id' => $id,
+            'name' => $template->text,
+            'template' => json_encode($template)
+        ];
     }
 
     /**
@@ -86,21 +84,11 @@ class load_pre_booking_page extends external_api {
      * @return external_single_structure
      */
     public static function execute_returns(): external_single_structure {
-        return new external_function_parameters(
-                [
-                    'json' => new external_value(
-                        PARAM_RAW,
-                        'The data object in jsonformat to render the content.',
-                        VALUE_REQUIRED),
-                    'template' => new external_value(
-                        PARAM_RAW,
-                        'The name of the template which is needed to render the content.',
-                        VALUE_REQUIRED),
-                    'buttontype' => new external_value(
-                        PARAM_INT,
-                        '0 for no button, 1 for continue, 2 for last button.',
-                        VALUE_REQUIRED),
-                ]
+        return new external_single_structure([
+            'id' => new external_value(PARAM_INT, 'Template id.'),
+            'name' => new external_value(PARAM_TEXT, 'Template name.'),
+            'template' => new external_value(PARAM_RAW, 'JSON serialized template data.'),
+            ]
         );
     }
 }

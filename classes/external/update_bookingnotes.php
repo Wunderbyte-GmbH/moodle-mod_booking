@@ -28,56 +28,68 @@ namespace mod_booking\external;
 
 use external_api;
 use external_function_parameters;
-use external_value;
 use external_single_structure;
-use mod_booking\bo_availability\bo_info;
+use external_value;
+use external_warnings;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/externallib.php');
 
 /**
- * External Service for load pre_booking page.
+ * External Service for getting instance template.
  *
  * @package   mod_booking
- * @copyright 2023 Wunderbyte GmbH {@link http://www.wunderbyte.at}
+ * @copyright 2022 Wunderbyte GmbH {@link http://www.wunderbyte.at}
  * @author    Georg Maißer
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class load_pre_booking_page extends external_api {
+class update_bookingnotes extends external_api {
 
     /**
-     * Describes the parameters for load_pre_booking_page.
+     * Describes the parameters for update_bookingnotes.
      *
      * @return external_function_parameters
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'optionid' => new external_value(PARAM_INT, 'option id', (bool) VALUE_REQUIRED),
-            'pagenumber' => new external_value(PARAM_INT, 'number of page we want to load', (bool) VALUE_REQUIRED),
+            'baid' => new external_value(PARAM_INT, 'ID of the booking answer', (bool) VALUE_REQUIRED, 0),
+            'note' => new external_value(PARAM_TEXT, 'Note added to the booking answer', (bool) VALUE_DEFAULT, ''),
             ]
         );
     }
 
     /**
-     * Webservice for load_pre_booking_page.
+     * Webservice for update the notes in booking_answers table.
      *
-     * @param int $optionid
-     * @param int $pagenumber
+     * @param int $baid
+     * @param string $note
      *
      * @return array
      */
-    public static function execute(int $optionid, int $pagenumber): array {
-        global $USER;
+    public static function execute(int $baid, string $note): array {
+        global $DB;
 
-        $params = self::validate_parameters(
-                self::execute_parameters(),
-                array('optionid' => $optionid,
-                'pagenumber' => $pagenumber));
+        $params = self::validate_parameters(self::execute_parameters(), ['baid' => $baid, 'note' => $note]);
 
-        $result = bo_info::load_pre_booking_page($params['optionid'], $params['pagenumber'], (int)$USER->id);
+        $dataobject = new stdClass();
+        $dataobject->id = $baid;
+        $dataobject->notes = $note;
+        $warnings = [];
+        // Check if entry exists in DB.
+        if (!$DB->record_exists('booking_answers', ['id' => $dataobject->id])) {
+            $warnings[] = 'Invalid booking';
+        }
 
-        return $result;
+        $success = $DB->update_record('booking_answers', $dataobject);
+
+        return [
+            'note' => $note,
+            'baid' => $baid,
+            'warnings' => $warnings,
+            'status' => $success
+        ];
     }
 
     /**
@@ -86,21 +98,12 @@ class load_pre_booking_page extends external_api {
      * @return external_single_structure
      */
     public static function execute_returns(): external_single_structure {
-        return new external_function_parameters(
-                [
-                    'json' => new external_value(
-                        PARAM_RAW,
-                        'The data object in jsonformat to render the content.',
-                        VALUE_REQUIRED),
-                    'template' => new external_value(
-                        PARAM_RAW,
-                        'The name of the template which is needed to render the content.',
-                        VALUE_REQUIRED),
-                    'buttontype' => new external_value(
-                        PARAM_INT,
-                        '0 for no button, 1 for continue, 2 for last button.',
-                        VALUE_REQUIRED),
-                ]
+        return new external_single_structure([
+            'status' => new external_value(PARAM_BOOL, 'Status: true if success'),
+            'warnings' => new external_warnings(),
+            'note' => new external_value(PARAM_TEXT, 'The updated note'),
+            'baid' => new external_value(PARAM_INT, 'ID of the booking answer'),
+            ]
         );
     }
 }
